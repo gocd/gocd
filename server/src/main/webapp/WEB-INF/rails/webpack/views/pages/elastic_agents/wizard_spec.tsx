@@ -27,7 +27,10 @@ import {
 import {PlainTextValue} from "models/shared/config_value";
 import {Configuration, Configurations} from "models/shared/configuration";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
-import {pluginInfoWithElasticAgentExtensionV5} from "models/shared/plugin_infos_new/spec/test_data";
+import {
+  pluginInfoWithElasticAgentExtensionV4,
+  pluginInfoWithElasticAgentExtensionV5
+} from "models/shared/plugin_infos_new/spec/test_data";
 import {Wizard} from "views/components/wizard";
 import {ElasticAgentsPage} from "views/pages/elastic_agents";
 import styles from "views/pages/elastic_agents/index.scss";
@@ -198,6 +201,21 @@ describe("ElasticAgentWizard", () => {
         done();
       });
     });
+
+    it("should not allow v4 and older plugins to create cluster profile", () => {
+      pluginInfos = Stream(new PluginInfos(PluginInfo.fromJSON(pluginInfoWithElasticAgentExtensionV4)));
+      wizard      = openWizardForAdd(pluginInfos, clusterProfile, elasticProfile, onSuccessfulSave, onError);
+      m.redraw.sync();
+      m.redraw.sync(); //second redraw needed for save buttons to be disabled, since the computation happens in a lifecycle method
+      expect(wizard).toContainElementWithDataTestId("form-field-input-cluster-profile-name");
+      expect(wizard).toContainElementWithDataTestId("form-field-input-plugin-id");
+      expect(wizard).not.toContainInBody("elastic agent plugin settings view");
+      expect(helper.byTestId("plugin-not-supported", modalContext()))
+        .toContainText(`Can not define Cluster profiles for '${pluginInfos()[0].about.name}' plugin as it does not support cluster profiles.`);
+      expect(helper.byTestId("save-cluster-profile", modalContext())).toBeDisabled();
+      expect(helper.byTestId("next", modalContext())).toBeDisabled();
+      expect(helper.byTestId("cancel", modalContext())).not.toBeDisabled();
+    });
   });
 
   describe("Edit Elastic Profile", () => {
@@ -289,6 +307,37 @@ describe("ElasticAgentWizard", () => {
         expect(helper.byTestId("form-field-input-cluster-profile-name", modalContext())).toBeDisabled();
         done();
       });
+    });
+  });
+
+  it("should not allow v4 and older plugins to edit cluster profile", (done) => {
+    pluginInfos = Stream(new PluginInfos(PluginInfo.fromJSON(pluginInfoWithElasticAgentExtensionV4)));
+    clusterProfile = Stream(new ClusterProfile("cluster-profile-id",
+                                               "plugin-id",
+                                               new Configurations([])));
+    elasticProfile = Stream(new ElasticAgentProfile("elastic-profile-id",
+                                                    "plugin-id",
+                                                    "cluster-profile-id",
+                                                    new Configurations([])));
+    const promiseForGetCall = successResponseForClusterProfile().catch(done.fail);
+    clusterProfile().get    = jasmine.createSpy("get elastic profile").and.returnValue(promiseForGetCall);
+    wizard                  = openWizardForEditClusterProfile(pluginInfos,
+                                                              clusterProfile,
+                                                              elasticProfile,
+                                                              onSuccessfulSave,
+                                                              onError);
+    m.redraw.sync();
+    promiseForGetCall.finally(() => {
+      m.redraw.sync();
+      m.redraw.sync(); //second redraw needed for save buttons to be disabled, since the computation happens in a lifecycle method
+      expect(wizard).toContainElementWithDataTestId("form-field-input-cluster-profile-name");
+      expect(wizard).toContainElementWithDataTestId("form-field-input-plugin-id");
+      expect(wizard).not.toContainInBody("elastic agent plugin settings view");
+      expect(helper.byTestId("plugin-not-supported", modalContext()))
+        .toContainText(`Can not define Cluster profiles for '${pluginInfos()[0].about.name}' plugin as it does not support cluster profiles.`);
+      expect(helper.byTestId("save-cluster-profile", modalContext())).toBeDisabled();
+      expect(helper.byTestId("cancel", modalContext())).not.toBeDisabled();
+      done();
     });
   });
 

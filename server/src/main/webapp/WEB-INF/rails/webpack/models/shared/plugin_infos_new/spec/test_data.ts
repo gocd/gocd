@@ -144,6 +144,68 @@ export const pluginInfoWithElasticAgentExtensionV5: PluginInfoJSON = {
   ]
 };
 
+const elasticAgentExtensionJSON: ElasticAgentExtensionJSON = {
+  type: "elastic-agent",
+  plugin_settings: {
+    configurations: [
+      {
+        key: "instance_type",
+        metadata: {
+          secure: false,
+          required: true
+        }
+      }
+    ],
+    view: {
+      template: "elastic agent plugin settings view"
+    }
+  },
+  elastic_agent_profile_settings: {
+    configurations: [
+      {
+        key: "Image",
+        metadata: {
+          secure: false,
+          required: true
+        }
+      },
+      {
+        key: "Command",
+        metadata: {
+          secure: false,
+          required: false
+        }
+      },
+      {
+        key: "Environment",
+        metadata: {
+          secure: false,
+          required: false
+        }
+      }
+    ],
+    view
+  },
+  capabilities: {
+    supports_plugin_status_report: true,
+    supports_cluster_status_report: true,
+    supports_agent_status_report: true
+  },
+  supports_cluster_profiles: false
+};
+
+export const pluginInfoWithElasticAgentExtensionV4: PluginInfoJSON = {
+  _links: pluginImageLink(),
+  id: "cd.go.contrib.elastic-agent.docker",
+  status: activeStatus,
+  plugin_file_location: "/foo/bar.jar",
+  bundled_plugin: false,
+  about,
+  extensions: [
+    elasticAgentExtensionJSON
+  ]
+};
+
 export class ArtifactPluginInfo {
   static docker() {
     return {

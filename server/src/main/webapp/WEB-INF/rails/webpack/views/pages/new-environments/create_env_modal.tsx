@@ -18,7 +18,6 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {EnvironmentVariablesWithOrigin} from "models/environment_variables/types";
 import {Pipelines} from "models/internal_pipeline_structure/pipeline_structure";
-import {Permissions} from "models/new-environments/environments";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import {Origin, OriginType} from "models/origin";
@@ -40,7 +39,7 @@ export class CreateEnvModal extends Modal {
     this.onSuccessfulSave = onSuccessfulSave;
     this.environments     = environments;
     this.environment      = new EnvironmentWithOrigin("",
-                                                      new Permissions(true, true),
+                                                      true,
                                                       [new Origin(OriginType.GoCD)],
                                                       [],
                                                       new Pipelines(),

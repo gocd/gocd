@@ -80,7 +80,7 @@ export class EnvironmentWidget extends MithrilViewComponent<EnvAttrs> {
       </div>;
     }
     let deleteTitle;
-    if (!environment.permissions().canAdminister()) {
+    if (!environment.canAdminister()) {
       deleteTitle = `You are not authorized to delete the '${environment.name()}' environment.`;
     } else if (!environment.isLocal()) {
       deleteTitle = `Cannot delete '${environment.name()}' environment as it is partially defined in config repository.`;
@@ -90,7 +90,7 @@ export class EnvironmentWidget extends MithrilViewComponent<EnvAttrs> {
       <IconGroup>
         <Delete
           title={deleteTitle}
-          disabled={!environment.permissions().canAdminister() || !environment.isLocal()}
+          disabled={!environment.canAdminister() || !environment.isLocal()}
           onclick={vnode.attrs.onDelete.bind(vnode.attrs, environment)}/>
       </IconGroup>
     ];
@@ -129,7 +129,6 @@ export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
       Either no environments have been set up or you are not authorized to view the environments. {docLink}
     </span>;
 
-    return <FlashMessage type={MessageType.info} message={noEnvironmentPresentMsg}
-                         dataTestId="no-environment-present-msg"/>;
+    return <FlashMessage type={MessageType.info} message={noEnvironmentPresentMsg} dataTestId="no-environment-present-msg"/>;
   }
 }

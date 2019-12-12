@@ -100,11 +100,8 @@ export default {
   agent_association_in_config_repo_json: agentAssociationInConfigRepoJson,
   environment_json: (): EnvironmentJSON => ({
     name: `environment-name-${randomString()}`,
+    can_administer: true,
     origins: [originData.file_origin(), originData.config_repo_origin()],
-    permissions: {
-      can_edit: true,
-      can_administer: true
-    },
     pipelines: [pipelineAssociationInXmlJson(), pipelineAssociationInConfigRepoJson()],
     agents: [agentAssociationInXmlJson(), agentAssociationInConfigRepoJson()],
     environment_variables: [
@@ -116,21 +113,15 @@ export default {
   }),
   xml_environment_json: (): EnvironmentJSON => ({
     name: `xml-environment-name-${randomString()}`,
+    can_administer: true,
     origins: [originData.file_origin()],
-    permissions: {
-      can_edit: true,
-      can_administer: true
-    },
     pipelines: [pipelineAssociationInXmlJson()],
     agents: [agentAssociationInXmlJson()],
     environment_variables: [environmentVariableAssociationInXmlJson(), environmentVariableAssociationInXmlJson(true)]
   }),
   environment_without_pipeline_and_agent_json: (): EnvironmentJSON => ({
     name: `empty-environment-name-${randomString()}`,
-    permissions: {
-      can_edit: true,
-      can_administer: true
-    },
+    can_administer: true,
     origins: [],
     pipelines: [],
     agents: [],
@@ -138,11 +129,8 @@ export default {
   }),
   config_repo_environment_json: (): EnvironmentJSON => ({
     name: `config-repo-environment-name-${randomString()}`,
+    can_administer: true,
     origins: [originData.file_origin(), originData.config_repo_origin()],
-    permissions: {
-      can_edit: true,
-      can_administer: true
-    },
     pipelines: [pipelineAssociationInConfigRepoJson()],
     agents: [agentAssociationInConfigRepoJson()],
     environment_variables: [

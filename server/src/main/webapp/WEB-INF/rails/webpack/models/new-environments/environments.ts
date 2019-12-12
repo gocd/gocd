@@ -24,14 +24,9 @@ import {Agents, AgentWithOrigin, EnvironmentAgentJSON} from "models/new-environm
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import {Origin, OriginJSON, OriginType} from "models/origin";
 
-export interface PermissionsJSON {
-  can_edit: boolean;
-  can_administer: boolean;
-}
-
 export interface EnvironmentJSON {
   name: string;
-  permissions: PermissionsJSON;
+  can_administer: boolean;
   origins: OriginJSON[];
   pipelines: PipelineJSON[];
   agents: EnvironmentAgentJSON[];
@@ -64,30 +59,16 @@ class EnvironmentVariableNameUniquenessValidator extends Validator {
   }
 }
 
-export class Permissions {
-  readonly canEdit: Stream<boolean>;
-  readonly canAdminister: Stream<boolean>;
-
-  constructor(canEdit: boolean, canAdminister: boolean) {
-    this.canEdit       = Stream(canEdit);
-    this.canAdminister = Stream(canAdminister);
-  }
-
-  static fromJSON(json: PermissionsJSON) {
-    return new Permissions(json.can_edit, json.can_administer);
-  }
-}
-
 export class EnvironmentWithOrigin extends ValidatableMixin {
   readonly name: Stream<string>;
-  readonly permissions: Stream<Permissions>;
+  readonly canAdminister: Stream<boolean>;
   readonly origins: Stream<Origin[]>;
   readonly agents: Stream<Agents>;
   readonly pipelines: Stream<Pipelines>;
   readonly environmentVariables: Stream<EnvironmentVariablesWithOrigin>;
 
   constructor(name: string,
-              permissions: Permissions,
+              canAdminister: boolean,
               origins: Origin[],
               agents: Agents,
               pipelines: Pipelines,
@@ -95,7 +76,7 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
     super();
     ValidatableMixin.call(this);
     this.name                 = Stream(name);
-    this.permissions          = Stream(permissions);
+    this.canAdminister        = Stream(canAdminister);
     this.origins              = Stream(origins);
     this.agents               = Stream(agents);
     this.pipelines            = Stream(pipelines);
@@ -113,7 +94,7 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
       origins.push(new Origin(OriginType.GoCD));
     }
     return new EnvironmentWithOrigin(data.name,
-                                     Permissions.fromJSON(data.permissions),
+                                     data.can_administer,
                                      origins,
                                      Agents.fromJSON(data.agents),
                                      Pipelines.fromJSON(data.pipelines),
@@ -161,7 +142,7 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
 
   clone(): EnvironmentWithOrigin {
     return new EnvironmentWithOrigin(this.name(),
-                                     new Permissions(true, true),
+                                     true,
                                      this.origins().map((origin) => origin.clone()),
                                      this.agents().map((agent) => agent.clone()),
                                      this.pipelines().clone(),

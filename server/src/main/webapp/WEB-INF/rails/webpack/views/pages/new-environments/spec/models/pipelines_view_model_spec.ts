@@ -16,7 +16,7 @@
 
 import {EnvironmentVariables} from "models/environment_variables/types";
 import {PipelineGroups, Pipelines, PipelineStructureJSON} from "models/internal_pipeline_structure/pipeline_structure";
-import {Environments, EnvironmentWithOrigin, Permissions} from "models/new-environments/environments";
+import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import test_data from "models/new-environments/spec/test_data";
 import {PipelinesViewModel} from "views/pages/new-environments/models/pipelines_view_model";
 
@@ -121,7 +121,7 @@ describe("Pipelines View Model", () => {
   it("should filter pipelines defined in other environment", () => {
     const pipeline = pipelinesViewModel.pipelineGroups()![0].pipelines()[0];
     environments.push(new EnvironmentWithOrigin("another",
-                                                new Permissions(true, true),
+                                                true,
                                                 [],
                                                 [],
                                                 new Pipelines(pipeline),
@@ -133,7 +133,7 @@ describe("Pipelines View Model", () => {
     expect(pipelines[0].name()).toBe(pipeline.name());
   });
 
-  it("should give all pipelines", () => {
+  it('should give all pipelines', () => {
     const pipelines = pipelinesViewModel.allPipelines();
     expect(pipelines.length).toBe(6);
     expect(pipelines[0].name()).toBe(pipelineGroupsJSON.groups[0].pipelines[0].name);

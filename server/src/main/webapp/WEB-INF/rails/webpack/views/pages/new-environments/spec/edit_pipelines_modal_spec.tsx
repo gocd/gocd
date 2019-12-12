@@ -22,7 +22,7 @@ import {
   PipelineStructureJSON,
   PipelineWithOrigin
 } from "models/internal_pipeline_structure/pipeline_structure";
-import {Permissions, Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
+import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import data from "models/new-environments/spec/test_data";
 import {ModalState} from "views/components/modal";
 import {EditPipelinesModal} from "views/pages/new-environments/edit_pipelines_modal";
@@ -44,14 +44,14 @@ describe("Edit Pipelines Modal", () => {
 
     const anotherEnvPipelines = new Pipelines(pipelineWithOrigin);
 
-    const anotherEnv = new EnvironmentWithOrigin("another", new Permissions(true, true), [], [], anotherEnvPipelines, new EnvironmentVariables());
+    const anotherEnv = new EnvironmentWithOrigin("another", true, [], [], anotherEnvPipelines, new EnvironmentVariables());
 
     const pipelines = new Pipelines(
       PipelineWithOrigin.fromJSON(pipelineGroupsJSON.groups[0].pipelines[0]),
       PipelineWithOrigin.fromJSON(pipelineGroupsJSON.groups[1].pipelines[1])
     );
 
-    const environment  = new EnvironmentWithOrigin("UAT", new Permissions(true, true), [], [], pipelines, new EnvironmentVariables());
+    const environment  = new EnvironmentWithOrigin("UAT", true, [], [], pipelines, new EnvironmentVariables());
     const environments = new Environments(environment, anotherEnv);
 
     modal = new EditPipelinesModal(environment, environments, jasmine.createSpy("onSuccessfulSave"));

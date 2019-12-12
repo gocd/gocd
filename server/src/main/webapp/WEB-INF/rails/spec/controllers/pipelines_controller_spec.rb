@@ -94,32 +94,4 @@ describe PipelinesController do
       @controller.rescue_action(exception)
     end
   end
-
-  describe 'update_comment' do
-    context 'when the update is successful' do
-      it 'updates the comment using the pipeline history service' do
-        expect(@pipeline_history_service).to receive(:updateComment).with('pipeline_name', 1, 'test comment', current_user)
-
-        post :update_comment, params:{pipeline_name: 'pipeline_name', pipeline_counter: 1, comment: 'test comment', format: :json}
-      end
-
-      it 'renders success json' do
-        allow(@pipeline_history_service).to receive(:updateComment).with('pipeline_name', 1, 'test comment', current_user)
-
-        post :update_comment, params:{pipeline_name: 'pipeline_name', pipeline_counter: 1, comment: 'test comment', format: :json}
-
-        expect(JSON.load(response.body)).to eq({"status" => 'success'})
-      end
-    end
-
-    it 'should render http exceptions as message' do
-      allow(@pipeline_history_service).to receive(:updateComment).with('pipeline_name', 1, 'test comment', current_user) do |_, _, _, _, result|
-        raise com.thoughtworks.go.config.exceptions.RecordNotFoundException.new("Boom!!")
-      end
-
-      post :update_comment, params:{pipeline_name: 'pipeline_name', pipeline_counter: 1, comment: 'test comment', format: :json}
-      assert_response(404)
-      expect(JSON.load(response.body)).to eq({"message" => 'Boom!!'})
-    end
-  end
 end

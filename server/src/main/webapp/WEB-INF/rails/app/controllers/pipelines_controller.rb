@@ -30,14 +30,4 @@ class PipelinesController < ApplicationController
       render_operation_result_if_failure(result)
     end
   end
-
-  def update_comment
-    begin
-      pipeline_history_service.updateComment(params[:pipeline_name], params[:pipeline_counter].to_i, params[:comment], current_user)
-      render json: {status: 'success'}
-    rescue com.thoughtworks.go.config.exceptions.HttpException => e
-      render_message(e.message, e.status.value)
-    end
-  end
-
 end

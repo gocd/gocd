@@ -47,71 +47,7 @@ describe Api::PipelinesController do
     allow(@status).to receive(:canContinue).and_return(true)
     allow(@status).to receive(:httpCode).and_return(200)
   end
-
-  describe "history" do
-
-    it "should render history json" do
-      loser = Username.new(CaseInsensitiveString.new("loser"))
-      expect(controller).to receive(:current_user).and_return(loser)
-      expect(@pipeline_history_service).to receive(:totalCount).and_return(10)
-      expect(@pipeline_history_service).to receive(:loadMinimalData).with('up42', anything, loser, anything).and_return(create_pipeline_history_model)
-
-      get :history, params:{:pipeline_name => 'up42', :offset => '5', :no_layout => true}
-
-      expect(response.body).to eq(PipelineHistoryAPIModel.new(Pagination.pageStartingAt(5, 10, 10), create_pipeline_history_model).to_json)
-    end
-
-    it "should render error correctly" do
-      expect(@status).to receive(:canContinue).and_return(false)
-      expect(@status).to receive(:detailedMessage).and_return("Not Acceptable")
-      expect(@status).to receive(:httpCode).and_return(406)
-
-      loser = Username.new(CaseInsensitiveString.new("loser"))
-      expect(controller).to receive(:current_user).and_return(loser)
-      expect(@pipeline_history_service).to receive(:totalCount).and_return(10)
-      expect(@pipeline_history_service).to receive(:loadMinimalData).with('up42', anything, loser, @status)
-
-      get :history, params:{:pipeline_name => 'up42', :no_layout => true}
-
-      expect(response.status).to eq(406)
-      expect(response.body).to eq("Not Acceptable\n")
-    end
-
-    describe "route" do
-      it "should route to history" do
-        expect(:get => '/api/pipelines/up42/history').to route_to(:controller => "api/pipelines", :action => "history", :pipeline_name => 'up42', :offset => '0', :no_layout => true)
-        expect(:get => '/api/pipelines/up42/history/1').to route_to(:controller => "api/pipelines", :action => "history", :pipeline_name => 'up42', :offset => '1', :no_layout => true)
-      end
-
-      describe "with_pipeline_name_contraint" do
-        it 'should route to history action of pipelines controller having dots in pipeline name' do
-          expect(:get => 'api/pipelines/some.thing/history').to route_to(no_layout: true, controller: 'api/pipelines', action: 'history', pipeline_name: 'some.thing', :offset => '0')
-        end
-
-        it 'should route to history action of pipelines controller having hyphen in pipeline name' do
-          expect(:get => 'api/pipelines/some-thing/history').to route_to(no_layout: true, controller: 'api/pipelines', action: 'history', pipeline_name: 'some-thing', :offset => '0')
-        end
-
-        it 'should route to history action of pipelines controller having underscore in pipeline name' do
-          expect(:get => 'api/pipelines/some_thing/history').to route_to(no_layout: true, controller: 'api/pipelines', action: 'history', pipeline_name: 'some_thing', :offset => '0')
-        end
-
-        it 'should route to history action of pipelines controller having alphanumeric pipeline name' do
-          expect(:get => 'api/pipelines/123foo/history').to route_to(no_layout: true, controller: 'api/pipelines', action: 'history', pipeline_name: '123foo', :offset => '0')
-        end
-
-        it 'should route to history action of pipelines controller having capitalized pipeline name' do
-          expect(:get => 'api/pipelines/FOO/history').to route_to(no_layout: true, controller: 'api/pipelines', action: 'history', pipeline_name: 'FOO', :offset => '0')
-        end
-
-        it 'should not route to history action of pipelines controller for invalid pipeline name' do
-          expect(:get => 'api/pipelines/fo$%#@6/history').to_not be_routable
-        end
-      end
-
-    end
-  end
-
+  
   describe "instance_by_counter" do
 
     it "should render instance json" do

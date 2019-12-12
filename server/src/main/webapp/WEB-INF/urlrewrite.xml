@@ -116,6 +116,12 @@
   </rule>
 
   <rule>
+    <name>Spark pipeline pause/unpause/unlock/trigger_view API/schedule API</name>
+    <from>^/api/pipelines/([^/]+)/(pause|unpause|unlock|trigger_options|schedule)</from>
+    <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}</to>
+  </rule>
+
+  <rule>
       <name>Spark Job Instance API</name>
       <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
       <from>^/api/jobs/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)(/?)</from>
@@ -139,7 +145,7 @@
     <name>Pipeline Instance API V1 and latest</name>
     <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
     <from>^/api/pipelines/([^/]+)/([^/]+)(/?)$</from>
-    <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}</to>
+    <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}/instance</to>
   </rule>
 
   <rule>
@@ -717,12 +723,6 @@
     <name>Spark Config Repos API</name>
     <from>^/api/admin/config_repos(?:(/)([^/]+))?(?:/?)</from>
     <to last="true">/spark/api/admin/config_repos$1${escape:$2}</to>
-  </rule>
-
-  <rule>
-    <name>Spark pipeline pause/unpause/unlock/trigger_view API/schedule API</name>
-    <from>^/api/pipelines/([^/]+)/(pause|unpause|unlock|trigger_options|schedule)</from>
-    <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}</to>
   </rule>
 
   <rule>

@@ -191,14 +191,12 @@ class ElasticProfileWidget extends MithrilViewComponent<Attrs> {
             </div>
           </div>
         </div>
-        <div>
-          <ConceptDiagram image={elasticAgentProfileImg} css={conceptDiagramStyles}>
+        <ConceptDiagram image={elasticAgentProfileImg} css={conceptDiagramStyles}>
             <h2>What is an Elastic Agent Profile?</h2>
             <p>An Elastic Agent Profile usually contains the configuration for your agent.<br/>
               Depending on the plugin used, this may contain the machine image (ami, docker image), size of the
               CPU/memory/disk, network settings among other things.</p>
           </ConceptDiagram>
-        </div>
       </div>
     );
   }

@@ -394,29 +394,14 @@ $stage-action-icon-z-index: 1;
   }
 }
 
-.comment-wrapper {
-  position:       absolute;
-  background:     $dropdown-background-color;
-  color:          $white;
-  width:          50%;
-  padding:        10px 16px;
-  border-radius:  3px;
-  display:        flex;
-  z-index:        $build-details-z-index;
-  flex-direction: column;
-
-  .comment {
-    border:        1px dashed $border-color;
-    padding:       5px 10px;
-    border-radius: 3px;
-    word-break:    break-word;
-    max-height:    100px;
-    overflow-y:    auto;
-    margin:        10px 0;
-  }
-
-  .comment-actions {
-    display:         flex;
-    justify-content: flex-end;
-  }
+.pipeline-run-comment {
+  display:       flex;
+  padding:       5px 10px;
+  word-break:    break-word;
+  overflow-y:    auto;
+  margin:        10px 0;
+  min-height:    100px;
+  max-height:    400px;
+  border:        1px dashed $border-color;
+  border-radius: 3px;
 }

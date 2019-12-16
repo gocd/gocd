@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Default, Dropdown, DropdownAttrs, Secondary} from "views/components/buttons";
+import {Default, DropdownAttrs, Primary, Secondary} from "views/components/buttons";
 import {Size, TextAreaField} from "views/components/forms/input_fields";
-import * as Icons from "views/components/icons";
+import {Modal} from "views/components/modal";
 import styles from "./index.scss";
 
 interface Attrs extends DropdownAttrs {
@@ -36,28 +37,84 @@ enum Mode {
   EDIT, VIEW
 }
 
-export class CommentWidget extends Dropdown<Attrs> {
-  private mode: Mode    = Mode.VIEW;
-  private commentHolder = Stream<string>();
+class CommentModal extends Modal {
+  private readonly originalComment: Stream<string>;
+  private readonly comment: Stream<string>;
+  private readonly canOperatePipeline: boolean;
+  private readonly counterOrLabel: number | string;
+  private readonly addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void;
+  private mode: Mode;
 
-  oninit(vnode: m.Vnode<Attrs>) {
-    super.oninit(vnode);
-    this.commentHolder(vnode.attrs.comment());
+  constructor(comment: string,
+              canOperatePipeline: boolean,
+              counterOrLabel: number | string,
+              addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void,
+              mode = Mode.VIEW) {
+    super();
+    this.originalComment    = Stream(comment);
+    this.comment            = Stream(this.originalComment());
+    this.canOperatePipeline = canOperatePipeline;
+    this.counterOrLabel     = counterOrLabel;
+    this.mode               = mode;
+    this.addOrUpdateComment = addOrUpdateComment;
   }
 
-  toggleDropdown(vnode: m.Vnode<Attrs>, e: MouseEvent) {
-    super.toggleDropdown(vnode, e);
+  body(): m.Children {
+    if (this.showEditView()) {
+      return <TextAreaField
+        focus={true}
+        label="Enter comment"
+        required={false}
+        rows={5}
+        size={Size.MATCH_PARENT}
+        dataTestId="textarea-to-add-or-edit-comment"
+        property={this.comment}/>;
+    }
+
+    return <span class={styles.pipelineRunComment} data-test-id={"comment-read-only-view"}>{this.originalComment()}</span>;
+  }
+
+  title(): string {
+    const action = _.isEmpty(this.originalComment()) ? "Add" : this.mode === Mode.EDIT ? "Edit" : "View";
+    return `${action} comment`;
+  }
+
+  buttons(): m.ChildArray {
+    return [
+      this.getActionButton(),
+      <Default onclick={this.close.bind(this)} dataTestId="close-comment-dropdown-button">Close</Default>
+    ];
+  }
+
+  private showEditView() {
+    return this.mode === Mode.EDIT || _.isEmpty(this.originalComment());
+  }
+
+  private getActionButton() {
+    if (this.showEditView()) {
+      return <Primary dataTestId="save-comment-button" onclick={this.updateComment.bind(this)}>Save</Primary>;
+    }
+
+    return <Secondary dataTestId="edit-comment-button"
+                      disabled={!this.canOperatePipeline}
+                      title={this.canOperatePipeline ? "Edit comment." : "Requires pipeline operate permission."}
+                      onclick={() => this.mode = Mode.EDIT}>Edit</Secondary>;
+  }
+
+  private updateComment() {
+    if (this.originalComment() !== this.comment()) {
+      this.addOrUpdateComment(this.comment(), this.counterOrLabel);
+    }
+    this.originalComment(this.comment());
     this.mode = Mode.VIEW;
-    if (vnode.attrs.show()) {
-      vnode.attrs.stopPolling();
-      vnode.attrs.showCommentFor(`${vnode.attrs.counterOrLabel}`);
-    } else {
-      vnode.attrs.startPolling();
-      vnode.attrs.showCommentFor("");
+    if (_.isEmpty(this.originalComment())) {
+      this.close();
     }
   }
+}
 
-  protected doRenderButton(vnode: m.Vnode<Attrs>): m.Children {
+export class CommentWidget extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>): m.Children {
     if (vnode.attrs.counterOrLabel === "0" || vnode.attrs.counterOrLabel === 0) {
       return;
     }
@@ -72,76 +129,18 @@ export class CommentWidget extends Dropdown<Attrs> {
               class={styles.buildCauseButton}
               title={noComment ? "Add comment on this pipeline run." : "View comment on this pipeline run."}
               data-test-id={`${buttonText.toLowerCase()}-comment-button`}
-              onclick={this.toggleDropdown.bind(this, vnode)}>
+              onclick={CommentWidget.showModal.bind(this, vnode)}>
       {buttonText} Comment
     </a>;
   }
 
-  protected doRenderDropdownContent(vnode: m.Vnode<Attrs>) {
-    if (!vnode.attrs.show()) {
-      return;
-    }
-    return <div class={styles.commentWrapper} data-test-id="comment-dropdown">
-      {this.getCommentView(vnode)}
-      <div class={styles.commentActions} data-test-id="comment-actions">
-        <Default onclick={this.toggleDropdown.bind(this, vnode)} dataTestId="close-comment-dropdown-button">
-          <Icons.Close iconOnly={true}/> Close
-        </Default>
-        {this.getActionButton(vnode)}
-      </div>
-    </div>;
-  }
-
-  private getActionButton(vnode: m.Vnode<Attrs>) {
-    if (this.showEditView(vnode)) {
-      return <Secondary dataTestId="save-comment-button"
-                        onclick={this.updateComment.bind(this, vnode)}>
-        <Icons.Check iconOnly={true}/> Save
-      </Secondary>;
-    }
-
-    return <Secondary dataTestId="edit-comment-button"
-                      disabled={!vnode.attrs.canOperatePipeline}
-                      title={vnode.attrs.canOperatePipeline ? "Edit comment." : "Requires pipeline operate permission."}
-                      onclick={this.switchToEditMode.bind(this, vnode)}>
-      <Icons.Edit iconOnly={true}/> EDIT
-    </Secondary>;
-  }
-
-  private switchToEditMode(vnode: m.Vnode<Attrs>) {
-    this.commentHolder(vnode.attrs.comment());
-    this.mode = Mode.EDIT;
-  }
-
-  private updateComment(vnode: m.Vnode<Attrs>) {
-    if (vnode.attrs.comment() !== this.commentHolder()) {
-      vnode.attrs.comment(this.commentHolder());
-      vnode.attrs.addOrUpdateComment(this.commentHolder(), vnode.attrs.counterOrLabel);
-    }
-
-    this.mode = Mode.VIEW;
-    if (_.isEmpty(this.commentHolder())) {
-      vnode.attrs.show(false);
-      vnode.attrs.showCommentFor("");
-      vnode.attrs.startPolling();
-    }
-  }
-
-  private getCommentView(vnode: m.Vnode<Attrs>) {
-    if (this.showEditView(vnode)) {
-      return <TextAreaField
-        label="Enter comment"
-        required={false}
-        rows={5}
-        size={Size.MATCH_PARENT}
-        dataTestId="textarea-to-add-or-edit-comment"
-        property={this.commentHolder}/>;
-    }
-
-    return <span class={styles.comment} data-test-id={"comment-read-only-view"}>{vnode.attrs.comment()}</span>;
-  }
-
-  private showEditView(vnode: m.Vnode<Attrs>) {
-    return this.mode === Mode.EDIT || _.isEmpty(vnode.attrs.comment());
+  private static showModal(vnode: m.Vnode<Attrs>) {
+    vnode.attrs.stopPolling();
+    new CommentModal(vnode.attrs.comment(),
+      vnode.attrs.canOperatePipeline,
+      vnode.attrs.counterOrLabel,
+      vnode.attrs.addOrUpdateComment,
+      vnode.attrs.startPollin)
+      .render();
   }
 }

@@ -16,6 +16,7 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
+import {ModalManager} from "views/components/modal/modal_manager";
 import {TestHelper} from "../../spec/test_helper";
 import {CommentWidget} from "../comment_widget";
 
@@ -35,7 +36,10 @@ describe("CommentWidget", () => {
     startPolling       = jasmine.createSpy("startPolling");
   });
 
-  afterEach(helper.unmount.bind(helper));
+  afterEach(() => {
+    ModalManager.closeAll();
+    helper.unmount();
+  });
 
   describe("Zero pipeline runs", () => {
     it("should not render add comment button(0 is number)", () => {
@@ -81,55 +85,59 @@ describe("CommentWidget", () => {
       expect(helper.byTestId("add-comment-button")).toBeInDOM();
     });
 
-    it("should render dropdown in edit mode", () => {
+    it("should render modal in edit mode", () => {
       mount(comment, 1);
 
       helper.clickByTestId("add-comment-button");
 
-      expect(helper.byTestId("comment-dropdown")).toBeInDOM();
-      expect(helper.byTestId("textarea-to-add-or-edit-comment")).toBeInDOM();
-      expect(helper.byTestId("textarea-to-add-or-edit-comment")).toHaveText("");
-      expect(helper.byTestId("save-comment-button")).toBeInDOM();
-      expect(helper.byTestId("close-comment-dropdown-button")).toBeInDOM();
+      const modal = helper.modal();
+      expect(helper.byTestId("modal-body", modal)).toBeInDOM();
+      expect(helper.byTestId("textarea-to-add-or-edit-comment", modal)).toBeInDOM();
+      expect(helper.byTestId("textarea-to-add-or-edit-comment", modal)).toHaveText("");
+      expect(helper.byTestId("save-comment-button", modal)).toBeInDOM();
+      expect(helper.byTestId("close-comment-dropdown-button", modal)).toBeInDOM();
 
-      expect(helper.byTestId("comment-read-only-view")).not.toBeInDOM();
-      expect(helper.byTestId("edit-comment-button")).not.toBeInDOM();
+      expect(helper.byTestId("comment-read-only-view", modal)).not.toBeInDOM();
+      expect(helper.byTestId("edit-comment-button", modal)).not.toBeInDOM();
     });
 
     it("should save the comment on click of save button", () => {
       mount(comment, 1);
       helper.clickByTestId("add-comment-button");
+      const modal = helper.modal();
 
       const newComment = "This is dummy comment";
-      helper.oninput(helper.byTestId("textarea-to-add-or-edit-comment"), newComment);
-      helper.clickByTestId("save-comment-button");
+      helper.oninput(helper.byTestId("textarea-to-add-or-edit-comment", modal), newComment);
+      helper.clickByTestId("save-comment-button", modal);
 
       expect(addOrUpdateComment).toHaveBeenCalledWith(newComment, 1);
     });
 
-    it("should switch to read only mode after saving comment when save button is clicked", () => {
+    it("should switch to read only mode once comment is updated", () => {
       mount(comment, 1);
       helper.clickByTestId("add-comment-button");
+      const modal = helper.modal();
 
       const newComment = "This is dummy comment";
-      helper.oninput(helper.byTestId("textarea-to-add-or-edit-comment"), newComment);
-      helper.clickByTestId("save-comment-button");
+      helper.oninput(helper.byTestId("textarea-to-add-or-edit-comment", modal), newComment);
+      helper.clickByTestId("save-comment-button", modal);
 
       expect(addOrUpdateComment).toHaveBeenCalledWith(newComment, 1);
-      expect(helper.byTestId("comment-dropdown")).toBeInDOM();
-      expect(helper.byTestId("comment-read-only-view")).toBeInDOM();
-      expect(helper.byTestId("comment-read-only-view")).toHaveText(newComment);
-      expect(helper.byTestId("textarea-to-add-or-edit-comment")).not.toBeInDOM();
+      expect(helper.byTestId("modal-body", modal)).toBeInDOM();
+      expect(helper.byTestId("comment-read-only-view", modal)).toBeInDOM();
+      expect(helper.byTestId("comment-read-only-view", modal)).toHaveText(newComment);
+      expect(helper.byTestId("textarea-to-add-or-edit-comment", modal)).not.toBeInDOM();
     });
 
-    it("should close the dropdown on click of close button", () => {
+    it("should close the modal on click of close button", () => {
       mount(comment, 1);
       helper.clickByTestId("add-comment-button");
-      expect(helper.byTestId("comment-dropdown")).toBeInDOM();
+      const modal = helper.modal();
+      expect(helper.byTestId("modal-body", modal)).toBeInDOM();
 
-      helper.clickByTestId("close-comment-dropdown-button");
+      helper.clickByTestId("close-comment-dropdown-button", modal);
 
-      expect(helper.byTestId("comment-dropdown")).not.toBeInDOM();
+      expect(helper.byTestId("modal-body", modal)).not.toBeInDOM();
     });
   });
 
@@ -148,59 +156,64 @@ describe("CommentWidget", () => {
     it("should disable edit button when user does not have operate permission on pipeline", () => {
       mount(comment, 1, false);
       helper.clickByTestId("view-comment-button");
+      const modal = helper.modal();
 
-      expect(helper.byTestId("edit-comment-button")).toBeDisabled();
-      expect(helper.byTestId("edit-comment-button")).toHaveAttr("title", "Requires pipeline operate permission.");
+      expect(helper.byTestId("edit-comment-button", modal)).toBeDisabled();
+      expect(helper.byTestId("edit-comment-button", modal)).toHaveAttr("title", "Requires pipeline operate permission.");
     });
 
     it("should enable edit comment button when user has operate permission on pipeline", () => {
       mount(comment, 1, true);
       helper.clickByTestId("view-comment-button");
+      const modal = helper.modal();
 
-      expect(helper.byTestId("edit-comment-button")).not.toBeDisabled();
-      expect(helper.byTestId("edit-comment-button")).toHaveAttr("title", "Edit comment.");
+      expect(helper.byTestId("edit-comment-button", modal)).not.toBeDisabled();
+      expect(helper.byTestId("edit-comment-button", modal)).toHaveAttr("title", "Edit comment.");
     });
 
-    it("should render dropdown in view mode", () => {
+    it("should render modal in view mode", () => {
       mount(comment, 1);
 
       helper.clickByTestId("view-comment-button");
 
-      expect(helper.byTestId("comment-dropdown")).toBeInDOM();
-      expect(helper.byTestId("comment-read-only-view")).toBeInDOM();
-      expect(helper.byTestId("comment-read-only-view")).toHaveText(comment());
+      const modal = helper.modal();
+      expect(helper.byTestId("modal-body", modal)).toBeInDOM();
+      expect(helper.byTestId("comment-read-only-view", modal)).toBeInDOM();
+      expect(helper.byTestId("comment-read-only-view", modal)).toHaveText(comment());
 
-      expect(helper.byTestId("edit-comment-button")).toBeInDOM();
-      expect(helper.byTestId("close-comment-dropdown-button")).toBeInDOM();
+      expect(helper.byTestId("edit-comment-button", modal)).toBeInDOM();
+      expect(helper.byTestId("close-comment-dropdown-button", modal)).toBeInDOM();
 
-      expect(helper.byTestId("save-comment-button")).not.toBeInDOM();
-      expect(helper.byTestId("textarea-to-add-or-edit-comment")).not.toBeInDOM();
+      expect(helper.byTestId("save-comment-button", modal)).not.toBeInDOM();
+      expect(helper.byTestId("textarea-to-add-or-edit-comment", modal)).not.toBeInDOM();
     });
 
     it("should render textarea to edit comment on click of the edit button", () => {
       mount(comment, 1);
       helper.clickByTestId("view-comment-button");
+      const modal = helper.modal();
 
-      helper.clickByTestId("edit-comment-button");
+      helper.clickByTestId("edit-comment-button", modal);
 
-      expect(helper.byTestId("textarea-to-add-or-edit-comment")).toBeInDOM();
-      expect(helper.byTestId("textarea-to-add-or-edit-comment")).toHaveText(comment());
+      expect(helper.byTestId("textarea-to-add-or-edit-comment", modal)).toBeInDOM();
+      expect(helper.byTestId("textarea-to-add-or-edit-comment", modal)).toHaveText(comment());
 
-      expect(helper.byTestId("close-comment-dropdown-button")).toBeInDOM();
-      expect(helper.byTestId("save-comment-button")).toBeInDOM();
+      expect(helper.byTestId("close-comment-dropdown-button", modal)).toBeInDOM();
+      expect(helper.byTestId("save-comment-button", modal)).toBeInDOM();
 
-      expect(helper.byTestId("edit-comment-button")).not.toBeInDOM();
-      expect(helper.byTestId("comment-read-only-view")).not.toBeInDOM();
+      expect(helper.byTestId("edit-comment-button", modal)).not.toBeInDOM();
+      expect(helper.byTestId("comment-read-only-view", modal)).not.toBeInDOM();
     });
 
     it("should update the comment on click of the save button", () => {
       mount(comment, 1);
       helper.clickByTestId("view-comment-button");
-      helper.clickByTestId("edit-comment-button");
+      const modal = helper.modal();
+      helper.clickByTestId("edit-comment-button", modal);
 
       const updatedComment = "This is updated comment";
-      helper.oninput(helper.byTestId("textarea-to-add-or-edit-comment"), updatedComment);
-      helper.clickByTestId("save-comment-button");
+      helper.oninput(helper.byTestId("textarea-to-add-or-edit-comment", modal), updatedComment);
+      helper.clickByTestId("save-comment-button", modal);
 
       expect(addOrUpdateComment).toHaveBeenCalledWith(updatedComment, 1);
     });
@@ -208,53 +221,47 @@ describe("CommentWidget", () => {
     it("should close the dialog once comment is edited", () => {
       mount(comment, 1);
       helper.clickByTestId("view-comment-button");
-      helper.clickByTestId("edit-comment-button");
+      const modal = helper.modal();
+      helper.clickByTestId("edit-comment-button", modal);
 
       const updatedComment = "This is updated comment";
-      helper.oninput(helper.byTestId("textarea-to-add-or-edit-comment"), updatedComment);
-      helper.clickByTestId("save-comment-button");
+      helper.oninput(helper.byTestId("textarea-to-add-or-edit-comment", modal), updatedComment);
+      helper.clickByTestId("save-comment-button", modal);
 
-      expect(helper.byTestId("comment-dropdown")).toBeInDOM();
-      expect(helper.byTestId("comment-read-only-view")).toBeInDOM();
-      expect(helper.byTestId("comment-read-only-view")).toHaveText(updatedComment);
-      expect(helper.byTestId("textarea-to-add-or-edit-comment")).not.toBeInDOM();
+      expect(helper.byTestId("modal-body", modal)).toBeInDOM();
+      expect(helper.byTestId("comment-read-only-view", modal)).toBeInDOM();
+      expect(helper.byTestId("comment-read-only-view", modal)).toHaveText(updatedComment);
+      expect(helper.byTestId("textarea-to-add-or-edit-comment", modal)).not.toBeInDOM();
       expect(addOrUpdateComment).toHaveBeenCalledWith(updatedComment, 1);
     });
 
     it("should switch to view mode without updating the comment on click of save when content is unchanged", () => {
       mount(comment, 1);
       helper.clickByTestId("view-comment-button");
-      helper.clickByTestId("edit-comment-button");
+      const modal = helper.modal();
+      helper.clickByTestId("edit-comment-button", modal);
 
       const sameContent = comment();
-      helper.oninput(helper.byTestId("textarea-to-add-or-edit-comment"), sameContent);
-      helper.clickByTestId("save-comment-button");
+      helper.oninput(helper.byTestId("textarea-to-add-or-edit-comment", modal), sameContent);
+      helper.clickByTestId("save-comment-button", modal);
 
-      expect(helper.byTestId("comment-dropdown")).toBeInDOM();
-      expect(helper.byTestId("comment-read-only-view")).toBeInDOM();
-      expect(helper.byTestId("comment-read-only-view")).toHaveText(sameContent);
-      expect(helper.byTestId("textarea-to-add-or-edit-comment")).not.toBeInDOM();
+      expect(helper.byTestId("modal-body", modal)).toBeInDOM();
+      expect(helper.byTestId("comment-read-only-view", modal)).toBeInDOM();
+      expect(helper.byTestId("comment-read-only-view", modal)).toHaveText(sameContent);
+      expect(helper.byTestId("textarea-to-add-or-edit-comment", modal)).not.toBeInDOM();
       expect(addOrUpdateComment).not.toHaveBeenCalledWith(sameContent, 1);
-    });
-
-    it("should close the dropdown on click of close button", () => {
-      mount(comment, 1);
-      helper.clickByTestId("view-comment-button");
-
-      helper.clickByTestId("close-comment-dropdown-button");
-
-      expect(helper.byTestId("comment-dropdown")).not.toBeInDOM();
     });
 
     it("should close the dropdown when comment is removed", () => {
       mount(comment, 1);
       helper.clickByTestId("view-comment-button");
-      helper.clickByTestId("edit-comment-button");
+      const modal = helper.modal();
+      helper.clickByTestId("edit-comment-button", modal);
 
-      helper.oninput(helper.byTestId("textarea-to-add-or-edit-comment"), "");
-      helper.clickByTestId("save-comment-button");
+      helper.oninput(helper.byTestId("textarea-to-add-or-edit-comment", modal), "");
+      helper.clickByTestId("save-comment-button", modal);
 
-      expect(helper.byTestId("comment-dropdown")).not.toBeInDOM();
+      expect(helper.byTestId("modal-body", modal)).not.toBeInDOM();
     });
   });
 

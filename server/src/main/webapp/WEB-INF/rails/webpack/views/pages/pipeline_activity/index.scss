@@ -156,8 +156,8 @@ $stage-action-icon-z-index: 1;
   i {
     display:  none;
     width:    15px;
-    position: absolute;
-    top:      20px;
+    height:   15px;
+    position: relative;
     zoom:     1;
     color:    $icon-color;
     z-index:  $stage-action-icon-z-index;
@@ -166,9 +166,9 @@ $stage-action-icon-z-index: 1;
   &:hover {
     i {
       padding: 0;
+      margin:  0;
       width:   15px;
       display: block;
-      margin:  30px 0 0;
 
       &:before {
         margin: 0;
@@ -177,10 +177,13 @@ $stage-action-icon-z-index: 1;
   }
 
   .stage-info-icon-wrapper {
-    i {
-      top:   20px;
-      right: 0;
-    }
+    position:        absolute;
+    display:         flex;
+    flex-direction:  row;
+    justify-content: space-between;
+    width:           100%;
+    margin-top:      15px;
+    height:          15px;
   }
 }
 

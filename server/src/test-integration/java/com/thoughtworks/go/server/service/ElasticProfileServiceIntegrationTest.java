@@ -86,10 +86,12 @@ public class ElasticProfileServiceIntegrationTest {
         newElasticProfile = new ElasticProfile(elasticProfileId, clusterProfileId, new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1")));
 
         goConfigService.updateConfig(cruiseConfig -> {
+            BasicCruiseConfig basicCruiseConfig = new BasicCruiseConfig();
+            basicCruiseConfig.initializeServer();
             ClusterProfiles clusterProfiles = new ClusterProfiles();
             clusterProfiles.add(clusterProfile);
-            cruiseConfig.getElasticConfig().setClusterProfiles(clusterProfiles);
-            return cruiseConfig;
+            basicCruiseConfig.getElasticConfig().setClusterProfiles(clusterProfiles);
+            return basicCruiseConfig;
         });
         elasticProfileService.setProfileConfigurationValidator(validator);
     }
@@ -97,11 +99,6 @@ public class ElasticProfileServiceIntegrationTest {
     @After
     public void tearDown() throws Exception {
         configHelper.onTearDown();
-        goConfigService.updateConfig(cruiseConfig -> {
-            BasicCruiseConfig basicCruiseConfig = new BasicCruiseConfig();
-            basicCruiseConfig.initializeServer();
-            return basicCruiseConfig;
-        });
     }
 
     @Test

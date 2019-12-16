@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineGroup, PipelineGroups, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
 import s from "underscore.string";
+import {Anchor, ScrollManager} from "views/components/anchor/anchor";
 import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {ChevronRightCircle, Clone, Delete, Download, Edit, IconGroup, Plus} from "views/components/icons";
+import {Link} from "views/components/link";
 import {SaveOperation} from "views/pages/page_operations";
 import styles from "./admin_pipelines_widget.scss";
 
@@ -40,11 +43,13 @@ interface Operations extends SaveOperation {
 
 interface PipelineGroupAttrs extends Operations {
   group: PipelineGroup;
+  sm: ScrollManager;
 }
 
 export interface Attrs extends Operations {
   pipelineGroups: Stream<PipelineGroups>;
   createPipelineGroup: () => void;
+  sm: ScrollManager;
 }
 
 type PipelineWidgetAttrs = PipelineGroupAttrs & { pipeline: PipelineWithOrigin };
@@ -106,26 +111,17 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
 }
 
 class PipelineGroupWidget extends MithrilViewComponent<PipelineGroupAttrs> {
-  oncreate(vnode: m.VnodeDOM<PipelineGroupAttrs, this>) {
-    const param            = m.route.param();
-    const selectedFragment = param ? param.id : undefined;
-
-    if (selectedFragment && selectedFragment.toLowerCase() === vnode.attrs.group.name().toLowerCase()) {
-      vnode.dom.scrollIntoView(true);
-      // width of the fixed elements at top + some buffer
-      window.scrollBy(0, -120);
-    }
-  }
-
   view(vnode: m.Vnode<PipelineGroupAttrs, this>) {
-    return (
-      <div data-test-id={`pipeline-group-${s.slugify(vnode.attrs.group.name())}`}
-           class={styles.pipelineGroupRow}>
-        <div data-test-id={`pipeline-group-name-${s.slugify(vnode.attrs.group.name())}`}
-             class={styles.pipelineGroupName}>Group: {vnode.attrs.group.name()}</div>
-        <div class={styles.pipelineGroupActionButtons}>{this.actions(vnode)}</div>
-        {this.showPipelines(vnode)}
-      </div>
+    const grpName = vnode.attrs.group.name();
+    return (<Anchor id={grpName} sm={vnode.attrs.sm}>
+        <div data-test-id={`pipeline-group-${s.slugify(grpName)}`}
+             class={styles.pipelineGroupRow}>
+          <div data-test-id={`pipeline-group-name-${s.slugify(grpName)}`}
+               class={styles.pipelineGroupName}>Group: {grpName}</div>
+          <div class={styles.pipelineGroupActionButtons}>{this.actions(vnode)}</div>
+          {this.showPipelines(vnode)}
+        </div>
+      </Anchor>
     );
   }
 
@@ -169,8 +165,24 @@ class PipelineGroupWidget extends MithrilViewComponent<PipelineGroupAttrs> {
 
 export class PipelineGroupsWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
+    if (vnode.attrs.sm.hasTarget()) {
+      const target    = vnode.attrs.sm.getTarget();
+      const hasTarget = vnode.attrs.pipelineGroups().some((grp) => grp.name() === target);
+      if (!hasTarget) {
+        const msg = `Either '${target}' pipeline group has not been set up or you are not authorized to view the same.`;
+        return <FlashMessage dataTestId="anchor-pipeline-grp-not-present" type={MessageType.alert} message={msg}/>;
+      }
+    }
     if (_.isEmpty(vnode.attrs.pipelineGroups())) {
-      return <FlashMessage type={MessageType.info} message={"There are no pipelines defined."}/>;
+      const pipelineUrl = "configuration/pipelines.html";
+      const docLink     = <span data-test-id="doc-link">
+       <Link href={docsUrl(pipelineUrl)} target="_blank" externalLinkIcon={true}>
+        Learn More
+      </Link>
+    </span>;
+      return <FlashMessage type={MessageType.info}>
+        Either no pipelines have been defined or you are not authorized to view the same. {docLink}
+      </FlashMessage>;
     }
     return (
       <div data-test-id="pipeline-groups">

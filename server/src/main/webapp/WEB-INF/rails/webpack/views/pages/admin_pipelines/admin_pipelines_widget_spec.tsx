@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {
-  PipelineGroup,
-  PipelineGroups,
-  Pipelines,
-  PipelineWithOrigin
-} from "models/internal_pipeline_structure/pipeline_structure";
+import {PipelineGroup, PipelineGroups, Pipelines, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
 import {Origin, OriginType} from "models/origin";
+import {ScrollManager} from "views/components/anchor/anchor";
 import {Attrs, PipelineGroupsWidget} from "views/pages/admin_pipelines/admin_pipelines_widget";
-import {TestHelper} from "views/pages/spec/test_helper";
+import {stubAllMethods, TestHelper} from "views/pages/spec/test_helper";
 
 describe("PipelineGroupsWidget", () => {
   const helper = new TestHelper();
@@ -45,6 +42,7 @@ describe("PipelineGroupsWidget", () => {
       pipelineGroups: Stream(new PipelineGroups()),
       onError: jasmine.createSpy("onError"),
       onSuccessfulSave: jasmine.createSpy("onSuccessfulSave"),
+      sm: stubAllMethods(["hasTarget", "shouldScroll"])
     };
   });
 
@@ -58,7 +56,8 @@ describe("PipelineGroupsWidget", () => {
       return <PipelineGroupsWidget {...attrs}/>;
     });
 
-    expect(helper.textByTestId("flash-message-info")).toEqual("There are no pipelines defined.");
+    expect(helper.textByTestId("flash-message-info")).toEqual("Either no pipelines have been defined or you are not authorized to view the same. Learn More");
+    expect(helper.q("a", helper.byTestId("flash-message-info")).getAttribute("href")).toEqual(docsUrl("configuration/pipelines.html"));
   });
 
   it("should render an empty pipeline group", () => {
@@ -135,6 +134,25 @@ describe("PipelineGroupsWidget", () => {
     expect(helper.byTestId(`clone-pipeline-in-json`)).toBeDisabled();
     expect(helper.byTestId(`delete-pipeline-in-json`)).toBeDisabled();
     expect(helper.byTestId(`extract-template-from-pipeline-in-json`)).toBeDisabled();
+  });
+
+  it('should render error msg if the the anchor element is not found', () => {
+    let scrollManager: ScrollManager;
+    scrollManager = {
+      hasTarget:    jasmine.createSpy().and.callFake(() => true),
+      getTarget:    jasmine.createSpy().and.callFake(() => "grp-test"),
+      shouldScroll: jasmine.createSpy(),
+      setTarget:    jasmine.createSpy(),
+      scrollToEl:   jasmine.createSpy()
+    };
+    attrs.sm      = scrollManager;
+
+    helper.mount(() => {
+      return <PipelineGroupsWidget {...attrs}/>;
+    });
+
+    expect(helper.byTestId("anchor-pipeline-grp-not-present")).toBeInDOM();
+    expect(helper.textByTestId("anchor-pipeline-grp-not-present")).toBe("Either 'grp-test' pipeline group has not been set up or you are not authorized to view the same.");
   });
 
 });

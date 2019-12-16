@@ -34,8 +34,6 @@ interface Attrs {
   runStage: (stage: Stage) => void;
   cancelStageInstance: (stage: Stage) => void;
   addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void;
-  stopPolling: () => void;
-  startPolling: () => void;
 }
 
 export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
@@ -59,8 +57,6 @@ export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
                            runStage={vnode.attrs.runStage}
                            canOperatePipeline={vnode.attrs.canOperatePipeline}
                            addOrUpdateComment={vnode.attrs.addOrUpdateComment}
-                           stopPolling={vnode.attrs.stopPolling}
-                           startPolling={vnode.attrs.startPolling}
                            cancelStageInstance={vnode.attrs.cancelStageInstance}/>];
           })
         }
@@ -87,8 +83,6 @@ interface GroupAttrs {
   runStage: (stage: Stage) => void;
   cancelStageInstance: (stage: Stage) => void;
   addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void;
-  stopPolling: () => void;
-  startPolling: () => void;
 }
 
 class GroupWidget extends MithrilViewComponent<GroupAttrs> {
@@ -102,8 +96,6 @@ class GroupWidget extends MithrilViewComponent<GroupAttrs> {
                                 runStage={vnode.attrs.runStage}
                                 canOperatePipeline={vnode.attrs.canOperatePipeline}
                                 addOrUpdateComment={vnode.attrs.addOrUpdateComment}
-                                stopPolling={vnode.attrs.stopPolling}
-                                startPolling={vnode.attrs.startPolling}
                                 cancelStageInstance={vnode.attrs.cancelStageInstance}/>;
     });
   }

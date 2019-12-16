@@ -55,16 +55,6 @@ export class ConfirmationDialog extends Modal {
     ];
   }
 
-  primaryButtonText(text: string) {
-    this._primaryButtonText = text;
-    return this;
-  }
-
-  cancelButtonText(text: string) {
-    this._cancelButtonText = text;
-    return this;
-  }
-
   private perform() {
     this.callback().finally(this.close.bind(this));
   }

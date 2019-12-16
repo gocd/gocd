@@ -144,8 +144,6 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
                               runPipeline={this.runPipeline.bind(this)}
                               runStage={this.runStage.bind(this)}
                               canOperatePipeline={this.meta.canOperatePipeline}
-                              stopPolling={this.stopPolling.bind(this)}
-                              startPolling={this.startPolling.bind(this)}
                               addOrUpdateComment={this.addOrUpdateComment.bind(this)}
                               cancelStageInstance={this.cancelStageInstance.bind(this)}/>,
       <div class={styles.paginationWrapper}>
@@ -212,12 +210,6 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   private startPolling() {
     if (this.meta.pipelineName) {
       this.poller.restart();
-    }
-  }
-
-  private stopPolling() {
-    if (this.meta.pipelineName) {
-      this.poller.stop();
     }
   }
 }

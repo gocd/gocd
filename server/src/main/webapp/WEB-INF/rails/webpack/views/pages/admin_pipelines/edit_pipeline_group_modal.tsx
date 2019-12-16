@@ -148,9 +148,9 @@ export class EditPipelineGroupModal extends Modal {
                        onchange={() => authorizedEntity.view(true)}/>
       </div>,
       <div className={styles.permissionCheckboxWrapper}>
-        <CheckboxField property={authorizedEntity.admin} dataTestId={"admin-permission"} onchange={() => {
+        <CheckboxField property={authorizedEntity.admin} dataTestId={"admin-permission"} onchange={(e: MouseEvent) => {
+          authorizedEntity.operate((e.target as HTMLInputElement).checked);
           authorizedEntity.view(true);
-          authorizedEntity.operate(true);
         }}/>
       </div>,
       <div className={styles.cancelButtonWrapper}>
@@ -174,9 +174,9 @@ export class EditPipelineGroupModal extends Modal {
                        onchange={() => authorizedEntity.view(true)}/>
       </div>,
       <div className={styles.permissionCheckboxWrapper}>
-        <CheckboxField property={authorizedEntity.admin} dataTestId={"admin-permission"} onchange={() => {
+        <CheckboxField property={authorizedEntity.admin} dataTestId={"admin-permission"} onchange={(e: MouseEvent) => {
+          authorizedEntity.operate((e.target as HTMLInputElement).checked);
           authorizedEntity.view(true);
-          authorizedEntity.operate(true);
         }}/>
       </div>,
       <div className={styles.cancelButtonWrapper}>

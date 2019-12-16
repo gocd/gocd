@@ -163,6 +163,23 @@ describe('EditPipelineGroupModal', () => {
       expect(testHelper.byTestId("admin-permission", operateUserPermissions)).not.toBeDisabled();
       expect(testHelper.byTestId("admin-permission", operateUserPermissions)).toBeChecked();
     });
+
+    it("should keep only view permission on the unchecked of admin permission", () => {
+      testHelper.clickByTestId("add-user-permission");
+      const userPermissions = testHelper.allByTestId("table-row", testHelper.byTestId("users-permissions"))[3] as HTMLElement;
+
+      //for enabling admin
+      testHelper.click(testHelper.byTestId("admin-permission", userPermissions));
+      //for disabling admin
+      testHelper.click(testHelper.byTestId("admin-permission", userPermissions));
+
+      expect(testHelper.byTestId("operate-permission", userPermissions)).not.toBeDisabled();
+      expect(testHelper.byTestId("operate-permission", userPermissions)).not.toBeChecked();
+
+      expect(testHelper.byTestId("view-permission", userPermissions)).not.toBeDisabled();
+      expect(testHelper.byTestId("view-permission", userPermissions)).toBeChecked();
+
+    });
   });
 
   describe('rolePermissions', () => {
@@ -270,6 +287,23 @@ describe('EditPipelineGroupModal', () => {
 
       expect(testHelper.byTestId("admin-permission", operateRolePermissions)).not.toBeDisabled();
       expect(testHelper.byTestId("admin-permission", operateRolePermissions)).toBeChecked();
+    });
+
+    it("should keep only view permission on the unchecked of admin permission", () => {
+      testHelper.clickByTestId("add-role-permission");
+      const rolePermissions = testHelper.allByTestId("table-row", testHelper.byTestId("roles-permissions"))[3] as HTMLElement;
+
+      //for enabling admin
+      testHelper.click(testHelper.byTestId("admin-permission", rolePermissions));
+      //for disabling admin
+      testHelper.click(testHelper.byTestId("admin-permission", rolePermissions));
+
+      expect(testHelper.byTestId("operate-permission", rolePermissions)).not.toBeDisabled();
+      expect(testHelper.byTestId("operate-permission", rolePermissions)).not.toBeChecked();
+
+      expect(testHelper.byTestId("view-permission", rolePermissions)).not.toBeDisabled();
+      expect(testHelper.byTestId("view-permission", rolePermissions)).toBeChecked();
+
     });
   });
 

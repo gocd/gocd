@@ -260,6 +260,24 @@ class StageSqlMapDaoTest {
     }
 
     @Nested
+    class CacheKeyForStageHistoryViaCursor {
+        @Test
+        void shouldGenerateCacheKey() {
+            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageHistoryViaCursor("foo", "bar_baz"))
+                    .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$findDetailedStageHistoryViaCursor.$foo.$bar_baz");
+        }
+
+        @Test
+        void shouldGenerateADifferentCacheKeyWhenPartOfPipelineIsInterchangedWithStageName() {
+            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageHistoryViaCursor("foo", "bar_baz"))
+                    .isNotEqualTo(stageSqlMapDao.cacheKeyForStageHistoryViaCursor("foo_bar", "baz"));
+
+            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageHistoryViaCursor("foo", "bar-baz"))
+                    .isNotEqualTo(stageSqlMapDao.cacheKeyForStageHistoryViaCursor("foo-bar", "baz"));
+        }
+    }
+
+    @Nested
     class CacheKeyForStageOffset {
 
         @Test

@@ -31,6 +31,7 @@ public interface StageDao extends JobDurationStrategy {
     Stage mostRecentWithBuilds(String pipelineName, StageConfig stageConfig);
 
     Stage save(Pipeline pipeline, Stage stage);
+
     @Deprecated
     // This is only used in test for legacy purpose.
     // Please call pipelineService.save(aPipeline) instead
@@ -84,7 +85,9 @@ public interface StageDao extends JobDurationStrategy {
 
     StageHistoryPage findStageHistoryPageByNumber(String pipelineName, String stageName, int pageNumber, int pageSize);
 
-	StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName, String stageName, Pagination pagination);
+    StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName, String stageName, Pagination pagination);
+
+    StageInstanceModels findDetailedStageHistoryViaCursor(String pipelineName, String stageName, FeedModifier feedModifier, long cursor, Integer pageSize);
 
     List<StageIdentifier> findFailedStagesBetween(String pipelineName, String stageName, double fromNaturalOrder, double toNaturalOrder);
 
@@ -101,4 +104,6 @@ public interface StageDao extends JobDurationStrategy {
     int getTotalStageCountForChart(String pipelineName, String stageName);
 
     List<StageIdentity> findLatestStageInstances();
+
+    PipelineRunIdInfo getOldestAndLatestStageInstanceId(String pipelineName, String stageName);
 }

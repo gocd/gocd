@@ -109,6 +109,11 @@
         <result property="scheduledDate" column="scheduledDate"/>
     </resultMap>
 
+    <resultMap id="latest-oldest-stage-identifiers" type="com.thoughtworks.go.domain.PipelineRunIdInfo">
+        <result property="oldestRunId" column="oldestRunId"/>
+        <result property="latestRunId" column="latestRunId"/>
+    </resultMap>
+
     <parameterMap id="insert-stage-param" type="com.thoughtworks.go.domain.Stage">
         <parameter property="name"/>
         <parameter property="pipelineId"/>
@@ -430,6 +435,84 @@
           AND id &gt; #{id}
         ORDER BY id
         LIMIT #{limit}
+    </select>
+
+    <!-- Following query returns the lastest and oldest run id for the given pipeline and stage. This helps in identifying the first and last record for the given pipeline and stage.  -->
+    <select id="getOldestAndLatestStageInstanceRun" resultMap="latest-oldest-stage-identifiers">
+        SELECT MAX(_stages.id) as latestRunId, MIN(_stages.id) as oldestRunId
+        FROM _stages
+        WHERE pipelineName = #{pipelineName}
+          AND name = #{stageName}
+    </select>
+
+    <!-- The following query will return the latest #{limit} instances for the given pipeline and stage -->
+    <sql id="selectStageIdsForHistory">
+        SELECT id
+        FROM _stages
+        WHERE name = #{stageName}
+          AND pipelineName = #{pipelineName}
+        ORDER BY id DESC
+        LIMIT #{limit}
+    </sql>
+
+    <!-- The following query will return the #{limit} instances which are older than the given stage instance id for the given pipeline and stage -->
+    <sql id="selectStageIdsForHistoryAfter">
+        SELECT id
+        FROM _stages
+        WHERE name = #{stageName}
+          AND pipelineName = #{pipelineName}
+          AND _stages.id &lt; #{cursor}
+        ORDER BY id DESC
+        LIMIT #{limit}
+    </sql>
+
+    <!-- The following query will return the #{limit} instances which are newer than the given stage instance id for the given pipeline and stage -->
+    <sql id="selectStageIdsForHistoryBefore">
+        SELECT id
+        FROM (SELECT id
+              FROM _stages
+              WHERE name = #{stageName}
+                AND pipelineName = #{pipelineName}
+                AND _stages.id &gt; #{cursor}
+              ORDER BY id ASC
+              LIMIT #{limit}) as StageInstanceIdsBeforeSpecifiedId
+        ORDER BY id DESC
+    </sql>
+
+    <select id="getStageHistoryViaCursor" resultMap="stage-with-job-history">
+        SELECT pipelines.name as pipelineName,
+        pipelines.counter as pipelineCounter,
+        pipelines.label as pipelineLabel,
+        stages.name as stageName,
+        stages.counter as stageCounter,
+        stages.id as stageId,
+        stages.approvedBy as approvedBy,
+        stages.cancelledBy as cancelledBy,
+        stages.approvalType as approvalType,
+        stages.result as stageResult,
+        stages.rerunOfCounter,
+        builds.id as buildId,
+        builds.name as buildName,
+        builds.state as buildState,
+        builds.result as buildResult,
+        builds.scheduledDate as scheduledDate
+        FROM stages
+        JOIN pipelines ON pipelines.id = stages.pipelineId
+        INNER JOIN builds ON stages.id = builds.stageId AND builds.ignored != true
+        WHERE stages.id IN (
+        <choose>
+            <when test="suffix==null or suffix==''">
+                <include refid="selectStageIdsForHistory"/>
+            </when>
+            <when test="suffix=='After'">
+                <include refid="selectStageIdsForHistoryAfter"/>
+            </when>
+            <when test="suffix=='Before'">
+                <include refid="selectStageIdsForHistoryBefore"/>
+            </when>
+        </choose>
+        )
+        ORDER BY stages.id DESC
     </select>
 
     <select id="getDetailedStageHistory" resultMap="stage-with-job-history">

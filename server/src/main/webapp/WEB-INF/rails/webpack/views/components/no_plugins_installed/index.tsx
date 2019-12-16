@@ -19,6 +19,7 @@ import m from "mithril";
 import {AbstractExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {ExtensionJSON} from "models/shared/plugin_infos_new/serialization";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {Link} from "../link";
 
 interface Attrs<T extends ExtensionJSON> {
   extensionType: AbstractExtensionType<T>;
@@ -29,8 +30,9 @@ export class NoPluginsOfTypeInstalled<T extends ExtensionJSON> extends MithrilVi
     const message = (
       <div>
         To use this page, you must ensure that there are one or
-        more {vnode.attrs.extensionType.humanReadableName()} plugins installed. Please see <a
-        href={vnode.attrs.extensionType.linkForDocs()}>this page</a> for a list of supported plugins.
+        more {vnode.attrs.extensionType.humanReadableName()} plugins installed. Please see <Link
+        href={vnode.attrs.extensionType.linkForDocs()} target="_blank" externalLinkIcon={true}>this page</Link> for a
+        list of supported plugins.
       </div>
     );
     return <FlashMessage type={MessageType.warning} message={message}/>;

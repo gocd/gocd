@@ -30,6 +30,6 @@ describe("NoPluginsOfTypeInstalled", () => {
 
     expect(helper.root).toContainText('you must ensure that there are one or more');
     expect(helper.root).toContainText('Please see this page for a list of supported plugins.');
-    expect(helper.root).toContainHtml('<a href="https://www.gocd.org/plugins/#authorization">this page</a>');
+    expect(helper.q("a")).toContainText("this page");
   });
 });

@@ -159,26 +159,26 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
       <Icons.InfoCircle iconOnly={true} data-test-id={`info-${dataTestIdSuffix}`}/>
     </Link>;
     if (stage.getCanRun()) {
-      return [infoIcon,
-        <div class={styles.stageInfoIconWrapper}>
-          <Icons.Repeat iconOnly={true}
-                        title="Rerun stage"
-                        data-test-id={`rerun-${dataTestIdSuffix}`}
-                        onclick={() => vnode.attrs.runStage(stage)}/>
-        </div>];
+      return <div class={styles.stageInfoIconWrapper}>
+        {infoIcon}
+        <Icons.Repeat iconOnly={true}
+                      title="Rerun stage"
+                      data-test-id={`rerun-${dataTestIdSuffix}`}
+                      onclick={() => vnode.attrs.runStage(stage)}/>
+      </div>;
     }
 
     if (stage.getCanCancel()) {
-      return [infoIcon,
-        <div class={styles.stageInfoIconWrapper}>
-          <Icons.Close iconOnly={true}
-                       data-test-id={`cancel-${dataTestIdSuffix}`}
-                       title="Cancel stage"
-                       onclick={() => vnode.attrs.cancelStageInstance(stage)}/>
-        </div>];
+      return <div class={styles.stageInfoIconWrapper}>
+        {infoIcon}
+        <Icons.Close iconOnly={true}
+                     data-test-id={`cancel-${dataTestIdSuffix}`}
+                     title="Cancel stage"
+                     onclick={() => vnode.attrs.cancelStageInstance(stage)}/>
+      </div>;
     }
 
-    return infoIcon;
+    return <div class={styles.stageInfoIconWrapper}>{infoIcon}</div>;
   }
 
   private getStageGateIcon(index: number, stage: Stage, vnode: m.Vnode<PipelineRunAttrs>): m.Children {

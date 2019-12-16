@@ -29,8 +29,6 @@ interface Attrs extends DropdownAttrs {
   counterOrLabel: number | string;
   showCommentFor: Stream<string>;
   addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void;
-  stopPolling: () => void;
-  startPolling: () => void;
 }
 
 enum Mode {
@@ -92,13 +90,22 @@ class CommentModal extends Modal {
 
   private getActionButton() {
     if (this.showEditView()) {
-      return <Primary dataTestId="save-comment-button" onclick={this.updateComment.bind(this)}>Save</Primary>;
+      return [
+        <Primary dataTestId="save-comment-button" onclick={this.updateComment.bind(this)}>Save</Primary>,
+        <Primary dataTestId="save-comment-and-close-button" onclick={this.updateAndClose.bind(this)}>Save &
+          Close</Primary>
+      ];
     }
 
     return <Secondary dataTestId="edit-comment-button"
                       disabled={!this.canOperatePipeline}
                       title={this.canOperatePipeline ? "Edit comment." : "Requires pipeline operate permission."}
                       onclick={() => this.mode = Mode.EDIT}>Edit</Secondary>;
+  }
+
+  private updateAndClose() {
+    this.updateComment();
+    this.close();
   }
 
   private updateComment() {
@@ -135,7 +142,6 @@ export class CommentWidget extends MithrilViewComponent<Attrs> {
   }
 
   private static showModal(vnode: m.Vnode<Attrs>) {
-    vnode.attrs.stopPolling();
     new CommentModal(vnode.attrs.comment(),
       vnode.attrs.canOperatePipeline,
       vnode.attrs.counterOrLabel,

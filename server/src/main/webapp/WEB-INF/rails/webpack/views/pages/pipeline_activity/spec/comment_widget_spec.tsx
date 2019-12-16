@@ -139,6 +139,17 @@ describe("CommentWidget", () => {
 
       expect(helper.byTestId("modal-body", modal)).not.toBeInDOM();
     });
+
+    it("should always close the modal on click of save and close button", () => {
+      mount(comment, 1);
+      helper.clickByTestId("add-comment-button");
+      const modal = helper.modal();
+      expect(helper.byTestId("modal-body", modal)).toBeInDOM();
+
+      helper.clickByTestId("save-comment-and-close-button", modal);
+
+      expect(helper.byTestId("modal-body", modal)).not.toBeInDOM();
+    });
   });
 
   describe("Pipeline run with existing comment", () => {

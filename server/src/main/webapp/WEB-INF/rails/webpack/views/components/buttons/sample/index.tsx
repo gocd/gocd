@@ -32,7 +32,7 @@ export class DummyDropdownButton extends Dropdown<DummyDropdownButtonAttrs> {
   }
 
   protected doRenderButton(vnode: m.Vnode<DropdownAttrs & DummyDropdownButtonAttrs>) {
-    return <Primary dropdown={true} onclick={(e) => this.toggleDropdown(vnode, e)}>{vnode.attrs.name}</Primary>;
+    return <Primary dropdown={true} onclick={(e: MouseEvent) => this.toggleDropdown(vnode, e)}>{vnode.attrs.name}</Primary>;
   }
 
   protected doRenderDropdownContent(vnode: m.Vnode<DropdownAttrs & DummyDropdownButtonAttrs>) {

@@ -944,10 +944,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.3.tgz#3dca0e3f33b200fc7d1139c0cd96c1268cadfd9d"
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
-"@types/mithril@2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-2.0.0.tgz#f9a9e523264af6dc8c2027029bcd400a459739bb"
-  integrity sha512-Bjjs5a7xc6eC207ZE1tR7ssnMoF8d3VVcupmzbhFaP2nM4G1Jpm1oqrvAiu+ys0OLKYUQjxNALUerHDPHbuwfA==
+"@types/mithril@2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-2.0.2.tgz#29a6e32103769b29840ae25f5bf75bb382801a15"
+  integrity sha512-q0W5GGjWNxwmKPcfkkQJqSUIVr7yvMz1zH2enWDab8yDqvZuEgkR4+mcf1O70Wnreawg8OH4axfACDVdg2zskQ==
 
 "@types/node@*", "@types/node@^12.12.14":
   version "12.12.14"

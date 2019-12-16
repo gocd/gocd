@@ -107,7 +107,7 @@ class PolicyWidgetBody {
           dataTestId="permission-type"
           property={permission().type}
           required={true}
-          onchange={(e) => provider().update()}
+          onchange={() => provider().update()}
           errorText={permission().errors().errorsForDisplay("type")}>
           <SelectFieldOptions selected={permission().type()}
                               items={CreatePolicyWidget.types()}/>

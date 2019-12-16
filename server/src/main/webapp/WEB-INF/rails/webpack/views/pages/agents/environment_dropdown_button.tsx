@@ -41,7 +41,7 @@ export class EnvironmentsDropdownButton extends AbstractDropdownButton<EnvAttrs>
     return <Primary data-test-id="modify-environments-association"
                     dropdown={true}
                     disabled={vnode.attrs.agentsVM.selectedAgentsUUID().length === 0}
-                    onclick={(e) => {
+                    onclick={(e: MouseEvent) => {
                       vnode.attrs.agentsVM.showResources(false);
                       this.toggleDropdown(vnode, e);
                     }}>ENVIRONMENTS</Primary>;

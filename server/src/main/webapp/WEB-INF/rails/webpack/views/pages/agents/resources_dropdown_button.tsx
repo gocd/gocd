@@ -138,7 +138,7 @@ export class ResourcesDropdownButton extends AbstractDropdownButton<ResourcesAtt
     return <Buttons.Primary data-test-id="modify-resources-association"
                             dropdown={true}
                             disabled={vnode.attrs.agentsVM.selectedAgentsUUID().length === 0}
-                            onclick={(e) => {
+                            onclick={(e: MouseEvent) => {
                               vnode.attrs.agentsVM.showEnvironments(false);
                               this.toggleDropdown(vnode, e);
                             }}>RESOURCES</Buttons.Primary>;

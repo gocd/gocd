@@ -135,7 +135,7 @@ class FiltersView extends Dropdown<FiltersViewAttrs> {
 
     return (
       <Default dropdown={true} data-test-id="filters-btn"
-               onclick={(e) => {
+               onclick={(e: MouseEvent) => {
                  this.toggleDropdown(vnode, e);
                }}
                icon={ButtonIcon.FILTER}>Filters <span>{filtersCount}</span></Default>
@@ -197,7 +197,7 @@ class RolesDropdown extends Dropdown<RolesViewAttrs & AjaxOperationMonitor> {
   protected doRenderButton(vnode: m.Vnode<DropdownAttrs & RolesViewAttrs & AjaxOperationMonitor>) {
     return <Secondary dropdown={true}
                       disabled={!vnode.attrs.users().anyUserSelected() || vnode.attrs.operationState() === OperationState.IN_PROGRESS}
-                      onclick={(e) => this.toggleDropdown(vnode, e)}>
+                      onclick={(e: MouseEvent) => this.toggleDropdown(vnode, e)}>
       Roles
     </Secondary>;
   }

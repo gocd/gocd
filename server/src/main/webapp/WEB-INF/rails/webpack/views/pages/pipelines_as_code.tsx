@@ -16,10 +16,12 @@
 
 // utils
 import classnames from "classnames";
+import {ErrorResponse} from "helpers/api_request_builder";
 import {override} from "helpers/css_proxies";
 import {queryParamAsString} from "helpers/url";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {MaterialConfigFilesJSON} from "models/materials/material_config_files";
 import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "views/pages/pipelines/messages";
 
 // models
@@ -108,7 +110,7 @@ export class PipelinesAsCodeCreatePage extends Page {
             <h3>1. Build Pipeline Config File</h3>
             <p class={css.sectionNote}><span class={css.attention}>*</span> denotes a required field</p>
           </div>
-          <BuilderForm pluginId={this.pluginId} vm={vm} onContentChange={(updated) => this.onContentChange(isSupportedScm, updated)} onMaterialChange={(e) => {
+          <BuilderForm pluginId={this.pluginId} vm={vm} onContentChange={(updated: boolean) => this.onContentChange(isSupportedScm, updated)} onMaterialChange={() => {
             if (syncConfigRepoWithMaterial()) {
               this.allowCreate(false);
             }
@@ -131,7 +133,7 @@ export class PipelinesAsCodeCreatePage extends Page {
       <FillableSection css={spanningFillableCss}>
         <div class={css.subheading}><SectionHeading>3. Link Your SCM Repository to use the Defined Configuration</SectionHeading></div>
 
-        <UserInputPane onchange={(e) => { this.allowCreate(false); }}>
+        <UserInputPane onchange={() => { this.allowCreate(false); }}>
           <div class={css.subsectionHeading}>Repository Details</div>
           <CheckboxField
             property={syncConfigRepoWithMaterial}
@@ -156,9 +158,9 @@ export class PipelinesAsCodeCreatePage extends Page {
           <div class={css.subsectionHeading}>Scan Repository for Configuration</div>
           <MaterialCheck pluginId={this.pluginId()} material={this.configRepo().material()!} align="right" prerequisite={() => this.configRepo().isValid()} label={
             <p class={css.msg}>Verify that GoCD can find the configuration file in your repository by clicking the button below</p>
-          } success={(data, _) => {
+          } success={(data: MaterialConfigFilesJSON, _: string) => {
             this.allowCreate(!!data.plugins.find((p) => !!p.files.length));
-          }} failure={(err, status) => {
+          }} failure={(err: ErrorResponse, status: number) => {
             this.allowCreate(413 === status);
           }}/>
         </div>

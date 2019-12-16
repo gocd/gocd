@@ -138,7 +138,7 @@ export class EditPipelineGroupModal extends Modal {
   userPermissionData() {
     return this.pipelineGroupViewModel.authorizedUsers().map((authorizedEntity) => [
       <div class={styles.permissionNameWrapper}>
-        <AutocompleteField dataTestId={"user-name"} property={authorizedEntity.name} required={true} maxItems={25} provider={this.usersProvider} autoEvaluate={false}/>
+        <AutocompleteField dataTestId={"user-name"} property={authorizedEntity.name} required={true} maxItems={25} provider={this.usersProvider} autoEvaluate={false} errorText={authorizedEntity.errors().errorsForDisplay("name")}/>
       </div>,
       <div class={styles.permissionCheckboxWrapper}>
         <CheckboxField property={authorizedEntity.view} dataTestId={"view-permission"} readonly={authorizedEntity.admin() || authorizedEntity.operate()}/>
@@ -164,7 +164,7 @@ export class EditPipelineGroupModal extends Modal {
   rolePermissionData() {
     return this.pipelineGroupViewModel.authorizedRoles().map((authorizedEntity) => [
       <div className={styles.permissionNameWrapper}>
-        <AutocompleteField dataTestId={"role-name"} property={authorizedEntity.name} required={true} maxItems={25} provider={this.rolesProvider} autoEvaluate={false}/>
+        <AutocompleteField dataTestId={"role-name"} property={authorizedEntity.name} required={true} maxItems={25} provider={this.rolesProvider} autoEvaluate={false} errorText={authorizedEntity.errors().errorsForDisplay("name")}/>
       </div>,
       <div className={styles.permissionCheckboxWrapper}>
         <CheckboxField property={authorizedEntity.view} dataTestId={"view-permission"} readonly={authorizedEntity.admin() || authorizedEntity.operate()}/>
@@ -191,14 +191,14 @@ export class EditPipelineGroupModal extends Modal {
     if (this.userPermissionCollapseState()) {
       e.stopPropagation();
     }
-    this.pipelineGroupViewModel.addAuthorizedUser(new PermissionForEntity("", false, false, false));
+    this.pipelineGroupViewModel.addAuthorizedUser(new PermissionForEntity("", true, false, false));
   }
 
   addRoleAuthorization(e: MouseEvent) {
     if (this.rolePermissionCollapseState()) {
       e.stopPropagation();
     }
-    this.pipelineGroupViewModel.addAuthorizedRole(new PermissionForEntity("", false, false, false));
+    this.pipelineGroupViewModel.addAuthorizedRole(new PermissionForEntity("", true, false, false));
   }
 
   private removeRole(role: PermissionForEntity) {
@@ -210,14 +210,16 @@ export class EditPipelineGroupModal extends Modal {
   }
 
   private performSave() {
-    PipelineGroupCRUD.update(this.pipelineGroupName, this.pipelineGroupViewModel.getUpdatedPipelineGroup(), this.etag)
-                     .then((result) => {
-                       result.do(() => {
-                         this.onSuccessfulSave(`Pipeline group ${this.pipelineGroupViewModel.name()} updated successfully.`);
-                         this.close();
-                       }, (errorResponse) => {
-                         this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+    if (this.pipelineGroupViewModel.isValid()) {
+      PipelineGroupCRUD.update(this.pipelineGroupName, this.pipelineGroupViewModel.getUpdatedPipelineGroup(), this.etag)
+                       .then((result) => {
+                         result.do(() => {
+                           this.onSuccessfulSave(`Pipeline group ${this.pipelineGroupViewModel.name()} updated successfully.`);
+                           this.close();
+                         }, (errorResponse) => {
+                           this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+                         });
                        });
-                     });
+    }
   }
 }

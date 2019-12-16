@@ -40,6 +40,17 @@ describe('AuthorizationViewModel', () => {
     expect(arePermissionForEntitiesEqual(authorizationViewModel.authorizedRoles()[2], roleWithAdminPermission)).toBe(true);
   });
 
+  it("should validate that one of the permission is present", () => {
+    const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization());
+
+    authorizationViewModel.addAuthorizedUser(new PermissionForEntity("new-user", false, false, false));
+    authorizationViewModel.addAuthorizedRole(new PermissionForEntity("new-role", false, false, false));
+
+    expect(authorizationViewModel.isValid()).toEqual(false);
+    expect(authorizationViewModel.authorizedUsers()[0].errors().errors("name")).toEqual(["At least one permission should be enabled."]);
+    expect(authorizationViewModel.authorizedRoles()[0].errors().errors("name")).toEqual(["At least one permission should be enabled."]);
+  });
+
   describe('User', () => {
     it("should add authorized user", () => {
       const admins                 = new AuthorizedUsersAndRoles(["user_foo_admin"], ["role_foo_admin"]);

@@ -16,6 +16,7 @@
 
 import _ from "lodash";
 import Stream = require("mithril/stream");
+import {ValidatableMixin, Validator} from "../mixins/new_validatable_mixin";
 
 interface AuthorizationUsersAndRolesJSON {
   users: string[];
@@ -88,28 +89,45 @@ export class Authorization {
   }
 }
 
-export class PermissionForEntity {
+class PermissionValidator extends Validator {
+  protected doValidate(entity: PermissionForEntity, attrName: string): void {
+    if (entity.view() === false && entity.operate() === false && entity.admin() === false) {
+      entity.errors().add(attrName, "At least one permission should be enabled.");
+    }
+  }
+}
+
+export class PermissionForEntity extends ValidatableMixin {
   readonly name: Stream<string>;
   readonly view: Stream<boolean>;
   readonly operate: Stream<boolean>;
   readonly admin: Stream<boolean>;
 
   constructor(name: string, view: boolean, operate: boolean, admin: boolean) {
+    super();
     this.name    = Stream(name);
     this.view    = Stream(view);
     this.operate = Stream(operate);
     this.admin   = Stream(admin);
+    ValidatableMixin.call(this);
 
+    this.validateWith(new PermissionValidator({condition: () => !_.isEmpty(this.name())}), "name");
   }
 }
 
-export class PermissionsForUsersAndRoles {
+export class PermissionsForUsersAndRoles extends ValidatableMixin {
   readonly authorizedUsers: Stream<PermissionForEntity[]> = Stream();
   readonly authorizedRoles: Stream<PermissionForEntity[]> = Stream();
 
   constructor(authorization: Authorization) {
+    super();
+    ValidatableMixin.call(this);
+
     this.initializeAuthorizedUsers(authorization);
     this.initializeAuthorizedRoles(authorization);
+
+    this.validateEach("authorizedUsers");
+    this.validateEach("authorizedRoles");
   }
 
   addAuthorizedUser(authorizedEntity: PermissionForEntity) {

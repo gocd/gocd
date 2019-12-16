@@ -136,26 +136,71 @@ describe('PipelineGroupViewModel', () => {
     expect(pipelineGroupViewModel.authorizedRoles()[2].name()).toBe("admin");
   });
 
-  it("should get updated pipeline group", () => {
-    const pipelineGroup          = PipelineGroup.fromJSON(pipelineGroupJSON());
-    const pipelineGroupViewModel = new PipelineGroupViewModel(pipelineGroup);
+  describe("updatedPipelineGroup", () => {
+    it("should get updated pipeline group", () => {
+      const pipelineGroup          = PipelineGroup.fromJSON(pipelineGroupJSON());
+      const pipelineGroupViewModel = new PipelineGroupViewModel(pipelineGroup);
 
-    pipelineGroupViewModel.authorizedUsers()[0].operate(true);
-    pipelineGroupViewModel.authorizedUsers()[2].operate(true);
-    pipelineGroupViewModel.authorizedUsers()[2].view(true);
-    pipelineGroupViewModel.authorizedRoles()[2].operate(true);
-    pipelineGroupViewModel.authorizedRoles()[2].view(true);
+      pipelineGroupViewModel.authorizedUsers()[0].operate(true);
+      pipelineGroupViewModel.authorizedUsers()[2].operate(true);
+      pipelineGroupViewModel.authorizedUsers()[2].view(true);
+      pipelineGroupViewModel.authorizedRoles()[2].operate(true);
+      pipelineGroupViewModel.authorizedRoles()[2].view(true);
 
-    const updatedPipelineGroup = pipelineGroupViewModel.getUpdatedPipelineGroup();
+      const updatedPipelineGroup = pipelineGroupViewModel.getUpdatedPipelineGroup();
 
-    expect(updatedPipelineGroup.authorization().view().users()).toEqual(["user1", "admin"]);
-    expect(updatedPipelineGroup.authorization().operate().users()).toEqual(["user1", "superUser", "admin"]);
-    expect(updatedPipelineGroup.authorization().admin().users()).toEqual(["admin"]);
+      expect(updatedPipelineGroup.authorization().view().users()).toEqual(["user1", "admin"]);
+      expect(updatedPipelineGroup.authorization().operate().users()).toEqual(["user1", "superUser", "admin"]);
+      expect(updatedPipelineGroup.authorization().admin().users()).toEqual(["admin"]);
 
-    expect(updatedPipelineGroup.authorization().view().roles()).toEqual(["role1", "admin"]);
-    expect(updatedPipelineGroup.authorization().operate().roles()).toEqual(["role2", "admin"]);
-    expect(updatedPipelineGroup.authorization().admin().roles()).toEqual(["admin"]);
-    expect(updatedPipelineGroup.name()).toEqual(pipelineGroup.name());
+      expect(updatedPipelineGroup.authorization().view().roles()).toEqual(["role1", "admin"]);
+      expect(updatedPipelineGroup.authorization().operate().roles()).toEqual(["role2", "admin"]);
+      expect(updatedPipelineGroup.authorization().admin().roles()).toEqual(["admin"]);
+      expect(updatedPipelineGroup.name()).toEqual(pipelineGroup.name());
+    });
+
+    it('should only list authorized users which have username', () => {
+      const pipelineGroup          = PipelineGroup.fromJSON(pipelineGroupJSON());
+      const pipelineGroupViewModel = new PipelineGroupViewModel(pipelineGroup);
+      pipelineGroupViewModel.authorizedUsers().push(new PermissionForEntity("", true, true, true));
+
+      const updatedPipelineGroup = pipelineGroupViewModel.getUpdatedPipelineGroup();
+
+      expect(updatedPipelineGroup.authorization().view().users()).toEqual(["user1"]);
+      expect(updatedPipelineGroup.authorization().operate().users()).toEqual(["superUser"]);
+      expect(updatedPipelineGroup.authorization().admin().users()).toEqual(["admin"]);
+    });
+
+    it('should only list authorized roles which have name', () => {
+      const pipelineGroup          = PipelineGroup.fromJSON(pipelineGroupJSON());
+      const pipelineGroupViewModel = new PipelineGroupViewModel(pipelineGroup);
+      pipelineGroupViewModel.authorizedRoles().push(new PermissionForEntity("", true, true, true));
+
+      const updatedPipelineGroup = pipelineGroupViewModel.getUpdatedPipelineGroup();
+
+      expect(updatedPipelineGroup.authorization().view().roles()).toEqual(["role1"]);
+      expect(updatedPipelineGroup.authorization().operate().roles()).toEqual(["role2"]);
+      expect(updatedPipelineGroup.authorization().admin().roles()).toEqual(["admin"]);
+    });
+  });
+
+  describe('isValid', () => {
+    it("should validate and return true for valid authorizationViewModel", () => {
+      const pipelineGroup          = PipelineGroup.fromJSON(pipelineGroupJSON());
+      const pipelineGroupViewModel = new PipelineGroupViewModel(pipelineGroup);
+      expect(pipelineGroupViewModel.isValid()).toBe(true);
+    });
+
+    it("should validate and return false if there is no single permission defined", () => {
+      const pipelineGroup          = PipelineGroup.fromJSON(pipelineGroupJSON());
+      const pipelineGroupViewModel = new PipelineGroupViewModel(pipelineGroup);
+
+      const invalidEntity = new PermissionForEntity("new-user", false, false, false);
+      pipelineGroupViewModel.authorizedUsers().push(invalidEntity);
+
+      expect(pipelineGroupViewModel.isValid()).toBe(false);
+    });
+
   });
 });
 

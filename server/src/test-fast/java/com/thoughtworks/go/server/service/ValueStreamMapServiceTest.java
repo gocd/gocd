@@ -37,6 +37,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.valuestreammap.DownstreamInstancePopulator;
 import com.thoughtworks.go.server.valuestreammap.RunStagesPopulator;
 import com.thoughtworks.go.server.valuestreammap.UnrunStagesPopulator;
@@ -893,6 +894,44 @@ public class ValueStreamMapServiceTest {
         PipelineDependencyNode p2 = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(2).get(0);
         assertTrue(p1.canEdit());
         assertFalse(p2.canEdit());
+    }
+
+    @Test
+    public void shouldNotModifyResultObjectWhenUserDoesNotHaveEditPermissionsForPipelineDependencyNode() throws Exception {
+        /*
+         * g --> p1 --> p2
+         */
+
+        GitMaterial git = new GitMaterial("git");
+        BuildCause p2buildCause = createBuildCause(asList("p1"), new ArrayList<>());
+        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
+
+        when(pipelineService.buildCauseFor("p2", 1)).thenReturn(p2buildCause);
+        when(pipelineService.buildCauseFor("p1", 1)).thenReturn(p1buildCause);
+
+
+        PipelineConfig p2Config = PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(git("test")));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p2Config));
+
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(goConfigService.hasPipelineNamed(any())).thenReturn(true);
+        doAnswer(invocation -> true).when(goConfigService).canEditPipeline("p1", user, result);
+        doAnswer(invocation -> {
+            invocation.<LocalizedOperationResult>getArgument(2).unprocessableEntity("Boom!!");
+            return false;
+        }).when(goConfigService).canEditPipeline("p2", user, result);
+
+        when(pipelineService.findPipelineByNameAndCounter("p2", 1)).thenReturn(new Pipeline("p2", "p2-label", p2buildCause, new EnvironmentVariables()));
+
+        ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("p2"), 1, user, result);
+
+        PipelineDependencyNode p1 = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(1).get(0);
+        PipelineDependencyNode p2 = (PipelineDependencyNode) graph.getNodesAtEachLevel().get(2).get(0);
+        assertTrue(p1.canEdit());
+        assertFalse(p2.canEdit());
+
+        assertTrue(result.isSuccessful());
+        assertFalse(result.hasMessage());
     }
 
     @Test

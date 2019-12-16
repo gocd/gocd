@@ -31,6 +31,7 @@ import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.valuestreammap.DownstreamInstancePopulator;
 import com.thoughtworks.go.server.valuestreammap.RunStagesPopulator;
@@ -202,7 +203,8 @@ public class ValueStreamMapService {
                 } else if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
                     pipelineDependencyNode.setNoPermission();
                 }
-                pipelineDependencyNode.setCanEdit(goConfigService.canEditPipeline(pipelineName, username, result));
+
+                pipelineDependencyNode.setCanEdit(goConfigService.canEditPipeline(pipelineName, username, new HttpLocalizedOperationResult()));
             }
         }
     }

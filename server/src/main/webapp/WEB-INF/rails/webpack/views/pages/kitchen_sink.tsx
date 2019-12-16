@@ -117,9 +117,9 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <HeaderPanel title="Kitchen Sink" sectionName={"Admin"}/>
         <h3>Pagination</h3>
         <PaginationWidget pagination={largeNumberOfPages()}
-                          onPageChange={(newPage) => pageChangeCallback(largeNumberOfPages, newPage)}/>
+                          onPageChange={(newPage: number) => pageChangeCallback(largeNumberOfPages, newPage)}/>
         <PaginationWidget pagination={smallNumberOfPages()}
-                          onPageChange={(newPage) => pageChangeCallback(smallNumberOfPages, newPage)}/>
+                          onPageChange={(newPage: number) => pageChangeCallback(smallNumberOfPages, newPage)}/>
         <br/>
 
         <FlashMessage type={MessageType.info} message={"This page is awesome!"}/>
@@ -343,7 +343,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
 
         <LiveValidatingInputField
           label="Enter some numbers. But if you're adventurous, try any other character -- oh my, the suspense!"
-          property={textValue} validator={(s) => {
+          property={textValue} validator={(s: string) => {
           if (!(/^\d*$/.test(s))) {
             return "Only numbers are allowed! You'd better settle down, you rebel, you!";
           }

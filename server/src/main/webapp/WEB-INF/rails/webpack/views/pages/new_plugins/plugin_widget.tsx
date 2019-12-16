@@ -88,7 +88,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
 
     if (this.deprecatedPluginInfo(pluginInfo)) {
       const content            = <p>Version {pluginInfo.about.version} of plugin is deprecated as it does not support <a
-        onclick={(e) => this.goToClusterProfileDocs(e)} href={"#"}>ClusterProfiles</a>. This version of plugin will stop
+        onclick={(e: MouseEvent) => this.goToClusterProfileDocs(e)} href={"#"}>ClusterProfiles</a>. This version of plugin will stop
         working in upcoming release of GoCD, update to latest version of the plugin.</p>;
       deprecationWarningButton = <PluginDeprecationWarning content={content}/>;
     }

@@ -140,7 +140,7 @@ class RulesWidgetBody {
           dataTestId="rule-type"
           property={rule().type}
           required={true}
-          onchange={(e) => provider().update()}
+          onchange={() => provider().update()}
           errorText={rule().errors().errorsForDisplay("type")}>
           <SelectFieldOptions selected={rule().type()}
                               items={RulesWidget.types()}/>

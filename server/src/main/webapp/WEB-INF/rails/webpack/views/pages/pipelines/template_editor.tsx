@@ -104,7 +104,7 @@ export class TemplateEditor extends MithrilComponent<Attrs, State> {
           </code>
         </FlashMessage>;
       } else {
-        return <SelectField label="Template" property={config.template} errorText={errors.errorsForDisplay("template")} required={true} onchange={(e) => {this.setTemplateParams(e.target.value, attrs.paramList, config, state.notifyChange); }}>
+        return <SelectField label="Template" property={config.template} errorText={errors.errorsForDisplay("template")} required={true} onchange={(e: any) => {this.setTemplateParams(e.target.value, attrs.paramList, config, state.notifyChange); }}>
           <SelectFieldOptions selected={config.template()} items={this.templatesAsOptions()}/>
         </SelectField>;
       }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import m from "mithril";
-import * as base from "./base";
 
 export abstract class MithrilComponent<Attrs = {}, State = {}> implements m.Component<Attrs, State> {
   // Required for type checking JSX attributes
@@ -65,28 +64,4 @@ function adoptStylesheet<T, U extends RestyleAttrs<T>>(receiver: Restylable<T>, 
   if (vnode.attrs.css) {
     receiver.css = vnode.attrs.css;
   }
-}
-
-// Set up type checks
-declare global {
-  namespace JSX {
-    // Return type for elements
-    interface Element extends m.Vnode<any, any> {
-
-    }
-
-    // Element names allowed – with attributes allowed
-    interface IntrinsicElements extends base.IntrinsicElements {
-      // allow unknown elements
-      [name: string]: any;
-    }
-
-    // Where to look for component type information
-    interface ElementAttributesProperty {
-      __tsx_attrs: any;
-
-      [name: string]: any;
-    }
-  }
-
 }

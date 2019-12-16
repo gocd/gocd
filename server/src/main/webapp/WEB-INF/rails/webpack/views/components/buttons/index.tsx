@@ -300,7 +300,7 @@ export class SimpleDropdown extends Dropdown<SimpleDDAttrs> {
 
   protected doRenderButton(vnode: m.Vnode<DropdownAttrs & SimpleDDAttrs>) {
     return <Primary dropdown={true} disabled={vnode.attrs.disabled} title={vnode.attrs.title}
-                    aria-label={vnode.attrs["aria-label"]} onclick={(e) => this.toggleDropdown(vnode, e)}>
+                    aria-label={vnode.attrs["aria-label"]} onclick={(e: MouseEvent) => this.toggleDropdown(vnode, e)}>
       {vnode.attrs.text}
     </Primary>;
   }

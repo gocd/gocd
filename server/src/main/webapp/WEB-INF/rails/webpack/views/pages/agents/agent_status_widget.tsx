@@ -53,7 +53,7 @@ export class AgentStatusWidget extends MithrilComponent<AgentStatusWidgetAttrs> 
       <a href={"javascript:void(0)"}
          class={style.agentStatus}
          data-test-id={`agent-status-text-${agent.uuid}`}
-         onclick={(event) => AgentStatusWidget.toggleBuildDetails(event, vnode, agent.uuid)}>{agent.status()}</a>
+         onclick={(event: MouseEvent) => AgentStatusWidget.toggleBuildDetails(event, vnode, agent.uuid)}>{agent.status()}</a>
       <ul data-test-id={`agent-build-details-of-${agent.uuid}`}
           class={classnames(style.buildDetails, {[style.show]: vnode.attrs.buildDetailsForAgent() === agent.uuid})}>
         <li><a href={buildDetails.pipelineUrl}>Pipeline - {buildDetails.pipelineName}</a></li>

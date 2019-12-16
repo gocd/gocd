@@ -38,7 +38,7 @@ class TaskWidget extends MithrilViewComponent<TasksAttrs> {
       onclick={vnode.attrs.selectedTaskIndex.bind(vnode.attrs, vnode.attrs.index)}>
       <div data-test-id="task-representation" class={styles.taskItem}>{vnode.attrs.task.represent()}</div>
       <div class={styles.deleteTaskWrapper}>
-        <Icons.Delete iconOnly={true} onclick={(e) => {
+        <Icons.Delete iconOnly={true} onclick={(e: MouseEvent) => {
           e.stopPropagation();
           vnode.attrs.tasks().remove(vnode.attrs.task);
         }}/>

@@ -50,7 +50,7 @@ export namespace ModalManager {
               return <div key={entry.key}
                           data-test-id={entry.key}
                           class={styles.overlayBg}
-                          onclick={(event) => overlayBackgroundClicked(event,
+                          onclick={(event: MouseEvent) => overlayBackgroundClicked(event,
                                                                        entry.value as Modal)}>{m(entry.value)}</div>;
             }
 

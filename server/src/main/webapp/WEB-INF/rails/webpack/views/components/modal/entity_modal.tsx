@@ -82,7 +82,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   buttons() {
     return [
       <ButtonGroup>
-        <Buttons.Cancel data-test-id="button-cancel" onclick={(e) => this.close()}
+        <Buttons.Cancel data-test-id="button-cancel" onclick={(e: MouseEvent) => this.close()}
                         ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Buttons.Cancel>
         <Buttons.Primary data-test-id="button-save"
                          disabled={this.isLoading()}

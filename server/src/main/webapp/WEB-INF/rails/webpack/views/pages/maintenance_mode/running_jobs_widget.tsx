@@ -47,7 +47,7 @@ export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
                               <Buttons.Secondary data-test-id={`cancel-stage-btn-for-${stageLocator.toString()}`}
                                                  small={true}
                                                  disabled={stage.isStageCancelInProgress()}
-                                                 onclick={(e) => JobInfoWidget.onStageCancel(vnode, stage, e)}>
+                                                 onclick={(e: MouseEvent) => JobInfoWidget.onStageCancel(vnode, stage, e)}>
                                 {stage.isStageCancelInProgress() ? `Canceling..` : `Cancel stage`}
                               </Buttons.Secondary>]}>
             <Table data-test-id={`table-for-${stageLocator.toString()}`}

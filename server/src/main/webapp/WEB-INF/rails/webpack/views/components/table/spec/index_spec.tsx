@@ -21,7 +21,7 @@ import styles from "../index.scss";
 
 describe("TableComponent", () => {
   const helper  = new TestHelper();
-  const headers = ["Col1", "Col2", <lable>Col3</lable>];
+  const headers = ["Col1", "Col2", <label>Col3</label>];
   const data    = [[1, 2, "something"], [true, "two", null]];
 
   afterEach(helper.unmount.bind(helper));

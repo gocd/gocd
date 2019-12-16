@@ -440,7 +440,7 @@ export class TextAreaField extends FormField<string, TextAreaFieldAttrs> {
                           {[this.css.textareaFixed]: !(vnode.attrs.resizable)})}
         {...this.defaultAttributes(vnode.attrs)}
         rows={vnode.attrs.rows}
-        oninput={(e) => {
+        oninput={(e: any) => {
           vnode.attrs.property((e.target as HTMLTextAreaElement).value);
           if (vnode.attrs.onchange) {
             vnode.attrs.onchange(e);
@@ -688,7 +688,7 @@ export class SelectField extends FormField<string, RequiredFieldAttr> {
       <select
         class={this.css.formControl}
         {...this.defaultAttributes(vnode.attrs)}
-        onchange={(e) => {
+        onchange={(e: any) => {
           vnode.attrs.property((e.target as HTMLInputElement).value);
           if (vnode.attrs.onchange) {
             vnode.attrs.onchange(e);

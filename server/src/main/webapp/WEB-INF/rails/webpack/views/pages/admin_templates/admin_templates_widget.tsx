@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -24,6 +25,7 @@ import s from "underscore.string";
 import {Anchor, ScrollManager} from "views/components/anchor/anchor";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Delete, Edit, IconGroup, Lock, View} from "views/components/icons";
+import {Link} from "views/components/link";
 import styles from "views/pages/admin_pipelines/admin_pipelines_widget.scss";
 import {CreateOperation, DeleteOperation, EditOperation, SaveOperation} from "views/pages/page_operations";
 
@@ -178,8 +180,28 @@ class TemplateWidget extends MithrilViewComponent<TemplateAttrs> {
 
 export class AdminTemplatesWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
+    if (vnode.attrs.scrollOptions.sm.hasTarget()) {
+      const target           = vnode.attrs.scrollOptions.sm.getTarget();
+      const hasAnchorElement = vnode.attrs.templates.some((temp) => temp.name === target);
+      if (!hasAnchorElement) {
+        const msg = `Either '${target}' template has not been set up or you are not authorized to view the same.`;
+        return <FlashMessage dataTestId="anchor-template-not-present" type={MessageType.alert} message={msg}/>;
+      }
+    }
     if (_.isEmpty(vnode.attrs.templates)) {
-      return <FlashMessage type={MessageType.info} message={"There are no templates defined."}/>;
+      const templateUrl = "/configuration/pipeline_templates.html";
+      const docLink     = <span data-test-id="doc-link">
+       <Link href={docsUrl(templateUrl)} target="_blank" externalLinkIcon={true}>
+        Learn More
+      </Link>
+    </span>;
+
+      const noTemplatesFoundMsg = <span>
+      Either no templates have been set up or you are not authorized to view the same. {docLink}
+    </span>;
+
+      return <FlashMessage type={MessageType.info} message={noTemplatesFoundMsg}
+                           dataTestId="no-template-present-msg"/>;
     }
     return (
       <div data-test-id="templates">

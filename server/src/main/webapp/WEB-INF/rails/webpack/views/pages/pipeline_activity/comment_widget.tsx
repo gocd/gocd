@@ -100,7 +100,10 @@ class CommentModal extends Modal {
     return <Secondary dataTestId="edit-comment-button"
                       disabled={!this.canOperatePipeline}
                       title={this.canOperatePipeline ? "Edit comment." : "Requires pipeline operate permission."}
-                      onclick={() => this.mode = Mode.EDIT}>Edit</Secondary>;
+                      onclick={() => {
+                        this.mode = Mode.EDIT;
+                        m.redraw.sync();
+                      }}>Edit</Secondary>;
   }
 
   private updateAndClose() {

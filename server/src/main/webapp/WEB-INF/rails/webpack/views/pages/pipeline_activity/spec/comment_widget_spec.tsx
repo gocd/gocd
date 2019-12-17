@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import $ from "jquery";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ModalManager} from "views/components/modal/modal_manager";
@@ -207,7 +208,7 @@ describe("CommentWidget", () => {
       helper.clickByTestId("edit-comment-button", modal);
 
       expect(helper.byTestId("textarea-to-add-or-edit-comment", modal)).toBeInDOM();
-      expect((helper.byTestId("textarea-to-add-or-edit-comment", modal) as HTMLInputElement).value).toBe(comment());
+      expect($("textarea").val()).toBe(comment());
 
       expect(helper.byTestId("close-comment-dropdown-button", modal)).toBeInDOM();
       expect(helper.byTestId("save-comment-button", modal)).toBeInDOM();

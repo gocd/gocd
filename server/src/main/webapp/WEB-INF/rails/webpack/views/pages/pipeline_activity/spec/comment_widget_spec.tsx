@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import $ from "jquery";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ModalManager} from "views/components/modal/modal_manager";

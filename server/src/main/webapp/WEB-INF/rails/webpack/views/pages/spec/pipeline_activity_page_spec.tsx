@@ -38,14 +38,14 @@ describe("PipelineActivityPage", () => {
   it("should render pipeline activity for new pipeline", () => {
     mount(new PipelineActivityPageWrapper(PipelineActivity.fromJSON(PipelineActivityData.underConstruction())));
 
-    expect(helper.byTestId("counter-for-1")).toHaveText("unknown");
+    expect(helper.byTestId("counter")).toHaveText("unknown");
 
-    expect(helper.byTestId("vsm-for-1")).toHaveText("VSM");
-    expect(helper.q("span", helper.byTestId("vsm-for-1"))).toHaveClass(styles.disabled);
+    expect(helper.byTestId("vsm")).toHaveText("VSM");
+    expect(helper.q("span", helper.byTestId("vsm"))).toHaveClass(styles.disabled);
 
     expect(helper.byClass(styles.revision)).toContainText("Revision:");
 
-    expect(helper.byTestId("time-for-1")).toHaveText("N/A");
+    expect(helper.byTestId("time")).toHaveText("N/A");
     expect(helper.byTestId("trigger-with-changes-button")).not.toBeInDOM();
   });
 
@@ -55,9 +55,9 @@ describe("PipelineActivityPage", () => {
     mount(new PipelineActivityPageWrapper(activity));
 
     const history = activity.groups()[0].history()[0];
-    expect(helper.byTestId("counter-for-42")).toHaveText(history.label());
-    expect(helper.byTestId("vsm-for-42")).toHaveText("VSM");
-    expect(helper.q("a", helper.byTestId("vsm-for-42"))).toHaveAttr("href", "/go/pipelines/value_stream_map/up43/1");
+    expect(helper.byTestId("counter")).toHaveText(history.label());
+    expect(helper.byTestId("vsm")).toHaveText("VSM");
+    expect(helper.q("a", helper.byTestId("vsm"))).toHaveAttr("href", "/go/pipelines/value_stream_map/up43/1");
     expect(helper.byClass(styles.revision)).toContainText(`Revision: ${history.revision()}`);
     expect(helper.byTestId("trigger-with-changes-button")).toBeInDOM();
     expect(helper.byTestId("trigger-with-changes-button")).toHaveText("Triggered by changes");
@@ -154,7 +154,8 @@ describe("PipelineActivityPage", () => {
 
       mount(new PipelineActivityPageWrapper(activity));
 
-      helper.clickByTestId("manual-gate-icon-deploy-2");
+      const unitStageContainer = stageContainer(activity.groups()[0].history()[0].label(), "deploy");
+      helper.clickByTestId("gate-icon", unitStageContainer);
       const modal = helper.modal();
       helper.clickByTestId("primary-action-button", modal);
 
@@ -169,6 +170,10 @@ describe("PipelineActivityPage", () => {
 
   function mount(page: PipelineActivityPageWrapper) {
     helper.mountPage(() => page);
+  }
+
+  function stageContainer(label: string, stageName: string) {
+    return helper.byTestId(`stage-status-container-${stageName}`, helper.byTestId(`pipeline-instance-${label}`));
   }
 });
 

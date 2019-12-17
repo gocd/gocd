@@ -59,6 +59,11 @@
         <collection property="transitions" resultMap="BuildStateTransition.referenced-build-transition"/>
     </resultMap>
 
+    <resultMap id="latest-oldest-job-identifiers" type="com.thoughtworks.go.domain.PipelineRunIdInfo">
+        <result property="oldestRunId" column="oldestRunId"/>
+        <result property="latestRunId" column="latestRunId"/>
+    </resultMap>
+
     <parameterMap id="insert-build-param" type="com.thoughtworks.go.domain.JobInstance">
         <parameter property="name"/>
         <parameter property="scheduledDate" javaType="date" jdbcType="TIMESTAMP"/>
@@ -368,5 +373,74 @@
         WHERE (ignored = true
         OR builds.state = 'Completed')
         AND builds.agentUuid = #{uuid}
+    </select>
+
+    <!-- The following query will return the latest #{limit} job instances for the given pipeline-stage-job -->
+    <sql id="getJobIdsForHistory">
+        SELECT id
+        FROM _builds
+        WHERE name = #{jobConfigName}
+          AND pipelineName = #{pipelineName}
+          AND stageName = #{stageName}
+          AND originalJobId IS NULL
+        ORDER BY id DESC
+        LIMIT #{count}
+    </sql>
+
+    <!-- The following query will return the #{limit} job instances which are older than the given job instance id for the given pipeline-stage-job -->
+    <sql id="getJobIdsForHistoryAfter">
+        SELECT id
+        FROM _builds
+        WHERE name = #{jobConfigName}
+          AND pipelineName = #{pipelineName}
+          AND stageName = #{stageName}
+          AND originalJobId IS NULL
+          AND id &lt; #{cursor}
+        ORDER BY id DESC
+        LIMIT #{count}
+    </sql>
+
+    <!-- The following query will return the #{limit} job instances which are newer than the given job instance id for the given pipeline-stage-job -->
+    <sql id="getJobIdsForHistoryBefore">
+        SELECT id
+        FROM (SELECT id
+              FROM _builds
+              WHERE name = #{jobConfigName}
+                AND pipelineName = #{pipelineName}
+                AND stageName = #{stageName}
+                AND originalJobId IS NULL
+                AND id &gt; #{cursor}
+              ORDER BY id ASC
+              LIMIT #{count}) as JobInstanceIdsBeforeSpecifiedId
+        ORDER BY id DESC
+    </sql>
+
+    <!-- The following query will return the job history records based on cursor info for the given pipeline-stage-job -->
+    <select id="getJobHistoryViaCursor" resultMap="select-build-with-identifier">
+        SELECT *, id AS buildId
+        FROM _builds
+        WHERE id in (
+        <choose>
+            <when test="suffix==null or suffix==''">
+                <include refid="getJobIdsForHistory"/>
+            </when>
+            <when test="suffix=='After'">
+                <include refid="getJobIdsForHistoryAfter"/>
+            </when>
+            <when test="suffix=='Before'">
+                <include refid="getJobIdsForHistoryBefore"/>
+            </when>
+        </choose>
+        )
+    </select>
+
+    <!-- Following query returns the lastest and oldest run id for the given pipeline-stage-job. This helps in identifying the first and last record for the given identifier.  -->
+    <select id="getOldestAndLatestJobRun" resultMap="latest-oldest-job-identifiers">
+        SELECT MAX(id) as latestRunId, MIN(id) as oldestRunId
+        FROM _builds
+        WHERE name = #{jobConfigName}
+          AND pipelineName = #{pipelineName}
+          AND stageName = #{stageName}
+          AND originalJobId IS NULL
     </select>
 </mapper>

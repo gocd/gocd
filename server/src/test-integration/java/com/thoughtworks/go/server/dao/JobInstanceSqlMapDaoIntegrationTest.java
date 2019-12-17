@@ -1062,4 +1062,89 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         return artifactPlans;
     }
 
+    @Test
+    public void shouldReturnTheLatestAndOldestRunForGivenIdentifier() {
+        JobInstances jobInstances = new JobInstances();
+        String pipelineName = PIPELINE_NAME + "-" + UUID.randomUUID();
+        pipelineConfig = PipelineMother.withSingleStageWithMaterials(pipelineName, STAGE_NAME, BuildPlanMother.withBuildPlans(JOB_NAME));
+        Pipeline newPipeline = createNewPipeline(pipelineConfig);
+        jobInstances.add(newPipeline.getFirstStage().getFirstJob());
+        for (int i = 0; i < 2; i++) {
+            stageId = newPipeline.getFirstStage().getId();
+            JobInstance scheduled = JobInstanceMother.completed(JOB_NAME);
+            jobInstanceDao.save(stageId, scheduled);
+            jobInstances.add(scheduled);
+        }
+
+        PipelineRunIdInfo runIdInfo = jobInstanceDao.getOldestAndLatestJobInstanceId(pipelineName, STAGE_NAME, JOB_NAME);
+
+        assertThat(runIdInfo.getLatestRunId(), is(jobInstances.last().getId()));
+        assertThat(runIdInfo.getOldestRunId(), is(jobInstances.first().getId()));
+    }
+
+    @Test
+    public void findDetailedJobHistoryViaCursor_getLatestRecords() {
+        JobInstances jobInstances = new JobInstances();
+        String pipelineName = PIPELINE_NAME + "-" + UUID.randomUUID();
+        pipelineConfig = PipelineMother.withSingleStageWithMaterials(pipelineName, STAGE_NAME, BuildPlanMother.withBuildPlans(JOB_NAME));
+        Pipeline newPipeline = createNewPipeline(pipelineConfig);
+        jobInstances.add(newPipeline.getFirstStage().getFirstJob());
+        for (int i = 0; i < 4; i++) {
+            stageId = newPipeline.getFirstStage().getId();
+            JobInstance scheduled = JobInstanceMother.completed(JOB_NAME);
+            jobInstanceDao.save(stageId, scheduled);
+            jobInstances.add(scheduled);
+        }
+
+        JobInstances history = jobInstanceDao.findDetailedJobHistoryViaCursor(pipelineName, STAGE_NAME, JOB_NAME, FeedModifier.Latest, 0, 3);
+
+        Collections.reverse(jobInstances);
+        assertThat(history.size(), is(3));
+        assertThat(history.get(0).getId(), is(jobInstances.get(0).getId()));
+        assertThat(history.get(1).getId(), is(jobInstances.get(1).getId()));
+        assertThat(history.get(2).getId(), is(jobInstances.get(2).getId()));
+    }
+
+    @Test
+    public void findDetailedJobHistoryViaCursor_getRecordsAfterTheSpecifiedCursor() {  //older records
+        JobInstances jobInstances = new JobInstances();
+        String pipelineName = PIPELINE_NAME + "-" + UUID.randomUUID();
+        pipelineConfig = PipelineMother.withSingleStageWithMaterials(pipelineName, STAGE_NAME, BuildPlanMother.withBuildPlans(JOB_NAME));
+        Pipeline newPipeline = createNewPipeline(pipelineConfig);
+        jobInstances.add(newPipeline.getFirstStage().getFirstJob());
+        for (int i = 0; i < 4; i++) {
+            stageId = newPipeline.getFirstStage().getId();
+            JobInstance scheduled = JobInstanceMother.completed(JOB_NAME);
+            jobInstanceDao.save(stageId, scheduled);
+            jobInstances.add(scheduled);
+        }
+
+        JobInstances history = jobInstanceDao.findDetailedJobHistoryViaCursor(pipelineName, STAGE_NAME, JOB_NAME, FeedModifier.After, jobInstances.get(2).getId(), 3);
+
+        assertThat(history.size(), is(2));
+        assertThat(history.get(0).getId(), is(jobInstances.get(1).getId()));
+        assertThat(history.get(1).getId(), is(jobInstances.get(0).getId()));
+    }
+
+    @Test
+    public void findDetailedJobHistoryViaCursor_getRecordsBeforeTheSpecifiedCursor() {  //newer records
+        JobInstances jobInstances = new JobInstances();
+        String pipelineName = PIPELINE_NAME + "-" + UUID.randomUUID();
+        pipelineConfig = PipelineMother.withSingleStageWithMaterials(pipelineName, STAGE_NAME, BuildPlanMother.withBuildPlans(JOB_NAME));
+        Pipeline newPipeline = createNewPipeline(pipelineConfig);
+        jobInstances.add(newPipeline.getFirstStage().getFirstJob());
+        for (int i = 0; i < 4; i++) {
+            stageId = newPipeline.getFirstStage().getId();
+            JobInstance scheduled = JobInstanceMother.completed(JOB_NAME);
+            jobInstanceDao.save(stageId, scheduled);
+            jobInstances.add(scheduled);
+        }
+        Collections.reverse(jobInstances);
+
+        JobInstances history = jobInstanceDao.findDetailedJobHistoryViaCursor(pipelineName, STAGE_NAME, JOB_NAME, FeedModifier.Before, jobInstances.get(2).getId(), 3);
+
+        assertThat(history.size(), is(2));
+        assertThat(history.get(0).getId(), is(jobInstances.get(0).getId()));
+        assertThat(history.get(1).getId(), is(jobInstances.get(1).getId()));
+    }
 }

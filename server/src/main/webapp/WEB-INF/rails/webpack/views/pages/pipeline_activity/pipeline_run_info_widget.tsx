@@ -49,19 +49,19 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
     const pipelineRunInfo = vnode.attrs.pipelineRunInfo;
 
     return <tr class={styles.groupContent}
-               data-test-id={this.dataTestId("instance-header", pipelineRunInfo.pipelineId())}>
-      <td class={styles.left}>
+               data-test-id={this.dataTestId("pipeline-instance", pipelineRunInfo.label())}>
+      <td class={styles.left} data-test-id={"meta"}>
         <div class={classnames(styles.run, styles.header)}>
-          <span data-test-id={this.dataTestId("counter-for", pipelineRunInfo.pipelineId())}>
+          <span data-test-id={"counter"}>
             {pipelineRunInfo.label().substr(0, 17)}
           </span>
-          <span data-test-id={this.dataTestId("vsm-for", pipelineRunInfo.pipelineId())}>
+          <span data-test-id={"vsm"}>
             {PipelineRunWidget.getVSMLink(vnode, pipelineRunInfo)}
           </span>
         </div>
         <div class={styles.revision}>Revision: {pipelineRunInfo.revision()}</div>
         <div class={styles.scheduleInfo}
-             data-test-id={this.dataTestId("time-for", pipelineRunInfo.pipelineId())}>
+             data-test-id={"time"}>
           {PipelineRunWidget.getTime(pipelineRunInfo.scheduledTimestamp())}
         </div>
         <BuildCauseWidget pipelineRunInfo={pipelineRunInfo}
@@ -74,14 +74,14 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
                        showCommentFor={vnode.attrs.showCommentFor}
                        show={Stream(vnode.attrs.showCommentFor() === `${pipelineRunInfo.counterOrLabel()}`)}/>
       </td>
-      <td class={styles.right}>
+      <td class={styles.right} data-test-id="stage-status">
         {pipelineRunInfo.stages().map((stage, index) => {
           return <div
-            data-test-id={this.dataTestId("stage-status-wrapper", pipelineRunInfo.pipelineId(), stage.stageName())}
+            data-test-id={this.dataTestId("stage-status-container", stage.stageName())}
             class={classnames(styles.stage, {[styles.disabledIcon]: PipelineRunWidget.shouldDisableApprovalIcon(stage)})}>
             {this.getStageGateIcon(index, stage, vnode)}
             <div class={styles.stageStatusWrapper}>
-              <span data-test-id={this.dataTestId("stage-status", pipelineRunInfo.pipelineId(), stage.stageName())}
+              <span data-test-id={this.dataTestId("stage-status", stage.stageName())}
                     class={classnames(PipelineRunWidget.stageStatusClass(stage.stageStatus()))}/>
               <div class={styles.stageInfoIconWrapper}>
                 {this.getStageActions(stage, vnode)}
@@ -152,16 +152,15 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
       return;
     }
 
-    const dataTestIdSuffix = this.dataTestId("stage", "action", "icon", stage.stageName(), stage.stageId());
-    const infoIcon         = <Link target="_blank" href={`/go/pipelines/${stage.stageLocator()}`}>
-      <Icons.InfoCircle iconOnly={true} data-test-id={`info-${dataTestIdSuffix}`} title="Stage details"/>
+    const infoIcon = <Link target="_blank" href={`/go/pipelines/${stage.stageLocator()}`}>
+      <Icons.InfoCircle iconOnly={true} data-test-id="stage-info-icon" title="Stage details"/>
     </Link>;
     if (stage.getCanRun()) {
       return <div class={styles.stageInfoIconContainer}>
         {infoIcon}
         <Icons.Repeat iconOnly={true}
                       title="Rerun stage"
-                      data-test-id={`rerun-${dataTestIdSuffix}`}
+                      data-test-id="rerun-stage-icon"
                       onclick={() => vnode.attrs.runStage(stage)}/>
       </div>;
     }
@@ -170,7 +169,7 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
       return <div class={styles.stageInfoIconContainer}>
         {infoIcon}
         <Icons.Close iconOnly={true}
-                     data-test-id={`cancel-${dataTestIdSuffix}`}
+                     data-test-id="cancel-stage-icon"
                      title="Cancel stage"
                      onclick={() => vnode.attrs.cancelStageInstance(stage)}/>
       </div>;
@@ -185,7 +184,7 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
     }
 
     const isAutoApproved = vnode.attrs.stageConfigs.isAutoApproved(stage.stageName());
-    const dataTestId     = this.dataTestId(isAutoApproved ? "auto" : "manual", "gate", "icon", stage.stageName(), stage.stageId());
+    const dataTestId     = this.dataTestId("gate", "icon");
 
     const disabled = PipelineRunWidget.shouldDisableApprovalIcon(stage);
     if (isAutoApproved) {

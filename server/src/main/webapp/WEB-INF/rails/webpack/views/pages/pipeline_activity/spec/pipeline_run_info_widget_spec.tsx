@@ -48,16 +48,18 @@ describe("PipelineRunInfoWidget", () => {
     it("should render counter as unknown", () => {
       mount(pipelineRunInfo);
 
-      expect(helper.byTestId(`counter-for${pipelineRunInfo.pipelineId()}`)).toBeInDOM();
-      expect(helper.byTestId(`counter-for${pipelineRunInfo.pipelineId()}`)).toHaveText("unknown");
+      const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+      expect(helper.byTestId("counter", pipelineRunContainer)).toBeInDOM();
+      expect(helper.byTestId("counter", pipelineRunContainer)).toHaveText("unknown");
     });
 
     it("should render vsm as text instead of link", () => {
       mount(pipelineRunInfo);
 
-      expect(helper.byTestId(`vsm-for${pipelineRunInfo.pipelineId()}`)).toBeInDOM();
-      expect(helper.byTestId(`vsm-for${pipelineRunInfo.pipelineId()}`)).toHaveText("VSM");
-      expect(helper.byTestId(`vsm-for${pipelineRunInfo.pipelineId()}`)).not.toHaveAttr("href");
+      const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+      expect(helper.byTestId("vsm", pipelineRunContainer)).toBeInDOM();
+      expect(helper.byTestId("vsm", pipelineRunContainer)).toHaveText("VSM");
+      expect(helper.byTestId("vsm", pipelineRunContainer)).not.toHaveAttr("href");
     });
 
     it("should render time as N/A when timestamp on modification is null", () => {
@@ -68,8 +70,9 @@ describe("PipelineRunInfoWidget", () => {
 
       mount(pipelineRunInfo);
 
-      expect(helper.byTestId(`time-for${pipelineRunInfo.pipelineId()}`)).toBeInDOM();
-      expect(helper.byTestId(`time-for${pipelineRunInfo.pipelineId()}`)).toHaveText("N/A");
+      const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+      expect(helper.byTestId("time", pipelineRunContainer)).toBeInDOM();
+      expect(helper.byTestId("time", pipelineRunContainer)).toHaveText("N/A");
     });
   });
 
@@ -78,40 +81,45 @@ describe("PipelineRunInfoWidget", () => {
       const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(passed("Test")));
       mount(pipelineRunInfo);
 
-      expect(helper.byTestId(`stage-status-${pipelineRunInfo.pipelineId()}-test`)).toBeInDOM();
-      expect(helper.byTestId(`stage-status-${pipelineRunInfo.pipelineId()}-test`)).toHaveClass(styles.passed);
+      const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+      expect(helper.byTestId("stage-status-test", pipelineRunContainer)).toBeInDOM();
+      expect(helper.byTestId("stage-status-test", pipelineRunContainer)).toHaveClass(styles.passed);
     });
 
     it("should render failed stage", () => {
       const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(failed("Test")));
       mount(pipelineRunInfo);
 
-      expect(helper.byTestId(`stage-status-${pipelineRunInfo.pipelineId()}-test`)).toBeInDOM();
-      expect(helper.byTestId(`stage-status-${pipelineRunInfo.pipelineId()}-test`)).toHaveClass(styles.failed);
+      const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+      expect(helper.byTestId("stage-status-test", pipelineRunContainer)).toBeInDOM();
+      expect(helper.byTestId("stage-status-test", pipelineRunContainer)).toHaveClass(styles.failed);
     });
 
     it("should render unknown stage", () => {
       const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(unknown("Test")));
       mount(pipelineRunInfo);
 
-      expect(helper.byTestId(`stage-status-${pipelineRunInfo.pipelineId()}-test`)).toBeInDOM();
-      expect(helper.byTestId(`stage-status-${pipelineRunInfo.pipelineId()}-test`)).toHaveClass(styles.unknown);
+      const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+      expect(helper.byTestId("stage-status-test", pipelineRunContainer)).toBeInDOM();
+      expect(helper.byTestId("stage-status-test", pipelineRunContainer)).toHaveClass(styles.unknown);
     });
 
     it("should render cancelled stage", () => {
       const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(cancelled("Test")));
       mount(pipelineRunInfo);
 
-      expect(helper.byTestId(`stage-status-${pipelineRunInfo.pipelineId()}-test`)).toBeInDOM();
-      expect(helper.byTestId(`stage-status-${pipelineRunInfo.pipelineId()}-test`)).toHaveClass(styles.cancelled);
+      const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+      expect(helper.byTestId("stage-status-test", pipelineRunContainer)).toBeInDOM();
+      expect(helper.byTestId("stage-status-test", pipelineRunContainer)).toHaveClass(styles.cancelled);
     });
 
     it("should render building stage", () => {
       const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(building("Test")));
       mount(pipelineRunInfo);
 
-      expect(helper.byTestId(`stage-status-${pipelineRunInfo.pipelineId()}-test`)).toBeInDOM();
-      expect(helper.byTestId(`stage-status-${pipelineRunInfo.pipelineId()}-test`)).toHaveClass(styles.building);
+      const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+      expect(helper.byTestId("stage-status-test", pipelineRunContainer)).toBeInDOM();
+      expect(helper.byTestId("stage-status-test", pipelineRunContainer)).toHaveClass(styles.building);
     });
   });
 
@@ -119,11 +127,12 @@ describe("PipelineRunInfoWidget", () => {
     const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(passed("unit"), building("integration")));
     mount(pipelineRunInfo);
 
-    expect(helper.byTestId(`stage-status-${pipelineRunInfo.pipelineId()}-unit`)).toBeInDOM();
-    expect(helper.byTestId(`stage-status-${pipelineRunInfo.pipelineId()}-unit`)).toHaveClass(styles.passed);
+    const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+    expect(helper.byTestId("stage-status-unit", pipelineRunContainer)).toBeInDOM();
+    expect(helper.byTestId("stage-status-unit", pipelineRunContainer)).toHaveClass(styles.passed);
 
-    expect(helper.byTestId(`stage-status-${pipelineRunInfo.pipelineId()}-integration`)).toBeInDOM();
-    expect(helper.byTestId(`stage-status-${pipelineRunInfo.pipelineId()}-integration`)).toHaveClass(styles.building);
+    expect(helper.byTestId("stage-status-integration", pipelineRunContainer)).toBeInDOM();
+    expect(helper.byTestId("stage-status-integration", pipelineRunContainer)).toHaveClass(styles.building);
   });
 
   it("should turncate stage counter when it has more than 17 chars", () => {
@@ -131,8 +140,9 @@ describe("PipelineRunInfoWidget", () => {
     pipelineRunInfo.label("This is more then 17 letters as pipeline label");
     mount(pipelineRunInfo);
 
-    expect(helper.byTestId(`counter-for-${pipelineRunInfo.pipelineId()}`)).toBeInDOM();
-    expect(helper.byTestId(`counter-for-${pipelineRunInfo.pipelineId()}`)).toHaveText("This is more then");
+    const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+    expect(helper.byTestId("counter", pipelineRunContainer)).toBeInDOM();
+    expect(helper.byTestId("counter", pipelineRunContainer)).toHaveText("This is more then");
   });
 
   describe("Stage gate icons", () => {
@@ -148,8 +158,9 @@ describe("PipelineRunInfoWidget", () => {
         const stageConfigs          = toStageConfigs(pipelineRunInfo.stages());
         mount(pipelineRunInfo, stageConfigs);
 
-        expect(helper.byTestId("auto-gate-icon-integration-2")).toBeInDOM();
-        expect(helper.byTestId("auto-gate-icon-integration-2")).toHaveAttr("title", "Automatically approved");
+        const stageStatusContainer = stageContainer(pipelineRunInfo.label(), "integration");
+        expect(helper.byTestId("gate-icon", stageStatusContainer)).toBeInDOM();
+        expect(helper.byTestId("gate-icon", stageStatusContainer)).toHaveAttr("title", "Automatically approved");
       });
 
       it("should be awaiting for approval when stage is not run yet", () => {
@@ -162,8 +173,9 @@ describe("PipelineRunInfoWidget", () => {
         const stageConfigs          = toStageConfigs(pipelineRunInfo.stages());
         mount(pipelineRunInfo, stageConfigs);
 
-        expect(helper.byTestId("auto-gate-icon-integration-2")).toBeInDOM();
-        expect(helper.byTestId("auto-gate-icon-integration-2")).toHaveAttr("title", "Awaiting approval");
+        const stageStatusContainer = stageContainer(pipelineRunInfo.label(), "integration");
+        expect(helper.byTestId("gate-icon", stageStatusContainer)).toBeInDOM();
+        expect(helper.byTestId("gate-icon", stageStatusContainer)).toHaveAttr("title", "Awaiting approval");
       });
 
       it("should be approved by user when stage manually approved by some user", () => {
@@ -176,8 +188,9 @@ describe("PipelineRunInfoWidget", () => {
         const stageConfigs          = toStageConfigs(pipelineRunInfo.stages());
         mount(pipelineRunInfo, stageConfigs);
 
-        expect(helper.byTestId("auto-gate-icon-integration-2")).toBeInDOM();
-        expect(helper.byTestId("auto-gate-icon-integration-2")).toHaveAttr("title", "Approved by Bob");
+        const stageStatusContainer = stageContainer(pipelineRunInfo.label(), "integration");
+        expect(helper.byTestId("gate-icon", stageStatusContainer)).toBeInDOM();
+        expect(helper.byTestId("gate-icon", stageStatusContainer)).toHaveAttr("title", "Approved by Bob");
       });
 
       it("should be error message if stage has any", () => {
@@ -191,8 +204,9 @@ describe("PipelineRunInfoWidget", () => {
         const stageConfigs            = toStageConfigs(pipelineRunInfo.stages());
         mount(pipelineRunInfo, stageConfigs);
 
-        expect(helper.byTestId("auto-gate-icon-integration-2")).toBeInDOM();
-        expect(helper.byTestId("auto-gate-icon-integration-2")).toHaveAttr("title", "Can not schedule stage as previous stage is failed");
+        const stageStatusContainer = stageContainer(pipelineRunInfo.label(), "integration");
+        expect(helper.byTestId("gate-icon", stageStatusContainer)).toBeInDOM();
+        expect(helper.byTestId("gate-icon", stageStatusContainer)).toHaveAttr("title", "Can not schedule stage as previous stage is failed");
       });
     });
 
@@ -206,9 +220,11 @@ describe("PipelineRunInfoWidget", () => {
       makeStageManual(stageConfigs, "release");
       mount(pipelineRunInfo, stageConfigs);
 
-      expect(helper.byTestId("auto-gate-icon-integration-2")).toBeInDOM();
+      const integrationStageContainer = stageContainer(pipelineRunInfo.label(), "integration");
+      expect(helper.byTestId("gate-icon", integrationStageContainer)).toBeInDOM();
 
-      expect(helper.byTestId("manual-gate-icon-release-3")).toBeInDOM();
+      const releaseStageContainer = stageContainer(pipelineRunInfo.label(), "release");
+      expect(helper.byTestId("gate-icon", releaseStageContainer)).toBeInDOM();
     });
 
     it("should render disabled gate icon when can not run stage", () => {
@@ -223,11 +239,13 @@ describe("PipelineRunInfoWidget", () => {
       makeStageManual(stageConfigs, "release");
       mount(pipelineRunInfo, stageConfigs);
 
-      expect(helper.byTestId("auto-gate-icon-integration-2")).toBeInDOM();
-      expect(helper.byTestId("auto-gate-icon-integration-2")).not.toBeDisabled();
+      const integrationStageContainer = stageContainer(pipelineRunInfo.label(), "integration");
+      expect(helper.byTestId("gate-icon", integrationStageContainer)).toBeInDOM();
+      expect(helper.byTestId("gate-icon", integrationStageContainer)).not.toBeDisabled();
 
-      expect(helper.byTestId("manual-gate-icon-release-3")).toBeInDOM();
-      expect(helper.byTestId("manual-gate-icon-release-3")).toBeDisabled();
+      const releaseStageContainer = stageContainer(pipelineRunInfo.label(), "release");
+      expect(helper.byTestId("gate-icon", releaseStageContainer)).toBeInDOM();
+      expect(helper.byTestId("gate-icon", releaseStageContainer)).toBeDisabled();
     });
 
     it("should render disabled gate icon when can stage is already scheduled", () => {
@@ -243,15 +261,17 @@ describe("PipelineRunInfoWidget", () => {
       makeStageManual(stageConfigs, "release");
       mount(pipelineRunInfo, stageConfigs);
 
-      expect(helper.byTestId("auto-gate-icon-integration-2")).toBeInDOM();
-      expect(helper.byTestId("auto-gate-icon-integration-2")).not.toBeDisabled();
-      expect(helper.byTestId("stage-status-wrapper-42-integration")).toBeInDOM();
-      expect(helper.byTestId("stage-status-wrapper-42-integration")).not.toHaveClass(styles.disabledIcon);
+      const integrationStageContainer = stageContainer(pipelineRunInfo.label(), "integration");
+      expect(helper.byTestId("gate-icon", integrationStageContainer)).toBeInDOM();
+      expect(helper.byTestId("gate-icon", integrationStageContainer)).not.toBeDisabled();
+      expect(integrationStageContainer).toBeInDOM();
+      expect(integrationStageContainer).not.toHaveClass(styles.disabledIcon);
 
-      expect(helper.byTestId("manual-gate-icon-release-3")).toBeInDOM();
-      expect(helper.byTestId("manual-gate-icon-release-3")).toBeDisabled();
-      expect(helper.byTestId("stage-status-wrapper-42-release")).toBeInDOM();
-      expect(helper.byTestId("stage-status-wrapper-42-release")).toHaveClass(styles.disabledIcon);
+      const releaseStageContainer = stageContainer(pipelineRunInfo.label(), "release");
+      expect(helper.byTestId("gate-icon", releaseStageContainer)).toBeInDOM();
+      expect(helper.byTestId("gate-icon", releaseStageContainer)).toBeDisabled();
+      expect(releaseStageContainer).toBeInDOM();
+      expect(releaseStageContainer).toHaveClass(styles.disabledIcon);
     });
 
     it("should run stage on click of manual gate", () => {
@@ -263,7 +283,8 @@ describe("PipelineRunInfoWidget", () => {
       makeStageManual(stageConfigs, "release");
       mount(pipelineRunInfo, stageConfigs);
 
-      helper.clickByTestId("manual-gate-icon-release-2");
+      const releaseStageContainer = stageContainer(pipelineRunInfo.label(), "release");
+      helper.clickByTestId("gate-icon", releaseStageContainer);
       expect(runStage).toHaveBeenCalled();
     });
 
@@ -275,7 +296,8 @@ describe("PipelineRunInfoWidget", () => {
       ));
       mount(pipelineRunInfo);
 
-      helper.clickByTestId("auto-gate-icon-integration-2");
+      const integrationStageContainer = stageContainer(pipelineRunInfo.label(), "integration");
+      helper.clickByTestId("gate-icon", integrationStageContainer);
 
       expect(runStage).toHaveBeenCalled();
     });
@@ -288,9 +310,10 @@ describe("PipelineRunInfoWidget", () => {
       const pipelineRunInfo   = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(unitTestStage));
       mount(pipelineRunInfo);
 
-      expect(helper.byTestId("info-stage-action-icon-unit-2")).not.toBeInDOM();
-      expect(helper.byTestId("rerun-stage-action-icon-unit-2")).not.toBeInDOM();
-      expect(helper.byTestId("cancel-stage-action-icon-unit-2")).not.toBeInDOM();
+      const unitStageContainer = stageContainer(pipelineRunInfo.label(), "unit");
+      expect(helper.byTestId("stage-info-icon", unitStageContainer)).not.toBeInDOM();
+      expect(helper.byTestId("rerun-stage-icon", unitStageContainer)).not.toBeInDOM();
+      expect(helper.byTestId("cancel-stage-icon", unitStageContainer)).not.toBeInDOM();
     });
 
     it("should have only info action when it is scheduled but can not perform rerun or cancel", () => {
@@ -302,14 +325,15 @@ describe("PipelineRunInfoWidget", () => {
 
       mount(pipelineRunInfo);
 
-      const infoActionIcon = helper.byTestId("info-stage-action-icon-unit-2");
+      const unitStageContainer = stageContainer(pipelineRunInfo.label(), "unit");
+      const infoActionIcon     = helper.byTestId("stage-info-icon", unitStageContainer);
       expect(infoActionIcon).toBeInDOM();
       expect(infoActionIcon).toBeHidden();
       expect(infoActionIcon.parentElement).toHaveAttr("target", "_blank");
       expect(infoActionIcon.parentElement).toHaveAttr("href", `/go/pipelines/${unitTestStage.stageLocator}`);
 
-      expect(helper.byTestId("rerun-stage-action-icon-unit-2")).not.toBeInDOM();
-      expect(helper.byTestId("cancel-stage-action-icon-unit-2")).not.toBeInDOM();
+      expect(helper.byTestId("rerun-stage-icon", unitStageContainer)).not.toBeInDOM();
+      expect(helper.byTestId("cancel-stage-icon", unitStageContainer)).not.toBeInDOM();
     });
 
     it("should have only info and cancel action when it is scheduled and user can cancel", () => {
@@ -320,13 +344,14 @@ describe("PipelineRunInfoWidget", () => {
       const pipelineRunInfo      = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(unitTestStage));
       mount(pipelineRunInfo);
 
-      expect(helper.byTestId("info-stage-action-icon-unit-2")).toBeInDOM();
-      expect(helper.byTestId("info-stage-action-icon-unit-2")).toBeHidden();
+      const unitStageContainer = stageContainer(pipelineRunInfo.label(), "unit");
+      expect(helper.byTestId("stage-info-icon", unitStageContainer)).toBeInDOM();
+      expect(helper.byTestId("stage-info-icon", unitStageContainer)).toBeHidden();
 
-      expect(helper.byTestId("cancel-stage-action-icon-unit-2")).toBeInDOM();
-      expect(helper.byTestId("cancel-stage-action-icon-unit-2")).toBeHidden();
+      expect(helper.byTestId("cancel-stage-icon", unitStageContainer)).toBeInDOM();
+      expect(helper.byTestId("cancel-stage-icon", unitStageContainer)).toBeHidden();
 
-      expect(helper.byTestId("rerun-stage-action-icon-unit-2")).not.toBeInDOM();
+      expect(helper.byTestId("rerun-stage-icon", unitStageContainer)).not.toBeInDOM();
     });
 
     it("should have only info and rerun action when it is scheduled and user can rerun ", () => {
@@ -337,13 +362,14 @@ describe("PipelineRunInfoWidget", () => {
       const pipelineRunInfo      = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(unitTestStage));
       mount(pipelineRunInfo);
 
-      expect(helper.byTestId("info-stage-action-icon-unit-2")).toBeInDOM();
-      expect(helper.byTestId("info-stage-action-icon-unit-2")).toBeHidden();
+      const unitStageContainer = stageContainer(pipelineRunInfo.label(), "unit");
+      expect(helper.byTestId("stage-info-icon", unitStageContainer)).toBeInDOM();
+      expect(helper.byTestId("stage-info-icon", unitStageContainer)).toBeHidden();
 
-      expect(helper.byTestId("rerun-stage-action-icon-unit-2")).toBeInDOM();
-      expect(helper.byTestId("rerun-stage-action-icon-unit-2")).toBeHidden();
+      expect(helper.byTestId("rerun-stage-icon", unitStageContainer)).toBeInDOM();
+      expect(helper.byTestId("rerun-stage-icon", unitStageContainer)).toBeHidden();
 
-      expect(helper.byTestId("cancel-stage-action-icon-unit-2")).not.toBeInDOM();
+      expect(helper.byTestId("cancel-stage-icon", unitStageContainer)).not.toBeInDOM();
     });
   });
 
@@ -372,5 +398,9 @@ describe("PipelineRunInfoWidget", () => {
     }
 
     stage.isAutoApproved(false);
+  }
+
+  function stageContainer(label: string, stageName: string) {
+    return helper.byTestId(`stage-status-container-${stageName}`, helper.byTestId(`pipeline-instance-${label}`));
   }
 });

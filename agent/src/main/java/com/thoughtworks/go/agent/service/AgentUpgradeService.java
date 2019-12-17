@@ -104,6 +104,10 @@ public class AgentUpgradeService {
 
     private void validateMd5(String currentMd5, CloseableHttpResponse response, String agentContentMd5Header, String what) {
         final Header md5Header = response.getFirstHeader(agentContentMd5Header);
+        LOGGER.debug("[Agent Upgrade Validate MD5] validating MD5 for {}, currentMD5:{}, responseMD5:{}, headerKey:{}", what, currentMd5, md5Header, agentContentMd5Header);
+        if (md5Header == null) {
+            LOGGER.debug("[Agent Upgrade Validate MD5] Did not find {} MD5 header in response {}.", agentContentMd5Header, response);
+        }
         if (!"".equals(currentMd5)) {
             if (!currentMd5.equals(md5Header.getValue())) {
                 jvmExitter.jvmExit(what, currentMd5, md5Header.getValue());

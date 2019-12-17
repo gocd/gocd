@@ -16,6 +16,7 @@
 
 import {OnloadScheduler, Scheduler} from "helpers/scheduler";
 import {MithrilComponent} from "jsx/mithril-component";
+import _ from "lodash";
 import m from "mithril";
 import headerStyles from "views/components/header_panel/index.scss";
 
@@ -37,6 +38,7 @@ export interface ScrollManager {
   setTarget(target: string): void;
   shouldScroll(criteria: string): boolean;
   scrollToEl(dom: Element): void;
+  hasTarget(): boolean;
 }
 
 /**
@@ -94,6 +96,10 @@ export class AnchorVM implements ScrollManager {
       this.target = target;
       this.hasMoved = false;
     }
+  }
+
+  hasTarget(): boolean {
+    return !_.isEmpty(this.target);
   }
 
   /**

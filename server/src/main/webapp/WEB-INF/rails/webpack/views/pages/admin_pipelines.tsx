@@ -27,6 +27,7 @@ import {PipelineGroupCRUD} from "models/pipeline_configs/pipeline_groups_cache";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
+import {AnchorVM, ScrollManager} from "views/components/anchor/anchor";
 import * as Buttons from "views/components/buttons";
 import {ButtonIcon} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -34,25 +35,22 @@ import {HeaderPanel} from "views/components/header_panel";
 import {Modal, ModalState} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Attrs, PipelineGroupsWidget} from "views/pages/admin_pipelines/admin_pipelines_widget";
-import {
-  ClonePipelineConfigModal,
-  CreatePipelineGroupModal,
-  DownloadPipelineModal,
-  ExtractTemplateModal,
-  MoveConfirmModal
-} from "views/pages/admin_pipelines/modals";
+import {ClonePipelineConfigModal, CreatePipelineGroupModal, DownloadPipelineModal, ExtractTemplateModal, MoveConfirmModal} from "views/pages/admin_pipelines/modals";
 import {Page, PageState} from "views/pages/page";
 
 interface State extends Attrs {
   pluginInfos: Stream<PluginInfos>;
 }
 
+const sm: ScrollManager = new AnchorVM();
+
 export class AdminPipelinesPage extends Page<null, State> {
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    this.parseRepoLink(sm);
     return (
       <div>
         <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-        <PipelineGroupsWidget {...vnode.state}/>
+        <PipelineGroupsWidget {...vnode.state} sm={sm}/>
       </div>
     );
   }
@@ -342,6 +340,10 @@ export class AdminPipelinesPage extends Page<null, State> {
         }
       );
     });
+  }
+
+  parseRepoLink(sm: ScrollManager) {
+    sm.setTarget(m.route.param().id || "");
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {

@@ -72,4 +72,12 @@ describe("AnchorVM", () => {
     expect(vm.shouldScroll("foo")).toBe(false); // fails because it's a repeated call
     expect(vm.getTarget()).toBe("foo"); // but the ID still matches
   });
+
+  it('hasTarget() should report true only if something is specified', () => {
+    const vm = new AnchorVM();
+    expect(vm.hasTarget()).toBe(false);
+
+    vm.setTarget("foo");
+    expect(vm.hasTarget()).toBe(true);
+  });
 });

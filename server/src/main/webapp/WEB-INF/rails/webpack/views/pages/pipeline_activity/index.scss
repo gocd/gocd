@@ -374,7 +374,11 @@ $stage-action-icon-z-index: 1;
     }
 
     .value {
-      font-size: 15px;
+      font-size:     15px;
+      text-overflow: ellipsis;
+      white-space:   nowrap;
+      max-width:     200px;
+      overflow:      hidden;
     }
   }
 

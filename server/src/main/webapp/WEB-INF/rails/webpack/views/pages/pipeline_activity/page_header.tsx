@@ -40,6 +40,7 @@ export class PipelineActivityHeader extends MithrilViewComponent<Attrs> {
       <div class={styles.pipelineInfo}>
         <span class={styles.label} data-test-id="page-header-pipeline-label">Pipeline</span>
         <span class={styles.value}
+              title={vnode.attrs.pipelineActivity.pipelineName()}
               data-test-id="page-header-pipeline-name">{vnode.attrs.pipelineActivity.pipelineName()}</span>
       </div>
       {PipelineActivityHeader.getPipelinePauseUnpauseButton(vnode)}

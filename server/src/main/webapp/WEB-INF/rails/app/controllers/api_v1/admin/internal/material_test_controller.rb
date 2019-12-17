@@ -22,7 +22,7 @@ module ApiV1
         include_package 'com.thoughtworks.go.config.preprocessor'
         java_import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 
-        before_action :check_admin_user_or_group_admin_user_and_403
+        before_action :check_user_and_403
 
         def test
           material_config = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.get_material_type(params[:type]).new).from_hash(params)

@@ -29,7 +29,6 @@ import com.thoughtworks.go.domain.PipelineRunIdInfo;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.service.PipelineHistoryService;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -77,7 +76,6 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
         });
     }
 
-
     String getInstanceInfo(Request request, Response response) throws IOException {
         String pipelineName = request.params("pipeline_name");
         Integer pipelineCounter = getCounterValue(request);
@@ -99,7 +97,6 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
         return writerForTopLevelObject(request, response, (outputWriter) -> PipelineInstanceModelsRepresenter.toJSON(outputWriter, pipelineInstanceModels, latestAndOldestPipelineIds));
     }
 
-
     String comment(Request request, Response response) {
         String pipelineName = request.params("pipeline_name");
         Integer pipelineCounter = getCounterValue(request);
@@ -110,7 +107,6 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
 
         return renderMessage(response, 200, "Comment successfully updated.");
     }
-
 
     private Integer getPageSize(Request request) {
         Integer offset;

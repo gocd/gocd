@@ -33,9 +33,9 @@ describe ApiV1::Admin::Internal::MaterialTestController do
         expect(controller).to disallow_action(:post, :test).with(403, 'You are not authorized to perform this action.')
       end
 
-      it 'should disallow normal users, with security enabled' do
+      it 'should allow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:post, :test)
+        expect(controller).to allow_action(:post, :test)
       end
 
       it 'should allow admin users, with security enabled' do

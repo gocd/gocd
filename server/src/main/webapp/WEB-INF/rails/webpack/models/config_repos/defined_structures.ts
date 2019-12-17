@@ -49,7 +49,7 @@ export class DefinedStructures implements NamedTree {
   }
 
   static fetch(repoId: string, etag?: string) {
-    return ApiRequestBuilder.GET(SparkRoutes.configRepoDefinedConfigsPath(repoId), ApiVersion.v2, { etag });
+    return ApiRequestBuilder.GET(SparkRoutes.configRepoDefinedConfigsPath(repoId), ApiVersion.v3, { etag });
   }
 
   name(): string {

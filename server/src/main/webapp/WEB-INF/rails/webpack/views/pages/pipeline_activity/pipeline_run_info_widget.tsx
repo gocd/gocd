@@ -83,7 +83,9 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
             <div class={styles.stageStatusWrapper}>
               <span data-test-id={this.dataTestId("stage-status", pipelineRunInfo.pipelineId(), stage.stageName())}
                     class={classnames(PipelineRunWidget.stageStatusClass(stage.stageStatus()))}/>
-              {this.getStageActions(stage, vnode)}
+              <div class={styles.stageInfoIconWrapper}>
+                {this.getStageActions(stage, vnode)}
+              </div>
             </div>
           </div>;
         })}
@@ -155,7 +157,7 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
       <Icons.InfoCircle iconOnly={true} data-test-id={`info-${dataTestIdSuffix}`}/>
     </Link>;
     if (stage.getCanRun()) {
-      return <div class={styles.stageInfoIconWrapper}>
+      return <div class={styles.stageInfoIconContainer}>
         {infoIcon}
         <Icons.Repeat iconOnly={true}
                       title="Rerun stage"
@@ -165,7 +167,7 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
     }
 
     if (stage.getCanCancel()) {
-      return <div class={styles.stageInfoIconWrapper}>
+      return <div class={styles.stageInfoIconContainer}>
         {infoIcon}
         <Icons.Close iconOnly={true}
                      data-test-id={`cancel-${dataTestIdSuffix}`}
@@ -174,7 +176,7 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
       </div>;
     }
 
-    return <div class={styles.stageInfoIconWrapper}>{infoIcon}</div>;
+    return <div class={styles.stageInfoIconContainer}>{infoIcon}</div>;
   }
 
   private getStageGateIcon(index: number, stage: Stage, vnode: m.Vnode<PipelineRunAttrs>): m.Children {

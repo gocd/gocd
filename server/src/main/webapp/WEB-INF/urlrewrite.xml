@@ -158,8 +158,8 @@
   <rule>
     <name>Pipeline Instance comment API</name>
     <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
-    <from>^/api/pipelines/([^/]+)/instance/([^/]+)/comment$</from>
-    <to last="true">/spark/api/pipelines/${escape:$1}/instance/${escape:$2}/comment</to>
+    <from>^/api/pipelines/([^/]+)/([^/]+)/comment$</from>
+    <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}/comment</to>
   </rule>
 
   <rule>

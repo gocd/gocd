@@ -352,7 +352,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(pipelineName, "instance", 1, "comment"), [:])
+        postWithApiHeader(controller.controllerPath(pipelineName, 1, "comment"), [:])
       }
 
       @Override
@@ -374,7 +374,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
     @Test
     void "should return 200 when comment is updated"() {
-      postWithApiHeader(controller.controllerPath(pipelineName, "instance", 1, "comment"), [comment: "some comment"])
+      postWithApiHeader(controller.controllerPath(pipelineName, 1, "comment"), [comment: "some comment"])
 
       assertThatResponse()
         .isOk()
@@ -386,7 +386,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
     @Test
     void "should return 422 when 'comment' property is missing in payload"() {
-      postWithApiHeader(controller.controllerPath(pipelineName, "instance", 1, "comment"), ["bar": "foo"])
+      postWithApiHeader(controller.controllerPath(pipelineName, 1, "comment"), ["bar": "foo"])
 
       assertThatResponse()
         .isUnprocessableEntity()
@@ -397,7 +397,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
     @Test
     void "should return 422 when pipeline counter is not an integer"() {
-      postWithApiHeader(controller.controllerPath(pipelineName, "instance", "one", "comment"), [comment: "foo"])
+      postWithApiHeader(controller.controllerPath(pipelineName, "one", "comment"), [comment: "foo"])
 
       assertThatResponse()
         .isUnprocessableEntity()

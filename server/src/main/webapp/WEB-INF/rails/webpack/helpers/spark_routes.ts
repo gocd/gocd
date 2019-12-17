@@ -468,6 +468,6 @@ export class SparkRoutes {
   }
 
   static commentOnPipelineInstance(pipelineName: string, pipelineCounter: string | number) {
-    return `/go/api/pipelines/${pipelineName}/instance/${pipelineCounter}/comment`;
+    return `/go/api/pipelines/${pipelineName}/${pipelineCounter}/comment`;
   }
 }

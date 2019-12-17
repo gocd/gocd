@@ -16,8 +16,10 @@
 
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.spark.HtmlErrorPage;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -56,7 +58,13 @@ public class PipelineActivityController implements SparkController {
         path(controllerBasePath(), () -> {
             before("", authenticationHelper::checkPipelineViewPermissionsAnd403);
             get("", this::index, engine);
+            exception(RecordNotFoundException.class, this::handleRecordNotFoundException);
         });
+    }
+
+    private void handleRecordNotFoundException(RecordNotFoundException t, Request request, Response response) {
+        response.status(t.getStatus().value());
+        response.body(HtmlErrorPage.errorPage(t.getStatus().value(), t.getMessage()));
     }
 
     public ModelAndView index(Request request, Response response) {

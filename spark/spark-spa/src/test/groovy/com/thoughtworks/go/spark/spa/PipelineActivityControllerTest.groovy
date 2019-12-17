@@ -86,7 +86,7 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
 
       @BeforeEach
       void setUp() {
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(true);
+        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(true)
       }
 
       @Override
@@ -102,6 +102,16 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
       @Override
       String getPipelineName() {
         return "up42"
+      }
+
+      @Test
+      void 'should handle record not found'() {
+        enableSecurity()
+        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(false)
+
+        makeHttpCall()
+
+        assertThatResponse().isNotFound()
       }
     }
   }

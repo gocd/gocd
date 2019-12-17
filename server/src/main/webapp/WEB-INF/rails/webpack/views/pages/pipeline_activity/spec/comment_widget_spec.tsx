@@ -208,6 +208,7 @@ describe("CommentWidget", () => {
       helper.clickByTestId("edit-comment-button", modal);
 
       expect(helper.byTestId("textarea-to-add-or-edit-comment", modal)).toBeInDOM();
+      m.redraw.sync();
       expect($("textarea").val()).toBe(comment());
 
       expect(helper.byTestId("close-comment-dropdown-button", modal)).toBeInDOM();

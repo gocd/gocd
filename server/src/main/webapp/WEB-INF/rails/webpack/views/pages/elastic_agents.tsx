@@ -15,7 +15,6 @@
  */
 
 import {ErrorResponse} from "helpers/api_request_builder";
-import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
@@ -36,7 +35,6 @@ import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import {CloseListener} from "views/components/wizard";
-import {ElasticProfilesPage} from "views/pages/elastic_agent_configurations";
 import {ClusterProfileOperations} from "views/pages/elastic_agent_configurations/cluster_profile_widget";
 import {CloneClusterProfileModal} from "views/pages/elastic_agent_configurations/cluster_profiles_modals";
 import {ClusterProfilesWidget} from "views/pages/elastic_agent_configurations/cluster_profiles_widget";
@@ -86,7 +84,7 @@ export class ElasticAgentsPage extends Page<null, State> {
                              elasticAgentOperations={vnode.state.elasticAgentOperations}
                              clusterProfileOperations={vnode.state.clusterProfileOperations}
                              onShowUsages={vnode.state.onShowUsages.bind(vnode.state)}
-                             isUserAnAdmin={ElasticProfilesPage.isUserAnAdmin()}/>
+                             isUserAnAdmin={ElasticAgentsPage.isUserAnAdmin()}/>
     </div>;
   }
 

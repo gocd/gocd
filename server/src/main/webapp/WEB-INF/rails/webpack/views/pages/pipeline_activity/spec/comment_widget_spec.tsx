@@ -209,7 +209,7 @@ describe("CommentWidget", () => {
 
       expect(helper.byTestId("textarea-to-add-or-edit-comment", modal)).toBeInDOM();
       m.redraw.sync();
-      expect($("textarea").val()).toBe(comment());
+      expect(helper.byTestId("textarea-to-add-or-edit-comment", modal)).toHaveValue(comment());
 
       expect(helper.byTestId("close-comment-dropdown-button", modal)).toBeInDOM();
       expect(helper.byTestId("save-comment-button", modal)).toBeInDOM();

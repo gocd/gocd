@@ -38,26 +38,33 @@ import styles from "./config_repos/index.scss";
 
 interface SearchOperation {
   unfilteredModels: Stream<ConfigRepoVM[]>;
-  filteredModels:   Stream<ConfigRepoVM[]>;
-  searchText:       Stream<string>;
+  filteredModels: Stream<ConfigRepoVM[]>;
+  searchText: Stream<string>;
 }
 
-interface State extends AddOperation<ConfigRepo>, SaveOperation, SearchOperation, RequiresPluginInfos, FlashContainer {}
+interface State extends AddOperation<ConfigRepo>, SaveOperation, SearchOperation, RequiresPluginInfos, FlashContainer {
+  flushEtag: () => void;
+}
 
 // This instance will be shared with all config repo widgets and never changes
 const sm: ScrollManager = new AnchorVM();
 
 export class ConfigReposPage extends Page<null, State> {
   etag: Stream<string> = Stream();
+
   oninit(vnode: m.Vnode<null, State>) {
-    vnode.state.pluginInfos       = Stream();
-    vnode.state.unfilteredModels  = Stream();
-    vnode.state.searchText        = Stream();
-    vnode.state.flash             = this.flashMessage;
-    vnode.state.filteredModels    = Stream.combine<ConfigRepoVM[]>(
+    vnode.state.pluginInfos      = Stream();
+    vnode.state.unfilteredModels = Stream();
+    vnode.state.searchText       = Stream();
+    vnode.state.flash            = this.flashMessage;
+    vnode.state.filteredModels   = Stream.combine<ConfigRepoVM[]>(
       (collection: Stream<ConfigRepoVM[]>) => _.filter(collection(), (vm) => vm.repo.matches(vnode.state.searchText())),
       [vnode.state.unfilteredModels]
     );
+
+    vnode.state.flushEtag = () => {
+      this.etag = Stream();
+    };
 
     this.fetchData(vnode);
 
@@ -90,6 +97,7 @@ export class ConfigReposPage extends Page<null, State> {
     return <div>
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       <ConfigReposWidget models={vnode.state.filteredModels}
+                         flushEtag={vnode.state.flushEtag}
                          pluginInfos={vnode.state.pluginInfos}
                          sm={sm}
       />
@@ -109,7 +117,6 @@ export class ConfigReposPage extends Page<null, State> {
 
   fetchData(vnode: m.Vnode<null, State>) {
     const state = vnode.state;
-    state.unfilteredModels([]);
     this.pageState = PageState.LOADING;
 
     return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO}), ConfigReposCRUD.all(this.etag())]).then((args) => {
@@ -153,7 +160,7 @@ export class ConfigReposPage extends Page<null, State> {
     apiResponse.do(
       (successResponse) => {
         this.pageState = PageState.OK;
-        const models = _.map(successResponse.body, (repo) => new ConfigRepoVM(repo, vnode.state));
+        const models   = _.map(successResponse.body, (repo) => new ConfigRepoVM(repo, vnode.state));
         vnode.state.unfilteredModels(models);
       },
       (errorResponse) => {

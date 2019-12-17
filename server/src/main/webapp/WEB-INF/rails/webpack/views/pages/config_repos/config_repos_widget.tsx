@@ -37,10 +37,12 @@ import styles from "./index.scss";
 
 interface CollectionAttrs extends RequiresPluginInfos {
   models: Stream<ConfigRepoVM[]>;
+  flushEtag: () => void;
   sm: ScrollManager;
 }
 
 interface SingleAttrs extends CRVMAware {
+  flushEtag: () => void;
   pluginInfo?: PluginInfo;
   sm: ScrollManager;
 }
@@ -113,6 +115,7 @@ class SectionHeader extends MithrilViewComponent<SectionHeaderAttrs> {
 }
 
 interface ActionsAttrs extends CRVMAware {
+  flushEtag: () => void;
   inProgress: boolean;
   configRepoHasErrors: boolean;
   can_administer: boolean;
@@ -133,7 +136,10 @@ class CRPanelActions extends MithrilViewComponent<ActionsAttrs> {
     return [
       statusIcon,
       <IconGroup>
-        <Refresh data-test-id="config-repo-refresh" title={vnode.attrs.title} disabled={!vnode.attrs.can_administer} onclick={vm.reparseRepo}/>
+        <Refresh data-test-id="config-repo-refresh"
+                 title={vnode.attrs.title}
+                 disabled={!vnode.attrs.can_administer}
+                 onclick={(e: MouseEvent) => vm.reparseRepo(e).then(vnode.attrs.flushEtag)}/>
         <Edit data-test-id="config-repo-edit" title={vnode.attrs.title} disabled={!vnode.attrs.can_administer} onclick={vm.showEditModal}/>
         <Delete data-test-id="config-repo-delete" title={vnode.attrs.title} disabled={!vnode.attrs.can_administer} onclick={vm.showDeleteModal}/>
       </IconGroup>];
@@ -193,7 +199,12 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
       <CollapsiblePanel error={configRepoHasErrors}
                         header={<HeaderWidget {...vnode.attrs}/>}
                         dataTestId={"config-repo-details-panel"}
-                        actions={<CRPanelActions configRepoHasErrors={configRepoHasErrors} inProgress={repo.materialUpdateInProgress()} can_administer={repo.canAdminister()} title={title} vm={vm}/>}
+                        actions={<CRPanelActions configRepoHasErrors={configRepoHasErrors}
+                                                 inProgress={repo.materialUpdateInProgress()}
+                                                 can_administer={repo.canAdminister()}
+                                                 flushEtag={vnode.attrs.flushEtag}
+                                                 title={title}
+                                                 vm={vm}/>}
                         vm={this}
                         onexpand={() => vm.notify("expand")}>
         {maybeWarning}
@@ -303,7 +314,11 @@ export class ConfigReposWidget extends MithrilViewComponent<CollectionAttrs> {
       {models.map((vm: any) => {
         const repo = vm.repo;
         const pluginInfo = _.find(vnode.attrs.pluginInfos(), {id: repo.pluginId()});
-        return <ConfigRepoWidget key={repo.id()} vm={vm} pluginInfo={pluginInfo} sm={vnode.attrs.sm}/>;
+        return <ConfigRepoWidget key={repo.id()}
+                                 flushEtag={vnode.attrs.flushEtag}
+                                 vm={vm}
+                                 pluginInfo={pluginInfo}
+                                 sm={vnode.attrs.sm}/>;
       })}
     </div>;
   }

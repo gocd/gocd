@@ -445,8 +445,8 @@ export class EditConfigRepoModal extends ConfigRepoModal {
   }
 
   private onSuccess() {
-    this.onSuccessfulSave(<span>The config repository <em>{this.getRepo().id()}</em> was updated successfully!</span>);
     this.close();
+    this.onSuccessfulSave(<span>The config repository <em>{this.getRepo().id()}</em> was updated successfully!</span>);
   }
 
   private handleError(result: ApiResult<ObjectWithEtag<ConfigRepo>>, errorResponse: ErrorResponse) {

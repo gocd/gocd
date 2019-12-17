@@ -177,12 +177,16 @@ $stage-action-icon-z-index: 1;
   }
 
   .stage-info-icon-wrapper {
+    position: relative;
+    top:      0;
+  }
+
+  .stage-info-icon-container {
     position:        absolute;
     display:         flex;
     flex-direction:  row;
     justify-content: space-between;
     width:           100%;
-    margin-top:      15px;
     height:          15px;
   }
 }
@@ -388,12 +392,6 @@ $stage-action-icon-z-index: 1;
     white-space:   nowrap;
     overflow:      hidden;
     text-overflow: ellipsis;
-  }
-}
-
-.pipeline-pause-input-wrapper {
-  input {
-    width: 100%;
   }
 }
 

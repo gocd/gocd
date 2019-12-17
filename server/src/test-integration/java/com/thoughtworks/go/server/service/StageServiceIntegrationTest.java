@@ -34,6 +34,7 @@ import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -91,6 +92,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
@@ -583,25 +585,25 @@ public class StageServiceIntegrationTest {
         assertThat(stageService.oldestStagesWithDeletableArtifacts().size(), is(0));
     }
 
-     @Test
-     public void findStageHistoryForChart_shouldFindLatestStageInstancesForChart() throws Exception {
-         PipelineConfig pipelineConfig = configFileHelper.addPipeline("pipeline-1", "stage-1");
-         configFileHelper.turnOffSecurity();
-         List<Pipeline> completedPipelines = new ArrayList<>();
-         Pipeline pipeline;
-         for (int i = 0; i < 16; i++) {
-             pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
-             dbHelper.pass(pipeline);
-             completedPipelines.add(pipeline);
-         }
-         StageSummaryModels stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 4, new Username(new CaseInsensitiveString("loser")));
-         assertThat(stages.size(), is(4));
-         assertThat(stages.get(0).getIdentifier().getPipelineCounter(), is(16));
-         stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 3, 4, new Username(new CaseInsensitiveString("loser")));
-         assertThat(stages.size(), is(4));
-         assertThat(stages.get(0).getIdentifier().getPipelineCounter(), is(8));
-         assertThat(stages.getPagination().getTotalPages(), is(4));
-     }
+    @Test
+    public void findStageHistoryForChart_shouldFindLatestStageInstancesForChart() throws Exception {
+        PipelineConfig pipelineConfig = configFileHelper.addPipeline("pipeline-1", "stage-1");
+        configFileHelper.turnOffSecurity();
+        List<Pipeline> completedPipelines = new ArrayList<>();
+        Pipeline pipeline;
+        for (int i = 0; i < 16; i++) {
+            pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
+            dbHelper.pass(pipeline);
+            completedPipelines.add(pipeline);
+        }
+        StageSummaryModels stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 4, new Username(new CaseInsensitiveString("loser")));
+        assertThat(stages.size(), is(4));
+        assertThat(stages.get(0).getIdentifier().getPipelineCounter(), is(16));
+        stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 3, 4, new Username(new CaseInsensitiveString("loser")));
+        assertThat(stages.size(), is(4));
+        assertThat(stages.get(0).getIdentifier().getPipelineCounter(), is(8));
+        assertThat(stages.getPagination().getTotalPages(), is(4));
+    }
 
     @Test
     public void findStageHistoryForChart_shouldNotRetrieveCancelledStagesAndStagesWithRerunJobs() throws Exception {
@@ -706,6 +708,49 @@ public class StageServiceIntegrationTest {
         fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
         Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageRunning();
         assertThat(stageService.isStageActive(pipeline.getName().toUpperCase(), "FT"), is(true));
+    }
+
+    @Test
+    public void shouldReturnTheLatestAndOldestStageInstanceId() {
+        StageHistoryEntry[] stages = createFiveStages();
+
+        PipelineRunIdInfo oldestAndLatestPipelineId = stageService.getOldestAndLatestStageInstanceId(new Username(new CaseInsensitiveString("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName());
+
+        assertThat(oldestAndLatestPipelineId.getLatestRunId(), is(stages[4].getId()));
+        assertThat(oldestAndLatestPipelineId.getOldestRunId(), is(stages[0].getId()));
+    }
+
+    @Test
+    public void shouldReturnLatestPipelineHistory() {
+        StageHistoryEntry[] stages = createFiveStages();
+
+        StageInstanceModels history = stageService.findStageHistoryViaCursor(new Username(new CaseInsensitiveString("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName(), 0, 0, 10);
+
+        assertThat(history.size(), is(5));
+        assertThat(history.get(0).getId(), is(stages[4].getId()));
+        assertThat(history.get(4).getId(), is(stages[0].getId()));
+    }
+
+    @Test
+    public void shouldReturnThePipelineHistoryAfterTheSpecifiedCursor() {
+        StageHistoryEntry[] stages = createFiveStages();
+
+        StageInstanceModels history = stageService.findStageHistoryViaCursor(new Username(new CaseInsensitiveString("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName(), stages[2].getId(), 0, 10);
+
+        assertThat(history.size(), is(2));
+        assertThat(history.get(0).getId(), is(stages[1].getId()));
+        assertThat(history.get(1).getId(), is(stages[0].getId()));
+    }
+
+    @Test
+    public void shouldReturnThePipelineHistoryBeforeTheSpecifiedCursor() {
+        StageHistoryEntry[] stages = createFiveStages();
+
+        StageInstanceModels history = stageService.findStageHistoryViaCursor(new Username(new CaseInsensitiveString("admin1")), savedPipeline.getName(), savedPipeline.getFirstStage().getName(), 0, stages[2].getId(), 10);
+
+        assertThat(history.size(), is(2));
+        assertThat(history.get(0).getId(), is(stages[4].getId()));
+        assertThat(history.get(1).getId(), is(stages[3].getId()));
     }
 
     private void assertStageEntryAuthor(FeedEntries feed) {

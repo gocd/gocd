@@ -23,10 +23,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.feed.FeedEntry;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.presentation.pipelinehistory.JobHistory;
-import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
-import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
+import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.InstanceFactory;
@@ -68,7 +65,9 @@ import static com.thoughtworks.go.server.dao.PersistentObjectMatchers.hasSameId;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -82,16 +81,26 @@ import static org.mockito.Mockito.*;
         "classpath:/spring-all-servlet.xml",
 })
 public class StageSqlMapDaoIntegrationTest {
-    @Autowired private GoCache goCache;
-    @Autowired private StageSqlMapDao stageDao;
-    @Autowired private JobInstanceDao jobInstanceDao;
-    @Autowired private PipelineDao pipelineDao;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private ScheduleService scheduleService;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private InstanceFactory instanceFactory;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private StageSqlMapDao stageDao;
+    @Autowired
+    private JobInstanceDao jobInstanceDao;
+    @Autowired
+    private PipelineDao pipelineDao;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private InstanceFactory instanceFactory;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private static final String STAGE_DEV = "dev";
@@ -119,7 +128,8 @@ public class StageSqlMapDaoIntegrationTest {
         stageDao.setSqlMapClientTemplate(origTemplate);
     }
 
-    @Test public void shouldUpdateCompletingTransitionIdWhenUpdatingResult() throws Exception {
+    @Test
+    public void shouldUpdateCompletingTransitionIdWhenUpdatingResult() throws Exception {
         Pipeline pipeline = pipelineWithOnePassedAndOneCurrentlyRunning(mingleConfig)[1];
         Stage stage = pipeline.getStages().get(0);
         stage.setCompletedByTransitionId(10L);
@@ -140,7 +150,8 @@ public class StageSqlMapDaoIntegrationTest {
         assertNotNull(stage.getLastTransitionedTime());
     }
 
-    @Test public void shouldUpdateStageStateWhenUpdatingResult() throws Exception {
+    @Test
+    public void shouldUpdateStageStateWhenUpdatingResult() throws Exception {
         Pipeline pipeline = pipelineWithOnePassedAndOneCurrentlyRunning(mingleConfig)[1];
         Stage stage = pipeline.getStages().get(0);
         stage.calculateResult();
@@ -150,7 +161,8 @@ public class StageSqlMapDaoIntegrationTest {
         assertThat(reloaded.getState(), is(initialState));
     }
 
-    @Test public void shouldFindAllRunsOfAStageForAPipelineRun() throws Exception {
+    @Test
+    public void shouldFindAllRunsOfAStageForAPipelineRun() throws Exception {
         Pipeline[] pipelines = pipelineWithOnePassedAndOneCurrentlyRunning(mingleConfig);
         Pipeline completed = pipelines[0];
 
@@ -250,7 +262,7 @@ public class StageSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldGetTotalStageCountForChart(){
+    public void shouldGetTotalStageCountForChart() {
         configHelper.addPipeline(mingleConfig);
         configHelper.turnOffSecurity();
         List<Pipeline> completedPipelines = new ArrayList<>();
@@ -314,7 +326,7 @@ public class StageSqlMapDaoIntegrationTest {
         when(mockClient.queryForObject("getTotalStageCountForChart", toGet)).thenReturn(3).thenReturn(4);
 
         assertThat(stageDao.getTotalStageCountForChart("maar", "khoon"), is(3));//Should prime the cache
-        Stage stage = new Stage("khoon", new JobInstances(), "foo", null,  "manual", new TimeProvider());
+        Stage stage = new Stage("khoon", new JobInstances(), "foo", null, "manual", new TimeProvider());
         stage.setIdentifier(new StageIdentifier("maar/2/khoon/1"));
         updateResultInTransaction(stage, StageResult.Cancelled);//Should Invalidate the cache
 
@@ -782,7 +794,8 @@ public class StageSqlMapDaoIntegrationTest {
         assertThat(stage, is(nullValue()));
     }
 
-    @Test public void shouldFindStageWithJobsAndTransitionsByIdentifier() throws Exception {
+    @Test
+    public void shouldFindStageWithJobsAndTransitionsByIdentifier() throws Exception {
         PipelineConfig pipelineConfig = twoBuildPlansWithResourcesAndMaterials("pipeline-1", "stage-1");
 
         Pipeline pipeline = pipelineWithOnePassedAndOneCurrentlyRunning(pipelineConfig)[0];
@@ -1543,7 +1556,7 @@ public class StageSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldCacheStageHistoryPageAndCountAndOffset() throws Exception{
+    public void shouldCacheStageHistoryPageAndCountAndOffset() throws Exception {
         HgMaterial hg = new HgMaterial("url", null);
         String[] hg_revs = {"h1"};
         scheduleUtil.checkinInOrder(hg, hg_revs);
@@ -1661,13 +1674,13 @@ public class StageSqlMapDaoIntegrationTest {
 
         assertThat(stageInstanceModels.size(), is(1));
 
-		assertThat(stageInstanceModels.get(0).getResult(), is(StageResult.Passed));
-		assertThat(stageInstanceModels.get(0).getIdentifier().getPipelineName(), is(pipelineName));
-		assertThat(stageInstanceModels.get(0).getIdentifier().getPipelineCounter(), is(1));
-		assertThat(stageInstanceModels.get(0).getIdentifier().getStageName(), is(stageName));
-		assertThat(stageInstanceModels.get(0).getIdentifier().getStageCounter(), is("1"));
-		assertJobDetails(stageInstanceModels.get(0).getBuildHistory());
-	}
+        assertThat(stageInstanceModels.get(0).getResult(), is(StageResult.Passed));
+        assertThat(stageInstanceModels.get(0).getIdentifier().getPipelineName(), is(pipelineName));
+        assertThat(stageInstanceModels.get(0).getIdentifier().getPipelineCounter(), is(1));
+        assertThat(stageInstanceModels.get(0).getIdentifier().getStageName(), is(stageName));
+        assertThat(stageInstanceModels.get(0).getIdentifier().getStageCounter(), is("1"));
+        assertJobDetails(stageInstanceModels.get(0).getBuildHistory());
+    }
 
     private void assertJobDetails(JobHistory buildHistory) {
         assertThat(buildHistory.size(), is(2));
@@ -1677,11 +1690,11 @@ public class StageSqlMapDaoIntegrationTest {
         assertThat(buildHistory.get(1).getResult(), is(JobResult.Passed));
     }
 
-	@Test
-	public void shouldCacheDetailedStageHistoryPageAndCountAndOffset() throws Exception{
-		HgMaterial hg = new HgMaterial("url", null);
-		String[] hg_revs = {"h1"};
-		scheduleUtil.checkinInOrder(hg, hg_revs);
+    @Test
+    public void shouldCacheDetailedStageHistoryPageAndCountAndOffset() throws Exception {
+        HgMaterial hg = new HgMaterial("url", null);
+        String[] hg_revs = {"h1"};
+        scheduleUtil.checkinInOrder(hg, hg_revs);
 
         String pipelineName = "p1";
         String stageName = "stage_name";
@@ -1824,18 +1837,21 @@ public class StageSqlMapDaoIntegrationTest {
         String[] hg_revs = {"h1", "h2", "h3"};
         scheduleUtil.checkinInOrder(hg, hg_revs);
 
-        ScheduleTestUtil.AddedPipeline p1 = scheduleUtil.saveConfigWith(PIPELINE_NAME, STAGE_DEV, scheduleUtil.m(hg));
-        String run1 = scheduleUtil.runAndPass(p1, "h1");
-        String run2 = scheduleUtil.runAndPass(p1, "h2");
-        String run3 = scheduleUtil.runAndPass(p1, "h3");
-        String run4 = scheduleUtil.runAndPass(p1, "h1", "h2");
-        String run5 = scheduleUtil.runAndPass(p1, "h2", "h3");
-        String run6 = scheduleUtil.runAndPass(p1, "h3", "h1");
-        String run7 = scheduleUtil.runAndPass(p1, "h1", "h2", "h3");
+        String pipelineName = PIPELINE_NAME + "-" + UUID.randomUUID();
+        ScheduleTestUtil.AddedPipeline p1 = scheduleUtil.saveConfigWith(pipelineName, STAGE_DEV, scheduleUtil.m(hg));
+        Date date = new Date();
+        Pipeline run1 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "h1");
+        Pipeline run2 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "h2");
+        Pipeline run3 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "h3");
+        Pipeline run4 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "h1", "h2");
+        Pipeline run5 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "h2", "h3");
 
-        StageInstanceModels stageHistory = stageDao.findDetailedStageHistoryViaCursor(PIPELINE_NAME, STAGE_DEV, FeedModifier.After, 5, 3);
+        StageInstanceModels stageHistory = stageDao.findDetailedStageHistoryViaCursor(pipelineName, STAGE_DEV, FeedModifier.After, run4.getFirstStage().getId(), 3);
 
-        assertStageModels(stageHistory, run4, run3, run2);
+        assertThat(stageHistory.size(), is(3));
+        assertThat(stageHistory.get(0).getId(), is(run3.getFirstStage().getId()));
+        assertThat(stageHistory.get(1).getId(), is(run2.getFirstStage().getId()));
+        assertThat(stageHistory.get(2).getId(), is(run1.getFirstStage().getId()));
     }
 
     @Test
@@ -1844,36 +1860,39 @@ public class StageSqlMapDaoIntegrationTest {
         String[] hg_revs = {"h1", "h2", "h3"};
         scheduleUtil.checkinInOrder(hg, hg_revs);
 
-        ScheduleTestUtil.AddedPipeline p1 = scheduleUtil.saveConfigWith(PIPELINE_NAME, STAGE_DEV, scheduleUtil.m(hg));
-        String run1 = scheduleUtil.runAndPass(p1, "h1");
-        String run2 = scheduleUtil.runAndPass(p1, "h2");
-        String run3 = scheduleUtil.runAndPass(p1, "h3");
-        String run4 = scheduleUtil.runAndPass(p1, "h1", "h2");
-        String run5 = scheduleUtil.runAndPass(p1, "h2", "h3");
-        String run6 = scheduleUtil.runAndPass(p1, "h3", "h1");
-        String run7 = scheduleUtil.runAndPass(p1, "h1", "h2", "h3");
+        String pipelineName = PIPELINE_NAME + "-" + UUID.randomUUID();
+        ScheduleTestUtil.AddedPipeline p1 = scheduleUtil.saveConfigWith(pipelineName, STAGE_DEV, scheduleUtil.m(hg));
+        Date date = new Date();
+        Pipeline run1 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "h1");
+        Pipeline run2 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "h2");
+        Pipeline run3 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "h3");
+        Pipeline run4 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "h1", "h2");
+        Pipeline run5 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "h2", "h3");
 
-        StageInstanceModels stageHistory = stageDao.findDetailedStageHistoryViaCursor(PIPELINE_NAME, STAGE_DEV, FeedModifier.Before, 3, 3);
+        StageInstanceModels stageHistory = stageDao.findDetailedStageHistoryViaCursor(pipelineName, STAGE_DEV, FeedModifier.Before, run3.getFirstStage().getId(), 3);
 
-        assertStageModels(stageHistory, run6, run5, run4);
+        assertThat(stageHistory.size(), is(2));
+        assertThat(stageHistory.get(0).getId(), is(run5.getFirstStage().getId()));
+        assertThat(stageHistory.get(1).getId(), is(run4.getFirstStage().getId()));
     }
 
     @Test
     public void latestAndOldest_shouldReturnOldestAndLatestStageRun() {
-        HgMaterial hg = new HgMaterial("url", null);
-        String[] hg_revs = {"h1", "h2", "h3"};
+        HgMaterial hg = new HgMaterial("foo-bar", null);
+        String[] hg_revs = {"rev1", "rev2", "rev3"};
         scheduleUtil.checkinInOrder(hg, hg_revs);
 
         Date date = new Date();
-        ScheduleTestUtil.AddedPipeline p1 = scheduleUtil.saveConfigWith(PIPELINE_NAME, STAGE_DEV, scheduleUtil.m(hg));
-        Pipeline run1 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "h1");
-        Pipeline run2 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "h2");
-        Pipeline run3 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "h3");
+        String pipelineName = PIPELINE_NAME + "-" + UUID.randomUUID();
+        ScheduleTestUtil.AddedPipeline p1 = scheduleUtil.saveConfigWith(pipelineName, STAGE_DEV, scheduleUtil.m(hg));
+        Pipeline run1 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "rev1");
+        Pipeline run2 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "rev2");
+        Pipeline run3 = scheduleUtil.runAndPassAndReturnPipelineInstance(p1, date, "rev3");
 
-        PipelineRunIdInfo info = stageDao.getOldestAndLatestStageInstanceId(PIPELINE_NAME, STAGE_DEV);
+        PipelineRunIdInfo info = stageDao.getOldestAndLatestStageInstanceId(pipelineName, STAGE_DEV);
 
-        assertThat(info.getLatestRunId(), is(run3.getId()));
-        assertThat(info.getOldestRunId(), is(run1.getId()));
+        assertThat(info.getOldestRunId(), is(run1.getFirstStage().getId()));
+        assertThat(info.getLatestRunId(), is(run3.getFirstStage().getId()));
     }
 
     private void assertStageModels(StageInstanceModels stageInstanceModels, String... runIdentifiers) {
@@ -2004,7 +2023,7 @@ public class StageSqlMapDaoIntegrationTest {
         assertThat(feedEntry.getEntryId(), is(transitionId(cancelledStage)));
         StageIdentifier id = cancelledStage.getIdentifier();
         assertThat(feedEntry.getTitle(),
-                is(String.format("%s(%s) stage %s(%s) %s", id.getPipelineName(), id.getPipelineCounter(), id.getStageName(), id.getStageCounter(), cancelledStage.getResult())));//cruise(5) stage stage Failed
+                is(format("%s(%s) stage %s(%s) %s", id.getPipelineName(), id.getPipelineCounter(), id.getStageName(), id.getStageCounter(), cancelledStage.getResult())));//cruise(5) stage stage Failed
         assertThat(feedEntry.getUpdatedDate(), is(cancelledStage.latestTransitionDate()));
     }
 

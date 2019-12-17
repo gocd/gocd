@@ -151,8 +151,12 @@ describe("PipelineGroupsWidget", () => {
       return <PipelineGroupsWidget {...attrs}/>;
     });
 
-    expect(helper.byTestId("anchor-pipeline-grp-not-present")).toBeInDOM();
-    expect(helper.textByTestId("anchor-pipeline-grp-not-present")).toBe("Either 'grp-test' pipeline group has not been set up or you are not authorized to view the same.");
+    const anchorErrorMsgElement = helper.byTestId("anchor-pipeline-grp-not-present");
+    expect(anchorErrorMsgElement).toBeInDOM();
+    expect(anchorErrorMsgElement.innerText).toBe("Either 'grp-test' pipeline group has not been set up or you are not authorized to view the same. Learn More");
+
+    expect(helper.q("a", anchorErrorMsgElement)).toBeInDOM();
+    expect(helper.q("a", anchorErrorMsgElement).getAttribute("href")).toBe(docsUrl("configuration/pipeline_group_admin_config.html"));
   });
 
 });

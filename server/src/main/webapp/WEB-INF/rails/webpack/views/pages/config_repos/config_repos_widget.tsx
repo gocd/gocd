@@ -273,23 +273,26 @@ export class ConfigReposWidget extends MithrilViewComponent<CollectionAttrs> {
   view(vnode: m.Vnode<CollectionAttrs>): m.Children | void | null {
     const models = vnode.attrs.models();
 
+    const configRepoUrl = "/advanced_usage/pipelines_as_code.html";
+    const docLink       = <span data-test-id="doc-link">
+       <Link href={docsUrl(configRepoUrl)} target="_blank" externalLinkIcon={true}>
+        Learn More
+      </Link>
+    </span>;
+
     const scrollManager = vnode.attrs.sm;
     if (scrollManager.hasTarget()) {
       const target    = scrollManager.getTarget();
       const hasTarget = models.some((config) => config.repo.id() === target);
       if (!hasTarget) {
         const msg = `Either '${target}' config repository has not been set up or you are not authorized to view the same.`;
-        return <FlashMessage dataTestId="anchor-config-repo-not-present" type={MessageType.alert} message={msg}/>;
+        return <FlashMessage dataTestId="anchor-config-repo-not-present" type={MessageType.alert}>
+          {msg} {docLink}
+        </FlashMessage>;
       }
     }
 
     if (!models.length) {
-      const environmentUrl = "/advanced_usage/pipelines_as_code.html";
-      const docLink        = <span data-test-id="doc-link">
-       <Link href={docsUrl(environmentUrl)} target="_blank" externalLinkIcon={true}>
-        Learn More
-      </Link>
-    </span>;
       return (
         <FlashMessage type={MessageType.info}>
           Either no config repositories have been set up or you are not authorized to view the same. {docLink}

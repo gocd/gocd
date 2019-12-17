@@ -53,7 +53,10 @@ describe('AdminTemplatesSpecs', () => {
 
     const errorMsgElement = helper.byTestId("anchor-template-not-present");
     expect(errorMsgElement).toBeInDOM();
-    expect(errorMsgElement.innerText).toBe("Either 'template1' template has not been set up or you are not authorized to view the same.");
+    expect(errorMsgElement.innerText).toBe("Either 'template1' template has not been set up or you are not authorized to view the same. Learn More");
+
+    expect(helper.q("a", errorMsgElement)).toBeInDOM();
+    expect(helper.q("a", errorMsgElement).getAttribute("href")).toBe(docsUrl("configuration/pipeline_templates.html"));
   });
 
   function mount(templates: TemplateSummary.TemplateSummaryTemplate[], sm: ScrollManager = stubAllMethods(["hasTarget"])) {

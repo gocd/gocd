@@ -373,7 +373,11 @@ describe("ConfigReposWidget", () => {
     }}/>);
     helper.redraw();
 
-    expect(helper.byTestId("anchor-config-repo-not-present")).toBeInDOM();
-    expect(helper.textByTestId("anchor-config-repo-not-present")).toBe("Either 'cr-test' config repository has not been set up or you are not authorized to view the same.");
+    const errorMsgElement = helper.byTestId("anchor-config-repo-not-present");
+    expect(errorMsgElement).toBeInDOM();
+    expect(errorMsgElement.innerText).toBe("Either 'cr-test' config repository has not been set up or you are not authorized to view the same. Learn More");
+
+    expect(helper.q("a", errorMsgElement)).toBeInDOM();
+    expect(helper.q("a", errorMsgElement).getAttribute("href")).toBe(docsUrl("advanced_usage/pipelines_as_code.html"));
   });
 });

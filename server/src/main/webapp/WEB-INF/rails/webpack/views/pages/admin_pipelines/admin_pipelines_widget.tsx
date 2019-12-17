@@ -169,8 +169,16 @@ export class PipelineGroupsWidget extends MithrilViewComponent<Attrs> {
       const target    = vnode.attrs.sm.getTarget();
       const hasTarget = vnode.attrs.pipelineGroups().some((grp) => grp.name() === target);
       if (!hasTarget) {
-        const msg = `Either '${target}' pipeline group has not been set up or you are not authorized to view the same.`;
-        return <FlashMessage dataTestId="anchor-pipeline-grp-not-present" type={MessageType.alert} message={msg}/>;
+        const pipelineUrl = "configuration/pipeline_group_admin_config.html";
+        const docLink     = <span data-test-id="doc-link">
+       <Link href={docsUrl(pipelineUrl)} target="_blank" externalLinkIcon={true}>
+        Learn More
+      </Link>
+    </span>;
+        const msg         = `Either '${target}' pipeline group has not been set up or you are not authorized to view the same.`;
+        return <FlashMessage dataTestId="anchor-pipeline-grp-not-present" type={MessageType.alert}>
+          {msg} {docLink}
+        </FlashMessage>;
       }
     }
     if (_.isEmpty(vnode.attrs.pipelineGroups())) {

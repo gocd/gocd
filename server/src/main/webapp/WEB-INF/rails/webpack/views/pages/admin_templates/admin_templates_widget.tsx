@@ -180,22 +180,24 @@ class TemplateWidget extends MithrilViewComponent<TemplateAttrs> {
 
 export class AdminTemplatesWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    if (vnode.attrs.scrollOptions.sm.hasTarget()) {
-      const target           = vnode.attrs.scrollOptions.sm.getTarget();
-      const hasAnchorElement = vnode.attrs.templates.some((temp) => temp.name === target);
-      if (!hasAnchorElement) {
-        const msg = `Either '${target}' template has not been set up or you are not authorized to view the same.`;
-        return <FlashMessage dataTestId="anchor-template-not-present" type={MessageType.alert} message={msg}/>;
-      }
-    }
-    if (_.isEmpty(vnode.attrs.templates)) {
-      const templateUrl = "/configuration/pipeline_templates.html";
-      const docLink     = <span data-test-id="doc-link">
+    const templateUrl = "configuration/pipeline_templates.html";
+    const docLink     = <span data-test-id="doc-link">
        <Link href={docsUrl(templateUrl)} target="_blank" externalLinkIcon={true}>
         Learn More
       </Link>
     </span>;
 
+    if (vnode.attrs.scrollOptions.sm.hasTarget()) {
+      const target           = vnode.attrs.scrollOptions.sm.getTarget();
+      const hasAnchorElement = vnode.attrs.templates.some((temp) => temp.name === target);
+      if (!hasAnchorElement) {
+        const msg = `Either '${target}' template has not been set up or you are not authorized to view the same.`;
+        return <FlashMessage dataTestId="anchor-template-not-present" type={MessageType.alert}>
+          {msg} {docLink}
+        </FlashMessage>;
+      }
+    }
+    if (_.isEmpty(vnode.attrs.templates)) {
       const noTemplatesFoundMsg = <span>
       Either no templates have been set up or you are not authorized to view the same. {docLink}
     </span>;

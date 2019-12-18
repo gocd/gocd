@@ -194,7 +194,8 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
     const maybeWarning = <MaybeWarning parseInfo={parseInfo} pluginInfo={pluginInfo}/>;
     const configRepoHasErrors = !pluginInfo || _.isEmpty(parseInfo) || !!parseInfo!.error();
 
-    const title = repo.canAdminister ? "You are not authorised to perform this action!" : "";
+    const title = !repo.canAdminister() ? "You are not authorised to perform this action!" : "";
+
     return <Anchor id={repo.id()!} sm={sm} onnavigate={() => this.expanded(true)}>
       <CollapsiblePanel error={configRepoHasErrors}
                         header={<HeaderWidget {...vnode.attrs}/>}

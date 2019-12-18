@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 import {SinglePageAppBase} from "helpers/spa_base";
-import {ElasticProfilesPage} from "views/pages/elastic_agent_configurations";
+import {ElasticAgentsPage} from "views/pages/elastic_agents";
 
 export class ElasticProfilesSPA extends SinglePageAppBase {
   constructor() {
-    super(ElasticProfilesPage);
+    super(ElasticAgentsPage);
   }
 }
 

@@ -15,6 +15,8 @@
  */
 import _ from "lodash";
 import Stream from "mithril/stream";
+import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
+import {ElasticAgentProfilesCRUD} from "models/elastic_profiles/elastic_agent_profiles_crud";
 import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
@@ -196,6 +198,18 @@ export class ElasticAgentProfile implements ValidatableMixin {
       properties: this.properties
     };
   }
+
+  create() {
+    return ElasticAgentProfilesCRUD.create(this);
+  }
+
+  update(etag: string) {
+    return ElasticAgentProfilesCRUD.update(this, etag);
+  }
+
+  get() {
+    return ElasticAgentProfilesCRUD.get(this.id()!);
+  }
 }
 
 applyMixins(ElasticAgentProfile, ValidatableMixin);
@@ -238,6 +252,18 @@ export class ClusterProfile implements ValidatableMixin {
       plugin_id: this.pluginId(),
       properties: this.properties()
     };
+  }
+
+  create() {
+    return ClusterProfilesCRUD.create(this);
+  }
+
+  update(etag: string) {
+    return ClusterProfilesCRUD.update(this, etag);
+  }
+
+  get() {
+    return ClusterProfilesCRUD.get(this.id()!);
   }
 }
 

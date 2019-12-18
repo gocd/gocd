@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/// <reference types="jasmine"/>
 
-declare namespace jasmine {
-  interface Matchers<T> {
-    toContainSpinner(): boolean;
+import {MithrilViewComponent} from "jsx/mithril-component";
+import m from "mithril";
+import css from "./index.scss";
 
-    toContainError(msg: string): boolean;
+interface Attrs {
+  image: string;
+  css?: typeof css;
+}
 
-    toContainTitle(title: string): boolean;
-
-    toContainBody(body: string): boolean;
-
-    toContainInBody(body: string): boolean;
-
-    toContainSelectorInBody(selector: string): boolean;
-
-    toContainElementWithDataTestId(selector: string): boolean;
-
-    toContainButtons(buttons: string[]): boolean;
+export class ConceptDiagram extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>): m.Children | void | null {
+    const styles = vnode.attrs.css || css;
+    return <figure class={styles.conceptDiagram}>
+      <object type="image/svg+xml" data={vnode.attrs.image}/>
+      <figcaption>
+        {vnode.children}
+      </figcaption>
+    </figure>;
   }
 }

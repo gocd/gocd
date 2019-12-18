@@ -24,9 +24,9 @@ import {Page, PageState} from "views/pages/page";
 import {PipelineConfigVM} from "views/pages/pipelines/pipeline_config_view_model";
 
 // components
+import {ConceptDiagram} from "views/components/concept_diagram";
 import {PipelineActions} from "views/pages/pipelines/actions";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
-import {ConceptDiagram} from "views/pages/pipelines/concept_diagram";
 import {EnvironmentVariablesEditor} from "views/pages/pipelines/environment_variables_editor";
 import {FillableSection} from "views/pages/pipelines/fillable_section";
 import {JobEditor} from "views/pages/pipelines/job_editor";

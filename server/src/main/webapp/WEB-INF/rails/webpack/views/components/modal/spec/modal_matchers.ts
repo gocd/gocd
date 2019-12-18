@@ -37,6 +37,18 @@ addMatchers({
     // @ts-ignore
     return document.querySelector(`[data-test-id='${modal.id}'] [data-test-id='modal-body']`).innerText.trim() === body;
   },
+  toContainInBody: (body: string, modal: Modal) => {
+    // @ts-ignore
+    return document.querySelector(`[data-test-id='${modal.id}'] [data-test-id='modal-body']`).innerText.trim().indexOf(body) >= 0;
+  },
+  toContainSelectorInBody: (selector: string, modal: Modal) => {
+    // @ts-ignore
+    return !!document.querySelector(`[data-test-id='${modal.id}'] [data-test-id='modal-body'] ${selector}`);
+  },
+  toContainElementWithDataTestId: (dataTestId: string, modal: Modal) => {
+    // @ts-ignore
+    return !!document.querySelector(`[data-test-id='${modal.id}'] [data-test-id='modal-body'] [data-test-id=${dataTestId}]`);
+  },
   toContainButtons: (expectedButtons: string[], modal: Modal) => {
     const actualButtons = _.map(document.querySelectorAll(`[data-test-id='${modal.id}'] footer *`), (e, i) => {
       // @ts-ignore

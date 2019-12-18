@@ -13,24 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/// <reference types="jasmine"/>
 
-declare namespace jasmine {
-  interface Matchers<T> {
-    toContainSpinner(): boolean;
+@import "../../global/common";
 
-    toContainError(msg: string): boolean;
+$diagram-caption-width: 300px;
 
-    toContainTitle(title: string): boolean;
+.concept-diagram {
+  margin: 0;
+  padding: 0;
 
-    toContainBody(body: string): boolean;
+  flex: 0 0 auto;
 
-    toContainInBody(body: string): boolean;
+  object {
+    background-color: $white;
+  }
 
-    toContainSelectorInBody(selector: string): boolean;
-
-    toContainElementWithDataTestId(selector: string): boolean;
-
-    toContainButtons(buttons: string[]): boolean;
+  figcaption {
+    font-size: 16px;
+    text-align: left;
+    max-width: $diagram-caption-width;
+    margin: 10px auto 0;
   }
 }

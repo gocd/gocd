@@ -15,8 +15,8 @@
  */
 
 import m from "mithril";
+import {ConceptDiagram} from "views/components/concept_diagram";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {ConceptDiagram} from "../concept_diagram";
 
 describe("AddPipeline: ConceptDiagram", () => {
   const helper = new TestHelper();

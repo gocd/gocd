@@ -52,14 +52,14 @@ $wizard-footer-height: 56px;
 }
 
 .wizard-footer {
-  position:        relative;
-  bottom:          0;
-  background:      $white;
-  border-top:      1px solid $border-color;
-  height:          $wizard-footer-height;
-  max-height:      $wizard-footer-height;
-  padding:         10px 15px;
-  flex:            0;
+  position:   relative;
+  bottom:     0;
+  background: $white;
+  border-top: 1px solid $border-color;
+  height:     $wizard-footer-height;
+  max-height: $wizard-footer-height;
+  padding:    10px 15px;
+  flex:       0;
 }
 
 .wizard-body {
@@ -75,7 +75,6 @@ $wizard-footer-height: 56px;
 }
 
 .step-header {
-  cursor:      pointer;
   margin-left: 15px;
   display:     flex;
   height:      100%;
@@ -88,8 +87,13 @@ $wizard-footer-height: 56px;
     color:         $go-primary;
     border-bottom: 3px solid $go-primary;
   }
+
+  &.clickable {
+    cursor: pointer;
+  }
 }
 
 .step-body {
   font-weight: normal;
+  width:       100%;
 }

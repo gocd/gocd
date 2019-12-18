@@ -1,0 +1,105 @@
+/*
+* Copyright 2019 ThoughtWorks, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+@import "../../global/common";
+
+.container {
+  width:           100%;
+  display:         flex;
+  justify-content: center;
+  align-items:     flex-start;
+
+  > div {
+    width:      45%;
+    padding:    10px;
+    max-height: calc(100vh - 280px);
+    height:     calc(100vh - 280px);
+  }
+}
+
+.pipeline-structure-wrapper {
+  display:        flex;
+  flex-direction: column;
+  overflow:       hidden;
+  height:         100%;
+  margin-bottom:  10px;
+}
+
+.pipeline-structure {
+  margin-top:      15px;
+  display:         flex;
+  flex-direction:  column;
+  justify-content: flex-start;
+  padding:         10px;
+  flex:            1;
+  border:          1px solid $global-border-color;
+  border-radius:   $global-border-radius;
+  height:          100%;
+}
+
+.pipeline-structure-content {
+  overflow: auto;
+  height:   100%;
+}
+
+.pipeline-structure-header {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  border-bottom:   1px solid $global-border-color;
+  margin-bottom:   10px;
+
+  h3 {
+    margin: 0;
+  }
+
+  button {
+    border: none;
+  }
+}
+
+.search-field-container {
+  display:       flex;
+  border:        1px solid $global-border-color;
+  border-radius: $global-border-radius;
+  align-items:   center;
+  padding:       10px;
+}
+
+.select-pipelines-buttons {
+  padding:      5px;
+  margin-right: 15px;
+}
+
+
+.checkbox {
+  padding-left:  20px;
+  border-radius: 3px;
+}
+
+.profile-form {
+  display:         flex;
+  flex-direction:  column;
+  justify-content: center;
+  align-items:     flex-start;
+  border-bottom:   2px solid $global-border-color;
+  margin-bottom:   20px;
+}
+
+.footer-error {
+  color:      $go-danger;
+  float:      right;
+  margin-top: 7px;
+}

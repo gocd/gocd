@@ -27,13 +27,13 @@ export namespace TemplateSummary {
   export interface TemplateSummaryTemplate {
     name: string;
     can_edit: boolean;
-    is_admin: boolean;
+    can_administer: boolean;
     _embedded: { pipelines: TemplateSummaryPipeline[] };
   }
 
   export interface TemplateSummaryPipeline {
     name: string;
-    can_edit: boolean;
+    can_administer: boolean;
   }
 }
 

@@ -74,7 +74,7 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
   private static messageForOperation(pipeline: PipelineWithOrigin | undefined,
                                      pipelineWithPermission: TemplateSummary.TemplateSummaryPipeline,
                                      operation: "edit") {
-    if (!pipelineWithPermission.can_edit) {
+    if (!pipelineWithPermission.can_administer) {
       return `Cannot ${operation} pipeline '${pipelineWithPermission.name}' because you do do not have permission to edit it.`;
     } else {
       return `${s.capitalize(operation)} pipeline '${pipelineWithPermission.name}'`;
@@ -87,7 +87,7 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
     return (
       <IconGroup>
         <Edit
-          disabled={!(vnode.attrs.pipeline.can_edit)}
+          disabled={!(vnode.attrs.pipeline.can_administer)}
           data-test-id={`edit-pipeline-${s.slugify(vnode.attrs.pipeline.name)}`}
           title={PipelineWidget.messageForOperation(pipeline, vnode.attrs.pipeline, "edit")}
           onclick={vnode.attrs.doEditPipeline.bind(vnode.attrs, vnode.attrs.pipeline.name)}/>
@@ -164,7 +164,7 @@ class TemplateWidget extends MithrilViewComponent<TemplateAttrs> {
   }
 
   private getDeleteButtonTitle(vnode: m.Vnode<TemplateAttrs, this>) {
-    if (!vnode.attrs.template.is_admin) {
+    if (!vnode.attrs.template.can_administer) {
       return `You do not have permissions to delete this template.`;
     }
     if (_.isEmpty(vnode.attrs.template._embedded.pipelines)) {
@@ -174,7 +174,7 @@ class TemplateWidget extends MithrilViewComponent<TemplateAttrs> {
   }
 
   private isDeleteEnabled(vnode: m.Vnode<TemplateAttrs, this>) {
-    return vnode.attrs.template.is_admin && _.isEmpty(vnode.attrs.template._embedded.pipelines);
+    return vnode.attrs.template.can_administer && _.isEmpty(vnode.attrs.template._embedded.pipelines);
   }
 }
 

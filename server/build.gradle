@@ -237,7 +237,7 @@ props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemPro
 project.ext.testSystemProperties = props
 
 dependencies {
-  jrubyGems group: 'rubygems', name: 'bundler', version: '2.0.2'
+  jrubyGems group: 'rubygems', name: 'bundler', version: '2.1.1'
 
   apiBase project(':api:api-base')
   api project(':api').subprojects

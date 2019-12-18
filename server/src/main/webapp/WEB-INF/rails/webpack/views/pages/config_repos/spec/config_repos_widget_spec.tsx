@@ -31,7 +31,7 @@ import {stubAllMethods, TestHelper} from "views/pages/spec/test_helper";
 describe("ConfigReposWidget", () => {
   let showDeleteModal: jasmine.Spy;
   let showEditModal: jasmine.Spy;
-  let reparseRepo: jasmine.Spy;
+  const reparseRepo: jasmine.Spy = jasmine.createSpy("reparseRepo");
   let models: Stream<ConfigRepoVM[]>;
   let pluginInfos: Stream<PluginInfos>;
   let sm: ScrollManager;
@@ -39,6 +39,11 @@ describe("ConfigReposWidget", () => {
   const helper = new TestHelper();
 
   function vm(repo: ConfigRepo): ConfigRepoVM {
+    const reparseRepoPromise: () => Promise<void> = () => new Promise((resolve) => {
+      reparseRepo();
+      resolve();
+    });
+
     return {
       repo,
       results: {
@@ -49,7 +54,7 @@ describe("ConfigReposWidget", () => {
       },
       showDeleteModal,
       showEditModal,
-      reparseRepo,
+      reparseRepo: reparseRepoPromise,
       // tslint:disable-next-line no-empty
       on(t, fn) {}, off(t) {}, reset() {}, notify(t) {}
     };
@@ -58,7 +63,6 @@ describe("ConfigReposWidget", () => {
   beforeEach(() => {
     showDeleteModal = jasmine.createSpy("showDeleteModal");
     showEditModal   = jasmine.createSpy("showEditModal");
-    reparseRepo     = jasmine.createSpy("reparseRepo");
     sm              = stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]);
     models          = Stream([] as ConfigRepoVM[]);
     pluginInfos     = Stream(new PluginInfos());
@@ -336,7 +340,7 @@ describe("ConfigReposWidget", () => {
 
     helper.clickByTestId("config-repo-refresh");
 
-    expect(reparseRepo).toHaveBeenCalledWith(jasmine.any(MouseEvent));
+    expect(reparseRepo).toHaveBeenCalled();
   });
 
   it("should disable the action buttons", () => {

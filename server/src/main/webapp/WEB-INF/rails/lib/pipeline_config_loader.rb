@@ -40,7 +40,7 @@ module PipelineConfigLoader
       pipeline_for_edit = template_config_service.loadForEdit(params[:pipeline_name], current_user, result)
     else
 
-      unless go_config_service.doesPipelineExist(params[:pipeline_name], result)
+      unless go_config_service.canEditPipeline(params[:pipeline_name], current_user, result)
         render_localized_operation_result result
         return
       end

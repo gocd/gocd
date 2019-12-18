@@ -81,6 +81,7 @@ export class PaginationWidget extends MithrilViewComponent<PaginationAttrs> {
                                   pagination.currentPageNumber() === pageNumber ? styles.currentPage : undefined)}
                                 href={"#"}
                                 data-test-id={`pagination-page-${pageNumber}`}
+                                data-test-current-page={pageNumber === pagination.currentPageNumber()}
                                 onclick={() => {
                                   vnode.attrs.onPageChange(pageNumber);
                                   return false;

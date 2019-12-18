@@ -192,7 +192,7 @@ export class ElasticAgentsPage extends Page<null, State> {
                                         Stream(elasticProfile),
                                         vnode.state.onSuccessfulSave,
                                         vnode.state.onError,
-                                        this.closeListener(vnode)).render();
+                                        this.closeListener(vnode));
       },
 
       onDelete: (clusterProfileId: string, event: MouseEvent) => {

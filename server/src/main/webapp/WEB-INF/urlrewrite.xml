@@ -142,17 +142,17 @@
   </rule>
 
   <rule>
-    <name>Pipeline Instance API V1 and latest</name>
-    <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
-    <from>^/api/pipelines/([^/]+)/([^/]+)(/?)$</from>
-    <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}/instance</to>
-  </rule>
-
-  <rule>
     <name>Pipeline History API</name>
     <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
     <from>^/api/pipelines/([^/]+)/history$</from>
     <to last="true">/spark/api/pipelines/${escape:$1}/history</to>
+  </rule>
+
+  <rule>
+    <name>Pipeline Instance API V1 and latest</name>
+    <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
+    <from>^/api/pipelines/([^/]+)/([^/]+)(/?)$</from>
+    <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}/instance</to>
   </rule>
 
   <rule>

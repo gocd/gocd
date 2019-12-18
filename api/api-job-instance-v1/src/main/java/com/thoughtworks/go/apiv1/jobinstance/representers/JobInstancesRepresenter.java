@@ -16,13 +16,39 @@
 package com.thoughtworks.go.apiv1.jobinstance.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.representers.PaginationRepresenter;
+import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.server.util.Pagination;
+import com.thoughtworks.go.domain.PipelineRunIdInfo;
+import com.thoughtworks.go.spark.Routes;
+
+import static java.util.Collections.emptyList;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class JobInstancesRepresenter {
-    public static void toJSON(OutputWriter outputWriter, JobInstances jobInstances, Pagination pagination) {
-        outputWriter.addChild("pagination", writer -> PaginationRepresenter.toJSON(writer, pagination))
+    public static void toJSON(OutputWriter outputWriter, JobInstances jobInstances, PipelineRunIdInfo runIdInfo) {
+        if (jobInstances.isEmpty()) {
+            outputWriter.addChildList("jobs", emptyList());
+            return;
+        }
+        addLinks(outputWriter, jobInstances, runIdInfo);
+        outputWriter
                 .addChildList("jobs", jobsWriter -> jobInstances.forEach(jobInstance -> jobsWriter.addChild(jobWriter -> JobInstanceRepresenter.toJSON(jobWriter, jobInstance))));
+    }
+
+    private static void addLinks(OutputWriter outputWriter, JobInstances jobInstances, PipelineRunIdInfo runIdInfo) {
+        JobInstance latest = jobInstances.first();
+        JobInstance oldest = jobInstances.last();
+        String previousLink = (latest.getId() != runIdInfo.getLatestRunId())
+                ? Routes.Job.previous(latest.getPipelineName(), latest.getStageName(), latest.getName(), latest.getId())
+                : null;
+        String nextLink = (oldest.getId() != runIdInfo.getOldestRunId())
+                ? Routes.Job.next(oldest.getPipelineName(), oldest.getStageName(), oldest.getName(), oldest.getId())
+                : null;
+        if (isNotBlank(previousLink) || isNotBlank(nextLink)) {
+            outputWriter.addLinks(outputLinkWriter -> {
+                outputLinkWriter.addLinkIfPresent("previous", previousLink);
+                outputLinkWriter.addLinkIfPresent("next", nextLink);
+            });
+        }
     }
 }

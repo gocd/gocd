@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -25,6 +26,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
@@ -44,6 +46,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -450,5 +453,132 @@ public class JobInstanceServiceTest {
         assertThatCode(() -> jobInstanceService.findJobInstance("pipeline", "stage", "job", 1, 1, "user"))
                 .isInstanceOf(NotAuthorizedException.class)
                 .hasMessage("Not authorized to view pipeline");
+    }
+
+    @Nested
+    class JobHistoryViaCursor {
+        private JobInstanceService jobService;
+        ;
+        private Username username = Username.valueOf("user");
+        String pipelineName = "pipeline";
+        String stageName = "stage";
+        String jobConfigName = "job";
+
+        @BeforeEach
+        void setUp() {
+            jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
+        }
+
+        @Test
+        void shouldFetchLatestRecords() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
+
+            jobService.getJobHistoryViaCursor(username, pipelineName, stageName, jobConfigName, 0, 0, 10);
+
+            verify(jobInstanceDao).findDetailedJobHistoryViaCursor(pipelineName, stageName, jobConfigName, FeedModifier.Latest, 0, 10);
+        }
+
+        @Test
+        void shouldFetchRecordsAfterTheSpecifiedCursor() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
+
+            jobService.getJobHistoryViaCursor(username, pipelineName, stageName, jobConfigName, 2, 0, 10);
+
+            verify(jobInstanceDao).findDetailedJobHistoryViaCursor(pipelineName, stageName, jobConfigName, FeedModifier.After, 2, 10);
+        }
+
+        @Test
+        void shouldFetchRecordsBeforeTheSpecifiedCursor() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
+
+            jobService.getJobHistoryViaCursor(username, pipelineName, stageName, jobConfigName, 0, 2, 10);
+
+            verify(jobInstanceDao).findDetailedJobHistoryViaCursor(pipelineName, stageName, jobConfigName, FeedModifier.Before, 2, 10);
+        }
+
+        @Test
+        void shouldThrowErrorIfPipelineDoesNotExist() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+
+            assertThatCode(() -> jobService.getJobHistoryViaCursor(username, pipelineName, stageName, jobConfigName, 0, 0, 10))
+                    .isInstanceOf(RecordNotFoundException.class)
+                    .hasMessage("Pipeline with name 'pipeline' was not found!");
+        }
+
+        @Test
+        void shouldThrowErrorIfUserDoesNotHaveAccessRights() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+
+            assertThatCode(() -> jobService.getJobHistoryViaCursor(username, pipelineName, stageName, jobConfigName, 0, 0, 10))
+                    .isInstanceOf(NotAuthorizedException.class)
+                    .hasMessage("User 'user' does not have permission to view pipeline with name 'pipeline'");
+        }
+
+        @Test
+        void shouldThrowErrorIfCursorIsANegativeInteger() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
+
+            assertThatCode(() -> jobService.getJobHistoryViaCursor(username, pipelineName, stageName, jobConfigName, -10, 0, 10))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage("The query parameter `after`, if specified, must be a positive integer.");
+
+            assertThatCode(() -> jobService.getJobHistoryViaCursor(username, pipelineName, stageName, jobConfigName, 0, -10, 10))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage("The query parameter `before`, if specified, must be a positive integer.");
+        }
+    }
+
+    @Nested
+    class LatestAndOldestStageInstanceId {
+        private JobInstanceService jobService;
+        private Username username = Username.valueOf("user");
+        String pipelineName = "pipeline";
+        String stageName = "stage";
+        String jobConfigName = "job";
+
+        @BeforeEach
+        void setUp() {
+            jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
+        }
+
+        @Test
+        void shouldReturnTheLatestAndOldestRunID() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
+
+            jobService.getOldestAndLatestJobInstanceId(username, pipelineName, stageName, jobConfigName);
+
+            verify(jobInstanceDao).getOldestAndLatestJobInstanceId(pipelineName, stageName, jobConfigName);
+        }
+
+
+        @Test
+        void shouldThrowErrorIfPipelineDoesNotExist() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+
+            assertThatCode(() -> jobService.getOldestAndLatestJobInstanceId(username, pipelineName, stageName, jobConfigName))
+                    .isInstanceOf(RecordNotFoundException.class)
+                    .hasMessage("Pipeline with name 'pipeline' was not found!");
+        }
+
+        @Test
+        void shouldThrowErrorIfUserDoesNotHaveAccessRights() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+
+            assertThatCode(() -> jobService.getOldestAndLatestJobInstanceId(username, pipelineName, stageName, jobConfigName))
+                    .isInstanceOf(NotAuthorizedException.class)
+                    .hasMessage("User 'user' does not have permission to view pipeline with name 'pipeline'");
+        }
     }
 }

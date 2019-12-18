@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -23,6 +24,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
+import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.Username;
@@ -49,6 +51,9 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.thoughtworks.go.server.service.PipelineHistoryService.BAD_CURSOR_MSG;
+import static java.lang.String.format;
 
 @Service
 public class JobInstanceService implements JobPlanLoader, ConfigChangedListener {
@@ -323,6 +328,41 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         public String getColumnName() {
             return columnName;
         }
+    }
+
+    public PipelineRunIdInfo getOldestAndLatestJobInstanceId(Username username, String pipelineName, String stageName, String jobConfigName) {
+        checkForExistenceAndAccess(username, pipelineName);
+        return jobInstanceDao.getOldestAndLatestJobInstanceId(pipelineName, stageName, jobConfigName);
+    }
+
+    public JobInstances getJobHistoryViaCursor(Username username, String pipelineName, String stageName, String jobConfigName, long afterCursor, long beforeCursor, Integer pageSize) {
+        checkForExistenceAndAccess(username, pipelineName);
+        JobInstances jobInstances;
+        if (validateCursor(afterCursor, "after")) {
+            jobInstances = jobInstanceDao.findDetailedJobHistoryViaCursor(pipelineName, stageName, jobConfigName, FeedModifier.After, afterCursor, pageSize);
+        } else if (validateCursor(beforeCursor, "before")) {
+            jobInstances = jobInstanceDao.findDetailedJobHistoryViaCursor(pipelineName, stageName, jobConfigName, FeedModifier.Before, beforeCursor, pageSize);
+        } else {
+            jobInstances = jobInstanceDao.findDetailedJobHistoryViaCursor(pipelineName, stageName, jobConfigName, FeedModifier.Latest, 0, pageSize);
+        }
+        return jobInstances;
+    }
+
+    private void checkForExistenceAndAccess(Username username, String pipelineName) {
+        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+            throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
+        }
+        if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+            throw new NotAuthorizedException(EntityType.Pipeline.forbiddenToView(pipelineName, username.getUsername()));
+        }
+    }
+
+    private boolean validateCursor(Long cursor, String key) {
+        if (cursor == 0) return false;
+        if (cursor < 0) {
+            throw new BadRequestException(format(BAD_CURSOR_MSG, key));
+        }
+        return true;
     }
 }
 

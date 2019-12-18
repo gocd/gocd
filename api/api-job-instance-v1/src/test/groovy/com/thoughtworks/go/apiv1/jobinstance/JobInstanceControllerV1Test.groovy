@@ -25,22 +25,26 @@ import com.thoughtworks.go.config.exceptions.NotAuthorizedException
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.domain.JobInstances
 import com.thoughtworks.go.domain.NullJobInstance
+import com.thoughtworks.go.domain.PipelineRunIdInfo
 import com.thoughtworks.go.helper.JobInstanceMother
+import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.JobInstanceService
-import com.thoughtworks.go.server.service.result.HttpOperationResult
-import com.thoughtworks.go.server.util.Pagination
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mock
+
+import java.util.stream.Stream
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.*
-import static org.mockito.Mockito.doThrow
-import static org.mockito.Mockito.when
+import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTrait<JobInstanceControllerV1> {
@@ -64,7 +68,6 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
     String pipelineName = "up42"
     String stageName = "run-tests"
     String jobName = "java"
-    String offset = "1"
 
     @BeforeEach
     void setUp() {
@@ -99,15 +102,18 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Test
       void 'should get job history'() {
-        def jobInstances = getJobInstances()
-        when(jobInstanceService.getJobHistoryCount(eq(pipelineName), eq(stageName), eq(jobName))).thenReturn(20)
-        when(jobInstanceService.findJobHistoryPage(eq(pipelineName), eq(stageName), anyString(), any(Pagination.class), anyString(), any() as HttpOperationResult)).thenReturn(jobInstances)
+        def jobInstances = new JobInstances()
+        def jobInstance = JobInstanceMother.completed(jobName)
+        jobInstance.setId(2)
+        jobInstances.add(jobInstance)
+        def runIdInfo = new PipelineRunIdInfo(5, 2)
+
+        when(jobInstanceService.getOldestAndLatestJobInstanceId(eq(currentUsername()), eq(pipelineName), eq(stageName), eq(jobName))).thenReturn(runIdInfo)
+        when(jobInstanceService.getJobHistoryViaCursor(eq(currentUsername()), eq(pipelineName), eq(stageName), eq(jobName), anyLong(), anyLong(), anyInt())).thenReturn(jobInstances)
 
         getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history'), [:])
 
-        def expectedJson = toObjectString({
-          JobInstancesRepresenter.toJSON(it, jobInstances, Pagination.pageStartingAt(0, 20, 10))
-        })
+        def expectedJson = toObjectString({ JobInstancesRepresenter.toJSON(it, jobInstances, runIdInfo) })
 
         assertThatResponse()
           .isOk()
@@ -116,93 +122,98 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
       }
 
       @Test
-      void 'should get job history with offset'() {
-        def jobInstances = getJobInstances()
-        when(jobInstanceService.getJobHistoryCount(eq(pipelineName), eq(stageName), eq(jobName))).thenReturn(20)
-        when(jobInstanceService.findJobHistoryPage(eq(pipelineName), eq(stageName), anyString(), any(Pagination.class), anyString(), any() as HttpOperationResult)).thenReturn(jobInstances)
+      void 'should render job history after the specified cursor'() {
+        def jobInstances = new JobInstances()
+        for (int i = 1; i < 2; i++) {
+          def jobInstance = JobInstanceMother.completed(jobName)
+          jobInstance.setId(i + 2)
+          jobInstances.add(jobInstance)
+        }
+        def runIdInfo = new PipelineRunIdInfo(5, 2)
 
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?offset=2", [:])
+        when(jobInstanceService.getOldestAndLatestJobInstanceId(eq(currentUsername()), eq(pipelineName), eq(stageName), eq(jobName))).thenReturn(runIdInfo)
+        when(jobInstanceService.getJobHistoryViaCursor(eq(currentUsername()), eq(pipelineName), eq(stageName), eq(jobName), anyLong(), anyLong(), anyInt())).thenReturn(jobInstances)
+
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?after=3")
+
+        verify(jobInstanceService).getJobHistoryViaCursor(any(Username.class), eq(pipelineName), eq(stageName), eq(jobName), eq(3L), eq(0L), eq(10))
 
         def expectedJson = toObjectString({
-          JobInstancesRepresenter.toJSON(it, jobInstances, Pagination.pageStartingAt(2, 20, 10))
+          JobInstancesRepresenter.toJSON(it, jobInstances, runIdInfo)
         })
 
         assertThatResponse()
           .isOk()
-          .hasBody(expectedJson)
+          .hasContentType(controller.mimeType)
+          .hasJsonBody(expectedJson)
       }
 
       @Test
-      void 'should get job history with offset and page size'() {
-        def jobInstances = getJobInstances()
-        when(jobInstanceService.getJobHistoryCount(eq(pipelineName), eq(stageName), eq(jobName))).thenReturn(20)
-        when(jobInstanceService.findJobHistoryPage(eq(pipelineName), eq(stageName), anyString(), any(Pagination.class), anyString(), any() as HttpOperationResult)).thenReturn(jobInstances)
+      void 'should render job history before the specified cursor'() {
+        def jobInstances = new JobInstances()
+        for (int i = 3; i < 5; i++) {
+          def jobInstance = JobInstanceMother.completed(jobName)
+          jobInstance.setId(i + 2)
+          jobInstances.add(jobInstance)
+        }
+        def runIdInfo = new PipelineRunIdInfo(7, 2)
 
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?page_size=25&offset=15", [:])
+        when(jobInstanceService.getOldestAndLatestJobInstanceId(eq(currentUsername()), eq(pipelineName), eq(stageName), eq(jobName))).thenReturn(runIdInfo)
+        when(jobInstanceService.getJobHistoryViaCursor(eq(currentUsername()), eq(pipelineName), eq(stageName), eq(jobName), anyLong(), anyLong(), anyInt())).thenReturn(jobInstances)
+
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?before=3")
+
+        verify(jobInstanceService).getJobHistoryViaCursor(any(Username.class), eq(pipelineName), eq(stageName), eq(jobName), eq(3L), eq(0L), eq(10))
 
         def expectedJson = toObjectString({
-          JobInstancesRepresenter.toJSON(it, jobInstances, Pagination.pageStartingAt(15, 20, 25))
+          JobInstancesRepresenter.toJSON(it, jobInstances, runIdInfo)
         })
 
         assertThatResponse()
           .isOk()
-          .hasBody(expectedJson)
+          .hasContentType(controller.mimeType)
+          .hasJsonBody(expectedJson)
       }
 
       @Test
-      void 'should throw error if offset is below 0'() {
+      void 'should throw if the after cursor is specified as a invalid integer'() {
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?after=abc")
 
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?offset=-1")
+        verifyZeroInteractions(jobInstanceService)
 
         assertThatResponse()
           .isBadRequest()
-          .hasJsonMessage("The query parameter `offset`, if specified must be a number greater or equal to 0.")
+          .hasJsonMessage("The query parameter `after`, if specified, must be positive integer.")
       }
 
       @Test
-      void 'should throw error if offset is not an integer'() {
+      void 'should throw if the before cursor is specified as a invalid integer'() {
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?before=abc")
 
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?offset=abc")
+        verifyZeroInteractions(jobInstanceService)
 
         assertThatResponse()
           .isBadRequest()
-          .hasJsonMessage("The query parameter `offset`, if specified must be a number greater or equal to 0.")
+          .hasJsonMessage("The query parameter `before`, if specified, must be positive integer.")
       }
 
-      @Test
-      void 'should throw error if page_size is below 10'() {
-
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?page_size=7")
-
-        assertThatResponse()
-          .isBadRequest()
-          .hasJsonMessage("The query parameter 'page_size', if specified must be a number between 10 and 100.")
-      }
-
-      @Test
-      void 'should throw error if page_size is a negative integer'() {
-
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?page_size=-7")
+      @ParameterizedTest
+      @MethodSource("pageSizes")
+      void 'should throw error if page_size is not between 10 and 100'(String input) {
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?page_size=" + input)
 
         assertThatResponse()
           .isBadRequest()
           .hasJsonMessage("The query parameter 'page_size', if specified must be a number between 10 and 100.")
       }
 
-      @Test
-      void 'should throw error if page_size is not an integer'() {
-
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?page_size=abc")
-
-        assertThatResponse()
-          .isBadRequest()
-          .hasJsonMessage("The query parameter 'page_size', if specified must be a number between 10 and 100.")
-      }
-
-      def getJobInstances() {
-        def jobInstance = JobInstanceMother.completed(jobName)
-
-        return new JobInstances(jobInstance)
+      static Stream<Arguments> pageSizes() {
+        return Stream.of(
+          Arguments.of("7"),
+          Arguments.of("107"),
+          Arguments.of("-10"),
+          Arguments.of("abc")
+        )
       }
     }
 

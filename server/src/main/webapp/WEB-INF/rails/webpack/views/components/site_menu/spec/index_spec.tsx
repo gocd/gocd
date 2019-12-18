@@ -84,7 +84,7 @@ describe("Site Menu", () => {
     expect(analytics).toHaveAttr("href", "/go/analytics");
     expect(admin).toHaveText("Admin");
     expect(findMenuItem("/go/admin/pipelines")).toBeFalsy();
-    expect(findMenuItem("/go/admin/config_repos")).toBeFalsy();
+    expect(findMenuItem("/go/admin/config_repos")).toHaveText("Config Repositories");
     expect(findMenuItem("/go/admin/templates")).toHaveText("Templates");
     expect(findMenuItem("/go/admin/environments")).toHaveText("Environments");
     expect(findMenuItem("/go/admin/elastic_agent_configurations")).toBeFalsy();
@@ -97,7 +97,7 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/security/auth_configs")).toBeFalsy();
     expect(findMenuItem("/go/admin/security/roles")).toBeFalsy();
     expect(helper.qa(`a.${styles.siteNavLink}`)).toHaveLength(4);
-    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(2);
+    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(3);
   });
 
   it("should display the menus for Group Admins", () => {
@@ -121,9 +121,9 @@ describe("Site Menu", () => {
     expect(admin).toHaveText("Admin");
     expect(findMenuItem("/go/admin/pipelines")).toHaveText("Pipelines");
     expect(findMenuItem("/go/admin/environments")).toHaveText("Environments");
-    expect(findMenuItem("/go/admin/config_repos")).toBeFalsy();
+    expect(findMenuItem("/go/admin/config_repos")).toHaveText("Config Repositories");
     expect(findMenuItem("/go/admin/templates")).toHaveText("Templates");
-    expect(findMenuItem("/go/admin/elastic_agent_configurations")).toHaveText("Elastic Agent Configurations");
+    expect(findMenuItem("/go/admin/elastic_agent_configurations")).toBeFalsy();
     expect(findMenuItem("/go/admin/pipelines/snippet")).toHaveText("Config XML");
     expect(findMenuItem("/go/admin/config/server")).toBeFalsy();
     expect(findMenuItem("/go/admin/users")).toBeFalsy();

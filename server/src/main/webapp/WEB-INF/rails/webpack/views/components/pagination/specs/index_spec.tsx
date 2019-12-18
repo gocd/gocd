@@ -82,11 +82,26 @@ describe("Pagination Widget", () => {
     expect(helper.byClass(style.paginationContainer)).not.toBeInDOM();
   });
 
-  it('should render when has only one page', () => {
+  it('should render when more than one page', () => {
     helper.unmount();
     mount(new Pagination(0, 11, 10));
 
     expect(helper.byClass(style.paginationContainer)).toBeInDOM();
+  });
+
+  it('current page should have attribute data-test-current-page with value true', () => {
+    pagination.offset = pagination.pageSize;
+    m.redraw.sync();
+
+    expect(helper.byTestId("pagination-page-2")).toHaveAttr("data-test-current-page");
+    expect(helper.byTestId("pagination-page-3")).not.toHaveAttr("data-test-current-page");
+    expect(helper.byTestId("pagination-page-4")).not.toHaveAttr("data-test-current-page");
+
+    pagination.offset = pagination.pageSize * 2;
+    m.redraw.sync();
+    expect(helper.byTestId("pagination-page-2")).not.toHaveAttr("data-test-current-page");
+    expect(helper.byTestId("pagination-page-3")).toHaveAttr("data-test-current-page");
+    expect(helper.byTestId("pagination-page-4")).not.toHaveAttr("data-test-current-page");
   });
 
   function mount(pagination: Pagination) {

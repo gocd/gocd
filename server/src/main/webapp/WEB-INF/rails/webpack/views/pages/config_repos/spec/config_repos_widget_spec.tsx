@@ -360,6 +360,23 @@ describe("ConfigReposWidget", () => {
     expect(helper.byTestId("config-repo-delete").title).toBe(title);
   });
 
+  it("should not disable the action buttons and add titles when user has admin permissions", () => {
+    const configRepo = createConfigRepoParsed();
+    configRepo.canAdminister(true);
+    models([vm(configRepo)]);
+    helper.redraw();
+
+    expect(helper.byTestId("config-repo-refresh")).toBeInDOM();
+    expect(helper.byTestId("config-repo-refresh")).not.toBeDisabled();
+    expect(helper.byTestId("config-repo-refresh").title).toBeFalsy();
+    expect(helper.byTestId("config-repo-edit")).toBeInDOM();
+    expect(helper.byTestId("config-repo-edit")).not.toBeDisabled();
+    expect(helper.byTestId("config-repo-edit").title).toBeFalsy();
+    expect(helper.byTestId("config-repo-delete")).toBeInDOM();
+    expect(helper.byTestId("config-repo-delete")).not.toBeDisabled();
+    expect(helper.byTestId("config-repo-delete").title).toBeFalsy();
+  });
+
   it('should render error msg when the anchor element is not present', () => {
     let scrollManager: ScrollManager;
     scrollManager = {

@@ -109,6 +109,18 @@ describe("PipelineActivityPage", () => {
     });
   });
 
+  it("should update the pagination when pageChangeCallback called", () => {
+    const activity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
+    const page     = new PipelineActivityPageWrapper(activity);
+    mount(page);
+
+    page.pageChangeCallback(2);
+    expect(page.offset()).toEqual(10);
+
+    page.pageChangeCallback(3);
+    expect(page.offset()).toEqual(20);
+  });
+
   describe("Unpause", () => {
     it("should unpause the pipeline on click of unpause button", () => {
       const activity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
@@ -186,6 +198,10 @@ class PipelineActivityPageWrapper extends PipelineActivityPage {
     this.pageState = PageState.OK;
     //@ts-ignore
     this.meta      = {pipelineName: activity.pipelineName()};
+  }
+
+  offset() {
+    return this.pagination().offset;
   }
 
   protected fetchPipelineHistory(offset: number = this.pagination().offset): Promise<void> {

@@ -58,7 +58,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   constructor() {
     super();
     this.poller = new AjaxPoller({
-      repeaterFn: this.fetchPipelineHistory.bind(this, this.pagination().offset),
+      repeaterFn: this.fetchPipelineHistory.bind(this),
       initialIntervalSeconds: 10
     });
   }
@@ -170,6 +170,12 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
     this.pageState = PageState.OK;
   }
 
+  pageChangeCallback(pageNumber: number) {
+    const offset = this.pipelineActivity().perPage() * (pageNumber - 1);
+    this.pagination(new Pagination(offset, this.pagination().total, this.pagination().pageSize));
+    this.fetchPipelineHistory();
+  }
+
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     const title = <PipelineActivityHeader pipelineActivity={this.pipelineActivity()}
                                           unpausePipeline={this.unpausePipeline.bind(this)}
@@ -184,8 +190,8 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
     }/>;
   }
 
-  protected fetchPipelineHistory(offset = this.pagination().offset): Promise<void> {
-    this.service.activities(this.meta.pipelineName, offset, this.filterText(), this);
+  protected fetchPipelineHistory(): Promise<void> {
+    this.service.activities(this.meta.pipelineName, this.pagination().offset, this.filterText(), this);
     return Promise.resolve();
   }
 
@@ -200,11 +206,6 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
         }
       },
       (errorResponse) => this.flashMessage.setMessage(MessageType.alert, errorResponse.message));
-  }
-
-  private pageChangeCallback(pageNumber: number) {
-    const offset = this.pipelineActivity().perPage() * (pageNumber - 1);
-    this.fetchPipelineHistory(offset);
   }
 
   private startPolling() {

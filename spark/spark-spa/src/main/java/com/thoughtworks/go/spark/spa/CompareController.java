@@ -16,6 +16,9 @@
 
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -27,15 +30,18 @@ import spark.TemplateEngine;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.String.format;
 import static spark.Spark.*;
 
 public class CompareController implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
+    private final PipelineService pipelineService;
 
-    public CompareController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public CompareController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, PipelineService pipelineService) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
+        this.pipelineService = pipelineService;
     }
 
     @Override
@@ -63,11 +69,20 @@ public class CompareController implements SparkController {
             response.redirect(Routes.Compare.compare(pipelineName, fromCounter + "", "1"));
             return null;
         }
+        bombIfNotFound(pipelineName, fromCounter);
+        bombIfNotFound(pipelineName, toCounter);
         Map<Object, Object> object = new HashMap<>() {{
             put("viewTitle", "Compare");
             put("meta", meta(request));
         }};
         return new ModelAndView(object, null);
+    }
+
+    private void bombIfNotFound(String pipelineName, long pipelineCounter) {
+        Pipeline fromPipelineInstance = pipelineService.findPipelineByNameAndCounter(pipelineName, (int) pipelineCounter);
+        if (fromPipelineInstance == null) {
+            throw new RecordNotFoundException(format("Pipeline [%s/%s] not found.", pipelineName, pipelineCounter));
+        }
     }
 
     private long getCounter(Request request, String key) {

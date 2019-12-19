@@ -17,6 +17,8 @@
 package com.thoughtworks.go.spark.spa
 
 import com.thoughtworks.go.config.CaseInsensitiveString
+import com.thoughtworks.go.domain.Pipeline
+import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -24,13 +26,25 @@ import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.Mock
 
+import static org.mockito.ArgumentMatchers.*
+import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
+import static org.mockito.MockitoAnnotations.initMocks
 
 class CompareControllerTest implements ControllerTrait<CompareController>, SecurityServiceTrait {
+  @Mock
+  private PipelineService pipelineService
+
+  @BeforeEach
+  void setUp() {
+    initMocks(this)
+  }
+
   @Override
   CompareController createControllerInstance() {
-    return new CompareController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+    return new CompareController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, pipelineService)
   }
 
   @Nested
@@ -63,6 +77,10 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
     class AsAdminUser {
       @Test
       void 'should return view if counters are valid'() {
+        Pipeline pipeline = mock(Pipeline.class);
+
+        when(pipelineService.findPipelineByNameAndCounter(anyString(), anyInt())).thenReturn(pipeline)
+
         get(controller.controllerPath("up42/3/with/4"))
 
         assertThatResponse()
@@ -83,6 +101,32 @@ class CompareControllerTest implements ControllerTrait<CompareController>, Secur
 
         assertThatResponse()
           .redirectsTo("/go" + controller.controllerPath("up42/3/with/1"))
+      }
+
+      @Test
+      void 'should give 404 if from counter does not exist'() {
+        Pipeline pipeline = mock(Pipeline.class);
+
+        when(pipelineService.findPipelineByNameAndCounter(anyString(), eq(4))).thenReturn(pipeline)
+
+        get(controller.controllerPath("up42/3/with/4"))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage("Pipeline [up42/3] not found.")
+      }
+
+      @Test
+      void 'should give 404 if to counter does not exist'() {
+        Pipeline pipeline = mock(Pipeline.class);
+
+        when(pipelineService.findPipelineByNameAndCounter(anyString(), eq(3))).thenReturn(pipeline)
+
+        get(controller.controllerPath("up42/3/with/4"))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage("Pipeline [up42/4] not found.")
       }
     }
   }

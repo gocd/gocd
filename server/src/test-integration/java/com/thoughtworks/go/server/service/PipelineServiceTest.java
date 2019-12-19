@@ -76,12 +76,18 @@ public class PipelineServiceTest {
     private Modification first;
     private Modification third;
     private Modification second;
-    @Autowired private TransactionTemplate actualTransactionTemplate;
-    @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private GoCache goCache;
-    @Autowired private SystemEnvironment systemEnvironment;
-    @Autowired private MaterialConfigConverter materialConfigConverter;
+    @Autowired
+    private TransactionTemplate actualTransactionTemplate;
+    @Autowired
+    private TransactionSynchronizationManager transactionSynchronizationManager;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private SystemEnvironment systemEnvironment;
+    @Autowired
+    private MaterialConfigConverter materialConfigConverter;
 
     @Before
     public void setUp() throws Exception {
@@ -235,8 +241,9 @@ public class PipelineServiceTest {
 
         assertThatCode(() -> service.isPipelineBisect(pipelineName, fromCounter, toCounter))
                 .isInstanceOf(RecordNotFoundException.class)
-                .hasMessage("Pipeline `pipeline` with counter `2` not found!");
+                .hasMessage("Pipeline 'pipeline' with counter '2' not found!");
     }
+
     @Test
     public void shouldThrowExceptionIfPipelineWithToCounterNotFound() {
         String pipelineName = "pipeline";
@@ -250,7 +257,7 @@ public class PipelineServiceTest {
 
         assertThatCode(() -> service.isPipelineBisect(pipelineName, fromCounter, toCounter))
                 .isInstanceOf(RecordNotFoundException.class)
-                .hasMessage("Pipeline `pipeline` with counter `3` not found!");
+                .hasMessage("Pipeline 'pipeline' with counter '3' not found!");
     }
 
     private JobConfigs jobs() {

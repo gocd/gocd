@@ -146,7 +146,7 @@ public class PackageMaterialConfigTest {
         PackageMaterialConfig materialConfig = new PackageMaterialConfig();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         materialConfig.setPackageDefinition(PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
-        assertThat(materialConfig.getName().toString(), is("repo-name:package-name"));
+        assertThat(materialConfig.getName().toString(), is("repo-name_package-name"));
         materialConfig.setPackageDefinition(null);
         assertThat(materialConfig.getName(), is(nullValue()));
     }

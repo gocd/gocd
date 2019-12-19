@@ -80,7 +80,7 @@ describe Admin::Materials::PluggableScmController do
       before do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
         expect(@go_config_service).to receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
-        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:canEditPipeline).and_return(true)
         expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
       end
 
@@ -97,7 +97,7 @@ describe Admin::Materials::PluggableScmController do
       before do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
         expect(@go_config_service).to receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
-        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:canEditPipeline).and_return(true)
         expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
       end
 
@@ -137,7 +137,7 @@ describe Admin::Materials::PluggableScmController do
       before do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
         expect(@go_config_service).to receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
-        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:canEditPipeline).and_return(true)
         expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
       end
 
@@ -156,7 +156,7 @@ describe Admin::Materials::PluggableScmController do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
         expect(@go_config_service).to receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
         expect(@pluggable_scm_service).to receive(:validate)
-        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:canEditPipeline).and_return(true)
         expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
       end
 
@@ -196,7 +196,7 @@ describe Admin::Materials::PluggableScmController do
       before do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
         expect(@go_config_service).to receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
-        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:canEditPipeline).and_return(true)
         expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
       end
 
@@ -214,7 +214,7 @@ describe Admin::Materials::PluggableScmController do
       before :each do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with('pipeline-name').and_return(@pause_info)
         expect(@go_config_service).to receive(:loadForEdit).with('pipeline-name', @user, @result).and_return(@pipeline_config_for_edit)
-        expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+        expect(@go_config_service).to receive(:canEditPipeline).and_return(true)
         expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
         expect(@pluggable_scm_service).to receive(:validate)
       end

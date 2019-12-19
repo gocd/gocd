@@ -110,7 +110,7 @@ describe Admin::Materials::DependencyController do
       pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
       expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
-      expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+      expect(@go_config_service).to receive(:canEditPipeline).and_return(true)
       expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
 
 
@@ -130,7 +130,7 @@ describe Admin::Materials::DependencyController do
       pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
       expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
-      expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+      expect(@go_config_service).to receive(:canEditPipeline).and_return(true)
       expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
 
       get :new, params:{:pipeline_name => "pipeline-name"}
@@ -144,7 +144,7 @@ describe Admin::Materials::DependencyController do
       pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
       expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
-      expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+      expect(@go_config_service).to receive(:canEditPipeline).and_return(true)
       expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
 
       get :new, params:{:pipeline_name => "pipeline-name"}
@@ -159,7 +159,7 @@ describe Admin::Materials::DependencyController do
       pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
       expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
-      expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+      expect(@go_config_service).to receive(:canEditPipeline).and_return(true)
       expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
 
       valid_fingerprint = pipeline.materialConfigs().first.getPipelineUniqueFingerprint()
@@ -174,7 +174,7 @@ describe Admin::Materials::DependencyController do
       pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
 
       expect(@go_config_service).to receive(:loadForEdit).and_return(pipeline_config_for_edit)
-      expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+      expect(@go_config_service).to receive(:canEditPipeline).and_return(true)
       expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
 
       get :edit, params:{:pipeline_name => "pipeline-name", :finger_print => "invalid-fingerprint"}

@@ -103,16 +103,6 @@ class PipelineActivityControllerTest implements ControllerTrait<PipelineActivity
       String getPipelineName() {
         return "up42"
       }
-
-      @Test
-      void 'should handle record not found'() {
-        enableSecurity()
-        when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(getPipelineName()))).thenReturn(false)
-
-        makeHttpCall()
-
-        assertThatResponse().isNotFound()
-      }
     }
   }
 }

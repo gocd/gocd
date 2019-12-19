@@ -3184,7 +3184,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "    </repository>\n"
                 + "  </repositories>"
                 + "<pipelines group=\"group_name\">\n"
-                + "  <pipeline name=\"new_name\" labeltemplate=\"${COUNT}-${repo_name:pkg_name}\">\n"
+                + "  <pipeline name=\"new_name\" labeltemplate=\"${COUNT}:${repo_name_pkg_name}\">\n"
                 + "    <materials>\n"
                 + "      <package ref='package-id' />\n"
                 + "    </materials>\n"
@@ -3196,7 +3196,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "  </pipeline>\n"
                 + "</pipelines></cruise>";
         GoConfigHolder holder = ConfigMigrator.loadWithMigration(xml);
-        assertThat(holder.config.getAllPipelineConfigs().get(0).materialConfigs().get(0).getName().toString()).isEqualTo("repo_name:pkg_name");
+        assertThat(holder.config.getAllPipelineConfigs().get(0).materialConfigs().get(0).getName().toString()).isEqualTo("repo_name_pkg_name");
     }
 
     @Test

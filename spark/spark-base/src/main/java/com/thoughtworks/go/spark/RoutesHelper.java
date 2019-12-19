@@ -21,6 +21,7 @@ import com.google.gson.JsonParseException;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import spark.Request;
 import spark.Response;
@@ -72,7 +73,22 @@ public class RoutesHelper {
 
     private void httpException(HttpException ex, Request req, Response res) {
         res.status(ex.getStatus().value());
-        res.body(new Gson().toJson(Collections.singletonMap("message", ex.getMessage())));
+        List<String> acceptedTypes = getAcceptedTypesFromRequest(req);
+
+        if (acceptedTypes.contains("text/html") || acceptedTypes.contains("application/xhtml+xml")) {
+            res.body(HtmlErrorPage.errorPage(ex.getStatus().value(), ex.getMessage()));
+        } else {
+            res.body(new Gson().toJson(Collections.singletonMap("message", ex.getMessage())));
+        }
+    }
+
+    private List<String> getAcceptedTypesFromRequest(Request request) {
+        String acceptHeader = request.headers("Accept");
+        if (StringUtils.isBlank(acceptHeader)) {
+            return Collections.emptyList();
+        }
+
+        return Arrays.asList(acceptHeader.toLowerCase().split(","));
     }
 
     private void invalidJsonPayload(JsonParseException ex, Request req, Response res) {

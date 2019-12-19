@@ -35,7 +35,7 @@ import {Wizard} from "views/components/wizard";
 import {ElasticAgentsPage} from "views/pages/elastic_agents";
 import styles from "views/pages/elastic_agents/index.scss";
 import {
-  openWizardForAdd,
+  openWizardForAdd, openWizardForAddElasticProfile,
   openWizardForEditClusterProfile,
   openWizardForEditElasticProfile
 } from "views/pages/elastic_agents/wizard";
@@ -147,11 +147,14 @@ describe("ElasticAgentWizard", () => {
       wizard.next();
       spyOn(wizard, "close").and.callThrough();
       m.redraw.sync();
-      helper.clickByTestId("finish", document.getElementsByClassName("component-modal-container")[0]);
+      helper.clickByTestId("finish", modalContext());
       promiseForCreateCall.finally(() => {
         expect(elasticProfile().create).toHaveBeenCalled();
         expect(wizard.close).toHaveBeenCalled();
         expect(elasticProfile().clusterProfileId()).toBe("user-entered-id");
+        expect(onSuccessfulSave)
+          .toHaveBeenCalledWith(<span>The Cluster Profile <em>{elasticProfile().clusterProfileId()}</em> and Elastic Agent Profile <em>{elasticProfile()
+            .id()}</em> were created successfully!</span>);
         done();
       });
     });
@@ -215,6 +218,32 @@ describe("ElasticAgentWizard", () => {
       expect(helper.byTestId("save-cluster-profile", modalContext())).toBeDisabled();
       expect(helper.byTestId("next", modalContext())).toBeDisabled();
       expect(helper.byTestId("cancel", modalContext())).not.toBeDisabled();
+    });
+  });
+
+  describe("Add Elastic Profile to existing Cluster", () => {
+    it("should add Elastic Profile to existing Cluster", (done) => {
+      const promiseForCreateCall = successResponseForElasticProfile().catch(done.fail);
+      elasticProfile().create    = jasmine.createSpy("create call").and.returnValue(promiseForCreateCall);
+      clusterProfile             = Stream(new ClusterProfile("cluster-profile-id",
+                                                             "plugin-id",
+                                                             new Configurations([])));
+      wizard                     = openWizardForAddElasticProfile(pluginInfos,
+                                                                  clusterProfile,
+                                                                  elasticProfile,
+                                                                  onSuccessfulSave,
+                                                                  onError);
+      wizard.next();
+      spyOn(wizard, "close").and.callThrough();
+      m.redraw.sync();
+      helper.clickByTestId("finish", modalContext());
+      promiseForCreateCall.finally(() => {
+        expect(elasticProfile().create).toHaveBeenCalled();
+        expect(wizard.close).toHaveBeenCalled();
+        expect(onSuccessfulSave)
+          .toHaveBeenCalledWith(<span>The Elastic Agent Profile <em>{elasticProfile().id()}</em> was created successfully!</span>);
+        done();
+      });
     });
   });
 
@@ -312,14 +341,14 @@ describe("ElasticAgentWizard", () => {
   });
 
   it("should not allow v4 and older plugins to edit cluster profile", (done) => {
-    pluginInfos = Stream(new PluginInfos(PluginInfo.fromJSON(pluginInfoWithElasticAgentExtensionV4)));
-    clusterProfile = Stream(new ClusterProfile("cluster-profile-id",
-                                               "plugin-id",
-                                               new Configurations([])));
-    elasticProfile = Stream(new ElasticAgentProfile("elastic-profile-id",
-                                                    "plugin-id",
-                                                    "cluster-profile-id",
-                                                    new Configurations([])));
+    pluginInfos             = Stream(new PluginInfos(PluginInfo.fromJSON(pluginInfoWithElasticAgentExtensionV4)));
+    clusterProfile          = Stream(new ClusterProfile("cluster-profile-id",
+                                                        "plugin-id",
+                                                        new Configurations([])));
+    elasticProfile          = Stream(new ElasticAgentProfile("elastic-profile-id",
+                                                             "plugin-id",
+                                                             "cluster-profile-id",
+                                                             new Configurations([])));
     const promiseForGetCall = successResponseForClusterProfile().catch(done.fail);
     clusterProfile().get    = jasmine.createSpy("get elastic profile").and.returnValue(promiseForGetCall);
     wizard                  = openWizardForEditClusterProfile(pluginInfos,

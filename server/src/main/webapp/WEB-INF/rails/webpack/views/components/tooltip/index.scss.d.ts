@@ -3,4 +3,5 @@ export const large: string;
 export const medium: string;
 export const small: string;
 export const tooltipContent: string;
+export const tooltipContentWrapper: string;
 export const tooltipWrapper: string;

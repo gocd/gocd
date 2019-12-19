@@ -55,7 +55,7 @@ describe Admin::MaterialsController do
       expect(a).to receive(:getCruiseConfig).and_return(@cruise_config)
       expect(a).to receive(:getProcessedConfig).twice.and_return(@cruise_config)
       expect(@go_config_service).to receive(:loadForEdit).and_return(a)
-      expect(@go_config_service).to receive(:doesPipelineExist).and_return(true)
+      expect(@go_config_service).to receive(:canEditPipeline).and_return(true)
       expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
     end
 

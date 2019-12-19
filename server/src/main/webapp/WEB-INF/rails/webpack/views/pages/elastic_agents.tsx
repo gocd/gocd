@@ -286,6 +286,7 @@ export class ElasticAgentsPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
+    this.pageState                        = PageState.LOADING;
     vnode.state.pluginInfos               = Stream(new PluginInfos());
     vnode.state.clusterProfiles           = Stream(new ClusterProfiles([]));
     vnode.state.elasticProfiles           = Stream(new ElasticAgentProfiles([]));

@@ -99,8 +99,7 @@ export class EditPipelineGroupModal extends Modal {
     return <div>
       {flashMessageHtml}
       <div class={styles.pipelineGroupNameWrapper}>
-        <TextField title={this.containsPipelinesRemotely ? "Cannot rename pipeline group as it contains remotely defined pipelines" : ""} label={"Pipeline" +
-        " group name"} property={this.pipelineGroupViewModel.name} readonly={this.containsPipelinesRemotely}/>
+        <TextField title={this.containsPipelinesRemotely ? "Cannot rename pipeline group as it contains remotely defined pipelines" : ""} label={"Pipeline group name"} property={this.pipelineGroupViewModel.name} readonly={this.containsPipelinesRemotely}/>
         {this.containsPipelinesRemotely ? infoTooltip : ""}
       </div>
       <CollapsiblePanel header={"User permissions"}

@@ -18,8 +18,8 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 
 import {bind} from "classnames/bind";
-import {InfoCircle, QuestionCircle} from "views/components/icons";
 import * as Icons from "views/components/icons";
+import {InfoCircle, QuestionCircle} from "views/components/icons";
 import styles from "./index.scss";
 
 const classnames = bind(styles);
@@ -44,20 +44,22 @@ class Tooltip extends MithrilViewComponent<Attrs> {
   constructor(tooltipType: any) {
     super();
     this.tooltipType = tooltipType;
-    this.id = Tooltip.currentId++; // added to support accessibility
+    this.id          = Tooltip.currentId++; // added to support accessibility
   }
 
   view(vnode: m.Vnode<Attrs>) {
     // @ts-ignore
-    const size = styles[TooltipSize[vnode.attrs.size || TooltipSize.small]];
+    const size   = styles[TooltipSize[vnode.attrs.size || TooltipSize.small]];
     const a11yId = `tooltip-desc-${this.id}`;
 
     return (
       <div data-test-id="tooltip-wrapper" class={styles.tooltipWrapper}>
         {m(this.tooltipType, {iconOnly: true, title: "", describedBy: a11yId})}
-        <div data-test-id="tooltip-content"
-             class={classnames(styles.tooltipContent, size)}>
-          <p role="tooltip" id={a11yId}>{vnode.attrs.content}</p>
+        <div class={styles.tooltipContentWrapper}>
+          <div data-test-id="tooltip-content"
+               class={classnames(styles.tooltipContent, size)}>
+            <p role="tooltip" id={a11yId}>{vnode.attrs.content}</p>
+          </div>
         </div>
       </div>);
   }

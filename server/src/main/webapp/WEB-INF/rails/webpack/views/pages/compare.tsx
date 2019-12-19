@@ -19,6 +19,8 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Comparison} from "models/compare/compare";
 import {ComparisonCRUD} from "models/compare/compare_crud";
+import {PipelineInstance} from "models/compare/pipeline_instance";
+import {PipelineInstanceCRUD} from "models/compare/pipeline_instance_crud";
 import {FlashMessage} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {Page, PageState} from "views/pages/page";
@@ -27,12 +29,16 @@ import {ComparisonResultWidget} from "./compare/comparison_result_widget";
 
 interface State {
   comparison: Stream<Comparison>;
+  fromInstance: Stream<PipelineInstance>;
+  toInstance: Stream<PipelineInstance>;
 }
 
 export class ComparePage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
-    vnode.state.comparison = Stream();
+    vnode.state.comparison   = Stream();
+    vnode.state.fromInstance = Stream();
+    vnode.state.toInstance   = Stream();
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
@@ -51,12 +57,27 @@ export class ComparePage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return ComparisonCRUD.getDifference(this.getMeta().pipelineName, this.getMeta().fromCounter, this.getMeta().toCounter)
-                         .then((result) =>
-                                 result.do((successResponse: SuccessResponse<Comparison>) => {
-                                   this.pageState = PageState.OK;
-                                   vnode.state.comparison(successResponse.body);
-                                 }, this.setErrorState));
+    const pipelineName = this.getMeta().pipelineName;
+    const fromCounter  = this.getMeta().fromCounter;
+    const toCounter    = this.getMeta().toCounter;
+    return Promise.all([ComparisonCRUD.getDifference(pipelineName, fromCounter, toCounter), PipelineInstanceCRUD.get(pipelineName, fromCounter), PipelineInstanceCRUD.get(pipelineName, toCounter)])
+                  .then((result) => {
+                          result[0].do((successResponse: SuccessResponse<Comparison>) => {
+                            this.pageState = PageState.OK;
+                            vnode.state.comparison(successResponse.body);
+                          }, this.setErrorState);
+
+                          result[1].do((successResponse) => {
+                            this.pageState = PageState.OK;
+                            vnode.state.fromInstance(successResponse.body);
+                          }, this.setErrorState);
+
+                          result[2].do((successResponse) => {
+                            this.pageState = PageState.OK;
+                            vnode.state.toInstance(successResponse.body);
+                          }, this.setErrorState);
+                        }
+                  );
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {

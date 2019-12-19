@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {PipelineInstances} from "../pipeline_instance";
+import {PipelineInstance, PipelineInstances} from "../pipeline_instance";
 import {PipelineInstanceData} from "./test_data";
 
 describe('PipelineInstanceSpec', () => {
@@ -84,5 +84,16 @@ describe('PipelineInstanceSpec', () => {
     expect(job.result).toEqual(json.stages[0].jobs[0].result);
     expect(job.scheduledDate).toEqual(new Date(json.stages[0].jobs[0].scheduled_date));
     expect(job.state).toEqual(json.stages[0].jobs[0].state);
+  });
+
+  it('should return true if the current instance is a bisect', () => {
+    const json             = PipelineInstanceData.pipeline();
+    const pipelineInstance = PipelineInstance.fromJSON(json);
+
+    expect(pipelineInstance.isBisect()).toBeFalsy();
+
+    pipelineInstance.naturalOrder = 2.4;
+
+    expect(pipelineInstance.isBisect()).toBeTruthy();
   });
 });

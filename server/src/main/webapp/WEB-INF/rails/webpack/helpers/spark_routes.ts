@@ -500,4 +500,8 @@ export class SparkRoutes {
   static comparePipelines(pipelineName: string, fromCounter: number, toCounter: number) {
     return `/go/api/pipelines/${pipelineName}/compare/${fromCounter}/${toCounter}`;
   }
+
+  static getPipelineInstance(pipelineName: string, pipelineCounter: number) {
+    return `/go/api/pipelines/${pipelineName}/${pipelineCounter}`;
+  }
 }

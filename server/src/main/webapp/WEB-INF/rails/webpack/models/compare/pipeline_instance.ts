@@ -16,16 +16,7 @@
 
 import {timeFormatter} from "helpers/time_formatter";
 import _ from "lodash";
-import {
-  BuildCauseJSON,
-  JobJSON,
-  MaterialJSON,
-  MaterialRevisionJSON,
-  ModificationJSON,
-  PipelineInstanceJSON,
-  StageJSON,
-  stringOrNull
-} from "./pipeline_instance_json";
+import {BuildCauseJSON, JobJSON, MaterialJSON, MaterialRevisionJSON, ModificationJSON, PipelineInstanceJSON, StageJSON, stringOrNull} from "./pipeline_instance_json";
 
 export class PipelineInstances extends Array<PipelineInstance> {
   constructor(...pipelineInstances: PipelineInstance[]) {
@@ -65,6 +56,10 @@ export class PipelineInstance {
 
   static fromJSON(data: PipelineInstanceJSON): PipelineInstance {
     return new PipelineInstance(data.id, data.name, data.counter, data.label, data.natural_order, data.can_run, data.preparing_to_schedule, data.comment, BuildCause.fromJSON(data.build_cause), Stages.fromJSON(data.stages));
+  }
+
+  isBisect(): boolean {
+    return !!(this.naturalOrder - (_.toInteger(this.naturalOrder)));
   }
 }
 

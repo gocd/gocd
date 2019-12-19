@@ -192,11 +192,11 @@ class ElasticProfileWidget extends MithrilViewComponent<Attrs> {
           </div>
         </div>
         <ConceptDiagram image={elasticAgentProfileImg} css={conceptDiagramStyles}>
-            <h2>What is an Elastic Agent Profile?</h2>
-            <p>An Elastic Agent Profile usually contains the configuration for your agent.<br/>
-              Depending on the plugin used, this may contain the machine image (ami, docker image), size of the
-              CPU/memory/disk, network settings among other things.</p>
-          </ConceptDiagram>
+          <h2>What is an Elastic Agent Profile?</h2>
+          <p>An Elastic Agent Profile usually contains the configuration for your agent.<br/>
+            Depending on the plugin used, this may contain the machine image (ami, docker image), size of the
+            CPU/memory/disk, network settings among other things.</p>
+        </ConceptDiagram>
       </div>
     );
   }
@@ -457,13 +457,19 @@ class ElasticProfileStep extends Step {
     }
   }
 
+  protected saveMessage(): m.Children {
+    return <span>The Cluster Profile <em>{this.elasticProfile()
+                                              .clusterProfileId()}</em> and Elastic Agent Profile <em>{this.elasticProfile()
+                                                                                                           .id()}</em> were created successfully!</span>;
+  }
+
   private create(wizard: Wizard) {
     this.elasticProfile().clusterProfileId(this.clusterProfile().id());
     return this.elasticProfile().create()
                .then((result) => {
                  result.do(
                    () => {
-                     this.onSuccessfulSave(<span>The Elastic Agent Profile <em>{this.elasticProfile().id()}</em> was created successfully!</span>);
+                     this.onSuccessfulSave(this.saveMessage());
                      wizard.close();
                    },
                    (errorResponse) => {
@@ -510,6 +516,10 @@ class AddElasticProfileToExistingClusterStep extends ElasticProfileStep {
                          align="right">Show Cluster Profile</Buttons.Secondary>,
       <span class={styles.footerError}>{this.footerError()}</span>
     ];
+  }
+
+  protected saveMessage(): m.Children {
+    return <span>The Elastic Agent Profile <em>{this.elasticProfile().id()}</em> was created successfully!</span>;
   }
 }
 

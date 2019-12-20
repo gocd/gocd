@@ -53,7 +53,6 @@ import static spark.Spark.*;
 
 @Component
 public class StageInstanceControllerV2 extends ApiController implements SparkSpringController {
-    static final String BAD_PAGE_SIZE_MSG = "The query parameter `page_size`, if specified must be a number between 10 and 100.";
     static final String BAD_OFFSET_MSG = "The query parameter `offset`, if specified must be a number greater or equal to 0.";
     private final static String JOB_NAMES_PROPERTY = "jobs";
     private final ApiAuthenticationHelper apiAuthenticationHelper;

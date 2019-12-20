@@ -177,7 +177,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
         assertThatResponse()
           .isBadRequest()
-          .hasJsonMessage("The query parameter `page_size`, if specified must be a number between 10 and 100.")
+          .hasJsonMessage("The query parameter 'page_size', if specified must be a number between 10 and 100.")
       }
 
       @Test
@@ -187,7 +187,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
         assertThatResponse()
           .isBadRequest()
-          .hasJsonMessage("The query parameter `page_size`, if specified must be a number between 10 and 100.")
+          .hasJsonMessage("The query parameter 'page_size', if specified must be a number between 10 and 100.")
       }
 
       @Test
@@ -197,7 +197,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
         assertThatResponse()
           .isBadRequest()
-          .hasJsonMessage("The query parameter `page_size`, if specified must be a number between 10 and 100.")
+          .hasJsonMessage("The query parameter 'page_size', if specified must be a number between 10 and 100.")
       }
 
       def getJobInstances() {

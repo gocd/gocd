@@ -44,7 +44,6 @@ import static spark.Spark.*;
 
 @Component
 public class PipelineInstanceControllerV1 extends ApiController implements SparkSpringController {
-    private static final String BAD_PAGE_SIZE_MSG = "The query parameter `page_size`, if specified must be a number between 10 and 100.";
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PipelineHistoryService pipelineHistoryService;
 

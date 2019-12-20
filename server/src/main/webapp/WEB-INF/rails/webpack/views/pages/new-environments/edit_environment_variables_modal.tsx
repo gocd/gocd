@@ -91,7 +91,7 @@ export class EditEnvironmentVariablesModal extends Modal {
 
   environmentVariablesToAdd() {
     return this.environmentToUpdate.environmentVariables().filter((envVar) => {
-      const isBlankEnvVar = _.isEmpty(envVar.name()) && (_.isEmpty(envVar.value()) && _.isEmpty(envVar.encryptedValue()));
+      const isBlankEnvVar = _.isEmpty(envVar.name()) && (_.isEmpty(envVar.value()) && _.isEmpty(envVar.encryptedValue().getOriginal()));
       if (isBlankEnvVar) {
         return false;
       }

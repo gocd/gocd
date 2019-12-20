@@ -32,8 +32,8 @@ describe('PipelineInstanceCRUDSpec', () => {
       const responseJSON = response.unwrap() as SuccessResponse<any>;
       const object       = (responseJSON.body as PipelineInstance);
 
-      expect(object.name).toEqual("up42");
-      expect(object.counter).toEqual(2);
+      expect(object.name()).toEqual("up42");
+      expect(object.counter()).toEqual(2);
       done();
     });
 

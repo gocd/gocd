@@ -16,6 +16,7 @@
 
 import {timeFormatter} from "helpers/time_formatter";
 import _ from "lodash";
+import Stream from "mithril/stream";
 import {BuildCauseJSON, JobJSON, MaterialJSON, MaterialRevisionJSON, ModificationJSON, PipelineInstanceJSON, StageJSON, stringOrNull} from "./pipeline_instance_json";
 
 export class PipelineInstances extends Array<PipelineInstance> {
@@ -30,28 +31,28 @@ export class PipelineInstances extends Array<PipelineInstance> {
 }
 
 export class PipelineInstance {
-  id: number;
-  name: string;
-  counter: number;
-  label: string;
-  naturalOrder: number;
-  canRun: boolean;
-  preparingToSchedule: boolean;
-  comment: stringOrNull;
-  buildCause: BuildCause;
-  stages: Stages;
+  id: Stream<number>;
+  name: Stream<string>;
+  counter: Stream<number>;
+  label: Stream<string>;
+  naturalOrder: Stream<number>;
+  canRun: Stream<boolean>;
+  preparingToSchedule: Stream<boolean>;
+  comment: Stream<stringOrNull>;
+  buildCause: Stream<BuildCause>;
+  stages: Stream<Stages>;
 
   constructor(id: number, name: string, counter: number, label: string, naturalOrder: number, canRun: boolean, preparingToSchedule: boolean, comment: stringOrNull, buildCause: BuildCause, stages: Stages) {
-    this.id                  = id;
-    this.name                = name;
-    this.counter             = counter;
-    this.label               = label;
-    this.naturalOrder        = naturalOrder;
-    this.canRun              = canRun;
-    this.preparingToSchedule = preparingToSchedule;
-    this.comment             = comment;
-    this.buildCause          = buildCause;
-    this.stages              = stages;
+    this.id                  = Stream(id);
+    this.name                = Stream(name);
+    this.counter             = Stream(counter);
+    this.label               = Stream(label);
+    this.naturalOrder        = Stream(naturalOrder);
+    this.canRun              = Stream(canRun);
+    this.preparingToSchedule = Stream(preparingToSchedule);
+    this.comment             = Stream(comment);
+    this.buildCause          = Stream(buildCause);
+    this.stages              = Stream(stages);
   }
 
   static fromJSON(data: PipelineInstanceJSON): PipelineInstance {
@@ -59,21 +60,21 @@ export class PipelineInstance {
   }
 
   isBisect(): boolean {
-    return !!(this.naturalOrder - (_.toInteger(this.naturalOrder)));
+    return !!(this.naturalOrder() - (_.toInteger(this.naturalOrder())));
   }
 }
 
 class BuildCause {
-  triggerMessage: string;
-  triggerForced: boolean;
-  approver: string;
-  materialRevisions: MaterialRevisions;
+  triggerMessage: Stream<string>;
+  triggerForced: Stream<boolean>;
+  approver: Stream<string>;
+  materialRevisions: Stream<MaterialRevisions>;
 
   constructor(triggerMessage: string, triggerForced: boolean, approver: string, materialRevisions: MaterialRevisions) {
-    this.triggerMessage    = triggerMessage;
-    this.triggerForced     = triggerForced;
-    this.approver          = approver;
-    this.materialRevisions = materialRevisions;
+    this.triggerMessage    = Stream(triggerMessage);
+    this.triggerForced     = Stream(triggerForced);
+    this.approver          = Stream(approver);
+    this.materialRevisions = Stream(materialRevisions);
   }
 
   static fromJSON(data: BuildCauseJSON): BuildCause {
@@ -82,14 +83,14 @@ class BuildCause {
 }
 
 class MaterialRevision {
-  changed: boolean;
-  material: Material;
-  modifications: Modifications;
+  changed: Stream<boolean>;
+  material: Stream<Material>;
+  modifications: Stream<Modifications>;
 
   constructor(changed: boolean, material: Material, modifications: Modifications) {
-    this.changed       = changed;
-    this.material      = material;
-    this.modifications = modifications;
+    this.changed       = Stream(changed);
+    this.material      = Stream(material);
+    this.modifications = Stream(modifications);
   }
 
   static fromJSON(data: MaterialRevisionJSON): MaterialRevision {
@@ -109,18 +110,18 @@ class MaterialRevisions extends Array<MaterialRevision> {
 }
 
 class Material {
-  id: number;
-  name: string;
-  type: string;
-  fingerprint: string;
-  description: string;
+  id: Stream<number>;
+  name: Stream<string>;
+  type: Stream<string>;
+  fingerprint: Stream<string>;
+  description: Stream<string>;
 
   constructor(id: number, name: string, type: string, fingerprint: string, description: string) {
-    this.id          = id;
-    this.name        = name;
-    this.type        = type;
-    this.fingerprint = fingerprint;
-    this.description = description;
+    this.id          = Stream(id);
+    this.name        = Stream(name);
+    this.type        = Stream(type);
+    this.fingerprint = Stream(fingerprint);
+    this.description = Stream(description);
   }
 
   static fromJSON(data: MaterialJSON): Material {
@@ -129,20 +130,20 @@ class Material {
 }
 
 class Modification {
-  id: number;
-  revision: string;
-  modifiedTime: Date | undefined;
-  userName: string;
-  comment: stringOrNull;
-  emailAddress: stringOrNull;
+  id: Stream<number>;
+  revision: Stream<string>;
+  modifiedTime: Stream<Date | undefined>;
+  userName: Stream<string>;
+  comment: Stream<stringOrNull>;
+  emailAddress: Stream<stringOrNull>;
 
   constructor(id: number, revision: string, modifiedTime: string, userName: string, comment: stringOrNull, emailAddress: stringOrNull) {
-    this.id           = id;
-    this.revision     = revision;
-    this.modifiedTime = parseDate(modifiedTime);
-    this.userName     = userName;
-    this.comment      = comment;
-    this.emailAddress = emailAddress;
+    this.id           = Stream(id);
+    this.revision     = Stream(revision);
+    this.modifiedTime = Stream(parseDate(modifiedTime));
+    this.userName     = Stream(userName);
+    this.comment      = Stream(comment);
+    this.emailAddress = Stream(emailAddress);
   }
 
   static fromJSON(data: ModificationJSON): Modification {
@@ -162,28 +163,28 @@ class Modifications extends Array<Modification> {
 }
 
 class Stage {
-  id: number;
-  name: string;
-  counter: string;
-  scheduled: boolean;
-  result: string;
-  approvalType: string;
-  approvedBy: string;
-  operatePermission: boolean;
-  canRun: boolean;
-  jobs: Jobs;
+  id: Stream<number>;
+  name: Stream<string>;
+  counter: Stream<string>;
+  scheduled: Stream<boolean>;
+  result: Stream<string>;
+  approvalType: Stream<string>;
+  approvedBy: Stream<string>;
+  operatePermission: Stream<boolean>;
+  canRun: Stream<boolean>;
+  jobs: Stream<Jobs>;
 
   constructor(id: number, name: string, counter: string, scheduled: boolean, result: string, approvalType: string, approvedBy: string, operatePermission: boolean, canRun: boolean, jobs: Jobs) {
-    this.result            = result;
-    this.id                = id;
-    this.name              = name;
-    this.counter           = counter;
-    this.scheduled         = scheduled;
-    this.approvalType      = approvalType;
-    this.approvedBy        = approvedBy;
-    this.operatePermission = operatePermission;
-    this.canRun            = canRun;
-    this.jobs              = jobs;
+    this.result            = Stream(result);
+    this.id                = Stream(id);
+    this.name              = Stream(name);
+    this.counter           = Stream(counter);
+    this.scheduled         = Stream(scheduled);
+    this.approvalType      = Stream(approvalType);
+    this.approvedBy        = Stream(approvedBy);
+    this.operatePermission = Stream(operatePermission);
+    this.canRun            = Stream(canRun);
+    this.jobs              = Stream(jobs);
   }
 
   static fromJSON(data: StageJSON): Stage {
@@ -204,18 +205,18 @@ class Stages extends Array<Stage> {
 }
 
 class Job {
-  id: number;
-  name: string;
-  scheduledDate: Date | undefined;
-  state: string;
-  result: string;
+  id: Stream<number>;
+  name: Stream<string>;
+  scheduledDate: Stream<Date | undefined>;
+  state: Stream<string>;
+  result: Stream<string>;
 
   constructor(id: number, name: string, scheduled_date: string, state: string, result: string) {
-    this.id            = id;
-    this.name          = name;
-    this.scheduledDate = parseDate(scheduled_date);
-    this.state         = state;
-    this.result        = result;
+    this.id            = Stream(id);
+    this.name          = Stream(name);
+    this.scheduledDate = Stream(parseDate(scheduled_date));
+    this.state         = Stream(state);
+    this.result        = Stream(result);
   }
 
   static fromJSON(data: JobJSON): Job {

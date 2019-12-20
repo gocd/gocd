@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.lang3.StringUtils;
@@ -134,7 +135,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
 
     protected abstract void appendCriteria(Map<String, Object> parameters);
 
-    protected abstract void appendAttributes(Map<String,Object> parameters);
+    protected abstract void appendAttributes(Map<String, Object> parameters);
 
     protected abstract void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria);
 
@@ -190,7 +191,8 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         return result;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return String.format("AbstractMaterial{name=%s, type=%s}", name, type);
     }
 
@@ -220,7 +222,7 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
 
     @Override
     public void updateFromConfig(MaterialConfig materialConfig) {
-        if(materialConfig instanceof PasswordAwareMaterial) {
+        if (materialConfig instanceof PasswordAwareMaterial) {
             PasswordAwareMaterial passwordConfig = (PasswordAwareMaterial) materialConfig;
             ((PasswordAwareMaterial) this).setPassword(passwordConfig.getPassword());
         }
@@ -234,5 +236,9 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
     public boolean ignoreForScheduling() {
         //overridden in DependencyMaterial. Other materials don't support this flag
         return false;
+    }
+
+    public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
+        throw new UnsupportedOperationException(String.format("'checkConnection' cannot be performed on material of type %s", type));
     }
 }

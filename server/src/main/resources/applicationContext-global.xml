@@ -26,6 +26,7 @@
   <context:annotation-config/>
 
   <context:component-scan base-package="com.thoughtworks.go.apiv2.notificationfilter"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.internalmaterialtest"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv6.admin.templateconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv3.configrepos"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv2.stageinstance"/>

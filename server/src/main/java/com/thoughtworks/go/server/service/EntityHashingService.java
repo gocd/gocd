@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.NotificationFilter;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -349,6 +350,11 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     public String md5ForEntity(ArtifactConfig artifactConfig) {
         String cacheKey = cacheKey(artifactConfig, "cacheKey");
         return getFromCache(cacheKey, () -> String.valueOf(Objects.hash(artifactConfig)));
+    }
+
+    public String md5ForEntity(MaterialConfig materialConfig) {
+        String cacheKey = cacheKey(materialConfig, "cacheKey");
+        return getFromCache(cacheKey, () -> String.valueOf(Objects.hash(materialConfig)));
     }
 
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {

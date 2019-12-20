@@ -819,4 +819,8 @@ public class Routes {
             return API_BASE + "/" + id;
         }
     }
+
+    public class InternalMaterialTest {
+        public static final String BASE = "/api/admin/internal/material_test";
+    }
 }

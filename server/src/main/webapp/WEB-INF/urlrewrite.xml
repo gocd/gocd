@@ -45,6 +45,12 @@
   </rule>
 
   <rule>
+    <name>Material Test API</name>
+    <from>^/api/admin/internal/material_test(/?)$</from>
+    <to last="true">/spark/api/admin/internal/material_test</to>
+  </rule>
+
+  <rule>
     <name>Agent Job History API</name>
     <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
     <from>^/api/agents/([^/]+)/job_run_history(/?)$</from>

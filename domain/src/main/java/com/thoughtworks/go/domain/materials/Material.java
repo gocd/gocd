@@ -113,4 +113,6 @@ public interface Material extends Serializable {
     void updateFromConfig(MaterialConfig materialConfig);
 
     boolean ignoreForScheduling();
+
+    ValidationBean checkConnection(final SubprocessExecutionContext execCtx);
 }

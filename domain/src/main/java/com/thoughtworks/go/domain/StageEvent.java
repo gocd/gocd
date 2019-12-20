@@ -15,6 +15,10 @@
  */
 package com.thoughtworks.go.domain;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
+
 public enum StageEvent {
     Fails {
         @Override
@@ -57,5 +61,12 @@ public enum StageEvent {
 
     public boolean include(StageEvent other) {
         return this == All || this == other;
+    }
+
+    public static StageEvent from(String event) {
+        return Arrays.stream(values())
+                .filter(e -> e.name().equalsIgnoreCase(StringUtils.trimToEmpty(event)))
+                .findFirst()
+                .orElse(null);
     }
 }

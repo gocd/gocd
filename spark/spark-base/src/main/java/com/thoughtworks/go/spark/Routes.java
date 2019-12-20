@@ -805,4 +805,15 @@ public class Routes {
     public static class PipelineActivity {
         public static final String SPA_BASE = "/pipeline/activity/:pipeline_name";
     }
+
+    public static class NotificationFilterAPI {
+        public static final String API_BASE = "/api/notification_filters";
+        public static final String ID = "/:id";
+        public static final String DOC = apiDocsUrl("notification-filters");
+        public static final String FIND = API_BASE + ID;
+
+        public static String self(long id) {
+            return API_BASE + "/" + id;
+        }
+    }
 }

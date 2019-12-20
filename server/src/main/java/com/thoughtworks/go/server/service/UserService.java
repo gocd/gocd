@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.exception.UncheckedValidationException;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.presentation.UserModel;
@@ -465,6 +466,20 @@ public class UserService {
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 User user = userDao.load(userId);
                 user.addNotificationFilter(filter);
+                synchronized (enableUserMutex) {
+                    userDao.saveOrUpdate(user);
+                }
+            }
+        });
+    }
+
+    public void updateNotificationFilter(final long userId, final NotificationFilter notificationFilter) throws UncheckedValidationException {
+        User user = userDao.load(userId);
+        user.updateNotificationFilter(notificationFilter);
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 synchronized (enableUserMutex) {
                     userDao.saveOrUpdate(user);
                 }

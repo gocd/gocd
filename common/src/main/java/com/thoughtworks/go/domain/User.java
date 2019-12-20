@@ -16,6 +16,8 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.exception.UncheckedValidationException;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.domain.materials.ValidationBean;
@@ -23,10 +25,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -273,6 +272,20 @@ public class User extends PersistentObject {
                         filter.getPipelineName(), filter.getStageName(), filter.getEvent()));
             }
         }
+    }
+
+    public void updateNotificationFilter(NotificationFilter notificationFilter) {
+        Optional<NotificationFilter> optionalFilter = notificationFilters.stream()
+                .filter(filter -> filter.getId() == notificationFilter.getId())
+                .findFirst();
+
+        if (optionalFilter.isEmpty()) {
+            throw new RecordNotFoundException(EntityType.NotificationFilter, notificationFilter.getId());
+        }
+
+        checkForDuplicates(notificationFilter);
+        notificationFilters.remove(optionalFilter.get());
+        notificationFilters.add(notificationFilter);
     }
 
     public void removeNotificationFilter(final long filterId) {

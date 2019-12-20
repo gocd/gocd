@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.exception.UncheckedValidationException;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.presentation.UserModel;
 import com.thoughtworks.go.presentation.UserSearchModel;
@@ -772,6 +773,58 @@ public class UserServiceTest {
             verify(userDao).findUser(username);
             verifyNoMoreInteractions(userDao);
         }
+    }
+
+    @Nested
+    class UpdateNotificationFilter {
+        @Test
+        void shouldErrorOutWhenNotificationFilterWithIdDoesNotExist() {
+            NotificationFilter notificationFilter = mock(NotificationFilter.class);
+            User user = new User("bob");
+            user.setId(100L);
+            when(userDao.load(100L)).thenReturn(user);
+            when(notificationFilter.getId()).thenReturn(1L);
+
+            assertThatCode(() -> userService.updateNotificationFilter(100, notificationFilter))
+                    .isInstanceOf(RecordNotFoundException.class)
+                    .hasMessage("Notification filter with id '1' was not found!");
+        }
+
+        @Test
+        void shouldErrorOutWithValidationErrorWhenAddingSameNotificationFilterAgain() {
+            NotificationFilter notifyForBrokenBuild = notificationFilter(1L, "up42", "up42_stage", StageEvent.Breaks);
+            NotificationFilter notifyForFixedBuild = notificationFilter(2L, "up42", "up42_stage", StageEvent.Fixed);
+            User user = new User("bob");
+            user.setId(100L);
+            user.addNotificationFilter(notifyForBrokenBuild);
+            user.addNotificationFilter(notifyForFixedBuild);
+            when(userDao.load(100L)).thenReturn(user);
+
+            NotificationFilter updatedFilter = notificationFilter(2L, "up42", "up42_stage", StageEvent.Breaks);
+            assertThatCode(() -> userService.updateNotificationFilter(100, updatedFilter))
+                    .isInstanceOf(UncheckedValidationException.class)
+                    .hasMessage("Duplicate notification filter found for: {pipeline: \"up42\", stage: \"up42_stage\", event: \"Breaks\"}");
+        }
+
+        @Test
+        void shouldUpdateNotificationFilter() {
+            NotificationFilter notifyForBrokenBuild = notificationFilter(1L, "up42", "up42_stage", StageEvent.Breaks);
+            User user = new User("bob");
+            user.setId(100L);
+            user.addNotificationFilter(notifyForBrokenBuild);
+            when(userDao.load(100L)).thenReturn(user);
+            NotificationFilter updatedFilter = notificationFilter(1L, "up42", "up42_stage", StageEvent.All);
+
+            userService.updateNotificationFilter(100, updatedFilter);
+
+            verify(userDao).saveOrUpdate(user);
+        }
+    }
+
+    private NotificationFilter notificationFilter(long id, String pipeline, String stage, StageEvent event) {
+        NotificationFilter notifyForBreakingBuild = new NotificationFilter(pipeline, stage, event, true);
+        notifyForBreakingBuild.setId(id);
+        return notifyForBreakingBuild;
     }
 
     private void configureAdmin(String username, boolean isAdmin) {

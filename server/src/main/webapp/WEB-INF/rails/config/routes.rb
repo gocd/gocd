@@ -228,10 +228,6 @@ Rails.application.routes.draw do
         get 'fanin/:name' => 'fanin_trace#fanin', constraints: {name: PIPELINE_NAME_FORMAT}
       end
 
-      defaults :format => 'json' do
-        get 'process_list' => 'process_list#process_list'
-      end
-
       defaults :format => 'xml' do
         # stage api's
         get 'stages/:id.xml' => 'stages#index', as: :stage

@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-import {EnvironmentEnvironmentVariableJSON, EnvironmentVariable, EnvironmentVariables, EnvironmentVariablesWithOrigin, EnvironmentVariableWithOrigin} from "models/environment_variables/types";
+import {
+  EnvironmentEnvironmentVariableJSON,
+  EnvironmentVariable,
+  EnvironmentVariables,
+  EnvironmentVariablesWithOrigin,
+  EnvironmentVariableWithOrigin
+} from "models/environment_variables/types";
 import data from "./test_data";
 
 const plainTextEnvVar1                 = data.environment_variable_json();
@@ -88,40 +94,97 @@ describe("Environment Variable Model", () => {
       expect(envVar.isValid()).toBe(false);
       expect(envVar.errors().errors("name")).toContain("Name must be present");
     });
-
-    it("should not validate presence of name if value is empty", () => {
-      const envVar = new EnvironmentVariable("");
-      expect(envVar.isValid()).toBe(true);
-      expect(envVar.errors().hasErrors()).toBe(false);
-    });
   });
 
-  it("toJSON()", () => {
-    const envVar = EnvironmentVariable.fromJSON(plainTextEnvVar1);
+  describe("toJSON", () => {
+    describe("Plain Text", () => {
+      it("should generate json for plain text variable", () => {
+        const envVar = EnvironmentVariable.fromJSON(plainTextEnvVar1);
 
-    const actualJSON = envVar.toJSON();
+        const expected = {
+          name: plainTextEnvVar1.name,
+          value: plainTextEnvVar1.value,
+          secure: plainTextEnvVar1.secure
+        };
+        expect(envVar.toJSON()).toEqual(expected);
+      });
 
-    const expectedJSON = {
-      name: envVar.name(),
-      value: envVar.value(),
-      encrypted_value: undefined,
-      secure: false
-    };
+      it("should generate json for plain text variable when value is absent", () => {
+        const envVar = EnvironmentVariable.fromJSON(plainTextEnvVar1);
 
-    expect(actualJSON).toEqual(expectedJSON);
+        envVar.value(undefined);
+
+        const expected = {
+          name: plainTextEnvVar1.name,
+          value: "",
+          secure: plainTextEnvVar1.secure
+        };
+        expect(envVar.toJSON()).toEqual(expected);
+      });
+    });
+
+    describe("Secure Text", () => {
+      it("should generate json for secure text variable", () => {
+        const envVar = EnvironmentVariable.fromJSON(secureEnvVar1);
+
+        const expected = {
+          name: secureEnvVar1.name,
+          encrypted_value: secureEnvVar1.encrypted_value,
+          secure: secureEnvVar1.secure
+        };
+
+        expect(envVar.toJSON()).toEqual(expected);
+      });
+
+      it("should generate json for secure text variable when value is edited", () => {
+        const envVar = EnvironmentVariable.fromJSON(secureEnvVar1);
+
+        envVar.encryptedValue().edit();
+        envVar.encryptedValue().value("blah");
+
+        const expected = {
+          name: secureEnvVar1.name,
+          value: "blah",
+          secure: secureEnvVar1.secure
+        };
+
+        expect(envVar.toJSON()).toEqual(expected);
+      });
+
+      it("should generate json for secure text variable when value is edited and set to empty", () => {
+        const envVar = EnvironmentVariable.fromJSON(secureEnvVar1);
+
+        envVar.encryptedValue().edit();
+        envVar.encryptedValue().value(undefined);
+
+        const expected = {
+          name: secureEnvVar1.name,
+          value: "",
+          secure: secureEnvVar1.secure
+        };
+
+        expect(envVar.toJSON()).toEqual(expected);
+      });
+    });
   });
 
   describe("equals()", () => {
     it("should return true for environment variables with same values", () => {
       const envVar  = EnvironmentVariable.fromJSON(plainTextEnvVar1);
-      const envVar2 = new EnvironmentVariable(envVar.name(), envVar.value(), envVar.secure(), envVar.encryptedValue());
+      const envVar2 = new EnvironmentVariable(envVar.name(),
+                                              envVar.value(),
+                                              envVar.secure(),
+                                              envVar.encryptedValue().value());
       expect(envVar.equals(envVar2)).toBe(true);
     });
 
     describe("should return false for environment variables", () => {
       it("different value", () => {
         const envVar  = EnvironmentVariable.fromJSON(plainTextEnvVar1);
-        const envVar2 = new EnvironmentVariable(envVar.name(), "test", envVar.secure(), envVar.encryptedValue());
+        const envVar2 = new EnvironmentVariable(envVar.name(),
+                                                "test",
+                                                envVar.secure(),
+                                                envVar.encryptedValue().value());
         expect(envVar.equals(envVar2)).toBe(false);
       });
 
@@ -130,7 +193,7 @@ describe("Environment Variable Model", () => {
         const envVar2 = new EnvironmentVariable("some-random-name",
                                                 envVar.value(),
                                                 envVar.secure(),
-                                                envVar.encryptedValue());
+                                                envVar.encryptedValue().value());
         expect(envVar.equals(envVar2)).toBe(false);
       });
 
@@ -142,8 +205,8 @@ describe("Environment Variable Model", () => {
     });
   });
 
-  describe('reasonForNonEditable()', () => {
-    it('should throw error if env var is editable', () => {
+  describe("reasonForNonEditable()", () => {
+    it("should throw error if env var is editable", () => {
       expect(() => {
         EnvironmentVariable.fromJSON(plainTextEnvVar1).reasonForNonEditable();
       }).toThrowError("Environment variable is editable");
@@ -217,7 +280,8 @@ describe("EnvironmentVariableWithOrigin", () => {
 
     it("should show info icon if origin is config repo", () => {
       const envVar = EnvironmentVariableWithOrigin.fromJSON(configRepoEnvVarWithOrigin as EnvironmentEnvironmentVariableJSON);
-      expect(envVar.reasonForNonEditable()).toEqual("Cannot edit this environment variable as it is defined in config repo");
+      expect(envVar.reasonForNonEditable())
+        .toEqual("Cannot edit this environment variable as it is defined in config repo");
     });
 
   });

@@ -51,7 +51,7 @@ interface EnvironmentVariablesWidgetAttrs {
 export class EnvironmentVariablesWidget extends MithrilComponent<EnvironmentVariablesWidgetAttrs, {}> {
 
   static onAdd(isSecure: boolean, vnode: m.Vnode<EnvironmentVariablesWidgetAttrs, {}>) {
-    vnode.attrs.environmentVariables.push(new EnvironmentVariable("", "", isSecure));
+    vnode.attrs.environmentVariables.push(new EnvironmentVariable("", undefined, isSecure, ""));
   }
 
   static onRemove(envVar: EnvironmentVariable, vnode: m.Vnode<EnvironmentVariablesWidgetAttrs, {}>) {

@@ -39,7 +39,7 @@ describe("Edit environment variables modal", () => {
     expect(modal.title()).toBe("Edit Environment Variables");
   });
 
-  it("environmentVariablesToAdd()", () => {
+  it("should add environment variables", () => {
     expect(modal.environmentVariablesToAdd().length).toBe(0);
 
     helper.clickByTestId("add-plain-text-variables-btn");
@@ -57,12 +57,13 @@ describe("Edit environment variables modal", () => {
     helper.oninput(existingVarName, "new-name-for-existing");
 
     const variablesToAdd = modal.environmentVariablesToAdd();
+
     expect(variablesToAdd.length).toBe(2);
     expect(variablesToAdd[0].name()).toBe("new-name-for-existing");
     expect(variablesToAdd[1].name()).toBe("new-var");
   });
 
-  it("environmentVariablesToRemove()", () => {
+  it("should remove environment variables", () => {
     const oldNameForEnvVar1 = environment.environmentVariables()[0].name();
     const oldNameForEnvVar2 = environment.environmentVariables()[1].name();
     expect(modal.environmentVariablesToRemove().length).toBe(0);

@@ -19,6 +19,7 @@ import Stream from "mithril/stream";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Origin, OriginJSON, OriginType} from "models/origin";
+import {EncryptedValue} from "views/components/forms/encrypted_value";
 
 export interface EnvironmentVariableJSON {
   secure: boolean;
@@ -31,15 +32,16 @@ export class EnvironmentVariable extends ValidatableMixin {
   secure: Stream<boolean>;
   name: Stream<string>;
   value: Stream<string | undefined>;
-  encryptedValue: Stream<string | undefined>;
+  encryptedValue: Stream<EncryptedValue>;
 
   constructor(name: string, value?: string, secure?: boolean, encryptedValue?: string) {
     super();
     this.secure         = Stream(secure || false);
     this.name           = Stream(name);
     this.value          = Stream(value);
-    this.encryptedValue = Stream(encryptedValue);
+    this.encryptedValue = Stream(new EncryptedValue(!_.isEmpty(encryptedValue) ? {cipherText: encryptedValue} : {clearText: value}));
     ValidatableMixin.call(this);
+
     this.validatePresenceOf("name", {condition: () => !_.isEmpty(this.value()) || !_.isEmpty(this.encryptedValue())});
   }
 
@@ -55,19 +57,36 @@ export class EnvironmentVariable extends ValidatableMixin {
     throw Error("Environment variable is editable");
   }
 
-  toJSON() {
-    return {
-      name: this.name(),
-      value: this.value(),
-      encrypted_value: this.encryptedValue(),
-      secure: this.secure()
-    };
+  toJSON(): EnvironmentVariableJSON {
+    // plain text
+    if (!this.secure()) {
+      return {
+        name: this.name(),
+        value: this.value() || "",
+        secure: this.secure()
+      };
+    }
+
+    //secure text
+    if (this.encryptedValue().isEditing()) {
+      return {
+        name: this.name(),
+        value: this.encryptedValue().value() || "",
+        secure: this.secure()
+      };
+    } else {
+      return {
+        name: this.name(),
+        encrypted_value: this.encryptedValue().value(),
+        secure: this.secure()
+      };
+    }
   }
 
   equals(environmentVariable: EnvironmentVariable): boolean {
     return this.name() === environmentVariable.name()
       && this.value() === environmentVariable.value()
-      && this.encryptedValue() === environmentVariable.encryptedValue();
+      && this.encryptedValue().value() === environmentVariable.encryptedValue().value();
   }
 }
 
@@ -141,7 +160,7 @@ export class EnvironmentVariableWithOrigin extends EnvironmentVariable {
                                              this.origin().clone(),
                                              this.value(),
                                              this.secure(),
-                                             this.encryptedValue());
+                                             this.encryptedValue().getOriginal());
   }
 }
 

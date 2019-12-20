@@ -17,7 +17,7 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {EnvironmentVariable} from "models/environment_variables/types";
-import {SimplePasswordField, TextField} from "views/components/forms/input_fields";
+import {PasswordField, TextField} from "views/components/forms/input_fields";
 import {Close} from "views/components/icons";
 import styles from "./index.scss";
 
@@ -60,11 +60,12 @@ export class EnvironmentVariableWidget extends MithrilViewComponent<EnvironmentV
   getValueField(vnode: m.Vnode<EnvironmentVariableWidgetAttrs>) {
     const environmentVariable = vnode.attrs.environmentVariable;
     if (environmentVariable.secure()) {
-      return <SimplePasswordField property={environmentVariable.encryptedValue}
-                                  readonly={!environmentVariable.editable()}
-                                  dataTestId={"env-var-value"}
-                                  errorText={environmentVariable.errors().errorsForDisplay("value")}/>;
+      return <PasswordField property={environmentVariable.encryptedValue}
+                            readonly={!environmentVariable.editable()}
+                            dataTestId={"env-var-value"}
+                            errorText={environmentVariable.errors().errorsForDisplay("value")}/>;
     }
+
     return <TextField property={environmentVariable.value}
                       readonly={!environmentVariable.editable()}
                       dataTestId={"env-var-value"}

@@ -225,11 +225,12 @@ describe("Environment Model - Environment", () => {
     expect(env.toJSON()).toEqual(expectedJSON);
   });
 
-  it('should not give uniqueness error for environment variables if environment variable name is blank', () => {
+  it('should not give name error for environment variable when environment variable name is blank', () => {
     const env = EnvironmentWithOrigin.fromJSON(envJSON);
     env.environmentVariables().push(new EnvironmentVariableWithOrigin("", new Origin(OriginType.GoCD)));
-    env.environmentVariables().push(new EnvironmentVariableWithOrigin("", new Origin(OriginType.GoCD)));
-    expect(env.isValid()).toBe(true);
+    expect(env.isValid()).toBe(false);
+
+    expect(env.environmentVariables()[4].errors().errors("name")).toEqual(["Name must be present"]);
   });
 
   it('should give error for environment variables with same name', () => {

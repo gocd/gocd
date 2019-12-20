@@ -78,7 +78,7 @@ class H2QueryExtensions implements QueryExtensions {
                 + "FROM pipelines p, pipelinematerialrevisions pmr, modifications m "
                 + "WHERE p.id = pmr.pipelineid "
                 + "AND pmr.torevisionid = m.id "
-                + "AND p.id > :pipelineId"
+                + "AND p.id > :pipelineId "
                 + "AND p.name = "+ StringUtils.quoteStringSQL(pipelineName) ;
     }
 }

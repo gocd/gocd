@@ -262,7 +262,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         //trigger pipeline
         MaterialRevisions newRevs = checkinFile(svnMaterial, "bar.c", svnRepository);
         minglePipeline.runAndPassWith(newRevs);
-        pipelineTimeline.update();
+        pipelineTimeline.update(MINGLE_PIPELINE_NAME);
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(mingleDownstreamPipelineName);
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(new CaseInsensitiveString(mingleDownstreamPipelineName));
     }
@@ -299,7 +299,8 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         MaterialRevisions newRevs = checkinFile(svnMaterial, "bar.c", svnRepository);
         minglePipeline.runAndPassWith(newRevs);
         goPipeline.runAndPassWith(newRevs);
-        pipelineTimeline.update();
+        pipelineTimeline.update(MINGLE_PIPELINE_NAME);
+        pipelineTimeline.update(goPipeline.config.getName().toLower());
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(new CaseInsensitiveString(downstreamPipelineName));
     }
@@ -336,7 +337,8 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         MaterialRevisions newRevs = checkinFile(svnMaterial, "bar.c", svnRepository);
         minglePipeline.runAndPassWith(newRevs);
         goPipeline.runAndPassWith(newRevs);
-        pipelineTimeline.update();
+        pipelineTimeline.update(MINGLE_PIPELINE_NAME);
+        pipelineTimeline.update(goPipeline.config.getName().toLower());
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(new CaseInsensitiveString(downstreamPipelineName));
     }
@@ -368,7 +370,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         dbHelper.saveRevs(gitMaterialRevisions);
 
         //schedule the pipeline
-        pipelineTimeline.update();
+        pipelineTimeline.update(downstreamPipelineName);
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).contains(new CaseInsensitiveString(downstreamPipelineName));
     }
@@ -396,7 +398,7 @@ public class BuildCauseProducerServiceDependencyIntegrationTest {
         //trigger upstream pipelines
         MaterialRevisions newRevs = checkinFile(svnMaterial, "bar.c", svnRepository);
         minglePipeline.runAndPassWith(newRevs);
-        pipelineTimeline.update();
+        pipelineTimeline.update(MINGLE_PIPELINE_NAME);
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet()).doesNotContain(new CaseInsensitiveString(downstreamPipelineName));
     }

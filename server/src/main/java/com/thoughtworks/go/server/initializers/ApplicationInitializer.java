@@ -136,7 +136,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             pipelineScheduler.initialize();
             invalidateAuthenticationOnSecurityConfigChangeFilter.initialize();
 
-            pipelineTimeline.updateTimelineOnInit();
             pipelineSqlMapDao.initialize();
             commandRepositoryInitializer.initialize();
             consoleActivityMonitor.populateActivityMap();

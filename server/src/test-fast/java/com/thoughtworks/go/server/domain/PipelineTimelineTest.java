@@ -196,19 +196,6 @@ public class PipelineTimelineTest {
         verify(anotherListener).added(eq(first), any(TreeSet.class));
     }
 
-    @Test public void updateOnInitShouldBeDoneOutsideTransaction() throws Exception {
-//        PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
-//        PipelineTimelineEntry[] entries = {first, second};
-//        stubPipelineRepository(timeline, true, entries);
-//
-//        timeline.updateTimelineOnInit();
-//
-//        verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries), first.getPipelineName());
-//        verifyNoMoreInteractions(transactionSynchronizationManager);
-//        verifyNoMoreInteractions(transactionTemplate);
-//        assertThat(timeline.maximumId(), is(2L));
-    }
-
     @Test public void updateShouldLoadNewInstancesFromTheDatabase() throws Exception {
         stubTransactionSynchronization();
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_COMMITTED, true);

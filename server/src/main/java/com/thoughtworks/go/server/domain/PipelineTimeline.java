@@ -171,18 +171,6 @@ public class PipelineTimeline {
     }
 
     /**
-     * This is called on system init and is called by Spring. Hence, this is not done in a transaction. At any other time, the method update should be used
-     */
-    public void updateTimelineOnInit() {
-        acquireAllWriteLocks();
-        try {
-//            pipelineRepository.updatePipelineTimeline(this, new ArrayList<>());
-        } finally {
-            releaseAllWriteLocks();
-        }
-    }
-
-    /**
      * @param id           for the pipeline
      * @param pipelineName
      * @return PMM which was before the pipeline with this id at the time of insertion of the PTE with the id or null if there was nothing before this pipeline during insertion

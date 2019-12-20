@@ -23,12 +23,11 @@ import java.util.TreeSet;
 
 // this can have things like timestamp etc based on which this object can be evicted from PipelineTimeline.pipelineToEntries
 public class PipelineTimelineEntrySet {
-    private volatile long maximumId;
+    private volatile long maximumId = -1;
     private TreeSet<PipelineTimelineEntry> naturalOrderSet;
     private ArrayList<PipelineTimelineEntry> scheduledOrderSet;
 
     public PipelineTimelineEntrySet() {
-        maximumId = -1;
         naturalOrderSet = new TreeSet<>();
         scheduledOrderSet = new ArrayList<>();
     }

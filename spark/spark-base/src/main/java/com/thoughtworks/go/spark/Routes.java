@@ -755,6 +755,9 @@ public class Routes {
     public static class CompareAPI {
         public static final String BASE = "/api/pipelines/:pipeline_name/compare/:from_counter/:to_counter";
         public static final String DOC = apiDocsUrl("#compare");
+
+        public static final String INTERNAL_BASE = "/api/internal/compare";
+        public static final String INTERNAL_LIST = "/:pipeline_name/list";
     }
 
     public static class Packages {

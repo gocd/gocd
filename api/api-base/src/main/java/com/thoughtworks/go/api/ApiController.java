@@ -35,6 +35,7 @@ import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseJsonConte
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class ApiController implements ControllerMethods, SparkController {
+    public static final String BAD_PAGE_SIZE_MSG = "The query parameter 'page_size', if specified must be a number between 10 and 100.";
     private static final Set<String> UPDATE_HTTP_METHODS = new HashSet<>(Arrays.asList("PUT", "POST", "PATCH"));
 
     protected final ApiVersion apiVersion;

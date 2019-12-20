@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.domain.NotificationFilter;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -108,6 +109,11 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     public String md5ForEntity(PipelineTemplateConfig config) {
         String cacheKey = cacheKey(config, config.name());
         return getDomainEntityMd5FromCache(config, cacheKey);
+    }
+
+    public String md5ForEntity(NotificationFilter filter) {
+        String cacheKey = cacheKey(filter, String.valueOf(filter.getId()));
+        return getFromCache(cacheKey, () -> String.valueOf(filter.hashCode()));
     }
 
     public String md5ForEntity(EnvironmentConfig config) {

@@ -24,13 +24,6 @@
 
 <urlrewrite>
   <rule>
-    <name>Process list API</name>
-    <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
-    <from>^/api/process_list$</from>
-    <to last="true">/spark/api/process_list</to>
-  </rule>
-
-  <rule>
     <name>Agent Job History API</name>
     <condition name="Accept">application\/vnd\.go\.cd(.v*)*\+json</condition>
     <from>^/api/agents/([^/]+)/job_run_history(/?)$</from>
@@ -305,6 +298,12 @@
     <name>API support</name>
     <from>^/api/support</from>
     <to last="true">/spark/api/support</to>
+  </rule>
+
+  <rule>
+    <name>Process list AP</name>
+    <from>^/api/support/process_list</from>
+    <to last="true">/spark/api/support/process_list</to>
   </rule>
 
   <rule>

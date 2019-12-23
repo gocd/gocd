@@ -805,9 +805,4 @@ public class Routes {
     public static class PipelineActivity {
         public static final String SPA_BASE = "/pipeline/activity/:pipeline_name";
     }
-
-    public static class ProcessListAPI {
-        public static final String BASE = "/api/process_list";
-        public static final String DOC = apiDocsUrl("#process-list");
-    }
 }

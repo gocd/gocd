@@ -21,7 +21,7 @@
         <% end %>
     </td>
   <% end %>
-    <%- js_frag = "Util.ajax_modal('#{admin_task_edit_path(:task_index => scope[:task_config_index], :type => scope[:tvm].getTaskType())}', {readOnly: #{@is_config_repo_pipeline}, overlayClose: false, title: 'Edit #{scope[:tvm].getTypeForDisplay()} task'}, function(text){return text}, true)" -%>
+    <%- js_frag = "Util.ajax_modal('#{admin_task_edit_path(:task_index => scope[:task_config_index], :type => scope[:tvm].getTaskType())}', {readOnly: #{@is_config_repo_pipeline || false}, overlayClose: false, title: 'Edit #{scope[:tvm].getTypeForDisplay()} task'}, function(text){return text}, true)" -%>
     <%== render_pluggable_template(scope[:tvm], { :scope => scope, :modify_onclick_callback => js_frag}) -%>
   <% unless @is_config_repo_pipeline %>
     <td class="">

@@ -162,7 +162,7 @@ class Modifications extends Array<Modification> {
   }
 }
 
-class Stage {
+export class Stage {
   id: Stream<number>;
   name: Stream<string>;
   counter: Stream<string>;
@@ -192,7 +192,7 @@ class Stage {
   }
 }
 
-class Stages extends Array<Stage> {
+export class Stages extends Array<Stage> {
 
   constructor(...stages: Stage[]) {
     super(...stages);

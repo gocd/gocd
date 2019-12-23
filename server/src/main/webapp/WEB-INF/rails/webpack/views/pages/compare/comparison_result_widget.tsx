@@ -28,7 +28,7 @@ interface Attrs {
 
 export class ComparisonResultWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    if (_.isEmpty(vnode.attrs.comparisonResult.changes)) {
+    if (_.isEmpty(vnode.attrs.comparisonResult) || _.isEmpty(vnode.attrs.comparisonResult.changes)) {
       return <div/>;
     }
 

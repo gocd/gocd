@@ -26,6 +26,7 @@ import {HeaderPanel} from "views/components/header_panel";
 import {Page, PageState} from "views/pages/page";
 import {CompareHeaderWidget} from "./compare/compare_header_widget";
 import {ComparisonResultWidget} from "./compare/comparison_result_widget";
+import {ComparisonSelectionWidget} from "./compare/comparison_selection_widget";
 
 interface State {
   comparison: Stream<Comparison>;
@@ -47,6 +48,9 @@ export class ComparePage extends Page<null, State> {
     }
 
     return <div>
+      <ComparisonSelectionWidget fromInstance={vnode.state.fromInstance()}
+                                 toInstance={vnode.state.toInstance()}/>
+      <hr/>
       <h1>Changes:</h1>
       <ComparisonResultWidget comparisonResult={vnode.state.comparison()}/>
     </div>;

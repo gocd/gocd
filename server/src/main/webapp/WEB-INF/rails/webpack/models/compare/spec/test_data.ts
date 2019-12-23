@@ -18,11 +18,11 @@ import {ComparisonJSON} from "../compare_json";
 import {PipelineInstanceJSON} from "../pipeline_instance_json";
 
 export class PipelineInstanceData {
-  static pipeline() {
+  static pipeline(counter: number = 2) {
     return {
       id:                    34,
       name:                  "up42",
-      counter:               2,
+      counter,
       label:                 "2",
       natural_order:         2.0,
       can_run:               true,
@@ -60,7 +60,7 @@ export class PipelineInstanceData {
           result:             "Passed",
           id:                 65,
           name:               "up42_stage",
-          counter:            "2",
+          counter:            counter + "2",
           scheduled:          true,
           approval_type:      "success",
           approved_by:        "admin",

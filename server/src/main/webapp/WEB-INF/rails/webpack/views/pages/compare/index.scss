@@ -15,6 +15,11 @@
  */
 @import "../../global/common";
 
+$width-for-msg: 100px;
+$width-for-instance-selection: 360px;
+$stage-status-unknown: #fafafa;
+$passed: #00c853;
+
 .page-header {
   display: flex;
 
@@ -30,5 +35,81 @@
     .value {
       font-size: 15px;
     }
+  }
+}
+
+.pipeline-instance-selection {
+  width:          $width-for-instance-selection;
+  vertical-align: baseline;
+}
+
+.pipeline-comparison-text {
+  width:          $width-for-msg;
+  font-style:     italic;
+  vertical-align: middle;
+}
+
+.stage {
+  display:   block;
+  width:     100%;
+  min-width: 60px;
+}
+
+.unknown, .building, .cancelled, .failed, .passed, .waiting {
+  color: $white;
+
+  &:before {
+    position: relative;
+    left:     calc(100% - 50% - 6px)
+  }
+}
+
+.unknown {
+  background: $stage-status-unknown;
+  border:     1px solid $border-color;
+}
+
+.building {
+  background: transparent url('../../../../app/assets/images/building.gif') repeat-x;
+}
+
+.cancelled {
+  @include icon-before($fa-var-ban, 12px, 0);
+  color:      $black;
+  background: transparent url('../../../../app/assets/images/building.png') repeat-x center;
+}
+
+.failed {
+  @include icon-before($fa-var-info-circle, 12px, 0);
+  background: $failed;
+}
+
+.passed {
+  @include icon-before($fa-var-check, 12px, 0);
+  background: $passed;
+}
+
+.waiting {
+  @include icon-before($fa-var-spinner, 12px, 0);
+  color:      $black;
+  background: transparent url('../../../../app/assets/images/building.png') repeat-x;
+
+  &:before {
+    animation: spin 1500ms linear infinite;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.instance-wrapper {
+  div {
+    margin-bottom: 5px;
   }
 }

@@ -24,14 +24,18 @@ import com.thoughtworks.go.server.service.support.ServerStatusService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import com.thoughtworks.go.util.ProcessManager;
+import com.thoughtworks.go.util.ProcessWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 
+import static com.thoughtworks.go.api.support.representers.ProcessListRepresenter.toJSON;
 import static spark.Spark.get;
 import static spark.Spark.path;
 
@@ -55,6 +59,7 @@ public class ApiSupportController implements SparkController, ControllerMethods,
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             get("", this::show);
+            get(Routes.Support.PROCESS_LIST, this::processList);
         });
     }
 
@@ -70,4 +75,9 @@ public class ApiSupportController implements SparkController, ControllerMethods,
         return renderHTTPOperationResult(result, request, response);
     }
 
+    public String processList(Request request, Response response) throws IOException {
+        Collection<ProcessWrapper> processList = ProcessManager.getInstance().currentProcessListForDisplay();
+        response.type("application/json");
+        return writerForTopLevelObject(request, response, outputWriter -> toJSON(outputWriter, processList));
+    }
 }

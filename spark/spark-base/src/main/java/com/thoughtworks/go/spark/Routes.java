@@ -704,6 +704,7 @@ public class Routes {
 
     public class Support {
         public static final String BASE = "/api/support";
+        public static final String PROCESS_LIST = "/process_list";
     }
 
     public class ClusterProfiles {

@@ -16,10 +16,12 @@
 
 package com.thoughtworks.go.api.support
 
+
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.server.service.support.ServerStatusService
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -78,6 +80,18 @@ class ApiSupportControllerV1Test implements SecurityServiceTrait, ControllerTrai
       assertThatResponse()
         .isUnprocessableEntity()
         .hasJsonMessage(message)
+        .hasContentType("application/json")
+    }
+  }
+
+  @Nested
+  class ProcessList {
+    @Test
+    void 'should return process list json'() {
+      get(controller.controllerPath(Routes.Support.PROCESS_LIST))
+
+      assertThatResponse()
+        .isOk()
         .hasContentType("application/json")
     }
   }

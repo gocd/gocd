@@ -35,7 +35,7 @@ class JobHistoryItemRepresenterTest {
 
     def expectedJson = [
       "name"          : "jobName",
-      "scheduled_date": date.getTime().toString(),
+      "scheduled_date": date.getTime(),
       "state"         : "Completed",
       "result"        : "Passed"
     ]
@@ -70,7 +70,7 @@ class JobHistoryItemRepresenterTest {
 
     def expectedJson = [
       "name"          : "jobName",
-      "scheduled_date": date.getTime().toString(),
+      "scheduled_date": date.getTime(),
       "result"        : "Passed"
     ]
 
@@ -88,7 +88,7 @@ class JobHistoryItemRepresenterTest {
 
     def expectedJson = [
       "name"          : "jobName",
-      "scheduled_date": date.getTime().toString(),
+      "scheduled_date": date.getTime(),
       "state"         : "Completed"
     ]
 

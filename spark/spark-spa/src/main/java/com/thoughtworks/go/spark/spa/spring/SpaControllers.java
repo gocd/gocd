@@ -19,7 +19,6 @@ import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.service.*;
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spa.*;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -28,7 +27,6 @@ import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import spark.TemplateEngine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +35,7 @@ import java.util.List;
 public class SpaControllers implements SparkSpringController {
     private static final String DEFAULT_LAYOUT_PATH = "layouts/single_page_app.ftlh";
     private static final String COMPONENT_LAYOUT_PATH = "layouts/component_layout.ftlh";
+    private static final String RAILS_COMPATIBLE_PAGE_LAYOUT_PATH = "layouts/rails_compatible_page.ftlh";
 
     private final List<SparkController> sparkControllers = new ArrayList<>();
 
@@ -49,10 +48,13 @@ public class SpaControllers implements SparkSpringController {
                           SecurityAuthConfigService securityAuthConfigService,
                           BackupService backupService,
                           Clock clock, ArtifactsDirHolder artifactsDirHolder, SystemService systemService,
-                          GoCache goCache) {
+                          GoCache goCache, ElasticAgentPluginService elasticAgentPluginService, JobInstanceService jobInstanceService) {
         LayoutTemplateProvider defaultTemplate = () -> DEFAULT_LAYOUT_PATH;
         LayoutTemplateProvider componentTemplate = () -> COMPONENT_LAYOUT_PATH;
+        LayoutTemplateProvider railsCompatibleTemplate = () -> RAILS_COMPATIBLE_PAGE_LAYOUT_PATH;
 
+        sparkControllers.add(new StatusReportsController(authenticationHelper, templateEngineFactory.create(
+                StatusReportsController.class, railsCompatibleTemplate), elasticAgentPluginService, jobInstanceService));
         sparkControllers.add(new AgentJobRunHistoryController(authenticationHelper, templateEngineFactory.create(AgentJobRunHistoryController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new AdminTemplatesController(authenticationHelper, templateEngineFactory.create(AdminTemplatesController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new PipelineActivityController(authenticationHelper, templateEngineFactory.create(PipelineActivityController.class, () -> COMPONENT_LAYOUT_PATH), goConfigService, securityService));

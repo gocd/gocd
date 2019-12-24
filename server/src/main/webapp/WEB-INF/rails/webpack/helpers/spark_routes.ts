@@ -478,4 +478,13 @@ export class SparkRoutes {
   static commentOnPipelineInstance(pipelineName: string, pipelineCounter: string | number) {
     return `/go/api/pipelines/${pipelineName}/${pipelineCounter}/comment`;
   }
+
+  static pluginStatusReportPath(plugin_id: string): string {
+    return `/go/admin/status_reports/${plugin_id}`;
+  }
+
+  static clusterStatusReportPath(plugin_id: string, cluster_profile_id: string): string {
+    return `/go/admin/status_reports/${plugin_id}/cluster/${cluster_profile_id}`;
+  }
+
 }

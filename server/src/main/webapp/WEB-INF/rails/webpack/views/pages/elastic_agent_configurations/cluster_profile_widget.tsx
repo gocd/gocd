@@ -15,7 +15,7 @@
  */
 
 import {bind} from "classnames/bind";
-import * as Routes from "gen/ts-routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -119,7 +119,7 @@ export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetA
     const actionButtons = [];
     const pluginInfo    = this.pluginInfo(vnode);
     if (pluginInfo != null && ClusterProfileWidget.supportsClusterStatusReport(pluginInfo)) {
-      const statusReportPath: string = Routes.adminClusterStatusReportPath(vnode.attrs.clusterProfile.pluginId()!, vnode.attrs.clusterProfile.id()!);
+      const statusReportPath: string = SparkRoutes.clusterStatusReportPath(vnode.attrs.clusterProfile.pluginId()!, vnode.attrs.clusterProfile.id()!);
 
       actionButtons.push(
         <Buttons.Secondary onclick={this.goToStatusReportPage.bind(this, statusReportPath)}

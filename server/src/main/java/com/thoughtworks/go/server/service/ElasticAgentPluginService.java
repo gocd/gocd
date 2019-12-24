@@ -241,6 +241,9 @@ public class ElasticAgentPluginService {
 
     public String getPluginStatusReport(String pluginId) {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
+        if (pluginInfo == null) {
+            throw new RecordNotFoundException(String.format("Plugin with id: '%s' is not found.", pluginId));
+        }
         if (pluginInfo.getCapabilities().supportsPluginStatusReport()) {
             List<Map<String, String>> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(pluginId).stream().map(profile -> profile.getConfigurationAsMap(true)).collect(Collectors.toList());
             return elasticAgentPluginRegistry.getPluginStatusReport(pluginId, clusterProfiles);
@@ -251,6 +254,9 @@ public class ElasticAgentPluginService {
 
     public String getAgentStatusReport(String pluginId, JobIdentifier jobIdentifier, String elasticAgentId) throws Exception {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
+        if (pluginInfo == null) {
+            throw new RecordNotFoundException(String.format("Plugin with id: '%s' is not found.", pluginId));
+        }
         if (pluginInfo.getCapabilities().supportsAgentStatusReport()) {
             JobPlan jobPlan = jobInstanceSqlMapDao.loadPlan(jobIdentifier.getId());
             if (jobPlan != null) {
@@ -266,6 +272,9 @@ public class ElasticAgentPluginService {
 
     public String getClusterStatusReport(String pluginId, String clusterProfileId) {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
+        if (pluginInfo == null) {
+            throw new RecordNotFoundException(String.format("Plugin with id: '%s' is not found.", pluginId));
+        }
         if (pluginInfo.getCapabilities().supportsClusterStatusReport()) {
             ClusterProfile clusterProfile = clusterProfilesService.getPluginProfiles().findByPluginIdAndProfileId(pluginId, clusterProfileId);
             if (clusterProfile == null) {

@@ -832,4 +832,8 @@ public class Routes {
     public class InternalMaterialTest {
         public static final String BASE = "/api/admin/internal/material_test";
     }
+
+    public class StatusReports {
+        public static final String SPA_BASE = "/admin/status_reports";
+    }
 }

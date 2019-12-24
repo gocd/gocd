@@ -64,6 +64,7 @@ import java.util.UUID;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -327,6 +328,13 @@ class ElasticAgentPluginServiceTest {
     }
 
     @Test
+    void shouldThrowErrorWhenPluginNotFoundForPluginStatusReport() {
+        assertThatExceptionOfType(RecordNotFoundException.class)
+                .isThrownBy(() -> service.getPluginStatusReport("cd.go.example.plugin"))
+                .withMessage("Plugin with id: 'cd.go.example.plugin' is not found.");
+    }
+
+    @Test
     void shouldPassAlongAllClusterProfilesBelongingToThePluginWhileGettingPluginStatusReport() {
         final Capabilities capabilities = new Capabilities(true);
         final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
@@ -385,6 +393,13 @@ class ElasticAgentPluginServiceTest {
 
         final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class, () -> service.getAgentStatusReport("cd.go.example.plugin", null, null));
         assertThat(exception.getMessage()).isEqualTo("Plugin does not support agent status report.");
+    }
+
+    @Test
+    void shouldErrorOutWhenPluginIsMissingForAgentSupportStatusReport() {
+        assertThatExceptionOfType(RecordNotFoundException.class)
+                .isThrownBy(() -> service.getAgentStatusReport("cd.go.example.plugin", null, null))
+                .withMessage("Plugin with id: 'cd.go.example.plugin' is not found.");
     }
 
     @Test
@@ -448,6 +463,13 @@ class ElasticAgentPluginServiceTest {
 
         final RecordNotFoundException exception = assertThrows(RecordNotFoundException.class, () -> service.getClusterStatusReport("cd.go.example.plugin", "test"));
         assertThat(exception.getMessage()).isEqualTo("Cluster profile with id: 'test' is not found.");
+    }
+
+    @Test
+    void shouldErrorOutWhenPluginIdNotFound() {
+        assertThatExceptionOfType(RecordNotFoundException.class)
+                .isThrownBy(() -> service.getClusterStatusReport("missing.plugin.id", "test"))
+                .withMessage("Plugin with id: 'missing.plugin.id' is not found.");
     }
 
     @Nested

@@ -857,17 +857,15 @@
   </rule>
 
   <rule>
-    <name>Rails Plugin Status Report call</name>
+    <name>Spark Plugin Status Report call</name>
     <from>^/admin/status_reports/(.*)$</from>
-    <to last="true">/rails/admin/status_reports/$1</to>
-    <set name="rails_bound">true</set>
+    <to last="true">/spark/admin/status_reports/$1</to>
   </rule>
 
   <rule>
-    <name>Rails Agent Status Report call</name>
+    <name>Spark Agent Status Report call</name>
     <from>^/admin/status_reports/([^/]+)/(.*)</from>
-    <to last="true">/rails/admin/status_reports/$1/$2</to>
-    <set name="rails_bound">true</set>
+    <to last="true">/spark/admin/status_reports/$1/$2</to>
   </rule>
 
   <rule>

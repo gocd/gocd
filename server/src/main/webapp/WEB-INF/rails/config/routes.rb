@@ -184,10 +184,6 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
-    get 'status_reports/:plugin_id' => 'status_reports#plugin_status', constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false, as: :status_report
-    get 'status_reports/:plugin_id/agent/:elastic_agent_id' => 'status_reports#agent_status', constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false, as: :agent_status_report
-    get 'status_reports/:plugin_id/cluster/:cluster_profile_id' => 'status_reports#cluster_status', constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false, as: :cluster_status_report
-
     namespace :security do
       resources :auth_configs, only: [:index], controller: :auth_configs, as: :auth_configs
       resources :roles, only: [:index], controller: :roles, as: :roles

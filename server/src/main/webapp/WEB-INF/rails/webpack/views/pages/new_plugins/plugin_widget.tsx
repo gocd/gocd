@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import {docsUrl} from "gen/gocd_version";
-import * as Routes from "gen/ts-routes";
+import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
@@ -69,7 +69,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     let deprecationWarningButton: OptionalElement;
 
     if (pluginInfo.supportsStatusReport()) {
-      const statusReportPath: string = Routes.adminStatusReportPath(pluginInfo.id);
+      const statusReportPath: string = SparkRoutes.pluginStatusReportPath(pluginInfo.id);
 
       statusReportButton = (
         <Buttons.Secondary onclick={this.goToStatusReportPage.bind(this, statusReportPath)}

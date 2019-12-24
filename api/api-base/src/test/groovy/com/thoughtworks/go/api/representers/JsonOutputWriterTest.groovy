@@ -267,7 +267,7 @@ class JsonOutputWriterTest {
     }
 
     assertThat(fromJSON(result.toString())).isEqualTo([
-      timestamp: date.getTime().toString()
+      timestamp: date.getTime()
     ])
   }
 

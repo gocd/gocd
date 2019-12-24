@@ -33,7 +33,7 @@ class JobStateTransitionRepresenterTest {
     def actualJson = toObjectString({ JobStateTransitionRepresenter.toJSON(it, jobStateTransition) })
     def expectedJson = [
       "state"            : "Completed",
-      "state_change_time": date.getTime().toString()
+      "state_change_time": date.getTime()
     ]
 
     assertThatJson(actualJson).isEqualTo(expectedJson)
@@ -58,7 +58,7 @@ class JobStateTransitionRepresenterTest {
 
     def actualJson = toObjectString({ JobStateTransitionRepresenter.toJSON(it, jobStateTransition) })
     def expectedJson = [
-      "state_change_time": date.getTime().toString()
+      "state_change_time": date.getTime()
     ]
 
     assertThatJson(actualJson).isEqualTo(expectedJson)

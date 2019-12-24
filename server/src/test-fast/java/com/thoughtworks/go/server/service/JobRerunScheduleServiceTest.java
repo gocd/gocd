@@ -345,8 +345,8 @@ public class JobRerunScheduleServiceTest {
         Stage stage = service.rerunJobs(oldStage, a(jobName), result);
 
         assertThat(stage).isNull();
-        assertThat(result.httpCode()).isEqualTo(statusCode);
         assertThat(result.message()).isEqualTo(failureMessage);
+        assertThat(result.httpCode()).isEqualTo(statusCode);
     }
 
     private void stub(PipelineConfig mingleConfig, Pipeline pipeline, Stage lastStage) {

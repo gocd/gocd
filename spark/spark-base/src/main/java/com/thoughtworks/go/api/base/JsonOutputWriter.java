@@ -220,7 +220,7 @@ public class JsonOutputWriter {
         @Override
         public OutputWriter addInMillis(String key, Date value) {
             return withExceptionHandling((jacksonWriter) -> {
-                jacksonWriter.writeStringField(key, value.getTime() + "");
+                jacksonWriter.writeNumberField(key, value.getTime());
             });
         }
 

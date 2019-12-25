@@ -40,9 +40,10 @@ buildscript {
     classpath group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: project.versions.jgit
   }
 }
+apply plugin: 'com.github.jruby-gradle.core'
 
 repositories {
-  maven { url 'http://rubygems-proxy.torquebox.org/releases/' }
+  ruby.gems()
   maven { url 'https://jitpack.io' }
 }
 
@@ -237,7 +238,7 @@ props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemPro
 project.ext.testSystemProperties = props
 
 dependencies {
-  jrubyGems group: 'rubygems', name: 'bundler', version: '2.0.2'
+  jrubyGems group: 'rubygems', name: 'bundler', version: project.versions.bundler
 
   apiBase project(':api:api-base')
   api project(':api').subprojects
@@ -284,9 +285,9 @@ dependencies {
     exclude(group: 'org.springframework')
   }
   compile(group: 'org.springframework.security', name: 'spring-security-config', version: project.versions.springSecurity)
-  compile group: 'org.aspectj', name: 'aspectjrt', version: '1.5.4'
-  compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.5.4'
-  compile group: 'org.tuckey', name: 'urlrewritefilter', version: '3.2.0'
+  compile group: 'org.aspectj', name: 'aspectjrt', version: project.versions.aspectj
+  compile group: 'org.aspectj', name: 'aspectjweaver', version: project.versions.aspectj
+  compile group: 'org.tuckey', name: 'urlrewritefilter', version: project.versions.urlrewrite
   compile(group: 'org.apache.velocity', name: 'velocity', version: '1.7') {
     exclude(module: 'commons-lang')
     exclude(module: 'commons-collections')
@@ -304,7 +305,7 @@ dependencies {
   compile group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
 
   // needed by jdom2 for some XPATH stuff
-  compile(group: 'jaxen', name: 'jaxen', version: '1.1.6') {
+  compile(group: 'jaxen', name: 'jaxen', version: project.versions.jaxen) {
     exclude(module: 'xom')
     exclude(module: 'jdom')
   }
@@ -799,10 +800,10 @@ task verifyWar(type: VerifyJarTask) {
         "antlr-2.7.6.jar",
         "aopalliance-1.0.jar",
         "asm-3.3.1.jar",
-        "aspectjrt-1.5.4.jar",
-        "aspectjweaver-1.5.4.jar",
+        "aspectjrt-${project.versions.aspectj}.jar",
+        "aspectjweaver-${project.versions.aspectj}.jar",
         "base-${project.version}.jar",
-        "cglib-2.2.2.jar",
+        "cglib-${project.versions.cglib}.jar",
         "cloning-${project.versions.cloning}.jar",
         "commandline-${project.version}.jar",
         "common-${project.version}.jar",
@@ -861,7 +862,7 @@ task verifyWar(type: VerifyJarTask) {
         "javax.annotation-api-${project.versions.javaxAnnotation}.jar",
         "javax.inject-1.jar",
         "javax.servlet-api-3.1.0.jar",
-        "jaxen-1.1.6.jar",
+        "jaxen-${project.versions.jaxen}.jar",
         "jcl-over-slf4j-${project.versions.slf4j}.jar",
         "jdom2-${project.versions.jdom}.jar",
         "joda-time-${project.versions.jodaTime}.jar",
@@ -901,7 +902,7 @@ task verifyWar(type: VerifyJarTask) {
         "spring-web-${project.versions.spring}.jar",
         "spring-webmvc-${project.versions.spring}.jar",
         "token-bucket-${project.versions.tokenBucket}.jar",
-        "urlrewritefilter-3.2.0.jar",
+        "urlrewritefilter-${project.versions.urlrewrite}.jar",
         "util-${project.version}.jar",
         "velocity-1.7.jar",
         "velocity-tools-view-${project.versions.velocityToolsView}.jar",
@@ -1049,7 +1050,7 @@ task licenseReportAggregate {
     ],
     [
       moduleName    : 'jaxen:jaxen',
-      moduleVersion : '1.1.6',
+      moduleVersion : project.versions.jaxen,
       moduleUrls    : [
         "http://jaxen.codehaus.org/"
       ],

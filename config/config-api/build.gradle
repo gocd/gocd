@@ -37,7 +37,7 @@ dependencies {
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
 
   testCompile project(':test:test-utils')
-  testCompile group: 'jaxen', name: 'jaxen', version: '1.1.6'
+  testCompile group: 'jaxen', name: 'jaxen', version: project.versions.jaxen
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5

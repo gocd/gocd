@@ -25,7 +25,7 @@ dependencies {
     exclude(module: 'jzlib')
   }
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
-  compile group: 'cglib', name: 'cglib', version: '2.1_3'
+  compile group: 'cglib', name: 'cglib', version: project.versions.cglib
   testCompile project(path: ':config:config-api', configuration: 'testOutput')
   testCompile project(':test:test-utils')
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle)

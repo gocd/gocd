@@ -34,6 +34,10 @@ export function building(name: string, stageId: number = Math.random()) {
   return PipelineActivityData.stage(stageId, name, "Building");
 }
 
+export function failing(name: string, stageId: number = Math.random()) {
+  return PipelineActivityData.stage(stageId, name, "Failing");
+}
+
 export function cancelled(name: string, stageId: number = Math.random()) {
   return PipelineActivityData.stage(stageId, name, "Cancelled");
 }

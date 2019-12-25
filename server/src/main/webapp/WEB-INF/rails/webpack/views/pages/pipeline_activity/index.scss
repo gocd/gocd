@@ -199,7 +199,7 @@ $stage-action-icon-z-index: 1;
   }
 }
 
-.unknown, .building, .cancelled, .failed, .passed, .waiting {
+.unknown, .building, .cancelled, .failed, .passed, .waiting, .failing {
   color: $white;
 
   &:before {
@@ -215,6 +215,10 @@ $stage-action-icon-z-index: 1;
 
 .building {
   background: transparent url('../../../../app/assets/images/building.gif') repeat-x;
+}
+
+.failing {
+  background: $failed url('../../../../app/assets/images/failing.gif') repeat-x;
 }
 
 .cancelled {

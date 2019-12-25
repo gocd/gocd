@@ -9,6 +9,7 @@ export const comment: string;
 export const disabled: string;
 export const disabledIcon: string;
 export const failed: string;
+export const failing: string;
 export const forceBuild: string;
 export const groupContent: string;
 export const groupHeader: string;

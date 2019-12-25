@@ -21,6 +21,7 @@ import {
   building,
   cancelled,
   failed,
+  failing,
   passed,
   PipelineActivityData,
   unknown
@@ -120,6 +121,15 @@ describe("PipelineRunInfoWidget", () => {
       const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
       expect(helper.byTestId("stage-status-test", pipelineRunContainer)).toBeInDOM();
       expect(helper.byTestId("stage-status-test", pipelineRunContainer)).toHaveClass(styles.building);
+    });
+
+    it("should render failing stage", () => {
+      const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(failing("Test")));
+      mount(pipelineRunInfo);
+
+      const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+      expect(helper.byTestId("stage-status-test", pipelineRunContainer)).toBeInDOM();
+      expect(helper.byTestId("stage-status-test", pipelineRunContainer)).toHaveClass(styles.failing);
     });
   });
 

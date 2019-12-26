@@ -2,6 +2,7 @@
 export const building: string;
 export const cancelled: string;
 export const failed: string;
+export const failing: string;
 export const instanceWrapper: string;
 export const label: string;
 export const pageHeader: string;

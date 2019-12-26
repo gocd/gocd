@@ -42,20 +42,22 @@ export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs>
     if (!status) {
       return;
     }
-
-    if (status.trim().toLowerCase() === "building") {
-      return styles.building;
-    } else if (status.trim().toLowerCase() === "failed") {
-      return styles.failed;
-    } else if (status.trim().toLowerCase() === "cancelled") {
-      return styles.cancelled;
-    } else if (status.trim().toLowerCase() === "passed") {
-      return styles.passed;
-    } else if (status.trim().toLowerCase() === "waiting") {
-      return styles.waiting;
+    switch (status.trim().toLowerCase()) {
+      case "building":
+        return styles.building;
+      case "failed":
+        return styles.failed;
+      case "failing":
+        return styles.failing;
+      case "cancelled":
+        return styles.cancelled;
+      case "passed":
+        return styles.passed;
+      case "waiting":
+        return styles.waiting;
+      default:
+        return styles.unknown;
     }
-
-    return styles.unknown;
   }
 
   view(vnode: m.Vnode<InstanceAttrs, this>): m.Children | void | null {

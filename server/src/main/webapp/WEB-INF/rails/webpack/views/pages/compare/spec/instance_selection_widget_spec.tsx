@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import {PipelineInstance, Stage, Stages} from "models/compare/pipeline_instance";
+import {Jobs, PipelineInstance, Stage, Stages} from "models/compare/pipeline_instance";
 import {PipelineInstanceData} from "models/compare/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";
@@ -76,11 +76,35 @@ describe('InstanceSelectionWidgetSpec', () => {
     expect(stageElement).toBeInDOM();
     expect(stageRows.length).toBe(2);
     expect(stageCols.length).toBe(6);
-    expect(helper.q("span", stageCols[0])).toHaveClass(styles.building);
-    expect(helper.q("span", stageCols[1])).toHaveClass(styles.failed);
-    expect(helper.q("span", stageCols[2])).toHaveClass(styles.cancelled);
-    expect(helper.q("span", stageCols[3])).toHaveClass(styles.unknown);
-    expect(helper.q("span", stageCols[4])).toHaveClass(styles.passed);
-    expect(helper.q("span", stageCols[5])).toHaveClass(styles.waiting);
   });
+
+  describe('RenderStageSpec', () => {
+
+    const parameters = [
+      {description: "should render stage as passed", input: "passed", output: styles.passed}
+      , {description: "should render stage as building", input: "building", output: styles.building}
+      , {description: "should render stage as failed", input: "failed", output: styles.failed}
+      , {description: "should render stage as failing", input: "failing", output: styles.failing}
+      , {description: "should render stage as cancelled", input: "cancelled", output: styles.cancelled}
+      , {description: "should render stage as waiting", input: "waiting", output: styles.waiting}
+      , {description: "should render stage as unknown", input: "unknown", output: styles.unknown}
+    ];
+
+    parameters.forEach((parameter) => {
+      it(parameter.description, () => {
+        const stages = new Stages();
+        const jobs   = new Jobs();
+
+        stages.push(new Stage(1, "stage", "1", false, parameter.input, parameter.input, "", "", false, false, jobs));
+        instance.stages(stages);
+        mount();
+
+        const stageElement = helper.byTestId("stages");
+        const stageCols    = helper.q("td", stageElement);
+
+        expect(helper.q("span", stageCols)).toHaveClass(parameter.output);
+      });
+    });
+  });
+
 });

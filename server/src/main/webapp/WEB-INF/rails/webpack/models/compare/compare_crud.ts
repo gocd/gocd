@@ -26,8 +26,7 @@ export class ComparisonCRUD {
     return ApiRequestBuilder.GET(SparkRoutes.comparePipelines(pipelineName, fromCounter, toCounter), this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => {
                               return result.map((body) => {
-                                const foo = Comparison.fromJSON(JSON.parse(body) as ComparisonJSON);
-                                return foo;
+                                return Comparison.fromJSON(JSON.parse(body) as ComparisonJSON);
                               });
                             });
   }

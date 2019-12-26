@@ -56,7 +56,7 @@ $passed: #00c853;
   min-height: 21px;
 }
 
-.unknown, .building, .cancelled, .failed, .passed, .waiting {
+.unknown, .building, .cancelled, .failed, .passed, .waiting, .failing {
   color: $white;
 
   &:before {
@@ -85,6 +85,10 @@ $passed: #00c853;
 .failed {
   @include icon-before($fa-var-info-circle, 12px, 0);
   background: $failed;
+}
+
+.failing {
+  background: $failed url('../../../../app/assets/images/failing.gif') repeat-x;
 }
 
 .passed {

@@ -233,7 +233,7 @@ rootProject.ext.versions = [
   tini                  : '0.18.0',
   tinybundles           : '3.0.0',
   tokenBucket           : '1.7',
-  urlrewrite            : '4.0.4',
+  urlrewrite            : '3.2.0',
   velocityToolsView     : '1.4',
   xmlUnitMatchers       : '2.6.3',
   xmlunitassertj        : '2.6.3',

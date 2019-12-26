@@ -126,7 +126,7 @@ class MaterialRevision {
   }
 }
 
-class MaterialRevisions extends Array<MaterialRevision> {
+export class MaterialRevisions extends Array<MaterialRevision> {
   constructor(...revisions: MaterialRevision[]) {
     super(...revisions);
     Object.setPrototypeOf(this, Object.create(MaterialRevisions.prototype));

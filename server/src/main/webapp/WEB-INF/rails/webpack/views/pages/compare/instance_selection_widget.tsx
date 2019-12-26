@@ -18,12 +18,17 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {PipelineInstance, Stages} from "models/compare/pipeline_instance";
+import {PipelineInstance, PipelineInstances, Stages} from "models/compare/pipeline_instance";
+import {PipelineInstanceCRUD} from "models/compare/pipeline_instance_crud";
 import s from "underscore.string";
+import {Dropdown, DropdownAttrs} from "views/components/buttons";
 import {TextField} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";
+import {Spinner} from "views/components/spinner";
+import spinnerCss from "views/pages/agents/spinner.scss";
 import styles from "./index.scss";
 import {TimelineModal} from "./timeline_modal";
+import {PipelineInstanceWidget} from "./pipeline_instance_widget";
 
 const classnames = bind(styles);
 
@@ -63,26 +68,15 @@ export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs>
   }
 
   view(vnode: m.Vnode<InstanceAttrs, this>): m.Children | void | null {
-    const rows        = this.getStages(vnode.attrs.instance.stages);
-    const placeholder = "Search for a pipeline instance by label, committer, date, etc.";
-    const helpText    = <span>{placeholder} <br/> or <br/>
-    <Link onclick={this.browse.bind(this, vnode)}>Browse the timeline</Link></span>;
+    const rows = this.getStages(vnode.attrs.instance.stages);
     return <div
       data-test-id={InstanceSelectionWidget.dataTestId("instance", "selection", "widget", vnode.attrs.instance.counter())}
       class={styles.instanceWrapper}>
-      <TextField
-        placeholder={placeholder}
-        helpText={helpText}
-        property={vnode.attrs.instance.counter}/>
+      <SelectInstanceWidget show={Stream(false)} {...vnode.attrs}/>
       <table data-test-id="stages">
         {rows}
       </table>
     </div>;
-  }
-
-  private browse(vnode: m.Vnode<InstanceAttrs, this>, e: MouseEvent) {
-    e.stopPropagation();
-    new TimelineModal(vnode.attrs.instance.name(), vnode.attrs.onInstanceChange).render();
   }
 
   private getStages(stages: Stream<Stages>) {
@@ -103,4 +97,85 @@ export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs>
     }
     return rows;
   }
+}
+
+class SelectInstanceWidget extends Dropdown<InstanceAttrs> {
+  private pattern: Stream<string>                      = Stream();
+  private operationInProgress: Stream<boolean>         = Stream();
+  private show: Stream<boolean>                        = Stream();
+  private matchingInstances: Stream<PipelineInstances> = Stream();
+
+  oncreate(vnode: m.VnodeDOM<InstanceAttrs, {}>): any {
+    this.pattern(vnode.attrs.instance.counter() + "");
+  }
+
+  protected doRenderButton(vnode: m.Vnode<DropdownAttrs & InstanceAttrs>): m.Children {
+    const placeholder = "Search for a pipeline instance by label, committer, date, etc.";
+    const helpText    = <span>{placeholder} <br/> or <br/> <Link onclick={this.browse.bind(this, vnode)}>Browse the timeline</Link></span>;
+    return <TextField
+      placeholder={placeholder}
+      helpText={helpText}
+      property={this.pattern}
+      onchange={() => this.onPatternChange(vnode)}/>;
+  }
+
+  protected doRenderDropdownContent(vnode: m.Vnode<DropdownAttrs & InstanceAttrs>): m.Children {
+    if (this.show() === undefined || this.show() === false) {
+      return;
+    }
+    if (this.operationInProgress()) {
+      return <div class={styles.dropdownContent}>
+        <Spinner small={true} css={spinnerCss}/>
+      </div>;
+    }
+    return <div class={styles.dropdownContent}>
+      <ul class={styles.instancesList}>
+        {this.matchingInstances().map((instance) => {
+          return <li class={styles.listItem}>
+            <div>
+              <h3>{instance.label()}</h3>
+              <div>
+                {/*<table>*/}
+                {/*<tr>*/}
+                {/*{vnode.attrs.instance.stages().map((stage) => {*/}
+                {/*return <td><span className={TimelineModal.stageStatusClass(stage.status())}/></td>;*/}
+                {/*})}*/}
+                {/*</tr>*/}
+                {/*</table>*/}
+                <div data-test-id="triggered-by">
+                  Triggered
+                  by {instance.buildCause().getApprover()} on {PipelineInstanceWidget.getTimeToDisplay(instance.stages().getScheduledDate())}
+                </div>
+              </div>
+            </div>
+          </li>;
+        })}
+      </ul>
+    </div>;
+  }
+
+  private onPatternChange(vnode: m.Vnode<DropdownAttrs & InstanceAttrs>): any {
+    if (_.isEmpty(this.pattern())) {
+      this.show(false);
+      return;
+    }
+    this.show(true);
+    this.operationInProgress(true);
+
+    PipelineInstanceCRUD.matchingInstances(vnode.attrs.instance.name(), this.pattern())
+                        .then((result) => {
+                          result.do((successResponse) => {
+                            this.matchingInstances(successResponse.body);
+                          }, (errorResponse) => {
+                            console.log(errorResponse);
+                          });
+                        })
+                        .finally(() => this.operationInProgress(false));
+  }
+
+  private browse(vnode: m.Vnode<DropdownAttrs & InstanceAttrs>, e: MouseEvent) {
+    e.stopPropagation();
+    new TimelineModal(vnode.attrs.instance.name(), vnode.attrs.onInstanceChange).render();
+  }
+
 }

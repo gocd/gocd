@@ -29,6 +29,11 @@ interface InstanceAttrs {
 }
 
 export class PipelineInstanceWidget extends MithrilViewComponent<InstanceAttrs> {
+
+  static getTimeToDisplay(date: dateOrUndefined | null): m.Child {
+    return <span title={timeFormatter.formatInServerTime(date)}>{timeFormatter.format(date)}</span>;
+  }
+
   view(vnode: m.Vnode<InstanceAttrs, this>): m.Children | void | null {
     if (!vnode.attrs.instance) {
       return <FlashMessage type={MessageType.alert} message="Please select an instance!"/>;
@@ -53,10 +58,6 @@ export class PipelineInstanceWidget extends MithrilViewComponent<InstanceAttrs> 
         {this.getMaterialRevisions(vnode)}
       </div>
     </div>;
-  }
-
-  private static getTimeToDisplay(date: dateOrUndefined | null): m.Child {
-    return <span title={timeFormatter.formatInServerTime(date)}>{timeFormatter.format(date)}</span>;
   }
 
   private getMaterialRevisions(vnode: m.Vnode<InstanceAttrs, this>) {

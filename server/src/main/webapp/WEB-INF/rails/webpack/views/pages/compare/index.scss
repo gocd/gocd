@@ -19,6 +19,7 @@ $width-for-msg: 100px;
 $width-for-instance-selection: 360px;
 $stage-status-unknown: #fafafa;
 $passed: #00c853;
+$dropdown-button-content-z-index: 5;
 
 .page-header {
   display: flex;
@@ -118,5 +119,30 @@ $passed: #00c853;
 .instance-wrapper {
   div {
     margin-bottom: 5px;
+  }
+}
+
+.dropdown-content {
+  background:      $white;
+  position:        absolute;
+  border-radius:   $global-border-radius;
+  box-shadow:      0 2px 4px $box-shadow-color;
+  width:           350px;
+  top:             150px;
+  display:         flex;
+  justify-content: center;
+  flex-direction:  column;
+  z-index:         $dropdown-button-content-z-index;
+
+  .instances-list {
+    list-style-type: none;
+    margin:          0;
+    padding:         0;
+  }
+
+  .list-item {
+    h3 {
+      margin: 0;
+    }
   }
 }

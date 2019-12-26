@@ -8,7 +8,7 @@ To quickly build your first pipeline while learning key GoCD concepts, visit our
 
 ## Development Setup
 
-This is a Java/JRuby on Rails project. Here is the guide to setup your [development environment](https://developer.gocd.org/current/2/2.1.html).
+This is a Java/JRuby on Rails project. Here is the guide to setup your [development environment](https://developer.gocd.org/current/).
 
 ## Contributing
 

@@ -16,7 +16,7 @@
 
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {PipelineHistory, PipelineInstance} from "../pipeline_instance";
+import {PipelineHistory, PipelineInstance, PipelineInstances} from "../pipeline_instance";
 import {PipelineInstanceCRUD} from "../pipeline_instance_crud";
 import {PipelineInstanceData} from "./test_data";
 
@@ -47,7 +47,7 @@ describe('PipelineInstanceCRUDSpec', () => {
 
   it('should return list of pipeline instances as result', (done) => {
     const apiPath = SparkRoutes.getPipelineHistory("up42");
-    jasmine.Ajax.stubRequest(apiPath).andReturn(pipelineInstancesResponse());
+    jasmine.Ajax.stubRequest(apiPath).andReturn(pipelineHistoryResponse());
 
     const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
       const responseJSON = response.unwrap() as SuccessResponse<any>;
@@ -68,6 +68,27 @@ describe('PipelineInstanceCRUDSpec', () => {
     expect(request.method).toEqual("GET");
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
+
+  it('should return list of matching pipeline instances as result', (done) => {
+    const apiPath = SparkRoutes.getMatchingPipelineInstances("up42", "2");
+    jasmine.Ajax.stubRequest(apiPath).andReturn(pipelineInstancesResponse());
+
+    const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
+      const responseJSON = response.unwrap() as SuccessResponse<any>;
+      const object       = (responseJSON.body as PipelineInstances);
+
+      expect(object[0].name()).toEqual("up42");
+      expect(object[0].counter()).toEqual(2);
+      done();
+    });
+
+    PipelineInstanceCRUD.matchingInstances("up42", "2").then(onResponse);
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(apiPath);
+    expect(request.method).toEqual("GET");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
+  });
 });
 
 function pipelineInstanceResponse() {
@@ -81,13 +102,27 @@ function pipelineInstanceResponse() {
   };
 }
 
-function pipelineInstancesResponse() {
+function pipelineHistoryResponse() {
   const json = {
     _links:    {
       next: {
         href: "next-link"
       }
     },
+    pipelines: [PipelineInstanceData.pipeline()]
+  };
+  return {
+    status:          200,
+    responseHeaders: {
+      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+      "ETag":         "some-etag"
+    },
+    responseText:    JSON.stringify(json)
+  };
+}
+
+function pipelineInstancesResponse() {
+  const json = {
     pipelines: [PipelineInstanceData.pipeline()]
   };
   return {

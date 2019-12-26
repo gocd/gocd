@@ -508,4 +508,8 @@ export class SparkRoutes {
   static getPipelineHistory(pipelineName: string) {
     return `/go/api/pipelines/${pipelineName}/history`;
   }
+
+  static getMatchingPipelineInstances(pipelineName: string, pattern: string) {
+    return `/go/api/internal/compare/${pipelineName}/list?pattern=${pattern}`;
+  }
 }

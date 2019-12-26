@@ -16,7 +16,7 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {PipelineHistory, PipelineInstance} from "./pipeline_instance";
+import {PipelineHistory, PipelineInstance, PipelineInstances} from "./pipeline_instance";
 import {PipelineHistoryJSON, PipelineInstanceJSON} from "./pipeline_instance_json";
 
 export class PipelineInstanceCRUD {
@@ -39,6 +39,14 @@ export class PipelineInstanceCRUD {
     return ApiRequestBuilder.GET(path, this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => result.map((body) => {
                               return PipelineHistory.fromJSON(pipelineName, JSON.parse(body) as PipelineHistoryJSON);
+                            }));
+  }
+
+  public static matchingInstances(pipelineName: string, pattern: string) {
+    return ApiRequestBuilder.GET(SparkRoutes.getMatchingPipelineInstances(pipelineName, pattern), this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => result.map((body) => {
+                              const json = JSON.parse(body) as PipelineHistoryJSON;
+                              return PipelineInstances.fromJSON(json.pipelines);
                             }));
   }
 }

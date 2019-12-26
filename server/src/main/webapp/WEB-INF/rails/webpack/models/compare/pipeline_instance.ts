@@ -284,6 +284,9 @@ export class Jobs extends Array<Job> {
   }
 
   static fromJSON(data: JobJSON[]): Jobs {
+    if (!data) {
+      return new Jobs();
+    }
     return new Jobs(...data.map((job) => Job.fromJSON(job)));
   }
 

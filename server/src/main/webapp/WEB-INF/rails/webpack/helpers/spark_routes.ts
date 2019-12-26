@@ -504,4 +504,8 @@ export class SparkRoutes {
   static getPipelineInstance(pipelineName: string, pipelineCounter: number) {
     return `/go/api/pipelines/${pipelineName}/${pipelineCounter}`;
   }
+
+  static getPipelineHistory(pipelineName: string) {
+    return `/go/api/pipelines/${pipelineName}/history`;
+  }
 }

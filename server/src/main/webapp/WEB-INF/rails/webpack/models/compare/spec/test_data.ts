@@ -71,7 +71,7 @@ export class PipelineInstanceData {
             {
               id:             65,
               name:           "up42_job",
-              scheduled_date: "2019-11-01T10:37:17Z",
+              scheduled_date: 1577166804163,
               state:          "Completed",
               result:         "Passed"
             }

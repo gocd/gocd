@@ -48,7 +48,8 @@ export class ComparePage extends Page<null, State> {
     }
 
     return <div>
-      <ComparisonSelectionWidget fromInstance={vnode.state.fromInstance()}
+      <ComparisonSelectionWidget pipelineName={this.getMeta().pipelineName}
+                                 fromInstance={vnode.state.fromInstance()}
                                  toInstance={vnode.state.toInstance()}/>
       <hr/>
       <h1>Changes:</h1>

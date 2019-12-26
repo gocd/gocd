@@ -15,7 +15,20 @@
  */
 
 export type stringOrNull = string | null;
+export type stringOrUndefined = string | undefined;
 export type dateOrUndefined = Date | undefined;
+
+interface LinkJSON {
+  href: string;
+}
+
+export interface PipelineHistoryJSON {
+  _links?: {
+    next?: LinkJSON;
+    previous?: LinkJSON;
+  };
+  pipelines: PipelineInstanceJSON[];
+}
 
 export interface PipelineInstanceJSON {
   id: number;
@@ -77,7 +90,7 @@ export interface StageJSON {
 export interface JobJSON {
   id: number;
   name: string;
-  scheduled_date: string;
+  scheduled_date: number;
   state: string;
   result: string;
 }

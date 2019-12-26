@@ -17,7 +17,28 @@
 import {timeFormatter} from "helpers/time_formatter";
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {BuildCauseJSON, JobJSON, MaterialJSON, MaterialRevisionJSON, ModificationJSON, PipelineInstanceJSON, StageJSON, stringOrNull} from "./pipeline_instance_json";
+import {BuildCauseJSON, dateOrUndefined, JobJSON, MaterialJSON, MaterialRevisionJSON, ModificationJSON, PipelineHistoryJSON, PipelineInstanceJSON, StageJSON, stringOrNull, stringOrUndefined} from "./pipeline_instance_json";
+
+export class PipelineHistory {
+  pipelineName: string;
+  nextLink: stringOrUndefined;
+  previousLink: stringOrUndefined;
+  pipelineInstances: PipelineInstances;
+
+  constructor(pipelineName: string, pipelineInstances: PipelineInstances) {
+    this.pipelineName      = pipelineName;
+    this.pipelineInstances = pipelineInstances;
+  }
+
+  static fromJSON(pipelineName: string, data: PipelineHistoryJSON): PipelineHistory {
+    const pipelineHistory = new PipelineHistory(pipelineName, PipelineInstances.fromJSON(data.pipelines));
+    if (data._links) {
+      pipelineHistory.nextLink     = data._links.next === undefined ? undefined : data._links.next.href;
+      pipelineHistory.previousLink = data._links.previous === undefined ? undefined : data._links.previous.href;
+    }
+    return pipelineHistory;
+  }
+}
 
 export class PipelineInstances extends Array<PipelineInstance> {
   constructor(...pipelineInstances: PipelineInstance[]) {
@@ -64,7 +85,7 @@ export class PipelineInstance {
   }
 }
 
-class BuildCause {
+export class BuildCause {
   triggerMessage: Stream<string>;
   triggerForced: Stream<boolean>;
   approver: Stream<string>;
@@ -79,6 +100,13 @@ class BuildCause {
 
   static fromJSON(data: BuildCauseJSON): BuildCause {
     return new BuildCause(data.trigger_message, data.trigger_forced, data.approver, MaterialRevisions.fromJSON(data.material_revisions));
+  }
+
+  getApprover() {
+    if (this.approver() === "") {
+      return "GoCD";
+    }
+    return this.approver();
   }
 }
 
@@ -192,6 +220,10 @@ export class Stage {
   static fromJSON(data: StageJSON): Stage {
     return new Stage(data.id, data.name, data.counter, data.scheduled, data.result, data.status, data.approval_type, data.approved_by, data.operate_permission, data.can_run, Jobs.fromJSON(data.jobs));
   }
+
+  getScheduledDate(): dateOrUndefined | null {
+    return this.jobs().getScheduledDate();
+  }
 }
 
 export class Stages extends Array<Stage> {
@@ -204,16 +236,35 @@ export class Stages extends Array<Stage> {
   static fromJSON(data: StageJSON[]): Stages {
     return new Stages(...data.map((stage) => Stage.fromJSON(stage)));
   }
+
+  getScheduledDate(): dateOrUndefined | null {
+    if (_.isEmpty(this)) {
+      return null;
+    }
+
+    return this
+      .filter((stage) => stage.scheduled)
+      .map((stage) => stage.getScheduledDate())
+      .reduce((prev, curr) => {
+        if (prev === undefined || prev === null) {
+          return curr;
+        }
+        if (curr === undefined || curr === null) {
+          return prev;
+        }
+        return prev.getTime() > curr.getTime() ? curr : prev;
+      }, undefined);
+  }
 }
 
-class Job {
+export class Job {
   id: Stream<number>;
   name: Stream<string>;
   scheduledDate: Stream<Date | undefined>;
   state: Stream<string>;
   result: Stream<string>;
 
-  constructor(id: number, name: string, scheduled_date: string, state: string, result: string) {
+  constructor(id: number, name: string, scheduled_date: number, state: string, result: string) {
     this.id            = Stream(id);
     this.name          = Stream(name);
     this.scheduledDate = Stream(parseDate(scheduled_date));
@@ -226,7 +277,7 @@ class Job {
   }
 }
 
-class Jobs extends Array<Job> {
+export class Jobs extends Array<Job> {
   constructor(...jobs: Job[]) {
     super(...jobs);
     Object.setPrototypeOf(this, Object.create(Jobs.prototype));
@@ -234,6 +285,13 @@ class Jobs extends Array<Job> {
 
   static fromJSON(data: JobJSON[]): Jobs {
     return new Jobs(...data.map((job) => Job.fromJSON(job)));
+  }
+
+  getScheduledDate(): dateOrUndefined | null {
+    if (_.isEmpty(this)) {
+      return null;
+    }
+    return this[0].scheduledDate();
   }
 }
 

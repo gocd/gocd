@@ -16,7 +16,7 @@
 
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {PipelineInstance} from "../pipeline_instance";
+import {PipelineHistory, PipelineInstance} from "../pipeline_instance";
 import {PipelineInstanceCRUD} from "../pipeline_instance_crud";
 import {PipelineInstanceData} from "./test_data";
 
@@ -44,6 +44,30 @@ describe('PipelineInstanceCRUDSpec', () => {
     expect(request.method).toEqual("GET");
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
+
+  it('should return list of pipeline instances as result', (done) => {
+    const apiPath = SparkRoutes.getPipelineHistory("up42");
+    jasmine.Ajax.stubRequest(apiPath).andReturn(pipelineInstancesResponse());
+
+    const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
+      const responseJSON = response.unwrap() as SuccessResponse<any>;
+      const object       = (responseJSON.body as PipelineHistory);
+
+      expect(object.nextLink).toEqual("next-link");
+      expect(object.previousLink).toBeUndefined();
+      expect(object.pipelineName).toEqual("up42");
+      expect(object.pipelineInstances[0].name()).toEqual("up42");
+      expect(object.pipelineInstances[0].counter()).toEqual(2);
+      done();
+    });
+
+    PipelineInstanceCRUD.history("up42").then(onResponse);
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(apiPath);
+    expect(request.method).toEqual("GET");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
+  });
 });
 
 function pipelineInstanceResponse() {
@@ -54,5 +78,24 @@ function pipelineInstanceResponse() {
       "ETag":         "some-etag"
     },
     responseText:    JSON.stringify(PipelineInstanceData.pipeline())
+  };
+}
+
+function pipelineInstancesResponse() {
+  const json = {
+    _links:    {
+      next: {
+        href: "next-link"
+      }
+    },
+    pipelines: [PipelineInstanceData.pipeline()]
+  };
+  return {
+    status:          200,
+    responseHeaders: {
+      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+      "ETag":         "some-etag"
+    },
+    responseText:    JSON.stringify(json)
   };
 }

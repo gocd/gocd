@@ -21,26 +21,34 @@ import styles from "./index.scss";
 import {InstanceSelectionWidget} from "./instance_selection_widget";
 
 interface Attrs {
+  pipelineName: string;
   fromInstance: PipelineInstance;
   toInstance: PipelineInstance;
 }
 
 export class ComparisonSelectionWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
+    const onFromInstanceChange = (counter: number) => this.reload(vnode.attrs.pipelineName, counter, vnode.attrs.toInstance.counter());
+    const onToInstanceChange   = (counter: number) => this.reload(vnode.attrs.pipelineName, vnode.attrs.fromInstance.counter(), counter);
+
     return <div data-test-id="comparison-selection-widget">
       <table>
         <tbody>
         <tr>
           <td class={styles.pipelineInstanceSelection}>
-            <InstanceSelectionWidget instance={vnode.attrs.fromInstance}/>
+            <InstanceSelectionWidget instance={vnode.attrs.fromInstance} onInstanceChange={onFromInstanceChange}/>
           </td>
           <td class={styles.pipelineComparisonText}>compared to</td>
           <td class={styles.pipelineInstanceSelection}>
-            <InstanceSelectionWidget instance={vnode.attrs.toInstance}/>
+            <InstanceSelectionWidget instance={vnode.attrs.toInstance} onInstanceChange={onToInstanceChange}/>
           </td>
         </tr>
         </tbody>
       </table>
     </div>;
+  }
+
+  private reload(pipelineName: string, fromCounter: number, toCounter: number) {
+    window.location.href = `/go/compare/${pipelineName}/${fromCounter}/with/${toCounter}`;
   }
 }

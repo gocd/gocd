@@ -23,6 +23,7 @@ import s from "underscore.string";
 import {TextField} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";
 import styles from "./index.scss";
+import {TimelineModal} from "./timeline_modal";
 
 const classnames = bind(styles);
 
@@ -30,6 +31,7 @@ type StringOrNumber = string | number;
 
 interface InstanceAttrs {
   instance: PipelineInstance;
+  onInstanceChange: (counter: number) => void;
 }
 
 export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs> {
@@ -64,7 +66,7 @@ export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs>
     const rows        = this.getStages(vnode.attrs.instance.stages);
     const placeholder = "Search for a pipeline instance by label, committer, date, etc.";
     const helpText    = <span>{placeholder} <br/> or <br/>
-    <Link onclick={this.browse.bind(this)}>Browse the timeline</Link></span>;
+    <Link onclick={this.browse.bind(this, vnode)}>Browse the timeline</Link></span>;
     return <div
       data-test-id={InstanceSelectionWidget.dataTestId("instance", "selection", "widget", vnode.attrs.instance.counter())}
       class={styles.instanceWrapper}>
@@ -78,8 +80,9 @@ export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs>
     </div>;
   }
 
-  private browse(e: MouseEvent) {
-    // console.log("Browser timeline: ", e);
+  private browse(vnode: m.Vnode<InstanceAttrs, this>, e: MouseEvent) {
+    e.stopPropagation();
+    new TimelineModal(vnode.attrs.instance.name(), vnode.attrs.onInstanceChange).render();
   }
 
   private getStages(stages: Stream<Stages>) {

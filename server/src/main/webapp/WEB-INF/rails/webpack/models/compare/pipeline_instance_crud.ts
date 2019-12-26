@@ -16,8 +16,8 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {PipelineInstance} from "./pipeline_instance";
-import {PipelineInstanceJSON} from "./pipeline_instance_json";
+import {PipelineHistory, PipelineInstance} from "./pipeline_instance";
+import {PipelineHistoryJSON, PipelineInstanceJSON} from "./pipeline_instance_json";
 
 export class PipelineInstanceCRUD {
   private static API_VERSION_HEADER = ApiVersion.latest;
@@ -29,5 +29,16 @@ export class PipelineInstanceCRUD {
                                 return PipelineInstance.fromJSON(JSON.parse(body) as PipelineInstanceJSON);
                               });
                             });
+  }
+
+  /*
+  *  Link is the href provided in the first response which can be used to get the next/previous list of records
+  */
+  public static history(pipelineName: string, link?: string) {
+    const path = link ? link : SparkRoutes.getPipelineHistory(pipelineName);
+    return ApiRequestBuilder.GET(path, this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => result.map((body) => {
+                              return PipelineHistory.fromJSON(pipelineName, JSON.parse(body) as PipelineHistoryJSON);
+                            }));
   }
 }

@@ -15,7 +15,7 @@
  */
 @import "../../global/common";
 
-$global-icon-size:        16px;
+$global-icon-size: 16px;
 $btn-group-border-radius: $global-border-radius;
 
 .btn-icon {
@@ -173,6 +173,10 @@ $btn-group-border-radius: $global-border-radius;
 
 .comment {
   @include icon-before($type: $fa-var-comment);
+}
+
+.warning {
+  @include icon-before($type: $fa-var-exclamation-triangle);
 }
 
 .icon-group {

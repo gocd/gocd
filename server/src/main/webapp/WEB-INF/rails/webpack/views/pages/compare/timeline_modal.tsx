@@ -25,9 +25,9 @@ import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import linkStyles from "views/components/link/index.scss";
 import {Modal, ModalState, Size} from "views/components/modal";
-import {InstanceSelectionWidget} from "./instance_selection_widget";
 import styles from "./modal.scss";
 import {PipelineInstanceWidget} from "./pipeline_instance_widget";
+import {StagesWidget} from "./stages/stages_widget";
 
 export class TimelineModal extends Modal {
   errorMessage: Stream<string>                       = Stream();
@@ -47,29 +47,6 @@ export class TimelineModal extends Modal {
     this.fetchHistory();
   }
 
-  static stageStatusClass(status: string) {
-    if (!status) {
-      return;
-    }
-
-    switch (status.trim().toLowerCase()) {
-      case "building":
-        return styles.building;
-      case "failed":
-        return styles.failed;
-      case "failing":
-        return styles.failing;
-      case "cancelled":
-        return styles.cancelled;
-      case "passed":
-        return styles.passed;
-      case "waiting":
-        return styles.waiting;
-      default:
-        return styles.unknown;
-    }
-  }
-
   body(): m.Children {
     if (this.isLoading()) {
       return;
@@ -79,29 +56,10 @@ export class TimelineModal extends Modal {
       return <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>;
     }
 
-    const updateSelectedInstance = (e: MouseEvent, instance: PipelineInstance) => {
+    const updateSelectedInstance = (instance: PipelineInstance, e: MouseEvent) => {
       e.stopPropagation();
       this.selectedInstance(instance);
     };
-
-    const maxNumberOfStages = this.history().pipelineInstances
-                                  .reduce((max, curr) => max > curr.stages().length ? max : curr.stages().length, 0);
-
-    const rows = this.history().pipelineInstances.map((instance) => {
-      const className = instance === this.selectedInstance() ? styles.selectedInstance : "";
-      const columns   = instance.stages().map((stage) => {
-        return <td><span class={TimelineModal.stageStatusClass(stage.status())}/></td>;
-      });
-      while (columns.length < maxNumberOfStages) {
-        columns.push(<td/>);
-      }
-      return <tr data-test-id={InstanceSelectionWidget.dataTestId("instance", instance.counter())}
-                 class={className}
-                 onclick={(e: MouseEvent) => updateSelectedInstance(e, instance)}>
-        <td class={styles.centerAlign}><span>{instance.counter()}</span></td>
-        {columns}
-      </tr>;
-    });
 
     const hasPreviousPage = this.history().previousLink !== undefined;
     const hasNextPage     = this.history().nextLink !== undefined;
@@ -120,9 +78,14 @@ export class TimelineModal extends Modal {
 
     return <div data-test-id="timeline-modal-body" class={styles.timelineModalContainer}>
       <div class={styles.leftPanel}>
-        <table data-test-id="left-pane-history">
-          {rows}
-        </table>
+        {this.history().pipelineInstances.map((instance) => {
+          const className = instance === this.selectedInstance() ? styles.selectedInstance : "";
+          return <div class={classnames(styles.pipelineRun, className)}
+                      onclick={updateSelectedInstance.bind(this, instance)}>
+            {instance.counter()}
+            <StagesWidget stages={instance.stages()}/>
+          </div>;
+        })}
         <div data-test-id="pagination" class={styles.pagination}>
           <a title="Previous"
              role="button"

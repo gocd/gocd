@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {PipelineInstance, PipelineInstances, Stages} from "models/compare/pipeline_instance";
+import {PipelineInstance, PipelineInstances} from "models/compare/pipeline_instance";
 import {PipelineInstanceCRUD} from "models/compare/pipeline_instance_crud";
 import s from "underscore.string";
 import {Dropdown, DropdownAttrs} from "views/components/buttons";
@@ -27,10 +26,9 @@ import {Link} from "views/components/link";
 import {Spinner} from "views/components/spinner";
 import spinnerCss from "views/pages/agents/spinner.scss";
 import styles from "./index.scss";
-import {TimelineModal} from "./timeline_modal";
 import {PipelineInstanceWidget} from "./pipeline_instance_widget";
-
-const classnames = bind(styles);
+import {StagesWidget} from "./stages/stages_widget";
+import {TimelineModal} from "./timeline_modal";
 
 type StringOrNumber = string | number;
 
@@ -45,57 +43,13 @@ export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs>
     return s.slugify(parts.join("-").trim().toLowerCase());
   }
 
-  static stageStatusClass(status: string) {
-    if (!status) {
-      return;
-    }
-    switch (status.trim().toLowerCase()) {
-      case "building":
-        return styles.building;
-      case "failed":
-        return styles.failed;
-      case "failing":
-        return styles.failing;
-      case "cancelled":
-        return styles.cancelled;
-      case "passed":
-        return styles.passed;
-      case "waiting":
-        return styles.waiting;
-      default:
-        return styles.unknown;
-    }
-  }
-
   view(vnode: m.Vnode<InstanceAttrs, this>): m.Children | void | null {
-    const rows = this.getStages(vnode.attrs.instance.stages);
     return <div
       data-test-id={InstanceSelectionWidget.dataTestId("instance", "selection", "widget", vnode.attrs.instance.counter())}
       class={styles.instanceWrapper}>
       <SelectInstanceWidget show={Stream(false)} {...vnode.attrs}/>
-      <table data-test-id="stages">
-        {rows}
-      </table>
+      <StagesWidget stages={vnode.attrs.instance.stages()}/>
     </div>;
-  }
-
-  private getStages(stages: Stream<Stages>) {
-    const cells: m.Children = [];
-    const rows              = stages().map((stage, index) => {
-      cells.push(<td>
-            <span data-test-id={InstanceSelectionWidget.dataTestId("stage-status", stage.name())}
-                  className={classnames(styles.stage, InstanceSelectionWidget.stageStatusClass(stage.status()))}/>
-      </td>);
-      if (index !== 0 && (index + 1) % 5 === 0) {
-        const temp   = _.clone(cells);
-        cells.length = 0;
-        return <tr>{temp}</tr>;
-      }
-    });
-    if (cells.length > 0) {
-      rows.push(<tr>{cells}</tr>);
-    }
-    return rows;
   }
 }
 
@@ -105,18 +59,21 @@ class SelectInstanceWidget extends Dropdown<InstanceAttrs> {
   private show: Stream<boolean>                        = Stream();
   private matchingInstances: Stream<PipelineInstances> = Stream();
 
-  oncreate(vnode: m.VnodeDOM<InstanceAttrs, {}>): any {
+  oninit(vnode: m.Vnode<DropdownAttrs & InstanceAttrs>) {
     this.pattern(vnode.attrs.instance.counter() + "");
   }
 
   protected doRenderButton(vnode: m.Vnode<DropdownAttrs & InstanceAttrs>): m.Children {
     const placeholder = "Search for a pipeline instance by label, committer, date, etc.";
-    const helpText    = <span>{placeholder} <br/> or <br/> <Link onclick={this.browse.bind(this, vnode)}>Browse the timeline</Link></span>;
-    return <TextField
-      placeholder={placeholder}
-      helpText={helpText}
-      property={this.pattern}
-      onchange={() => this.onPatternChange(vnode)}/>;
+    const helpText    = <Link onclick={this.browse.bind(this, vnode)}>Browse the timeline</Link>;
+    return <div>
+      <label class={styles.label}>{placeholder}</label>
+      <TextField
+        placeholder={placeholder}
+        helpText={helpText}
+        property={this.pattern}
+        onchange={() => this.onPatternChange(vnode)}/>
+    </div>;
   }
 
   protected doRenderDropdownContent(vnode: m.Vnode<DropdownAttrs & InstanceAttrs>): m.Children {
@@ -135,16 +92,10 @@ class SelectInstanceWidget extends Dropdown<InstanceAttrs> {
             <div>
               <h3>{instance.label()}</h3>
               <div>
-                {/*<table>*/}
-                {/*<tr>*/}
-                {/*{vnode.attrs.instance.stages().map((stage) => {*/}
-                {/*return <td><span className={TimelineModal.stageStatusClass(stage.status())}/></td>;*/}
-                {/*})}*/}
-                {/*</tr>*/}
-                {/*</table>*/}
+                <StagesWidget stages={instance.stages()}/>
                 <div data-test-id="triggered-by">
                   Triggered
-                  by {instance.buildCause().getApprover()} on {PipelineInstanceWidget.getTimeToDisplay(instance.stages().getScheduledDate())}
+                  by {instance.buildCause().getApprover()} on {PipelineInstanceWidget.getTimeToDisplay(instance.scheduledDate())}
                 </div>
               </div>
             </div>
@@ -167,7 +118,7 @@ class SelectInstanceWidget extends Dropdown<InstanceAttrs> {
                           result.do((successResponse) => {
                             this.matchingInstances(successResponse.body);
                           }, (errorResponse) => {
-                            console.log(errorResponse);
+                            // console.log(errorResponse);
                           });
                         })
                         .finally(() => this.operationInProgress(false));

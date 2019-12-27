@@ -60,10 +60,11 @@ export class PipelineInstance {
   canRun: Stream<boolean>;
   preparingToSchedule: Stream<boolean>;
   comment: Stream<stringOrNull>;
+  scheduledDate: Stream<dateOrUndefined>;
   buildCause: Stream<BuildCause>;
   stages: Stream<Stages>;
 
-  constructor(id: number, name: string, counter: number, label: string, naturalOrder: number, canRun: boolean, preparingToSchedule: boolean, comment: stringOrNull, buildCause: BuildCause, stages: Stages) {
+  constructor(id: number, name: string, counter: number, label: string, naturalOrder: number, canRun: boolean, preparingToSchedule: boolean, comment: stringOrNull, scheduledDate: number, buildCause: BuildCause, stages: Stages) {
     this.id                  = Stream(id);
     this.name                = Stream(name);
     this.counter             = Stream(counter);
@@ -72,12 +73,13 @@ export class PipelineInstance {
     this.canRun              = Stream(canRun);
     this.preparingToSchedule = Stream(preparingToSchedule);
     this.comment             = Stream(comment);
+    this.scheduledDate       = Stream(parseDate(scheduledDate));
     this.buildCause          = Stream(buildCause);
     this.stages              = Stream(stages);
   }
 
   static fromJSON(data: PipelineInstanceJSON): PipelineInstance {
-    return new PipelineInstance(data.id, data.name, data.counter, data.label, data.natural_order, data.can_run, data.preparing_to_schedule, data.comment, BuildCause.fromJSON(data.build_cause), Stages.fromJSON(data.stages));
+    return new PipelineInstance(data.id, data.name, data.counter, data.label, data.natural_order, data.can_run, data.preparing_to_schedule, data.comment, data.scheduled_date, BuildCause.fromJSON(data.build_cause), Stages.fromJSON(data.stages));
   }
 
   isBisect(): boolean {

@@ -17,8 +17,6 @@
 
 $width-for-msg: 100px;
 $width-for-instance-selection: 360px;
-$stage-status-unknown: #fafafa;
-$passed: #00c853;
 $dropdown-button-content-z-index: 5;
 
 .page-header {
@@ -29,14 +27,14 @@ $dropdown-button-content-z-index: 5;
     flex-direction: column;
     height:         100%;
 
-    .label {
-      font-size: 0.625rem;
-    }
-
     .value {
       font-size: 15px;
     }
   }
+}
+
+.label {
+  font-size: 0.625rem;
 }
 
 .pipeline-instance-selection {
@@ -48,72 +46,6 @@ $dropdown-button-content-z-index: 5;
   width:          $width-for-msg;
   font-style:     italic;
   vertical-align: middle;
-}
-
-.stage {
-  display:    block;
-  width:      100%;
-  min-width:  60px;
-  min-height: 21px;
-}
-
-.unknown, .building, .cancelled, .failed, .passed, .waiting, .failing {
-  color: $white;
-
-  &:before {
-    position: relative;
-    left:     calc(100% - 50% - 6px)
-  }
-}
-
-.unknown {
-  background: $stage-status-unknown;
-  border:     1px solid $border-color;
-}
-
-.building {
-  background:      transparent url('../../../../app/assets/images/building.gif') repeat-x;
-  background-size: contain;
-}
-
-.cancelled {
-  @include icon-before($fa-var-ban, 12px, 0);
-  color:           $black;
-  background:      transparent url('../../../../app/assets/images/building.png') repeat-x;
-  background-size: contain;
-}
-
-.failed {
-  @include icon-before($fa-var-info-circle, 12px, 0);
-  background: $failed;
-}
-
-.failing {
-  background: $failed url('../../../../app/assets/images/failing.gif') repeat-x;
-}
-
-.passed {
-  @include icon-before($fa-var-check, 12px, 0);
-  background: $passed;
-}
-
-.waiting {
-  @include icon-before($fa-var-spinner, 12px, 0);
-  color:      $black;
-  background: transparent url('../../../../app/assets/images/building.png') repeat-x;
-
-  &:before {
-    animation: spin 1500ms linear infinite;
-  }
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .instance-wrapper {
@@ -143,6 +75,15 @@ $dropdown-button-content-z-index: 5;
   .list-item {
     h3 {
       margin: 0;
+    }
+  }
+
+  .matching-instance-stages {
+    width: 100%;
+
+    span {
+      display: block;
+      width:   100%;
     }
   }
 }

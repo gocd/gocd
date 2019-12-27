@@ -22,7 +22,7 @@ import {dateOrUndefined} from "models/compare/pipeline_instance_json";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {KeyValuePair} from "views/components/key_value_pair";
 import styles from "./modal.scss";
-import {TimelineModal} from "./timeline_modal";
+import {StagesWidget} from "./stages/stages_widget";
 
 interface InstanceAttrs {
   instance: PipelineInstance;
@@ -42,13 +42,7 @@ export class PipelineInstanceWidget extends MithrilViewComponent<InstanceAttrs> 
     return <div data-test-id="pipeline-instance-widget">
       <h3 class={styles.pipelineInstanceCounter}>{vnode.attrs.instance.counter()}</h3>
       <div class={styles.pipelineInstanceDescription}>
-        <table data-test-id="pipeline-instance-stages">
-          <tr>
-            {vnode.attrs.instance.stages().map((stage) => {
-              return <td><span class={TimelineModal.stageStatusClass(stage.status())}/></td>;
-            })}
-          </tr>
-        </table>
+        <StagesWidget stages={vnode.attrs.instance.stages()}/>
         <div data-test-id="triggered-by">
           Triggered
           by {vnode.attrs.instance.buildCause().getApprover()} on {PipelineInstanceWidget.getTimeToDisplay(scheduledDate)}

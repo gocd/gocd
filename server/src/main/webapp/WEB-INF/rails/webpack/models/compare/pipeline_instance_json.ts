@@ -38,6 +38,7 @@ export interface PipelineInstanceJSON {
   natural_order: number;
   can_run: boolean;
   preparing_to_schedule: boolean;
+  scheduled_date: number;
   comment: stringOrNull;
   build_cause: BuildCauseJSON;
   stages: StageJSON[];

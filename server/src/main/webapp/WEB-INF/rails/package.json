@@ -60,7 +60,7 @@
     "@babel/plugin-syntax-dynamic-import": "^7.0.0",
     "@babel/plugin-syntax-import-meta": "^7.7.4",
     "@babel/plugin-transform-destructuring": "^7.0.0",
-    "@babel/plugin-transform-react-jsx": "^7.7.4",
+    "@babel/plugin-transform-react-jsx": "^7.7.7",
     "@babel/preset-env": "^7.7.4",
     "@babel/preset-react": "^7.7.4",
     "@types/awesomplete": "^1.1.10",

@@ -799,7 +799,7 @@ task verifyWar(type: VerifyJarTask) {
         "ant-${project.versions.apacheAnt}.jar",
         "antlr-2.7.6.jar",
         "aopalliance-1.0.jar",
-        "asm-3.3.1.jar",
+        "asm-7.1.jar",
         "aspectjrt-${project.versions.aspectj}.jar",
         "aspectjweaver-${project.versions.aspectj}.jar",
         "base-${project.version}.jar",

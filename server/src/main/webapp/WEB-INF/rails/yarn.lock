@@ -961,10 +961,10 @@
   resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-2.0.2.tgz#29a6e32103769b29840ae25f5bf75bb382801a15"
   integrity sha512-q0W5GGjWNxwmKPcfkkQJqSUIVr7yvMz1zH2enWDab8yDqvZuEgkR4+mcf1O70Wnreawg8OH4axfACDVdg2zskQ==
 
-"@types/node@*", "@types/node@^12.12.14":
-  version "12.12.14"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.14.tgz#1c1d6e3c75dba466e0326948d56e8bd72a1903d2"
-  integrity sha512-u/SJDyXwuihpwjXy7hOOghagLEV1KdAST6syfnOk6QZAMzZuWZqXy5aYYZbh8Jdpd4escVFP0MvftHNDb9pruA==
+"@types/node@*", "@types/node@^13.1.1":
+  version "13.1.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-13.1.1.tgz#6d11a8c2d58405b3db9388ab740106cbfa64c3c9"
+  integrity sha512-hx6zWtudh3Arsbl3cXay+JnkvVgCKzCWKv42C9J01N2T2np4h8w5X8u6Tpz5mj38kE3M9FM0Pazx8vKFFMnjLQ==
 
 "@types/optimize-css-assets-webpack-plugin@^5.0.1":
   version "5.0.1"

@@ -27,6 +27,7 @@ public class PipelineInstanceModelRepresenter {
                 .add("label", pipelineInstance.getLabel())
                 .add("natural_order", pipelineInstance.getNaturalOrder())
                 .add("comment", pipelineInstance.getComment())
+                .addInMillisIfNotNull("scheduled_date", pipelineInstance.getScheduledDate())
                 .addChild("build_cause", causeWriter -> BuildCauseRepresenter.toJSON(causeWriter, pipelineInstance.getBuildCause()))
                 .addChildList("stages", stagesWriter -> pipelineInstance.getStageHistory()
                         .forEach(stageInstanceModel -> stagesWriter.addChild(stageWriter -> StageInstanceModelRepresenter.toJSON(stageWriter, stageInstanceModel))));

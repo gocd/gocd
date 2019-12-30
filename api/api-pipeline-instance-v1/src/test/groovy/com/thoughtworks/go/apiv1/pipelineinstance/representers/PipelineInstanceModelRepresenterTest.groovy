@@ -52,6 +52,7 @@ class PipelineInstanceModelRepresenterTest {
       "can_run"              : false,
       "preparing_to_schedule": false,
       "comment"              : null,
+      "scheduled_date"       : pipelineInstanceModel.getScheduledDate().getTime(),
       "build_cause"          : buildCauseJson,
       "stages"               : pipelineInstanceModel.getStageHistory().collect { eachItem ->
         toObject({

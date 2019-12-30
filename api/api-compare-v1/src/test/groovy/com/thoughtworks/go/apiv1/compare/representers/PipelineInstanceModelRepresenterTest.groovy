@@ -45,13 +45,14 @@ class PipelineInstanceModelRepresenterTest {
     def actualJson = toObjectString({ PipelineInstanceModelRepresenter.toJSON(it, pipelineInstanceModel) })
 
     def expectedJson = [
-      "name"                 : "pipelineName",
-      "counter"              : 4,
-      "label"                : "label",
-      "natural_order"        : pipelineInstanceModel.getNaturalOrder(),
-      "comment"              : null,
-      "build_cause"          : buildCauseJson,
-      "stages"               : pipelineInstanceModel.getStageHistory().collect { eachItem ->
+      "name"          : "pipelineName",
+      "counter"       : 4,
+      "label"         : "label",
+      "natural_order" : pipelineInstanceModel.getNaturalOrder(),
+      "comment"       : null,
+      "scheduled_date": pipelineInstanceModel.getScheduledDate().getTime(),
+      "build_cause"   : buildCauseJson,
+      "stages"        : pipelineInstanceModel.getStageHistory().collect { eachItem ->
         toObject({
           StageInstanceModelRepresenter.toJSON(it, eachItem)
         })

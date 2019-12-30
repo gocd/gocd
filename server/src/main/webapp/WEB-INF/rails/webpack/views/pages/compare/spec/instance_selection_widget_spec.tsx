@@ -59,12 +59,12 @@ describe('InstanceSelectionWidgetSpec', () => {
   it('should render the stages in two rows', () => {
     const stages = new Stages();
 
-    stages.push(new Stage(1, "stage", "1", false, "Building", "", "", false, false, []));
-    stages.push(new Stage(2, "stage", "2", false, "Failed", "", "", false, false, []));
-    stages.push(new Stage(3, "stage", "3", false, "Cancelled", "", "", false, false, []));
-    stages.push(new Stage(4, "stage", "4", false, "unknown", "", "", false, false, []));
-    stages.push(new Stage(5, "stage", "5", false, "Passed", "", "", false, false, []));
-    stages.push(new Stage(6, "stage", "6", false, "Waiting", "", "", false, false, []));
+    stages.push(new Stage(1, "stage", "1", false, "Building", "Building", "", "", false, false, []));
+    stages.push(new Stage(2, "stage", "2", false, "Failed", "Failed", "", "", false, false, []));
+    stages.push(new Stage(3, "stage", "3", false, "Cancelled", "Cancelled", "", "", false, false, []));
+    stages.push(new Stage(4, "stage", "4", false, "unknown", "unknown", "", "", false, false, []));
+    stages.push(new Stage(5, "stage", "5", false, "Passed", "Passed", "", "", false, false, []));
+    stages.push(new Stage(6, "stage", "6", false, "Waiting", "Waiting", "", "", false, false, []));
 
     instance.stages(stages);
     mount();

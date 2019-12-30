@@ -168,14 +168,16 @@ export class Stage {
   counter: Stream<string>;
   scheduled: Stream<boolean>;
   result: Stream<string>;
+  status: Stream<string>;
   approvalType: Stream<string>;
   approvedBy: Stream<string>;
   operatePermission: Stream<boolean>;
   canRun: Stream<boolean>;
   jobs: Stream<Jobs>;
 
-  constructor(id: number, name: string, counter: string, scheduled: boolean, result: string, approvalType: string, approvedBy: string, operatePermission: boolean, canRun: boolean, jobs: Jobs) {
+  constructor(id: number, name: string, counter: string, scheduled: boolean, result: string, status: string, approvalType: string, approvedBy: string, operatePermission: boolean, canRun: boolean, jobs: Jobs) {
     this.result            = Stream(result);
+    this.status            = Stream(status);
     this.id                = Stream(id);
     this.name              = Stream(name);
     this.counter           = Stream(counter);
@@ -188,7 +190,7 @@ export class Stage {
   }
 
   static fromJSON(data: StageJSON): Stage {
-    return new Stage(data.id, data.name, data.counter, data.scheduled, data.result, data.approval_type, data.approved_by, data.operate_permission, data.can_run, Jobs.fromJSON(data.jobs));
+    return new Stage(data.id, data.name, data.counter, data.scheduled, data.result, data.status, data.approval_type, data.approved_by, data.operate_permission, data.can_run, Jobs.fromJSON(data.jobs));
   }
 }
 

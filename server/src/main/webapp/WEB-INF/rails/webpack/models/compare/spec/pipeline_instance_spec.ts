@@ -74,6 +74,7 @@ describe('PipelineInstanceSpec', () => {
     expect(stage.operatePermission()).toEqual(json.stages[0].operate_permission);
     expect(stage.scheduled()).toEqual(json.stages[0].scheduled);
     expect(stage.result()).toEqual(json.stages[0].result);
+    expect(stage.status()).toEqual(json.stages[0].status);
 
     const jobs = stage.jobs();
     const job  = jobs[0];

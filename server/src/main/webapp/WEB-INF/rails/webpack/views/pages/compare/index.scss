@@ -50,9 +50,10 @@ $passed: #00c853;
 }
 
 .stage {
-  display:   block;
-  width:     100%;
-  min-width: 60px;
+  display:    block;
+  width:      100%;
+  min-width:  60px;
+  min-height: 21px;
 }
 
 .unknown, .building, .cancelled, .failed, .passed, .waiting {
@@ -70,13 +71,15 @@ $passed: #00c853;
 }
 
 .building {
-  background: transparent url('../../../../app/assets/images/building.gif') repeat-x;
+  background:      transparent url('../../../../app/assets/images/building.gif') repeat-x;
+  background-size: contain;
 }
 
 .cancelled {
   @include icon-before($fa-var-ban, 12px, 0);
-  color:      $black;
-  background: transparent url('../../../../app/assets/images/building.png') repeat-x center;
+  color:           $black;
+  background:      transparent url('../../../../app/assets/images/building.png') repeat-x;
+  background-size: contain;
 }
 
 .failed {

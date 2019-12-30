@@ -85,7 +85,7 @@ export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs>
     const rows              = stages().map((stage, index) => {
       cells.push(<td>
             <span data-test-id={InstanceSelectionWidget.dataTestId("stage-status", stage.name())}
-                  className={classnames(styles.stage, InstanceSelectionWidget.stageStatusClass(stage.result()))}/>
+                  className={classnames(styles.stage, InstanceSelectionWidget.stageStatusClass(stage.status()))}/>
       </td>);
       if (index !== 0 && (index + 1) % 5 === 0) {
         const temp   = _.clone(cells);

@@ -62,6 +62,7 @@ export interface ModificationJSON {
 
 export interface StageJSON {
   result: string;
+  status: string;
   id: number;
   name: string;
   counter: string;

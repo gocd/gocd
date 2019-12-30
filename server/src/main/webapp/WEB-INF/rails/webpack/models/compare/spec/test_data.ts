@@ -58,6 +58,7 @@ export class PipelineInstanceData {
       stages:                [
         {
           result:             "Passed",
+          status:             "Passed",
           id:                 65,
           name:               "up42_stage",
           counter:            counter + "2",

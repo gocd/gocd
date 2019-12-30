@@ -81,9 +81,9 @@ export class Directive extends ValidatableMixin {
     super();
     ValidatableMixin.call(this);
     this.permission = Stream(permission);
-    this.action = Stream(action);
-    this.type = Stream(type);
-    this.resource = Stream(resource);
+    this.action     = Stream(action);
+    this.type       = Stream(type);
+    this.resource   = Stream(resource);
     this.errors(errors);
     this.validatePresenceOf("permission");
     this.validatePresenceOf("action");
@@ -99,9 +99,9 @@ export class Directive extends ValidatableMixin {
   toJSON() {
     return {
       permission: this.permission,
-      action: this.action,
-      type: this.type,
-      resource: this.resource
+      action:     this.action,
+      type:       this.type,
+      resource:   this.resource
     };
   }
 }
@@ -182,9 +182,9 @@ export class PluginAttributes {
   toJSON() {
     return {
       auth_config_id: this.authConfigId,
-      properties: this.properties().allConfigurations().map((config) => {
+      properties:     this.properties().allConfigurations().map((config) => {
         return {
-          key: config.key,
+          key:   config.key,
           value: config.displayValue()
         };
       })
@@ -205,7 +205,7 @@ export abstract class Role<T> extends ValidatableMixin {
     this.type       = Stream(type);
     this.name       = Stream(name);
     this.attributes = Stream(attributes);
-    this.policy = Stream(policy);
+    this.policy     = Stream(policy);
     this.errors(errors);
 
     this.validatePresenceOf("name");
@@ -221,14 +221,14 @@ export abstract class Role<T> extends ValidatableMixin {
     switch (data.type) {
       case "gocd":
         return new GoCDRole(data.name,
-          GoCDAttributes.deserialize(data.attributes as GoCDAttributesJSON),
-          Policy.fromJSON(data.policy),
-          errors);
+                            GoCDAttributes.deserialize(data.attributes as GoCDAttributesJSON),
+                            Policy.fromJSON(data.policy),
+                            errors);
       case "plugin":
         return new PluginRole(data.name,
-          PluginAttributes.deserialize(data.attributes as PluginAttributesJSON),
-          Policy.fromJSON(data.policy),
-          errors);
+                              PluginAttributes.deserialize(data.attributes as PluginAttributesJSON),
+                              Policy.fromJSON(data.policy),
+                              errors);
       default:
         throw new Error(`Unknown role type ${data.type}`);
     }
@@ -240,10 +240,10 @@ export abstract class Role<T> extends ValidatableMixin {
 
   toJSON() {
     return {
-      name: this.name(),
-      type: RoleType[this.type()],
+      name:       this.name(),
+      type:       RoleType[this.type()],
       attributes: this.attributes.toJSON(),
-      policy: this.policy
+      policy:     this.policy
     };
   }
 }
@@ -276,5 +276,54 @@ export class Roles extends Array<GoCDRole | PluginRole> {
       return Role.fromJSON(value);
     });
     return new Roles(...roles);
+  }
+}
+
+interface AutoSuggestionJSON {
+  key: string;
+  value: string[];
+}
+
+class AutoSuggestion {
+  key: string;
+  value: string[];
+
+  constructor(key: string, value: string[]) {
+    this.key   = key;
+    this.value = value;
+  }
+
+  static fromJSON(data: AutoSuggestionJSON): AutoSuggestion {
+    return new AutoSuggestion(data.key, data.value);
+  }
+}
+
+class AutoSuggestions extends Array<AutoSuggestion> {
+  constructor(...vals: AutoSuggestion[]) {
+    super(...vals);
+    Object.setPrototypeOf(this, Object.create(AutoSuggestions.prototype));
+  }
+
+  static fromJSON(data: AutoSuggestionJSON[]): AutoSuggestions {
+    return new AutoSuggestions(...data.map((a) => AutoSuggestion.fromJSON(a)));
+  }
+}
+
+export interface RolesWithSuggestionsJSON {
+  _embedded: EmbeddedJSON;
+  auto_completion: AutoSuggestionJSON[];
+}
+
+export class RolesWithSuggestions {
+  roles: Roles;
+  autoCompletion: AutoSuggestions;
+
+  constructor(roles: Roles, autoCompletion: AutoSuggestions) {
+    this.roles          = roles;
+    this.autoCompletion = autoCompletion;
+  }
+
+  static fromJSON(data: RolesWithSuggestionsJSON): RolesWithSuggestions {
+    return new RolesWithSuggestions(Roles.fromJSON(data), AutoSuggestions.fromJSON(data.auto_completion));
   }
 }

@@ -131,6 +131,7 @@ public class Routes {
 
     public static class Roles {
         public static final String BASE = "/api/admin/security/roles";
+        public static final String INTERNAL_BASE = "/api/admin/internal/roles";
         public static final String SPA_BASE = "/admin/security/roles";
         public static final String DOC = apiDocsUrl("#roles");
         public static final String NAME_PATH = "/:role_name";

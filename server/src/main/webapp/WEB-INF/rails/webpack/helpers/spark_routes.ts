@@ -281,6 +281,14 @@ export class SparkRoutes {
     }
   }
 
+  static internalRolesPath(type?: "gocd" | "plugin") {
+    if (type) {
+      return `/go/api/admin/internal/roles?type=${type}`;
+    } else {
+      return "/go/api/admin/internal/roles";
+    }
+  }
+
   static rolePath(roleName: string): string {
     return `/go/api/admin/security/roles/${roleName}`;
   }

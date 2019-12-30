@@ -16,7 +16,7 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {BulkUserRoleUpdateJSON, GoCDRole, PluginRole, Role, Roles} from "models/roles/roles";
+import {BulkUserRoleUpdateJSON, GoCDRole, PluginRole, Role, Roles, RolesWithSuggestions} from "models/roles/roles";
 
 export class RolesCRUD {
   private static API_VERSION_HEADER = ApiVersion.v3;
@@ -25,6 +25,13 @@ export class RolesCRUD {
     return ApiRequestBuilder.GET(SparkRoutes.rolesPath(type), this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => result.map((body) => {
                               return Roles.fromJSON(JSON.parse(body));
+                            }));
+  }
+
+  static allWithAutocompleteSuggestions(type?: 'gocd' | 'plugin') {
+    return ApiRequestBuilder.GET(SparkRoutes.internalRolesPath(type), this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => result.map((body) => {
+                              return RolesWithSuggestions.fromJSON(JSON.parse(body));
                             }));
   }
 
@@ -65,7 +72,7 @@ export class RolesCRUD {
       const roleJSON = JSON.parse(body); //as RoleJSON;
       return {
         object: Role.fromJSON(roleJSON),
-        etag: result.getEtag()
+        etag:   result.getEtag()
       } as ObjectWithEtag<GoCDRole | PluginRole>;
     });
   }

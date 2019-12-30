@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-apply plugin: 'jacoco'
-apply plugin: 'groovy'
+package com.thoughtworks.go.apiv3.rolesconfig.models;
 
-dependencies {
-  compile project(':api:api-base')
-  compileOnly group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
-  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
-  testCompile project(path: ':api:api-base', configuration: 'testOutput')
+import com.thoughtworks.go.config.RolesConfig;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Data
+@Accessors(chain = true)
+public class RolesViewModel {
+    private RolesConfig rolesConfig;
+    private Map<String, List<String>> autoSuggestions = new HashMap<>();
 }

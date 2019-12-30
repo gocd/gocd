@@ -222,12 +222,6 @@ Rails.application.routes.draw do
       post 'webhooks/bitbucket/notify' => 'web_hooks/bit_bucket#notify'
       post 'webhooks/hosted_bitbucket/notify' => 'web_hooks/hosted_bit_bucket#notify'
 
-      defaults :format => 'text' do
-        get 'fanin_trace/:name' => 'fanin_trace#fanin_trace', constraints: {name: PIPELINE_NAME_FORMAT}
-        get 'fanin_debug/:name/(:index)' => 'fanin_trace#fanin_debug', constraints: {name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}
-        get 'fanin/:name' => 'fanin_trace#fanin', constraints: {name: PIPELINE_NAME_FORMAT}
-      end
-
       defaults :format => 'xml' do
         # stage api's
         get 'stages/:id.xml' => 'stages#index', as: :stage

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+import {timeFormatter} from "helpers/time_formatter";
 import m from "mithril";
-import {Jobs, PipelineInstance, Stage, Stages} from "models/compare/pipeline_instance";
+import {PipelineInstance} from "models/compare/pipeline_instance";
 import {PipelineInstanceData} from "models/compare/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
-import styles from "../index.scss";
 import {InstanceSelectionWidget} from "../instance_selection_widget";
 
 describe('InstanceSelectionWidgetSpec', () => {
@@ -35,78 +35,38 @@ describe('InstanceSelectionWidgetSpec', () => {
                                                 onInstanceChange={jasmine.createSpy("onInstanceChange")}/>);
   }
 
-  it('should render text box with current selected counter and help text', () => {
+  it('should render the widget to enter search query', () => {
     mount();
-    const placeHolder = "Search for a pipeline instance by label, committer, date, etc.";
 
     expect(helper.byTestId("instance-selection-widget-9")).toBeInDOM();
-    expect(helper.byTestId("form-field-input-")).toBeInDOM();
-    expect(helper.byTestId("form-field-input-")).toHaveValue("9");
-    expect(helper.byTestId("form-field-input-")).toHaveAttr("placeholder", placeHolder);
-    expect(helper.q("span[id*='help-text']")).toBeInDOM();
-    expect(helper.q("span[id*='help-text']").innerText).toBe(placeHolder + "\nor\n" + "Browse the timeline");
   });
 
-  it('should render the stages in a single row if less than 5', () => {
+  it('should render the stages', () => {
     mount();
 
     const stageElement = helper.byTestId("stages");
     const stageRows    = helper.qa("tr", stageElement);
+    const stages       = helper.qa("td", stageElement);
 
     expect(stageElement).toBeInDOM();
     expect(stageRows.length).toBe(1);
+    expect(stages.length).toBe(1);
   });
 
-  it('should render the stages in two rows', () => {
-    const stages = new Stages();
-    const jobs   = new Jobs();
-
-    stages.push(new Stage(1, "stage", "1", false, "Building", "Building", "", "", false, false, jobs));
-    stages.push(new Stage(2, "stage", "2", false, "Failed", "Failed", "", "", false, false, jobs));
-    stages.push(new Stage(3, "stage", "3", false, "Cancelled", "Cancelled", "", "", false, false, jobs));
-    stages.push(new Stage(4, "stage", "4", false, "unknown", "unknown", "", "", false, false, jobs));
-    stages.push(new Stage(5, "stage", "5", false, "Passed", "Passed", "", "", false, false, jobs));
-    stages.push(new Stage(6, "stage", "6", false, "Waiting", "Waiting", "", "", false, false, jobs));
-
-    instance.stages(stages);
+  it('should render triggered by info', () => {
     mount();
 
-    const stageElement = helper.byTestId("stages");
-    const stageRows    = helper.qa("tr", stageElement);
-    const stageCols    = helper.qa("td", stageElement);
-
-    expect(stageElement).toBeInDOM();
-    expect(stageRows.length).toBe(2);
-    expect(stageCols.length).toBe(6);
+    expect(helper.byTestId("triggered-by")).toBeInDOM();
+    expect(helper.textByTestId("triggered-by")).toBe(`Triggered by ${instance.buildCause().getApprover()} on ${timeFormatter.format(instance.scheduledDate())}`);
   });
 
-  describe('RenderStageSpec', () => {
+  it('should render warning msg instead of stages if the instance is a bisect', () => {
+    instance.naturalOrder(9.5);
+    mount();
 
-    const parameters = [
-      {description: "should render stage as passed", input: "passed", output: styles.passed}
-      , {description: "should render stage as building", input: "building", output: styles.building}
-      , {description: "should render stage as failed", input: "failed", output: styles.failed}
-      , {description: "should render stage as failing", input: "failing", output: styles.failing}
-      , {description: "should render stage as cancelled", input: "cancelled", output: styles.cancelled}
-      , {description: "should render stage as waiting", input: "waiting", output: styles.waiting}
-      , {description: "should render stage as unknown", input: "unknown", output: styles.unknown}
-    ];
-
-    parameters.forEach((parameter) => {
-      it(parameter.description, () => {
-        const stages = new Stages();
-        const jobs   = new Jobs();
-
-        stages.push(new Stage(1, "stage", "1", false, parameter.input, parameter.input, "", "", false, false, jobs));
-        instance.stages(stages);
-        mount();
-
-        const stageElement = helper.byTestId("stages");
-        const stageCols    = helper.q("td", stageElement);
-
-        expect(helper.q("span", stageCols)).toHaveClass(parameter.output);
-      });
-    });
+    expect(helper.byTestId("stages")).not.toBeInDOM();
+    expect(helper.byTestId("warning")).toBeInDOM();
+    expect(helper.byTestId("Warning-icon")).toBeInDOM();
+    expect(helper.textByTestId("warning")).toBe("This pipeline instance cannot be used to perform a comparison because it was triggered with a non-sequential material revision.");
   });
-
 });

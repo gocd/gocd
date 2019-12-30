@@ -13,26 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {ErrorResponse} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineInstance, PipelineInstances} from "models/compare/pipeline_instance";
 import {PipelineInstanceCRUD} from "models/compare/pipeline_instance_crud";
 import s from "underscore.string";
-import {Dropdown, DropdownAttrs} from "views/components/buttons";
-import {TextField} from "views/components/forms/input_fields";
-import {Link} from "views/components/link";
-import {Spinner} from "views/components/spinner";
-import spinnerCss from "views/pages/agents/spinner.scss";
+import {Warning} from "views/components/icons";
 import styles from "./index.scss";
 import {PipelineInstanceWidget} from "./pipeline_instance_widget";
+import {SelectInstanceWidget} from "./select_instance_widget";
 import {StagesWidget} from "./stages/stages_widget";
-import {TimelineModal} from "./timeline_modal";
 
 type StringOrNumber = string | number;
 
-interface InstanceAttrs {
+export interface InstanceAttrs {
   instance: PipelineInstance;
   onInstanceChange: (counter: number) => void;
 }
@@ -47,86 +43,40 @@ export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs>
     return <div
       data-test-id={InstanceSelectionWidget.dataTestId("instance", "selection", "widget", vnode.attrs.instance.counter())}
       class={styles.instanceWrapper}>
-      <SelectInstanceWidget show={Stream(false)} {...vnode.attrs}/>
+      <SelectInstanceWidget show={Stream(false)} apiService={new PipelineInstanceService()} {...vnode.attrs}/>
+      {this.getStagesOrWarning(vnode)}
+    </div>;
+  }
+
+  private getStagesOrWarning(vnode: m.Vnode<InstanceAttrs, this>) {
+    if (vnode.attrs.instance.isBisect()) {
+      return <div data-test-id="warning" class={styles.warning}><Warning iconOnly={true}/>This pipeline instance cannot
+        be used to perform a comparison because it was triggered with a non-sequential material revision.</div>;
+    }
+    return <div>
       <StagesWidget stages={vnode.attrs.instance.stages()}/>
+      <span data-test-id="triggered-by" className={styles.label}>
+        Triggered by {vnode.attrs.instance.buildCause().getApprover()} on {PipelineInstanceWidget.getTimeToDisplay(vnode.attrs.instance.scheduledDate())}
+      </span>
     </div>;
   }
 }
 
-class SelectInstanceWidget extends Dropdown<InstanceAttrs> {
-  private pattern: Stream<string>                      = Stream();
-  private operationInProgress: Stream<boolean>         = Stream();
-  private show: Stream<boolean>                        = Stream();
-  private matchingInstances: Stream<PipelineInstances> = Stream();
+export interface ApiService {
+  getMatchingInstances(pipelineName: string, pattern: string,
+                       onSuccess: (data: PipelineInstances) => void,
+                       onError: (message: string) => void): void;
+}
 
-  oninit(vnode: m.Vnode<DropdownAttrs & InstanceAttrs>) {
-    this.pattern(vnode.attrs.instance.counter() + "");
-  }
+class PipelineInstanceService implements ApiService {
+  getMatchingInstances(pipelineName: string, pattern: string,
+                       onSuccess: (data: PipelineInstances) => void,
+                       onError: (message: string) => void): void {
 
-  protected doRenderButton(vnode: m.Vnode<DropdownAttrs & InstanceAttrs>): m.Children {
-    const placeholder = "Search for a pipeline instance by label, committer, date, etc.";
-    const helpText    = <Link onclick={this.browse.bind(this, vnode)}>Browse the timeline</Link>;
-    return <div>
-      <label class={styles.label}>{placeholder}</label>
-      <TextField
-        placeholder={placeholder}
-        helpText={helpText}
-        property={this.pattern}
-        onchange={() => this.onPatternChange(vnode)}/>
-    </div>;
-  }
-
-  protected doRenderDropdownContent(vnode: m.Vnode<DropdownAttrs & InstanceAttrs>): m.Children {
-    if (this.show() === undefined || this.show() === false) {
-      return;
-    }
-    if (this.operationInProgress()) {
-      return <div class={styles.dropdownContent}>
-        <Spinner small={true} css={spinnerCss}/>
-      </div>;
-    }
-    return <div class={styles.dropdownContent}>
-      <ul class={styles.instancesList}>
-        {this.matchingInstances().map((instance) => {
-          return <li class={styles.listItem}>
-            <div>
-              <h3>{instance.label()}</h3>
-              <div>
-                <StagesWidget stages={instance.stages()}/>
-                <div data-test-id="triggered-by">
-                  Triggered
-                  by {instance.buildCause().getApprover()} on {PipelineInstanceWidget.getTimeToDisplay(instance.scheduledDate())}
-                </div>
-              </div>
-            </div>
-          </li>;
-        })}
-      </ul>
-    </div>;
-  }
-
-  private onPatternChange(vnode: m.Vnode<DropdownAttrs & InstanceAttrs>): any {
-    if (_.isEmpty(this.pattern())) {
-      this.show(false);
-      return;
-    }
-    this.show(true);
-    this.operationInProgress(true);
-
-    PipelineInstanceCRUD.matchingInstances(vnode.attrs.instance.name(), this.pattern())
-                        .then((result) => {
-                          result.do((successResponse) => {
-                            this.matchingInstances(successResponse.body);
-                          }, (errorResponse) => {
-                            // console.log(errorResponse);
-                          });
-                        })
-                        .finally(() => this.operationInProgress(false));
-  }
-
-  private browse(vnode: m.Vnode<DropdownAttrs & InstanceAttrs>, e: MouseEvent) {
-    e.stopPropagation();
-    new TimelineModal(vnode.attrs.instance.name(), vnode.attrs.onInstanceChange).render();
+    PipelineInstanceCRUD.matchingInstances(pipelineName, pattern).then((result) => {
+      result.do((successResponse) => onSuccess(successResponse.body),
+                (errorResponse: ErrorResponse) => onError(errorResponse.message));
+    });
   }
 
 }

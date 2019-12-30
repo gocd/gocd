@@ -38,7 +38,7 @@ export class PipelineInstanceWidget extends MithrilViewComponent<InstanceAttrs> 
     if (!vnode.attrs.instance) {
       return <FlashMessage type={MessageType.alert} message="Please select an instance!"/>;
     }
-    const scheduledDate = vnode.attrs.instance.stages().getScheduledDate();
+    const scheduledDate = vnode.attrs.instance.scheduledDate();
     return <div data-test-id="pipeline-instance-widget">
       <h3 class={styles.pipelineInstanceCounter}>{vnode.attrs.instance.counter()}</h3>
       <div class={styles.pipelineInstanceDescription}>

@@ -24,12 +24,14 @@ interface Attrs {
   pipelineName: string;
   fromInstance: PipelineInstance;
   toInstance: PipelineInstance;
+
+  reloadWithNewCounters: (fromCounter: number, toCounter: number) => void;
 }
 
 export class ComparisonSelectionWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
-    const onFromInstanceChange = (counter: number) => this.reload(vnode.attrs.pipelineName, counter, vnode.attrs.toInstance.counter());
-    const onToInstanceChange   = (counter: number) => this.reload(vnode.attrs.pipelineName, vnode.attrs.fromInstance.counter(), counter);
+    const onFromInstanceChange = (counter: number) => vnode.attrs.reloadWithNewCounters(counter, vnode.attrs.toInstance.counter());
+    const onToInstanceChange   = (counter: number) => vnode.attrs.reloadWithNewCounters(vnode.attrs.fromInstance.counter(), counter);
 
     return <div data-test-id="comparison-selection-widget">
       <table>
@@ -46,9 +48,5 @@ export class ComparisonSelectionWidget extends MithrilViewComponent<Attrs> {
         </tbody>
       </table>
     </div>;
-  }
-
-  private reload(pipelineName: string, fromCounter: number, toCounter: number) {
-    window.location.href = `/go/compare/${pipelineName}/${fromCounter}/with/${toCounter}`;
   }
 }

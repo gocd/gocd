@@ -28,6 +28,7 @@ export class PipelineInstanceData {
       can_run:               true,
       preparing_to_schedule: false,
       comment:               "",
+      scheduled_date:        1577166804163,
       build_cause:           {
         trigger_message:    "Forced by anonymous",
         trigger_forced:     true,

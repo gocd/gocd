@@ -32,7 +32,7 @@ export class StagesWidget extends MithrilViewComponent<Attrs> {
       return <td class={classnames(styles.stage, StagesWidget.stageStatusClass(stage.status()))}/>;
     });
 
-    return <table class={styles.stagesContainer}>
+    return <table data-test-id="stages" class={styles.stagesContainer}>
       <tr>{stages}</tr>
     </table>;
   }

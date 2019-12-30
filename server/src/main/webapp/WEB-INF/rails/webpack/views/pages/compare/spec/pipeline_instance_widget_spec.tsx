@@ -19,7 +19,6 @@ import m from "mithril";
 import {PipelineInstance} from "models/compare/pipeline_instance";
 import {PipelineInstanceData} from "models/compare/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
-import styles from "../modal.scss";
 import {PipelineInstanceWidget} from "../pipeline_instance_widget";
 
 describe('PipelineInstanceWidgetSpec', () => {
@@ -48,39 +47,15 @@ describe('PipelineInstanceWidgetSpec', () => {
     expect(helper.q("h3", element).innerText).toEqual(instance.counter() + "");
   });
 
-  describe('RenderStageSpec', () => {
-    const parameters = [
-      {description: "should render stage as passed", input: "passed", output: styles.passed}
-      , {description: "should render stage as building", input: "building", output: styles.building}
-      , {description: "should render stage as failed", input: "failed", output: styles.failed}
-      , {description: "should render stage as failing", input: "failing", output: styles.failing}
-      , {description: "should render stage as cancelled", input: "cancelled", output: styles.cancelled}
-      , {description: "should render stage as waiting", input: "waiting", output: styles.waiting}
-      , {description: "should render stage as unknown", input: "unknown", output: styles.unknown}
-    ];
-    parameters.forEach((parameter) => {
-      it(parameter.description, () => {
-        const instance = PipelineInstance.fromJSON(PipelineInstanceData.pipeline());
-        instance.stages()[0].status(parameter.input);
-        instance.stages()[0].result(parameter.input);
-        mount(instance);
-
-        const stages = helper.byTestId("pipeline-instance-stages");
-        expect(stages).toBeInDOM();
-        expect(helper.qa("td", stages).length).toBe(1);
-        expect(helper.q("span", stages)).toHaveAttr("class", parameter.output);
-      });
-    });
-  });
-
-  it('should render triggered by info', () => {
+  it('should render stages and triggered by info', () => {
     const instance   = PipelineInstance.fromJSON(PipelineInstanceData.pipeline());
-    const triggerMsg = `Triggered by ${instance.buildCause().approver()} on ${timeFormatter.format(instance.stages().getScheduledDate())}`;
+    const triggerMsg = `Triggered by ${instance.buildCause().approver()} on ${timeFormatter.format(instance.scheduledDate())}`;
 
     mount(instance);
 
+    expect(helper.byTestId("stages")).toBeInDOM();
     expect(helper.textByTestId("triggered-by")).toEqual(triggerMsg);
-    expect(helper.q("span", helper.byTestId("triggered-by"))).toHaveAttr("title", timeFormatter.formatInServerTime(instance.stages().getScheduledDate()));
+    expect(helper.q("span", helper.byTestId("triggered-by"))).toHaveAttr("title", timeFormatter.formatInServerTime(instance.scheduledDate()));
   });
 
   it('should render material revisions', () => {

@@ -54,17 +54,55 @@ $dropdown-button-content-z-index: 5;
   }
 }
 
-.dropdown-content {
-  background:      $white;
-  position:        absolute;
-  border-radius:   $global-border-radius;
-  box-shadow:      0 2px 4px $box-shadow-color;
-  width:           350px;
-  top:             150px;
-  display:         flex;
-  justify-content: center;
-  flex-direction:  column;
-  z-index:         $dropdown-button-content-z-index;
+.warning {
+  font-size: 0.725rem;
+
+  i {
+    color: $building;
+  }
+}
+
+.info-msg {
+  font-size:     0.825rem;
+  padding:       5px 10px;
+  border:        1px solid $go-secondary;
+  border-radius: $global-border-radius;
+  background:    $info;
+  margin-bottom: 10px;
+
+  i {
+    color: $go-secondary;
+  }
+}
+
+.dropdown-content-wrapper {
+  position: relative;
+  top:      -28px;
+  left:     0;
+  z-index:  $dropdown-button-content-z-index;
+
+  .spinner-wrapper {
+    display:         flex;
+    justify-content: center;
+    flex-direction:  column;
+  }
+
+  .dropdown-content {
+    position:      absolute;
+    top:           0;
+    left:          0;
+    background:    $white;
+    width:         400px;
+    max-height:    500px;
+    overflow-y:    auto;
+    border-radius: $global-border-radius;
+    box-shadow:    0 2px 4px $box-shadow-color;
+  }
+
+  .info {
+    padding:    10px;
+    font-style: italic;
+  }
 
   .instances-list {
     list-style-type: none;
@@ -73,8 +111,20 @@ $dropdown-button-content-z-index: 5;
   }
 
   .list-item {
-    h3 {
+    padding:       8px 16px;
+    border-bottom: 1px solid $border-color;
+    cursor:        pointer;
+
+    h5 {
       margin: 0;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: $icon-bg-hover;
     }
   }
 
@@ -85,5 +135,24 @@ $dropdown-button-content-z-index: 5;
       display: block;
       width:   100%;
     }
+  }
+}
+
+.modification {
+  width:      100%;
+  font-size:  0.625rem;
+  border-top: 1px solid $border-color;
+  margin:     5px 0;
+
+  th {
+    width:          80px;
+    vertical-align: top;
+  }
+
+  td:before {
+    content:  ":";
+    display:  inline-block;
+    position: relative;
+    left:     -10px;
   }
 }

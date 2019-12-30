@@ -112,7 +112,7 @@ export class BuildCause {
   }
 }
 
-class MaterialRevision {
+export class MaterialRevision {
   changed: Stream<boolean>;
   material: Stream<Material>;
   modifications: Stream<Modifications>;
@@ -136,6 +136,28 @@ export class MaterialRevisions extends Array<MaterialRevision> {
 
   static fromJSON(data: MaterialRevisionJSON[]): MaterialRevisions {
     return new MaterialRevisions(...data.map((rev) => MaterialRevision.fromJSON(rev)));
+  }
+
+  filterRevision(filterText: string): MaterialRevisions {
+    if (_.isEmpty(filterText)) {
+      return this;
+    }
+
+    return new MaterialRevisions(...this.filter((revision) => {
+      return revision.modifications().some((modification) => this.searchPredicate(modification, filterText));
+    }));
+  }
+
+  private searchPredicate(modification: Modification, filterText: string) {
+    const lowercaseFilterText = filterText.toLowerCase();
+    return _.includes(this.getOrEmpty(modification.comment()), lowercaseFilterText) ||
+           _.includes(this.getOrEmpty(modification.userName()), lowercaseFilterText) ||
+           _.includes(this.getOrEmpty(modification.emailAddress()), lowercaseFilterText) ||
+           _.includes(this.getOrEmpty(modification.revision()), lowercaseFilterText);
+  }
+
+  private getOrEmpty(str: string | number | null) {
+    return str ? str.toString().toLowerCase() : "";
   }
 }
 
@@ -222,10 +244,6 @@ export class Stage {
   static fromJSON(data: StageJSON): Stage {
     return new Stage(data.id, data.name, data.counter, data.scheduled, data.result, data.status, data.approval_type, data.approved_by, data.operate_permission, data.can_run, Jobs.fromJSON(data.jobs));
   }
-
-  getScheduledDate(): dateOrUndefined | null {
-    return this.jobs().getScheduledDate();
-  }
 }
 
 export class Stages extends Array<Stage> {
@@ -237,25 +255,6 @@ export class Stages extends Array<Stage> {
 
   static fromJSON(data: StageJSON[]): Stages {
     return new Stages(...data.map((stage) => Stage.fromJSON(stage)));
-  }
-
-  getScheduledDate(): dateOrUndefined | null {
-    if (_.isEmpty(this)) {
-      return null;
-    }
-
-    return this
-      .filter((stage) => stage.scheduled)
-      .map((stage) => stage.getScheduledDate())
-      .reduce((prev, curr) => {
-        if (prev === undefined || prev === null) {
-          return curr;
-        }
-        if (curr === undefined || curr === null) {
-          return prev;
-        }
-        return prev.getTime() > curr.getTime() ? curr : prev;
-      }, undefined);
   }
 }
 
@@ -290,13 +289,6 @@ export class Jobs extends Array<Job> {
       return new Jobs();
     }
     return new Jobs(...data.map((job) => Job.fromJSON(job)));
-  }
-
-  getScheduledDate(): dateOrUndefined | null {
-    if (_.isEmpty(this)) {
-      return null;
-    }
-    return this[0].scheduledDate();
   }
 }
 

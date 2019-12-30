@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {BuildCause, Job, Jobs, PipelineHistory, PipelineInstance, PipelineInstances, Stage, Stages} from "../pipeline_instance";
+import {BuildCause, MaterialRevisions, PipelineHistory, PipelineInstance, PipelineInstances} from "../pipeline_instance";
 import {PipelineHistoryJSON} from "../pipeline_instance_json";
 import {PipelineInstanceData} from "./test_data";
 
@@ -68,6 +68,7 @@ describe('PipelineHistorySpec', () => {
       expect(pipelineInstance.canRun()).toEqual(json.can_run);
       expect(pipelineInstance.preparingToSchedule()).toEqual(json.preparing_to_schedule);
       expect(pipelineInstance.comment()).toEqual(json.comment);
+      expect(pipelineInstance.scheduledDate()).toEqual(new Date(json.scheduled_date));
 
       const buildCause = pipelineInstance.buildCause();
 
@@ -137,44 +138,13 @@ describe('PipelineHistorySpec', () => {
 
   describe('BuildCauseSpec', () => {
     it('should return GoCD as approver if no approver is set', () => {
-      const buildCause = new BuildCause("", false, "approver", []);
+      const buildCause = new BuildCause("", false, "approver", new MaterialRevisions());
 
       expect(buildCause.getApprover()).toBe("approver");
 
       buildCause.approver("");
 
       expect(buildCause.getApprover()).toBe("GoCD");
-    });
-  });
-
-  describe('JobsSpec', () => {
-    it('should return null as schedule date if empty', () => {
-      const jobs = new Jobs();
-
-      expect(jobs.getScheduledDate()).toBeNull();
-    });
-
-    it('should return the 1st schedule dat', () => {
-      const jobs = new Jobs(new Job(1, "job", 1577166804163, "Passed", "Passed"));
-
-      expect(jobs.getScheduledDate()).not.toBeNull();
-      expect(jobs.getScheduledDate()).toEqual(new Date(1577166804163));
-    });
-  });
-
-  describe('StagesSpec', () => {
-    it('should return null as schedule date if empty', () => {
-      const stages = new Stages();
-
-      expect(stages.getScheduledDate()).toBeNull();
-    });
-
-    it('should return the earliest schedule date', () => {
-      const jobs   = new Jobs(new Job(1, "job", 1577166804163, "Passed", "Passed"));
-      const stages = new Stages(new Stage(2, "stage", "3", true, "passed", "passed", "changes", "user", false, false, jobs));
-
-      expect(stages.getScheduledDate()).not.toBeNull();
-      expect(stages.getScheduledDate()).toEqual(new Date(1577166804163));
     });
   });
 });

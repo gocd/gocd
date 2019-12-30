@@ -81,10 +81,10 @@ describe('TimelineModalSpec', () => {
     mount();
     expect(helper.byTestId("timeline-modal-body")).toBeInDOM();
 
-    expect(helper.qa("tr", helper.byTestId("left-pane-history")).length).toBe(1);
+    expect(helper.q("span", helper.byTestId("instance-2")).innerText).toBe("2");
 
-    expect(helper.q("td", helper.byTestId("instance-2")).innerText).toBe("2");
-    expect(helper.qa("td", helper.byTestId("instance-2")).length).toBe(2);
+    expect(helper.qa("tr", helper.byTestId("left-pane")).length).toBe(1); //pipeline histories
+    expect(helper.qa("td", helper.byTestId("instance-2")).length).toBe(1); //stages in that
   });
 
   it('should have enabled next and previous buttons if both links are available', () => {
@@ -114,6 +114,15 @@ describe('TimelineModalSpec', () => {
     expect(pageDiv).toBeInDOM();
     expect(helper.q("a[title='Previous']", pageDiv)).not.toHaveClass(styles.disabled);
     expect(helper.q("a[title='Next']", pageDiv)).toHaveClass(styles.disabled);
+  });
+
+  it('should call spy when select this instance is clicked', () => {
+    mount();
+
+    expect(helper.byTestId("button-select-instance")).toBeInDOM();
+    helper.clickByTestId("button-select-instance");
+
+    expect(onInstanceSelectionSpy).toHaveBeenCalledWith(2);
   });
 });
 

@@ -2,7 +2,7 @@
     "html" : [
     <% if @pipeline_instances.empty? %>
     {
-        "data": <%= render_json :text => "<div class='no_results'>No matching results</div>" -%>,
+        "data": <%== render_json :inline => "<div class='no_results'>No matching results</div>" -%>,
         "value": "-1",
         "result": ""
     }

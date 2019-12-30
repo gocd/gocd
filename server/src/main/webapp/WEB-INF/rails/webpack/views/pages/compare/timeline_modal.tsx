@@ -25,6 +25,7 @@ import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import linkStyles from "views/components/link/index.scss";
 import {Modal, ModalState, Size} from "views/components/modal";
+import {InstanceSelectionWidget} from "./instance_selection_widget";
 import styles from "./modal.scss";
 import {PipelineInstanceWidget} from "./pipeline_instance_widget";
 import {StagesWidget} from "./stages/stages_widget";
@@ -77,12 +78,13 @@ export class TimelineModal extends Modal {
     };
 
     return <div data-test-id="timeline-modal-body" class={styles.timelineModalContainer}>
-      <div class={styles.leftPanel}>
+      <div data-test-id="left-pane" class={styles.leftPanel}>
         {this.history().pipelineInstances.map((instance) => {
           const className = instance === this.selectedInstance() ? styles.selectedInstance : "";
-          return <div class={classnames(styles.pipelineRun, className)}
+          return <div data-test-id={InstanceSelectionWidget.dataTestId("instance", instance.counter())}
+                      class={classnames(styles.pipelineRun, className)}
                       onclick={updateSelectedInstance.bind(this, instance)}>
-            {instance.counter()}
+            <span>{instance.counter()}</span>
             <StagesWidget stages={instance.stages()}/>
           </div>;
         })}

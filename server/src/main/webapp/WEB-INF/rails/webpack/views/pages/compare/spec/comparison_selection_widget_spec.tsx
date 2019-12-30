@@ -22,12 +22,15 @@ import styles from "../index.scss";
 
 describe('ComparisonSelectionWidgetSpec', () => {
   const helper = new TestHelper();
+  const spy    = jasmine.createSpy("reloadWithNewCounters");
 
   afterEach(() => helper.unmount());
 
   function mount(fromInstance: PipelineInstance, toInstance: PipelineInstance) {
-    helper.mount(() => <ComparisonSelectionWidget fromInstance={fromInstance}
-                                                  toInstance={toInstance}/>);
+    helper.mount(() => <ComparisonSelectionWidget pipelineName="up42"
+                                                  fromInstance={fromInstance}
+                                                  toInstance={toInstance}
+                                                  reloadWithNewCounters={spy}/>);
   }
 
   it('should render the comparison header', () => {

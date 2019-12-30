@@ -32,6 +32,8 @@ interface State {
   comparison: Stream<Comparison>;
   fromInstance: Stream<PipelineInstance>;
   toInstance: Stream<PipelineInstance>;
+
+  reloadWithNewCounters: (fromCounter: number, toCounter: number) => void;
 }
 
 export class ComparePage extends Page<null, State> {
@@ -40,6 +42,10 @@ export class ComparePage extends Page<null, State> {
     vnode.state.comparison   = Stream();
     vnode.state.fromInstance = Stream();
     vnode.state.toInstance   = Stream();
+
+    vnode.state.reloadWithNewCounters = (fromCounter: number, toCounter: number) => {
+      window.location.href = `/go/compare/${this.getMeta().pipelineName}/${fromCounter}/with/${toCounter}`;
+    };
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
@@ -50,7 +56,8 @@ export class ComparePage extends Page<null, State> {
     return <div>
       <ComparisonSelectionWidget pipelineName={this.getMeta().pipelineName}
                                  fromInstance={vnode.state.fromInstance()}
-                                 toInstance={vnode.state.toInstance()}/>
+                                 toInstance={vnode.state.toInstance()}
+                                 reloadWithNewCounters={vnode.state.reloadWithNewCounters.bind(this)}/>
       <hr/>
       <h1>Changes:</h1>
       <ComparisonResultWidget comparisonResult={vnode.state.comparison()}/>

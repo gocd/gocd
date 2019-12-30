@@ -19,7 +19,9 @@ import _ from "lodash";
 import m from "mithril";
 import {Comparison, DependencyRevisions, MaterialRevisions} from "models/compare/compare";
 import {DependencyMaterialAttributes} from "models/materials/types";
+import {InfoCircle} from "views/components/icons";
 import {DependencyRevisionsWidget} from "./dependency_revisions_widget";
+import styles from "./index.scss";
 import {MaterialRevisionsWidget} from "./material_revisions_widget";
 
 interface Attrs {
@@ -32,30 +34,37 @@ export class ComparisonResultWidget extends MithrilViewComponent<Attrs> {
       return <div/>;
     }
 
-    return <div data-test-id="comparison-result-widget">
-      {
-        vnode.attrs.comparisonResult.changes.map((change) => {
-          let viewBody: m.Child;
-          switch (change.material.type()) {
-            case "dependency":
-              const pipelineAttrs = change.material.attributes()! as DependencyMaterialAttributes;
-              viewBody            = <div>
-                <DependencyRevisionsWidget pipelineName={pipelineAttrs.pipeline()}
-                                           result={change.revision as DependencyRevisions}/>
-              </div>;
-              break;
-            default:
-              viewBody = <div>
-                <MaterialRevisionsWidget result={change.revision as MaterialRevisions}/>
-              </div>;
-          }
-          return <div data-test-id="material-changes">
+    let warning: m.Child;
+    if (vnode.attrs.comparisonResult.isBisect) {
+      warning = <div data-test-id="info-msg" class={styles.infoMsg}><InfoCircle iconOnly={true}/>This comparison involves a pipeline instance
+        that was triggered with a non-sequential material revision.</div>;
+    }
+
+    return [warning,
+      <div data-test-id="comparison-result-widget">
+        {
+          vnode.attrs.comparisonResult.changes.map((change) => {
+            let viewBody: m.Child;
+            switch (change.material.type()) {
+              case "dependency":
+                const pipelineAttrs = change.material.attributes()! as DependencyMaterialAttributes;
+                viewBody            = <div>
+                  <DependencyRevisionsWidget pipelineName={pipelineAttrs.pipeline()}
+                                             result={change.revision as DependencyRevisions}/>
+                </div>;
+                break;
+              default:
+                viewBody = <div>
+                  <MaterialRevisionsWidget result={change.revision as MaterialRevisions}/>
+                </div>;
+            }
+            return <div data-test-id="material-changes">
             <span
               data-test-id="material-header">{change.material.typeForDisplay()} - {change.material.attributes()!.getLongDescription()}</span>
-            {viewBody}
-          </div>;
-        })
-      }
-    </div>;
+              {viewBody}
+            </div>;
+          })
+        }
+      </div>];
   }
 }

@@ -22,7 +22,11 @@ import {ComparisonResultWidget} from "../comparison_result_widget";
 
 describe('ComparisonResultWidgetSpec', () => {
   const helper = new TestHelper();
+  let comparison: Comparison;
 
+  beforeEach(() => {
+    comparison = Comparison.fromJSON(ComparisonData.compare());
+  });
   afterEach((done) => helper.unmount(done));
 
   function mount(comparison: Comparison) {
@@ -30,14 +34,24 @@ describe('ComparisonResultWidgetSpec', () => {
   }
 
   it('should showcase comparison result', () => {
-    const comparison = Comparison.fromJSON(ComparisonData.compare());
     mount(comparison);
 
+    expect(helper.byTestId("info-msg")).not.toBeInDOM();
     expect(helper.byTestId("comparison-result-widget")).toBeInDOM();
     expect(helper.byTestId("material-changes")).toBeInDOM();
     expect(helper.byTestId("material-revisions-widget")).toBeInDOM();
     expect(helper.byTestId("dependency-revisions-widget")).toBeInDOM();
     expect(helper.qa("[data-test-id='material-header']")[0]).toHaveText("Git - URL: git@github.com:sample_repo/example.git, Branch: master");
     expect(helper.qa("[data-test-id='material-header']")[1]).toHaveText("Pipeline - upstream [ upstream_stage ]");
+  });
+
+  it('should showcase warning info if the comparison is between bisect instances', () => {
+    comparison.isBisect = true;
+    mount(comparison);
+
+    expect(helper.byTestId("info-msg")).toBeInDOM();
+    expect(helper.byTestId("comparison-result-widget")).toBeInDOM();
+    expect(helper.textByTestId("info-msg")).toBe("This comparison involves a pipeline instance that was triggered with a non-sequential material revision.");
+    expect(helper.byTestId("Info Circle-icon")).toBeInDOM();
   });
 });

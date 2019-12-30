@@ -17,19 +17,31 @@
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Stages} from "models/compare/pipeline_instance";
+import {Stage, Stages} from "models/compare/pipeline_instance";
 import styles from "./stages.scss";
 
 const classnames = bind(styles);
 
 interface Attrs {
   stages: Stages;
+  onClick?: (stage: Stage) => void;
 }
 
 export class StagesWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>): m.Children {
     const stages = vnode.attrs.stages.map((stage) => {
-      return <td class={classnames(styles.stage, StagesWidget.stageStatusClass(stage.status()))}/>;
+      const title = `${stage.name()} (${stage.status()})`;
+      if (vnode.attrs.onClick) {
+        const onclick = (e: MouseEvent) => {
+          e.stopPropagation();
+          vnode.attrs.onClick!(stage);
+        };
+        return <td title={title}
+                   className={classnames(styles.stage, StagesWidget.stageStatusClass(stage.status()), styles.clickable)}
+                   onclick={onclick}/>;
+      }
+      return <td title={title}
+                 class={classnames(styles.stage, StagesWidget.stageStatusClass(stage.status()))}/>;
     });
 
     return <table data-test-id="stages" class={styles.stagesContainer}>

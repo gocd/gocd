@@ -38,6 +38,10 @@ $icon-size: 10px;
   }
 }
 
+.clickable {
+  cursor: pointer;
+}
+
 .unknown {
   background: $stage-status-unknown;
 

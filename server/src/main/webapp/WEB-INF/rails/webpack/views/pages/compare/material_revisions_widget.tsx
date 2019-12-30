@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {timeFormatter} from "helpers/time_formatter";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {MaterialRevisions} from "models/compare/compare";
 import {Table} from "views/components/table";
+import {PipelineInstanceWidget} from "./pipeline_instance_widget";
 
 interface MaterialRevisionsAttrs {
   result: MaterialRevisions;
@@ -30,7 +30,7 @@ export class MaterialRevisionsWidget extends MithrilViewComponent<MaterialRevisi
       return [
         <div>{materialRev.revisionSha}</div>
         , <div>{materialRev.modifiedBy}</div>
-        , <div>{timeFormatter.format(materialRev.modifiedAt)}</div>
+        , <div>{PipelineInstanceWidget.getTimeToDisplay(materialRev.modifiedAt)}</div>
         , <div>{materialRev.commitMessage}</div>];
     });
     return <div data-test-id="material-revisions-widget">

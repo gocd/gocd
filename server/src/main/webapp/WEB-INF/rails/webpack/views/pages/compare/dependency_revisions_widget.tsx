@@ -15,12 +15,12 @@
  */
 
 import {SparkRoutes} from "helpers/spark_routes";
-import {timeFormatter} from "helpers/time_formatter";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {DependencyRevisions} from "models/compare/compare";
 import {Link} from "views/components/link";
 import {Table} from "views/components/table";
+import {PipelineInstanceWidget} from "./pipeline_instance_widget";
 
 interface DependencyRevisionsAttrs {
   pipelineName: string | undefined;
@@ -35,7 +35,7 @@ export class DependencyRevisionsWidget extends MithrilViewComponent<DependencyRe
       return [
         <Link target="_blank" href={stageDetailsLink}>{rev.revision}</Link>
         , <Link target="_blank" href={vsmLink}>{rev.pipelineCounter}</Link>
-        , <div>{timeFormatter.format(rev.completedAt)}</div>
+        , <div>{PipelineInstanceWidget.getTimeToDisplay(rev.completedAt)}</div>
       ];
     });
 

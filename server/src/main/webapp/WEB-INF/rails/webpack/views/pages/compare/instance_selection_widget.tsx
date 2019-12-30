@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 import {ErrorResponse} from "helpers/api_request_builder";
+import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {PipelineInstance, PipelineInstances} from "models/compare/pipeline_instance";
+import {PipelineInstance, PipelineInstances, Stage} from "models/compare/pipeline_instance";
 import {PipelineInstanceCRUD} from "models/compare/pipeline_instance_crud";
 import s from "underscore.string";
 import {Warning} from "views/components/icons";
@@ -54,11 +55,16 @@ export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs>
         be used to perform a comparison because it was triggered with a non-sequential material revision.</div>;
     }
     return <div>
-      <StagesWidget stages={vnode.attrs.instance.stages()}/>
+      <StagesWidget stages={vnode.attrs.instance.stages()} onClick={this.onStageClick.bind(this, vnode)}/>
       <span data-test-id="triggered-by" className={styles.label}>
         Triggered by {vnode.attrs.instance.buildCause().getApprover()} on {PipelineInstanceWidget.getTimeToDisplay(vnode.attrs.instance.scheduledDate())}
       </span>
     </div>;
+  }
+
+  private onStageClick(vnode: m.Vnode<InstanceAttrs, this>, stage: Stage) {
+    const url = SparkRoutes.getStageDetailsPageUrl(vnode.attrs.instance.name(), vnode.attrs.instance.counter(), stage.name(), stage.counter());
+    window.open(url, "_blank");
   }
 }
 

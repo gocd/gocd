@@ -512,4 +512,8 @@ export class SparkRoutes {
   static getMatchingPipelineInstances(pipelineName: string, pattern: string) {
     return `/go/api/internal/compare/${pipelineName}/list?pattern=${pattern}`;
   }
+
+  static getStageDetailsPageUrl(pipelineName: string, pipelineCounter: number, stageName: string, stageCounter: string) {
+    return `/go/pipelines/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}`;
+  }
 }

@@ -25,8 +25,8 @@ describe('StagesWidgetSpec', () => {
 
   afterEach((done) => helper.unmount(done));
 
-  function mount(stages: Stages) {
-    helper.mount(() => <StagesWidget stages={stages}/>);
+  function mount(stages: Stages, onClick?: (stage: Stage) => void) {
+    helper.mount(() => <StagesWidget stages={stages} onClick={onClick}/>);
   }
 
   const parameters = [
@@ -51,6 +51,40 @@ describe('StagesWidgetSpec', () => {
       const stageCols    = helper.q("td", stageElement);
 
       expect(stageCols).toHaveClass(parameter.output);
+      expect(stageCols).toHaveAttr("title", `stage (${parameter.input})`);
     });
+  });
+
+  it('should have class clickable if onclick method is provided', () => {
+    const stages = new Stages();
+    const jobs   = new Jobs();
+
+    stages.push(new Stage(1, "stage", "1", false, "Passed", "passed", "", "", false, false, jobs));
+    const spy = jasmine.createSpy("onClick");
+
+    mount(stages, spy);
+
+    const stageElement = helper.byTestId("stages");
+    const stageCols    = helper.q("td", stageElement);
+
+    expect(stageCols).toHaveClass(styles.clickable);
+  });
+
+  it('should call the spy on click', () => {
+    const stages = new Stages();
+    const jobs   = new Jobs();
+
+    const stage = new Stage(1, "stage", "1", false, "Passed", "passed", "", "", false, false, jobs);
+    stages.push(stage);
+    const spy = jasmine.createSpy("onClick");
+
+    mount(stages, spy);
+
+    const stageElement = helper.byTestId("stages");
+    const stageCols    = helper.q("td", stageElement);
+
+    helper.click(stageCols);
+
+    expect(spy).toHaveBeenCalledWith(stage);
   });
 });

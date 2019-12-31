@@ -759,6 +759,12 @@
   </rule>
 
   <rule>
+    <name>Spark Config Repos Operations API</name>
+    <from>^/api/admin/config_repos/([^/]+)/(trigger_update|status|definitions)(/?)</from>
+    <to last="true">/spark/api/admin/config_repos/${escape:$1}/${escape:$2}</to>
+  </rule>
+
+  <rule>
     <name>Spark Config Repos API</name>
     <from>^/api/admin/config_repos(?:(/)([^/]+))?(?:/?)</from>
     <to last="true">/spark/api/admin/config_repos$1${escape:$2}</to>

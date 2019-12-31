@@ -186,7 +186,7 @@ export class SparkRoutes {
   }
 
   static configRepoTriggerUpdatePath(id: string): string {
-    return `/go/api/internal/config_repos/${id}/trigger_update`;
+    return `/go/api/admin/config_repos/${id}/trigger_update`;
   }
 
   static pacListConfigFiles(pluginId: string) {
@@ -211,11 +211,11 @@ export class SparkRoutes {
   }
 
   static configRepoRevisionStatusPath(id: string): string {
-    return `/go/api/internal/config_repos/${id}/status`;
+    return `/go/api/admin/config_repos/${id}/status`;
   }
 
   static configRepoDefinedConfigsPath(id: string): string {
-    return `/go/api/internal/config_repos/${id}/definitions`;
+    return `/go/api/admin/config_repos/${id}/definitions`;
   }
 
   static elasticProfilePath(profileId: string): string {

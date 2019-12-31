@@ -493,3 +493,7 @@ api/api-notification-filter-v2/out/
 api/api-notification-filter-v2/target/
 api/api-notification-filter-v2/logs/
 api/api-notification-filter-v2/config/
+api/api-config-repos-v3/out/
+api/api-config-repos-v3/target/
+api/api-config-repos-v3/logs/
+api/api-config-repos-v3/config/

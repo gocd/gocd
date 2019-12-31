@@ -97,9 +97,6 @@ public class Routes {
 
         public static final String PREFLIGHT_PATH = "/preflight";
 
-        public static final String STATUS_PATH = "/:id/status";
-        public static final String TRIGGER_UPDATE_PATH = "/:id/trigger_update";
-
         public static final String BASE = "/api/admin/config_repos";
         public static final String DOC = apiDocsUrl("#config-repos");
 
@@ -109,6 +106,8 @@ public class Routes {
         public static final String UPDATE_PATH = REPO_PATH;
         public static final String DELETE_PATH = REPO_PATH;
         public static final String DEFINITIONS_PATH = REPO_PATH + "/definitions";
+        public static final String STATUS_PATH = REPO_PATH + "/status";
+        public static final String TRIGGER_UPDATE_PATH = REPO_PATH + "/trigger_update";
 
         // For building _links entry in API response
         public static String find() {

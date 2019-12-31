@@ -27,39 +27,39 @@ export function configRepoToSnakeCaseJSON(o: ConfigRepo) {
 }
 
 export class ConfigReposCRUD {
-  private static API_VERSION_HEADER = ApiVersion.v2;
+  private static API_VERSION_HEADER = ApiVersion.v3;
 
   static all(etag?: string) {
-    return ApiRequestBuilder.GET(SparkRoutes.apiConfigReposInternalPath(), this.API_VERSION_HEADER, { etag })
-                            .then((result: ApiResult<string>) => {
-                              return result.map((body) => {
-                                return ConfigRepos.fromJSON(JSON.parse(body) as ConfigReposJSON);
-                              });
-                            });
+    return ApiRequestBuilder.GET(SparkRoutes.apiConfigReposInternalPath(), this.API_VERSION_HEADER, {etag})
+    .then((result: ApiResult<string>) => {
+      return result.map((body) => {
+        return ConfigRepos.fromJSON(JSON.parse(body) as ConfigReposJSON);
+      });
+    });
   }
 
   static get(id: string) {
     return ApiRequestBuilder.GET(SparkRoutes.ApiConfigRepoPath(id), this.API_VERSION_HEADER)
-                            .then(this.extractObjectWithEtag());
+    .then(this.extractObjectWithEtag());
   }
 
   static update(response: ObjectWithEtag<ConfigRepo>) {
     return ApiRequestBuilder.PUT(SparkRoutes.ApiConfigRepoPath(response.object.id()!), this.API_VERSION_HEADER,
                                  {payload: configRepoToSnakeCaseJSON(response.object), etag: response.etag})
-                            .then(this.extractObjectWithEtag());
+    .then(this.extractObjectWithEtag());
 
   }
 
   static delete(repo: ConfigRepo) {
     return ApiRequestBuilder.DELETE(SparkRoutes.ApiConfigRepoPath(repo.id()!), this.API_VERSION_HEADER)
-                            .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
+    .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
   }
 
   static create(repo: ConfigRepo) {
     return ApiRequestBuilder.POST(SparkRoutes.ApiConfigReposListPath(),
                                   this.API_VERSION_HEADER,
                                   {payload: configRepoToSnakeCaseJSON(repo)})
-                            .then(this.extractObjectWithEtag());
+    .then(this.extractObjectWithEtag());
   }
 
   static triggerUpdate(id: string) {

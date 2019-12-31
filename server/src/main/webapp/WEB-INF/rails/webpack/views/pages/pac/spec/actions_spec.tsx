@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {ApiResult} from "helpers/api_request_builder";
+import {ApiResult, ObjectWithEtag} from "helpers/api_request_builder";
 import {asSelector} from "helpers/css_proxies";
 import {LocationHandler} from "helpers/location_handler";
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import stream from "mithril/stream";
-import {ConfigReposCRUD, configRepoToSnakeCaseJSON} from "models/config_repos/config_repos_crud";
+import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {ConfigRepo} from "models/config_repos/types";
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -43,9 +43,9 @@ class TestLocationHandler implements LocationHandler {
   }
 }
 
-const sel = asSelector<typeof css>(css);
+const sel    = asSelector<typeof css>(css);
 const helper = new TestHelper();
-const loc = new TestLocationHandler();
+const loc    = new TestLocationHandler();
 
 describe("AddPaC: Actions Section", () => {
   let configRepo: ConfigRepo;
@@ -78,7 +78,7 @@ describe("AddPaC: Actions Section", () => {
   });
 
   it("Does not create a config repo unless the model validates", () => {
-    ConfigReposCRUD.create = jasmine.createSpy();
+    spyOn(ConfigReposCRUD, "create").and.returnValue(new Promise((resolve) => resolve()));
     configRepo.isValid = jasmine.createSpy("isValid").and.returnValue(false);
     helper.click(sel.btnPrimary);
 
@@ -88,19 +88,25 @@ describe("AddPaC: Actions Section", () => {
   });
 
   it("Cancel goes to the dashboard but does not create", () => {
-    ConfigReposCRUD.create = jasmine.createSpy("create");
+    spyOn(ConfigReposCRUD, "create").and.returnValue(new Promise((resolve) => resolve()));
     helper.click(sel.btnCancel);
     expect(ConfigReposCRUD.create).not.toHaveBeenCalled();
     expect(loc.last()).toBe(`/go/pipelines`);
   });
 
   it("Finish creates a config repo and goes to the pac page with focus on that config repo when successful", (done) => {
-    configRepo.isValid = jasmine.createSpy("isValid").and.returnValue(true);
-    const createPromise = createSuccessResp(configRepo);
-    ConfigReposCRUD.create = jasmine.createSpy("create").and.
-      returnValue(createPromise.catch(done.fail));
+    configRepo.isValid  = jasmine.createSpy("isValid").and.returnValue(true);
+    const promise       = new Promise<ApiResult<ObjectWithEtag<ConfigRepo>>>((resolve) => {
+      resolve(ApiResult.success("", 200, new Map()).map(() => {
+        return {object: configRepo, etag: "some-value"};
+      }));
+    });
 
-    createPromise.finally(() => {
+    promise.catch(done.fail);
+
+    spyOn(ConfigReposCRUD, "create").and.returnValue(promise);
+
+    promise.finally(() => {
       expect(configRepo.isValid).toHaveBeenCalled();
       expect(ConfigReposCRUD.create).toHaveBeenCalled();
 
@@ -114,9 +120,3 @@ describe("AddPaC: Actions Section", () => {
     helper.click(sel.btnPrimary);
   });
 });
-
-function createSuccessResp(config: ConfigRepo): Promise<ApiResult<string>> {
-  return new Promise<ApiResult<string>>((resolve) => {
-    resolve(ApiResult.success(JSON.stringify(configRepoToSnakeCaseJSON(config)), 200, new Map()));
-  });
-}

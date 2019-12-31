@@ -43,13 +43,18 @@ interface Operations extends SaveOperation {
 
 interface PipelineGroupAttrs extends Operations {
   group: PipelineGroup;
+  scrollOptions: PipelinesScrollOptions;
+}
+
+export interface PipelinesScrollOptions {
   sm: ScrollManager;
+  shouldOpenEditView: boolean;
 }
 
 export interface Attrs extends Operations {
   pipelineGroups: Stream<PipelineGroups>;
   createPipelineGroup: () => void;
-  sm: ScrollManager;
+  scrollOptions: PipelinesScrollOptions;
 }
 
 type PipelineWidgetAttrs = PipelineGroupAttrs & { pipeline: PipelineWithOrigin };
@@ -112,8 +117,13 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
 
 class PipelineGroupWidget extends MithrilViewComponent<PipelineGroupAttrs> {
   view(vnode: m.Vnode<PipelineGroupAttrs, this>) {
-    const grpName = vnode.attrs.group.name();
-    return (<Anchor id={grpName} sm={vnode.attrs.sm}>
+    const grpName    = vnode.attrs.group.name();
+    const onNavigate = () => {
+      if (vnode.attrs.scrollOptions.sm.getTarget() === grpName && vnode.attrs.scrollOptions.shouldOpenEditView) {
+        vnode.attrs.doEditPipelineGroup(grpName);
+      }
+    };
+    return (<Anchor id={grpName} sm={vnode.attrs.scrollOptions.sm} onnavigate={onNavigate}>
         <div data-test-id={`pipeline-group-${s.slugify(grpName)}`}
              class={styles.pipelineGroupRow}>
           <div data-test-id={`pipeline-group-name-${s.slugify(grpName)}`}
@@ -168,8 +178,8 @@ class PipelineGroupWidget extends MithrilViewComponent<PipelineGroupAttrs> {
 
 export class PipelineGroupsWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    if (vnode.attrs.sm.hasTarget()) {
-      const target    = vnode.attrs.sm.getTarget();
+    if (vnode.attrs.scrollOptions.sm.hasTarget()) {
+      const target    = vnode.attrs.scrollOptions.sm.getTarget();
       const hasTarget = vnode.attrs.pipelineGroups().some((grp) => grp.name() === target);
       if (!hasTarget) {
         const pipelineUrl = "configuration/pipeline_group_admin_config.html";

@@ -21,7 +21,8 @@ export class AdminPipelinesSPA extends RoutedSinglePageApp {
   constructor() {
     super({
             "/": AdminPipelinesPage,
-            "/:id": AdminPipelinesPage
+            "/:id": AdminPipelinesPage,
+            "/:id/:operation": AdminPipelinesPage
           });
   }
 }

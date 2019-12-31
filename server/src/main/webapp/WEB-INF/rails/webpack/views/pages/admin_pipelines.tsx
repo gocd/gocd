@@ -34,8 +34,14 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {Modal, ModalState} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
-import {Attrs, PipelineGroupsWidget} from "views/pages/admin_pipelines/admin_pipelines_widget";
-import {ClonePipelineConfigModal, CreatePipelineGroupModal, DownloadPipelineModal, ExtractTemplateModal, MoveConfirmModal} from "views/pages/admin_pipelines/modals";
+import {Attrs, PipelineGroupsWidget, PipelinesScrollOptions} from "views/pages/admin_pipelines/admin_pipelines_widget";
+import {
+  ClonePipelineConfigModal,
+  CreatePipelineGroupModal,
+  DownloadPipelineModal,
+  ExtractTemplateModal,
+  MoveConfirmModal
+} from "views/pages/admin_pipelines/modals";
 import {Page, PageState} from "views/pages/page";
 import buttonStyle from "views/pages/pipelines/actions.scss";
 import {PipelineGroupCRUD} from "../../models/admin_pipelines/pipeline_groups_crud";
@@ -54,12 +60,18 @@ interface State extends Attrs {
 const sm: ScrollManager = new AnchorVM();
 
 export class AdminPipelinesPage extends Page<null, State> {
+  private operation: string = "";
+
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     this.parseRepoLink(sm);
+    const scrollOptions: PipelinesScrollOptions = {
+      sm,
+      shouldOpenEditView: this.operation === "edit"
+    };
     return (
       <div>
         <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-        <PipelineGroupsWidget {...vnode.state} sm={sm}/>
+        <PipelineGroupsWidget {...vnode.state} scrollOptions={scrollOptions}/>
       </div>
     );
   }
@@ -81,7 +93,7 @@ export class AdminPipelinesPage extends Page<null, State> {
     };
 
     vnode.state.doEditPipelineGroup = (groupName: string) => {
-      const pipelineGroup            = vnode.state.pipelineGroups().find((pipelineGroup) => pipelineGroup.name() === groupName);
+      const pipelineGroup             = vnode.state.pipelineGroups().find((pipelineGroup) => pipelineGroup.name() === groupName);
       const containsPipelinesRemotely = pipelineGroup ? pipelineGroup.containsRemotelyDefinedPipelines() : false;
 
       this.pageState = PageState.LOADING;
@@ -386,6 +398,7 @@ export class AdminPipelinesPage extends Page<null, State> {
 
   parseRepoLink(sm: ScrollManager) {
     sm.setTarget(m.route.param().id || "");
+    this.operation = (m.route.param().operation || "").toLowerCase();
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {

@@ -21,8 +21,8 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.git.GitMaterial
 import com.thoughtworks.go.domain.materials.MaterialConfig
+import com.thoughtworks.go.domain.materials.ValidationBean
 import com.thoughtworks.go.domain.materials.git.GitCommand
-import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.MaterialConfigConverter
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
@@ -34,12 +34,11 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
 import static org.mockito.ArgumentMatchers.any
+import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
 class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, ControllerTrait<InternalMaterialTestControllerV1> {
-  @Mock
-  EntityHashingService entityHashingService
 
   @Mock
   PasswordDeserializer passwordDeserializer
@@ -60,7 +59,7 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
 
   @Override
   InternalMaterialTestControllerV1 createControllerInstance() {
-    new InternalMaterialTestControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment)
+    new InternalMaterialTestControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment)
   }
 
   @Nested
@@ -143,7 +142,9 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
 
       @Test
       void 'should render error if cannot connect to material'() {
-        def material = new GitMaterial("some-url")
+        def material = mock(GitMaterial.class)
+        def validationBean = ValidationBean.notValid("some-error")
+        when(material.checkConnection(any())).thenReturn(validationBean)
         when(materialConfigConverter.toMaterial(any(MaterialConfig.class))).thenReturn(material)
 
         postWithApiHeader(controller.controllerBasePath(), [
@@ -155,12 +156,14 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
 
         assertThatResponse()
             .isUnprocessableEntity()
-            .hasJsonMessage("Error performing command: --- Command ---\\ngit ls-remote some-url refs/heads/master\\n--- Environment ---\\n{}\\n--- INPUT ----\\n\\n\\n--- EXIT CODE (128) ---\\n--- STANDARD OUT ---\\n\\n--- STANDARD ERR ---\\nSTDERR: fatal: 'some-url' does not appear to be a git repository\\nSTDERR: fatal: Could not read from remote repository.\\nSTDERR: \\nSTDERR: Please make sure you have the correct access rights\\nSTDERR: and the repository exists.\\n---\\n")
+            .hasJsonMessage("some-error")
       }
 
       @Test
       void 'should render success response if can connect to material'() {
-        def material = new GitMaterial("https://github.com/gocd/gocd.git")
+        def material = mock(GitMaterial.class)
+        def validationBean = ValidationBean.valid()
+        when(material.checkConnection(any())).thenReturn(validationBean)
         when(materialConfigConverter.toMaterial(any(MaterialConfig.class))).thenReturn(material)
 
         postWithApiHeader(controller.controllerBasePath(), [

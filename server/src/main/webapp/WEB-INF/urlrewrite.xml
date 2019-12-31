@@ -46,8 +46,8 @@
 
   <rule>
     <name>Material Test API</name>
-    <from>^/api/admin/internal/material_test(/?)$</from>
-    <to last="true">/spark/api/admin/internal/material_test</to>
+    <from>^/api/internal/material_test(/?)$</from>
+    <to last="true">/spark/api/internal/material_test</to>
   </rule>
 
   <rule>

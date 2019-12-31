@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv1.internalmaterialtest;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
@@ -30,8 +29,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigCloner;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
-import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
@@ -40,7 +37,6 @@ import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.service.CheckConnectionSubprocessExecutionContext;
-import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.spark.Routes;
@@ -57,23 +53,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static spark.Spark.*;
 
 @Component
-public class InternalMaterialTestControllerV1 extends ApiController implements SparkSpringController, CrudController<ScmMaterialConfig> {
+public class InternalMaterialTestControllerV1 extends ApiController implements SparkSpringController {
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private final EntityHashingService entityHashingService;
     private final GoConfigService goConfigService;
     private final PasswordDeserializer passwordDeserializer;
     private final MaterialConfigConverter materialConfigConverter;
     private final SystemEnvironment systemEnvironment;
 
     @Autowired
-    public InternalMaterialTestControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, GoConfigService goConfigService, PasswordDeserializer passwordDeserializer, MaterialConfigConverter materialConfigConverter, SystemEnvironment systemEnvironment) {
+    public InternalMaterialTestControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, GoConfigService goConfigService, PasswordDeserializer passwordDeserializer, MaterialConfigConverter materialConfigConverter, SystemEnvironment systemEnvironment) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.entityHashingService = entityHashingService;
         this.goConfigService = goConfigService;
         this.passwordDeserializer = passwordDeserializer;
         this.materialConfigConverter = materialConfigConverter;
@@ -99,14 +95,15 @@ public class InternalMaterialTestControllerV1 extends ApiController implements S
     public String testConnection(Request request, Response response) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
         String type = jsonReader.getString("type");
+        String pipelineName = jsonReader.getStringOrDefault("pipeline_name", "");
+        String pipelineGroupName = jsonReader.getStringOrDefault("pipeline_group", "");
 
         haltIfMaterialTypeIsInvalid(type);
-
         haltIfMaterialTypeDoesNotSupportsCheckConnection(type);
 
         ScmMaterialConfig scmMaterialConfig = buildEntityFromRequestBody(request);
 
-        validateMaterialConfig(scmMaterialConfig, jsonReader);
+        validateMaterialConfig(scmMaterialConfig, pipelineName, pipelineGroupName);
 
         if (!scmMaterialConfig.errors().isEmpty()) {
             List<String> errorsList = new ArrayList<>();
@@ -115,41 +112,20 @@ public class InternalMaterialTestControllerV1 extends ApiController implements S
             return MessageJson.create(String.format("There was an error with the material configuration.\n%s", StringUtils.join(errorsList, "\n")), jsonWriter(scmMaterialConfig));
         }
 
-        performParamExpansion(scmMaterialConfig, jsonReader);
-
-        Material material = materialConfigConverter.toMaterial(scmMaterialConfig);
-        try {
-            ValidationBean validationBean = material.checkConnection(new CheckConnectionSubprocessExecutionContext(systemEnvironment));
-            return handleValidationBeanResponse(validationBean, response);
-        } catch (UnsupportedOperationException e) {
-            response.status(422);
-            return MessageJson.create(String.format("The material of type '%s' does not support connection testing.", type));
+        if (isNotBlank(pipelineName)) {
+            performParamExpansion(scmMaterialConfig, pipelineName);
         }
+        Material material = materialConfigConverter.toMaterial(scmMaterialConfig);
+        ValidationBean validationBean = material.checkConnection(new CheckConnectionSubprocessExecutionContext(systemEnvironment));
+        return handleValidationBeanResponse(validationBean, response);
     }
 
-    @Override
-    public String etagFor(ScmMaterialConfig entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
-    }
-
-    @Override
-    public EntityType getEntityType() {
-        return EntityType.MaterialConfig;
-    }
-
-    @Override
-    public ScmMaterialConfig doFetchEntityFromConfig(String name) {
-        return null;
-    }
-
-    @Override
     public ScmMaterialConfig buildEntityFromRequestBody(Request req) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         ConfigHelperOptions options = new ConfigHelperOptions(goConfigService.getCurrentConfig(), passwordDeserializer);
         return (ScmMaterialConfig) MaterialsRepresenter.fromJSON(jsonReader, options);
     }
 
-    @Override
     public Consumer<OutputWriter> jsonWriter(ScmMaterialConfig materialConfig) {
         return outputWriter -> MaterialsRepresenter.toJSON(outputWriter, materialConfig);
     }
@@ -164,26 +140,17 @@ public class InternalMaterialTestControllerV1 extends ApiController implements S
         }
     }
 
-    private void performParamExpansion(ScmMaterialConfig scmMaterialConfig, JsonReader jsonReader) {
-        String pipelineName = jsonReader.getStringOrDefault("pipeline_name", "");
-        if (StringUtils.isNotBlank(pipelineName)) {
-            PipelineConfig existingPipeline;
-            try {
-                existingPipeline = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-            } catch (RecordNotFoundException e) {
-                throw new UnprocessableEntityException(String.format("The specified pipeline %s was not found!", pipelineName));
-            }
+    private void performParamExpansion(ScmMaterialConfig scmMaterialConfig, String pipelineName) {
+        PipelineConfig existingPipeline = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+        PipelineConfig pipelineConfig = new PipelineConfig(existingPipeline.name(), new MaterialConfigs());
 
-            PipelineConfig pipelineConfig = new PipelineConfig(existingPipeline.name(), new MaterialConfigs());
+        GoConfigCloner goConfigCloner = new GoConfigCloner();
+        pipelineConfig.setParams(goConfigCloner.deepClone(existingPipeline.getParams()));
 
-            GoConfigCloner goConfigCloner = new GoConfigCloner();
-            pipelineConfig.setParams(goConfigCloner.deepClone(existingPipeline.getParams()));
+        pipelineConfig.addMaterialConfig(scmMaterialConfig);
 
-            pipelineConfig.addMaterialConfig(scmMaterialConfig);
-
-            ConfigParamPreprocessor configParamPreprocessor = new ConfigParamPreprocessor();
-            configParamPreprocessor.process(pipelineConfig);
-        }
+        ConfigParamPreprocessor configParamPreprocessor = new ConfigParamPreprocessor();
+        configParamPreprocessor.process(pipelineConfig);
     }
 
     private void haltIfMaterialTypeIsInvalid(String type) {
@@ -200,13 +167,11 @@ public class InternalMaterialTestControllerV1 extends ApiController implements S
         }
     }
 
-    private void validateMaterialConfig(ScmMaterialConfig scmMaterialConfig, JsonReader jsonReader) {
-        String pipelineGroupName = jsonReader.getStringOrDefault("pipeline_group", "");
-        String pipelineName = jsonReader.getStringOrDefault("pipeline_name", "");
-        if (StringUtils.isBlank(pipelineGroupName)) {
-            pipelineGroupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
+    private void validateMaterialConfig(ScmMaterialConfig scmMaterialConfig, String pipelineName, String pipelineGrpName) {
+        if (isBlank(pipelineGrpName)) {
+            pipelineGrpName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
         }
-        scmMaterialConfig.validateConcreteScmMaterial(PipelineConfigSaveValidationContext.forChain(false, pipelineGroupName, goConfigService.getCurrentConfig(), scmMaterialConfig));
+        scmMaterialConfig.validateConcreteScmMaterial(PipelineConfigSaveValidationContext.forChain(false, pipelineGrpName, goConfigService.getCurrentConfig(), scmMaterialConfig));
     }
 
 }

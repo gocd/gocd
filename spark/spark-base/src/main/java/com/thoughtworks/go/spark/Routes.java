@@ -821,6 +821,6 @@ public class Routes {
     }
 
     public class InternalMaterialTest {
-        public static final String BASE = "/api/admin/internal/material_test";
+        public static final String BASE = "/api/internal/material_test";
     }
 }

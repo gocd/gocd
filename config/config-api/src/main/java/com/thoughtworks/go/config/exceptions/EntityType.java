@@ -47,8 +47,7 @@ public enum EntityType {
     BackupConfig("backup config", none),
     SMTP("SMTP config", none),
     ArtifactConfig("artifact config", none),
-    NotificationFilter("notification filter", id),
-    MaterialConfig("material config", none);
+    NotificationFilter("notification filter", id);
 
     private final String entityType;
     private final NameOrId nameOrId;

@@ -30,4 +30,8 @@ public class SparkOrRailsToggle {
             request.setAttribute("sparkOrRails", "spark");
         }
     }
+
+    public void testConnectionAPI(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.USE_RAILS_BASED_MATERIAL_TEST_CONNECTION_API, request);
+    }
 }

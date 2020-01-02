@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.Mockito.mock;
 
 public class AbstractMaterialTest {
 
@@ -66,10 +68,6 @@ public class AbstractMaterialTest {
 
         @Override
         public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
-            throw new UnsupportedOperationException();
-        }
-
-        public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
             throw new UnsupportedOperationException();
         }
 
@@ -199,5 +197,14 @@ public class AbstractMaterialTest {
     public void shouldNotIgnoreForSchedulingByDefault_sinceItOnlyAppliesToDependencyMaterial() {
         AbstractMaterial material = new TestMaterial("salty_sumatran_rhinoceros");
         assertThat(material.ignoreForScheduling()).isFalse();
+    }
+
+    @Test
+    public void shouldThrowExceptionOnCheckConnection() {
+        TestMaterial material = new TestMaterial("name");
+        SubprocessExecutionContext executionContext = mock(SubprocessExecutionContext.class);
+        assertThatCode(() -> material.checkConnection(executionContext))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessage("'checkConnection' cannot be performed on material of type name");
     }
 }

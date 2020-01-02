@@ -497,3 +497,7 @@ api/api-config-repos-v3/out/
 api/api-config-repos-v3/target/
 api/api-config-repos-v3/logs/
 api/api-config-repos-v3/config/
+api/api-internal-material-test-v1/out/
+api/api-internal-material-test-v1/target/
+api/api-internal-material-test-v1/logs/
+api/api-internal-material-test-v1/config/

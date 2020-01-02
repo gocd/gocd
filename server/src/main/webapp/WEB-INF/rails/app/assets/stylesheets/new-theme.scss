@@ -1642,12 +1642,27 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   }
 
   &.Cancelled {
-    color: $icon-txt;
+    background-image: none;
+    background-color: $building;
+    position:         relative;
+
+    &:after {
+      content:          "";
+      background-image: image_url("building.png");
+      position:         absolute;
+      top:              0;
+      left:             0;
+      bottom:           0;
+      background-size:  40px 16px;
+      right:            0;
+    }
+
+    color:            $icon-txt;
     @include icon-after($cancelled-icon, $margin: 0, $line-height: 1.2em);
   }
 }
 
-.Cancelled, .cancelled-stage {
+li.Cancelled, .cancelled-stage {
   background-image: none;
   background-color: $building;
   position:         relative;

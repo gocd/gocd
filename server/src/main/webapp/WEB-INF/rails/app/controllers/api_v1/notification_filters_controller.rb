@@ -16,9 +16,6 @@
 
 module ApiV1
   class NotificationFiltersController < ApiV1::BaseController
-
-    include ApiV1::UsersHelper
-
     before_action :check_user_and_404
     before_action :load_current_user
     before_action :check_filter_params, only: :create
@@ -63,6 +60,10 @@ module ApiV1
         StageEvent.valueOf(params["event"]),
         !!params["match_commits"]
       )
+    end
+
+    def load_current_user
+      @user_to_operate = user_service.findUserByName(current_user.username.to_s)
     end
 
   end

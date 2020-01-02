@@ -16,8 +16,6 @@
 package com.thoughtworks.go.server.domain.user;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.domain.PersistentObject;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -30,17 +28,7 @@ import java.util.Date;
 public class PipelineSelections extends PersistentObject implements Serializable {
     public static final int CURRENT_SCHEMA_VERSION = 2;
 
-    public static final PipelineSelections ALL = new PipelineSelections(Filters.defaults(), null, null) {
-        @Override
-        public boolean includesGroup(PipelineConfigs group) {
-            return true;
-        }
-
-        @Override
-        public boolean includesPipeline(CaseInsensitiveString pipelineName) {
-            return true;
-        }
-    };
+    public static final PipelineSelections ALL = new PipelineSelections(Filters.defaults(), null, null);
 
     private static final String HASH_ALGORITHM = "SHA-256";
 
@@ -93,31 +81,6 @@ public class PipelineSelections extends PersistentObject implements Serializable
 
     public String etag() {
         return etag;
-    }
-
-    @Deprecated // TODO: remove when removing old dashboard
-    public boolean includesGroup(PipelineConfigs group) {
-        for (PipelineConfig pipelineConfig : group) {
-            if (!includesPipeline(pipelineConfig.name())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Deprecated // TODO: remove when removing old dashboard
-    public boolean includesPipeline(CaseInsensitiveString pipelineName) {
-        return defaultFilter().isPipelineVisible(pipelineName);
-    }
-
-    @Deprecated // TODO: remove when removing old dashboard
-    public boolean isBlacklist() {
-        return defaultFilter() instanceof BlacklistFilter;
-    }
-
-    @Deprecated // TODO: remove when removing old dashboard
-    public DashboardFilter defaultFilter() {
-        return viewFilters.filters().get(0);
     }
 
     public DashboardFilter namedFilter(String name) {

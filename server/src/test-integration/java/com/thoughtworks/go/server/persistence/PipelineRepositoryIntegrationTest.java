@@ -327,19 +327,6 @@ public class PipelineRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldSaveSelectedPipelinesWithoutUserId() {
-        List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
-
-        long id = pipelineRepository.saveSelectedPipelines(blacklist(unSelected, null));
-        PipelineSelections found = pipelineRepository.findPipelineSelectionsById(id);
-
-        final DashboardFilter filter = found.defaultFilter();
-        assertAllowsPipelines(filter, "pipeline3", "pipeline4");
-        assertDeniesPipelines(filter, "pipeline1", "pipeline2");
-        assertNull(found.userId());
-    }
-
-    @Test
     public void shouldSaveSelectedPipelinesWithUserId() {
         User user = createUser();
 

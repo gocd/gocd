@@ -30,6 +30,11 @@
       "key": "fast_pipeline_save",
       "description": "Use the pipeline config service to speed up save, instead of doing a full config save",
       "value": true
+    },
+    {
+      "key": "use_rails_based_material_test_connection_api",
+      "description": "Use the rails based material test connection API. Default: false",
+      "value": false
     }
   ]
 }

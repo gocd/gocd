@@ -373,14 +373,6 @@ public class PipelineHistoryService {
         }
     }
 
-    public List<PipelineGroupModel> allActivePipelineInstances(Username username, PipelineSelections pipelineSelections) {
-        PipelineGroupModels groupModels = allPipelineInstances(username);
-        filterSelections(groupModels, pipelineSelections.defaultFilter());
-        removeEmptyGroups(groupModels);
-        updateGroupAdministrability(username, groupModels);
-        return groupModels.asList();
-    }
-
     public List<PipelineGroupModel> getActivePipelineInstance(Username username, String pipeline) {
         PipelineGroupModels models = allPipelineInstances(username);
         filterSelections(models, singlePipelineFilter(pipeline));

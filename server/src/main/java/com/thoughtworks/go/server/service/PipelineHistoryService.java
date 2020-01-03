@@ -19,7 +19,10 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.exceptions.*;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
+import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -90,6 +93,20 @@ public class PipelineHistoryService {
 
     public int totalCount(String pipelineName) {
         return pipelineDao.count(pipelineName);
+    }
+
+    public PipelineInstanceModel load(long id, Username username) {
+        PipelineInstanceModel pipeline = pipelineDao.loadHistory(id);
+        if (pipeline == null) {
+            throw new RecordNotFoundException(EntityType.PipelineInstance, id);
+        }
+
+        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipeline.getName()));
+        if (!securityService.hasViewPermissionForPipeline(username, pipeline.getName())) {
+            throw new NotAuthorizedException(NOT_AUTHORIZED_TO_VIEW_PIPELINE);
+        }
+        populatePipelineInstanceModel(username, false, pipelineConfig, pipeline);
+        return pipeline;
     }
 
     public PipelineInstanceModel load(long id, Username username, OperationResult result) {

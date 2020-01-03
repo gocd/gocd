@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.domain.feed;
 
+import com.thoughtworks.go.domain.BaseCollection;
+
 import java.util.Date;
 import java.util.List;
-
-import com.thoughtworks.go.domain.BaseCollection;
 
 /**
  * @understands a collection of feeds
@@ -26,6 +26,10 @@ import com.thoughtworks.go.domain.BaseCollection;
 public class FeedEntries extends BaseCollection<FeedEntry> {
 
     public FeedEntries(List<FeedEntry> feeds) {
+        super(feeds);
+    }
+
+    public FeedEntries(FeedEntry... feeds) {
         super(feeds);
     }
 
@@ -41,6 +45,6 @@ public class FeedEntries extends BaseCollection<FeedEntry> {
     }
 
     public Date lastUpdatedDate() {
-        return isEmpty() ? new Date(): first().getUpdatedDate();
+        return isEmpty() ? new Date() : first().getUpdatedDate();
     }
 }

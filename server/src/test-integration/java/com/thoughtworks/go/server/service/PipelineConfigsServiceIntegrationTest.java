@@ -38,6 +38,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
@@ -59,6 +61,8 @@ public class PipelineConfigsServiceIntegrationTest {
     private GoConfigMigration goConfigMigration;
     @Autowired
     private GoConfigService goConfigService;
+    @Autowired
+    private RoleConfigService roleConfigService;
     @Autowired
     private GoConfigDao goConfigDao;
     private String xml;
@@ -110,6 +114,73 @@ public class PipelineConfigsServiceIntegrationTest {
         assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getValue(), is("SECRET"));
         assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getEncryptedValue(), startsWith("AES:"));
         assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getConfigValue(), is(nullValue()));
+    }
+
+    @Test
+    public void shouldUpdatePipelineGroupAuthorization() {
+        String usernameName = "my-test-user" + UUID.randomUUID();
+        String groupName = "my-test-group" + UUID.randomUUID();
+        String roleName = "my-test-role" + UUID.randomUUID();
+
+        Username user = new Username(usernameName);
+        BasicPipelineConfigs first = new BasicPipelineConfigs(groupName, new Authorization());
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        //create a group (will use this group to perform update)
+        pipelineConfigsService.createGroup(user, first, result);
+
+        //create a valid role to assign it to pipeline group authorization
+        roleConfigService.create(user, new RoleConfig(roleName), result);
+
+        List<PipelineConfigs> groupsForUser = pipelineConfigsService.getGroupsForUser(user.getUsername().toString());
+        PipelineConfigs groupFromServer = groupsForUser.get(1);
+
+        ViewConfig viewConfig = new ViewConfig(new AdminRole(new CaseInsensitiveString(roleName)));
+        OperationConfig operationConfig = new OperationConfig(new AdminRole(new CaseInsensitiveString(roleName)));
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString(roleName)));
+        Authorization authorization = new Authorization(viewConfig, operationConfig, adminsConfig);
+        BasicPipelineConfigs toUpdate = new BasicPipelineConfigs(groupName, authorization);
+
+        PipelineConfigs updated = pipelineConfigsService.updateGroup(user, toUpdate, groupFromServer, result);
+
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(updated.getAuthorization().getViewConfig(), is(viewConfig));
+        assertThat(updated.getAuthorization().getOperationConfig(), is(operationConfig));
+        assertThat(updated.getAuthorization().getAdminsConfig(), is(adminsConfig));
+    }
+
+    @Test
+    public void shouldFailToUpdatePipelineGroupAuthorizationWhenSpecifiedRoleDoesNotExists() {
+        String usernameName = "my-test-user" + UUID.randomUUID();
+        String groupName = "my-test-group" + UUID.randomUUID();
+        String roleName = "non-existing-role";
+
+        Username user = new Username(usernameName);
+        BasicPipelineConfigs first = new BasicPipelineConfigs(groupName, new Authorization());
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        //create a group (will use this group to perform update)
+        pipelineConfigsService.createGroup(user, first, result);
+
+        List<PipelineConfigs> groupsForUser = pipelineConfigsService.getGroupsForUser(user.getUsername().toString());
+        PipelineConfigs groupFromServer = groupsForUser.get(1);
+
+        ViewConfig viewConfig = new ViewConfig(new AdminRole(new CaseInsensitiveString(roleName)));
+        OperationConfig operationConfig = new OperationConfig(new AdminRole(new CaseInsensitiveString(roleName)));
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString(roleName)));
+        Authorization authorization = new Authorization(viewConfig, operationConfig, adminsConfig);
+        BasicPipelineConfigs toUpdate = new BasicPipelineConfigs(groupName, authorization);
+
+        PipelineConfigs updated = pipelineConfigsService.updateGroup(user, toUpdate, groupFromServer, result);
+
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.message(), containsString(String.format("Validations failed for pipelines '%s'.", groupName)));
+
+        String expectedError = "Role \"non-existing-role\" does not exist.";
+
+        assertThat(updated.getAuthorization().getViewConfig().errors().getAllOn("roles").get(0), is(expectedError));
+        assertThat(updated.getAuthorization().getOperationConfig().errors().getAllOn("roles").get(0), is(expectedError));
+        assertThat(updated.getAuthorization().getAdminsConfig().errors().getAllOn("roles").get(0), is(expectedError));
     }
 
     private void setupMetadataForPlugin() {

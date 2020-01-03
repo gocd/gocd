@@ -13,19 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import "../../global/common";
 
-import {RoutedSinglePageApp} from "helpers/spa_base";
-import {AdminPipelinesPage} from "views/pages/admin_pipelines";
+.icon-delete {
+  @include icon-before($type: $fa-var-times);
+  border:  none;
+  display: inline;
+  cursor:  pointer;
+  width:   22px;
+  height:  22px;
+  padding: 0;
 
-export class AdminPipelinesSPA extends RoutedSinglePageApp {
-  constructor() {
-    super({
-            "/": AdminPipelinesPage,
-            "/:id": AdminPipelinesPage,
-            "/:id/:operation": AdminPipelinesPage
-          });
+  &:before {
+    margin: 0;
+  }
+
+  &:focus {
+    outline: none;
   }
 }
 
-//tslint:disable-next-line
-new AdminPipelinesSPA();
+.pipeline-group-name-wrapper {
+  display: flex;
+}
+
+.pipeline-group-tooltip-wrapper {
+  margin-top: 30px;
+}
+
+.permission-checkbox-wrapper {
+  display: flex;
+}
+
+.cancel-button-wrapper {
+  display:       flex;
+  margin-bottom: 10px;
+}
+
+.permission-name-wrapper {
+  margin-top: 10px;
+}

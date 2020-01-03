@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {pipelineEditPath, pipelineGroupEditPath} from "gen/ts-routes";
+import {pipelineEditPath} from "gen/ts-routes";
 import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
@@ -23,7 +23,7 @@ import Stream from "mithril/stream";
 import {headerMeta} from "models/current_user_permissions";
 import {PipelineGroups, PipelineStructure} from "models/internal_pipeline_structure/pipeline_structure";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
-import {PipelineGroupCRUD} from "models/pipeline_configs/pipeline_groups_cache";
+import {PipelineGroupCRUD as PipelineGroupCacheCRUD} from "models/pipeline_configs/pipeline_groups_cache";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
@@ -34,24 +34,44 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {Modal, ModalState} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
-import {Attrs, PipelineGroupsWidget} from "views/pages/admin_pipelines/admin_pipelines_widget";
-import {ClonePipelineConfigModal, CreatePipelineGroupModal, DownloadPipelineModal, ExtractTemplateModal, MoveConfirmModal} from "views/pages/admin_pipelines/modals";
+import {Attrs, PipelineGroupsWidget, PipelinesScrollOptions} from "views/pages/admin_pipelines/admin_pipelines_widget";
+import {
+  ClonePipelineConfigModal,
+  CreatePipelineGroupModal,
+  DownloadPipelineModal,
+  ExtractTemplateModal,
+  MoveConfirmModal
+} from "views/pages/admin_pipelines/modals";
 import {Page, PageState} from "views/pages/page";
 import buttonStyle from "views/pages/pipelines/actions.scss";
+import {PipelineGroupCRUD} from "../../models/admin_pipelines/pipeline_groups_crud";
+import {Roles} from "../../models/roles/roles";
+import {RolesCRUD} from "../../models/roles/roles_crud";
+import {Users} from "../../models/users/users";
+import {UsersCRUD} from "../../models/users/users_crud";
+import {EditPipelineGroupModal} from "./admin_pipelines/edit_pipeline_group_modal";
 
 interface State extends Attrs {
   pluginInfos: Stream<PluginInfos>;
+  usersAutoCompleteHelper: Stream<string[]>;
+  rolesAutoCompleteHelper: Stream<string[]>;
 }
 
 const sm: ScrollManager = new AnchorVM();
 
 export class AdminPipelinesPage extends Page<null, State> {
+  private operation: string = "";
+
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     this.parseRepoLink(sm);
+    const scrollOptions: PipelinesScrollOptions = {
+      sm,
+      shouldOpenEditView: this.operation === "edit"
+    };
     return (
       <div>
         <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-        <PipelineGroupsWidget {...vnode.state} sm={sm}/>
+        <PipelineGroupsWidget {...vnode.state} scrollOptions={scrollOptions}/>
       </div>
     );
   }
@@ -63,20 +83,33 @@ export class AdminPipelinesPage extends Page<null, State> {
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     this.pageState = PageState.LOADING;
 
-    vnode.state.pipelineGroups = Stream(new PipelineGroups());
-    vnode.state.pluginInfos    = Stream(new PluginInfos());
+    vnode.state.pipelineGroups          = Stream(new PipelineGroups());
+    vnode.state.pluginInfos             = Stream(new PluginInfos());
+    vnode.state.usersAutoCompleteHelper = Stream();
+    vnode.state.rolesAutoCompleteHelper = Stream();
 
     const onOperationError = (errorResponse: ErrorResponse) => {
       vnode.state.onError(JSON.parse(errorResponse.body!).message);
     };
 
-    vnode.state.doEditPipelineGroup = (group) => {
-      window.location.href = pipelineGroupEditPath(group.name());
+    vnode.state.doEditPipelineGroup = (groupName: string) => {
+      const pipelineGroup             = vnode.state.pipelineGroups().find((pipelineGroup) => pipelineGroup.name() === groupName);
+      const containsPipelinesRemotely = pipelineGroup ? pipelineGroup.containsRemotelyDefinedPipelines() : false;
+
+      this.pageState = PageState.LOADING;
+      PipelineGroupCRUD.get(groupName).then((result) => {
+        this.pageState = PageState.OK;
+        result.do((successResponse) => {
+          new EditPipelineGroupModal(successResponse.body.object, successResponse.body.etag, vnode.state.usersAutoCompleteHelper(), vnode.state.rolesAutoCompleteHelper(), vnode.state.onSuccessfulSave, containsPipelinesRemotely).render();
+        }, () => {
+          this.setErrorState();
+        });
+      });
     };
 
     vnode.state.createPipelineGroup = () => {
       const modal = new CreatePipelineGroupModal((groupName) => {
-        PipelineGroupCRUD
+        PipelineGroupCacheCRUD
           .create({name: groupName})
           .then((response) => {
             response.do(
@@ -106,11 +139,11 @@ export class AdminPipelinesPage extends Page<null, State> {
 
         ApiRequestBuilder
           .PUT(SparkRoutes.adminPipelineConfigPath(pipeline.name()),
-            ApiVersion.latest,
-            {
-              payload: pipelineToSave,
-              etag: etag()
-            })
+               ApiVersion.latest,
+               {
+                 payload: pipelineToSave,
+                 etag: etag()
+               })
           .then((apiResult) => {
             apiResult.do(
               () => {
@@ -131,17 +164,17 @@ export class AdminPipelinesPage extends Page<null, State> {
 
       };
       const modal         = new MoveConfirmModal(vnode.state.pipelineGroups(),
-        sourceGroup,
-        pipeline,
-        moveOperation);
+                                                 sourceGroup,
+                                                 pipeline,
+                                                 moveOperation);
       modal.modalState    = ModalState.LOADING;
       modal.render();
 
       this.fetchPipelineConfigFromServer(pipeline.name(),
-        copyOfPipelineConfigFromServer,
-        etag,
-        onOperationError,
-        modal);
+                                         copyOfPipelineConfigFromServer,
+                                         etag,
+                                         onOperationError,
+                                         modal);
     };
 
     vnode.state.onError = (msg: m.Children) => {
@@ -158,16 +191,16 @@ export class AdminPipelinesPage extends Page<null, State> {
 
       const modal: DeleteConfirmModal = new DeleteConfirmModal(message, () => {
         return ApiRequestBuilder.DELETE(SparkRoutes.pipelineGroupsPath(group.name()), ApiVersion.latest)
-          .then((result) => {
-            result.do(
-              () => vnode.state.onSuccessfulSave(
-                <span>The pipeline group <em>{group.name()}</em> was deleted successfully!</span>
-              ),
-              onOperationError
-            );
+                                .then((result) => {
+                                  result.do(
+                                    () => vnode.state.onSuccessfulSave(
+                                      <span>The pipeline group <em>{group.name()}</em> was deleted successfully!</span>
+                                    ),
+                                    onOperationError
+                                  );
 
-          })
-          .finally(modal.close.bind(modal));
+                                })
+                                .finally(modal.close.bind(modal));
       });
       modal.render();
 
@@ -178,16 +211,16 @@ export class AdminPipelinesPage extends Page<null, State> {
 
       const modal: DeleteConfirmModal = new DeleteConfirmModal(message, () => {
         return ApiRequestBuilder.DELETE(SparkRoutes.adminPipelineConfigPath(pipeline.name()), ApiVersion.latest)
-          .then((result) => {
-            result.do(
-              () => vnode.state.onSuccessfulSave(
-                <span>The pipeline group <em>{pipeline.name()}</em> was deleted successfully!</span>
-              ),
-              onOperationError
-            );
+                                .then((result) => {
+                                  result.do(
+                                    () => vnode.state.onSuccessfulSave(
+                                      <span>The pipeline group <em>{pipeline.name()}</em> was deleted successfully!</span>
+                                    ),
+                                    onOperationError
+                                  );
 
-          })
-          .finally(modal.close.bind(modal));
+                                })
+                                .finally(modal.close.bind(modal));
       });
 
       modal.render();
@@ -196,12 +229,12 @@ export class AdminPipelinesPage extends Page<null, State> {
     vnode.state.doExtractPipeline = (pipeline) => {
       const extractOperation = (templateName: string) => {
         ApiRequestBuilder.PUT(SparkRoutes.adminExtractTemplateFromPipelineConfigPath(pipeline.name()),
-          ApiVersion.latest,
-          {
-            payload: {
-              template_name: templateName
-            }
-          }).then((apiResult) => {
+                              ApiVersion.latest,
+                              {
+                                payload: {
+                                  template_name: templateName
+                                }
+                              }).then((apiResult) => {
           apiResult.do(
             (successResponse) => {
               const msg = (
@@ -235,17 +268,17 @@ export class AdminPipelinesPage extends Page<null, State> {
 
         ApiRequestBuilder
           .POST(SparkRoutes.pipelineConfigCreatePath(),
-            ApiVersion.latest,
-            {
-              payload: {
-                group: newPipelineGroup,
-                pipeline: pipelineToSave
-              },
-              headers: {
-                "X-pause-pipeline": "true",
-                "X-pause-cause": "Under construction"
-              }
-            })
+                ApiVersion.latest,
+                {
+                  payload: {
+                    group: newPipelineGroup,
+                    pipeline: pipelineToSave
+                  },
+                  headers: {
+                    "X-pause-pipeline": "true",
+                    "X-pause-cause": "Under construction"
+                  }
+                })
           .then((apiResult) => {
             apiResult.do(
               () => {
@@ -267,10 +300,10 @@ export class AdminPipelinesPage extends Page<null, State> {
       modal.render();
 
       this.fetchPipelineConfigFromServer(shallowPipeline.name(),
-        copyOfPipelineConfigFromServer,
-        etag,
-        onOperationError,
-        modal);
+                                         copyOfPipelineConfigFromServer,
+                                         etag,
+                                         onOperationError,
+                                         modal);
 
     };
 
@@ -315,11 +348,15 @@ export class AdminPipelinesPage extends Page<null, State> {
     };
 
     return Promise.all([
-      EnvironmentsAPIs.allPipelines("administer", "view"),
-      PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO})
-    ]).then((args) => {
+                         EnvironmentsAPIs.allPipelines("administer", "view"),
+                         PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO}),
+                         UsersCRUD.all(),
+                         RolesCRUD.all()
+                       ]).then((args) => {
       const pipelineGroups: ApiResult<PipelineStructure> = args[0];
       const pluginInfos: ApiResult<PluginInfos>          = args[1];
+      const users: ApiResult<Users>                      = args[2];
+      const roles: ApiResult<Roles>                      = args[3];
 
       pipelineGroups.do(
         (successResponse) => {
@@ -340,11 +377,28 @@ export class AdminPipelinesPage extends Page<null, State> {
           this.pageState = PageState.FAILED;
         }
       );
+
+      users.do(
+        ((successResponse) => {
+          const users = successResponse.body.map((user) => user.loginName());
+          vnode.state.usersAutoCompleteHelper(users);
+        }),
+        () => this.setErrorState()
+      );
+
+      roles.do(
+        ((successResponse) => {
+          const roles = successResponse.body.map((role) => role.name());
+          vnode.state.rolesAutoCompleteHelper(roles);
+        }),
+        () => this.setErrorState()
+      );
     });
   }
 
   parseRepoLink(sm: ScrollManager) {
     sm.setTarget(m.route.param().id || "");
+    this.operation = (m.route.param().operation || "").toLowerCase();
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {

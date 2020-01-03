@@ -93,6 +93,9 @@ export class PipelineWithOrigin extends Pipeline {
     return new PipelineWithOrigin(this.name(), this.templateName(), this.origin(), this.stages().map((s) => s.clone()));
   }
 
+  isDefinedRemotely() {
+    return this.origin().isDefinedInConfigRepo();
+  }
 }
 
 export class Pipelines extends Array<PipelineWithOrigin> {
@@ -133,6 +136,10 @@ export class PipelineGroup {
 
   hasPipelines() {
     return !this.isEmpty();
+  }
+
+  containsRemotelyDefinedPipelines() {
+    return this.pipelines().some((pipeline) => pipeline.isDefinedRemotely());
   }
 }
 

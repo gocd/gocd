@@ -16,7 +16,6 @@
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from 'lodash';
 import Stream from 'mithril/stream';
-import Routes from "gen/js-routes";
 
 class Group {
 
@@ -109,7 +108,7 @@ class PipelineGroup extends Group {
     }
     return {
       show:   `${SparkRoutes.pipelineGroupsSPAPath(this.name)}`,
-      edit:   Routes.pipelineGroupEditPath(this.name),
+      edit:   `${SparkRoutes.pipelineGroupsSPAPath(this.name)}/edit`,
       new:    `${SparkRoutes.newCreatePipelinePath()}?group=${this.name}`,
       asCode: `${SparkRoutes.createPipelineAsCodePath()}?group=${this.name}`
     };

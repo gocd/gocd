@@ -42,7 +42,7 @@ describe("PipelineGroupsWidget", () => {
       pipelineGroups: Stream(new PipelineGroups()),
       onError: jasmine.createSpy("onError"),
       onSuccessfulSave: jasmine.createSpy("onSuccessfulSave"),
-      sm: stubAllMethods(["hasTarget", "shouldScroll"])
+      scrollOptions: {sm: stubAllMethods(["hasTarget", "shouldScroll"]), shouldOpenEditView: false}
     };
   });
 
@@ -67,7 +67,7 @@ describe("PipelineGroupsWidget", () => {
     });
 
     expect(helper.textByTestId("flash-message-info"))
-      .toContain("There are no pipelines defined in this pipeline group.");
+    .toContain("There are no pipelines defined in this pipeline group.");
 
     expect(helper.textByTestId(`pipeline-group-name-foo`)).toEqual("Pipeline Group:foo");
     expect(helper.textByTestId(`create-pipeline-in-group-foo`)).toEqual("Add new pipeline");
@@ -145,7 +145,7 @@ describe("PipelineGroupsWidget", () => {
       setTarget:    jasmine.createSpy(),
       scrollToEl:   jasmine.createSpy()
     };
-    attrs.sm      = scrollManager;
+    attrs.scrollOptions.sm = scrollManager;
 
     helper.mount(() => {
       return <PipelineGroupsWidget {...attrs}/>;

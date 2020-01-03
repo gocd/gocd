@@ -1,0 +1,13 @@
+<materials>
+    <material materialUri="https://test.host/go/api/feed/materials/60.xml" type="PackageMaterial"
+              repositoryName="repo-name" packageName="package-name">
+        <modifications>
+            <changeset changesetUri="https://test.host/go/api/feed/materials/60/changeset/1.xml">
+                <user><![CDATA[Bob]]></user>
+                <revision><![CDATA[1]]></revision>
+                <message><![CDATA[Release new package]]></message>
+                <checkinTime>2019-12-31T15:31:49+05:30</checkinTime>
+            </changeset>
+        </modifications>
+    </material>
+</materials>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:go="http://www.thoughtworks-studios.com/ns/go">
+    <title>
+        <![CDATA[up42]]>
+    </title>
+    <id>https://go-server/go/api/feed/pipelines/up42/stages.xml</id>
+    <author>
+        <name>Go</name>
+    </author>
+    <updated>2019-12-31T07:28:30+05:30</updated>
+    <link href="https://go-server/go/api/feed/pipelines/up42/stages.xml" rel="self"/>
+</feed>

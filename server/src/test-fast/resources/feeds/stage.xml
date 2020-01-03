@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<stage name="UnitTest" counter="1">
+    <link rel="self" href="https://go-server/go/api/feed/stages/10.xml"/>
+    <id><![CDATA[urn:x-go.studios.thoughtworks.com:stage-id:BulletinBoard:10:UnitTest:4]]></id>
+    <pipeline name="BulletinBoard" counter="10" href="https://go-server/go/api/feed/pipelines/BulletinBoard/2.xml"/>
+    <updated>2020-01-03T11:14:19+05:30</updated>
+    <result>Unknown</result>
+    <state>Completed</state>
+    <approvedBy><![CDATA[changes]]></approvedBy>
+    <jobs>
+        <job href="https://go-server/go/api/jobs/12.xml"/>
+    </jobs>
+</stage>

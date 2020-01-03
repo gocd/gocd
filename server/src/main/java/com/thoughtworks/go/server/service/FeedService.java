@@ -1,0 +1,97 @@
+/*
+ * Copyright 2020 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.thoughtworks.go.server.service;
+
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.XmlRepresentable;
+import com.thoughtworks.go.domain.feed.FeedEntries;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.domain.xml.FeedEntriesRepresenter;
+import com.thoughtworks.go.server.domain.xml.PipelineXmlRepresenter;
+import com.thoughtworks.go.server.domain.xml.PipelinesXmlRepresenter;
+import com.thoughtworks.go.server.domain.xml.StageXmlRepresenter;
+import org.dom4j.Document;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class FeedService {
+    private final PipelineHistoryService pipelineHistoryService;
+    private final GoConfigService goConfigService;
+    private final StageService stageService;
+    private final SecurityService securityService;
+    private final XmlApiService xmlApiService;
+    private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
+
+    @Autowired
+    public FeedService(PipelineHistoryService pipelineHistoryService,
+                       GoConfigService goConfigService,
+                       StageService stageService,
+                       SecurityService securityService,
+                       XmlApiService xmlApiService) {
+        this.pipelineHistoryService = pipelineHistoryService;
+        this.goConfigService = goConfigService;
+        this.stageService = stageService;
+        this.securityService = securityService;
+        this.xmlApiService = xmlApiService;
+    }
+
+    public Document pipelinesXml(Username username, String baseUrl) {
+        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.latestInstancesForConfiguredPipelines(username);
+        XmlRepresentable representable = new PipelinesXmlRepresenter(pipelineInstanceModels);
+
+        return xmlApiService.write(representable, baseUrl);
+    }
+
+    public Document stagesXml(Username username, String pipelineName, Long before, String baseUrl) {
+        if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+            throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
+        }
+
+        if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+            throw new NotAuthorizedException(NOT_AUTHORIZED_TO_VIEW_PIPELINE);
+        }
+
+        FeedEntries feedEntries = getStageFeedEntries(username, pipelineName, before);
+        FeedEntriesRepresenter representable = new FeedEntriesRepresenter(pipelineName, feedEntries);
+
+        return xmlApiService.write(representable, baseUrl);
+    }
+
+    public Document pipelineXml(Username username, String pipelineName, long pipelineId, String baseUrl) {
+        PipelineInstanceModel model = pipelineHistoryService.load(pipelineId, username);
+        return xmlApiService.write(new PipelineXmlRepresenter(model), baseUrl);
+    }
+
+    public Document stageXml(long stageId, String baseUrl) {
+        Stage stage = stageService.stageById(stageId);
+        return xmlApiService.write(new StageXmlRepresenter(stage), baseUrl);
+    }
+
+    private FeedEntries getStageFeedEntries(Username username, String pipelineName, Long before) {
+        if (before == null) {
+            return stageService.feed(pipelineName, username);
+        }
+
+        return stageService.feedBefore(before, pipelineName, username);
+    }
+}

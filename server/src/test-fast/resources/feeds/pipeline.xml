@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline name="up42" counter="1">
+    <link rel="self" href="https://go-server/go/api/feed/pipelines/up42/1.xml"/>
+    <id><![CDATA[urn:x-go.studios.thoughtworks.com:job-id:up42:1]]></id>
+    <scheduleTime>2019-12-31T15:31:49+05:30</scheduleTime>
+    <materials>
+        <material>
+            <material materialUri="https://go-server/go/api/feed/materials/100.xml" type="GitMaterial"
+                      url="https://material/example.git" branch="master" shallowClone="false">
+                <modifications>
+                    <changeset changesetUri="https://go-server/go/api/feed/materials/100/changeset/3.xml">
+                        <user><![CDATA[Bob]]></user>
+                        <checkinTime>2019-12-31T15:31:49+05:30</checkinTime>
+                        <revision><![CDATA[3]]></revision>
+                        <message><![CDATA[Adding build.xml]]></message>
+                        <file name="build.xml" action="added"/>
+                    </changeset>
+                    <changeset changesetUri="https://go-server/go/api/feed/materials/100/changeset/2.xml">
+                        <user><![CDATA[Sam]]></user>
+                        <checkinTime>2019-12-31T15:31:49+05:30</checkinTime>
+                        <revision><![CDATA[2]]></revision>
+                        <message><![CDATA[Fixing the not checked in files]]></message>
+                        <file name="tools/bin/go.jruby" action="added"/>
+                    </changeset>
+                    <changeset changesetUri="https://go-server/go/api/feed/materials/100/changeset/1.xml">
+                        <user><![CDATA[Sam]]></user>
+                        <checkinTime>2019-12-31T15:31:49+05:30</checkinTime>
+                        <revision><![CDATA[1]]></revision>
+                        <message><![CDATA[Adding .gitignore]]></message>
+                        <file name=".gitignore" action="modified"/>
+                    </changeset>
+                </modifications>
+            </material>
+        </material>
+    </materials>
+    <stages>
+        <stage href="https://go-server/go/api/feed/stages/0.xml"/>
+    </stages>
+    <approvedBy><![CDATA[changes]]></approvedBy>
+</pipeline>

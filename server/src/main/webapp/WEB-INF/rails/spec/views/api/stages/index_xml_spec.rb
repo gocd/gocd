@@ -25,10 +25,10 @@ describe "/api/stages" do
     @stage.setApprovedBy("blahUser")
     @stage.setPipelineId(100)
     @stage_id = @stage.getIdentifier()
-    @context = XmlWriterContext.new("http://localhost:8153/go", nil, nil, nil)
+    @context = XmlWriterContext.new("http://localhost:8153/go", nil, nil, nil, SystemEnvironment.new)
     assign(:doc, StageXmlViewModel.new(@stage).toXml(@context))
     allow(view).to receive(:api_pipeline_instance_url) do |options|
-      "url-#{options.map {|key, value| "#{key}=#{value}"}.join(",")}".gsub(/>/, '&gt;').gsub(/</, '&lt;')
+      "url-#{options.map { |key, value| "#{key}=#{value}" }.join(",")}".gsub(/>/, '&gt;').gsub(/</, '&lt;')
     end
   end
 

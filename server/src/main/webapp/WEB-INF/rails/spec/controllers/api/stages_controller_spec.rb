@@ -42,7 +42,7 @@ describe Api::StagesController do
       expect(@stage_service).to receive(:stageById).with(99).and_return(stage)
       get 'index', params:{:id => "99", :format => "xml", :no_layout => true}
 
-      context = XmlWriterContext.new("http://test.host/go", nil, nil, nil)
+      context = XmlWriterContext.new("http://test.host/go", nil, nil, nil, SystemEnvironment.new)
       expect(assigns[:doc].asXML()).to eq(StageXmlViewModel.new(stage).toXml(context).asXML())
     end
   end

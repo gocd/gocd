@@ -20,33 +20,50 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.support.AnnotationConsumer;
+import org.junit.platform.commons.util.Preconditions;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 public class JsonSourceProvider implements ArgumentsProvider, AnnotationConsumer<JsonSource> {
+    private final BiFunction<Class<?>, String, File> inputStreamProvider;
     private String[] jsonFiles;
+
+    JsonSourceProvider() {
+        this((clazz, s) -> new File(clazz.getResource(s).getFile()));
+    }
+
+    JsonSourceProvider(BiFunction<Class<?>, String, File> inputStreamProvider) {
+        this.inputStreamProvider = inputStreamProvider;
+    }
 
     @Override
     public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
         Object[] files = Arrays.stream(jsonFiles)
-                .filter(Objects::nonNull)
+                .map(resource -> openInputStream(context, resource))
                 .map(this::readFile)
                 .toArray();
 
         return Stream.of(Arguments.of(files));
     }
 
-    private String readFile(String file) {
+    private String readFile(File file) {
         try {
-            return FileUtils.readFileToString(new File(file), StandardCharsets.UTF_8);
+            return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private File openInputStream(ExtensionContext context, String resource) {
+        Preconditions.notBlank(resource, "Classpath resource [" + resource + "] must not be null or blank");
+        Class<?> testClass = context.getRequiredTestClass();
+        return Preconditions.notNull(inputStreamProvider.apply(testClass, resource),
+                () -> "Classpath resource [" + resource + "] does not exist");
     }
 
     @Override

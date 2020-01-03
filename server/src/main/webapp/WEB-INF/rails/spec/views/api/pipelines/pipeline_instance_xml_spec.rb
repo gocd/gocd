@@ -35,7 +35,7 @@ describe "/api/pipelines/pipeline_instance" do
     @dependent_pipeline.setMaterialConfigs(@pipeline2_config.materialConfigs())
 
     @finder = stage_finder
-    @context = XmlWriterContext.new("http://test.host/go", nil, nil, @finder)
+    @context = XmlWriterContext.new("http://test.host/go", nil, nil, @finder, SystemEnvironment.new)
     assign(:doc, PipelineXmlViewModel.new(@pipeline).toXml(@context))
   end
 
@@ -102,7 +102,7 @@ describe "/api/pipelines/pipeline_instance" do
     assign(:doc, PipelineXmlViewModel.new(@pipeline).toXml(@context))
 
     allow(view).to receive(:api_pipeline_instance_url) do |options|
-      "url-#{options.map {|key, value| "#{key}=#{value}"}.join(",")}".gsub(/>/, '&gt;').gsub(/</, '&lt;')
+      "url-#{options.map { |key, value| "#{key}=#{value}" }.join(",")}".gsub(/>/, '&gt;').gsub(/</, '&lt;')
     end
 
     render :template => '/api/pipelines/pipeline_instance.xml.erb'

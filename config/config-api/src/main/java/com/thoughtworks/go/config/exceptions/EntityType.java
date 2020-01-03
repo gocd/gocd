@@ -33,6 +33,7 @@ public enum EntityType {
     ElasticProfile("elastic agent profile", id),
     Environment("environment", name),
     Pipeline("pipeline", name),
+    PipelineInstance("pipeline instance", id),
     PipelineGroup("pipeline group", name),
     Role("role", name),
     Template("template", name),

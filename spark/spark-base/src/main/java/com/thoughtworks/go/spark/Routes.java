@@ -856,4 +856,12 @@ public class Routes {
     public static class ApiInfo {
         public static final String BASE = "/api/apis";
     }
+
+    public static class FeedsAPI {
+        public static final String BASE = "/api/feed";
+        public static final String PIPELINES_XML = "/pipelines.xml";
+        public static final String PIPELINE_XML = "/pipelines/:pipeline_name/:pipeline_id";
+        public static final String STAGES_XML = "/pipelines/:pipeline_name/stages.xml";
+        public static final String STAGE_XML = "/stages/:stage_id";
+    }
 }

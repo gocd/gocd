@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
-import com.thoughtworks.go.config.exceptions.NotImplementedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -45,6 +44,7 @@ import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.Arrays;
@@ -259,6 +259,54 @@ class PipelineHistoryServiceTest {
         PipelineInstanceModel pipelineInstance = pipelineHistoryService.findPipelineInstance("pipeline", 1, Username.ANONYMOUS, operationResult);
         assertThat(pipelineInstance).isNull();
         assertThat(operationResult.httpCode()).isEqualTo(404);
+    }
+
+
+    @Nested
+    class LoadHistoryWithoutHttpResult {
+        @Test
+        void shouldThrowRecordNotFoundWhenPipelineWithIdNotExist() {
+            when(pipelineDao.loadHistory(100L)).thenReturn(null);
+
+            assertThatCode(() -> pipelineHistoryService.load(100L, Username.ANONYMOUS))
+                    .isInstanceOf(RecordNotFoundException.class)
+                    .hasMessage("Pipeline instance with id '100' was not found!");
+        }
+
+        @Test
+        void shouldThrowNotAuthorizedExceptionWhenUserDoesNotHaveViewPermission() {
+            String pipelineName = "up42";
+            Username username = new Username("bob");
+            PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName);
+            PipelineInstanceModel instanceModel = mock(PipelineInstanceModel.class);
+            when(instanceModel.getName()).thenReturn(pipelineName);
+            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
+            when(pipelineDao.loadHistory(100L)).thenReturn(instanceModel);
+            when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(false);
+
+            assertThatCode(() -> pipelineHistoryService.load(100L, username))
+                    .isInstanceOf(NotAuthorizedException.class)
+                    .hasMessage("Not authorized to view pipeline");
+        }
+
+        @Test
+        void shouldLoadPipelineHistoryByPipelineIdAndUsername() {
+            ArgumentCaptor<CaseInsensitiveString> captor = ArgumentCaptor.forClass(CaseInsensitiveString.class);
+            String pipelineName = "up42";
+            Username username = new Username("bob");
+            PipelineInstanceModel instanceModel = mock(PipelineInstanceModel.class);
+            PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName);
+            when(instanceModel.getName()).thenReturn(pipelineName);
+            when(instanceModel.getStageHistory()).thenReturn(new StageInstanceModels());
+            when(goConfigService.pipelineConfigNamed(captor.capture())).thenReturn(pipelineConfig);
+            when(pipelineDao.loadHistory(100L)).thenReturn(instanceModel);
+            when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
+
+            PipelineInstanceModel model = pipelineHistoryService.load(100L, username);
+
+            assertThat(model).isSameAs(instanceModel);
+            assertThat(captor.getValue()).isEqualTo(new CaseInsensitiveString(pipelineName));
+        }
     }
 
     @Test

@@ -26,13 +26,13 @@ import com.thoughtworks.go.apiv2.stageinstance.representers.StageRepresenter;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullStage;
+import com.thoughtworks.go.domain.PipelineRunIdInfo;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.server.service.StageService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.spark.Routes;
@@ -48,11 +48,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.server.service.PipelineHistoryService.BAD_CURSOR_MSG;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
 public class StageInstanceControllerV2 extends ApiController implements SparkSpringController {
-    static final String BAD_OFFSET_MSG = "The query parameter `offset`, if specified must be a number greater or equal to 0.";
     private final static String JOB_NAMES_PROPERTY = "jobs";
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final StageService stageService;
@@ -168,18 +169,13 @@ public class StageInstanceControllerV2 extends ApiController implements SparkSpr
     public String history(Request request, Response response) throws IOException {
         String pipelineName = request.params("pipeline_name");
         String stageName = request.params("stage_name");
-        int offsetFromRequest = getOffset(request);
+        Long after = getCursor(request, "after");
+        Long before = getCursor(request, "before");
         int pageSize = getPageSize(request);
-        int stageInstanceCount = stageService.getCount(pipelineName, stageName);
-        HttpOperationResult result = new HttpOperationResult();
 
-        Pagination pagination = Pagination.pageStartingAt(offsetFromRequest, stageInstanceCount, pageSize);
-        StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination, currentUsername().getUsername().toString(), result);
-        if (result.canContinue()) {
-            return writerForTopLevelObject(request, response, writer -> StageInstancesRepresenter.toJSON(writer, stageInstanceModels, pagination));
-        } else {
-            return renderHTTPOperationResult(result, request, response);
-        }
+        StageInstanceModels stageInstanceModels = stageService.findStageHistoryViaCursor(currentUsername(), pipelineName, stageName, after, before, pageSize);
+        PipelineRunIdInfo latestAndOldestPipelineIds = stageService.getOldestAndLatestStageInstanceId(currentUsername(), pipelineName, stageName);
+        return writerForTopLevelObject(request, response, writer -> StageInstancesRepresenter.toJSON(writer, stageInstanceModels, latestAndOldestPipelineIds));
     }
 
     private Integer getPageSize(Request request) {
@@ -191,19 +187,6 @@ public class StageInstanceControllerV2 extends ApiController implements SparkSpr
             }
         } catch (NumberFormatException e) {
             throw new BadRequestException(BAD_PAGE_SIZE_MSG);
-        }
-        return offset;
-    }
-
-    private Integer getOffset(Request request) {
-        Integer offset;
-        try {
-            offset = Integer.valueOf(request.queryParamOrDefault("offset", "0"));
-            if (offset < 0) {
-                throw new BadRequestException(BAD_OFFSET_MSG);
-            }
-        } catch (NumberFormatException e) {
-            throw new BadRequestException(BAD_OFFSET_MSG);
         }
         return offset;
     }
@@ -240,5 +223,19 @@ public class StageInstanceControllerV2 extends ApiController implements SparkSpr
             throw HaltApiResponses.haltBecauseOfReason("Could not read property '%s' in request body", JOB_NAMES_PROPERTY);
         }
         requestBody.readStringArrayIfPresent(JOB_NAMES_PROPERTY);
+    }
+
+    private long getCursor(Request request, String key) {
+        long cursor = 0;
+        try {
+            String value = request.queryParams(key);
+            if (isBlank(value)) {
+                return cursor;
+            }
+            cursor = Long.parseLong(value);
+        } catch (NumberFormatException nfe) {
+            throw new BadRequestException(String.format(BAD_CURSOR_MSG, key));
+        }
+        return cursor;
     }
 }

@@ -349,6 +349,15 @@ public class Routes {
                     "stage_name", stageName,
                     "stage_counter", stageCounter));
         }
+
+
+        public static String previous(String pipelineName, String stageName, long before) {
+            return BASE + STAGE_HISTORY.replaceAll(":pipeline_name", pipelineName).replaceAll(":stage_name", stageName) + "?before=" + before;
+        }
+
+        public static String next(String pipelineName, String stageName, long after) {
+            return BASE + STAGE_HISTORY.replaceAll(":pipeline_name", pipelineName).replaceAll(":stage_name", stageName) + "?after=" + after;
+        }
     }
 
     public static class Job {

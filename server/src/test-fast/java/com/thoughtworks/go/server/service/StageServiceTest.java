@@ -19,6 +19,9 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
+import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.domain.feed.Author;
@@ -26,7 +29,10 @@ import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.domain.feed.FeedEntry;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.helper.ModificationsMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.FeedModifier;
@@ -51,10 +57,10 @@ import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.TimeProvider;
-import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
@@ -66,9 +72,8 @@ import java.util.Map;
 
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_ANONYMOUS;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.any;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
 public class StageServiceTest {
@@ -81,7 +86,7 @@ public class StageServiceTest {
     private JobInstanceService jobInstanceService;
     private SecurityService securityService;
     private ChangesetService changesetService;
-	private CruiseConfig cruiseConfig;
+    private CruiseConfig cruiseConfig;
     private GoConfigService goConfigService;
     private TransactionTemplate transactionTemplate;
     private TestTransactionSynchronizationManager transactionSynchronizationManager;
@@ -90,10 +95,10 @@ public class StageServiceTest {
     private static final Username ALWAYS_ALLOW_USER = new Username(new CaseInsensitiveString("always allowed"));
     private GoCache goCache;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         stageDao = mock(StageDao.class);
-		pipelineDao = mock(PipelineDao.class);
+        pipelineDao = mock(PipelineDao.class);
         jobInstanceService = mock(JobInstanceService.class);
         securityService = mock(SecurityService.class);
         cruiseConfig = mock(BasicCruiseConfig.class);
@@ -106,7 +111,7 @@ public class StageServiceTest {
         SessionUtils.setCurrentUser(new GoUserPrinciple("anonymous", "anonymous", ROLE_ANONYMOUS.asAuthority()));
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         configFileHelper.initializeConfigFile();
         SessionUtils.unsetCurrentUser();
@@ -135,10 +140,10 @@ public class StageServiceTest {
 
         StageSummaryModel stageForView = service.findStageSummaryByIdentifier(stageId, ALWAYS_ALLOW_USER, new HttpLocalizedOperationResult());
 
-        assertThat(stageForView.getName(), is(stageRun2.getName()));
-        assertThat(stageForView.getState(), is(stageRun2.stageState()));
-        assertThat(stageForView.getStageCounter(), is(String.valueOf(stageRun2.getCounter())));
-        assertThat(stageForView.getTotalRuns(), is(2));
+        assertThat(stageForView.getName()).isEqualTo(stageRun2.getName());
+        assertThat(stageForView.getState()).isEqualTo(stageRun2.stageState());
+        assertThat(stageForView.getStageCounter()).isEqualTo(String.valueOf(stageRun2.getCounter()));
+        assertThat(stageForView.getTotalRuns()).isEqualTo(2);
     }
 
     private SecurityService alwaysAllow() {
@@ -170,8 +175,8 @@ public class StageServiceTest {
         StageSummaryModel stageForView = service.findStageSummaryByIdentifier(stageId, ALWAYS_ALLOW_USER, new HttpLocalizedOperationResult());
 
         JobInstanceModel job = stageForView.passedJobs().get(0);
-        assertThat(job.getElapsedTime(), is(theJob.getElapsedTime()));
-        assertThat(job.getPercentComplete(), is(90));
+        assertThat(job.getElapsedTime()).isEqualTo(theJob.getElapsedTime());
+        assertThat(job.getPercentComplete()).isEqualTo(90);
         verify(stageDao).getExpectedDurationMillis(theJob.getPipelineName(), theJob.getStageName(), theJob);
     }
 
@@ -186,8 +191,8 @@ public class StageServiceTest {
 
         StageSummaryModel model = service.findStageSummaryByIdentifier(new StageIdentifier("pipeline_name/10/stage_name/1"), ALWAYS_ALLOW_USER, result);
 
-        assertThat(result.httpCode(), is(403));
-        assertThat(model, is(nullValue()));
+        assertThat(result.httpCode()).isEqualTo(403);
+        assertThat(model).isNull();
     }
 
     @Test
@@ -204,8 +209,8 @@ public class StageServiceTest {
 
         StageSummaryModel model = service.findStageSummaryByIdentifier(stageId, ALWAYS_ALLOW_USER, result);
 
-        assertThat(result.httpCode(), is(404));
-        assertThat(model, is(nullValue()));
+        assertThat(result.httpCode()).isEqualTo(404);
+        assertThat(model).isNull();
     }
 
     @Test
@@ -227,8 +232,8 @@ public class StageServiceTest {
 
         StageSummaryModel model = service.findStageSummaryByIdentifier(stageId, ALWAYS_ALLOW_USER, result);
 
-        assertThat(model, is(nullValue()));
-        assertThat(result.httpCode(), is(404));
+        assertThat(model).isNull();
+        assertThat(result.httpCode()).isEqualTo(404);
     }
 
     @Test
@@ -249,8 +254,8 @@ public class StageServiceTest {
         Stage foundStage = new Stage(STAGE_NAME, foundJobInstances, "jez", null, "manual", new TimeProvider());
         foundStage.calculateResult();
 
-        assertThat(foundStage.getState(), is(not(StageState.Cancelled)));
-        assertThat(foundStage.getResult(), is(not(StageResult.Cancelled)));
+        assertThat(foundStage.getState()).isNotEqualTo(StageState.Cancelled);
+        assertThat(foundStage.getResult()).isNotEqualTo(StageResult.Cancelled);
 
         foundJob.setState(JobState.Completed);
         foundJob.setResult(JobResult.Cancelled);
@@ -259,8 +264,8 @@ public class StageServiceTest {
 
         service.cancelJob(job);
 
-        assertThat(foundStage.getState(), is(StageState.Cancelled));
-        assertThat(foundStage.getResult(), is(StageResult.Cancelled));
+        assertThat(foundStage.getState()).isEqualTo(StageState.Cancelled);
+        assertThat(foundStage.getResult()).isEqualTo(StageResult.Cancelled);
 
         verify(jobInstanceService).cancelJob(job);
         verify(stageDao).updateResult(foundStage, StageResult.Cancelled, null);
@@ -285,12 +290,12 @@ public class StageServiceTest {
         FeedEntry expected = stageFeedEntry("cruise", updateDate);
 
         FeedEntries feedEntries = service.feed("cruise", Username.ANONYMOUS);//Should prime the cache
-        assertThat(feedEntries, is(new FeedEntries(asList(expected))));
-        assertThat(feedEntries.get(0).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
+        assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected)));
+        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
 
         feedEntries = service.feed("cruise", Username.ANONYMOUS);//Should use the cache
-        assertThat(feedEntries, is(new FeedEntries(asList(expected))));
-        assertThat(feedEntries.get(0).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
+        assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected)));
+        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
 
         verify(stageDao).findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25);
         verify(changesetService).modificationsOfPipelines(asList(1L), "cruise", Username.ANONYMOUS);
@@ -317,16 +322,16 @@ public class StageServiceTest {
         FeedEntry expected = stageFeedEntry("cruise", updateDate);
 
         FeedEntries feedEntries = service.feed("cruise", Username.ANONYMOUS);//Should cache
-        assertThat(feedEntries, is(new FeedEntries(asList(expected))));
-        assertThat(feedEntries.get(0).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
+        assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected)));
+        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
 
         Stage stage = StageMother.createPassedStage("cruise", 1, "stage", 1, "job", updateDate);
         stage.setIdentifier(new StageIdentifier("cruise", 1, "stage", String.valueOf(1)));
         service.updateResult(stage);//Should remove from the cache
 
         feedEntries = service.feed("cruise", Username.ANONYMOUS);// Should retrieve from db again.
-        assertThat(feedEntries, is(new FeedEntries(asList(expected))));
-        assertThat(feedEntries.get(0).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
+        assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected)));
+        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
 
         verify(stageDao, times(2)).findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25);
         verify(changesetService, times(2)).modificationsOfPipelines(asList(1L), "cruise", Username.ANONYMOUS);
@@ -360,12 +365,12 @@ public class StageServiceTest {
         FeedEntry expected = stageFeedEntry("cruise", updateDate);
 
         FeedEntries feedEntries = service.feedBefore(1L, "cruise", Username.ANONYMOUS);
-        assertThat(feedEntries, is(new FeedEntries(asList(expected))));
-        assertThat(feedEntries.get(0).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
+        assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected)));
+        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
 
         feedEntries = service.feedBefore(1L, "cruise", Username.ANONYMOUS);
-        assertThat(feedEntries, is(new FeedEntries(asList(expected))));
-        assertThat(feedEntries.get(0).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
+        assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected)));
+        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
 
         verify(stageDao, times(2)).findCompletedStagesFor("cruise", FeedModifier.Before, 1L, 25);
         verifyNoMoreInteractions(stageDao);
@@ -392,9 +397,9 @@ public class StageServiceTest {
                 new StubGoCache(transactionSynchronizationManager));
 
         FeedEntries feedEntries = service.feed("down", Username.ANONYMOUS);
-        assertThat(feedEntries, is(new FeedEntries(asList(expected, expected))));
-        assertThat(feedEntries.get(0).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
-        assertThat(feedEntries.get(1).getAuthors(), is(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS))));
+        assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected, expected)));
+        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
+        assertThat(feedEntries.get(1).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
     }
 
     private StageFeedEntry stageFeedEntry(String pipelineName, final Date updateDate) {
@@ -452,7 +457,7 @@ public class StageServiceTest {
                 goCache);
         Stage actualStage = service.findLatestStage("pipeline", "stage");
 
-        assertThat(actualStage, is(expectedStage));
+        assertThat(actualStage).isEqualTo(expectedStage);
     }
 
     @Test
@@ -466,61 +471,61 @@ public class StageServiceTest {
         when(stageDao.oldestStagesHavingArtifacts()).thenReturn(asList(stageFoo, stageBar, stageBaz, stageQuux));
 
         List<Stage> stages = service.oldestStagesWithDeletableArtifacts();
-        assertThat(stages.size(), is(4));
-        assertThat(stages, hasItem(stageFoo));
-        assertThat(stages, hasItem(stageBar));
-        assertThat(stages, hasItem(stageBaz));
-        assertThat(stages, hasItem(stageQuux));
+        assertThat(stages.size()).isEqualTo(4);
+        assertThat(stages).contains(stageFoo);
+        assertThat(stages).contains(stageBar);
+        assertThat(stages).contains(stageBaz);
+        assertThat(stages).contains(stageQuux);
     }
 
-	@Test
-	public void shouldDelegateToDAO_findDetailedStageHistoryByOffset() {
-		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
+    @Test
+    public void shouldDelegateToDAO_findDetailedStageHistoryByOffset() {
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
-		final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-		                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+        final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
+                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
 
-		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
-		stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", new HttpOperationResult());
+        Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+        stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", new HttpOperationResult());
 
-		verify(stageDao).findDetailedStageHistoryByOffset("pipeline", "stage", pagination);
-	}
+        verify(stageDao).findDetailedStageHistoryByOffset("pipeline", "stage", pagination);
+    }
 
-	@Test
-	public void shouldPopulateErrorWhenPipelineNotFound_findDetailedStageHistoryByOffset() {
-		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
+    @Test
+    public void shouldPopulateErrorWhenPipelineNotFound_findDetailedStageHistoryByOffset() {
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
-		final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-		                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+        final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
+                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
 
-		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
-		HttpOperationResult result = new HttpOperationResult();
-		StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
+        Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+        HttpOperationResult result = new HttpOperationResult();
+        StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
 
-		assertThat(stageInstanceModels, is(Matchers.nullValue()));
-		assertThat(result.httpCode(), is(404));
-	}
+        assertThat(stageInstanceModels).isNull();
+        assertThat(result.httpCode()).isEqualTo(404);
+    }
 
-	@Test
-	public void shouldPopulateErrorWhenUnauthorized_findDetailedStageHistoryByOffset() {
-		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(false);
+    @Test
+    public void shouldPopulateErrorWhenUnauthorized_findDetailedStageHistoryByOffset() {
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(false);
 
-		final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-		                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+        final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
+                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
 
-		Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
-		HttpOperationResult result = new HttpOperationResult();
-		StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
+        Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
+        HttpOperationResult result = new HttpOperationResult();
+        StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", result);
 
-		assertThat(stageInstanceModels, is(Matchers.nullValue()));
-        assertThat(result.httpCode(), is(403));
-	}
+        assertThat(stageInstanceModels).isNull();
+        assertThat(result.httpCode()).isEqualTo(403);
+    }
 
     @Test
     public void shouldPopulateErrorWhenPipelineNotFound_findStageWithIdentifier() {
@@ -534,8 +539,8 @@ public class StageServiceTest {
         HttpOperationResult result = new HttpOperationResult();
         Stage stage = stageService.findStageWithIdentifier("pipeline", 1, "stage", "1", "looser", result);
 
-        assertThat(stage, is(Matchers.nullValue()));
-        assertThat(result.httpCode(), is(404));
+        assertThat(stage).isNull();
+        assertThat(result.httpCode()).isEqualTo(404);
     }
 
     @Test
@@ -550,8 +555,8 @@ public class StageServiceTest {
         HttpOperationResult result = new HttpOperationResult();
         Stage stage = stageService.findStageWithIdentifier("pipeline", 1, "stage", "1", "looser", result);
 
-        assertThat(stage, is(Matchers.nullValue()));
-        assertThat(result.httpCode(), is(403));
+        assertThat(stage).isNull();
+        assertThat(result.httpCode()).isEqualTo(403);
     }
 
     @Test
@@ -559,7 +564,7 @@ public class StageServiceTest {
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
-        when(pipelineDao.findPipelineByNameAndCounter("pipeline",1)).thenReturn(null);
+        when(pipelineDao.findPipelineByNameAndCounter("pipeline", 1)).thenReturn(null);
 
         final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
                 changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
@@ -567,8 +572,130 @@ public class StageServiceTest {
         HttpOperationResult result = new HttpOperationResult();
         Stage stage = stageService.findStageWithIdentifier("pipeline", 1, "stage", "1", "looser", result);
 
-        assertThat(stage, is(Matchers.nullValue()));
-        assertThat(result.httpCode(), is(404));
-        assertThat(result.detailedMessage(), Matchers.startsWith("Not Found { Pipeline 'pipeline' with counter '1' not found }"));
+        assertThat(stage).isNull();
+        assertThat(result.httpCode()).isEqualTo(404);
+        assertThat(result.detailedMessage()).startsWith("Not Found { Pipeline 'pipeline' with counter '1' not found }");
+    }
+
+    @Nested
+    class StageHistoryViaCursor {
+        private StageService stageService;
+        private Username username = Username.valueOf("user");
+        String pipelineName = "pipeline";
+
+        @BeforeEach
+        void setUp() {
+            stageService = new StageService(stageDao, jobInstanceService, null, null, securityService, pipelineDao, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+        }
+
+        @Test
+        void shouldFetchLatestRecords() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
+
+            stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, 0, 0, 10);
+
+            verify(stageDao).findDetailedStageHistoryViaCursor(pipelineName, STAGE_NAME, FeedModifier.Latest, 0, 10);
+        }
+
+        @Test
+        void shouldFetchRecordsAfterTheSpecifiedCursor() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
+
+            stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, 2, 0, 10);
+
+            verify(stageDao).findDetailedStageHistoryViaCursor(pipelineName, STAGE_NAME, FeedModifier.After, 2, 10);
+        }
+
+        @Test
+        void shouldFetchRecordsBeforeTheSpecifiedCursor() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
+
+            stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, 0, 3, 10);
+
+            verify(stageDao).findDetailedStageHistoryViaCursor(pipelineName, STAGE_NAME, FeedModifier.Before, 3, 10);
+        }
+
+        @Test
+        void shouldThrowErrorIfPipelineDoesNotExist() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+
+            assertThatCode(() -> stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, 0, 0, 10))
+                    .isInstanceOf(RecordNotFoundException.class)
+                    .hasMessage("Pipeline with name 'pipeline' was not found!");
+        }
+
+        @Test
+        void shouldThrowErrorIfUserDoesNotHaveAccessRights() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+
+            assertThatCode(() -> stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, 0, 0, 10))
+                    .isInstanceOf(NotAuthorizedException.class)
+                    .hasMessage("User 'user' does not have permission to view pipeline with name 'pipeline'");
+        }
+
+        @Test
+        void shouldThrowErrorIfCursorIsANegativeInteger() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
+
+            assertThatCode(() -> stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, -10, 0, 10))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage("The query parameter `after`, if specified, must be a positive integer.");
+
+            assertThatCode(() -> stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, 0, -10, 10))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage("The query parameter `before`, if specified, must be a positive integer.");
+        }
+    }
+
+    @Nested
+    class LatestAndOldestStageInstanceId {
+        private StageService stageService;
+        private Username username = Username.valueOf("user");
+        String pipelineName = "pipeline";
+
+        @BeforeEach
+        void setUp() {
+            stageService = new StageService(stageDao, jobInstanceService, null, null, securityService, pipelineDao, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+        }
+
+        @Test
+        void shouldReturnTheLatestAndOldestRunID() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
+
+            stageService.getOldestAndLatestStageInstanceId(username, pipelineName, STAGE_NAME);
+
+            verify(stageDao).getOldestAndLatestStageInstanceId(pipelineName, STAGE_NAME);
+        }
+
+
+        @Test
+        void shouldThrowErrorIfPipelineDoesNotExist() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+
+            assertThatCode(() -> stageService.getOldestAndLatestStageInstanceId(username, pipelineName, STAGE_NAME))
+                    .isInstanceOf(RecordNotFoundException.class)
+                    .hasMessage("Pipeline with name 'pipeline' was not found!");
+        }
+
+        @Test
+        void shouldThrowErrorIfUserDoesNotHaveAccessRights() {
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+
+            assertThatCode(() -> stageService.getOldestAndLatestStageInstanceId(username, pipelineName, STAGE_NAME))
+                    .isInstanceOf(NotAuthorizedException.class)
+                    .hasMessage("User 'user' does not have permission to view pipeline with name 'pipeline'");
+        }
     }
 }

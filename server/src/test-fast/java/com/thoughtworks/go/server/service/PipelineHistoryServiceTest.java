@@ -922,7 +922,7 @@ class PipelineHistoryServiceTest {
 
             assertThatCode(() -> pipelineHistoryService.loadPipelineHistoryData(username, pipelineName, -10L, 0, 10))
                     .isInstanceOf(BadRequestException.class)
-                    .hasMessage("The query parameter `after`, if specified, must be positive integer.");
+                    .hasMessage("The query parameter `after`, if specified, must be a positive integer.");
 
             verifyZeroInteractions(pipelineDao);
         }
@@ -939,7 +939,7 @@ class PipelineHistoryServiceTest {
 
             assertThatCode(() -> pipelineHistoryService.loadPipelineHistoryData(username, pipelineName, 0, -10L, 10))
                     .isInstanceOf(BadRequestException.class)
-                    .hasMessage("The query parameter `before`, if specified, must be positive integer.");
+                    .hasMessage("The query parameter `before`, if specified, must be a positive integer.");
 
             verifyZeroInteractions(pipelineDao);
         }

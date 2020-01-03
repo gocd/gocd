@@ -18,6 +18,10 @@ package com.thoughtworks.go.server.service;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
+import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.domain.feed.Author;
@@ -61,6 +65,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import static com.thoughtworks.go.server.service.PipelineHistoryService.BAD_CURSOR_MSG;
+import static java.lang.String.format;
 
 @Service
 public class StageService implements StageFinder {
@@ -429,6 +436,41 @@ public class StageService implements StageFinder {
         }
 
         return stageDao.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination);
+    }
+
+    public StageInstanceModels findStageHistoryViaCursor(Username username, String pipelineName, String stageName, long afterCursor, long beforeCursor, Integer pageSize) {
+        checkForExistenceAndAccess(username, pipelineName);
+        StageInstanceModels stageInstanceModels;
+        if (validateCursor(afterCursor, "after")) {
+            stageInstanceModels = stageDao.findDetailedStageHistoryViaCursor(pipelineName, stageName, FeedModifier.After, afterCursor, pageSize);
+        } else if (validateCursor(beforeCursor, "before")) {
+            stageInstanceModels = stageDao.findDetailedStageHistoryViaCursor(pipelineName, stageName, FeedModifier.Before, beforeCursor, pageSize);
+        } else {
+            stageInstanceModels = stageDao.findDetailedStageHistoryViaCursor(pipelineName, stageName, FeedModifier.Latest, 0, pageSize);
+        }
+        return stageInstanceModels;
+    }
+
+    public PipelineRunIdInfo getOldestAndLatestStageInstanceId(Username username, String pipelineName, String stageName) {
+        checkForExistenceAndAccess(username, pipelineName);
+        return stageDao.getOldestAndLatestStageInstanceId(pipelineName, stageName);
+    }
+
+    private void checkForExistenceAndAccess(Username username, String pipelineName) {
+        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+            throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
+        }
+        if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+            throw new NotAuthorizedException(EntityType.Pipeline.forbiddenToView(pipelineName, username.getUsername()));
+        }
+    }
+
+    private boolean validateCursor(Long cursor, String key) {
+        if (cursor == 0) return false;
+        if (cursor < 0) {
+            throw new BadRequestException(format(BAD_CURSOR_MSG, key));
+        }
+        return true;
     }
 
     /**

@@ -29,7 +29,6 @@ import com.thoughtworks.go.server.service.ScheduleService
 import com.thoughtworks.go.server.service.StageService
 import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult
-import com.thoughtworks.go.server.util.Pagination
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
@@ -39,12 +38,15 @@ import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
+import java.util.stream.Stream
+
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static com.thoughtworks.go.apiv2.stageinstance.StageInstanceControllerV2.BAD_OFFSET_MSG
-import static com.thoughtworks.go.apiv2.stageinstance.StageInstanceControllerV2.BAD_PAGE_SIZE_MSG
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
@@ -464,7 +466,6 @@ class StageInstanceControllerV2Test implements SecurityServiceTrait, ControllerT
   class History {
     String pipelineName = "up42"
     String stageName = "run-tests"
-    String offset = "1"
 
     @BeforeEach
     void setUp() {
@@ -499,96 +500,113 @@ class StageInstanceControllerV2Test implements SecurityServiceTrait, ControllerT
 
       @Test
       void 'should get stage history'() {
+        def stageModels = getStageModels()
+        def runIdInfo = new PipelineRunIdInfo(5, 2)
+
         when(stageService.getCount(eq(pipelineName), eq(stageName))).thenReturn(20)
-        when(stageService.findDetailedStageHistoryByOffset(eq(pipelineName), eq(stageName), any() as Pagination, eq(currentUserLoginName().toString()), any() as HttpOperationResult)).thenReturn(getStageModels())
+        when(stageService.findStageHistoryViaCursor(currentUsername(), pipelineName, stageName, 0, 0, 10)).thenReturn(stageModels)
+        when(stageService.getOldestAndLatestStageInstanceId(currentUsername(), pipelineName, stageName)).thenReturn(runIdInfo)
 
         getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history'), [:])
 
         def expectedJson = toObjectString({
-          StageInstancesRepresenter.toJSON(it, getStageModels(), Pagination.pageStartingAt(0, 20, 10))
+          StageInstancesRepresenter.toJSON(it, stageModels, runIdInfo)
         })
+
+        verify(stageService).findStageHistoryViaCursor(currentUsername(), pipelineName, stageName, 0, 0, 10)
 
         assertThatResponse()
           .isOk()
           .hasBody(expectedJson)
-
       }
 
       @Test
-      void 'should get stage history with offset'() {
-        when(stageService.getCount(eq(pipelineName), eq(stageName))).thenReturn(20)
-        when(stageService.findDetailedStageHistoryByOffset(eq(pipelineName), eq(stageName), any() as Pagination, eq(currentUserLoginName().toString()), any() as HttpOperationResult)).thenReturn(getStageModels())
+      void 'should render stage history after the specified cursor'() {
+        def stageModels = getStageModels()
+        def runIdInfo = new PipelineRunIdInfo(5, 2)
 
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?offset=" + offset, [:])
+        when(stageService.getCount(eq(pipelineName), eq(stageName))).thenReturn(20)
+        when(stageService.findStageHistoryViaCursor(currentUsername(), pipelineName, stageName, 3, 0, 10)).thenReturn(stageModels)
+        when(stageService.getOldestAndLatestStageInstanceId(currentUsername(), pipelineName, stageName)).thenReturn(runIdInfo)
+
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?after=3")
+
+        verify(stageService).findStageHistoryViaCursor(currentUsername(), pipelineName, stageName, 3, 0, 10)
 
         def expectedJson = toObjectString({
-          StageInstancesRepresenter.toJSON(it, getStageModels(), Pagination.pageStartingAt(1, 20, 10))
+          StageInstancesRepresenter.toJSON(it, stageModels, runIdInfo)
         })
 
         assertThatResponse()
           .isOk()
-          .hasBody(expectedJson)
+          .hasContentType(controller.mimeType)
+          .hasJsonBody(expectedJson)
       }
 
       @Test
-      void 'should get stage history with page size and offset'() {
-        when(stageService.getCount(eq(pipelineName), eq(stageName))).thenReturn(20)
-        when(stageService.findDetailedStageHistoryByOffset(eq(pipelineName), eq(stageName), any() as Pagination, eq(currentUserLoginName().toString()), any() as HttpOperationResult)).thenReturn(getStageModels())
+      void 'should render stage history before the specified cursor'() {
+        def stageModels = getStageModels()
+        def runIdInfo = new PipelineRunIdInfo(5, 2)
 
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?page_size=15&offset=" + offset, [:])
+        when(stageService.getCount(eq(pipelineName), eq(stageName))).thenReturn(20)
+        when(stageService.findStageHistoryViaCursor(currentUsername(), pipelineName, stageName, 0, 3, 10)).thenReturn(stageModels)
+        when(stageService.getOldestAndLatestStageInstanceId(currentUsername(), pipelineName, stageName)).thenReturn(runIdInfo)
+
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?before=3")
+
+        verify(stageService).findStageHistoryViaCursor(currentUsername(), pipelineName, stageName, 0, 3, 10)
 
         def expectedJson = toObjectString({
-          StageInstancesRepresenter.toJSON(it, getStageModels(), Pagination.pageStartingAt(1, 20, 15))
+          StageInstancesRepresenter.toJSON(it, stageModels, runIdInfo)
         })
 
         assertThatResponse()
           .isOk()
-          .hasBody(expectedJson)
+          .hasContentType(controller.mimeType)
+          .hasJsonBody(expectedJson)
       }
 
       @Test
-      void 'should throw error if page size is specified as less than 10'() {
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?page_size=5", [:])
+      void 'should throw if the after cursor is specified as a invalid integer'() {
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?after=abc")
+
+        verifyZeroInteractions(stageService)
 
         assertThatResponse()
           .isBadRequest()
-          .hasJsonMessage(BAD_PAGE_SIZE_MSG)
+          .hasJsonMessage("The query parameter `after`, if specified, must be a positive integer.")
       }
 
       @Test
-      void 'should throw error if page size is specified as greater than 100'() {
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?page_size=115", [:])
+      void 'should throw if the before cursor is specified as a invalid integer'() {
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?before=abc")
+
+        verifyZeroInteractions(stageService)
 
         assertThatResponse()
           .isBadRequest()
-          .hasJsonMessage(BAD_PAGE_SIZE_MSG)
+          .hasJsonMessage("The query parameter `before`, if specified, must be a positive integer.")
       }
 
-      @Test
-      void 'should throw error if page size is an invalid integer'() {
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?page_size=abc", [:])
+      @ParameterizedTest
+      @MethodSource("pageSizes")
+      void 'should throw error if page_size is not between 10 and 100'(String input) {
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?page_size=" + input)
+
+        verifyZeroInteractions(stageService)
 
         assertThatResponse()
           .isBadRequest()
-          .hasJsonMessage(BAD_PAGE_SIZE_MSG)
+          .hasJsonMessage("The query parameter 'page_size', if specified must be a number between 10 and 100.")
       }
 
-      @Test
-      void 'should throw error if offset is specified as less than 0'() {
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?offset=-5", [:])
-
-        assertThatResponse()
-          .isBadRequest()
-          .hasJsonMessage(BAD_OFFSET_MSG)
-      }
-
-      @Test
-      void 'should throw error if offset is an invalid integer'() {
-        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history') + "?offset=abc", [:])
-
-        assertThatResponse()
-          .isBadRequest()
-          .hasJsonMessage(BAD_OFFSET_MSG)
+      static Stream<Arguments> pageSizes() {
+        return Stream.of(
+          Arguments.of("7"),
+          Arguments.of("107"),
+          Arguments.of("-10"),
+          Arguments.of("abc")
+        )
       }
 
       def getStageModels() {
@@ -596,10 +614,13 @@ class StageInstanceControllerV2Test implements SecurityServiceTrait, ControllerT
         jobHistoryItem.setId(34)
         def jobHistory = new JobHistory()
         jobHistory.add(jobHistoryItem)
-        def stageInstanceModel = new StageInstanceModel("stage", "3", jobHistory)
-        stageInstanceModel.setId(21)
+
         def stageInstances = new StageInstanceModels()
-        stageInstances.add(stageInstanceModel)
+        for (int i = 0; i < 5; i++) {
+          def stageInstanceModel = new StageInstanceModel("stage", (i + "3"), jobHistory, new StageIdentifier(pipelineName, i + 10, stageName, i + "2"))
+          stageInstanceModel.setId(i)
+          stageInstances.add(stageInstanceModel)
+        }
 
         return stageInstances
       }

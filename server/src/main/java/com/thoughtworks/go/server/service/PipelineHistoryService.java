@@ -64,7 +64,7 @@ public class PipelineHistoryService {
     private PipelineLockService pipelineLockService;
     private PipelinePauseService pipelinePauseService;
     private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
-    public static final String BAD_CURSOR_MSG = "The query parameter `%s`, if specified, must be positive integer.";
+    public static final String BAD_CURSOR_MSG = "The query parameter `%s`, if specified, must be a positive integer.";
 
     @Autowired
     public PipelineHistoryService(PipelineDao pipelineDao,

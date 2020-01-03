@@ -47,7 +47,8 @@ public class SparkPreFilter extends SparkFilter {
             "/go/spark/api/plugin_images",
             "/go/spark/api/support",
             "/go/spark/api/v1/health",
-            "/go/spark/api/apis"
+            "/go/spark/api/apis",
+            "/go/spark/api/feed"
         );
 
         if (request.getRequestURI().startsWith("/go/spark/api/") &&

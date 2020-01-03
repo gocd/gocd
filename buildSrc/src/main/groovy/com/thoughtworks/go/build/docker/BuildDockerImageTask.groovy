@@ -46,6 +46,14 @@ class BuildDockerImageTask extends DefaultTask {
 
   @TaskAction
   def perform() {
+    if (distroVersion.eolDate.before(new Date())) {
+      throw new RuntimeException("The image $distro:v$distroVersion.version is unsupported. EOL was ${distroVersion.eolDate}.")
+    }
+
+    if (distroVersion.aboutToEol && !distroVersion.continueToBuild) {
+      throw new RuntimeException("The image $distro:v$distroVersion.version is supposed to be EOL in ${(distroVersion.eolDate - new Date())} day(s), on ${distroVersion.eolDate}. Set :continueToBuild option to continue building.")
+    }
+
     project.delete(gitRepoDirectory)
     def credentials = "${System.getenv("GIT_USER")}:${System.getenv("GIT_PASSWORD")}"
     project.exec {

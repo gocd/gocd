@@ -19,8 +19,10 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class AuthorizationRepresenter {
@@ -40,6 +42,18 @@ public class AuthorizationRepresenter {
     }
 
     private static void writeUsersAndRoles(OutputWriter viewWriter, List<AdminUser> users, List<AdminRole> roles) {
+        List<String> userErrors = new ArrayList<>();
+        users.stream().map(user -> user.errors().getAllOn(AdminUser.ADMIN)).filter(Objects::nonNull).forEach(userErrors::addAll);
+        List<String> rolesErrors = new ArrayList<>();
+        roles.stream().map(role -> role.errors().getAllOn(AdminRole.ADMIN)).filter(Objects::nonNull).forEach(rolesErrors::addAll);
+
+        if (!rolesErrors.isEmpty() || !userErrors.isEmpty()) {
+            viewWriter.addChild("errors", errorsWriter -> {
+                errorsWriter.addChildList("roles", rolesErrors);
+                errorsWriter.addChildList("users", userErrors);
+            });
+        }
+
         if (users.isEmpty()) {
             viewWriter.addChildList("users", Collections.emptyList());
         } else {

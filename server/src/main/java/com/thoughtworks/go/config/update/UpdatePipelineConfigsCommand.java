@@ -16,6 +16,7 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ErrorCollector;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -56,10 +57,11 @@ public class UpdatePipelineConfigsCommand extends PipelineConfigsCommand {
             }
         });
 
-        if (!newPipelineGroup.getAuthorization().getAllErrors().isEmpty()) {
-            BasicCruiseConfig.copyErrors(newPipelineGroup, preprocessedPipelineConfigs);
+        if (!ErrorCollector.getAllErrors(preprocessedPipelineConfigs).isEmpty()) {
+            BasicCruiseConfig.copyErrors(preprocessedPipelineConfigs, newPipelineGroup);
             return false;
         }
+
         return true;
     }
 

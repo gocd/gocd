@@ -42,4 +42,8 @@ public class SparkOrRailsToggle {
     public void webhooks(HttpServletRequest request, HttpServletResponse response) {
         basedOnToggle(Toggles.RAILS_WEBHOOK_API, request);
     }
+
+    public void comparisonSPA(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.SHOW_OLD_COMPARISON_SPA, request);
+    }
 }

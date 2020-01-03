@@ -25,7 +25,7 @@ public class Toggles {
     public static String USE_RAILS_BASED_MATERIAL_TEST_CONNECTION_API = "use_rails_based_material_test_connection_api";
     public static String NEW_FEED_API = "new_feed_api";
     public static String RAILS_WEBHOOK_API = "rails_webhook_api";
-    public static String SHOW_NEW_COMPARISON_SPA = "show_new_comparison_spa";
+    public static String SHOW_OLD_COMPARISON_SPA = "show_old_comparison_spa";
 
     private static FeatureToggleService service;
 

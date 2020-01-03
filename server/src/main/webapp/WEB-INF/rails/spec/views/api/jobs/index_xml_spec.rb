@@ -40,7 +40,7 @@ describe "/api/jobs" do
     @job_plan_loader = double("job_plan_loader")
     allow(@job_plan_loader).to receive(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, @plans, 1, @job.getIdentifier, 'UUID', @variables, @variables, nil, nil))
 
-    @context = XmlWriterContext.new("http://test.host", @artifacts_url_reader, @job_plan_loader, nil)
+    @context = XmlWriterContext.new("http://test.host/go", @artifacts_url_reader, @job_plan_loader, nil, SystemEnvironment.new)
     assign(:doc, JobXmlViewModel.new(@job).toXml(@context))
 
     view.extend Api::FeedsHelper
@@ -50,13 +50,13 @@ describe "/api/jobs" do
     render :template => '/api/jobs/index.xml.erb'
 
     job = Nokogiri::XML(response.body).xpath("//job")
-    expect(job.xpath("link[@rel='self'][@href='http://test.host/api/jobs/1.xml']")).to_not be_nil_or_empty
+    expect(job.xpath("link[@rel='self'][@href='http://test.host/go/api/jobs/1.xml']")).to_not be_nil_or_empty
     expect(job.xpath("id").text).to eq("urn:x-go.studios.thoughtworks.com:job-id:pipeline:1:stage:1:job-name")
   end
 
   it "should contain link to stage" do
     render :template => '/api/jobs/index.xml.erb'
-    expect(Nokogiri::XML(response.body).xpath("//job/stage[@name='stage'][@counter='1'][@href='http://test.host/api/stages/666.xml']")).to_not be_nil_or_empty
+    expect(Nokogiri::XML(response.body).xpath("//job/stage[@name='stage'][@counter='1'][@href='http://test.host/go/api/stages/666.xml']")).to_not be_nil_or_empty
   end
 
   it "should contain job details" do
@@ -71,7 +71,7 @@ describe "/api/jobs" do
       expect(entry.xpath("state").text).to eq("Completed")
       expect(entry.xpath("result").text).to eq("Passed")
 
-      artifacts = entry.xpath("artifacts[@baseUri='http://test.host/artifacts-url'][@pathFromArtifactRoot='/artifacts-path']")
+      artifacts = entry.xpath("artifacts[@baseUri='http://test.host/go/artifacts-url'][@pathFromArtifactRoot='/artifacts-path']")
       expect(artifacts).to_not be_nil_or_empty
       artifacts.tap do |node|
         expect(node.xpath("artifact[@dest=''][@src='test.xml'][@type='unit']")).to_not be_nil_or_empty

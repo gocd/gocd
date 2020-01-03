@@ -237,7 +237,7 @@ describe Api::PipelinesController do
       pipeline = PipelineInstanceModel.createPipeline("pipeline", 1, "label", BuildCause.createWithEmptyModifications(), stage_history_for("blah-stage"))
       expect(@pipeline_history_service).to receive(:load).with(10, "user", anything).and_return(pipeline)
       get :pipeline_instance, params:{:id => '10', :name => "pipeline", :format => "xml", :no_layout => true}
-      context = XmlWriterContext.new("http://test.host/go", nil, nil, nil)
+      context = XmlWriterContext.new("http://test.host/go", nil, nil, nil, SystemEnvironment.new)
       expect(assigns[:doc].asXML()).to eq(PipelineXmlViewModel.new(pipeline).toXml(context).asXML())
     end
 

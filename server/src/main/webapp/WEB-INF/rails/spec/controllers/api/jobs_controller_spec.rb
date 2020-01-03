@@ -42,7 +42,7 @@ describe Api::JobsController do
   end
 
   it "should answer to /api/jobs/id.xml" do
-    expect(:get => "/api/jobs/blah_id.xml").to route_to(:id => "blah_id", :action => "index", :controller => 'api/jobs', :format=>"xml", :no_layout => true)
+    expect(:get => "/api/jobs/blah_id.xml").to route_to(:id => "blah_id", :action => "index", :controller => 'api/jobs', :format => "xml", :no_layout => true)
   end
 
   it "should load job and properties based on passed on id param" do
@@ -59,7 +59,7 @@ describe Api::JobsController do
   end
 
   it "should answer to /api/jobs/scheduled.xml" do
-    expect(:get => "/api/jobs/scheduled.xml").to route_to(:action => "scheduled", :controller => 'api/jobs', :format=>"xml", :no_layout => true)
+    expect(:get => "/api/jobs/scheduled.xml").to route_to(:action => "scheduled", :controller => 'api/jobs', :format => "xml", :no_layout => true)
   end
 
   it "should return ordered builds with environment names when scheduled is called" do
@@ -69,7 +69,7 @@ describe Api::JobsController do
     jobPlan2 = JobInstanceMother.jobPlan("job-2", 2)
     jobPlan3 = JobInstanceMother.jobPlan("job-3", 3)
 
-    waitingJobPlans =  java.util.ArrayList.new
+    waitingJobPlans = java.util.ArrayList.new
     waitingJobPlans.add(WaitingJobPlan.new(jobPlan1, "env1"))
     waitingJobPlans.add(WaitingJobPlan.new(jobPlan2, nil))
     waitingJobPlans.add(WaitingJobPlan.new(jobPlan3, "env1"))
@@ -78,9 +78,9 @@ describe Api::JobsController do
     allow(@job_instance_service).to receive(:waitingJobPlans).and_return(waitingJobPlans)
     fake_template_presence 'api/jobs/scheduled', 'some data'
 
-    get :scheduled, params:{:format => "xml", :no_layout => true}
+    get :scheduled, params: {:format => "xml", :no_layout => true}
 
-    context = XmlWriterContext.new("http://test.host/go", nil, nil, nil)
+    context = XmlWriterContext.new("http://test.host/go", nil, nil, nil, SystemEnvironment.new)
     expect(assigns[:doc]).to eq(:dom)
   end
 
@@ -93,7 +93,7 @@ describe Api::JobsController do
       expect(@job_instance_service).to receive(:getJobHistoryCount).and_return(10)
       expect(@job_instance_service).to receive(:findJobHistoryPage).with('pipeline', 'stage', 'job', anything, "loser", anything).and_return([create_job_model])
 
-      get :history, params:{:pipeline_name => 'pipeline', :stage_name => 'stage', :job_name => 'job', :offset => '5', :no_layout => true}
+      get :history, params: {:pipeline_name => 'pipeline', :stage_name => 'stage', :job_name => 'job', :offset => '5', :no_layout => true}
 
       expect(response.body).to eq(JobHistoryAPIModel.new(Pagination.pageStartingAt(5, 10, 10), [create_job_model]).to_json)
     end
@@ -106,7 +106,7 @@ describe Api::JobsController do
         result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
       end
 
-      get :history, params:{:pipeline_name => 'pipeline', :stage_name => 'stage', :job_name => 'job', :no_layout => true}
+      get :history, params: {:pipeline_name => 'pipeline', :stage_name => 'stage', :job_name => 'job', :no_layout => true}
 
       expect(response.status).to eq(406)
       expect(response.body).to eq("Not Acceptable\n")
@@ -172,23 +172,23 @@ describe Api::JobsController do
 
       describe "with_job_name_constraint" do
         it 'should route to history action of stages controller having dots in stage name' do
-          expect(:get => 'api/jobs/foo/bar/some.thing/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'bar', job_name: 'some.thing',  offset: '0')
+          expect(:get => 'api/jobs/foo/bar/some.thing/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'bar', job_name: 'some.thing', offset: '0')
         end
 
         it 'should route to history action of stages controller having hyphen in stage name' do
-          expect(:get => 'api/jobs/foo/bar/some-thing/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'bar', job_name: 'some-thing',  offset: '0')
+          expect(:get => 'api/jobs/foo/bar/some-thing/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'bar', job_name: 'some-thing', offset: '0')
         end
 
         it 'should route to history action of stages controller having underscore in stage name' do
-          expect(:get => 'api/jobs/foo/bar/some_thing/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'bar', job_name: 'some_thing',  offset: '0')
+          expect(:get => 'api/jobs/foo/bar/some_thing/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'bar', job_name: 'some_thing', offset: '0')
         end
 
         it 'should route to history action of stages controller having alphanumeric stage name' do
-          expect(:get => 'api/jobs/123foo/bar/bar123/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: '123foo', stage_name: 'bar', job_name: 'bar123',  offset: '0')
+          expect(:get => 'api/jobs/123foo/bar/bar123/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: '123foo', stage_name: 'bar', job_name: 'bar123', offset: '0')
         end
 
         it 'should route to history action of stages controller having capitalized stage name' do
-          expect(:get => 'api/jobs/foo/bar/BAR/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'bar', job_name: 'BAR',  offset: '0')
+          expect(:get => 'api/jobs/foo/bar/BAR/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'bar', job_name: 'BAR', offset: '0')
         end
 
         it 'should not route to history action of stages controller for invalid stage name' do

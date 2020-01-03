@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.domain.xml;
 
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.junit.Test;
@@ -59,7 +60,7 @@ public class JobPlanXmlViewModelTest {
                 + "</job>"
                 + "</scheduledJobs>";
 
-        Document document = jobPlanXmlViewModel.toXml(new XmlWriterContext("http://baseurl/go", null, null, null));
+        Document document = jobPlanXmlViewModel.toXml(new XmlWriterContext("http://baseurl/go", null, null, null, new SystemEnvironment()));
         assertEquals(expectedXml, document.asXML());
     }
 }

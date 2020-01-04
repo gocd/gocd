@@ -14,20 +14,9 @@
  * limitations under the License.
  */
 
-@import "../../global/common";
+@import "vals";
 @import "../../global/hack-font";
 
-$editor-bg: #333640;
-$task-bg: rgba(255, 255, 255, 0.05);
-
-$current-task-bg: rgba(255, 255, 255, 0.1);
-$current-prompt: #aadadb;
-
-$prompt: #999;
-$cmd-color: #aadbaa;
-$mod-color: #dbdbaa;
-$mod-bg:    rgba(128, 128, 255, 0.4);
-$err-bg:    rgba(255, 128, 128, 0.2);
 $attention: #e6e699;
 $info:      #9999e6;
 
@@ -35,7 +24,7 @@ $info:      #9999e6;
   display: block;
   border-radius: 5px;
   padding: 15px;
-  background-color: $editor-bg;
+  background-color: $task-editor-bg;
   color: $white;
   font-family: Hack, monospace;
   font-size: 14px;
@@ -112,7 +101,7 @@ $info:      #9999e6;
     margin-left: calc(-2ex + 2px);
     margin-right: 4px;
 
-    color: $prompt;
+    color: $task-prompt;
   }
 
   .current-editor {
@@ -124,10 +113,10 @@ $info:      #9999e6;
 
     &:focus {
       outline: none;
-      background-color: $current-task-bg;
+      background-color: $task-current-bg;
 
       &::before {
-        color: $current-prompt;
+        color: $task-current-prompt;
       }
     }
   }
@@ -147,11 +136,11 @@ $info:      #9999e6;
     }
 
     .mod {
-      color: $mod-color;
+      color: $task-mod-color;
       box-sizing: border-box;
       border-radius: 4px;
       padding: 0 5px;
-      background-color: $mod-bg;
+      background-color: $task-mod-bg;
 
       &:before {
         float: left;
@@ -159,7 +148,7 @@ $info:      #9999e6;
     }
 
     .cmd {
-      color: $cmd-color;
+      color: $task-cmd-color;
     }
 
     .args {
@@ -191,7 +180,7 @@ $info:      #9999e6;
     }
 
     &.has-errors {
-      background-color: $err-bg;
+      background-color: $task-err-bg;
 
       .cmd, .args, .mod {
         color: $white;

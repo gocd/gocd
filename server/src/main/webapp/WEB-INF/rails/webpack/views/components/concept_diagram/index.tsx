@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import classnames from "classnames";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import css from "./index.scss";
@@ -21,12 +22,13 @@ import css from "./index.scss";
 interface Attrs {
   image: string;
   css?: typeof css;
+  adaptiveWidth?: boolean;
 }
 
 export class ConceptDiagram extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>): m.Children | void | null {
     const styles = vnode.attrs.css || css;
-    return <figure class={styles.conceptDiagram}>
+    return <figure class={classnames(styles.conceptDiagram, {[styles.adaptive]: !!vnode.attrs.adaptiveWidth})}>
       <object type="image/svg+xml" data={vnode.attrs.image}/>
       <figcaption>
         {vnode.children}

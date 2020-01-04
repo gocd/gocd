@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-@import "../../global/common";
+@import "../pipelines/vals";
 @import "../../components/buttons/index";
 @import "~prismjs/themes/prism"; // don't add the `.css` extension!! See https://github.com/sass/node-sass/issues/2362#issuecomment-388634848
 
 $syntax-bg: #282923;
-$fillable-section-margin-horiz: 30px;
 $error-container-width: 450px;
 $initial-message-bg: rgba(255, 255, 255, 0.5);
-$initial-message-z: 10;
+$initial-message-z: 4; // just underneath the global page header z-index
 
-.builder-form, .preview-pane {
-  max-width: calc(50% - #{$fillable-section-margin-horiz});
-  flex-basis: 50%;
-  flex-shrink: 1;
-  flex-grow: 1;
-}
+$shell-sample-bg: $task-editor-bg;
+$shell-sample-prompt: $white;
+$shell-sample-cmd: $task-cmd-color;
 
 .plugin-selector {
   align-items: center;
@@ -48,6 +44,13 @@ $initial-message-z: 10;
     width: auto;
     min-width: 140px;
   }
+}
+
+.builder-form, .preview-pane {
+  max-width: calc(50% - #{$fillable-section-margin});
+  flex-basis: 50%;
+  flex-shrink: 0;
+  flex-grow: 0;
 }
 
 .preview-pane[class*="language-"] { // scss-lint:disable-line
@@ -93,53 +96,34 @@ $initial-message-z: 10;
   padding: 0;
 }
 
-.with-spanning-heading {
-  flex-wrap: wrap;
+.subheading {
+  width: 100%;
 
-  .subheading {
-    width: 100%;
-
-    h3 {
-      font-size: 24px;
-      font-weight: 600;
-
-      margin: 0 0 10px;
-      padding: 0;
-    }
-
-    .section-note {
-      display: inline-block;
-      font-size: 12px;
-      margin: 0 0 20px;
-
-      .attention {
-        color: $go-danger;
-      }
-    }
-  }
-
-  .subsection {
-    padding:      0;
-    padding-left: 15px;
-
-    flex-basis:  33%;
-    max-width:   33%;
-    border-left: 1px solid $line-color;
-  }
-
-  .subsection-heading {
+  h3 {
+    font-size: 24px;
     font-weight: 600;
-    font-size: 19px;
-    margin-bottom: 10px;
+
+    margin: 0 0 10px;
+    padding: 0;
+  }
+
+  .section-note {
+    display: inline-block;
+    font-size: 12px;
+    margin: 0 0 20px;
+
+    .attention {
+      color: $go-danger;
+    }
+  }
+
+  p {
+    font-size: 16px;
   }
 }
 
-.verify-defs-in-material {
-  .msg {
-    margin:       0;
-    margin-right: 15px;
-    margin-bottom: 10px;
-  }
+.minor-heading {
+  font-size: 18px;
 }
 
 .download-instructions {
@@ -181,6 +165,32 @@ $initial-message-z: 10;
   }
 }
 
+.add-to-repo-example {
+  pre {
+    border-radius: 5px;
+    padding: 15px;
+    background-color: $shell-sample-bg;
+    color: $shell-sample-cmd;
+    font-family: Hack, monospace;
+    font-size: 14px;
+  }
+
+  code {
+    font-family: inherit;
+
+    .line {
+      line-height: 175%;
+
+      &:before {
+        display: inline-block;
+        content: "$";
+        margin-right: 1ex;
+        color: $shell-sample-prompt;
+      }
+    }
+  }
+}
+
 .actions {
   width: 100%;
 
@@ -209,8 +219,4 @@ $initial-message-z: 10;
       }
     }
   }
-}
-
-.hint {
-  color: lighten($text-color, 45%);
 }

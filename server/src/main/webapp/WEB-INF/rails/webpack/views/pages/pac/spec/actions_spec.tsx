@@ -74,7 +74,7 @@ describe("AddPaC: Actions Section", () => {
     expect(helper.q(sel.errorResponse, saveActions).textContent).toBe("");
 
     expect(helper.q(sel.btnPrimary, saveActions)).toBeTruthy();
-    expect(helper.q(sel.btnPrimary, saveActions).textContent).toBe("Finish");
+    expect(helper.q(sel.btnPrimary, saveActions).textContent).toBe("Save");
   });
 
   it("Does not create a config repo unless the model validates", () => {
@@ -94,7 +94,7 @@ describe("AddPaC: Actions Section", () => {
     expect(loc.last()).toBe(`/go/pipelines`);
   });
 
-  it("Finish creates a config repo and goes to the pac page with focus on that config repo when successful", (done) => {
+  it("Save creates a config repo and goes to the pac page with focus on that config repo when successful", (done) => {
     configRepo.isValid  = jasmine.createSpy("isValid").and.returnValue(true);
     const promise       = new Promise<ApiResult<ObjectWithEtag<ConfigRepo>>>((resolve) => {
       resolve(ApiResult.success("", 200, new Map()).map(() => {

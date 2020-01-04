@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,18 @@
 
 @import "../../global/common";
 
-$diagram-width: 420px;
-$diagram-caption-width: 300px;
+// fillable_section
+$fillable-section-margin: 30px;
+$fillable-section-width-min: 1000px;
+$fillable-section-width-max: 1200px;
 
-.concept-diagram {
-  width: $diagram-width;
-  margin: 0;
-  padding: 0;
-
-  flex: 0 0 auto;
-
-  &.adaptive {
-    width: auto;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  object {
-    background-color: $white;
-  }
-
-  figcaption {
-    font-size: 16px;
-    text-align: center;
-    width: $diagram-caption-width;
-    margin: 10px auto 0;
-  }
-}
+// task_terminal
+$task-editor-bg: #333640;
+$task-bg: rgba(255, 255, 255, 0.05);
+$task-current-bg: rgba(255, 255, 255, 0.1);
+$task-current-prompt: #aadadb;
+$task-prompt: #999;
+$task-cmd-color: #aadbaa;
+$task-mod-color: #dbdbaa;
+$task-mod-bg:    rgba(128, 128, 255, 0.4);
+$task-err-bg:    rgba(255, 128, 128, 0.2);

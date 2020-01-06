@@ -836,4 +836,8 @@ public class Routes {
     public class StatusReports {
         public static final String SPA_BASE = "/admin/status_reports";
     }
+
+    public static class ApiInfo {
+        public static final String BASE = "/api/apis";
+    }
 }

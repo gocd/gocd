@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.api.spring
+
+package com.thoughtworks.go.spark.spring
 
 import com.thoughtworks.go.config.exceptions.HttpException
 import com.thoughtworks.go.spark.SparkController
 import com.thoughtworks.go.spark.mocks.TestApplication
 import com.thoughtworks.go.spark.mocks.TestSparkPreFilter
-import com.thoughtworks.go.spark.spring.RouteInformationProvider
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -37,8 +37,7 @@ import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 import static spark.Spark.*
 
-class RerouteLatestApisImplTest {
-
+class RouteInformationProviderTest {
   @Mock
   Filter apiv11BeforeFilter1
   @Mock
@@ -176,18 +175,5 @@ class RerouteLatestApisImplTest {
   void routeAssertions() {
     routeInformationProvider.cacheRouteInformation()
     assertThat(routeInformationProvider.routes).hasSize(16)
-  }
-
-  @Test
-  void shouldRegisterLatestRoutes() {
-    // original route list
-    RerouteLatestApisImpl rerouteLatestApis = new RerouteLatestApisImpl(routeInformationProvider)
-    routeInformationProvider.cacheRouteInformation()
-    assertThat(routeInformationProvider.routes).hasSize(16)
-
-    rerouteLatestApis.registerLatest()
-    // add 5 routes for `/foo/bar`
-    // add 3 routes for `/something-else/bar`
-    assertThat(routeInformationProvider.routes).hasSize(24)
   }
 }

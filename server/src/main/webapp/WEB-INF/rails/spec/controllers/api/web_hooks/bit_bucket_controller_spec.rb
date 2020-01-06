@@ -88,6 +88,10 @@ describe Api::WebHooks::BitBucketController do
                             git@gitlab.example.com:org/repo/
                             git@gitlab.example.com:org/repo.git
                             git@gitlab.example.com:org/repo.git/
+                            ssh://gitlab.example.com/org/repo
+                            ssh://gitlab.example.com/org/repo/
+                            ssh://gitlab.example.com/org/repo.git
+                            ssh://gitlab.example.com/org/repo.git/
                             ssh://git@gitlab.example.com/org/repo
                             ssh://git@gitlab.example.com/org/repo/
                             ssh://git@gitlab.example.com/org/repo.git

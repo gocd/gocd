@@ -37,6 +37,10 @@ module Api
           git@#{repo_host_name}:#{repo_full_name}/
           git@#{repo_host_name}:#{repo_full_name}.git
           git@#{repo_host_name}:#{repo_full_name}.git/
+          ssh://#{repo_host_name}/#{repo_full_name}
+          ssh://#{repo_host_name}/#{repo_full_name}/
+          ssh://#{repo_host_name}/#{repo_full_name}.git
+          ssh://#{repo_host_name}/#{repo_full_name}.git/
           ssh://git@#{repo_host_name}/#{repo_full_name}
           ssh://git@#{repo_host_name}/#{repo_full_name}/
           ssh://git@#{repo_host_name}/#{repo_full_name}.git

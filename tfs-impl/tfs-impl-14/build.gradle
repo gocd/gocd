@@ -22,7 +22,7 @@ dependencies {
   compile project(':common')
   compile group: 'com.microsoft', name: 'tfs-sdk', version: '14.118.0'
   // not a compile dependency, but some classloader hell
-  compile(group: 'xalan', name: 'xalan', version: '2.7.1')
+  compile(group: 'xalan', name: 'xalan', version: '2.7.2')
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5

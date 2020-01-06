@@ -33,26 +33,26 @@ public class StageXmlRepresenter implements XmlRepresentable {
     public Document toXml(XmlWriterContext ctx) {
         StageIdentifier identifier = stage.getIdentifier();
         return DocumentBuilder.withRoot("stage")
-                .attr("name", stage.getName())
-                .attr("counter", stage.getCounter())
-                .link(ctx.stageXmlLink(stage.getId()), "self")
-                .cdataNode("id", identifier.asURN())
-                .node("pipeline", pipelineBuilder -> pipelineBuilder
-                        .attr("name", identifier.getPipelineName())
-                        .attr("counter", identifier.getPipelineCounter())
-                        .attr("label", identifier.getPipelineLabel())
-                        .attr("href", ctx.pipelineXmlLink(identifier.getPipelineName(), stage.getPipelineId()))
-                )
-                .textNode("updated", stage.latestTransitionDate())
-                .textNode("result", stage.getResult().toString())
-                .textNode("state", stage.status())
-                .cdataNode("approvedBy", stage.getApprovedBy())
-                .node("jobs", jobsBuilder -> {
-                    stage.getJobInstances().forEach(job -> {
-                        jobsBuilder.node("job", jobBuilder -> jobBuilder
-                                .attr("href", ctx.jobXmlLink(job.getId())));
-                    });
-                }).build();
+            .attr("name", stage.getName())
+            .attr("counter", stage.getCounter())
+            .link(ctx.stageXmlLink(stage.getIdentifier()), "self")
+            .cdataNode("id", identifier.asURN())
+            .node("pipeline", pipelineBuilder -> pipelineBuilder
+                .attr("name", identifier.getPipelineName())
+                .attr("counter", identifier.getPipelineCounter())
+                .attr("label", identifier.getPipelineLabel())
+                .attr("href", ctx.pipelineXmlLink(identifier.getPipelineName(), identifier.getPipelineCounter()))
+            )
+            .textNode("updated", stage.latestTransitionDate())
+            .textNode("result", stage.getResult().toString())
+            .textNode("state", stage.status())
+            .cdataNode("approvedBy", stage.getApprovedBy())
+            .node("jobs", jobsBuilder -> {
+                stage.getJobInstances().forEach(job -> {
+                    jobsBuilder.node("job", jobBuilder -> jobBuilder
+                        .attr("href", ctx.jobXmlLink(job.getIdentifier())));
+                });
+            }).build();
     }
 
     @Override

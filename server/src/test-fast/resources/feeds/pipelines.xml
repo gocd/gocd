@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipelines>
+    <link rel="self" href="https://go-server/go/api/feed/pipelines.xml"/>
+    <pipeline href="https://go-server/go/api/feed/pipelines/up42/stages.xml"/>
+    <pipeline href="https://go-server/go/api/feed/pipelines/up43/stages.xml"/>
+</pipelines>

@@ -92,7 +92,7 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.PIPELINE_XML))
+        getWithApiHeader(controller.controllerPath("/pipelines/up42/1"))
       }
     }
 
@@ -100,7 +100,7 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
     void 'should call feed service to get pipeline xml with pipeline name and id'() {
       getWithApiHeader(controller.controllerPath("pipelines", "up42", "101.xml"))
 
-      Mockito.verify(feedService).pipelineXml(currentUsername(), "up42", 101L, "http://test.host/go")
+      Mockito.verify(feedService).pipelineXml(currentUsername(), "up42", 101, "http://test.host/go")
       Mockito.verifyNoMoreInteractions(feedService)
     }
   }
@@ -159,15 +159,75 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGE_XML).replaceAll(":stage_id", "10"))
+        getWithApiHeader(controller.controllerPath("/pipelines/up42/1/unit-tests/1"))
       }
     }
 
     @Test
     void 'should call feed service to get stage xml'() {
-      getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGE_XML.replaceAll(":stage_id", "1.xml")))
+      getWithApiHeader(controller.controllerPath("/pipelines/up42/1/unit-tests/1"))
 
-      Mockito.verify(feedService).stageXml(1L, "http://test.host/go")
+      Mockito.verify(feedService).stageXml(currentUsername(), "up42", 1, "unit-tests", 1, "http://test.host/go")
+      Mockito.verifyNoMoreInteractions(feedService)
+    }
+  }
+
+  @Nested
+  class JobXML {
+    @BeforeEach
+    void setUp() {
+      loginAsUser()
+    }
+
+    @Nested
+    class Security implements SecurityTestTrait, NormalUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "jobXML"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath("/pipelines/up42/1/unit-tests/1/junit.xml"))
+      }
+    }
+
+    @Test
+    void 'should call feed service to get job xml'() {
+      getWithApiHeader(controller.controllerPath("/pipelines/up42/1/unit-tests/1/junit.xml"))
+
+      Mockito.verify(feedService).jobXml(currentUsername(), "up42", 1, "unit-tests", 1, "junit", "http://test.host/go")
+      Mockito.verifyNoMoreInteractions(feedService)
+    }
+  }
+
+  @Nested
+  class ScheduledJobsXML {
+    @BeforeEach
+    void setUp() {
+      loginAsUser()
+    }
+
+    @Nested
+    class Security implements SecurityTestTrait, NormalUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "scheduledJobs"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.SCHEDULED_JOB_XML))
+      }
+    }
+
+    @Test
+    void 'should call feed service to get stage xml'() {
+      getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.SCHEDULED_JOB_XML))
+
+      Mockito.verify(feedService).waitingJobPlansXml("http://test.host/go")
       Mockito.verifyNoMoreInteractions(feedService)
     }
   }

@@ -31,8 +31,6 @@ import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.domain.user.PipelineSelections;
-import com.thoughtworks.go.server.domain.user.PipelineSelectionsHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
@@ -49,7 +47,6 @@ import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels.createPipelineInstanceModels;
@@ -60,26 +57,26 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 class PipelineHistoryServiceTest {
     private static final CruiseConfig CRUISE_CONFIG = ConfigMigrator.loadWithMigration("<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
-            + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"17\" >"
-            + "<server artifactsdir=\"target/testfiles/tmpCCRoot/data/logs\"></server>"
-            + "  <pipelines>"
-            + "    <pipeline name='pipeline'>"
-            + "        <materials>"
-            + "            <svn url='ape'/>"
-            + "        </materials>"
-            + "        <stage name='auto'>"
-            + "            <jobs>"
-            + "                <job name='unit'/>"
-            + "            </jobs>"
-            + "        </stage>"
-            + "        <stage name='manual'>"
-            + "            <jobs>"
-            + "                <job name='unit'/>"
-            + "            </jobs>"
-            + "        </stage>"
-            + "    </pipeline>"
-            + "  </pipelines>"
-            + "</cruise>").config;
+        + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"17\" >"
+        + "<server artifactsdir=\"target/testfiles/tmpCCRoot/data/logs\"></server>"
+        + "  <pipelines>"
+        + "    <pipeline name='pipeline'>"
+        + "        <materials>"
+        + "            <svn url='ape'/>"
+        + "        </materials>"
+        + "        <stage name='auto'>"
+        + "            <jobs>"
+        + "                <job name='unit'/>"
+        + "            </jobs>"
+        + "        </stage>"
+        + "        <stage name='manual'>"
+        + "            <jobs>"
+        + "                <job name='unit'/>"
+        + "            </jobs>"
+        + "        </stage>"
+        + "    </pipeline>"
+        + "  </pipelines>"
+        + "</cruise>").config;
 
     @Mock
     private PipelineDao pipelineDao;
@@ -110,10 +107,10 @@ class PipelineHistoryServiceTest {
         when(goConfigService.isPipelineEditable(any(String.class))).thenReturn(true);
         Toggles.initializeWith(featureToggleService);
         pipelineHistoryService = new PipelineHistoryService(pipelineDao, goConfigService, securityService, scheduleService,
-                mock(MaterialRepository.class),
-                mock(TriggerMonitor.class),
-                pipelineTimeline,
-                pipelineUnlockService, schedulingCheckerService, pipelineLockService, pipelinePauseService);
+            mock(MaterialRepository.class),
+            mock(TriggerMonitor.class),
+            pipelineTimeline,
+            pipelineUnlockService, schedulingCheckerService, pipelineLockService, pipelinePauseService);
         config = CRUISE_CONFIG.pipelineConfigByName(new CaseInsensitiveString("pipeline"));
     }
 
@@ -151,11 +148,11 @@ class PipelineHistoryServiceTest {
 
         when(pipelineDao.loadActivePipelines()).thenReturn(activePipelineInstances);
         stubForNonActivePipeline(jez, cruiseConfig, "pipeline1", true, true,
-                activePipeline("pipeline1", 10, 2.0, new StageInstanceModel("stage1", "10", JobHistory.withJob("plan1", JobState.Completed, JobResult.Failed, new Date()))));
+            activePipeline("pipeline1", 10, 2.0, new StageInstanceModel("stage1", "10", JobHistory.withJob("plan1", JobState.Completed, JobResult.Failed, new Date()))));
         stubForNonActivePipeline(jez, cruiseConfig, "pipeline2", true, false,
-                activePipeline("pipeline2", 10, 2.0, new StageInstanceModel("stage1", "8", JobHistory.withJob("plan1", JobState.Completed, JobResult.Passed, new Date()))));
+            activePipeline("pipeline2", 10, 2.0, new StageInstanceModel("stage1", "8", JobHistory.withJob("plan1", JobState.Completed, JobResult.Passed, new Date()))));
         stubForNonActivePipeline(jez, cruiseConfig, "non-operatable-pipeline", false, false,
-                activePipeline("non-operatable-pipeline", 10, 2.0, new StageInstanceModel("one", "10", JobHistory.withJob("defaultJob", JobState.Completed, JobResult.Failed, new Date()))));
+            activePipeline("non-operatable-pipeline", 10, 2.0, new StageInstanceModel("one", "10", JobHistory.withJob("defaultJob", JobState.Completed, JobResult.Failed, new Date()))));
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(any(String.class)))).thenReturn(true);
     }
 
@@ -193,10 +190,10 @@ class PipelineHistoryServiceTest {
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(ConfigFileFixture.CONFIG).config;
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         PipelineInstanceModels activePipelineInstances = createPipelineInstanceModels(
-                activePipeline("pipeline1", 1, 1.0),
-                activePipeline("pipeline2", 1, 1.0),
-                activePipeline("pipeline4", 1, 1.0),
-                activePipeline("non-operatable-pipeline", 1, 1.0)
+            activePipeline("pipeline1", 1, 1.0),
+            activePipeline("pipeline2", 1, 1.0),
+            activePipeline("pipeline4", 1, 1.0),
+            activePipeline("non-operatable-pipeline", 1, 1.0)
         );
         for (String pipeline : new String[]{"pipeline1", "pipeline2", "pipeline3", "pipeline4", "non-operatable-pipeline"}) {
             stubPermisssionsForActivePipeline(foo, cruiseConfig, pipeline, true, true);
@@ -266,11 +263,11 @@ class PipelineHistoryServiceTest {
     class LoadHistoryWithoutHttpResult {
         @Test
         void shouldThrowRecordNotFoundWhenPipelineWithIdNotExist() {
-            when(pipelineDao.loadHistory(100L)).thenReturn(null);
+            when(pipelineDao.findPipelineHistoryByNameAndCounter("up42", 100)).thenReturn(null);
 
-            assertThatCode(() -> pipelineHistoryService.load(100L, Username.ANONYMOUS))
-                    .isInstanceOf(RecordNotFoundException.class)
-                    .hasMessage("Pipeline instance with id '100' was not found!");
+            assertThatCode(() -> pipelineHistoryService.load("up42", 100, Username.ANONYMOUS))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Pipeline instance with id '100' was not found!");
         }
 
         @Test
@@ -281,12 +278,12 @@ class PipelineHistoryServiceTest {
             PipelineInstanceModel instanceModel = mock(PipelineInstanceModel.class);
             when(instanceModel.getName()).thenReturn(pipelineName);
             when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
-            when(pipelineDao.loadHistory(100L)).thenReturn(instanceModel);
+            when(pipelineDao.findPipelineHistoryByNameAndCounter(pipelineName, 100)).thenReturn(instanceModel);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(false);
 
-            assertThatCode(() -> pipelineHistoryService.load(100L, username))
-                    .isInstanceOf(NotAuthorizedException.class)
-                    .hasMessage("Not authorized to view pipeline");
+            assertThatCode(() -> pipelineHistoryService.load(pipelineName, 100, username))
+                .isInstanceOf(NotAuthorizedException.class)
+                .hasMessage("Not authorized to view pipeline");
         }
 
         @Test
@@ -299,10 +296,10 @@ class PipelineHistoryServiceTest {
             when(instanceModel.getName()).thenReturn(pipelineName);
             when(instanceModel.getStageHistory()).thenReturn(new StageInstanceModels());
             when(goConfigService.pipelineConfigNamed(captor.capture())).thenReturn(pipelineConfig);
-            when(pipelineDao.loadHistory(100L)).thenReturn(instanceModel);
+            when(pipelineDao.findPipelineHistoryByNameAndCounter(pipelineName, 100)).thenReturn(instanceModel);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
-            PipelineInstanceModel model = pipelineHistoryService.load(100L, username);
+            PipelineInstanceModel model = pipelineHistoryService.load(pipelineName, 100, username);
 
             assertThat(model).isSameAs(instanceModel);
             assertThat(captor.getValue()).isEqualTo(new CaseInsensitiveString(pipelineName));
@@ -343,7 +340,7 @@ class PipelineHistoryServiceTest {
         when(scheduleService.canRun(eq(instanceModel.getPipelineIdentifier()), eq(firstStage.getName()), eq(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())), eq(instanceModel.hasPreviousStageBeenScheduled(firstStage.getName())), any(ServerHealthStateOperationResult.class))).thenReturn(true);
         StageInstanceModel secondStage = instanceModel.getStageHistory().get(1);
         when(scheduleService.canRun(instanceModel.getPipelineIdentifier(), secondStage.getName(), CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()),
-                instanceModel.hasPreviousStageBeenScheduled(secondStage.getName()))).thenReturn(false);
+            instanceModel.hasPreviousStageBeenScheduled(secondStage.getName()))).thenReturn(false);
 
         when(securityService.hasOperatePermissionForStage("pipeline", "dev", CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()))).thenReturn(true);
         when(securityService.hasOperatePermissionForStage("pipeline", "qa", CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()))).thenReturn(false);
@@ -444,7 +441,7 @@ class PipelineHistoryServiceTest {
 
         HttpOperationResult result = new HttpOperationResult();
         PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName,
-                Pagination.pageFor(0, 0, 10), new Username(new CaseInsensitiveString("looser")), result);
+            Pagination.pageFor(0, 0, 10), new Username(new CaseInsensitiveString("looser")), result);
 
         assertThat(pipelineInstanceModels).isNull();
         assertThat(result.httpCode()).isEqualTo(404);
@@ -499,8 +496,8 @@ class PipelineHistoryServiceTest {
             when(securityService.hasOperatePermissionForPipeline(unauthorizedUser, pipelineName)).thenReturn(false);
 
             assertThatCode(() -> pipelineHistoryService.updateComment(pipelineName, 1, "test comment", new Username(unauthorizedUser)))
-                    .isInstanceOf(NotAuthorizedException.class)
-                    .hasMessage("You do not have operate permissions for pipeline 'pipeline_name'.");
+                .isInstanceOf(NotAuthorizedException.class)
+                .hasMessage("You do not have operate permissions for pipeline 'pipeline_name'.");
 
             verifyZeroInteractions(pipelineDao);
         }
@@ -513,8 +510,8 @@ class PipelineHistoryServiceTest {
             when(securityService.hasOperatePermissionForPipeline(unauthorizedUser, pipelineName)).thenReturn(false);
 
             assertThatCode(() -> pipelineHistoryService.updateComment(pipelineName, 1, "test comment", new Username(unauthorizedUser)))
-                    .isInstanceOf(NotAuthorizedException.class)
-                    .hasMessage("You do not have operate permissions for pipeline 'pipeline_name'.");
+                .isInstanceOf(NotAuthorizedException.class)
+                .hasMessage("You do not have operate permissions for pipeline 'pipeline_name'.");
 
             verifyZeroInteractions(pipelineDao);
         }
@@ -550,8 +547,8 @@ class PipelineHistoryServiceTest {
             when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(false);
 
             assertThatCode(() -> pipelineHistoryService.getOldestAndLatestPipelineId(pipelineName, username))
-                    .isInstanceOf(RecordNotFoundException.class)
-                    .hasMessage("Pipeline with name 'pipeline' was not found!");
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Pipeline with name 'pipeline' was not found!");
         }
 
         @Test
@@ -565,8 +562,8 @@ class PipelineHistoryServiceTest {
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(false);
 
             assertThatCode(() -> pipelineHistoryService.getOldestAndLatestPipelineId(pipelineName, username))
-                    .isInstanceOf(NotAuthorizedException.class)
-                    .hasMessage("Not authorized to view pipeline");
+                .isInstanceOf(NotAuthorizedException.class)
+                .hasMessage("Not authorized to view pipeline");
         }
     }
 
@@ -630,8 +627,8 @@ class PipelineHistoryServiceTest {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
             assertThatCode(() -> pipelineHistoryService.loadPipelineHistoryData(username, pipelineName, 0, 0, 10))
-                    .isInstanceOf(RecordNotFoundException.class)
-                    .hasMessage("Pipeline with name 'pipeline' was not found!");
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Pipeline with name 'pipeline' was not found!");
 
             verifyZeroInteractions(pipelineDao);
         }
@@ -647,8 +644,8 @@ class PipelineHistoryServiceTest {
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(false);
 
             assertThatCode(() -> pipelineHistoryService.loadPipelineHistoryData(username, pipelineName, 0, 0, 10))
-                    .isInstanceOf(NotAuthorizedException.class)
-                    .hasMessage("Not authorized to view pipeline");
+                .isInstanceOf(NotAuthorizedException.class)
+                .hasMessage("Not authorized to view pipeline");
 
             verifyZeroInteractions(pipelineDao);
         }
@@ -664,8 +661,8 @@ class PipelineHistoryServiceTest {
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
             assertThatCode(() -> pipelineHistoryService.loadPipelineHistoryData(username, pipelineName, -10L, 0, 10))
-                    .isInstanceOf(BadRequestException.class)
-                    .hasMessage("The query parameter 'after', if specified, must be a positive integer.");
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("The query parameter 'after', if specified, must be a positive integer.");
 
             verifyZeroInteractions(pipelineDao);
         }
@@ -681,8 +678,8 @@ class PipelineHistoryServiceTest {
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
             assertThatCode(() -> pipelineHistoryService.loadPipelineHistoryData(username, pipelineName, 0, -10L, 10))
-                    .isInstanceOf(BadRequestException.class)
-                    .hasMessage("The query parameter 'before', if specified, must be a positive integer.");
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("The query parameter 'before', if specified, must be a positive integer.");
 
             verifyZeroInteractions(pipelineDao);
         }

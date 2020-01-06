@@ -95,10 +95,10 @@ public class PipelineHistoryService {
         return pipelineDao.count(pipelineName);
     }
 
-    public PipelineInstanceModel load(long id, Username username) {
-        PipelineInstanceModel pipeline = pipelineDao.loadHistory(id);
+    public PipelineInstanceModel load(String pipelineName, Integer pipelineCounter, Username username) {
+        PipelineInstanceModel pipeline = pipelineDao.findPipelineHistoryByNameAndCounter(pipelineName, pipelineCounter);
         if (pipeline == null) {
-            throw new RecordNotFoundException(EntityType.PipelineInstance, id);
+            throw new RecordNotFoundException(EntityType.PipelineInstance, pipelineCounter);
         }
 
         PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipeline.getName()));
@@ -256,9 +256,9 @@ public class PipelineHistoryService {
         for (StageInstanceModel stageHistoryItem : pipelineInstanceModel.getStageHistory()) {
             ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
             boolean canRun = scheduleService.canRun(
-                    pipelineInstanceModel.getPipelineIdentifier(), stageHistoryItem.getName(),
-                    CaseInsensitiveString.str(username.getUsername()), pipelineInstanceModel.hasPreviousStageBeenScheduled(
-                            stageHistoryItem.getName()), result);
+                pipelineInstanceModel.getPipelineIdentifier(), stageHistoryItem.getName(),
+                CaseInsensitiveString.str(username.getUsername()), pipelineInstanceModel.hasPreviousStageBeenScheduled(
+                    stageHistoryItem.getName()), result);
             stageHistoryItem.setCanRun(canRun);
             if (!canRun && result.getServerHealthState() != null && result.getServerHealthState().getType().equals(HealthStateType.forbidden())) {
                 stageHistoryItem.setErrorMessage(result.getServerHealthState().getMessage());
@@ -416,7 +416,7 @@ public class PipelineHistoryService {
                 boolean canForce = schedulingCheckerService.canManuallyTrigger(CaseInsensitiveString.str(pipelineName), username);
                 PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(CaseInsensitiveString.str(pipelineName));
                 groupModels.addPipelineInstance(groupName, activePipeline, canForce, securityService.hasOperatePermissionForPipeline(
-                        username.getUsername(), CaseInsensitiveString.str(pipelineName)
+                    username.getUsername(), CaseInsensitiveString.str(pipelineName)
                 ), pauseInfo);
             }
         }
@@ -506,7 +506,7 @@ public class PipelineHistoryService {
             boolean canForce = schedulingCheckerService.canManuallyTrigger(pipelineName, username);
             PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
             PipelineModel pipelineModel = new PipelineModel(pipelineName, canForce, securityService.hasOperatePermissionForPipeline(
-                    username.getUsername(), pipelineName
+                username.getUsername(), pipelineName
             ), pauseInfo);
             populateLockStatus(instanceModel.getName(), username, instanceModel);
             pipelineModel.addPipelineInstance(instanceModel);

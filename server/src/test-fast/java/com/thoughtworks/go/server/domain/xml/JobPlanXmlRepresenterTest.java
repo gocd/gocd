@@ -33,13 +33,10 @@ public class JobPlanXmlRepresenterTest {
     void shouldGenerateDocumentForJobPlan(String expectedXML) {
         EnvironmentVariable secureEnvVariable = new EnvironmentVariable("secureVariable", "value2", true);
         DefaultJobPlan jobPlan1 = JobInstanceMother.jobPlan("job-1", 1);
-        jobPlan1.setJobId(10);
         EnvironmentVariables variables = new EnvironmentVariables();
         variables.add("some_var", "blah");
         variables.add(secureEnvVariable);
         jobPlan1.setVariables(variables);
-        DefaultJobPlan jobPlan2 = JobInstanceMother.jobPlan("job-2", 1);
-        jobPlan2.setJobId(11);
 
         XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null, null, new SystemEnvironment());
 

@@ -16,11 +16,13 @@
 package com.thoughtworks.go.server.domain.xml;
 
 import com.thoughtworks.go.domain.XmlWriterContext;
+import com.thoughtworks.go.junit5.JsonSource;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.dom4j.Document;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.xmlunit.assertj.XmlAssert;
 
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels.createPipelineInstanceModels;
@@ -28,8 +30,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PipelinesXmlRepresenterTest {
-    @Test
-    void shouldConvertPipelineInstanceModelsToDocument() {
+    @ParameterizedTest
+    @JsonSource(jsonFiles = "/feeds/pipelines.xml")
+    void shouldConvertPipelineInstanceModelsToDocument(String expectedXML) {
         XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null, null, new SystemEnvironment());
         PipelineInstanceModel up42Model = pipelineInstanceModel("up42");
         PipelineInstanceModel up43Model = pipelineInstanceModel("up43");
@@ -38,16 +41,9 @@ public class PipelinesXmlRepresenterTest {
 
         Document document = representer.toXml(context);
 
-        String expectedXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<pipelines>\n" +
-                "  <link rel=\"self\" href=\"https://go-server/go/api/feed/pipelines.xml\"/>\n" +
-                "  <pipeline href=\"https://go-server/go/api/feed/pipelines/up42/stages.xml\"/>\n" +
-                "  <pipeline href=\"https://go-server/go/api/feed/pipelines/up43/stages.xml\"/>\n" +
-                "</pipelines>";
-
         XmlAssert.assertThat(document.asXML()).and(expectedXML)
-                .ignoreWhitespace()
-                .areIdentical();
+            .ignoreWhitespace()
+            .areIdentical();
     }
 
     @Test
@@ -59,13 +55,13 @@ public class PipelinesXmlRepresenterTest {
         Document document = representer.toXml(context);
 
         String expectedXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<pipelines>\n" +
-                "  <link rel=\"self\" href=\"https://go-server/go/api/feed/pipelines.xml\"/>\n" +
-                "</pipelines>";
+            "<pipelines>\n" +
+            "  <link rel=\"self\" href=\"https://go-server/go/api/feed/pipelines.xml\"/>\n" +
+            "</pipelines>";
 
         XmlAssert.assertThat(document.asXML()).and(expectedXML)
-                .ignoreWhitespace()
-                .areIdentical();
+            .ignoreWhitespace()
+            .areIdentical();
     }
 
     private static PipelineInstanceModel pipelineInstanceModel(String name) {

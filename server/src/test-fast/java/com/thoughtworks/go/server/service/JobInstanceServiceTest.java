@@ -107,7 +107,7 @@ public class JobInstanceServiceTest {
         final JobStatusListener listener = Mockito.mock(JobStatusListener.class);
 
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
-                null, serverHealthService, listener);
+            null, serverHealthService, listener);
         jobService.updateStateAndResult(job);
 
         verify(jobInstanceDao).updateStateAndResult(job);
@@ -120,7 +120,7 @@ public class JobInstanceServiceTest {
         final JobStatusListener listener2 = Mockito.mock(JobStatusListener.class, "listener2");
 
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, null, serverHealthService, listener1, listener2);
+            null, null, goConfigService, null, serverHealthService, listener1, listener2);
         jobService.updateStateAndResult(job);
 
         verify(jobInstanceDao).updateStateAndResult(job);
@@ -134,7 +134,7 @@ public class JobInstanceServiceTest {
         final JobStatusListener listener2 = Mockito.mock(JobStatusListener.class, "listener2");
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, null, serverHealthService, listener1, listener2);
+            null, null, goConfigService, null, serverHealthService, listener1, listener2);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -156,7 +156,7 @@ public class JobInstanceServiceTest {
         stage.setId(1);
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, null, serverHealthService, listener1, listener2);
+            null, null, goConfigService, null, serverHealthService, listener1, listener2);
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             public void doInTransactionWithoutResult(TransactionStatus status) {
@@ -179,7 +179,7 @@ public class JobInstanceServiceTest {
         stage.setId(1);
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, null, serverHealthService, failingListener, passingListener);
+            null, null, goConfigService, null, serverHealthService, failingListener, passingListener);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -195,7 +195,7 @@ public class JobInstanceServiceTest {
     @Test
     public void shouldNotifyListenersWhenAssignedJobIsCancelled() {
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, null, serverHealthService);
+            null, null, goConfigService, null, serverHealthService);
         job.setAgentUuid("dummy agent");
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
@@ -214,7 +214,7 @@ public class JobInstanceServiceTest {
         final JobInstance scheduledJob = scheduled("dev");
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null,
-                null, goConfigService, null, serverHealthService);
+            null, goConfigService, null, serverHealthService);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -233,7 +233,7 @@ public class JobInstanceServiceTest {
         final JobInstance completedJob = completed("dev");
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null,
-                null, goConfigService, null, serverHealthService);
+            null, goConfigService, null, serverHealthService);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -250,7 +250,7 @@ public class JobInstanceServiceTest {
     @Test
     public void shouldNotNotifyListenersWhenAssignedJobCancellationTransactionRollsback() {
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, null, serverHealthService);
+            null, null, goConfigService, null, serverHealthService);
         job.setAgentUuid("dummy agent");
 
         try {
@@ -274,7 +274,7 @@ public class JobInstanceServiceTest {
         final JobInstance scheduledJob = scheduled("dev");
         scheduledJob.setId(10);
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null,
-                null, goConfigService, null, serverHealthService);
+            null, goConfigService, null, serverHealthService);
 
         when(jobInstanceDao.buildByIdWithTransitions(scheduledJob.getId())).thenReturn(scheduledJob);
 
@@ -294,7 +294,7 @@ public class JobInstanceServiceTest {
     @Test
     public void shouldDelegateToDAO_getJobHistoryCount() {
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache,
-                transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService);
+            transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService);
 
         jobService.getJobHistoryCount("pipeline", "stage", "job");
 
@@ -308,7 +308,7 @@ public class JobInstanceServiceTest {
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache,
-                transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
+            transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
 
         Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
         jobService.findJobHistoryPage("pipeline", "stage", "job", pagination, "looser", new HttpOperationResult());
@@ -323,7 +323,7 @@ public class JobInstanceServiceTest {
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache,
-                transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
+            transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
 
         Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
         HttpOperationResult result = new HttpOperationResult();
@@ -340,7 +340,7 @@ public class JobInstanceServiceTest {
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(false);
 
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache,
-                transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
+            transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
 
         Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
         HttpOperationResult result = new HttpOperationResult();
@@ -354,8 +354,8 @@ public class JobInstanceServiceTest {
     public void shouldLoadOriginalJobPlan() {
         JobResolverService resolver = mock(JobResolverService.class);
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                resolver,
-                null, goConfigService, null, serverHealthService);
+            resolver,
+            null, goConfigService, null, serverHealthService);
         DefaultJobPlan expectedPlan = new DefaultJobPlan(new Resources(), new ArrayList<>(), 7, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
         when(jobInstanceDao.loadPlan(7l)).thenReturn(expectedPlan);
         JobIdentifier givenId = new JobIdentifier("pipeline-name", 9, "label-9", "stage-name", "2", "job-name", 10l);
@@ -367,7 +367,7 @@ public class JobInstanceServiceTest {
     @Test
     public void shouldRegisterANewListener() throws SQLException {
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
-                null, serverHealthService);
+            null, serverHealthService);
         JobStatusListener listener = mock(JobStatusListener.class);
         jobService.registerJobStateChangeListener(listener);
         jobService.updateStateAndResult(job);
@@ -379,7 +379,7 @@ public class JobInstanceServiceTest {
     @Test
     public void shouldGetCompletedJobsOnAgentOnTheGivenPage() {
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
-                null, serverHealthService);
+            null, serverHealthService);
         ArrayList<JobInstance> expected = new ArrayList<>();
         when(jobInstanceDao.totalCompletedJobsOnAgent("uuid")).thenReturn(500);
         when(jobInstanceDao.completedJobsOnAgent("uuid", JobInstanceService.JobHistoryColumns.pipeline, SortOrder.ASC, 50, 50)).thenReturn(expected);
@@ -398,7 +398,7 @@ public class JobInstanceServiceTest {
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p2", "s2", "j2"))));
         assertThat(serverHealthService.logs().errorCount(), is(2));
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
-                null, serverHealthService);
+            null, serverHealthService);
         jobService.onConfigChange(new BasicCruiseConfig());
         assertThat(serverHealthService.logs().errorCount(), is(0));
     }
@@ -410,7 +410,7 @@ public class JobInstanceServiceTest {
         serverHealthService.update(ServerHealthState.error("message", "description", HealthStateType.general(HealthStateScope.forJob("p2", "s2", "j2"))));
         assertThat(serverHealthService.logs().errorCount(), is(2));
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
-                null, serverHealthService);
+            null, serverHealthService);
         JobInstanceService.PipelineConfigChangedListener pipelineConfigChangedListener = jobService.new PipelineConfigChangedListener();
         pipelineConfigChangedListener.onEntityConfigChange(PipelineConfigMother.pipelineConfig("p1", "s_new", new MaterialConfigs(), "j1"));
         assertThat(serverHealthService.logs().errorCount(), is(1));
@@ -423,7 +423,7 @@ public class JobInstanceServiceTest {
         when(jobInstanceDao.getRunningJobs()).thenReturn(expectedRunningJobs);
 
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
-                null, serverHealthService);
+            null, serverHealthService);
 
         List<JobInstance> jobInstances = jobService.allRunningJobs();
 
@@ -437,9 +437,9 @@ public class JobInstanceServiceTest {
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(false);
         JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService);
 
-        assertThatCode(() -> jobInstanceService.findJobInstance("pipeline", "stage", "job", 1, 1, "admin"))
-                .isInstanceOf(RecordNotFoundException.class)
-                .hasMessage("Pipeline with name 'pipeline' was not found!");
+        assertThatCode(() -> jobInstanceService.findJobInstance("pipeline", "stage", "job", 1, 1, new Username("admin")))
+            .isInstanceOf(RecordNotFoundException.class)
+            .hasMessage("Pipeline with name 'pipeline' was not found!");
     }
 
     @Test
@@ -450,9 +450,9 @@ public class JobInstanceServiceTest {
 
         JobInstanceService jobInstanceService = new JobInstanceService(jobInstanceDao, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService, securityService, serverHealthService);
 
-        assertThatCode(() -> jobInstanceService.findJobInstance("pipeline", "stage", "job", 1, 1, "user"))
-                .isInstanceOf(NotAuthorizedException.class)
-                .hasMessage("Not authorized to view pipeline");
+        assertThatCode(() -> jobInstanceService.findJobInstance("pipeline", "stage", "job", 1, 1, new Username("user")))
+            .isInstanceOf(NotAuthorizedException.class)
+            .hasMessage("Not authorized to view pipeline");
     }
 
     @Nested

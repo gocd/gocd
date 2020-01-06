@@ -45,8 +45,8 @@ public class FeedEntriesRepresenterTest {
         Document document = representable.toXml(context);
 
         XmlAssert.assertThat(document.asXML()).and(expectedXML)
-                .ignoreWhitespace()
-                .areIdentical();
+            .ignoreWhitespace()
+            .areIdentical();
     }
 
     @ParameterizedTest
@@ -60,19 +60,19 @@ public class FeedEntriesRepresenterTest {
         Document document = new FeedEntriesRepresenter(pipelineName, feedEntries).toXml(context);
 
         XmlAssert.assertThat(document.asXML()).and(expectedXML)
-                .ignoreWhitespace()
-                .areIdentical();
+            .ignoreWhitespace()
+            .areIdentical();
     }
 
     private static StageFeedEntry passed() {
         Date date = DateUtils.parseISO8601("2019-12-31T07:28:30+05:30");
-        StageIdentifier identifier = new StageIdentifier("up42", 2, "up42_stage", "100");
+        StageIdentifier identifier = new StageIdentifier("up42", 2, "unit-tests", "100");
         return new StageFeedEntry(1L, 1L, identifier, 124L, date, StageResult.Passed, "", "Bob", null);
     }
 
     private static StageFeedEntry cancelled() {
         Date date = DateUtils.parseISO8601("2019-12-31T07:28:30+05:30");
-        StageIdentifier identifier = new StageIdentifier("up42", 2, "up42_stage", "100");
+        StageIdentifier identifier = new StageIdentifier("up42", 2, "integration-tests", "100");
         return new StageFeedEntry(1L, 1L, identifier, 123L, date, StageResult.Cancelled, "", "Bob", "Admin");
     }
 }

@@ -49,6 +49,7 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
     public FeedsApiControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
                                 FeedService feedService) {
         super(ApiVersion.v1);
+        this.mimeType = APPLICATION_XML_VALUE;
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.feedService = feedService;
     }
@@ -64,10 +65,12 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
             before("/*", mimeType, this::setContentType);
             before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
-            get(Routes.FeedsAPI.PIPELINES_XML, this::pipelinesXML);
-            get(Routes.FeedsAPI.STAGES_XML, this::stagesXML);
-            get(Routes.FeedsAPI.PIPELINE_XML, this::pipelineXML);
-            get(Routes.FeedsAPI.STAGE_XML, this::stageXML);
+            get(Routes.FeedsAPI.PIPELINES_XML, this.mimeType, this::pipelinesXML);
+            get(Routes.FeedsAPI.STAGES_XML, this.mimeType, this::stagesXML);
+            get(Routes.FeedsAPI.PIPELINE_XML, this.mimeType, this::pipelineXML);
+            get(Routes.FeedsAPI.STAGE_XML, this.mimeType, this::stageXML);
+            get(Routes.FeedsAPI.JOB_XML, this.mimeType, this::jobXML);
+            get(Routes.FeedsAPI.SCHEDULED_JOB_XML, this.mimeType, this::scheduledJobs);
         });
     }
 
@@ -77,8 +80,8 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
 
     public String pipelineXML(Request request, Response response) throws IOException {
         String pipelineName = request.params("pipeline_name");
-        long pipelineId = parseLong(removeEnd(request.params("pipeline_id").toLowerCase(), ".xml"), "pipeline id");
-        return prettyPrint(feedService.pipelineXml(currentUsername(), pipelineName, pipelineId, baseUrl(request)));
+        Integer pipelineCounter = parseInt(removeEnd(request.params("pipeline_counter").toLowerCase(), ".xml"), "pipeline counter");
+        return prettyPrint(feedService.pipelineXml(currentUsername(), pipelineName, pipelineCounter, baseUrl(request)));
     }
 
     public String stagesXML(Request request, Response response) throws IOException {
@@ -93,8 +96,25 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
     }
 
     public String stageXML(Request request, Response response) throws IOException {
-        long stageId = parseLong(removeEnd(request.params("stage_id").toLowerCase(), ".xml"), "stage_id id");
-        return prettyPrint(feedService.stageXml(stageId, baseUrl(request)));
+        String pipelineName = request.params("pipeline_name");
+        Integer pipelineCounter = parseInt(request.params("pipeline_counter"), "pipeline counter");
+        String stageName = request.params("stage_name");
+        Integer stageCounter = parseInt(removeEnd(request.params("stage_counter").toLowerCase(), ".xml"), "stage counter");
+        return prettyPrint(feedService.stageXml(currentUsername(), pipelineName, pipelineCounter, stageName, stageCounter, baseUrl(request)));
+    }
+
+    public String jobXML(Request request, Response response) throws IOException {
+        String pipelineName = request.params("pipeline_name");
+        Integer pipelineCounter = parseInt(request.params("pipeline_counter"), "pipeline counter");
+        String stageName = request.params("stage_name");
+        Integer stageCounter = parseInt(request.params("stage_counter"), "stage counter");
+        String jobName = removeEnd(request.params("job_name").toLowerCase(), ".xml");
+
+        return prettyPrint(feedService.jobXml(currentUsername(), pipelineName, pipelineCounter, stageName, stageCounter, jobName, baseUrl(request)));
+    }
+
+    public String scheduledJobs(Request request, Response response) throws IOException {
+        return prettyPrint(feedService.waitingJobPlansXml(baseUrl(request)));
     }
 
     public static String prettyPrint(Document document) throws IOException {
@@ -107,15 +127,17 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
         return writer.toString();
     }
 
-    @Override
-    protected void setContentType(Request req, Response res) {
-        res.raw().setCharacterEncoding("utf-8");
-        res.type(APPLICATION_XML_VALUE);
-    }
-
-    private long parseLong(String value, String entity) {
+    private Long parseLong(String value, String entity) {
         try {
             return Long.parseLong(value);
+        } catch (NumberFormatException nfe) {
+            throw new BadRequestException(format("The '%s' must be an integer.", entity));
+        }
+    }
+
+    private Integer parseInt(String value, String entity) {
+        try {
+            return Integer.parseInt(value);
         } catch (NumberFormatException nfe) {
             throw new BadRequestException(format("The '%s' must be an integer.", entity));
         }

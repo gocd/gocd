@@ -38,7 +38,6 @@ public class JobXmlRepresenterTest {
         JobInstance jobInstance = JobInstanceMother.failed("unit-test");
         JobIdentifier identifier = new JobIdentifier("up42", 1, "UP42", "unit-tests", "1", "unit");
         jobInstance.setIdentifier(identifier);
-        jobInstance.setStageId(100);
         JobPlanLoader jobPlanLoader = mock(JobPlanLoader.class);
         JobPlan jobPlan = mock(JobPlan.class);
 

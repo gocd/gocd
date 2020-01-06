@@ -2,7 +2,7 @@
     <material materialUri="https://test.host/go/api/feed/materials/60.xml" type="DependencyMaterial"
               pipelineName="pipeline-name" stageName="stage-name">
         <modifications>
-            <changeset changesetUri="https://test.host/go/api/feed/stages/100.xml">
+            <changeset changesetUri="https://test.host/go/api/feed/pipelines/acceptance/63/twist-plugins/2.xml">
                 <checkinTime>2019-12-31T15:31:49+05:30</checkinTime>
                 <revision>acceptance/63/twist-plugins/2</revision>
             </changeset>

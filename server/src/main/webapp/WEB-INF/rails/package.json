@@ -107,7 +107,7 @@
     "karma-edge-launcher": "https://github.com/karma-runner/karma-edge-launcher.git#f2bf198c02753f732dd1a2ac530981b7897d52d8",
     "karma-firefox-launcher": "^1.2.0",
     "karma-html-reporter": "^0.2.7",
-    "karma-jasmine": "^2.0.1",
+    "karma-jasmine": "^3.0.0",
     "karma-jasmine-html-reporter": "^1.5.1",
     "karma-jasmine-seed-reporter": "^0.2.0",
     "karma-junit-reporter": "^2.0.1",

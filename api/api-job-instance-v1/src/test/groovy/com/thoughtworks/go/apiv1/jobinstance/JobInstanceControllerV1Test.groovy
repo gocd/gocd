@@ -163,7 +163,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
         getWithApiHeader(controller.controllerPath(pipelineName, stageName, jobName, 'history') + "?before=3")
 
-        verify(jobInstanceService).getJobHistoryViaCursor(any(Username.class), eq(pipelineName), eq(stageName), eq(jobName), eq(3L), eq(0L), eq(10))
+        verify(jobInstanceService).getJobHistoryViaCursor(any(Username.class), eq(pipelineName), eq(stageName), eq(jobName), eq(0L), eq(3L), eq(10))
 
         def expectedJson = toObjectString({
           JobInstancesRepresenter.toJSON(it, jobInstances, runIdInfo)
@@ -183,7 +183,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
         assertThatResponse()
           .isBadRequest()
-          .hasJsonMessage("The query parameter `after`, if specified, must be positive integer.")
+          .hasJsonMessage("The query parameter 'after', if specified, must be a positive integer.")
       }
 
       @Test
@@ -194,7 +194,7 @@ class JobInstanceControllerV1Test implements SecurityServiceTrait, ControllerTra
 
         assertThatResponse()
           .isBadRequest()
-          .hasJsonMessage("The query parameter `before`, if specified, must be positive integer.")
+          .hasJsonMessage("The query parameter 'before', if specified, must be a positive integer.")
       }
 
       @ParameterizedTest

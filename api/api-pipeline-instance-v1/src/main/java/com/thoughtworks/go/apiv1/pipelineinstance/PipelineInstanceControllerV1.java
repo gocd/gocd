@@ -38,6 +38,8 @@ import spark.Response;
 
 import java.io.IOException;
 
+import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_CURSOR_MSG;
+import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_PAGE_SIZE_MSG;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
@@ -128,7 +130,7 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
             }
             cursor = Long.parseLong(value);
         } catch (NumberFormatException nfe) {
-            throw new BadRequestException(String.format(PipelineHistoryService.BAD_CURSOR_MSG, key));
+            throw new BadRequestException(String.format(BAD_CURSOR_MSG, key));
         }
         return cursor;
     }

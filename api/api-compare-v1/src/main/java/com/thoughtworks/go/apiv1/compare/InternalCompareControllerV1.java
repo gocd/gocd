@@ -32,6 +32,7 @@ import spark.Response;
 
 import java.io.IOException;
 
+import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_PAGE_SIZE_MSG;
 import static spark.Spark.*;
 
 @Component

@@ -35,14 +35,14 @@ import spark.Response;
 
 import java.io.IOException;
 
-import static com.thoughtworks.go.server.service.PipelineHistoryService.BAD_CURSOR_MSG;
+import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_CURSOR_MSG;
+import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_PAGE_SIZE_MSG;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
 public class JobInstanceControllerV1 extends ApiController implements SparkSpringController {
-    static final String BAD_PAGE_SIZE_MSG = "The query parameter `page_size`, if specified must be a number between 10 and 100.";
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final JobInstanceService jobInstanceService;
 

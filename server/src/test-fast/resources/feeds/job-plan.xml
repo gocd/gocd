@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scheduledJobs>
-    <job name="job-1" id="10">
-        <link rel="self" href="https://go-server/go/tab/build/detail/pipeline/1/stage/1/job-1"/>
+    <job name="job-1">
+        <link rel="self" href="https://go-server/go/api/feed/pipelines/pipeline/1/stage/1/job-1.xml"/>
+        <link rel="alternate" href="https://go-server/go/tab/build/detail/pipeline/1/stage/1/job-1"
+              title="job-1 Job Detail" type="text/html"/>
         <buildLocator>pipeline/1/stage/1/job-1</buildLocator>
         <environment>envName</environment>
         <resources>

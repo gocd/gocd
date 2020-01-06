@@ -40,14 +40,14 @@ public class FeedEntriesRepresenter implements XmlRepresentable {
     public Document toXml(XmlWriterContext ctx) {
         String selfUrl = ctx.stagesXmlLink(pipelineName);
         DocumentBuilder documentBuilder = DocumentBuilder
-                .withRoot("feed", "http://www.w3.org/2005/Atom")
-                .encoding("UTF-8")
-                .additionalNamespace("go", "http://www.thoughtworks-studios.com/ns/go")
-                .cdataNode("title", pipelineName)
-                .textNode("id", selfUrl)
-                .node("author", builder -> builder.textNode("name", "Go"))
-                .textNode("updated", feedEntries.lastUpdatedDate())
-                .link(selfUrl, "self");
+            .withRoot("feed", "http://www.w3.org/2005/Atom")
+            .encoding("UTF-8")
+            .additionalNamespace("go", "http://www.thoughtworks-studios.com/ns/go")
+            .cdataNode("title", pipelineName)
+            .textNode("id", selfUrl)
+            .node("author", builder -> builder.textNode("name", "Go"))
+            .textNode("updated", feedEntries.lastUpdatedDate())
+            .link(selfUrl, "self");
 
         if (feedEntries.last() != null) {
             documentBuilder.link(ctx.stagesXmlLink(pipelineName, feedEntries.lastEntryId()), "next");
@@ -62,10 +62,10 @@ public class FeedEntriesRepresenter implements XmlRepresentable {
 
     private void addEntry(StageFeedEntry feed, ElementBuilder builder, XmlWriterContext ctx) {
         StageIdentifier identifier = feed.getStageIdentifier();
-        String entryUrl = ctx.stageFeedEntryLink(identifier.getStageLocator());
+        String entryUrl = ctx.stageDetailsPageLink(identifier.getStageLocator());
         builder.cdataNode("title", feed.getTitle())
-                .textNode("updated", feed.getUpdatedDate())
-                .textNode("id", entryUrl);
+            .textNode("updated", feed.getUpdatedDate())
+            .textNode("id", entryUrl);
 
         if (feed.isManuallyTriggered()) {
             builder.node("go:author", childBuilder -> childBuilder.cdataNode("go:name", feed.getApprovedBy()));
@@ -86,14 +86,14 @@ public class FeedEntriesRepresenter implements XmlRepresentable {
 
         String stageTitle = identifier.getStageName() + " Stage Detail";
         String pipelineTitle = identifier.getPipelineName() + " Pipeline Detail";
-        String stageXmlHref = ctx.stageXmlLink(feed.getId());
-        String pipelineXmlHref = ctx.pipelineXmlLink(this.pipelineName, feed.getPipelineId());
+        String stageXmlHref = ctx.stageXmlLink(feed.getStageIdentifier());
+        String pipelineXmlHref = ctx.pipelineXmlLink(this.pipelineName, identifier.getPipelineCounter());
         String goRelationsUrl = "http://www.thoughtworks-studios.com/ns/relations/go/pipeline";
 
         builder.link(stageXmlHref, "alternate", stageTitle, "application/vnd.go+xml")
-                .link(entryUrl, "alternate", stageTitle, "text/html")
-                .link(pipelineXmlHref, goRelationsUrl, pipelineTitle, "application/vnd.go+xml")
-                .link(entryUrl, goRelationsUrl, pipelineTitle, "text/html");
+            .link(entryUrl, "alternate", stageTitle, "text/html")
+            .link(pipelineXmlHref, goRelationsUrl, pipelineTitle, "application/vnd.go+xml")
+            .link(entryUrl, goRelationsUrl, pipelineTitle, "text/html");
 
         addCategory(builder, "stage", "Stage");
         addCategory(builder, "completed", "Completed");
@@ -103,8 +103,8 @@ public class FeedEntriesRepresenter implements XmlRepresentable {
     private void addCategory(ElementBuilder builder, String term, String label) {
         builder.node("category", nodeBuilder -> {
             nodeBuilder.attr("scheme", "http://www.thoughtworks-studios.com/ns/categories/go")
-                    .attr("term", term)
-                    .attr("label", label);
+                .attr("term", term)
+                .attr("label", label);
         });
     }
 

@@ -114,11 +114,11 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         return jobInstanceDao.findJobHistoryPage(pipelineName, stageName, jobConfigName, pagination.getPageSize(), pagination.getOffset());
     }
 
-    public JobInstance findJobInstance(String pipelineName, String stageName, String jobName, Integer pipelineCounter, Integer stageCounter, String username) {
+    public JobInstance findJobInstance(String pipelineName, String stageName, String jobName, Integer pipelineCounter, Integer stageCounter, Username username) {
         if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
             throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
         }
-        if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
+        if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
             throw new NotAuthorizedException(NOT_AUTHORIZED_TO_VIEW_PIPELINE);
         }
 

@@ -9,39 +9,51 @@
     <link rel="self" href="https://go-server/go/api/feed/pipelines/up42/stages.xml"/>
     <link rel="next" href="https://go-server/go/api/feed/pipelines/up42/stages.xml?before=124"/>
     <entry>
-        <title><![CDATA[up42(2) stage up42_stage(100) Cancelled]]></title>
+        <title><![CDATA[up42(2) stage integration-tests(100) Cancelled]]></title>
         <updated>2019-12-31T07:28:30+05:30</updated>
-        <id>https://go-server/go/api/feed/pipelines/up42/2/up42_stage/100</id>
+        <id>https://go-server/go/pipelines/up42/2/integration-tests/100</id>
         <cancelledBy>
             <go:name><![CDATA[Admin]]></go:name>
         </cancelledBy>
-        <link rel="alternate" href="https://go-server/go/api/feed/stages/1.xml" title="up42_stage Stage Detail"
+        <link rel="alternate"
+              href="https://go-server/go/api/feed/pipelines/up42/2/integration-tests/100.xml"
+              title="integration-tests Stage Detail"
               type="application/vnd.go+xml"/>
-        <link rel="alternate" href="https://go-server/go/api/feed/pipelines/up42/2/up42_stage/100"
-              title="up42_stage Stage Detail" type="text/html"/>
+        <link rel="alternate"
+              href="https://go-server/go/pipelines/up42/2/integration-tests/100"
+              title="integration-tests Stage Detail"
+              type="text/html"/>
         <link rel="http://www.thoughtworks-studios.com/ns/relations/go/pipeline"
-              href="https://go-server/go/api/feed/pipelines/up42/1.xml" title="up42 Pipeline Detail"
+              href="https://go-server/go/api/feed/pipelines/up42/2.xml"
+              title="up42 Pipeline Detail"
               type="application/vnd.go+xml"/>
         <link rel="http://www.thoughtworks-studios.com/ns/relations/go/pipeline"
-              href="https://go-server/go/api/feed/pipelines/up42/2/up42_stage/100" title="up42 Pipeline Detail"
+              href="https://go-server/go/pipelines/up42/2/integration-tests/100"
+              title="up42 Pipeline Detail"
               type="text/html"/>
         <category scheme="http://www.thoughtworks-studios.com/ns/categories/go" term="stage" label="Stage"/>
         <category scheme="http://www.thoughtworks-studios.com/ns/categories/go" term="completed" label="Completed"/>
         <category scheme="http://www.thoughtworks-studios.com/ns/categories/go" term="cancelled" label="Cancelled"/>
     </entry>
     <entry>
-        <title><![CDATA[up42(2) stage up42_stage(100) Passed]]></title>
+        <title><![CDATA[up42(2) stage unit-tests(100) Passed]]></title>
         <updated>2019-12-31T07:28:30+05:30</updated>
-        <id>https://go-server/go/api/feed/pipelines/up42/2/up42_stage/100</id>
-        <link rel="alternate" href="https://go-server/go/api/feed/stages/1.xml" title="up42_stage Stage Detail"
+        <id>https://go-server/go/pipelines/up42/2/unit-tests/100</id>
+        <link rel="alternate"
+              href="https://go-server/go/api/feed/pipelines/up42/2/unit-tests/100.xml"
+              title="unit-tests Stage Detail"
               type="application/vnd.go+xml"/>
-        <link rel="alternate" href="https://go-server/go/api/feed/pipelines/up42/2/up42_stage/100"
-              title="up42_stage Stage Detail" type="text/html"/>
+        <link rel="alternate"
+              href="https://go-server/go/pipelines/up42/2/unit-tests/100"
+              title="unit-tests Stage Detail"
+              type="text/html"/>
         <link rel="http://www.thoughtworks-studios.com/ns/relations/go/pipeline"
-              href="https://go-server/go/api/feed/pipelines/up42/1.xml" title="up42 Pipeline Detail"
+              href="https://go-server/go/api/feed/pipelines/up42/2.xml"
+              title="up42 Pipeline Detail"
               type="application/vnd.go+xml"/>
         <link rel="http://www.thoughtworks-studios.com/ns/relations/go/pipeline"
-              href="https://go-server/go/api/feed/pipelines/up42/2/up42_stage/100" title="up42 Pipeline Detail"
+              href="https://go-server/go/pipelines/up42/2/unit-tests/100"
+              title="up42 Pipeline Detail"
               type="text/html"/>
         <category scheme="http://www.thoughtworks-studios.com/ns/categories/go" term="stage" label="Stage"/>
         <category scheme="http://www.thoughtworks-studios.com/ns/categories/go" term="completed" label="Completed"/>

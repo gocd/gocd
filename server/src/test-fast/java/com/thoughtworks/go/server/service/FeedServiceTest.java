@@ -20,10 +20,7 @@ import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.domain.xml.FeedEntriesRepresenter;
-import com.thoughtworks.go.server.domain.xml.PipelineXmlRepresenter;
-import com.thoughtworks.go.server.domain.xml.PipelinesXmlRepresenter;
-import com.thoughtworks.go.server.domain.xml.StageXmlRepresenter;
+import com.thoughtworks.go.server.domain.xml.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -49,6 +46,8 @@ public class FeedServiceTest {
     private SecurityService securityService;
     @Mock
     private GoConfigService goConfigService;
+    @Mock
+    private JobInstanceService jobInstanceService;
 
     @InjectMocks
     private FeedService feedService;
@@ -82,8 +81,8 @@ public class FeedServiceTest {
             when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("up42"))).thenReturn(false);
 
             assertThatCode(() -> feedService.stagesXml(username, "up42", null, BASE_URL))
-                    .isInstanceOf(RecordNotFoundException.class)
-                    .hasMessage("Pipeline with name 'up42' was not found!");
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Pipeline with name 'up42' was not found!");
         }
 
         @Test
@@ -93,8 +92,8 @@ public class FeedServiceTest {
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(false);
 
             assertThatCode(() -> feedService.stagesXml(username, pipelineName, null, BASE_URL))
-                    .isInstanceOf(NotAuthorizedException.class)
-                    .hasMessage("Not authorized to view pipeline");
+                .isInstanceOf(NotAuthorizedException.class)
+                .hasMessage("Not authorized to view pipeline");
         }
 
         @Test
@@ -109,6 +108,7 @@ public class FeedServiceTest {
             verify(xmlApiService).write(any(FeedEntriesRepresenter.class), eq(BASE_URL));
             verifyNoMoreInteractions(xmlApiService);
             verifyZeroInteractions(pipelineHistoryService);
+            verifyZeroInteractions(jobInstanceService);
         }
 
         @Test
@@ -123,6 +123,7 @@ public class FeedServiceTest {
             verify(xmlApiService).write(any(FeedEntriesRepresenter.class), eq(BASE_URL));
             verifyNoMoreInteractions(xmlApiService);
             verifyZeroInteractions(pipelineHistoryService);
+            verifyZeroInteractions(jobInstanceService);
         }
     }
 
@@ -132,13 +133,14 @@ public class FeedServiceTest {
         void shouldReturnPipelineXmlDocument() {
             String pipelineName = "up42";
 
-            feedService.pipelineXml(username, pipelineName, 100L, BASE_URL);
+            feedService.pipelineXml(username, pipelineName, 100, BASE_URL);
 
             verify(xmlApiService).write(any(PipelineXmlRepresenter.class), eq(BASE_URL));
-            verify(pipelineHistoryService).load(100L, username);
+            verify(pipelineHistoryService).load(pipelineName, 100, username);
             verifyNoMoreInteractions(xmlApiService);
             verifyNoMoreInteractions(pipelineHistoryService);
             verifyZeroInteractions(stageService);
+            verifyZeroInteractions(jobInstanceService);
         }
     }
 
@@ -146,12 +148,48 @@ public class FeedServiceTest {
     class StageXML {
         @Test
         void shouldReturnStageXmlDocument() {
-            feedService.stageXml(100L, BASE_URL);
+            String pipelineName = "up42";
+            String stageName = "unit-tests";
+            feedService.stageXml(username, pipelineName, 100, stageName, 1, BASE_URL);
 
             verify(xmlApiService).write(any(StageXmlRepresenter.class), eq(BASE_URL));
-            verify(stageService).stageById(100L);
+            verify(stageService).findStageWithIdentifier(pipelineName, 100, stageName, "1", username);
             verifyNoMoreInteractions(xmlApiService);
             verifyNoMoreInteractions(stageService);
+            verifyZeroInteractions(pipelineHistoryService);
+            verifyZeroInteractions(jobInstanceService);
+        }
+    }
+
+    @Nested
+    class JobXML {
+        @Test
+        void shouldReturnStageXmlDocument() {
+            String pipelineName = "up42";
+            String stageName = "unit-tests";
+            String jobName = "junit.xml";
+            feedService.jobXml(username, pipelineName, 100, stageName, 1, jobName, BASE_URL);
+
+            verify(xmlApiService).write(any(JobXmlRepresenter.class), eq(BASE_URL));
+            verify(jobInstanceService).findJobInstance(pipelineName, stageName, jobName, 100, 1, username);
+            verifyNoMoreInteractions(xmlApiService);
+            verifyNoMoreInteractions(jobInstanceService);
+            verifyZeroInteractions(stageService);
+            verifyZeroInteractions(pipelineHistoryService);
+        }
+    }
+
+    @Nested
+    class WaitingJobsXML {
+        @Test
+        void shouldReturnStageXmlDocument() {
+            feedService.waitingJobPlansXml(BASE_URL);
+
+            verify(xmlApiService).write(any(JobPlanXmlRepresenter.class), eq(BASE_URL));
+            verify(jobInstanceService).waitingJobPlans();
+            verifyNoMoreInteractions(xmlApiService);
+            verifyNoMoreInteractions(jobInstanceService);
+            verifyZeroInteractions(stageService);
             verifyZeroInteractions(pipelineHistoryService);
         }
     }

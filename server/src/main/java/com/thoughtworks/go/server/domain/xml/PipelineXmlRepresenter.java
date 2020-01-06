@@ -36,14 +36,14 @@ public class PipelineXmlRepresenter implements XmlRepresentable {
 
     @Override
     public Document toXml(XmlWriterContext ctx) {
-        String self = ctx.pipelineXmlLink(instance.getName(), instance.getId());
+        String self = ctx.pipelineXmlLink(instance.getName(), instance.getCounter());
 
         DocumentBuilder builder = DocumentBuilder.withRoot("pipeline")
-                .attr("name", instance.getName())
-                .attr("counter", instance.getCounter())
-                .link(self, "self")
-                .cdataNode("id", instance.getPipelineIdentifier().asURN())
-                .textNode("scheduleTime", DateUtils.formatISO8601(instance.getScheduledDate()));
+            .attr("name", instance.getName())
+            .attr("counter", instance.getCounter())
+            .link(self, "self")
+            .cdataNode("id", instance.getPipelineIdentifier().asURN())
+            .textNode("scheduleTime", DateUtils.formatISO8601(instance.getScheduledDate()));
 
         PipelineTimelineEntry pipelineAfter = instance.getPipelineAfter();
         if (pipelineAfter != null) {
@@ -63,8 +63,10 @@ public class PipelineXmlRepresenter implements XmlRepresentable {
 
         builder.node("stages", stagesBuilder -> {
             instance.getStageHistory().stream()
-                    .filter(stage -> !(stage instanceof NullStageHistoryItem))
-                    .forEach(stage -> stagesBuilder.node("stage", stageBuilder -> stageBuilder.attr("href", ctx.stageXmlLink(stage.getId()))));
+                .filter(stage -> !(stage instanceof NullStageHistoryItem))
+                .forEach(stage -> stagesBuilder.node("stage", stageBuilder -> stageBuilder
+                    .attr("href", ctx.stageXmlLink(stage.getIdentifier())))
+                );
         });
 
         builder.cdataNode("approvedBy", instance.getApprovedBy());
@@ -73,8 +75,8 @@ public class PipelineXmlRepresenter implements XmlRepresentable {
 
     private void populateMaterials(ElementBuilder builder, MaterialRevision revision, XmlWriterContext ctx) {
         builder.node("material", materialBuilder -> MaterialXmlRepresenter
-                .representerFor(revision)
-                .populate(materialBuilder, ctx)
+            .representerFor(revision)
+            .populate(materialBuilder, ctx)
         );
     }
 

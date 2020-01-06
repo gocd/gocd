@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.server.domain.xml;
 
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -26,7 +23,7 @@ import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
-import com.thoughtworks.go.helper.JobConfigMother;
+import com.thoughtworks.go.helper.PipelineHistoryMother;
 import com.thoughtworks.go.junit5.JsonSource;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.util.DateUtils;
@@ -41,11 +38,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialsMother.gitMaterial;
-import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
-import static com.thoughtworks.go.helper.PipelineHistoryMother.pipelineHistory;
-import static com.thoughtworks.go.helper.StageConfigMother.stageConfig;
 import static com.thoughtworks.go.util.DateUtils.parseISO8601;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -59,12 +52,8 @@ public class PipelineXmlRepresenterTest {
     @BeforeEach
     void setUp() {
         context = new XmlWriterContext("https://go-server/go", null, null, null, new SystemEnvironment());
-        Date modifiedDate = parseISO8601("2019-12-20T15:31:49+05:30");
         Date scheduledDate = parseISO8601("2019-12-31T15:31:49+05:30");
-        JobConfigs jobConfigs = new JobConfigs(JobConfigMother.job());
-        PipelineConfig pipelineConfig = pipelineConfig("up42", stageConfig("Stage1", jobConfigs));
-        pipelineConfig.setMaterialConfigs(new MaterialConfigs(git("https://gocd.org/dummy.git")));
-        model = pipelineHistory(pipelineConfig, scheduledDate, modifiedDate).get(0);
+        model = PipelineHistoryMother.pipelineInstanceModel("up42", 100, scheduledDate);
         GitMaterial gitMaterial = gitMaterial("https://material/example.git");
         gitMaterial.setId(100);
         MaterialRevision materialRevision = new MaterialRevision(gitMaterial, modifications());
@@ -77,8 +66,8 @@ public class PipelineXmlRepresenterTest {
         Document document = new PipelineXmlRepresenter(model).toXml(context);
 
         assertThat(document.asXML()).and(expectedXML)
-                .ignoreWhitespace()
-                .areIdentical();
+            .ignoreWhitespace()
+            .areIdentical();
     }
 
     @Test
@@ -91,9 +80,9 @@ public class PipelineXmlRepresenterTest {
         Document document = new PipelineXmlRepresenter(model).toXml(context);
 
         XmlAssert.assertThat(document.asXML())
-                .nodesByXPath("//pipeline/link[@rel=\"insertedBefore\"]")
-                .exist()
-                .haveAttribute("href", "https://go-server/go/api/feed/pipelines/up42/101.xml");
+            .nodesByXPath("//pipeline/link[@rel=\"insertedBefore\"]")
+            .exist()
+            .haveAttribute("href", "https://go-server/go/api/feed/pipelines/up42/101.xml");
     }
 
     @Test
@@ -106,17 +95,17 @@ public class PipelineXmlRepresenterTest {
         Document document = new PipelineXmlRepresenter(model).toXml(context);
 
         XmlAssert.assertThat(document.asXML())
-                .nodesByXPath("//pipeline/link[@rel=\"insertedAfter\"]")
-                .exist()
-                .haveAttribute("href", "https://go-server/go/api/feed/pipelines/up42/99.xml");
+            .nodesByXPath("//pipeline/link[@rel=\"insertedAfter\"]")
+            .exist()
+            .haveAttribute("href", "https://go-server/go/api/feed/pipelines/up42/99.xml");
     }
 
     private List<Modification> modifications() {
         Date date = DateUtils.parseISO8601("2019-12-31T15:31:49+05:30");
         return Arrays.asList(
-                modification(date, "Bob", "Adding build.xml", "3", "build.xml", ModifiedAction.added),
-                modification(date, "Sam", "Fixing the not checked in files", "2", "tools/bin/go.jruby", ModifiedAction.added),
-                modification(date, "Sam", "Adding .gitignore", "1", ".gitignore", ModifiedAction.modified)
+            modification(date, "Bob", "Adding build.xml", "3", "build.xml", ModifiedAction.added),
+            modification(date, "Sam", "Fixing the not checked in files", "2", "tools/bin/go.jruby", ModifiedAction.added),
+            modification(date, "Sam", "Adding .gitignore", "1", ".gitignore", ModifiedAction.modified)
         );
     }
 

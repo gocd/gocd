@@ -92,7 +92,7 @@ public class JobInstanceControllerV1 extends ApiController implements SparkSprin
         String jobName = request.params("job_name");
         Integer pipelineCounter = getValue(request, "pipeline_counter");
         Integer stageCounter = getValue(request, "stage_counter");
-        JobInstance jobInstance = jobInstanceService.findJobInstance(pipelineName, stageName, jobName, pipelineCounter, stageCounter, currentUsernameString());
+        JobInstance jobInstance = jobInstanceService.findJobInstance(pipelineName, stageName, jobName, pipelineCounter, stageCounter, currentUsername());
         if (jobInstance.isNull()) {
             throw new RecordNotFoundException(format("No job instance was found for '%s/%s/%s/%s/%s'.", pipelineName, pipelineCounter, stageName, stageCounter, jobName));
         }

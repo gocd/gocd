@@ -35,7 +35,7 @@ public class JobXmlRepresenter implements XmlRepresentable {
 
         return DocumentBuilder.withRoot("job")
             .attr("name", jobInstance.getName())
-            .link(ctx.jobXmlLink(jobInstance.getId()), "self")
+            .link(ctx.jobXmlLink(jobInstance.getIdentifier()), "self")
             .cdataNode("id", identifier.asURN())
             .node("pipeline", pb -> pb
                 .attr("name", stageIdentifier.getPipelineName())
@@ -45,7 +45,7 @@ public class JobXmlRepresenter implements XmlRepresentable {
             .node("stage", sb -> sb
                 .attr("name", stageIdentifier.getStageName())
                 .attr("counter", stageIdentifier.getStageCounter())
-                .attr("href", ctx.stageXmlLink(jobInstance.getStageId()))
+                .attr("href", ctx.stageXmlLink(jobInstance.getIdentifier().getStageIdentifier()))
             )
             .textNode("result", jobInstance.getResult().toString())
             .textNode("state", jobInstance.getState().toString())

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.helper;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
@@ -35,6 +34,10 @@ import com.thoughtworks.go.util.TimeProvider;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import static com.thoughtworks.go.config.CaseInsensitiveString.str;
+import static com.thoughtworks.go.helper.ModificationsMother.*;
+import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel.createPipeline;
 
 public class PipelineHistoryMother {
     public static final String REVISION = "svn.100";
@@ -63,12 +66,24 @@ public class PipelineHistoryMother {
         material.setId(10);
         revisions.addRevision(material, modification);
         BuildCause buildCause = BuildCause.createManualForced(revisions, Username.ANONYMOUS);
-        PipelineInstanceModel item = PipelineInstanceModel.createPipeline(CaseInsensitiveString.str(pipelineConfig.name()), -1, label, buildCause, stageHistory(pipelineConfig, scheduleDate));
+        PipelineInstanceModel item = createPipeline(str(pipelineConfig.name()), -1, label, buildCause, stageHistory(pipelineConfig, scheduleDate));
         item.setCounter(1);
         item.setId(1);
         item.setComment("build comment");
         history.add(item);
         return history;
+    }
+
+    public static PipelineInstanceModel pipelineInstanceModel(String pipelineName, Integer pipelineCounter, Date scheduled) {
+        MaterialRevisions revisions = createSvnMaterialWithMultipleRevisions(-1, multipleModificationList().toArray(new Modification[0]));
+        BuildCause buildCause = BuildCause.createManualForced(revisions, Username.ANONYMOUS);
+        List<String> stages = List.of("unit-tests", "integration-tests", "functional-tests");
+
+        StageInstanceModels stageInstanceModels = new StageInstanceModels();
+        for (int i = 0; i < stages.size(); i++) {
+            stageInstanceModels.add(stageInstanceModel(pipelineName, pipelineCounter, stages.get(i), "51", scheduled));
+        }
+        return createPipeline(pipelineName, pipelineCounter, null, buildCause, stageInstanceModels);
     }
 
     public static PipelineInstanceModels pipelineHistoryWithErrorMessage(PipelineConfig pipelineConfig, Date modificationDate) {
@@ -80,7 +95,7 @@ public class PipelineHistoryMother {
         material.setId(10);
         revisions.addRevision(material, modification);
         BuildCause buildCause = BuildCause.createManualForced(revisions, Username.ANONYMOUS);
-        PipelineInstanceModel item = PipelineInstanceModel.createPipeline(CaseInsensitiveString.str(pipelineConfig.name()), -1, "1", buildCause, stageHistoryWithErrorMessage(pipelineConfig, modificationDate));
+        PipelineInstanceModel item = createPipeline(str(pipelineConfig.name()), -1, "1", buildCause, stageHistoryWithErrorMessage(pipelineConfig, modificationDate));
         item.setCounter(1);
         item.setId(1);
         item.setComment("build comment");
@@ -91,7 +106,7 @@ public class PipelineHistoryMother {
     public static StageInstanceModels stageHistoryWithErrorMessage(PipelineConfig pipelineConfig, Date modificationDate) {
         StageInstanceModels history = new StageInstanceModels();
         StageConfig devConfig = pipelineConfig.get(0);
-        StageInstanceModel devModel = new StageInstanceModel(CaseInsensitiveString.str(devConfig.name()), "1", buildCancelledHistory(devConfig, modificationDate));
+        StageInstanceModel devModel = new StageInstanceModel(str(devConfig.name()), "1", buildCancelledHistory(devConfig, modificationDate));
         devModel.setCounter("1");
         devModel.setCanRun(true);
         devModel.setApprovalType("success");
@@ -100,7 +115,7 @@ public class PipelineHistoryMother {
 
 
         StageConfig ftConfig = pipelineConfig.get(1);
-        StageInstanceModel ftModel = new StageInstanceModel(CaseInsensitiveString.str(ftConfig.name()), "1", buildUnknownHistory(ftConfig, modificationDate));
+        StageInstanceModel ftModel = new StageInstanceModel(str(ftConfig.name()), "1", buildUnknownHistory(ftConfig, modificationDate));
         ftModel.setCounter("1");
         ftModel.setApprovalType("manual");
         ftModel.setApprovedBy("");
@@ -114,7 +129,7 @@ public class PipelineHistoryMother {
     public static StageInstanceModels stageHistory(PipelineConfig pipelineConfig, Date modificationDate) {
         StageInstanceModels history = new StageInstanceModels();
         for (StageConfig stageConfig : pipelineConfig) {
-            StageInstanceModel item = new StageInstanceModel(CaseInsensitiveString.str(stageConfig.name()), "1", buildHistory(stageConfig, modificationDate));
+            StageInstanceModel item = new StageInstanceModel(str(stageConfig.name()), "1", buildHistory(stageConfig, modificationDate));
             item.setCounter("1");
             item.setApprovalType(new InstanceFactory().createStageInstance(stageConfig, new DefaultSchedulingContext("anyone"), md5, new TimeProvider()).getApprovalType());
             if (stageConfig.requiresApproval()) {
@@ -127,10 +142,20 @@ public class PipelineHistoryMother {
         return history;
     }
 
+    public static StageInstanceModel stageInstanceModel(String pipelineName, Integer pipelineCounter, String stageName,
+                                                        String stageCounter, Date scheduled) {
+        StageIdentifier stageIdentifier = new StageIdentifier(pipelineName, pipelineCounter, stageName, stageCounter);
+        JobHistory jobHistory = new JobHistory();
+        jobHistory.addJob(stageName + "-job", JobState.Completed, JobResult.Passed, scheduled);
+        StageInstanceModel stageInstanceModel = new StageInstanceModel(stageName, stageCounter, jobHistory, stageIdentifier);
+        stageInstanceModel.setApprovedBy("changes");
+        return stageInstanceModel;
+    }
+
     public static JobHistory buildHistory(StageConfig stageConfig, Date modificationDate) {
         JobHistory history = new JobHistory();
         for (JobConfig jobConfig : stageConfig.allBuildPlans()) {
-            history.addJob(CaseInsensitiveString.str(jobConfig.name()), JobState.Completed, JobResult.Passed, modificationDate);
+            history.addJob(str(jobConfig.name()), JobState.Completed, JobResult.Passed, modificationDate);
         }
         return history;
     }
@@ -138,7 +163,7 @@ public class PipelineHistoryMother {
     public static JobHistory buildCancelledHistory(StageConfig stageConfig, Date modificationDate) {
         JobHistory history = new JobHistory();
         for (JobConfig jobConfig : stageConfig.allBuildPlans()) {
-            history.addJob(CaseInsensitiveString.str(jobConfig.name()), JobState.Unknown, JobResult.Cancelled, modificationDate);
+            history.addJob(str(jobConfig.name()), JobState.Unknown, JobResult.Cancelled, modificationDate);
         }
         return history;
     }
@@ -146,7 +171,7 @@ public class PipelineHistoryMother {
     public static JobHistory buildUnknownHistory(StageConfig stageConfig, Date modificationDate) {
         JobHistory history = new JobHistory();
         for (JobConfig jobConfig : stageConfig.allBuildPlans()) {
-            history.addJob(CaseInsensitiveString.str(jobConfig.name()), JobState.Unknown, JobResult.Unknown, modificationDate);
+            history.addJob(str(jobConfig.name()), JobState.Unknown, JobResult.Unknown, modificationDate);
         }
         return history;
     }
@@ -163,7 +188,7 @@ public class PipelineHistoryMother {
 
     public static PipelineInstanceModel singlePipeline(String pipelineName, StageInstanceModels stages, Date modifiedDate) {
         BuildCause manualForced = BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(MaterialsMother.hgMaterial(), new Modification(modifiedDate, "abc", "MOCK_LABEL-12", null))), Username.ANONYMOUS);
-        PipelineInstanceModel model = PipelineInstanceModel.createPipeline(pipelineName, -1, "1", manualForced, stages);
+        PipelineInstanceModel model = createPipeline(pipelineName, -1, "1", manualForced, stages);
         model.setCounter(1);
         return model;
     }
@@ -221,8 +246,8 @@ public class PipelineHistoryMother {
 
     public static PipelineModel pipeline() {
         PipelineModel pipelineModel = new PipelineModel("pipe1", true, true, PipelinePauseInfo.notPaused());
-        MaterialRevisions materialRevisions = ModificationsMother.createHgMaterialRevisions();
-        PipelineInstanceModel instanceModel = PipelineInstanceModel.createPipeline("pipe1", -1, "label1", BuildCause.createWithModifications(materialRevisions, "foo-bar"), new StageInstanceModels());
+        MaterialRevisions materialRevisions = createHgMaterialRevisions();
+        PipelineInstanceModel instanceModel = createPipeline("pipe1", -1, "label1", BuildCause.createWithModifications(materialRevisions, "foo-bar"), new StageInstanceModels());
         instanceModel.setMaterialConfigs(new MaterialConfigs(materialRevisions.getMaterialRevision(0).getMaterial().config()));
         instanceModel.setLatestRevisions(materialRevisions);
         pipelineModel.addPipelineInstance(instanceModel);

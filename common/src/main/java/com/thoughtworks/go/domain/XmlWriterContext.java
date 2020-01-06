@@ -91,21 +91,25 @@ public class XmlWriterContext {
         return format("%s?before=%s", stagesXmlLink(pipelineName), before);
     }
 
-    public String stageFeedEntryLink(String stageLocator) {
-        return relative(format("api/feed/pipelines/%s", stageLocator));
+    public String stageDetailsPageLink(String stageLocator) {
+        return relative(format("/pipelines/%s", stageLocator));
     }
 
-    public String stageXmlLink(long stageId) {
-        return relative(format("/api/feed/stages/%s.xml", stageId));
+    public String stageXmlLink(StageIdentifier stageIdentifier) {
+        return stageXmlByLocator(stageIdentifier.getStageLocator());
     }
 
 
     public String stageXmlLink(Modification modification) {
-        return stageXmlLink(stageIdForLocator(modification.getRevision()));
+        return stageXmlByLocator(modification.getRevision());
     }
 
-    public String pipelineXmlLink(String pipelineName, long pipelineId) {
-        return relative(format("/api/feed/pipelines/%s/%s.xml", pipelineName, pipelineId));
+    public String stageXmlByLocator(String stageLocator) {
+        return relative(format("/api/feed/pipelines/%s.xml", stageLocator));
+    }
+
+    public String pipelineXmlLink(String pipelineName, long pipelineCounter) {
+        return relative(format("/api/feed/pipelines/%s/%s.xml", pipelineName, pipelineCounter));
     }
 
     public String materialUri(long materialId) {
@@ -116,11 +120,11 @@ public class XmlWriterContext {
         return relative(format("/api/feed/materials/%s/changeset/%s.xml", materialId, modification.getRevision()));
     }
 
-    public String jobXmlLink(long jobId) {
-        return relative(format("/api/feed/jobs/%s.xml", jobId));
+    public String jobXmlLink(JobIdentifier identifier) {
+        return relative(format("/api/feed/pipelines/%s.xml", identifier.buildLocator()));
     }
 
     public String jobDetailsLink(JobIdentifier identifier) {
-        return relative(format("/tab/build/detail/%s", identifier.buildLocator()));
+        return relative(identifier.webUrl());
     }
 }

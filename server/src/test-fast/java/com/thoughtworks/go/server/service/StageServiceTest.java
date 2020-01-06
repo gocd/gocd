@@ -124,7 +124,7 @@ public class StageServiceTest {
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
 
         StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-                goCache);
+            goCache);
 
         Stage stageRun1 = StageMother.completedStageInstanceWithTwoPlans("stage_name");
         stageRun1.setIdentifier(new StageIdentifier("pipeline_name/10/stage_name/1"));
@@ -168,7 +168,7 @@ public class StageServiceTest {
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
 
         StageService service = new StageService(stageDao, null, null, null, alwaysAllow(), null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-                goCache);
+            goCache);
         when(stageDao.getAllRunsOfStageForPipelineInstance(stageId.getPipelineName(), stageId.getPipelineCounter(), stageId.getStageName())).thenReturn(stages);
         when(stageDao.getExpectedDurationMillis(theJob.getPipelineName(), theJob.getStageName(), theJob)).thenReturn(10 * 1000L);
 
@@ -186,7 +186,7 @@ public class StageServiceTest {
         when(securityService.hasViewPermissionForPipeline(ALWAYS_ALLOW_USER, "pipeline_name")).thenReturn(false);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-                goCache);
+            goCache);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         StageSummaryModel model = service.findStageSummaryByIdentifier(new StageIdentifier("pipeline_name/10/stage_name/1"), ALWAYS_ALLOW_USER, result);
@@ -201,7 +201,7 @@ public class StageServiceTest {
         when(securityService.hasViewPermissionForPipeline(ALWAYS_ALLOW_USER, "pipeline_does_not_exist")).thenReturn(true);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-                goCache);
+            goCache);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         StageIdentifier stageId = new StageIdentifier("pipeline_does_not_exist/10/stage_name/1");
@@ -219,7 +219,7 @@ public class StageServiceTest {
         when(securityService.hasViewPermissionForPipeline(ALWAYS_ALLOW_USER, "dev")).thenReturn(true);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-                goCache);
+            goCache);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         Stages stages = new Stages();
@@ -244,7 +244,7 @@ public class StageServiceTest {
 
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         StageService service = new StageService(stageDao, jobInstanceService, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-                goCache);
+            goCache);
 
         JobInstance foundJob = new JobInstance("job");
         foundJob.setState(JobState.Scheduled);
@@ -275,17 +275,17 @@ public class StageServiceTest {
     public void findCompletedStagesFor_shouldCacheTheResultPerPipeline() {
         Date updateDate = new Date();
         when(stageDao.findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25)).thenReturn(asList(stageFeedEntry("cruise", updateDate))).thenReturn(asList(stageFeedEntry("cruise",
-                updateDate)));
+            updateDate)));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig("cruise"));
 
         Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<>();
         expectedMap.put(1L,
-                asList(new ModificationForPipeline(new PipelineId("cruise", 1L), ModificationsMother.checkinWithComment("revision", "#123 hello wolrd", updateDate), "Svn", "fooBarBaaz")));
+            asList(new ModificationForPipeline(new PipelineId("cruise", 1L), ModificationsMother.checkinWithComment("revision", "#123 hello wolrd", updateDate), "Svn", "fooBarBaaz")));
         when(changesetService.modificationsOfPipelines(asList(1L), "cruise", Username.ANONYMOUS)).thenReturn(expectedMap);
 
         StageService service = new StageService(stageDao, null, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-                new StubGoCache(transactionSynchronizationManager));
+            new StubGoCache(transactionSynchronizationManager));
 
         FeedEntry expected = stageFeedEntry("cruise", updateDate);
 
@@ -307,17 +307,17 @@ public class StageServiceTest {
     public void findCompletedStagesFor_shouldInvalidateCacheOnCompletionOfAStage() {
         Date updateDate = new Date();
         when(stageDao.findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25)).thenReturn(asList(stageFeedEntry("cruise", updateDate))).thenReturn(asList(stageFeedEntry("cruise",
-                updateDate)));
+            updateDate)));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig("cruise"));
 
         Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<>();
         expectedMap.put(1L,
-                asList(new ModificationForPipeline(new PipelineId("cruise", 1L), ModificationsMother.checkinWithComment("revision", "#123 hello wolrd", updateDate), "Svn", "fooBarBaaz")));
+            asList(new ModificationForPipeline(new PipelineId("cruise", 1L), ModificationsMother.checkinWithComment("revision", "#123 hello wolrd", updateDate), "Svn", "fooBarBaaz")));
         when(changesetService.modificationsOfPipelines(asList(1L), "cruise", Username.ANONYMOUS)).thenReturn(expectedMap);
 
         StageService service = new StageService(stageDao, null, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-                new StubGoCache(transactionSynchronizationManager));
+            new StubGoCache(transactionSynchronizationManager));
 
         FeedEntry expected = stageFeedEntry("cruise", updateDate);
 
@@ -349,18 +349,18 @@ public class StageServiceTest {
     public void findCompletedStagesFor_shouldNotCacheTheResultPerPipelineForFeedsBeforeAGivenID() {
         Date updateDate = new Date();
         when(stageDao.findCompletedStagesFor("cruise", FeedModifier.Before, 1L, 25)).thenReturn(asList(stageFeedEntry("cruise", updateDate))).thenReturn(asList(stageFeedEntry("cruise",
-                updateDate)));
+            updateDate)));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig("cruise"));
 
         //Setup card numbers
         Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<>();
         expectedMap.put(1L,
-                asList(new ModificationForPipeline(new PipelineId("cruise", 1L), ModificationsMother.checkinWithComment("revision", "#123 hello wolrd", updateDate), "Svn", "fooBarBaaz")));
+            asList(new ModificationForPipeline(new PipelineId("cruise", 1L), ModificationsMother.checkinWithComment("revision", "#123 hello wolrd", updateDate), "Svn", "fooBarBaaz")));
         when(changesetService.modificationsOfPipelines(asList(1L), "cruise", Username.ANONYMOUS)).thenReturn(expectedMap);
 
         StageService service = new StageService(stageDao, null, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-                new StubGoCache(transactionSynchronizationManager));
+            new StubGoCache(transactionSynchronizationManager));
 
         FeedEntry expected = stageFeedEntry("cruise", updateDate);
 
@@ -394,7 +394,7 @@ public class StageServiceTest {
         when(config.pipelineConfigByName(any(CaseInsensitiveString.class))).thenReturn(pipelineConfig);
 
         StageService service = new StageService(stageDao, null, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-                new StubGoCache(transactionSynchronizationManager));
+            new StubGoCache(transactionSynchronizationManager));
 
         FeedEntries feedEntries = service.feed("down", Username.ANONYMOUS);
         assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected, expected)));
@@ -412,8 +412,8 @@ public class StageServiceTest {
         final Stage cancelledStage = StageMother.cancelledStage("stage", "job");
         cancelledStage.setIdentifier(new StageIdentifier("pipeline/1/stage/1"));
         final StageService service = new StageService(stageDao, jobInstanceService, topic, new StageStatusCache(stageDao), null, null, changesetService, goConfigService, transactionTemplate,
-                transactionSynchronizationManager,
-                mock(GoCache.class));
+            transactionSynchronizationManager,
+            mock(GoCache.class));
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -434,8 +434,8 @@ public class StageServiceTest {
         cancelledStage.getJobInstances().first().setAgentUuid("soem-agent");
 
         final StageService service = new StageService(stageDao, jobInstanceService, topic, new StageStatusCache(stageDao), null, null, changesetService, goConfigService, transactionTemplate,
-                transactionSynchronizationManager,
-                mock(GoCache.class));
+            transactionSynchronizationManager,
+            mock(GoCache.class));
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -454,7 +454,7 @@ public class StageServiceTest {
         cache.stageStatusChanged(expectedStage);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         StageService service = new StageService(stageDao, jobInstanceService, null, cache, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-                goCache);
+            goCache);
         Stage actualStage = service.findLatestStage("pipeline", "stage");
 
         assertThat(actualStage).isEqualTo(expectedStage);
@@ -463,7 +463,7 @@ public class StageServiceTest {
     @Test
     public void shouldOnlyLoadStagesArtifactOfWhichCanBeDeleted() {
         StageService service = new StageService(stageDao, null, null, null, securityService, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-                goCache);
+            goCache);
         Stage stageFoo = StageMother.passedStageInstance("stage-foo", "job", "pipeline-baz");
         Stage stageBar = StageMother.passedStageInstance("stage-bar", "job", "pipeline-quux");
         Stage stageBaz = StageMother.passedStageInstance("stage-baz", "job", "pipeline-foo");
@@ -485,7 +485,7 @@ public class StageServiceTest {
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
         final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+            changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
 
         Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
         stageService.findDetailedStageHistoryByOffset("pipeline", "stage", pagination, "looser", new HttpOperationResult());
@@ -500,7 +500,7 @@ public class StageServiceTest {
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
         final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+            changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
 
         Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
         HttpOperationResult result = new HttpOperationResult();
@@ -517,7 +517,7 @@ public class StageServiceTest {
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(false);
 
         final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+            changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
 
         Pagination pagination = Pagination.pageStartingAt(1, 1, 1);
         HttpOperationResult result = new HttpOperationResult();
@@ -534,7 +534,7 @@ public class StageServiceTest {
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
 
         final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+            changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
 
         HttpOperationResult result = new HttpOperationResult();
         Stage stage = stageService.findStageWithIdentifier("pipeline", 1, "stage", "1", "looser", result);
@@ -550,7 +550,7 @@ public class StageServiceTest {
         when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(false);
 
         final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+            changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
 
         HttpOperationResult result = new HttpOperationResult();
         Stage stage = stageService.findStageWithIdentifier("pipeline", 1, "stage", "1", "looser", result);
@@ -567,7 +567,7 @@ public class StageServiceTest {
         when(pipelineDao.findPipelineByNameAndCounter("pipeline", 1)).thenReturn(null);
 
         final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+            changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
 
         HttpOperationResult result = new HttpOperationResult();
         Stage stage = stageService.findStageWithIdentifier("pipeline", 1, "stage", "1", "looser", result);
@@ -626,8 +626,8 @@ public class StageServiceTest {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
             assertThatCode(() -> stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, 0, 0, 10))
-                    .isInstanceOf(RecordNotFoundException.class)
-                    .hasMessage("Pipeline with name 'pipeline' was not found!");
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Pipeline with name 'pipeline' was not found!");
         }
 
         @Test
@@ -636,8 +636,8 @@ public class StageServiceTest {
             when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
 
             assertThatCode(() -> stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, 0, 0, 10))
-                    .isInstanceOf(NotAuthorizedException.class)
-                    .hasMessage("User 'user' does not have permission to view pipeline with name 'pipeline'");
+                .isInstanceOf(NotAuthorizedException.class)
+                .hasMessage("User 'user' does not have permission to view pipeline with name 'pipeline'");
         }
 
         @Test
@@ -647,12 +647,12 @@ public class StageServiceTest {
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
             assertThatCode(() -> stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, -10, 0, 10))
-                    .isInstanceOf(BadRequestException.class)
-                    .hasMessage("The query parameter 'after', if specified, must be a positive integer.");
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("The query parameter 'after', if specified, must be a positive integer.");
 
             assertThatCode(() -> stageService.findStageHistoryViaCursor(username, pipelineName, STAGE_NAME, 0, -10, 10))
-                    .isInstanceOf(BadRequestException.class)
-                    .hasMessage("The query parameter 'before', if specified, must be a positive integer.");
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("The query parameter 'before', if specified, must be a positive integer.");
         }
     }
 
@@ -684,8 +684,8 @@ public class StageServiceTest {
             when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
             assertThatCode(() -> stageService.getOldestAndLatestStageInstanceId(username, pipelineName, STAGE_NAME))
-                    .isInstanceOf(RecordNotFoundException.class)
-                    .hasMessage("Pipeline with name 'pipeline' was not found!");
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Pipeline with name 'pipeline' was not found!");
         }
 
         @Test
@@ -694,8 +694,71 @@ public class StageServiceTest {
             when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
 
             assertThatCode(() -> stageService.getOldestAndLatestStageInstanceId(username, pipelineName, STAGE_NAME))
-                    .isInstanceOf(NotAuthorizedException.class)
-                    .hasMessage("User 'user' does not have permission to view pipeline with name 'pipeline'");
+                .isInstanceOf(NotAuthorizedException.class)
+                .hasMessage("User 'user' does not have permission to view pipeline with name 'pipeline'");
+        }
+    }
+
+    @Nested
+    class FindStageWithIdentifierWithoutHttpOperationResult {
+        private StageService stageService;
+        private Username username = Username.valueOf("bob");
+
+        @BeforeEach
+        void setUp() {
+            stageService = new StageService(stageDao, jobInstanceService, null, null,
+                securityService, pipelineDao, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+        }
+
+        @Test
+        void shouldThrowRecordNotFoundWhenPipelineWithNameDoesNotExist() {
+            when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("up42"))).thenReturn(false);
+
+            assertThatCode(() -> stageService.findStageWithIdentifier("up42", 1, "unit-tests", "1", username))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Pipeline with name 'up42' was not found!");
+        }
+
+        @Test
+        void shouldThrowNotAuthorizedWhenUserDoesNotViewPermissionHave() {
+            when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("up42"))).thenReturn(true);
+            when(securityService.hasViewPermissionForPipeline(username, "up42")).thenReturn(false);
+
+            assertThatCode(() -> stageService.findStageWithIdentifier("up42", 1, "unit-tests", "1", username))
+                .isInstanceOf(NotAuthorizedException.class)
+                .hasMessage("Not authorized to view pipeline");
+        }
+
+        @Test
+        void shouldThrowRecordNotFoundWhenPipelineInstanceWithCounterDoesNotExist() {
+            String pipelineName = "up42";
+            int pipelineCounter = 1;
+            String stageName = "unit-tests";
+            when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
+            when(pipelineDao.findPipelineByNameAndCounter(pipelineName, pipelineCounter)).thenReturn(null);
+
+            assertThatCode(() -> {
+                stageService.findStageWithIdentifier(pipelineName, pipelineCounter, stageName, "1", username);
+            }).isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Pipeline 'up42' with counter '1' not found!");
+        }
+
+        @Test
+        void shouldGetStageWithIdentifier() {
+            String pipelineName = "up42";
+            int pipelineCounter = 1;
+            String stageName = "unit-tests";
+            String stageCounter = "1";
+            Pipeline pipeline = completedFailedStageInstance(pipelineName, stageName, "junit", new Date());
+            when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+            when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
+            when(pipelineDao.findPipelineByNameAndCounter(pipelineName, pipelineCounter)).thenReturn(pipeline);
+
+            StageService spy = spy(stageService);
+            spy.findStageWithIdentifier(pipelineName, pipelineCounter, stageName, stageCounter, username);
+
+            verify(spy).findStageWithIdentifier(new StageIdentifier(pipelineName, pipelineCounter, stageName, stageCounter));
         }
     }
 }

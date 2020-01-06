@@ -161,6 +161,28 @@ public class StageService implements StageFinder {
         return findStageWithIdentifier(new StageIdentifier(pipelineName, pipelineCounter, stageName, stageCounter));
     }
 
+    public Stage findStageWithIdentifier(String pipelineName,
+                                         Integer pipelineCounter,
+                                         String stageName,
+                                         String stageCounter,
+                                         Username username) {
+        if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+            throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
+        }
+
+        if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
+            throw new NotAuthorizedException(NOT_AUTHORIZED_TO_VIEW_PIPELINE);
+        }
+
+        Pipeline pipeline = pipelineDao.findPipelineByNameAndCounter(pipelineName, pipelineCounter);
+        if (pipeline == null) {
+            String message = String.format("Pipeline '%s' with counter '%s' not found!", pipelineName, pipelineCounter);
+            throw new RecordNotFoundException(message);
+        }
+
+        return findStageWithIdentifier(new StageIdentifier(pipelineName, pipelineCounter, stageName, stageCounter));
+    }
+
     @Override
     public Stage findStageWithIdentifier(StageIdentifier identifier) {
         return stageDao.findStageWithIdentifier(identifier);

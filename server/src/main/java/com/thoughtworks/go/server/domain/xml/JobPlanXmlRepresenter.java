@@ -49,8 +49,8 @@ public class JobPlanXmlRepresenter implements XmlRepresentable {
     public void populateJob(ElementBuilder builder, XmlWriterContext ctx, WaitingJobPlan waitingJobPlan) {
         JobPlan jobPlan = waitingJobPlan.jobPlan();
         builder.attr("name", jobPlan.getName())
-            .attr("id", jobPlan.getJobId())
-            .link(ctx.jobDetailsLink(jobPlan.getIdentifier()), "self")
+            .link(ctx.jobXmlLink(jobPlan.getIdentifier()), "self")
+            .link(ctx.jobDetailsLink(jobPlan.getIdentifier()), "alternate", jobPlan.getName() + " Job Detail", "text/html")
             .textNode("buildLocator", jobPlan.getIdentifier().buildLocator());
 
         if (isNotBlank(waitingJobPlan.envName())) {

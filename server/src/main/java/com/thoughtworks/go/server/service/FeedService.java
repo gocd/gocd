@@ -19,25 +19,27 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.WaitingJobPlan;
 import com.thoughtworks.go.domain.XmlRepresentable;
 import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.domain.xml.FeedEntriesRepresenter;
-import com.thoughtworks.go.server.domain.xml.PipelineXmlRepresenter;
-import com.thoughtworks.go.server.domain.xml.PipelinesXmlRepresenter;
-import com.thoughtworks.go.server.domain.xml.StageXmlRepresenter;
+import com.thoughtworks.go.server.domain.xml.*;
 import org.dom4j.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class FeedService {
     private final PipelineHistoryService pipelineHistoryService;
     private final GoConfigService goConfigService;
     private final StageService stageService;
+    private final JobInstanceService jobInstanceService;
     private final SecurityService securityService;
     private final XmlApiService xmlApiService;
     private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
@@ -46,11 +48,13 @@ public class FeedService {
     public FeedService(PipelineHistoryService pipelineHistoryService,
                        GoConfigService goConfigService,
                        StageService stageService,
+                       JobInstanceService jobInstanceService,
                        SecurityService securityService,
                        XmlApiService xmlApiService) {
         this.pipelineHistoryService = pipelineHistoryService;
         this.goConfigService = goConfigService;
         this.stageService = stageService;
+        this.jobInstanceService = jobInstanceService;
         this.securityService = securityService;
         this.xmlApiService = xmlApiService;
     }
@@ -77,14 +81,25 @@ public class FeedService {
         return xmlApiService.write(representable, baseUrl);
     }
 
-    public Document pipelineXml(Username username, String pipelineName, long pipelineId, String baseUrl) {
-        PipelineInstanceModel model = pipelineHistoryService.load(pipelineId, username);
+    public Document pipelineXml(Username username, String pipelineName, Integer pipelineCounter, String baseUrl) {
+        PipelineInstanceModel model = pipelineHistoryService.load(pipelineName, pipelineCounter, username);
         return xmlApiService.write(new PipelineXmlRepresenter(model), baseUrl);
     }
 
-    public Document stageXml(long stageId, String baseUrl) {
-        Stage stage = stageService.stageById(stageId);
+    public Document stageXml(Username username, String pipelineName, Integer pipelineCounter, String stageName, Integer stageCounter, String baseUrl) {
+        Stage stage = stageService.findStageWithIdentifier(pipelineName, pipelineCounter, stageName, String.valueOf(stageCounter), username);
         return xmlApiService.write(new StageXmlRepresenter(stage), baseUrl);
+    }
+
+    public Document jobXml(Username username, String pipelineName, Integer pipelineCounter, String stageName,
+                           Integer stageCounter, String jobName, String baseUrl) {
+        JobInstance jobInstance = jobInstanceService.findJobInstance(pipelineName, stageName, jobName, pipelineCounter, stageCounter, username);
+        return xmlApiService.write(new JobXmlRepresenter(jobInstance), baseUrl);
+    }
+
+    public Document waitingJobPlansXml(String baseUrl) {
+        List<WaitingJobPlan> waitingJobPlans = jobInstanceService.waitingJobPlans();
+        return xmlApiService.write(new JobPlanXmlRepresenter(waitingJobPlans), baseUrl);
     }
 
     private FeedEntries getStageFeedEntries(Username username, String pipelineName, Long before) {

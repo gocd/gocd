@@ -26,10 +26,13 @@ import spark.servlet.SparkApplication;
 public class Application implements SparkApplication {
 
     @Autowired
-    public Application(RerouteLatestApis rerouteLatestApis, SparkSpringController... controllers) {
+    public Application(RouteInformationProvider routeInformationProvider,
+                       RerouteLatestApis rerouteLatestApis,
+                       SparkSpringController... controllers) {
         ServletFlag.runFromServlet();
         RoutesHelper routesHelper = new RoutesHelper(controllers);
         routesHelper.init();
+        routeInformationProvider.cacheRouteInformation();
         rerouteLatestApis.registerLatest();
     }
 
@@ -37,5 +40,4 @@ public class Application implements SparkApplication {
     public void init() {
 
     }
-
 }

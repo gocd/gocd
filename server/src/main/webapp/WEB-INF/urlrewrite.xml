@@ -38,6 +38,12 @@
   </rule>
 
   <rule>
+    <name>APIs info API</name>
+    <from>^/api/apis(/?)$</from>
+    <to last="true">/spark/api/apis</to>
+  </rule>
+
+  <rule>
     <name>Notification filter CRUD APIs</name>
     <condition name="Accept">application\/vnd\.go\.cd(.v2)*\+json</condition>
     <from>^/api/notification_filters/(.*)$</from>

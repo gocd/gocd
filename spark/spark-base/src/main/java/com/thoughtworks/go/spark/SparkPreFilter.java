@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.startsWithAny;
 
 public class SparkPreFilter extends SparkFilter {
 
@@ -42,11 +43,16 @@ public class SparkPreFilter extends SparkFilter {
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException, IOException {
         HttpServletRequest request = (HttpServletRequest) req;
+        boolean allowWithoutApiHeader = startsWithAny(request.getRequestURI().toLowerCase(),
+            "/go/spark/api/plugin_images",
+            "/go/spark/api/support",
+            "/go/spark/api/v1/health",
+            "/go/spark/api/apis"
+        );
+
         if (request.getRequestURI().startsWith("/go/spark/api/") &&
-                !request.getRequestURI().startsWith("/go/spark/api/plugin_images") &&
-                !request.getRequestURI().startsWith("/go/spark/api/support") &&
-                !request.getRequestURI().startsWith("/go/spark/api/v1/health") &&
-                noApiVersionInAcceptHeader((HttpServletRequest) req)) {
+            !allowWithoutApiHeader &&
+            noApiVersionInAcceptHeader((HttpServletRequest) req)) {
             render404((HttpServletResponse) resp);
             return;
         }

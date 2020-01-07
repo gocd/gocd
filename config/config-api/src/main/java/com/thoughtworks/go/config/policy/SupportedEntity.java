@@ -16,8 +16,9 @@
 package com.thoughtworks.go.config.policy;
 
 import com.thoughtworks.go.config.EnvironmentConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 
 import java.util.Arrays;
@@ -28,6 +29,8 @@ import static java.util.Collections.unmodifiableList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public enum SupportedEntity {
+    CLUSTER_PROFILE("cluster_profile", ClusterProfile.class),
+    ELASTIC_AGENT_PROFILE("elastic_agent_profile", ElasticProfile.class),
     ENVIRONMENT("environment", EnvironmentConfig.class),
     CONFIG_REPO("config_repo", ConfigRepoConfig.class),
     UNKNOWN(null, null);

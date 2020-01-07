@@ -17,6 +17,8 @@ package com.thoughtworks.go.config.policy;
 
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import org.junit.jupiter.api.Test;
@@ -41,6 +43,18 @@ class SupportedEntityTest {
     void shouldSupportConfigRepo() {
         assertThat(CONFIG_REPO.getType()).isEqualTo("config_repo");
         assertThat(CONFIG_REPO.getEntityType()).isEqualTo(ConfigRepoConfig.class);
+    }
+
+    @Test
+    void shouldSupportElasticAgentProfile() {
+        assertThat(ELASTIC_AGENT_PROFILE.getType()).isEqualTo("elastic_agent_profile");
+        assertThat(ELASTIC_AGENT_PROFILE.getEntityType()).isEqualTo(ElasticProfile.class);
+    }
+
+    @Test
+    void shouldSupportClusterProfile() {
+        assertThat(CLUSTER_PROFILE.getType()).isEqualTo("cluster_profile");
+        assertThat(CLUSTER_PROFILE.getEntityType()).isEqualTo(ClusterProfile.class);
     }
 
     @Test

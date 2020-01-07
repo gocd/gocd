@@ -24,13 +24,12 @@ import java.util.*;
 import static com.thoughtworks.go.config.CaseInsensitiveString.isBlank;
 import static com.thoughtworks.go.config.policy.SupportedAction.ADMINISTER;
 import static com.thoughtworks.go.config.policy.SupportedAction.VIEW;
-import static com.thoughtworks.go.config.policy.SupportedEntity.CONFIG_REPO;
-import static com.thoughtworks.go.config.policy.SupportedEntity.ENVIRONMENT;
+import static com.thoughtworks.go.config.policy.SupportedEntity.*;
 
 @ConfigInterface
 public interface Role extends Validatable, PolicyAware {
     List<String> allowedActions = SupportedAction.unmodifiableListOf(VIEW, ADMINISTER);
-    List<String> allowedTypes = SupportedEntity.unmodifiableListOf(ENVIRONMENT, CONFIG_REPO);
+    List<String> allowedTypes = SupportedEntity.unmodifiableListOf(ENVIRONMENT, CONFIG_REPO, ELASTIC_AGENT_PROFILE, CLUSTER_PROFILE);
 
     CaseInsensitiveString getName();
 

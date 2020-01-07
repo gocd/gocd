@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.Serializable;
@@ -278,7 +279,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
 
     public List<DependencyMaterial> getDependencyMaterials() {
         List<DependencyMaterial> mats = new ArrayList<DependencyMaterial>();
-        for(MaterialRevision materialRevision : this) {
+        for (MaterialRevision materialRevision : this) {
             Material material = materialRevision.getMaterial();
             if (material instanceof DependencyMaterial) {
                 mats.add((DependencyMaterial) material);
@@ -317,6 +318,7 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
             revision.populateEnvironmentVariables(context, workingDir);
         }
     }
+
     public void populateAgentSideEnvironmentVariables(EnvironmentVariableContext context, File workingDir) {
         for (MaterialRevision revision : this) {
             revision.populateAgentSideEnvironmentVariables(context, workingDir);
@@ -359,6 +361,13 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
         }
         return null;
 
+    }
+
+    public MaterialRevision findRevisionForPipelineUniqueFingerprint(String fingerprint) {
+        return revisions.stream()
+            .filter(revision -> StringUtils.equals(revision.getMaterial().getPipelineUniqueFingerprint(), fingerprint))
+            .findFirst()
+            .orElse(null);
     }
 
     public boolean hasDependencyMaterials() {

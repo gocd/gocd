@@ -46,11 +46,11 @@ public class DependencyMaterialXmlRepresenterTest {
         StageFinder stageFinder = getStageFinder(100L);
         XmlWriterContext context = new XmlWriterContext("https://test.host/go", null, null, stageFinder, new SystemEnvironment());
 
-        new DependencyMaterialXmlRepresenter(revision).populate(builder, context);
+        new DependencyMaterialXmlRepresenter("up42", 1, revision).populate(builder, context);
 
         assertThat(root.asXML()).and(expectedXML)
-                .ignoreWhitespace()
-                .areIdentical();
+            .ignoreWhitespace()
+            .areIdentical();
     }
 
     private StageFinder getStageFinder(long id) {

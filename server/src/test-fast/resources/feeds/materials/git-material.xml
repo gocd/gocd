@@ -1,22 +1,22 @@
 <materials>
-    <material materialUri="https://test.host/go/api/feed/materials/100.xml" type="GitMaterial"
+    <material materialUri="https://test.host/go/api/feed/materials/up42/1/2b02cc0b25c271fee69fd8821c3563e46e73671fdd05ce9c6517f7ddaf0cc609.xml" type="GitMaterial"
               url="https://material/example.git" branch="master" shallowClone="false">
         <modifications>
-            <changeset changesetUri="https://test.host/go/api/feed/materials/100/changeset/3.xml">
+            <changeset changesetUri="https://test.host/go/api/feed/materials/7bccb1c84d8bf4ad35016e1fe5ab4e7a49c334db66a25e266be542d254e37ef6/changeset/3.xml">
                 <user><![CDATA[Bob]]></user>
                 <checkinTime>2019-12-31T15:31:49+05:30</checkinTime>
                 <revision><![CDATA[3]]></revision>
                 <message><![CDATA[Adding build.xml]]></message>
                 <file name="build.xml" action="added"/>
             </changeset>
-            <changeset changesetUri="https://test.host/go/api/feed/materials/100/changeset/2.xml">
+            <changeset changesetUri="https://test.host/go/api/feed/materials/7bccb1c84d8bf4ad35016e1fe5ab4e7a49c334db66a25e266be542d254e37ef6/changeset/2.xml">
                 <user><![CDATA[Sam]]></user>
                 <checkinTime>2019-12-31T15:31:49+05:30</checkinTime>
                 <revision><![CDATA[2]]></revision>
                 <message><![CDATA[Fixing the not checked in files]]></message>
                 <file name="tools/bin/go.jruby" action="added"/>
             </changeset>
-            <changeset changesetUri="https://test.host/go/api/feed/materials/100/changeset/1.xml">
+            <changeset changesetUri="https://test.host/go/api/feed/materials/7bccb1c84d8bf4ad35016e1fe5ab4e7a49c334db66a25e266be542d254e37ef6/changeset/1.xml">
                 <user><![CDATA[Sam]]></user>
                 <checkinTime>2019-12-31T15:31:49+05:30</checkinTime>
                 <revision><![CDATA[1]]></revision>

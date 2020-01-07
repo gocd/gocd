@@ -18,15 +18,26 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.domain.MaterialRevisions;
+import com.thoughtworks.go.domain.XmlRepresentable;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.xml.*;
+import com.thoughtworks.go.server.domain.xml.materials.MaterialXmlRepresenter;
+import org.dom4j.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import java.util.Date;
+
+import static com.thoughtworks.go.helper.ModificationsMother.createSvnMaterialRevisions;
+import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
+import static com.thoughtworks.go.helper.PipelineHistoryMother.pipelineInstanceModel;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -48,6 +59,8 @@ public class FeedServiceTest {
     private GoConfigService goConfigService;
     @Mock
     private JobInstanceService jobInstanceService;
+    @Mock
+    private Document document;
 
     @InjectMocks
     private FeedService feedService;
@@ -56,6 +69,8 @@ public class FeedServiceTest {
     @BeforeEach
     void setUp() {
         initMocks(this);
+
+        when(xmlApiService.write(any(XmlRepresentable.class), eq(BASE_URL))).thenReturn(document);
     }
 
     @Test
@@ -63,10 +78,10 @@ public class FeedServiceTest {
         PipelineInstanceModels models = PipelineInstanceModels.createPipelineInstanceModels();
         when(pipelineHistoryService.latestInstancesForConfiguredPipelines(username)).thenReturn(models);
 
-        feedService.pipelinesXml(username, BASE_URL);
+        Document document = feedService.pipelinesXml(username, BASE_URL);
 
+        assertThat(document).isNotNull();
         verify(pipelineHistoryService).latestInstancesForConfiguredPipelines(username);
-
         verify(xmlApiService).write(any(PipelinesXmlRepresenter.class), eq(BASE_URL));
         verifyNoMoreInteractions(xmlApiService);
         verifyZeroInteractions(goConfigService);
@@ -102,8 +117,9 @@ public class FeedServiceTest {
             when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
-            feedService.stagesXml(username, pipelineName, null, BASE_URL);
+            Document document = feedService.stagesXml(username, pipelineName, null, BASE_URL);
 
+            assertThat(document).isNotNull();
             verify(stageService).feed(pipelineName, username);
             verify(xmlApiService).write(any(FeedEntriesRepresenter.class), eq(BASE_URL));
             verifyNoMoreInteractions(xmlApiService);
@@ -117,8 +133,9 @@ public class FeedServiceTest {
             when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
-            feedService.stagesXml(username, pipelineName, 100L, BASE_URL);
+            Document document = feedService.stagesXml(username, pipelineName, 100L, BASE_URL);
 
+            assertThat(document).isNotNull();
             verify(stageService).feedBefore(100L, pipelineName, username);
             verify(xmlApiService).write(any(FeedEntriesRepresenter.class), eq(BASE_URL));
             verifyNoMoreInteractions(xmlApiService);
@@ -133,8 +150,9 @@ public class FeedServiceTest {
         void shouldReturnPipelineXmlDocument() {
             String pipelineName = "up42";
 
-            feedService.pipelineXml(username, pipelineName, 100, BASE_URL);
+            Document document = feedService.pipelineXml(username, pipelineName, 100, BASE_URL);
 
+            assertThat(document).isNotNull();
             verify(xmlApiService).write(any(PipelineXmlRepresenter.class), eq(BASE_URL));
             verify(pipelineHistoryService).load(pipelineName, 100, username);
             verifyNoMoreInteractions(xmlApiService);
@@ -150,8 +168,10 @@ public class FeedServiceTest {
         void shouldReturnStageXmlDocument() {
             String pipelineName = "up42";
             String stageName = "unit-tests";
-            feedService.stageXml(username, pipelineName, 100, stageName, 1, BASE_URL);
 
+            Document document = feedService.stageXml(username, pipelineName, 100, stageName, 1, BASE_URL);
+
+            assertThat(document).isNotNull();
             verify(xmlApiService).write(any(StageXmlRepresenter.class), eq(BASE_URL));
             verify(stageService).findStageWithIdentifier(pipelineName, 100, stageName, "1", username);
             verifyNoMoreInteractions(xmlApiService);
@@ -164,12 +184,14 @@ public class FeedServiceTest {
     @Nested
     class JobXML {
         @Test
-        void shouldReturnStageXmlDocument() {
+        void shouldReturnJobXmlDocument() {
             String pipelineName = "up42";
             String stageName = "unit-tests";
             String jobName = "junit.xml";
-            feedService.jobXml(username, pipelineName, 100, stageName, 1, jobName, BASE_URL);
 
+            Document document = feedService.jobXml(username, pipelineName, 100, stageName, 1, jobName, BASE_URL);
+
+            assertThat(document).isNotNull();
             verify(xmlApiService).write(any(JobXmlRepresenter.class), eq(BASE_URL));
             verify(jobInstanceService).findJobInstance(pipelineName, stageName, jobName, 100, 1, username);
             verifyNoMoreInteractions(xmlApiService);
@@ -182,15 +204,52 @@ public class FeedServiceTest {
     @Nested
     class WaitingJobsXML {
         @Test
-        void shouldReturnStageXmlDocument() {
-            feedService.waitingJobPlansXml(BASE_URL);
+        void shouldReturnWaitingJobXmlDocument() {
+            Document document = feedService.waitingJobPlansXml(BASE_URL);
 
+            assertThat(document).isNotNull();
             verify(xmlApiService).write(any(JobPlanXmlRepresenter.class), eq(BASE_URL));
             verify(jobInstanceService).waitingJobPlans();
             verifyNoMoreInteractions(xmlApiService);
             verifyNoMoreInteractions(jobInstanceService);
             verifyZeroInteractions(stageService);
             verifyZeroInteractions(pipelineHistoryService);
+        }
+    }
+
+    @Nested
+    class MaterialXML {
+        @Test
+        void shouldThrowRecordNotFoundExceptionWhenMaterialRevisionWithFingerprintDoesNotExist() {
+            String pipelineName = "up42";
+            Integer pipelineCounter = 2;
+            PipelineInstanceModel model = pipelineInstanceModel(pipelineName, pipelineCounter, new Date());
+            model.setLatestRevisions(new MaterialRevisions());
+            when(pipelineHistoryService.load(pipelineName, pipelineCounter, username)).thenReturn(model);
+
+            assertThatCode(() -> feedService.materialXml(username, pipelineName, pipelineCounter, "foo", BASE_URL))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Material with pipeline unique fingerprint 'foo' was not found for pipeline run(up42/2)!");
+        }
+
+        @Test
+        void shouldReturnMaterialXmlDocument() {
+            MaterialRevisions revisions = createSvnMaterialRevisions(oneModifiedFile("rev"));
+            String pipelineName = "up42";
+            Integer pipelineCounter = 2;
+            String pipelineUniqueFingerprint = revisions.getMaterialRevision(0).getMaterial().getPipelineUniqueFingerprint();
+
+            PipelineInstanceModel model = pipelineInstanceModel(pipelineName, pipelineCounter, new Date());
+            model.setLatestRevisions(revisions);
+            when(pipelineHistoryService.load(pipelineName, pipelineCounter, username)).thenReturn(model);
+
+            Document document = feedService.materialXml(username, pipelineName, pipelineCounter, pipelineUniqueFingerprint, BASE_URL);
+
+            assertThat(document).isNotNull();
+            verify(xmlApiService).write(any(MaterialXmlRepresenter.class), eq(BASE_URL));
+            verifyNoMoreInteractions(xmlApiService);
+            verifyZeroInteractions(jobInstanceService);
+            verifyZeroInteractions(stageService);
         }
     }
 }

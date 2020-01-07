@@ -231,4 +231,37 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
       Mockito.verifyNoMoreInteractions(feedService)
     }
   }
+
+  @Nested
+  class MaterialXML {
+    @BeforeEach
+    void setUp() {
+      loginAsUser()
+    }
+
+    @Nested
+    class Security implements SecurityTestTrait, NormalUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "materialXML"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.MATERIAL_URL))
+      }
+    }
+
+    @Test
+    void 'should call feed service to get material xml'() {
+      def pipelineName = "up42"
+      def pipelineCounter = 1
+      def fingerprint = "04JDSASD"
+      getWithApiHeader(controller.controllerPath("materials", pipelineName, pipelineCounter, fingerprint + ".xml"))
+
+      Mockito.verify(feedService).materialXml(currentUsername(), pipelineName, pipelineCounter, fingerprint, "http://test.host/go")
+      Mockito.verifyNoMoreInteractions(feedService)
+    }
+  }
 }

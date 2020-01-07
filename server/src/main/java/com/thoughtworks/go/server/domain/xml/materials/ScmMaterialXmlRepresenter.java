@@ -22,23 +22,23 @@ import com.thoughtworks.go.server.domain.xml.builder.ElementBuilder;
 import com.thoughtworks.go.util.DateUtils;
 
 public class ScmMaterialXmlRepresenter extends MaterialXmlRepresenter {
-    public ScmMaterialXmlRepresenter(MaterialRevision materialRevision) {
-        super(materialRevision);
+    public ScmMaterialXmlRepresenter(String pipelineName, Integer pipelineCounter, MaterialRevision materialRevision) {
+        super(pipelineName, pipelineCounter, materialRevision);
     }
 
     @Override
     protected void populateModification(ElementBuilder builder, Modification modification, XmlWriterContext ctx) {
         builder.node("changeset", cb -> {
-            cb.attr("changesetUri", ctx.changesetUri(modification, materialRevision.getMaterial().getId()))
-                    .cdataNode("user", modification.getUserDisplayName())
-                    .textNode("checkinTime", DateUtils.formatISO8601(modification.getModifiedTime()))
-                    .cdataNode("revision", modification.getRevision())
-                    .cdataNode("message", modification.getComment());
+            cb.attr("changesetUri", ctx.changesetUri(materialRevision.getMaterial().getFingerprint(), modification))
+                .cdataNode("user", modification.getUserDisplayName())
+                .textNode("checkinTime", DateUtils.formatISO8601(modification.getModifiedTime()))
+                .cdataNode("revision", modification.getRevision())
+                .cdataNode("message", modification.getComment());
 
             modification.getModifiedFiles().forEach(file -> {
                 cb.node("file", fb -> fb.
-                        attr("name", file.getFileName())
-                        .attr("action", file.getAction().toString()));
+                    attr("name", file.getFileName())
+                    .attr("action", file.getAction().toString()));
             });
         });
     }

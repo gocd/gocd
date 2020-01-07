@@ -45,7 +45,7 @@ public class ScmMaterialXmlRepresenterTest {
         ElementBuilder builder = new ElementBuilder(root);
         XmlWriterContext context = new XmlWriterContext("https://test.host/go", null, null, null, new SystemEnvironment());
 
-        new ScmMaterialXmlRepresenter(materialRevision).populate(builder, context);
+        new ScmMaterialXmlRepresenter("up42", 1,materialRevision).populate(builder, context);
 
         assertThat(root.asXML()).and(expectedXML)
                 .ignoreWhitespace()

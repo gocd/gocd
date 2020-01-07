@@ -19,15 +19,13 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.WaitingJobPlan;
-import com.thoughtworks.go.domain.XmlRepresentable;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.xml.*;
+import com.thoughtworks.go.server.domain.xml.materials.MaterialXmlRepresenter;
 import org.dom4j.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -108,5 +106,15 @@ public class FeedService {
         }
 
         return stageService.feedBefore(before, pipelineName, username);
+    }
+
+    public Document materialXml(Username username, String pipelineName, Integer pipelineCounter, String fingerprint, String baseUrl) {
+        PipelineInstanceModel model = pipelineHistoryService.load(pipelineName, pipelineCounter, username);
+        MaterialRevision revision = model.getLatestRevisions().findRevisionForPipelineUniqueFingerprint(fingerprint);
+        if (revision == null) {
+            throw new RecordNotFoundException(String.format("Material with pipeline unique fingerprint '%s' was not found for pipeline run(%s/%s)!", fingerprint, pipelineName, pipelineCounter));
+        }
+        MaterialXmlRepresenter materialXmlRepresenter = MaterialXmlRepresenter.representerFor(pipelineName, pipelineCounter, revision);
+        return xmlApiService.write(materialXmlRepresenter, baseUrl);
     }
 }

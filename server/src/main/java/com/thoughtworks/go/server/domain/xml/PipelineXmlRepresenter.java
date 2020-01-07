@@ -75,7 +75,7 @@ public class PipelineXmlRepresenter implements XmlRepresentable {
 
     private void populateMaterials(ElementBuilder builder, MaterialRevision revision, XmlWriterContext ctx) {
         builder.node("material", materialBuilder -> MaterialXmlRepresenter
-            .representerFor(revision)
+            .representerFor(instance.getName(), instance.getCounter(), revision)
             .populate(materialBuilder, ctx)
         );
     }

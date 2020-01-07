@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
@@ -26,17 +27,18 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.joda.time.DateTime;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 import java.util.Map;
 
 import static com.thoughtworks.go.helper.ModificationsMother.*;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MaterialRevisionsTest {
 
@@ -47,7 +49,7 @@ public class MaterialRevisionsTest {
     private static final String MOD_USER_COMMITTER = "committer";
     private static final Filter FILTER_DOC_PDF = Filter.create("*.doc", "*.pdf");
 
-    @Before
+    @BeforeEach
     public void setUp() {
         nowMod = new Modification("user3", "fixed the build.", null, new DateTime().toDate(), "100");
         nowMod.createModifiedFile("foo.java", ".", ModifiedAction.modified);
@@ -63,47 +65,47 @@ public class MaterialRevisionsTest {
     @Test
     public void shouldReturnModificationsForAGivenMaterial() {
         MaterialRevisions oneMaterialRevision = new MaterialRevisions(new MaterialRevision(material, yesterdayMod));
-        assertThat(oneMaterialRevision.getModifications(material), is(new Modifications(yesterdayMod)));
+        assertThat(oneMaterialRevision.getModifications(material)).isEqualTo(new Modifications(yesterdayMod));
 
         MaterialRevisions emptyMaterialRevision = new MaterialRevisions();
-        assertThat(emptyMaterialRevision.getModifications(material).isEmpty(), is(true));
+        assertThat(emptyMaterialRevision.getModifications(material).isEmpty()).isTrue();
 
         MaterialRevisions differentMaterialRevision = new MaterialRevisions(new MaterialRevision(MaterialsMother.hgMaterial(), yesterdayMod));
-        assertThat(differentMaterialRevision.getModifications(material).isEmpty(), is(true));
+        assertThat(differentMaterialRevision.getModifications(material).isEmpty()).isTrue();
     }
 
     @Test
     public void shouldKnowDateOfLatestModification() {
         //modifications are ordered, the first modification is the latest one
         MaterialRevisions materialRevisions = new MaterialRevisions(
-                svnMaterialRevision(yesterdayMod, oneHourAgoMod)
+            svnMaterialRevision(yesterdayMod, oneHourAgoMod)
         );
-        assertThat(materialRevisions.getDateOfLatestModification(), is(yesterdayMod.getModifiedTime()));
+        assertThat(materialRevisions.getDateOfLatestModification()).isEqualTo(yesterdayMod.getModifiedTime());
     }
 
     @Test
     public void shouldReturnMostRecentModifiedTimeIfExist() {
         MaterialRevisions materialRevisions = multipleModifications();
-        assertThat(materialRevisions.getDateOfLatestModification(), is(ModificationsMother.TODAY_CHECKIN));
+        assertThat(materialRevisions.getDateOfLatestModification()).isEqualTo(ModificationsMother.TODAY_CHECKIN);
     }
 
     @Test
     public void shouldReturnNullIfMostRecentModifiedTimeNotExist() {
         MaterialRevisions materialRevisions = empty();
-        assertThat(materialRevisions.getDateOfLatestModification(), is(nullValue()));
+        assertThat(materialRevisions.getDateOfLatestModification()).isNull();
     }
 
     @Test
     public void shouldReturnOrginalChangeSet() {
         MaterialRevisions first = new MaterialRevisions(
-                svnMaterialRevision("folder1", FILTER_DOC_PDF, aCheckIn("99", "/a.java")),
-                svnMaterialRevision("folder2", FILTER_DOC_PDF, aCheckIn("99", "/b.java"))
+            svnMaterialRevision("folder1", FILTER_DOC_PDF, aCheckIn("99", "/a.java")),
+            svnMaterialRevision("folder2", FILTER_DOC_PDF, aCheckIn("99", "/b.java"))
         );
         MaterialRevisions second = new MaterialRevisions(
-                svnMaterialRevision("folder1", FILTER_DOC_PDF, aCheckIn("100", "/a.doc"), aCheckIn("100", "/b.doc")),
-                svnMaterialRevision("folder2", FILTER_DOC_PDF, aCheckIn("100", "/a.pdf"))
+            svnMaterialRevision("folder1", FILTER_DOC_PDF, aCheckIn("100", "/a.doc"), aCheckIn("100", "/b.doc")),
+            svnMaterialRevision("folder2", FILTER_DOC_PDF, aCheckIn("100", "/a.pdf"))
         );
-        assertThat(second.hasChangedSince(first), is(false));
+        assertThat(second.hasChangedSince(first)).isFalse();
     }
 
     @Test
@@ -112,7 +114,7 @@ public class MaterialRevisionsTest {
         MaterialRevisions original = modifyOneFile(materials, "1");
         MaterialRevisions newRevisions = modifyOneFile(materials, "2");
 
-        assertThat(newRevisions.hasChangedSince(original), is(true));
+        assertThat(newRevisions.hasChangedSince(original)).isTrue();
     }
 
     @Test
@@ -121,73 +123,73 @@ public class MaterialRevisionsTest {
         MaterialRevisions original = new MaterialRevisions(dependencyMaterialRevision("cruise", 365, "1.3-365", "dist-zip", 1, new Date()));
         MaterialRevisions current = new MaterialRevisions(dependencyMaterialRevision("cruise", 370, "1.3-370", "dist-zip", 1, new Date()));
 
-        assertThat(current.hasChangedSince(original), is(true));
+        assertThat(current.hasChangedSince(original)).isTrue();
     }
 
     @Test
     public void shouldReturnLatestChangeSetIfAnyChangeSetShouldNotIgnore() {
         MaterialRevisions first = new MaterialRevisions(
-                svnMaterialRevision("folder1", FILTER_DOC_PDF, aCheckIn("99", "/b.java")),
-                svnMaterialRevision("folder2", FILTER_DOC_PDF, aCheckIn("5", "/a.html"))
+            svnMaterialRevision("folder1", FILTER_DOC_PDF, aCheckIn("99", "/b.java")),
+            svnMaterialRevision("folder2", FILTER_DOC_PDF, aCheckIn("5", "/a.html"))
         );
         MaterialRevisions second = new MaterialRevisions(
-                svnMaterialRevision("folder1", FILTER_DOC_PDF, aCheckIn("100", "/a.doc"), aCheckIn("100", "/b.doc")),
-                svnMaterialRevision("folder2", FILTER_DOC_PDF, aCheckIn("5", "/a.html"))
+            svnMaterialRevision("folder1", FILTER_DOC_PDF, aCheckIn("100", "/a.doc"), aCheckIn("100", "/b.doc")),
+            svnMaterialRevision("folder2", FILTER_DOC_PDF, aCheckIn("5", "/a.html"))
         );
-        assertThat(second.hasChangedSince(first), is(false));
+        assertThat(second.hasChangedSince(first)).isFalse();
     }
 
     @Test
     public void shouldBeAbleToDetectWhenMaterialRevisionsHaveChanged() {
         MaterialRevisions first = new MaterialRevisions(
-                svnMaterialRevision(oneHourAgoMod, yesterdayMod)
+            svnMaterialRevision(oneHourAgoMod, yesterdayMod)
         );
         MaterialRevisions second = new MaterialRevisions(
-                svnMaterialRevision(nowMod)
+            svnMaterialRevision(nowMod)
         );
 
-        assertThat(second.hasChangedSince(first), is(true));
+        assertThat(second.hasChangedSince(first)).isTrue();
     }
 
     @Test
     public void shouldBeAbleToDetectWhenMaterialsDontMatch() {
         MaterialRevisions first = new MaterialRevisions(
-                svnMaterialRevision("1", FILTER_DOC_PDF, oneHourAgoMod, yesterdayMod),
-                svnMaterialRevision("2", FILTER_DOC_PDF, nowMod)
+            svnMaterialRevision("1", FILTER_DOC_PDF, oneHourAgoMod, yesterdayMod),
+            svnMaterialRevision("2", FILTER_DOC_PDF, nowMod)
         );
         MaterialRevisions second = new MaterialRevisions(
-                svnMaterialRevision("1", FILTER_DOC_PDF, oneHourAgoMod, yesterdayMod),
-                svnMaterialRevision("3", FILTER_DOC_PDF, nowMod)
+            svnMaterialRevision("1", FILTER_DOC_PDF, oneHourAgoMod, yesterdayMod),
+            svnMaterialRevision("3", FILTER_DOC_PDF, nowMod)
         );
 
-        assertThat(second.hasChangedSince(first), is(true));
+        assertThat(second.hasChangedSince(first)).isTrue();
     }
 
     @Test
     public void shouldBeAbleToDetectWhenThereAreMultipleMaterials() {
         MaterialRevisions first = new MaterialRevisions(
-                svnMaterialRevision(oneHourAgoMod, yesterdayMod)
+            svnMaterialRevision(oneHourAgoMod, yesterdayMod)
         );
 
         MaterialRevisions second = new MaterialRevisions(
-                svnMaterialRevision(oneHourAgoMod, yesterdayMod),
-                svnMaterialRevision(nowMod)
+            svnMaterialRevision(oneHourAgoMod, yesterdayMod),
+            svnMaterialRevision(nowMod)
         );
 
-        assertThat(second.hasChangedSince(first), is(true));
+        assertThat(second.hasChangedSince(first)).isTrue();
     }
 
     @Test
     public void shouldBeAbleToDetectWhenThereAreMultipleMaterialsInADifferentOrder() {
         MaterialRevisions first = new MaterialRevisions(
-                svnMaterialRevision("1", FILTER_DOC_PDF, oneHourAgoMod, yesterdayMod),
-                svnMaterialRevision("2", FILTER_DOC_PDF, nowMod)
+            svnMaterialRevision("1", FILTER_DOC_PDF, oneHourAgoMod, yesterdayMod),
+            svnMaterialRevision("2", FILTER_DOC_PDF, nowMod)
         );
         MaterialRevisions second = new MaterialRevisions(
-                svnMaterialRevision("2", FILTER_DOC_PDF, nowMod),
-                svnMaterialRevision("1", FILTER_DOC_PDF, oneHourAgoMod, yesterdayMod)
+            svnMaterialRevision("2", FILTER_DOC_PDF, nowMod),
+            svnMaterialRevision("1", FILTER_DOC_PDF, oneHourAgoMod, yesterdayMod)
         );
-        assertThat(second.hasChangedSince(first), is(false));
+        assertThat(second.hasChangedSince(first)).isFalse();
     }
 
     @Test
@@ -195,7 +197,7 @@ public class MaterialRevisionsTest {
         MaterialRevisions materialRevisions = empty();
         try {
             materialRevisions.addRevision(MaterialsMother.svnMaterial(), (Modification) null);
-            Assert.fail("Should not be able to add a null modification");
+            fail("Should not be able to add a null modification");
         } catch (Exception ignored) {
         }
     }
@@ -203,17 +205,17 @@ public class MaterialRevisionsTest {
     @Test
     public void shouldMatchByComment() {
         MaterialRevisions materialRevisions = new MaterialRevisions(
-                svnMaterialRevision(aCheckIn("100", "README"))
+            svnMaterialRevision(aCheckIn("100", "README"))
         );
-        assertThat(materialRevisions.containsMyCheckin(new Matcher("readme")), is(false));
+        assertThat(materialRevisions.containsMyCheckin(new Matcher("readme"))).isFalse();
     }
 
     @Test
     public void shouldMatchCommentWhenCaseAreSame() {
         MaterialRevisions materialRevisions = new MaterialRevisions(
-                svnMaterialRevision(aCheckIn("100", "README"))
+            svnMaterialRevision(aCheckIn("100", "README"))
         );
-        assertThat(materialRevisions.containsMyCheckin(new Matcher("README")), is(true));
+        assertThat(materialRevisions.containsMyCheckin(new Matcher("README"))).isTrue();
     }
 
     @Test
@@ -221,233 +223,235 @@ public class MaterialRevisionsTest {
         MaterialRevisions materialRevisions = new MaterialRevisions(
             svnMaterialRevision(checkinWithComment("100", "Line1\nLine2\nLine3", "Committer1", EMAIL_ADDRESS, TODAY_CHECKIN, "README"))
         );
-        assertThat(materialRevisions.containsMyCheckin(new Matcher("Committer1")), is(true));
-        assertThat(materialRevisions.containsMyCheckin(new Matcher("Line1")), is(true));
+        assertThat(materialRevisions.containsMyCheckin(new Matcher("Committer1"))).isTrue();
+        assertThat(materialRevisions.containsMyCheckin(new Matcher("Line1"))).isTrue();
     }
 
     @Test
     public void shouldMatchByUserName() {
         MaterialRevisions materialRevisions = new MaterialRevisions(
-                svnMaterialRevision(aCheckIn("100", "README"))
+            svnMaterialRevision(aCheckIn("100", "README"))
         );
-        assertThat(materialRevisions.containsMyCheckin(new Matcher(MOD_USER_COMMITTER)), is(true));
+        assertThat(materialRevisions.containsMyCheckin(new Matcher(MOD_USER_COMMITTER))).isTrue();
     }
 
     @Test
     public void shouldNotMatchWhenUserNameDoesNotMatch() {
         MaterialRevisions materialRevisions = new MaterialRevisions(
-                svnMaterialRevision(aCheckIn("100", "README"))
+            svnMaterialRevision(aCheckIn("100", "README"))
         );
-        assertThat(materialRevisions.containsMyCheckin(new Matcher("someone")), is(false));
+        assertThat(materialRevisions.containsMyCheckin(new Matcher("someone"))).isFalse();
     }
 
     @Test
     public void shouldNotMatchWhenMatcherIsNull() throws Exception {
         MaterialRevisions materialRevisions = new MaterialRevisions(
-                svnMaterialRevision(aCheckIn("100", "README"))
+            svnMaterialRevision(aCheckIn("100", "README"))
         );
-        assertThat(materialRevisions.containsMyCheckin(new Matcher((String) null)), is(false));
+        assertThat(materialRevisions.containsMyCheckin(new Matcher((String) null))).isFalse();
     }
 
     @Test
     public void shouldReturnTrueIfOneUsernameMatchesInMutipleModifications() throws Exception {
         MaterialRevisions materialRevisions = multipleModifications();
-        assertThat(materialRevisions.containsMyCheckin(new Matcher(MOD_USER_COMMITTER)), is(true));
+        assertThat(materialRevisions.containsMyCheckin(new Matcher(MOD_USER_COMMITTER))).isTrue();
     }
 
     @Test
     public void shouldReturnTrueIfUsernameMatchesInOneOfMaterialRevisions() throws Exception {
         MaterialRevisions materialRevisions = new MaterialRevisions(
-                svnMaterialRevision(aCheckIn("100", "test.txt")),
-                svnMaterialRevision(oneModifiedFile("revision"))
+            svnMaterialRevision(aCheckIn("100", "test.txt")),
+            svnMaterialRevision(oneModifiedFile("revision"))
         );
-        assertThat(materialRevisions.containsMyCheckin(new Matcher("Fixing")), is(true));
+        assertThat(materialRevisions.containsMyCheckin(new Matcher("Fixing"))).isTrue();
     }
 
     @Test
     public void shouldReturnFalseWhenMatcherIsNotAlphaNumberic() throws Exception {
         MaterialRevisions materialRevisions = multipleModifications();
-        assertThat(materialRevisions.containsMyCheckin(new Matcher("committer.*")), is(false));
+        assertThat(materialRevisions.containsMyCheckin(new Matcher("committer.*"))).isFalse();
     }
 
     @Test
     public void shouldNotMatchMaterialRevisionsWhenEmailMeIsDisabled() throws Exception {
         MaterialRevisions materialRevisions = multipleModifications();
-        assertThat(materialRevisions.containsMyCheckin(new Matcher(MOD_USER_COMMITTER)), is(true));
+        assertThat(materialRevisions.containsMyCheckin(new Matcher(MOD_USER_COMMITTER))).isTrue();
     }
 
     @Test
     public void shouldBeSameIfHasSameHeads() {
         MaterialRevisions first = new MaterialRevisions(
-                svnMaterialRevision(oneModifiedFile("revision2"), oneModifiedFile("revision1"))
+            svnMaterialRevision(oneModifiedFile("revision2"), oneModifiedFile("revision1"))
         );
         MaterialRevisions second = new MaterialRevisions(
-                svnMaterialRevision(oneModifiedFile("revision2"))
+            svnMaterialRevision(oneModifiedFile("revision2"))
         );
-        assertThat(first.isSameAs(second), is(true));
+        assertThat(first.isSameAs(second)).isTrue();
     }
 
     @Test
     public void shouldBeTheSameIfCurrentHasNoChanges() {
         MaterialRevisions first = new MaterialRevisions(
-                svnMaterialRevision(oneModifiedFile("svn revision 2")),
-                hgMaterialRevision(oneModifiedFile("hg revision 1"))
+            svnMaterialRevision(oneModifiedFile("svn revision 2")),
+            hgMaterialRevision(oneModifiedFile("hg revision 1"))
         );
         MaterialRevisions second = new MaterialRevisions(
-                svnMaterialRevision(false, oneModifiedFile("svn revision 2")),
-                hgMaterialRevision(false, oneModifiedFile("hg revision 1"))
+            svnMaterialRevision(false, oneModifiedFile("svn revision 2")),
+            hgMaterialRevision(false, oneModifiedFile("hg revision 1"))
         );
 
-        assertThat(first.isSameAs(second), is(true));
+        assertThat(first.isSameAs(second)).isTrue();
     }
 
-    @Test public void shouldNotBeSameIfOneMaterialRevisionIsNew() throws Exception {
+    @Test
+    public void shouldNotBeSameIfOneMaterialRevisionIsNew() throws Exception {
         MaterialRevisions first = new MaterialRevisions(
-                svnMaterialRevision(oneModifiedFile("svn revision 2"), oneModifiedFile("svn revision 1")),
-                hgMaterialRevision(oneModifiedFile("hg revision 1"))
+            svnMaterialRevision(oneModifiedFile("svn revision 2"), oneModifiedFile("svn revision 1")),
+            hgMaterialRevision(oneModifiedFile("hg revision 1"))
         );
         MaterialRevisions second = new MaterialRevisions(
-                svnMaterialRevision(oneModifiedFile("svn revision 2")),
-                hgMaterialRevision(oneModifiedFile("hg revision 2"))
+            svnMaterialRevision(oneModifiedFile("svn revision 2")),
+            hgMaterialRevision(oneModifiedFile("hg revision 2"))
         );
-        assertThat(first.isSameAs(second), is(false));
+        assertThat(first.isSameAs(second)).isFalse();
     }
 
-    @Test public void shouldNotBeSameIfOneMaterialRevisionIsNewAndOldOneHadOnlyOneRevision() throws Exception {
+    @Test
+    public void shouldNotBeSameIfOneMaterialRevisionIsNewAndOldOneHadOnlyOneRevision() throws Exception {
         MaterialRevisions first = new MaterialRevisions(
-                svnMaterialRevision(oneModifiedFile("svn revision 2")),
-                hgMaterialRevision(oneModifiedFile("hg revision 1"))
+            svnMaterialRevision(oneModifiedFile("svn revision 2")),
+            hgMaterialRevision(oneModifiedFile("hg revision 1"))
         );
         MaterialRevisions second = new MaterialRevisions(
-                svnMaterialRevision(oneModifiedFile("svn revision 2")),
-                hgMaterialRevision(oneModifiedFile("hg revision 2"))
+            svnMaterialRevision(oneModifiedFile("svn revision 2")),
+            hgMaterialRevision(oneModifiedFile("hg revision 2"))
         );
-        assertThat(first.isSameAs(second), is(false));
+        assertThat(first.isSameAs(second)).isFalse();
     }
 
     @Test
     public void shouldNotBeSameOnNewModification() {
         MaterialRevisions first = new MaterialRevisions(
-                svnMaterialRevision(oneModifiedFile("revision1"))
+            svnMaterialRevision(oneModifiedFile("revision1"))
         );
         MaterialRevisions second = new MaterialRevisions(
-                svnMaterialRevision(oneModifiedFile("revision2"))
+            svnMaterialRevision(oneModifiedFile("revision2"))
         );
-        assertThat(first.isSameAs(second), is(false));
+        assertThat(first.isSameAs(second)).isFalse();
     }
 
     @Test
     public void shouldNotBeSameIfMaterialsAreDifferent() {
         MaterialRevisions first = new MaterialRevisions(
-                svnMaterialRevision("folder1", FILTER_DOC_PDF, oneModifiedFile("revision1"))
+            svnMaterialRevision("folder1", FILTER_DOC_PDF, oneModifiedFile("revision1"))
         );
         MaterialRevisions second = new MaterialRevisions(
-                svnMaterialRevision("folder2", FILTER_DOC_PDF, oneModifiedFile("revision1"))
+            svnMaterialRevision("folder2", FILTER_DOC_PDF, oneModifiedFile("revision1"))
         );
-        assertThat(first.isSameAs(second), is(false));
+        assertThat(first.isSameAs(second)).isFalse();
     }
 
     @Test
     public void shouldUseFirstMaterialAsBuildCauseMessage() throws Exception {
-        MaterialRevisions materialRevisions = madeChanges(new boolean[] {true, true},
-                oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
-                oneModifiedFile("user2", "hgRev", new Date()));
+        MaterialRevisions materialRevisions = madeChanges(new boolean[]{true, true},
+            oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
+            oneModifiedFile("user2", "hgRev", new Date()));
 
-        assertThat(materialRevisions.buildCauseMessage(), is("modified by user1"));
+        assertThat(materialRevisions.buildCauseMessage()).isEqualTo("modified by user1");
     }
 
     @Test
     public void shouldUseFirstChangedMaterialAsBuildCauseMessage() throws Exception {
-        MaterialRevisions materialRevisions = madeChanges(new boolean[] {false, true},
-                oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
-                oneModifiedFile("user2", "hgRev", new Date()));
+        MaterialRevisions materialRevisions = madeChanges(new boolean[]{false, true},
+            oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
+            oneModifiedFile("user2", "hgRev", new Date()));
 
-        assertThat(materialRevisions.buildCauseMessage(), is("modified by user2"));
+        assertThat(materialRevisions.buildCauseMessage()).isEqualTo("modified by user2");
     }
 
     @Test
     public void shouldUseFirstMaterialAsbuildCausedBy() throws Exception {
-        MaterialRevisions materialRevisions = madeChanges(new boolean[] {true, true},
-                oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
-                oneModifiedFile("user2", "hgRev", new Date()));
+        MaterialRevisions materialRevisions = madeChanges(new boolean[]{true, true},
+            oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
+            oneModifiedFile("user2", "hgRev", new Date()));
 
-        assertThat(materialRevisions.buildCausedBy(), is("user1"));
+        assertThat(materialRevisions.buildCausedBy()).isEqualTo("user1");
     }
 
 
     @Test
     public void shouldUseFirstChangedMaterialAsbuildCausedBy() throws Exception {
-        MaterialRevisions materialRevisions = madeChanges(new boolean[] {false, true},
-                oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
-                oneModifiedFile("user2", "hgRev", new Date()));
+        MaterialRevisions materialRevisions = madeChanges(new boolean[]{false, true},
+            oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
+            oneModifiedFile("user2", "hgRev", new Date()));
 
-        assertThat(materialRevisions.buildCausedBy(), is("user2"));
+        assertThat(materialRevisions.buildCausedBy()).isEqualTo("user2");
     }
 
     @Test
     public void shouldUseFirstMaterialAsbuildDate() throws Exception {
-        MaterialRevisions materialRevisions = madeChanges(new boolean[] {true, true},
-                oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
-                oneModifiedFile("user2", "hgRev", new Date()));
+        MaterialRevisions materialRevisions = madeChanges(new boolean[]{true, true},
+            oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
+            oneModifiedFile("user2", "hgRev", new Date()));
 
-        assertThat(materialRevisions.getDateOfLatestModification(), is(TWO_DAYS_AGO_CHECKIN));
+        assertThat(materialRevisions.getDateOfLatestModification()).isEqualTo(TWO_DAYS_AGO_CHECKIN);
     }
 
 
     @Test
     public void shouldUseFirstChangedMaterialAsDate() throws Exception {
         Date now = new Date();
-        MaterialRevisions materialRevisions = madeChanges(new boolean[] {false, true},
-                oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
-                oneModifiedFile("user2", "hgRev", now));
+        MaterialRevisions materialRevisions = madeChanges(new boolean[]{false, true},
+            oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
+            oneModifiedFile("user2", "hgRev", now));
 
-        assertThat(materialRevisions.getDateOfLatestModification(), is(now));
+        assertThat(materialRevisions.getDateOfLatestModification()).isEqualTo(now);
     }
 
     @Test
     public void shouldUseFirstMaterialAsLatestRevision() throws Exception {
-        MaterialRevisions materialRevisions = madeChanges(new boolean[] {true, true},
-                oneModifiedFile("user1", "Rev.1", TWO_DAYS_AGO_CHECKIN),
-                oneModifiedFile("user2", "Rev.2", new Date()));
+        MaterialRevisions materialRevisions = madeChanges(new boolean[]{true, true},
+            oneModifiedFile("user1", "Rev.1", TWO_DAYS_AGO_CHECKIN),
+            oneModifiedFile("user2", "Rev.2", new Date()));
 
-        assertThat(materialRevisions.latestRevision(), is("Rev.1"));
+        assertThat(materialRevisions.latestRevision()).isEqualTo("Rev.1");
     }
 
     @Test
     public void shouldUseFirstChangedMaterialAsLatestRevision() throws Exception {
         Date now = new Date();
-        MaterialRevisions materialRevisions = madeChanges(new boolean[] {false, true},
-                oneModifiedFile("user1", "Rev.1", TWO_DAYS_AGO_CHECKIN),
-                oneModifiedFile("user2", "Rev.2", now));
+        MaterialRevisions materialRevisions = madeChanges(new boolean[]{false, true},
+            oneModifiedFile("user1", "Rev.1", TWO_DAYS_AGO_CHECKIN),
+            oneModifiedFile("user2", "Rev.2", now));
 
-        assertThat(materialRevisions.latestRevision(), is("Rev.2"));
+        assertThat(materialRevisions.latestRevision()).isEqualTo("Rev.2");
     }
 
     @Test
     public void shouldReturnFirstLatestRevisionIfNoChanged() throws Exception {
         MaterialRevisions materialRevisions = new MaterialRevisions(
-                svnMaterialRevision(yesterdayMod, oneHourAgoMod),
-                svnMaterialRevision(nowMod)
+            svnMaterialRevision(yesterdayMod, oneHourAgoMod),
+            svnMaterialRevision(nowMod)
         );
 
-        assertThat(materialRevisions.latestRevision(), is(yesterdayMod.getRevision()));
+        assertThat(materialRevisions.latestRevision()).isEqualTo(yesterdayMod.getRevision());
     }
 
     @Test
     public void shouldReturnMapKeyedByGivenMaterialName() {
         MaterialRevisions materialRevisions = new MaterialRevisions(
-                svnMaterialRevision(yesterdayMod, oneHourAgoMod)
+            svnMaterialRevision(yesterdayMod, oneHourAgoMod)
         );
-        assertThat(materialRevisions.getNamedRevisions().size(), is(1));
-        assertThat(materialRevisions.getNamedRevisions().get(new CaseInsensitiveString("Foo")), is("9"));
+        assertThat(materialRevisions.getNamedRevisions().size()).isEqualTo(1);
+        assertThat(materialRevisions.getNamedRevisions().get(new CaseInsensitiveString("Foo"))).isEqualTo("9");
     }
 
     @Test
     public void shouldNotAddMaterialWithEmptyNameIntoNamedRevisions() {
         MaterialRevisions materialRevisions = new MaterialRevisions(
-                hgMaterialRevision(oneModifiedFile("hg revision 1"))
+            hgMaterialRevision(oneModifiedFile("hg revision 1"))
         );
-        assertThat(materialRevisions.getNamedRevisions().size(), is(0));
+        assertThat(materialRevisions.getNamedRevisions().size()).isEqualTo(0);
     }
 
     @Test
@@ -456,7 +460,7 @@ public class MaterialRevisionsTest {
         MaterialRevision revision2 = dependencyMaterialRevision("mingle", 370, "2.3-370", "dist-zip", 1, new Date());
         MaterialRevisions materialRevisions = new MaterialRevisions(revision1, revision2);
 
-        assertThat(materialRevisions.findDependencyMaterialRevision("cruise"), is(revision1.getRevision()));
+        assertThat(materialRevisions.findDependencyMaterialRevision("cruise")).isEqualTo(revision1.getRevision());
     }
 
     @Test
@@ -465,14 +469,14 @@ public class MaterialRevisionsTest {
         MaterialRevision revision2 = dependencyMaterialRevision("mingle", 370, "2.3-370", "dist-zip", 1, new Date());
         MaterialRevisions materialRevisions = new MaterialRevisions(revision1, revision2);
 
-        assertThat(materialRevisions.findDependencyMaterialRevision("cruise"), is(revision1.getRevision()));
-        assertThat(materialRevisions.findDependencyMaterialRevision("Cruise"), is(revision1.getRevision()));
-        assertThat(materialRevisions.findDependencyMaterialRevision("CRUISE"), is(revision1.getRevision()));
+        assertThat(materialRevisions.findDependencyMaterialRevision("cruise")).isEqualTo(revision1.getRevision());
+        assertThat(materialRevisions.findDependencyMaterialRevision("Cruise")).isEqualTo(revision1.getRevision());
+        assertThat(materialRevisions.findDependencyMaterialRevision("CRUISE")).isEqualTo(revision1.getRevision());
     }
 
     @Test
     public void shouldReturnTrueForMissingModificationsForEmptyList() {
-        assertThat(new MaterialRevisions().isMissingModifications(),is(true));
+        assertThat(new MaterialRevisions().isMissingModifications()).isTrue();
     }
 
     @Test
@@ -484,11 +488,11 @@ public class MaterialRevisionsTest {
 
         Map<CaseInsensitiveString, String> namedRevisions = materialRevisions.getNamedRevisions();
 
-        assertThat(namedRevisions.get(pipelineName), is(pipelineLabel));
+        assertThat(namedRevisions.get(pipelineName)).isEqualTo(pipelineLabel);
     }
 
     @Test
-    public void shouldPopulateEnvironmentVariablesForEachOfTheMaterialsWithTheValueForChangedFlag(){
+    public void shouldPopulateEnvironmentVariablesForEachOfTheMaterialsWithTheValueForChangedFlag() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         MaterialRevisions revisions = new MaterialRevisions();
         revisions.addRevision(new MaterialRevision(MaterialsMother.hgMaterial("empty-dest-and-no-name", null), true, ModificationsMother.multipleModificationList()));
@@ -503,15 +507,42 @@ public class MaterialRevisionsTest {
 
         revisions.populateEnvironmentVariables(context, null);
 
-        assertThat(context.getProperty("GO_MATERIAL_HAS_CHANGED"), is("true"));
-        assertThat(context.getProperty("GO_MATERIAL_HG_FOLDER1_HAS_CHANGED"), is("true"));
-        assertThat(context.getProperty("GO_MATERIAL_HG_FOLDER2_HAS_CHANGED"), is("false"));
-        assertThat(context.getProperty("GO_MATERIAL_P1_HAS_CHANGED"), is("true"));
-        assertThat(context.getProperty("GO_MATERIAL_P2_HAS_CHANGED"), is("false"));
-        assertThat(context.getProperty("GO_MATERIAL_SCM1NAME_HAS_CHANGED"), is("true"));
-        assertThat(context.getProperty("GO_MATERIAL_SCM2NAME_HAS_CHANGED"), is("false"));
-        assertThat(context.getProperty("GO_MATERIAL_REPO1NAME_PKG1NAME_HAS_CHANGED"), is("true"));
-        assertThat(context.getProperty("GO_MATERIAL_REPO2NAME_PKG2NAME_HAS_CHANGED"), is("false"));
+        assertThat(context.getProperty("GO_MATERIAL_HAS_CHANGED")).isEqualTo("true");
+        assertThat(context.getProperty("GO_MATERIAL_HG_FOLDER1_HAS_CHANGED")).isEqualTo("true");
+        assertThat(context.getProperty("GO_MATERIAL_HG_FOLDER2_HAS_CHANGED")).isEqualTo("false");
+        assertThat(context.getProperty("GO_MATERIAL_P1_HAS_CHANGED")).isEqualTo("true");
+        assertThat(context.getProperty("GO_MATERIAL_P2_HAS_CHANGED")).isEqualTo("false");
+        assertThat(context.getProperty("GO_MATERIAL_SCM1NAME_HAS_CHANGED")).isEqualTo("true");
+        assertThat(context.getProperty("GO_MATERIAL_SCM2NAME_HAS_CHANGED")).isEqualTo("false");
+        assertThat(context.getProperty("GO_MATERIAL_REPO1NAME_PKG1NAME_HAS_CHANGED")).isEqualTo("true");
+        assertThat(context.getProperty("GO_MATERIAL_REPO2NAME_PKG2NAME_HAS_CHANGED")).isEqualTo("false");
+    }
+
+    @Nested
+    class FindRevisionForPipelineUniqueFingerprint {
+        @Test
+        void shouldReturnNullWhenMaterialWithPipelineFingerprintDoesNotExist() {
+            MaterialRevision revisionOne = withPipelineUniqueFingerprint("One");
+            MaterialRevision revisionTwo = withPipelineUniqueFingerprint("Two");
+
+            MaterialRevisions materialRevisions = new MaterialRevisions(revisionOne, revisionTwo);
+
+            assertThat(materialRevisions.findRevisionForPipelineUniqueFingerprint("unknown"))
+                .isNull();
+        }
+
+        @Test
+        void shouldReturnMaterialRevisionWithPipelineUniqueFingerprint() {
+            MaterialRevision revisionOne = withPipelineUniqueFingerprint("One");
+            MaterialRevision revisionTwo = withPipelineUniqueFingerprint("Two");
+
+            MaterialRevisions materialRevisions = new MaterialRevisions(revisionOne, revisionTwo);
+
+            assertThat(materialRevisions.findRevisionForPipelineUniqueFingerprint("One"))
+                .isSameAs(revisionOne);
+            assertThat(materialRevisions.findRevisionForPipelineUniqueFingerprint("Two"))
+                .isSameAs(revisionTwo);
+        }
     }
 
     private MaterialRevisions madeChanges(boolean[] changed, Modification... modifications) {
@@ -550,5 +581,11 @@ public class MaterialRevisionsTest {
         return material;
     }
 
-
+    private MaterialRevision withPipelineUniqueFingerprint(String fingerprint) {
+        MaterialRevision materialRevision = mock(MaterialRevision.class);
+        Material material = mock(Material.class);
+        when(materialRevision.getMaterial()).thenReturn(material);
+        when(material.getPipelineUniqueFingerprint()).thenReturn(fingerprint);
+        return materialRevision;
+    }
 }

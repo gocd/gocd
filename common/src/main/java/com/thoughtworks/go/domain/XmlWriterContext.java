@@ -99,7 +99,6 @@ public class XmlWriterContext {
         return stageXmlByLocator(stageIdentifier.getStageLocator());
     }
 
-
     public String stageXmlLink(Modification modification) {
         return stageXmlByLocator(modification.getRevision());
     }
@@ -112,12 +111,12 @@ public class XmlWriterContext {
         return relative(format("/api/feed/pipelines/%s/%s.xml", pipelineName, pipelineCounter));
     }
 
-    public String materialUri(long materialId) {
-        return relative(format("/api/feed/materials/%s.xml", materialId));
+    public String materialUri(String pipelineName, Integer pipelineCounter, String revision) {
+        return relative(format("/api/feed/materials/%s/%s/%s.xml", pipelineName, pipelineCounter, revision));
     }
 
-    public String changesetUri(Modification modification, long materialId) {
-        return relative(format("/api/feed/materials/%s/changeset/%s.xml", materialId, modification.getRevision()));
+    public String changesetUri(String fingerprint, Modification modification) {
+        return relative(format("/api/feed/materials/%s/changeset/%s.xml", fingerprint, modification.getRevision()));
     }
 
     public String jobXmlLink(JobIdentifier identifier) {

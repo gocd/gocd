@@ -22,15 +22,15 @@ import com.thoughtworks.go.server.domain.xml.builder.ElementBuilder;
 import com.thoughtworks.go.util.DateUtils;
 
 public class DependencyMaterialXmlRepresenter extends MaterialXmlRepresenter {
-    public DependencyMaterialXmlRepresenter(MaterialRevision materialRevision) {
-        super(materialRevision);
+    public DependencyMaterialXmlRepresenter(String pipelineName, Integer pipelineCounter, MaterialRevision materialRevision) {
+        super(pipelineName, pipelineCounter, materialRevision);
     }
 
     @Override
     protected void populateModification(ElementBuilder builder, Modification modification, XmlWriterContext ctx) {
         builder.node("changeset", cb -> cb.attr("changesetUri", ctx.stageXmlLink(modification))
-                .textNode("checkinTime", DateUtils.formatISO8601(modification.getModifiedTime()))
-                .textNode("revision", modification.getRevision())
+            .textNode("checkinTime", DateUtils.formatISO8601(modification.getModifiedTime()))
+            .textNode("revision", modification.getRevision())
         );
     }
 }

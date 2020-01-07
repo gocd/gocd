@@ -44,11 +44,11 @@ public class PackageMaterialXmlRepresenterTest {
         ElementBuilder builder = new ElementBuilder(root);
         XmlWriterContext context = new XmlWriterContext("https://test.host/go", null, null, null, new SystemEnvironment());
 
-        new PackageMaterialXmlRepresenter(revision).populate(builder, context);
+        new PackageMaterialXmlRepresenter("up42", 1, revision).populate(builder, context);
 
         assertThat(root.asXML()).and(expectedXML)
-                .ignoreWhitespace()
-                .areIdentical();
+            .ignoreWhitespace()
+            .areIdentical();
     }
 
 }

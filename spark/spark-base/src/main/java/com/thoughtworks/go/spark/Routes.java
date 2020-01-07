@@ -865,5 +865,6 @@ public class Routes {
         public static final String JOB_XML = "/pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/:job_name";
         public static final String STAGES_XML = "/pipelines/:pipeline_name/stages.xml";
         public static final String SCHEDULED_JOB_XML = "/jobs/scheduled.xml";
+        public static final String MATERIAL_URL = "/materials/:pipeline_name/:pipeline_counter/:fingerprint";
     }
 }

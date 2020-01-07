@@ -35,8 +35,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import static java.lang.String.format;
+import static org.apache.commons.io.FilenameUtils.removeExtension;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.removeEnd;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 import static spark.Spark.*;
 
@@ -71,6 +71,7 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
             get(Routes.FeedsAPI.STAGE_XML, this.mimeType, this::stageXML);
             get(Routes.FeedsAPI.JOB_XML, this.mimeType, this::jobXML);
             get(Routes.FeedsAPI.SCHEDULED_JOB_XML, this.mimeType, this::scheduledJobs);
+            get(Routes.FeedsAPI.MATERIAL_URL, this.mimeType, this::materialXML);
         });
     }
 
@@ -80,7 +81,7 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
 
     public String pipelineXML(Request request, Response response) throws IOException {
         String pipelineName = request.params("pipeline_name");
-        Integer pipelineCounter = parseInt(removeEnd(request.params("pipeline_counter").toLowerCase(), ".xml"), "pipeline counter");
+        Integer pipelineCounter = parseInt(removeExtension(request.params("pipeline_counter")), "pipeline counter");
         return prettyPrint(feedService.pipelineXml(currentUsername(), pipelineName, pipelineCounter, baseUrl(request)));
     }
 
@@ -99,7 +100,7 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
         String pipelineName = request.params("pipeline_name");
         Integer pipelineCounter = parseInt(request.params("pipeline_counter"), "pipeline counter");
         String stageName = request.params("stage_name");
-        Integer stageCounter = parseInt(removeEnd(request.params("stage_counter").toLowerCase(), ".xml"), "stage counter");
+        Integer stageCounter = parseInt(removeExtension(request.params("stage_counter")), "stage counter");
         return prettyPrint(feedService.stageXml(currentUsername(), pipelineName, pipelineCounter, stageName, stageCounter, baseUrl(request)));
     }
 
@@ -108,13 +109,21 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
         Integer pipelineCounter = parseInt(request.params("pipeline_counter"), "pipeline counter");
         String stageName = request.params("stage_name");
         Integer stageCounter = parseInt(request.params("stage_counter"), "stage counter");
-        String jobName = removeEnd(request.params("job_name").toLowerCase(), ".xml");
+        String jobName = removeExtension(request.params("job_name"));
 
         return prettyPrint(feedService.jobXml(currentUsername(), pipelineName, pipelineCounter, stageName, stageCounter, jobName, baseUrl(request)));
     }
 
     public String scheduledJobs(Request request, Response response) throws IOException {
         return prettyPrint(feedService.waitingJobPlansXml(baseUrl(request)));
+    }
+
+    public String materialXML(Request request, Response response) throws IOException {
+        String pipelineName = request.params("pipeline_name");
+        Integer pipelineCounter = parseInt(request.params("pipeline_counter"), "pipeline counter");
+        String fingerprint = removeExtension(request.params("fingerprint"));
+
+        return prettyPrint(feedService.materialXml(currentUsername(), pipelineName, pipelineCounter, fingerprint, baseUrl(request)));
     }
 
     public static String prettyPrint(Document document) throws IOException {

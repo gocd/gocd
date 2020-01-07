@@ -22,11 +22,13 @@ import com.thoughtworks.go.apiv3.rolesconfig.representers.RolesViewModelRepresen
 import com.thoughtworks.go.config.PluginRoleConfig
 import com.thoughtworks.go.config.RoleConfig
 import com.thoughtworks.go.config.RolesConfig
+import com.thoughtworks.go.config.elastic.ClusterProfile
+import com.thoughtworks.go.config.elastic.ClusterProfiles
+import com.thoughtworks.go.config.elastic.ElasticProfile
+import com.thoughtworks.go.config.elastic.ElasticProfiles
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.ConfigReposConfig
-import com.thoughtworks.go.server.service.ConfigRepoService
-import com.thoughtworks.go.server.service.EnvironmentConfigService
-import com.thoughtworks.go.server.service.RoleConfigService
+import com.thoughtworks.go.server.service.*
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -48,6 +50,10 @@ class InternalRolesControllerV3Test implements SecurityServiceTrait, ControllerT
   private EnvironmentConfigService environmentConfigService
   @Mock
   private ConfigRepoService configRepoService
+  @Mock
+  private ElasticProfileService elasticProfileService
+  @Mock
+  private ClusterProfilesService clusterProfilesService
 
   @BeforeEach
   void setUp() {
@@ -56,7 +62,7 @@ class InternalRolesControllerV3Test implements SecurityServiceTrait, ControllerT
 
   @Override
   InternalRolesControllerV3 createControllerInstance() {
-    new InternalRolesControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), roleConfigService, environmentConfigService, configRepoService)
+    new InternalRolesControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), roleConfigService, environmentConfigService, configRepoService, elasticProfileService, clusterProfilesService)
   }
 
   @Nested
@@ -92,9 +98,16 @@ class InternalRolesControllerV3Test implements SecurityServiceTrait, ControllerT
         expectedRoles = new RolesConfig([gocdRoleConfig, pluginRoleConfig])
         configRepo = new ConfigRepoConfig(git("https://foo.git", "master"), "json-config-repo-plugin", "repo-1");
         envNames = asList("env1", "env2")
+        def elasticProfile1 = new ElasticProfile("elastic_profile1", "cluster_profile")
+        def elasticProfile2 = new ElasticProfile("elastic_profile2", "cluster_profile")
+        def clusterProfile = new ClusterProfile("cluster_profile", "ecs.plugin")
+        def elasticProfiles = new ElasticProfiles(elasticProfile1, elasticProfile2)
+        def clusterProfiles = new ClusterProfiles(clusterProfile)
 
         when(environmentConfigService.getEnvironmentNames()).thenReturn(envNames)
         when(configRepoService.getConfigRepos()).thenReturn(new ConfigReposConfig(configRepo))
+        when(elasticProfileService.getPluginProfiles()).thenReturn(elasticProfiles)
+        when(clusterProfilesService.getPluginProfiles()).thenReturn(clusterProfiles)
       }
 
       @Test
@@ -102,6 +115,8 @@ class InternalRolesControllerV3Test implements SecurityServiceTrait, ControllerT
         def rolesViewModel = new RolesViewModel().setRolesConfig(expectedRoles)
         rolesViewModel.getAutoSuggestions().put("environment", envNames)
         rolesViewModel.getAutoSuggestions().put("config_repo", ["repo-1"])
+        rolesViewModel.getAutoSuggestions().put("elastic_agent_profile", ["elastic_profile1", "elastic_profile2"])
+        rolesViewModel.getAutoSuggestions().put("cluster_profile", ["cluster_profile"])
 
         when(roleConfigService.getRoles()).thenReturn(expectedRoles)
 
@@ -120,6 +135,8 @@ class InternalRolesControllerV3Test implements SecurityServiceTrait, ControllerT
         def rolesViewModel = new RolesViewModel().setRolesConfig(expectedRoles.ofType("plugin"))
         rolesViewModel.getAutoSuggestions().put("environment", envNames)
         rolesViewModel.getAutoSuggestions().put("config_repo", ["repo-1"])
+        rolesViewModel.getAutoSuggestions().put("elastic_agent_profile", ["elastic_profile1", "elastic_profile2"])
+        rolesViewModel.getAutoSuggestions().put("cluster_profile", ["cluster_profile"])
 
         when(roleConfigService.getRoles()).thenReturn(expectedRoles)
 

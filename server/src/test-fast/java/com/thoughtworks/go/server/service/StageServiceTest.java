@@ -30,7 +30,6 @@ import com.thoughtworks.go.domain.feed.FeedEntry;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.JobInstanceMother;
-import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
@@ -70,8 +69,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.helper.ModificationsMother.*;
+import static com.thoughtworks.go.helper.PipelineMother.completedFailedStageInstance;
 import static com.thoughtworks.go.server.security.GoAuthority.ROLE_ANONYMOUS;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonMap;
+import static java.util.List.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
@@ -118,7 +122,7 @@ public class StageServiceTest {
     }
 
     @Test
-    public void shouldFindStageSummaryModelForGivenStageIdentifier() throws Exception {
+    public void shouldFindStageSummaryModelForGivenStageIdentifier() {
         SecurityService securityService = alwaysAllow();
 
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
@@ -153,7 +157,7 @@ public class StageServiceTest {
     }
 
     @Test
-    public void shouldBeAbleToGetAJobsDuration() throws Exception {
+    public void shouldBeAbleToGetAJobsDuration() {
 
         TestingClock clock = new TestingClock();
         JobInstance theJob = JobInstanceMother.building("job", clock.currentTime());
@@ -181,7 +185,7 @@ public class StageServiceTest {
     }
 
     @Test
-    public void findStageSummaryByIdentifierShouldRespondWith403WhenUserDoesNotHavePermissionToViewThePipeline() throws Exception {
+    public void findStageSummaryByIdentifierShouldRespondWith403WhenUserDoesNotHavePermissionToViewThePipeline() {
         SecurityService securityService = mock(SecurityService.class);
         when(securityService.hasViewPermissionForPipeline(ALWAYS_ALLOW_USER, "pipeline_name")).thenReturn(false);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
@@ -196,7 +200,7 @@ public class StageServiceTest {
     }
 
     @Test
-    public void findStageSummaryByIdentifierShouldRespondWith404WhenNoStagesFound() throws Exception {
+    public void findStageSummaryByIdentifierShouldRespondWith404WhenNoStagesFound() {
         SecurityService securityService = mock(SecurityService.class);
         when(securityService.hasViewPermissionForPipeline(ALWAYS_ALLOW_USER, "pipeline_does_not_exist")).thenReturn(true);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
@@ -214,7 +218,7 @@ public class StageServiceTest {
     }
 
     @Test
-    public void findStageSummaryByIdentifierShouldRespondWith404WhenStagesHavingGivenCounterIsNotFound() throws Exception {
+    public void findStageSummaryByIdentifierShouldRespondWith404WhenStagesHavingGivenCounterIsNotFound() {
         SecurityService securityService = mock(SecurityService.class);
         when(securityService.hasViewPermissionForPipeline(ALWAYS_ALLOW_USER, "dev")).thenReturn(true);
         TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
@@ -271,71 +275,148 @@ public class StageServiceTest {
         verify(stageDao).updateResult(foundStage, StageResult.Cancelled, null);
     }
 
-    @Test
-    public void findCompletedStagesFor_shouldCacheTheResultPerPipeline() {
-        Date updateDate = new Date();
-        when(stageDao.findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25)).thenReturn(asList(stageFeedEntry("cruise", updateDate))).thenReturn(asList(stageFeedEntry("cruise",
-            updateDate)));
+    @Nested
+    class FindCompletedStagesFor {
+        private Date updateDate;
+        private StageService service;
 
-        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig("cruise"));
+        @BeforeEach
+        void setUp() {
+            updateDate = new Date();
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig("cruise"));
 
-        Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<>();
-        expectedMap.put(1L,
-            asList(new ModificationForPipeline(new PipelineId("cruise", 1L), ModificationsMother.checkinWithComment("revision", "#123 hello wolrd", updateDate), "Svn", "fooBarBaaz")));
-        when(changesetService.modificationsOfPipelines(asList(1L), "cruise", Username.ANONYMOUS)).thenReturn(expectedMap);
+            Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<>();
+            ModificationForPipeline modification = new ModificationForPipeline(new PipelineId("cruise", 1L), checkinWithComment("revision", "#123 hello wolrd", updateDate), "Svn", "fooBarBaaz");
+            expectedMap.put(1L, of(modification));
+            when(changesetService.modificationsOfPipelines(of(1L), "cruise", Username.ANONYMOUS)).thenReturn(expectedMap);
 
-        StageService service = new StageService(stageDao, null, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-            new StubGoCache(transactionSynchronizationManager));
+            service = new StageService(stageDao, null, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
+                new StubGoCache(transactionSynchronizationManager));
+        }
 
-        FeedEntry expected = stageFeedEntry("cruise", updateDate);
+        @Test
+        public void shouldCacheTheResultPerPipeline() {
+            when(stageDao.findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25))
+                .thenReturn(of(stageFeedEntry("cruise", updateDate)))
+                .thenReturn(of(stageFeedEntry("cruise", updateDate)));
 
-        FeedEntries feedEntries = service.feed("cruise", Username.ANONYMOUS);//Should prime the cache
-        assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected)));
-        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
+            FeedEntry expected = stageFeedEntry("cruise", updateDate);
 
-        feedEntries = service.feed("cruise", Username.ANONYMOUS);//Should use the cache
-        assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected)));
-        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
+            FeedEntries feedEntries = service.feed("cruise", Username.ANONYMOUS);//Should prime the cache
+            assertThat(feedEntries).hasSize(1).contains(expected);
+            assertThat(feedEntries.get(0).getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
 
-        verify(stageDao).findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25);
-        verify(changesetService).modificationsOfPipelines(asList(1L), "cruise", Username.ANONYMOUS);
-        verifyNoMoreInteractions(stageDao);
-        verifyNoMoreInteractions(changesetService);
+            feedEntries = service.feed("cruise", Username.ANONYMOUS);//Should use the cache
+            assertThat(feedEntries).hasSize(1).contains(expected);
+            assertThat(feedEntries.get(0).getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
+
+            verify(stageDao).findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25);
+            verify(changesetService).modificationsOfPipelines(of(1L), "cruise", Username.ANONYMOUS);
+            verifyNoMoreInteractions(stageDao);
+            verifyNoMoreInteractions(changesetService);
+        }
+
+        @Test
+        public void shouldInvalidateCacheOnCompletionOfAStage() {
+            when(stageDao.findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25))
+                .thenReturn(of(stageFeedEntry("cruise", updateDate)))
+                .thenReturn(of(stageFeedEntry("cruise", updateDate)));
+
+            FeedEntry expected = stageFeedEntry("cruise", updateDate);
+
+            FeedEntries feedEntries = service.feed("cruise", Username.ANONYMOUS);//Should cache
+            assertThat(feedEntries).hasSize(1).contains(expected);
+            assertThat(feedEntries.get(0).getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
+
+            Stage stage = StageMother.createPassedStage("cruise", 1, "stage", 1, "job", updateDate);
+            stage.setIdentifier(new StageIdentifier("cruise", 1, "stage", String.valueOf(1)));
+            service.updateResult(stage);//Should remove from the cache
+
+            feedEntries = service.feed("cruise", Username.ANONYMOUS);// Should retrieve from db again.
+            assertThat(feedEntries).hasSize(1).contains(expected);
+            assertThat(feedEntries.get(0).getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
+
+            verify(stageDao, times(2)).findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25);
+            verify(changesetService, times(2)).modificationsOfPipelines(of(1L), "cruise", Username.ANONYMOUS);
+            verifyNoMoreInteractions(changesetService);
+        }
+
+        @Test
+        public void shouldNotCacheTheResultPerPipelineForFeedsBeforeAGivenID() {
+            when(stageDao.findCompletedStagesFor("cruise", FeedModifier.Before, 1L, 25))
+                .thenReturn(of(stageFeedEntry("cruise", updateDate)))
+                .thenReturn(of(stageFeedEntry("cruise", updateDate)));
+
+            FeedEntry expected = stageFeedEntry("cruise", updateDate);
+
+            FeedEntries feedEntries = service.feedBefore(1L, "cruise", Username.ANONYMOUS);
+            assertThat(feedEntries).hasSize(1).contains(expected);
+            assertThat(feedEntries.get(0).getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
+
+            feedEntries = service.feedBefore(1L, "cruise", Username.ANONYMOUS);
+            assertThat(feedEntries).hasSize(1).contains(expected);
+            assertThat(feedEntries.get(0).getAuthors()).hasSize(1).contains(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS));
+
+            verify(stageDao, times(2)).findCompletedStagesFor("cruise", FeedModifier.Before, 1L, 25);
+            verifyNoMoreInteractions(stageDao);
+        }
     }
 
-    @Test
-    public void findCompletedStagesFor_shouldInvalidateCacheOnCompletionOfAStage() {
-        Date updateDate = new Date();
-        when(stageDao.findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25)).thenReturn(asList(stageFeedEntry("cruise", updateDate))).thenReturn(asList(stageFeedEntry("cruise",
-            updateDate)));
+    @Nested
+    class FindStageFeedBy {
+        private StageService service;
+        private Username username = new Username("bob");
 
-        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig("cruise"));
+        @BeforeEach
+        void setUp() {
+            when(changesetService.modificationsOfPipelines(of(1L), "cruise", username)).thenReturn(singletonMap(1L, emptyList()));
+            service = new StageService(stageDao, null, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
+                new StubGoCache(transactionSynchronizationManager));
+        }
 
-        Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<>();
-        expectedMap.put(1L,
-            asList(new ModificationForPipeline(new PipelineId("cruise", 1L), ModificationsMother.checkinWithComment("revision", "#123 hello wolrd", updateDate), "Svn", "fooBarBaaz")));
-        when(changesetService.modificationsOfPipelines(asList(1L), "cruise", Username.ANONYMOUS)).thenReturn(expectedMap);
+        @Test
+        void shouldGetTheFeedEntriesFromDB() {
+            StageFeedEntry entry = stageFeedEntry("cruise", new Date());
+            when(stageDao.findStageFeedBy("cruise", 1, FeedModifier.Latest, 25))
+                .thenReturn(of(entry));
 
-        StageService service = new StageService(stageDao, null, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-            new StubGoCache(transactionSynchronizationManager));
+            FeedEntries entries = service.findStageFeedBy("cruise", 1, FeedModifier.Latest, username);
 
-        FeedEntry expected = stageFeedEntry("cruise", updateDate);
+            assertThat(entries).hasSize(1).contains(entry);
+            verify(stageDao).findStageFeedBy("cruise", 1, FeedModifier.Latest, 25);
+        }
 
-        FeedEntries feedEntries = service.feed("cruise", Username.ANONYMOUS);//Should cache
-        assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected)));
-        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
+        @Test
+        void shouldReturnTheLatestFeedEntriesFromCacheOnceItIsCachedWhenPipelineCounterIsNull() {
+            StageFeedEntry entry = stageFeedEntry("cruise", new Date());
+            when(stageDao.findStageFeedBy("cruise", null, null, 25))
+                .thenReturn(of(entry));
 
-        Stage stage = StageMother.createPassedStage("cruise", 1, "stage", 1, "job", updateDate);
-        stage.setIdentifier(new StageIdentifier("cruise", 1, "stage", String.valueOf(1)));
-        service.updateResult(stage);//Should remove from the cache
+            FeedEntries entries = service.findStageFeedBy("cruise", null, FeedModifier.Latest, username);
+            assertThat(entries).hasSize(1).contains(entry);
 
-        feedEntries = service.feed("cruise", Username.ANONYMOUS);// Should retrieve from db again.
-        assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected)));
-        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
+            entries = service.findStageFeedBy("cruise", null, null, username);
+            assertThat(entries).hasSize(1).contains(entry);
 
-        verify(stageDao, times(2)).findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 25);
-        verify(changesetService, times(2)).modificationsOfPipelines(asList(1L), "cruise", Username.ANONYMOUS);
-        verifyNoMoreInteractions(changesetService);
+            verify(stageDao, times(1)).findStageFeedBy("cruise", null, null, 25);
+            verifyNoMoreInteractions(stageDao);
+        }
+
+        @Test
+        void shouldAlwaysGetFeedEntriesFromDBWhenPipelineCounterIsGiven() {
+            StageFeedEntry entry = stageFeedEntry("cruise", new Date());
+            when(stageDao.findStageFeedBy("cruise", 1, FeedModifier.Latest, 25))
+                .thenReturn(of(entry));
+
+            FeedEntries entries = service.findStageFeedBy("cruise", 1, FeedModifier.Latest, username);
+            assertThat(entries).hasSize(1).contains(entry);
+
+            entries = service.findStageFeedBy("cruise", 1, FeedModifier.Latest, username);
+            assertThat(entries).hasSize(1).contains(entry);
+
+            verify(stageDao, times(2)).findStageFeedBy("cruise", 1, FeedModifier.Latest, 25);
+            verifyNoMoreInteractions(stageDao);
+        }
     }
 
     private CruiseConfig cruiseConfig(final String pipelineName) {
@@ -346,43 +427,12 @@ public class StageServiceTest {
     }
 
     @Test
-    public void findCompletedStagesFor_shouldNotCacheTheResultPerPipelineForFeedsBeforeAGivenID() {
-        Date updateDate = new Date();
-        when(stageDao.findCompletedStagesFor("cruise", FeedModifier.Before, 1L, 25)).thenReturn(asList(stageFeedEntry("cruise", updateDate))).thenReturn(asList(stageFeedEntry("cruise",
-            updateDate)));
-
-        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig("cruise"));
-
-        //Setup card numbers
-        Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<>();
-        expectedMap.put(1L,
-            asList(new ModificationForPipeline(new PipelineId("cruise", 1L), ModificationsMother.checkinWithComment("revision", "#123 hello wolrd", updateDate), "Svn", "fooBarBaaz")));
-        when(changesetService.modificationsOfPipelines(asList(1L), "cruise", Username.ANONYMOUS)).thenReturn(expectedMap);
-
-        StageService service = new StageService(stageDao, null, null, null, null, null, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager,
-            new StubGoCache(transactionSynchronizationManager));
-
-        FeedEntry expected = stageFeedEntry("cruise", updateDate);
-
-        FeedEntries feedEntries = service.feedBefore(1L, "cruise", Username.ANONYMOUS);
-        assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected)));
-        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
-
-        feedEntries = service.feedBefore(1L, "cruise", Username.ANONYMOUS);
-        assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected)));
-        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
-
-        verify(stageDao, times(2)).findCompletedStagesFor("cruise", FeedModifier.Before, 1L, 25);
-        verifyNoMoreInteractions(stageDao);
-    }
-
-    @Test
     public void shouldReturnFeedsEvenIfUpstreamPipelineIsDeleted() {
         Date updateDate = new Date();
         CruiseConfig config = mock(BasicCruiseConfig.class);
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("down");
         Map<Long, List<ModificationForPipeline>> expectedModMapDown = new HashMap<>();
-        Modification mod1 = ModificationsMother.checkinWithComment("revision", "#123 hello wolrd", updateDate);
+        Modification mod1 = checkinWithComment("revision", "#123 hello wolrd", updateDate);
         expectedModMapDown.put(1L, asList(new ModificationForPipeline(new PipelineId("down", 1L), mod1, "Svn", "fooBarBaaz")));
 
         FeedEntry expected = stageFeedEntry("down", updateDate);
@@ -398,8 +448,8 @@ public class StageServiceTest {
 
         FeedEntries feedEntries = service.feed("down", Username.ANONYMOUS);
         assertThat(feedEntries).isEqualTo(new FeedEntries(asList(expected, expected)));
-        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
-        assertThat(feedEntries.get(1).getAuthors()).isEqualTo(asList(new Author(ModificationsMother.MOD_USER_COMMITTER, ModificationsMother.EMAIL_ADDRESS)));
+        assertThat(feedEntries.get(0).getAuthors()).isEqualTo(asList(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS)));
+        assertThat(feedEntries.get(1).getAuthors()).isEqualTo(asList(new Author(MOD_USER_COMMITTER, EMAIL_ADDRESS)));
     }
 
     private StageFeedEntry stageFeedEntry(String pipelineName, final Date updateDate) {

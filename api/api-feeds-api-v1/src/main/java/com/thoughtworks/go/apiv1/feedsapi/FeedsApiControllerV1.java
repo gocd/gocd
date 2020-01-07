@@ -88,11 +88,7 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
     public String stagesXML(Request request, Response response) throws IOException {
         String pipelineName = request.params("pipeline_name");
         String beforeFromRequest = request.queryParams("before");
-        if (isBlank(beforeFromRequest)) {
-            return prettyPrint(feedService.stagesXml(currentUsername(), pipelineName, null, baseUrl(request)));
-        }
-
-        long before = parseLong(beforeFromRequest, "before");
+        Integer before = isBlank(beforeFromRequest) ? null : parseInt(beforeFromRequest, "before");
         return prettyPrint(feedService.stagesXml(currentUsername(), pipelineName, before, baseUrl(request)));
     }
 
@@ -134,14 +130,6 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
         new XMLWriter(writer, format).write(document);
 
         return writer.toString();
-    }
-
-    private Long parseLong(String value, String entity) {
-        try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException nfe) {
-            throw new BadRequestException(format("The '%s' must be an integer.", entity));
-        }
     }
 
     private Integer parseInt(String value, String entity) {

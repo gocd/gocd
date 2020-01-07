@@ -87,8 +87,8 @@ public class XmlWriterContext {
         return relative(format("/api/feed/pipelines/%s/stages.xml", pipelineName));
     }
 
-    public String stagesXmlLink(String pipelineName, long before) {
-        return format("%s?before=%s", stagesXmlLink(pipelineName), before);
+    public String stagesXmlLink(String pipelineName, long beforePipelineCounter) {
+        return format("%s?before=%s", stagesXmlLink(pipelineName), beforePipelineCounter);
     }
 
     public String stageDetailsPageLink(String stageLocator) {

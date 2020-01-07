@@ -104,13 +104,17 @@ describe('PolicyWidgetSpecs', () => {
 
     const typeOptions = helper.qa("option", helper.byTestId("permission-type"));
 
-    expect(typeOptions.length).toBe(4);
+    expect(typeOptions.length).toBe(6);
     expect(typeOptions[1]).toHaveText("All");
     expect(typeOptions[1]).toHaveValue("*");
     expect(typeOptions[2]).toHaveText("Environment");
     expect(typeOptions[2]).toHaveValue("environment");
     expect(typeOptions[3]).toHaveText("Config Repository");
     expect(typeOptions[3]).toHaveValue("config_repo");
+    expect(typeOptions[4]).toHaveText("Cluster Profile");
+    expect(typeOptions[4]).toHaveValue("cluster_profile");
+    expect(typeOptions[5]).toHaveText("Elastic Agent Profile");
+    expect(typeOptions[5]).toHaveValue("elastic_agent_profile");
   });
 
   it("should render 4 items in supported actions dropdown", () => {

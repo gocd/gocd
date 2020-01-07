@@ -188,6 +188,12 @@ export class CreatePolicyWidget extends MithrilViewComponent<AutoCompleteAttrs> 
         id: "environment", text: "Environment"
       }, {
         id: "config_repo", text: "Config Repository"
+      },
+      {
+        id: "cluster_profile", text: "Cluster Profile"
+      },
+      {
+        id: "elastic_agent_profile", text: "Elastic Agent Profile"
       }
     ];
   }

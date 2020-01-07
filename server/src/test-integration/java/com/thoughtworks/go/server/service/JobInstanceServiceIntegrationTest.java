@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -48,6 +49,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -566,4 +568,69 @@ public class JobInstanceServiceIntegrationTest {
         return savedStage.getId();
     }
 
+    @Test
+    public void shouldGetOldestAndLatestJobRunInstances() {
+        List<Pipeline> pipelines = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
+            pipelines.add(pipeline);
+        }
+        String stageName = pipelineFixture.devStage;
+        String jobConfigName = PipelineWithTwoStages.JOB_FOR_DEV_STAGE;
+        PipelineRunIdInfo runIdInfo = jobInstanceService.getOldestAndLatestJobInstanceId(Username.valueOf("user"), pipelineFixture.pipelineName, stageName, jobConfigName);
+
+        assertThat(runIdInfo.getOldestRunId(), is(pipelines.get(0).findStage(stageName).findJob(jobConfigName).getId()));
+        assertThat(runIdInfo.getLatestRunId(), is(pipelines.get(3).findStage(stageName).findJob(jobConfigName).getId()));
+    }
+
+    @Test
+    public void shouldFetchLatestRecordsForJobHistory() {
+        String stageName = pipelineFixture.devStage;
+        String jobConfigName = PipelineWithTwoStages.JOB_FOR_DEV_STAGE;
+        JobInstances jobInstances = new JobInstances();
+        for (int i = 0; i < 4; i++) {
+            Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
+            jobInstances.add(pipeline.findStage(stageName).findJob(jobConfigName));
+        }
+
+        JobInstances history = jobInstanceService.getJobHistoryViaCursor(Username.valueOf("user"), pipelineFixture.pipelineName, stageName, jobConfigName, 0, 0, 3);
+
+        assertThat(history.size(), is(3));
+        assertThat(history.get(0).getId(), is(jobInstances.get(3).getId()));
+        assertThat(history.get(1).getId(), is(jobInstances.get(2).getId()));
+        assertThat(history.get(2).getId(), is(jobInstances.get(1).getId()));
+    }
+
+    @Test
+    public void shouldFetchRecordsForJobHistoryAfterTheSpecifiedCursor() { //older records
+        String stageName = pipelineFixture.devStage;
+        String jobConfigName = PipelineWithTwoStages.JOB_FOR_DEV_STAGE;
+        JobInstances jobInstances = new JobInstances();
+        for (int i = 0; i < 4; i++) {
+            Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
+            jobInstances.add(pipeline.findStage(stageName).findJob(jobConfigName));
+        }
+
+        JobInstances history = jobInstanceService.getJobHistoryViaCursor(Username.valueOf("user"), pipelineFixture.pipelineName, stageName, jobConfigName, jobInstances.get(2).getId(), 0, 3);
+
+        assertThat(history.size(), is(2));
+        assertThat(history.get(0).getId(), is(jobInstances.get(1).getId()));
+        assertThat(history.get(1).getId(), is(jobInstances.get(0).getId()));
+    }
+
+    @Test
+    public void shouldFetchRecordsForJobHistoryBeforeTheSpecifiedCursor() { //newer records
+        String stageName = pipelineFixture.devStage;
+        String jobConfigName = PipelineWithTwoStages.JOB_FOR_DEV_STAGE;
+        JobInstances jobInstances = new JobInstances();
+        for (int i = 0; i < 4; i++) {
+            Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
+            jobInstances.add(pipeline.findStage(stageName).findJob(jobConfigName));
+        }
+
+        JobInstances history = jobInstanceService.getJobHistoryViaCursor(Username.valueOf("user"), pipelineFixture.pipelineName, stageName, jobConfigName, 0, jobInstances.get(2).getId(), 3);
+
+        assertThat(history.size(), is(1));
+        assertThat(history.get(0).getId(), is(jobInstances.get(3).getId()));
+    }
 }

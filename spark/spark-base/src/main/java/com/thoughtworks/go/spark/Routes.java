@@ -364,6 +364,22 @@ public class Routes {
         public static final String BASE = "/api/jobs";
         public static final String JOB_HISTORY = "/:pipeline_name/:stage_name/:job_name/history";
         public static final String JOB_INSTANCE = "/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/:job_name";
+
+        public static String previous(String pipelineName, String stageName, String jobConfigName, long before) {
+            return BASE
+                    + JOB_HISTORY.replaceAll(":pipeline_name", pipelineName)
+                    .replaceAll(":stage_name", stageName)
+                    .replaceAll(":job_name", jobConfigName)
+                    + "?before=" + before;
+        }
+
+        public static String next(String pipelineName, String stageName, String jobConfigName, long after) {
+            return BASE
+                    + JOB_HISTORY.replaceAll(":pipeline_name", pipelineName)
+                    .replaceAll(":stage_name", stageName)
+                    .replaceAll(":job_name", jobConfigName)
+                    + "?after=" + after;
+        }
     }
 
     public static class UserSummary {

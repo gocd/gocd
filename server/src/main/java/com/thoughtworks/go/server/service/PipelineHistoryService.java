@@ -30,14 +30,12 @@ import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.DashboardFilter;
-import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -48,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_CURSOR_MSG;
 import static java.lang.String.format;
 
 @Service
@@ -64,7 +63,6 @@ public class PipelineHistoryService {
     private PipelineLockService pipelineLockService;
     private PipelinePauseService pipelinePauseService;
     private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
-    public static final String BAD_CURSOR_MSG = "The query parameter `%s`, if specified, must be a positive integer.";
 
     @Autowired
     public PipelineHistoryService(PipelineDao pipelineDao,

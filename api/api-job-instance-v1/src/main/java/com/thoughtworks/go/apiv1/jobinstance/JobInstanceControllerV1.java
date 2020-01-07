@@ -24,9 +24,8 @@ import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobInstances;
+import com.thoughtworks.go.domain.PipelineRunIdInfo;
 import com.thoughtworks.go.server.service.JobInstanceService;
-import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +35,14 @@ import spark.Response;
 
 import java.io.IOException;
 
+import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_CURSOR_MSG;
+import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_PAGE_SIZE_MSG;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
 public class JobInstanceControllerV1 extends ApiController implements SparkSpringController {
-    static final String BAD_OFFSET_MSG = "The query parameter `offset`, if specified must be a number greater or equal to 0.";
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final JobInstanceService jobInstanceService;
 
@@ -75,19 +76,14 @@ public class JobInstanceControllerV1 extends ApiController implements SparkSprin
         String pipelineName = request.params("pipeline_name");
         String stageName = request.params("stage_name");
         String jobName = request.params("job_name");
-        Integer offset = getOffset(request);
+        Long after = getCursor(request, "after");
+        Long before = getCursor(request, "before");
         Integer pageSize = getPageSize(request);
 
-        int jobHistoryCount = jobInstanceService.getJobHistoryCount(pipelineName, stageName, jobName);
-        Pagination pagination = Pagination.pageStartingAt(offset, jobHistoryCount, pageSize);
-        HttpOperationResult result = new HttpOperationResult();
-        JobInstances jobInstances = jobInstanceService.findJobHistoryPage(pipelineName, stageName, jobName, pagination, currentUsernameString(), result);
+        JobInstances jobInstances = jobInstanceService.getJobHistoryViaCursor(currentUsername(), pipelineName, stageName, jobName, after, before, pageSize);
+        PipelineRunIdInfo runIdInfo = jobInstanceService.getOldestAndLatestJobInstanceId(currentUsername(), pipelineName, stageName, jobName);
 
-        if (result.canContinue()) {
-            return writerForTopLevelObject(request, response, writer -> JobInstancesRepresenter.toJSON(writer, jobInstances, pagination));
-        } else {
-            return renderHTTPOperationResult(result, request, response);
-        }
+        return writerForTopLevelObject(request, response, writer -> JobInstancesRepresenter.toJSON(writer, jobInstances, runIdInfo));
     }
 
     String getInstanceInfo(Request request, Response response) throws IOException {
@@ -101,19 +97,6 @@ public class JobInstanceControllerV1 extends ApiController implements SparkSprin
             throw new RecordNotFoundException(format("No job instance was found for '%s/%s/%s/%s/%s'.", pipelineName, pipelineCounter, stageName, stageCounter, jobName));
         }
         return writerForTopLevelObject(request, response, writer -> JobInstanceRepresenter.toJSON(writer, jobInstance));
-    }
-
-    private Integer getOffset(Request request) {
-        Integer offset;
-        try {
-            offset = Integer.valueOf(request.queryParamOrDefault("offset", "0"));
-            if (offset < 0) {
-                throw new BadRequestException(BAD_OFFSET_MSG);
-            }
-        } catch (NumberFormatException e) {
-            throw new BadRequestException(BAD_OFFSET_MSG);
-        }
-        return offset;
     }
 
     private Integer getPageSize(Request request) {
@@ -141,5 +124,19 @@ public class JobInstanceControllerV1 extends ApiController implements SparkSprin
             throw new BadRequestException(errorMsg);
         }
         return value;
+    }
+
+    private long getCursor(Request request, String key) {
+        long cursor = 0;
+        try {
+            String value = request.queryParams(key);
+            if (isBlank(value)) {
+                return cursor;
+            }
+            cursor = Long.parseLong(value);
+        } catch (NumberFormatException nfe) {
+            throw new BadRequestException(String.format(BAD_CURSOR_MSG, key));
+        }
+        return cursor;
     }
 }

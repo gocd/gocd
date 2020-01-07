@@ -22,7 +22,7 @@ import com.thoughtworks.go.server.ui.SortOrder;
 import java.util.List;
 
 /**
- * @understands how to retireve and save jobInstances on the db
+ * @understands how to retrieve and save jobInstances on the db
  */
 public interface JobInstanceDao {
 
@@ -30,9 +30,9 @@ public interface JobInstanceDao {
 
     JobInstances latestCompletedJobs(String pipelineName, String stageName, String jobConfigName, int count);
 
-	int getJobHistoryCount(String pipelineName, String stageName, String jobName);
+    int getJobHistoryCount(String pipelineName, String stageName, String jobName);
 
-	JobInstances findJobHistoryPage(String pipelineName, String stageName, String jobConfigName, int count, int offset);
+    JobInstances findJobHistoryPage(String pipelineName, String stageName, String jobConfigName, int count, int offset);
 
     JobInstance save(long stageId, JobInstance jobInstance);
 
@@ -71,4 +71,8 @@ public interface JobInstanceDao {
     List<JobInstance> getRunningJobs();
 
     JobInstance findJobInstance(String pipelineName, String stageName, String jobName, int pipelineCounter, int stageCounter);
+
+    JobInstances findDetailedJobHistoryViaCursor(String pipelineName, String stageName, String jobConfigName, FeedModifier feedModifier, long cursor, Integer pageSize);
+
+    PipelineRunIdInfo getOldestAndLatestJobInstanceId(String pipelineName, String stageName, String jobConfigName);
 }

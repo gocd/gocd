@@ -574,7 +574,7 @@ class StageInstanceControllerV2Test implements SecurityServiceTrait, ControllerT
 
         assertThatResponse()
           .isBadRequest()
-          .hasJsonMessage("The query parameter `after`, if specified, must be a positive integer.")
+          .hasJsonMessage("The query parameter 'after', if specified, must be a positive integer.")
       }
 
       @Test
@@ -585,7 +585,7 @@ class StageInstanceControllerV2Test implements SecurityServiceTrait, ControllerT
 
         assertThatResponse()
           .isBadRequest()
-          .hasJsonMessage("The query parameter `before`, if specified, must be a positive integer.")
+          .hasJsonMessage("The query parameter 'before', if specified, must be a positive integer.")
       }
 
       @ParameterizedTest

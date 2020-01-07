@@ -48,7 +48,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.server.service.PipelineHistoryService.BAD_CURSOR_MSG;
+import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_CURSOR_MSG;
+import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_PAGE_SIZE_MSG;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 

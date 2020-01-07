@@ -66,7 +66,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.server.service.PipelineHistoryService.BAD_CURSOR_MSG;
+import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_CURSOR_MSG;
 import static java.lang.String.format;
 
 @Service

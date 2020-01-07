@@ -316,7 +316,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     @Override
     public List<JobInstance> getRunningJobs() {
-        return  getSqlMapClientTemplate().queryForList("getRunningJobs");
+        return getSqlMapClientTemplate().queryForList("getRunningJobs");
     }
 
     @Override
@@ -597,10 +597,10 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     public JobStateTransition oldestBuild() {
         String cacheKeyForOldestBuild = (JobInstanceSqlMapDao.class.getName() + "_oldestBuild").intern();
         JobStateTransition oldestBuild = (JobStateTransition) goCache.get(cacheKeyForOldestBuild);
-        if(oldestBuild == null){
-            synchronized (cacheKeyForOldestBuild){
+        if (oldestBuild == null) {
+            synchronized (cacheKeyForOldestBuild) {
                 oldestBuild = (JobStateTransition) goCache.get(cacheKeyForOldestBuild);
-                if(oldestBuild == null) {
+                if (oldestBuild == null) {
                     oldestBuild = (JobStateTransition) getSqlMapClientTemplate().queryForObject("oldestBuild", new Object());
                     goCache.put(cacheKeyForOldestBuild, oldestBuild);
                 }
@@ -634,5 +634,35 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         if (job.isRescheduled()) {
             goCache.remove(cacheKeyForOriginalJobIdentifier(job.getIdentifier().getStageIdentifier(), job.getName()));
         }
+    }
+
+    @Override
+    public PipelineRunIdInfo getOldestAndLatestJobInstanceId(String pipelineName, String stageName, String jobConfigName) {
+        Map<String, Object> params = arguments("pipelineName", pipelineName)
+                .and("stageName", stageName)
+                .and("jobConfigName", jobConfigName).asMap();
+        return (PipelineRunIdInfo) getSqlMapClientTemplate().queryForObject("getOldestAndLatestJobRun", params);
+    }
+
+    @Override
+    public JobInstances findDetailedJobHistoryViaCursor(String pipelineName, String stageName, String jobConfigName, FeedModifier feedModifier, long cursor, Integer pageSize) {
+        String cacheKey = cacheKeyForFindDetailedJobHistoryViaCursor(pipelineName, stageName, jobConfigName, feedModifier.suffix(), cursor, pageSize);
+        return latestCompletedCache.get(cacheKey, () -> {
+            Map params = new HashMap();
+            params.put("pipelineName", pipelineName);
+            params.put("stageName", stageName);
+            params.put("jobConfigName", jobConfigName);
+            params.put("cursor", cursor);
+            params.put("count", pageSize);
+            params.put("suffix", feedModifier.suffix());
+
+            List<JobInstance> results = (List<JobInstance>) getSqlMapClientTemplate().queryForList("getJobHistoryViaCursor", params);
+
+            return new JobInstances(results);
+        });
+    }
+
+    String cacheKeyForFindDetailedJobHistoryViaCursor(String pipelineName, String stageName, String jobConfigName, String suffix, long cursor, Integer pageSize) {
+        return cacheKeyGenerator.generate("findDetailedJobHistoryViaCursor", pipelineName.toLowerCase(), stageName.toLowerCase(), jobConfigName.toLowerCase(), suffix, cursor, pageSize);
     }
 }

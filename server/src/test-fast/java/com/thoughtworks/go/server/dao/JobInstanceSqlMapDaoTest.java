@@ -230,4 +230,19 @@ class JobInstanceSqlMapDaoTest {
                     .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$activeJobIds");
         }
     }
+
+    @Nested
+    class CacheKeyForFindDetailedJobHistoryViaCursor {
+        @Test
+        void shouldGenerateCacheKey() {
+            assertThat(jobInstanceSqlMapDao.cacheKeyForFindDetailedJobHistoryViaCursor("Foo", "Bar", "Baz", "", 1, 10))
+                    .isEqualTo("com.thoughtworks.go.server.dao.JobInstanceSqlMapDao.$findDetailedJobHistoryViaCursor.$foo.$bar.$baz.$.$1.$10");
+        }
+
+        @Test
+        void shouldGenerateADifferentMutexWhenPartOfPipelineIsInterchangedWithStageName() {
+            assertThat(jobInstanceSqlMapDao.cacheKeyForFindDetailedJobHistoryViaCursor("Foo", "Bar_Jaz", "Baz", "", 1, 1))
+                    .isNotEqualTo(jobInstanceSqlMapDao.cacheKeyForFindDetailedJobHistoryViaCursor("Foo_Bar", "Jaz", "Baz", "", 1, 1));
+        }
+    }
 }

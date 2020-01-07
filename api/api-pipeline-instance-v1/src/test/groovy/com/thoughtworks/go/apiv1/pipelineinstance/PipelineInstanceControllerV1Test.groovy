@@ -304,7 +304,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
         assertThatResponse()
           .isBadRequest()
-          .hasJsonMessage("The query parameter `after`, if specified, must be a positive integer.")
+          .hasJsonMessage("The query parameter 'after', if specified, must be a positive integer.")
       }
 
       @Test
@@ -315,7 +315,7 @@ class PipelineInstanceControllerV1Test implements SecurityServiceTrait, Controll
 
         assertThatResponse()
           .isBadRequest()
-          .hasJsonMessage("The query parameter `before`, if specified, must be a positive integer.")
+          .hasJsonMessage("The query parameter 'before', if specified, must be a positive integer.")
       }
 
       @ParameterizedTest

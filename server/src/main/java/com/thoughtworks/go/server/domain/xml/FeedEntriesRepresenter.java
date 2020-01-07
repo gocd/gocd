@@ -50,7 +50,8 @@ public class FeedEntriesRepresenter implements XmlRepresentable {
             .link(selfUrl, "self");
 
         if (feedEntries.last() != null) {
-            documentBuilder.link(ctx.stagesXmlLink(pipelineName, feedEntries.lastEntryId()), "next");
+            StageFeedEntry last = (StageFeedEntry) feedEntries.last();
+            documentBuilder.link(ctx.stagesXmlLink(pipelineName, last.getStageIdentifier().getPipelineCounter()), "next");
         }
 
         feedEntries.forEach(feed -> documentBuilder.node("entry", builder -> {

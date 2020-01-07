@@ -37,6 +37,7 @@ import java.util.Date;
 import static com.thoughtworks.go.helper.ModificationsMother.createSvnMaterialRevisions;
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import static com.thoughtworks.go.helper.PipelineHistoryMother.pipelineInstanceModel;
+import static com.thoughtworks.go.server.dao.FeedModifier.Before;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
@@ -114,13 +115,15 @@ public class FeedServiceTest {
         @Test
         void shouldReturnsStagesXmlDocument() {
             String pipelineName = "up42";
+            Integer pipelineCounter = null;
+
             when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
-            Document document = feedService.stagesXml(username, pipelineName, null, BASE_URL);
+            Document document = feedService.stagesXml(username, pipelineName, pipelineCounter, BASE_URL);
 
             assertThat(document).isNotNull();
-            verify(stageService).feed(pipelineName, username);
+            verify(stageService).findStageFeedBy(pipelineName, pipelineCounter, Before, username);
             verify(xmlApiService).write(any(FeedEntriesRepresenter.class), eq(BASE_URL));
             verifyNoMoreInteractions(xmlApiService);
             verifyZeroInteractions(pipelineHistoryService);
@@ -130,13 +133,14 @@ public class FeedServiceTest {
         @Test
         void shouldReturnsStagesXmlDocumentBeforeId() {
             String pipelineName = "up42";
+            int pipelineCounter = 100;
             when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(true);
 
-            Document document = feedService.stagesXml(username, pipelineName, 100L, BASE_URL);
+            Document document = feedService.stagesXml(username, pipelineName, pipelineCounter, BASE_URL);
 
             assertThat(document).isNotNull();
-            verify(stageService).feedBefore(100L, pipelineName, username);
+            verify(stageService).findStageFeedBy(pipelineName, pipelineCounter, Before, username);
             verify(xmlApiService).write(any(FeedEntriesRepresenter.class), eq(BASE_URL));
             verifyNoMoreInteractions(xmlApiService);
             verifyZeroInteractions(pipelineHistoryService);

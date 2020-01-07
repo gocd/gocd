@@ -38,7 +38,8 @@
         <result property="lastTransitionedTime" column="lastTransitionedTime"/>
     </resultMap>
 
-    <resultMap id="select-stage-history-entry" type="com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry">
+    <resultMap id="select-stage-history-entry"
+               type="com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry">
         <id property="id" column="stageId"/>
         <result property="state" column="stageState"/>
         <result property="naturalOrder" column="naturalOrder"/>
@@ -53,16 +54,19 @@
         <result property="stageName" column="stageName"/>
     </resultMap>
 
-    <resultMap id="select-stage-build-map" type="com.thoughtworks.go.domain.Stage" extends="select-stage-without-builds">
+    <resultMap id="select-stage-build-map" type="com.thoughtworks.go.domain.Stage"
+               extends="select-stage-without-builds">
         <collection property="jobInstances" resultMap="BuildInstance.select-build-with-identifier-transitions"/>
         <collection property="identifier" resultMap="Stage.stageIdentifier"/>
     </resultMap>
 
-    <resultMap id="select-stage-with-identifier" type="com.thoughtworks.go.domain.Stage" extends="select-stage-without-builds">
+    <resultMap id="select-stage-with-identifier" type="com.thoughtworks.go.domain.Stage"
+               extends="select-stage-without-builds">
         <collection property="identifier" resultMap="Stage.stageIdentifier"/>
     </resultMap>
 
-    <resultMap id="select-stage-with-identifier-jobs" type="com.thoughtworks.go.domain.Stage" extends="select-stage-without-builds">
+    <resultMap id="select-stage-with-identifier-jobs" type="com.thoughtworks.go.domain.Stage"
+               extends="select-stage-without-builds">
         <collection property="jobInstances" resultMap="BuildInstance.join-build-map-with-identifier"/>
         <collection property="identifier" resultMap="Stage.stageIdentifier"/>
     </resultMap>
@@ -81,11 +85,13 @@
         <result property="stageCounter" column="stageCounter"/>
     </resultMap>
 
-    <resultMap id="stageIdentifier" type="com.thoughtworks.go.domain.StageIdentifier" extends="stageIdentifier-without-id">
+    <resultMap id="stageIdentifier" type="com.thoughtworks.go.domain.StageIdentifier"
+               extends="stageIdentifier-without-id">
         <result property="id" column="stageId"/>
     </resultMap>
 
-    <resultMap id="stage-without-job-history" type="com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel">
+    <resultMap id="stage-without-job-history"
+               type="com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel">
         <id property="id" column="stageId"/>
         <result property="name" column="stageName"/>
         <result property="approvedBy" column="approvedBy"/>
@@ -97,7 +103,8 @@
         <collection property="identifier" resultMap="Stage.stageIdentifier"/>
     </resultMap>
 
-    <resultMap id="stage-with-job-history" type="com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel" extends="stage-without-job-history">
+    <resultMap id="stage-with-job-history" type="com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel"
+               extends="stage-without-job-history">
         <collection property="buildHistory" resultMap="Stage.join-build-history"/>
     </resultMap>
 
@@ -153,7 +160,8 @@
 
 
     <insert id="insertStage" parameterMap="insert-stage-param">
-        INSERT INTO stages (name, pipelineId, approvedBy, createdTime, orderId, approvalType, counter, state, latestRun, fetchMaterials, cleanWorkingDir, rerunOfCounter, configVersion, lastTransitionedTime)
+        INSERT INTO stages (name, pipelineId, approvedBy, createdTime, orderId, approvalType, counter, state, latestRun,
+        fetchMaterials, cleanWorkingDir, rerunOfCounter, configVersion, lastTransitionedTime)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         <selectKey keyProperty="id" resultType="long" order="AFTER">
             CALL IDENTITY();
@@ -309,6 +317,21 @@
         FROM stages
         INNER JOIN pipelines on pipelines.id = stages.pipelineid
     </sql>
+
+    <select id="stageFeedByPipelineNameAndCounter" resultMap="stage-feed-entry">
+        <include refid="selectStageFeedForPipeline"/>
+        WHERE completedByTransitionId IS NOT NULL AND pipelines.name = #{pipelineName}
+        <if test="pipelineCounter != null">
+            <if test="feedModifier == 'Before'">AND
+                <![CDATA[pipelines.counter < #{pipelineCounter}]]>
+            </if>
+            <if test="feedModifier == 'After'">AND
+                pipelines.counter > #{pipelineCounter}
+            </if>
+        </if>
+        ORDER BY pipelines.counter DESC
+        LIMIT #{pageLimit}
+    </select>
 
     <select id="allCompletedStagesForPipeline" resultMap="stage-feed-entry">
         <include refid="selectStageFeedForPipeline"/>
@@ -539,11 +562,12 @@
         <include refid="selectStagesInIds"/>
         (
         SELECT
-            stages.id
+        stages.id
         FROM stages
-            INNER JOIN pipelines ON stages.pipelineId = pipelines.id AND stages.name = #{stageName} AND pipelines.name = #{pipelineName}
-            AND result = 'Passed'
-            ORDER BY id LIMIT #{limit} OFFSET #{offset})
+        INNER JOIN pipelines ON stages.pipelineId = pipelines.id AND stages.name = #{stageName} AND pipelines.name =
+        #{pipelineName}
+        AND result = 'Passed'
+        ORDER BY id LIMIT #{limit} OFFSET #{offset})
         AND stages.result = 'Passed'
         ORDER BY stages.id, builds.name, buildstatetransitions.statechangetime
     </select>

@@ -367,12 +367,47 @@ public class StageService implements StageFinder {
         return cloner.deepClone(new FeedEntries(new ArrayList<>(feedEntries)));
     }
 
+    public FeedEntries findStageFeedBy(String pipelineName,
+                                       Integer pipelineCounter,
+                                       FeedModifier feedModifier,
+                                       Username username) {
+        if (pipelineCounter != null) {
+            List<StageFeedEntry> feedBasedOnPipelineCounter = stageDao.findStageFeedBy(pipelineName, pipelineCounter, feedModifier, FEED_PAGE_SIZE);
+            return cloner.deepClone(new FeedEntries(new ArrayList<>(feedBasedOnPipelineCounter)));
+        }
+
+        String key = cacheKeyForLatestStageFeedForPipelineSortedByPipelineCounter(pipelineName);
+        List<StageFeedEntry> feedEntries = (List<StageFeedEntry>) goCache.get(key);
+
+        if (feedEntries == null) {
+            synchronized (key) {
+                feedEntries = (List<StageFeedEntry>) goCache.get(key);
+                if (feedEntries == null) {
+                    feedEntries = stageDao.findStageFeedBy(pipelineName, pipelineCounter, null, FEED_PAGE_SIZE);
+                    populateAuthors(feedEntries, pipelineName, username);
+                    goCache.put(key, feedEntries);
+                }
+            }
+        }
+
+        return cloner.deepClone(new FeedEntries(new ArrayList<>(feedEntries)));
+    }
+
+    private String cacheKeyForLatestStageFeedForPipelineSortedByPipelineCounter(String pipelineName) {
+        return cacheKeyGenerator.generate("latestStageFeedForPipelineSortedByPipelineCounter", pipelineName);
+    }
+
     private String cacheKeyForLatestStageFeedForPipeline(String pipelineName) {
         return cacheKeyGenerator.generate("latestStageFeedForPipeline", pipelineName);
     }
 
     private void clearCachedCompletedStageFeeds(String pipelineName) {
         String key = cacheKeyForLatestStageFeedForPipeline(pipelineName);
+        synchronized (key) {
+            goCache.remove(key);
+        }
+
+        key = cacheKeyForLatestStageFeedForPipelineSortedByPipelineCounter(pipelineName);
         synchronized (key) {
             goCache.remove(key);
         }

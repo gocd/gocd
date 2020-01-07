@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
+import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.xml.*;
 import com.thoughtworks.go.server.domain.xml.materials.MaterialXmlRepresenter;
@@ -64,7 +65,7 @@ public class FeedService {
         return xmlApiService.write(representable, baseUrl);
     }
 
-    public Document stagesXml(Username username, String pipelineName, Long before, String baseUrl) {
+    public Document stagesXml(Username username, String pipelineName, Integer pipelineCounter, String baseUrl) {
         if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
             throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
         }
@@ -73,7 +74,7 @@ public class FeedService {
             throw new NotAuthorizedException(NOT_AUTHORIZED_TO_VIEW_PIPELINE);
         }
 
-        FeedEntries feedEntries = getStageFeedEntries(username, pipelineName, before);
+        FeedEntries feedEntries = stageService.findStageFeedBy(pipelineName, pipelineCounter, FeedModifier.Before, username);
         FeedEntriesRepresenter representable = new FeedEntriesRepresenter(pipelineName, feedEntries);
 
         return xmlApiService.write(representable, baseUrl);
@@ -98,14 +99,6 @@ public class FeedService {
     public Document waitingJobPlansXml(String baseUrl) {
         List<WaitingJobPlan> waitingJobPlans = jobInstanceService.waitingJobPlans();
         return xmlApiService.write(new JobPlanXmlRepresenter(waitingJobPlans), baseUrl);
-    }
-
-    private FeedEntries getStageFeedEntries(Username username, String pipelineName, Long before) {
-        if (before == null) {
-            return stageService.feed(pipelineName, username);
-        }
-
-        return stageService.feedBefore(before, pipelineName, username);
     }
 
     public Document materialXml(Username username, String pipelineName, Integer pipelineCounter, String fingerprint, String baseUrl) {

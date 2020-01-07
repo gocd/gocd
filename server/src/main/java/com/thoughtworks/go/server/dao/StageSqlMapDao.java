@@ -179,17 +179,17 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     @Override
     public Stages getStagesByPipelineId(long pipelineId) {
         Stages stageHistory = new Stages(
-                (List<Stage>) getSqlMapClientTemplate().queryForList("getStagesByPipelineId", pipelineId));
+            (List<Stage>) getSqlMapClientTemplate().queryForList("getStagesByPipelineId", pipelineId));
         return new Stages(stageHistory);
     }
 
     @Override
     public int findLatestStageCounter(PipelineIdentifier pipeline, String stageName) {
         Map<String, Object> toGet = arguments("pipelineName", pipeline.getName()).and("pipelineCounter",
-                pipeline.getCounter()).and(
-                "stageName", stageName).asMap();
+            pipeline.getCounter()).and(
+            "stageName", stageName).asMap();
         Integer maxCounter = (Integer) getSqlMapClientTemplate().queryForObject(
-                "findMaxStageCounter", toGet);
+            "findMaxStageCounter", toGet);
         return maxCounter == null ? 0 : maxCounter;
     }
 
@@ -201,9 +201,9 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
             Stage stage = (Stage) goCache.get(cacheKeyForIdentifiers, cachekey);
             if (stage == null) {
                 IBatisUtil.IBatisArgument argument = IBatisUtil.arguments("pipelineName", identifier.getPipelineName())
-                        .and("pipelineCounter", identifier.getPipelineCounter())
-                        .and("stageName", identifier.getStageName())
-                        .and("stageCounter", Integer.parseInt(identifier.getStageCounter()));
+                    .and("pipelineCounter", identifier.getPipelineCounter())
+                    .and("stageName", identifier.getStageName())
+                    .and("stageCounter", Integer.parseInt(identifier.getStageCounter()));
                 if (identifier.getPipelineLabel() != null) {
                     argument = argument.and("pipelineLabel", identifier.getPipelineLabel());
                 }
@@ -220,12 +220,12 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
     String cacheKeyForListOfStageIdentifiers(StageIdentifier stageIdentifier) {
         return cacheKeyGenerator.generate("stageRunIdentifier", stageIdentifier.getPipelineName(), stageIdentifier.getPipelineCounter(),
-                stageIdentifier.getStageName());
+            stageIdentifier.getStageName());
     }
 
     String cacheKeyForStageIdentifier(StageIdentifier stageIdentifier) {
         return cacheKeyGenerator.generate("stageIdentifier", stageIdentifier.getPipelineName(), stageIdentifier.getPipelineCounter(),
-                stageIdentifier.getStageName(), stageIdentifier.getStageCounter());
+            stageIdentifier.getStageName(), stageIdentifier.getStageCounter());
     }
 
     @Override
@@ -264,15 +264,15 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
 
     private Long recalculateBuildDuration(String pipelineName, String stageName, JobInstance job) {
         Map<String, Object> toGet =
-                arguments("buildName", job.getName())
-                        .and("agentUuid", job.getAgentUuid())
-                        .and("stageName", stageName)
-                        .and("pipelineName", pipelineName)
-                        .asMap();
+            arguments("buildName", job.getName())
+                .and("agentUuid", job.getAgentUuid())
+                .and("stageName", stageName)
+                .and("pipelineName", pipelineName)
+                .asMap();
 
         // Return a list of job id's and stage names, entries sorted by id.
         Long buildId =
-                (Long) getSqlMapClientTemplate().queryForObject("getLastSuccessfulBuildIdOnAgent", toGet);
+            (Long) getSqlMapClientTemplate().queryForObject("getLastSuccessfulBuildIdOnAgent", toGet);
         if (buildId == null) {
             return null;
         }
@@ -304,10 +304,10 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
             }
         });
         getSqlMapClientTemplate().update("updateStageStatus", arguments("stageId", stage.getId())
-                .and("result", result.toString())
-                .and("state", stage.getState())
-                .and("cancelledBy", username)
-                .and("completedByTransitionId", stage.getCompletedByTransitionId()).asMap());
+            .and("result", result.toString())
+            .and("state", stage.getState())
+            .and("cancelledBy", username)
+            .and("completedByTransitionId", stage.getCompletedByTransitionId()).asMap());
 
         upddateLastTransitionedTime(stage);
     }
@@ -320,14 +320,14 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     @Override
     public Stage mostRecentCompleted(StageConfigIdentifier identifier) {
         Map<String, Object> toGet = arguments("pipelineName", identifier.getPipelineName())
-                .and("stageName", identifier.getStageName()).asMap();
+            .and("stageName", identifier.getStageName()).asMap();
         return (Stage) getSqlMapClientTemplate().queryForObject("getMostRecentCompletedStage", toGet);
     }
 
     @Override
     public Stage mostRecentStage(StageConfigIdentifier identifier) {
         Map<String, Object> toGet = arguments("pipelineName", identifier.getPipelineName())
-                .and("stageName", identifier.getStageName()).asMap();
+            .and("stageName", identifier.getStageName()).asMap();
         return (Stage) getSqlMapClientTemplate().queryForObject("getMostRecentStage", toGet);
     }
 
@@ -346,7 +346,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     @Override
     public Stages getPassedStagesByName(String pipelineName, String stageName, int limit, int offset) {
         Map<String, Object> toGet = arguments("pipelineName", pipelineName).and("stageName", stageName)
-                .and("limit", limit).and("offset", offset).asMap();
+            .and("limit", limit).and("offset", offset).asMap();
         return new Stages((List<Stage>) getSqlMapClientTemplate().queryForList("allPassedStagesByName", toGet));
     }
 
@@ -355,7 +355,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         Stage laterThan = findStageWithIdentifier(stageIdentifier);
 
         Map<String, Object> toGet = arguments("pipelineName", stageIdentifier.getPipelineName()).and("stageName", stageIdentifier.getStageName())
-                .and("laterThan", laterThan.getId()).and("limit", limit).and("offset", offset).asMap();
+            .and("laterThan", laterThan.getId()).and("limit", limit).and("offset", offset).asMap();
 
         return (List<StageAsDMR>) getSqlMapClientTemplate().queryForList("allPassedStageAsDMRsAfter", toGet);
     }
@@ -381,10 +381,10 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     @Override
     public List<Stage> findStageHistoryForChart(String pipelineName, String stageName, int pageSize, int offset) {
         Map<String, Object> args =
-                arguments("pipelineName", pipelineName).
-                        and("stageName", stageName).
-                        and("offset", offset).
-                        and("limit", pageSize).asMap();
+            arguments("pipelineName", pipelineName).
+                and("stageName", stageName).
+                and("offset", offset).
+                and("limit", pageSize).asMap();
         return new Stages((List<Stage>) getSqlMapClientTemplate().queryForList("findStageHistoryForChartPerPipeline", args));
     }
 
@@ -463,10 +463,10 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
             if (stageInstanceModels == null) {
                 stageInstanceModels = new StageInstanceModels();
                 Map<String, Object> args = arguments("pipelineName", pipelineName)
-                        .and("stageName", stageName)
-                        .and("suffix", feedModifier.suffix())
-                        .and("cursor", cursor)
-                        .and("limit", pageSize).asMap();
+                    .and("stageName", stageName)
+                    .and("suffix", feedModifier.suffix())
+                    .and("cursor", cursor)
+                    .and("limit", pageSize).asMap();
                 List<StageInstanceModel> detailedStageHistory = (List<StageInstanceModel>) getSqlMapClientTemplate().queryForList("getStageHistoryViaCursor", args);
                 stageInstanceModels.addAll(detailedStageHistory);
                 goCache.put(key, subKey, stageInstanceModels);
@@ -480,7 +480,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     @Override
     public PipelineRunIdInfo getOldestAndLatestStageInstanceId(String pipelineName, String stageName) {
         Map<String, Object> params = arguments("pipelineName", pipelineName)
-                .and("stageName", stageName).asMap();
+            .and("stageName", stageName).asMap();
         return (PipelineRunIdInfo) getSqlMapClientTemplate().queryForObject("getOldestAndLatestStageInstanceRun", params);
     }
 
@@ -519,9 +519,9 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     public StageHistoryEntry findImmediateChronologicallyForwardStageHistoryEntry(StageHistoryEntry stageHistoryEntry) {
         StageIdentifier stageIdentifier = stageHistoryEntry.getIdentifier();
         Map<String, Object> args = arguments("pipelineName", stageIdentifier.getPipelineName()).
-                and("stageName", stageIdentifier.getStageName()).
-                and("id", stageHistoryEntry.getId()).
-                and("limit", 1).asMap();
+            and("stageName", stageIdentifier.getStageName()).
+            and("id", stageHistoryEntry.getId()).
+            and("limit", 1).asMap();
         return (StageHistoryEntry) getSqlMapClientTemplate().queryForObject("findStageHistoryEntryBefore", args);
     }
 
@@ -547,25 +547,25 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
                                                          double fromNaturalOrder,
                                                          double toNaturalOrder) {
         Map<String, Object> args = arguments("pipelineName", pipelineName).
-                and("stageName", stageName).
-                and("fromNaturalOrder", fromNaturalOrder).
-                and("toNaturalOrder", toNaturalOrder).asMap();
+            and("stageName", stageName).
+            and("fromNaturalOrder", fromNaturalOrder).
+            and("toNaturalOrder", toNaturalOrder).asMap();
         return (List<StageIdentifier>) getSqlMapClientTemplate().queryForList("findFailedStagesBetween", args);
     }
 
     List<StageHistoryEntry> findStages(Pagination pagination, String pipelineName, String stageName) {
         Map<String, Object> args = arguments("pipelineName", pipelineName).
-                and("stageName", stageName).
-                and("limit", pagination.getPageSize()).
-                and("offset", pagination.getOffset()).asMap();
+            and("stageName", stageName).
+            and("limit", pagination.getPageSize()).
+            and("offset", pagination.getOffset()).asMap();
         return (List<StageHistoryEntry>) getSqlMapClientTemplate().queryForList("findStageHistoryPage", args);
     }
 
     StageInstanceModels findDetailedStageHistory(String pipelineName, String stageName, Pagination pagination) {
         Map<String, Object> args = arguments("pipelineName", pipelineName).
-                and("stageName", stageName).
-                and("limit", pagination.getPageSize()).
-                and("offset", pagination.getOffset()).asMap();
+            and("stageName", stageName).
+            and("limit", pagination.getPageSize()).
+            and("offset", pagination.getOffset()).asMap();
         List<StageInstanceModel> detailedStageHistory = (List<StageInstanceModel>) getSqlMapClientTemplate().queryForList("getDetailedStageHistory", args);
         StageInstanceModels stageInstanceModels = new StageInstanceModels();
         stageInstanceModels.addAll(detailedStageHistory);
@@ -577,10 +577,10 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         Integer offset = (Integer) goCache.get(key, String.valueOf(stage.getId()));
         if (offset == null) {
             Map<String, Object> args =
-                    arguments("stageId", stage.getId()).
-                            and("stageName", stage.getIdentifier().getStageName()).
-                            and("pipelineName", stage.getIdentifier().getPipelineName())
-                            .asMap();
+                arguments("stageId", stage.getId()).
+                    and("stageName", stage.getIdentifier().getStageName()).
+                    and("pipelineName", stage.getIdentifier().getPipelineName())
+                    .asMap();
             offset = (Integer) getSqlMapClientTemplate().queryForObject("findOffsetForStage", args);
             goCache.put(key, String.valueOf(stage.getId()), offset);
         }
@@ -602,6 +602,19 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     @Override
     public List<StageFeedEntry> findAllCompletedStages(FeedModifier modifier, long id, int pageSize) {
         return findForFeed("allCompletedStages", modifier, id, pageSize);
+    }
+
+    @Override
+    public List<StageFeedEntry> findStageFeedBy(String pipelineName,
+                                                Integer pipelineCounter,
+                                                FeedModifier feedModifier,
+                                                long pageSize) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("pipelineName", pipelineName);
+        params.put("pipelineCounter", pipelineCounter);
+        params.put("pageLimit", pageSize);
+        params.put("feedModifier", feedModifier != null ? feedModifier.suffix() : null);
+        return getSqlMapClientTemplate().queryForList("stageFeedByPipelineNameAndCounter", params);
     }
 
     @Override

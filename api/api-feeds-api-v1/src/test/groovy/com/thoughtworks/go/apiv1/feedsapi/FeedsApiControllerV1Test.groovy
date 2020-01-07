@@ -137,7 +137,7 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
     void 'should call feed service to get stages xml before id'() {
       getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.STAGES_XML.replaceAll(":pipeline_name", "up42") + "?before=100"))
 
-      Mockito.verify(feedService).stagesXml(currentUsername(), "up42", 100L, "http://test.host/go")
+      Mockito.verify(feedService).stagesXml(currentUsername(), "up42", 100, "http://test.host/go")
       Mockito.verifyNoMoreInteractions(feedService)
     }
   }

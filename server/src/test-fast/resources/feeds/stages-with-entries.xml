@@ -7,7 +7,7 @@
     </author>
     <updated>2019-12-31T07:28:30+05:30</updated>
     <link rel="self" href="https://go-server/go/api/feed/pipelines/up42/stages.xml"/>
-    <link rel="next" href="https://go-server/go/api/feed/pipelines/up42/stages.xml?before=124"/>
+    <link rel="next" href="https://go-server/go/api/feed/pipelines/up42/stages.xml?before=2"/>
     <entry>
         <title><![CDATA[up42(2) stage integration-tests(100) Cancelled]]></title>
         <updated>2019-12-31T07:28:30+05:30</updated>

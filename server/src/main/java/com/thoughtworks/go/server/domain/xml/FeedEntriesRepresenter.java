@@ -74,7 +74,7 @@ public class FeedEntriesRepresenter implements XmlRepresentable {
 
         feed.getAuthors().forEach(author -> {
             builder.node("author", child -> {
-                child.textNode("name", author.getName());
+                child.cdataNode("name", author.getName());
                 if (isNotBlank(author.getEmail())) {
                     child.textNode("email", author.getEmail());
                 }

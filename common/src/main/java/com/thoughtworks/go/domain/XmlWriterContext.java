@@ -115,10 +115,6 @@ public class XmlWriterContext {
         return relative(format("/api/feed/materials/%s/%s/%s.xml", pipelineName, pipelineCounter, revision));
     }
 
-    public String changesetUri(String fingerprint, Modification modification) {
-        return relative(format("/api/feed/materials/%s/changeset/%s.xml", fingerprint, modification.getRevision()));
-    }
-
     public String jobXmlLink(JobIdentifier identifier) {
         return relative(format("/api/feed/pipelines/%s.xml", identifier.buildLocator()));
     }

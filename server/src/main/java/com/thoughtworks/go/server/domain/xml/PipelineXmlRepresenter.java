@@ -24,7 +24,6 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.server.domain.xml.builder.DocumentBuilder;
 import com.thoughtworks.go.server.domain.xml.builder.ElementBuilder;
 import com.thoughtworks.go.server.domain.xml.materials.MaterialXmlRepresenter;
-import com.thoughtworks.go.util.DateUtils;
 import org.dom4j.Document;
 
 public class PipelineXmlRepresenter implements XmlRepresentable {
@@ -43,7 +42,7 @@ public class PipelineXmlRepresenter implements XmlRepresentable {
             .attr("counter", instance.getCounter())
             .link(self, "self")
             .cdataNode("id", instance.getPipelineIdentifier().asURN())
-            .textNode("scheduleTime", DateUtils.formatISO8601(instance.getScheduledDate()));
+            .textNode("scheduleTime", instance.getScheduledDate());
 
         PipelineTimelineEntry pipelineAfter = instance.getPipelineAfter();
         if (pipelineAfter != null) {

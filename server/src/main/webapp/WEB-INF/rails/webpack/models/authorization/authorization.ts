@@ -15,12 +15,14 @@
  */
 
 import _ from "lodash";
-import Stream = require("mithril/stream");
+import Stream from "mithril/stream";
+import {Errors} from "../mixins/errors";
 import {ValidatableMixin, Validator} from "../mixins/new_validatable_mixin";
 
 interface AuthorizationUsersAndRolesJSON {
   users: string[];
   roles: string[];
+  errors?: { [key: string]: string[] };
 }
 
 export interface AuthorizationJSON {
@@ -29,17 +31,21 @@ export interface AuthorizationJSON {
   operate?: AuthorizationUsersAndRolesJSON;
 }
 
-export class AuthorizedUsersAndRoles {
+export class AuthorizedUsersAndRoles extends ValidatableMixin {
   readonly users: Stream<string[]>;
   readonly roles: Stream<string[]>;
 
-  constructor(users: string[], roles: string[]) {
+  constructor(users: string[], roles: string[], errors: Errors = new Errors()) {
+    super();
+    ValidatableMixin.call(this);
     this.users = Stream(users);
     this.roles = Stream(roles);
+    this.errors(errors);
   }
 
   static fromJSON(usersAndRoles: AuthorizationUsersAndRolesJSON) {
-    return new AuthorizedUsersAndRoles(usersAndRoles.users, usersAndRoles.roles);
+    const errors = new Errors(usersAndRoles.errors);
+    return new AuthorizedUsersAndRoles(usersAndRoles.users, usersAndRoles.roles, errors);
   }
 
   isEmpty(): boolean {
@@ -125,6 +131,7 @@ export class PermissionsForUsersAndRoles extends ValidatableMixin {
 
     this.initializeAuthorizedUsers(authorization);
     this.initializeAuthorizedRoles(authorization);
+    this.initializeErrors(authorization);
 
     this.validateEach("authorizedUsers");
     this.validateEach("authorizedRoles");
@@ -170,5 +177,28 @@ export class PermissionsForUsersAndRoles extends ValidatableMixin {
                                                                              _.includes(authorization.operate().roles(), role),
                                                                              _.includes(authorization.admin().roles(), role))
     ));
+  }
+
+  private initializeErrors(authorization: Authorization) {
+    let errorsOnRoles = _.concat(authorization.view().errors().errors('roles') as string[],
+                                 authorization.operate().errors().errors('roles') as string[],
+                                 authorization.admin().errors().errors('roles') as string[]);
+    errorsOnRoles     = _.uniq(errorsOnRoles);
+    errorsOnRoles.forEach((err) => {
+      if (err && err.length > 0) {
+        this.errors().add('roles', err);
+      }
+    });
+
+    let errorsOnUsers = _.concat(authorization.view().errors().errors('users') as string[],
+                                 authorization.operate().errors().errors('users') as string[],
+                                 authorization.admin().errors().errors('users') as string[]);
+
+    errorsOnUsers = _.uniq(errorsOnUsers);
+    errorsOnUsers.forEach((err) => {
+      if (err && err.length > 0) {
+        this.errors().add('users', err);
+      }
+    });
   }
 }

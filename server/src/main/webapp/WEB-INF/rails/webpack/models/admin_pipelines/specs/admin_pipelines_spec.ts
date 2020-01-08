@@ -202,6 +202,28 @@ describe('PipelineGroupViewModel', () => {
     });
 
   });
+
+  it('should list errors on roles', () => {
+    const pipelineGroup = PipelineGroup.fromJSON(pipelineGroupJSON());
+    pipelineGroup.authorization().view().errors().add("roles", "Some error msg");
+    const pipelineGroupViewModel = new PipelineGroupViewModel(pipelineGroup);
+
+    const errorsOnRoles = pipelineGroupViewModel.errorsOnRoles();
+
+    expect(errorsOnRoles.length).toBe(1);
+    expect(errorsOnRoles[0]).toBe("Some error msg");
+  });
+
+  it('should list errors on users', () => {
+    const pipelineGroup = PipelineGroup.fromJSON(pipelineGroupJSON());
+    pipelineGroup.authorization().view().errors().add("users", "Some error msg");
+    const pipelineGroupViewModel = new PipelineGroupViewModel(pipelineGroup);
+
+    const errorsOnUsers = pipelineGroupViewModel.errorsOnUsers();
+
+    expect(errorsOnUsers.length).toBe(1);
+    expect(errorsOnUsers[0]).toBe("Some error msg");
+  });
 });
 
 export function pipelineGroupJSON() {

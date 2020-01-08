@@ -35,6 +35,11 @@
       "key": "use_rails_based_material_test_connection_api",
       "description": "Use the rails based material test connection API. Default: false",
       "value": false
+    },
+    {
+      "key": "new_feed_api",
+      "description": "Use the new feed APIs. Default: true",
+      "value": true
     }
   ]
 }

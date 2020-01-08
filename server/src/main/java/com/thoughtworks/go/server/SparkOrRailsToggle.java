@@ -34,4 +34,8 @@ public class SparkOrRailsToggle {
     public void testConnectionAPI(HttpServletRequest request, HttpServletResponse response) {
         basedOnToggle(Toggles.USE_RAILS_BASED_MATERIAL_TEST_CONNECTION_API, request);
     }
+
+    public void feedsApi(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.NEW_FEED_API, request);
+    }
 }

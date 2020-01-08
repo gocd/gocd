@@ -12,8 +12,7 @@
                       type="GitMaterial"
                       url="https://material/example.git">
                 <modifications>
-                    <changeset
-                            changesetUri="https://go-server/go/api/feed/materials/7bccb1c84d8bf4ad35016e1fe5ab4e7a49c334db66a25e266be542d254e37ef6/changeset/3.xml">
+                    <changeset>
                         <user>
                             <![CDATA[Bob]]>
                         </user>
@@ -26,8 +25,7 @@
                         </message>
                         <file action="added" name="build.xml"/>
                     </changeset>
-                    <changeset
-                            changesetUri="https://go-server/go/api/feed/materials/7bccb1c84d8bf4ad35016e1fe5ab4e7a49c334db66a25e266be542d254e37ef6/changeset/2.xml">
+                    <changeset>
                         <user>
                             <![CDATA[Sam]]>
                         </user>
@@ -40,8 +38,7 @@
                         </message>
                         <file action="added" name="tools/bin/go.jruby"/>
                     </changeset>
-                    <changeset
-                            changesetUri="https://go-server/go/api/feed/materials/7bccb1c84d8bf4ad35016e1fe5ab4e7a49c334db66a25e266be542d254e37ef6/changeset/1.xml">
+                    <changeset>
                         <user>
                             <![CDATA[Sam]]>
                         </user>

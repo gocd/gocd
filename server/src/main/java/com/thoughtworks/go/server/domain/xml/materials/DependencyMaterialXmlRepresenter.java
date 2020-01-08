@@ -19,7 +19,6 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.domain.xml.builder.ElementBuilder;
-import com.thoughtworks.go.util.DateUtils;
 
 public class DependencyMaterialXmlRepresenter extends MaterialXmlRepresenter {
     public DependencyMaterialXmlRepresenter(String pipelineName, Integer pipelineCounter, MaterialRevision materialRevision) {
@@ -29,7 +28,7 @@ public class DependencyMaterialXmlRepresenter extends MaterialXmlRepresenter {
     @Override
     protected void populateModification(ElementBuilder builder, Modification modification, XmlWriterContext ctx) {
         builder.node("changeset", cb -> cb.attr("changesetUri", ctx.stageXmlLink(modification))
-            .textNode("checkinTime", DateUtils.formatISO8601(modification.getModifiedTime()))
+            .textNode("checkinTime", modification.getModifiedTime())
             .textNode("revision", modification.getRevision())
         );
     }

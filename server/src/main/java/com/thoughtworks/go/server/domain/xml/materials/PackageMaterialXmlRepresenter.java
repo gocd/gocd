@@ -19,7 +19,6 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.domain.xml.builder.ElementBuilder;
-import com.thoughtworks.go.util.DateUtils;
 
 public class PackageMaterialXmlRepresenter extends MaterialXmlRepresenter {
     public PackageMaterialXmlRepresenter(String pipelineName, Integer pipelineCounter, MaterialRevision materialRevision) {
@@ -29,11 +28,10 @@ public class PackageMaterialXmlRepresenter extends MaterialXmlRepresenter {
     @Override
     protected void populateModification(ElementBuilder builder, Modification modification, XmlWriterContext ctx) {
         builder.node("changeset", cb -> cb
-            .attr("changesetUri", ctx.changesetUri(materialRevision.getMaterial().getFingerprint(), modification))
             .cdataNode("user", modification.getUserDisplayName())
             .cdataNode("revision", modification.getRevision())
             .cdataNode("message", modification.getComment())
-            .textNode("checkinTime", DateUtils.formatISO8601(modification.getModifiedTime()))
+            .textNode("checkinTime", modification.getModifiedTime())
         );
     }
 }

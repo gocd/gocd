@@ -4,7 +4,7 @@
               repositoryName="repo-name"
               packageName="package-name">
         <modifications>
-            <changeset changesetUri="https://test.host/go/api/feed/materials/553a930f6a1f16daea7b6eae922eb77eefcf3f0bf864ac0cf8e2c88026ef733d/changeset/1.xml">
+            <changeset>
                 <user><![CDATA[Bob]]></user>
                 <revision><![CDATA[1]]></revision>
                 <message><![CDATA[Release new package]]></message>

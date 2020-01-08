@@ -43,6 +43,7 @@ describe "layouts/pipelines.html.eb" do
     params[:pipeline_name] = "cruise"
     params[:pipeline_counter] = "1"
     @request.path_parameters.reverse_merge!(params)
+    @feed_api_url = "/api/pipelines/pipeline-name/stages.xml"
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     view.extend PipelinesHelper
     view.extend ApplicationHelper

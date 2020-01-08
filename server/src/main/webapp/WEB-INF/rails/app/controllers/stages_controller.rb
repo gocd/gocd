@@ -18,6 +18,7 @@ class StagesController < ApplicationController
   helper :all
   include ApplicationHelper
   include StagesHelper
+  include SparkUrlAware
 
   STAGE_DETAIL_ACTIONS = [:overview, :pipeline, :materials, :jobs, :rerun_jobs, :stats, :stats_iframe, :stage_config]
   BASE_TIME = Time.parse("00:00:00")
@@ -27,6 +28,7 @@ class StagesController < ApplicationController
   before_action :load_stage_history, :only => STAGE_DETAIL_ACTIONS - [:pipeline, :stats, :stats_iframe]
   before_action :load_current_config_version, :only => STAGE_DETAIL_ACTIONS << :history
   before_action :load_pipeline_instance, :only => :redirect_to_first_stage
+  before_action :feed_api_url
 
   STAGE_HISTORY_PAGE_SIZE = 10
 
@@ -186,6 +188,14 @@ class StagesController < ApplicationController
 
   def date_range(stage_summary_models)
     [DateUtils::formatToSimpleDate(stage_summary_models.first.getStage().scheduledDate()), DateUtils::formatToSimpleDate(stage_summary_models.last.getStage().scheduledDate())]
+  end
+
+  def feed_api_url
+    if feature_toggle_service.isToggleOn(Toggles.NEW_FEED_API)
+      @feed_api_url = spark_url_for({:request => request}, "/api/feed/pipelines/#{params[:pipeline_name]}/stages.xml")
+    else
+      @feed_api_url = api_pipeline_stage_feed_path(:name => params[:pipeline_name])
+    end
   end
 
   def can_view_settings?

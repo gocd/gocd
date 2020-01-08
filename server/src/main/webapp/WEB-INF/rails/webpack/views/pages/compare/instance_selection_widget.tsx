@@ -32,6 +32,7 @@ type StringOrNumber = string | number;
 export interface InstanceAttrs {
   instance: PipelineInstance;
   onInstanceChange: (counter: number) => void;
+  dataTestId?: string;
 }
 
 export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs> {
@@ -41,8 +42,9 @@ export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs>
   }
 
   view(vnode: m.Vnode<InstanceAttrs, this>): m.Children | void | null {
+    const dataTestId = vnode.attrs.dataTestId ? vnode.attrs.dataTestId : InstanceSelectionWidget.dataTestId("instance", "selection", "widget", vnode.attrs.instance.counter());
     return <div
-      data-test-id={InstanceSelectionWidget.dataTestId("instance", "selection", "widget", vnode.attrs.instance.counter())}
+      data-test-id={dataTestId}
       class={styles.instanceWrapper}>
       <SelectInstanceWidget show={Stream(false)} apiService={new PipelineInstanceService()} {...vnode.attrs}/>
       {this.getStagesOrWarning(vnode)}

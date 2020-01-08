@@ -84,7 +84,7 @@ export class TimelineModal extends Modal {
           return <div data-test-id={InstanceSelectionWidget.dataTestId("instance", instance.counter())}
                       class={classnames(styles.pipelineRun, className)}
                       onclick={updateSelectedInstance.bind(this, instance)}>
-            <span>{instance.counter()}</span>
+            <span data-test-id="instance-counter">{instance.counter()}</span>
             <StagesWidget stages={instance.stages()}/>
           </div>;
         })}

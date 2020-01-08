@@ -32,15 +32,13 @@ public class PipelinesXmlRepresenter implements XmlRepresentable {
     @Override
     public Document toXml(XmlWriterContext ctx) {
         DocumentBuilder builder = DocumentBuilder
-                .withRoot("pipelines")
-                .encoding("UTF-8")
-                .link(ctx.relative(SELF), "self");
+            .withRoot("pipelines")
+            .encoding("UTF-8")
+            .link(ctx.relative(SELF), "self");
 
         pipelineInstanceModels.forEach(pipeline -> builder.node("pipeline", nodeBuilder -> {
             nodeBuilder.attr("href", ctx.stagesXmlLink(pipeline.getName()));
         }));
-
-        System.out.println(builder.build().asXML());
 
         return builder.build();
     }

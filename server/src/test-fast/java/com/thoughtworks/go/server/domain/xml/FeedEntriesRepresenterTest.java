@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.domain.xml;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.XmlWriterContext;
+import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.feed.FeedEntries;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.junit5.JsonSource;
@@ -39,6 +40,8 @@ public class FeedEntriesRepresenterTest {
         String pipelineName = "up42";
         StageFeedEntry entryOne = cancelled();
         StageFeedEntry entryTwo = passed();
+        entryOne.getAuthors().add(new Author("bob", "bob@gocd.org"));
+        entryTwo.getAuthors().add(new Author("joe <joe@gocd.org>", null));
         XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null, null, new SystemEnvironment());
         FeedEntriesRepresenter representable = new FeedEntriesRepresenter(pipelineName, new FeedEntries(entryOne, entryTwo));
 

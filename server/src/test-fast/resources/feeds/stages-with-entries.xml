@@ -12,6 +12,10 @@
         <title><![CDATA[up42(2) stage integration-tests(100) Cancelled]]></title>
         <updated>2019-12-31T07:28:30+05:30</updated>
         <id>https://go-server/go/pipelines/up42/2/integration-tests/100</id>
+        <author>
+            <name><![CDATA[bob]]></name>
+            <email>bob@gocd.org</email>
+        </author>
         <cancelledBy>
             <go:name><![CDATA[Admin]]></go:name>
         </cancelledBy>
@@ -39,6 +43,9 @@
         <title><![CDATA[up42(2) stage unit-tests(100) Passed]]></title>
         <updated>2019-12-31T07:28:30+05:30</updated>
         <id>https://go-server/go/pipelines/up42/2/unit-tests/100</id>
+        <author>
+            <name><![CDATA[joe <joe@gocd.org>]]></name>
+        </author>
         <link rel="alternate"
               href="https://go-server/go/api/feed/pipelines/up42/2/unit-tests/100.xml"
               title="unit-tests Stage Detail"

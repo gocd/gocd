@@ -383,7 +383,7 @@ export class AdminPipelinesPage extends Page<null, State> {
           const users = successResponse.body.map((user) => user.loginName());
           vnode.state.usersAutoCompleteHelper(users);
         }),
-        () => this.setErrorState()
+        () => _.noop
       );
 
       roles.do(
@@ -391,7 +391,7 @@ export class AdminPipelinesPage extends Page<null, State> {
           const roles = successResponse.body.map((role) => role.name());
           vnode.state.rolesAutoCompleteHelper(roles);
         }),
-        () => this.setErrorState()
+        () => _.noop
       );
     });
   }

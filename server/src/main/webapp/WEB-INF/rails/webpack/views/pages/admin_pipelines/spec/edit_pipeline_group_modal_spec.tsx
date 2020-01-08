@@ -194,7 +194,7 @@ describe('EditPipelineGroupModal', () => {
       expect(testHelper.byTestId("collapse-body", testHelper.byTestId("roles-permissions-collapse"))).toBeInDOM();
     });
 
-    it('should render collapsible panel with user permissions table', () => {
+    it('should render collapsible panel with role permissions table', () => {
       expect(testHelper.byTestId("roles-permissions")).toBeInDOM();
       expect(testHelper.byTestId("roles-permissions")).toContainHeaderCells(["Name", "View", "Operate", "Admin", ""]);
 
@@ -321,5 +321,33 @@ describe('EditPipelineGroupModal', () => {
     mount();
     expect(testHelper.byTestId("cancel-button")).toBeInDOM();
     expect(testHelper.byTestId("save-pipeline-group")).toBeInDOM();
+  });
+
+  it('should render errors on roles if any', () => {
+    const pipelineGroup = PipelineGroup.fromJSON(pipelineGroupJSON());
+    pipelineGroup.authorization().admin().errors().add('roles', 'Some roles are invalid');
+    modal = new EditPipelineGroupModal(pipelineGroup, "etag", [], [], _.noop, false);
+    modal.render();
+    m.redraw.sync();
+    testHelper = new TestHelper().forModal();
+
+    const element = testHelper.byTestId('errors-on-roles');
+    expect(element).toBeInDOM();
+    expect(testHelper.qa('li', element).length).toBe(1);
+    expect(testHelper.qa('li', element)[0].innerText).toBe('Some roles are invalid');
+  });
+
+  it('should render errors on users if any', () => {
+    const pipelineGroup = PipelineGroup.fromJSON(pipelineGroupJSON());
+    pipelineGroup.authorization().admin().errors().add('users', 'Some users are invalid');
+    modal = new EditPipelineGroupModal(pipelineGroup, "etag", [], [], _.noop, false);
+    modal.render();
+    m.redraw.sync();
+    testHelper = new TestHelper().forModal();
+
+    const element = testHelper.byTestId('errors-on-users');
+    expect(element).toBeInDOM();
+    expect(testHelper.qa('li', element).length).toBe(1);
+    expect(testHelper.qa('li', element)[0].innerText).toBe('Some users are invalid');
   });
 });

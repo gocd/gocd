@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {Errors} from "../../mixins/errors";
 import {Authorization, AuthorizationJSON, AuthorizedUsersAndRoles, PermissionForEntity, PermissionsForUsersAndRoles} from "../authorization";
 
 describe('AuthorizationViewModel', () => {
@@ -109,6 +110,18 @@ describe('AuthorizationViewModel', () => {
       expect(authorizationViewModel.authorizedRoles().length).toBe(2);
     });
   });
+
+  it('should initialize authorization with errors', () => {
+    const errors = new Errors();
+    errors.add("roles", "Some error msg");
+    const admins                 = new AuthorizedUsersAndRoles(["user_foo_admin"], ["role_foo_admin"], errors);
+    const view                   = new AuthorizedUsersAndRoles(["user_foo_view"], ["role_foo_view"]);
+    const operate                = new AuthorizedUsersAndRoles(["user_foo_operate"], ["role_foo_operate"]);
+    const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization(view, admins, operate));
+
+    expect(authorizationViewModel.errors().hasErrors()).toBeTruthy();
+    expect(authorizationViewModel.errors().errorsForDisplay('roles')).toBe('Some error msg.');
+  });
 });
 
 describe("AuthorizedUsersAndRoles", () => {
@@ -194,6 +207,20 @@ describe("Authorization", () => {
       expect(authorization.view().users()).toEqual([]);
       expect(authorization.admin().users()).toEqual([]);
       expect(authorization.operate().users()).toEqual(["user2"]);
+    });
+
+    it('with errors', () => {
+      const viewJSON    = {users: [], roles: ["foo"], errors: {roles: ['some error msg']}};
+      const operateJSON = {users: ["user2"], roles: []};
+
+      const authorizationJSON: AuthorizationJSON = {
+        view:    viewJSON,
+        operate: operateJSON
+      };
+      const authorization: Authorization         = Authorization.fromJSON(authorizationJSON);
+
+      expect(authorization.view().errors().hasErrors()).toBeTruthy();
+      expect(authorization.view().errors().errorsForDisplay('roles')).toBe('some error msg.');
     });
   });
 

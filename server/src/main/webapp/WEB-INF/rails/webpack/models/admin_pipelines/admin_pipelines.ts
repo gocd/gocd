@@ -96,4 +96,12 @@ export class PipelineGroupViewModel {
   isValid() {
     return this.authorizationViewModel().isValid();
   }
+
+  errorsOnRoles(): string[] {
+    return this.authorizationViewModel().errors().errors('roles') as string[];
+  }
+
+  errorsOnUsers(): string[] {
+    return this.authorizationViewModel().errors().errors('users') as string[];
+  }
 }

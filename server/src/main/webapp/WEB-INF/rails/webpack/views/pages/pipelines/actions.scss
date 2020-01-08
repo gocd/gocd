@@ -26,3 +26,11 @@
     white-space: nowrap;
   }
 }
+
+.btn-secondary {
+  &:disabled {
+    &:hover {
+      color: $go-primary;
+    }
+  }
+}

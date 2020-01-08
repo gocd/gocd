@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {MithrilViewComponent} from "jsx/mithril-component";
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineGroup, PipelineGroupViewModel} from "models/admin_pipelines/admin_pipelines";
@@ -60,7 +62,7 @@ class RolesProvider extends SuggestionProvider {
 }
 
 export class EditPipelineGroupModal extends Modal {
-  private readonly pipelineGroupViewModel: PipelineGroupViewModel;
+  private readonly pipelineGroupViewModel: Stream<PipelineGroupViewModel>;
   private readonly usersProvider: UsersProvider;
   private readonly rolesProvider: RolesProvider;
   private readonly userPermissionCollapseState: Stream<boolean>;
@@ -76,7 +78,7 @@ export class EditPipelineGroupModal extends Modal {
     this.pipelineGroupName           = group.name();
     this.onSuccessfulSave            = onSuccessfulSave;
     this.containsPipelinesRemotely   = containsPipelinesRemotely;
-    this.pipelineGroupViewModel      = new PipelineGroupViewModel(group);
+    this.pipelineGroupViewModel      = Stream(new PipelineGroupViewModel(group));
     this.fixedHeight                 = true;
     this.usersProvider               = new UsersProvider(usersAutoCompleteHelper);
     this.rolesProvider               = new RolesProvider(rolesAutoCompleteHelper);
@@ -99,7 +101,11 @@ export class EditPipelineGroupModal extends Modal {
     return <div>
       {flashMessageHtml}
       <div class={styles.pipelineGroupNameWrapper}>
-        <TextField title={this.containsPipelinesRemotely ? "Cannot rename pipeline group as it contains remotely defined pipelines" : ""} label={"Pipeline group name"} property={this.pipelineGroupViewModel.name} readonly={this.containsPipelinesRemotely}/>
+        <TextField
+          title={this.containsPipelinesRemotely ? "Cannot rename pipeline group as it contains remotely defined pipelines" : ""}
+          label={"Pipeline group name"}
+          property={this.pipelineGroupViewModel().name}
+          readonly={this.containsPipelinesRemotely}/>
         {this.containsPipelinesRemotely ? infoTooltip : ""}
       </div>
       <CollapsiblePanel header={"User permissions"}
@@ -109,7 +115,9 @@ export class EditPipelineGroupModal extends Modal {
                         dataTestId={"users-permissions-collapse"}
                         actions={<Secondary dataTestId={"add-user-permission"}
                                             onclick={this.addUserAuthorization.bind(this)}>Add</Secondary>}>
-        <Table data={this.userPermissionData()} headers={["Name", "View", "Operate", "Admin", ""]} data-test-id="users-permissions"/>
+        <RenderErrors dataTestId="errors-on-users" errors={this.pipelineGroupViewModel().errorsOnUsers()}/>
+        <Table data={this.userPermissionData()} headers={["Name", "View", "Operate", "Admin", ""]}
+               data-test-id="users-permissions"/>
       </CollapsiblePanel>
       <CollapsiblePanel header={"Role permissions"}
                         expanded={true}
@@ -118,7 +126,9 @@ export class EditPipelineGroupModal extends Modal {
                         dataTestId={"roles-permissions-collapse"}
                         actions={<Secondary dataTestId={"add-role-permission"}
                                             onclick={this.addRoleAuthorization.bind(this)}>Add</Secondary>}>
-        <Table data={this.rolePermissionData()} headers={["Name", "View", "Operate", "Admin", ""]} data-test-id="roles-permissions"/>
+        <RenderErrors dataTestId="errors-on-roles" errors={this.pipelineGroupViewModel().errorsOnRoles()}/>
+        <Table data={this.rolePermissionData()} headers={["Name", "View", "Operate", "Admin", ""]}
+               data-test-id="roles-permissions"/>
       </CollapsiblePanel>
     </div>;
   }
@@ -135,15 +145,19 @@ export class EditPipelineGroupModal extends Modal {
   }
 
   userPermissionData() {
-    return this.pipelineGroupViewModel.authorizedUsers().map((authorizedEntity) => [
+    return this.pipelineGroupViewModel().authorizedUsers().map((authorizedEntity) => [
       <div class={styles.permissionNameWrapper}>
-        <AutocompleteField dataTestId={"user-name"} property={authorizedEntity.name} required={true} maxItems={25} provider={this.usersProvider} autoEvaluate={false} errorText={authorizedEntity.errors().errorsForDisplay("name")}/>
+        <AutocompleteField dataTestId={"user-name"} property={authorizedEntity.name} required={true} maxItems={25}
+                           provider={this.usersProvider} autoEvaluate={false}
+                           errorText={authorizedEntity.errors().errorsForDisplay("name")}/>
       </div>,
       <div class={styles.permissionCheckboxWrapper}>
-        <CheckboxField property={authorizedEntity.view} dataTestId={"view-permission"} readonly={authorizedEntity.admin() || authorizedEntity.operate()}/>
+        <CheckboxField property={authorizedEntity.view} dataTestId={"view-permission"}
+                       readonly={authorizedEntity.admin() || authorizedEntity.operate()}/>
       </div>,
       <div className={styles.permissionCheckboxWrapper}>
-        <CheckboxField property={authorizedEntity.operate} dataTestId={"operate-permission"} readonly={authorizedEntity.admin()}
+        <CheckboxField property={authorizedEntity.operate} dataTestId={"operate-permission"}
+                       readonly={authorizedEntity.admin()}
                        onchange={() => authorizedEntity.view(true)}/>
       </div>,
       <div className={styles.permissionCheckboxWrapper}>
@@ -161,15 +175,19 @@ export class EditPipelineGroupModal extends Modal {
   }
 
   rolePermissionData() {
-    return this.pipelineGroupViewModel.authorizedRoles().map((authorizedEntity) => [
+    return this.pipelineGroupViewModel().authorizedRoles().map((authorizedEntity) => [
       <div className={styles.permissionNameWrapper}>
-        <AutocompleteField dataTestId={"role-name"} property={authorizedEntity.name} required={true} maxItems={25} provider={this.rolesProvider} autoEvaluate={false} errorText={authorizedEntity.errors().errorsForDisplay("name")}/>
+        <AutocompleteField dataTestId={"role-name"} property={authorizedEntity.name} required={true} maxItems={25}
+                           provider={this.rolesProvider} autoEvaluate={false}
+                           errorText={authorizedEntity.errors().errorsForDisplay("name")}/>
       </div>,
       <div className={styles.permissionCheckboxWrapper}>
-        <CheckboxField property={authorizedEntity.view} dataTestId={"view-permission"} readonly={authorizedEntity.admin() || authorizedEntity.operate()}/>
+        <CheckboxField property={authorizedEntity.view} dataTestId={"view-permission"}
+                       readonly={authorizedEntity.admin() || authorizedEntity.operate()}/>
       </div>,
       <div className={styles.permissionCheckboxWrapper}>
-        <CheckboxField property={authorizedEntity.operate} dataTestId={"operate-permission"} readonly={authorizedEntity.admin()}
+        <CheckboxField property={authorizedEntity.operate} dataTestId={"operate-permission"}
+                       readonly={authorizedEntity.admin()}
                        onchange={() => authorizedEntity.view(true)}/>
       </div>,
       <div className={styles.permissionCheckboxWrapper}>
@@ -190,35 +208,64 @@ export class EditPipelineGroupModal extends Modal {
     if (this.userPermissionCollapseState()) {
       e.stopPropagation();
     }
-    this.pipelineGroupViewModel.addAuthorizedUser(new PermissionForEntity("", true, false, false));
+    this.pipelineGroupViewModel().addAuthorizedUser(new PermissionForEntity("", true, false, false));
   }
 
   addRoleAuthorization(e: MouseEvent) {
     if (this.rolePermissionCollapseState()) {
       e.stopPropagation();
     }
-    this.pipelineGroupViewModel.addAuthorizedRole(new PermissionForEntity("", true, false, false));
+    this.pipelineGroupViewModel().addAuthorizedRole(new PermissionForEntity("", true, false, false));
   }
 
   private removeRole(role: PermissionForEntity) {
-    this.pipelineGroupViewModel.removeAuthorizedRole(role);
+    this.pipelineGroupViewModel().removeAuthorizedRole(role);
   }
 
   private removeUser(user: PermissionForEntity) {
-    this.pipelineGroupViewModel.removeAuthorizedUser(user);
+    this.pipelineGroupViewModel().removeAuthorizedUser(user);
   }
 
   private performSave() {
-    if (this.pipelineGroupViewModel.isValid()) {
-      PipelineGroupCRUD.update(this.pipelineGroupName, this.pipelineGroupViewModel.getUpdatedPipelineGroup(), this.etag)
+    if (this.pipelineGroupViewModel().isValid()) {
+      PipelineGroupCRUD.update(this.pipelineGroupName, this.pipelineGroupViewModel().getUpdatedPipelineGroup(), this.etag)
                        .then((result) => {
                          result.do(() => {
-                           this.onSuccessfulSave(`Pipeline group ${this.pipelineGroupViewModel.name()} updated successfully.`);
+                           this.onSuccessfulSave(`Pipeline group ${this.pipelineGroupViewModel().name()} updated successfully.`);
                            this.close();
                          }, (errorResponse) => {
-                           this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+                           if (errorResponse.body) {
+                             const pipelineGrpJson = JSON.parse(errorResponse.body);
+                             const pipelineGroup   = PipelineGroup.fromJSON(pipelineGrpJson.data);
+                             this.pipelineGroupViewModel(new PipelineGroupViewModel(pipelineGroup));
+                             this.flashMessage.setMessage(MessageType.alert, pipelineGrpJson.message);
+                           } else {
+                             this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                           }
                          });
                        });
     }
+  }
+}
+
+interface ErrorAttrs {
+  errors: string[];
+  dataTestId?: string;
+}
+
+class RenderErrors extends MithrilViewComponent<ErrorAttrs> {
+  view(vnode: m.Vnode<ErrorAttrs, this>): m.Children | void | null {
+    if (_.isEmpty(vnode.attrs.errors)) {
+      return undefined;
+    }
+    const errors: m.Children = [];
+    vnode.attrs.errors.forEach((err) => {
+      errors.push(<li>{err}</li>);
+    });
+
+    return <FlashMessage dataTestId={vnode.attrs.dataTestId ? vnode.attrs.dataTestId : "errors"}
+                         type={MessageType.alert}>
+      <ul class={styles.errors}>{errors}</ul>
+    </FlashMessage>;
   }
 }

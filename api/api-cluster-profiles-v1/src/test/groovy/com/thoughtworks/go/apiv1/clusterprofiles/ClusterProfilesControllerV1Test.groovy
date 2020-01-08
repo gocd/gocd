@@ -27,6 +27,7 @@ import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import groovy.json.JsonBuilder
 import org.junit.jupiter.api.BeforeEach
@@ -62,7 +63,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, NormalUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -175,7 +176,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(), [:])
+        postWithApiHeader(controller.controllerPath(), [id: 'some_id'])
       }
     }
 

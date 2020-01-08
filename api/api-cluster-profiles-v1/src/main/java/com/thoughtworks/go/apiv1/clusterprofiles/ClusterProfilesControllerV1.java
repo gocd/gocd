@@ -26,7 +26,9 @@ import com.thoughtworks.go.apiv1.clusterprofiles.representers.ClusterProfileRepr
 import com.thoughtworks.go.apiv1.clusterprofiles.representers.ClusterProfilesRepresenter;
 import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -71,20 +73,43 @@ public class ClusterProfilesControllerV1 extends ApiController implements SparkS
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before("/*", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, (request, response) -> {
+                String resourceToOperateOn = "*";
+                if (request.requestMethod().equalsIgnoreCase("GET")) {
+                    apiAuthenticationHelper.checkUserAnd403(request, response);
+                    return;
+                }
+
+
+                if (request.requestMethod().equalsIgnoreCase("POST")) {
+                    resourceToOperateOn = GsonTransformer.getInstance().jsonReaderFrom(request.body()).getString("id");
+                }
+
+                apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, resourceToOperateOn);
+            });
+
+            before(Routes.ClusterProfilesAPI.ID, mimeType, (request, response) -> {
+                apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, request.params("cluster_id"));
+            });
 
             get("", mimeType, this::index);
-            get(Routes.ClusterProfilesAPI.ID, mimeType, this::getClusterProfile);
             post("", mimeType, this::create);
+
+            get(Routes.ClusterProfilesAPI.ID, mimeType, this::getClusterProfile);
             delete(Routes.ClusterProfilesAPI.ID, mimeType, this::deleteClusterProfile);
             put(Routes.ClusterProfilesAPI.ID, mimeType, this::update);
         });
     }
 
     public String index(Request request, Response response) throws IOException {
-        final PluginProfiles<ClusterProfile> clusterProfiles = clusterProfilesService.getPluginProfiles();
-        return writerForTopLevelObject(request, response, outputWriter -> ClusterProfilesRepresenter.toJSON(outputWriter, clusterProfiles));
+        final PluginProfiles<ClusterProfile> userSpecificClusterProfiles = new ClusterProfiles();
+        for (ClusterProfile clusterProfile : clusterProfilesService.getPluginProfiles()) {
+            if (apiAuthenticationHelper.doesUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, clusterProfile.getId())) {
+                userSpecificClusterProfiles.add(clusterProfile);
+            }
+        }
+
+        return writerForTopLevelObject(request, response, outputWriter -> ClusterProfilesRepresenter.toJSON(outputWriter, userSpecificClusterProfiles));
     }
 
     public String getClusterProfile(Request request, Response response) throws IOException {

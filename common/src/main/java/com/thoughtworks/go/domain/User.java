@@ -269,22 +269,22 @@ public class User extends PersistentObject {
         for (NotificationFilter filter : notificationFilters) {
             if (filter.include(another)) {
                 throw new UncheckedValidationException(format("Duplicate notification filter found for: {pipeline: \"%s\", stage: \"%s\", event: \"%s\"}",
-                        filter.getPipelineName(), filter.getStageName(), filter.getEvent()));
+                    filter.getPipelineName(), filter.getStageName(), filter.getEvent()));
             }
         }
     }
 
     public void updateNotificationFilter(NotificationFilter notificationFilter) {
         Optional<NotificationFilter> optionalFilter = notificationFilters.stream()
-                .filter(filter -> filter.getId() == notificationFilter.getId())
-                .findFirst();
+            .filter(filter -> filter.getId() == notificationFilter.getId())
+            .findFirst();
 
         if (optionalFilter.isEmpty()) {
             throw new RecordNotFoundException(EntityType.NotificationFilter, notificationFilter.getId());
         }
 
-        checkForDuplicates(notificationFilter);
         notificationFilters.remove(optionalFilter.get());
+        checkForDuplicates(notificationFilter);
         notificationFilters.add(notificationFilter);
     }
 

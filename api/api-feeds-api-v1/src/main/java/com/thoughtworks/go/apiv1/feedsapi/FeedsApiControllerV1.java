@@ -33,11 +33,14 @@ import spark.Response;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.List;
 
 import static java.lang.String.format;
 import static org.apache.commons.io.FilenameUtils.removeExtension;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
+import static org.apache.commons.lang3.StringUtils.stripToEmpty;
+import static org.springframework.http.MediaType.*;
 import static spark.Spark.*;
 
 @Component
@@ -66,7 +69,7 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("/*", mimeType, this::setContentType);
+            before("/*", mimeType, super::setContentType);
             before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
             get(Routes.FeedsAPI.PIPELINES_XML, this.mimeType, this::pipelinesXML);
@@ -76,6 +79,8 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
             get(Routes.FeedsAPI.JOB_XML, this.mimeType, this::jobXML);
             get(Routes.FeedsAPI.SCHEDULED_JOB_XML, this.mimeType, this::scheduledJobs);
             get(Routes.FeedsAPI.MATERIAL_URL, this.mimeType, this::materialXML);
+
+            after("/*", this::setContentType);
         });
     }
 
@@ -142,6 +147,23 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
         } catch (NumberFormatException nfe) {
             throw new BadRequestException(format("The '%s' must be an integer.", entity.replaceAll("_", " ")));
         }
+    }
+
+    @Override
+    protected void setContentType(Request req, Response res) {
+        if (res.status() != 200) {
+            return;
+        }
+
+        String acceptedTypes = stripToEmpty(req.headers("Accept"));
+
+        List<String> allowedTypes = List.of(APPLICATION_XML_VALUE, TEXT_XML_VALUE, APPLICATION_RSS_XML_VALUE, APPLICATION_ATOM_XML_VALUE);
+        String contentType = Arrays.stream(acceptedTypes.toLowerCase().split("\\s*,\\s*"))
+            .filter(allowedTypes::contains)
+            .findFirst()
+            .orElse(this.mimeType);
+
+        res.type(contentType);
     }
 
     private String baseUrl(Request request) {

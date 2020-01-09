@@ -291,6 +291,21 @@ class UserTest {
                     .hasSize(1)
                     .contains(updatedFilter);
         }
+
+        @Test
+        void shouldNotThrowDuplicateFilterWhenUpdatingFilterFromEventTypeAllToOthers() {
+            NotificationFilter notifyForBrokenBuild = notificationFilter(1L, "up42", "up42_stage", StageEvent.All);
+            User user = new User("bob");
+            user.setId(100L);
+            user.addNotificationFilter(notifyForBrokenBuild);
+            NotificationFilter updatedFilter = notificationFilter(1L, "up42", "up42_stage", StageEvent.Breaks);
+
+            user.updateNotificationFilter(updatedFilter);
+
+            assertThat(user.getNotificationFilters())
+                .hasSize(1)
+                .contains(updatedFilter);
+        }
     }
 
     private String chars(int numbersOf) {

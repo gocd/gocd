@@ -234,4 +234,17 @@ public class ExecTaskTest {
 
         assertFalse(task.equals(new ExecTask(null, new Arguments())));
     }
+
+    @Test
+    public void shouldSetConfigAttributesWithCarriageReturnCharPresent() {
+        ExecTask exec = new ExecTask();
+        exec.setConfigAttributes(m(ExecTask.COMMAND, null, ExecTask.ARG_LIST_STRING, "ls\r\n-al\r\n&&\npwd"));
+        assertThat(exec.command(), is(nullValue()));
+        assertThat(exec.getArgListString(), is("ls\n-al\n&&\npwd"));
+        assertThat(exec.getArgList().size(), is(4));
+        assertThat(exec.getArgList().get(0), is(new Argument("ls")));
+        assertThat(exec.getArgList().get(1), is(new Argument("-al")));
+        assertThat(exec.getArgList().get(2), is(new Argument("&&")));
+        assertThat(exec.getArgList().get(3), is(new Argument("pwd")));
+    }
 }

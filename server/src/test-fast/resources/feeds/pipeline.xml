@@ -3,7 +3,7 @@
     <id>
         <![CDATA[urn:x-go.studios.thoughtworks.com:job-id:up42:100]]>
     </id>
-    <scheduleTime>2019-12-31T15:31:49+05:30</scheduleTime>
+    <scheduleTime>2019-12-31T10:01:49Z</scheduleTime>
     <materials>
         <material>
             <material branch="master"
@@ -16,7 +16,7 @@
                         <user>
                             <![CDATA[Bob]]>
                         </user>
-                        <checkinTime>2019-12-31T15:31:49+05:30</checkinTime>
+                        <checkinTime>2019-12-31T10:01:49Z</checkinTime>
                         <revision>
                             <![CDATA[3]]>
                         </revision>
@@ -29,7 +29,7 @@
                         <user>
                             <![CDATA[Sam]]>
                         </user>
-                        <checkinTime>2019-12-31T15:31:49+05:30</checkinTime>
+                        <checkinTime>2019-12-31T10:01:49Z</checkinTime>
                         <revision>
                             <![CDATA[2]]>
                         </revision>
@@ -42,7 +42,7 @@
                         <user>
                             <![CDATA[Sam]]>
                         </user>
-                        <checkinTime>2019-12-31T15:31:49+05:30</checkinTime>
+                        <checkinTime>2019-12-31T10:01:49Z</checkinTime>
                         <revision>
                             <![CDATA[1]]>
                         </revision>

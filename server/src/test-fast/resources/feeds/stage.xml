@@ -3,7 +3,7 @@
     <link rel="self" href="https://go-server/go/api/feed/pipelines/BulletinBoard/10/UnitTest/4.xml"/>
     <id><![CDATA[urn:x-go.studios.thoughtworks.com:stage-id:BulletinBoard:10:UnitTest:4]]></id>
     <pipeline name="BulletinBoard" counter="10" href="https://go-server/go/api/feed/pipelines/BulletinBoard/10.xml"/>
-    <updated>2020-01-03T11:14:19+05:30</updated>
+    <updated>2020-01-03T05:44:19Z</updated>
     <result>Unknown</result>
     <state>Completed</state>
     <approvedBy><![CDATA[changes]]></approvedBy>

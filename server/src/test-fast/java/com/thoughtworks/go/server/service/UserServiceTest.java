@@ -34,6 +34,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
 import com.thoughtworks.go.util.GoConstants;
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -45,10 +46,8 @@ import java.util.List;
 import java.util.Set;
 
 import static com.thoughtworks.go.helper.SecurityConfigMother.securityConfigWithRole;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class UserServiceTest {
@@ -77,10 +76,10 @@ public class UserServiceTest {
         when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(foo, bar, quux)));
 
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.DESC);
-        assertThat(models, is(Arrays.asList(model(quux), model(foo), model(bar))));
+        assertThat(models).isEqualTo(Arrays.asList(model(quux), model(foo), model(bar)));
 
         models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.ASC);
-        assertThat(models, is(Arrays.asList(model(bar), model(foo), model(quux))));
+        assertThat(models).isEqualTo(Arrays.asList(model(bar), model(foo), model(quux)));
     }
 
     @Test
@@ -92,10 +91,10 @@ public class UserServiceTest {
 
 
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.EMAIL, UserService.SortDirection.DESC);
-        assertThat(models, is(Arrays.asList(model(zoo), model(quux), model(foo))));
+        assertThat(models).isEqualTo(Arrays.asList(model(zoo), model(quux), model(foo)));
 
         models = userService.allUsersForDisplay(UserService.SortableColumn.EMAIL, UserService.SortDirection.ASC);
-        assertThat(models, is(Arrays.asList(model(foo), model(quux), model(zoo))));
+        assertThat(models).isEqualTo(Arrays.asList(model(foo), model(quux), model(zoo)));
     }
 
     @Test
@@ -115,10 +114,10 @@ public class UserServiceTest {
         UserModel quuxModel = model(quux, Arrays.asList("user", "loser"), false);
         UserModel barModel = model(bar, Arrays.asList("user", "boozer"), false);
         UserModel fooModel = model(foo, Arrays.asList("loser", "boozer"), false);
-        assertThat(models, is(Arrays.asList(quuxModel, barModel, fooModel)));
+        assertThat(models).isEqualTo(Arrays.asList(quuxModel, barModel, fooModel));
 
         models = userService.allUsersForDisplay(UserService.SortableColumn.ROLES, UserService.SortDirection.ASC);
-        assertThat(models, is(Arrays.asList(fooModel, barModel, quuxModel)));
+        assertThat(models).isEqualTo(Arrays.asList(fooModel, barModel, quuxModel));
     }
 
     @Test
@@ -130,10 +129,19 @@ public class UserServiceTest {
 
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.MATCHERS, UserService.SortDirection.DESC);
 
-        assertThat(models, is(Arrays.asList(model(quux), model(bar), model(foo))));
+        assertThat(models).isEqualTo(Arrays.asList(model(quux), model(bar), model(foo)));
 
         models = userService.allUsersForDisplay(UserService.SortableColumn.MATCHERS, UserService.SortDirection.ASC);
-        assertThat(models, is(Arrays.asList(model(foo), model(bar), model(quux))));
+        assertThat(models).isEqualTo(Arrays.asList(model(foo), model(bar), model(quux)));
+    }
+
+    public static <T> Condition<T> anyOfObject(T... objects) {
+        return new Condition<T>() {
+            @Override
+            public boolean matches(T value) {
+                return Arrays.asList(objects).contains(value);
+            }
+        };
     }
 
     @Test
@@ -151,21 +159,22 @@ public class UserServiceTest {
 
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.IS_ADMIN, UserService.SortDirection.DESC);
 
-        assertThat(models.size(), is(4));
-        assertThat(models.get(2), anyOf(is(model(quux, false)), is(model(foo, false))));
-        assertThat(models.get(3), anyOf(is(model(quux, false)), is(model(foo, false))));
-        assertThat(models.get(0), anyOf(is(model(bar, true)), is(model(baaz, true))));
-        assertThat(models.get(1), anyOf(is(model(bar, true)), is(model(baaz, true))));
-        assertThat(models, hasItems(model(bar, true), model(baaz, true), model(foo, false), model(quux, false)));
+
+        assertThat(models.size()).isEqualTo(4);
+        assertThat(models.get(2)).is(anyOfObject(model(quux, false), model(foo, false)));
+        assertThat(models.get(3)).is(anyOfObject(model(quux, false), model(foo, false)));
+        assertThat(models.get(0)).is(anyOfObject(model(bar, true), model(baaz, true)));
+        assertThat(models.get(1)).is(anyOfObject(model(bar, true), model(baaz, true)));
+        assertThat(models).contains(model(bar, true), model(baaz, true), model(foo, false), model(quux, false));
 
         models = userService.allUsersForDisplay(UserService.SortableColumn.IS_ADMIN, UserService.SortDirection.ASC);
-        assertThat(models.size(), is(4));
-        assertThat(models.get(0), anyOf(is(model(quux, false)), is(model(foo, false))));
-        assertThat(models.get(1), anyOf(is(model(quux, false)), is(model(foo, false))));
-        assertThat(models.get(2), anyOf(is(model(bar, true)), is(model(baaz, true))));
-        assertThat(models.get(3), anyOf(is(model(bar, true)), is(model(baaz, true))));
+        assertThat(models.size()).isEqualTo(4);
+        assertThat(models.get(0)).is(anyOfObject(model(quux, false), model(foo, false)));
+        assertThat(models.get(1)).is(anyOfObject(model(quux, false), model(foo, false)));
+        assertThat(models.get(2)).is(anyOfObject(model(bar, true), model(baaz, true)));
+        assertThat(models.get(3)).is(anyOfObject(model(bar, true), model(baaz, true)));
 
-        assertThat(models, hasItems(model(bar, true), model(baaz, true), model(foo, false), model(quux, false)));
+        assertThat(models).contains(model(bar, true), model(baaz, true), model(foo, false), model(quux, false));
     }
 
     @Test
@@ -181,21 +190,21 @@ public class UserServiceTest {
 
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.ENABLED, UserService.SortDirection.DESC);
 
-        assertThat(models.size(), is(4));
-        assertThat(models.get(2), anyOf(is(model(quux)), is(model(foo))));
-        assertThat(models.get(3), anyOf(is(model(quux)), is(model(foo))));
-        assertThat(models.get(0), anyOf(is(model(bar)), is(model(baaz))));
-        assertThat(models.get(1), anyOf(is(model(bar)), is(model(baaz))));
-        assertThat(models, hasItems(model(bar), model(baaz), model(foo), model(quux)));
+        assertThat(models.size()).isEqualTo(4);
+        assertThat(models.get(2)).is(anyOfObject(model(quux), (model(foo))));
+        assertThat(models.get(3)).is(anyOfObject(model(quux), (model(foo))));
+        assertThat(models.get(0)).is(anyOfObject(model(bar), (model(baaz))));
+        assertThat(models.get(1)).is(anyOfObject(model(bar), (model(baaz))));
+        assertThat(models).contains(model(bar), model(baaz), model(foo), model(quux));
 
         models = userService.allUsersForDisplay(UserService.SortableColumn.ENABLED, UserService.SortDirection.ASC);
-        assertThat(models.size(), is(4));
-        assertThat(models.get(0), anyOf(is(model(quux)), is(model(foo))));
-        assertThat(models.get(1), anyOf(is(model(quux)), is(model(foo))));
-        assertThat(models.get(2), anyOf(is(model(bar)), is(model(baaz))));
-        assertThat(models.get(3), anyOf(is(model(bar)), is(model(baaz))));
+        assertThat(models.size()).isEqualTo(4);
+        assertThat(models.get(0)).is(anyOfObject(model(quux), (model(foo))));
+        assertThat(models.get(1)).is(anyOfObject(model(quux), (model(foo))));
+        assertThat(models.get(2)).is(anyOfObject(model(bar), (model(baaz))));
+        assertThat(models.get(3)).is(anyOfObject(model(bar), (model(baaz))));
 
-        assertThat(models, hasItems(model(bar), model(baaz), model(foo), model(quux)));
+        assertThat(models).contains(model(bar), model(baaz), model(foo), model(quux));
     }
 
     @Test
@@ -211,7 +220,7 @@ public class UserServiceTest {
         ), new RoleConfig(new CaseInsensitiveString("loser"))));
 
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.ASC);
-        assertThat(models, is(Arrays.asList(model(bar, Arrays.asList("user", "loser"), false), model(foo, Arrays.asList("loser", "boozer"), true))));
+        assertThat(models).isEqualTo(Arrays.asList(model(bar, Arrays.asList("user", "loser"), false), model(foo, Arrays.asList("loser", "boozer"), true)));
     }
 
     @Test
@@ -224,7 +233,7 @@ public class UserServiceTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.create(Arrays.asList(foo), result);
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -236,8 +245,8 @@ public class UserServiceTest {
         when(userDao.findUser("existingUser")).thenReturn(existsingUser);
         userService.create(Arrays.asList(searchModel), result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpServletResponse.SC_CONFLICT));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(HttpServletResponse.SC_CONFLICT);
     }
 
     @Test
@@ -251,8 +260,8 @@ public class UserServiceTest {
 
         userService.create(Arrays.asList(searchModel), result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
     }
 
     @Test
@@ -266,8 +275,8 @@ public class UserServiceTest {
 
         userService.disable(Arrays.asList("Pavan", "Jake"), result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
     }
 
     @Test
@@ -275,7 +284,7 @@ public class UserServiceTest {
         when(userDao.enabledUsers()).thenReturn(Arrays.asList(new User("Jake"), new User("Pavan"), new User("Shilpa")));
         configureAdmin("Jake", true);
 
-        assertThat(userService.canUserTurnOffAutoLogin(), is(true));
+        assertThat(userService.canUserTurnOffAutoLogin()).isTrue();
     }
 
 
@@ -283,7 +292,7 @@ public class UserServiceTest {
     void shouldNotBeAbleToTurnOffAutoLoginWhenAdminsStillPresent() {
         when(userDao.enabledUsers()).thenReturn(Arrays.asList(new User("Jake"), new User("Pavan"), new User("Shilpa")));
 
-        assertThat(userService.canUserTurnOffAutoLogin(), is(false));
+        assertThat(userService.canUserTurnOffAutoLogin()).isFalse();
     }
 
     @Test
@@ -293,7 +302,7 @@ public class UserServiceTest {
         when(userDao.enabledUsers()).thenReturn(Arrays.asList(new User("Jake")));
         userService.enable(Arrays.asList("Jake"), result);
 
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
@@ -302,11 +311,11 @@ public class UserServiceTest {
         SecurityConfig securityConfig = new SecurityConfig(null);
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
         securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(new CaseInsensitiveString("user1")), new RoleUser(new CaseInsensitiveString("user2")),
-                new RoleUser(new CaseInsensitiveString("user3"))));
+            new RoleUser(new CaseInsensitiveString("user3"))));
         securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("role2"), new RoleUser(new CaseInsensitiveString("user4")), new RoleUser(new CaseInsensitiveString("user5")),
-                new RoleUser(new CaseInsensitiveString("user3"))));
+            new RoleUser(new CaseInsensitiveString("user3"))));
         securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("role3"), new RoleUser(new CaseInsensitiveString("user4")), new RoleUser(new CaseInsensitiveString("user5")),
-                new RoleUser(new CaseInsensitiveString("user2"))));
+            new RoleUser(new CaseInsensitiveString("user2"))));
         config.setServerConfig(new ServerConfig(null, securityConfig));
 
         StageConfig stage = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job")));
@@ -320,14 +329,14 @@ public class UserServiceTest {
 
         Set<String> allUsers = userService.usersThatCanOperateOnStage(config, pipeline);
 
-        assertThat(allUsers.size(), is(7));
-        assertThat(allUsers, hasItem("user1"));
-        assertThat(allUsers, hasItem("user2"));
-        assertThat(allUsers, hasItem("user3"));
-        assertThat(allUsers, hasItem("user4"));
-        assertThat(allUsers, hasItem("user5"));
-        assertThat(allUsers, hasItem("pavan"));
-        assertThat(allUsers, hasItem("admin"));
+        assertThat(allUsers.size()).isEqualTo(7);
+        assertThat(allUsers).contains("user1");
+        assertThat(allUsers).contains("user2");
+        assertThat(allUsers).contains("user3");
+        assertThat(allUsers).contains("user4");
+        assertThat(allUsers).contains("user5");
+        assertThat(allUsers).contains("pavan");
+        assertThat(allUsers).contains("admin");
     }
 
     @Test
@@ -346,10 +355,10 @@ public class UserServiceTest {
         when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(new User("user_one"), new User("user_two"))));
         Set<String> users = userService.usersThatCanOperateOnStage(config, pipeline);
 
-        assertThat(config.findGroup("defaultGroup").hasAuthorizationDefined(), is(false));
-        assertThat(users.size(), is(2));
-        assertThat(users, hasItem("user_one"));
-        assertThat(users, hasItem("user_two"));
+        assertThat(config.findGroup("defaultGroup").hasAuthorizationDefined()).isFalse();
+        assertThat(users.size()).isEqualTo(2);
+        assertThat(users).contains("user_one");
+        assertThat(users).contains("user_two");
     }
 
     @Test
@@ -368,9 +377,9 @@ public class UserServiceTest {
         when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(new User("user_one"), new User("user_two"))));
         Set<String> users = userService.usersThatCanOperateOnStage(config, pipeline);
 
-        assertThat(group.hasAuthorizationDefined(), is(true));
-        assertThat(group.hasOperationPermissionDefined(), is(false));
-        assertThat(users.size(), is(0));
+        assertThat(group.hasAuthorizationDefined()).isTrue();
+        assertThat(group.hasOperationPermissionDefined()).isFalse();
+        assertThat(users.size()).isEqualTo(0);
     }
 
     @Test
@@ -391,9 +400,9 @@ public class UserServiceTest {
 
         Set<String> roles = userService.rolesThatCanOperateOnStage(config, pipeline);
 
-        assertThat(roles.size(), is(2));
-        assertThat(roles, hasItem("role1"));
-        assertThat(roles, hasItem("role3"));
+        assertThat(roles.size()).isEqualTo(2);
+        assertThat(roles).contains("role1");
+        assertThat(roles).contains("role3");
     }
 
     @Test
@@ -415,9 +424,9 @@ public class UserServiceTest {
 
         Set<String> roles = userService.rolesThatCanOperateOnStage(config, pipeline);
 
-        assertThat(config.findGroup("defaultGroup").hasAuthorizationDefined(), is(true));
-        assertThat(config.findGroup("defaultGroup").hasOperationPermissionDefined(), is(false));
-        assertThat(roles.size(), is(0));
+        assertThat(config.findGroup("defaultGroup").hasAuthorizationDefined()).isTrue();
+        assertThat(config.findGroup("defaultGroup").hasOperationPermissionDefined()).isFalse();
+        assertThat(roles.size()).isEqualTo(0);
     }
 
     @Test
@@ -435,11 +444,11 @@ public class UserServiceTest {
 
         Set<String> roles = userService.rolesThatCanOperateOnStage(config, pipeline);
 
-        assertThat(config.findGroup("defaultGroup").hasAuthorizationDefined(), is(false));
-        assertThat(roles.size(), is(3));
-        assertThat(roles, hasItem("role1"));
-        assertThat(roles, hasItem("role2"));
-        assertThat(roles, hasItem("role3"));
+        assertThat(config.findGroup("defaultGroup").hasAuthorizationDefined()).isFalse();
+        assertThat(roles.size()).isEqualTo(3);
+        assertThat(roles).contains("role1");
+        assertThat(roles).contains("role2");
+        assertThat(roles).contains("role3");
     }
 
     @Test
@@ -448,8 +457,8 @@ public class UserServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(userDao.deleteUser(username, "currentUser")).thenReturn(true);
         userService.deleteUser(username, "currentUser", result);
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(result.hasMessage(), is(true));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(result.hasMessage()).isTrue();
     }
 
     @Test
@@ -458,8 +467,8 @@ public class UserServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(userDao.deleteUser(username, "currentUser")).thenThrow(new RecordNotFoundException(EntityType.User, username));
         userService.deleteUser(username, "currentUser", result);
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.hasMessage(), is(true));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.hasMessage()).isTrue();
     }
 
     @Test
@@ -477,8 +486,8 @@ public class UserServiceTest {
         userService.deleteUsers(usernames, "currentUser", result);
 
         verify(userDao).deleteUsers(usernames, "currentUser");
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(), is(EntityType.User.deleteSuccessful(Arrays.asList("john", "joan"))));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(result.message()).isEqualTo(EntityType.User.deleteSuccessful(Arrays.asList("john", "joan")));
     }
 
     @Test
@@ -496,10 +505,10 @@ public class UserServiceTest {
 
         userService.deleteUsers(usernames, "currentUser", result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), containsString("Deletion failed because some users do not exist."));
-        assertThat(result.getNonExistentUsers(), is(expectedBulkUpdateUsersOperationResult.getNonExistentUsers()));
-        assertThat(result.getEnabledUsers(), is(expectedBulkUpdateUsersOperationResult.getEnabledUsers()));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).contains("Deletion failed because some users do not exist.");
+        assertThat(result.getNonExistentUsers()).isEqualTo(expectedBulkUpdateUsersOperationResult.getNonExistentUsers());
+        assertThat(result.getEnabledUsers()).isEqualTo(expectedBulkUpdateUsersOperationResult.getEnabledUsers());
     }
 
     @Test
@@ -518,10 +527,10 @@ public class UserServiceTest {
 
         userService.deleteUsers(usernames, "currentUser", result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("Deletion failed because some users were enabled."));
-        assertThat(result.getNonExistentUsers(), is(expectedBulkUpdateUsersOperationResult.getNonExistentUsers()));
-        assertThat(result.getEnabledUsers(), is(expectedBulkUpdateUsersOperationResult.getEnabledUsers()));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo("Deletion failed because some users were enabled.");
+        assertThat(result.getNonExistentUsers()).isEqualTo(expectedBulkUpdateUsersOperationResult.getNonExistentUsers());
+        assertThat(result.getEnabledUsers()).isEqualTo(expectedBulkUpdateUsersOperationResult.getEnabledUsers());
     }
 
     @Test
@@ -531,8 +540,8 @@ public class UserServiceTest {
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
         userService.deleteUsers(usernames, "currentUser", result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("No users selected."));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo("No users selected.");
     }
 
     @Test
@@ -542,8 +551,8 @@ public class UserServiceTest {
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
         userService.deleteUsers(usernames, "currentUser", result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("No users selected."));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo("No users selected.");
     }
 
     @Test
@@ -562,8 +571,8 @@ public class UserServiceTest {
         userService.bulkEnableDisableUsers(usernames, true, result);
 
         verify(userDao).enableUsers(usernames);
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(), is("Users 'john, joan' were enabled successfully."));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(result.message()).isEqualTo("Users 'john, joan' were enabled successfully.");
     }
 
     @Test
@@ -585,8 +594,8 @@ public class UserServiceTest {
         userService.bulkEnableDisableUsers(usernames, false, result);
 
         verify(userDao).disableUsers(usernames);
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(), is("Users 'john, joan' were disabled successfully."));
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(result.message()).isEqualTo("Users 'john, joan' were disabled successfully.");
     }
 
     @Test
@@ -605,8 +614,8 @@ public class UserServiceTest {
         userService.bulkEnableDisableUsers(usernames, false, result);
 
         verify(userDao, never()).disableUsers(usernames);
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), containsString("There must be atleast one admin user enabled!"));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).contains("There must be atleast one admin user enabled!");
     }
 
     @Test
@@ -624,10 +633,10 @@ public class UserServiceTest {
 
         userService.bulkEnableDisableUsers(usernames, true, result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), containsString("Update failed because some users do not exist."));
-        assertThat(result.getNonExistentUsers(), is(expectedBulkUpdateUsersOperationResult.getNonExistentUsers()));
-        assertThat(result.getEnabledUsers(), is(expectedBulkUpdateUsersOperationResult.getEnabledUsers()));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).contains("Update failed because some users do not exist.");
+        assertThat(result.getNonExistentUsers()).isEqualTo(expectedBulkUpdateUsersOperationResult.getNonExistentUsers());
+        assertThat(result.getEnabledUsers()).isEqualTo(expectedBulkUpdateUsersOperationResult.getEnabledUsers());
     }
 
     @Test
@@ -637,8 +646,8 @@ public class UserServiceTest {
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
         userService.bulkEnableDisableUsers(usernames, true, result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("No users selected."));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo("No users selected.");
     }
 
     @Test
@@ -648,8 +657,8 @@ public class UserServiceTest {
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
         userService.bulkEnableDisableUsers(usernames, true, result);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("No users selected."));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo("No users selected.");
     }
 
     @Test
@@ -664,7 +673,7 @@ public class UserServiceTest {
         when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(Arrays.asList(foo, bar, quux)));
         when(securityService.hasViewPermissionForPipeline(foo.getUsername(), "p1")).thenReturn(true);
         when(securityService.hasViewPermissionForPipeline(bar.getUsername(), "p1")).thenReturn(false);
-        assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1")), contains(foo));
+        assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1"))).containsExactly(foo);
     }
 
     @Test
@@ -677,7 +686,7 @@ public class UserServiceTest {
         when(userDao.findNotificationSubscribingUsers()).thenReturn(new Users(Arrays.asList(foo, bar)));
         when(securityService.hasViewPermissionForPipeline(foo.getUsername(), "p1")).thenReturn(true);
         when(securityService.hasViewPermissionForPipeline(bar.getUsername(), "p1")).thenReturn(false);
-        assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1")), contains(foo));
+        assertThat(userService.findValidSubscribers(new StageConfigIdentifier("p1", "s1"))).containsExactly(foo);
     }
 
     @Test
@@ -686,8 +695,8 @@ public class UserServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(userDao.deleteUser(username, "currentUser")).thenThrow(new UserEnabledException());
         userService.deleteUser(username, "currentUser", result);
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.hasMessage(), is(true));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.hasMessage()).isTrue();
     }
 
     @Nested
@@ -709,8 +718,8 @@ public class UserServiceTest {
                 authConfig.setAllowOnlyKnownUsersToLogin(true);
                 userService.addOrUpdateUser(user, authConfig);
             })
-                    .isInstanceOf(OnlyKnownUsersAllowedException.class)
-                    .hasMessage("Please ask the administrator to add you to GoCD.");
+                .isInstanceOf(OnlyKnownUsersAllowedException.class)
+                .hasMessage("Please ask the administrator to add you to GoCD.");
 
             verify(userDao).findUser(username);
             verifyNoMoreInteractions(userDao);
@@ -775,55 +784,200 @@ public class UserServiceTest {
     }
 
     @Nested
-    class UpdateNotificationFilter {
+    class AddNotificationFilter {
         @Test
-        void shouldErrorOutWhenNotificationFilterWithIdDoesNotExist() {
-            NotificationFilter notificationFilter = mock(NotificationFilter.class);
-            User user = new User("bob");
-            user.setId(100L);
-            when(userDao.load(100L)).thenReturn(user);
-            when(notificationFilter.getId()).thenReturn(1L);
+        void shouldBeValidIfPipelineNameIsSetToAnyPipeline() {
+            NotificationFilter filter = new NotificationFilter("[Any Pipeline]", null, null, true);
+            when(userDao.load(100L)).thenReturn(new User("bob"));
 
-            assertThatCode(() -> userService.updateNotificationFilter(100, notificationFilter))
-                    .isInstanceOf(RecordNotFoundException.class)
-                    .hasMessage("Notification filter with id '1' was not found!");
+            userService.addNotificationFilter(100L, filter);
+
+            verify(userDao).load(100L);
         }
 
         @Test
-        void shouldErrorOutWithValidationErrorWhenAddingSameNotificationFilterAgain() {
-            NotificationFilter notifyForBrokenBuild = notificationFilter(1L, "up42", "up42_stage", StageEvent.Breaks);
-            NotificationFilter notifyForFixedBuild = notificationFilter(2L, "up42", "up42_stage", StageEvent.Fixed);
-            User user = new User("bob");
-            user.setId(100L);
-            user.addNotificationFilter(notifyForBrokenBuild);
-            user.addNotificationFilter(notifyForFixedBuild);
-            when(userDao.load(100L)).thenReturn(user);
+        void shouldErrorOutWhenPipelineWithNameDoesNotExist() {
+            String pipelineName = "up42";
+            NotificationFilter filter = new NotificationFilter(pipelineName, null, null, true);
+            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(null);
+            when(userDao.load(100L)).thenReturn(new User("bob"));
 
-            NotificationFilter updatedFilter = notificationFilter(2L, "up42", "up42_stage", StageEvent.Breaks);
-            assertThatCode(() -> userService.updateNotificationFilter(100, updatedFilter))
-                    .isInstanceOf(UncheckedValidationException.class)
-                    .hasMessage("Duplicate notification filter found for: {pipeline: \"up42\", stage: \"up42_stage\", event: \"Breaks\"}");
+            assertThatCode(() -> userService.addNotificationFilter(100L, filter))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Pipeline with name 'up42' was not found!");
+            verifyZeroInteractions(userDao);
         }
 
         @Test
-        void shouldUpdateNotificationFilter() {
-            NotificationFilter notifyForBrokenBuild = notificationFilter(1L, "up42", "up42_stage", StageEvent.Breaks);
+        void shouldBeValidIfPipelineWithNameExistAndStageIsSetToAnyStage() {
+            String pipelineName = "up42";
+            NotificationFilter filter = new NotificationFilter(pipelineName, "[Any Stage]", null, true);
+            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(mock(PipelineConfig.class));
+            when(userDao.load(100L)).thenReturn(new User("bob"));
+
+            userService.addNotificationFilter(100L, filter);
+
+            verify(userDao).load(100L);
+        }
+
+        @Test
+        void shouldErrorOutWhenPipelineWithNameExistAndStageDoesNotExist() {
+            String pipelineName = "up42";
+            String stageName = "unit-tests";
+            NotificationFilter filter = new NotificationFilter(pipelineName, stageName, null, true);
+            PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
+            when(userDao.load(100L)).thenReturn(new User("bob"));
+            when(pipelineConfig.getStage(stageName)).thenReturn(null);
+
+
+            assertThatCode(() -> userService.addNotificationFilter(100L, filter))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Stage 'unit-tests' not found in pipeline 'up42'");
+            verifyZeroInteractions(userDao);
+        }
+
+        @Test
+        void shouldBeValidWhenPipelineAndStage() {
+            String pipelineName = "up42";
+            String stageName = "unit-tests";
+            NotificationFilter filter = new NotificationFilter(pipelineName, stageName, null, true);
+            PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
+            when(pipelineConfig.getStage(stageName)).thenReturn(mock(StageConfig.class));
+            when(userDao.load(100L)).thenReturn(new User("bob"));
+
+            userService.addNotificationFilter(100L, filter);
+
+            verify(userDao).load(100L);
+        }
+
+        @Test
+        void shouldAddNotificationFilter() {
+            String pipelineName = "up42";
+            String stageName = "unit-tests";
             User user = new User("bob");
-            user.setId(100L);
-            user.addNotificationFilter(notifyForBrokenBuild);
+            PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
+            when(pipelineConfig.getStage(stageName)).thenReturn(mock(StageConfig.class));
             when(userDao.load(100L)).thenReturn(user);
-            NotificationFilter updatedFilter = notificationFilter(1L, "up42", "up42_stage", StageEvent.All);
+            NotificationFilter newFilter = new NotificationFilter(pipelineName, stageName, StageEvent.Breaks, true);
 
-            userService.updateNotificationFilter(100, updatedFilter);
+            userService.addNotificationFilter(100L, newFilter);
 
-            verify(userDao).saveOrUpdate(user);
+            assertThat(user.getNotificationFilters())
+                .hasSize(1)
+                .contains(newFilter);
+        }
+
+        @Test
+        void shouldErrorOutWhenNotificationFilterWithSameConfigExist() {
+            String pipelineName = "up42";
+            String stageName = "unit-tests";
+            User user = new User("bob");
+            user.addNotificationFilter(new NotificationFilter(pipelineName, stageName, StageEvent.Breaks, true));
+            PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
+            when(pipelineConfig.getStage(stageName)).thenReturn(mock(StageConfig.class));
+            when(userDao.load(100L)).thenReturn(user);
+            NotificationFilter newFilter = new NotificationFilter(pipelineName, stageName, StageEvent.Breaks, true);
+
+            assertThatCode(() -> userService.addNotificationFilter(100L, newFilter))
+                .isInstanceOf(UncheckedValidationException.class)
+                .hasMessage("Duplicate notification filter found for: {pipeline: \"up42\", stage: \"unit-tests\", event: \"Breaks\"}");
         }
     }
 
-    private NotificationFilter notificationFilter(long id, String pipeline, String stage, StageEvent event) {
-        NotificationFilter notifyForBreakingBuild = new NotificationFilter(pipeline, stage, event, true);
-        notifyForBreakingBuild.setId(id);
-        return notifyForBreakingBuild;
+    @Nested
+    class UpdateNotificationFilter {
+        String pipelineName = "up42";
+        String stageName = "unit-tests";
+        private User user;
+        private NotificationFilter existingFilter;
+
+        @BeforeEach
+        void setUp() {
+            user = new User("bob");
+            when(userDao.load(100L)).thenReturn(user);
+            user.getNotificationFilters().add(notificationFilter(9L, pipelineName, stageName, StageEvent.Fixed));
+            existingFilter = notificationFilter(10L, pipelineName, stageName, StageEvent.Breaks);
+            user.getNotificationFilters().add(existingFilter);
+        }
+
+        @Test
+        void shouldBeValidIfPipelineNameIsSetToAnyPipeline() {
+            NotificationFilter filter = notificationFilter(10L, "[Any Pipeline]", null, null);
+
+            userService.updateNotificationFilter(100L, filter);
+
+            verify(userDao).load(100L);
+        }
+
+        @Test
+        void shouldErrorOutWhenPipelineWithNameDoesNotExist() {
+            NotificationFilter filter = notificationFilter(10L, pipelineName, null, null);
+            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(null);
+
+            assertThatCode(() -> userService.updateNotificationFilter(100L, filter))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Pipeline with name 'up42' was not found!");
+            verifyZeroInteractions(userDao);
+        }
+
+        @Test
+        void shouldBeValidIfPipelineWithNameExistAndStageIsSetToAnyStage() {
+            existingFilter.setEvent(StageEvent.Cancelled);
+            existingFilter.setStageName("[Any Stage]");
+            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(mock(PipelineConfig.class));
+
+            userService.updateNotificationFilter(100L, existingFilter);
+
+            verify(userDao).load(100L);
+        }
+
+        @Test
+        void shouldErrorOutWhenPipelineWithNameExistAndStageDoesNotExist() {
+            NotificationFilter filter = notificationFilter(10L, pipelineName, stageName, null);
+            PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
+            when(pipelineConfig.getStage(stageName)).thenReturn(null);
+
+
+            assertThatCode(() -> userService.updateNotificationFilter(100L, filter))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Stage 'unit-tests' not found in pipeline 'up42'");
+            verifyZeroInteractions(userDao);
+        }
+
+        @Test
+        void shouldUpdateNotificationFilterWhenPipelineAndStageExist() {
+            PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
+            when(pipelineConfig.getStage(stageName)).thenReturn(mock(StageConfig.class));
+            NotificationFilter updatedFilter = notificationFilter(10L, pipelineName, stageName, StageEvent.Passes);
+
+            userService.updateNotificationFilter(100L, updatedFilter);
+
+            assertThat(user.getNotificationFilters()).hasSize(2).contains(updatedFilter);
+        }
+
+        @Test
+        void shouldErrorOutWhenNotificationFilterWithSameConfigExist() {
+            PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
+            when(pipelineConfig.getStage(stageName)).thenReturn(mock(StageConfig.class));
+            NotificationFilter updatedFilter = notificationFilter(10L, pipelineName, stageName, StageEvent.Fixed);
+
+            assertThatCode(() -> userService.updateNotificationFilter(100L, updatedFilter))
+                .isInstanceOf(UncheckedValidationException.class)
+                .hasMessage("Duplicate notification filter found for: {pipeline: \"up42\", stage: \"unit-tests\", event: \"Fixed\"}");
+        }
+
+        private NotificationFilter notificationFilter(long id, String pipelineName, String stageName, StageEvent fixed) {
+            NotificationFilter notificationFilter = new NotificationFilter(pipelineName, stageName, fixed, true);
+            notificationFilter.setId(id);
+            return notificationFilter;
+        }
     }
 
     private void configureAdmin(String username, boolean isAdmin) {

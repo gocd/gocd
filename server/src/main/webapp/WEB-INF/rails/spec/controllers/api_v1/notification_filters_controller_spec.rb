@@ -49,7 +49,7 @@ describe ApiV1::NotificationFiltersController do
   describe "create" do
     it("creates a filter to match any commit") do
       allow(@user).to receive(:notificationFilters).and_return([]) # not verifying this
-      expect(@user_service).to receive(:addNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", false))
+      expect(@user_service).to receive(:oldAddNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", false))
 
       post_with_api_header(:create, params:{pipeline: "foo", stage: "bar", event: "Breaks"})
 
@@ -58,7 +58,7 @@ describe ApiV1::NotificationFiltersController do
 
     it("creates a filter to match a user's own commits") do
       allow(@user).to receive(:notificationFilters).and_return([]) # not verifying this
-      expect(@user_service).to receive(:addNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", true))
+      expect(@user_service).to receive(:oldAddNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", true))
 
       post_with_api_header(:create, params:{pipeline: "foo", stage: "bar", event: "Breaks", match_commits: true})
 

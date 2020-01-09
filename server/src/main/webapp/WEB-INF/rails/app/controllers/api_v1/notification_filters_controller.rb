@@ -26,7 +26,7 @@ module ApiV1
 
     def create
       filter = filter_from_params
-      user_service.addNotificationFilter(@user_to_operate.id, filter)
+      user_service.oldAddNotificationFilter(@user_to_operate.id, filter)
       @user_to_operate = user_service.load(@user_to_operate.id)
 
       render_user_notification_filters

@@ -18,9 +18,9 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.StageNotFoundException;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.exception.UncheckedValidationException;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.presentation.UserModel;
@@ -48,8 +48,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.join;
+import static org.apache.commons.lang3.StringUtils.*;
 
 @Service
 public class UserService {
@@ -459,7 +458,9 @@ public class UserService {
         return userDao.findUser(username);
     }
 
-    public void addNotificationFilter(final long userId, final NotificationFilter filter) {
+    //Delete when remove notification filter api v1
+    @Deprecated
+    public void oldAddNotificationFilter(final long userId, final NotificationFilter filter) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -472,7 +473,23 @@ public class UserService {
         });
     }
 
-    public void updateNotificationFilter(final long userId, final NotificationFilter notificationFilter) throws UncheckedValidationException {
+    public void addNotificationFilter(final long userId, final NotificationFilter filter) {
+        validatePipelineAndStageInNotificationFilter(filter);
+        User user = userDao.load(userId);
+        user.addNotificationFilter(filter);
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                synchronized (enableUserMutex) {
+                    userDao.saveOrUpdate(user);
+                }
+            }
+        });
+    }
+
+    public void updateNotificationFilter(final long userId, final NotificationFilter notificationFilter) {
+        validatePipelineAndStageInNotificationFilter(notificationFilter);
         User user = userDao.load(userId);
         user.updateNotificationFilter(notificationFilter);
 
@@ -484,6 +501,25 @@ public class UserService {
                 }
             }
         });
+    }
+
+    private void validatePipelineAndStageInNotificationFilter(NotificationFilter filter) {
+        if (equalsIgnoreCase(filter.getPipelineName(), "[Any Pipeline]")) {
+            return;
+        }
+
+        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(filter.getPipelineName()));
+        if (pipelineConfig == null) {
+            throw new RecordNotFoundException(EntityType.Pipeline, filter.getPipelineName());
+        }
+
+        if (equalsIgnoreCase(filter.getStageName(), "[Any Stage]")) {
+            return;
+        }
+
+        if (pipelineConfig.getStage(filter.getStageName()) == null) {
+            throw new StageNotFoundException(filter.getPipelineName(), filter.getStageName());
+        }
     }
 
     public void removeNotificationFilter(final long userId, final long filterId) {
@@ -501,7 +537,7 @@ public class UserService {
     public Users findValidSubscribers(final StageConfigIdentifier identifier) {
         Users users = userDao.findNotificationSubscribingUsers();
         return users.filter(user -> user.hasSubscribedFor(identifier.getPipelineName(), identifier.getStageName()) &&
-                securityService.hasViewPermissionForPipeline(user.getUsername(), identifier.getPipelineName()));
+            securityService.hasViewPermissionForPipeline(user.getUsername(), identifier.getPipelineName()));
     }
 
     public void validate(User user) throws ValidationException {
@@ -591,7 +627,7 @@ public class UserService {
         Set<Role> roles = new HashSet<>(securityConfig.getRoles().getRoleConfigs());
         final List<TriStateSelection> roleSelections = TriStateSelection.forRoles(roles, users);
         final TriStateSelection adminSelection = TriStateSelection.forSystemAdmin(securityConfig.adminsConfig(), roles, new SecurityService.UserRoleMatcherImpl(securityConfig),
-                users);
+            users);
         return new AdminAndRoleSelections(adminSelection, roleSelections);
     }
 

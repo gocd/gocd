@@ -54,10 +54,10 @@ import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
-        "classpath:/applicationContext-global.xml",
-        "classpath:/applicationContext-dataLocalAccess.xml",
-        "classpath:/testPropertyConfigurer.xml",
-        "classpath:/spring-all-servlet.xml",
+    "classpath:/applicationContext-global.xml",
+    "classpath:/applicationContext-dataLocalAccess.xml",
+    "classpath:/testPropertyConfigurer.xml",
+    "classpath:/spring-all-servlet.xml",
 })
 public class UserServiceIntegrationTest {
     @Autowired
@@ -71,7 +71,7 @@ public class UserServiceIntegrationTest {
     @Autowired
     private GoCache goCache;
 
-    private static GoConfigFileHelper configFileHelper = new GoConfigFileHelper(ConfigFileFixture.XML_WITH_ENTERPRISE_LICENSE_FOR_TWO_USERS);
+    private static GoConfigFileHelper configFileHelper = new GoConfigFileHelper(ConfigFileFixture.ONE_PIPELINE);
 
     @Before
     public void setUp() throws Exception {
@@ -175,7 +175,7 @@ public class UserServiceIntegrationTest {
         User user = new User("jez", new String[]{"jez"}, "user@mail.com", true);
         userService.saveOrUpdate(user);
         user = userDao.findUser(user.getName());
-        NotificationFilter filter = new NotificationFilter("cruise", "dev", StageEvent.Fixed, false);
+        NotificationFilter filter = new NotificationFilter("pipeline1", "stage", StageEvent.Fixed, false);
         userService.addNotificationFilter(user.getId(), filter);
         user = userService.findUserByName("jez");
         assertThat(user.getNotificationFilters().size(), is(1));
@@ -187,7 +187,7 @@ public class UserServiceIntegrationTest {
         User user = new User("jez", new String[]{"jez"}, "user@mail.com", true);
         addUser(user);
         user = userDao.findUser(user.getName());
-        NotificationFilter filter = new NotificationFilter("cruise", "dev", StageEvent.Fixed, false);
+        NotificationFilter filter = new NotificationFilter("pipeline1", "stage", StageEvent.Fixed, false);
         userService.addNotificationFilter(user.getId(), filter);
         user = userService.findUserByName(user.getName());
         assertThat(user.getNotificationFilters().size(), is(1));
@@ -199,7 +199,7 @@ public class UserServiceIntegrationTest {
     @Test
     public void shouldNotAddDuplicateNotificationFilter() throws ValidationException {
         User user = new User("jez", new String[]{"jez"}, "user@mail.com", true);
-        NotificationFilter filter = new NotificationFilter("cruise", "dev", StageEvent.Fixed, false);
+        NotificationFilter filter = new NotificationFilter("pipeline1", "stage", StageEvent.Fixed, false);
         addUserWithNotificationFilter(user, filter);
         user = userDao.findUser(user.getName());
 
@@ -216,10 +216,10 @@ public class UserServiceIntegrationTest {
         User user = new User("jez", new String[]{"jez"}, "user@mail.com", true);
         userService.saveOrUpdate(user);
         user = userDao.findUser(user.getName());
-        userService.addNotificationFilter(user.getId(), new NotificationFilter("cruise", "dev", StageEvent.Fixed, false));
+        userService.addNotificationFilter(user.getId(), new NotificationFilter("pipeline1", "stage", StageEvent.Fixed, false));
 
         try {
-            userService.addNotificationFilter(user.getId(), new NotificationFilter("cruise", "dev", StageEvent.Fixed, false));
+            userService.addNotificationFilter(user.getId(), new NotificationFilter("pipeline1", "stage", StageEvent.Fixed, false));
             fail("shouldNotAddUnnecessaryNotificationFilter");
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("Duplicate notification filter"));
@@ -233,10 +233,10 @@ public class UserServiceIntegrationTest {
 
         User jez = new User("jez", new String[]{"jez"}, "user@mail.com", true);
         addUserWithNotificationFilter(jez,
-                new NotificationFilter("cruise", "dev", StageEvent.All, false),
-                new NotificationFilter("mingle", "dev", StageEvent.All, false));
+            new NotificationFilter("pipeline1", "stage", StageEvent.All, false),
+            new NotificationFilter("mingle", "dev", StageEvent.All, false));
 
-        Users users = userService.findValidSubscribers(new StageConfigIdentifier("cruise", "dev"));
+        Users users = userService.findValidSubscribers(new StageConfigIdentifier("pipeline1", "stage"));
         assertThat(users.size(), is(1));
         assertThat(users.get(0), is(jez));
         assertThat(users.get(0).getNotificationFilters().size(), is(2));
@@ -249,9 +249,9 @@ public class UserServiceIntegrationTest {
         User tom = new User("tom", new String[]{"tom"}, "tom@mail.com", true);
         User jez = new User("jez", new String[]{"jez"}, "user@mail.com", true);
         addUserWithNotificationFilter(jez,
-                new NotificationFilter("mingle", "dev", StageEvent.All, false));
+            new NotificationFilter("mingle", "dev", StageEvent.All, false));
         addUserWithNotificationFilter(tom,
-                new NotificationFilter("mingle", "dev", StageEvent.All, false));
+            new NotificationFilter("mingle", "dev", StageEvent.All, false));
 
         Users users = userService.findValidSubscribers(new StageConfigIdentifier("mingle", "dev"));
         assertThat(users.size(), is(1));

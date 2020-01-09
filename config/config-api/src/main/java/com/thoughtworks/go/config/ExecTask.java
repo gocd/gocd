@@ -104,7 +104,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
             clearCurrentArgsAndArgList();
             String value = (String) attributeMap.get(ARG_LIST_STRING);
             if (!StringUtils.isBlank(value)) {
-                String[] arguments = value.split("\n");
+                String[] arguments = value.split("\\R");
                 for (String arg : arguments) {
                     argList.add(new Argument(arg));
                 }

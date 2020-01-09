@@ -19,6 +19,9 @@ import org.springframework.http.HttpStatus;
 
 import java.util.Objects;
 
+import static java.lang.String.format;
+import static org.apache.commons.lang3.StringEscapeUtils.escapeXml11;
+
 public abstract class HttpException extends RuntimeException {
     private final HttpStatus status;
 
@@ -29,6 +32,11 @@ public abstract class HttpException extends RuntimeException {
 
     public HttpStatus getStatus() {
         return status;
+    }
+
+    public String asXML() {
+        String tag = status.name().toLowerCase().replaceAll("_", "-");
+        return format("<%s>\n  <message>%s</message>\n</%s>\n", tag, escapeXml11(getMessage()), tag);
     }
 
     @Override

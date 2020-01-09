@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.springframework.http.MediaType.*;
 import static spark.Spark.*;
 
 public class RoutesHelper {
@@ -71,15 +72,21 @@ public class RoutesHelper {
         response.body(new Gson().toJson(Collections.singletonMap("message", "Your request could not be processed. " + exception.getMessage())));
     }
 
-    private void httpException(HttpException ex, Request req, Response res) {
+    void httpException(HttpException ex, Request req, Response res) {
         res.status(ex.getStatus().value());
         List<String> acceptedTypes = getAcceptedTypesFromRequest(req);
 
-        if (acceptedTypes.contains("text/html") || acceptedTypes.contains("application/xhtml+xml")) {
+        if (containsAny(acceptedTypes, TEXT_HTML_VALUE, APPLICATION_XHTML_XML_VALUE)) {
             res.body(HtmlErrorPage.errorPage(ex.getStatus().value(), ex.getMessage()));
+        } else if (containsAny(acceptedTypes, APPLICATION_XML_VALUE, TEXT_XML_VALUE, APPLICATION_RSS_XML_VALUE, APPLICATION_ATOM_XML_VALUE)) {
+            res.body(ex.asXML());
         } else {
             res.body(new Gson().toJson(Collections.singletonMap("message", ex.getMessage())));
         }
+    }
+
+    private boolean containsAny(List<String> list, String... strs) {
+        return List.of(strs).stream().anyMatch(list::contains);
     }
 
     private List<String> getAcceptedTypesFromRequest(Request request) {
@@ -88,7 +95,7 @@ public class RoutesHelper {
             return Collections.emptyList();
         }
 
-        return Arrays.asList(acceptHeader.toLowerCase().split(","));
+        return Arrays.asList(acceptHeader.trim().toLowerCase().split("\\s*,\\s*"));
     }
 
     private void invalidJsonPayload(JsonParseException ex, Request req, Response res) {

@@ -17,6 +17,8 @@ package com.thoughtworks.go.apiv1.feedsapi
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.config.exceptions.NotAuthorizedException
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.server.service.FeedService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
@@ -42,6 +44,34 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
   @Override
   FeedsApiControllerV1 createControllerInstance() {
     new FeedsApiControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), feedService)
+  }
+
+  @Test
+  void 'should render record not found as xml response'() {
+    Mockito.when(feedService.pipelineXml(currentUsername(), "up42", 101, "http://test.host/go"))
+      .thenThrow(new RecordNotFoundException("Boom!!"))
+
+    getWithApiHeader(controller.controllerPath("pipelines", "up42", "101.xml"))
+
+    assertThatResponse()
+      .isNotFound()
+      .hasBody("<not-found>\n" +
+        "  <message>Boom!!</message>\n" +
+        "</not-found>\n")
+  }
+
+  @Test
+  void 'should render not authorized as xml response'() {
+    Mockito.when(feedService.pipelineXml(currentUsername(), "up42", 101, "http://test.host/go"))
+      .thenThrow(new NotAuthorizedException("Boom!!"))
+
+    getWithApiHeader(controller.controllerPath("pipelines", "up42", "101.xml"))
+
+    assertThatResponse()
+      .isUnauthorized()
+      .hasBody("<unauthorized>\n" +
+        "  <message>Boom!!</message>\n" +
+        "</unauthorized>\n")
   }
 
   @Nested

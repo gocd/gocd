@@ -5,12 +5,12 @@
     <author>
         <name>Go</name>
     </author>
-    <updated>2019-12-31T07:28:30+05:30</updated>
+    <updated>2019-12-31T01:58:30Z</updated>
     <link rel="self" href="https://go-server/go/api/feed/pipelines/up42/stages.xml"/>
     <link rel="next" href="https://go-server/go/api/feed/pipelines/up42/stages.xml?before=2"/>
     <entry>
         <title><![CDATA[up42(2) stage integration-tests(100) Cancelled]]></title>
-        <updated>2019-12-31T07:28:30+05:30</updated>
+        <updated>2019-12-31T01:58:30Z</updated>
         <id>https://go-server/go/pipelines/up42/2/integration-tests/100</id>
         <author>
             <name><![CDATA[bob]]></name>
@@ -41,7 +41,7 @@
     </entry>
     <entry>
         <title><![CDATA[up42(2) stage unit-tests(100) Passed]]></title>
-        <updated>2019-12-31T07:28:30+05:30</updated>
+        <updated>2019-12-31T01:58:30Z</updated>
         <id>https://go-server/go/pipelines/up42/2/unit-tests/100</id>
         <author>
             <name><![CDATA[joe <joe@gocd.org>]]></name>

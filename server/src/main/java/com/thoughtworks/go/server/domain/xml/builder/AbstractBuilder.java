@@ -41,7 +41,7 @@ public abstract class AbstractBuilder<T, SELF> {
     }
 
     public SELF textNode(String name, Date date) {
-        current().add(withNamespace(name).addText(DateUtils.formatISO8601(date)));
+        current().add(withNamespace(name).addText(DateUtils.formatIso8601ForCCTray(date)));
         return mySelf;
     }
 

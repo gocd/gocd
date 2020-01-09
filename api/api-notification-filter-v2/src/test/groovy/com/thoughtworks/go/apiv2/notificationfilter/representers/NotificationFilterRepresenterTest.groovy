@@ -16,6 +16,7 @@
 package com.thoughtworks.go.apiv2.notificationfilter.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
 import com.thoughtworks.go.domain.NotificationFilter
 import com.thoughtworks.go.domain.StageEvent
 import org.junit.jupiter.api.Test
@@ -24,6 +25,7 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
+import static org.assertj.core.api.Assertions.assertThatCode
 
 class NotificationFilterRepresenterTest {
 
@@ -69,5 +71,20 @@ class NotificationFilterRepresenterTest {
     assertThat(filter.getStageName()).isEqualTo("unit-test")
     assertThat(filter.getEvent()).isEqualTo(StageEvent.Breaks)
     assertThat(filter.isMyCheckin()).isEqualTo(true)
+  }
+
+  @Test
+  void 'should throw unprocessable entity when event with given name does not exist'() {
+    def reader = GsonTransformer.getInstance().jsonReaderFrom([
+      "id"           : 100,
+      "pipeline"     : "up42",
+      "stage"        : "unit-test",
+      "event"        : "UnknownEventName",
+      "match_commits": true
+    ])
+
+    assertThatCode({ NotificationFilterRepresenter.fromJSON(reader) })
+      .isInstanceOf(UnprocessableEntityException)
+      .hasMessage("Invalid event 'UnknownEventName'. It has to be one of [Fails, Passes, Breaks, Fixed, Cancelled, All].")
   }
 }

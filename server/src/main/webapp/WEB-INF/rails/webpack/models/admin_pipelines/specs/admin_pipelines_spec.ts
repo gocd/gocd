@@ -149,12 +149,12 @@ describe('PipelineGroupViewModel', () => {
 
       const updatedPipelineGroup = pipelineGroupViewModel.getUpdatedPipelineGroup();
 
-      expect(updatedPipelineGroup.authorization().view().users()).toEqual(["user1", "admin"]);
-      expect(updatedPipelineGroup.authorization().operate().users()).toEqual(["user1", "superUser", "admin"]);
+      expect(updatedPipelineGroup.authorization().view().users()).toEqual([]);
+      expect(updatedPipelineGroup.authorization().operate().users()).toEqual(["user1", "superUser"]);
       expect(updatedPipelineGroup.authorization().admin().users()).toEqual(["admin"]);
 
-      expect(updatedPipelineGroup.authorization().view().roles()).toEqual(["role1", "admin"]);
-      expect(updatedPipelineGroup.authorization().operate().roles()).toEqual(["role2", "admin"]);
+      expect(updatedPipelineGroup.authorization().view().roles()).toEqual(["role1"]);
+      expect(updatedPipelineGroup.authorization().operate().roles()).toEqual(["role2"]);
       expect(updatedPipelineGroup.authorization().admin().roles()).toEqual(["admin"]);
       expect(updatedPipelineGroup.name()).toEqual(pipelineGroup.name());
     });

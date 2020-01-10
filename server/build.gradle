@@ -886,6 +886,7 @@ task verifyWar(type: VerifyJarTask) {
         "semantic-version-${project.versions.semanticVersion}.jar",
         "slf4j-api-${project.versions.slf4j}.jar",
         "smtp-${project.versions.mail}.jar",
+        "snakeyaml-${project.versions.snakeYaml}.jar",
         "spark-core-${project.versions.spark}.jar",
         "spring-aop-${project.versions.spring}.jar",
         "spring-beans-${project.versions.spring}.jar",
@@ -905,7 +906,7 @@ task verifyWar(type: VerifyJarTask) {
         "urlrewritefilter-${project.versions.urlrewrite}.jar",
         "util-${project.version}.jar",
         "velocity-1.7.jar",
-        "velocity-tools-view-${project.versions.velocityToolsView}.jar",
+        "velocity-tools-view-${project.versions.velocityToolsView}.jar"
       ])
   ]
 }

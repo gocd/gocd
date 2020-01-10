@@ -25,7 +25,10 @@ import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
+import com.thoughtworks.go.server.security.GoAuthority;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
@@ -89,6 +92,8 @@ public class JobRerunScheduleServiceTest {
                 mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue, jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class),
                 environmentConfigService, lockService, serverHealthService, txnTemplate, mock(AgentService.class), synchronizationManager, timeProvider, null, null, instanceFactory,
                 schedulingPerformanceLogger, elasticProfileService, clusterProfileService);
+
+        SessionUtils.setCurrentUser(new GoUserPrinciple("anonymous", "anonymous", GoAuthority.ROLE_ANONYMOUS.asAuthority()));
     }
 
     @Test

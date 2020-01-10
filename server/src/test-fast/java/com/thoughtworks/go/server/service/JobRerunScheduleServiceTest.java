@@ -28,7 +28,6 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.OperationResult;
-import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -108,16 +107,6 @@ public class JobRerunScheduleServiceTest {
                 .thenReturn(expectedStageToBeCreated);
 
         Stage stage = service.rerunJobs(firstStage, a("unit"), new HttpOperationResult());
-
-        //print some more information to debug this flaky test
-        if (stage == null) {
-            System.err.println("---------------------------------------------");
-            System.err.println("Pipeline Identifier:" + pipeline.getIdentifier());
-            System.err.println("Stage Identifier:" + firstStage.getIdentifier());
-            System.err.println(mockingDetails(schedulingChecker).getInvocations());
-            System.err.println("canRerunStage: " + schedulingChecker.canRerunStage(pipeline.getIdentifier(), firstStage.getName(), "anonymous", new ServerHealthStateOperationResult()));
-            System.err.println("---------------------------------------------");
-        }
 
         assertThat(stage).isNotNull();
         verify(stageService).save(pipeline, stage);
@@ -354,15 +343,6 @@ public class JobRerunScheduleServiceTest {
     private void assertScheduleFailure(String jobName, Stage oldStage, String failureMessage, int statusCode) {
         HttpOperationResult result = new HttpOperationResult();
         Stage stage = service.rerunJobs(oldStage, a(jobName), result);
-
-        //print some more information to debug this flaky test
-        if (result.httpCode() != statusCode) {
-            System.err.println("---------------------------------------------");
-            System.out.println("stage = " + stage);
-            System.out.println("jobName = " + jobName);
-            System.err.println(mockingDetails(schedulingChecker).getInvocations());
-            System.err.println("---------------------------------------------");
-        }
 
         assertThat(stage).isNull();
         assertThat(result.message()).isEqualTo(failureMessage);

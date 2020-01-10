@@ -355,11 +355,6 @@ public class ScheduleService {
             result.accepted(String.format("Request to rerun jobs accepted", identifier), "", healthStateForStage);
             return resultStage;
         } catch (RuntimeException e) {
-            //todo: remove this statement prior to 20.1.0 release;
-            // added to debug flaky JobRerunScheduleServiceTest > shouldUpdateServerHealthStateWhenCantSchedule test
-            //this is catch block should not be called on a normal scenario
-            e.printStackTrace();
-
             if (result.canContinue()) {
                 String message = String.format("Job rerun request for job(s) [%s] could not be completed because of unexpected failure. Cause: %s", StringUtils.join(jobNames.toArray(), ", "),
                         e.getMessage());

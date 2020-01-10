@@ -296,8 +296,7 @@ task verifyFatJar(type: VerifyJarTask) {
       "websocket-client-${versions.jetty}.jar",
       "websocket-common-${versions.jetty}.jar",
       "websocket-server-${versions.jetty}.jar",
-      "websocket-servlet-${versions.jetty}.jar",
-      "snakeyaml-${project.versions.snakeYaml}.jar"
+      "websocket-servlet-${versions.jetty}.jar"
     ]
   ]
 }

@@ -227,6 +227,12 @@
   </rule>
 
   <rule>
+    <name>Pipeline Structure Internal API With Suggestions</name>
+    <from>^/api/internal/pipeline_structure/with_suggestions(/?)$</from>
+    <to last="true">/spark/api/internal/pipeline_structure/with_suggestions</to>
+  </rule>
+
+  <rule>
     <name>pipeline_configs UI</name>
     <from>^/admin/pipeline_configs(/?)$</from>
     <to last="true">/spark/admin/pipeline_configs</to>

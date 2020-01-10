@@ -25,7 +25,8 @@ import com.thoughtworks.go.config.TemplatesConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.TemplateConfigService;
-import com.thoughtworks.go.spark.Routes;
+import com.thoughtworks.go.server.service.UserService;
+import com.thoughtworks.go.spark.Routes.InternalPipelineStructure;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,6 +34,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -44,11 +46,12 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final Map<String, Supplier<PipelineGroups>> pipelineGroupAuthorizationRegistry;
     private final ImmutableMap<String, Supplier<TemplatesConfig>> templateAuthorizationRegistry;
+    private final UserService userService;
 
     @Autowired
     public InternalPipelineStructureControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
                                                  PipelineConfigService pipelineConfigService,
-                                                 TemplateConfigService templateConfigService) {
+                                                 TemplateConfigService templateConfigService, UserService userService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.pipelineGroupAuthorizationRegistry = ImmutableMap.<String, Supplier<PipelineGroups>>builder()
@@ -61,31 +64,47 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
                 .put("view", () -> templateConfigService.templateConfigsThatCanBeViewedBy(currentUsername()))
                 .put("administer", () -> templateConfigService.templateConfigsThatCanBeEditedBy(currentUsername()))
                 .build();
+        this.userService = userService;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.InternalPipelineStructure.BASE;
+        return InternalPipelineStructure.BASE;
     }
 
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            // uncomment the line below to set the content type on the base path
             before("", mimeType, this::setContentType);
-            // uncomment the line below to set the content type on nested routes
             before("/*", mimeType, this::setContentType);
 
-            // uncomment for the `index` action
-            get("", mimeType, this::index);
-
-            // change the line below to enable appropriate security
             before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
-            // to be implemented
+            before(InternalPipelineStructure.WITH_SUGGESTIONS, mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+
+            get("", mimeType, this::index);
+            get(InternalPipelineStructure.WITH_SUGGESTIONS, mimeType, this::indexWithSuggestions);
+
         });
     }
 
     public String index(Request request, Response response) throws IOException {
+        PipelineStructure pipelineStructure = getPipelineStructure(request);
+
+        return writerForTopLevelObject(request, response, outputWriter -> InternalPipelineStructuresRepresenter.toJSON(outputWriter, pipelineStructure.groups, pipelineStructure.templateConfigs));
+    }
+
+    public String indexWithSuggestions(Request request, Response response) throws IOException {
+        PipelineStructure pipelineStructure = getPipelineStructure(request);
+        PipelineGroups groups = pipelineStructure.groups;
+        TemplatesConfig templateConfigs = pipelineStructure.templateConfigs;
+
+        Collection<String> users = userService.allUsernames();
+        Collection<String> roles = userService.allRoleNames();
+
+        return writerForTopLevelObject(request, response, outputWriter -> InternalPipelineStructuresRepresenter.toJSON(outputWriter, groups, templateConfigs, users, roles));
+    }
+
+    private PipelineStructure getPipelineStructure(Request request) {
         String pipelineGroupAuthorizationType = request.queryParamOrDefault("pipeline_group_authorization", "view");
         String templateAuthorizationType = request.queryParamOrDefault("template_authorization", "view");
 
@@ -96,10 +115,17 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
             HaltApiResponses.haltBecauseOfReason("Bad query parameter.");
         }
 
-        PipelineGroups groups = pipelineGroupsSupplier.get();
-        TemplatesConfig templateConfigs = templatesConfigSupplier.get();
-
-        return writerForTopLevelObject(request, response, outputWriter -> InternalPipelineStructuresRepresenter.toJSON(outputWriter, groups, templateConfigs));
+        return new PipelineStructure(pipelineGroupsSupplier.get(), templatesConfigSupplier.get());
     }
 
+
+    private class PipelineStructure {
+        PipelineGroups groups;
+        TemplatesConfig templateConfigs;
+
+        PipelineStructure(PipelineGroups groups, TemplatesConfig templateConfigs) {
+            this.groups = groups;
+            this.templateConfigs = templateConfigs;
+        }
+    }
 }

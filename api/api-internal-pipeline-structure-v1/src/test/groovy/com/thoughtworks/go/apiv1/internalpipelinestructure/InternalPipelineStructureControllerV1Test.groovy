@@ -25,6 +25,7 @@ import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother
 import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.server.service.TemplateConfigService
+import com.thoughtworks.go.server.service.UserService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -33,6 +34,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static java.util.Arrays.asList
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -42,6 +45,8 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
   PipelineConfigService pipelineConfigService
   @Mock
   TemplateConfigService templateConfigService
+  @Mock
+  private UserService userService
 
   @BeforeEach
   void setUp() {
@@ -50,7 +55,7 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
 
   @Override
   InternalPipelineStructureControllerV1 createControllerInstance() {
-    new InternalPipelineStructureControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pipelineConfigService, templateConfigService)
+    new InternalPipelineStructureControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pipelineConfigService, templateConfigService, userService)
   }
 
   @Nested
@@ -86,6 +91,53 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
       void makeHttpCall() {
         getWithApiHeader(controller.controllerBasePath())
       }
+    }
+  }
+
+  @Nested
+  class WithSuggestions {
+    @BeforeEach
+    void setUp() {
+      loginAsUser()
+    }
+
+    @Nested
+    class Security implements SecurityTestTrait, NormalUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "indexWithSuggestions"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerBasePath() + '/with_suggestions')
+      }
+    }
+
+    @Test
+    void 'should render list of pipeline grps with roles and users'() {
+      PipelineConfigs group = PipelineConfigMother.createGroup("my-group", PipelineConfigMother.createPipelineConfig("my-pipeline", "my-stage", "my-job1", "my-job2"))
+      def template = PipelineTemplateConfigMother.createTemplate("my-template")
+      def groups = new PipelineGroups([group])
+      def templateConfigs = new TemplatesConfig(template)
+      def users = Set.of('user1', 'user2')
+      def roles = asList('role1', 'role2')
+
+      when(pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername())).thenReturn(groups)
+      when(templateConfigService.templateConfigsThatCanBeViewedBy(currentUsername())).thenReturn(templateConfigs)
+      when(userService.allUsernames()).thenReturn(users)
+      when(userService.allRoleNames()).thenReturn(roles)
+
+      getWithApiHeader(controller.controllerBasePath() + '/with_suggestions')
+
+      def expectedJSON = toObjectString({
+        InternalPipelineStructuresRepresenter.toJSON(it, groups, templateConfigs, users, roles)
+      })
+
+      assertThatResponse()
+        .isOk()
+        .hasJsonBody(expectedJSON)
     }
   }
 }

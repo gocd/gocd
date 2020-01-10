@@ -439,6 +439,17 @@ export class SparkRoutes {
     return `/go/api/internal/pipeline_structure?${queryString}`;
   }
 
+  static apiAdminInternalPipelinesListPathWithSuggestions(groupAuthorization: "view" | "operate" | "administer",
+                                                          templateAuthorization: "view" | "administer") {
+    const queryString = m.buildQueryString(
+      {
+        pipeline_group_authorization: groupAuthorization,
+        template_authorization:       templateAuthorization
+      });
+
+    return `/go/api/internal/pipeline_structure/with_suggestions?${queryString}`;
+  }
+
   static showAnalyticsPath(pluginId: string, metric: AnalyticsCapability, params: { [key: string]: string | number }) {
     return `/go/analytics/${pluginId}/${metric.type}/${metric.id}?${m.buildQueryString(params)}`;
   }

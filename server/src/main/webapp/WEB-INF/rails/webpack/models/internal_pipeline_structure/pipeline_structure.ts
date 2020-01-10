@@ -278,3 +278,24 @@ export class PipelineStructure {
     return result;
   }
 }
+
+export interface PipelineStructureWithSuggestionsJSON extends PipelineStructureJSON {
+  users: string[];
+  roles: string[];
+}
+
+export class PipelineStructureWithSuggestions {
+  pipelineStructure: PipelineStructure;
+  users: string[];
+  roles: string[];
+
+  constructor(pipelineStructure: PipelineStructure, users: string[], roles: string[]) {
+    this.pipelineStructure = pipelineStructure;
+    this.users             = users;
+    this.roles             = roles;
+  }
+
+  static fromJSON(data: PipelineStructureWithSuggestionsJSON): PipelineStructureWithSuggestions {
+    return new PipelineStructureWithSuggestions(PipelineStructure.fromJSON(data), data.users, data.roles);
+  }
+}

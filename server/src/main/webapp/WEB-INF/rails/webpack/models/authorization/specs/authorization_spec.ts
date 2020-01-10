@@ -81,6 +81,26 @@ describe('AuthorizationViewModel', () => {
       expect(authorizationViewModel.authorizedUsers().includes(removedUser)).toBe(false);
       expect(authorizationViewModel.authorizedUsers().length).toBe(2);
     });
+
+    it('should set true for view and operate if admin privilege is present', () => {
+      const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization());
+
+      authorizationViewModel.addAuthorizedUser(new PermissionForEntity("new-user", false, false, true));
+
+      expect(authorizationViewModel.authorizedUsers()[0].view()).toBeTruthy();
+      expect(authorizationViewModel.authorizedUsers()[0].operate()).toBeTruthy();
+      expect(authorizationViewModel.authorizedUsers()[0].admin()).toBeTruthy();
+    });
+
+    it('should set true for view if operate privilege is present', () => {
+      const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization());
+
+      authorizationViewModel.addAuthorizedUser(new PermissionForEntity("new-user", false, true, false));
+
+      expect(authorizationViewModel.authorizedUsers()[0].view()).toBeTruthy();
+      expect(authorizationViewModel.authorizedUsers()[0].operate()).toBeTruthy();
+      expect(authorizationViewModel.authorizedUsers()[0].admin()).toBeFalsy();
+    });
   });
 
   describe('Role', () => {
@@ -108,6 +128,26 @@ describe('AuthorizationViewModel', () => {
 
       expect(authorizationViewModel.authorizedRoles().includes(removedRole)).toBe(false);
       expect(authorizationViewModel.authorizedRoles().length).toBe(2);
+    });
+
+    it('should set true for view and operate if admin privilege is present', () => {
+      const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization());
+
+      authorizationViewModel.addAuthorizedRole(new PermissionForEntity("new-role", false, false, true));
+
+      expect(authorizationViewModel.authorizedRoles()[0].view()).toBeTruthy();
+      expect(authorizationViewModel.authorizedRoles()[0].operate()).toBeTruthy();
+      expect(authorizationViewModel.authorizedRoles()[0].admin()).toBeTruthy();
+    });
+
+    it('should set true for view if operate privilege is present', () => {
+      const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization());
+
+      authorizationViewModel.addAuthorizedRole(new PermissionForEntity("new-role", false, true, false));
+
+      expect(authorizationViewModel.authorizedRoles()[0].view()).toBeTruthy();
+      expect(authorizationViewModel.authorizedRoles()[0].operate()).toBeTruthy();
+      expect(authorizationViewModel.authorizedRoles()[0].admin()).toBeFalsy();
     });
   });
 

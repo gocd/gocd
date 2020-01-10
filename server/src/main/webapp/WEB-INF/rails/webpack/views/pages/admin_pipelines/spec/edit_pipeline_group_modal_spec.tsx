@@ -73,22 +73,26 @@ describe('EditPipelineGroupModal', () => {
       expect(testHelper.byTestId("users-permissions")).toBeInDOM();
       expect(testHelper.byTestId("users-permissions")).toContainHeaderCells(["Name", "View", "Operate", "Admin", ""]);
 
-      const row1 = testHelper.allByTestId("table-row", testHelper.byTestId("users-permissions"))[0] as HTMLElement;
+      const permissions = testHelper.allByTestId("table-row", testHelper.byTestId("users-permissions"));
+      const row1        = permissions[0] as HTMLElement;
       expect((testHelper.byTestId("user-name", row1) as HTMLInputElement).value).toBe("user1");
       expect((testHelper.byTestId("view-permission", row1) as HTMLInputElement)).toBeChecked();
       expect((testHelper.byTestId("operate-permission", row1) as HTMLInputElement)).not.toBeChecked();
       expect((testHelper.byTestId("admin-permission", row1) as HTMLInputElement)).not.toBeChecked();
 
-      const row2 = testHelper.allByTestId("table-row", testHelper.byTestId("users-permissions"))[1] as HTMLElement;
+      const row2 = permissions[1] as HTMLElement;
       expect((testHelper.byTestId("user-name", row2) as HTMLInputElement).value).toBe("superUser");
-      expect((testHelper.byTestId("view-permission", row2) as HTMLInputElement)).not.toBeChecked();
+      expect((testHelper.byTestId("view-permission", row2) as HTMLInputElement)).toBeChecked();
+      expect((testHelper.byTestId("view-permission", row2) as HTMLInputElement)).toBeDisabled();
       expect((testHelper.byTestId("operate-permission", row2) as HTMLInputElement)).toBeChecked();
       expect((testHelper.byTestId("admin-permission", row2) as HTMLInputElement)).not.toBeChecked();
 
-      const row3 = testHelper.allByTestId("table-row", testHelper.byTestId("users-permissions"))[2] as HTMLElement;
+      const row3 = permissions[2] as HTMLElement;
       expect((testHelper.byTestId("user-name", row3) as HTMLInputElement).value).toBe("admin");
-      expect((testHelper.byTestId("view-permission", row3) as HTMLInputElement)).not.toBeChecked();
-      expect((testHelper.byTestId("operate-permission", row3) as HTMLInputElement)).not.toBeChecked();
+      expect((testHelper.byTestId("view-permission", row3) as HTMLInputElement)).toBeChecked();
+      expect((testHelper.byTestId("view-permission", row3) as HTMLInputElement)).toBeDisabled();
+      expect((testHelper.byTestId("operate-permission", row3) as HTMLInputElement)).toBeChecked();
+      expect((testHelper.byTestId("operate-permission", row3) as HTMLInputElement)).toBeDisabled();
       expect((testHelper.byTestId("admin-permission", row3) as HTMLInputElement)).toBeChecked();
     });
 
@@ -198,22 +202,26 @@ describe('EditPipelineGroupModal', () => {
       expect(testHelper.byTestId("roles-permissions")).toBeInDOM();
       expect(testHelper.byTestId("roles-permissions")).toContainHeaderCells(["Name", "View", "Operate", "Admin", ""]);
 
-      const row1 = testHelper.allByTestId("table-row", testHelper.byTestId("roles-permissions"))[0] as HTMLElement;
+      const permissions = testHelper.allByTestId("table-row", testHelper.byTestId("roles-permissions"));
+      const row1        = permissions[0] as HTMLElement;
       expect((testHelper.byTestId("role-name", row1) as HTMLInputElement).value).toBe("role1");
       expect((testHelper.byTestId("view-permission", row1) as HTMLInputElement)).toBeChecked();
       expect((testHelper.byTestId("operate-permission", row1) as HTMLInputElement)).not.toBeChecked();
       expect((testHelper.byTestId("admin-permission", row1) as HTMLInputElement)).not.toBeChecked();
 
-      const row2 = testHelper.allByTestId("table-row", testHelper.byTestId("roles-permissions"))[1] as HTMLElement;
+      const row2 = permissions[1] as HTMLElement;
       expect((testHelper.byTestId("role-name", row2) as HTMLInputElement).value).toBe("role2");
-      expect((testHelper.byTestId("view-permission", row2) as HTMLInputElement)).not.toBeChecked();
+      expect((testHelper.byTestId("view-permission", row2) as HTMLInputElement)).toBeChecked();
+      expect((testHelper.byTestId("view-permission", row2) as HTMLInputElement)).toBeDisabled();
       expect((testHelper.byTestId("operate-permission", row2) as HTMLInputElement)).toBeChecked();
       expect((testHelper.byTestId("admin-permission", row2) as HTMLInputElement)).not.toBeChecked();
 
-      const row3 = testHelper.allByTestId("table-row", testHelper.byTestId("roles-permissions"))[2] as HTMLElement;
+      const row3 = permissions[2] as HTMLElement;
       expect((testHelper.byTestId("role-name", row3) as HTMLInputElement).value).toBe("admin");
-      expect((testHelper.byTestId("view-permission", row3) as HTMLInputElement)).not.toBeChecked();
-      expect((testHelper.byTestId("operate-permission", row3) as HTMLInputElement)).not.toBeChecked();
+      expect((testHelper.byTestId("view-permission", row3) as HTMLInputElement)).toBeChecked();
+      expect((testHelper.byTestId("view-permission", row3) as HTMLInputElement)).toBeDisabled();
+      expect((testHelper.byTestId("operate-permission", row3) as HTMLInputElement)).toBeChecked();
+      expect((testHelper.byTestId("operate-permission", row3) as HTMLInputElement)).toBeDisabled();
       expect((testHelper.byTestId("admin-permission", row3) as HTMLInputElement)).toBeChecked();
     });
 

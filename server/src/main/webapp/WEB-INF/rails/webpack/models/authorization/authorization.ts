@@ -115,9 +115,20 @@ export class PermissionForEntity extends ValidatableMixin {
     this.view    = Stream(view);
     this.operate = Stream(operate);
     this.admin   = Stream(admin);
+
+    this.setPermissions();
     ValidatableMixin.call(this);
 
     this.validateWith(new PermissionValidator({condition: () => !_.isEmpty(this.name())}), "name");
+  }
+
+  setPermissions() {
+    if (this.admin()) {
+      this.view(true);
+      this.operate(true);
+    } else if (this.operate()) {
+      this.view(true);
+    }
   }
 }
 

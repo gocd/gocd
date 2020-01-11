@@ -162,6 +162,27 @@ public class GoDashboardActivityListenerTest {
     }
 
     @Test
+    public void onInitializationAndStartOfDaemons_shouldRegisterAListener_WhichCallsConfigChangeHandler_ForPipelineGroupConfigChangeHandling() throws Exception {
+        CruiseConfig aConfig = GoConfigMother.defaultCruiseConfig();
+        GoDashboardConfigChangeHandler handler = mock(GoDashboardConfigChangeHandler.class);
+        BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs();
+
+        when(goConfigService.currentCruiseConfig()).thenReturn(aConfig);
+        ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
+        doNothing().when(goConfigService).register(captor.capture());
+
+        GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, pipelinePauseService, pipelineLockService,
+                null, handler, null, null, null);
+        listener.initialize();
+        listener.startDaemon();
+
+        ((EntityConfigChangedListener<PipelineConfigs>) captor.getAllValues().get(4)).onEntityConfigChange(pipelineConfigs);
+        waitForProcessingToHappen();
+
+        verify(handler).call(aConfig);
+    }
+
+    @Test
     public void shouldRegisterSelfForPipelineStatusChangeHandlingOnInitialization() throws Exception {
         GoDashboardActivityListener listener = new GoDashboardActivityListener(goConfigService, stageService, pipelinePauseService, pipelineLockService,
                 null, null, null, null, null);

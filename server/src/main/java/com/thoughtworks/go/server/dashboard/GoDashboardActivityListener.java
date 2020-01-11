@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
@@ -81,6 +82,7 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
         goConfigService.register(pipelineConfigChangedListener());
         goConfigService.register(securityConfigChangeListener());
         goConfigService.register(templateConfigChangedListener());
+        goConfigService.register(pipelineGroupsChangedListener());
         stageService.addStageStatusListener(stageStatusChangedListener());
         pipelinePauseService.registerListener(this);
         pipelineLockService.registerListener(this);
@@ -119,6 +121,25 @@ public class GoDashboardActivityListener implements Initializer, ConfigChangedLi
                     @Override
                     public String description() {
                         return "pipeline config: " + pipelineConfig;
+                    }
+                });
+            }
+        };
+    }
+
+    protected EntityConfigChangedListener<PipelineConfigs> pipelineGroupsChangedListener() {
+        return new EntityConfigChangedListener<PipelineConfigs>() {
+            @Override
+            public void onEntityConfigChange(final PipelineConfigs pipelineConfigs) {
+                processor.add(new Action() {
+                    @Override
+                    public void call() {
+                        configChangeHandler.call(goConfigService.currentCruiseConfig());
+                    }
+
+                    @Override
+                    public String description() {
+                        return "pipeline configs: " + pipelineConfigs;
                     }
                 });
             }

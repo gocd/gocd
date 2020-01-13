@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.PipelineGroups;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -96,5 +97,11 @@ public class InternalPipelineStructuresRepresenter {
                         });
                     });
                 });
+    }
+
+    public static void toJSON(OutputWriter outputWriter, PipelineGroups groups, TemplatesConfig templateConfigs, Collection<String> users, Collection<String> roles) {
+        toJSON(outputWriter, groups, templateConfigs);
+        outputWriter.addChild("suggestions", (writer) -> writer.addChildList("users", users)
+                .addChildList("roles", roles));
     }
 }

@@ -20,9 +20,10 @@ import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {PipelineGroupCRUD} from "models/admin_pipelines/pipeline_groups_crud";
 import {headerMeta} from "models/current_user_permissions";
-import {PipelineGroups, PipelineStructure} from "models/internal_pipeline_structure/pipeline_structure";
-import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
+import {PipelineGroups, PipelineStructureWithSuggestions} from "models/internal_pipeline_structure/pipeline_structure";
+import {PipelineStructureCRUD} from "models/internal_pipeline_structure/pipeline_structure_crud";
 import {PipelineGroupCRUD as PipelineGroupCacheCRUD} from "models/pipeline_configs/pipeline_groups_cache";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -35,20 +36,9 @@ import {HeaderPanel} from "views/components/header_panel";
 import {Modal, ModalState} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Attrs, PipelineGroupsWidget, PipelinesScrollOptions} from "views/pages/admin_pipelines/admin_pipelines_widget";
-import {
-  ClonePipelineConfigModal,
-  CreatePipelineGroupModal,
-  DownloadPipelineModal,
-  ExtractTemplateModal,
-  MoveConfirmModal
-} from "views/pages/admin_pipelines/modals";
+import {ClonePipelineConfigModal, CreatePipelineGroupModal, DownloadPipelineModal, ExtractTemplateModal, MoveConfirmModal} from "views/pages/admin_pipelines/modals";
 import {Page, PageState} from "views/pages/page";
 import buttonStyle from "views/pages/pipelines/actions.scss";
-import {PipelineGroupCRUD} from "../../models/admin_pipelines/pipeline_groups_crud";
-import {Roles} from "../../models/roles/roles";
-import {RolesCRUD} from "../../models/roles/roles_crud";
-import {Users} from "../../models/users/users";
-import {UsersCRUD} from "../../models/users/users_crud";
 import {EditPipelineGroupModal} from "./admin_pipelines/edit_pipeline_group_modal";
 
 interface State extends Attrs {
@@ -347,20 +337,17 @@ export class AdminPipelinesPage extends Page<null, State> {
       modal.render();
     };
 
-    return Promise.all([
-                         EnvironmentsAPIs.allPipelines("administer", "view"),
-                         PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO}),
-                         UsersCRUD.all(),
-                         RolesCRUD.all()
+    return Promise.all([PipelineStructureCRUD.allPipelines("administer", "view"),
+                         PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO})
                        ]).then((args) => {
-      const pipelineGroups: ApiResult<PipelineStructure> = args[0];
-      const pluginInfos: ApiResult<PluginInfos>          = args[1];
-      const users: ApiResult<Users>                      = args[2];
-      const roles: ApiResult<Roles>                      = args[3];
+      const pipelineGroups: ApiResult<PipelineStructureWithSuggestions> = args[0];
+      const pluginInfos: ApiResult<PluginInfos>                         = args[1];
 
       pipelineGroups.do(
         (successResponse) => {
-          vnode.state.pipelineGroups(successResponse.body.groups());
+          vnode.state.pipelineGroups(successResponse.body.pipelineStructure.groups());
+          vnode.state.usersAutoCompleteHelper(successResponse.body.suggestions.users);
+          vnode.state.rolesAutoCompleteHelper(successResponse.body.suggestions.roles);
           this.pageState = PageState.OK;
         }, (errorResponse) => {
           this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
@@ -376,22 +363,6 @@ export class AdminPipelinesPage extends Page<null, State> {
           this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
           this.pageState = PageState.FAILED;
         }
-      );
-
-      users.do(
-        ((successResponse) => {
-          const users = successResponse.body.map((user) => user.loginName());
-          vnode.state.usersAutoCompleteHelper(users);
-        }),
-        () => _.noop
-      );
-
-      roles.do(
-        ((successResponse) => {
-          const roles = successResponse.body.map((role) => role.name());
-          vnode.state.rolesAutoCompleteHelper(roles);
-        }),
-        () => _.noop
       );
     });
   }

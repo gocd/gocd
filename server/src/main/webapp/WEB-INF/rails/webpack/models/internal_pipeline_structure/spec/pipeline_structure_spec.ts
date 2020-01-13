@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {PipelineGroup, PipelineGroupJSON, Pipelines, PipelineStructure, PipelineStructureJSON, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
-import {Origin, OriginType} from "../../origin";
+import {PipelineGroup, PipelineGroupJSON, Pipelines, PipelineStructure, PipelineStructureJSON, PipelineStructureWithSuggestions, PipelineStructureWithSuggestionsJSON, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
+import {Origin, OriginType} from "models/origin";
 
 describe("Pipeline Structure", () => {
   let json: PipelineStructureJSON, pipelineStructure: PipelineStructure;
@@ -91,10 +91,30 @@ describe('PipelineGroups', () => {
     });
 
     it("should return false pipelines are not available", () => {
-      const pipelineGroup      = PipelineGroup.fromJSON(pipelineGroupJSON);
+      const pipelineGroup = PipelineGroup.fromJSON(pipelineGroupJSON);
       pipelineGroup.pipelines(new Pipelines());
       expect(pipelineGroup.containsRemotelyDefinedPipelines()).toBe(false);
     });
 
+  });
+});
+
+describe('PipelineStructureWithSuggestions', () => {
+  it('should serialize from json', () => {
+    const json = {
+      groups:      [],
+      templates:   [],
+      suggestions: {
+        users: ['user1', 'user2'],
+        roles: ['role1', 'role2']
+      }
+    } as PipelineStructureWithSuggestionsJSON;
+
+    const pipelineStructure = PipelineStructureWithSuggestions.fromJSON(json);
+
+    expect(pipelineStructure.pipelineStructure.groups()).toEqual([]);
+    expect(pipelineStructure.pipelineStructure.templates()).toEqual([]);
+    expect(pipelineStructure.suggestions.users).toBe(json.suggestions.users);
+    expect(pipelineStructure.suggestions.roles).toBe(json.suggestions.roles);
   });
 });

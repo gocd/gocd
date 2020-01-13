@@ -39,7 +39,7 @@ class AllowTest extends AbstractDirectiveTest {
             void ifActionDoesNotMatch() {
                 final Allow allow = new Allow("view", null, null);
 
-                assertThat(allow.apply("unknown-action", null, null))
+                assertThat(allow.apply("unknown-action", null, null, null))
                         .isEqualTo(Result.SKIP);
             }
 
@@ -47,7 +47,7 @@ class AllowTest extends AbstractDirectiveTest {
             void ifEntityTypeDoesNotMatch() {
                 final Allow allow = new Allow("view", "environment", null);
 
-                assertThat(allow.apply("view", StageConfig.class, null))
+                assertThat(allow.apply("view", StageConfig.class, null, null))
                         .isEqualTo(Result.SKIP);
             }
 
@@ -55,7 +55,7 @@ class AllowTest extends AbstractDirectiveTest {
             void ifResourceDoesNotMatch() {
                 final Allow allow = new Allow("view", "environment", "group1");
 
-                assertThat(allow.apply("view", EnvironmentConfig.class, "group2"))
+                assertThat(allow.apply("view", EnvironmentConfig.class, "group2", null))
                         .isEqualTo(Result.SKIP);
             }
 
@@ -63,7 +63,7 @@ class AllowTest extends AbstractDirectiveTest {
             void ifProvidedResourceDoesNotMatchTheWildcardInDirective() {
                 final Allow allow = new Allow("view", "environment", "group_*");
 
-                assertThat(allow.apply("view", EnvironmentConfig.class, "groupA"))
+                assertThat(allow.apply("view", EnvironmentConfig.class, "groupA", null))
                         .isEqualTo(Result.SKIP);
             }
 
@@ -72,7 +72,7 @@ class AllowTest extends AbstractDirectiveTest {
             void ifResourceDoesNotMatchTheWildCardPatterAndActionAndTypeMatch(String resource) {
                 final Allow allow = new Allow("view", "environment", "gro*up*");
 
-                assertThat(allow.apply("view", EnvironmentConfig.class, resource))
+                assertThat(allow.apply("view", EnvironmentConfig.class, resource, null))
                         .isEqualTo(Result.SKIP);
             }
         }
@@ -83,7 +83,7 @@ class AllowTest extends AbstractDirectiveTest {
             void ifActionTypeAndResourceMatches() {
                 final Allow allow = new Allow("view", "environment", "env_1");
 
-                assertThat(allow.apply("view", EnvironmentConfig.class, "env_1"))
+                assertThat(allow.apply("view", EnvironmentConfig.class, "env_1", null))
                         .isEqualTo(Result.ALLOW);
             }
 
@@ -91,7 +91,7 @@ class AllowTest extends AbstractDirectiveTest {
             void toViewConfigIfActionIsAdminister() {
                 final Allow allow = new Allow("administer", "environment", "env_1");
 
-                assertThat(allow.apply("view", EnvironmentConfig.class, "env_1"))
+                assertThat(allow.apply("view", EnvironmentConfig.class, "env_1", null))
                         .isEqualTo(Result.ALLOW);
             }
 
@@ -99,7 +99,7 @@ class AllowTest extends AbstractDirectiveTest {
             void ifResourceAndActionMatchesWhenAllTypesAreAllowed() {
                 final Allow allow = new Allow("view", "*", "env_1");
 
-                assertThat(allow.apply("view", EnvironmentConfig.class, "env_1"))
+                assertThat(allow.apply("view", EnvironmentConfig.class, "env_1", null))
                         .isEqualTo(Result.ALLOW);
             }
 
@@ -108,7 +108,7 @@ class AllowTest extends AbstractDirectiveTest {
             void ifResourceMatchesTheWildCardAndActionAndTypeMatch(String resource) {
                 final Allow allow = new Allow("view", "environment", "*gro*up*");
 
-                assertThat(allow.apply("view", EnvironmentConfig.class, resource))
+                assertThat(allow.apply("view", EnvironmentConfig.class, resource, null))
                         .isEqualTo(Result.ALLOW);
             }
         }

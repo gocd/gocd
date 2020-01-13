@@ -82,7 +82,7 @@ public class DirectiveRepresenter {
         }
 
         @Override
-        public Result apply(String refer, Class<? extends Validatable> aClass, String group) {
+        public Result apply(String action, Class<? extends Validatable> aClass, String resource, String resourceToOperateWithin) {
             return null;
         }
     }

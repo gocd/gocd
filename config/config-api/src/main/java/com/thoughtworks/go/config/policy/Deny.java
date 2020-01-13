@@ -17,6 +17,7 @@ package com.thoughtworks.go.config.policy;
 
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.policy.elasticagents.ElasticAgentProfilesDenyDirective;
 
 @ConfigTag("deny")
 public class Deny extends AbstractDirective {
@@ -29,12 +30,21 @@ public class Deny extends AbstractDirective {
     }
 
     @Override
-    public Result apply(String action, Class<? extends Validatable> entityClass, String resource) {
+    public Result apply(String action, Class<? extends Validatable> entityClass, String resource, String resourceToOperateWithin) {
+        if (isDirectiveOfType(SupportedEntity.ELASTIC_AGENT_PROFILE)) {
+            return ElasticAgentProfilesDenyDirective.parseResource(this.action, this.type, this.resource()).apply(action, entityClass, resource, resourceToOperateWithin);
+        }
+
+        return applyForNormalResource(action, entityClass, resource);
+    }
+
+    private Result applyForNormalResource(String action, Class<? extends Validatable> entityClass, String resource) {
         if (matchesAction(action) && matchesType(entityClass) && matchesResource(resource)) {
             return Result.DENY;
         }
 
         return Result.SKIP;
     }
+
 
 }

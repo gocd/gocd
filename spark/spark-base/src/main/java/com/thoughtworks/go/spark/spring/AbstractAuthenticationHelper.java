@@ -73,6 +73,10 @@ public abstract class AbstractAuthenticationHelper {
     }
 
     public boolean doesUserHasPermissions(Username username, SupportedAction action, SupportedEntity entity, String resource) {
+        return doesUserHasPermissions(username, action, entity, resource, null);
+    }
+
+    public boolean doesUserHasPermissions(Username username, SupportedAction action, SupportedEntity entity, String resource, String resourceToOperateWithin) {
         //admin user has access to everything
         if (securityService.isUserAdmin(username)) {
             return true;
@@ -82,11 +86,11 @@ public abstract class AbstractAuthenticationHelper {
 
         boolean hasPermission = false;
         for (Role role : roles) {
-            if (role.hasExplicitDenyPermissionsFor(action, entity.getEntityType(), resource)) {
+            if (role.hasExplicitDenyPermissionsFor(action, entity.getEntityType(), resource, resourceToOperateWithin)) {
                 return false;
             }
 
-            if (role.hasPermissionsFor(action, entity.getEntityType(), resource)) {
+            if (role.hasPermissionsFor(action, entity.getEntityType(), resource, resourceToOperateWithin)) {
                 hasPermission = true;
             }
         }
@@ -95,7 +99,14 @@ public abstract class AbstractAuthenticationHelper {
     }
 
     public void checkUserHasPermissions(Username username, SupportedAction action, SupportedEntity entity, String resource) {
-        if (!doesUserHasPermissions(username, action, entity, resource)) {
+        if (!doesUserHasPermissions(username, action, entity, resource, null)) {
+            String message = String.format("User '%s' does not have permissions to %s '%s' %s(s).", username.getDisplayName(), action.getAction(), resource, entity.getType());
+            throw renderForbiddenResponse(message);
+        }
+    }
+
+    public void checkUserHasPermissions(Username username, SupportedAction action, SupportedEntity entity, String resource, String resourceToOperateWithin) {
+        if (!doesUserHasPermissions(username, action, entity, resource, resourceToOperateWithin)) {
             String message = String.format("User '%s' does not have permissions to %s '%s' %s(s).", username.getDisplayName(), action.getAction(), resource, entity.getType());
             throw renderForbiddenResponse(message);
         }
@@ -261,5 +272,4 @@ public abstract class AbstractAuthenticationHelper {
     public boolean securityEnabled() {
         return securityService.isSecurityEnabled();
     }
-
 }

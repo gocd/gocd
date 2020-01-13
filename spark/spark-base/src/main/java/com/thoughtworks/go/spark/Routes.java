@@ -864,4 +864,5 @@ public class Routes {
         public static final String SCHEDULED_JOB_XML = "/jobs/scheduled.xml";
         public static final String MATERIAL_URL = "/materials/:pipeline_name/:pipeline_counter/:fingerprint";
     }
+	public class Webhook {public static final String BASE = "/admin/api/webhook";}
 }

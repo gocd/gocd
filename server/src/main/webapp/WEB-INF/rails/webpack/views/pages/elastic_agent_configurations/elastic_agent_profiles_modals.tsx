@@ -27,6 +27,7 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormHeader} from "views/components/forms/form";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {Link} from "views/components/link";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import {Table} from "views/components/table";
@@ -344,8 +345,6 @@ export class UsageElasticProfileModal extends Modal {
     ]);
     return (
       <div>
-        <em class={styles.note}>* The `Job settings` link will be disabled when pipeline config is defined
-          externally.</em>
         <Table headers={["Pipeline", "Stage", "Job", " "]} data={data}/>
       </div>
     );
@@ -362,8 +361,8 @@ export class UsageElasticProfileModal extends Modal {
       link = `/go/admin/templates/${usage.templateName()}/stages/${usage.stageName()}/job/${usage.jobName()}/settings`;
     }
 
-    return <span class={usage.isPipelineOriginLocal() ? styles.jobSettingsLink : styles.disabled}>
-      <a href={link}>Job Settings</a>
+    return <span class={styles.jobSettingsLink}>
+      <Link href={link}>Job Settings</Link>
     </span>;
   }
 }

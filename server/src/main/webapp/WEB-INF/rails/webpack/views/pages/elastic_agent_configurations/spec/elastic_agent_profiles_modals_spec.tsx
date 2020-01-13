@@ -15,12 +15,12 @@
  */
 
 import _ from "lodash";
-import {ClusterProfile, ClusterProfiles, ElasticAgentProfile} from "models/elastic_profiles/types";
+import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ProfileUsage} from "models/elastic_profiles/types";
 import {Configurations} from "models/shared/configuration";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {ElasticAgentExtension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
-import {NewElasticProfileModal} from "views/pages/elastic_agent_configurations/elastic_agent_profiles_modals";
+import {NewElasticProfileModal, UsageElasticProfileModal} from "views/pages/elastic_agent_configurations/elastic_agent_profiles_modals";
 import {TestData} from "views/pages/elastic_agent_configurations/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -154,4 +154,49 @@ describe("New Elastic Agent Profile Modals Spec", () => {
   function find(id: string) {
     return helper.byTestId(id);
   }
+});
+
+describe('UsageElasticProfileModalSpec', () => {
+  const helper = new TestHelper();
+
+  afterEach((done) => helper.unmount(done));
+
+  function mount(usages: ProfileUsage[] = []) {
+    const modal = new UsageElasticProfileModal('profile-id', usages);
+
+    helper.mount(modal.body.bind(modal));
+  }
+
+  it('should render message is usages is empty', () => {
+    mount();
+
+    expect(helper.q('span').innerText).toBe("No usages for profile 'profile-id' found.");
+  });
+
+  it('should render usages', () => {
+    const usages = [new ProfileUsage('pipeline-name', 'stage-name', 'job-name')];
+    mount(usages);
+
+    const table = helper.byTestId('table');
+    expect(table).toBeInDOM();
+    expect(helper.qa('th', table).length).toBe(4);
+    expect(helper.qa('th', table)[0].innerText).toBe('PIPELINE');
+    expect(helper.qa('th', table)[1].innerText).toBe('STAGE');
+    expect(helper.qa('th', table)[2].innerText).toBe('JOB');
+    expect(helper.qa('th', table)[3].innerText).toBe('');
+
+    expect(helper.qa('td', table)[0].innerText).toBe('pipeline-name');
+    expect(helper.qa('td', table)[1].innerText).toBe('stage-name');
+    expect(helper.qa('td', table)[2].innerText).toBe('job-name');
+    expect(helper.qa('td', table)[3].innerText).toBe('Job Settings');
+    expect(helper.q('a', helper.qa('td', table)[3])).toHaveAttr('href', '/go/admin/pipelines/pipeline-name/stages/stage-name/job/job-name/settings');
+  });
+
+  it('should redirect to template settings if template name is present', () => {
+    const usages = [new ProfileUsage('pipeline-name', 'stage-name', 'job-name', 'template-name')];
+    mount(usages);
+
+    const table = helper.byTestId('table');
+    expect(helper.q('a', helper.qa('td', table)[3])).toHaveAttr('href', '/go/admin/templates/template-name/stages/stage-name/job/job-name/settings');
+  });
 });

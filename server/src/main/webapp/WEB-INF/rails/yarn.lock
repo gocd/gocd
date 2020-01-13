@@ -777,10 +777,10 @@
     "@babel/helper-create-regexp-features-plugin" "^7.7.4"
     "@babel/helper-plugin-utils" "^7.0.0"
 
-"@babel/polyfill@^7.7.0":
-  version "7.7.0"
-  resolved "https://registry.yarnpkg.com/@babel/polyfill/-/polyfill-7.7.0.tgz#e1066e251e17606ec7908b05617f9b7f8180d8f3"
-  integrity sha512-/TS23MVvo34dFmf8mwCisCbWGrfhbiWZSwBo6HkADTBhUa2Q/jWltyY/tpofz/b6/RIhqaqQcquptCirqIhOaQ==
+"@babel/polyfill@^7.8.0":
+  version "7.8.0"
+  resolved "https://registry.yarnpkg.com/@babel/polyfill/-/polyfill-7.8.0.tgz#5f222443c9e3ffa2eb54bfbcd89d72ed30c1eda8"
+  integrity sha512-0zTwRCrSUaP4hOt2dEHxGl80ZkxpRlhJv44fRRmbOj27pMR6n0Jti+Ti9OlbbD4ErKC5jKn89aLFqZ3r+JgWxg==
   dependencies:
     core-js "^2.6.5"
     regenerator-runtime "^0.13.2"

@@ -27,13 +27,17 @@ public interface PolicyAware {
     Policy getPolicy();
 
     default boolean hasPermissionsFor(SupportedAction action, Class<? extends Validatable> entityType, String resource) {
+        return hasPermissionsFor(action, entityType, resource, null);
+    }
+
+    default boolean hasPermissionsFor(SupportedAction action, Class<? extends Validatable> entityType, String resource, String resourceToOperateWithin) {
         Policy policy = getPolicy();
         if (policy == null || policy.isEmpty()) {
             return false;
         }
 
         return policy.stream()
-                .map(directive -> directive.apply(action.getAction(), entityType, resource))
+                .map(directive -> directive.apply(action.getAction(), entityType, resource, resourceToOperateWithin))
                 .filter(result -> result != Result.SKIP)
                 .map(result -> result == Result.ALLOW)
                 .findFirst()
@@ -41,13 +45,17 @@ public interface PolicyAware {
     }
 
     default boolean hasExplicitDenyPermissionsFor(SupportedAction action, Class<? extends Validatable> entityType, String resource) {
+        return hasExplicitDenyPermissionsFor(action, entityType, resource, null);
+    }
+
+    default boolean hasExplicitDenyPermissionsFor(SupportedAction action, Class<? extends Validatable> entityType, String resource, String resourceToOperateWithin) {
         Policy policy = getPolicy();
         if (policy == null || policy.isEmpty()) {
             return false;
         }
 
         return policy.stream()
-                .map(directive -> directive.apply(action.getAction(), entityType, resource))
+                .map(directive -> directive.apply(action.getAction(), entityType, resource, resourceToOperateWithin))
                 .filter(result -> result != Result.SKIP)
                 .map(result -> result == Result.DENY)
                 .findFirst()

@@ -32,5 +32,5 @@ public interface Directive extends Validatable, Serializable {
 
     DirectiveType getDirectiveType();
 
-    Result apply(String refer, Class<? extends Validatable> aClass, String group);
+    Result apply(String action, Class<? extends Validatable> aClass, String resource, String resourceToOperateWithin);
 }

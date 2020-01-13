@@ -29,8 +29,9 @@ import com.thoughtworks.go.server.service.ElasticProfileService
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult
+import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
+import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import groovy.json.JsonBuilder
 import org.junit.jupiter.api.BeforeEach
@@ -73,7 +74,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
   class Index {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return 'index'
@@ -86,11 +87,11 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
     }
 
     @Nested
-    class AsGroupAdmin {
+    class AsAdmin {
       @BeforeEach
       void setUp() {
         enableSecurity()
-        loginAsGroupAdmin()
+        loginAsAdmin()
       }
 
       @Test
@@ -117,7 +118,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
   class Show {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return 'show'
@@ -130,11 +131,11 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
     }
 
     @Nested
-    class AsGroupAdmin {
+    class AsAdmin {
       @BeforeEach
       void setUp() {
         enableSecurity()
-        loginAsGroupAdmin()
+        loginAsAdmin()
       }
 
       @Test
@@ -199,7 +200,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
   class Create {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -208,16 +209,16 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(), '{}')
+        postWithApiHeader(controller.controllerPath(), [id: 'some-id', 'cluster_profile_id': 'clusteer-id'])
       }
     }
 
     @Nested
-    class AsGroupAdmin {
+    class AsAdmin {
       @BeforeEach
       void setUp() {
         enableSecurity()
-        loginAsGroupAdmin()
+        loginAsAdmin()
       }
 
       @Test
@@ -344,7 +345,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
   class Update {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -358,11 +359,11 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
     }
 
     @Nested
-    class AsGroupAdmin {
+    class AsAdmin {
       @BeforeEach
       void setUp() {
         enableSecurity()
-        loginAsGroupAdmin()
+        loginAsAdmin()
       }
 
       @Test
@@ -525,7 +526,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
   @Nested
   class Destroy {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -534,12 +535,18 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
       @Override
       void makeHttpCall() {
-        deleteWithApiHeader(controller.controllerPath("/docker"))
+        deleteWithApiHeader(controller.controllerPath("/docker"), [id: 'some-id'])
       }
     }
 
     @Nested
-    class AsGroupAdmin {
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
       @Test
       void 'should delete elastic profile with given id'() {
         def elasticProfile = new ElasticProfile("docker", "prod-cluster", create("DockerURI", false, "http://foo"))

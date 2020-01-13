@@ -88,6 +88,10 @@ public abstract class AbstractDirective implements Directive {
         return equalsIgnoreCase(action, this.action);
     }
 
+    protected boolean isViewAction(String action) {
+        return action.equals(SupportedAction.VIEW.getAction());
+    }
+
     protected boolean matchesType(Class<? extends Validatable> entityType) {
         if (equalsIgnoreCase("*", this.type)) {
             return true;
@@ -152,5 +156,9 @@ public abstract class AbstractDirective implements Directive {
     @Override
     public DirectiveType getDirectiveType() {
         return this.directiveType;
+    }
+
+    protected boolean isDirectiveOfType(SupportedEntity entity) {
+        return entity.getType().equals(this.type);
     }
 }

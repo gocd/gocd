@@ -39,7 +39,7 @@ class DenyTest extends AbstractDirectiveTest {
             void ifActionDoesNotMatch() {
                 final Deny deny = new Deny("view", null, null);
 
-                assertThat(deny.apply("unknown-action", null, null))
+                assertThat(deny.apply("unknown-action", null, null, null))
                         .isEqualTo(Result.SKIP);
             }
 
@@ -47,7 +47,7 @@ class DenyTest extends AbstractDirectiveTest {
             void ifEntityTypeDoesNotMatch() {
                 final Deny deny = new Deny("view", "environment", null);
 
-                assertThat(deny.apply("view", StageConfig.class, null))
+                assertThat(deny.apply("view", StageConfig.class, null, null))
                         .isEqualTo(Result.SKIP);
             }
 
@@ -55,7 +55,7 @@ class DenyTest extends AbstractDirectiveTest {
             void denyToViewConfigIfEntityActionIsAdminister() {
                 final Deny deny = new Deny("administer", "environment", null);
 
-                assertThat(deny.apply("view", StageConfig.class, null))
+                assertThat(deny.apply("view", StageConfig.class, null, null))
                         .isEqualTo(Result.SKIP);
             }
 
@@ -63,7 +63,7 @@ class DenyTest extends AbstractDirectiveTest {
             void ifResourceDoesNotMatch() {
                 final Deny deny = new Deny("view", "environment", "group1");
 
-                assertThat(deny.apply("view", EnvironmentConfig.class, "group2"))
+                assertThat(deny.apply("view", EnvironmentConfig.class, "group2", null))
                         .isEqualTo(Result.SKIP);
             }
 
@@ -71,7 +71,7 @@ class DenyTest extends AbstractDirectiveTest {
             void ifProvidedResourceDoesNotMatchTheWildcardInDirective() {
                 final Deny deny = new Deny("view", "environment", "group_*");
 
-                assertThat(deny.apply("view", EnvironmentConfig.class, "groupA"))
+                assertThat(deny.apply("view", EnvironmentConfig.class, "groupA", null))
                         .isEqualTo(Result.SKIP);
             }
 
@@ -80,7 +80,7 @@ class DenyTest extends AbstractDirectiveTest {
             void ifResourceDoesNotMatchTheWildCardPatterAndActionAndTypeMatch(String resource) {
                 final Deny deny = new Deny("view", "environment", "gro*up*");
 
-                assertThat(deny.apply("view", EnvironmentConfig.class, resource))
+                assertThat(deny.apply("view", EnvironmentConfig.class, resource, null))
                         .isEqualTo(Result.SKIP);
             }
         }
@@ -91,7 +91,7 @@ class DenyTest extends AbstractDirectiveTest {
             void ifActionTypeAndResourceMatches() {
                 final Deny deny = new Deny("view", "environment", "env_1");
 
-                assertThat(deny.apply("view", EnvironmentConfig.class, "env_1"))
+                assertThat(deny.apply("view", EnvironmentConfig.class, "env_1", null))
                         .isEqualTo(Result.DENY);
             }
 
@@ -99,7 +99,7 @@ class DenyTest extends AbstractDirectiveTest {
             void ifResourceAndActionMatchesWhenAllTypesAreAllowed() {
                 final Deny deny = new Deny("view", "*", "env_1");
 
-                assertThat(deny.apply("view", EnvironmentConfig.class, "env_1"))
+                assertThat(deny.apply("view", EnvironmentConfig.class, "env_1", null))
                         .isEqualTo(Result.DENY);
             }
 
@@ -108,7 +108,7 @@ class DenyTest extends AbstractDirectiveTest {
             void ifResourceMatchesTheWildCardAndActionAndTypeMatch(String resource) {
                 final Deny deny = new Deny("view", "environment", "*gro*up*");
 
-                assertThat(deny.apply("view", EnvironmentConfig.class, resource))
+                assertThat(deny.apply("view", EnvironmentConfig.class, resource, null))
                         .isEqualTo(Result.DENY);
             }
         }

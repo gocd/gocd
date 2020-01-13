@@ -577,12 +577,12 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.0.0"
 
-"@babel/plugin-transform-destructuring@^7.0.0", "@babel/plugin-transform-destructuring@^7.7.4":
-  version "7.7.4"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-destructuring/-/plugin-transform-destructuring-7.7.4.tgz#2b713729e5054a1135097b6a67da1b6fe8789267"
-  integrity sha512-4jFMXI1Cu2aXbcXXl8Lr6YubCn6Oc7k9lLsu8v61TZh+1jny2BWmdtvY9zSUlLdGUvcy9DMAWyZEOqjsbeg/wA==
+"@babel/plugin-transform-destructuring@^7.7.4", "@babel/plugin-transform-destructuring@^7.8.0":
+  version "7.8.0"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-destructuring/-/plugin-transform-destructuring-7.8.0.tgz#579d09e8dabf825cc3ac1524414ff99669f0abf9"
+  integrity sha512-D+69HT//cE86aBTLULzSBFLC5A7HcPQzJPiny6P4SLHkDF750MylRKO3iWvdgvb+OSp5dOrOxwXajvaxk1ZfYA==
   dependencies:
-    "@babel/helper-plugin-utils" "^7.0.0"
+    "@babel/helper-plugin-utils" "^7.8.0"
 
 "@babel/plugin-transform-dotall-regex@^7.7.7":
   version "7.7.7"

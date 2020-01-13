@@ -16,10 +16,8 @@
 
 package com.thoughtworks.go.config.policy.elasticagents;
 
-import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.policy.AbstractDirective;
 import com.thoughtworks.go.config.policy.DirectiveType;
-import com.thoughtworks.go.config.policy.SupportedEntity;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 
@@ -32,14 +30,6 @@ public abstract class ElasticAgentProfilesAbstractDirective extends AbstractDire
     public ElasticAgentProfilesAbstractDirective(DirectiveType allow, String action, String type, String resource, String resourceToOperateWithin) {
         super(allow, action, type, resource);
         this.resourceToOperateWithin = resourceToOperateWithin;
-    }
-
-    protected boolean isRequestForClusterProfiles(Class<? extends Validatable> aClass) {
-        return SupportedEntity.CLUSTER_PROFILE.getEntityType().isAssignableFrom(aClass);
-    }
-
-    protected boolean isRequestForElasticAgentProfiles(Class<? extends Validatable> aClass) {
-        return SupportedEntity.ELASTIC_AGENT_PROFILE.getEntityType().isAssignableFrom(aClass);
     }
 
     protected boolean matchesResourceToOperateWithin(String resource) {

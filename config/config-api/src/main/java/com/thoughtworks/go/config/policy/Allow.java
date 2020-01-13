@@ -17,6 +17,7 @@ package com.thoughtworks.go.config.policy;
 
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.policy.elasticagents.ClusterProfilesAllowDirective;
 import com.thoughtworks.go.config.policy.elasticagents.ElasticAgentProfilesAllowDirective;
 
 @ConfigTag("allow")
@@ -33,6 +34,10 @@ public class Allow extends AbstractDirective {
     public Result apply(String action, Class<? extends Validatable> entityClass, String resource, String resourceToOperateWithin) {
         if (isDirectiveOfType(SupportedEntity.ELASTIC_AGENT_PROFILE)) {
             return ElasticAgentProfilesAllowDirective.parseResource(this.action, this.type, this.resource()).apply(action, entityClass, resource, resourceToOperateWithin);
+        }
+
+        if (isDirectiveOfType(SupportedEntity.CLUSTER_PROFILE)) {
+            return new ClusterProfilesAllowDirective(this.action, this.type, this.resource()).apply(action, entityClass, resource, resourceToOperateWithin);
         }
 
         return applyForNormalResource(action, entityClass, resource);

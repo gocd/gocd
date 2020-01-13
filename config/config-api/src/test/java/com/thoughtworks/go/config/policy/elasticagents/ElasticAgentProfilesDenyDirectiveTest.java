@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.policy.elasticagents;
 
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.policy.Deny;
 import com.thoughtworks.go.config.policy.Result;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ class ElasticAgentProfilesDenyDirectiveTest {
     class shouldDefinePermissions {
         @Test
         void forViewOfAllElasticAgentProfiles() {
-            ElasticAgentProfilesDenyDirective directive = ElasticAgentProfilesDenyDirective.parseResource("view", "elastic_agent_profile", "*");
+            Deny directive = new Deny("view", "elastic_agent_profile", "*");
 
             Result viewAllElasticAgentProfiles = directive.apply("view", ElasticProfile.class, "*", null);
             Result viewAllClusterProfiles = directive.apply("view", ClusterProfile.class, "*", null);
@@ -45,7 +46,7 @@ class ElasticAgentProfilesDenyDirectiveTest {
 
         @Test
         void forAdministerOfAllElasticAgentProfiles() {
-            ElasticAgentProfilesDenyDirective directive = ElasticAgentProfilesDenyDirective.parseResource("administer", "elastic_agent_profile", "*");
+            Deny directive = new Deny("administer", "elastic_agent_profile", "*");
 
             Result viewAllElasticAgentProfiles = directive.apply("view", ElasticProfile.class, "*", null);
             Result viewAllClusterProfiles = directive.apply("view", ClusterProfile.class, "*", null);
@@ -60,7 +61,7 @@ class ElasticAgentProfilesDenyDirectiveTest {
 
         @Test
         void forViewOfAllElasticAgentProfiles_usingWildcardAllowAllElasticAgentProfilesPattern() {
-            ElasticAgentProfilesDenyDirective directive = ElasticAgentProfilesDenyDirective.parseResource("view", "elastic_agent_profile", "*:*");
+            Deny directive = new Deny("view", "elastic_agent_profile", "*:*");
 
             Result viewAllElasticAgentProfiles = directive.apply("view", ElasticProfile.class, "*", null);
             Result viewAllClusterProfiles = directive.apply("view", ClusterProfile.class, "*", null);
@@ -75,7 +76,7 @@ class ElasticAgentProfilesDenyDirectiveTest {
 
         @Test
         void forAdministerOfAllElasticAgentProfiles_usingWildcardAllowAllElasticAgentProfilesPattern() {
-            ElasticAgentProfilesDenyDirective directive = ElasticAgentProfilesDenyDirective.parseResource("administer", "elastic_agent_profile", "*:*");
+            Deny directive = new Deny("administer", "elastic_agent_profile", "*:*");
 
             Result viewAllElasticAgentProfiles = directive.apply("view", ElasticProfile.class, "*", null);
             Result viewAllClusterProfiles = directive.apply("view", ClusterProfile.class, "*", null);
@@ -90,7 +91,7 @@ class ElasticAgentProfilesDenyDirectiveTest {
 
         @Test
         void forViewOfAllElasticAgentProfilesWithinCluster() {
-            ElasticAgentProfilesDenyDirective directive = ElasticAgentProfilesDenyDirective.parseResource("view", "elastic_agent_profile", "team1_*:*");
+            Deny directive = new Deny("view", "elastic_agent_profile", "team1_*:*");
 
             Result viewElasticAgentProfilesUnderTeam1UAT = directive.apply("view", ElasticProfile.class, "*", "team1_uat");
             Result viewElasticAgentProfilesUnderTeam2UAT = directive.apply("view", ElasticProfile.class, "*", "team2_uat");
@@ -115,7 +116,7 @@ class ElasticAgentProfilesDenyDirectiveTest {
 
         @Test
         void forAdministerOfAllElasticAgentProfilesWithinCluster() {
-            ElasticAgentProfilesDenyDirective directive = ElasticAgentProfilesDenyDirective.parseResource("administer", "elastic_agent_profile", "team1_*:*");
+            Deny directive = new Deny("administer", "elastic_agent_profile", "team1_*:*");
 
             Result viewElasticAgentProfilesUnderTeam1UAT = directive.apply("view", ElasticProfile.class, "*", "team1_uat");
             Result viewElasticAgentProfilesUnderTeam2UAT = directive.apply("view", ElasticProfile.class, "*", "team2_uat");
@@ -140,7 +141,7 @@ class ElasticAgentProfilesDenyDirectiveTest {
 
         @Test
         void forViewOfSpecificElasticAgentProfilesWithinCluster() {
-            ElasticAgentProfilesDenyDirective directive = ElasticAgentProfilesDenyDirective.parseResource("view", "elastic_agent_profile", "team1_*:agent1_*");
+            Deny directive = new Deny("view", "elastic_agent_profile", "team1_*:agent1_*");
 
             Result viewAgent1ElasticAgentProfilesUnderTeam1UAT = directive.apply("view", ElasticProfile.class, "agent1_high_mem", "team1_uat");
             Result viewAgent1ElasticAgentProfilesUnderTeam2UAT = directive.apply("view", ElasticProfile.class, "agent1_high_mem", "team2_uat");
@@ -173,7 +174,7 @@ class ElasticAgentProfilesDenyDirectiveTest {
 
         @Test
         void forAdministerOfSpecificElasticAgentProfilesWithinCluster() {
-            ElasticAgentProfilesDenyDirective directive = ElasticAgentProfilesDenyDirective.parseResource("administer", "elastic_agent_profile", "team1_*:agent1_*");
+            Deny directive = new Deny("administer", "elastic_agent_profile", "team1_*:agent1_*");
 
             Result viewAgent1ElasticAgentProfilesUnderTeam1UAT = directive.apply("view", ElasticProfile.class, "agent1_high_mem", "team1_uat");
             Result viewAgent1ElasticAgentProfilesUnderTeam2UAT = directive.apply("view", ElasticProfile.class, "agent1_high_mem", "team2_uat");

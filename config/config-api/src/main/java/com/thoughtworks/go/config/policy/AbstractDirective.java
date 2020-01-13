@@ -76,6 +76,14 @@ public abstract class AbstractDirective implements Directive {
         return allowedTypes.stream().noneMatch(it -> equalsIgnoreCase(it, type));
     }
 
+    protected boolean isRequestForClusterProfiles(Class<? extends Validatable> aClass) {
+        return SupportedEntity.CLUSTER_PROFILE.getEntityType().isAssignableFrom(aClass);
+    }
+
+    protected boolean isRequestForElasticAgentProfiles(Class<? extends Validatable> aClass) {
+        return SupportedEntity.ELASTIC_AGENT_PROFILE.getEntityType().isAssignableFrom(aClass);
+    }
+
     private boolean isInvalidAction(String action, List<String> allowedActions) {
         return allowedActions.stream().noneMatch(it -> equalsIgnoreCase(it, action));
     }

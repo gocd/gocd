@@ -517,3 +517,7 @@ api/api-elastic-profile-v3/out/
 api/api-elastic-profile-v3/target/
 api/api-elastic-profile-v3/logs/
 api/api-elastic-profile-v3/config/
+api/api-webhook-v1/out/
+api/api-webhook-v1/target/
+api/api-webhook-v1/logs/
+api/api-webhook-v1/config/

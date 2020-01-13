@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
@@ -255,7 +256,7 @@ class ConfigReposMaterialParseResultManagerTest {
     @Nested
     class ConfigRepoReparseListenerTest {
         @ParameterizedTest
-        @ValueSource(classes = {PipelineConfig.class, EnvironmentConfig.class, PipelineTemplateConfig.class, SCM.class, ConfigRepoConfig.class})
+        @ValueSource(classes = {PipelineConfig.class, EnvironmentConfig.class, PipelineTemplateConfig.class, SCM.class, ConfigRepoConfig.class, ElasticProfile.class})
         void shouldCareAboutSpecifiedConfigClasses(Class<? extends Validatable> configClassToCareAbout) {
             final ConfigReposMaterialParseResultManager manager = mock(ConfigReposMaterialParseResultManager.class);
             final ConfigRepoReparseListener configRepoReparseListener = new ConfigRepoReparseListener(manager);

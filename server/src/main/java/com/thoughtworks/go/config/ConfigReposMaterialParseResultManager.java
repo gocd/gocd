@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -148,7 +149,8 @@ public class ConfigReposMaterialParseResultManager {
                 EnvironmentConfig.class,
                 PipelineTemplateConfig.class,
                 SCM.class,
-                ConfigRepoConfig.class
+                ConfigRepoConfig.class,
+                ElasticProfile.class
         );
         private final ConfigReposMaterialParseResultManager configReposMaterialParseResultManager;
 

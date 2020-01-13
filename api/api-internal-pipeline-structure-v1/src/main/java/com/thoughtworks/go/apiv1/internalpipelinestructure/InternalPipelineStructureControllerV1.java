@@ -77,6 +77,8 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
+            before("", mimeType, this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
 
             before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
             before(InternalPipelineStructure.WITH_SUGGESTIONS, mimeType, this.apiAuthenticationHelper::checkUserAnd403);

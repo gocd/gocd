@@ -15,7 +15,7 @@
  */
 
 import {PipelineGroup, PipelineGroupJSON, Pipelines, PipelineStructure, PipelineStructureJSON, PipelineStructureWithSuggestions, PipelineStructureWithSuggestionsJSON, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
-import {Origin, OriginType} from "../../origin";
+import {Origin, OriginType} from "models/origin";
 
 describe("Pipeline Structure", () => {
   let json: PipelineStructureJSON, pipelineStructure: PipelineStructure;
@@ -102,17 +102,19 @@ describe('PipelineGroups', () => {
 describe('PipelineStructureWithSuggestions', () => {
   it('should serialize from json', () => {
     const json = {
-      groups:    [],
-      templates: [],
-      users:     ['user1', 'user2'],
-      roles:     ['role1', 'role2']
+      groups:      [],
+      templates:   [],
+      suggestions: {
+        users: ['user1', 'user2'],
+        roles: ['role1', 'role2']
+      }
     } as PipelineStructureWithSuggestionsJSON;
 
     const pipelineStructure = PipelineStructureWithSuggestions.fromJSON(json);
 
     expect(pipelineStructure.pipelineStructure.groups()).toEqual([]);
     expect(pipelineStructure.pipelineStructure.templates()).toEqual([]);
-    expect(pipelineStructure.users).toBe(json.users);
-    expect(pipelineStructure.roles).toBe(json.roles);
+    expect(pipelineStructure.suggestions.users).toBe(json.suggestions.users);
+    expect(pipelineStructure.suggestions.roles).toBe(json.suggestions.roles);
   });
 });

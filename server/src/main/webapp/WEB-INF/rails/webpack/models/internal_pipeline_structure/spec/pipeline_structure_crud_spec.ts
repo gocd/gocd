@@ -36,8 +36,8 @@ describe('PipelineStructureCRUDSpec', () => {
       expect(groups[0].name()).toEqual('first');
       expect(groups[0].pipelines()).toHaveLength(1);
       expect(pipelineStructure.pipelineStructure.templates()).toEqual([]);
-      expect(pipelineStructure.users).toEqual(json.users);
-      expect(pipelineStructure.roles).toEqual(json.roles);
+      expect(pipelineStructure.suggestions.users).toEqual(json.suggestions.users);
+      expect(pipelineStructure.suggestions.roles).toEqual(json.suggestions.roles);
       done();
     });
 
@@ -78,6 +78,8 @@ const json = {
     }]
   }],
   templates: [],
-  users:     ["view", "operate", "admin"],
-  roles:     ["xyz"]
+  suggestions: {
+    users: ["view", "operate", "admin"],
+    roles: ["xyz"]
+  }
 } as PipelineStructureWithSuggestionsJSON;

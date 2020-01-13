@@ -280,22 +280,38 @@ export class PipelineStructure {
 }
 
 export interface PipelineStructureWithSuggestionsJSON extends PipelineStructureJSON {
+  suggestions: SuggestionsJSON;
+}
+
+interface SuggestionsJSON {
   users: string[];
   roles: string[];
 }
 
-export class PipelineStructureWithSuggestions {
-  pipelineStructure: PipelineStructure;
+class Suggestions {
   users: string[];
   roles: string[];
 
-  constructor(pipelineStructure: PipelineStructure, users: string[], roles: string[]) {
+  constructor(users: string[], roles: string[]) {
+    this.users = users;
+    this.roles = roles;
+  }
+
+  static fromJSON(data: SuggestionsJSON): Suggestions {
+    return new Suggestions(data.users, data.roles);
+  }
+}
+
+export class PipelineStructureWithSuggestions {
+  pipelineStructure: PipelineStructure;
+  suggestions: Suggestions;
+
+  constructor(pipelineStructure: PipelineStructure, suggestions: Suggestions) {
     this.pipelineStructure = pipelineStructure;
-    this.users             = users;
-    this.roles             = roles;
+    this.suggestions       = suggestions;
   }
 
   static fromJSON(data: PipelineStructureWithSuggestionsJSON): PipelineStructureWithSuggestions {
-    return new PipelineStructureWithSuggestions(PipelineStructure.fromJSON(data), data.users, data.roles);
+    return new PipelineStructureWithSuggestions(PipelineStructure.fromJSON(data), Suggestions.fromJSON(data.suggestions));
   }
 }

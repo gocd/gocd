@@ -101,7 +101,7 @@ public class InternalPipelineStructuresRepresenter {
 
     public static void toJSON(OutputWriter outputWriter, PipelineGroups groups, TemplatesConfig templateConfigs, Collection<String> users, Collection<String> roles) {
         toJSON(outputWriter, groups, templateConfigs);
-        outputWriter.addChildList("users", users)
-                .addChildList("roles", roles);
+        outputWriter.addChild("suggestions", (writer) -> writer.addChildList("users", users)
+                .addChildList("roles", roles));
     }
 }

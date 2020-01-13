@@ -259,13 +259,15 @@ class InternalPipelineStructuresRepresenterTest {
           ]
         ]
       ],
-      "users"    : [
-        "user1",
-        "user2"
-      ],
-      "roles"    : [
-        "role1",
-        "role2"
+      "suggestions": [
+        "users": [
+          "user1",
+          "user2"
+        ],
+        "roles": [
+          "role1",
+          "role2"
+        ]
       ]
     ]
 

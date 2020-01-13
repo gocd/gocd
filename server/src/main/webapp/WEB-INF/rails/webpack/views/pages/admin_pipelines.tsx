@@ -346,8 +346,8 @@ export class AdminPipelinesPage extends Page<null, State> {
       pipelineGroups.do(
         (successResponse) => {
           vnode.state.pipelineGroups(successResponse.body.pipelineStructure.groups());
-          vnode.state.usersAutoCompleteHelper(successResponse.body.users);
-          vnode.state.rolesAutoCompleteHelper(successResponse.body.roles);
+          vnode.state.usersAutoCompleteHelper(successResponse.body.suggestions.users);
+          vnode.state.rolesAutoCompleteHelper(successResponse.body.suggestions.roles);
           this.pageState = PageState.OK;
         }, (errorResponse) => {
           this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);

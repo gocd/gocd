@@ -301,7 +301,6 @@ class ClusterProfileStep extends Step {
 
   private clusterProfileSupportChangedListener(clusterProfilesSupported: boolean) {
     this.selectedPluginSupportsClusterProfiles = clusterProfilesSupported;
-    m.redraw();
   }
 
   private save() {

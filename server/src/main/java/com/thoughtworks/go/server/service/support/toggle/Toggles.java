@@ -24,6 +24,7 @@ public class Toggles {
     public static String FAST_PIPELINE_SAVE = "fast_pipeline_save";
     public static String USE_RAILS_BASED_MATERIAL_TEST_CONNECTION_API = "use_rails_based_material_test_connection_api";
     public static String NEW_FEED_API = "new_feed_api";
+    public static String RAILS_WEBHOOK_API = "rails_webhook_api";
 
     private static FeatureToggleService service;
 

@@ -31,6 +31,13 @@
   </rule>
 
   <rule>
+    <name>Webhook API</name>
+    <from>^/api/webhooks/([^/]+)/notify(/?)$</from>
+    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="webhooks"/>
+    <to last="true">/%{attribute:sparkOrRails}/api/webhooks/${escape:$1}/notify</to>
+  </rule>
+
+  <rule>
     <name>Feed APIs</name>
     <from>^/api/feed/(.*)$</from>
     <to last="true">/spark/api/feed/$1</to>

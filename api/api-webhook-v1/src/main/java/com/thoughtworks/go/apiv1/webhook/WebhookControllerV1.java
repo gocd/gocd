@@ -18,87 +18,77 @@ package com.thoughtworks.go.apiv1.webhook;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.CrudController;
-import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.HttpException;
-import com.thoughtworks.go.server.service.EntityHashingService;
+import com.thoughtworks.go.server.materials.MaterialUpdateService;
+import com.thoughtworks.go.server.service.ServerConfigService;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
-import java.io.IOException;
-import java.util.function.Consumer;
+import java.util.List;
 
-import static spark.Spark.*;
+import static spark.Spark.path;
+import static spark.Spark.post;
 
-@Component
-public class WebhookControllerV1 extends ApiController implements SparkSpringController, CrudController<Webhook> {
-
+public abstract class WebhookControllerV1 extends ApiController implements SparkSpringController {
+    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private final EntityHashingService entityHashingService;
+    protected final MaterialUpdateService materialUpdateService;
+    protected final ServerConfigService serverConfigService;
 
-    @Autowired
-    public WebhookControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService) {
+    public WebhookControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
+                               MaterialUpdateService materialUpdateService,
+                               ServerConfigService serverConfigService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.entityHashingService = entityHashingService;
-    }
-
-    @Override
-    public String controllerBasePath() {
-        return Routes.Webhook.BASE;
+        this.materialUpdateService = materialUpdateService;
+        this.serverConfigService = serverConfigService;
     }
 
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            // uncomment the line below to set the content type on the base path
-            // before("", mimeType, this::setContentType);
-            // uncomment the line below to set the content type on nested routes
-            // before("/*", mimeType, this::setContentType);
+//            before("notify", mimeType, this::verifyContentOrigin);
+//            before("notify", mimeType, this::premptPingCall);
+//            before("notify", mimeType, this::allowOnlyPushEvent);
 
-            // uncomment for the `index` action
-            // get("", mimeType, this::index);
-
-            // change the line below to enable appropriate security
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            // to be implemented
+            post("notify", mimeType, this::notify);
         });
     }
 
-    // public String index(Request request, Response response) throws IOException {
-    //    Webhook webhook = fetchEntityFromConfig(request.params(":id"));
-    //    return writerForTopLevelObject(request, response, outputWriter -> WebhooksRepresenter.toJSON(outputWriter, webhook));
-    // }
+    protected String notify(Request request, Response response) throws Exception {
+        this.verifyContentOrigin(request);
+        this.premptPingCall(request);
+        this.verifyPayload(request);
+        this.allowOnlyPushEvent(request);
 
+        String branch = repoBranch(request);
+        LOGGER.info("[WebHook] Noticed a git push to {} on branch {}.", repoNameForLogger(request), branch);
 
-    @Override
-    public String etagFor(Webhook entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        if (materialUpdateService.updateGitMaterial(branch, this.webhookUrls(request))) {
+            return renderMessage(response, HttpStatus.ACCEPTED.value(), "OK!");
+        }
+        return renderMessage(response, HttpStatus.ACCEPTED.value(), "No matching materials!");
     }
 
-    @Override
-    public EntityType getEntityType() {
-        return EntityType.Webhook;
-    }
+    protected abstract void verifyContentOrigin(Request request);
 
-    @Override
-    public Webhook doFetchEntityFromConfig(String name) {
-        return someService.getEntity(name);
-    }
+    protected abstract void premptPingCall(Request request);
 
-    @Override
-    public Webhook buildEntityFromRequestBody(Request req) {
-      JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
-      return WebhookRepresenter.fromJSON(jsonReader);
-    }
+    protected abstract void verifyPayload(Request request);
 
-    @Override
-    public Consumer<OutputWriter> jsonWriter(Webhook webhook) {
-        return outputWriter -> WebhookRepresenter.toJSON(outputWriter, webhook);
+    protected abstract void allowOnlyPushEvent(Request request);
+
+    protected abstract List<String> webhookUrls(Request request) throws Exception;
+
+    protected abstract String repoBranch(Request request);
+
+    protected abstract String repoNameForLogger(Request request) throws Exception;
+
+    protected String webhookSecret() {
+        return serverConfigService.getWebhookSecret();
     }
 }

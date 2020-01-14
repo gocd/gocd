@@ -38,4 +38,8 @@ public class SparkOrRailsToggle {
     public void feedsApi(HttpServletRequest request, HttpServletResponse response) {
         basedOnToggle(Toggles.NEW_FEED_API, request);
     }
+
+    public void webhooks(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.RAILS_WEBHOOK_API, request);
+    }
 }

@@ -25,7 +25,7 @@ import static org.apache.commons.lang3.StringEscapeUtils.escapeXml11;
 public abstract class HttpException extends RuntimeException {
     private final HttpStatus status;
 
-    HttpException(HttpStatus status, String message) {
+    protected HttpException(HttpStatus status, String message) {
         super(message);
         this.status = status;
     }

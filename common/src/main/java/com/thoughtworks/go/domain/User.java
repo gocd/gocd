@@ -268,8 +268,11 @@ public class User extends PersistentObject {
     private void checkForDuplicates(NotificationFilter another) {
         for (NotificationFilter filter : notificationFilters) {
             if (filter.include(another)) {
-                throw new UncheckedValidationException(format("Duplicate notification filter found for: {pipeline: \"%s\", stage: \"%s\", event: \"%s\"}",
-                    filter.getPipelineName(), filter.getStageName(), filter.getEvent()));
+                String message = format("Duplicate notification filter found for: {pipeline: \"%s\", stage: \"%s\", event: \"%s\"}",
+                    filter.getPipelineName(), filter.getStageName(), filter.getEvent());
+                filter.addError("pipelineName", message);
+                another.addError("pipelineName", message);
+                throw new UncheckedValidationException(message);
             }
         }
     }

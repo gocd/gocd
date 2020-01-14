@@ -18,9 +18,11 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.UncheckedValidationException;
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.presentation.UserModel;
 import com.thoughtworks.go.presentation.UserSearchModel;
@@ -45,6 +47,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static com.thoughtworks.go.helper.SecurityConfigMother.securityConfigWithRole;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -799,12 +802,13 @@ public class UserServiceTest {
         void shouldErrorOutWhenPipelineWithNameDoesNotExist() {
             String pipelineName = "up42";
             NotificationFilter filter = new NotificationFilter(pipelineName, null, null, true);
-            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(null);
+            BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("up42");
+            when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
             when(userDao.load(100L)).thenReturn(new User("bob"));
 
             assertThatCode(() -> userService.addNotificationFilter(100L, filter))
-                .isInstanceOf(RecordNotFoundException.class)
-                .hasMessage("Pipeline with name 'up42' was not found!");
+                .isInstanceOf(UnprocessableEntityException.class)
+                .hasMessage("Notification filter validation failed.");
             verifyZeroInteractions(userDao);
         }
 
@@ -812,7 +816,8 @@ public class UserServiceTest {
         void shouldBeValidIfPipelineWithNameExistAndStageIsSetToAnyStage() {
             String pipelineName = "up42";
             NotificationFilter filter = new NotificationFilter(pipelineName, "[Any Stage]", null, true);
-            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(mock(PipelineConfig.class));
+            BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("up42");
+            when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
             when(userDao.load(100L)).thenReturn(new User("bob"));
 
             userService.addNotificationFilter(100L, filter);
@@ -825,15 +830,13 @@ public class UserServiceTest {
             String pipelineName = "up42";
             String stageName = "unit-tests";
             NotificationFilter filter = new NotificationFilter(pipelineName, stageName, null, true);
-            PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
+            BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("up42");
+            when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
             when(userDao.load(100L)).thenReturn(new User("bob"));
-            when(pipelineConfig.getStage(stageName)).thenReturn(null);
-
 
             assertThatCode(() -> userService.addNotificationFilter(100L, filter))
-                .isInstanceOf(RecordNotFoundException.class)
-                .hasMessage("Stage 'unit-tests' not found in pipeline 'up42'");
+                .isInstanceOf(UnprocessableEntityException.class)
+                .hasMessage("Notification filter validation failed.");
             verifyZeroInteractions(userDao);
         }
 
@@ -842,9 +845,9 @@ public class UserServiceTest {
             String pipelineName = "up42";
             String stageName = "unit-tests";
             NotificationFilter filter = new NotificationFilter(pipelineName, stageName, null, true);
-            PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
-            when(pipelineConfig.getStage(stageName)).thenReturn(mock(StageConfig.class));
+            BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+            cruiseConfig.addPipeline("Group-1", createPipelineConfig(pipelineName, stageName));
+            when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
             when(userDao.load(100L)).thenReturn(new User("bob"));
 
             userService.addNotificationFilter(100L, filter);
@@ -857,9 +860,9 @@ public class UserServiceTest {
             String pipelineName = "up42";
             String stageName = "unit-tests";
             User user = new User("bob");
-            PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
-            when(pipelineConfig.getStage(stageName)).thenReturn(mock(StageConfig.class));
+            BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+            cruiseConfig.addPipeline("Group-1", createPipelineConfig(pipelineName, stageName));
+            when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
             when(userDao.load(100L)).thenReturn(user);
             NotificationFilter newFilter = new NotificationFilter(pipelineName, stageName, StageEvent.Breaks, true);
 
@@ -876,9 +879,9 @@ public class UserServiceTest {
             String stageName = "unit-tests";
             User user = new User("bob");
             user.addNotificationFilter(new NotificationFilter(pipelineName, stageName, StageEvent.Breaks, true));
-            PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
-            when(pipelineConfig.getStage(stageName)).thenReturn(mock(StageConfig.class));
+            BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+            cruiseConfig.addPipeline("Group-1", createPipelineConfig(pipelineName, stageName));
+            when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
             when(userDao.load(100L)).thenReturn(user);
             NotificationFilter newFilter = new NotificationFilter(pipelineName, stageName, StageEvent.Breaks, true);
 
@@ -916,11 +919,12 @@ public class UserServiceTest {
         @Test
         void shouldErrorOutWhenPipelineWithNameDoesNotExist() {
             NotificationFilter filter = notificationFilter(10L, pipelineName, null, null);
-            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(null);
+            BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines();
+            when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
 
             assertThatCode(() -> userService.updateNotificationFilter(100L, filter))
-                .isInstanceOf(RecordNotFoundException.class)
-                .hasMessage("Pipeline with name 'up42' was not found!");
+                .isInstanceOf(UnprocessableEntityException.class)
+                .hasMessage("Notification filter validation failed.");
             verifyZeroInteractions(userDao);
         }
 
@@ -928,7 +932,8 @@ public class UserServiceTest {
         void shouldBeValidIfPipelineWithNameExistAndStageIsSetToAnyStage() {
             existingFilter.setEvent(StageEvent.Cancelled);
             existingFilter.setStageName("[Any Stage]");
-            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(mock(PipelineConfig.class));
+            BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("up42");
+            when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
 
             userService.updateNotificationFilter(100L, existingFilter);
 
@@ -938,22 +943,21 @@ public class UserServiceTest {
         @Test
         void shouldErrorOutWhenPipelineWithNameExistAndStageDoesNotExist() {
             NotificationFilter filter = notificationFilter(10L, pipelineName, stageName, null);
-            PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
-            when(pipelineConfig.getStage(stageName)).thenReturn(null);
+            BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines(pipelineName);
+            when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
 
 
             assertThatCode(() -> userService.updateNotificationFilter(100L, filter))
-                .isInstanceOf(RecordNotFoundException.class)
-                .hasMessage("Stage 'unit-tests' not found in pipeline 'up42'");
+                .isInstanceOf(UnprocessableEntityException.class)
+                .hasMessage("Notification filter validation failed.");
             verifyZeroInteractions(userDao);
         }
 
         @Test
         void shouldUpdateNotificationFilterWhenPipelineAndStageExist() {
-            PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
-            when(pipelineConfig.getStage(stageName)).thenReturn(mock(StageConfig.class));
+            BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+            cruiseConfig.addPipeline("Group-1", createPipelineConfig("up42", stageName));
+            when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
             NotificationFilter updatedFilter = notificationFilter(10L, pipelineName, stageName, StageEvent.Passes);
 
             userService.updateNotificationFilter(100L, updatedFilter);
@@ -963,9 +967,9 @@ public class UserServiceTest {
 
         @Test
         void shouldErrorOutWhenNotificationFilterWithSameConfigExist() {
-            PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-            when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName))).thenReturn(pipelineConfig);
-            when(pipelineConfig.getStage(stageName)).thenReturn(mock(StageConfig.class));
+            BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+            cruiseConfig.addPipeline("Group-1", createPipelineConfig("up42", stageName));
+            when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
             NotificationFilter updatedFilter = notificationFilter(10L, pipelineName, stageName, StageEvent.Fixed);
 
             assertThatCode(() -> userService.updateNotificationFilter(100L, updatedFilter))

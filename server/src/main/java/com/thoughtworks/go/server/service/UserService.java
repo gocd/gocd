@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.config.exceptions.StageNotFoundException;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.ValidationException;
@@ -48,7 +48,8 @@ import java.util.*;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
-import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.join;
 
 @Service
 public class UserService {
@@ -474,7 +475,12 @@ public class UserService {
     }
 
     public void addNotificationFilter(final long userId, final NotificationFilter filter) {
-        validatePipelineAndStageInNotificationFilter(filter);
+        filter.validate(validationContext);
+
+        if (!filter.errors().isEmpty()) {
+            throw new UnprocessableEntityException("Notification filter validation failed.");
+        }
+
         User user = userDao.load(userId);
         user.addNotificationFilter(filter);
 
@@ -489,7 +495,12 @@ public class UserService {
     }
 
     public void updateNotificationFilter(final long userId, final NotificationFilter notificationFilter) {
-        validatePipelineAndStageInNotificationFilter(notificationFilter);
+        notificationFilter.validate(validationContext);
+
+        if (!notificationFilter.errors().isEmpty()) {
+            throw new UnprocessableEntityException("Notification filter validation failed.");
+        }
+
         User user = userDao.load(userId);
         user.updateNotificationFilter(notificationFilter);
 
@@ -501,25 +512,6 @@ public class UserService {
                 }
             }
         });
-    }
-
-    private void validatePipelineAndStageInNotificationFilter(NotificationFilter filter) {
-        if (equalsIgnoreCase(filter.getPipelineName(), "[Any Pipeline]")) {
-            return;
-        }
-
-        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(filter.getPipelineName()));
-        if (pipelineConfig == null) {
-            throw new RecordNotFoundException(EntityType.Pipeline, filter.getPipelineName());
-        }
-
-        if (equalsIgnoreCase(filter.getStageName(), "[Any Stage]")) {
-            return;
-        }
-
-        if (pipelineConfig.getStage(filter.getStageName()) == null) {
-            throw new StageNotFoundException(filter.getPipelineName(), filter.getStageName());
-        }
     }
 
     public void removeNotificationFilter(final long userId, final long filterId) {
@@ -652,4 +644,11 @@ public class UserService {
         }
         return hasEmailChanged || hasDisplayNameChanged;
     }
+
+    private DelegatingValidationContext validationContext = new DelegatingValidationContext(null) {
+        @Override
+        public CruiseConfig getCruiseConfig() {
+            return goConfigService.getCurrentConfig();
+        }
+    };
 }

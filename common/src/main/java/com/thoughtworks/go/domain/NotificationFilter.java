@@ -15,16 +15,25 @@
  */
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.util.GoConstants;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class NotificationFilter extends PersistentObject {
+import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+
+public class NotificationFilter extends PersistentObject implements Validatable {
     private String pipelineName;
     private String stageName;
     private StageEvent event;
     private boolean myCheckin;
+
+    private transient ConfigErrors errors = new ConfigErrors();
 
     private NotificationFilter() {
     }
@@ -83,16 +92,16 @@ public class NotificationFilter extends PersistentObject {
 
     public boolean appliesTo(String pipelineName, String stageName) {
         boolean pipelineMatches = this.pipelineName.equals(pipelineName) ||
-                                  this.pipelineName.equals(GoConstants.ANY_PIPELINE);
+            this.pipelineName.equals(GoConstants.ANY_PIPELINE);
         boolean stageMatches = this.stageName.equals(stageName) ||
-                               this.stageName.equals(GoConstants.ANY_STAGE);
+            this.stageName.equals(GoConstants.ANY_STAGE);
 
         return pipelineMatches && stageMatches;
     }
 
     public String description() {
-        return String.format("pipeline: %s, stage: %s, describeChange: %s, check-in: %s", pipelineName, stageName, event,
-                myCheckin ? "Mine" : "All");
+        return format("pipeline: %s, stage: %s, describeChange: %s, check-in: %s", pipelineName, stageName, event,
+            myCheckin ? "Mine" : "All");
     }
 
     @Override
@@ -156,7 +165,39 @@ public class NotificationFilter extends PersistentObject {
 
     public boolean include(NotificationFilter filter) {
         return pipelineName.equals(filter.pipelineName)
-                && stageName.equals(filter.stageName)
-                && event.include(filter.event);
+            && stageName.equals(filter.stageName)
+            && event.include(filter.event);
+    }
+
+    @Override
+    public void validate(ValidationContext validationContext) {
+        if (equalsIgnoreCase(this.pipelineName, "[Any Pipeline]")) {
+            return;
+        }
+
+        PipelineConfig pipelineConfig = validationContext.getCruiseConfig()
+            .getPipelineConfigByName(new CaseInsensitiveString(this.pipelineName));
+        if (pipelineConfig == null) {
+            addError("pipelineName", format("Pipeline with name '%s' was not found!", this.pipelineName));
+            return;
+        }
+
+        if (equalsIgnoreCase(this.stageName, "[Any Stage]")) {
+            return;
+        }
+
+        if (pipelineConfig.getStage(this.stageName) == null) {
+            addError("stageName", format("Stage '%s' not found in pipeline '%s'!", this.stageName, this.pipelineName));
+        }
+    }
+
+    @Override
+    public ConfigErrors errors() {
+        return this.errors;
+    }
+
+    @Override
+    public void addError(String fieldName, String message) {
+        this.errors.add(fieldName, message);
     }
 }

@@ -16,6 +16,7 @@
 package com.thoughtworks.go.apiv2.notificationfilter.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.domain.NotificationFilter;
@@ -23,6 +24,7 @@ import com.thoughtworks.go.domain.StageEvent;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static java.lang.String.format;
@@ -30,15 +32,25 @@ import static java.lang.String.format;
 public class NotificationFilterRepresenter {
     public static void toJSON(OutputWriter writer, NotificationFilter filter) {
         writer.addLinks(linkWriter -> {
-            linkWriter.addLink("self", Routes.NotificationFilterAPI.self(filter.getId()));
-            linkWriter.addAbsoluteLink("doc", Routes.NotificationFilterAPI.DOC);
-            linkWriter.addLink("find", Routes.NotificationFilterAPI.FIND);
+            if (filter.getId() != NOT_PERSISTED) {
+                linkWriter.addLink("self", Routes.NotificationFilterAPI.self(filter.getId()));
+            }
+            linkWriter.addAbsoluteLink("doc", Routes.NotificationFilterAPI.DOC)
+                .addLink("find", Routes.NotificationFilterAPI.FIND);
         });
         writer.addIfNotNull("id", filter.getId() == NOT_PERSISTED ? null : filter.getId())
             .add("pipeline", filter.getPipelineName())
             .add("stage", filter.getStageName())
             .add("event", filter.getEvent().toString())
             .add("match_commits", filter.isMyCheckin());
+
+        if (!filter.errors().isEmpty()) {
+            Map<String, String> fieldMapping = Map.of(
+                "pipelineName", "pipeline_name",
+                "stageName", "stage_name"
+            );
+            writer.addChild("errors", errorWriter -> new ErrorGetter(fieldMapping).toJSON(errorWriter, filter));
+        }
     }
 
     public static NotificationFilter fromJSON(JsonReader reader) {

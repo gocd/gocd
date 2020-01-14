@@ -40,6 +40,11 @@
       "key": "new_feed_api",
       "description": "Use the new feed APIs. Default: true",
       "value": true
+    },
+    {
+      "key": "rails_webhook_api",
+      "description": "Use rails webhook APIs. Default: false",
+      "value": false
     }
   ]
 }

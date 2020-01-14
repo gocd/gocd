@@ -367,18 +367,18 @@ public class Routes {
 
         public static String previous(String pipelineName, String stageName, String jobConfigName, long before) {
             return BASE
-                    + JOB_HISTORY.replaceAll(":pipeline_name", pipelineName)
-                    .replaceAll(":stage_name", stageName)
-                    .replaceAll(":job_name", jobConfigName)
-                    + "?before=" + before;
+                + JOB_HISTORY.replaceAll(":pipeline_name", pipelineName)
+                .replaceAll(":stage_name", stageName)
+                .replaceAll(":job_name", jobConfigName)
+                + "?before=" + before;
         }
 
         public static String next(String pipelineName, String stageName, String jobConfigName, long after) {
             return BASE
-                    + JOB_HISTORY.replaceAll(":pipeline_name", pipelineName)
-                    .replaceAll(":stage_name", stageName)
-                    .replaceAll(":job_name", jobConfigName)
-                    + "?after=" + after;
+                + JOB_HISTORY.replaceAll(":pipeline_name", pipelineName)
+                .replaceAll(":stage_name", stageName)
+                .replaceAll(":job_name", jobConfigName)
+                + "?after=" + after;
         }
     }
 
@@ -864,5 +864,8 @@ public class Routes {
         public static final String SCHEDULED_JOB_XML = "/jobs/scheduled.xml";
         public static final String MATERIAL_URL = "/materials/:pipeline_name/:pipeline_counter/:fingerprint";
     }
-	public class Webhook {public static final String BASE = "/admin/api/webhook";}
+
+    public static class Webhook {
+        public static final String GITHUB_BASE = "/api/webhooks/github/";
+    }
 }

@@ -40,6 +40,10 @@ $dropdown-button-content-z-index: 5;
 .pipeline-instance-selection {
   width:          $width-for-instance-selection;
   vertical-align: baseline;
+
+  input[type="search"] {  //sass-lint:disable-line no-qualifying-elements
+    width: $width-for-instance-selection;
+  }
 }
 
 .pipeline-comparison-text {
@@ -77,7 +81,7 @@ $dropdown-button-content-z-index: 5;
 
 .dropdown-content-wrapper {
   position: relative;
-  top:      -28px;
+  top:      -5px;
   left:     0;
   z-index:  $dropdown-button-content-z-index;
 

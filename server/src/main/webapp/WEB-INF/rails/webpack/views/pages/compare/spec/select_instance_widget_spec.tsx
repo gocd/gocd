@@ -15,6 +15,7 @@
  */
 
 import m from "mithril";
+import Stream from "mithril/stream";
 import {PipelineInstance, PipelineInstances} from "models/compare/pipeline_instance";
 import {PipelineInstanceData} from "models/compare/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -32,7 +33,8 @@ describe('SelectInstanceWidgetSpec', () => {
   afterEach((done) => helper.unmount(done));
 
   function mount(service: ApiService = new DummyService()) {
-    helper.mount(() => <SelectInstanceWidget instance={instance}
+    const show: Stream<boolean> = Stream();
+    helper.mount(() => <SelectInstanceWidget show={show} instance={instance}
                                              onInstanceChange={onInstanceChangeSpy}
                                              apiService={service}/>);
   }
@@ -46,8 +48,8 @@ describe('SelectInstanceWidgetSpec', () => {
     expect(helper.byTestId("form-field-input-")).toHaveAttr("placeholder", placeHolder);
     expect(helper.q("label")).toBeInDOM();
     expect(helper.q("label").innerText).toBe(placeHolder);
-    expect(helper.q("span[id*='help-text']")).toBeInDOM();
-    expect(helper.q("span[id*='help-text']").innerText).toBe("Browse the timeline");
+    expect(helper.q("span[id='help-text']")).toBeInDOM();
+    expect(helper.q("span[id='help-text']").innerText).toBe("Browse the timeline");
   });
 
   it('should render no results found if no results found on input change', () => {

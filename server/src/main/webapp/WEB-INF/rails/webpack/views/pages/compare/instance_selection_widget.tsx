@@ -36,6 +36,7 @@ export interface InstanceAttrs {
 }
 
 export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs> {
+  readonly showSuggestions: Stream<boolean>             = Stream();
 
   static dataTestId(...parts: StringOrNumber[]) {
     return s.slugify(parts.join("-").trim().toLowerCase());
@@ -46,7 +47,7 @@ export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs>
     return <div
       data-test-id={dataTestId}
       class={styles.instanceWrapper}>
-      <SelectInstanceWidget show={Stream(false)} apiService={new PipelineInstanceService()} {...vnode.attrs}/>
+      <SelectInstanceWidget show={this.showSuggestions} apiService={new PipelineInstanceService()} {...vnode.attrs}/>
       {this.getStagesOrWarning(vnode)}
     </div>;
   }

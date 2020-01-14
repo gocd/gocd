@@ -21,7 +21,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {MaterialRevision, MaterialRevisions, PipelineInstance, PipelineInstances} from "models/compare/pipeline_instance";
 import {Dropdown, DropdownAttrs} from "views/components/buttons";
-import {TextField} from "views/components/forms/input_fields";
+import {HelpText, SearchField} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";
 import {Spinner} from "views/components/spinner";
 import spinnerCss from "../agents/spinner.scss";
@@ -40,10 +40,10 @@ interface Attrs extends InstanceAttrs {
 export class SelectInstanceWidget extends Dropdown<DropdownAttrs & Attrs> {
   private pattern: Stream<string>                      = Stream();
   private operationInProgress: Stream<boolean>         = Stream();
-  private show: Stream<boolean>                        = Stream();
   private matchingInstances: Stream<PipelineInstances> = Stream();
 
   oninit(vnode: m.Vnode<DropdownAttrs & Attrs>) {
+    super.oninit(vnode);
     this.pattern(vnode.attrs.instance.counter() + "");
   }
 
@@ -52,16 +52,16 @@ export class SelectInstanceWidget extends Dropdown<DropdownAttrs & Attrs> {
     const helpText    = <Link onclick={this.browse.bind(this, vnode)}>Browse the timeline</Link>;
     return <div>
       <label class={styles.label}>{placeholder}</label>
-      <TextField
+      <SearchField
         placeholder={placeholder}
-        helpText={helpText}
         property={this.pattern}
         onchange={() => this.onPatternChange(vnode)}/>
+      <HelpText helpText={helpText} helpTextId={"help-text"}/>
     </div>;
   }
 
   protected doRenderDropdownContent(vnode: m.Vnode<DropdownAttrs & Attrs>): m.Children {
-    if (this.show() === undefined || this.show() === false) {
+    if (!vnode.attrs.show()) {
       return;
     }
     if (this.operationInProgress()) {
@@ -138,10 +138,10 @@ export class SelectInstanceWidget extends Dropdown<DropdownAttrs & Attrs> {
 
   private onPatternChange(vnode: m.Vnode<DropdownAttrs & Attrs>): any {
     if (_.isEmpty(this.pattern())) {
-      this.show(false);
+      vnode.attrs.show(false);
       return;
     }
-    this.show(true);
+    vnode.attrs.show(true);
     this.operationInProgress(true);
 
     vnode.attrs.apiService.getMatchingInstances(vnode.attrs.instance.name(), this.pattern()

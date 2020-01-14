@@ -47,11 +47,11 @@ describe('ComparisonSelectionWidgetSpec', () => {
     expect(tableElement).toBeInDOM();
     expect(tableCols.length).toBe(3);
     expect(tableCols[0]).toHaveClass(styles.pipelineInstanceSelection);
-    expect(helper.byTestId("instance-selection-widget-4", tableCols[0])).toBeInDOM();
+    expect(helper.byTestId("pipeline-from-instance", tableCols[0])).toBeInDOM();
     expect(tableCols[1]).toHaveClass(styles.pipelineComparisonText);
     expect(tableCols[1].innerText).toBe("compared to");
     expect(tableCols[2]).toHaveClass(styles.pipelineInstanceSelection);
-    expect(helper.byTestId("instance-selection-widget-5", tableCols[2])).toBeInDOM();
+    expect(helper.byTestId("pipeline-to-instance", tableCols[2])).toBeInDOM();
   });
 
 });

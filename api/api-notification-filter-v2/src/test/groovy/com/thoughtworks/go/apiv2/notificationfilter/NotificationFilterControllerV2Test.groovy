@@ -20,10 +20,10 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv2.notificationfilter.representers.NotificationFilterRepresenter
 import com.thoughtworks.go.apiv2.notificationfilter.representers.NotificationFiltersRepresenter
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
 import com.thoughtworks.go.domain.NotificationFilter
 import com.thoughtworks.go.domain.StageEvent
 import com.thoughtworks.go.domain.User
-import com.thoughtworks.go.domain.exception.UncheckedValidationException
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.UserService
 import com.thoughtworks.go.spark.ControllerTrait
@@ -236,6 +236,46 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
         .isBadRequest()
         .hasJsonMessage("SMTP settings are currently not configured. Ask your administrator to configure SMTP settings.")
     }
+
+    @Test
+    void 'should error with unprocessable entity when has validation errors'() {
+      def payload = [
+        "pipeline"     : "up43",
+        "stage"        : "unit-test",
+        "event"        : "Breaks",
+        "match_commits": true
+      ]
+      def user = new User("bob")
+      doAnswer({ invocation ->
+        NotificationFilter filter = invocation.getArgument(1)
+        filter.addError("pipelineName", "Some error")
+        throw new UnprocessableEntityException()
+      }).when(userService).addNotificationFilter(eq(currentUserLoginId()), any(NotificationFilter))
+
+      postWithApiHeader(controller.controllerBasePath(), payload)
+
+      def expectedResponse = [
+        "_links"       : [
+          "doc" : [
+            "href": "https://api.gocd.org/20.1.0/#notification-filters"
+          ],
+          "find": [
+            "href": "http://test.host/go/api/notification_filters/:id"
+          ]
+        ],
+        "pipeline"     : "up43",
+        "stage"        : "unit-test",
+        "event"        : "Breaks",
+        "match_commits": true,
+        "errors"       : [
+          "pipeline_name": ["Some error"]
+        ]
+      ]
+
+      assertThatResponse()
+        .isUnprocessableEntity()
+        .hasJsonBody(expectedResponse)
+    }
   }
 
   @Nested
@@ -284,23 +324,47 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
     @Test
     void 'should error with unprocessable entity when has validation errors'() {
       def payload = [
-        "pipeline"     : "up42",
+        "pipeline"     : "up43",
         "stage"        : "unit-test",
         "event"        : "Breaks",
         "match_commits": true
       ]
       def user = new User("bob")
-      user.addNotificationFilter(notificationFilter(100, "up42", "up42_stage", StageEvent.All))
-      user.addNotificationFilter(notificationFilter(101, "up43", "up43_stage", StageEvent.Breaks))
-
-      when(userService.updateNotificationFilter(eq(currentUserLoginId()), any(NotificationFilter)))
-        .thenThrow(new UncheckedValidationException("Boom!!"))
+      user.addNotificationFilter(notificationFilter(100, "up42", "unit-test", StageEvent.All))
+      user.addNotificationFilter(notificationFilter(101, "up43", "unit-test", StageEvent.Breaks))
+      doAnswer({ invocation ->
+        NotificationFilter filter = invocation.getArgument(1)
+        filter.addError("pipelineName", "Some error")
+        throw new UnprocessableEntityException()
+      }).when(userService).updateNotificationFilter(eq(currentUserLoginId()), any(NotificationFilter))
 
       patchWithApiHeader(controller.controllerPath(100L), payload)
 
+      def expectedResponse = [
+        "_links"       : [
+          "self": [
+            "href": "http://test.host/go/api/notification_filters/100"
+          ],
+          "doc" : [
+            "href": "https://api.gocd.org/20.1.0/#notification-filters"
+          ],
+          "find": [
+            "href": "http://test.host/go/api/notification_filters/:id"
+          ]
+        ],
+        "id"           : 100,
+        "pipeline"     : "up43",
+        "stage"        : "unit-test",
+        "event"        : "Breaks",
+        "match_commits": true,
+        "errors"       : [
+          "pipeline_name": ["Some error"]
+        ]
+      ]
+
       assertThatResponse()
         .isUnprocessableEntity()
-        .hasJsonMessage("Your request could not be processed. Boom!!")
+        .hasJsonBody(expectedResponse)
     }
 
     @Test
@@ -385,13 +449,5 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
     def filter = new NotificationFilter(pipeline, stage, event, true)
     filter.setId(id)
     return filter
-  }
-
-  def notificationFilters(NotificationFilter... filters) {
-    def list = new ArrayList()
-    filters.each { NotificationFilter filter ->
-      list.add(filter)
-    }
-    return list
   }
 }

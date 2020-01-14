@@ -15,112 +15,190 @@
  */
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.util.GoConstants;
-import org.junit.Test;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
-public class NotificationFilterTest {
+import java.util.List;
+
+import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+class NotificationFilterTest {
+    @Mock
+    private ValidationContext validationContext;
+
+    @BeforeEach
+    void setUp() {
+        initMocks(this);
+    }
 
     @Test
-    public void shouldMatchFixedStage() {
+    void shouldMatchFixedStage() {
         NotificationFilter filter = new NotificationFilter("cruise", "dev", StageEvent.Fixed, false);
-        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.Fixed), is(true));
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.Fixed)).isTrue();
     }
 
     @Test
-    public void shouldMatchBrokenStage() {
+    void shouldMatchBrokenStage() {
         NotificationFilter filter = new NotificationFilter("cruise", "dev", StageEvent.Breaks, false);
-        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.Breaks), is(true));
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.Breaks)).isTrue();
     }
 
     @Test
-    public void allEventShouldMatchAnyEvents() {
+    void allEventShouldMatchAnyEvents() {
         NotificationFilter filter = new NotificationFilter("cruise", "dev", StageEvent.All, false);
-        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.Breaks), is(true));
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.Breaks)).isTrue();
     }
 
     @Test
-    public void shouldNotMatchStageWithDifferentPipeline() {
+    void shouldNotMatchStageWithDifferentPipeline() {
         NotificationFilter filter = new NotificationFilter("xyz", "dev", StageEvent.All, false);
-        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.All), is(false));
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.All)).isFalse();
     }
 
     @Test
-    public void shouldNotMatchStageWithDifferentName() {
+    void shouldNotMatchStageWithDifferentName() {
         NotificationFilter filter = new NotificationFilter("cruise", "xyz", StageEvent.All, false);
-        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.All), is(false));
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.All)).isFalse();
     }
 
     @Test
-    public void filterWithAllEventShouldIncludeOthers() {
+    void filterWithAllEventShouldIncludeOthers() {
         assertThat(new NotificationFilter("cruise", "dev", StageEvent.All, false).include(
-                new NotificationFilter("cruise", "dev", StageEvent.Fixed, false)), is(true));
+            new NotificationFilter("cruise", "dev", StageEvent.Fixed, false))).isTrue();
 
     }
 
     @Test
-    public void filterWithSameEventShouldIncludeOthers() {
+    void filterWithSameEventShouldIncludeOthers() {
         assertThat(new NotificationFilter("cruise", "dev", StageEvent.Fixed, false).include(
-                new NotificationFilter("cruise", "dev", StageEvent.Fixed, true)), is(true));
+            new NotificationFilter("cruise", "dev", StageEvent.Fixed, true))).isTrue();
 
     }
 
     @Test
-    public void anyPipelineShouldAlwaysMatch() {
+    void anyPipelineShouldAlwaysMatch() {
         NotificationFilter filter = new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Breaks, false);
-        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.Breaks), is(true));
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.Breaks)).isTrue();
     }
 
     @Test
-    public void anyStageShouldAlwaysMatchWithinSamePipeline() {
+    void anyStageShouldAlwaysMatchWithinSamePipeline() {
         NotificationFilter filter = new NotificationFilter("cruise", GoConstants.ANY_STAGE, StageEvent.Breaks, false);
-        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.Breaks), is(true));
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise", "dev"), StageEvent.Breaks)).isTrue();
     }
 
     @Test
-    public void anyStageShouldNotMatchWithinADifferentPipeline() {
+    void anyStageShouldNotMatchWithinADifferentPipeline() {
         NotificationFilter filter = new NotificationFilter("cruise", GoConstants.ANY_STAGE, StageEvent.Breaks, false);
-        assertThat(filter.matchStage(new StageConfigIdentifier("cruise2", "dev"), StageEvent.Breaks), is(false));
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise2", "dev"), StageEvent.Breaks)).isFalse();
     }
 
     @Test
-    public void specificStageShouldMatchWithinAnyPipeline() {
+    void specificStageShouldMatchWithinAnyPipeline() {
         NotificationFilter filter = new NotificationFilter(GoConstants.ANY_PIPELINE, "dev", StageEvent.Breaks, false);
-        assertThat(filter.matchStage(new StageConfigIdentifier("cruise1", "dev"), StageEvent.Breaks), is(true));
-        assertThat(filter.matchStage(new StageConfigIdentifier("cruise2", "dev"), StageEvent.Breaks), is(true));
-        assertThat(filter.matchStage(new StageConfigIdentifier("cruise2", "not-dev"), StageEvent.Breaks), is(false));
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise1", "dev"), StageEvent.Breaks)).isTrue();
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise2", "dev"), StageEvent.Breaks)).isTrue();
+        assertThat(filter.matchStage(new StageConfigIdentifier("cruise2", "not-dev"), StageEvent.Breaks)).isFalse();
     }
 
     @Test
-    public void anyPipelineAndAnyStageShouldAlwaysApply() {
+    void anyPipelineAndAnyStageShouldAlwaysApply() {
         NotificationFilter filter = new NotificationFilter(GoConstants.ANY_PIPELINE, GoConstants.ANY_STAGE, StageEvent.Breaks, false);
-        assertThat(filter.appliesTo("cruise2", "dev"), is(true));
+        assertThat(filter.appliesTo("cruise2", "dev")).isTrue();
     }
 
     @Test
-    public void anyStageShouldAlwaysApply() {
+    void anyStageShouldAlwaysApply() {
         NotificationFilter filter = new NotificationFilter("cruise2", GoConstants.ANY_STAGE, StageEvent.Breaks, false);
-        assertThat(filter.appliesTo("cruise2", "dev"), is(true));
+        assertThat(filter.appliesTo("cruise2", "dev")).isTrue();
     }
 
     @Test
-    public void shouldNotApplyIfPipelineDiffers() {
+    void shouldNotApplyIfPipelineDiffers() {
         NotificationFilter filter = new NotificationFilter("cruise1", GoConstants.ANY_STAGE, StageEvent.Breaks, false);
-        assertThat(filter.appliesTo("cruise2", "dev"), is(false));
+        assertThat(filter.appliesTo("cruise2", "dev")).isFalse();
     }
 
     @Test
-    public void shouldNotApplyIfStageDiffers() {
+    void shouldNotApplyIfStageDiffers() {
         NotificationFilter filter = new NotificationFilter("cruise2", "devo", StageEvent.Breaks, false);
-        assertThat(filter.appliesTo("cruise2", "dev"), is(false));
+        assertThat(filter.appliesTo("cruise2", "dev")).isFalse();
     }
 
     @Test
-    public void specificStageShouldApplyToAnyPipeline() {
+    void specificStageShouldApplyToAnyPipeline() {
         NotificationFilter filter = new NotificationFilter(GoConstants.ANY_PIPELINE, "dev", StageEvent.Breaks, false);
-        assertThat(filter.appliesTo("cruise1", "dev"), is(true));
-        assertThat(filter.appliesTo("cruise2", "dev"), is(true));
-        assertThat(filter.appliesTo("cruise2", "not-dev"), is(false));
+        assertThat(filter.appliesTo("cruise1", "dev")).isTrue();
+        assertThat(filter.appliesTo("cruise2", "dev")).isTrue();
+        assertThat(filter.appliesTo("cruise2", "not-dev")).isFalse();
+    }
+
+    @Nested
+    class Validate {
+        @Test
+        void shouldBeValidIfPipelineNameIsSetToAnyPipeline() {
+            NotificationFilter filter = new NotificationFilter("[Any Pipeline]", null, null, true);
+
+            filter.validate(validationContext);
+
+            assertThat(filter.errors()).isEmpty();
+        }
+
+        @Test
+        void shouldErrorOutWhenPipelineWithNameDoesNotExist() {
+            BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("up42");
+            when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
+            NotificationFilter filter = new NotificationFilter("Unknown", null, null, true);
+
+            filter.validate(validationContext);
+
+            assertThat(filter.errors()).hasSize(1)
+                .containsEntry("pipelineName", List.of("Pipeline with name 'Unknown' was not found!"));
+        }
+
+        @Test
+        void shouldBeValidIfPipelineWithNameExistAndStageIsSetToAnyStage() {
+            BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("up42");
+            NotificationFilter filter = new NotificationFilter("up42", "[Any Stage]", null, true);
+            when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
+
+            filter.validate(validationContext);
+
+            assertThat(filter.errors()).isEmpty();
+        }
+
+        @Test
+        void shouldErrorOutWhenPipelineWithNameExistAndStageDoesNotExist() {
+            BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+            cruiseConfig.addPipeline("Group-1", createPipelineConfig("up42", "defaultStage"));
+            when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
+            NotificationFilter filter = new NotificationFilter("up42", "unit-tests", null, true);
+
+            filter.validate(validationContext);
+
+            assertThat(filter.errors()).hasSize(1)
+                .containsEntry("stageName", List.of("Stage 'unit-tests' not found in pipeline 'up42'!"));
+        }
+
+        @Test
+        void shouldBeValidWhenPipelineAndStage() {
+            BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+            cruiseConfig.addPipeline("Group-1", createPipelineConfig("up42", "unit-tests"));
+            when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
+            NotificationFilter filter = new NotificationFilter("up42", "unit-tests", null, true);
+
+            filter.validate(validationContext);
+
+            assertThat(filter.errors()).isEmpty();
+        }
     }
 }

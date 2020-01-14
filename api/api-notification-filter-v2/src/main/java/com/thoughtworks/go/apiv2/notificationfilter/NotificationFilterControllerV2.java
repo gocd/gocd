@@ -37,6 +37,7 @@ import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
@@ -112,8 +113,13 @@ public class NotificationFilterControllerV2 extends ApiController implements Spa
 
     public String createNotificationFilter(Request request, Response response) throws IOException {
         NotificationFilter notificationFilter = buildEntityFromRequestBody(request);
-        userService.addNotificationFilter(currentUserId(request), notificationFilter);
-        setEtagHeader(response, etagFor(notificationFilter));
+
+        try {
+            userService.addNotificationFilter(currentUserId(request), notificationFilter);
+            setEtagHeader(response, etagFor(notificationFilter));
+        } catch (UnprocessableEntityException e) {
+            response.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
+        }
 
         return writerForTopLevelObject(request, response, writer -> NotificationFilterRepresenter.toJSON(writer, notificationFilter));
     }
@@ -126,10 +132,10 @@ public class NotificationFilterControllerV2 extends ApiController implements Spa
         try {
             userService.updateNotificationFilter(currentUserId(request), notificationFilter);
             setEtagHeader(response, etagFor(notificationFilter));
-            return writerForTopLevelObject(request, response, writer -> NotificationFilterRepresenter.toJSON(writer, notificationFilter));
-        } catch (UncheckedValidationException e) {
-            throw new UnprocessableEntityException(e.getMessage());
+        } catch (UncheckedValidationException | UnprocessableEntityException e) {
+            response.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
         }
+        return writerForTopLevelObject(request, response, writer -> NotificationFilterRepresenter.toJSON(writer, notificationFilter));
     }
 
     public String deleteFilter(Request request, Response response) {
@@ -151,11 +157,11 @@ public class NotificationFilterControllerV2 extends ApiController implements Spa
     @Override
     public NotificationFilter doFetchEntityFromConfig(String id) {
         return userService.findUserByName(currentUsernameString())
-                .getNotificationFilters()
-                .stream()
-                .filter(filter -> parseIdToLong(id) == filter.getId())
-                .findFirst()
-                .orElse(null);
+            .getNotificationFilters()
+            .stream()
+            .filter(filter -> parseIdToLong(id) == filter.getId())
+            .findFirst()
+            .orElse(null);
     }
 
     @Override

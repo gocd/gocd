@@ -133,7 +133,7 @@
   <rule>
     <name>New Elastic Agent Configuration Page</name>
     <from>^/admin/elastic_agents(/?)$</from>
-    <to last="true">/spark/admin/elastic_agents</to>
+    <to type="redirect" last="true">/go/admin/elastic_agent_configurations</to>
   </rule>
 
   <rule>

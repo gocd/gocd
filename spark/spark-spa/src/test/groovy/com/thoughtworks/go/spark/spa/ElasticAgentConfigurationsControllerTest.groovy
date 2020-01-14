@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.spark.spa
 
-
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -25,15 +24,11 @@ import org.junit.jupiter.api.Nested
 
 import static org.mockito.MockitoAnnotations.initMocks
 
-class ElasticAgentsControllerTest implements ControllerTrait<ElasticAgentsController>, SecurityServiceTrait {
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
+class ElasticAgentConfigurationsControllerTest implements ControllerTrait<ElasticAgentConfigurationsController>, SecurityServiceTrait {
 
   @Override
-  ElasticAgentsController createControllerInstance() {
-    return new ElasticAgentsController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+  ElasticAgentConfigurationsController createControllerInstance() {
+    return new ElasticAgentConfigurationsController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
   }
 
   @Nested
@@ -48,9 +43,15 @@ class ElasticAgentsControllerTest implements ControllerTrait<ElasticAgentsContro
 
       @Override
       void makeHttpCall() {
-        get(controller.controllerBasePath())
+        get(controller.controllerPath())
       }
     }
   }
 
+  @BeforeEach
+  void setUp() {
+    initMocks(this)
+  }
+
 }
+

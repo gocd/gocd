@@ -61,7 +61,6 @@ public class SpaControllers implements SparkSpringController {
         sparkControllers.add(new AdminPipelinesController(authenticationHelper, templateEngineFactory.create(AdminPipelinesController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new ServerConfigurationController(authenticationHelper, templateEngineFactory.create(ServerConfigurationController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new NewEnvironmentsController(authenticationHelper, templateEngineFactory.create(NewEnvironmentsController.class, () -> COMPONENT_LAYOUT_PATH)));
-        sparkControllers.add(new ElasticAgentsController(authenticationHelper, templateEngineFactory.create(ElasticAgentsController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new PipelineConfigsController(authenticationHelper, templateEngineFactory.create(PipelineConfigsController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new AgentsController(systemEnvironment, securityService, authenticationHelper, templateEngineFactory.create(AgentsController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new ServerInfoController(authenticationHelper, templateEngineFactory.create(ServerInfoController.class, () -> COMPONENT_LAYOUT_PATH), artifactsDirHolder, systemService, pipelineConfigService));

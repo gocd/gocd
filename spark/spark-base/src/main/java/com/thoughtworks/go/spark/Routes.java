@@ -749,10 +749,6 @@ public class Routes {
         public static final String SPA_BASE = "/admin/pipeline_configs";
     }
 
-    public class ElasticAgents {
-        public static final String SPA_BASE = "/admin/elastic_agents";
-    }
-
     public class InternalPipelineStructure {
         public static final String BASE = "/api/internal/pipeline_structure";
         public static final String WITH_SUGGESTIONS = "/with_suggestions";

@@ -1,0 +1,7 @@
+{
+  "ref": "refs/heads/release",
+  "project": {
+    "path_with_namespace": "gocd/spaceship",
+    "http_url": "https://gitlab.example.com/gocd/spaceship"
+  }
+}

@@ -132,4 +132,74 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
         .hasJsonMessage("OK!")
     }
   }
+  
+  @Nested
+  class GitLab {
+    def payload = [
+      "ref"       : "refs/heads/release",
+      "project": [
+        "path_with_namespace": "gocd/spaceship",
+        "http_url" : "https://github.com/gocd/spaceship"
+      ]
+    ]
+
+    @Test
+    void 'should error out if event type is not acceptable'() {
+      def headers = [
+        "X-Gitlab-Token": "",
+        "X-Gitlab-Event" : "Foo"
+      ]
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.GITLAB), headers, payload)
+
+      assertThatResponse().isBadRequest()
+        .hasJsonMessage("Invalid event type 'Foo'. Only 'push' event is allowed.")
+    }
+
+    @Test
+    void 'should error out signature does not match'() {
+      def headers = [
+        "X-Gitlab-Token": "foobar",
+        "X-Gitlab-Event" : "push"
+      ]
+      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.GITLAB), headers, payload)
+
+      assertThatResponse().isBadRequest()
+        .hasJsonMessage("Token specified in the 'X-Gitlab-Token' header did not match!")
+    }
+
+    @Test
+    void 'should error out when material is not configured in GoCD'() {
+      def headers = [
+        "X-Gitlab-Token": "c699381b869f24e74db3ee95609c52ee1aad1a48",
+        "X-Gitlab-Event" : "PuSh"
+      ]
+      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
+      Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(false)
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.GITLAB), headers, payload)
+
+      assertThatResponse()
+        .isAccepted()
+        .hasJsonMessage("No matching materials!")
+    }
+
+    @Test
+    void 'should handle push request'() {
+      def headers = [
+        "X-Gitlab-Token": "c699381b869f24e74db3ee95609c52ee1aad1a48",
+        "X-Gitlab-Event" : "PuSh"
+      ]
+      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
+      Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(true)
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.GITLAB), headers, payload)
+
+      assertThatResponse()
+        .isAccepted()
+        .hasJsonMessage("OK!")
+    }
+  }
 }

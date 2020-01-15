@@ -143,6 +143,7 @@ export interface ElasticProfileJSON {
   id: string;
   plugin_id: string;
   cluster_profile_id?: string;
+  can_administer: boolean;
   properties: PropertyJSON[];
   errors?: { [key: string]: string[] };
 }
@@ -150,6 +151,7 @@ export interface ElasticProfileJSON {
 export interface ClusterProfileJSON {
   id: string;
   plugin_id: string;
+  can_administer: boolean;
   properties: PropertyJSON[];
   errors?: { [key: string]: string[] };
 }
@@ -162,12 +164,18 @@ export class ElasticAgentProfile implements ValidatableMixin {
   id: Stream<string | undefined>;
   pluginId: Stream<string | undefined>;
   clusterProfileId: Stream<string | undefined>;
+  canAdminister: Stream<boolean>;
   properties: Stream<Configurations | undefined>;
 
-  constructor(id?: string, pluginId?: string, clusterProfileId?: string, properties?: Configurations) {
+  constructor(id?: string,
+              pluginId?: string,
+              clusterProfileId?: string,
+              canAdminister?: boolean,
+              properties?: Configurations) {
     this.id               = Stream(id);
     this.pluginId         = Stream(pluginId);
     this.clusterProfileId = Stream(clusterProfileId);
+    this.canAdminister    = Stream(canAdminister || false);
     this.properties       = Stream(properties);
 
     ValidatableMixin.call(this);
@@ -184,6 +192,7 @@ export class ElasticAgentProfile implements ValidatableMixin {
     const profile = new ElasticAgentProfile(profileJson.id,
                                             profileJson.plugin_id,
                                             profileJson.cluster_profile_id,
+                                            profileJson.can_administer,
                                             Configurations.fromJSON(profileJson.properties));
 
     profile.errors(new Errors(profileJson.errors));
@@ -221,12 +230,14 @@ export interface ClusterProfile extends ValidatableMixin {
 export class ClusterProfile implements ValidatableMixin {
   id: Stream<string | undefined>;
   pluginId: Stream<string | undefined>;
+  canAdminister: Stream<boolean>;
   properties: Stream<Configurations | undefined>;
 
-  constructor(id?: string, pluginId?: string, properties?: Configurations) {
-    this.id         = Stream(id);
-    this.pluginId   = Stream(pluginId);
-    this.properties = Stream(properties);
+  constructor(id?: string, pluginId?: string, canAdminister?: boolean, properties?: Configurations) {
+    this.id            = Stream(id);
+    this.pluginId      = Stream(pluginId);
+    this.canAdminister = Stream(canAdminister || false);
+    this.properties    = Stream(properties);
 
     ValidatableMixin.call(this);
     this.validatePresenceOf("pluginId");
@@ -240,6 +251,7 @@ export class ClusterProfile implements ValidatableMixin {
   static fromJSON(profileJson: ClusterProfileJSON): ClusterProfile {
     const profile = new ClusterProfile(profileJson.id,
                                        profileJson.plugin_id,
+                                       profileJson.can_administer,
                                        Configurations.fromJSON(profileJson.properties));
 
     profile.errors(new Errors(profileJson.errors));

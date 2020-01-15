@@ -87,7 +87,7 @@ describe("Elastic Agent Profiles Widget", () => {
 
     expect(helper.byTestId("edit-elastic-profile", elasticAgentProfilePanel)).toBeDisabled();
     expect(helper.byTestId("clone-elastic-profile", elasticAgentProfilePanel)).toBeDisabled();
-    expect(helper.byTestId("delete-elastic-profile", elasticAgentProfilePanel)).not.toBeDisabled();
+    expect(helper.byTestId("delete-elastic-profile", elasticAgentProfilePanel)).toBeDisabled();
     expect(helper.byTestId("show-usage-elastic-profile", elasticAgentProfilePanel)).not.toBeDisabled();
 
     helper.unmount();

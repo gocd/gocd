@@ -19,7 +19,7 @@ import {ElasticAgentProfile, ElasticAgentProfiles, ElasticProfileJSON, ProfileUs
 
 export class ElasticAgentProfilesCRUD {
   private static USAGES_API_VERSION_HEADER = ApiVersion.v1;
-  private static API_VERSION_HEADER        = ApiVersion.v2;
+  private static API_VERSION_HEADER        = ApiVersion.v3;
 
   static all() {
     return ApiRequestBuilder.GET(SparkRoutes.elasticProfileListPath(), this.API_VERSION_HEADER)

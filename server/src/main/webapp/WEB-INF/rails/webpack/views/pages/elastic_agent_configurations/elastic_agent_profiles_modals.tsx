@@ -175,65 +175,12 @@ abstract class BaseElasticProfileModal extends Modal {
         this.elasticProfile(new ElasticAgentProfile(this.elasticProfile().id(),
                                                     this.elasticProfile().pluginId(),
                                                     newValue,
+                                                    this.elasticProfile().canAdminister(),
                                                     this.elasticProfile().properties()));
       }
     }
 
     return this.elasticProfile().clusterProfileId();
-  }
-}
-
-export class EditElasticProfileModal extends BaseElasticProfileModal {
-  private readonly onSuccessfulSave: (msg: m.Children) => any;
-  private etag?: string;
-  private readonly elasticProfileId: string;
-
-  constructor(elasticProfileId: string,
-              pluginId: string,
-              pluginInfos: PluginInfos,
-              clusterProfiles: ClusterProfiles,
-              onSuccessfulSave: (msg: m.Children) => any
-  ) {
-    super(pluginInfos, ModalType.edit, clusterProfiles);
-    this.elasticProfileId = elasticProfileId;
-    this.onSuccessfulSave = onSuccessfulSave;
-
-    ElasticAgentProfilesCRUD
-      .get(elasticProfileId)
-      .then((result) => {
-        result.do(
-          (successResponse) => {
-            this.elasticProfile(successResponse.body.object);
-            this.elasticProfile().pluginId(pluginId);
-            this.etag = successResponse.body.etag;
-          },
-          ((errorResponse) => this.onError(JSON.parse(errorResponse.body!).message))
-        );
-      });
-  }
-
-  performSave() {
-    ElasticAgentProfilesCRUD
-      .update(this.elasticProfile(), this.etag!)
-      .then((result) => {
-        result.do(
-          () => {
-            this.onSuccessfulSave(
-              <span>
-                The elastic agent profile <em>{this.elasticProfile().id()}</em> was updated successfully!
-                     </span>
-            );
-            this.close();
-          },
-          (errorResponse) => {
-            this.showErrors(result, errorResponse);
-          }
-        );
-      });
-  }
-
-  modalTitle() {
-    return "Edit elastic agent profile " + this.elasticProfileId;
   }
 }
 

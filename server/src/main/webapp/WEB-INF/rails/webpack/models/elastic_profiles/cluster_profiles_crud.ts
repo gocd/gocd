@@ -19,7 +19,7 @@ import {SparkRoutes} from "helpers/spark_routes";
 import {ClusterProfile, ClusterProfileJSON, ClusterProfiles} from "./types";
 
 export class ClusterProfilesCRUD {
-  private static API_VERSION_HEADER = ApiVersion.v1;
+  private static API_VERSION_HEADER = ApiVersion.v2;
 
   static all() {
     return ApiRequestBuilder.GET(SparkRoutes.clusterProfilesListPath(), this.API_VERSION_HEADER)

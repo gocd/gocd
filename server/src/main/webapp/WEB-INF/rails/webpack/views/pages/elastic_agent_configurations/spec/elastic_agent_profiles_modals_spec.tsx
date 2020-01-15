@@ -37,7 +37,7 @@ describe("New Elastic Agent Profile Modals Spec", () => {
     const modal = new NewElasticProfileModal(
       new PluginInfos(pluginInfo),
       new ClusterProfiles(clusterProfiles),
-      new ElasticAgentProfile(undefined, undefined, undefined, new Configurations([])), _.noop);
+      new ElasticAgentProfile(undefined, undefined, undefined, undefined, new Configurations([])), _.noop);
 
     helper.mount(modal.body.bind(modal));
   }
@@ -46,7 +46,7 @@ describe("New Elastic Agent Profile Modals Spec", () => {
     const modal = new NewElasticProfileModal(
       new PluginInfos(pluginInfo),
       new ClusterProfiles(clusterProfiles),
-      new ElasticAgentProfile(undefined, undefined, undefined, new Configurations([])), _.noop);
+      new ElasticAgentProfile(undefined, undefined, undefined, undefined, new Configurations([])), _.noop);
 
     expect(modal.title()).toEqual("Add a new elastic agent profile");
   });
@@ -119,7 +119,7 @@ describe("New Elastic Agent Profile Modals Spec", () => {
     const pluginInfos = new PluginInfos(PluginInfo.fromJSON(TestData.dockerPluginJSON()), PluginInfo.fromJSON(data));
     clusterProfiles = [new ClusterProfile("cluster1", pluginInfo.id), new ClusterProfile("cluster2", data.id)];
 
-    const elasticAgentProfile = new ElasticAgentProfile("", data.id, "cluster2", new Configurations([]));
+    const elasticAgentProfile = new ElasticAgentProfile("", data.id, "cluster2", true, new Configurations([]));
 
     const modal = new NewElasticProfileModal(pluginInfos, new ClusterProfiles(clusterProfiles), elasticAgentProfile, _.noop);
 
@@ -139,7 +139,7 @@ describe("New Elastic Agent Profile Modals Spec", () => {
     const pluginInfos = new PluginInfos(PluginInfo.fromJSON(TestData.dockerPluginJSON()), PluginInfo.fromJSON(data));
     clusterProfiles = [new ClusterProfile("cluster1", pluginInfo.id), new ClusterProfile("cluster2", pluginInfo.id)];
 
-    const elasticAgentProfile = new ElasticAgentProfile("", "", "", new Configurations([]));
+    const elasticAgentProfile = new ElasticAgentProfile("", "", "", true, new Configurations([]));
 
     const modal = new NewElasticProfileModal(pluginInfos, new ClusterProfiles(clusterProfiles), elasticAgentProfile, _.noop);
 

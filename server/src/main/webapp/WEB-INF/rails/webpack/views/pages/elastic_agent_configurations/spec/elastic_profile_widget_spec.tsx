@@ -94,7 +94,50 @@ describe("New Elastic Agent Profile Widget", () => {
 
     expect(helper.byTestId("edit-elastic-profile", helper.byTestId("elastic-profile-header"))).toBeDisabled();
     expect(helper.byTestId("clone-elastic-profile", helper.byTestId("elastic-profile-header"))).toBeDisabled();
-    expect(helper.byTestId("delete-elastic-profile", helper.byTestId("elastic-profile-header"))).not.toBeDisabled();
+    expect(helper.byTestId("delete-elastic-profile", helper.byTestId("elastic-profile-header"))).toBeDisabled();
+    expect(helper.byTestId("show-usage-elastic-profile", helper.byTestId("elastic-profile-header"))).not.toBeDisabled();
+
+    helper.unmount();
+  });
+
+  it("should disable edit button when user does not have administer permissions", () => {
+    const profile = ElasticAgentProfile.fromJSON(TestData.dockerElasticProfile());
+    profile.canAdminister(false);
+    mount(pluginInfo, profile);
+
+    expect(helper.byTestId("edit-elastic-profile", helper.byTestId("elastic-profile-header"))).toBeDisabled();
+    expect(helper.byTestId("edit-elastic-profile", helper.byTestId("elastic-profile-header")).title).toBe("You dont have permissions to administer 'Profile2' elastic agent profile.");
+
+    helper.unmount();
+  });
+
+  it("should not disable clone button when user does not have administer permissions", () => {
+    const profile = ElasticAgentProfile.fromJSON(TestData.dockerElasticProfile());
+    profile.canAdminister(false);
+    mount(pluginInfo, profile);
+
+    expect(helper.byTestId("clone-elastic-profile", helper.byTestId("elastic-profile-header"))).not.toBeDisabled();
+
+    helper.unmount();
+  });
+
+  it("should disable delete button when user does not have administer permissions", () => {
+    const profile = ElasticAgentProfile.fromJSON(TestData.dockerElasticProfile());
+    profile.canAdminister(false);
+    mount(pluginInfo, profile);
+
+    expect(helper.byTestId("delete-elastic-profile", helper.byTestId("elastic-profile-header"))).toBeDisabled();
+    expect(helper.byTestId("delete-elastic-profile", helper.byTestId("elastic-profile-header")).title).toBe("You dont have permissions to administer 'Profile2' elastic agent profile.");
+
+    helper.unmount();
+  });
+
+  it("should not disable usage button when user does not have administer permissions", () => {
+    const profile = ElasticAgentProfile.fromJSON(TestData.dockerElasticProfile());
+    profile.canAdminister(false);
+    mount(pluginInfo, profile);
+
+    expect(helper.byTestId("show-usage-elastic-profile", helper.byTestId("elastic-profile-header"))).not.toBeDisabled();
 
     helper.unmount();
   });

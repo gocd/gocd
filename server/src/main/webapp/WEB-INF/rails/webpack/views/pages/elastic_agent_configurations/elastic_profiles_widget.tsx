@@ -103,14 +103,34 @@ export class ElasticProfileWidget extends MithrilComponent<ProfileAttrs> {
 
   view(vnode: m.Vnode<ProfileAttrs, {}>) {
     const elasticProfile = vnode.attrs.elasticProfile;
-    const actions        = [
+
+    let isDisabled = false, disabledReason;
+
+    if (!vnode.attrs.pluginInfo) {
+      isDisabled     = true;
+      disabledReason = `Could not find plugin with id ${vnode.attrs.elasticProfile.pluginId()}`;
+    }
+
+    if (!vnode.attrs.elasticProfile.canAdminister()) {
+      isDisabled     = true;
+      disabledReason = `You dont have permissions to administer '${vnode.attrs.elasticProfile.id()}' elastic agent profile.`;
+    }
+
+    const actions = [
       <IconGroup>
-        <Icons.Edit data-test-id="edit-elastic-profile" onclick={vnode.attrs.onEdit}
-                    disabled={!vnode.attrs.pluginInfo}/>
-        <Icons.Clone data-test-id="clone-elastic-profile" onclick={vnode.attrs.onClone}
+        <Icons.Edit data-test-id="edit-elastic-profile"
+                    onclick={vnode.attrs.onEdit}
+                    title={disabledReason}
+                    disabled={isDisabled}/>
+        <Icons.Clone data-test-id="clone-elastic-profile"
+                     onclick={vnode.attrs.onClone}
                      disabled={!vnode.attrs.pluginInfo}/>
-        <Icons.Delete data-test-id="delete-elastic-profile" onclick={vnode.attrs.onDelete}/>
-        <Icons.Usage data-test-id="show-usage-elastic-profile" onclick={vnode.attrs.onShowUsage}/>
+        <Icons.Delete data-test-id="delete-elastic-profile"
+                      title={disabledReason}
+                      disabled={isDisabled}
+                      onclick={vnode.attrs.onDelete}/>
+        <Icons.Usage data-test-id="show-usage-elastic-profile"
+                     onclick={vnode.attrs.onShowUsage}/>
       </IconGroup>
     ];
     return (

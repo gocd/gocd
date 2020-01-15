@@ -39,7 +39,7 @@ describe("ClusterProfileCRUD", () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(ALL_CLUSTER_PROFILES_PATH);
     expect(request.method).toEqual("GET");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
   });
 
   it("should get a cluster profile", (done) => {
@@ -58,7 +58,7 @@ describe("ClusterProfileCRUD", () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(GET_CLUSTER_PROFILE_PATH);
     expect(request.method).toEqual("GET");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
   });
 
   it("should create a cluster profile", (done) => {
@@ -78,7 +78,7 @@ describe("ClusterProfileCRUD", () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(ALL_CLUSTER_PROFILES_PATH);
     expect(request.method).toEqual("POST");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
   });
 
   it("should update a cluster profile", (done) => {
@@ -98,7 +98,7 @@ describe("ClusterProfileCRUD", () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(GET_CLUSTER_PROFILE_PATH);
     expect(request.method).toEqual("PUT");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
   });
 
   it("should delete a cluster profile", (done) => {
@@ -113,20 +113,20 @@ describe("ClusterProfileCRUD", () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(GET_CLUSTER_PROFILE_PATH);
     expect(request.method).toEqual("DELETE");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
   });
 
   function clusterProfilesResponse() {
     return {
       status: 200,
       responseHeaders: {
-        "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+        "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8",
         "ETag": "some-etag"
       },
       responseText: JSON.stringify({
                                      _embedded: {
                                        cluster_profiles: [
-                                         clusterProfileTestData("dev1", "cd.go.contrib.elastic-agent.docker")
+                                         clusterProfileTestData("dev2", "cd.go.contrib.elastic-agent.docker")
                                        ]
                                      }
                                    })
@@ -137,17 +137,18 @@ describe("ClusterProfileCRUD", () => {
     return {
       status: 200,
       responseHeaders: {
-        "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+        "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8",
         "ETag": "some-etag"
       },
       responseText: JSON.stringify(clusterProfileTestData("cluster_1", "plugin_1"))
     };
   }
 
-  function clusterProfileTestData(id: string, pluginID: string) {
+  function clusterProfileTestData(id: string, pluginID: string, canAdminister: boolean = false) {
     return {
       id,
       plugin_id: pluginID,
+      can_administer: canAdminister,
       properties: [
         {
           key: "docker_uri",

@@ -45,7 +45,7 @@ public class ElasticAgentConfigurationsController implements SparkController {
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before("", authenticationHelper::checkUserAnd403);
             get("", this::index, engine);
         });
     }

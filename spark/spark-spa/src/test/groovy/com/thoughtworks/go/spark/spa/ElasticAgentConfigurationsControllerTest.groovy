@@ -16,7 +16,7 @@
 package com.thoughtworks.go.spark.spa
 
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
+import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
 import org.junit.jupiter.api.BeforeEach
@@ -34,7 +34,7 @@ class ElasticAgentConfigurationsControllerTest implements ControllerTrait<Elasti
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, NormalUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {

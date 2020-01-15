@@ -175,90 +175,19 @@ export abstract class BaseClusterProfileModal extends Modal {
         this.clusterProfile(new ClusterProfile(
           this.clusterProfile().id(),
           pluginInfo!.id,
+          this.clusterProfile().canAdminister(),
           new Configurations([])
         ));
 
         this.clusterProfile(new ClusterProfile(
           this.clusterProfile().id(),
           pluginInfo!.id,
+          this.clusterProfile().canAdminister(),
           new Configurations([])
         ));
       }
     }
     return this.elasticAgentPluginInfo().id;
-  }
-}
-
-export class NewClusterProfileModal extends BaseClusterProfileModal {
-  private readonly onSuccessfulSave: (msg: m.Children) => any;
-
-  constructor(pluginInfos: PluginInfos, onSuccessfulSave: (msg: m.Children) => any) {
-    const clusterProfile = new ClusterProfile("", pluginInfos[0].id, new Configurations([]));
-    super(pluginInfos, ModalType.create, clusterProfile);
-    this.onSuccessfulSave = onSuccessfulSave;
-  }
-
-  performSave() {
-    ClusterProfilesCRUD.create(this.clusterProfile())
-      .then((result) => {
-        result.do(
-          () => {
-            this.onSuccessfulSave(<span>The cluster profile <em>{this.clusterProfile().id()}</em> was created successfully!</span>);
-            this.close();
-          },
-          (errorResponse) => {
-            this.showErrors(result, errorResponse);
-          }
-        );
-      });
-  }
-
-  modalTitle() {
-    return "Add a new cluster profile";
-  }
-}
-
-export class EditClusterProfileModal extends BaseClusterProfileModal {
-  private readonly onSuccessfulSave: (msg: m.Children) => any;
-  private etag?: string;
-  private readonly clusterProfileId: string;
-
-  constructor(clusterProfileId: string, pluginInfos: PluginInfos, onSuccessfulSave: (msg: m.Children) => any) {
-    super(pluginInfos, ModalType.edit);
-    this.clusterProfileId = clusterProfileId;
-    this.onSuccessfulSave = onSuccessfulSave;
-
-    ClusterProfilesCRUD.get(clusterProfileId)
-      .then((result) => {
-        result.do(
-          (successResponse) => {
-            this.clusterProfile(successResponse.body.object);
-            this.etag = successResponse.body.etag;
-          },
-          ((errorResponse) => this.onError(JSON.parse(errorResponse.body!).message))
-        );
-      });
-  }
-
-  performSave() {
-    ClusterProfilesCRUD
-      .update(this.clusterProfile(), this.etag!)
-      .then((result) => {
-        result.do(
-          () => {
-            this.onSuccessfulSave(<span>The cluster profile <em>{this.clusterProfile().id()}</em> was updated successfully!</span>);
-            this.close();
-          },
-          (errorResponse) => {
-            this.onError(JSON.parse(errorResponse.body!).message);
-            this.showErrors(result, errorResponse);
-          }
-        );
-      });
-  }
-
-  modalTitle() {
-    return "Edit cluster profile " + this.clusterProfileId;
   }
 }
 

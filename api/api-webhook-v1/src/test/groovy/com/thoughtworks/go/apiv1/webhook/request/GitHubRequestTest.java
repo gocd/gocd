@@ -41,8 +41,8 @@ class GitHubRequestTest {
         GitHubRequest gitHubRequest = new GitHubRequest(request);
 
         assertThat(gitHubRequest.supportedContentType())
-            .hasSize(2)
-            .contains(APPLICATION_FORM_URLENCODED_VALUE, APPLICATION_JSON_VALUE);
+            .hasSize(3)
+            .contains(APPLICATION_FORM_URLENCODED_VALUE, APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE);
     }
 
     @ParameterizedTest
@@ -121,7 +121,6 @@ class GitHubRequestTest {
     }
 
     private void assertPayload(GitHubPayload payload) {
-        assertThat(payload.getZen()).isEqualTo("Keep it logically awesome.");
         assertThat(payload.getBranch()).isEqualTo("release");
         assertThat(payload.getFullName()).isEqualTo("gocd/spaceship");
         assertThat(payload.getHostname()).isEqualTo("github.com");

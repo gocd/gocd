@@ -22,14 +22,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class GitHubPayloadTest {
+class BitBucketCloudPayloadTest {
     @ParameterizedTest
-    @FileSource(files = "/github-payload.json")
+    @FileSource(files = "/bitbucket-payload.json")
     void shouldParseRequestBodyOfContentTypeOfApplicationJson(String inputJSON) {
-        GitHubPayload gitHubPayload = GsonTransformer.getInstance().fromJson(inputJSON, GitHubPayload.class);
+        BitBucketCloudPayload payload = GsonTransformer.getInstance().fromJson(inputJSON, BitBucketCloudPayload.class);
 
-        assertThat(gitHubPayload.getBranch()).isEqualTo("release");
-        assertThat(gitHubPayload.getFullName()).isEqualTo("gocd/spaceship");
-        assertThat(gitHubPayload.getHostname()).isEqualTo("github.com");
+        assertThat(payload.getBranch()).isEqualTo("release");
+        assertThat(payload.getFullName()).isEqualTo("gocd/spaceship");
+        assertThat(payload.getHostname()).isEqualTo("bitbucket.org");
+        assertThat(payload.getScmType()).isEqualTo("git");
     }
 }

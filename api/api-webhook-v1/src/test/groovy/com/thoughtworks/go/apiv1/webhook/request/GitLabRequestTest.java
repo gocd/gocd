@@ -30,18 +30,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 class GitLabRequestTest {
     @Test
-    void shouldSupportJsonAndUrlEncodedPayload() {
+    void shouldSupportOnlyJsonPayload() {
         Request request = newRequest("Push Hook", "", "{}");
 
         GitLabRequest gitLabRequest = new GitLabRequest(request);
 
         assertThat(gitLabRequest.supportedContentType())
-            .hasSize(1)
-            .contains(APPLICATION_JSON_VALUE);
+            .hasSize(2)
+            .contains(APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE);
     }
 
     @ParameterizedTest
@@ -100,7 +101,7 @@ class GitLabRequestTest {
 
             assertThatCode(() -> new GitLabRequest(request).validate("webhook-secret"))
                 .isInstanceOf(BadRequestException.class)
-                .hasMessage(format("Invalid event type '%s'. Only 'push' event is allowed.", event));
+                .hasMessage(format("Invalid event type '%s'. Only 'Push Hook' event is allowed.", event));
         }
 
         @Test

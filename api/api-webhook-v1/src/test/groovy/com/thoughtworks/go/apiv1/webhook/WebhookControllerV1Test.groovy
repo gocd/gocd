@@ -89,7 +89,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
     void 'should handle ping request'() {
       def headers = [
         "X-Hub-Signature": "sha1=c699381b869f24e74db3ee95609c52ee1aad1a48",
-        "X-GitHub-Event" : "PiNg"
+        "X-GitHub-Event" : "ping"
       ]
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
 
@@ -104,7 +104,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
     void 'should error out when material is not configured in GoCD'() {
       def headers = [
         "X-Hub-Signature": "sha1=c699381b869f24e74db3ee95609c52ee1aad1a48",
-        "X-GitHub-Event" : "PuSh"
+        "X-GitHub-Event" : "push"
       ]
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
       Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(false)
@@ -120,7 +120,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
     void 'should handle push request'() {
       def headers = [
         "X-Hub-Signature": "sha1=c699381b869f24e74db3ee95609c52ee1aad1a48",
-        "X-GitHub-Event" : "PuSh"
+        "X-GitHub-Event" : "push"
       ]
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
       Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(true)
@@ -132,14 +132,14 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
         .hasJsonMessage("OK!")
     }
   }
-  
+
   @Nested
   class GitLab {
     def payload = [
-      "ref"       : "refs/heads/release",
+      "ref"    : "refs/heads/release",
       "project": [
         "path_with_namespace": "gocd/spaceship",
-        "http_url" : "https://github.com/gocd/spaceship"
+        "http_url"           : "https://github.com/gocd/spaceship"
       ]
     ]
 
@@ -147,20 +147,20 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
     void 'should error out if event type is not acceptable'() {
       def headers = [
         "X-Gitlab-Token": "",
-        "X-Gitlab-Event" : "Foo"
+        "X-Gitlab-Event": "Foo"
       ]
 
       postWithApiHeader(controller.controllerPath(Routes.Webhook.GITLAB), headers, payload)
 
       assertThatResponse().isBadRequest()
-        .hasJsonMessage("Invalid event type 'Foo'. Only 'push' event is allowed.")
+        .hasJsonMessage("Invalid event type 'Foo'. Only 'Push Hook' event is allowed.")
     }
 
     @Test
     void 'should error out signature does not match'() {
       def headers = [
         "X-Gitlab-Token": "foobar",
-        "X-Gitlab-Event" : "push"
+        "X-Gitlab-Event": "Push Hook"
       ]
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
 
@@ -174,7 +174,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
     void 'should error out when material is not configured in GoCD'() {
       def headers = [
         "X-Gitlab-Token": "c699381b869f24e74db3ee95609c52ee1aad1a48",
-        "X-Gitlab-Event" : "PuSh"
+        "X-Gitlab-Event": "Push Hook"
       ]
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
       Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(false)
@@ -190,7 +190,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
     void 'should handle push request'() {
       def headers = [
         "X-Gitlab-Token": "c699381b869f24e74db3ee95609c52ee1aad1a48",
-        "X-Gitlab-Event" : "PuSh"
+        "X-Gitlab-Event": "Push Hook"
       ]
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
       Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(true)
@@ -201,5 +201,84 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
         .isAccepted()
         .hasJsonMessage("OK!")
     }
+  }
+
+  @Nested
+  class BitBucket {
+    def payload = [
+      "push"      : [
+        "changes": [["new": ["name": "release", "type": "branch"]]]
+      ],
+      "repository": [
+        "scm"  : "git", "full_name": "gocd/spaceship",
+        "links": [
+          "html": ["href": "https://bitbucket.org/gocd/spaceship"]
+        ]
+      ]
+    ]
+
+
+    @Test
+    void 'should error out if event type is not acceptable'() {
+      def headers = [
+        "Authorization": "",
+        "X-Event-Key"  : "Foo"
+      ]
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_CLOUD), headers, payload)
+
+      assertThatResponse().isBadRequest()
+        .hasJsonMessage("Invalid event type 'Foo'. Allowed events are [repo:push, diagnostics:ping]")
+    }
+
+    @Test
+    void 'should error out when signature does not match'() {
+      def headers = [
+        "Authorization": "Basic ${encodeToBase64("c699381b869f24e74db3ee95609c52ee1aad1a48")}",
+        "X-Event-Key"  : "repo:push"
+      ]
+      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_CLOUD), headers, payload)
+
+      assertThatResponse().isBadRequest()
+        .hasJsonMessage("Token specified via basic authentication did not match!")
+    }
+
+    @Test
+    void 'should error out when material is not configured in GoCD'() {
+      def headers = [
+        "Authorization": "Basic ${encodeToBase64("c699381b869f24e74db3ee95609c52ee1aad1a48")}",
+        "X-Event-Key"  : "repo:push"
+      ]
+      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
+      Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(false)
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_CLOUD), headers, payload)
+
+      assertThatResponse()
+        .isAccepted()
+        .hasJsonMessage("No matching materials!")
+    }
+
+    @Test
+    void 'should handle push request'() {
+      def headers = [
+        "Authorization": "Basic ${encodeToBase64("c699381b869f24e74db3ee95609c52ee1aad1a48")}",
+        "X-Event-Key"  : "repo:push"
+      ]
+      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
+      Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(true)
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_CLOUD), headers, payload)
+
+      assertThatResponse()
+        .isAccepted()
+        .hasJsonMessage("OK!")
+    }
+  }
+
+  static def encodeToBase64(String token) {
+    return Base64.encoder.encodeToString(token.getBytes())
   }
 }

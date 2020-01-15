@@ -869,5 +869,6 @@ public class Routes {
         public static String BASE = "/api/webhooks";
         public static final String GITHUB = "/github/notify";
         public static final String GITLAB = "/gitlab/notify";
+        public static final String BIT_BUCKET_CLOUD = "/bitbucket/notify";
     }
 }

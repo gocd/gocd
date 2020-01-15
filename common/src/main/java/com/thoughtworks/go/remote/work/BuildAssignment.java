@@ -81,9 +81,7 @@ public class BuildAssignment implements Serializable, SecretParamAware {
         if (contextFromEnvironment != null) {
             buildAssignment.initialEnvironmentVariableContext().addAll(contextFromEnvironment);
         }
-        
-        String commaSeparatedResources = plan.getResources().stream().map (Object::toString).collect(Collectors.joining(","));
-        buildAssignment.initialEnvironmentVariableContext().setProperty("GO_AGENT_RESOURCES", commaSeparatedResources, false);
+
         buildAssignment.initialEnvironmentVariableContext().setProperty("GO_TRIGGER_USER", buildAssignment.getBuildApprover(), false);
         buildAssignment.getJobIdentifier().populateEnvironmentVariables(buildAssignment.initialEnvironmentVariableContext());
         buildAssignment.materialRevisions().populateEnvironmentVariables(buildAssignment.initialEnvironmentVariableContext(), buildWorkingDirectory);

@@ -509,3 +509,7 @@ api/api-api-info-v1/out/
 api/api-api-info-v1/target/
 api/api-api-info-v1/logs/
 api/api-api-info-v1/config/
+api/api-cluster-profiles-v2/out/
+api/api-cluster-profiles-v2/target/
+api/api-cluster-profiles-v2/logs/
+api/api-cluster-profiles-v2/config/

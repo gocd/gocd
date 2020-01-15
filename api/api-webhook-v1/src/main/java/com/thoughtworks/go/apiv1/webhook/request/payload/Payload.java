@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.webhook.requests;
+package com.thoughtworks.go.apiv1.webhook.request.payload;
 
-import spark.Request;
+public interface Payload {
+    String getBranch();
 
-public class GithubRequest extends WebhookRequest {
-    public GithubRequest(Request request) {
-        super(request);
-    }
+    String getHostname();
 
-    public String parseEvent(Request request) {
-        return request.headers("X-GitHub-Event");
-    }
+    String getFullName();
 }

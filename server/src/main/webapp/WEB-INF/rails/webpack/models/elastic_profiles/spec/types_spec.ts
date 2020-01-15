@@ -21,14 +21,14 @@ describe("Types", () => {
   describe("Elastic Agent Profiles", () => {
     describe("Validation", () => {
       it("should validate elastic agent profile", () => {
-        const elasticProfile = new ElasticAgentProfile("", "", "", new Configurations([]));
+        const elasticProfile = new ElasticAgentProfile("", "", "", true, new Configurations([]));
         expect(elasticProfile.isValid()).toBe(false);
         expect(elasticProfile.errors().count()).toBe(3);
         expect(elasticProfile.errors().keys().sort()).toEqual(["clusterProfileId", "id", "pluginId"]);
       });
 
       it("should validate elastic agent profile id format", () => {
-        const elasticProfile = new ElasticAgentProfile("invalid id", "pluginId", "foo", new Configurations([]));
+        const elasticProfile = new ElasticAgentProfile("invalid id", "pluginId", "foo", true, new Configurations([]));
         expect(elasticProfile.isValid()).toBe(false);
         expect(elasticProfile.errors().count()).toBe(1);
         expect(elasticProfile.errors().keys()).toEqual(["id"]);
@@ -37,7 +37,7 @@ describe("Types", () => {
       });
 
       it("should validate existence of cluster profile id", () => {
-        const elasticProfile = new ElasticAgentProfile("id", "pluginId", undefined, new Configurations([]));
+        const elasticProfile = new ElasticAgentProfile("id", "pluginId", undefined, true, new Configurations([]));
         expect(elasticProfile.isValid()).toBe(false);
         expect(elasticProfile.errors().count()).toBe(1);
         expect(elasticProfile.errors().keys()).toEqual(["clusterProfileId"]);
@@ -52,6 +52,7 @@ describe("Types", () => {
           "docker1",
           "cd.go.docker",
           "prod-cluster",
+          true,
           new Configurations([
                                new Configuration("image", new PlainTextValue("gocd/server")),
                                new Configuration("secret", new EncryptedValue("alskdad"))
@@ -78,6 +79,7 @@ describe("Types", () => {
                                                               id: "docker1",
                                                               plugin_id: "cd.go.docker",
                                                               cluster_profile_id: "prod-cluster",
+                                                              can_administer: true,
                                                               properties: [{
                                                                 key: "image",
                                                                 value: "gocd/server",
@@ -104,6 +106,7 @@ describe("Types", () => {
           "docker1",
           "cd.go.docker",
           "prod-cluster",
+          true,
           new Configurations([
                                new Configuration("image", new PlainTextValue("gocd/server")),
                                new Configuration("secret", new EncryptedValue("alskdad"))
@@ -129,7 +132,9 @@ describe("Types", () => {
       });
 
       it("should filter the elastic agent profiles by cluster profile", () => {
-        const elasticAgentProfiles = new ElasticAgentProfiles([new ElasticAgentProfile("profile_1", "plugin_id", "cluster1")]);
+        const elasticAgentProfiles = new ElasticAgentProfiles([new ElasticAgentProfile("profile_1",
+                                                                                       "plugin_id",
+                                                                                       "cluster1")]);
         expect(elasticAgentProfiles.filterByClusterProfile("cluster1").length).toEqual(1);
         expect(elasticAgentProfiles.filterByClusterProfile("cluster2").length).toEqual(0);
       });
@@ -139,14 +144,14 @@ describe("Types", () => {
   describe("Cluster Profiles", () => {
     describe("Validation", () => {
       it("should validate cluster profile", () => {
-        const clusterProfile = new ClusterProfile("", "", new Configurations([]));
+        const clusterProfile = new ClusterProfile("", "", true, new Configurations([]));
         expect(clusterProfile.isValid()).toBe(false);
         expect(clusterProfile.errors().count()).toBe(2);
         expect(clusterProfile.errors().keys().sort()).toEqual(["id", "pluginId"]);
       });
 
       it("should validate cluster profile id format", () => {
-        const clusterProfile = new ClusterProfile("invalid id", "pluginId", new Configurations([]));
+        const clusterProfile = new ClusterProfile("invalid id", "pluginId", true, new Configurations([]));
         expect(clusterProfile.isValid()).toBe(false);
         expect(clusterProfile.errors().count()).toBe(1);
         expect(clusterProfile.errors().keys()).toEqual(["id"]);
@@ -160,6 +165,7 @@ describe("Types", () => {
         const clusterProfile = new ClusterProfile(
           "docker1",
           "cd.go.docker",
+          true,
           new Configurations([
                                new Configuration("image", new PlainTextValue("gocd/server")),
                                new Configuration("secret", new EncryptedValue("alskdad"))
@@ -184,6 +190,7 @@ describe("Types", () => {
         const clusterProfile = ClusterProfile.fromJSON({
                                                          id: "docker1",
                                                          plugin_id: "cd.go.docker",
+                                                         can_administer: true,
                                                          properties: [{
                                                            key: "image",
                                                            value: "gocd/server",
@@ -208,6 +215,7 @@ describe("Types", () => {
         const clusterProfile = new ClusterProfile(
           "docker1",
           "cd.go.docker",
+          true,
           new Configurations([
                                new Configuration("image", new PlainTextValue("gocd/server")),
                                new Configuration("secret", new EncryptedValue("alskdad"))

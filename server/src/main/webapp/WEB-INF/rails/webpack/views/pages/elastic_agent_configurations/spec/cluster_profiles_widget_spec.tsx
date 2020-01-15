@@ -17,7 +17,12 @@
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
+import {
+  ClusterProfile,
+  ClusterProfiles,
+  ElasticAgentProfile,
+  ElasticAgentProfiles
+} from "models/elastic_profiles/types";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import {ClusterProfilesWidget} from "views/pages/elastic_agent_configurations/cluster_profiles_widget";
@@ -187,7 +192,75 @@ describe("ClusterProfilesWidget", () => {
     expect(helper.byTestId("edit-cluster-profile", dockerClusterProfilePanel)).toBeDisabled();
     expect(helper.byTestId("clone-cluster-profile", dockerClusterProfilePanel)).toBeDisabled();
     expect(helper.byTestId("new-elastic-agent-profile-button", dockerClusterProfilePanel)).toBeDisabled();
-    expect(helper.byTestId("delete-cluster-profile", dockerClusterProfilePanel)).not.toBeDisabled();
+    expect(helper.byTestId("delete-cluster-profile", dockerClusterProfilePanel)).toBeDisabled();
+
+    helper.unmount();
+  });
+
+  it("should not disable status button when user does not have administer permissions", () => {
+    const clusterProfile = ClusterProfile.fromJSON(TestData.dockerClusterProfile());
+    clusterProfile.canAdminister(false);
+
+    const clusterProfiles = new ClusterProfiles([clusterProfile]);
+    mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
+
+    expect(helper.byTestId( "status-report-link", helper.allByTestId("cluster-profile-panel").item(0))).toBeInDOM();
+    expect(helper.byTestId( "status-report-link", helper.allByTestId("cluster-profile-panel").item(0))).not.toBeDisabled();
+
+    helper.unmount();
+  });
+
+  it("should disable new elastic agent profile button when user does not have administer permissions", () => {
+    const clusterProfile = ClusterProfile.fromJSON(TestData.dockerClusterProfile());
+    clusterProfile.canAdminister(false);
+
+    const clusterProfiles = new ClusterProfiles([clusterProfile]);
+    mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
+
+    const dockerClusterProfilePanel = helper.byTestId("cluster-profile-panel");
+    expect(helper.byTestId("new-elastic-agent-profile-button", dockerClusterProfilePanel)).toBeDisabled();
+    expect(helper.byTestId("new-elastic-agent-profile-button", dockerClusterProfilePanel).title).toBe("You dont have permissions to administer 'cluster_3' cluster profile.");
+
+    helper.unmount();
+  });
+
+  it("should disable edit button when user does not have administer permissions", () => {
+    const clusterProfile = ClusterProfile.fromJSON(TestData.dockerClusterProfile());
+    clusterProfile.canAdminister(false);
+
+    const clusterProfiles = new ClusterProfiles([clusterProfile]);
+    mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
+
+    const dockerClusterProfilePanel = helper.byTestId("cluster-profile-panel");
+    expect(helper.byTestId("edit-cluster-profile", dockerClusterProfilePanel)).toBeDisabled();
+    expect(helper.byTestId("edit-cluster-profile", dockerClusterProfilePanel).title).toBe("You dont have permissions to administer 'cluster_3' cluster profile.");
+
+    helper.unmount();
+  });
+
+  it("should not disable clone button when user does not have administer permissions", () => {
+    const clusterProfile = ClusterProfile.fromJSON(TestData.dockerClusterProfile());
+    clusterProfile.canAdminister(false);
+
+    const clusterProfiles = new ClusterProfiles([clusterProfile]);
+    mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
+
+    const dockerClusterProfilePanel = helper.byTestId("cluster-profile-panel");
+    expect(helper.byTestId("clone-cluster-profile", dockerClusterProfilePanel)).not.toBeDisabled();
+
+    helper.unmount();
+  });
+
+  it("should disable delete button when user does not have administer permissions", () => {
+    const clusterProfile = ClusterProfile.fromJSON(TestData.dockerClusterProfile());
+    clusterProfile.canAdminister(false);
+
+    const clusterProfiles = new ClusterProfiles([clusterProfile]);
+    mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
+
+    const dockerClusterProfilePanel = helper.byTestId("cluster-profile-panel");
+    expect(helper.byTestId("delete-cluster-profile", dockerClusterProfilePanel)).toBeDisabled();
+    expect(helper.byTestId("delete-cluster-profile", dockerClusterProfilePanel).title).toBe("You dont have permissions to administer 'cluster_3' cluster profile.");
 
     helper.unmount();
   });

@@ -683,6 +683,7 @@ export class TestData {
       },
       id: "Profile2",
       plugin_id: "cd.go.contrib.elastic-agent.docker",
+      can_administer: true,
       properties: [{
         key: "Image",
         value: "docker-image122345"
@@ -714,6 +715,7 @@ export class TestData {
       },
       id: "Swarm1",
       plugin_id: "cd.go.contrib.elastic-agent.docker-swarm",
+      can_administer: true,
       properties: [{
         key: "Image",
         value: "Image1"
@@ -755,6 +757,7 @@ export class TestData {
       },
       id: "Kuber1",
       plugin_id: "cd.go.contrib.elasticagent.kubernetes",
+      can_administer: true,
       properties: [{
         key: "Image",
         value: "Image1"
@@ -791,6 +794,7 @@ export class TestData {
       },
       id: "cluster_3",
       plugin_id: "cd.go.contrib.elastic-agent.docker",
+      can_administer: true,
       properties: [
         {
           key: "go_server_url",
@@ -827,6 +831,7 @@ export class TestData {
       },
       id: "cluster_1",
       plugin_id: "cd.go.contrib.elasticagent.kubernetes",
+      can_administer: true,
       properties: [
         {
           key: "security_token",

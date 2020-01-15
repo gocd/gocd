@@ -58,7 +58,7 @@ describe("ClusterProfileModal", () => {
 
   describe("CreateModalType", () => {
     it("id field should not be disabled for new modal type", () => {
-      const clusterProfile = new ClusterProfile("", "cd.go.contrib.elastic-agent.docker", new Configurations([]));
+      const clusterProfile = new ClusterProfile("", "cd.go.contrib.elastic-agent.docker", true, new Configurations([]));
       modal                = new TestClusterProfile(pluginInfos, ModalType.create, clusterProfile);
       helper.mount(modal.body.bind(modal));
 
@@ -69,7 +69,7 @@ describe("ClusterProfileModal", () => {
     });
 
     it("should display cluster profile properties form if selected plugin supports cluster profile", () => {
-      const clusterProfile = new ClusterProfile("", "cd.go.contrib.elastic-agent.docker", new Configurations([]));
+      const clusterProfile = new ClusterProfile("", "cd.go.contrib.elastic-agent.docker", true, new Configurations([]));
       modal                = new TestClusterProfile(pluginInfos, ModalType.create, clusterProfile);
       helper.mount(modal.body.bind(modal));
 

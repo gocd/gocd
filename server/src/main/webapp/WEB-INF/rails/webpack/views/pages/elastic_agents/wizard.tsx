@@ -50,6 +50,7 @@ interface Attrs {
   elasticProfile: Stream<ElasticAgentProfile>;
   readonly: boolean;
   etag?: string;
+  errMessage?: string;
   clusterProfileSupportChangedListener?: (supportsClusterProfile: boolean) => any;
 }
 
@@ -67,6 +68,7 @@ class ClusterProfileWidget extends MithrilViewComponent<Attrs> {
     return (
       <div class={styles.container}>
         <div>
+          <FlashMessage type={MessageType.alert} message={vnode.attrs.errMessage}/>
           <div class={styles.profileForm}>
             <div><TextField label="Cluster Profile Name"
                             readonly={vnode.attrs.etag !== undefined || vnode.attrs.readonly}
@@ -221,6 +223,7 @@ class ClusterProfileStep extends Step {
   protected readonly elasticProfile: Stream<ElasticAgentProfile>;
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
   protected readonly onError: (msg: m.Children) => any;
+  protected readonly errMessage: Stream<string | undefined>;
   protected footerError: Stream<string>           = Stream("");
   protected etag?: string;
   protected selectedPluginSupportsClusterProfiles = true;
@@ -236,6 +239,7 @@ class ClusterProfileStep extends Step {
     this.elasticProfile   = elasticProfile;
     this.onSuccessfulSave = onSuccessfulSave;
     this.onError          = onError;
+    this.errMessage       = Stream();
   }
 
   body(): m.Children {
@@ -244,6 +248,7 @@ class ClusterProfileStep extends Step {
                                  elasticProfile={this.elasticProfile}
                                  etag={this.etag}
                                  readonly={false}
+                                 errMessage={this.errMessage()}
                                  clusterProfileSupportChangedListener={this.clusterProfileSupportChangedListener.bind(this)}/>;
   }
 
@@ -318,7 +323,10 @@ class ClusterProfileStep extends Step {
       this.clusterProfile(ClusterProfile.fromJSON(json.data));
       this.footerError("Please fix the validation errors above before proceeding.");
     } else {
-      this.onError(JSON.parse(errorResponse.body!).message);
+      this.footerError("Save Failed!");
+      const message = JSON.parse(errorResponse.body!).message;
+      this.errMessage(message);
+      this.onError(message);
     }
   }
 }
@@ -499,6 +507,7 @@ class ElasticProfileStep extends Step {
       this.elasticProfile(ElasticAgentProfile.fromJSON(json.data));
       this.footerError("Please fix the validation errors above before proceeding.");
     } else {
+      this.footerError("Save Failed!");
       this.onError(JSON.parse(errorResponse.body!).message);
     }
   }

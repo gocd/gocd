@@ -25,14 +25,17 @@ import {Configurations} from "models/shared/configuration";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {ElasticAgentExtension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
-import {ButtonIcon} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
+import {ButtonIcon} from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {HeaderIcon} from "views/components/header_icon";
 import * as Icons from "views/components/icons";
 import {IconGroup} from "views/components/icons";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
-import {Attrs as ElasticProfilesWidgetAttrs, ElasticProfilesWidget} from "views/pages/elastic_agent_configurations/elastic_profiles_widget";
+import {
+  Attrs as ElasticProfilesWidgetAttrs,
+  ElasticProfilesWidget
+} from "views/pages/elastic_agent_configurations/elastic_profiles_widget";
 import {AddOperation, CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
 import styles from ".//index.scss";
 
@@ -125,23 +128,46 @@ export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetA
         <Buttons.Secondary onclick={this.goToStatusReportPage.bind(this, statusReportPath)}
                            data-test-id="status-report-link"
                            icon={ButtonIcon.DOC}
-                           disabled={!vnode.attrs.isUserAnAdmin || !pluginInfo}>
+                           disabled={!pluginInfo}>
           Status Report
         </Buttons.Secondary>);
     }
 
+    let isDisabled = false, disabledReason = "";
+    if (!pluginInfo) {
+      isDisabled     = true;
+      disabledReason = `Could not find plugin with id ${vnode.attrs.clusterProfile.pluginId()}`;
+    }
+
+    if (!vnode.attrs.clusterProfile.canAdminister()) {
+      isDisabled     = true;
+      disabledReason = `You dont have permissions to administer '${vnode.attrs.clusterProfile.id()}' cluster profile.`;
+    }
+
     actionButtons.push(
       <Buttons.Secondary onclick={(e: MouseEvent) => {
-        vnode.attrs.elasticAgentOperations.onAdd(new ElasticAgentProfile("", vnode.attrs.clusterProfile.pluginId(), vnode.attrs.clusterProfile.id(), new Configurations([])), e);
-      }} data-test-id={"new-elastic-agent-profile-button"} disabled={!pluginInfo} icon={ButtonIcon.ADD}>
+        vnode.attrs.elasticAgentOperations.onAdd(new ElasticAgentProfile("", vnode.attrs.clusterProfile.pluginId(), vnode.attrs.clusterProfile.id(), true, new Configurations([])), e);
+      }}
+                         data-test-id={"new-elastic-agent-profile-button"}
+                         disabled={isDisabled}
+                         title={disabledReason}
+                         icon={ButtonIcon.ADD}>
         Elastic Agent Profile
       </Buttons.Secondary>);
 
     actionButtons.push(<div class={styles.clusterProfileCrudActions}>
       <IconGroup>
-        <Icons.Edit data-test-id="edit-cluster-profile" onclick={vnode.attrs.clusterProfileOperations.onEdit.bind(this, vnode.attrs.clusterProfile)} disabled={!pluginInfo}/>
-        <Icons.Clone data-test-id="clone-cluster-profile" onclick={vnode.attrs.clusterProfileOperations.onClone.bind(this, vnode.attrs.clusterProfile)} disabled={!pluginInfo}/>
-        <Icons.Delete data-test-id="delete-cluster-profile" onclick={vnode.attrs.clusterProfileOperations.onDelete.bind(this, vnode.attrs.clusterProfile.id()!)}/>
+        <Icons.Edit data-test-id="edit-cluster-profile"
+                    onclick={vnode.attrs.clusterProfileOperations.onEdit.bind(this, vnode.attrs.clusterProfile)}
+                    title={disabledReason}
+                    disabled={isDisabled}/>
+        <Icons.Clone data-test-id="clone-cluster-profile"
+                     onclick={vnode.attrs.clusterProfileOperations.onClone.bind(this, vnode.attrs.clusterProfile)}
+                     disabled={!pluginInfo}/>
+        <Icons.Delete data-test-id="delete-cluster-profile"
+                      title={disabledReason}
+                      onclick={vnode.attrs.clusterProfileOperations.onDelete.bind(this, vnode.attrs.clusterProfile.id()!)}
+                      disabled={isDisabled}/>
       </IconGroup>
     </div>);
 

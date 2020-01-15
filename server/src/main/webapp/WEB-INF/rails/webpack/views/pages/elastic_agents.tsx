@@ -184,6 +184,7 @@ export class ElasticAgentsPage extends Page<null, State> {
         const elasticProfile = new ElasticAgentProfile("",
                                                        vnode.state.clusterProfileBeingEdited().pluginId(),
                                                        vnode.state.clusterProfileBeingEdited().id(),
+                                                       vnode.state.clusterProfileBeingEdited().canAdminister(),
                                                        new Configurations([]));
 
         vnode.state.isWizardOpen(true);
@@ -226,10 +227,12 @@ export class ElasticAgentsPage extends Page<null, State> {
         vnode.state.isWizardOpen(true);
         vnode.state.clusterProfileBeingEdited(new ClusterProfile("",
                                                                  vnode.state.pluginInfos()[0].id,
+                                                                 true,
                                                                  new Configurations([])));
         vnode.state.elasticProfileBeingEdited(new ElasticAgentProfile("",
                                                                       vnode.state.clusterProfileBeingEdited().pluginId(),
                                                                       vnode.state.clusterProfileBeingEdited().id(),
+                                                                      vnode.state.clusterProfileBeingEdited().canAdminister(),
                                                                       new Configurations([])));
 
         vnode.state.isWizardOpen(true);

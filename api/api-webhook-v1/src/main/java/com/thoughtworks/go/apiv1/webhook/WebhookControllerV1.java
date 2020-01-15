@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.webhook;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.apiv1.webhook.request.GitHubRequest;
+import com.thoughtworks.go.apiv1.webhook.request.GitLabRequest;
 import com.thoughtworks.go.apiv1.webhook.request.payload.Payload;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.ServerConfigService;
@@ -61,7 +62,15 @@ public class WebhookControllerV1 extends ApiController implements SparkSpringCon
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             post(Routes.Webhook.GITHUB, mimeType, this::github);
+            post(Routes.Webhook.GITLAB, mimeType, this::gitlab);
         });
+    }
+
+    private String gitlab(Request request, Response response) {
+        GitLabRequest gitLabRequest = new GitLabRequest(request);
+        gitLabRequest.validate(serverConfigService.getWebhookSecret());
+
+        return notify(response, gitLabRequest.webhookUrls(), gitLabRequest.getPayload());
     }
 
     protected String github(Request request, Response response) {

@@ -16,19 +16,25 @@
 
 package com.thoughtworks.go.apiv1.webhook.request;
 
+import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.webhook.GuessUrlWebHook;
 import com.thoughtworks.go.apiv1.webhook.request.payload.GitHubPayload;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.h2.util.Utils;
 import spark.Request;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.http.MediaType.*;
 
 public class GitHubRequest extends WebhookRequest<GitHubPayload> implements GuessUrlWebHook {
     protected final String signature;
@@ -40,7 +46,7 @@ public class GitHubRequest extends WebhookRequest<GitHubPayload> implements Gues
 
     @Override
     public void validate(String webhookSecret) {
-        if (!equalsAnyIgnoreCase(getEvent(), "push", "ping")) {
+        if (!StringUtils.equalsAny(getEvent(), "push", "ping")) {
             throw new BadRequestException(format("Invalid event type '%s'. Allowed events are [ping, push].", getEvent()));
         }
 
@@ -63,6 +69,21 @@ public class GitHubRequest extends WebhookRequest<GitHubPayload> implements Gues
         if (!Utils.compareSecure(expectedSignature.getBytes(), signature.getBytes())) {
             throw new BadRequestException("HMAC signature specified via 'X-Hub-Signature' did not match!");
         }
+    }
+
+    @Override
+    protected List<String> supportedContentType() {
+        return List.of(APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE, APPLICATION_FORM_URLENCODED_VALUE);
+    }
+
+    @Override
+    protected GitHubPayload parsePayload(String contentType) {
+        if (StringUtils.equals(contentType, APPLICATION_FORM_URLENCODED_VALUE)) {
+            List<NameValuePair> formData = URLEncodedUtils.parse(getRawBody(), StandardCharsets.UTF_8);
+            return GsonTransformer.getInstance().fromJson(formData.get(0).getValue(), getParameterClass());
+        }
+
+        return super.parsePayload(contentType);
     }
 
     @Override

@@ -1,0 +1,21 @@
+{
+  "push": {
+    "changes": [
+      {
+        "new": {
+          "name": "release",
+          "type": "branch"
+        }
+      }
+    ]
+  },
+  "repository": {
+    "scm": "git",
+    "full_name": "gocd/spaceship",
+    "links": {
+      "html": {
+        "href": "https://bitbucket.org/gocd/spaceship"
+      }
+    }
+  }
+}

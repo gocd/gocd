@@ -26,17 +26,10 @@ public class GitHubPayload implements Payload {
     @SerializedName("ref")
     private String ref;
 
-    @SerializedName("zen")
-    private String zen;
-
     @SerializedName("repository")
     private Repository repository;
 
     public GitHubPayload() {
-    }
-
-    public String getZen() {
-        return zen;
     }
 
     @Override

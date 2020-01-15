@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.webhook.request;
 import com.thoughtworks.go.apiv1.webhook.GuessUrlWebHook;
 import com.thoughtworks.go.apiv1.webhook.request.payload.GitLabPayload;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
+import org.apache.commons.lang3.StringUtils;
 import org.h2.util.Utils;
 import spark.Request;
 
@@ -27,8 +28,7 @@ import java.util.List;
 import static java.lang.String.format;
 import static java.util.Collections.unmodifiableList;
 import static org.apache.commons.collections4.ListUtils.union;
-import static org.apache.commons.lang3.StringUtils.*;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GitLabRequest extends WebhookRequest<GitLabPayload> implements GuessUrlWebHook {
     private final String token;
@@ -39,14 +39,9 @@ public class GitLabRequest extends WebhookRequest<GitLabPayload> implements Gues
     }
 
     @Override
-    protected List<String> supportedContentType() {
-        return List.of(APPLICATION_JSON_VALUE);
-    }
-
-    @Override
     public void validate(String webhookSecret) {
-        if (!equalsIgnoreCase(getEvent(), "push")) {
-            throw new BadRequestException(format("Invalid event type '%s'. Only 'push' event is allowed.", getEvent()));
+        if (!StringUtils.equals(getEvent(), "Push Hook")) {
+            throw new BadRequestException(format("Invalid event type '%s'. Only 'Push Hook' event is allowed.", getEvent()));
         }
 
         if (isBlank(token)) {
@@ -73,6 +68,6 @@ public class GitLabRequest extends WebhookRequest<GitLabPayload> implements Gues
 
     @Override
     protected String parseEvent(Request request) {
-        return split(request.headers("X-Gitlab-Event"), " ")[0];
+        return request.headers("X-Gitlab-Event");
     }
 }

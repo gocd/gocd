@@ -29,8 +29,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static java.lang.String.format;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
+import static org.springframework.http.MediaType.*;
 
 public abstract class WebhookRequest<T extends Payload> {
     private final String event;
@@ -62,21 +62,16 @@ public abstract class WebhookRequest<T extends Payload> {
     protected abstract String parseEvent(Request request);
 
     protected List<String> supportedContentType() {
-        return List.of(APPLICATION_FORM_URLENCODED_VALUE, APPLICATION_JSON_VALUE);
+        return List.of(APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE);
     }
 
-    private T parsePayload(String contentType) {
+    protected T parsePayload(String contentType) {
         if (!supportedContentType().contains(contentType)) {
             throw new BadRequestException(format("Could not understand the content type '%s'!", contentType));
         }
 
-        if (StringUtils.equals(contentType, APPLICATION_JSON_VALUE)) {
+        if (equalsAnyIgnoreCase(contentType, APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE)) {
             return GsonTransformer.getInstance().fromJson(body, getParameterClass());
-        }
-
-        if (StringUtils.equals(contentType, APPLICATION_FORM_URLENCODED_VALUE)) {
-            List<NameValuePair> formData = URLEncodedUtils.parse(body, StandardCharsets.UTF_8);
-            return GsonTransformer.getInstance().fromJson(formData.get(0).getValue(), getParameterClass());
         }
 
         throw new BadRequestException("Could not understand the payload!");

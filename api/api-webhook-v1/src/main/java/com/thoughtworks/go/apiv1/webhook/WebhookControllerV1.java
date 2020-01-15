@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.webhook;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.apiv1.webhook.request.BitBucketCloudRequest;
 import com.thoughtworks.go.apiv1.webhook.request.GitHubRequest;
 import com.thoughtworks.go.apiv1.webhook.request.GitLabRequest;
 import com.thoughtworks.go.apiv1.webhook.request.payload.Payload;
@@ -41,6 +42,7 @@ import static spark.Spark.post;
 
 @Component
 public class WebhookControllerV1 extends ApiController implements SparkSpringController {
+    public static final String PING_RESPONSE = "Keep it logically awesome.";
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     protected final MaterialUpdateService materialUpdateService;
     protected final ServerConfigService serverConfigService;
@@ -63,10 +65,22 @@ public class WebhookControllerV1 extends ApiController implements SparkSpringCon
         path(controllerBasePath(), () -> {
             post(Routes.Webhook.GITHUB, mimeType, this::github);
             post(Routes.Webhook.GITLAB, mimeType, this::gitlab);
+            post(Routes.Webhook.BIT_BUCKET_CLOUD, mimeType, this::bitbucketCloud);
         });
     }
 
-    private String gitlab(Request request, Response response) {
+    protected String bitbucketCloud(Request request, Response response) {
+        BitBucketCloudRequest bitBucketCloudRequest = new BitBucketCloudRequest(request);
+        bitBucketCloudRequest.validate(serverConfigService.getWebhookSecret());
+
+        if (StringUtils.equals(bitBucketCloudRequest.getEvent(), "diagnostics:ping")) {
+            return renderMessage(response, HttpStatus.ACCEPTED.value(), PING_RESPONSE);
+        }
+
+        return notify(response, bitBucketCloudRequest.webhookUrls(), bitBucketCloudRequest.getPayload());
+    }
+
+    protected String gitlab(Request request, Response response) {
         GitLabRequest gitLabRequest = new GitLabRequest(request);
         gitLabRequest.validate(serverConfigService.getWebhookSecret());
 
@@ -77,8 +91,8 @@ public class WebhookControllerV1 extends ApiController implements SparkSpringCon
         GitHubRequest githubRequest = new GitHubRequest(request);
         githubRequest.validate(serverConfigService.getWebhookSecret());
 
-        if (StringUtils.equalsIgnoreCase(githubRequest.getEvent(), "ping")) {
-            return renderMessage(response, HttpStatus.ACCEPTED.value(), githubRequest.getPayload().getZen());
+        if (StringUtils.equals(githubRequest.getEvent(), "ping")) {
+            return renderMessage(response, HttpStatus.ACCEPTED.value(), PING_RESPONSE);
         }
 
         return notify(response, githubRequest.webhookUrls(), githubRequest.getPayload());

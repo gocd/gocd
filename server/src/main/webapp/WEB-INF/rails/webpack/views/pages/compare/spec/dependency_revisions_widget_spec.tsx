@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {timeFormatter} from "helpers/time_formatter";
 import m from "mithril";
 import {DependencyRevisions} from "models/compare/compare";
 import {ComparisonData} from "models/compare/spec/test_data";
@@ -26,7 +27,8 @@ describe('DependencyRevisionsWidgetSpec', () => {
   afterEach((done) => helper.unmount(done));
 
   it('should showcase revisions related to a pipeline', () => {
-    mount();
+    const dependencyRevisions = defaultRevs();
+    mount("pipeline", dependencyRevisions);
     expect(helper.byTestId("dependency-revisions-widget")).toBeInDOM();
     expect(helper.textByTestId("table-header-row")).toContain("RevisionInstanceCompleted At");
 
@@ -34,7 +36,7 @@ describe('DependencyRevisionsWidgetSpec', () => {
 
     expect(tableRow[0].innerText).toContain("upstream/1/upstream_stage/1");
     expect(tableRow[1].innerText).toContain("1");
-    expect(tableRow[2].innerText).toContain("17 Oct, 2019 at 12:25:07 Local Time");
+    expect(tableRow[2].innerText).toContain(timeFormatter.format(dependencyRevisions[0].completedAt));
 
     expect(helper.q("a", tableRow[0])).toBeInDOM();
     expect(helper.q("a", tableRow[0]).getAttribute("href")).toEqual("/go/pipelines/upstream/1/upstream_stage/1");

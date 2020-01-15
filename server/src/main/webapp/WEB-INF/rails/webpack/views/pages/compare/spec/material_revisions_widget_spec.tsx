@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {timeFormatter} from "helpers/time_formatter";
 import m from "mithril";
 import {MaterialRevisions} from "models/compare/compare";
 import {ComparisonData} from "models/compare/spec/test_data";
@@ -26,7 +27,8 @@ describe('MaterialRevisionsWidgetSpec', () => {
   afterEach((done) => helper.unmount(done));
 
   it('should showcase materials revisions', () => {
-    mount();
+    const materialRevisions = defaultRevs();
+    mount(materialRevisions);
     expect(helper.byTestId("material-revisions-widget")).toBeInDOM();
     expect(helper.textByTestId("table-header-row")).toContain("RevisionModified ByModified AtComment");
 
@@ -34,7 +36,7 @@ describe('MaterialRevisionsWidgetSpec', () => {
 
     expect(tableRow[0].innerText).toContain("some-random-sha");
     expect(tableRow[1].innerText).toContain("username <username@github.com>");
-    expect(tableRow[2].innerText).toContain("15 Oct, 2019 at 18:02:37 Local Time");
+    expect(tableRow[2].innerText).toContain(timeFormatter.format(materialRevisions[0].modifiedAt));
     expect(tableRow[3].innerText).toContain("some commit message");
   });
 

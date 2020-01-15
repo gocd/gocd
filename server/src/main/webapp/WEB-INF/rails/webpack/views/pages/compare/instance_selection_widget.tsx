@@ -66,8 +66,7 @@ export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs>
   }
 
   private onStageClick(vnode: m.Vnode<InstanceAttrs, this>, stage: Stage) {
-    const url = SparkRoutes.getStageDetailsPageUrl(vnode.attrs.instance.name(), vnode.attrs.instance.counter(), stage.name(), stage.counter());
-    window.open(url, "_blank");
+    window.location.href = SparkRoutes.getStageDetailsPageUrl(vnode.attrs.instance.name(), vnode.attrs.instance.counter(), stage.name(), stage.counter());
   }
 }
 

@@ -33,8 +33,8 @@ export class DependencyRevisionsWidget extends MithrilViewComponent<DependencyRe
       const stageDetailsLink = `/go/pipelines/${rev.revision}`;
       const vsmLink          = SparkRoutes.pipelineVsmLink(vnode.attrs.pipelineName!, rev.pipelineCounter);
       return [
-        <Link target="_blank" href={stageDetailsLink}>{rev.revision}</Link>
-        , <Link target="_blank" href={vsmLink}>{rev.pipelineCounter}</Link>
+        <Link href={stageDetailsLink} title="Stage details">{rev.revision}</Link>
+        , <Link href={vsmLink} title="VSM">{rev.pipelineCounter}</Link>
         , <div>{PipelineInstanceWidget.getTimeToDisplay(rev.completedAt)}</div>
       ];
     });

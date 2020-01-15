@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {timeFormatter} from "helpers/time_formatter";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineInstance, PipelineInstances} from "models/compare/pipeline_instance";
@@ -72,15 +73,18 @@ describe('SelectInstanceWidgetSpec', () => {
     expect(element).toBeInDOM();
     expect(helper.qa("li", element).length).toBe(1);
 
-    const instance = helper.byTestId(`instance-4`);
-    expect(instance).toBeInDOM();
-    expect(helper.q("h5", instance)).toBeInDOM();
-    expect(helper.q("h5", instance).innerText).toBe("4");
-    expect(helper.byTestId("stages", instance)).toBeInDOM();
-    expect(helper.byTestId("triggered-by", instance)).toBeInDOM();
-    expect(helper.byTestId("triggered-by", instance).innerText).toBe("Triggered by anonymous on 24 Dec, 2019 at 11:23:24 Local Time");
+    const instanceElement = helper.byTestId(`instance-4`);
+    const triggeredByMsg  = `Triggered by ${instance.buildCause().getApprover()} on ${timeFormatter.format(instance.scheduledDate())}`;
+    expect(instanceElement).toBeInDOM();
+    expect(helper.q("h5", instanceElement)).toBeInDOM();
+    expect(helper.q("h5", instanceElement).innerText).toBe("4");
+    expect(helper.byTestId("stages", instanceElement)).toBeInDOM();
+    expect(helper.byTestId("triggered-by", instanceElement)).toBeInDOM();
+    expect(helper.byTestId("triggered-by", instanceElement).innerText).toBe(triggeredByMsg);
 
-    const modificationTable = helper.byTestId("modification-0", instance);
+    const modificationTable = helper.byTestId("modification-0", instanceElement);
+    const modification      = instance.buildCause().materialRevisions()[0].modifications()[0];
+    const modifiedByMsg     = `${modification.userName()} on ${timeFormatter.format(modification.modifiedTime())}`;
     expect(modificationTable).toBeInDOM();
     expect(helper.qa("tr", modificationTable).length).toBe(3);
     expect(helper.qa("th", modificationTable)[0].innerText).toBe("Revision");
@@ -88,7 +92,7 @@ describe('SelectInstanceWidgetSpec', () => {
     expect(helper.qa("th", modificationTable)[2].innerText).toBe("Modified by");
     expect(helper.qa("td", modificationTable)[0].innerText).toBe("11932fecb6d3f7ec22e1b0cb3a88553a");
     expect(helper.qa("td", modificationTable)[1].innerText).toBe("some comment");
-    expect(helper.qa("td", modificationTable)[2].innerText).toBe("dummyuser <user@users.noreply.github.com> on 07 Oct, 2019 at 14:39:43 Local Time");
+    expect(helper.qa("td", modificationTable)[2].innerText).toBe(modifiedByMsg);
   });
 
   it('should not render revisions it does contain the input pattern', () => {
@@ -99,15 +103,16 @@ describe('SelectInstanceWidgetSpec', () => {
     expect(element).toBeInDOM();
     expect(helper.qa("li", element).length).toBe(1);
 
-    const instance = helper.byTestId(`instance-4`);
-    expect(instance).toBeInDOM();
-    expect(helper.q("h5", instance)).toBeInDOM();
-    expect(helper.q("h5", instance).innerText).toBe(`4`);
-    expect(helper.byTestId("stages", instance)).toBeInDOM();
-    expect(helper.byTestId("triggered-by", instance)).toBeInDOM();
-    expect(helper.byTestId("triggered-by", instance).innerText).toBe("Triggered by anonymous on 24 Dec, 2019 at 11:23:24 Local Time");
+    const instanceElement = helper.byTestId(`instance-4`);
+    const triggeredByMsg  = `Triggered by ${instance.buildCause().getApprover()} on ${timeFormatter.format(instance.scheduledDate())}`;
+    expect(instanceElement).toBeInDOM();
+    expect(helper.q("h5", instanceElement)).toBeInDOM();
+    expect(helper.q("h5", instanceElement).innerText).toBe(`4`);
+    expect(helper.byTestId("stages", instanceElement)).toBeInDOM();
+    expect(helper.byTestId("triggered-by", instanceElement)).toBeInDOM();
+    expect(helper.byTestId("triggered-by", instanceElement).innerText).toBe(triggeredByMsg);
 
-    const modificationTable = helper.byTestId("modification-0", instance);
+    const modificationTable = helper.byTestId("modification-0", instanceElement);
     expect(modificationTable).not.toBeInDOM();
   });
 

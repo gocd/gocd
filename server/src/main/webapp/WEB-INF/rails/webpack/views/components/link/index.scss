@@ -18,6 +18,8 @@
 .inline-link {
   color:           $link-color;
   text-decoration: none;
+  cursor:          pointer;
+
   &:hover {
     text-decoration: underline;
     color:           $link-hover-color;

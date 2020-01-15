@@ -79,6 +79,7 @@ export class TimelineModal extends Modal {
 
     return <div data-test-id="timeline-modal-body" class={styles.timelineModalContainer}>
       <div data-test-id="left-pane" class={styles.leftPanel}>
+        <div class={styles.pipelineRunContainer}>
         {this.history().pipelineInstances.map((instance) => {
           const className = instance === this.selectedInstance() ? styles.selectedInstance : "";
           return <div data-test-id={InstanceSelectionWidget.dataTestId("instance", instance.counter())}
@@ -88,6 +89,7 @@ export class TimelineModal extends Modal {
             <StagesWidget stages={instance.stages()}/>
           </div>;
         })}
+        </div>
         <div data-test-id="pagination" class={styles.pagination}>
           <a title="Previous"
              role="button"

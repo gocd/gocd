@@ -7,6 +7,7 @@ export const paginationLink: string;
 export const pipelineInstanceCounter: string;
 export const pipelineInstanceDescription: string;
 export const pipelineRun: string;
+export const pipelineRunContainer: string;
 export const rightPanel: string;
 export const selectedInstance: string;
 export const timelineModalContainer: string;

@@ -15,32 +15,52 @@
  */
 @import "../../global/common";
 
-$form-control-border-color: #80bdff;
+$dark-background: #eee;
+$box-shadow-color: #bbb;
+$hover-background: #c5d9e0;
 
 .timeline-modal-container {
-  display: flex;
-  width:   100%;
+  display:    flex;
+  width:      100%;
+  min-height: 380px;
 
   .left-panel {
-    margin-right:  10px;
-    padding-right: 10px;
-    width:         25%;
+    width:            25%;
+    margin:           -20px 10px -20px -28px;
+    background-color: $dark-background;
+    display:          flex;
+    flex-direction:   column;
+    justify-content:  space-between;
 
-    .pipeline-run {
-      display:        flex;
-      flex-direction: row;
-      cursor:         pointer;
-      margin-bottom:  5px;
+    &:first-child {
+      padding-top: 10px;
     }
 
     .selected-instance {
-      font-weight: 600;
-      outline:     $form-control-border-color 2px solid;
+      font-weight:      600;
+      background-color: $white;
+      box-shadow:       -5px 0 5px $box-shadow-color;
     }
   }
 
   .right-panel {
     width: 100%;
+  }
+}
+
+.pipeline-run-container {
+  display:        flex;
+  flex-direction: column;
+}
+
+.pipeline-run {
+  display:        flex;
+  flex-direction: row;
+  cursor:         pointer;
+  padding:        7px 10px;
+
+  &:not(.selected-instance):hover {
+    background-color: $hover-background;
   }
 }
 
@@ -68,7 +88,7 @@ $form-control-border-color: #80bdff;
 
   & > ul {
     margin:     5px 0;
-    border-top: $go-disabled 1px solid;
+    border-top: $global-border-color 1px solid;
   }
 }
 
@@ -77,15 +97,16 @@ $form-control-border-color: #80bdff;
   justify-content: center;
 
   .pagination-link {
-    margin:        4px;
-    padding:       6px 10px;
-    border:        $global-border-color 2px solid;
-    border-radius: $global-border-radius;
-    text-align:    center;
+    margin:           4px;
+    padding:          6px 10px;
+    background-color: $white;
+    border-radius:    $global-border-radius;
+    text-align:       center;
   }
 
   .disabled {
-    color:  $go-disabled;
-    cursor: not-allowed;
+    color:           $go-disabled;
+    cursor:          not-allowed;
+    text-decoration: none;
   }
 }

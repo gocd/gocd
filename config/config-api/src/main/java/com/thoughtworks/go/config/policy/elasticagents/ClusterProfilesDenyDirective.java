@@ -23,7 +23,7 @@ import com.thoughtworks.go.config.policy.Result;
 
 public class ClusterProfilesDenyDirective extends AbstractDirective {
     public ClusterProfilesDenyDirective(String action, String type, String resource) {
-        super(DirectiveType.ALLOW, action, type, resource);
+        super(DirectiveType.DENY, action, type, resource);
     }
 
     @Override

@@ -18,13 +18,18 @@ package com.thoughtworks.go.apiv1.webhook;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.apiv1.webhook.request.GitHubRequest;
+import com.thoughtworks.go.apiv1.webhook.request.payload.Payload;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.ServerConfigService;
+import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
@@ -33,62 +38,49 @@ import java.util.List;
 import static spark.Spark.path;
 import static spark.Spark.post;
 
-public abstract class WebhookControllerV1 extends ApiController implements SparkSpringController {
+@Component
+public class WebhookControllerV1 extends ApiController implements SparkSpringController {
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
     protected final MaterialUpdateService materialUpdateService;
     protected final ServerConfigService serverConfigService;
 
-    public WebhookControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
-                               MaterialUpdateService materialUpdateService,
+    @Autowired
+    public WebhookControllerV1(MaterialUpdateService materialUpdateService,
                                ServerConfigService serverConfigService) {
         super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.materialUpdateService = materialUpdateService;
         this.serverConfigService = serverConfigService;
     }
 
     @Override
+    public String controllerBasePath() {
+        return Routes.Webhook.BASE;
+    }
+
+    @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-//            before("notify", mimeType, this::verifyContentOrigin);
-//            before("notify", mimeType, this::premptPingCall);
-//            before("notify", mimeType, this::allowOnlyPushEvent);
-
-            post("notify", mimeType, this::notify);
+            post(Routes.Webhook.GITHUB, mimeType, this::github);
         });
     }
 
-    protected String notify(Request request, Response response) throws Exception {
-        this.verifyContentOrigin(request);
-        this.premptPingCall(request);
-        this.verifyPayload(request);
-        this.allowOnlyPushEvent(request);
+    protected String github(Request request, Response response) {
+        GitHubRequest githubRequest = new GitHubRequest(request);
+        githubRequest.validate(serverConfigService.getWebhookSecret());
 
-        String branch = repoBranch(request);
-        LOGGER.info("[WebHook] Noticed a git push to {} on branch {}.", repoNameForLogger(request), branch);
+        if (StringUtils.equalsIgnoreCase(githubRequest.getEvent(), "ping")) {
+            return renderMessage(response, HttpStatus.ACCEPTED.value(), githubRequest.getPayload().getZen());
+        }
 
-        if (materialUpdateService.updateGitMaterial(branch, this.webhookUrls(request))) {
+        return notify(response, githubRequest.webhookUrls(), githubRequest.getPayload());
+    }
+
+    private String notify(Response response, List<String> webhookUrls, Payload payload) {
+        LOGGER.info("[WebHook] Noticed a git push to {} on branch {}.", payload.getFullName(), payload.getBranch());
+
+        if (materialUpdateService.updateGitMaterial(payload.getBranch(), webhookUrls)) {
             return renderMessage(response, HttpStatus.ACCEPTED.value(), "OK!");
         }
         return renderMessage(response, HttpStatus.ACCEPTED.value(), "No matching materials!");
-    }
-
-    protected abstract void verifyContentOrigin(Request request);
-
-    protected abstract void premptPingCall(Request request);
-
-    protected abstract void verifyPayload(Request request);
-
-    protected abstract void allowOnlyPushEvent(Request request);
-
-    protected abstract List<String> webhookUrls(Request request) throws Exception;
-
-    protected abstract String repoBranch(Request request);
-
-    protected abstract String repoNameForLogger(Request request) throws Exception;
-
-    protected String webhookSecret() {
-        return serverConfigService.getWebhookSecret();
     }
 }

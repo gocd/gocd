@@ -1,0 +1,8 @@
+{
+  "zen": "Keep it logically awesome.",
+  "ref": "refs/heads/release",
+  "repository": {
+    "full_name": "gocd/spaceship",
+    "html_url": "https://github.com/gocd/spaceship"
+  }
+}

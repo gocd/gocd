@@ -121,12 +121,7 @@ page_header
     position: relative;
 }
 
-#pipeline_navigator .selected .stage_bar_wrapper{
-    padding-bottom: 14px;
-    position: relative;
-}
 
-#pipeline_navigator .selected .stage_bar_wrapper,
 #pipeline_status_bar .pipeline .stages .selected .stage_bar_wrapper{
     background: image_url('g9/backgrounds/details_stage_selected.png') no-repeat 50% 100% transparent;
 }
@@ -146,7 +141,6 @@ page_header
     left: -4px;
 }
 
-#pipeline_navigator .trigger_gate span,
 #pipeline_status_bar .pipeline .stages .stage .trigger_gate a,
 #pipeline_status_bar .pipeline .stages .stage .trigger_gate span{
     width: 20px;
@@ -154,14 +148,8 @@ page_header
     display:block;
 }
 
-#pipeline_navigator .trigger_gate span{
-    float:left;
-    margin-right: 2px;
-        margin-left: 2px;
-    margin-top:23px;
-}
 
-#pipeline_navigator .trigger_gate span.auto,
+
 #pipeline_status_bar .pipeline .stages .stage .trigger_gate a.auto{
     background: image_url('g9/icons/bg_sprite_gateway_icons.png') -2px -30px no-repeat transparent;
 }
@@ -174,7 +162,6 @@ page_header
     background: image_url('g9/icons/bg_sprite_gateway_icons.png') -2px -60px no-repeat transparent;
 }
 
-#pipeline_navigator .trigger_gate span.manual,
 #pipeline_status_bar .pipeline .stages .stage .trigger_gate a.manual{
     background: image_url('g9/icons/bg_sprite_gateway_icons.png') -32px -30px no-repeat transparent;
 }

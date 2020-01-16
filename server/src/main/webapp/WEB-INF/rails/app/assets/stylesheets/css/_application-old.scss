@@ -780,34 +780,6 @@ button#signin2 span {
     color: #6B4830;
 }
 
-#sidebar-twist-button {
-    float:right;
-    clear:both;
-    margin-top: 1em;
-}
-
-#sidebar-twist-button a,
-#sidebar-twist-button a:visited
-{
-    padding: 0;
-    background: transparent;
-    display: block;
-    width: 67px;
-    height: 22px;
-    font-size: 0;
-    line-height: 0;
-}
-
-#sidebar-twist-button a.collapse,
-#sidebar-twist-button a:visited.collapse
-{
-    background: #E1D4BB image_url('buttons_sprites.png') no-repeat 0 0;
-}
-
-#sidebar-twist-button a.expand,
-#sidebar-twist-button a:visited.expand {
-    background: #E1D4BB image_url('buttons_sprites.png') no-repeat -67px top;
-}
 
 #tabs li a,
 #tabs li a:visited,
@@ -945,15 +917,6 @@ h2 button.collapse-or-expand-button {
 /* action bar */
 .action-bar {
     margin: 0.5em;
-}
-
-#pipeline-action-bar {
-    font-size: 0.833em;
-    font-weight: normal;
-    display: block;
-    float: right;
-    margin: 0;
-    width: 20em;
 }
 
 .action-bar .bd-c-wrapper,
@@ -1146,43 +1109,6 @@ a.has-icon, span.has-icon  {
     display: none;
 }
 
-/* Pagination */
-.pages
-{
-    padding-bottom: 1em;
-    text-align: center;
-}
-
-.pages a
-{
-    /*color: #4B220E;*/
-}
-
-.page-num
-{
-    margin: 0em 0.5em;
-}
-
-a.pagination-previous
-{
-    background: transparent image_url('icon-pagination-previous.gif') no-repeat scroll center right;
-    padding-right: 16px;
-    margin-right: 0.5em;
-}
-
-a.pagination-next
-{
-    background: transparent image_url('icon-pagination-next.gif') no-repeat scroll center left;
-    padding-left: 16px;
-    margin-left: 0.5em;
-}
-
-.highlight-warning
-{
-    color:#AA0000;
-    font-weight:bold;
-}
-
 /*Stuff for artifacts*/
 .artifacts {
     margin-left: 0;
@@ -1223,29 +1149,6 @@ a.pagination-next
     padding-left: 22px;
     background-image: image_url('opened_directory.gif');
     background-repeat: no-repeat;
-}
-
-a.submiting-link,
-a:visited.submiting-link,
-.pipeline-container h1 a.submiting-link,
-.pipeline-container h1 a:visited.submiting-link,
-.stage-container h2 a.submiting-link,
-.stage-container h2 a:visited.submiting-link,
-.pipeline-config h1 a.submiting-link,
-.pipeline-config h1 a:visited.submiting-link,
-#pipeline-config a.submiting-link,
-#pipeline-config a:visited.submiting-link
-{
-    background: transparent image_url('spinner.gif') no-repeat 50% 50% !important;
-    display: block;
-    font-size: 0;
-    line-height: 0;
-    padding: 0;
-    margin: 0;
-    margin-right: 5px;
-    width: 20px;
-    height: 20px;
-    float: left;
 }
 
 #yui-main h1.division-header {

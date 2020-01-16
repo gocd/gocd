@@ -83,25 +83,9 @@
 /*
 * Pipeline Navigator
 */
-#pipeline_navigator .stage_name {
-    font-size: 13px;
-}
 
-#pipeline_navigator .total_jobs_wrapper {
-    font-size: 11px;
-    display: inline;
-    margin-left: 12px;
-}
 
-#pipeline_navigator .total_jobs {
-    display: inline;
-    cursor:pointer;
-}
 
-#pipeline_navigator .total_jobs img{
-    margin-left:-2px;
-    margin-bottom:-1px;
-}
 
 
 /*
@@ -109,7 +93,6 @@
  */
 
 .templates .edit_panel,
-#users_form .edit_panel,
 #agents_form .edit_panel {
     padding: 0px 0;
     margin-bottom: 10px;
@@ -119,7 +102,6 @@
 
 
 #templates_form .enhanced_dropdown,
-#users_form .enhanced_dropdown,
 #agents_form .enhanced_dropdown {
     max-width: 320px;
 }
@@ -705,9 +687,6 @@ a.add_item {
     margin-left: -20px;
 }
 
-#add_new_environment .agents_section .list_table {
-    -moz-box-shadow: 0 0 0 0 transparent;
-}
 
 .pipeline_selector {
     padding: 4px 0;
@@ -844,15 +823,6 @@ a.add_item {
     margin-bottom: 15px;
 }
 
-#add_new_environment .environment_name {
-    padding-bottom: 1.2em;
-}
-
-#add_new_environment .environment_name label {
-    font-size: 18px;
-    font-weight: 300;
-    margin-bottom: 15px;
-}
 
 /*
  Hidereveal
@@ -1713,12 +1683,6 @@ span.locked {
     margin-top: 12px;
 }
 
-#user_management,
-#mail_host,
-#license_management {
-    padding: 1em 0 .5em .5em;
-}
-
 .fieldset h3 {
     padding: 5px 0;
     color: #000;
@@ -1962,70 +1926,12 @@ li.template_form_error {
     padding: 15px;
 }
 
-#pipeline_navigator{
-    overflow: auto;
-    display: block;
-    border-bottom: 1px solid #CCC;
-    padding-bottom: 15px;
-    margin-bottom: 30px;
-}
 
-#pipeline_navigator .each_stage {
-    float: left;
-    margin-top: 10px;
-}
-
-#pipeline_navigator .stage_bar {
-    height: 12px;
-    width: 400px;
-    line-height: 12px;
-    margin-right: 4px;
-    margin-top: 3px;
-    background-color: transparent;
-    background-image: image_url("g9/backgrounds/bg_state_unknown.png");
-    background-position: left bottom;
-    background-repeat: repeat-x;
-    margin-bottom: 5px;
-}
-
-#pipeline_navigator .total_jobs img {
-    margin-left: 5px;
-}
-#pipeline_navigator .job_navigator {
-    display: none;
-    width: 125px;
-    position: absolute;
-    z-index:999;
-    background: #E9E9E9;
-    -moz-border-radius: 0px 0px 6px 6px;
-    border-radius: 0px 0px 6px 6px;
-    border: 1px solid #C0C0C0;
-
-}
-
-#pipeline_navigator .job_navigator li {
-    display: list-item;
-    float: none;
-}
 
 
 /***
  * Admin - Pipeline Groups
  */
-#tab-content-of-pipeline-groups .group_pipelines .group{
-  margin-bottom: 50px;
-}
-#tab-content-of-pipeline-groups .group_pipelines .group .actions li .delete_parent{
-  margin-top: 1px;
-}
-
-#tab-content-of-pipeline-groups .group_pipelines .group .actions li{
-  margin-right:10px;
-}
-
-#tab-content-of-pipeline-groups .pipeline_group .add_pipeline_to_group{
-  margin-top: 7px;
-}
 
 .group_pipelines .group_name {
     float:left;
@@ -2097,39 +2003,7 @@ body.admin_templates .pipeline_header h3.entity_title{
     background-position: -12px -10px;
 }
 
-#tab-content-of-templates .template {
-  margin-bottom: 50px;
-}
-#tab-content-of-templates .template h2{
-    float: left;
-}
-#tab-content-of-templates .template .title_action_wrapper{
-    float: left;
-}
-#tab-content-of-templates .template .title_action_wrapper li{
-    margin-left: 15px;
-    margin-top: 5px;
 
-}
-
-#tab-content-of-templates .template .grouping_content_wrapper{
-    clear: both;
-}
-
-
-#tab-content-of-templates .template .header .icon_cannot_remove,
-#tab-content-of-templates .template .header .icon_remove {
-  margin-left: 10px;
-}
-
-#tab-content-of-templates .template .header {
-    padding-bottom: 20px;
-}
-
-#tab-content-of-templates .pipeline .name .edit_icon {
-    width: 16px;
-    height: 16px;
-}
 
 /* Admin - Materials */
 
@@ -2237,26 +2111,24 @@ li.menu_item_last_with_border {
 }
 
 #admin_pipeline_groups .content_wrapper_inner h1,
-#user_summary .content_wrapper_inner h1,
 #admin_templates .content_wrapper_inner h1,
 #oauth_page .content_wrapper_inner h1{
     font-weight: 300;
     margin-bottom: 14px;
 }
 
-#group_summary h1 strong,
-#user_summary h1 strong, #template_summary h1 strong {
+#group_summary h1 strong, #template_summary h1 strong {
     float: left;
 }
 
 #group_summary .list_aggregation li,
-#user_summary .list_aggregation li, #template_summary .list_aggregation li {
+#template_summary .list_aggregation li {
     color: #666;
     font-weight: 300;
 }
 
 #group_summary .list_aggregation,
-#user_summary .list_aggregation, #template_summary .list_aggregation {
+#template_summary .list_aggregation {
     margin-top: 0;
 }
 
@@ -3122,7 +2994,6 @@ ul.variables:after,
 #pipelines .pipelines_selector:after,
 #ajax_agents_header:after,
 .pipeline_bundle .pipeline_operations:after,
-#user_summary h1:after,
 .user_permissions_section:after,
 #oauth_page .certificate_details dl:after
 {

@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.webhook;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.apiv1.webhook.request.BitBucketCloudRequest;
+import com.thoughtworks.go.apiv1.webhook.request.BitBucketServerRequest;
 import com.thoughtworks.go.apiv1.webhook.request.GitHubRequest;
 import com.thoughtworks.go.apiv1.webhook.request.GitLabRequest;
 import com.thoughtworks.go.apiv1.webhook.request.payload.Payload;
@@ -66,17 +67,24 @@ public class WebhookControllerV1 extends ApiController implements SparkSpringCon
             post(Routes.Webhook.GITHUB, mimeType, this::github);
             post(Routes.Webhook.GITLAB, mimeType, this::gitlab);
             post(Routes.Webhook.BIT_BUCKET_CLOUD, mimeType, this::bitbucketCloud);
+            post(Routes.Webhook.BIT_BUCKET_SERVER, mimeType, this::bitbucketServer);
         });
+    }
+
+    protected String bitbucketServer(Request request, Response response) {
+        BitBucketServerRequest bitBucketServerRequest = new BitBucketServerRequest(request);
+        bitBucketServerRequest.validate(serverConfigService.getWebhookSecret());
+
+        if (StringUtils.equals(bitBucketServerRequest.getEvent(), "diagnostics:ping")) {
+            return renderMessage(response, HttpStatus.ACCEPTED.value(), PING_RESPONSE);
+        }
+
+        return notify(response, bitBucketServerRequest.webhookUrls(), bitBucketServerRequest.getPayload());
     }
 
     protected String bitbucketCloud(Request request, Response response) {
         BitBucketCloudRequest bitBucketCloudRequest = new BitBucketCloudRequest(request);
         bitBucketCloudRequest.validate(serverConfigService.getWebhookSecret());
-
-        if (StringUtils.equals(bitBucketCloudRequest.getEvent(), "diagnostics:ping")) {
-            return renderMessage(response, HttpStatus.ACCEPTED.value(), PING_RESPONSE);
-        }
-
         return notify(response, bitBucketCloudRequest.webhookUrls(), bitBucketCloudRequest.getPayload());
     }
 

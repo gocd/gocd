@@ -180,9 +180,9 @@ describe('UsageElasticProfileModalSpec', () => {
     const table = helper.byTestId('table');
     expect(table).toBeInDOM();
     expect(helper.qa('th', table).length).toBe(4);
-    expect(helper.qa('th', table)[0].innerText).toBe('PIPELINE');
-    expect(helper.qa('th', table)[1].innerText).toBe('STAGE');
-    expect(helper.qa('th', table)[2].innerText).toBe('JOB');
+    expect(helper.qa('th', table)[0].innerText.toLowerCase()).toBe('pipeline');
+    expect(helper.qa('th', table)[1].innerText.toLowerCase()).toBe('stage');
+    expect(helper.qa('th', table)[2].innerText.toLowerCase()).toBe('job');
     expect(helper.qa('th', table)[3].innerText).toBe('');
 
     expect(helper.qa('td', table)[0].innerText).toBe('pipeline-name');

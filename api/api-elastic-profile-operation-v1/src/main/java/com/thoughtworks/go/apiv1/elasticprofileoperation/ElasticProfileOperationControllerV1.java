@@ -19,6 +19,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.elasticprofileoperation.representers.ElasticProfileUsageRepresenter;
+import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.domain.ElasticProfileUsage;
 import com.thoughtworks.go.server.service.ElasticProfileService;
 import com.thoughtworks.go.spark.Routes;
@@ -40,7 +41,7 @@ public class ElasticProfileOperationControllerV1 extends ApiController implement
     private final ApiAuthenticationHelper apiAuthenticationHelper;
 
     @Autowired
-    public ElasticProfileOperationControllerV1(ElasticProfileService elasticProfileService,  ApiAuthenticationHelper apiAuthenticationHelper) {
+    public ElasticProfileOperationControllerV1(ElasticProfileService elasticProfileService, ApiAuthenticationHelper apiAuthenticationHelper) {
         super(ApiVersion.v1);
         this.elasticProfileService = elasticProfileService;
         this.apiAuthenticationHelper = apiAuthenticationHelper;
@@ -56,8 +57,10 @@ public class ElasticProfileOperationControllerV1 extends ApiController implement
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", mimeType, apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
-            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+
+            before(Routes.ElasticProfileAPI.ID + Routes.ElasticProfileAPI.USAGES, mimeType, (request, response) -> {
+                apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, request.params(PROFILE_ID_PARAM));
+            });
 
             get(Routes.ElasticProfileAPI.ID + Routes.ElasticProfileAPI.USAGES, mimeType, this::usages);
         });

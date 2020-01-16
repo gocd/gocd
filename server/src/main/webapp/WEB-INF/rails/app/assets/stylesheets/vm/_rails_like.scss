@@ -65,9 +65,6 @@ ul#head-links {
   width:99px;
 }
 
-#sidebar-twist-button {
-
-}
 
 ul#tabs li a, ul#tabs li a:visited, ul#tabs li span, ul#tabs li.admin {
   background: none;
@@ -164,14 +161,6 @@ ul#tabs li.admin{
 
 #tabs #cruise-header-tab-administration.disabled-when-no-admin-rights span, #tabs #cruise-header-tab-my-cruise.disabled-when-scecurity-disabled span{
     color: #FFF;
-}
-
-#pipeline-action-bar a{
-    /*color: #FFF;*/
-    line-height: 1em;
-}
-#pipeline-action-bar a:hover{
-    background-color: #A5A5A5   ;
 }
 
 #tabs li.currenttab{

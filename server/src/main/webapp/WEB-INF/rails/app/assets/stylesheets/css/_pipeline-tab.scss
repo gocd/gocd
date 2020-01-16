@@ -19,48 +19,11 @@
     zoom: 1;
 }
 
-#yui-main #stage-history-container {
-    *padding-top: 1em;
-}
-
-#stage-history-container #build-pipelines {
-    zoom: 1;
-    margin: 1em 0.7em;
-    *margin: 0 0.7em !important;
-}
 
 
-#stage-history-container h2 {
-    padding: 0.25em 1em 0.25em 0.5em;
-}
-
-#stage-history-container .stage-build-plan-container {
-    padding: 0.5em;
-    background-color: #FFF;
-}
-
-#stage-history-container .stage-build-plan-status {
-    border: none;
-    margin-bottom: 2px;
-}
-
-#stage-history-container .stage-build-plan-content {
-    padding: 0.2em 1em 0.2em 4em;
-}
-
-#stage-history-container button.collapse-or-expand-button {
-    margin-top: -1px;
-    cursor: pointer;
-}
-
-#pipeline-action-bar .bd-c-wrapper {
-    padding: 0.25em 0.5em;
-    *padding: 0 0.5em;
-}
 
 .pipeline-container,
-.pipeline-config-container,
-.pipeline-history-container {
+.pipeline-config-container {
     margin: 0;
     margin-bottom: 1em;
     padding: 0;
@@ -71,28 +34,8 @@
     background-color: #FFF;
 }
 
-#yui-main .pipeline-config-container .pipeline-config-header {
-    color: #B9A173;
-}
 
-.pipeline-config-container a,
-#pipeline-history .pipeline-history-link .pipeline-nav {
-    color: #c7caa8;
-}
-
-.pipeline-config-container strong {
-    font-size: 1.1em;
-    color: #c7caa8;
-}
-
-#yui-main .pipeline-config-container h1 {
-    background: #584538;
-    color: #c7caa8;
-    margin: 0;
-}
-
-#yui-main .pipeline-container h1,
-#yui-main .pipeline-history-container h1 {
+#yui-main .pipeline-container h1 {
 /*background: #EEF image_url('icon_pipeline_v1.gif') no-repeat 10px 50%;*/
 /*padding-left: 35px;*/
     color: #FFF;
@@ -257,32 +200,6 @@ a:hover.stage-name {
 .pipeline-building h2 a:active,
 .stage-building a:active {
     color: #000;
-}
-
-/* stage history colors */
-#stage-history-container .pipeline-failed,
-#stage-history-container .pipeline-failing,
-#stage-history-container .pipeline-cancelled {
-    background: #CD5447;
-    color: #FFF;
-}
-
-#stage-history-container .pipeline-passed {
-    background: #6CA62E;
-    color: #FFF;
-}
-
-#stage-history-container .pipeline-unknown,
-    #stage-history-container .pipeline-discontinued,
-{
-    background: #EEEEEE;
-    color: #290d06;
-}
-
-#stage-history-container .pipeline-building,
-{
-    background: #ebc26d;
-    color: #290d06;
 }
 
 /* For the arrow after the stage name */
@@ -527,19 +444,11 @@ a:hover.disabled {
     background: transparent image_url('icon-force-build-grey.gif') no-repeat left top;
 }
 
-.pipeline-buttons,
     .stage-buttons,
     .build-cause {
     float:left;
 }
 
-.pipeline-buttons {
-    margin-top: 0;
-}
-
-#pipeline-history .pipeline-buttons {
-    margin-top: -3px;
-}
 
 a.icon-link,
     a:visited.icon-link,
@@ -864,50 +773,13 @@ h1 .divider,
 }
 
 /* those class is for the pipeline history page */
-#pipeline-history .rounded-corner-grey-border {
-    margin: 0.25em;
-}
 
-#pipeline-history .rounded-corner-grey-border .rounded-corner-grey-border {
-    padding-left: 2em;
-    padding-right: 2em;
-    padding-bottom: 0.5em;
-* z-index : - 1;
-}
 
-#pipeline-history .stage-link {
-    display: block;
-    float: left;
-    min-width: 10em;
-    _width: 10em;
-    text-align: center;
-    margin: 0.5em;
-    white-space: nowrap;
-    height: 2.3em;
-    padding: 0;
-}
 
-#pipeline-history a:hover.stage-link {
-    text-decoration: none;
-}
 
-#pipeline-history .stage-name {
-    color: #FFF;
-    font-size: 1em;
-    font-weight: bold;
-    padding: 0.4em;
-    zoom: 1;
-}
 
-#pipeline-history .pipeline-config-stages-container .stage-name,
-#pipeline-history .pipeline-config-stages-container .pipeline-nav {
-    color: #968065;
-}
 
-#pipeline-configurations .pipeline-config-stages-container .stage-name,
-#pipeline-configurations .pipeline-config-stages-container .pipeline-nav {
-    color: #606352;
-}
+
 
 .gate {
     float: left;
@@ -921,9 +793,6 @@ h1 .divider,
     background-image: image_url('icons_gate_in_config.png');
 }
 
-.pipeline-history-stages-container .gate {
-    _border: 1px white solid;
-}
 
 #pipeline-config .gate {
     cursor: default;
@@ -938,85 +807,9 @@ h1 .divider,
     cursor: pointer;
 }
 
-.gate-completed-auto {
-    background: transparent image_url('icon_pipeline_config_gates.gif') no-repeat -40px 60%;
-}
-
-.gate-completed-manual {
-    background: transparent image_url('icon_pipeline_config_gates.gif') no-repeat -60px 60%;
-}
-
-.pipeline-history-container .pipeline-id {
-    color: #4B220D;
-    margin-right: 0.3em;
-}
-
-.pipeline-history-stages-container,
-{
-    padding: 0.25em;
-}
-
-.pipeline-config-stages-container {
-    padding: 0;
-    background-color: #DED1B4;
-    zoom: 1;
-}
-
 /* Fix bug #1542, #1543 */
-.pipeline-history-container .c3,
-    .pipeline-history-container .c4,
-    .pipeline-config-container .c3,
-    .pipeline-config-container .c4 {
-* bottom : - 1px;
-    _bottom: -2px;
-}
-
-.pipeline-history-container .c2,
-    .pipeline-history-container .c4,
-    .pipeline-config-container .c2,
-    .pipeline-config-container .c4 {
-* right : - 1px;
-}
-
-.pipeline-history-container .stage-link .c2,
-    .pipeline-history-container .stage-link .c4,
-    .pipeline-config-container .stage-link .c2,
-    .pipeline-config-container .stage-link .c4 {
-* right : - 1px;
-    _right: -2px;
-}
 
 /* Fix bug #1542, #1543 end */
-
-.pipeline-history-container .pipeline-history-header a,
-    .pipeline-history-container .pipeline-history-header a:visited {
-    color: #4B220D;
-    font-weight: normal;
-    font-size: 0.64em;
-}
-
-#pipeline-history a:hover.stage-failed,
-    #pipeline-history a:hover.stage-failing,
-    #pipeline-history a:hover.stage-cancelled {
-    background: #FF9999;
-}
-
-#pipeline-history a:hover.stage-passed {
-    background: #8FD45C;
-}
-
-#pipeline-history a:hover.stage-unknown,
-    #pipeline-history a:hover.stage-discontinued {
-    background: #F6F6F6;
-}
-
-#pipeline-history a:hover.stage-building {
-    background: #FFD371;
-}
-
-#pipeline-history .popup {
-    color: black;
-}
 
 /* This style is to be used in pipeline page only, override the golobal yui style */
 .yui-t7 {
@@ -1054,44 +847,6 @@ table#artifacts-table td {
 
 .add-artifacts-column {
     width: 300px;
-}
-
-#stage-history-container {
-    margin: 0 0.5em 1em 0.5em;
-    padding: 0;
-}
-
-/* pipeline filters */
-.pipeline-selectors li {
-    display: block;
-    width: 23em;
-    height: 1.6em;
-    border-bottom: 1px solid #E4D9C3;
-}
-
-.pipeline-selectors li.group {
-    background-color: #946710;
-    color: white;
-    font-weight: bold;
-}
-
-#pipeline-selector-content span {
-    margin-right: 0.5em;
-}
-
-#pipeline-selector-container {
-    margin-top: 0.65em;
-    border-top: 1px solid #F4EEDF;
-}
-
-.pipeline-divider {
-    font-size: 0;
-    line-height: 0;
-    border-top: #999999 1px solid;
-    border-bottom: #cccccc 1px solid;
-    margin-bottom: 13px;
-    margin-left: 12px;
-    margin-right: 12px;
 }
 
 .rerun,

@@ -422,10 +422,6 @@ div:hover.pipeline {
     cursor: pointer;
 }
 
-#dashboard-page .pipeline {
-    border-top: 1px solid #484537;
-}
-
 .pipeline-history > div:nth-child(odd)
 {
 background-color: #E7E1D1;
@@ -642,62 +638,12 @@ background-color: #E7E1D1;
     padding: 0.25em 0.5em;
 }
 
-#dashboard-page .pipeline-history h1 {
-    background-color: transparent;
-    color: #484537;
-    padding-left: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    word-wrap: break-word;
-}
 
-#dashboard-page.firefox-less-than-31 .pipeline-history h1 {
-    overflow: hidden;
-    width: 24em;
-    display: inline-block;
-}
 
-#dashboard-page div.pipeline-history {
-    border-bottom: 1px solid #484537;
-}
 
-#dashboard-page .pipeline {
-    border-left: 1px solid #484537;
-    border-right: 1px solid #484537;
-}
 
 .pipeline-history .group {
     display: none;
-}
-
-#dashboard-page .group li {
-    border: none;
-}
-
-#dashboard-page .group .lastgood {
-    display: block;
-}
-
-#dashboard-page .group a:link{
-    color: white;
-}
-
-#dashboard-page .group .lastgood {
-    display: block;
-}
-
-#dashboard-page .group a:link{
-    color: white;
-}
-
-#dashboard-page div.pipeline-history {
-    display: block;
-    width: 30em;
-    margin-right: 0;
-    float: left;
-    margin-left: 1em;
-    margin-top: 0.5em;
-    margin-bottom: 1em;
 }
 
 /* job instance */

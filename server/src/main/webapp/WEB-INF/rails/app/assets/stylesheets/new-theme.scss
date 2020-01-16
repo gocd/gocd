@@ -222,12 +222,6 @@ h4 {
   margin:  5px 0 0 0;
 }
 
-#add_new_environment {
-  .steps_panes {
-    padding: 20px 30px;
-  }
-}
-
 .wizard_form {
   .form_content {
     height:       auto;
@@ -238,10 +232,6 @@ h4 {
   .secure-variables {
     margin: 30px 0;
   }
-}
-
-#tab-content-of-env-agents .form_content {
-  height: auto;
 }
 
 .environment .pipeline .deployed_revisions .materials th, .environment .pipeline .deployed_revisions .materials td {
@@ -271,7 +261,7 @@ h4 {
   padding: 0 30px;
 }
 
-#environments #body_content, #pipelines #body_content {
+#pipelines #body_content {
   background-color: transparent;
 }
 
@@ -516,38 +506,9 @@ h1.entity_title {
 
 //pipeline history
 
-#pipeline-history {
-  background-color: transparent;
-}
-
-.pipeline-history-group .pipeline-name .wrapper {
-  width:     auto;
-  min-width: 12em;
-  max-width: 25em;
-
-  .pipeline-info {
-    display: block;
-  }
-}
-
-.pipeline-history-group .pipeline-info.revision {
-  width: 12em;
-}
 
 .container-in-body {
   padding: 0 !important;
-}
-
-#content_wrapper_outer_pipeline_history #content_wrapper_inner_pipeline_history {
-  padding: 0;
-}
-
-.pipeline_history_table_container {
-  margin:        15px 30px;
-  padding:       20px;
-  background:    $go-white;
-  box-sizing:    border-box;
-  border-radius: $global-border-radius;
 }
 
 #bd .yui-b {
@@ -560,40 +521,6 @@ h1.entity_title {
   padding-top: 0;
   min-width:   auto !important;
   background:  none;
-}
-
-span.pipeline-buttons a.link_as_button {
-  margin:    0;
-  min-width: 40px;
-
-  span {
-    font-size: rem-calc(10px) !important;
-  }
-
-  &:hover {
-    color: #333;
-
-    span {
-      font-size: rem-calc(10px) !important;
-    }
-  }
-}
-
-#pipeline-history .pipeline-buttons a.link_as_button span {
-  &:hover {
-    color: #fff !important;
-  }
-}
-
-#pipeline-history .pipeline-buttons {
-  margin-top: 0;
-  position:   relative;
-  top:        5px;
-}
-
-#labelFilterField {
-  border-radius: $global-border-radius;
-
 }
 
 #body_content .stage_detail_setting, .job_details .job_detail_setting {
@@ -646,21 +573,6 @@ span.pipeline-buttons a.link_as_button {
 
 }
 
-.pipeline-run {
-  display:         flex;
-  margin:          3px 0;
-  align-items:     center;
-  justify-content: space-between;
-
-  .pipeline-label {
-    font-size:     16px;
-    padding-right: 10px;
-  }
-
-  a {
-    font-size: 14px;
-  }
-}
 
 .pipeline-instance-header {
   font-size: 12px;
@@ -755,15 +667,6 @@ span.pipeline-buttons a.link_as_button {
   padding:   20px;
 }
 
-div#tab-content-of-junitresults {
-  padding:   20px;
-  font-size: 14px;
-
-  iframe {
-    margin-top: 20px;
-  }
-}
-
 //css arrows
 
 $arrow-border-color: lighten(#000, 75%);
@@ -832,39 +735,8 @@ $arrow-border-active-color: lighten(#000, 50%);
   }
 }
 
-#new-pipeline-history {
 
-  #content_wrapper_outer_pipeline_history {
-    margin: 0;
-  }
 
-}
-
-table.pipeline-history-group {
-  width:      auto !important;
-  background: #fff;
-  position:   relative;
-  margin:     0 !important;
-
-  thead {
-    th {
-      border: 0;
-    }
-  }
-}
-
-.pipeline-history-group .column-header {
-  font-size:   13px;
-  font-weight: 600;
-}
-
-table.pipeline-history-group td, table.pipeline-history-group th {
-  vertical-align: middle !important;
-}
-
-input.pipeline-comment-button {
-  background-image: none;
-}
 
 //tab style
 
@@ -1288,11 +1160,6 @@ button#confirm-pause-up42 {
   background: none;
 }
 
-#environments h2.entity_title {
-  a {
-    font-weight: 700;
-  }
-}
 
 .environment .pipeline .deploy button.submit {
   height:  auto;
@@ -1303,46 +1170,10 @@ input.new_resource {
   height: 30px;
 }
 
-#resources_panel {
-  .add_panel {
-    button.primary {
-      margin-left:   0;
-      border-radius: 0 3px 3px 0;
-      width:         66px;
-      background:    $btn-light-bg !important;
-
-      span {
-        color: $txt-color !important;
-
-      }
-
-      &:hover {
-        background-color: $btn-light-bg-hover !important;
-        color:            $go-white !important;
-
-        span {
-          color: $go-white !important;
-
-        }
-      }
-    }
-
-    input[type="text"] {
-      border-radius: 3px 0 0 3px;
-    }
-  }
-
-}
-
 .page_header a.new_agents_page:before {
   display: none;
 }
 
-.agent_details_pane, .job_history_table {
-  margin-top: 0;
-  padding:    20px 30px;
-  background: #fff;
-}
 
 .form_heading {
   position: relative;
@@ -1364,11 +1195,6 @@ input.new_resource {
 
 .form_buttons {
   background: none;
-}
-
-#comment-button {
-
-  color: #fff;
 }
 
 .fieldset {
@@ -1536,17 +1362,8 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   }
 }
 
-#new-pipeline-history {
-  .failed-stage, .passed-stage, .cancelled-stage {
-    text-align: center;
-  }
 
-  .failed-stage, .passed-stage {
-    color: white;
-  }
-}
-
-.Passed, #new-pipeline-history .passed-stage {
+.Passed {
   background-image: none;
   background-color: $passed;
 
@@ -1555,7 +1372,7 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   }
 }
 
-.Failed, #new-pipeline-history .failed-stage {
+.Failed {
   background-image: none;
   background-color: $failed;
 
@@ -1564,7 +1381,7 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   }
 }
 
-.Cancelled, #new-pipeline-history .cancelled-stage {
+.Cancelled {
   a {
     @include icon-after($cancelled-icon, $margin: 0);
   }
@@ -1588,18 +1405,6 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   a {
     color: black;
   }
-}
-
-#new-pipeline-history .passed-stage {
-  @include icon-before($passed-icon, 12px, 0);
-}
-
-#new-pipeline-history .failed-stage {
-  @include icon-after($failed-icon, 12px, 0);
-}
-
-#new-pipeline-history .cancelled-stage {
-  @include icon-after($cancelled-icon, 12px, 0);
 }
 
 .color_code, .color_code_small {
@@ -1685,9 +1490,6 @@ tr.Cancelled, tr.cancelled-stage {
   }
 }
 
-#new-pipeline-history .cancelled-stage {
-  background-image: none;
-}
 
 .Building, .Active {
   background-color: $building;
@@ -1718,7 +1520,7 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
   margin-top: 0px !important;
 }
 
-#tab-content-of-tests, #tab-content-of-failures, #tab-content-of-artifacts, #tab-content-of-properties, #tab-content-of-junit-time, #tab-content-of-console, #tab-content-of-gaugereport {
+#tab-content-of-tests, #tab-content-of-failures, #tab-content-of-artifacts, #tab-content-of-properties, #tab-content-of-junit-time, #tab-content-of-console {
   font-size: 14px;
 }
 
@@ -1844,19 +1646,7 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
   }
 }
 
-#server_management, #user_management {
-  h2.legend {
-    display:     inline;
-    font-weight: 300;
-    font-size:   24px;
-  }
 
-}
-
-#user_summary h1 {
-  font-weight: 300;
-  font-size:   24px;
-}
 
 .edit_panel {
   button.submit:hover span, button.submit_hover span, a.link_as_button:hover span, a.link_as_button_hover span {
@@ -1897,12 +1687,6 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 
 }
 
-#tab-content-of-plugins-listing {
-  h2 {
-    font-weight: 300;
-    margin-left: 10px;
-  }
-}
 
 form#package_repositories_edit_form {
   margin-top: 20px;
@@ -1944,7 +1728,7 @@ form#package_repositories_edit_form {
   }
 }
 
-.wizard h1, .wizard h1 strong, #tab-content-of-source-xml h1, #tab-content-of-source-xml h1 span, #my-cruise-page .sub_tab_container_content .wizard h1, h2#pipeline_activity_header, #server-page h1 {
+.wizard h1, .wizard h1 strong, #tab-content-of-source-xml h1, #tab-content-of-source-xml h1 span, #my-cruise-page .sub_tab_container_content .wizard h1, #server-page h1 {
   margin: 20px 30px 30px;
 }
 
@@ -2064,24 +1848,6 @@ a:link.help, a:visited.help {
   }
 }
 
-.label-filter-group-container {
-  .row {
-    position: relative;
-  }
-}
-
-.label-filter-group {
-  position: absolute;
-  top:      7px;
-  right:    30px;
-  padding:  0;
-  z-index:  $label-filter-group;
-
-  .filter-clear-icon {
-    top: 11px;
-  }
-}
-
 .treeview .preview_icon_wobg {
   top: 11px;
 }
@@ -2101,16 +1867,12 @@ a:link.help, a:visited.help {
   }
 }
 
-#environments .content_wrapper_inner, #pipelines .content_wrapper_inner {
+#pipelines .content_wrapper_inner {
   border: 0;
 }
 
 #pipelines #body_content .content_wrapper_inner {
   padding: 20px 0;
-}
-
-#environments #body_content .content_wrapper_inner {
-  padding: 5px 0;
 }
 
 .environments {
@@ -2145,9 +1907,6 @@ a:link.help, a:visited.help {
   border-bottom: 0;
 }
 
-#users_form .add_new_users a {
-  color: #fff !important;
-}
 
 .edit_panel button.submit, .edit_panel a.link_as_button {
   background:    $agent-header-button-bg;
@@ -2193,10 +1952,6 @@ a:link.help, a:visited.help {
     outline: 0;
   }
 
-}
-
-#tab-content-of-pipeline-groups .group_pipelines .group .actions li {
-  margin-right: 30px;
 }
 
 .material_options label {
@@ -2527,12 +2282,7 @@ input.compare_pipeline_input {
   }
 }
 
-#new-pipeline-history .passed-stage {
-  background-image: none;
-  background-color: $passed;
-}
-
-#pipeline_navigator .selected .stage_bar_wrapper, #pipeline_status_bar .pipeline .stages .selected .stage_bar_wrapper {
+#pipeline_status_bar .pipeline .stages .selected .stage_bar_wrapper {
   background-repeat: repeat-x;
 }
 
@@ -2586,18 +2336,6 @@ $new-theme-material-popup-width: ($new-theme-material-popup-user-width + $new-th
   }
 }
 
-#new-pipeline-history #content_wrapper_inner_pipeline_history {
-  .popup {
-    max-width: $new-theme-material-popup-width;
-    width:     $new-theme-material-popup-width;
-
-    .build-cause-summary-container {
-      table {
-        @include new-theme-changes-table;
-      }
-    }
-  }
-}
 
 #pipelines .enhanced_dropdown, #stages .fbh_microcontent_popup .enhanced_dropdown, #pipelines .enhanced_dropdown .scrollable_panel {
   max-width: $new-theme-material-popup-width;
@@ -2783,13 +2521,6 @@ button.check_connection + .connection_test_message pre {
   }
 }
 
-#users_form .isFixed {
-  box-shadow:       0 4px 5px rgba(102, 102, 102, 0.36);
-  top:              40px;
-  background-image: none;
-  background-color: #fff;
-  padding:          10px 20px 7px;
-}
 
 #filter_help {
   margin-top: 0px;
@@ -2976,11 +2707,6 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
 button.edit-environment {
   float:        none;
   margin-right: 0;
-}
-
-#footer-new-foundation .row.expanded {
-  max-width: 100%;
-  padding:   0;
 }
 
 .template_group h2.entity_title {
@@ -3525,24 +3251,8 @@ a.add_item {
     padding-bottom: 0;
   }
 
-  .button_row_with_help {
-    margin-top: 20px;
-  }
-
   .roles {
     white-space: nowrap;
-  }
-}
-
-#server_management h2.legend, #user_management h2.legend {
-  font-size: 20px;
-}
-
-#tab-content-of-templates .template .title_action_wrapper {
-  float: left;
-
-  li {
-    margin-left: 0px;
   }
 }
 
@@ -3552,12 +3262,6 @@ a.add_item {
 
 form#package_repositories_edit_form {
   margin-top: 0;
-}
-
-#tab-content-of-user-listing {
-  .title_secondary_info {
-    margin-top: 10px;
-  }
 }
 
 .tasks_list_table .icon_remove, .jobs_list_table .icon_remove {
@@ -3850,13 +3554,6 @@ ul.entity_title {
     span.page_name {
       height: 50px;
     }
-  }
-}
-
-#pipeline_activity_header {
-  .label {
-    left: 0px;
-    top:  -10px;
   }
 }
 

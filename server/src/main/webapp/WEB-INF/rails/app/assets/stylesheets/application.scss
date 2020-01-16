@@ -36,7 +36,6 @@
  *= require "_module"
  *= require_tree ./plugins
  *= require_tree ./views
- *= require '_new-footer-with-old-css'
  *= require '_vsm'
  */
 
@@ -45,5 +44,4 @@
 @import "shared/go-variables";
 @import "shared/mixins";
 @import "shared/common";
-@import 'footer';
 

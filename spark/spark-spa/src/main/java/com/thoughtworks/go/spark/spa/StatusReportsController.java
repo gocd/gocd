@@ -16,6 +16,7 @@
 package com.thoughtworks.go.spark.spa;
 
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.server.service.ElasticAgentPluginService;
 import com.thoughtworks.go.server.service.JobInstanceService;
@@ -60,8 +61,16 @@ public class StatusReportsController implements SparkController {
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkAdminUserAnd403);
-            before("/*", authenticationHelper::checkAdminUserAnd403);
+            before("/:plugin_id", authenticationHelper::checkAdminUserAnd403);
+
+            before("/:plugin_id/agent/:elastic_agent_id", (request, response) -> {
+                authenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, request.params("elastic_agent_id"));
+            });
+
+            before("/:plugin_id/cluster/:cluster_profile_id", (request, response) -> {
+                authenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.CLUSTER_PROFILE, request.params("cluster_profile_id"));
+            });
+
             get("/:plugin_id", this::pluginStatusReport, engine);
             get("/:plugin_id/agent/:elastic_agent_id", this::agentStatusReport, engine);
             get("/:plugin_id/cluster/:cluster_profile_id", this::clusterStatusReport, engine);

@@ -60,6 +60,5 @@ trait SecurityTestTrait {
     ((MockHttpServletResponseAssert) assertThatResponse())
       .hasContentType("text/html")
       .hasStatus(403)
-      .hasBody(HtmlErrorPage.errorPage(403, "Forbidden"))
   }
 }

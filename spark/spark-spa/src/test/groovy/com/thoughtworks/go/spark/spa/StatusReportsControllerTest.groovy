@@ -63,7 +63,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
 
       @Override
       void makeHttpCall() {
-        get(controller.controllerBasePath() + "/some_plugin_id")
+        get(controller.controllerPath("/some_plugin_id"))
       }
     }
 
@@ -74,7 +74,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
       when(elasticAgentPluginService.getPluginStatusReport("pluginId"))
         .thenThrow(new RecordNotFoundException(errorMessage))
 
-      get(controller.controllerBasePath() + "/pluginId")
+      get(controller.controllerPath("/pluginId"))
 
       def expectedBody = new StubTemplateEngine().render(new ModelAndView([message: errorMessage, viewTitle: "Plugin Status Report"],
         "status_reports/error.ftlh"))
@@ -90,7 +90,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
       when(elasticAgentPluginService.getPluginStatusReport("pluginId"))
         .thenReturn("Plugin Status Report View")
 
-      get(controller.controllerBasePath() + "/pluginId")
+      get(controller.controllerPath("/pluginId"))
 
       assertThatResponse()
         .isOk()
@@ -105,7 +105,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
       when(elasticAgentPluginService.getPluginStatusReport("pluginId"))
         .thenThrow(new UnsupportedOperationException("Plugin does not plugin support status report."))
 
-      get(controller.controllerBasePath() + "/pluginId")
+      get(controller.controllerPath("/pluginId"))
 
       def expectedBody = new StubTemplateEngine().render(new ModelAndView([message: errorMessage, viewTitle: "Plugin Status Report"],
         "status_reports/error.ftlh"))
@@ -128,7 +128,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
 
       @Override
       void makeHttpCall() {
-        get(controller.controllerBasePath() + "/plugin_id/agent/elastic_agent_id")
+        get(controller.controllerPath("/plugin_id/agent/elastic_agent_id"))
       }
     }
 
@@ -141,7 +141,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
       when(elasticAgentPluginService.getAgentStatusReport("pluginId", jobInstance.getIdentifier(), "elasticAgentId"))
         .thenThrow(new RecordNotFoundException(errorMessage))
 
-      get(controller.controllerBasePath() + "/pluginId/agent/elasticAgentId?job_id=1")
+      get(controller.controllerPath("/pluginId/agent/elasticAgentId?job_id=1"))
 
       def expectedBody = new StubTemplateEngine().render(new ModelAndView([message  : errorMessage,
                                                                            viewTitle: "Agent Status Report"],
@@ -156,7 +156,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
     void 'should be unprocessable entity when job id is not provided'() {
       loginAsAdmin()
 
-      get(controller.controllerBasePath() + "/pluginId/agent/elasticAgentId")
+      get(controller.controllerPath("/pluginId/agent/elasticAgentId"))
 
       assertThatResponse()
         .isUnprocessableEntity()
@@ -168,7 +168,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
     void 'should be unprocessable entity when job id is not not a number'() {
       loginAsAdmin()
 
-      get(controller.controllerBasePath() + "/pluginId/agent/elasticAgentId?job_id=foobar")
+      get(controller.controllerPath("/pluginId/agent/elasticAgentId?job_id=foobar"))
 
       assertThatResponse()
         .isUnprocessableEntity()
@@ -184,7 +184,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
       when(elasticAgentPluginService.getAgentStatusReport("pluginId", jobInstance.getIdentifier(), "elasticAgentId"))
         .thenThrow(new UnsupportedOperationException(""))
 
-      get(controller.controllerBasePath() + "/pluginId/agent/elasticAgentId?job_id=1")
+      get(controller.controllerPath("/pluginId/agent/elasticAgentId?job_id=1"))
 
       def expectedBody = new StubTemplateEngine().render(new ModelAndView(
         [
@@ -207,7 +207,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
       when(elasticAgentPluginService.getAgentStatusReport("pluginId", jobInstance.getIdentifier(), "elasticAgentId"))
         .thenReturn("Agent Status Report View From Plugin")
 
-      get(controller.controllerBasePath() + "/pluginId/agent/elasticAgentId?job_id=1")
+      get(controller.controllerPath("/pluginId/agent/elasticAgentId?job_id=1"))
 
       assertThatResponse()
         .isOk()
@@ -223,7 +223,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
       when(elasticAgentPluginService.getAgentStatusReport("pluginId", jobInstance.getIdentifier(), null))
         .thenReturn("Agent Status Report View From Plugin")
 
-      get(controller.controllerBasePath() + "/pluginId/agent/unassigned?job_id=1")
+      get(controller.controllerPath("/pluginId/agent/unassigned?job_id=1"))
 
       assertThatResponse()
         .isOk()
@@ -244,7 +244,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
 
       @Override
       void makeHttpCall() {
-        get(controller.controllerBasePath() + "/plugin_id/cluster/cluster_profile_id")
+        get(controller.controllerPath("/plugin_id/cluster/cluster_profile_id"))
       }
     }
 
@@ -254,7 +254,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
       when(elasticAgentPluginService.getClusterStatusReport("pluginId", "clusterId")).thenReturn('view from plugin')
       def expectedBody = new StubTemplateEngine().render(new ModelAndView([viewTitle: "Cluster Status Report", viewFromPlugin: 'view from plugin'], "status_reports/index.ftlh"))
 
-      get(controller.controllerBasePath() + "/pluginId/cluster/clusterId")
+      get(controller.controllerPath("/pluginId/cluster/clusterId"))
 
       assertThatResponse()
         .isOk()
@@ -269,7 +269,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
       when(elasticAgentPluginService.getClusterStatusReport("pluginId", "clusterId"))
         .thenThrow(new RecordNotFoundException(errorMessage))
 
-      get(controller.controllerBasePath() + "/pluginId/cluster/clusterId")
+      get(controller.controllerPath("/pluginId/cluster/clusterId"))
 
       def expectedBody = new StubTemplateEngine().render(new ModelAndView([message: errorMessage, viewTitle: "Cluster Status Report"],
         "status_reports/error.ftlh"))
@@ -286,7 +286,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
       when(elasticAgentPluginService.getClusterStatusReport("pluginId", "clusterId"))
         .thenThrow(new RecordNotFoundException(errorMessage))
 
-      get(controller.controllerBasePath() + "/pluginId/cluster/clusterId")
+      get(controller.controllerPath("/pluginId/cluster/clusterId"))
 
       def expectedBody = new StubTemplateEngine().render(new ModelAndView([message: errorMessage, viewTitle: "Cluster Status Report"],
         "status_reports/error.ftlh"))
@@ -303,7 +303,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
       when(elasticAgentPluginService.getClusterStatusReport("pluginId", "clusterId"))
         .thenThrow(new UnsupportedOperationException("Plugin does not support cluster status report."))
 
-      get(controller.controllerBasePath() + "/pluginId/cluster/clusterId")
+      get(controller.controllerPath("/pluginId/cluster/clusterId"))
 
       def expectedBody = new StubTemplateEngine().render(new ModelAndView([message: errorMessage, viewTitle: "Cluster Status Report"],
         "status_reports/error.ftlh"))

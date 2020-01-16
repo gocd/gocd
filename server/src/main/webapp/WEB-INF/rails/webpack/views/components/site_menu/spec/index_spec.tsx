@@ -87,7 +87,7 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/config_repos")).toHaveText("Config Repositories");
     expect(findMenuItem("/go/admin/templates")).toHaveText("Templates");
     expect(findMenuItem("/go/admin/environments")).toHaveText("Environments");
-    expect(findMenuItem("/go/admin/elastic_agent_configurations")).toBeFalsy();
+    expect(findMenuItem("/go/admin/elastic_agent_configurations")).toHaveText("Elastic Agent Configurations");
     expect(findMenuItem("/go/admin/config_xml")).toBeFalsy();
     expect(findMenuItem("/go/admin/config/server")).toBeFalsy();
     expect(findMenuItem("/go/admin/users")).toBeFalsy();
@@ -97,7 +97,7 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/security/auth_configs")).toBeFalsy();
     expect(findMenuItem("/go/admin/security/roles")).toBeFalsy();
     expect(helper.qa(`a.${styles.siteNavLink}`)).toHaveLength(4);
-    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(3);
+    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(4);
   });
 
   it("should display the menus for Group Admins", () => {
@@ -123,7 +123,7 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/environments")).toHaveText("Environments");
     expect(findMenuItem("/go/admin/config_repos")).toHaveText("Config Repositories");
     expect(findMenuItem("/go/admin/templates")).toHaveText("Templates");
-    expect(findMenuItem("/go/admin/elastic_agent_configurations")).toBeFalsy();
+    expect(findMenuItem("/go/admin/elastic_agent_configurations")).toHaveText("Elastic Agent Configurations");
     expect(findMenuItem("/go/admin/pipelines/snippet")).toHaveText("Config XML");
     expect(findMenuItem("/go/admin/config/server")).toBeFalsy();
     expect(findMenuItem("/go/admin/users")).toBeFalsy();
@@ -133,7 +133,7 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/security/auth_configs")).toBeFalsy();
     expect(findMenuItem("/go/admin/security/roles")).toBeFalsy();
     expect(helper.qa(`a.${styles.siteNavLink}`)).toHaveLength(4);
-    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(7);
+    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(8);
   });
 
   it("should not show analytics when the attribute is passed as false", () => {
@@ -173,6 +173,9 @@ describe("Site Menu", () => {
     expect(admin).toHaveText("Admin");
     expect(findMenuItem("/go/admin/environments")).toHaveText("Environments");
     expect(findMenuItem("/go/admin/config_repos")).toHaveText("Config Repositories");
+    expect(findMenuItem("/go/admin/elastic_agent_configurations")).toHaveText("Elastic Agent Configurations");
+
+    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(3);
   });
 
   function mount(menuAttrs: Attrs) {

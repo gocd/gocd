@@ -292,9 +292,11 @@ public class BuildAssignmentService implements ConfigChangedListener {
 
                     final EnvironmentVariableContext environmentVariableContext = buildEnvVarContext(job.getIdentifier().getPipelineName());
 
-                    // Agent may have a NULL "resources" so we check and set an empty default here so that tests pass
-                    String agentResourcesAsCsv = agent.getResourceConfigs() == null ? "" : agent.getResourceConfigs().getCommaSeparatedResourceNames();
-                    environmentVariableContext.setProperty(GO_AGENT_RESOURCES, agentResourcesAsCsv, false);
+                    // Agent may have a NULL "resources"
+                    if (agent.getResourceConfigs() != null) {
+                        // Users relying on this env. var. can test for its existence rather than checking for an empty string
+                        environmentVariableContext.setProperty(GO_AGENT_RESOURCES, agent.getResourceConfigs().getCommaSeparatedResourceNames(), false);
+                    }
 
                     final ArtifactStores requiredArtifactStores = goConfigService.artifactStores().getArtifactStores(getArtifactStoreIdsRequiredByArtifactPlans(job.getArtifactPlans()));
                     BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder(), environmentVariableContext, requiredArtifactStores);

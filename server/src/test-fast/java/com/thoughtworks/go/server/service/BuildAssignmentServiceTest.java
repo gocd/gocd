@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
+import static com.thoughtworks.go.server.service.BuildAssignmentService.GO_AGENT_RESOURCES;
 import static com.thoughtworks.go.server.service.BuildAssignmentService.GO_PIPELINE_GROUP_NAME;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
 import static java.util.Collections.singletonList;
@@ -277,7 +278,12 @@ class BuildAssignmentServiceTest {
 
             final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
             pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+
             final AgentInstance agentInstance = mock(AgentInstance.class);
+            when(agentInstance.getResourceConfigs()).thenReturn (mock (ResourceConfigs.class));
+            agentInstance.getResourceConfigs().add(new ResourceConfig("resource-1"));
+            agentInstance.getResourceConfigs().add(new ResourceConfig("resource-2"));
+
             final Pipeline pipeline = mock(Pipeline.class);
             final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
 
@@ -300,6 +306,7 @@ class BuildAssignmentServiceTest {
             EnvironmentVariableContext environmentVariableContext = work.getAssignment().initialEnvironmentVariableContext();
             assertThat(environmentVariableContext.getProperty("GIT_USERNAME")).isEqualTo("bob");
             assertThat(environmentVariableContext.getProperty("GIT_TOKEN")).isEqualTo("some-token");
+            assertThat(environmentVariableContext.getProperty(GO_AGENT_RESOURCES)).isEqualTo(agentInstance.getResourceConfigs().getCommaSeparatedResourceNames());
             assertThat(environmentVariableContext.getSecureEnvironmentVariables())
                     .contains(new EnvironmentVariableContext.EnvironmentVariable("GIT_TOKEN", "some-token"));
         }
@@ -311,9 +318,15 @@ class BuildAssignmentServiceTest {
             gitMaterial.setPassword("{{SECRET:[secret_config_id][GIT_PASSWORD]}}");
             final Modification modification = new Modification("user", null, null, null, "rev1");
             final MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(gitMaterial, modification));
+
             final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
             pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+
             final AgentInstance agentInstance = mock(AgentInstance.class);
+            when(agentInstance.getResourceConfigs()).thenReturn (mock (ResourceConfigs.class));
+            agentInstance.getResourceConfigs().add(new ResourceConfig("resource-1"));
+            agentInstance.getResourceConfigs().add(new ResourceConfig("resource-2"));
+
             final Pipeline pipeline = mock(Pipeline.class);
             final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
 

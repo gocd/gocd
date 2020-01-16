@@ -58,6 +58,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(BuildAssignmentService.class.getName());
     public static final NoWork NO_WORK = new NoWork();
     public static final String GO_PIPELINE_GROUP_NAME = "GO_PIPELINE_GROUP_NAME";
+    public static final String GO_AGENT_RESOURCES = "GO_AGENT_RESOURCES";
 
     private GoConfigService goConfigService;
     private JobInstanceService jobInstanceService;
@@ -290,6 +291,12 @@ public class BuildAssignmentService implements ConfigChangedListener {
                     }
 
                     final EnvironmentVariableContext environmentVariableContext = buildEnvVarContext(job.getIdentifier().getPipelineName());
+
+                    // Agent may have a NULL "resources"
+                    if (agent.getResourceConfigs() != null) {
+                        // Users relying on this env. var. can test for its existence rather than checking for an empty string
+                        environmentVariableContext.setProperty(GO_AGENT_RESOURCES, agent.getResourceConfigs().getCommaSeparatedResourceNames(), false);
+                    }
 
                     final ArtifactStores requiredArtifactStores = goConfigService.artifactStores().getArtifactStores(getArtifactStoreIdsRequiredByArtifactPlans(job.getArtifactPlans()));
                     BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder(), environmentVariableContext, requiredArtifactStores);

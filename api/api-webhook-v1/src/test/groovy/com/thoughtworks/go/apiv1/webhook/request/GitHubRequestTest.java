@@ -42,7 +42,7 @@ class GitHubRequestTest {
 
         assertThat(gitHubRequest.supportedContentType())
             .hasSize(3)
-            .contains(APPLICATION_FORM_URLENCODED_VALUE, APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE);
+            .contains(APPLICATION_FORM_URLENCODED, APPLICATION_JSON, APPLICATION_JSON_UTF8);
     }
 
     @ParameterizedTest

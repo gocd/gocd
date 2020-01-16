@@ -19,28 +19,26 @@ package com.thoughtworks.go.apiv1.webhook.request;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.webhook.request.payload.Payload;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
+import org.springframework.util.MimeType;
 import spark.Request;
 
 import java.lang.reflect.ParameterizedType;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
-import static org.springframework.http.MediaType.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 
 public abstract class WebhookRequest<T extends Payload> {
     private final String event;
-    private final T payload;
     private final String body;
+    private final MimeType contentType;
+    private T payload;
 
     public WebhookRequest(Request request) {
         event = parseEvent(request);
         body = request.body();
-        payload = parsePayload(request.contentType());
+        contentType = MimeType.valueOf(request.contentType());
     }
 
     public String getEvent() {
@@ -48,6 +46,9 @@ public abstract class WebhookRequest<T extends Payload> {
     }
 
     public T getPayload() {
+        if (payload == null) {
+            this.payload = parsePayload(contentType);
+        }
         return payload;
     }
 
@@ -61,16 +62,16 @@ public abstract class WebhookRequest<T extends Payload> {
 
     protected abstract String parseEvent(Request request);
 
-    protected List<String> supportedContentType() {
-        return List.of(APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE);
+    protected List<MimeType> supportedContentType() {
+        return List.of(APPLICATION_JSON, APPLICATION_JSON_UTF8);
     }
 
-    protected T parsePayload(String contentType) {
+    protected T parsePayload(MimeType contentType) {
         if (!supportedContentType().contains(contentType)) {
             throw new BadRequestException(format("Could not understand the content type '%s'!", contentType));
         }
 
-        if (equalsAnyIgnoreCase(contentType, APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE)) {
+        if (contentType.equals(APPLICATION_JSON) || contentType.equals(APPLICATION_JSON_UTF8)) {
             return GsonTransformer.getInstance().fromJson(body, getParameterClass());
         }
 

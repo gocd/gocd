@@ -32,8 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.*;
 
 class BitBucketCloudRequestTest {
     @Test
@@ -44,7 +43,7 @@ class BitBucketCloudRequestTest {
 
         assertThat(bitBucketCloudRequest.supportedContentType())
             .hasSize(2)
-            .contains(APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE);
+            .contains(APPLICATION_JSON, APPLICATION_JSON_UTF8);
     }
 
     @ParameterizedTest
@@ -99,7 +98,7 @@ class BitBucketCloudRequestTest {
 
             assertThatCode(() -> new BitBucketCloudRequest(request).validate("webhook-secret"))
                 .isInstanceOf(BadRequestException.class)
-                .hasMessage(format("Invalid event type '%s'. Allowed events are [repo:push, diagnostics:ping]", event));
+                .hasMessage(format("Invalid event type '%s'. Allowed events are [repo:push]", event));
         }
 
         @Test

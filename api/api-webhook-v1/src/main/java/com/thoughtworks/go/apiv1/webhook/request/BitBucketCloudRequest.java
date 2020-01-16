@@ -44,7 +44,7 @@ public class BitBucketCloudRequest extends WebhookRequest<BitBucketCloudPayload>
     @Override
     public void validate(String webhookSecret) {
         if (!equalsAny(getEvent(), "repo:push")) {
-            throw new BadRequestException(format("Invalid event type '%s'. Allowed events are [repo:push, diagnostics:ping]", getEvent()));
+            throw new BadRequestException(format("Invalid event type '%s'. Allowed events are [repo:push]", getEvent()));
         }
 
         if (isBlank(token)) {

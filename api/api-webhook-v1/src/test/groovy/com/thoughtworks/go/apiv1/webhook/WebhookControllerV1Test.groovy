@@ -228,7 +228,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
       postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_CLOUD), headers, payload)
 
       assertThatResponse().isBadRequest()
-        .hasJsonMessage("Invalid event type 'Foo'. Allowed events are [repo:push, diagnostics:ping]")
+        .hasJsonMessage("Invalid event type 'Foo'. Allowed events are [repo:push]")
     }
 
     @Test
@@ -271,6 +271,81 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
       Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(true)
 
       postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_CLOUD), headers, payload)
+
+      assertThatResponse()
+        .isAccepted()
+        .hasJsonMessage("OK!")
+    }
+  }
+
+  @Nested
+  class BitBucketServer {
+    def payload = [
+      "changes"   : [["ref": ["displayId": "release", "id": "refs/heads/release", "type": "BRANCH"]]],
+      "eventKey"  : "repo:refs_changed",
+      "repository": [
+        "links": [
+          "clone": [["href": "ssh://git@bitbucket-server/gocd/spaceship.git", "name": "ssh"],
+                    ["href": "http://user:pass@bitbucket-server/scm/gocd/spaceship.git", "name": "http"]]
+        ],
+        "scmId": "git",
+        "name" : "Foo"
+      ]
+    ]
+
+    @Test
+    void 'should error out if event type is not acceptable'() {
+      def headers = [
+        "Authorization": "",
+        "X-Event-Key"  : "Foo"
+      ]
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_SERVER), headers, payload)
+
+      assertThatResponse().isBadRequest()
+        .hasJsonMessage("Invalid event type 'Foo'. Allowed events are [repo:refs_changed, diagnostics:ping]")
+    }
+
+    @Test
+    void 'should error out when signature does not match'() {
+      def headers = [
+        "X-Hub-Signature": "sha256=invalid-signature",
+        "X-Event-Key"    : "repo:refs_changed"
+      ]
+      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_SERVER), headers, payload)
+
+      assertThatResponse().isBadRequest()
+        .hasJsonMessage("HMAC signature specified via 'X-Hub-Signature' did not match!")
+    }
+
+    @Test
+    void 'should error out when material is not configured in GoCD'() {
+      def headers = [
+        "X-Hub-Signature": "sha256=5b421defd19aacb4772fa869beb40ad1518b76774c61e85d70552e2ec9169204",
+        "X-Event-Key"  : "repo:refs_changed"
+      ]
+      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+      Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(false)
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_SERVER), headers, payload)
+
+      assertThatResponse()
+        .isAccepted()
+        .hasJsonMessage("No matching materials!")
+    }
+
+    @Test
+    void 'should handle ref changed request'() {
+      def headers = [
+        "X-Hub-Signature": "sha256=5b421defd19aacb4772fa869beb40ad1518b76774c61e85d70552e2ec9169204",
+        "X-Event-Key"  : "repo:refs_changed"
+      ]
+      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+      Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(true)
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_SERVER), headers, payload)
 
       assertThatResponse()
         .isAccepted()

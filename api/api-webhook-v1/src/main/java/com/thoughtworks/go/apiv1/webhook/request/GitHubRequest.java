@@ -26,13 +26,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.h2.util.Utils;
+import org.springframework.util.MimeType;
 import spark.Request;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.http.MediaType.*;
 
@@ -72,13 +72,13 @@ public class GitHubRequest extends WebhookRequest<GitHubPayload> implements Gues
     }
 
     @Override
-    protected List<String> supportedContentType() {
-        return List.of(APPLICATION_JSON_VALUE, APPLICATION_JSON_UTF8_VALUE, APPLICATION_FORM_URLENCODED_VALUE);
+    protected List<MimeType> supportedContentType() {
+        return List.of(APPLICATION_JSON, APPLICATION_JSON_UTF8, APPLICATION_FORM_URLENCODED);
     }
 
     @Override
-    protected GitHubPayload parsePayload(String contentType) {
-        if (StringUtils.equals(contentType, APPLICATION_FORM_URLENCODED_VALUE)) {
+    protected GitHubPayload parsePayload(MimeType contentType) {
+        if (contentType.equals(APPLICATION_FORM_URLENCODED)) {
             List<NameValuePair> formData = URLEncodedUtils.parse(getRawBody(), StandardCharsets.UTF_8);
             return GsonTransformer.getInstance().fromJson(formData.get(0).getValue(), getParameterClass());
         }

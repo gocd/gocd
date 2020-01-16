@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.domain.ElasticProfileUsage
 import com.thoughtworks.go.server.service.ElasticProfileService
+import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -52,7 +53,7 @@ class ElasticProfileOperationControllerV1Test implements SecurityServiceTrait, C
   @Nested
   class Usages {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -66,12 +67,12 @@ class ElasticProfileOperationControllerV1Test implements SecurityServiceTrait, C
     }
 
     @Nested
-    class AsAGroupAdmin {
+    class AsAdmin {
 
       @BeforeEach
       void setUp() {
         enableSecurity()
-        loginAsGroupAdmin()
+        loginAsAdmin()
       }
 
       @Test

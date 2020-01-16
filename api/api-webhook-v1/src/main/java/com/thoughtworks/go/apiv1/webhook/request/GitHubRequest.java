@@ -47,6 +47,7 @@ public class GitHubRequest extends WebhookRequest<GitHubPayload> implements Gues
     @Override
     public void validate(String webhookSecret) {
         if (!StringUtils.equalsAny(getEvent(), "push", "ping")) {
+            LOGGER.error(format("[WebHook] Invalid event type '%s'. Allowed events are [ping, push].", getEvent()));
             throw new BadRequestException(format("Invalid event type '%s'. Allowed events are [ping, push].", getEvent()));
         }
 
@@ -60,6 +61,7 @@ public class GitHubRequest extends WebhookRequest<GitHubPayload> implements Gues
 
     private void validateSignature(String webhookSecret) {
         if (isBlank(signature)) {
+            LOGGER.error("[WebHook] No HMAC signature specified via 'X-Hub-Signature' header!");
             throw new BadRequestException("No HMAC signature specified via 'X-Hub-Signature' header!");
         }
 
@@ -67,6 +69,7 @@ public class GitHubRequest extends WebhookRequest<GitHubPayload> implements Gues
             .hmacHex(getRawBody());
 
         if (!Utils.compareSecure(expectedSignature.getBytes(), signature.getBytes())) {
+            LOGGER.error("[WebHook] HMAC signature specified via 'X-Hub-Signature' did not match!");
             throw new BadRequestException("HMAC signature specified via 'X-Hub-Signature' did not match!");
         }
     }
@@ -79,6 +82,7 @@ public class GitHubRequest extends WebhookRequest<GitHubPayload> implements Gues
     @Override
     protected GitHubPayload parsePayload(MimeType contentType) {
         if (contentType.equals(APPLICATION_FORM_URLENCODED)) {
+            LOGGER.debug(format("[WebHook] Parsing '%s' payload!", contentType));
             List<NameValuePair> formData = URLEncodedUtils.parse(getRawBody(), StandardCharsets.UTF_8);
             return GsonTransformer.getInstance().fromJson(formData.get(0).getValue(), getParameterClass());
         }

@@ -41,14 +41,17 @@ public class BitBucketServerRequest extends WebhookRequest<BitBucketServerPayloa
     @Override
     public void validate(String webhookSecret) {
         if (!equalsAny(getEvent(), "repo:refs_changed", "diagnostics:ping")) {
+            LOGGER.error(format("[WebHook] Invalid event type '%s'. Allowed events are [repo:refs_changed, diagnostics:ping]", getEvent()));
             throw new BadRequestException(format("Invalid event type '%s'. Allowed events are [repo:refs_changed, diagnostics:ping]", getEvent()));
         }
 
         if (StringUtils.equals(getEvent(), "diagnostics:ping")) {
+            LOGGER.debug("[WebHook] Skipping validation for ping request!");
             return;
         }
 
         if (isBlank(signature)) {
+            LOGGER.error("[WebHook] No HMAC signature specified via 'X-Hub-Signature' header!");
             throw new BadRequestException("No HMAC signature specified via 'X-Hub-Signature' header!");
         }
 
@@ -56,10 +59,12 @@ public class BitBucketServerRequest extends WebhookRequest<BitBucketServerPayloa
             .hmacHex(getRawBody());
 
         if (!Utils.compareSecure(expectedSignature.getBytes(), signature.getBytes())) {
+            LOGGER.error("[WebHook] HMAC signature specified via 'X-Hub-Signature' did not match!");
             throw new BadRequestException("HMAC signature specified via 'X-Hub-Signature' did not match!");
         }
 
         if (!StringUtils.equals(getPayload().getScmType(), "git")) {
+            LOGGER.error("[WebHook] Only 'git' repositories are currently supported!");
             throw new BadRequestException("Only 'git' repositories are currently supported!");
         }
     }

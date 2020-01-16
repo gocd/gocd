@@ -41,14 +41,17 @@ public class GitLabRequest extends WebhookRequest<GitLabPayload> implements Gues
     @Override
     public void validate(String webhookSecret) {
         if (!StringUtils.equals(getEvent(), "Push Hook")) {
+            LOGGER.error(format("[WebHook] Invalid event type '%s'. Only 'Push Hook' event is allowed.", getEvent()));
             throw new BadRequestException(format("Invalid event type '%s'. Only 'Push Hook' event is allowed.", getEvent()));
         }
 
         if (isBlank(token)) {
+            LOGGER.error("[WebHook] No token specified in the 'X-Gitlab-Token' header!");
             throw new BadRequestException("No token specified in the 'X-Gitlab-Token' header!");
         }
 
         if (!Utils.compareSecure(token.getBytes(), webhookSecret.getBytes())) {
+            LOGGER.error("[WebHook] Token specified in the 'X-Gitlab-Token' header did not match!");
             throw new BadRequestException("Token specified in the 'X-Gitlab-Token' header did not match!");
         }
     }

@@ -19,6 +19,8 @@ package com.thoughtworks.go.apiv1.webhook.request;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.webhook.request.payload.Payload;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.MimeType;
 import spark.Request;
 
@@ -30,6 +32,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 
 public abstract class WebhookRequest<T extends Payload> {
+    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final String event;
     private final String body;
     private final MimeType contentType;
@@ -68,13 +71,16 @@ public abstract class WebhookRequest<T extends Payload> {
 
     protected T parsePayload(MimeType contentType) {
         if (!supportedContentType().contains(contentType)) {
+            LOGGER.error(format("[WebHook] Could not understand the content type '%s'!", contentType));
             throw new BadRequestException(format("Could not understand the content type '%s'!", contentType));
         }
 
         if (contentType.equals(APPLICATION_JSON) || contentType.equals(APPLICATION_JSON_UTF8)) {
+            LOGGER.debug(format("[WebHook] Parsing '%s' payload!", contentType));
             return GsonTransformer.getInstance().fromJson(body, getParameterClass());
         }
 
+        LOGGER.error("[WebHook] Could not understand the payload!");
         throw new BadRequestException("Could not understand the payload!");
     }
 

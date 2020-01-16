@@ -44,18 +44,22 @@ public class BitBucketCloudRequest extends WebhookRequest<BitBucketCloudPayload>
     @Override
     public void validate(String webhookSecret) {
         if (!equalsAny(getEvent(), "repo:push")) {
+            LOGGER.error(format("[WebHook] Invalid event type '%s'. Allowed events are [repo:push]", getEvent()));
             throw new BadRequestException(format("Invalid event type '%s'. Allowed events are [repo:push]", getEvent()));
         }
 
         if (isBlank(token)) {
+            LOGGER.error("[WebHook] No token specified via basic authentication!");
             throw new BadRequestException("No token specified via basic authentication!");
         }
 
         if (!Utils.compareSecure(token.getBytes(), webhookSecret.getBytes())) {
+            LOGGER.error("[WebHook] Token specified via basic authentication did not match!");
             throw new BadRequestException("Token specified via basic authentication did not match!");
         }
 
         if (!StringUtils.equals(getPayload().getScmType(), "git")) {
+            LOGGER.error("[WebHook] Only 'git' repositories are currently supported!");
             throw new BadRequestException("Only 'git' repositories are currently supported!");
         }
     }

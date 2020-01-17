@@ -61,8 +61,9 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
         </div>
         <div class={styles.revision}>Revision: {pipelineRunInfo.revision()}</div>
         <div class={styles.scheduleInfo}
-             data-test-id={"time"}>
-          {PipelineRunWidget.getTime(pipelineRunInfo.scheduledTimestamp())}
+             data-test-id={"time"}
+             title={PipelineRunWidget.getTimeServer(pipelineRunInfo.scheduledTimestamp())}>
+          {PipelineRunWidget.getTimeLocal(pipelineRunInfo.scheduledTimestamp())}
         </div>
         <BuildCauseWidget pipelineRunInfo={pipelineRunInfo}
                           showBuildCaseFor={vnode.attrs.showBuildCaseFor}
@@ -146,8 +147,12 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
     return <a href={link}>VSM</a>;
   }
 
-  private static getTime(timestamp: Date) {
+  private static getTimeLocal(timestamp: Date) {
     return timestamp ? TimeFormatter.format(timestamp) : "N/A";
+  }
+
+  private static getTimeServer(timestamp: Date) {
+    return timestamp ? TimeFormatter.formatInServerTime(timestamp) : null;
   }
 
   private getStageActions(stage: Stage, vnode: m.Vnode<PipelineRunAttrs>): m.Children {

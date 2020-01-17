@@ -432,6 +432,7 @@
             </when>
         </choose>
         )
+        ORDER BY id DESC
     </select>
 
     <!-- Following query returns the lastest and oldest run id for the given pipeline-stage-job. This helps in identifying the first and last record for the given identifier.  -->

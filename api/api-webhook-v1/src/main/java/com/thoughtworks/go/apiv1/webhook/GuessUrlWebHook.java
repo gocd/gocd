@@ -43,7 +43,11 @@ public interface GuessUrlWebHook {
             format("ssh://git@%s/%s", hostname, repoFullName),
             format("ssh://git@%s/%s/", hostname, repoFullName),
             format("ssh://git@%s/%s.git", hostname, repoFullName),
-            format("ssh://git@%s/%s.git/", hostname, repoFullName)
+            format("ssh://git@%s/%s.git/", hostname, repoFullName),
+            format("ssh://%s/%s", hostname, repoFullName),
+            format("ssh://%s/%s/", hostname, repoFullName),
+            format("ssh://%s/%s.git", hostname, repoFullName),
+            format("ssh://%s/%s.git/", hostname, repoFullName)
         );
     }
 }

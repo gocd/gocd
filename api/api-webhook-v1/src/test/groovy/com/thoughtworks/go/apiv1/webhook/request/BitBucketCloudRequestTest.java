@@ -64,7 +64,7 @@ class BitBucketCloudRequestTest {
         BitBucketCloudRequest bitBucketCloudRequest = new BitBucketCloudRequest(request);
 
         assertThat(bitBucketCloudRequest.webhookUrls())
-            .hasSize(20)
+            .hasSize(24)
             .contains(
                 "https://bitbucket.org/gocd/spaceship",
                 "https://bitbucket.org/gocd/spaceship/",
@@ -85,7 +85,11 @@ class BitBucketCloudRequestTest {
                 "ssh://git@bitbucket.org/gocd/spaceship",
                 "ssh://git@bitbucket.org/gocd/spaceship/",
                 "ssh://git@bitbucket.org/gocd/spaceship.git",
-                "ssh://git@bitbucket.org/gocd/spaceship.git/"
+                "ssh://git@bitbucket.org/gocd/spaceship.git/",
+                "ssh://bitbucket.org/gocd/spaceship",
+                "ssh://bitbucket.org/gocd/spaceship/",
+                "ssh://bitbucket.org/gocd/spaceship.git",
+                "ssh://bitbucket.org/gocd/spaceship.git/"
             );
     }
 

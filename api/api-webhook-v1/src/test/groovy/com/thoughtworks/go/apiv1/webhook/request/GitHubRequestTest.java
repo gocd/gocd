@@ -67,6 +67,43 @@ class GitHubRequestTest {
         assertPayload(gitHubRequest.getPayload());
     }
 
+    @ParameterizedTest
+    @FileSource(files = "/github-payload.json")
+    void shouldGuessTheGitHubUrls(String body) {
+        Request request = newRequest("push", "", body, APPLICATION_JSON);
+
+        GitHubRequest gitHubRequest = new GitHubRequest(request);
+
+        assertThat(gitHubRequest.webhookUrls())
+            .hasSize(24)
+            .contains(
+                "https://github.com/gocd/spaceship",
+                "https://github.com/gocd/spaceship/",
+                "https://github.com/gocd/spaceship.git",
+                "https://github.com/gocd/spaceship.git/",
+                "http://github.com/gocd/spaceship",
+                "http://github.com/gocd/spaceship/",
+                "http://github.com/gocd/spaceship.git",
+                "http://github.com/gocd/spaceship.git/",
+                "git://github.com/gocd/spaceship",
+                "git://github.com/gocd/spaceship/",
+                "git://github.com/gocd/spaceship.git",
+                "git://github.com/gocd/spaceship.git/",
+                "git@github.com:gocd/spaceship",
+                "git@github.com:gocd/spaceship/",
+                "git@github.com:gocd/spaceship.git",
+                "git@github.com:gocd/spaceship.git/",
+                "ssh://git@github.com/gocd/spaceship",
+                "ssh://git@github.com/gocd/spaceship/",
+                "ssh://git@github.com/gocd/spaceship.git",
+                "ssh://git@github.com/gocd/spaceship.git/",
+                "ssh://github.com/gocd/spaceship",
+                "ssh://github.com/gocd/spaceship/",
+                "ssh://github.com/gocd/spaceship.git",
+                "ssh://github.com/gocd/spaceship.git/"
+            );
+    }
+
     @Nested
     class Validate {
         @ParameterizedTest

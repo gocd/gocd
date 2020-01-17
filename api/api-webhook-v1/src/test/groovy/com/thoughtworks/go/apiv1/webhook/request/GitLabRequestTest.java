@@ -62,7 +62,7 @@ class GitLabRequestTest {
         GitLabRequest gitLabRequest = new GitLabRequest(request);
 
         assertThat(gitLabRequest.webhookUrls())
-            .hasSize(24)
+            .hasSize(28)
             .contains(
                 "https://gitlab.example.com/gocd/spaceship",
                 "https://gitlab.example.com/gocd/spaceship/",
@@ -84,6 +84,10 @@ class GitLabRequestTest {
                 "ssh://git@gitlab.example.com/gocd/spaceship/",
                 "ssh://git@gitlab.example.com/gocd/spaceship.git",
                 "ssh://git@gitlab.example.com/gocd/spaceship.git/",
+                "ssh://gitlab.example.com/gocd/spaceship",
+                "ssh://gitlab.example.com/gocd/spaceship/",
+                "ssh://gitlab.example.com/gocd/spaceship.git",
+                "ssh://gitlab.example.com/gocd/spaceship.git/",
                 "gitlab@gitlab.example.com:gocd/spaceship",
                 "gitlab@gitlab.example.com:gocd/spaceship/",
                 "gitlab@gitlab.example.com:gocd/spaceship.git",

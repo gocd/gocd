@@ -40,6 +40,7 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -62,6 +63,7 @@ import static com.thoughtworks.go.server.dao.PersistentObjectMatchers.hasSameId;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -1121,9 +1123,9 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
         JobInstances history = jobInstanceDao.findDetailedJobHistoryViaCursor(pipelineName, STAGE_NAME, JOB_NAME, FeedModifier.After, jobInstances.get(2).getId(), 3);
 
-        assertThat(history.size(), is(2));
-        assertThat(history.get(0).getId(), is(jobInstances.get(1).getId()));
-        assertThat(history.get(1).getId(), is(jobInstances.get(0).getId()));
+        Assertions.assertThat(history).hasSize(2);
+        Assertions.assertThat(history.stream().map(JobInstance::getId).collect(toList()))
+                .containsExactly(jobInstances.get(1).getId(), jobInstances.get(0).getId());
     }
 
     @Test
@@ -1143,8 +1145,8 @@ public class JobInstanceSqlMapDaoIntegrationTest {
 
         JobInstances history = jobInstanceDao.findDetailedJobHistoryViaCursor(pipelineName, STAGE_NAME, JOB_NAME, FeedModifier.Before, jobInstances.get(2).getId(), 3);
 
-        assertThat(history.size(), is(2));
-        assertThat(history.get(0).getId(), is(jobInstances.get(0).getId()));
-        assertThat(history.get(1).getId(), is(jobInstances.get(1).getId()));
+        Assertions.assertThat(history).hasSize(2);
+        Assertions.assertThat(history.stream().map(JobInstance::getId).collect(toList()))
+                .containsExactly(jobInstances.get(0).getId(), jobInstances.get(1).getId());
     }
 }

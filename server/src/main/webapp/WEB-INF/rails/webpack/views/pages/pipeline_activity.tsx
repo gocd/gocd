@@ -162,6 +162,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
 
   onFailure(message: string) {
     this.flashMessage.setMessage(MessageType.alert, message);
+    this.pageState = PageState.OK;
   }
 
   onSuccess(data: PipelineActivity) {
@@ -171,6 +172,10 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   }
 
   pageChangeCallback(pageNumber: number) {
+    if (pageNumber === this.pagination().currentPageNumber()) {
+      return;
+    }
+    this.pageState = PageState.LOADING;
     const offset = this.pipelineActivity().perPage() * (pageNumber - 1);
     this.pagination(new Pagination(offset, this.pagination().total, this.pagination().pageSize));
     this.fetchPipelineHistory();

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {timeFormatter} from "helpers/time_formatter";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineRunInfo, Stage, StageConfig, StageConfigs, Stages} from "models/pipeline_activity/pipeline_activity";
@@ -74,6 +75,21 @@ describe("PipelineRunInfoWidget", () => {
       const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
       expect(helper.byTestId("time", pipelineRunContainer)).toBeInDOM();
       expect(helper.byTestId("time", pipelineRunContainer)).toHaveText("N/A");
+      expect(helper.byTestId("time", pipelineRunContainer)).not.toHaveAttr("title", "N/A");
+    });
+
+    it("should render modification time", () => {
+      const pipelineRunInfoJSON = PipelineActivityData.pipelineRunInfo(passed("Test"));
+      const pipelineRunInfo     = PipelineRunInfo.fromJSON(pipelineRunInfoJSON);
+
+      mount(pipelineRunInfo);
+
+      const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
+      expect(helper.byTestId("time", pipelineRunContainer)).toBeInDOM();
+      expect(helper.byTestId("time", pipelineRunContainer))
+        .toHaveText(timeFormatter.format(pipelineRunInfo.scheduledTimestamp()));
+      expect(helper.byTestId("time", pipelineRunContainer))
+        .toHaveAttr("title", timeFormatter.formatInServerTime(pipelineRunInfo.scheduledTimestamp()));
     });
   });
 
@@ -134,7 +150,8 @@ describe("PipelineRunInfoWidget", () => {
   });
 
   it("should render multiple stages", () => {
-    const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(passed("unit"), building("integration")));
+    const pipelineRunInfo = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(passed("unit"),
+                                                                                          building("integration")));
     mount(pipelineRunInfo);
 
     const pipelineRunContainer = helper.byTestId(`pipeline-instance-${pipelineRunInfo.label()}`);
@@ -216,7 +233,8 @@ describe("PipelineRunInfoWidget", () => {
 
         const stageStatusContainer = stageContainer(pipelineRunInfo.label(), "integration");
         expect(helper.byTestId("gate-icon", stageStatusContainer)).toBeInDOM();
-        expect(helper.byTestId("gate-icon", stageStatusContainer)).toHaveAttr("title", "Can not schedule stage as previous stage is failed");
+        expect(helper.byTestId("gate-icon", stageStatusContainer))
+          .toHaveAttr("title", "Can not schedule stage as previous stage is failed");
       });
     });
 

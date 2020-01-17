@@ -52,7 +52,7 @@ export class PipelineActivityHeader extends MithrilViewComponent<Attrs> {
   private static pipelineSettingsLink(vnode: m.Vnode<Attrs>) {
     if ((vnode.attrs.isAdmin || vnode.attrs.isGroupAdmin)) {
       return <div class={styles.iconContainer} data-test-id="page-header-pipeline-settings">
-        <Link target={"_blank"} href={`/go/admin/pipelines/${vnode.attrs.pipelineActivity.pipelineName()}/general`}>
+        <Link href={`/go/admin/pipelines/${vnode.attrs.pipelineActivity.pipelineName()}/general`}>
           <Icons.Settings iconOnly={true}/>
         </Link>
       </div>;

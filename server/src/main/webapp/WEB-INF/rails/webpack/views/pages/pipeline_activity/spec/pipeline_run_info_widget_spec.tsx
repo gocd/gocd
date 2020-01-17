@@ -339,7 +339,6 @@ describe("PipelineRunInfoWidget", () => {
       const infoActionIcon     = helper.byTestId("stage-info-icon", unitStageContainer);
       expect(infoActionIcon).toBeInDOM();
       expect(infoActionIcon).toBeHidden();
-      expect(infoActionIcon.parentElement).toHaveAttr("target", "_blank");
       expect(infoActionIcon.parentElement).toHaveAttr("href", `/go/pipelines/${unitTestStage.stageLocator}`);
 
       expect(helper.byTestId("rerun-stage-icon", unitStageContainer)).not.toBeInDOM();

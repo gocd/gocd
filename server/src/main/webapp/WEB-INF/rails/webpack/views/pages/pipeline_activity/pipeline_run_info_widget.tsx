@@ -155,7 +155,7 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
       return;
     }
 
-    const infoIcon = <Link target="_blank" href={`/go/pipelines/${stage.stageLocator()}`}>
+    const infoIcon = <Link href={`/go/pipelines/${stage.stageLocator()}`}>
       <Icons.InfoCircle iconOnly={true} data-test-id="stage-info-icon" title="Stage details"/>
     </Link>;
     if (stage.getCanRun()) {

@@ -341,6 +341,10 @@ $stage-action-icon-z-index: 1;
       width:      40%;
       max-height: 6.4em;
       padding:    3px 10px;
+
+      a {
+        color: $link-color;
+      }
     }
   }
 

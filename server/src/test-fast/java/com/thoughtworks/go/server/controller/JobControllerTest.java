@@ -63,6 +63,7 @@ public class JobControllerTest {
     private RestfulService restfulService;
     private JobAgentMetadataDao jobAgentMetadataDao;
     private ElasticAgentMetadataStore elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
+    private SecurityService securityService;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -75,10 +76,10 @@ public class JobControllerTest {
         systemEnvironment = mock(SystemEnvironment.class);
         pipelineService = mock(PipelineService.class);
         restfulService = mock(RestfulService.class);
-        jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService, pipelineService, restfulService, null, stageService, null, systemEnvironment);
         jobAgentMetadataDao = mock(JobAgentMetadataDao.class);
+        securityService = mock(SecurityService.class);
         jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService,
-                pipelineService, restfulService, null, stageService, jobAgentMetadataDao, systemEnvironment);
+                pipelineService, restfulService, null, stageService, jobAgentMetadataDao, systemEnvironment, securityService);
     }
 
     @Test
@@ -200,10 +201,14 @@ public class JobControllerTest {
             ElasticProfile elasticProfile = new ElasticProfile("elastic_id", "cluster_id");
             ClusterProfile clusterProfile = new ClusterProfile("cluster_id", "cd.go.example.plugin");
 
+            when(securityService.doesUserHasPermissionsToViewAgentStatusReport(any(), eq("elastic_id"))).thenReturn(true);
             when(jobAgentMetadataDao.load(12L)).thenReturn(new JobAgentMetadata(12L, elasticProfile, clusterProfile));
 
             ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "2", "job1");
 
+            assertThat(modelAndView.getModel().get("clusterProfileId")).isEqualTo("cluster_id");
+            assertThat(modelAndView.getModel().get("elasticAgentProfileId")).isEqualTo("elastic_id");
+            assertThat(modelAndView.getModel().get("doesUserHaveViewAccessToStatusReportPage")).isEqualTo(true);
             assertThat(modelAndView.getModel().get("elasticAgentPluginId")).isEqualTo("cd.go.example.plugin");
         }
 

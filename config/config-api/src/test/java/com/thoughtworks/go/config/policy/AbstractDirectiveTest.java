@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.ValidationContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
@@ -96,6 +97,28 @@ class AbstractDirectiveTest {
 
             assertThat(directive.errors()).hasSize(0);
         }
+
+        @Test
+        void shouldNotAddAnErrorForColonSeparatorOnElasticAgentProfileResource() {
+            Directive directive = getDirective("view", "elastic_agent_profile", "test:resource");
+
+            directive.validate(rulesValidationContext(singletonList("view"), Arrays.asList("environment", "elastic_agent_profile")));
+
+            assertThat(directive.errors()).hasSize(0);
+        }
+
+        @Test
+        void shouldAddErrorIfColonSeparatorIsSpecifiedAsResourceForAnyTypeApartFromElasticAgentProfile() {
+            Directive directive = getDirective("view", "environment", "test:resource");
+
+            directive.validate(rulesValidationContext(singletonList("view"), Arrays.asList("environment", "elastic_agent_profile")));
+
+            assertThat(directive.errors()).hasSize(1);
+            assertThat(directive.errors().get("resource"))
+                    .hasSize(1)
+                    .contains("Invalid resource, environment permissions can not contain ':' separator.");
+        }
+
     }
 
     private ValidationContext rulesValidationContext(List<String> allowedAction, List<String> allowedType) {

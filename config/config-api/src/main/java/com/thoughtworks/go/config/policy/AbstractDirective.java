@@ -26,6 +26,7 @@ import org.apache.commons.io.IOCase;
 import java.util.List;
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.policy.SupportedEntity.ELASTIC_AGENT_PROFILE;
 import static com.thoughtworks.go.config.policy.SupportedEntity.fromString;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
@@ -66,6 +67,14 @@ public abstract class AbstractDirective implements Directive {
         if (isInvalidType(type, policyValidationContext.getAllowedTypes())) {
             this.addError("type", format("Invalid type, must be one of %s.", policyValidationContext.getAllowedTypes()));
         }
+
+        if (isInvalidResource(resource)) {
+            this.addError("resource", format("Invalid resource, %s permissions can not contain ':' separator.", type));
+        }
+    }
+
+    private boolean isInvalidResource(String resource) {
+        return resource.contains(":") && !this.isDirectiveOfType(ELASTIC_AGENT_PROFILE);
     }
 
     private boolean isInvalidType(String type, List<String> allowedTypes) {

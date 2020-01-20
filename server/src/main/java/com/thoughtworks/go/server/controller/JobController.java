@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.server.dao.JobAgentMetadataDao;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel;
 import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationModel;
 import com.thoughtworks.go.server.service.*;
@@ -68,6 +69,7 @@ public class JobController {
     private StageService stageService;
     private JobAgentMetadataDao jobAgentMetadataDao;
     private SystemEnvironment systemEnvironment;
+    private SecurityService securityService;
 
     private ElasticAgentMetadataStore elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
     private Boolean disallowPropertiesAccess;
@@ -80,7 +82,7 @@ public class JobController {
             JobInstanceService jobInstanceService, AgentService agentService, JobInstanceDao jobInstanceDao,
             GoConfigService goConfigService, PipelineService pipelineService, RestfulService restfulService,
             ArtifactsService artifactService, StageService stageService,
-            JobAgentMetadataDao jobAgentMetadataDao, SystemEnvironment systemEnvironment) {
+            JobAgentMetadataDao jobAgentMetadataDao, SystemEnvironment systemEnvironment, SecurityService securityService) {
         this.jobInstanceService = jobInstanceService;
         this.agentService = agentService;
         this.jobInstanceDao = jobInstanceDao;
@@ -91,6 +93,7 @@ public class JobController {
         this.stageService = stageService;
         this.jobAgentMetadataDao = jobAgentMetadataDao;
         this.systemEnvironment = systemEnvironment;
+        this.securityService = securityService;
         this.disallowPropertiesAccess = Boolean.valueOf(System.getenv().getOrDefault("GO_DISALLOW_PROPERTIES_ACCESS", "true"));
     }
 
@@ -197,7 +200,7 @@ public class JobController {
         }
 
         ClusterProfile clusterProfile = jobAgentMetadata.clusterProfile();
-        if(clusterProfile == null) {
+        if (clusterProfile == null) {
             return;
         }
 
@@ -205,6 +208,11 @@ public class JobController {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
 
         if (pluginInfo != null && pluginInfo.getCapabilities().supportsAgentStatusReport()) {
+            data.put("clusterProfileId", jobAgentMetadata.clusterProfile().getId());
+            data.put("elasticAgentProfileId", jobAgentMetadata.elasticProfile().getId());
+            data.put("elasticAgentPluginId", pluginId);
+            data.put("doesUserHaveViewAccessToStatusReportPage", securityService.doesUserHasPermissionsToViewAgentStatusReport(SessionUtils.currentUsername(), jobAgentMetadata.elasticProfile().getId()));
+
             final Agent agent = agentService.getAgentByUUID(jobInstance.getAgentUuid());
 
             if (agent != null && agent.isElastic()) {
@@ -212,8 +220,6 @@ public class JobController {
                 data.put("elasticAgentId", agent.getElasticAgentId());
                 return;
             }
-
-            data.put("elasticAgentPluginId", pluginId);
         }
     }
 

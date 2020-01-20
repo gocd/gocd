@@ -16,10 +16,15 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.policy.Allow;
+import com.thoughtworks.go.config.policy.Deny;
+import com.thoughtworks.go.config.policy.Policy;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.UUID;
 
 import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate;
 import static org.hamcrest.Matchers.is;
@@ -335,6 +340,43 @@ public class SecurityServiceTest {
         assertThat(securityService.isAuthorizedToViewTemplates(new Username(new CaseInsensitiveString("regularUser"))), is(false));
     }
 
+    @Test
+    public void shouldAllowUserToAccessAgentStatusReportPageWhenAllowViewPermissionIsDefined() {
+        String elasticAgentProfileId = "elastic-profile-id";
+        Username bob = new Username("Bob" + UUID.randomUUID());
+        RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("elastic-profile-users"), new RoleUser(bob.getUsername()));
+        Policy policy = new Policy();
+        policy.add(new Allow("view", "elastic_agent_profile", elasticAgentProfileId));
+        roleConfig.setPolicy(policy);
+        when(goConfigService.isSecurityEnabled()).thenReturn(true);
+        when(goConfigService.rolesForUser(bob.getUsername())).thenReturn(new RolesConfig(roleConfig));
+
+        assertThat(securityService.doesUserHasPermissionsToViewAgentStatusReport(bob, elasticAgentProfileId), is(true));
+    }
+
+    @Test
+    public void shouldDenyUserToAccessAgentStatusReportPageWhenDenyViewPermissionIsDefined() {
+        String elasticAgentProfileId = "elastic-profile-id";
+        Username bob = new Username("Bob" + UUID.randomUUID());
+        RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("elastic-profile-users"), new RoleUser(bob.getUsername()));
+        Policy policy = new Policy();
+        policy.add(new Deny("view", "elastic_agent_profile", elasticAgentProfileId));
+        roleConfig.setPolicy(policy);
+        when(goConfigService.isSecurityEnabled()).thenReturn(true);
+        when(goConfigService.rolesForUser(bob.getUsername())).thenReturn(new RolesConfig(roleConfig));
+
+        assertThat(securityService.doesUserHasPermissionsToViewAgentStatusReport(bob, elasticAgentProfileId), is(false));
+    }
+
+    @Test
+    public void shouldDenyUserToAccessAgentStatusReportPageWhenNoViewPermissionIsDefined() {
+        String elasticAgentProfileId = "elastic-profile-id";
+        Username bob = new Username("Bob" + UUID.randomUUID());
+        when(goConfigService.isSecurityEnabled()).thenReturn(true);
+        when(goConfigService.rolesForUser(bob.getUsername())).thenReturn(new RolesConfig());
+
+        assertThat(securityService.doesUserHasPermissionsToViewAgentStatusReport(bob, elasticAgentProfileId), is(false));
+    }
 
     private BasicCruiseConfig getCruiseConfigWithSecurityEnabled() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();

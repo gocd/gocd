@@ -16,6 +16,8 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.policy.SupportedAction;
+import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.server.domain.Username;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -205,6 +207,30 @@ public class SecurityService {
 
     public boolean isAuthorizedToViewTemplates(Username username) {
         return goConfigService.cruiseConfig().isAuthorizedToViewTemplates(username.getUsername());
+    }
+
+    //todo: needs refactoring use AbstractAuthenticationHelper.doesUserHasPermissions
+    //a specific method to check whether a user has permission to access agent status report has been added
+    public boolean doesUserHasPermissionsToViewAgentStatusReport(Username username, String elasticAgentProfileId) {
+        if (this.isUserAdmin(username)) {
+            return true;
+        }
+
+        SupportedAction action = SupportedAction.VIEW;
+        SupportedEntity entity = SupportedEntity.ELASTIC_AGENT_PROFILE;
+        List<Role> roles = goConfigService.rolesForUser(username.getUsername());
+        boolean hasPermission = false;
+        for (Role role : roles) {
+            if (role.hasExplicitDenyPermissionsFor(action, entity.getEntityType(), elasticAgentProfileId, null)) {
+                return false;
+            }
+
+            if (role.hasPermissionsFor(action, entity.getEntityType(), elasticAgentProfileId, null)) {
+                hasPermission = true;
+            }
+        }
+
+        return hasPermission;
     }
 
     public boolean noAdminsConfigured() {

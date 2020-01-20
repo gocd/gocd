@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -74,6 +75,10 @@ public abstract class AbstractDirective implements Directive {
     }
 
     private boolean isInvalidResource(String resource) {
+        if (StringUtils.isEmpty(resource)) {
+            return false;
+        }
+
         return resource.contains(":") && !this.isDirectiveOfType(ELASTIC_AGENT_PROFILE);
     }
 

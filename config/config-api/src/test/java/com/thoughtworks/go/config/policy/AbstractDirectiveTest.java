@@ -99,6 +99,16 @@ class AbstractDirectiveTest {
         }
 
         @Test
+        void shouldNotFailWhenResourceIsEmpty() {
+            Directive directive = getDirective("view", "elastic_agent_profile", null);
+
+            directive.validate(rulesValidationContext(singletonList("view"), Arrays.asList("environment", "elastic_agent_profile")));
+
+            assertThat(directive.errors()).hasSize(0);
+        }
+
+
+        @Test
         void shouldNotAddAnErrorForColonSeparatorOnElasticAgentProfileResource() {
             Directive directive = getDirective("view", "elastic_agent_profile", "test:resource");
 

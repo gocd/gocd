@@ -81,10 +81,6 @@ public abstract class ElasticAgentProfileCommand implements EntityConfigUpdateCo
     }
 
     protected final boolean isAuthorized() {
-        if (!(goConfigService.isUserAdmin(currentUser) || goConfigService.isGroupAdministrator(currentUser.getUsername()))) {
-            result.forbidden(EntityType.ElasticProfile.forbiddenToEdit(elasticProfile.getId(), currentUser.getUsername()), forbidden());
-            return false;
-        }
         return true;
     }
 

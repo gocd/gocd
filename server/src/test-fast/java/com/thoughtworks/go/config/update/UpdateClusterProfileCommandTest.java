@@ -62,22 +62,6 @@ class UpdateClusterProfileCommandTest {
     }
 
     @Test
-    void shouldAllowAdministratorToUpdateClusterProfile() {
-        when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-
-        boolean canContinue = command.canContinue(config);
-        assertThat(canContinue).isTrue();
-    }
-
-    @Test
-    void shouldNotAllowNonAdministratorToUpdateClusterProfile() {
-        when(goConfigService.isAdministrator(username.getUsername())).thenReturn(false);
-
-        boolean canContinue = command.canContinue(config);
-        assertThat(canContinue).isFalse();
-    }
-
-    @Test
     void shouldUpdateClusterProfile() throws Exception {
         assertThat(config.getElasticConfig().getClusterProfiles().get(0)).isEqualTo(clusterProfile);
         command.update(config);

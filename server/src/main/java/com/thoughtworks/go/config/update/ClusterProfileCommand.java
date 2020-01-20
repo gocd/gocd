@@ -62,11 +62,6 @@ public abstract class ClusterProfileCommand extends PluginProfileCommand<Cluster
 
     @Override
     public boolean isAuthorized() {
-        if (!goConfigService.isAdministrator(currentUser.getUsername())) {
-            result.forbidden(LocalizedMessage.forbiddenToEditResource("Cluster Profile", profile.getId(), currentUser.getDisplayName()), HealthStateType.forbidden());
-            return false;
-        }
-
         return true;
     }
 }

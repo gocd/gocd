@@ -59,22 +59,6 @@ class DeleteClusterProfileCommandTest {
     }
 
     @Test
-    void shouldAllowAdministratorToDeleteClusterProfile() {
-        when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-
-        boolean canContinue = command.canContinue(config);
-        assertThat(canContinue).isTrue();
-    }
-
-    @Test
-    void shouldNotAllowNonAdministratorToDeleteClusterProfile() {
-        when(goConfigService.isAdministrator(username.getUsername())).thenReturn(false);
-
-        boolean canContinue = command.canContinue(config);
-        assertThat(canContinue).isFalse();
-    }
-
-    @Test
     void shouldSetPreprocessedEntityAsPartOfUpdate() throws Exception {
         assertNull(command.getPreprocessedEntityConfig());
         command.update(config);

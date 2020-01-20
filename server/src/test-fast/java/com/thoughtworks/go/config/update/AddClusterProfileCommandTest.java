@@ -56,22 +56,6 @@ class AddClusterProfileCommandTest {
     }
 
     @Test
-    void shouldAllowAdministratorToAddClusterProfile() {
-        when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-
-        boolean canContinue = command.canContinue(config);
-        assertThat(canContinue).isTrue();
-    }
-
-    @Test
-    void shouldNotAllowNonAdministratorToAddClusterProfile() {
-        when(goConfigService.isAdministrator(username.getUsername())).thenReturn(false);
-
-        boolean canContinue = command.canContinue(config);
-        assertThat(canContinue).isFalse();
-    }
-
-    @Test
     void shouldAddClusterProfile() throws Exception {
         assertThat(config.getElasticConfig().getClusterProfiles()).hasSize(0);
         command.update(config);

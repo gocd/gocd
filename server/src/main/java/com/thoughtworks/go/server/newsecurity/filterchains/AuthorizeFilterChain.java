@@ -79,6 +79,7 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                 .addAuthorityFilterChain("/admin/elastic_agents/**", genericAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/admin/admin/elastic_profiles/**", genericAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/admin/elastic_agent_configurations/**", genericAccessDeniedHandler, ROLE_USER)
+                .addAuthorityFilterChain("/admin/status_reports/**", genericAccessDeniedHandler, ROLE_USER)
 
                 .addAuthorityFilterChain("/admin/**", genericAccessDeniedHandler, ROLE_SUPERVISOR)
                 .addAuthorityFilterChain("/agents/*/job_run_history/**", genericAccessDeniedHandler, ROLE_SUPERVISOR)

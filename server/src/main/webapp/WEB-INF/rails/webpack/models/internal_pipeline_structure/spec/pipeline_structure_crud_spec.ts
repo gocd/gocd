@@ -16,7 +16,7 @@
 
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {PipelineStructureWithSuggestions, PipelineStructureWithSuggestionsJSON} from "../pipeline_structure";
+import {PipelineStructureWithAdditionalInfo, PipelineStructureWithAdditionalInfoJSON} from "../pipeline_structure";
 import {PipelineStructureCRUD} from "../pipeline_structure_crud";
 
 describe('PipelineStructureCRUDSpec', () => {
@@ -24,20 +24,20 @@ describe('PipelineStructureCRUDSpec', () => {
   afterEach(() => jasmine.Ajax.uninstall());
 
   it("should make get all env request", (done) => {
-    const apiPath = SparkRoutes.apiAdminInternalPipelinesListPathWithSuggestions("view", "view");
+    const apiPath = SparkRoutes.apiAdminInternalPipelinesListPath("view", "view", true);
     jasmine.Ajax.stubRequest(apiPath).andReturn(listResponse());
 
     const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
       const responseJSON      = response.unwrap() as SuccessResponse<any>;
-      const pipelineStructure = (responseJSON.body as PipelineStructureWithSuggestions);
+      const pipelineStructure = (responseJSON.body as PipelineStructureWithAdditionalInfo);
 
       const groups = pipelineStructure.pipelineStructure.groups();
       expect(groups).toHaveLength(1);
       expect(groups[0].name()).toEqual('first');
       expect(groups[0].pipelines()).toHaveLength(1);
       expect(pipelineStructure.pipelineStructure.templates()).toEqual([]);
-      expect(pipelineStructure.suggestions.users).toEqual(json.suggestions.users);
-      expect(pipelineStructure.suggestions.roles).toEqual(json.suggestions.roles);
+      expect(pipelineStructure.additionalInfo.users).toEqual(json.additional_info.users);
+      expect(pipelineStructure.additionalInfo.roles).toEqual(json.additional_info.roles);
       done();
     });
 
@@ -78,8 +78,8 @@ const json = {
     }]
   }],
   templates: [],
-  suggestions: {
+  additional_info: {
     users: ["view", "operate", "admin"],
     roles: ["xyz"]
   }
-} as PipelineStructureWithSuggestionsJSON;
+} as PipelineStructureWithAdditionalInfoJSON;

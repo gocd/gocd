@@ -22,7 +22,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineGroupCRUD} from "models/admin_pipelines/pipeline_groups_crud";
 import {headerMeta} from "models/current_user_permissions";
-import {PipelineGroups, PipelineStructureWithSuggestions} from "models/internal_pipeline_structure/pipeline_structure";
+import {PipelineGroups, PipelineStructureWithAdditionalInfo} from "models/internal_pipeline_structure/pipeline_structure";
 import {PipelineStructureCRUD} from "models/internal_pipeline_structure/pipeline_structure_crud";
 import {PipelineGroupCRUD as PipelineGroupCacheCRUD} from "models/pipeline_configs/pipeline_groups_cache";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
@@ -340,14 +340,14 @@ export class AdminPipelinesPage extends Page<null, State> {
     return Promise.all([PipelineStructureCRUD.allPipelines("administer", "view"),
                          PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO})
                        ]).then((args) => {
-      const pipelineGroups: ApiResult<PipelineStructureWithSuggestions> = args[0];
-      const pluginInfos: ApiResult<PluginInfos>                         = args[1];
+      const pipelineGroups: ApiResult<PipelineStructureWithAdditionalInfo> = args[0];
+      const pluginInfos: ApiResult<PluginInfos>                            = args[1];
 
       pipelineGroups.do(
         (successResponse) => {
           vnode.state.pipelineGroups(successResponse.body.pipelineStructure.groups());
-          vnode.state.usersAutoCompleteHelper(successResponse.body.suggestions.users);
-          vnode.state.rolesAutoCompleteHelper(successResponse.body.suggestions.roles);
+          vnode.state.usersAutoCompleteHelper(successResponse.body.additionalInfo.users);
+          vnode.state.rolesAutoCompleteHelper(successResponse.body.additionalInfo.roles);
           this.pageState = PageState.OK;
         }, (errorResponse) => {
           this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);

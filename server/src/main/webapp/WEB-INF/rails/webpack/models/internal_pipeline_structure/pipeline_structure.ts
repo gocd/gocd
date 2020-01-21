@@ -279,16 +279,16 @@ export class PipelineStructure {
   }
 }
 
-export interface PipelineStructureWithSuggestionsJSON extends PipelineStructureJSON {
-  suggestions: SuggestionsJSON;
+export interface PipelineStructureWithAdditionalInfoJSON extends PipelineStructureJSON {
+  additional_info: AdditionalInfoJSON;
 }
 
-interface SuggestionsJSON {
+interface AdditionalInfoJSON {
   users: string[];
   roles: string[];
 }
 
-class Suggestions {
+class AdditionalInfo {
   users: string[];
   roles: string[];
 
@@ -297,21 +297,21 @@ class Suggestions {
     this.roles = roles;
   }
 
-  static fromJSON(data: SuggestionsJSON): Suggestions {
-    return new Suggestions(data.users, data.roles);
+  static fromJSON(data: AdditionalInfoJSON): AdditionalInfo {
+    return new AdditionalInfo(data.users, data.roles);
   }
 }
 
-export class PipelineStructureWithSuggestions {
+export class PipelineStructureWithAdditionalInfo {
   pipelineStructure: PipelineStructure;
-  suggestions: Suggestions;
+  additionalInfo: AdditionalInfo;
 
-  constructor(pipelineStructure: PipelineStructure, suggestions: Suggestions) {
+  constructor(pipelineStructure: PipelineStructure, additionalInfo: AdditionalInfo) {
     this.pipelineStructure = pipelineStructure;
-    this.suggestions       = suggestions;
+    this.additionalInfo    = additionalInfo;
   }
 
-  static fromJSON(data: PipelineStructureWithSuggestionsJSON): PipelineStructureWithSuggestions {
-    return new PipelineStructureWithSuggestions(PipelineStructure.fromJSON(data), Suggestions.fromJSON(data.suggestions));
+  static fromJSON(data: PipelineStructureWithAdditionalInfoJSON): PipelineStructureWithAdditionalInfo {
+    return new PipelineStructureWithAdditionalInfo(PipelineStructure.fromJSON(data), AdditionalInfo.fromJSON(data.additional_info));
   }
 }

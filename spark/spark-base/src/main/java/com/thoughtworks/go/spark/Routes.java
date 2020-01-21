@@ -751,7 +751,6 @@ public class Routes {
 
     public class InternalPipelineStructure {
         public static final String BASE = "/api/internal/pipeline_structure";
-        public static final String WITH_SUGGESTIONS = "/with_suggestions";
     }
 
     public class NewEnvironments {

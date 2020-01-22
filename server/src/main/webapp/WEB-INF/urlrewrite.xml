@@ -23,6 +23,12 @@
 -->
 
 <urlrewrite>
+  <rule>
+    <name>New pipeline config SPA</name>
+    <from>^/admin/pipelines/([^/]+)/general(/?)$</from>
+    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="pipelineConfigSPA"/>
+    <to last="true">/%{attribute:sparkOrRails}/admin/pipelines/${escape:$1}/general</to>
+  </rule>
 
   <rule>
     <name>Internal Compare APIs</name>

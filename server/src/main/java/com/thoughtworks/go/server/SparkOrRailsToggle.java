@@ -42,4 +42,8 @@ public class SparkOrRailsToggle {
     public void webhooks(HttpServletRequest request, HttpServletResponse response) {
         basedOnToggle(Toggles.RAILS_WEBHOOK_API, request);
     }
+
+    public void pipelineConfigSPA(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.NEW_PIPELINE_CONFIG_SPA, request);
+    }
 }

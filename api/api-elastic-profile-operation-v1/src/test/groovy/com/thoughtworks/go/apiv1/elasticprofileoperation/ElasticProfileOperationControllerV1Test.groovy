@@ -17,13 +17,13 @@ package com.thoughtworks.go.apiv1.elasticprofileoperation
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.config.elastic.ElasticProfile
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.domain.ElasticProfileUsage
 import com.thoughtworks.go.server.service.ElasticProfileService
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import groovy.json.JsonBuilder
 import org.junit.jupiter.api.BeforeEach
@@ -42,6 +42,7 @@ class ElasticProfileOperationControllerV1Test implements SecurityServiceTrait, C
   @BeforeEach
   void setup() {
     initMocks(this)
+    when(elasticProfileService.findProfile("docker")).thenReturn(new ElasticProfile("docker", "cluster"))
   }
 
   @Override

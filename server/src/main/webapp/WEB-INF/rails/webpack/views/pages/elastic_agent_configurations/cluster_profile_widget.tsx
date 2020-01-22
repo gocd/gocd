@@ -149,7 +149,7 @@ export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetA
         vnode.attrs.elasticAgentOperations.onAdd(new ElasticAgentProfile("", vnode.attrs.clusterProfile.pluginId(), vnode.attrs.clusterProfile.id(), true, new Configurations([])), e);
       }}
                          data-test-id={"new-elastic-agent-profile-button"}
-                         disabled={isDisabled}
+                         disabled={!pluginInfo}
                          title={disabledReason}
                          icon={ButtonIcon.ADD}>
         Elastic Agent Profile

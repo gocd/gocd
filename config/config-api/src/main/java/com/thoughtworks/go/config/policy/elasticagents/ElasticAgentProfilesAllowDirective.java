@@ -39,7 +39,6 @@ public class ElasticAgentProfilesAllowDirective extends ElasticAgentProfilesAbst
     }
 
     public static ElasticAgentProfilesAllowDirective parseResource(String action, String type, String resource) {
-        //todo: add some validations at the time of save that the elastic agent profile resource should not contain more than 1 :
         String[] parts = resource.split(SEPARATOR);
         if (parts.length == 2) {
             return new ElasticAgentProfilesAllowDirective(action, type, parts[1], parts[0]);

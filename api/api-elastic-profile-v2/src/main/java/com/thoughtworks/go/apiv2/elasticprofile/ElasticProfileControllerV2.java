@@ -92,7 +92,7 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
                 apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, resourceToOperateOn, resourceToOperateWithin);
             });
 
-            before(Routes.ClusterProfilesAPI.ID, mimeType, (request, response) -> {
+            before(Routes.ElasticProfileAPI.ID, mimeType, (request, response) -> {
                 ElasticProfile elasticProfile = fetchEntityFromConfig(request.params(PROFILE_ID_PARAM));
                 apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, elasticProfile.getId(), elasticProfile.getClusterProfileId());
             });

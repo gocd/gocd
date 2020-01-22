@@ -116,6 +116,10 @@ class ElasticProfileControllerV3Test implements SecurityServiceTrait, Controller
 
   @Nested
   class Show {
+    @BeforeEach
+    void setUp() {
+      when(elasticProfileService.findProfile('docker')).thenReturn(new ElasticProfile("docker", "prod-cluster"))
+    }
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
@@ -156,6 +160,8 @@ class ElasticProfileControllerV3Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'should return 404 if elastic profile with id does not exist'() {
+        when(elasticProfileService.findProfile('docker')).thenReturn(null)
+
         getWithApiHeader(controller.controllerPath('/docker'))
 
         assertThatResponse()
@@ -345,6 +351,10 @@ class ElasticProfileControllerV3Test implements SecurityServiceTrait, Controller
 
   @Nested
   class Update {
+    @BeforeEach
+    void setUp() {
+      when(elasticProfileService.findProfile('docker')).thenReturn(new ElasticProfile("docker", "prod-cluster"))
+    }
 
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
@@ -528,6 +538,11 @@ class ElasticProfileControllerV3Test implements SecurityServiceTrait, Controller
 
   @Nested
   class Destroy {
+    @BeforeEach
+    void setUp() {
+      when(elasticProfileService.findProfile('docker')).thenReturn(new ElasticProfile("docker", "prod-cluster"))
+    }
+
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
 

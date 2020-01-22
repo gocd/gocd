@@ -104,10 +104,6 @@ abstract class BaseElasticProfileModal extends Modal {
       return pluginInfo.id === this.elasticProfile().pluginId();
     }) || this.pluginInfos[0]);
 
-    // const doesPluginSupportsClusterProfiles = this.pluginInfo().extensions.some((extension) => {
-    //   return ((extension.type === ExtensionType.ELASTIC_AGENTS) && (extension as ElasticAgentSettings).supportsClusterProfiles);
-    // });
-
     const selectedPluginId = this.pluginInfo().id;
 
     const clustersBelongingToPlugin = this.clusterProfiles.all().filter((cluster: ClusterProfile) => {
@@ -235,38 +231,6 @@ export class CloneElasticProfileModal extends BaseElasticProfileModal {
 
   modalTitle() {
     return "Clone elastic agent profile " + this.sourceProfileId;
-  }
-}
-
-export class NewElasticProfileModal extends BaseElasticProfileModal {
-  private readonly onSuccessfulSave: (msg: m.Children) => any;
-
-  constructor(pluginInfos: PluginInfos,
-              clusterProfiles: ClusterProfiles,
-              elasticAgentProfile: ElasticAgentProfile,
-              onSuccessfulSave: (msg: m.Children) => any) {
-    super(pluginInfos, ModalType.create, clusterProfiles, elasticAgentProfile);
-    this.onSuccessfulSave = onSuccessfulSave;
-  }
-
-  performSave() {
-    ElasticAgentProfilesCRUD
-      .create(this.elasticProfile())
-      .then((result) => {
-        result.do(
-          () => {
-            this.onSuccessfulSave(<span>The elastic agent profile <em>{this.elasticProfile().id()}</em> was created successfully!</span>);
-            this.close();
-          },
-          (errorResponse) => {
-            this.showErrors(result, errorResponse);
-          }
-        );
-      });
-  }
-
-  modalTitle() {
-    return "Add a new elastic agent profile";
   }
 }
 

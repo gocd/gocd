@@ -174,6 +174,7 @@ class ElasticProfileWidget extends MithrilViewComponent<Attrs> {
     return (
       <div class={styles.container}>
         <div>
+          <FlashMessage type={MessageType.alert} message={vnode.attrs.errMessage}/>
           <div class={styles.profileForm}>
             <TextField label="Elastic Profile Name"
                        property={vnode.attrs.elasticProfile().id}
@@ -414,6 +415,7 @@ class ElasticProfileStep extends Step {
   protected readonly clusterProfile: Stream<ClusterProfile>;
   protected readonly elasticProfile: Stream<ElasticAgentProfile>;
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
+  protected readonly errMessage: Stream<string | undefined>;
   protected readonly onError: (msg: m.Children) => any;
   protected etag?: string;
   protected footerError: Stream<string> = Stream("");
@@ -429,12 +431,14 @@ class ElasticProfileStep extends Step {
     this.elasticProfile   = elasticProfile;
     this.onSuccessfulSave = onSuccessfulSave;
     this.onError          = onError;
+    this.errMessage       = Stream();
   }
 
   body(): m.Children {
     return <ElasticProfileWidget pluginInfos={this.pluginInfos}
                                  elasticProfile={this.elasticProfile}
                                  clusterProfile={this.clusterProfile}
+                                 errMessage={this.errMessage()}
                                  readonly={false}
                                  etag={this.etag}/>;
   }
@@ -508,7 +512,9 @@ class ElasticProfileStep extends Step {
       this.footerError("Please fix the validation errors above before proceeding.");
     } else {
       this.footerError("Save Failed!");
-      this.onError(JSON.parse(errorResponse.body!).message);
+      const msg = JSON.parse(errorResponse.body!).message;
+      this.onError(msg);
+      this.errMessage(msg);
     }
   }
 }

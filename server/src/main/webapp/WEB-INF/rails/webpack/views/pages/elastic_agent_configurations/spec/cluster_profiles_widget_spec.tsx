@@ -210,7 +210,7 @@ describe("ClusterProfilesWidget", () => {
     helper.unmount();
   });
 
-  it("should disable new elastic agent profile button when user does not have administer permissions", () => {
+  it("should always enable new elastic agent profile button", () => {
     const clusterProfile = ClusterProfile.fromJSON(TestData.dockerClusterProfile());
     clusterProfile.canAdminister(false);
 
@@ -218,8 +218,7 @@ describe("ClusterProfilesWidget", () => {
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
 
     const dockerClusterProfilePanel = helper.byTestId("cluster-profile-panel");
-    expect(helper.byTestId("new-elastic-agent-profile-button", dockerClusterProfilePanel)).toBeDisabled();
-    expect(helper.byTestId("new-elastic-agent-profile-button", dockerClusterProfilePanel).title).toBe("You dont have permissions to administer 'cluster_3' cluster profile.");
+    expect(helper.byTestId("new-elastic-agent-profile-button", dockerClusterProfilePanel)).not.toBeDisabled();
 
     helper.unmount();
   });

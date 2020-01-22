@@ -52,7 +52,8 @@ $draggable-row-color: #e2f7fa;
   }
 
   tr {
-    display: table-row;
+    display:        table-row;
+    vertical-align: top;
   }
 
   td {

@@ -19,6 +19,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.elasticprofileoperation.representers.ElasticProfileUsageRepresenter;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.domain.ElasticProfileUsage;
 import com.thoughtworks.go.server.service.ElasticProfileService;
@@ -59,7 +60,8 @@ public class ElasticProfileOperationControllerV1 extends ApiController implement
             before("/*", mimeType, this::setContentType);
 
             before(Routes.ElasticProfileAPI.ID + Routes.ElasticProfileAPI.USAGES, mimeType, (request, response) -> {
-                apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, request.params(PROFILE_ID_PARAM));
+                ElasticProfile profile = elasticProfileService.findProfile(request.params(PROFILE_ID_PARAM));
+                apiAuthenticationHelper.checkUserHasPermissions(currentUsername(), getAction(request), SupportedEntity.ELASTIC_AGENT_PROFILE, profile.getId(), profile.getClusterProfileId());
             });
 
             get(Routes.ElasticProfileAPI.ID + Routes.ElasticProfileAPI.USAGES, mimeType, this::usages);

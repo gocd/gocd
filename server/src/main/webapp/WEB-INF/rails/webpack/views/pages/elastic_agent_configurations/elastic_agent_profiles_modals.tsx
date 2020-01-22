@@ -79,6 +79,8 @@ abstract class BaseElasticProfileModal extends Modal {
       const profile = ElasticAgentProfile.fromJSON(JSON.parse(errorResponse.body).data);
       profile.pluginId(this.clusterProfiles.findCluster(profile.clusterProfileId()!).pluginId());
       this.elasticProfile(profile);
+    } else {
+      this.noClusterProfileError = JSON.parse(errorResponse.body!).message;
     }
   }
 
@@ -108,7 +110,6 @@ abstract class BaseElasticProfileModal extends Modal {
 
     const selectedPluginId = this.pluginInfo().id;
 
-    this.noClusterProfileError      = undefined;
     const clustersBelongingToPlugin = this.clusterProfiles.all().filter((cluster: ClusterProfile) => {
       return cluster.pluginId() === selectedPluginId;
     });

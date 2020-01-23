@@ -16,7 +16,7 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {PipelineConfig} from "models/new_pipeline_configs/pipeline_config";
+import {PipelineConfig} from "../../../models/pipeline_configs/pipeline_config";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;

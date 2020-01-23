@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {EnvironmentVariableJSON} from "models/environment_variables/types";
+import {StageJSON} from "models/pipeline_configs/stage";
 import {RunIfCondition} from "models/pipeline_configs/task";
 import {PropertyJSON} from "models/shared/configuration";
 
@@ -39,89 +39,37 @@ export namespace TemplateSummary {
 
 export interface Template {
   name: string;
-  stages: Stage[];
+  stages: StageJSON[];
 }
 
-export interface Stage {
-  name: string;
-  fetch_materials: boolean;
-  clean_working_directory: boolean;
-  never_cleanup_artifacts: boolean;
-  approval: Approval;
-  environment_variables: EnvironmentVariableJSON[];
-  jobs: Job[];
-}
-
-export interface Approval {
-  type: "manual" | "success";
-  allow_only_on_success?: boolean;
-  authorization: Authorization;
-}
-
-export interface Authorization {
-  roles: string[];
-  users: string[];
-}
-
-export interface Job {
-  name: string;
-  run_instance_count?: number | "all" | null;
-  timeout?: "never" | number | null;
-  elastic_profile_id?: string;
-  environment_variables: EnvironmentVariableJSON[];
-  resources: string[];
-  tasks: Task[];
-  tabs: Tab[];
-  artifacts: Artifact[];
-}
-
-export interface Artifact {
-  type: "test" | "build" | "external";
-
-  // for `test` or `build` type
-  source?: string;
-  destination?: string;
-
-  // for `external`
-  artifact_id?: string;
-  store_id?: string;
-  configuration?: PropertyJSON[];
-}
-
-export interface Tab {
-  name: string;
-  path: string;
-}
-
-export interface Task {
+export interface TaskJSON {
   type: "pluggable_task" | "fetch" | "ant" | "exec" | "nant" | "rake";
-  attributes: AntTaskAttributes | NAntTaskAttributes | RakeTaskAttributes | ExecTaskAttributes | FetchTaskAttributes | PluginTaskAttributes;
+  attributes: AntTaskAttributesJSON | NAntTaskAttributesJSON | RakeTaskAttributesJSON | ExecTaskAttributesJSON | FetchTaskAttributesJSON | PluginTaskAttributesJSON;
 }
 
-export interface BaseTaskAttributes {
+export interface BaseTaskAttributesJSON {
   run_if: (RunIfCondition)[];
-  on_cancel?: Task;
+  on_cancel?: TaskJSON;
 }
 
-export interface WorkingDirAttributes {
+export interface WorkingDirAttributesJSON {
   working_directory?: string;
 }
 
-export interface BuildFileAndTargetBasedTaskAttributes extends WorkingDirAttributes {
+export interface BuildFileAndTargetBasedTaskAttributes extends WorkingDirAttributesJSON {
   build_file?: string;
   target?: string;
 }
 
-export type AntTaskAttributes = BaseTaskAttributes & BuildFileAndTargetBasedTaskAttributes ;
+export type AntTaskAttributesJSON = BaseTaskAttributesJSON & BuildFileAndTargetBasedTaskAttributes ;
 
-export interface NAntTaskAttributes extends BaseTaskAttributes, BuildFileAndTargetBasedTaskAttributes {
+export interface NAntTaskAttributesJSON extends BaseTaskAttributesJSON, BuildFileAndTargetBasedTaskAttributes {
   nant_path?: string;
 }
 
-export type RakeTaskAttributes = BaseTaskAttributes & BuildFileAndTargetBasedTaskAttributes ;
+export type RakeTaskAttributesJSON = BaseTaskAttributesJSON & BuildFileAndTargetBasedTaskAttributes ;
 
-export interface ExecTaskAttributes extends BaseTaskAttributes, WorkingDirAttributes {
-
+export interface ExecTaskAttributesJSON extends BaseTaskAttributesJSON, WorkingDirAttributesJSON {
   command: string;
 
   // either of these can be present
@@ -134,7 +82,7 @@ export interface PluginConfiguration {
   version: string;
 }
 
-export interface FetchTaskAttributes extends BaseTaskAttributes {
+export interface FetchTaskAttributesJSON extends BaseTaskAttributesJSON {
   artifact_origin: "external" | "gocd";
   pipeline?: string;
   stage: string;
@@ -150,7 +98,7 @@ export interface FetchTaskAttributes extends BaseTaskAttributes {
   configuration?: PropertyJSON[];
 }
 
-export interface PluginTaskAttributes extends BaseTaskAttributes {
+export interface PluginTaskAttributesJSON extends BaseTaskAttributesJSON {
   plugin_configuration: PluginConfiguration;
   configuration: PropertyJSON[];
 }

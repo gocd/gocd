@@ -24,7 +24,7 @@ describe("AddPipeline: JobEditor", () => {
   let job: Job;
 
   beforeEach(() => {
-    job = new Job("", [], []);
+    job = new Job("", []);
     helper.mount(() => <JobEditor job={job}/>);
   });
 

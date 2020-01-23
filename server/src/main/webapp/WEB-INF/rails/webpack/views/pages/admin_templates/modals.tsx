@@ -17,9 +17,13 @@
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Artifact, Job, Stage, Tab, Task, Template} from "models/admin_templates/templates";
+import {TaskJSON, Template} from "models/admin_templates/templates";
 import {EnvironmentVariableJSON} from "models/environment_variables/types";
 import {PipelineStructure} from "models/internal_pipeline_structure/pipeline_structure";
+import {ArtifactJSON} from "models/pipeline_configs/artifact";
+import {JobJSON} from "models/pipeline_configs/job";
+import {StageJSON} from "models/pipeline_configs/stage";
+import {TabJSON} from "models/pipeline_configs/tab";
 import {ModelWithNameIdentifierValidator} from "models/shared/name_validation";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
@@ -108,8 +112,8 @@ export class ShowTemplateModal extends Modal {
   private readonly template: string;
   private readonly templateConfig: Stream<Template>;
   private readonly pluginInfos: PluginInfos;
-  private selectedStage?: Stage;
-  private selectedJob?: Job;
+  private selectedStage?: StageJSON;
+  private selectedJob?: JobJSON;
 
   constructor(template: string, templateConfig: Stream<Template>, pluginInfos: PluginInfos) {
     super(Size.large);
@@ -161,12 +165,12 @@ export class ShowTemplateModal extends Modal {
     return `Showing template ${this.template}`;
   }
 
-  private selectStage(eachStage: Stage) {
+  private selectStage(eachStage: StageJSON) {
     this.selectedStage = eachStage;
     this.selectedJob   = undefined;
   }
 
-  private selectJob(eachStage: Stage, eachJob: Job) {
+  private selectJob(eachStage: StageJSON, eachJob: JobJSON) {
     this.selectedStage = eachStage;
     this.selectedJob   = eachJob;
   }
@@ -182,13 +186,13 @@ export class ShowTemplateModal extends Modal {
     return this.showStage(this.selectedStage!);
   }
 
-  private showStage(stage: Stage) {
+  private showStage(stage: StageJSON) {
     const stageProperties = new Map([
-                                      ["Stage Type", stage.approval.type === "success" ? "On success" : "Manual"],
-                                      ["Fetch Materials", this.yesOrNo(stage.fetch_materials)],
-                                      ["Never Cleanup Artifacts", this.yesOrNo(stage.never_cleanup_artifacts)],
-                                      ["Clean Working Directory", this.yesOrNo(stage.clean_working_directory)],
-                                    ]);
+      ["Stage Type", stage.approval.type === "success" ? "On success" : "Manual"],
+      ["Fetch Materials", this.yesOrNo(stage.fetch_materials)],
+      ["Never Cleanup Artifacts", this.yesOrNo(stage.never_cleanup_artifacts)],
+      ["Clean Working Directory", this.yesOrNo(stage.clean_working_directory)],
+    ]);
     return (
       <div data-test-id={`selected-stage-${stage.name}`} class={styles.stageOrJob}>
         Showing stage <em>{stage.name}</em>
@@ -202,13 +206,13 @@ export class ShowTemplateModal extends Modal {
     );
   }
 
-  private showJob(stage: Stage, job: Job) {
+  private showJob(stage: StageJSON, job: JobJSON) {
     const jobProperties = new Map<string, any>([
-                                                 ["Resources", _.isEmpty(job.resources) ? null : job.resources.join(", ")],
-                                                 ["Elastic Profile ID", job.elastic_profile_id],
-                                                 ["Job Timeout", (this.jobTimeout(job))],
-                                                 ["Run type", this.jobRunType(job)],
-                                               ]);
+      ["Resources", _.isEmpty(job.resources) ? null : job.resources.join(", ")],
+      ["Elastic Profile ID", job.elastic_profile_id],
+      ["Job Timeout", (this.jobTimeout(job))],
+      ["Run type", this.jobRunType(job)],
+    ]);
 
     return (
       <div data-test-id={`selected-job-${stage.name}-${job.name}`} class={styles.stageOrJob}>
@@ -223,7 +227,7 @@ export class ShowTemplateModal extends Modal {
     );
   }
 
-  private jobTimeout(job: Job) {
+  private jobTimeout(job: JobJSON) {
     let timeout: any;
     if (_.isNil(job.timeout)) {
       timeout = "Use server default";
@@ -235,7 +239,7 @@ export class ShowTemplateModal extends Modal {
     return timeout;
   }
 
-  private jobRunType(job: Job) {
+  private jobRunType(job: JobJSON) {
     if (job.run_instance_count === "all") {
       return "Run on all agents";
     } else if (job.run_instance_count === 0) {
@@ -260,7 +264,7 @@ export class ShowTemplateModal extends Modal {
     return <KeyValuePair data={data}/>;
   }
 
-  private stagePermissions(stage: Stage) {
+  private stagePermissions(stage: StageJSON) {
     const authorization = stage.approval.authorization;
     const data          = new Map<string, m.Children>();
 
@@ -285,13 +289,13 @@ export class ShowTemplateModal extends Modal {
 
   }
 
-  private artifacts(artifacts: Artifact[]) {
+  private artifacts(artifacts: ArtifactJSON[]) {
     if (_.isEmpty(artifacts)) {
       return (<FlashMessage message="No artifacts have been configured" type={MessageType.info}/>);
     }
 
     const artifactsGroupedByType = _.groupBy(artifacts,
-                                             (eachArtifact) => eachArtifact.type);
+      (eachArtifact) => eachArtifact.type);
 
     return [
       this.buildArtifacts(artifactsGroupedByType.build),
@@ -300,7 +304,7 @@ export class ShowTemplateModal extends Modal {
     ];
   }
 
-  private tabs(tabs: Tab[]) {
+  private tabs(tabs: TabJSON[]) {
     if (_.isEmpty(tabs)) {
       return (<FlashMessage message="No custom tabs have been configured" type={MessageType.info}/>);
     }
@@ -311,7 +315,7 @@ export class ShowTemplateModal extends Modal {
     return <Table headers={["Tab Name", "Path"]} data={data}/>;
   }
 
-  private tasks(tasks: Task[]) {
+  private tasks(tasks: TaskJSON[]) {
     if (_.isEmpty(tasks)) {
       return (<FlashMessage message="No tasks have been configured" type={MessageType.info}/>);
     }
@@ -334,7 +338,7 @@ export class ShowTemplateModal extends Modal {
     );
   }
 
-  private buildArtifacts(artifacts: Artifact[]) {
+  private buildArtifacts(artifacts: ArtifactJSON[]) {
     if (_.isEmpty(artifacts)) {
       return <FlashMessage message="No build artifacts have been configured" type={MessageType.info}/>;
     }
@@ -346,7 +350,7 @@ export class ShowTemplateModal extends Modal {
     return <Table caption="Build Artifacts" headers={["Source", "Destination"]} data={data}/>;
   }
 
-  private testArtifacts(artifacts: Artifact[]) {
+  private testArtifacts(artifacts: ArtifactJSON[]) {
     if (_.isEmpty(artifacts)) {
       return <FlashMessage message="No test artifacts have been configured" type={MessageType.info}/>;
     }
@@ -358,7 +362,7 @@ export class ShowTemplateModal extends Modal {
     return <Table caption="Test Artifacts" headers={["Source", "Destination"]} data={data}/>;
   }
 
-  private externalArtifacts(artifacts: Artifact[]) {
+  private externalArtifacts(artifacts: ArtifactJSON[]) {
     if (_.isEmpty(artifacts)) {
       return <FlashMessage message="No external artifacts have been configured" type={MessageType.info}/>;
     }
@@ -371,7 +375,7 @@ export class ShowTemplateModal extends Modal {
     ];
   }
 
-  private externalArtifact(artifact: Artifact) {
+  private externalArtifact(artifact: ArtifactJSON) {
     const artifactInfo   = new Map([["Artifact ID", artifact.artifact_id], ["Store ID", artifact.store_id]]);
     const artifactConfig = new Map(artifact.configuration!.map((eachConfig) => {
       return [eachConfig.key, eachConfig.value || "******"];

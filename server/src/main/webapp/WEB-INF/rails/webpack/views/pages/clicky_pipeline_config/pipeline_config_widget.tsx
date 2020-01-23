@@ -15,22 +15,40 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
+import _ from 'lodash';
 import m from "mithril";
-import {PipelineConfig} from "models/new_pipeline_configs/pipeline_config";
-import styles from "./index.scss";
-import {NavigationWidget} from "./navigation_widget";
+import {Tabs} from "../../components/tab";
+import {PipelineConfig} from "../../../models/pipeline_configs/pipeline_config";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;
 }
 
+const tabs = [{
+  name: 'General',
+  renderer: () => {
+    return <div>General tab</div>;
+  }
+}, {
+  name: 'Environment Variables',
+  renderer: () => {
+    return <div>Environment Variables tab</div>;
+  }
+}];
+
 export class PipelineConfigWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    return <div class={styles.mainContainer}>
-      <div class={styles.navigation}>
-        <NavigationWidget pipelineConfig={vnode.attrs.pipelineConfig}/>
-      </div>
-      <div class={styles.entityConfigContainer}>Right</div>
-    </div>;
+    return <Tabs initialSelection={this.selectedTabIndex()}
+                 tabs={tabs.map((eachTab) => eachTab.name)}
+                 contents={tabs.map((eachTab) => eachTab.renderer())}
+                 callback={(index: number) => {
+                   m.route.set(vnode.attrs.pipelineConfig.name() + "/" + _.snakeCase(tabs[index].name));
+                 }}/>;
+  }
+
+  private selectedTabIndex() {
+    return tabs.findIndex((eachTab) => {
+      return _.snakeCase(eachTab.name) === m.route.param().tab_name;
+    });
   }
 }

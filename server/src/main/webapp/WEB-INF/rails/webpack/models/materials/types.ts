@@ -72,6 +72,10 @@ export class Materials {
   static fromJSON(material: MaterialJSON): Material {
     return new Material(material.type, MaterialAttributes.deserialize(material));
   }
+
+  static fromJSONArray(materials: MaterialJSON[]): Material[] {
+    return materials.map(this.fromJSON);
+  }
 }
 
 export class Material extends ValidatableMixin {
@@ -96,9 +100,9 @@ export class Material extends ValidatableMixin {
       const newType = value;
       if (this.type() !== newType) {
         this.attributes(MaterialAttributes.deserialize({
-                                                         type: newType,
-                                                         attributes: ({} as MaterialAttributesJSON)
-                                                       }));
+          type: newType,
+          attributes: ({} as MaterialAttributesJSON)
+        }));
       }
       this.type(newType);
     }
@@ -210,8 +214,8 @@ export abstract class ScmMaterialAttributes extends MaterialAttributes {
   constructor(name?: string, autoUpdate?: boolean, username?: string, password?: string, encryptedPassword?: string) {
     super(name, autoUpdate);
     this.validateFormatOf("destination",
-                          ScmMaterialAttributes.DESTINATION_REGEX,
-                          {message: "Must be a relative path within the pipeline's working directory"});
+      ScmMaterialAttributes.DESTINATION_REGEX,
+      {message: "Must be a relative path within the pipeline's working directory"});
 
     this.username = Stream(username);
     this.password = Stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
@@ -228,8 +232,8 @@ class AuthNotSetInUrlAndUserPassFieldsValidator extends Validator {
 
       if ((!!username || !!(password && password.value())) && (!!urlObj.username || !!urlObj.password || url.indexOf("@") !== -1)) {
         entity.errors()
-              .add(attr,
-                   "URL credentials must be set in either the URL or the username+password fields, but not both.");
+          .add(attr,
+            "URL credentials must be set in either the URL or the username+password fields, but not both.");
       }
     }
   }

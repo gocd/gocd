@@ -15,50 +15,62 @@
  */
 
 import m from "mithril";
-import {PipelineConfig} from "models/new_pipeline_configs/pipeline_config";
-import {Page, PageState} from "views/pages/page";
+import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {Tree} from "views/components/hierarchy/tree";
 import {PipelineConfigWidget} from "views/pages/clicky_pipeline_config/pipeline_config_widget";
-import {ApiResult, ErrorResponse, SuccessResponse} from "../../helpers/api_request_builder";
-import {MessageType} from "../components/flash_message";
-
-interface State {
-  pipelineConfig: PipelineConfig;
-  meta: PageMeta;
-}
+import {Page, PageState} from "views/pages/page";
+import styles from "./index.scss";
+import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
+import {MessageType} from "views/components/flash_message";
 
 interface PageMeta {
   pipelineName: string;
 }
 
-export class PipelineConfigPage extends Page<null, State> {
-  oninit(vnode: m.Vnode<null, State>) {
-    super.oninit(vnode);
-    vnode.state.meta = this.getMeta() as PageMeta;
-  }
+export class PipelineConfigPage<T> extends Page<null, T> {
+  private pipelineConfig?: PipelineConfig;
 
-  componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    return <PipelineConfigWidget/>;
+  componentToDisplay(vnode: m.Vnode<null, T>): m.Children {
+    return (
+      <div class={styles.mainContainer}>
+        <div class={styles.navigation}>
+          <Tree datum={'p1'}>
+            <Tree datum={'s1'}>
+              <Tree datum={'j1'}/>
+              <Tree datum={'j2'}/>
+            </Tree>
+            <Tree datum={'s2'}/>
+          </Tree>
+
+        </div>
+
+        <div class={styles.entityConfigContainer}>
+          <PipelineConfigWidget pipelineConfig={this.pipelineConfig!}/>
+        </div>
+      </div>
+    );
   }
 
   pageName(): string {
     return "Pipelines";
   }
 
-  fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return PipelineConfig.get(vnode.state.meta.pipelineName).then(this.handleActionApiResponse.bind(this));
+  fetchData(vnode: m.Vnode<null, T>): Promise<any> {
+    return PipelineConfig.get(this.getMeta().pipelineName).then((result) => result.do(this.onSuccess.bind(this), this.onFailure.bind(this)));
   }
 
-  private handleActionApiResponse(result: ApiResult<string>) {
-    result.do(this.onSuccess.bind(this), this.onFailure.bind(this));
+  protected getMeta(): PageMeta {
+    return super.getMeta() as PageMeta;
+  }
+
+  private onSuccess(successResponse: SuccessResponse<string>) {
+    const json          = JSON.parse(successResponse.body);
+    this.pipelineConfig = PipelineConfig.fromJSON(json);
+    this.pageState      = PageState.OK;
   }
 
   private onFailure(errorResponse: ErrorResponse) {
     this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-    this.pageState = PageState.OK;
-  }
-
-  private onSuccess(successResponse: SuccessResponse<string>) {
-    console.log(successResponse);
-    this.pageState = PageState.OK;
+    this.pageState = PageState.FAILED;
   }
 }

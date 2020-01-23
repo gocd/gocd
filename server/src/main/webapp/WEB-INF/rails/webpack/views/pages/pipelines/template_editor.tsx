@@ -42,8 +42,8 @@ interface State {
 
 export class TemplateEditor extends MithrilComponent<Attrs, State> {
   selectedTemplate: Stream<TemplateConfig> = Stream();
-  private cache: TemplateCache = new TemplateCache();
-  private templates: Stream<Template[]> = Stream();
+  private cache: TemplateCache             = new TemplateCache();
+  private templates: Stream<Template[]>    = Stream();
 
   oncreate(vnode: m.VnodeDOM<Attrs, State>) {
     vnode.state.notifyChange = () => vnode.dom.dispatchEvent(makeEvent("change"));
@@ -62,14 +62,14 @@ export class TemplateEditor extends MithrilComponent<Attrs, State> {
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
-    const errors = vnode.attrs.pipelineConfig.errors();
+    const errors                                       = vnode.attrs.pipelineConfig.errors();
     const {pipelineConfig, paramList, isUsingTemplate} = vnode.attrs;
 
     return <div class={classnames({[css.errorText]: errors.hasErrors("template")})}>
       <SwitchBtn small={true}
-        label="Use Template:"
-        field={isUsingTemplate}
-        onclick={this.toggleTemplate.bind(this, pipelineConfig, paramList, vnode.state)}
+                 label="Use Template:"
+                 field={isUsingTemplate}
+                 onclick={this.toggleTemplate.bind(this, pipelineConfig, paramList, vnode.state)}
       />
       {this.templateOptions(vnode)}
     </div>;
@@ -77,7 +77,7 @@ export class TemplateEditor extends MithrilComponent<Attrs, State> {
 
   templatesAsOptions() {
     return _.map(this.templates(), (template) => {
-      return {id: template.name, text: template.name } as Option;
+      return {id: template.name, text: template.name} as Option;
     });
   }
 
@@ -85,13 +85,13 @@ export class TemplateEditor extends MithrilComponent<Attrs, State> {
     const template = _.find(this.templates(), (template) => template.name === templateId);
 
     let params = template ? _.map(template.parameters, (param) => new PipelineParameter(param, "")) : [];
-    params = params.concat(new PipelineParameter("", ""));
+    params     = params.concat(new PipelineParameter("", ""));
     paramList(params);
     config.parameters(_.filter(params, (p) => (p.name() || "").trim() !== ""));
     onSetParams();
   }
 
-  templateOptions({attrs, state}: {attrs: Attrs, state: State}) {
+  templateOptions({attrs, state}: { attrs: Attrs, state: State }) {
     const config = attrs.pipelineConfig;
     const errors = config.errors();
 
@@ -104,7 +104,10 @@ export class TemplateEditor extends MithrilComponent<Attrs, State> {
           </code>
         </FlashMessage>;
       } else {
-        return <SelectField label="Template" property={config.template} errorText={errors.errorsForDisplay("template")} required={true} onchange={(e: any) => {this.setTemplateParams(e.target.value, attrs.paramList, config, state.notifyChange); }}>
+        return <SelectField label="Template" property={config.template} errorText={errors.errorsForDisplay("template")}
+                            required={true} onchange={(e: any) => {
+          this.setTemplateParams(e.target.value, attrs.paramList, config, state.notifyChange);
+        }}>
           <SelectFieldOptions selected={config.template()} items={this.templatesAsOptions()}/>
         </SelectField>;
       }
@@ -122,7 +125,7 @@ export class TemplateEditor extends MithrilComponent<Attrs, State> {
         pipelineConfig.template(templateId);
       }
     } else {
-      pipelineConfig.template = Stream();
+      pipelineConfig.template("");
       paramList([new PipelineParameter("", "")]);
     }
   }

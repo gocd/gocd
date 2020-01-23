@@ -15,21 +15,21 @@
  */
 
 import {asSelector} from "helpers/css_proxies";
-import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {EnvironmentVariables} from "models/environment_variables/types";
 import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {EnvironmentVariablesEditor} from "../environment_variables_editor";
 import css from "../environment_variables_editor.scss";
 
 describe("EnvironmentVariablesEditor", () => {
-  const helper = new TestHelper();
-  const sel = asSelector<typeof css>(css);
-  const variables: Stream<EnvironmentVariableConfig[]> = Stream();
+  const helper                                  = new TestHelper();
+  const sel                                     = asSelector<typeof css>(css);
+  const variables: Stream<EnvironmentVariables> = Stream();
 
   beforeEach(() => {
-    variables([]);
+    variables(new EnvironmentVariables());
     helper.mount(() => {
       return <EnvironmentVariablesEditor variables={variables}/>;
     });
@@ -66,7 +66,7 @@ describe("EnvironmentVariablesEditor", () => {
   function addVariable(section: Element, name: string, value: string): Element {
     helper.click("button", section);
     const variable = Array.from(helper.allByTestId("table-row", section)).pop()!;
-    const fields = helper.qa("input", variable);
+    const fields   = helper.qa("input", variable);
     helper.oninput(fields.item(0), name);
     helper.oninput(fields.item(1), value);
     return variable;

@@ -15,14 +15,13 @@
  */
 
 import {bind} from "classnames/bind";
-import {HTMLAttributes} from "jsx/dom";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import styles from "./index.scss";
 
 const classnames = bind(styles);
 
-export interface Attrs extends HTMLAttributes {
+export interface Attrs {
   onclick?: (e: MouseEvent) => void;
   disabled?: boolean;
   iconOnly?: boolean;

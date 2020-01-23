@@ -92,28 +92,6 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
         getWithApiHeader(controller.controllerBasePath())
       }
     }
-  }
-
-  @Nested
-  class WithSuggestions {
-    @BeforeEach
-    void setUp() {
-      loginAsUser()
-    }
-
-    @Nested
-    class Security implements SecurityTestTrait, NormalUserSecurity {
-
-      @Override
-      String getControllerMethodUnderTest() {
-        return "indexWithSuggestions"
-      }
-
-      @Override
-      void makeHttpCall() {
-        getWithApiHeader(controller.controllerBasePath() + '/with_suggestions')
-      }
-    }
 
     @Test
     void 'should render list of pipeline grps with roles and users'() {
@@ -129,7 +107,7 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
       when(userService.allUsernames()).thenReturn(users)
       when(userService.allRoleNames()).thenReturn(roles)
 
-      getWithApiHeader(controller.controllerBasePath() + '/with_suggestions')
+      getWithApiHeader(controller.controllerBasePath() + '?with_additional_info=true')
 
       def expectedJSON = toObjectString({
         InternalPipelineStructuresRepresenter.toJSON(it, groups, templateConfigs, users, roles)

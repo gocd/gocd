@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import m from "mithril";
+import m, {Params} from "mithril";
 import {AnalyticsCapability} from "models/shared/plugin_infos_new/analytics_plugin_capabilities";
 import {PluginInfoQuery} from "models/shared/plugin_infos_new/plugin_info_crud";
 
@@ -430,24 +430,18 @@ export class SparkRoutes {
   }
 
   static apiAdminInternalPipelinesListPath(groupAuthorization: "view" | "operate" | "administer",
-                                           templateAuthorization: "view" | "administer") {
-    const queryString = m.buildQueryString({
+                                           templateAuthorization: "view" | "administer",
+                                           withAdditionalInfo: boolean = false) {
+    const values: Params = {
       pipeline_group_authorization: groupAuthorization,
-      template_authorization: templateAuthorization
-    });
+      template_authorization:       templateAuthorization,
+    };
+    if (withAdditionalInfo) {
+      values.with_additional_info = true;
+    }
+    const queryString = m.buildQueryString(values);
 
     return `/go/api/internal/pipeline_structure?${queryString}`;
-  }
-
-  static apiAdminInternalPipelinesListPathWithSuggestions(groupAuthorization: "view" | "operate" | "administer",
-                                                          templateAuthorization: "view" | "administer") {
-    const queryString = m.buildQueryString(
-      {
-        pipeline_group_authorization: groupAuthorization,
-        template_authorization:       templateAuthorization
-      });
-
-    return `/go/api/internal/pipeline_structure/with_suggestions?${queryString}`;
   }
 
   static showAnalyticsPath(pluginId: string, metric: AnalyticsCapability, params: { [key: string]: string | number }) {

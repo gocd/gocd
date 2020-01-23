@@ -259,7 +259,7 @@ class InternalPipelineStructuresRepresenterTest {
           ]
         ]
       ],
-      "suggestions": [
+      "additional_info": [
         "users": [
           "user1",
           "user2"

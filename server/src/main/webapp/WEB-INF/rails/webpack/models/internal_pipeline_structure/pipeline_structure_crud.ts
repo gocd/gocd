@@ -16,17 +16,17 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {PipelineStructureWithSuggestions} from "./pipeline_structure";
+import {PipelineStructureWithAdditionalInfo} from "./pipeline_structure";
 
 export class PipelineStructureCRUD {
   private static LATEST_API_VERSION_HEADER = ApiVersion.latest;
 
   static allPipelines(groupAuthorization: "view" | "operate" | "administer",
                       templateAuthorization: "view" | "administer") {
-    return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalPipelinesListPathWithSuggestions(groupAuthorization, templateAuthorization),
+    return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalPipelinesListPath(groupAuthorization, templateAuthorization, true),
                                  this.LATEST_API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => {
-                              return result.map((body) => PipelineStructureWithSuggestions.fromJSON(JSON.parse(body)));
+                              return result.map((body) => PipelineStructureWithAdditionalInfo.fromJSON(JSON.parse(body)));
                             });
   }
 }

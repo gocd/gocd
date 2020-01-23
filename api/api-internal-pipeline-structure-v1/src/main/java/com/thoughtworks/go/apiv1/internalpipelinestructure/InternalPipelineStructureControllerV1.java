@@ -38,6 +38,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static java.lang.Boolean.parseBoolean;
 import static spark.Spark.*;
 
 @Component
@@ -81,32 +82,12 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
             before("/*", mimeType, this::verifyContentType);
 
             before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
-            before(InternalPipelineStructure.WITH_SUGGESTIONS, mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
             get("", mimeType, this::index);
-            get(InternalPipelineStructure.WITH_SUGGESTIONS, mimeType, this::indexWithSuggestions);
-
         });
     }
 
     public String index(Request request, Response response) throws IOException {
-        PipelineStructure pipelineStructure = getPipelineStructure(request);
-
-        return writerForTopLevelObject(request, response, outputWriter -> InternalPipelineStructuresRepresenter.toJSON(outputWriter, pipelineStructure.groups, pipelineStructure.templateConfigs));
-    }
-
-    public String indexWithSuggestions(Request request, Response response) throws IOException {
-        PipelineStructure pipelineStructure = getPipelineStructure(request);
-        PipelineGroups groups = pipelineStructure.groups;
-        TemplatesConfig templateConfigs = pipelineStructure.templateConfigs;
-
-        Collection<String> users = userService.allUsernames();
-        Collection<String> roles = userService.allRoleNames();
-
-        return writerForTopLevelObject(request, response, outputWriter -> InternalPipelineStructuresRepresenter.toJSON(outputWriter, groups, templateConfigs, users, roles));
-    }
-
-    private PipelineStructure getPipelineStructure(Request request) {
         String pipelineGroupAuthorizationType = request.queryParamOrDefault("pipeline_group_authorization", "view");
         String templateAuthorizationType = request.queryParamOrDefault("template_authorization", "view");
 
@@ -117,17 +98,14 @@ public class InternalPipelineStructureControllerV1 extends ApiController impleme
             HaltApiResponses.haltBecauseOfReason("Bad query parameter.");
         }
 
-        return new PipelineStructure(pipelineGroupsSupplier.get(), templatesConfigSupplier.get());
-    }
+        boolean withAdditionalInfo = parseBoolean(request.queryParams("with_additional_info"));
 
-
-    private class PipelineStructure {
-        PipelineGroups groups;
-        TemplatesConfig templateConfigs;
-
-        PipelineStructure(PipelineGroups groups, TemplatesConfig templateConfigs) {
-            this.groups = groups;
-            this.templateConfigs = templateConfigs;
+        if (!withAdditionalInfo) {
+            return writerForTopLevelObject(request, response, outputWriter -> InternalPipelineStructuresRepresenter.toJSON(outputWriter, pipelineGroupsSupplier.get(), templatesConfigSupplier.get()));
         }
+        Collection<String> users = userService.allUsernames();
+        Collection<String> roles = userService.allRoleNames();
+
+        return writerForTopLevelObject(request, response, outputWriter -> InternalPipelineStructuresRepresenter.toJSON(outputWriter, pipelineGroupsSupplier.get(), templatesConfigSupplier.get(), users, roles));
     }
 }

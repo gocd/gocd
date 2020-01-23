@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,41 @@
 
 import {JsonUtils} from "helpers/json_utils";
 import Stream from "mithril/stream";
+import {TaskJSON} from "models/admin_templates/templates";
+import {EnvironmentVariableJSON, EnvironmentVariables} from "models/environment_variables/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
-import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
-import {Task} from "models/pipeline_configs/task";
+import {ArtifactJSON, Artifacts} from "models/pipeline_configs/artifact";
+import {TabJSON, Tabs} from "models/pipeline_configs/tab";
+import {AbstractTask, Task} from "models/pipeline_configs/task";
+
+export interface JobJSON {
+  name: string;
+  run_instance_count: number | "all" | null;
+  timeout: "never" | number | null;
+  elastic_profile_id?: string;
+  environment_variables: EnvironmentVariableJSON[];
+  resources: string[];
+  tasks: TaskJSON[];
+  tabs: TabJSON[];
+  artifacts: ArtifactJSON[];
+}
 
 export class Job extends ValidatableMixin {
-  name: Stream<string>;
-  environmentVariables: Stream<EnvironmentVariableConfig[]>;
-  tasks: Stream<Task[]>;
+  readonly name                 = Stream<string>();
+  readonly runInstanceCount     = Stream<number | "all" | null>();
+  readonly timeout              = Stream<"never" | number | null>();
+  readonly elasticProfileId     = Stream<string>();
+  readonly environmentVariables = Stream<EnvironmentVariables>();
+  readonly resources            = Stream<string[]>();
+  readonly tasks                = Stream<Task[]>();
+  readonly tabs                 = Stream<Tabs>();
+  readonly artifacts            = Stream<Artifacts>();
 
-  constructor(name: string, tasks: Task[], envVars?: EnvironmentVariableConfig[]) {
+  constructor(name: string = "", tasks: Task[] = [], envVars = new EnvironmentVariables()) {
     super();
 
-    this.name = Stream(name);
-    this.tasks = Stream(tasks);
+    this.name                 = Stream(name);
+    this.tasks                = Stream(tasks);
     this.environmentVariables = Stream(envVars!);
     this.validatePresenceOf("name");
     this.validateIdFormat("name");
@@ -39,6 +60,24 @@ export class Job extends ValidatableMixin {
     this.validateEach("tasks");
     this.validateEach("environmentVariables");
     this.validateChildAttrIsUnique("environmentVariables", "name", {message: "Environment Variable names must be unique"});
+  }
+
+  static fromJSONArray(jobs: JobJSON[]) {
+    return jobs.map(this.fromJSON);
+  }
+
+  static fromJSON(json: JobJSON) {
+    const job = new Job();
+    job.name(json.name);
+    job.runInstanceCount(json.run_instance_count);
+    job.timeout(json.timeout);
+    job.elasticProfileId(json.elastic_profile_id!);
+    job.environmentVariables(EnvironmentVariables.fromJSON(json.environment_variables));
+    job.resources(json.resources);
+    job.tasks(AbstractTask.fromJSONArray(json.tasks));
+    job.tabs(Tabs.fromJSON(json.tabs));
+    job.artifacts(Artifacts.fromJSON(json.artifacts));
+    return job;
   }
 
   toApiPayload() {

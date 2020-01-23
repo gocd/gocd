@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ const VANITY_PLUGIN_NAMES: {[key: string]: string} = {
 
 export class PipelineConfigVM {
   material: Material = new Material("git", new GitMaterialAttributes());
-  job: Job = new Job("", [], []);
+  job: Job = new Job("", []);
   stage: Stage = new Stage("", [this.job]);
   pipeline: PipelineConfig = new PipelineConfig("", [this.material], []);
   isUsingTemplate = Stream(false);

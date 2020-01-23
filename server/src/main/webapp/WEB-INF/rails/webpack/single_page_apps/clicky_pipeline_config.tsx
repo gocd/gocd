@@ -14,14 +14,26 @@
  * limitations under the License.
  */
 
-import {SinglePageAppBase} from "helpers/spa_base";
-import {ClickyPipelineConfigPage} from "views/pages/clicky_pipeline_config";
+import {RoutedSinglePageApp} from "helpers/spa_base";
+import m from "mithril";
+import {PipelineConfigPage} from "views/pages/clicky_pipeline_config/pipeline_config";
 
-export class ClickyPipelineConfigSPA extends SinglePageAppBase {
+class RedirectToGeneralTab extends PipelineConfigPage<any> {
+
+  oninit(vnode: m.Vnode<any, any>) {
+    const pipelineName = this.getMeta().pipelineName;
+    m.route.set("/" + pipelineName + "/general");
+  }
+}
+
+export class PipelineConfigSPA extends RoutedSinglePageApp {
   constructor() {
-    super(ClickyPipelineConfigPage);
+    super({
+            "/": new RedirectToGeneralTab(),
+            "/:pipeline_name/:tab_name": new PipelineConfigPage(),
+          });
   }
 }
 
 //tslint:disable-next-line
-new ClickyPipelineConfigSPA();
+new PipelineConfigSPA();

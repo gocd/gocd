@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
+import {EnvironmentVariable, EnvironmentVariables} from "models/environment_variables/types";
 import * as Buttons from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";
 import {SimplePasswordField, TextField} from "views/components/forms/input_fields";
@@ -26,17 +26,17 @@ import {Table} from "views/components/table";
 import css from "./environment_variables_editor.scss";
 
 interface Attrs {
-  variables: Stream<EnvironmentVariableConfig[]>;
+  variables: Stream<EnvironmentVariables>;
 }
 
 export class EnvironmentVariablesEditor extends MithrilViewComponent<Attrs> {
-  variableList: Stream<EnvironmentVariableConfig[]> = Stream();
+  variableList: Stream<EnvironmentVariables> = Stream();
 
   oninit(vnode: m.Vnode<Attrs, this>) {
-    this.variableList([
-      new EnvironmentVariableConfig(false, "", ""),
-      new EnvironmentVariableConfig(true, "", "")
-    ]);
+    this.variableList(new EnvironmentVariables(
+      new EnvironmentVariable("", "", false),
+      new EnvironmentVariable("", "", true)
+    ));
   }
 
   view(vnode: m.Vnode<Attrs, this>) {
@@ -54,14 +54,17 @@ export class EnvironmentVariablesEditor extends MithrilViewComponent<Attrs> {
           <div class={css.envVars}>
             <label>
               Environment Variables
-              <Buttons.Cancel onclick={this.addVar.bind(this, false)} small={true} icon={Buttons.ButtonIcon.ADD} />
+              <Buttons.Cancel onclick={this.addVar.bind(this, false)} small={true} icon={Buttons.ButtonIcon.ADD}/>
             </label>
             <Table headers={["name", "value", ""]} data={
               _.map(plainVars, (variable) => {
                 return [
-                    <TextField property={variable.name} errorText={variable.errors().errorsForDisplay("name")} onchange={this.update.bind(this, vnode.attrs.variables, variable)}/>,
-                    <TextField property={variable.value} errorText={variable.errors().errorsForDisplay("value")} onchange={this.update.bind(this, vnode.attrs.variables, variable)}/>,
-                    <Buttons.Cancel onclick={this.removeVar.bind(this, vnode.attrs.variables, variable)} small={true} icon={Buttons.ButtonIcon.REMOVE} />
+                  <TextField property={variable.name} errorText={variable.errors().errorsForDisplay("name")}
+                             onchange={this.update.bind(this, vnode.attrs.variables, variable)}/>,
+                  <TextField property={variable.value} errorText={variable.errors().errorsForDisplay("value")}
+                             onchange={this.update.bind(this, vnode.attrs.variables, variable)}/>,
+                  <Buttons.Cancel onclick={this.removeVar.bind(this, vnode.attrs.variables, variable)} small={true}
+                                  icon={Buttons.ButtonIcon.REMOVE}/>
                 ];
               })
             }/>
@@ -69,14 +72,17 @@ export class EnvironmentVariablesEditor extends MithrilViewComponent<Attrs> {
           <div class={css.envVars}>
             <label>
               Secure Variables
-              <Buttons.Cancel onclick={this.addVar.bind(this, true)} small={true} icon={Buttons.ButtonIcon.ADD} />
+              <Buttons.Cancel onclick={this.addVar.bind(this, true)} small={true} icon={Buttons.ButtonIcon.ADD}/>
             </label>
             <Table headers={["name", "value", ""]} data={
               _.map(secureVars, (variable) => {
                 return [
-                    <TextField property={variable.name} errorText={variable.errors().errorsForDisplay("name")} onchange={this.update.bind(this, vnode.attrs.variables, variable)}/>,
-                    <SimplePasswordField property={variable.value} errorText={variable.errors().errorsForDisplay("value")} onchange={this.update.bind(this, vnode.attrs.variables, variable)}/>,
-                    <Buttons.Cancel onclick={this.removeVar.bind(this, vnode.attrs.variables, variable)} small={true} icon={Buttons.ButtonIcon.REMOVE} />
+                  <TextField property={variable.name} errorText={variable.errors().errorsForDisplay("name")}
+                             onchange={this.update.bind(this, vnode.attrs.variables, variable)}/>,
+                  <SimplePasswordField property={variable.value} errorText={variable.errors().errorsForDisplay("value")}
+                                       onchange={this.update.bind(this, vnode.attrs.variables, variable)}/>,
+                  <Buttons.Cancel onclick={this.removeVar.bind(this, vnode.attrs.variables, variable)} small={true}
+                                  icon={Buttons.ButtonIcon.REMOVE}/>
                 ];
               })
             }/>
@@ -86,7 +92,7 @@ export class EnvironmentVariablesEditor extends MithrilViewComponent<Attrs> {
     );
   }
 
-  update(variables: Stream<EnvironmentVariableConfig[]>, variable: EnvironmentVariableConfig, event: Event) {
+  update(variables: Stream<EnvironmentVariables>, variable: EnvironmentVariable, event: Event) {
     event.stopPropagation();
     if (!_.includes(variables(), variable)) {
       variables().push(variable);
@@ -95,12 +101,12 @@ export class EnvironmentVariablesEditor extends MithrilViewComponent<Attrs> {
 
   addVar(secure: boolean, event: Event) {
     event.stopPropagation();
-    this.variableList().push(new EnvironmentVariableConfig(secure, "", ""));
+    this.variableList().push(new EnvironmentVariable("", "", secure));
   }
 
-  removeVar(variables: Stream<EnvironmentVariableConfig[]>, variable: EnvironmentVariableConfig, event: Event) {
+  removeVar(variables: Stream<EnvironmentVariables>, variable: EnvironmentVariable, event: Event) {
     event.stopPropagation();
-    variables(_.reject(variables(), (v) => v === variable));
-    this.variableList(_.reject(this.variableList(), (v) => v === variable));
+    variables().remove(variable);
+    this.variableList().remove(variable);
   }
 }

@@ -23,7 +23,7 @@ import * as defaultStyles from "./tree.scss";
 type Styles = typeof defaultStyles;
 
 interface Attrs extends RestyleAttrs<Styles> {
-  datum: m.Child; // usually a single `string`, but could be a Vnode;
+  datum: m.Children; // usually a single `string`, but could be a Vnode;
   "children-label"?: m.Children | (() => m.Children);
 }
 

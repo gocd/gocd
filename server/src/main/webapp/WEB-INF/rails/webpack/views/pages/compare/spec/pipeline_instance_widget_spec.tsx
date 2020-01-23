@@ -31,6 +31,7 @@ describe('PipelineInstanceWidgetSpec', () => {
   }
 
   it('should render a flash message if instance is not passed', () => {
+    //@ts-ignore
     helper.mount(() => <PipelineInstanceWidget/>);
 
     expect(helper.byTestId("pipeline-instance-widget")).not.toBeInDOM();

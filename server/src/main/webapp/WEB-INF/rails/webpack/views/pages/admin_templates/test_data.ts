@@ -41,6 +41,7 @@ export function massiveTemplate(): Template {
       never_cleanup_artifacts: false,
       approval: {
         type: "success",
+        allow_only_on_success: false,
         authorization: {
           roles: [],
           users: []
@@ -121,6 +122,7 @@ export function massiveTemplate(): Template {
       never_cleanup_artifacts: false,
       approval: {
         type: "success",
+        allow_only_on_success: false,
         authorization: {
           roles: [],
           users: []

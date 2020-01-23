@@ -15,6 +15,7 @@
  */
 
 import {docsUrl} from "gen/gocd_version";
+import _ from 'lodash';
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
@@ -26,7 +27,12 @@ import * as headerIconStyles from "views/components/header_icon/index.scss";
 import {ConfigRepoVM} from "views/pages/config_repos/config_repo_view_model";
 import {ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
 import styles from "views/pages/config_repos/index.scss";
-import {configRepoPluginInfo, createConfigRepoParsed, createConfigRepoParsedWithError, createConfigRepoWithError} from "views/pages/config_repos/spec/test_data";
+import {
+  configRepoPluginInfo,
+  createConfigRepoParsed,
+  createConfigRepoParsedWithError,
+  createConfigRepoWithError
+} from "views/pages/config_repos/spec/test_data";
 import {stubAllMethods, TestHelper} from "views/pages/spec/test_helper";
 
 describe("ConfigReposWidget", () => {
@@ -69,6 +75,7 @@ describe("ConfigReposWidget", () => {
     pluginInfos     = Stream(new PluginInfos());
 
     helper.mount(() => <ConfigReposWidget {...{
+      flushEtag: _.noop,
       models,
       pluginInfos,
       sm
@@ -218,13 +225,13 @@ describe("ConfigReposWidget", () => {
 
   it("should render config repo's plugin-id, material url, commit-message, username and revision in header", () => {
     const repo1 = createConfigRepoParsedWithError({
-                                     id: "Repo1",
-                                     repoId: "90d9f82c-bbfd-4f70-ab09-fd72dee42427"
-                                   });
+      id: "Repo1",
+      repoId: "90d9f82c-bbfd-4f70-ab09-fd72dee42427"
+    });
     const repo2 = createConfigRepoParsedWithError({
-                                     id: "Repo2",
-                                     repoId: "0b4243ff-7431-48e1-a60e-a79b7b80b654"
-                                   });
+      id: "Repo2",
+      repoId: "0b4243ff-7431-48e1-a60e-a79b7b80b654"
+    });
     models([vm(repo1), vm(repo2)]);
     helper.redraw();
 
@@ -241,25 +248,25 @@ describe("ConfigReposWidget", () => {
   });
 
   it("should render config repo's trimmed commit-message, username and revision if they are too long to fit in header",
-     () => {
-       const repo = createConfigRepoParsedWithError({
-                                        id: "Repo1",
-                                        repoId: "https://example.com/",
-                                        latestCommitMessage: "A very very long commit message which will be trimmed after 82 characters and this is being tested",
-                                        latestCommitUsername: "A_Long_username_with_a_long_long_long_long_long_text",
-                                        latestCommitRevision: "df31759540dc28f75a20f443a19b1148df31759540dc28f75a20f443a19b1148df"
-                                      });
+    () => {
+      const repo = createConfigRepoParsedWithError({
+        id: "Repo1",
+        repoId: "https://example.com/",
+        latestCommitMessage: "A very very long commit message which will be trimmed after 82 characters and this is being tested",
+        latestCommitUsername: "A_Long_username_with_a_long_long_long_long_long_text",
+        latestCommitRevision: "df31759540dc28f75a20f443a19b1148df31759540dc28f75a20f443a19b1148df"
+      });
 
-       models([vm(repo)]);
-       helper.redraw();
+      models([vm(repo)]);
+      helper.redraw();
 
-       expect(helper.q(`.${styles.headerTitleText}`)).toContainText("Repo1");
-       expect(helper.q(`.${styles.headerTitleUrl}`)).toContainText("https://example.com/");
-       expect(helper.q(`.${styles.comment}`))
-         .toContainText("A very very long commit message which will be trimmed after 82 characters and thi...");
-       expect(helper.q(`.${styles.committerInfo}`))
-         .toContainText("A_Long_username_with_a_long_long_long... | df31759540dc28f75a20f443a19b1148df317...");
-     });
+      expect(helper.q(`.${styles.headerTitleText}`)).toContainText("Repo1");
+      expect(helper.q(`.${styles.headerTitleUrl}`)).toContainText("https://example.com/");
+      expect(helper.q(`.${styles.comment}`))
+        .toContainText("A very very long commit message which will be trimmed after 82 characters and thi...");
+      expect(helper.q(`.${styles.committerInfo}`))
+        .toContainText("A_Long_username_with_a_long_long_long... | df31759540dc28f75a20f443a19b1148df317...");
+    });
 
   it("should render a warning message when plugin is missing", () => {
     const repo = createConfigRepoParsedWithError();
@@ -396,14 +403,15 @@ describe("ConfigReposWidget", () => {
   it('should render error msg when the anchor element is not present', () => {
     let scrollManager: ScrollManager;
     scrollManager = {
-      hasTarget:    jasmine.createSpy().and.callFake(() => true),
-      getTarget:    jasmine.createSpy().and.callFake(() => "cr-test"),
+      hasTarget: jasmine.createSpy().and.callFake(() => true),
+      getTarget: jasmine.createSpy().and.callFake(() => "cr-test"),
       shouldScroll: jasmine.createSpy(),
-      setTarget:    jasmine.createSpy(),
-      scrollToEl:   jasmine.createSpy()
+      setTarget: jasmine.createSpy(),
+      scrollToEl: jasmine.createSpy()
     };
     helper.unmount();
     helper.mount(() => <ConfigReposWidget {...{
+      flushEtag: _.noop,
       models,
       pluginInfos,
       sm: scrollManager

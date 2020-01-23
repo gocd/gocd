@@ -23,8 +23,10 @@ import styles from "./index.scss";
 const classnames = bind(styles);
 
 interface Attrs {
+  initialSelection?: number;
   tabs: m.Child[] | any;
   contents: m.Child[] | any;
+  callback?: (selectedTabIndex: number) => void;
 }
 
 interface State {
@@ -34,7 +36,7 @@ interface State {
 
 export class Tabs extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>): any {
-    vnode.state.selectedTabIndex = Stream(0);
+    vnode.state.selectedTabIndex = Stream(vnode.attrs.initialSelection || 0);
     vnode.state.isSelected       = (index: number) => {
       return vnode.state.selectedTabIndex() === index;
     };
@@ -46,7 +48,12 @@ export class Tabs extends MithrilComponent<Attrs, State> {
         {vnode.attrs.tabs.map((tab: any, index: number) => {
           const classesToApply = classnames(styles.tabHead, {[styles.active]: vnode.state.isSelected(index)});
 
-          return <li onclick={() => vnode.state.selectedTabIndex(index)}>
+          return <li onclick={() => {
+            if (vnode.attrs.callback) {
+              vnode.attrs.callback(index);
+            }
+            return vnode.state.selectedTabIndex(index);
+          }}>
             <a class={classesToApply}
                href={"javascript:void(0);"}
                data-test-id={`tab-header-${index}`}
@@ -60,7 +67,7 @@ export class Tabs extends MithrilComponent<Attrs, State> {
         {vnode.attrs.contents.map((content: any, index: number) => {
           return [
             <h3 class={classnames(styles.tabAccordionHeading,
-                                      {[styles.active]: vnode.state.isSelected(index)})}
+              {[styles.active]: vnode.state.isSelected(index)})}
                 onclick={() => vnode.state.selectedTabIndex(index)}>
               {vnode.attrs.tabs[index]}
             </h3>,

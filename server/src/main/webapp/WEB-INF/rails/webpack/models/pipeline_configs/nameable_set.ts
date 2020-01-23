@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ export interface Nameable extends Validatable {
 // Specialized Set<T> implementation where member equality is based on only the `name`
 // of the material, and NOT the identity or the structure.
 export class NameableSet<T extends Nameable> extends ValidatableMixin implements Set<T> {
-
   get size(): number {
     return this._members.size;
   }
@@ -33,14 +32,15 @@ export class NameableSet<T extends Nameable> extends ValidatableMixin implements
     return this._members.size;
   }
 
-  [Symbol.toStringTag]: string = `NameableSet`;
+  [Symbol.toStringTag]: string     = `NameableSet`;
   private _members: Map<string, T> = new Map(); // preserves insertion order
 
-  constructor(items: T[]) {
+  constructor(items?: readonly T[] | null) {
     super();
+    Object.setPrototypeOf(this, Object.create(NameableSet.prototype));
 
-    for (let i = 0, len = items.length; i < len; i++) {
-      this.add(items[i]);
+    if (items) {
+      items.forEach(this.add.bind(this));
     }
   }
 

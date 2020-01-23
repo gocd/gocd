@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 
 import {SparkRoutes} from "helpers/spark_routes";
+import {EnvironmentVariable, EnvironmentVariables} from "models/environment_variables/types";
 import {GitMaterialAttributes, Material} from "models/materials/types";
-import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import {Job} from "models/pipeline_configs/job";
 import {PipelineParameter} from "models/pipeline_configs/parameter";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
@@ -24,8 +24,9 @@ import {Stage} from "models/pipeline_configs/stage";
 import {ExecTask} from "models/pipeline_configs/task";
 
 describe("PipelineConfig model", () => {
-  const defaultMaterials = [new Material("git", new GitMaterialAttributes(undefined, true, "https://github.com/gocd/gocd"))];
-  const defaultStages = [new Stage("stage1", [new Job("job1", [new ExecTask("echo", [])], [])])];
+  const defaultMaterials = [new Material("git",
+                                         new GitMaterialAttributes(undefined, true, "https://github.com/gocd/gocd"))];
+  const defaultStages    = [new Stage("stage1", [new Job("job1", [new ExecTask("echo", [])])])];
 
   it("should include a name", () => {
     let pip = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
@@ -38,11 +39,15 @@ describe("PipelineConfig model", () => {
   });
 
   it("validate name format", () => {
-    const pip = new PipelineConfig("my awesome pipeline that has a terrible name", defaultMaterials, defaultStages).withGroup("foo");
+    const pip = new PipelineConfig("my awesome pipeline that has a terrible name",
+                                   defaultMaterials,
+                                   defaultStages).withGroup("foo");
     expect(pip.isValid()).toBe(false);
     expect(pip.errors().count()).toBe(1);
     expect(pip.errors().keys()).toEqual(["name"]);
-    expect(pip.errors().errorsForDisplay("name")).toBe("Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+    expect(pip.errors().errorsForDisplay("name"))
+      .toBe(
+        "Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
   });
 
   it("should validate mutual exclusivity of template and stages", () => {
@@ -51,14 +56,15 @@ describe("PipelineConfig model", () => {
 
     pip.template("wubba_lubba_dub_dub");
     expect(pip.isValid()).toBe(false);
-    expect(pip.errors().errorsForDisplay("template")).toBe("Pipeline stages must not be defined when using a pipeline template.");
+    expect(pip.errors().errorsForDisplay("template"))
+      .toBe("Pipeline stages must not be defined when using a pipeline template.");
 
     pip.stages().clear();
     expect(pip.isValid()).toBe(true);
   });
 
   it("should validate parameters don't have duplicate names", () => {
-    const pip = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
+    const pip    = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
     const param1 = new PipelineParameter("same_name", "foo");
     pip.parameters([param1, new PipelineParameter("same_name", "bar")]);
 
@@ -79,28 +85,44 @@ describe("PipelineConfig model", () => {
 
   it("adopts errors in server response", () => {
     const pip = new PipelineConfig("meh", [
-        new Material("git", new GitMaterialAttributes("one", true, "uh...")),
-        new Material("git", new GitMaterialAttributes("two", true, "")),
-      ], [
-        new Stage("meow", [
-          new Job("scooby", [], [
-            new EnvironmentVariableConfig(false, "FOO", "OOF"),
-            new EnvironmentVariableConfig(false, "BAR", "RAB")
-          ]), new Job("doo", [
-            new ExecTask("whoami", []),
-            new ExecTask("id", ["apache"])
-          ])
-        ]), new Stage("oink", [])
-      ]).withGroup("foo");
+      new Material("git", new GitMaterialAttributes("one", true, "uh...")),
+      new Material("git", new GitMaterialAttributes("two", true, "")),
+    ], [
+                                     new Stage("meow", [
+                                       new Job("scooby", [], new EnvironmentVariables(
+                                         new EnvironmentVariable("FOO", "OOF"),
+                                         new EnvironmentVariable("BAR", "RAB")
+                                       )), new Job("doo", [
+                                         new ExecTask("whoami", []),
+                                         new ExecTask("id", ["apache"])
+                                       ])
+                                     ]), new Stage("oink", [])
+                                   ]).withGroup("foo");
 
     const unmatched = pip.consumeErrorsResponse({
-      errors: { name: ["this name is fugly"] },
-      materials: [{}, { errors: { url: ["you dolt! you can't have a blank url"], not_exist: ["well, ain't that a doozy"] } }],
-      stages: [{ errors: { name: ["yay"] }, jobs: [
-        { errors: { name: ["ruh-roh!"] }, tasks: [], environment_variables: [{}, { errors: { name: ["BAR? yes please!"] } }] },
-        { tasks: [{ errors: { command: ["who are you?"] } }, {}] }
-      ]}, { errors: { name: ["boo"], jobs: ["all them other stages are taking our jobs"] }, jobs: [] }]
-    }, "pipeline");
+                                                  errors: {name: ["this name is fugly"]},
+                                                  materials: [{}, {
+                                                    errors: {
+                                                      url: ["you dolt! you can't have a blank url"],
+                                                      not_exist: ["well, ain't that a doozy"]
+                                                    }
+                                                  }],
+                                                  stages: [{
+                                                    errors: {name: ["yay"]}, jobs: [
+                                                      {
+                                                        errors: {name: ["ruh-roh!"]},
+                                                        tasks: [],
+                                                        environment_variables: [{}, {errors: {name: ["BAR? yes please!"]}}]
+                                                      },
+                                                      {tasks: [{errors: {command: ["who are you?"]}}, {}]}
+                                                    ]
+                                                  }, {
+                                                    errors: {
+                                                      name: ["boo"],
+                                                      jobs: ["all them other stages are taking our jobs"]
+                                                    }, jobs: []
+                                                  }]
+                                                }, "pipeline");
 
     expect(unmatched.hasErrors()).toBe(true);
     expect(unmatched.errorsForDisplay("pipeline.materials[1].notExist")).toBe("well, ain't that a doozy.");
@@ -151,7 +173,8 @@ describe("PipelineConfig model", () => {
       config.run().then((response) => {
         expect(response.getStatusCode()).toBe(202);
         expect(() => response.getOrThrow()).not.toThrow();
-        expect(JSON.parse(response.getOrThrow())).toEqual({message: `Request to schedule pipeline '${config.name()}' accepted successfully.`});
+        expect(JSON.parse(response.getOrThrow()))
+          .toEqual({message: `Request to schedule pipeline '${config.name()}' accepted successfully.`});
         done();
       });
     });
@@ -159,22 +182,23 @@ describe("PipelineConfig model", () => {
 });
 
 function stubPipelineCreateSuccess(config: PipelineConfig) {
-  jasmine.Ajax.stubRequest(SparkRoutes.pipelineConfigCreatePath(), undefined, "POST").
-  andReturn({
-    responseText:    JSON.stringify(config.toApiPayload()),
-    status:          200,
-    responseHeaders: {
-      "Content-Type": "application/vnd.go.cd.v7+json"
-    }
-  });
+  jasmine.Ajax.stubRequest(SparkRoutes.pipelineConfigCreatePath(), undefined, "POST").andReturn({
+                                                                                                  responseText: JSON.stringify(
+                                                                                                    config.toApiPayload()),
+                                                                                                  status: 200,
+                                                                                                  responseHeaders: {
+                                                                                                    "Content-Type": "application/vnd.go.cd.v7+json"
+                                                                                                  }
+                                                                                                });
 }
 
 function stubPipelineTrigger(name: string) {
   jasmine.Ajax.stubRequest(SparkRoutes.pipelineTriggerPath(name), undefined, "POST").andReturn({
-    responseText:    JSON.stringify({message: `Request to schedule pipeline '${name}' accepted successfully.`}),
-    status:          202,
-    responseHeaders: {
-      'Content-Type': 'application/vnd.go.cd.v1+json'
-    }
-  });
+                                                                                                 responseText: JSON.stringify(
+                                                                                                   {message: `Request to schedule pipeline '${name}' accepted successfully.`}),
+                                                                                                 status: 202,
+                                                                                                 responseHeaders: {
+                                                                                                   "Content-Type": "application/vnd.go.cd.v1+json"
+                                                                                                 }
+                                                                                               });
 }

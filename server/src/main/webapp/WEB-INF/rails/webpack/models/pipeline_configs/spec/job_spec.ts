@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
+import {EnvironmentVariable, EnvironmentVariables} from "models/environment_variables/types";
 import {Job} from "models/pipeline_configs/job";
 import {ExecTask} from "models/pipeline_configs/task";
 
 describe("Job model", () => {
   function validJob() {
-    return new Job("name", [new ExecTask("ls", ["-lA"])], []);
+    return new Job("name", [new ExecTask("ls", ["-lA"])]);
   }
 
   it("should include a name", () => {
@@ -28,13 +28,13 @@ describe("Job model", () => {
     expect(job.isValid()).toBe(true);
     expect(job.errors().count()).toBe(0);
 
-    job = new Job("", [new ExecTask("ls", [])], []);
+    job = new Job("", [new ExecTask("ls", [])]);
     expect(job.isValid()).toBe(false);
     expect(job.errors().count()).toBe(1);
   });
 
   it("validate name format", () => {
-    const job = new Job("my awesome job that has a terrible name", [new ExecTask("ls", ["-lA"])], []);
+    const job = new Job("my awesome job that has a terrible name", [new ExecTask("ls", ["-lA"])]);
     expect(job.isValid()).toBe(false);
     expect(job.errors().count()).toBe(1);
     expect(job.errors().keys()).toEqual(["name"]);
@@ -42,7 +42,7 @@ describe("Job model", () => {
   });
 
   it("should include at least one task", () => {
-    const job = new Job("awesome-job", [], []);
+    const job = new Job("awesome-job");
     expect(job.isValid()).toBe(false);
     expect(job.errors().count()).toBe(1);
     expect(job.errors().keys()).toEqual(["tasks"]);
@@ -51,17 +51,16 @@ describe("Job model", () => {
 
   it("adopts errors in server response", () => {
     const job = new Job("scooby", [
-      new ExecTask("whoami", []),
-      new ExecTask("id", ["apache"])
-    ], [
-      new EnvironmentVariableConfig(false, "FOO", "OOF"),
-      new EnvironmentVariableConfig(false, "BAR", "RAB")
-    ]);
+        new ExecTask("whoami", []),
+        new ExecTask("id", ["apache"])
+      ],
+      new EnvironmentVariables(new EnvironmentVariable("FOO", "OOF"), new EnvironmentVariable("BAR", "RAB"))
+    );
 
     const unmatched = job.consumeErrorsResponse({
-      errors: { name: ["ruh-roh!"] },
-      tasks: [{ errors: { command: ["who are you?"], not_exist: ["well, ain't that a doozy"] } }, {}],
-      environment_variables: [{}, { errors: { name: ["BAR? yes please!"] } }]
+      errors: {name: ["ruh-roh!"]},
+      tasks: [{errors: {command: ["who are you?"], not_exist: ["well, ain't that a doozy"]}}, {}],
+      environment_variables: [{}, {errors: {name: ["BAR? yes please!"]}}]
     });
 
     expect(unmatched.hasErrors()).toBe(true);
@@ -82,7 +81,7 @@ describe("Job model", () => {
     const job = validJob();
     expect(job.toApiPayload()).toEqual({
       name: "name",
-      environment_variables: [ ],
+      environment_variables: [],
       tasks: [{
         type: "exec",
         attributes: {

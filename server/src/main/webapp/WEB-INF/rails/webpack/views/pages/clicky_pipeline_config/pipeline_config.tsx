@@ -17,9 +17,9 @@
 import m from "mithril";
 import {PipelineConfig} from "models/new_pipeline_configs/pipeline_config";
 import {Page, PageState} from "views/pages/page";
-import {PipelineConfigWidget} from "views/pages/pipeline_config/pipeline_config_widget";
-import {MessageType} from "../components/flash_message";
+import {PipelineConfigWidget} from "views/pages/clicky_pipeline_config/pipeline_config_widget";
 import {ApiResult, ErrorResponse, SuccessResponse} from "../../helpers/api_request_builder";
+import {MessageType} from "../components/flash_message";
 
 interface State {
   pipelineConfig: PipelineConfig;

@@ -323,9 +323,6 @@ class BuildAssignmentServiceTest {
             pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
 
             final AgentInstance agentInstance = mock(AgentInstance.class);
-            when(agentInstance.getResourceConfigs()).thenReturn (mock (ResourceConfigs.class));
-            agentInstance.getResourceConfigs().add(new ResourceConfig("resource-1"));
-            agentInstance.getResourceConfigs().add(new ResourceConfig("resource-2"));
 
             final Pipeline pipeline = mock(Pipeline.class);
             final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
@@ -352,6 +349,7 @@ class BuildAssignmentServiceTest {
             verifyZeroInteractions(jobStatusTopic);
             ScmMaterial material = (ScmMaterial) work.getAssignment().materialRevisions().getMaterialRevision(0).getMaterial();
             assertThat(material.passwordForCommandLine()).isEqualTo("some-password");
+            assertThat(work.getAssignment().initialEnvironmentVariableContext().hasProperty(GO_AGENT_RESOURCES)).isFalse();
         }
 
         @Test

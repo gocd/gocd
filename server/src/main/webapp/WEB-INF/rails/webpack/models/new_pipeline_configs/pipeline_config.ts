@@ -26,20 +26,20 @@ import {NameableSet} from "./nameable_set";
 import {StageConfig} from "./stage_configuration";
 
 export class PipelineConfig extends ValidatableMixin {
-  group: Stream<string>    = Stream();
+  group: Stream<string>                                     = Stream();
   name: Stream<string>;
-  labelTemplate: Stream<string> = Stream("${COUNT}");
-  automaticScheduling: Stream<boolean> = Stream();
-  timerSpecification: Stream<string> = Stream();
-  runOnNewMaterial: Stream<boolean> = Stream();
-  lockingBehaviour: Stream<string> = Stream("multiple_instances");
-  template: Stream<string> = Stream();
+  labelTemplate: Stream<string>                             = Stream("${COUNT}");
+  automaticScheduling: Stream<boolean>                      = Stream();
+  timerSpecification: Stream<string>                        = Stream();
+  runOnNewMaterial: Stream<boolean>                         = Stream();
+  lockingBehaviour: Stream<string>                          = Stream("multiple_instances");
+  template: Stream<string>                                  = Stream();
   materials: Stream<Materials>;
   environmentVariables: Stream<EnvironmentVariableConfig[]> = Stream();
-  parameters: Stream<Parameter[]> = Stream();
+  parameters: Stream<Parameter[]>                           = Stream();
   stages: Stream<NameableSet<StageConfig>>;
-  useTrackingTool: Stream<boolean> = Stream();
-  trackingTool: TrackingTool = new TrackingTool();
+  useTrackingTool: Stream<boolean>                          = Stream();
+  trackingTool: TrackingTool                                = new TrackingTool();
 
   constructor(name: string, materials: Material[], stages: StageConfig[]) {
     super();
@@ -62,8 +62,12 @@ export class PipelineConfig extends ValidatableMixin {
     this.validateAssociated("stages");
 
     this.validateMutualExclusivityOf("template",
-                                     "stages",
-                                     {message: "Pipeline stages must not be defined when using a pipeline template"});
+      "stages",
+      {message: "Pipeline stages must not be defined when using a pipeline template"});
+  }
+
+  static get(name: string) {
+    return ApiRequestBuilder.GET(SparkRoutes.getPipelineConfigPath(name), ApiVersion.v1);
   }
 
   withGroup(group: string) {
@@ -93,5 +97,5 @@ export class PipelineConfig extends ValidatableMixin {
 
 class TrackingTool {
   pattern: Stream<string> = Stream();
-  uri: Stream<string> = Stream();
+  uri: Stream<string>     = Stream();
 }

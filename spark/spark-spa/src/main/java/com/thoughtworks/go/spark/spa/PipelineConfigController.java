@@ -52,9 +52,17 @@ public class PipelineConfigController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
+        String pipelineName = request.params("pipeline_name");
         Map<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "PipelineConfig");
+            put("viewTitle", "Pipeline");
+            put("meta", meta(pipelineName));
         }};
         return new ModelAndView(object, null);
+    }
+
+    private Map<String, Object> meta(String pipelineName) {
+        final Map<String, Object> meta = new HashMap<>();
+        meta.put("pipelineName", pipelineName);
+        return meta;
     }
 }

@@ -14,18 +14,26 @@
  * limitations under the License.
  */
 
-interface EmbeddedJSON {
-  dummy?: boolean;
-  // to be implemented
+@import "../../global/common";
+
+.main-container {
+  display: flex;
 }
 
-interface PipelineConfigJSON {
-  _embedded: EmbeddedJSON;
+.navigation {
+  display:       flex;
+  min-width:     200px;
+  border-radius: $global-border-radius;
+  background:    $white;
+  padding:       8px 16px;
+  margin-right:  16px;
 }
 
-export class PipelineConfig {
-  // to be implemented
-  static fromJSON(data: PipelineConfigJSON) {
-    // to be implemented
-  }
+.entity_config_container {
+  display:       flex;
+  border-radius: $global-border-radius;
+  background:    $white;
+  padding:       8px 16px;
+  flex-grow:     1;
 }
+

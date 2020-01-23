@@ -15,25 +15,50 @@
  */
 
 import m from "mithril";
-import {PipelineConfig} from "models/pipeline_config/pipeline_config";
+import {PipelineConfig} from "models/new_pipeline_configs/pipeline_config";
+import {Page, PageState} from "views/pages/page";
 import {PipelineConfigWidget} from "views/pages/pipeline_config/pipeline_config_widget";
-import {Page} from "views/pages/page";
+import {MessageType} from "../components/flash_message";
+import {ApiResult, ErrorResponse, SuccessResponse} from "../../helpers/api_request_builder";
 
 interface State {
-  dummy?: PipelineConfig;
+  pipelineConfig: PipelineConfig;
+  meta: PageMeta;
+}
+
+interface PageMeta {
+  pipelineName: string;
 }
 
 export class PipelineConfigPage extends Page<null, State> {
+  oninit(vnode: m.Vnode<null, State>) {
+    super.oninit(vnode);
+    vnode.state.meta = this.getMeta() as PageMeta;
+  }
+
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     return <PipelineConfigWidget/>;
   }
 
   pageName(): string {
-    return "SPA Name goes here!";
+    return "Pipelines";
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    // to be implemented
-    return Promise.resolve();
+    return PipelineConfig.get(vnode.state.meta.pipelineName).then(this.handleActionApiResponse.bind(this));
+  }
+
+  private handleActionApiResponse(result: ApiResult<string>) {
+    result.do(this.onSuccess.bind(this), this.onFailure.bind(this));
+  }
+
+  private onFailure(errorResponse: ErrorResponse) {
+    this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+    this.pageState = PageState.OK;
+  }
+
+  private onSuccess(successResponse: SuccessResponse<string>) {
+    console.log(successResponse);
+    this.pageState = PageState.OK;
   }
 }

@@ -64,6 +64,10 @@ export class SparkRoutes {
     return `/go/api/admin/pipelines`;
   }
 
+  static getPipelineConfigPath(pipelineName: string): string {
+    return `/go/api/admin/pipelines/${pipelineName}`;
+  }
+
   static pipelinePausePath(pipelineName: string): string {
     return `/go/api/pipelines/${pipelineName}/pause`;
   }

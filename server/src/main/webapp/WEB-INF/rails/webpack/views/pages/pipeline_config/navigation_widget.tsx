@@ -17,20 +17,13 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {PipelineConfig} from "models/new_pipeline_configs/pipeline_config";
-import styles from "./index.scss";
-import {NavigationWidget} from "./navigation_widget";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;
 }
 
-export class PipelineConfigWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
-    return <div class={styles.mainContainer}>
-      <div class={styles.navigation}>
-        <NavigationWidget pipelineConfig={vnode.attrs.pipelineConfig}/>
-      </div>
-      <div class={styles.entityConfigContainer}>Right</div>
-    </div>;
+export class NavigationWidget extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs, this>): m.Children {
+    return <div>{vnode.attrs.pipelineConfig.name()}</div>;
   }
 }

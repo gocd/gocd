@@ -37,6 +37,7 @@ export abstract class MithrilViewComponent<Attrs = {}> implements m.ClassCompone
 
 export interface RestyleAttrs<T> {
   [key: string]: any;
+
   css?: T;
 }
 
@@ -48,7 +49,7 @@ export abstract class RestyleViewComponent<S, Attrs extends RestyleAttrs<S> = Re
   }
 }
 
-export abstract class RestyleComponent<S, Attrs extends RestyleAttrs<S> = RestyleAttrs<S>, State= {}> extends MithrilComponent<Attrs, State> {
+export abstract class RestyleComponent<S, Attrs extends RestyleAttrs<S> = RestyleAttrs<S>, State = {}> extends MithrilComponent<Attrs, State> {
   abstract css: S;
 
   oninit(vnode: m.Vnode<Attrs, State>) {
@@ -63,5 +64,17 @@ interface Restylable<T> {
 function adoptStylesheet<T, U extends RestyleAttrs<T>>(receiver: Restylable<T>, vnode: m.Vnode<U>) {
   if (vnode.attrs.css) {
     receiver.css = vnode.attrs.css;
+  }
+}
+
+// Set up type checks
+declare global {
+  namespace JSX {
+    // Where to look for component type information
+    interface ElementAttributesProperty {
+      __tsx_attrs: any;
+
+      [name: string]: any;
+    }
   }
 }

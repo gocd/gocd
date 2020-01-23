@@ -82,36 +82,7 @@ class ApprovalRepresenterTest {
     }
 
     @Test
-    void 'should not serialize allow_only_on_success if type is success'() {
-      Approval successApproval = Approval.automaticApproval()
-      def expectedJSON = [
-        type         : "success",
-        authorization: [
-          roles: [],
-          users: []
-        ]
-      ]
-
-      def actualJson = toObjectString({ ApprovalRepresenter.toJSON(it, successApproval) })
-
-      assertThatJson(actualJson).isEqualTo(expectedJSON)
-    }
-
-    @Test
-    void 'should not serialize allow_only_on_success if it is not set'() {
-      def approval = approvalObject()
-      approval.allowOnlyOnSuccess = false
-      def actualJson = toObjectString({ ApprovalRepresenter.toJSON(it, approval) })
-
-      def expectedJSON = inputHash
-      expectedJSON.remove("allow_only_on_success")
-
-      assertThatJson(actualJson).isEqualTo(expectedJSON)
-
-    }
-
-    @Test
-    void 'should deserialize allow_only_on_success if type is success'() {
+    void 'should always deserialize allow_only_on_success'() {
       def inputJSON = inputHash
       inputJSON.replace("type", "success")
 
@@ -123,9 +94,9 @@ class ApprovalRepresenterTest {
     }
 
     def inputHash = [
-      type               : "manual",
+      type                 : "manual",
       allow_only_on_success: true,
-      authorization      : [
+      authorization        : [
         roles: [],
         users: []
       ]
@@ -140,8 +111,9 @@ class ApprovalRepresenterTest {
 
   def approvalHash =
     [
-      type         : "manual",
-      authorization: [
+      type                 : "manual",
+      allow_only_on_success: false,
+      authorization        : [
         roles: ["role1", "role2"],
         users: ["user1", "user2"]
       ]
@@ -155,15 +127,16 @@ class ApprovalRepresenterTest {
 
   def approvalHashWithErrors =
     [
-      type         : "junk",
-      authorization: [
+      type                 : "junk",
+      allow_only_on_success: false,
+      authorization        : [
         roles : ["role1"],
         users : ["user1"],
         errors: [
           name: ["error"]
         ]
       ],
-      errors       : [
+      errors               : [
         type: ["You have defined approval type as 'junk'. Approval can only be of the type 'manual' or 'success'."]
       ]
     ]

@@ -33,6 +33,7 @@ import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -293,7 +294,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                     final EnvironmentVariableContext environmentVariableContext = buildEnvVarContext(job.getIdentifier().getPipelineName());
 
                     // Agent may have a NULL "resources"
-                    if (agent.getResourceConfigs() != null) {
+                    if (CollectionUtils.isNotEmpty(agent.getResourceConfigs())) {
                         // Users relying on this env. var. can test for its existence rather than checking for an empty string
                         environmentVariableContext.setProperty(GO_AGENT_RESOURCES, agent.getResourceConfigs().getCommaSeparatedResourceNames(), false);
                     }

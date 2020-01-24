@@ -2001,6 +2001,61 @@ public class GoConfigMigrationIntegrationTest {
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
     }
 
+    @Test
+    public void shouldMigratePipelineLabelTemplateColonToUnderscore_Migration134To135() {
+        String originalConfig = "<repositories>\n" +
+                "    <repository id=\"0c24bd20-2b24-4fba-9410-aea494d29bf5\" name=\"npm\">\n" +
+                "      <pluginConfiguration id=\"npm\" version=\"1\" />\n" +
+                "      <configuration>\n" +
+                "        <property>\n" +
+                "          <key>REPO_URL</key>\n" +
+                "          <value>http://npmjs.com/</value>\n" +
+                "        </property>\n" +
+                "      </configuration>\n" +
+                "      <packages>\n" +
+                "        <package id=\"07951410-c70e-4a91-be53-8968cf0c07bc\" name=\"my-package\">\n" +
+                "          <configuration>\n" +
+                "            <property>\n" +
+                "              <key>PACKAGE_ID</key>\n" +
+                "              <value>v1.0.0</value>\n" +
+                "            </property>\n" +
+                "          </configuration>\n" +
+                "        </package>\n" +
+                "      </packages>\n" +
+                "    </repository>\n" +
+                "  </repositories>" +
+                "<pipelines group=\"first\">"
+                + "    <pipeline name=\"Test\" template=\"test_template\" labeltemplate=\"${npm:my-package}\">"
+                + "      <materials>"
+                + "          <git url=\"http://\" dest=\"dest_dir14\" />"
+                + "      </materials>"
+                + "     </pipeline>"
+                + "  </pipelines>"
+                + "  <templates>"
+                + "    <pipeline name=\"test_template\">"
+                + "      <stage name=\"Functional\">"
+                + "        <approval type=\"manual\" />"
+                + "        <jobs>"
+                + "          <job name=\"Functional\">"
+                + "            <tasks>"
+                + "              <exec command=\"echo\" args=\"Hello World!!!\" />"
+                + "            </tasks>"
+                + "           </job>"
+                + "        </jobs>"
+                + "      </stage>"
+                + "    </pipeline>"
+                + "  </templates>";
+
+        String configXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"134\">" + originalConfig + "</cruise>";
+
+        String expectedConfig = configXml.replace("134", "135").replace("npm:my-package", "npm_my-package");
+
+        final String migratedXml = ConfigMigrator.migrate(configXml, 134, 135);
+        XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
+    }
+
     private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {
         assertThat(actual.replaceAll("\\r", "")).contains(substring.replaceAll("\\r", ""));
     }

@@ -26,9 +26,7 @@ import com.thoughtworks.go.helper.ModificationsMother;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.domain.InsecureEnvironmentVariables.EMPTY_ENV_VARS;
 import static com.thoughtworks.go.domain.label.PipelineLabel.defaultLabel;
@@ -280,6 +278,34 @@ public class PipelineLabelTest {
         PipelineLabel label = PipelineLabel.create("release-${env:VAR}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         label.updateLabel(Collections.emptyMap(), 1);
         assertThat(label.toString(), is("release-"));
+    }
+
+    @Test
+    public void PipelineLabelTemplateMigration_shouldMigrateColonToUnderscoreForPackageMaterial() {
+        List<List<String>> expectations = Arrays.asList(
+                Arrays.asList("${COUNT}", "${COUNT}"),
+                Arrays.asList("something-${COUNT}", "something-${COUNT}"),
+                Arrays.asList("begin-${COUNT}-end", "begin-${COUNT}-end"),
+
+                Arrays.asList("${repo:package}", "${repo_package}"),
+                Arrays.asList("start-${repo:package}-end", "start-${repo_package}-end"),
+
+                Arrays.asList("release:v1-${repo:package}", "release:v1-${repo_package}"),
+                Arrays.asList("release:v1-${repo:package}:${svn}", "release:v1-${repo_package}:${svn}"),
+                Arrays.asList("release:v1-${repo:package}:${github[:7]}:${svn}", "release:v1-${repo_package}:${github[:7]}:${svn}"),
+                Arrays.asList("release:v1-${repo:package[:5]}:${github[:7]}:${svn}", "release:v1-${repo_package[:5]}:${github[:7]}:${svn}"),
+                Arrays.asList("start-release:v1-${repo:package}:${github[:7]}:${svn}-end", "start-release:v1-${repo_package}:${github[:7]}:${svn}-end"),
+
+                Arrays.asList("${env:var}", "${env:var}"),
+                Arrays.asList("${env:my:fancy:env}", "${env:my:fancy:env}"),
+
+                Arrays.asList("${repo:package[:5]}-${env:var}", "${repo_package[:5]}-${env:var}"),
+
+                Arrays.asList("#{my.fancy.param}", "#{my.fancy.param}"),
+                Arrays.asList("#{my:fancy:param}", "#{my:fancy:param}")
+        );
+
+        expectations.forEach((exp) -> assertThat(PipelineLabel.migratePipelineLabelTemplate(exp.get(0)), is(exp.get(1))));
     }
 
     @BeforeClass

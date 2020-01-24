@@ -17,6 +17,7 @@ package com.thoughtworks.go.domain.label;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.InsecureEnvironmentVariables;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
@@ -45,6 +46,7 @@ public class PipelineLabel implements Serializable {
         return label;
     }
 
+    public static final Pattern PIPELINE_LABEL_TEMPLATE_PATTERN_FOR_MIGRATION = Pattern.compile("(\\$\\{[^}]*\\})");
     public static final Pattern PATTERN = Pattern.compile("\\$\\{(?<name>[^}\\[]+)(?:\\[:(?<truncation>\\d+)])?}");
 
     public void updateLabel(Map<CaseInsensitiveString, String> namedRevisions, int pipelineCounter) {
@@ -128,5 +130,20 @@ public class PipelineLabel implements Serializable {
 
     public static PipelineLabel defaultLabel() {
         return new PipelineLabel(PipelineLabel.COUNT_TEMPLATE, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
+    }
+
+    // used for XSLT, needs to be static
+    public static String migratePipelineLabelTemplate(String labelTemplate) {
+        Matcher matcher = PIPELINE_LABEL_TEMPLATE_PATTERN_FOR_MIGRATION.matcher(labelTemplate);
+
+        while (matcher.find()) {
+            String group = matcher.group(1);
+            if (!StringUtils.startsWith(group, "${env:")) {
+                String replacementText = RegExUtils.replaceFirst(group, "(?<!\\[):", "_");
+                labelTemplate = labelTemplate.replace(group, replacementText);
+            }
+        }
+
+        return labelTemplate;
     }
 }

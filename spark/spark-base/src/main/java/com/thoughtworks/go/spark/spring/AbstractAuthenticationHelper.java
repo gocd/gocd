@@ -37,6 +37,7 @@ import spark.Response;
 import java.util.List;
 
 import static com.thoughtworks.go.config.exceptions.EntityType.Pipeline;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public abstract class AbstractAuthenticationHelper {
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractAuthenticationHelper.class);
@@ -147,7 +148,7 @@ public abstract class AbstractAuthenticationHelper {
             return;
         }
         String templateName = request.params("template_name");
-        if (StringUtils.isNotBlank(templateName) && !securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString(templateName), currentUsername())) {
+        if (isNotBlank(templateName) && !securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString(templateName), currentUsername())) {
             throw renderForbiddenResponse();
         }
 
@@ -162,7 +163,7 @@ public abstract class AbstractAuthenticationHelper {
         }
 
         String templateName = request.params("template_name");
-        if (StringUtils.isNotBlank(templateName) && !securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString(templateName), currentUsername())) {
+        if (isNotBlank(templateName) && !securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString(templateName), currentUsername())) {
             throw renderForbiddenResponse();
         }
 
@@ -181,7 +182,9 @@ public abstract class AbstractAuthenticationHelper {
             throw new UnprocessableEntityException("Pipeline group must be specified for creating a pipeline.");
         } else {
             String groupName = group.getAsString();
-            if (StringUtils.isNotBlank(groupName) && !securityService.isUserAdminOfGroup(currentUsername(), groupName)) {
+            boolean groupDoesNotExists = !goConfigService.groups().hasGroup(groupName);
+            boolean userNotAdminOfTheGrp = !securityService.isUserAdminOfGroup(currentUsername(), groupName);
+            if (isNotBlank(groupName) && (groupDoesNotExists || userNotAdminOfTheGrp)) {
                 throw renderForbiddenResponse();
             }
         }

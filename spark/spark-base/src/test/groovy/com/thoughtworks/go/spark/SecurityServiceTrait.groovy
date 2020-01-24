@@ -28,6 +28,7 @@ import com.thoughtworks.go.util.SystemEnvironment
 import org.junit.jupiter.api.AfterEach
 
 import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.anyString
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -84,14 +85,15 @@ trait SecurityServiceTrait {
     Username username = loginAsRandomUser()
     String groupName = generateGroupName()
 
+    PipelineGroups groups = mock(PipelineGroups.class)
+    when(goConfigService.groups()).thenReturn(groups)
+    when(groups.hasGroup(anyString())).thenReturn(true)
+
     when(securityService.isUserAdmin(username)).thenReturn(false)
     when(securityService.isUserGroupAdmin(username)).thenReturn(true)
     when(securityService.isUserAdminOfGroup(eq(username.username) as CaseInsensitiveString, eq(groupName))).thenReturn(true)
     when(securityService.isUserAdminOfGroup(eq(username) as Username, any(String.class))).thenReturn(true)
 
-    PipelineGroups groups = mock(PipelineGroups.class)
-    when(goConfigService.groups()).thenReturn(groups)
-    when(groups.hasGroup(groupName)).thenReturn(true)
     when(securityService.hasOperatePermissionForGroup(username.username, groupName)).thenReturn(true)
     when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn(groupName)
   }
@@ -119,6 +121,10 @@ trait SecurityServiceTrait {
 
   void loginAsTemplateAdmin() {
     Username username = loginAsRandomUser()
+
+    PipelineGroups groups = mock(PipelineGroups.class)
+    when(goConfigService.groups()).thenReturn(groups)
+    when(groups.hasGroup(anyString())).thenReturn(true)
 
     when(securityService.isUserAdmin(username)).thenReturn(false)
     when(securityService.isUserGroupAdmin(username)).thenReturn(false)

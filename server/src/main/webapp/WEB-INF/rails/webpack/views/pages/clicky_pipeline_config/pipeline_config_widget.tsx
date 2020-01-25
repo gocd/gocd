@@ -19,8 +19,10 @@ import _ from 'lodash';
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {EnvironmentVariablesWidget} from "views/components/environment_variables";
+import {Link} from "views/components/link";
 import {Tabs} from "views/components/tab";
 import {ChangeRouteEvent} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {AngleDoubleRight} from "views/components/icons";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;
@@ -51,20 +53,54 @@ const tabs = [{
 
 export class PipelineConfigWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    return <Tabs initialSelection={this.selectedTabIndex()}
-                 tabs={tabs.map((eachTab) => eachTab.name)}
-                 contents={tabs.map((eachTab) => eachTab.renderer(vnode.attrs.pipelineConfig))}
-                 beforeChange={this.onTabChange.bind(this, vnode)}/>;
+    this.header();
+    return [<div>{this.header()}</div>,
+      <Tabs initialSelection={this.selectedTabIndex()}
+            tabs={tabs.map((eachTab) => eachTab.name)}
+            contents={tabs.map((eachTab) => eachTab.renderer(vnode.attrs.pipelineConfig))}
+            beforeChange={this.onTabChange.bind(this, vnode)}/>
+    ];
   }
 
-  private onTabChange(vnode: m.Vnode<Attrs>, index: number, success: () => void) {
+  private onTabChange(vnode: m.Vnode<Attrs>, index: number, callback: () => void) {
     const route = `${vnode.attrs.pipelineConfig.name()}/${_.snakeCase(tabs[index].name)}`;
-    return vnode.attrs.changeRoute({newRoute: route}, success);
+    vnode.attrs.changeRoute({newRoute: route}, () => {
+      callback();
+      if (m.route.get() !== route) {
+        m.route.set(route);
+      }
+    });
   }
 
   private selectedTabIndex() {
     return tabs.findIndex((eachTab) => {
       return _.snakeCase(eachTab.name) === m.route.param().tab_name;
     });
+  }
+
+  private header() {
+    const params = m.route.param();
+    if (params.job_name) {
+      return [
+        <Link onclick={() => m.route.set(`${params.pipeline_name}/${params.tab_name}`)}>{params.pipeline_name}</Link>,
+        <AngleDoubleRight iconOnly={true}/>,
+        <Link
+          onclick={() => m.route.set(`${params.pipeline_name}/${params.stage_name}/${params.tab_name}`)}>{params.stage_name}</Link>,
+        <AngleDoubleRight iconOnly={true}/>,
+        <label>{params.job_name}</label>
+      ];
+    }
+
+    if (params.stage_name) {
+      return [
+        <Link onclick={() => m.route.set(`${params.pipeline_name}/${params.tab_name}`)}>{params.pipeline_name}</Link>,
+        <AngleDoubleRight iconOnly={true}/>,
+        <label>{params.stage_name}</label>
+      ];
+    }
+
+    if (params.pipeline_name) {
+      return [<label>{params.pipeline_name}</label>];
+    }
   }
 }

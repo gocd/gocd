@@ -27,13 +27,15 @@
   background:    $white;
   padding:       8px 16px;
   margin-right:  16px;
+  width:         200px;
 }
 
 .entity_config_container {
-  display:       flex;
-  border-radius: $global-border-radius;
-  background:    $white;
-  padding:       8px 16px;
-  flex-grow:     1;
+  display:        flex;
+  border-radius:  $global-border-radius;
+  background:     $white;
+  padding:        8px 16px;
+  flex-grow:      1;
+  flex-direction: column;
 }
 

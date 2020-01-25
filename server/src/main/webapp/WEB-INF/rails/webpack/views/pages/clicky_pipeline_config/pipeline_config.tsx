@@ -19,7 +19,7 @@ import _ from 'lodash';
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {Tree} from "views/components/hierarchy/tree";
+import {NavigationWidget} from "views/pages/clicky_pipeline_config/navigation_widget";
 import {PipelineConfigWidget} from "views/pages/clicky_pipeline_config/pipeline_config_widget";
 import {Page, PageState} from "views/pages/page";
 import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
@@ -55,7 +55,6 @@ export class PipelineConfigPage<T> extends Page<null, T> {
         "There are unsaved changes on your form. 'Proceed' will discard these changes",
         () => {
           this.pipelineConfig = PipelineConfig.fromJSON(this.originalJSON);
-          m.route.set(event.newRoute);
           return Promise.resolve(success());
         }
       ).render();
@@ -74,14 +73,8 @@ export class PipelineConfigPage<T> extends Page<null, T> {
       <div class={styles.mainContainer}>
         <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/>
         <div class={styles.navigation}>
-          <Tree datum={'p1'}>
-            <Tree datum={'s1'}>
-              <Tree datum={'j1'}/>
-              <Tree datum={'j2'}/>
-            </Tree>
-            <Tree datum={'s2'}/>
-          </Tree>
-
+          <NavigationWidget pipelineConfig={this.pipelineConfig!}
+                            changeRoute={this.changeRoute.bind(this)}/>
         </div>
 
         <div class={styles.entityConfigContainer}>

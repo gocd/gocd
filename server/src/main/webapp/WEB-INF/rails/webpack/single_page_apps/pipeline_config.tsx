@@ -31,6 +31,8 @@ export class PipelineConfigSPA extends RoutedSinglePageApp {
     super({
       "/": new RedirectToGeneralTab(),
       "/:pipeline_name/:tab_name": new PipelineConfigPage(),
+      "/:pipeline_name/:stage_name/:tab_name": new PipelineConfigPage(),
+      "/:pipeline_name/:stage_name/:job_name/:tab_name": new PipelineConfigPage()
     });
   }
 }

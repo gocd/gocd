@@ -174,6 +174,12 @@ export class CaretDown extends Icon {
   }
 }
 
+export class CaretRight extends Icon {
+  constructor() {
+    super(styles.caretRight, "Caret Right");
+  }
+}
+
 export class StepForward extends Icon {
   constructor() {
     super(styles.stepForward, "Step Forward");
@@ -225,6 +231,12 @@ export class Repeat extends Icon {
 export class Comment extends Icon {
   constructor() {
     super(styles.comment, "Comment");
+  }
+}
+
+export class AngleDoubleRight extends Icon {
+  constructor() {
+    super(styles.angleDoubleRight, "Angle Double Right");
   }
 }
 

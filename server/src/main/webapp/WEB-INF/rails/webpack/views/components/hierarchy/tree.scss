@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import "../../global/common";
 
 $indent-width:             15px;
 $under-label-indent-width: (2 * $indent-width) / 3;
 $tree-connector-color:     #ddd;
 $tick-width:               $under-label-indent-width;
+$selected-color:           #d2ebf0;
 
 .tree, .tree-datum, .tree-child, .tree-children, .tree-children ul, .tree-children-label {
-  margin: 0;
+  margin:  0;
   padding: 0;
 }
 
@@ -35,6 +37,26 @@ $tick-width:               $under-label-indent-width;
 
 .tree-datum {
   font-weight: bold;
+  display:     flex;
+
+  span {
+    cursor:        pointer;
+    background:    $border-color;
+    border-radius: 3px;
+    padding:       0 5px;
+    font-weight:   normal;
+    font-size:     12px;
+    display:       flex;
+    word-break:    break-word;
+    white-space:   normal;
+    line-height:   1.8;
+    margin-top:    2px;
+    align-items:   center;
+
+    &.selected {
+      background: $selected-color;
+    }
+  }
 }
 
 .tree-children {
@@ -47,7 +69,7 @@ $tick-width:               $under-label-indent-width;
 
 
 .tree-child {
-  position: relative;
+  position:    relative;
   margin-left: $indent-width;
 
   &:before {
@@ -62,7 +84,7 @@ $tick-width:               $under-label-indent-width;
     content:       "";
   }
 
-  &:after{
+  &:after {
     position:    absolute;
     left:        -$indent-width;
     bottom:      0;

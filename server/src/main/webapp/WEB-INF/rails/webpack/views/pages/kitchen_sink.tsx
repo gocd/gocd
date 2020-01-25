@@ -114,6 +114,14 @@ export class KitchenSink extends MithrilViewComponent<null> {
 
     return (
       <div>
+        <form>
+          <TextField required={true}
+                     helpText="Enter your username here"
+                     docLink="configuration/quick_pipeline_setup.html#step-2-material"
+                     label="Username"
+                     placeholder="username"
+                     property={formValue}/>
+        </form>
         <HeaderPanel title="Kitchen Sink" sectionName={"Admin"} keyValuePair={{
           "Pipeline": "Up42",
           "Instance": <div>3 <Link>VSM</Link></div>,

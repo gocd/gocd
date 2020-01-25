@@ -17,6 +17,7 @@
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import {JsonUtils} from "helpers/json_utils";
 import {SparkRoutes} from "helpers/spark_routes";
+import _ from "lodash";
 import Stream from "mithril/stream";
 import {EnvironmentVariableJSON, EnvironmentVariables} from "models/environment_variables/types";
 import {MaterialJSON} from "models/materials/serialization";
@@ -80,14 +81,16 @@ export class Timer {
   spec          = Stream<string>();
   onlyOnChanges = Stream<boolean>();
 
-  constructor(spec: string,
-              onlyOnChanges: boolean) {
-    this.spec(spec);
-    this.onlyOnChanges(onlyOnChanges);
+  constructor(spec?: string, onlyOnChanges?: boolean) {
+    this.spec(spec!);
+    this.onlyOnChanges(onlyOnChanges!);
   }
 
   static fromJSON(json: TimerSpecJSON) {
-    return new Timer(json.spec, json.only_on_changes);
+    if (json) {
+      return new Timer(json.spec, json.only_on_changes);
+    }
+    return new Timer();
   }
 
   toApiPayload() {
@@ -111,8 +114,10 @@ export class TrackingTool {
 
   static fromJSON(json: TrackingToolJSON) {
     const tracingTool = new TrackingTool();
-    tracingTool.regex(json.attributes.regex);
-    tracingTool.urlPattern(json.attributes.url_pattern);
+    if (json) {
+      tracingTool.regex(json.attributes.regex);
+      tracingTool.urlPattern(json.attributes.url_pattern);
+    }
     return tracingTool;
   }
 

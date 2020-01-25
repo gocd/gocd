@@ -24,22 +24,24 @@ export interface Nameable extends Validatable {
 // Specialized Set<T> implementation where member equality is based on only the `name`
 // of the material, and NOT the identity or the structure.
 export class NameableSet<T extends Nameable> extends ValidatableMixin implements Set<T> {
+  [Symbol.toStringTag]: string = `NameableSet`;
+  private readonly _members    = new Map<string, T>(); // preserves insertion order
+
+  constructor(items?: readonly T[] | null) {
+    super();
+    Object.setPrototypeOf(this, Object.create(NameableSet.prototype));
+
+    if (items) {
+      items.forEach(this.add.bind(this));
+    }
+  }
+
   get size(): number {
     return this._members.size;
   }
 
   get length(): number {
     return this._members.size;
-  }
-
-  [Symbol.toStringTag]: string     = `NameableSet`;
-  private _members: Map<string, T> = new Map(); // preserves insertion order
-
-  constructor(items?: readonly T[] | null) {
-    super();
-    Object.setPrototypeOf(this, Object.create(NameableSet.prototype));
-
-    items?.forEach(this.add);
   }
 
   toJSON(): any {

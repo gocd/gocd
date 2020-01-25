@@ -14,25 +14,65 @@
  * limitations under the License.
  */
 
+import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
+import _ from 'lodash';
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Tree} from "views/components/hierarchy/tree";
 import {PipelineConfigWidget} from "views/pages/clicky_pipeline_config/pipeline_config_widget";
 import {Page, PageState} from "views/pages/page";
+import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 import styles from "./index.scss";
-import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
-import {MessageType} from "views/components/flash_message";
 
 interface PageMeta {
   pipelineName: string;
 }
 
+export interface ChangeRouteEvent {
+  newRoute: string;
+}
+
 export class PipelineConfigPage<T> extends Page<null, T> {
   private pipelineConfig?: PipelineConfig;
+  private originalJSON: any;
+
+  oninit(vnode: m.Vnode<null, T>) {
+    super.oninit(vnode);
+    window.addEventListener("beforeunload", (e) => {
+      if (this.isPipelineConfigChanged()) {
+        e.returnValue = "";
+        e.preventDefault();
+        return false;
+      }
+      return true;
+    });
+  }
+
+  changeRoute(event: ChangeRouteEvent, success: () => void): void {
+    if (this.isPipelineConfigChanged()) {
+      new ConfirmationDialog("Unsaved changes",
+        "There are unsaved changes on your form. 'Proceed' will discard these changes",
+        () => {
+          this.pipelineConfig = PipelineConfig.fromJSON(this.originalJSON);
+          m.route.set(event.newRoute);
+          return Promise.resolve(success());
+        }
+      ).render();
+    } else {
+      success();
+    }
+  }
+
+  isPipelineConfigChanged() {
+    const newPayload = this.pipelineConfig?.toApiPayload();
+    return !_.isEqual(newPayload, PipelineConfig.fromJSON(this.originalJSON).toApiPayload());
+  }
 
   componentToDisplay(vnode: m.Vnode<null, T>): m.Children {
     return (
       <div class={styles.mainContainer}>
+        <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/>
         <div class={styles.navigation}>
           <Tree datum={'p1'}>
             <Tree datum={'s1'}>
@@ -45,7 +85,8 @@ export class PipelineConfigPage<T> extends Page<null, T> {
         </div>
 
         <div class={styles.entityConfigContainer}>
-          <PipelineConfigWidget pipelineConfig={this.pipelineConfig!}/>
+          <PipelineConfigWidget pipelineConfig={this.pipelineConfig!}
+                                changeRoute={this.changeRoute.bind(this)}/>
         </div>
       </div>
     );
@@ -64,8 +105,8 @@ export class PipelineConfigPage<T> extends Page<null, T> {
   }
 
   private onSuccess(successResponse: SuccessResponse<string>) {
-    const json          = JSON.parse(successResponse.body);
-    this.pipelineConfig = PipelineConfig.fromJSON(json);
+    this.originalJSON   = JSON.parse(successResponse.body);
+    this.pipelineConfig = PipelineConfig.fromJSON(this.originalJSON);
     this.pageState      = PageState.OK;
   }
 

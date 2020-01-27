@@ -18,7 +18,6 @@ package com.thoughtworks.go.agent.common.ssl;
 import com.thoughtworks.go.util.SslVerificationMode;
 import com.thoughtworks.go.util.SystemEnvironment;
 
-import javax.security.auth.x500.X500Principal;
 import java.io.*;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -27,7 +26,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class GoAgentServerClientBuilder<T> {
     public static final File AGENT_CERTIFICATE_FILE = new File(new SystemEnvironment().getConfigDir(), "agent.jks");
@@ -38,19 +37,19 @@ public abstract class GoAgentServerClientBuilder<T> {
 
     public abstract T build() throws Exception;
 
-    GoAgentServerClientBuilder(SystemEnvironment systemEnvironment, File rootCertFile, File keyStoreFile, SslVerificationMode sslVerificationMode) {
+    GoAgentServerClientBuilder(SystemEnvironment systemEnvironment, File rootCertFile, SslVerificationMode sslVerificationMode) {
         this.systemEnvironment = systemEnvironment;
         this.rootCertFile = rootCertFile;
-        this.keyStoreFile = keyStoreFile;
+        this.keyStoreFile = new File(systemEnvironment.getConfigDir(), "keystore");
         this.sslVerificationMode = sslVerificationMode;
     }
 
     GoAgentServerClientBuilder(SystemEnvironment systemEnvironment) {
-        this(systemEnvironment.getRootCertFile(), AGENT_CERTIFICATE_FILE, systemEnvironment.getAgentSslVerificationMode(), systemEnvironment);
+        this(systemEnvironment.getRootCertFile(), systemEnvironment.getAgentSslVerificationMode(), systemEnvironment);
     }
 
-    private GoAgentServerClientBuilder(File rootCertFile, File keyStoreFile, SslVerificationMode sslVerificationMode, SystemEnvironment systemEnvironment) {
-        this(systemEnvironment, rootCertFile, keyStoreFile, sslVerificationMode);
+    private GoAgentServerClientBuilder(File rootCertFile, SslVerificationMode sslVerificationMode, SystemEnvironment systemEnvironment) {
+        this(systemEnvironment, rootCertFile, sslVerificationMode);
     }
 
     KeyStore agentTruststore() throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException {
@@ -72,36 +71,22 @@ public abstract class GoAgentServerClientBuilder<T> {
     KeyStore agentKeystore() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
         KeyStore keyStore = KeyStore.getInstance("JKS");
         try (InputStream is = keyStoreInputStream()) {
-            keyStore.load(is, keystorePassword().toCharArray());
+            keyStore.load(is, keystorePassword());
         }
         return keyStore;
     }
 
-    public String keystorePassword() {
-        return systemEnvironment.getAgentKeyStorePassword();
+    public char[] keystorePassword() {
+        String password = systemEnvironment.getAgentKeyStorePassword();
+        if (isBlank(password)) {
+            return null;
+        } else {
+            return password.toCharArray();
+        }
     }
 
     private InputStream keyStoreInputStream() throws FileNotFoundException {
         return !keyStoreFile.exists() ? null : new FileInputStream(keyStoreFile);
     }
 
-    public X500Principal principal() {
-        try {
-            KeyStore keyStore = agentKeystore();
-            if (keyStore.containsAlias("agent")) {
-                return ((X509Certificate) keyStore.getCertificate("agent")).getSubjectX500Principal();
-            }
-        } catch (Exception e) {
-            // ignore
-        }
-        return null;
-    }
-
-    public void initialize() {
-        File parentFile = GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.getParentFile();
-
-        if (!(parentFile.exists() || parentFile.mkdirs())) {
-            bomb("Unable to create folder " + parentFile.getAbsolutePath());
-        }
-    }
 }

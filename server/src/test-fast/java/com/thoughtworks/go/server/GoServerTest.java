@@ -67,7 +67,6 @@ public class GoServerTest {
         when(systemEnvironment.getSslServerPort()).thenReturn(9443);
         when(systemEnvironment.keystore()).thenReturn(tmpFile);
         when(systemEnvironment.truststore()).thenReturn(tmpFile);
-        when(systemEnvironment.agentkeystore()).thenReturn(tmpFile);
         goServer.go();
         assertThat(goServer.wasStarted(), is(true));
     }

@@ -27,7 +27,6 @@ import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
@@ -242,11 +241,11 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return new Username(format("agent_%s_%s_%s", uuId, ipAddress, hostNameForDisplay));
     }
 
-    public Registration requestRegistration(AgentRuntimeInfo agentRuntimeInfo) {
+    public boolean requestRegistration(AgentRuntimeInfo agentRuntimeInfo) {
         LOGGER.debug("Agent is requesting registration {}", agentRuntimeInfo);
 
         AgentInstance agentInstance = agentInstances.register(agentRuntimeInfo);
-        Registration registration = agentInstance.assignCertification();
+        boolean registration = agentInstance.assignCertification();
 
         Agent agent = agentInstance.getAgent();
         if (agentInstance.isRegistered() && !agent.cookieAssigned()) {

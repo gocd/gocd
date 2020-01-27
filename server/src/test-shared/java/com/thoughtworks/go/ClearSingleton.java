@@ -30,7 +30,6 @@ import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskMetadataStor
 import com.thoughtworks.go.plugin.access.scm.NewSCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.newsecurity.x509.CachingSubjectDnX509PrincipalExtractor;
 import org.junit.rules.ExternalResource;
 
 public class ClearSingleton extends ExternalResource {
@@ -55,8 +54,6 @@ public class ClearSingleton extends ExternalResource {
         NotificationMetadataStore.instance().clear();
         PackageMaterialMetadataStore.instance().clear();
         PluggableTaskMetadataStore.instance().clear();
-
-        new CachingSubjectDnX509PrincipalExtractor().getCache().removeAll();
 
         //
         SessionUtils.unsetCurrentUser();

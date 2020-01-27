@@ -22,7 +22,6 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.x500.X500Principal;
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -30,7 +29,6 @@ public class GoAgentServerHttpClient implements Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(GoAgentServerHttpClient.class);
 
     private CloseableHttpClient client;
-    private X500Principal principal;
     private GoAgentServerHttpClientBuilder builder;
 
     public GoAgentServerHttpClient(GoAgentServerHttpClientBuilder builder) {
@@ -40,10 +38,8 @@ public class GoAgentServerHttpClient implements Closeable {
     // called by spring
     public void init() throws Exception {
         this.client = builder.build();
-        this.principal = builder.principal();
     }
-
-
+    
     public CloseableHttpResponse execute(HttpRequestBase request) throws IOException {
         request.setURI(request.getURI().normalize());
         return client.execute(request);
@@ -73,9 +69,5 @@ public class GoAgentServerHttpClient implements Closeable {
 
     public void reset() {
         close();
-    }
-
-    public X500Principal principal() {
-        return this.principal;
     }
 }

@@ -20,14 +20,11 @@ import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
 import com.thoughtworks.go.http.mocks.MockHttpServletResponseAssert;
-import com.thoughtworks.go.security.Registration;
-import com.thoughtworks.go.security.X509CertificateGenerator;
 import com.thoughtworks.go.server.newsecurity.filters.*;
 import com.thoughtworks.go.server.newsecurity.handlers.BasicAuthenticationWithChallengeFailureResponseHandler;
 import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
-import com.thoughtworks.go.server.newsecurity.models.X509Credential;
 import com.thoughtworks.go.server.newsecurity.providers.AccessTokenBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.providers.AnonymousAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.providers.PasswordBasedPluginAuthenticationProvider;
@@ -50,7 +47,6 @@ import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
-import java.io.File;
 import java.io.IOException;
 
 import static com.thoughtworks.go.helper.AccessTokenMother.randomAccessTokenForUser;
@@ -100,30 +96,11 @@ public class AuthenticationFilterChainTest {
 
         @ParameterizedTest
         @ValueSource(strings = {"/remoting/blah"})
-        void shouldAuthenticateAgentUsingX509Certificate(String url) throws IOException, ServletException {
-            final Registration registration = createRegistration("blah");
-            final X509AuthenticationFilter x509AuthenticationFilter = new X509AuthenticationFilter(null, clock, null);
-            final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(x509AuthenticationFilter, null, null, null, null, null, null, null);
-
-            request = HttpRequestBuilder.GET(url)
-                    .withX509(registration.getChain())
-                    .build();
-
-            authenticationFilterChain.doFilter(request, response, filterChain);
-
-            verify(filterChain).doFilter(wrap(request), wrap(response));
-            MockHttpServletResponseAssert.assertThat(response).isOk();
-            assertThat(SessionUtils.getAuthenticationToken(request)).isNotNull();
-            assertThat(SessionUtils.getAuthenticationToken(request).getCredentials()).isInstanceOf(X509Credential.class);
-        }
-
-        @ParameterizedTest
-        @ValueSource(strings = {"/remoting/blah"})
         void shouldErrorOutWithStatusCode403WhenNoX509CertificateProvidedInRequest(String url) throws IOException, ServletException {
             request = HttpRequestBuilder.GET(url)
                     .build();
 
-            final X509AuthenticationFilter x509AuthenticationFilter = new X509AuthenticationFilter(null, clock, null);
+            final AgentAuthenticationFilter x509AuthenticationFilter = new AgentAuthenticationFilter(null, clock, null);
             final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(x509AuthenticationFilter, null, null, null, null, null, null, null);
 
             authenticationFilterChain.doFilter(request, response, filterChain);
@@ -328,11 +305,5 @@ public class AuthenticationFilterChainTest {
         }
     }
 
-    private Registration createRegistration(String hostname) throws IOException {
-        File tempKeystoreFile = temporaryFolder.newFile();
-        X509CertificateGenerator certificateGenerator = new X509CertificateGenerator();
-        certificateGenerator.createAndStoreCACertificates(tempKeystoreFile);
-        return certificateGenerator.createAgentCertificate(tempKeystoreFile, hostname);
-    }
 }
 

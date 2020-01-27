@@ -25,7 +25,6 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.protocol.BasicHttpContext;
 import org.springframework.remoting.httpinvoker.AbstractHttpInvokerRequestExecutor;
@@ -45,14 +44,12 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
 
     private final GoAgentServerHttpClient goAgentServerHttpClient;
     private final SystemEnvironment environment;
-    private final boolean useTokenAuth;
     private DefaultAgentRegistry defaultAgentRegistry;
 
     public GoHttpClientHttpInvokerRequestExecutor(GoAgentServerHttpClient goAgentServerHttpClient, SystemEnvironment environment, DefaultAgentRegistry defaultAgentRegistry) {
         this.goAgentServerHttpClient = goAgentServerHttpClient;
         this.environment = environment;
         this.defaultAgentRegistry = defaultAgentRegistry;
-        this.useTokenAuth = Boolean.valueOf(System.getenv().getOrDefault("GO_USE_TOKEN_AUTH", "true"));
     }
 
     @Override
@@ -65,15 +62,8 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
 
         BasicHttpContext context = null;
 
-        if (postMethod.getURI().getScheme().equals("http") || useTokenAuth) {
-            postMethod.setHeader("X-Agent-GUID", defaultAgentRegistry.uuid());
-            postMethod.setHeader("Authorization", defaultAgentRegistry.token());
-        } else {
-            if (environment.useSslContext()) {
-                context = new BasicHttpContext();
-                context.setAttribute(HttpClientContext.USER_TOKEN, goAgentServerHttpClient.principal());
-            }
-        }
+        postMethod.setHeader("X-Agent-GUID", defaultAgentRegistry.uuid());
+        postMethod.setHeader("Authorization", defaultAgentRegistry.token());
 
         try (CloseableHttpResponse response = goAgentServerHttpClient.execute(postMethod, context)) {
             validateResponse(response);

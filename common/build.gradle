@@ -24,13 +24,14 @@ dependencies {
   compile project(':plugin-infra:go-plugin-config-repo')
   compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
   compile(group: 'org.apache.httpcomponents', name: 'httpmime', version: project.versions.apacheHttpComponents)
+
+  testCompile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  testCompile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   testCompile project(path: ':config:config-api', configuration: 'testOutput')
   testCompile project(path: ':domain', configuration: 'testOutput')
   testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
   testCompile project(':test:test-utils')
   testCompile group: 'com.google.guava', name: 'guava', version: project.versions.guava
-  compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  compileOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5

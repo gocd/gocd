@@ -19,6 +19,11 @@ import com.thoughtworks.go.build.VerifyJarTask
 description = 'Agent Launcher Jar'
 
 dependencies {
+  // BC is not really a compile dep, but it's marked as `compileOnly` in other places to avoid leaking it to downstream
+  // we mark it as `compile` here so it gets packaged in the resultant jar
+  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
+
   compile project(':agent-common')
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
@@ -50,6 +55,8 @@ task verifyJar(type: VerifyJarTask) {
           "agent-common-${project.version}.jar",
           "agent-launcher-${project.version}-classes.jar",
           "ant-${project.versions.apacheAnt}.jar",
+          "bcpkix-jdk15on-${project.versions.bouncyCastle}.jar",
+          "bcprov-jdk15on-${project.versions.bouncyCastle}.jar",
           "base-${project.version}.jar",
           "commons-io-${project.versions.commonsIO}.jar",
           "commons-lang3-${project.versions.commonsLang3}.jar",

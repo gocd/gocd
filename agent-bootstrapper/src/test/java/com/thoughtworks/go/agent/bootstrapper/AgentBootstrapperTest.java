@@ -100,7 +100,7 @@ public class AgentBootstrapperTest {
         });
         stopLoopThd.start();
         try {
-            spyBootstrapper.go(true, new AgentBootstrapperArgs(new URL("http://" + "ghost-name" + ":" + 3518 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
+            spyBootstrapper.go(true, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             stopLoopThd.join();
         } catch (Exception e) {
             fail("should not have propagated exception thrown while creating launcher");
@@ -139,7 +139,7 @@ public class AgentBootstrapperTest {
         final AgentBootstrapper spyBootstrapper = stubJVMExit(bootstrapper);
 
         try {
-            spyBootstrapper.go(true, new AgentBootstrapperArgs(new URL("http://" + "ghost-name" + ":" + 3518 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
+            spyBootstrapper.go(true, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
         } catch (Exception e) {
             fail("should not have propagated exception thrown while invoking the launcher");
         }
@@ -193,7 +193,7 @@ public class AgentBootstrapperTest {
         });
         stopLoopThd.start();
         try {
-            spyBootstrapper.go(true, new AgentBootstrapperArgs(new URL("http://" + "ghost-name" + ":" + 3518 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
+            spyBootstrapper.go(true, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "ghost-name" + ":" + 3518 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             stopLoopThd.join();
         } catch (Exception e) {
             fail("should not have propagated exception thrown while invoking the launcher");
@@ -242,7 +242,7 @@ public class AgentBootstrapperTest {
             }
         };
         AgentBootstrapper spy = stubJVMExit(agentBootstrapper);
-        spy.go(true, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + 80 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
+        spy.go(true, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + 80 + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
     }
 
     private AgentBootstrapper stubJVMExit(AgentBootstrapper bootstrapper) {

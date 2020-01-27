@@ -19,8 +19,6 @@ import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.security.Registration;
-import com.thoughtworks.go.security.X509CertificateGenerator;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
@@ -218,13 +216,8 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return ToStringBuilder.reflectionToString(this);
     }
 
-    public Registration assignCertification() {
-        if (Pending.equals(agentConfigStatus)) {
-            return Registration.createNullPrivateKeyEntry();
-        }
-        X509CertificateGenerator certificateGenerator = new X509CertificateGenerator();
-        Registration entry = certificateGenerator.createAgentCertificate(new SystemEnvironment().agentkeystore(), agent.getHostname());
-        return new Registration(entry.getPrivateKey(), entry.getChain());
+    public boolean assignCertification() {
+        return !Pending.equals(agentConfigStatus);
     }
 
     public AgentType getType() {

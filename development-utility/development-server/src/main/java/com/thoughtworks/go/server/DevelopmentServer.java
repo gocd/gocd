@@ -31,7 +31,7 @@ import static org.hibernate.cfg.Environment.GENERATE_STATISTICS;
  * Set the following before running the main method:
  * Working directory: <project-path>/server
  * VM arguments:
- *      -Xms512m -Xmx1024m -Djava.awt.headless=true
+ * -Xms512m -Xmx1024m -Djava.awt.headless=true
  * classpath: Use classpath of 'gocd.development-utility.development-server.main'
  */
 

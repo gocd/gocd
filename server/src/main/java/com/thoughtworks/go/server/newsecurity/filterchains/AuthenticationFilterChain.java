@@ -27,7 +27,7 @@ public class AuthenticationFilterChain extends FilterChainProxy {
 
     @Autowired
     public AuthenticationFilterChain(
-            @Qualifier("x509AuthenticationFilter") Filter x509AuthenticationFilter,
+            @Qualifier("agentAuthenticationFilter") Filter x509AuthenticationFilter,
             @Qualifier("invalidateAuthenticationOnSecurityConfigChangeFilter") Filter invalidateAuthenticationOnSecurityConfigChangeFilter,
             @Qualifier("reAuthenticationWithRedirectToLoginFilter") Filter reAuthenticationWithRedirectToLoginPage,
             @Qualifier("reAuthenticationWithChallengeFilter") Filter reAuthenticationWithChallenge,

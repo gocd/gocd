@@ -82,7 +82,7 @@ public class AgentBootstrapperFunctionalTest {
                     @Override
                     void jvmExit(int returnValue) {
                     }
-                }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + server.getPort() + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
+                }.go(false, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
                 agentJar.delete();
                 assertThat(new String(os.toByteArray()), containsString("Hello World Fellas!"));
             } finally {
@@ -100,7 +100,7 @@ public class AgentBootstrapperFunctionalTest {
                 @Override
                 void jvmExit(int returnValue) {
                 }
-            }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + server.getPort() + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
+            }.go(false, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             assertTrue("No agent downloaded", agentJar.exists());
             agentJar.delete();
         }
@@ -117,7 +117,7 @@ public class AgentBootstrapperFunctionalTest {
                 @Override
                 void jvmExit(int returnValue) {
                 }
-            }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + server.getPort() + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
+            }.go(false, new AgentBootstrapperArgs().setServerUrl(new URL("http://" + "localhost" + ":" + server.getPort() + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE));
             assertThat(agentJar.length(), not(original));
             agentJar.delete();
         }

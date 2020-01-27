@@ -32,5 +32,4 @@ dependencies {
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
   testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
-  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle)
 }

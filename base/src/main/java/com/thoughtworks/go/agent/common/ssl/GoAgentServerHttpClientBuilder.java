@@ -32,8 +32,8 @@ import java.security.KeyStore;
 
 public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<CloseableHttpClient> {
 
-    public GoAgentServerHttpClientBuilder(File rootCertFile, SslVerificationMode sslVerificationMode) {
-        super(new SystemEnvironment(), rootCertFile, AGENT_CERTIFICATE_FILE, sslVerificationMode);
+    public GoAgentServerHttpClientBuilder(File rootCertFile, SslVerificationMode sslVerificationMode, File sslPrivateKey, File sslPrivateKeyPassphraseFile, File sslCertificate) {
+        super(new SystemEnvironment(), rootCertFile, sslVerificationMode, sslPrivateKey, sslPrivateKeyPassphraseFile, sslCertificate);
     }
 
     public GoAgentServerHttpClientBuilder(SystemEnvironment systemEnvironment) {
@@ -56,18 +56,22 @@ public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<C
         TrustStrategy trustStrategy = sslVerificationMode.trustStrategy();
         KeyStore trustStore = agentTruststore();
 
-        SSLContextBuilder sslContextBuilder = SSLContextBuilder.create()
-                .setProtocol(systemEnvironment.get(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT));
+        SSLContextBuilder sslContextBuilder = SSLContextBuilder.create();
 
         if (trustStore != null || trustStrategy != null) {
             sslContextBuilder.loadTrustMaterial(trustStore, trustStrategy);
         }
 
-        sslContextBuilder.loadKeyMaterial(agentKeystore(), keystorePassword().toCharArray());
+        KeyStore keystore = agentKeystore();
+
+        if (keystore != null) {
+            sslContextBuilder.loadKeyMaterial(keystore, agentKeystorePassword);
+        }
 
         SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContextBuilder.build(), hostnameVerifier);
         builder.setSSLSocketFactory(sslConnectionSocketFactory);
         return builder.build();
     }
+
 
 }

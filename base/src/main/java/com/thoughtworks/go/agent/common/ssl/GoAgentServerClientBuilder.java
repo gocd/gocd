@@ -17,40 +17,53 @@ package com.thoughtworks.go.agent.common.ssl;
 
 import com.thoughtworks.go.util.SslVerificationMode;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMDecryptorProvider;
+import org.bouncycastle.openssl.PEMEncryptedKeyPair;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 
-import javax.security.auth.x500.X500Principal;
-import java.io.*;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
-
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import java.util.UUID;
 
 public abstract class GoAgentServerClientBuilder<T> {
-    public static final File AGENT_CERTIFICATE_FILE = new File(new SystemEnvironment().getConfigDir(), "agent.jks");
     protected final File rootCertFile;
-    private final File keyStoreFile;
     protected final SystemEnvironment systemEnvironment;
     protected final SslVerificationMode sslVerificationMode;
+    protected final File sslPrivateKey;
+    protected final File sslPrivateKeyPassphraseFile;
+    protected final File sslCertificate;
+    protected final char[] agentKeystorePassword = UUID.randomUUID().toString().toCharArray();
 
     public abstract T build() throws Exception;
 
-    GoAgentServerClientBuilder(SystemEnvironment systemEnvironment, File rootCertFile, File keyStoreFile, SslVerificationMode sslVerificationMode) {
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
+    GoAgentServerClientBuilder(SystemEnvironment systemEnvironment, File rootCertFile, SslVerificationMode sslVerificationMode, File sslPrivateKey, File sslPrivateKeyPassphraseFile, File sslCertificate) {
         this.systemEnvironment = systemEnvironment;
         this.rootCertFile = rootCertFile;
-        this.keyStoreFile = keyStoreFile;
         this.sslVerificationMode = sslVerificationMode;
+        this.sslPrivateKey = sslPrivateKey;
+        this.sslPrivateKeyPassphraseFile = sslPrivateKeyPassphraseFile;
+        this.sslCertificate = sslCertificate;
     }
 
     GoAgentServerClientBuilder(SystemEnvironment systemEnvironment) {
-        this(systemEnvironment.getRootCertFile(), AGENT_CERTIFICATE_FILE, systemEnvironment.getAgentSslVerificationMode(), systemEnvironment);
-    }
-
-    private GoAgentServerClientBuilder(File rootCertFile, File keyStoreFile, SslVerificationMode sslVerificationMode, SystemEnvironment systemEnvironment) {
-        this(systemEnvironment, rootCertFile, keyStoreFile, sslVerificationMode);
+        this(systemEnvironment, systemEnvironment.getRootCertFile(), systemEnvironment.getAgentSslVerificationMode(), systemEnvironment.getAgentPrivateKeyFile(), systemEnvironment.getAgentSslPrivateKeyPassphraseFile(), systemEnvironment.getAgentSslCertificate());
     }
 
     KeyStore agentTruststore() throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException {
@@ -70,38 +83,55 @@ public abstract class GoAgentServerClientBuilder<T> {
     }
 
     KeyStore agentKeystore() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
+        if (this.sslPrivateKey != null && this.sslPrivateKey.exists() && this.sslCertificate != null && this.sslCertificate.exists()) {
+            return keyStoreFromPem();
+        } else {
+            return null;
+        }
+    }
+
+    private KeyStore keyStoreFromPem() throws IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException {
         KeyStore keyStore = KeyStore.getInstance("JKS");
-        try (InputStream is = keyStoreInputStream()) {
-            keyStore.load(is, keystorePassword().toCharArray());
+        keyStore.load(null);
+        if (sslCertificate != null && sslPrivateKey != null) {
+            PrivateKey privateKey = getPrivateKey();
+            keyStore.setKeyEntry("1", privateKey, agentKeystorePassword, agentCertificate().toArray(new X509Certificate[]{}));
         }
         return keyStore;
     }
 
-    public String keystorePassword() {
-        return systemEnvironment.getAgentKeyStorePassword();
-    }
+    private PrivateKey getPrivateKey() throws IOException {
+        PrivateKey privateKey;
+        try (PEMParser reader = new PEMParser(new FileReader(this.sslPrivateKey, StandardCharsets.UTF_8))) {
+            Object pemObject = reader.readObject();
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(new BouncyCastleProvider());
 
-    private InputStream keyStoreInputStream() throws FileNotFoundException {
-        return !keyStoreFile.exists() ? null : new FileInputStream(keyStoreFile);
-    }
-
-    public X500Principal principal() {
-        try {
-            KeyStore keyStore = agentKeystore();
-            if (keyStore.containsAlias("agent")) {
-                return ((X509Certificate) keyStore.getCertificate("agent")).getSubjectX500Principal();
+            if (pemObject instanceof PEMEncryptedKeyPair) {
+                PEMDecryptorProvider decProv = new JcePEMDecryptorProviderBuilder().build(passphrase());
+                KeyPair keyPair = converter.getKeyPair(((PEMEncryptedKeyPair) pemObject).decryptKeyPair(decProv));
+                privateKey = keyPair.getPrivate();
+            } else if (pemObject instanceof PEMKeyPair) {
+                KeyPair keyPair = converter.getKeyPair((PEMKeyPair) pemObject);
+                privateKey = keyPair.getPrivate();
+            } else if (pemObject instanceof PrivateKeyInfo) {
+                PrivateKeyInfo privateKeyInfo = (PrivateKeyInfo) pemObject;
+                privateKey = converter.getPrivateKey(privateKeyInfo);
+            } else {
+                throw new RuntimeException("Unable to parse key of type " + pemObject.getClass());
             }
-        } catch (Exception e) {
-            // ignore
+            return privateKey;
         }
-        return null;
     }
 
-    public void initialize() {
-        File parentFile = GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.getParentFile();
+    private List<X509Certificate> agentCertificate() throws IOException, CertificateException {
+        return new CertificateFileParser().certificates(this.sslCertificate);
+    }
 
-        if (!(parentFile.exists() || parentFile.mkdirs())) {
-            bomb("Unable to create folder " + parentFile.getAbsolutePath());
+    private char[] passphrase() throws IOException {
+        if (sslPrivateKeyPassphraseFile != null && sslPrivateKeyPassphraseFile.exists()) {
+            String passphrase = FileUtils.readFileToString(sslPrivateKeyPassphraseFile, StandardCharsets.UTF_8);
+            return StringUtils.trimToEmpty(passphrase).toCharArray();
         }
+        throw new RuntimeException("SSL private key passphrase not specified!");
     }
 }

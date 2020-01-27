@@ -17,6 +17,8 @@
 description = 'GoCD Base'
 
 dependencies {
+  compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  compileOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   compile(group: 'org.apache.ant', name: 'ant', version: project.versions.apacheAnt)  {
     transitive = false
   }

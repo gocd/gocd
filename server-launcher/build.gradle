@@ -106,11 +106,6 @@ task mainJar(type: Jar) {
     include "**/CurrentProcess*.class"
     include "**/validators/*.class"
     include "**/Environment*.class"
-    include "**/X509CertificateGenerator*.class"
-    include "**/X509PrincipalGenerator*.class"
-    include "**/KeyStoreManager.class"
-    include "**/PKCS12BagAttributeSetter.class"
-    include "**/Registration.class"
     include "**/CommandLineException.class"
 
     exclude "**/domain/*.class"
@@ -143,7 +138,6 @@ task mainJar(type: Jar) {
 
   from(project.configurations.packagingInMainJarServerJar.collect { it.isDirectory() ? it : zipTree(it) }) {
     include "**/GoServer*.class"
-    include "**/DeploymentContextWriter*.class"
     include "**/BaseUrlProvider*.class"
     include "**/GoLauncher*.class"
     into('/')

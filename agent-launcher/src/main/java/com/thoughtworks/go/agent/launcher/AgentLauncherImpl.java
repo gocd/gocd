@@ -85,14 +85,14 @@ public class AgentLauncherImpl implements AgentLauncher {
             AgentBootstrapperArgs bootstrapperArgs = AgentBootstrapperArgs.fromProperties(context);
             ServerUrlGenerator urlGenerator = new UrlConstructor(bootstrapperArgs.getServerUrl().toExternalForm());
             File rootCertFile = bootstrapperArgs.getRootCertFile();
-            SslVerificationMode sslVerificationMode = SslVerificationMode.valueOf(bootstrapperArgs.getSslMode().name());
+            SslVerificationMode sslVerificationMode = SslVerificationMode.valueOf(bootstrapperArgs.getSslVerificationMode().name());
 
-            ServerBinaryDownloader launcherDownloader = new ServerBinaryDownloader(urlGenerator, rootCertFile, sslVerificationMode);
+            ServerBinaryDownloader launcherDownloader = new ServerBinaryDownloader(urlGenerator, bootstrapperArgs);
             if (launcherDownloader.downloadIfNecessary(DownloadableFile.LAUNCHER)) {
                 return LAUNCHER_NOT_UP_TO_DATE;
             }
 
-            ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, rootCertFile, sslVerificationMode);
+            ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, bootstrapperArgs);
             agentDownloader.downloadIfNecessary(DownloadableFile.AGENT);
 
             returnValue = agentProcessParentRunner.run(getLauncherVersion(), launcherDownloader.getMd5(), urlGenerator, System.getenv(), context);

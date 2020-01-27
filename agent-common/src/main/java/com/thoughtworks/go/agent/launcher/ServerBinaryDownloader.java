@@ -16,6 +16,7 @@
 package com.thoughtworks.go.agent.launcher;
 
 import com.thoughtworks.go.agent.ServerUrlGenerator;
+import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.HeaderUtil;
@@ -49,13 +50,19 @@ public class ServerBinaryDownloader implements Downloader {
     private GoAgentServerHttpClientBuilder httpClientBuilder;
     private Map<String, String> extraProperties;
 
-    public ServerBinaryDownloader(ServerUrlGenerator urlGenerator, File rootCertFile, SslVerificationMode sslVerificationMode) {
-        this(new GoAgentServerHttpClientBuilder(rootCertFile, sslVerificationMode), urlGenerator);
-    }
-
     protected ServerBinaryDownloader(GoAgentServerHttpClientBuilder httpClientBuilder, ServerUrlGenerator urlGenerator) {
         this.httpClientBuilder = httpClientBuilder;
         this.urlGenerator = urlGenerator;
+    }
+
+    public ServerBinaryDownloader(ServerUrlGenerator urlGenerator, AgentBootstrapperArgs bootstrapperArgs) {
+        this(new GoAgentServerHttpClientBuilder(
+                bootstrapperArgs.getRootCertFile(),
+                SslVerificationMode.valueOf(bootstrapperArgs.getSslVerificationMode().name()),
+                bootstrapperArgs.getSslPrivateKey(),
+                bootstrapperArgs.getSslPrivateKeyPassphraseFile(),
+                bootstrapperArgs.getSslCertificate()
+        ), urlGenerator);
     }
 
     public String getMd5() {

@@ -34,6 +34,7 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -69,6 +70,9 @@ public class Jetty9ServerTest {
     @Mock
     private DeploymentManager deploymentManager;
 
+    @Rule
+    public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
+
     private Jetty9Server jetty9Server;
     private Handler serverLevelHandler;
     private File configDir;
@@ -97,15 +101,13 @@ public class Jetty9ServerTest {
         when(systemEnvironment.useCompressedJs()).thenReturn(true);
         when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(1000);
         when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(2000);
-        when(systemEnvironment.configDir()).thenReturn(configDir = temporaryFolder.newFile());
+        when(systemEnvironment.configDir()).thenReturn(configDir = temporaryFolder.newFolder());
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).thenReturn(true);
         when(systemEnvironment.getJettyConfigFile()).thenReturn(new File("foo"));
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(false);
         when(systemEnvironment.sessionTimeoutInSeconds()).thenReturn(1234);
         when(systemEnvironment.sessionCookieMaxAgeInSeconds()).thenReturn(5678);
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_CLEAR_JETTY_DEFAULT_EXCLUSIONS)).thenReturn(true);
-        when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_JETTY_WANT_CLIENT_AUTH)).thenReturn(false);
-
 
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[]{});
         jetty9Server = new Jetty9Server(systemEnvironment, "pwd", server, deploymentManager);
@@ -127,7 +129,7 @@ public class Jetty9ServerTest {
         ArgumentCaptor<Connector> captor = ArgumentCaptor.forClass(Connector.class);
         jetty9Server.configure();
 
-        verify(server, times(2)).addConnector(captor.capture());
+        verify(server, times(1)).addConnector(captor.capture());
 
         List<Connector> connectors = captor.getAllValues();
         Connector plainConnector = connectors.get(0);
@@ -141,7 +143,9 @@ public class Jetty9ServerTest {
     }
 
     @Test
-    public void shouldAddSSLSocketConnector() throws Exception {
+    public void shouldAddSSLSocketConnectorIfKeystoreIsPresent() throws Exception {
+        System.setProperty("go.server.enable.tls", "true");
+        new File(systemEnvironment.configDir(), "keystore").createNewFile();
         ArgumentCaptor<Connector> captor = ArgumentCaptor.forClass(Connector.class);
         jetty9Server.configure();
 

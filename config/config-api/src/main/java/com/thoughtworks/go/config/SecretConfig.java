@@ -63,18 +63,7 @@ public class SecretConfig extends RuleAwarePluginProfile {
 
         return pluginInfo.getSecretsConfigSettings().getConfiguration(key).isSecure();
     }
-
-    @Override
-    public void addConfigurations(List<ConfigurationProperty> configurations) {
-        ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
-        for (ConfigurationProperty property : configurations) {
-            this.getConfiguration().add(builder.create(property.getConfigKeyName(),
-                    property.getConfigValue(),
-                    property.getEncryptedValue(),
-                    isSecure(property.getConfigKeyName())));
-        }
-    }
-
+    
     @Override
     protected boolean hasPluginInfo() {
         return !isNull(this.metadataStore().getPluginInfo(getPluginId()));

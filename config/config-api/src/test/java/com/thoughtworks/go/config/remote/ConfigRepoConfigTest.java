@@ -19,30 +19,36 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
+import com.thoughtworks.go.config.rules.RuleAwarePluginProfile;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMetadataStore;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+
+import java.util.Arrays;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class ConfigRepoConfigTest {
+public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
+    private ConfigRepoMetadataStore store = ConfigRepoMetadataStore.instance();
+
+    @AfterEach
+    void tearDown() {
+        store.clear();
+    }
+
     @Test
     public void shouldReturnPluginNameWhenSpecified() {
         ConfigRepoConfig config = new ConfigRepoConfig();
         config.setPluginId("myplugin");
         assertThat(config.getPluginId(), is("myplugin"));
-    }
-
-    @Test
-    public void shouldReturnNullPluginNameWhenEmpty() {
-        ConfigRepoConfig config = new ConfigRepoConfig();
-        config.setPluginId("");
-        assertNull(config.getPluginId());
     }
 
     @Test
@@ -52,7 +58,7 @@ public class ConfigRepoConfigTest {
         SvnMaterialConfig svn = svn("url", false);
         svn.setAutoUpdate(false);
 
-        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(svn, "plug");
+        ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(svn, "plug");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
 
         ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(cruiseConfig);
@@ -83,12 +89,12 @@ public class ConfigRepoConfigTest {
     public void validate_shouldCheckPresenceOfPluginId() {
         ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(new BasicCruiseConfig());
 
-        ConfigRepoConfig configRepo = new ConfigRepoConfig(null, null, "id_1");
+        ConfigRepoConfig configRepo = ConfigRepoConfig.createConfigRepoConfig(null, null, "id_1");
         configRepo.validate(validationContext);
 
         assertThat(configRepo.errors().isEmpty(), is(false));
-        assertThat(configRepo.errors().on("plugin_id"),
-                is("Configuration repository plugin_id not specified"));
+        assertThat(configRepo.errors().on("pluginId"),
+                is("Configuration repository cannot have a blank plugin id."));
     }
 
     @Test
@@ -218,8 +224,26 @@ public class ConfigRepoConfigTest {
     public void hasMaterialWithFingerprint_shouldReturnFalseWhenFingerprintNotEquals() {
         MaterialConfig configRepo = git("url", "branch");
         GitMaterialConfig someRepo = git("url", "branch1");
-        ConfigRepoConfig config = new ConfigRepoConfig(configRepo, "myplugin");
+        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(configRepo, "myplugin");
 
         assertThat(config.hasMaterialWithFingerprint(someRepo.getFingerprint()), is(false));
+    }
+
+    @Override
+    protected RuleAwarePluginProfile newPluginProfile(String id, String pluginId, ConfigurationProperty... configurationProperties) {
+        RuleAwarePluginProfile profile = new ConfigRepoConfig().setId(id).setPluginId(pluginId);
+        profile.addConfigurations(Arrays.asList(configurationProperties));
+        ((ConfigRepoConfig) profile).setRepo(new GitMaterialConfig());
+        return profile;
+    }
+
+    @Override
+    protected String getObjectDescription() {
+        return "Configuration repository";
+    }
+
+    @Override
+    public ValidationContext getValidationContext(RuleAwarePluginProfile profile) {
+        return ConfigSaveValidationContext.forChain(new BasicCruiseConfig());
     }
 }

@@ -27,13 +27,14 @@ import static org.junit.Assert.assertThat;
 public abstract class AbstractRuleAwarePluginProfileTest {
 
     protected abstract RuleAwarePluginProfile newPluginProfile(String id, String pluginId, ConfigurationProperty... configurationProperties);
+
     protected abstract String getObjectDescription();
 
     @Test
     public void shouldNotAllowNullPluginIdOrProfileId() throws Exception {
         RuleAwarePluginProfile profile = newPluginProfile(null, null);
 
-        profile.validate(null);
+        profile.validate(getValidationContext(profile));
         assertThat(profile.errors().size(), is(2));
         assertThat(profile.errors().on("pluginId"), is(format("%s cannot have a blank plugin id.", getObjectDescription())));
         assertThat(profile.errors().on("id"), is(format("%s cannot have a blank id.", getObjectDescription())));
@@ -42,7 +43,7 @@ public abstract class AbstractRuleAwarePluginProfileTest {
     @Test
     public void shouldValidatePluginIdPattern() throws Exception {
         RuleAwarePluginProfile profile = newPluginProfile("!123", "docker");
-        profile.validate(null);
+        profile.validate(getValidationContext(profile));
         assertThat(profile.errors().size(), is(1));
         assertThat(profile.errors().on("id"), is("Invalid id '!123'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
@@ -53,14 +54,21 @@ public abstract class AbstractRuleAwarePluginProfileTest {
         ConfigurationProperty prop2 = ConfigurationPropertyMother.create("USERNAME");
         RuleAwarePluginProfile profile = newPluginProfile("docker.unit-test", "cd.go.elastic-agent.docker", prop1, prop2);
 
-        profile.validate(null);
+        profile.validate(getValidationContext(profile));
 
         assertThat(profile.errors().size(), is(0));
 
-        assertThat(prop1.errors().size(), is(1));
-        assertThat(prop2.errors().size(), is(1));
+        ConfigurationProperty configProp1 = profile.getConfiguration().get(0);
+        ConfigurationProperty configProp2 = profile.getConfiguration().get(1);
 
-        assertThat(prop1.errors().on("configurationKey"), is(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription())));
-        assertThat(prop2.errors().on("configurationKey"), is(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription())));
+        assertThat(configProp1.errors().size(), is(1));
+        assertThat(configProp2.errors().size(), is(1));
+
+        assertThat(configProp1.errors().on("configurationKey"), is(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription())));
+        assertThat(configProp2.errors().on("configurationKey"), is(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription())));
+    }
+
+    protected ValidationContext getValidationContext(RuleAwarePluginProfile profile) {
+        return null;
     }
 }

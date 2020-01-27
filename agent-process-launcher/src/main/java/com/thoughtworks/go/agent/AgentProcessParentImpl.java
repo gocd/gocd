@@ -53,16 +53,16 @@ public class AgentProcessParentImpl implements AgentProcessParent {
 
         try {
             AgentBootstrapperArgs bootstrapperArgs = AgentBootstrapperArgs.fromProperties(context);
-            File rootCertFile = bootstrapperArgs.getRootCertFile();
-            SslVerificationMode sslVerificationMode = SslVerificationMode.valueOf(bootstrapperArgs.getSslMode().name());
+//            File rootCertFile = bootstrapperArgs.getRootCertFile();
+//            SslVerificationMode sslVerificationMode = SslVerificationMode.valueOf(bootstrapperArgs.getSslVerificationMode().name());
 
-            ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, rootCertFile, sslVerificationMode);
+            ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, bootstrapperArgs);
             agentDownloader.downloadIfNecessary(DownloadableFile.AGENT);
 
-            ServerBinaryDownloader pluginZipDownloader = new ServerBinaryDownloader(urlGenerator, rootCertFile, sslVerificationMode);
+            ServerBinaryDownloader pluginZipDownloader = new ServerBinaryDownloader(urlGenerator, bootstrapperArgs);
             pluginZipDownloader.downloadIfNecessary(DownloadableFile.AGENT_PLUGINS);
 
-            ServerBinaryDownloader tfsImplDownloader = new ServerBinaryDownloader(urlGenerator, rootCertFile, sslVerificationMode);
+            ServerBinaryDownloader tfsImplDownloader = new ServerBinaryDownloader(urlGenerator, bootstrapperArgs);
             tfsImplDownloader.downloadIfNecessary(DownloadableFile.TFS_IMPL);
 
             command = agentInvocationCommand(agentDownloader.getMd5(), launcherMd5, pluginZipDownloader.getMd5(), tfsImplDownloader.getMd5(),
@@ -144,9 +144,9 @@ public class AgentProcessParentImpl implements AgentProcessParent {
         commandSnippets.add("-serverUrl");
         commandSnippets.add(bootstrapperArgs.getServerUrl().toString());
 
-        if (bootstrapperArgs.getSslMode() != null) {
+        if (bootstrapperArgs.getSslVerificationMode() != null) {
             commandSnippets.add("-sslVerificationMode");
-            commandSnippets.add(bootstrapperArgs.getSslMode().toString());
+            commandSnippets.add(bootstrapperArgs.getSslVerificationMode().toString());
         }
 
         if (bootstrapperArgs.getRootCertFile() != null) {

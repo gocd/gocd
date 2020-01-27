@@ -17,9 +17,7 @@ package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.thoughtworks.go.server.newsecurity.models.AgentToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
-import com.thoughtworks.go.server.newsecurity.models.X509Credential;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.newsecurity.x509.CachingSubjectDnX509PrincipalExtractor;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.AgentService;
@@ -40,27 +38,23 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
 
 import static org.apache.commons.codec.binary.Base64.encodeBase64String;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Component
-public class X509AuthenticationFilter extends OncePerRequestFilter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(X509AuthenticationFilter.class);
+public class AgentAuthenticationFilter extends OncePerRequestFilter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentAuthenticationFilter.class);
 
-    private static final String X509_HEADER_KEY = "javax.servlet.request.X509Certificate";
-    private final CachingSubjectDnX509PrincipalExtractor subjectDnX509PrincipalExtractor;
     private final GoConfigService goConfigService;
     private final AgentService agentService;
     private final Clock clock;
     private Mac mac;
 
     @Autowired
-    public X509AuthenticationFilter(GoConfigService goConfigService, Clock clock, AgentService agentService) {
+    public AgentAuthenticationFilter(GoConfigService goConfigService, Clock clock, AgentService agentService) {
         this.goConfigService = goConfigService;
         this.clock = clock;
-        this.subjectDnX509PrincipalExtractor = new CachingSubjectDnX509PrincipalExtractor();
         this.agentService = agentService;
     }
 
@@ -68,38 +62,18 @@ public class X509AuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if (headersMatchForAgent(request)) {
-            tokenBasedFilter(request, response, filterChain);
-        } else {
-            x509BasedFilter(request, response, filterChain);
-        }
-    }
-
-    private void x509BasedFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-        X509Certificate x509Certificate = extractClientCertificate(request);
-        if (x509Certificate == null) {
-            LOGGER.debug("Denying access, certificate is not provided.");
-            response.setStatus(403);
-        } else {
-            AuthenticationToken<?> authenticationToken = SessionUtils.getAuthenticationToken(request);
-            if (isAuthenticated(x509Certificate, authenticationToken)) {
-                LOGGER.debug("Agent is already authenticated");
-            } else {
-                String subjectDN = (String) subjectDnX509PrincipalExtractor.extractPrincipal(x509Certificate);
-                GoUserPrinciple agentUser = new GoUserPrinciple("_go_agent_" + subjectDN, "", GoAuthority.ROLE_AGENT.asAuthority());
-                AuthenticationToken<X509Credential> authentication = new AuthenticationToken<>(agentUser, new X509Credential(x509Certificate), null, clock.currentTimeMillis(), null);
-
-                LOGGER.debug("Adding agent user to current session and proceeding.");
-                SessionUtils.setAuthenticationTokenAfterRecreatingSession(authentication, request);
-            }
-
-            filterChain.doFilter(request, response);
-        }
+        tokenBasedFilter(request, response, filterChain);
     }
 
     private void tokenBasedFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         String uuid = request.getHeader("X-Agent-GUID");
         String token = request.getHeader("Authorization");
+
+        if (isBlank(uuid) || isBlank(token)) {
+            LOGGER.debug("Denying access, either the UUID or token is not provided.");
+            response.setStatus(403);
+            return;
+        }
 
         if (!agentService.isRegistered(uuid)) {
             LOGGER.debug("Denying access, agent with uuid '{}' is not registered.", uuid);
@@ -133,11 +107,6 @@ public class X509AuthenticationFilter extends OncePerRequestFilter {
         return encodeBase64String(hmac().doFinal(string.getBytes()));
     }
 
-    private boolean headersMatchForAgent(HttpServletRequest request) {
-        return isNotBlank(request.getHeader("X-Agent-GUID")) && isNotBlank(request.getHeader("Authorization"));
-    }
-
-
     private boolean isAuthenticated(AgentToken agentToken, AuthenticationToken<?> authenticationToken) {
         return authenticationToken != null
                 && authenticationToken.getCredentials() instanceof AgentToken
@@ -157,22 +126,4 @@ public class X509AuthenticationFilter extends OncePerRequestFilter {
         return mac;
     }
 
-    private boolean isAuthenticated(X509Certificate x509Certificate, AuthenticationToken<?> authenticationToken) {
-        return authenticationToken != null
-                && authenticationToken.getCredentials() instanceof X509Credential
-                && ((X509Credential) authenticationToken.getCredentials()).getX509Certificate().equals(x509Certificate);
-    }
-
-    private X509Certificate extractClientCertificate(HttpServletRequest request) {
-        final X509Certificate[] certs = (X509Certificate[]) request.getAttribute(X509_HEADER_KEY);
-
-        if (certs != null && certs.length > 0) {
-            LOGGER.debug("Client certificate found in request: {}", certs[0]);
-            return certs[0];
-        }
-
-        LOGGER.debug("No client certificate found in request.");
-
-        return null;
-    }
 }

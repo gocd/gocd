@@ -63,7 +63,7 @@ public class ServerBinaryDownloaderTest {
 
     @Test
     public void shouldSetMd5AndSSLPortHeaders() throws Exception {
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()), null, SslVerificationMode.NONE);
+        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()));
         downloader.downloadIfNecessary(DownloadableFile.AGENT);
 
         MessageDigest digester = MessageDigest.getInstance("MD5");
@@ -102,7 +102,7 @@ public class ServerBinaryDownloaderTest {
 
     @Test
     public void shouldDownloadAgentJarFile() {
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()), null, SslVerificationMode.NONE);
+        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()));
         assertThat(DownloadableFile.AGENT.doesNotExist(), is(true));
         downloader.downloadIfNecessary(DownloadableFile.AGENT);
         assertThat(DownloadableFile.AGENT.getLocalFile().exists(), is(true));
@@ -110,20 +110,19 @@ public class ServerBinaryDownloaderTest {
 
     @Test
     public void shouldReturnTrueIfTheFileIsDownloaded() {
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()), null, SslVerificationMode.NONE);
+        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()));
         assertThat(downloader.downloadIfNecessary(DownloadableFile.AGENT), is(true));
     }
 
     @Test(expected = Exception.class)
     public void shouldThrowExceptionIfTheServerIsDown() throws Exception {
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorFor("locahost", server.getPort()), null, SslVerificationMode.NONE);
+        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorFor("locahost", server.getPort()));
         downloader.download(DownloadableFile.AGENT);
     }
 
     @Test
     public void shouldConnectToAnSSLServerWithSelfSignedCertWhenInsecureModeIsNoVerifyHost() throws Exception {
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()), new File("testdata/test_cert.pem"),
-                SslVerificationMode.NO_VERIFY_HOST);
+        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(new File("testdata/test_cert.pem"), SslVerificationMode.NO_VERIFY_HOST, null, null, null), ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()));
         downloader.download(DownloadableFile.AGENT);
         assertThat(DownloadableFile.AGENT.getLocalFile().exists(), is(true));
     }
@@ -133,8 +132,7 @@ public class ServerBinaryDownloaderTest {
         exception.expect(Exception.class);
         exception.expectMessage("Certificate for <localhost> doesn't match any of the subject alternative names: []");
 
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorFor("https://localhost:" + server.getSecurePort() + "/go/hello"), new File("testdata/test_cert.pem"),
-                SslVerificationMode.FULL);
+        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(new File("testdata/test_cert.pem"), SslVerificationMode.FULL, null, null, null), ServerUrlGeneratorMother.generatorFor("https://localhost:" + server.getSecurePort() + "/go/hello"));
         downloader.download(DownloadableFile.AGENT);
     }
 
@@ -143,8 +141,7 @@ public class ServerBinaryDownloaderTest {
         exception.expect(Exception.class);
         exception.expectMessage("Missing required headers 'Content-MD5' in response.");
 
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://localhost:" + server.getSecurePort() + "/go/hello"), null,
-                SslVerificationMode.NONE);
+        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://localhost:" + server.getSecurePort() + "/go/hello"));
         downloader.fetchUpdateCheckHeaders(DownloadableFile.AGENT);
     }
 
@@ -153,8 +150,7 @@ public class ServerBinaryDownloaderTest {
         exception.expect(UnknownHostException.class);
         exception.expectMessage("invalidserver");
 
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://invalidserver:" + server.getSecurePort() + "/go/hello"), null,
-                SslVerificationMode.NONE);
+        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://invalidserver:" + server.getSecurePort() + "/go/hello"));
         downloader.fetchUpdateCheckHeaders(DownloadableFile.AGENT);
     }
 
@@ -164,8 +160,7 @@ public class ServerBinaryDownloaderTest {
         exception.expectMessage("This agent might be incompatible with your GoCD Server."
                 + " Please fix the version mismatch between GoCD Server and GoCD Agent.");
 
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://localhost:" + server.getSecurePort() + "/go/not-found"), null,
-                SslVerificationMode.NONE);
+        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://localhost:" + server.getSecurePort() + "/go/not-found"));
         downloader.download(DownloadableFile.AGENT);
     }
 
@@ -181,7 +176,7 @@ public class ServerBinaryDownloaderTest {
     }
 
     private void assertExtraProperties(String valueToSet, Map<String, String> expectedValue) {
-        ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()), null, SslVerificationMode.NONE);
+        ServerBinaryDownloader downloader = new ServerBinaryDownloader(new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null), ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()));
         try {
             server.setExtraPropertiesHeaderValue(valueToSet);
             downloader.downloadIfNecessary(DownloadableFile.AGENT);

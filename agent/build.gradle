@@ -59,11 +59,14 @@ configurations {
 }
 
 dependencies {
+  // BC is not really a compile dep, but it's marked as `compileOnly` in other places to avoid leaking it to downstream
+  // we mark it as `compile` here so it gets packaged in the resultant jar
+  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
+
   compile project(':agent-common')
   compile project(':common')
   compile group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
-  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   compile group: 'org.apache.commons', name: 'commons-configuration2', version: project.versions.commonsConfiguration
 
   compile group: 'org.nanohttpd', name: 'nanohttpd', version: versions.nanohttpd

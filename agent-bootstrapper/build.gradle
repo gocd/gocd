@@ -21,6 +21,9 @@ description = 'GoCD Agent Bootstrapper'
 dependencies {
   compile project(':agent-common')
   compile group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
+
+  testCompile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  testCompile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   testCompile project(':test:test-utils')
   testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
   testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest

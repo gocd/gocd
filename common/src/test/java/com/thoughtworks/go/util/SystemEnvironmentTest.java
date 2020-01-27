@@ -344,14 +344,6 @@ class SystemEnvironmentTest {
     }
 
     @Test
-    void shouldSetTLS1Dot2AsDefaultTransportProtocolForAgent() {
-        assertThat(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT.propertyName()).isEqualTo("go.ssl.agent.protocol");
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT)).isEqualTo("TLSv1.2");
-        System.setProperty(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT.propertyName(), "SSL");
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT)).isEqualTo("SSL");
-    }
-
-    @Test
     void shouldGetIncludedCiphersForSSLConfig() {
         assertThat(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS.propertyName()).isEqualTo("go.ssl.ciphers.include");
         assertThat(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS instanceof SystemEnvironment.GoStringArraySystemProperty).isTrue();

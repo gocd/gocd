@@ -23,7 +23,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.message.BasicStatusLine;
 import org.junit.Before;
 import org.junit.Rule;
@@ -60,7 +59,7 @@ public class HttpServiceTest {
         AgentRegistry agentRegistry = mock(AgentRegistry.class);
         when(agentRegistry.token()).thenReturn("some-token");
         when(agentRegistry.uuid()).thenReturn("some-guid");
-        service = new HttpService(httpClientFactory, agentRegistry, false);
+        service = new HttpService(httpClientFactory, agentRegistry);
     }
 
     @Test

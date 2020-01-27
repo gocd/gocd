@@ -237,7 +237,7 @@ public class UrlRewriterIntegrationTest {
     @Theory
     public void shouldRewrite(final ResponseAssertion assertion) throws Exception {
         useConfiguredUrls = assertion.useConfiguredUrls;
-        GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE);
+        GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE, null, null, null);
         try (CloseableHttpClient httpClient = builder.build()) {
             HttpRequestBase httpMethod;
             if (assertion.method == METHOD.GET) {

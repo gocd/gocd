@@ -21,6 +21,7 @@ import com.thoughtworks.go.logging.LogConfigurator;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.util.Map;
 
 
 public final class AgentMain {
@@ -32,11 +33,11 @@ public final class AgentMain {
         logConfigurator.initialize();
 
         new SystemEnvironment().setProperty("go.process.type", "agent");
-        new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, args.getServerUrl().toString());
-        new SystemEnvironment().setProperty(SystemEnvironment.AGENT_SSL_VERIFICATION_MODE, args.getSslMode().toString());
+        Map<String, String> stringStringMap = args.toProperties();
 
-        if (args.getRootCertFile() != null) {
-            new SystemEnvironment().setProperty(SystemEnvironment.AGENT_ROOT_CERT_FILE, args.getRootCertFile().toString());
+        new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, args.getServerUrl().toString());
+        for (Map.Entry<String, String> entry : stringStringMap.entrySet()) {
+            new SystemEnvironment().setProperty(entry.getKey(), entry.getValue());
         }
 
         ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");

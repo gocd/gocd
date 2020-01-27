@@ -29,7 +29,7 @@ public class DefaultAgentLaunchDescriptorImplTest {
     public void contextShouldContainEnvAndPropertiesAndHostAndPort() throws Exception {
         String hostname = "xx.xx.xx";
         int port = 20;
-        AgentBootstrapperArgs bootstrapperArgs = new AgentBootstrapperArgs(new URL("https://" + hostname + ":" + port + "/go"), null, AgentBootstrapperArgs.SslMode.NONE);
+        AgentBootstrapperArgs bootstrapperArgs = new AgentBootstrapperArgs().setServerUrl(new URL("https://" + hostname + ":" + port + "/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE);
         DefaultAgentLaunchDescriptorImpl launchDescriptor = new DefaultAgentLaunchDescriptorImpl(bootstrapperArgs, new AgentBootstrapper());
         Map context = launchDescriptor.context();
 

@@ -99,6 +99,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String SERVICE_URL = "serviceUrl";
     public static final String AGENT_SSL_VERIFICATION_MODE = "sslVerificationMode";
     public static final String AGENT_ROOT_CERT_FILE = "rootCertFile";
+    public static final String AGENT_PRIVATE_KEY = "sslPrivateKey";
+    public static final String AGENT_PRIVATE_KEY_PASSPHRASE_FILE = "sslPrivateKeyPassphraseFile";
+    public static final String AGENT_SSL_CERTIFICATE = "sslCertificate";
+
     public static final String CONFIG_DIR_PROPERTY = "cruise.config.dir";
     public static final String DES_CONFIG_CIPHER = "cipher";
     public static final String AES_CONFIG_CIPHER = "cipher.aes";
@@ -165,11 +169,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static GoSystemProperty<Boolean> FETCH_ARTIFACT_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.auto-suggest", true);
     public static GoSystemProperty<Boolean> GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.template.auto-suggest", true);
-    public static GoSystemProperty<String> GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT = new GoStringSystemProperty("go.ssl.agent.protocol", "TLSv1.2");
-    public static GoSystemProperty<String> GO_SSL_CERTS_ALGORITHM = new GoStringSystemProperty("go.ssl.cert.algorithm", "SHA512WITHRSA");
-    public static GoSystemProperty<String> GO_SSL_CERTS_PUBLIC_KEY_ALGORITHM = new GoStringSystemProperty("go.ssl.cert.public-key.algorithm", "SHA256WithRSAEncryption");
     public static GoSystemProperty<Boolean> GO_SSL_CONFIG_CLEAR_JETTY_DEFAULT_EXCLUSIONS = new GoBooleanSystemProperty("go.ssl.config.clear.default.exclusions", false);
-    public static GoSystemProperty<Boolean> GO_SSL_CONFIG_JETTY_WANT_CLIENT_AUTH = new GoBooleanSystemProperty("go.ssl.config.want.client.auth", false);
     public static GoSystemProperty<String[]> GO_SSL_INCLUDE_CIPHERS = new GoStringArraySystemProperty("go.ssl.ciphers.include", null);
     public static GoSystemProperty<String[]> GO_SSL_EXCLUDE_CIPHERS = new GoStringArraySystemProperty("go.ssl.ciphers.exclude", null);
     public static GoSystemProperty<String[]> GO_SSL_INCLUDE_PROTOCOLS = new GoStringArraySystemProperty("go.ssl.protocols.include", null);
@@ -201,7 +201,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Boolean> CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS = new GoBooleanSystemProperty("go.modifications.removeDuplicates", true);
     public static GoSystemProperty<String> GO_AGENT_KEYSTORE_PASSWORD = new GoStringSystemProperty("go.agent.keystore.password", "agent5s0repa55w0rd");
     public static GoSystemProperty<String> GO_SERVER_KEYSTORE_PASSWORD = new GoStringSystemProperty("go.server.keystore.password", "serverKeystorepa55w0rd");
-    private static final GoSystemProperty<Boolean> GO_AGENT_USE_SSL_CONTEXT = new GoBooleanSystemProperty("go.agent.reuse.ssl.context", true);
     public static final GoSystemProperty<Boolean> GO_DIAGNOSTICS_MODE = new GoBooleanSystemProperty("go.diagnostics.mode", false);
 
     public static GoIntSystemProperty DEPENDENCY_MATERIAL_UPDATE_LISTENERS = new GoIntSystemProperty("dependency.material.check.threads", 3);
@@ -305,10 +304,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public File truststore() {
         return new File(configDir(), "truststore");
-    }
-
-    public File agentkeystore() {
-        return new File(configDir(), "agentkeystore");
     }
 
     public int getServerPort() {
@@ -583,6 +578,28 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return new File(getPropertyImpl(AGENT_ROOT_CERT_FILE));
     }
 
+    public File getAgentPrivateKeyFile() {
+        if (getPropertyImpl(AGENT_PRIVATE_KEY) == null) {
+            return null;
+        }
+        return new File(getPropertyImpl(AGENT_PRIVATE_KEY));
+    }
+
+    public File getAgentSslPrivateKeyPassphraseFile() {
+        if (getPropertyImpl(AGENT_PRIVATE_KEY_PASSPHRASE_FILE) == null) {
+            return null;
+        }
+        return new File(getPropertyImpl(AGENT_PRIVATE_KEY_PASSPHRASE_FILE));
+    }
+
+    public File getAgentSslCertificate() {
+        if (getPropertyImpl(AGENT_SSL_CERTIFICATE) == null) {
+            return null;
+        }
+        return new File(getPropertyImpl(AGENT_SSL_CERTIFICATE));
+    }
+
+
     public SslVerificationMode getAgentSslVerificationMode() {
         if (getPropertyImpl(AGENT_SSL_VERIFICATION_MODE) == null) {
             return SslVerificationMode.NONE;
@@ -803,10 +820,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return GO_API_WITH_SAFE_MODE.getValue();
     }
 
-    public boolean useSslContext() {
-        return GO_AGENT_USE_SSL_CONTEXT.getValue();
-    }
-
     public String getAgentKeyStorePassword() {
         return get(SystemEnvironment.GO_AGENT_KEYSTORE_PASSWORD);
     }
@@ -910,6 +923,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public Optional<String> wrapperConfigDirPath() {
         return Optional.ofNullable(System.getenv("WRAPPER_CONF_DIR"));
     }
+
 
     public static abstract class GoSystemProperty<T> {
         private String propertyName;

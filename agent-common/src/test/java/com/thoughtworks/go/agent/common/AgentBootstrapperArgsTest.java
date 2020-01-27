@@ -19,32 +19,31 @@ import org.junit.Test;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Properties;
+import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AgentBootstrapperArgsTest {
 
     @Test
     public void shouldSerializeToPropertiesWhenCertFileIsSet() throws Exception {
-        AgentBootstrapperArgs original = new AgentBootstrapperArgs(new URL("https://go.example.com:8154/go"), new File("/path/to/certfile"), AgentBootstrapperArgs.SslMode.NONE);
-        Properties properties = original.toProperties();
+        AgentBootstrapperArgs original = new AgentBootstrapperArgs().setServerUrl(new URL("https://go.example.com:8154/go")).setRootCertFile(new File("/path/to/certfile")).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE);
+        Map<String, String> properties = original.toProperties();
 
         AgentBootstrapperArgs reHydrated = AgentBootstrapperArgs.fromProperties(properties);
 
-        assertEquals(original, reHydrated);
+        assertThat(reHydrated).isEqualTo(original);
     }
 
 
     @Test
     public void shouldSerializeToPropertiesWhenInsecureIsSet() throws Exception {
-        AgentBootstrapperArgs original = new AgentBootstrapperArgs(new URL("https://go.example.com:8154/go"), null, AgentBootstrapperArgs.SslMode.NONE);
-        Properties properties = original.toProperties();
+        AgentBootstrapperArgs original = new AgentBootstrapperArgs().setServerUrl(new URL("https://go.example.com:8154/go")).setRootCertFile(null).setSslVerificationMode(AgentBootstrapperArgs.SslMode.NONE);
+        Map<String, String> properties = original.toProperties();
 
         AgentBootstrapperArgs reHydrated = AgentBootstrapperArgs.fromProperties(properties);
 
-        assertEquals(original, reHydrated);
+        assertThat(reHydrated).isEqualTo(original);
     }
-
 
 }

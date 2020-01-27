@@ -30,20 +30,15 @@ public class AgentCLITest {
 
     private ByteArrayOutputStream errorStream;
     private AgentCLI agentCLI;
-    private AgentCLI.SystemExitter exitter;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         errorStream = new ByteArrayOutputStream();
-        exitter = new AgentCLI.SystemExitter() {
-            @Override
-            public void exit(int status) {
-                throw new ExitException(status);
-            }
+        AgentCLI.SystemExitter exitter = status -> {
+            throw new ExitException(status);
         };
         agentCLI = new AgentCLI(new PrintStream(errorStream), exitter);
     }
-
 
     @Test
     public void shouldDieIfNoArguments() {
@@ -58,7 +53,7 @@ public class AgentCLITest {
     }
 
     @Test
-    public void serverURLMustBeAValidURL() throws Exception {
+    public void serverURLMustBeAValidURL() {
         try {
             agentCLI.parse("-serverUrl", "foobar");
             Assert.fail("Was expecting an exception!");
@@ -70,14 +65,14 @@ public class AgentCLITest {
     }
 
     @Test
-    public void shouldPassIfCorrectArgumentsAreProvided() throws Exception {
+    public void shouldPassIfCorrectArgumentsAreProvided() {
         AgentBootstrapperArgs agentBootstrapperArgs = agentCLI.parse("-serverUrl", "https://go.example.com:8154/go", "-sslVerificationMode", "NONE");
         assertThat(agentBootstrapperArgs.getServerUrl().toString(), is("https://go.example.com:8154/go"));
-        assertThat(agentBootstrapperArgs.getSslMode(), is(AgentBootstrapperArgs.SslMode.NONE));
+        assertThat(agentBootstrapperArgs.getSslVerificationMode(), is(AgentBootstrapperArgs.SslMode.NONE));
     }
 
     @Test
-    public void shouldRaisExceptionWhenInvalidSslModeIsPassed() throws Exception {
+    public void shouldRaisExceptionWhenInvalidSslModeIsPassed() {
         try {
             agentCLI.parse("-serverUrl", "https://go.example.com:8154/go", "-sslVerificationMode", "FOOBAR");
             Assert.fail("Was expecting an exception!");
@@ -89,13 +84,13 @@ public class AgentCLITest {
     }
 
     @Test
-    public void shouldDefaultsTheSslModeToNONEWhenNotSpecified() throws Exception {
+    public void shouldDefaultsTheSslModeToFullWhenNotSpecified() {
         AgentBootstrapperArgs agentBootstrapperArgs = agentCLI.parse("-serverUrl", "https://go.example.com/go");
-        assertThat(agentBootstrapperArgs.getSslMode(), is(AgentBootstrapperArgs.SslMode.NONE));
+        assertThat(agentBootstrapperArgs.getSslVerificationMode(), is(AgentBootstrapperArgs.SslMode.FULL));
     }
 
     @Test
-    public void printsHelpAndExitsWith0() throws Exception {
+    public void printsHelpAndExitsWith0() {
         try {
             agentCLI.parse("-help");
             Assert.fail("Was expecting an exception!");
@@ -104,7 +99,7 @@ public class AgentCLITest {
         }
     }
 
-    class ExitException extends RuntimeException {
+    static class ExitException extends RuntimeException {
         private final int status;
 
         public ExitException(int status) {

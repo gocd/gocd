@@ -17,8 +17,13 @@
 description = 'GoCD Agent Common Utilities'
 
 dependencies {
+  compileOnly group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+
   compile project(':base')
   compile group: 'com.beust', name: 'jcommander', version: project.versions.jcommander
+  testCompile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  testCompile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
   testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
   testCompile project(':test:test-utils')

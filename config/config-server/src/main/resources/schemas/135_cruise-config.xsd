@@ -84,7 +84,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="136"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="135"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -190,7 +190,6 @@
         <xsd:element name="scm" type="configRepoScmReferenceType"/>
       </xsd:choice>
       <xsd:element name="configuration" minOccurs="0" maxOccurs="1" type="configurationType"/>
-      <xsd:element name="rules" minOccurs="0" maxOccurs="1" type="rulesType"/>
     </xsd:sequence>
     <xsd:attribute type="nameType" name="id" use="required"/>
     <xsd:attribute type="nameType" name="pluginId" use="optional"/>

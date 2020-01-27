@@ -16,6 +16,7 @@
 package com.thoughtworks.go.config.rules;
 
 import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.Validatable;
 
@@ -27,6 +28,7 @@ import static java.util.Collections.unmodifiableList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public enum SupportedEntity {
+    PIPELINE("pipeline", PipelineConfig.class),
     PIPELINE_GROUP("pipeline_group", PipelineConfigs.class),
     ENVIRONMENT("environment", EnvironmentConfig.class),
     UNKNOWN(null, null);

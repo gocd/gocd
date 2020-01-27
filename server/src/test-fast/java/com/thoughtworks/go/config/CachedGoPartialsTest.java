@@ -45,12 +45,12 @@ public class CachedGoPartialsTest {
     public void setUp() throws Exception {
         serverHealthService = new ServerHealthService();
         partials = new CachedGoPartials(serverHealthService);
-        configRepo1 = new ConfigRepoConfig(git("url1"), "plugin");
+        configRepo1 = ConfigRepoConfig.createConfigRepoConfig(git("url1"), "plugin");
         part1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(configRepo1, "1"));
-        configRepo2 = new ConfigRepoConfig(git("url2"), "plugin");
+        configRepo2 = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin");
         part2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(configRepo2, "1"));
-        partials.addOrUpdate(configRepo1.getMaterialConfig().getFingerprint(), part1);
-        partials.addOrUpdate(configRepo2.getMaterialConfig().getFingerprint(), part2);
+        partials.addOrUpdate(configRepo1.getRepo().getFingerprint(), part1);
+        partials.addOrUpdate(configRepo2.getRepo().getFingerprint(), part2);
         fingerprintForRepo1 = ((RepoConfigOrigin) part1.getOrigin()).getMaterial().getFingerprint();
         fingerprintForRepo2 = ((RepoConfigOrigin) part2.getOrigin()).getMaterial().getFingerprint();
     }

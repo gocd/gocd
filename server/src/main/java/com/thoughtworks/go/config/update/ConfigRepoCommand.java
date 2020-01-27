@@ -60,7 +60,9 @@ abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepo
 
         preprocessedConfigRepo = preprocessedConfig.getConfigRepos().getConfigRepo(this.configRepo.getId());
 
-        if (!preprocessedConfigRepo.validateTree(new ConfigSaveValidationContext(preprocessedConfig))) {
+        preprocessedConfigRepo.validateTree(new ConfigSaveValidationContext(preprocessedConfig));
+
+        if (preprocessedConfigRepo.hasErrors()) {
             BasicCruiseConfig.copyErrors(preprocessedConfigRepo, configRepo);
             return false;
         }

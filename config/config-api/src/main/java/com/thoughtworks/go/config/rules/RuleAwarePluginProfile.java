@@ -21,39 +21,49 @@ import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+@Getter
+@Setter
+@EqualsAndHashCode
+@Accessors(chain = true)
 public abstract class RuleAwarePluginProfile implements Validatable, RulesAware {
-    public static final String ID = "id";
-    public static final String PLUGIN_ID = "pluginId";
+    protected static final String ID = "id";
+    protected static final String PLUGIN_ID = "pluginId";
 
     @ConfigAttribute(value = "id")
-    private String id;
+    protected String id;
 
     @ConfigAttribute(value = "pluginId")
-    private String pluginId;
+    protected String pluginId;
 
     @ConfigSubtag
-    private Configuration configuration;
+    protected Configuration configuration;
 
     @ConfigSubtag
-    private Rules rules = new Rules();
+    protected Rules rules = new Rules();
 
     @ConfigSubtag
-    private Description description = new Description();
-
+    protected Description description = new Description();
 
     public RuleAwarePluginProfile() {
         configuration = new Configuration();
     }
 
-    private final ConfigErrors errors = new ConfigErrors();
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    @EqualsAndHashCode.Exclude
+    protected final ConfigErrors errors = new ConfigErrors();
 
     public RuleAwarePluginProfile(String id, String pluginId, Rules rules, ConfigurationProperty... configurationProperties) {
         this.id = id;
@@ -65,11 +75,6 @@ public abstract class RuleAwarePluginProfile implements Validatable, RulesAware 
         }
     }
 
-    public Configuration getConfiguration() {
-        return configuration;
-    }
-
-
     public void addConfigurations(List<ConfigurationProperty> configurations) {
         ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
         for (ConfigurationProperty property : configurations) {
@@ -80,14 +85,6 @@ public abstract class RuleAwarePluginProfile implements Validatable, RulesAware 
         }
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getPluginId() {
-        return pluginId;
-    }
-
     public String getDescription() {
         return this.description.text;
     }
@@ -96,57 +93,11 @@ public abstract class RuleAwarePluginProfile implements Validatable, RulesAware 
         this.description.text = description;
     }
 
-    //TODO: return clone instead?
-    @Override
-    public Rules getRules() {
-        return this.rules;
-    }
-
     @ConfigTag("description")
+    @EqualsAndHashCode
     public static class Description {
         @ConfigValue
         private String text;
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Description that = (Description) o;
-
-            return text != null ? text.equals(that.text) : that.text == null;
-        }
-
-        @Override
-        public int hashCode() {
-            return text != null ? text.hashCode() : 0;
-        }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        RuleAwarePluginProfile that = (RuleAwarePluginProfile) o;
-
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (pluginId != null ? !pluginId.equals(that.pluginId) : that.pluginId != null) return false;
-        if (configuration != null ? !configuration.equals(that.configuration) : that.configuration != null)
-            return false;
-        if (rules != null ? !rules.equals(that.rules) : that.rules != null) return false;
-        return description != null ? description.equals(that.description) : that.description == null;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(
-                id.hashCode(),
-                pluginId.hashCode(),
-                configuration.hashCode(),
-                (rules != null ? rules.hashCode() : 0),
-                (description != null ? description.hashCode() : 0)
-        );
     }
 
     @PostConstruct
@@ -184,7 +135,6 @@ public abstract class RuleAwarePluginProfile implements Validatable, RulesAware 
         });
     }
 
-
     @Override
     public void validate(ValidationContext validationContext) {
         configuration.validateUniqueness(getObjectDescription() + " " + (isBlank(id) ? "(noname)" : "'" + id + "'"));
@@ -200,10 +150,6 @@ public abstract class RuleAwarePluginProfile implements Validatable, RulesAware 
         if (new NameTypeValidator().isNameInvalid(id)) {
             addError(ID, String.format("Invalid id '%s'. %s", id, NameTypeValidator.ERROR_MESSAGE));
         }
-    }
-
-    public void setRules(Rules rules) {
-        this.rules = rules;
     }
 
     protected abstract String getObjectDescription();

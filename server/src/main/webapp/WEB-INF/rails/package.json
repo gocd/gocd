@@ -52,7 +52,7 @@
     "@babel/parser": "^7.8.3",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-decorators": "^7.8.3",
-    "@babel/plugin-proposal-export-namespace-from": "^7.7.4",
+    "@babel/plugin-proposal-export-namespace-from": "^7.8.3",
     "@babel/plugin-proposal-function-sent": "^7.8.3",
     "@babel/plugin-proposal-json-strings": "^7.8.3",
     "@babel/plugin-proposal-numeric-separator": "^7.8.3",

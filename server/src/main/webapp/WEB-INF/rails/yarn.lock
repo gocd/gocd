@@ -300,13 +300,13 @@
     "@babel/helper-plugin-utils" "^7.8.3"
     "@babel/plugin-syntax-dynamic-import" "^7.8.0"
 
-"@babel/plugin-proposal-export-namespace-from@^7.7.4":
-  version "7.7.4"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-export-namespace-from/-/plugin-proposal-export-namespace-from-7.7.4.tgz#9b32a9e3538ba4b0e2fa08942f0a8e5f60899dea"
-  integrity sha512-3whN5U7iZjKdbwRSFwBOjGBgH7apXCzwielljxVH8D/iYcGRqPPw63vlIbG0GqQoT9bO0QYPcIUVkhQG5hcHtg==
+"@babel/plugin-proposal-export-namespace-from@^7.8.3":
+  version "7.8.3"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-export-namespace-from/-/plugin-proposal-export-namespace-from-7.8.3.tgz#63ad57265d0e3912afd666eb44ce26fa8cd2c774"
+  integrity sha512-WKK+9jz6TWUTX1uej9/EUVOmM1sK7aHv6bZyxbUV3NJjbiIZRqJITeXGMo7D631J72PEnIORh5VOlFCSlrLicg==
   dependencies:
-    "@babel/helper-plugin-utils" "^7.0.0"
-    "@babel/plugin-syntax-export-namespace-from" "^7.7.4"
+    "@babel/helper-plugin-utils" "^7.8.3"
+    "@babel/plugin-syntax-export-namespace-from" "^7.8.3"
 
 "@babel/plugin-proposal-function-sent@^7.8.3":
   version "7.8.3"
@@ -402,12 +402,12 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.8.0"
 
-"@babel/plugin-syntax-export-namespace-from@^7.7.4":
-  version "7.7.4"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-export-namespace-from/-/plugin-syntax-export-namespace-from-7.7.4.tgz#116c3e5db0d3e41018665528a468bc0f336044c3"
-  integrity sha512-YTc2djwMzJjiTTUJxJunRAnK0xW6OrmCSrgBc7QbWtpUo44FCkhZQtNcwZUqVf3sc4JFxhreiJ/P7YkmCTw4rg==
+"@babel/plugin-syntax-export-namespace-from@^7.8.3":
+  version "7.8.3"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-export-namespace-from/-/plugin-syntax-export-namespace-from-7.8.3.tgz#028964a9ba80dbc094c915c487ad7c4e7a66465a"
+  integrity sha512-MXf5laXo6c1IbEbegDmzGPwGNTsHZmEy6QGznu5Sh2UCWvueywb2ee+CCE4zQiZstxU9BMoQO9i6zUFSY0Kj0Q==
   dependencies:
-    "@babel/helper-plugin-utils" "^7.0.0"
+    "@babel/helper-plugin-utils" "^7.8.3"
 
 "@babel/plugin-syntax-function-sent@^7.8.3":
   version "7.8.3"

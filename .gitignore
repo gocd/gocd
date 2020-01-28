@@ -521,3 +521,7 @@ api/api-webhook-v1/out/
 api/api-webhook-v1/target/
 api/api-webhook-v1/logs/
 api/api-webhook-v1/config/
+api/api-template-config-v7/out/
+api/api-template-config-v7/target/
+api/api-template-config-v7/logs/
+api/api-template-config-v7/config/

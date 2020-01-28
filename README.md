@@ -4,7 +4,7 @@
 
 This is the main repository for [GoCD](https://gocd.org) - a continuous delivery server. GoCD helps you automate and streamline the build-test-release cycle for worry-free, continuous delivery of your product.
 
-To quickly build your first pipeline while learning key GoCD concepts, visit our [Intro to GoCD guide](https://www.gocd.org/getting-started/part-1/).
+To quickly build your first pipeline while learning key GoCD concepts, visit our [Test Drive GoCD](https://www.gocd.org/test-drive-gocd.html).
 
 ## Development Setup
 

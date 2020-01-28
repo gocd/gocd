@@ -49,13 +49,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.xmlunit.assertj.XmlAssert;
 
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
-import org.xmlunit.assertj.XmlAssert;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
@@ -169,7 +168,8 @@ public class MagicalGoConfigXmlWriterTest {
         CruiseConfig config = GoConfigMother.configWithConfigRepo();
         config.initializeServer();
         xmlWriter.write(config, output, false);
-        assertThat(output.toString(), containsString("<config-repo pluginId=\"myplugin\" id=\"id2\">"));
+
+        assertThat(output.toString(), containsString("<config-repo id=\"id2\" pluginId=\"myplugin\">"));
         assertThat(output.toString(), containsString("<git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />"));
     }
 

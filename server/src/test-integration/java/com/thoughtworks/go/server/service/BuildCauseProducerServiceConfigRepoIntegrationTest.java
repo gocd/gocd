@@ -133,7 +133,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
         materialConfig = hgRepo.materialConfig();
-        configHelper.addConfigRepo(ConfigRepoConfig.createConfigRepoConfig(materialConfig,"gocd-xml"));
+        configHelper.addConfigRepo(ConfigRepoConfig.createConfigRepoConfig(materialConfig,"gocd-xml", "gocd-id"));
 
         logger = mock(MDUPerformanceLogger.class);
 

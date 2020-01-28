@@ -96,7 +96,7 @@ class InternalRolesControllerV3Test implements SecurityServiceTrait, ControllerT
         def gocdRoleConfig = new RoleConfig("gocd-role")
         def pluginRoleConfig = new PluginRoleConfig('foo', 'ldap')
         expectedRoles = new RolesConfig([gocdRoleConfig, pluginRoleConfig])
-        configRepo = new ConfigRepoConfig(git("https://foo.git", "master"), "json-config-repo-plugin", "repo-1");
+        configRepo = ConfigRepoConfig.createConfigRepoConfig(git("https://foo.git", "master"), "json-config-repo-plugin", "repo-1");
         envNames = asList("env1", "env2")
         def elasticProfile1 = new ElasticProfile("elastic_profile1", "cluster_profile")
         def elasticProfile2 = new ElasticProfile("elastic_profile2", "cluster_profile")

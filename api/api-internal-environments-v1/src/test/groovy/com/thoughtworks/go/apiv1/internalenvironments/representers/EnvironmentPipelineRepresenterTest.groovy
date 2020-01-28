@@ -65,7 +65,7 @@ class EnvironmentPipelineRepresenterTest {
 
   @Test
   void 'should represent pipeline with config repo origin'() {
-    def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.git("foo.git"), "json-plugon", "repo1"), "revision1");
+    def origin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.git("foo.git"), "json-plugon", "repo1"), "revision1");
     def pipeline = new EnvironmentPipelineConfig("pipeline-1")
     when(environmentConfig.isLocal()).thenReturn(false)
     when(environmentConfig.getOriginForPipeline(pipeline.name)).thenReturn(origin)

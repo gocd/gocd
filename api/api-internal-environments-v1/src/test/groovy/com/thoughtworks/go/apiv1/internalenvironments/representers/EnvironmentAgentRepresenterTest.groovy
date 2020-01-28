@@ -65,7 +65,7 @@ class EnvironmentAgentRepresenterTest {
 
   @Test
   void 'should represent agent with config repo origin'() {
-    def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.git("foo.git"), "json-plugon", "repo1"), "revision1");
+    def origin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.git("foo.git"), "json-plugon", "repo1"), "revision1");
     def agent = new EnvironmentAgentConfig("agent-1")
     when(environmentConfig.isLocal()).thenReturn(false)
     when(environmentConfig.getOriginForAgent(agent.uuid)).thenReturn(origin)

@@ -103,6 +103,6 @@ class ConfigRepoWithResultListRepresenterTest {
 
     PartialConfig partialConfig = new PartialConfig()
     PartialConfigParseResult expectedParseResult = PartialConfigParseResult.parseSuccess(modification, partialConfig)
-    return new ConfigRepoWithResult(new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id), expectedParseResult, false)
+    return new ConfigRepoWithResult(ConfigRepoConfig.createConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id), expectedParseResult, false)
   }
 }

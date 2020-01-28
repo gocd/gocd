@@ -69,7 +69,7 @@ class EnvironmentEnvironmentVariableRepresenterTest {
 
   @Test
   void 'should represent environmentVariable with config repo origin'() {
-    def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.git("foo.git"), "json-plugon", "repo1"), "revision1");
+    def origin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.git("foo.git"), "json-plugon", "repo1"), "revision1");
     def environmentVariable = new EnvironmentVariableConfig("env-name", "env-value")
     when(environmentConfig.isLocal()).thenReturn(false)
     when(environmentConfig.getOriginForEnvironmentVariable(environmentVariable.name)).thenReturn(origin)

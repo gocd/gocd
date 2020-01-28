@@ -472,7 +472,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
     @Test
     public void shouldTriggerMDUOfConfigRepoMaterialIfThePipelineIsDefinedRemotelyInAConfigRepo_ManualTriggerOfPipeline_EvenIfMDUOptionIsTurnedOFFInRequest() throws Exception {
-        ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin");
+        ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin", "id-2");
         configHelper.addConfigRepo(repoConfig);
         PartialConfig partialConfig = PartialConfigMother.withPipelineMultipleMaterials("remote_pipeline", new RepoConfigOrigin(repoConfig, "4567"));
         PipelineConfig remotePipeline = partialConfig.getGroups().first().getPipelines().get(0);

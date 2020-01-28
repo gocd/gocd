@@ -76,8 +76,8 @@ public class GoPartialConfigIntegrationTest {
         goCache.clear();
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(git("url1"), "plugin");
-        repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin");
+        repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(git("url1"), "plugin", "id-1");
+        repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin", "id-2");
         configHelper.addConfigRepo(repoConfig1);
         configHelper.addConfigRepo(repoConfig2);
 
@@ -171,7 +171,7 @@ public class GoPartialConfigIntegrationTest {
 
     @Test
     public void shouldMarkAnInvalidKnownPartialAsValidWhenLoadingAnotherPartialMakesThisOneValid_InterConfigRepoDependency() {
-        ConfigRepoConfig repoConfig3 = ConfigRepoConfig.createConfigRepoConfig(git("url3"), "plugin");
+        ConfigRepoConfig repoConfig3 = ConfigRepoConfig.createConfigRepoConfig(git("url3"), "plugin", "id-3");
         configHelper.addConfigRepo(repoConfig3);
 
         PartialConfig repo1 = PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1"));

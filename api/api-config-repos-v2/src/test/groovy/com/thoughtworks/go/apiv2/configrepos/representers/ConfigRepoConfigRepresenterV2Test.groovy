@@ -136,7 +136,7 @@ class ConfigRepoConfigRepresenterV2Test {
     c.addNewConfigurationWithValue("baz", "quu", false)
 
     GitMaterialConfig materialConfig = git(TEST_REPO_URL)
-    ConfigRepoConfig repo = new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
+    ConfigRepoConfig repo = ConfigRepoConfig.createConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
     repo.setConfiguration(c)
 
     return repo

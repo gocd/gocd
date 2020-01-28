@@ -77,7 +77,7 @@ public class GoConfigWatchListTest {
     public void shouldReturnTrueWhenHasConfigRepoWithFingerprint() {
         GitMaterialConfig gitrepo = git("http://configrepo.git");
         when(cruiseConfig.getConfigRepos()).thenReturn(new ConfigReposConfig(
-                ConfigRepoConfig.createConfigRepoConfig(gitrepo, "myplugin")));
+                ConfigRepoConfig.createConfigRepoConfig(gitrepo, "myplugin", "id")));
 
         watchList = new GoConfigWatchList(cachedGoConfig, goConfigService);
 
@@ -88,7 +88,7 @@ public class GoConfigWatchListTest {
     public void shouldReturnFalseWhenDoesNotHaveConfigRepoWithFingerprint() {
         GitMaterialConfig gitrepo = git("http://configrepo.git");
         when(cruiseConfig.getConfigRepos()).thenReturn(new ConfigReposConfig(
-                ConfigRepoConfig.createConfigRepoConfig(gitrepo, "myplugin")));
+                ConfigRepoConfig.createConfigRepoConfig(gitrepo, "myplugin", "id")));
 
         watchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
 
@@ -100,7 +100,7 @@ public class GoConfigWatchListTest {
     @Test
     public void shouldReturnConfigRepoForMaterial() {
         GitMaterialConfig gitrepo = git("http://configrepo.git");
-        ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(gitrepo, "myplugin");
+        ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(gitrepo, "myplugin", "id");
         when(cruiseConfig.getConfigRepos()).thenReturn(new ConfigReposConfig(
                 repoConfig));
 

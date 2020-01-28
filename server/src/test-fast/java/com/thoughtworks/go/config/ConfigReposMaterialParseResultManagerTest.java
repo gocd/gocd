@@ -60,7 +60,7 @@ class ConfigReposMaterialParseResultManagerTest {
 
         when(serverHealthService.filterByScope(any())).thenReturn(Collections.emptyList());
         ScmMaterialConfig material = git("http://my.git");
-        ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(material, "myplugin");
+        ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(material, "myplugin", "id");
         when(configRepoService.findByFingerprint(anyString())).thenReturn(configRepoConfig);
 
         manager = new ConfigReposMaterialParseResultManager(serverHealthService, configRepoService);

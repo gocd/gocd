@@ -41,7 +41,7 @@ public class ConfigReposConfigTest {
 
     @Test
     public void shouldReturnTrueThatHasMaterialWhenAddedConfigRepo() {
-        repos.add(ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin"));
+        repos.add(ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin", "id"));
         assertThat(repos.hasMaterial(git("http://git")), is(true));
     }
 
@@ -67,13 +67,13 @@ public class ConfigReposConfigTest {
     @Test
     public void shouldReturnFalseThatHasConfigRepoWhenEmpty() {
         assertThat(repos.isEmpty(), is(true));
-        assertThat(repos.contains(ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin")), is(false));
+        assertThat(repos.contains(ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin", "id")), is(false));
     }
 
     @Test
     public void shouldErrorWhenDuplicateReposExist() {
-        ConfigRepoConfig repo1 = ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin");
-        ConfigRepoConfig repo2 = ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myotherplugin");
+        ConfigRepoConfig repo1 = ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin", "id");
+        ConfigRepoConfig repo2 = ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myotherplugin", "other-id");
         repos.add(repo1);
         repos.add(repo2);
         // this is a limitation, we identify config repos by material fingerprint later

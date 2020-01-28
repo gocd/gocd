@@ -93,7 +93,7 @@ public class BuildCauseTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build");
         pipelineConfig.materialConfigs().clear();
         pipelineConfig.materialConfigs().add(materialConfig);
-        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig,"plug"),"revision2"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig,"plug", "id"),"revision2"));
 
         buildCause.assertPipelineConfigAndMaterialRevisionMatch(pipelineConfig);
     }
@@ -112,7 +112,7 @@ public class BuildCauseTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build");
         pipelineConfig.materialConfigs().clear();
         pipelineConfig.materialConfigs().add(materialConfig);
-        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig,"plug"),"revision2"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig,"plug", "id"),"revision2"));
 
         try {
             buildCause.assertPipelineConfigAndMaterialRevisionMatch(pipelineConfig);
@@ -139,7 +139,7 @@ public class BuildCauseTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build");
         pipelineConfig.materialConfigs().clear();
         pipelineConfig.materialConfigs().add(materialConfig);
-        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig,"plug"),"revision1"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig,"plug", "id"),"revision1"));
 
         buildCause.assertPipelineConfigAndMaterialRevisionMatch(pipelineConfig);
     }

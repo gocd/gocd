@@ -78,7 +78,7 @@ public class PipelineLabelCorrectorIntegrationTest {
         configHelper.onSetUp();
         dbHelper.onSetUp();
         scheduleUtil = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
-        repoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url1"), "plugin");
+        repoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url1"), "plugin", "id1");
         configHelper.addConfigRepo(repoConfig);
     }
 
@@ -157,7 +157,7 @@ public class PipelineLabelCorrectorIntegrationTest {
     public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbIfTheConfigRepoPipelineHasNotBeenLoadedUpYetLeavingBehindTheOneWhichMatchesTheCaseOfTheLastRunPipeline() throws SQLException {
         // Such a scenario could be created in pre 18.4 world when the pipeline defined in a config-repo was created/renamed with different cases, and has had a few runs. After this the server is upgraded to a version >= 18.4
         String pipelineName = "Pipeline-Name";
-        ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin");
+        ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin", "id2");
         configHelper.addConfigRepo(repoConfig);
         PipelineConfig pipelineConfig = addConfigRepoPipeline(repoConfig, pipelineName);
         scheduleUtil.runAndPass(new ScheduleTestUtil.AddedPipeline(pipelineConfig, new DependencyMaterial(pipelineConfig.name(), pipelineConfig.first().name())), "svn1r11");

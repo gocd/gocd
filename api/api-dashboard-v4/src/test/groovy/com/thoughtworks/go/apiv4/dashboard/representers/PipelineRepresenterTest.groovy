@@ -121,7 +121,7 @@ class PipelineRepresenterTest {
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
     def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
-    def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
+    def origin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
     def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'p1l1', false, true, null), permissions, "grp", null, counter, origin, 0)
     def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
@@ -140,7 +140,7 @@ class PipelineRepresenterTest {
       def counter = mock(Counter.class)
       when(counter.getNext()).thenReturn(1l)
       def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE)
-      def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
+      def origin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
       def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", null, counter, origin, 0)
       def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
@@ -158,7 +158,7 @@ class PipelineRepresenterTest {
       def counter = mock(Counter.class)
       when(counter.getNext()).thenReturn(1l)
       def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE)
-      def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
+      def origin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
       def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", null, counter, origin, 0)
       def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
@@ -176,7 +176,7 @@ class PipelineRepresenterTest {
       def counter = mock(Counter.class)
       when(counter.getNext()).thenReturn(1l)
       def permissions = new Permissions(NoOne.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
-      def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
+      def origin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
       def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", null, counter, origin, 0)
       def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 

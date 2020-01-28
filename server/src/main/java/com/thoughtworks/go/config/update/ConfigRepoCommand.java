@@ -18,13 +18,17 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.ErrorCollector;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+
+import java.util.List;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static java.lang.String.format;
@@ -59,10 +63,10 @@ abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepo
         }
 
         preprocessedConfigRepo = preprocessedConfig.getConfigRepos().getConfigRepo(this.configRepo.getId());
-
         preprocessedConfigRepo.validateTree(new ConfigSaveValidationContext(preprocessedConfig));
 
-        if (preprocessedConfigRepo.hasErrors()) {
+        List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(preprocessedConfigRepo);
+        if (!allErrors.isEmpty()) {
             BasicCruiseConfig.copyErrors(preprocessedConfigRepo, configRepo);
             return false;
         }

@@ -566,7 +566,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configXml, 98);
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
-        GitMaterialConfig materialConfig = (GitMaterialConfig) cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getMaterialConfig();
+        GitMaterialConfig materialConfig = (GitMaterialConfig) cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getRepo();
 
         assertThat(migratedContent).doesNotContain("<filter>");
         assertThat(migratedContent).doesNotContain("dest='dest'");
@@ -601,7 +601,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configXml, 98);
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
-        MaterialConfig materialConfig = cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getMaterialConfig();
+        MaterialConfig materialConfig = cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getRepo();
 
         assertThat(migratedContent).doesNotContain("<filter>");
         assertThat(migratedContent).doesNotContain("dest='dest'");
@@ -635,7 +635,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configXml, 98);
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
-        MaterialConfig materialConfig = cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getMaterialConfig();
+        MaterialConfig materialConfig = cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getRepo();
 
         assertThat(migratedContent).doesNotContain("dest=\"dest\"");
         assertThat(migratedContent).doesNotContain("<filter>");
@@ -668,7 +668,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configXml, 98);
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
-        MaterialConfig materialConfig = cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getMaterialConfig();
+        MaterialConfig materialConfig = cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getRepo();
 
         assertThat(migratedContent).doesNotContain("<filter>");
         assertThat(migratedContent).doesNotContain("dest='dest'");
@@ -701,7 +701,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configXml, 98);
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
-        MaterialConfig materialConfig = cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getMaterialConfig();
+        MaterialConfig materialConfig = cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getRepo();
 
         assertThat(migratedContent).doesNotContain("<filter>");
         assertThat(migratedContent).doesNotContain("dest='dest'");
@@ -732,7 +732,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configXml, 98);
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
-        MaterialConfig materialConfig = cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getMaterialConfig();
+        MaterialConfig materialConfig = cruiseConfig.getConfigRepos().getConfigRepo("config-repo-1").getRepo();
 
         assertThat(migratedContent).doesNotContain("<filter>");
         assertThat(migratedContent).doesNotContain("dest='dest'");

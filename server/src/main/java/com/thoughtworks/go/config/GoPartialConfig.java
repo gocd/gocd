@@ -70,7 +70,7 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
 
     @Override
     public void onSuccessPartialConfig(ConfigRepoConfig repoConfig, PartialConfig newPart) {
-        String fingerprint = repoConfig.getMaterialConfig().getFingerprint();
+        String fingerprint = repoConfig.getRepo().getFingerprint();
         if (this.configWatchList.hasConfigRepoWithFingerprint(fingerprint)) {
             //TODO maybe validate new part without context of other partials or main config
 

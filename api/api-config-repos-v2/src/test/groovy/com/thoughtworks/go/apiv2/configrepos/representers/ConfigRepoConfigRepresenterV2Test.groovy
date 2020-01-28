@@ -69,7 +69,7 @@ class ConfigRepoConfigRepresenterV2Test {
     ConfigRepoConfig configRepo = repo(ID)
     configRepo.addError("id", "Duplicate Id.")
     configRepo.addError("material", "You have defined multiple configuration repositories with the same repository.")
-    configRepo.getMaterialConfig().addError("autoUpdate", "Cannot be false.")
+    configRepo.getRepo().addError("autoUpdate", "Cannot be false.")
     String json = toObjectString({ w ->
       ConfigRepoConfigRepresenterV2.toJSON(w, configRepo)
     })

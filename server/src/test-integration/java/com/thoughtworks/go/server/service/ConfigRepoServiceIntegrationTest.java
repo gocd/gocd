@@ -89,7 +89,7 @@ public class ConfigRepoServiceIntegrationTest {
         this.repoId = "repo-1";
         this.pluginId = "json-config-repo-plugin";
         MaterialConfig repoMaterial = git("https://foo.git", "master");
-        this.configRepo = new ConfigRepoConfig(repoMaterial, pluginId, repoId);
+        this.configRepo = ConfigRepoConfig.createConfigRepoConfig(repoMaterial, pluginId, repoId);
 
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
@@ -173,7 +173,7 @@ public class ConfigRepoServiceIntegrationTest {
             }
         });
         String newRepoId = "repo-2";
-        ConfigRepoConfig toUpdateWith = new ConfigRepoConfig(git("http://bar.git", "master"), "yaml-plugin", newRepoId);
+        ConfigRepoConfig toUpdateWith = ConfigRepoConfig.createConfigRepoConfig(git("http://bar.git", "master"), "yaml-plugin", newRepoId);
 
         assertThat(configRepoService.getConfigRepos().size(), is(1));
         assertThat(configRepoService.getConfigRepo(repoId), is(configRepo));

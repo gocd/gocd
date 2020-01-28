@@ -78,7 +78,7 @@ public class PipelineLabelCorrectorIntegrationTest {
         configHelper.onSetUp();
         dbHelper.onSetUp();
         scheduleUtil = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
-        repoConfig = new ConfigRepoConfig(git("url1"), "plugin");
+        repoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url1"), "plugin");
         configHelper.addConfigRepo(repoConfig);
     }
 
@@ -157,7 +157,7 @@ public class PipelineLabelCorrectorIntegrationTest {
     public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbIfTheConfigRepoPipelineHasNotBeenLoadedUpYetLeavingBehindTheOneWhichMatchesTheCaseOfTheLastRunPipeline() throws SQLException {
         // Such a scenario could be created in pre 18.4 world when the pipeline defined in a config-repo was created/renamed with different cases, and has had a few runs. After this the server is upgraded to a version >= 18.4
         String pipelineName = "Pipeline-Name";
-        ConfigRepoConfig repoConfig = new ConfigRepoConfig(git("url2"), "plugin");
+        ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin");
         configHelper.addConfigRepo(repoConfig);
         PipelineConfig pipelineConfig = addConfigRepoPipeline(repoConfig, pipelineName);
         scheduleUtil.runAndPass(new ScheduleTestUtil.AddedPipeline(pipelineConfig, new DependencyMaterial(pipelineConfig.name(), pipelineConfig.first().name())), "svn1r11");
@@ -186,7 +186,7 @@ public class PipelineLabelCorrectorIntegrationTest {
         PipelineConfig remotePipeline = partialConfig.getGroups().first().getPipelines().get(0);
         SvnMaterial svn = scheduleUtil.wf((SvnMaterial) new MaterialConfigConverter().toMaterial(remotePipeline.materialConfigs().getSvnMaterial()), "svn");
         scheduleUtil.checkinInOrder(svn, scheduleUtil.d(1), "svn1r11");
-        GitMaterial configRepoMaterial = scheduleUtil.wf((GitMaterial) new MaterialConfigConverter().toMaterial(repoConfig.getMaterialConfig()), "git");
+        GitMaterial configRepoMaterial = scheduleUtil.wf((GitMaterial) new MaterialConfigConverter().toMaterial(repoConfig.getRepo()), "git");
         scheduleUtil.checkinInOrder(configRepoMaterial, scheduleUtil.d(1), "s1");
         goPartialConfig.onSuccessPartialConfig(repoConfig, partialConfig);
         return remotePipeline;

@@ -41,14 +41,14 @@ public class ConfigReposConfigTest {
 
     @Test
     public void shouldReturnTrueThatHasMaterialWhenAddedConfigRepo() {
-        repos.add(new ConfigRepoConfig(git("http://git"), "myplugin"));
+        repos.add(ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin"));
         assertThat(repos.hasMaterial(git("http://git")), is(true));
     }
 
     @Test
     public void shouldFindConfigRepoWithSpecifiedId() {
         String id = "repo1";
-        ConfigRepoConfig configRepo1 = new ConfigRepoConfig(git("http://git"), "myplugin", id);
+        ConfigRepoConfig configRepo1 = ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin", id);
         repos.add(configRepo1);
         assertThat(repos.getConfigRepo(id), is(configRepo1));
     }
@@ -60,20 +60,20 @@ public class ConfigReposConfigTest {
 
     @Test
     public void shouldReturnTrueThatHasConfigRepoWhenAddedConfigRepo() {
-        repos.add(new ConfigRepoConfig(git("http://git"), "myplugin", "repo-id"));
-        assertThat(repos.contains(new ConfigRepoConfig(git("http://git"), "myplugin", "repo-id")), is(true));
+        repos.add(ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin", "repo-id"));
+        assertThat(repos.contains(ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin", "repo-id")), is(true));
     }
 
     @Test
     public void shouldReturnFalseThatHasConfigRepoWhenEmpty() {
         assertThat(repos.isEmpty(), is(true));
-        assertThat(repos.contains(new ConfigRepoConfig(git("http://git"), "myplugin")), is(false));
+        assertThat(repos.contains(ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin")), is(false));
     }
 
     @Test
     public void shouldErrorWhenDuplicateReposExist() {
-        ConfigRepoConfig repo1 = new ConfigRepoConfig(git("http://git"), "myplugin");
-        ConfigRepoConfig repo2 = new ConfigRepoConfig(git("http://git"), "myotherplugin");
+        ConfigRepoConfig repo1 = ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin");
+        ConfigRepoConfig repo2 = ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myotherplugin");
         repos.add(repo1);
         repos.add(repo2);
         // this is a limitation, we identify config repos by material fingerprint later
@@ -86,8 +86,8 @@ public class ConfigReposConfigTest {
 
     @Test
     public void shouldErrorWhenDuplicateIdsExist() {
-        ConfigRepoConfig repo1 = new ConfigRepoConfig(git("http://git1"), "myplugin", "id");
-        ConfigRepoConfig repo2 = new ConfigRepoConfig(git("http://git2"), "myotherplugin", "id");
+        ConfigRepoConfig repo1 = ConfigRepoConfig.createConfigRepoConfig(git("http://git1"), "myplugin", "id");
+        ConfigRepoConfig repo2 = ConfigRepoConfig.createConfigRepoConfig(git("http://git2"), "myotherplugin", "id");
         repos.add(repo1);
         repos.add(repo2);
         repos.validate(null);
@@ -97,8 +97,8 @@ public class ConfigReposConfigTest {
 
     @Test
     public void shouldNotErrorWhenReposFingerprintDiffer() {
-        ConfigRepoConfig repo1 = new ConfigRepoConfig(git("http://git"), "myplugin", "id1");
-        ConfigRepoConfig repo2 = new ConfigRepoConfig(git("https://git", "develop"), "myotherplugin", "id2");
+        ConfigRepoConfig repo1 = ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplugin", "id1");
+        ConfigRepoConfig repo2 = ConfigRepoConfig.createConfigRepoConfig(git("https://git", "develop"), "myotherplugin", "id2");
         repos.add(repo1);
         repos.add(repo2);
         repos.validate(null);
@@ -108,7 +108,7 @@ public class ConfigReposConfigTest {
 
     @Test
     public void shouldReturnTrueIfContainsConfigRepoWithTheSpecifiedId() {
-        ConfigRepoConfig repo = new ConfigRepoConfig(git("http://git1"), "myplugin", "id");
+        ConfigRepoConfig repo = ConfigRepoConfig.createConfigRepoConfig(git("http://git1"), "myplugin", "id");
         repos.add(repo);
 
         assertThat(repos.hasConfigRepo(repo.getId()), is(true));

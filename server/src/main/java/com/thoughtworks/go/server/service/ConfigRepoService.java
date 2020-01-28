@@ -63,7 +63,7 @@ public class ConfigRepoService {
             @Override
             public void onEntityConfigChange(ConfigRepoConfig entity) {
                 if (getConfigRepo(entity.getId()) != null) {
-                    materialUpdateService.updateMaterial(converter.toMaterial(entity.getMaterialConfig()));
+                    materialUpdateService.updateMaterial(converter.toMaterial(entity.getRepo()));
                 }
             }
         });
@@ -114,7 +114,7 @@ public class ConfigRepoService {
 
     public ConfigRepoConfig findByFingerprint(String fingerprint) {
         return getConfigRepos().stream()
-                .filter(configRepo -> configRepo.getMaterialConfig().getFingerprint().equalsIgnoreCase(fingerprint))
+                .filter(configRepo -> configRepo.getRepo().getFingerprint().equalsIgnoreCase(fingerprint))
                 .findFirst().orElse(null);
 
     }

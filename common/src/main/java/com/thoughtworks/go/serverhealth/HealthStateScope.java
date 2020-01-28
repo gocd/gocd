@@ -77,7 +77,7 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
     }
 
     public static HealthStateScope forPartialConfigRepo(ConfigRepoConfig repoConfig) {
-        return new HealthStateScope(ScopeType.CONFIG_PARTIAL, repoConfig.getMaterialConfig().getFingerprint());
+        return new HealthStateScope(ScopeType.CONFIG_PARTIAL, repoConfig.getRepo().getFingerprint());
     }
 
     public static HealthStateScope forPartialConfigRepo(String fingerprint) {

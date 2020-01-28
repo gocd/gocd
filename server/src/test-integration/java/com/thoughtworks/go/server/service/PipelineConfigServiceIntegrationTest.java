@@ -124,8 +124,8 @@ public class PipelineConfigServiceIntegrationTest {
         user = new Username(new CaseInsensitiveString("current"));
         pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
         goConfigService.addPipeline(pipelineConfig, groupName);
-        repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url"), XmlPartialConfigProvider.providerName);
-        repoConfig2 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), XmlPartialConfigProvider.providerName);
+        repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url"), XmlPartialConfigProvider.providerName);
+        repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), XmlPartialConfigProvider.providerName);
         goConfigService.updateConfig(new UpdateConfigCommand() {
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
@@ -838,8 +838,8 @@ public class PipelineConfigServiceIntegrationTest {
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
         assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
         assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;; \n- For Config Repo: url at repo1_r2"));
@@ -854,8 +854,8 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
         assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getVariables().contains(new EnvironmentVariableConfig("key", "value")), is(true));
         assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
 
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
@@ -877,8 +877,8 @@ public class PipelineConfigServiceIntegrationTest {
         DependencyMaterialConfig dependencyMaterialForRemotePipelineInConfigCache = currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name());
         assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("stage")));
         assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);; \n- For Config Repo: url at repo1_r2", pipelineConfig.name())));
@@ -897,8 +897,8 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name()).getStageName(), is(upstreamStageRenamed));
         assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getFirstStageConfig().name(), is(upstreamStageRenamed));
         assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r2"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(true));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
     }
@@ -913,8 +913,8 @@ public class PipelineConfigServiceIntegrationTest {
         //introduce an invalid change in the independent partial
         PartialConfig invalidIndependentPartial = PartialConfigMother.invalidPartial(independentRemotePipeline, new RepoConfigOrigin(repoConfig2, "repo2_r2"));
         goPartialConfig.onSuccessPartialConfig(repoConfig2, invalidIndependentPartial);
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig2.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo2_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig2.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo2_r2"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig2.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo2_r1"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig2.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo2_r2"));
         assertThat(((RepoConfigOrigin) goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString(independentRemotePipeline)).getOrigin()).getRevision(), is("repo2_r1"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(true));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).size(), is(1));
@@ -928,8 +928,8 @@ public class PipelineConfigServiceIntegrationTest {
         DependencyMaterialConfig dependencyMaterialForRemotePipelineInConfigCache = currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name());
         assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("stage")));
         assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);; \n- For Config Repo: url at repo1_r2", pipelineConfig.name())));
@@ -958,11 +958,11 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name()).getStageName(), is(new CaseInsensitiveString("stage")));
         assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getFirstStageConfig().name(), is(new CaseInsensitiveString("stage")));
         assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
         assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(new CaseInsensitiveString(independentRemotePipeline)).getOrigin()).getRevision(), is("repo2_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig2.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo2_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig2.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo2_r2"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig2.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo2_r1"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig2.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo2_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);; \n- For Config Repo: url at repo1_r2", pipelineConfig.name())));
@@ -983,8 +983,8 @@ public class PipelineConfigServiceIntegrationTest {
         DependencyMaterialConfig dependencyMaterialForRemotePipelineInConfigCache = currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name());
         assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("stage")));
         assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);; \n- For Config Repo: url at repo1_r2", pipelineConfig.name())));
@@ -1008,8 +1008,8 @@ public class PipelineConfigServiceIntegrationTest {
         currentConfig = goConfigService.getCurrentConfig();
         assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
         assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
-        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r1"));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
         assertThat(currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name()).getStageName(), is(new CaseInsensitiveString("stage")));
         assertThat(currentConfig.getPipelineConfigByName(pipelineConfig.name()).getFirstStageConfig().name(), is(new CaseInsensitiveString("stage")));
         assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));

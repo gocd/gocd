@@ -31,7 +31,7 @@ public class ConfigRepoConfigRepresenterV2 {
         attachLinks(json, repo);
         json.add("id", repo.getId());
         json.add("plugin_id", repo.getPluginId());
-        json.addChild("material", w -> MaterialsRepresenter.toJSON(w, repo.getMaterialConfig()));
+        json.addChild("material", w -> MaterialsRepresenter.toJSON(w, repo.getRepo()));
         if (!repo.errors().isEmpty()) {
             json.addChild("errors", errorWriter -> new ErrorGetter(Collections.emptyMap()).toJSON(errorWriter, repo));
         }
@@ -43,7 +43,7 @@ public class ConfigRepoConfigRepresenterV2 {
         ConfigRepoConfig repo = new ConfigRepoConfig();
         jsonReader.readStringIfPresent("id", repo::setId);
         jsonReader.readStringIfPresent("plugin_id", repo::setPluginId);
-        repo.setMaterialConfig(material);
+        repo.setRepo(material);
 
         repo.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "configuration"));
         return repo;

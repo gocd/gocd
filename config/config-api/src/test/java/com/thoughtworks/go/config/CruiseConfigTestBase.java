@@ -837,7 +837,7 @@ public abstract class CruiseConfigTestBase {
         cruiseConfig = new BasicCruiseConfig(defaultGroup);
         ConfigReposConfig reposConfig = new ConfigReposConfig();
         GitMaterialConfig configRepoMaterial = git("http://git");
-        reposConfig.add(new ConfigRepoConfig(configRepoMaterial, "myplug"));
+        reposConfig.add(ConfigRepoConfig.createConfigRepoConfig(configRepoMaterial, "myplug"));
         cruiseConfig.setConfigRepos(reposConfig);
 
 
@@ -859,7 +859,7 @@ public abstract class CruiseConfigTestBase {
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
         ConfigReposConfig reposConfig = new ConfigReposConfig();
         GitMaterialConfig configRepo = git("http://git");
-        reposConfig.add(new ConfigRepoConfig(configRepo, "myplug"));
+        reposConfig.add(ConfigRepoConfig.createConfigRepoConfig(configRepo, "myplug"));
         mainCruiseConfig.setConfigRepos(reposConfig);
 
         PartialConfig partialConfig = PartialConfigMother.withPipeline("pipe2");

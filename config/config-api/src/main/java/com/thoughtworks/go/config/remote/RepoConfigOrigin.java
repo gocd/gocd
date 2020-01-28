@@ -80,7 +80,7 @@ public class RepoConfigOrigin implements ConfigOrigin {
     @Override
     public String displayName() {
         MaterialConfig materialConfig = configRepo != null ?
-                configRepo.getMaterialConfig() : null;
+                configRepo.getRepo() : null;
         String materialName = materialConfig != null ?
                     materialConfig.getDisplayName() : "NULL material";
         return String.format("%s at %s", materialName, revision);
@@ -89,7 +89,7 @@ public class RepoConfigOrigin implements ConfigOrigin {
     public MaterialConfig getMaterial() {
         if(configRepo == null)
             return  null;
-        return configRepo.getMaterialConfig();
+        return configRepo.getRepo();
     }
 
     public boolean isFromRevision(String revision) {

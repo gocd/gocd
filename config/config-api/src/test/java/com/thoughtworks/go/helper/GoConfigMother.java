@@ -340,7 +340,7 @@ public class GoConfigMother {
 
     public static CruiseConfig configWithConfigRepo() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
-        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(ConfigRepoConfig.createConfigRepoConfig(
                 git("https://github.com/tomzo/gocd-indep-config-part.git"), "myplugin", "id2"
         )));
         return cruiseConfig;

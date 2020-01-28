@@ -133,7 +133,7 @@ public class ConfigReposInternalControllerV2 extends ApiController implements Sp
     }
 
     String triggerUpdate(Request req, Response res) {
-        MaterialConfig materialConfig = repoFromRequest(req).getMaterialConfig();
+        MaterialConfig materialConfig = repoFromRequest(req).getRepo();
         if (mus.updateMaterial(converter.toMaterial(materialConfig))) {
             res.status(HttpStatus.CREATED.value());
             return MessageJson.create("OK");
@@ -144,7 +144,7 @@ public class ConfigReposInternalControllerV2 extends ApiController implements Sp
     }
 
     String inProgress(Request req, Response res) {
-        MaterialConfig materialConfig = repoFromRequest(req).getMaterialConfig();
+        MaterialConfig materialConfig = repoFromRequest(req).getRepo();
         final boolean state = mus.isInProgress(converter.toMaterial(materialConfig));
         return String.format("{\"inProgress\":%b}", state);
     }
@@ -176,7 +176,7 @@ public class ConfigReposInternalControllerV2 extends ApiController implements Sp
             throw new RecordNotFoundException(EntityType.ConfigRepo, repoId);
         }
 
-        PartialConfigParseResult result = dataSource.getLastParseResult(repo.getMaterialConfig());
+        PartialConfigParseResult result = dataSource.getLastParseResult(repo.getRepo());
 
         return new ConfigRepoWithResult(repo, result, isMaterialUpdateInProgress(repo));
     }
@@ -194,12 +194,12 @@ public class ConfigReposInternalControllerV2 extends ApiController implements Sp
 
     private List<ConfigRepoWithResult> allRepos() {
         return service.getConfigRepos().stream().map(r -> {
-            PartialConfigParseResult result = dataSource.getLastParseResult(r.getMaterialConfig());
+            PartialConfigParseResult result = dataSource.getLastParseResult(r.getRepo());
             return new ConfigRepoWithResult(r, result, isMaterialUpdateInProgress(r));
         }).collect(Collectors.toList());
     }
 
     private boolean isMaterialUpdateInProgress(ConfigRepoConfig configRepoConfig) {
-        return mus.isInProgress(converter.toMaterial(configRepoConfig.getMaterialConfig()));
+        return mus.isInProgress(converter.toMaterial(configRepoConfig.getRepo()));
     }
 }

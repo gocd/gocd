@@ -62,7 +62,7 @@ public class GoPartialConfigTest {
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class))).thenReturn(plugin);
 
         cruiseConfig = new BasicCruiseConfig();
-        configRepoConfig = new ConfigRepoConfig(git("url"), "plugin");
+        configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url"), "plugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
         cachedGoConfig = mock(CachedGoConfig.class);
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
@@ -110,7 +110,7 @@ public class GoPartialConfigTest {
 
     private ScmMaterialConfig setOneConfigRepo() {
         ScmMaterialConfig material = git("http://my.git");
-        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material, "myplugin")));
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(ConfigRepoConfig.createConfigRepoConfig(material, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
         return material;
     }
@@ -176,7 +176,7 @@ public class GoPartialConfigTest {
 
         // we change current configuration
         ScmMaterialConfig othermaterial = git("http://myother.git");
-        cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(othermaterial, "myplugin")));
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(ConfigRepoConfig.createConfigRepoConfig(othermaterial, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 
         assertThat(partialConfig.lastPartials().size(), is(0));

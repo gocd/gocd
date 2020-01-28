@@ -36,14 +36,12 @@ public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implemen
     }
 
     public ConfigReposConfig(ConfigRepoConfig... configRepos) {
-        for (ConfigRepoConfig repo : configRepos) {
-            this.add(repo);
-        }
+        this.addAll(Arrays.asList(configRepos));
     }
 
     public boolean hasMaterial(MaterialConfig materialConfig) {
         for (ConfigRepoConfig c : this) {
-            if (c.getMaterialConfig().equals(materialConfig)) {
+            if (c.getRepo().equals(materialConfig)) {
                 return true;
             }
         }
@@ -82,7 +80,7 @@ public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implemen
     }
 
     private List<String> allMaterialFingerPrints() {
-        return this.stream().map(cr -> cr.getMaterialConfig().getFingerprint()).collect(Collectors.toList());
+        return this.stream().map(cr -> cr.getRepo().getFingerprint()).collect(Collectors.toList());
     }
 
     @Override

@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -62,8 +61,8 @@ public class UpdateConfigRepoCommandTest {
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         oldConfigRepoId = "old-repo";
         newConfigRepoId = "new-repo";
-        oldConfigRepo = new ConfigRepoConfig(git("foo.git", "master"), "json-plugin", oldConfigRepoId);
-        newConfigRepo = new ConfigRepoConfig(git("bar.git", "master"), "yaml-plugin", newConfigRepoId);
+        oldConfigRepo = ConfigRepoConfig.createConfigRepoConfig(git("foo.git", "master"), "json-plugin", oldConfigRepoId);
+        newConfigRepo = ConfigRepoConfig.createConfigRepoConfig(git("bar.git", "master"), "yaml-plugin", newConfigRepoId);
         result = new HttpLocalizedOperationResult();
         md5 = "md5";
         cruiseConfig.getConfigRepos().add(oldConfigRepo);
@@ -92,7 +91,7 @@ public class UpdateConfigRepoCommandTest {
 
     @Test
     public void isValid_shouldValidateConfigRepo() {
-        newConfigRepo.setMaterialConfig(git("foobar.git", "master"));
+        newConfigRepo.setRepo(git("foobar.git", "master"));
         cruiseConfig.getConfigRepos().add(newConfigRepo);
         UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result, configRepoExtension);
         when(configRepoExtension.canHandlePlugin(newConfigRepo.getPluginId())).thenReturn(true);

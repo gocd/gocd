@@ -821,7 +821,7 @@ public class PipelineConfigTest {
     public void shouldReturnTrueWhenOneOfPipelineMaterialsIsTheSameAsConfigOrigin() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         MaterialConfig material = pipelineConfig.materialConfigs().first();
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material, "plugin"), "1233"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(material, "plugin"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(), is(true));
     }
@@ -836,7 +836,7 @@ public class PipelineConfigTest {
 
         GitMaterialConfig repoMaterialConfig = git("http://git");
 
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(repoMaterialConfig, "plugin"), "1233"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(repoMaterialConfig, "plugin"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(), is(true));
     }
@@ -845,7 +845,7 @@ public class PipelineConfigTest {
     public void shouldReturnFalseWhenOneOfPipelineMaterialsIsNotTheSameAsConfigOrigin() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         MaterialConfig material = git("http://git");
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material, "plugin"), "1233"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(material, "plugin"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(), is(false));
     }
@@ -862,7 +862,7 @@ public class PipelineConfigTest {
     public void shouldReturnTrueWhenConfigRevisionIsEqualToQuery() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         MaterialConfig material = pipelineConfig.materialConfigs().first();
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material, "plugin"), "1233"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(material, "plugin"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginFromRevision("1233"), is(true));
     }
@@ -871,7 +871,7 @@ public class PipelineConfigTest {
     public void shouldReturnFalseWhenConfigRevisionIsNotEqualToQuery() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         MaterialConfig material = pipelineConfig.materialConfigs().first();
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material, "plugin"), "1233"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(material, "plugin"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginFromRevision("32"), is(false));
     }
@@ -879,7 +879,7 @@ public class PipelineConfigTest {
     @Test
     public void shouldReturnConfigRepoOriginDisplayNameWhenOriginIsRemote() {
         PipelineConfig pipelineConfig = new PipelineConfig();
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "revision1"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "revision1"));
         assertThat(pipelineConfig.getOriginDisplayName(), is("AwesomeGitMaterial at revision1"));
     }
 

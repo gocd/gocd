@@ -575,6 +575,12 @@
   </rule>
 
   <rule>
+    <name>Spark Template Config API for parameters</name>
+    <from>^/api/admin/templates/([^/]+)/parameters(/?)$</from>
+    <to last="true">/spark/api/admin/templates/${escape:$1}/parameters</to>
+  </rule>
+
+  <rule>
     <name>Spark Template Config API</name>
     <from>^/api/admin/templates/(.*)$</from>
     <to last="true">/spark/api/admin/templates/${escape:$1}</to>

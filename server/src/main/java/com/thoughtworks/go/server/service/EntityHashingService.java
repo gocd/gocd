@@ -294,6 +294,19 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
     }
 
+    public String md5ForEntity(ParamsConfig paramConfigs) {
+        List<String> md5s = new ArrayList<>();
+        for (ParamConfig paramConfig : paramConfigs) {
+            md5s.add(md5ForEntity(paramConfig));
+        }
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
+    }
+
+    private String md5ForEntity(ParamConfig paramConfig) {
+        String cacheKey = cacheKey(paramConfig, paramConfig.getName());
+        return getDomainEntityMd5FromCache(paramConfig, cacheKey);
+    }
+
     public String md5ForEntity(UsageStatisticsReporting usageStatisticsReporting) {
         String cacheKey = cacheKey(usageStatisticsReporting, usageStatisticsReporting.getServerId());
         return getDbEntityMd5FromCache(cacheKey, usageStatisticsReporting);

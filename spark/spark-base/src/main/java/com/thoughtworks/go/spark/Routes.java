@@ -450,6 +450,7 @@ public class Routes {
     public static class PipelineTemplateConfig {
         public static final String BASE = "/api/admin/templates";
         public static final String NAME = "/:template_name";
+        public static final String PARAMETERS = "/:template_name/parameters";
         public static final String DOC = apiDocsUrl("#template-config");
 
         public static String find() {

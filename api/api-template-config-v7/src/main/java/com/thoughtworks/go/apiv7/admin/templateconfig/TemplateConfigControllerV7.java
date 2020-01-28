@@ -23,8 +23,10 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.apiv7.admin.templateconfig.representers.ParametersRepresenter;
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.TemplateConfigRepresenter;
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.TemplatesConfigRepresenter;
+import com.thoughtworks.go.config.ParamsConfig;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.TemplateToPipelines;
 import com.thoughtworks.go.config.exceptions.EntityType;
@@ -104,11 +106,13 @@ public class TemplateConfigControllerV7 extends ApiController implements SparkSp
             before("", mimeType, onlyOn(apiAuthenticationHelper::checkIsAllowedToSeeAnyTemplates403, "GET", "HEAD"));
             before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthenticationHelper::checkViewAccessToTemplateAnd403, "GET", "HEAD"));
             before(Routes.PipelineTemplateConfig.NAME, mimeType, onlyOn(apiAuthenticationHelper::checkAdminOrTemplateAdminAnd403, "PUT", "PATCH", "DELETE"));
+            before(Routes.PipelineTemplateConfig.PARAMETERS, mimeType, apiAuthenticationHelper::checkViewAccessToTemplateAnd403);
 
             get("", mimeType, this::index);
             post("", mimeType, this::create);
 
             get(Routes.PipelineTemplateConfig.NAME, mimeType, this::show);
+            get(Routes.PipelineTemplateConfig.PARAMETERS, mimeType, this::showParameters);
             put(Routes.PipelineTemplateConfig.NAME, mimeType, this::update);
             delete(Routes.PipelineTemplateConfig.NAME, mimeType, this::destroy);
         });
@@ -167,6 +171,20 @@ public class TemplateConfigControllerV7 extends ApiController implements SparkSp
         } else {
             setEtagHeader(templateConfig, res);
             return writerForTopLevelObject(req, res, writer -> TemplateConfigRepresenter.toJSON(writer, templateConfig));
+        }
+    }
+
+    public String showParameters(Request req, Response res) throws IOException {
+        PipelineTemplateConfig templateConfig = fetchEntityFromConfig(req.params("template_name"));
+        ParamsConfig paramConfigs = templateConfig.referredParams();
+        String etagFromServer = entityHashingService.md5ForEntity(paramConfigs);
+        if (fresh(req, etagFromServer)) {
+            return notModified(res);
+        } else {
+            setEtagHeader(templateConfig, res);
+            return writerForTopLevelObject(req, res, writer -> {
+                ParametersRepresenter.toJSON(writer, templateConfig.name().toString(), paramConfigs);
+            });
         }
     }
 

@@ -17,6 +17,7 @@ package com.thoughtworks.go.apiv7.admin.templateconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.apiv7.admin.templateconfig.representers.ParametersRepresenter
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.TemplateConfigRepresenter
 import com.thoughtworks.go.apiv7.admin.templateconfig.representers.TemplatesConfigRepresenter
 import com.thoughtworks.go.config.*
@@ -32,6 +33,7 @@ import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplateWithParams
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
@@ -440,5 +442,73 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
       ]
     ]
   ]
+
+  @Nested
+  class Parameters {
+    @Nested
+    class Security implements SecurityTestTrait, TemplateViewUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "showParameters"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath('/t1/parameters'))
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      private HttpLocalizedOperationResult result
+
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+        result = new HttpLocalizedOperationResult()
+      }
+
+      @Test
+      void 'should render the parameters for the template of specified name'() {
+        def templateName = "template-name"
+        def templateConfig = createTemplateWithParams(templateName, "param1", "param2")
+        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('md5')
+        when(templateConfigService.loadForView(templateName, result)).thenReturn(templateConfig)
+
+        getWithApiHeader(controller.controllerPath("/${templateName}/parameters"))
+
+        assertThatResponse()
+          .isOk()
+          .hasBodyWithJsonObject(ParametersRepresenter, templateName, templateConfig.referredParams())
+      }
+
+      @Test
+      void "should return 304 for show template parameters if etag sent in request is fresh"() {
+        when(entityHashingService.md5ForEntity(any(ParamsConfig) as ParamsConfig)).thenReturn('md5_for_parameters')
+        when(templateConfigService.loadForView("template", result)).thenReturn(template)
+
+        getWithApiHeader(controller.controllerPath('/template/parameters'), ['if-none-match': '"md5_for_parameters"'])
+
+        assertThatResponse()
+          .isNotModified()
+          .hasContentType(controller.mimeType)
+      }
+
+      @Test
+      void 'should return 404 if the template does not exist'() {
+        when(templateConfigService.loadForView('non-existent-template', result)).thenReturn(null)
+
+        getWithApiHeader(controller.controllerPath("/non-existent-template/parameters"))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage(controller.entityType.notFoundMessage("non-existent-template"))
+          .hasContentType(controller.mimeType)
+
+      }
+    }
+  }
 
 }

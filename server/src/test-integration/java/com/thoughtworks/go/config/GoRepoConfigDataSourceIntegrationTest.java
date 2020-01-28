@@ -86,13 +86,13 @@ public class GoRepoConfigDataSourceIntegrationTest {
         configHelper.addTemplate("t1", "param1", "stage");
         File templateConfigRepo = temporaryFolder.newFolder();
         String latestRevision = setupExternalConfigRepo(templateConfigRepo, "external_git_config_repo_referencing_template_with_params");
-        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(git(templateConfigRepo.getAbsolutePath()), "gocd-xml");
+        ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(git(templateConfigRepo.getAbsolutePath()), "gocd-xml");
         configHelper.addConfigRepo(configRepoConfig);
 
         goConfigService.forceNotifyListeners();
         Modification modification = new Modification();
         modification.setRevision(latestRevision);
-        repoConfigDataSource.onCheckoutComplete(configRepoConfig.getMaterialConfig(), templateConfigRepo, modification);
+        repoConfigDataSource.onCheckoutComplete(configRepoConfig.getRepo(), templateConfigRepo, modification);
 
     }
 

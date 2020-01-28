@@ -171,7 +171,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
              */
             @Override
             public MaterialConfig configMaterial() {
-                return null == repo ? dummyMaterial() : repo.getMaterialConfig();
+                return null == repo ? dummyMaterial() : repo.getRepo();
             }
 
             private MaterialConfig dummyMaterial() {

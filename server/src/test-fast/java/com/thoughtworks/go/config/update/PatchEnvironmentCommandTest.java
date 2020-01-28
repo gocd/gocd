@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
@@ -25,7 +24,6 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -35,7 +33,6 @@ import java.util.ArrayList;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PatchEnvironmentCommandTest {
@@ -186,7 +183,7 @@ public class PatchEnvironmentCommandTest {
         local.setOrigins(new FileConfigOrigin());
         BasicEnvironmentConfig remote = new BasicEnvironmentConfig(environmentName);
         remote.addPipeline(pipelineName);
-        ConfigRepoConfig configRepo = new ConfigRepoConfig(git("foo/bar.git", "master"), "myPlugin");
+        ConfigRepoConfig configRepo = ConfigRepoConfig.createConfigRepoConfig(git("foo/bar.git", "master"), "myPlugin");
         remote.setOrigins(new RepoConfigOrigin(configRepo, "latest"));
 
         MergeEnvironmentConfig mergedConfig = new MergeEnvironmentConfig(local, remote);
@@ -216,7 +213,7 @@ public class PatchEnvironmentCommandTest {
         local.setOrigins(new FileConfigOrigin());
         BasicEnvironmentConfig remote = new BasicEnvironmentConfig(environmentName);
         remote.addEnvironmentVariable(variableName, "bar");
-        ConfigRepoConfig configRepo = new ConfigRepoConfig(git("foo/bar.git", "master"), "myPlugin");
+        ConfigRepoConfig configRepo = ConfigRepoConfig.createConfigRepoConfig(git("foo/bar.git", "master"), "myPlugin");
         remote.setOrigins(new RepoConfigOrigin(configRepo, "latest"));
 
         MergeEnvironmentConfig mergedConfig = new MergeEnvironmentConfig(local, remote);

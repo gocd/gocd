@@ -183,13 +183,13 @@ public class ConfigReposControllerV3 extends ApiController implements SparkSprin
     }
 
     String inProgress(Request req, Response res) {
-        MaterialConfig materialConfig = repoFromRequest(req).getMaterialConfig();
+        MaterialConfig materialConfig = repoFromRequest(req).getRepo();
         final boolean state = materialUpdateService.isInProgress(converter.toMaterial(materialConfig));
         return String.format("{\"in_progress\":%b}", state);
     }
 
     String triggerUpdate(Request req, Response res) {
-        MaterialConfig materialConfig = repoFromRequest(req).getMaterialConfig();
+        MaterialConfig materialConfig = repoFromRequest(req).getRepo();
         if (materialUpdateService.updateMaterial(converter.toMaterial(materialConfig))) {
             res.status(HttpStatus.CREATED.value());
             return MessageJson.create("OK");

@@ -77,7 +77,7 @@ public class HealthStateScopeTest {
     public void shouldNotRemoveScopeWhenMaterialBelongsToConfigRepoMaterial() throws Exception {
         HgMaterialConfig hgMaterialConfig = MaterialConfigsMother.hgMaterialConfig();
         CruiseConfig config = GoConfigMother.pipelineHavingJob("blahPipeline", "blahStage", "blahJob", "fii", "baz");
-        config.getConfigRepos().add(new ConfigRepoConfig(hgMaterialConfig, "id1", "foo"));
+        config.getConfigRepos().add(ConfigRepoConfig.createConfigRepoConfig(hgMaterialConfig, "id1", "foo"));
         assertThat(HealthStateScope.forMaterialConfig(hgMaterialConfig).isRemovedFromConfig(config),is(false));
     }
 
@@ -85,7 +85,7 @@ public class HealthStateScopeTest {
     public void shouldNotRemoveScopeWhenMaterialUpdateBelongsToConfigRepoMaterial() throws Exception {
         HgMaterialConfig hgMaterialConfig = MaterialConfigsMother.hgMaterialConfig();
         CruiseConfig config = GoConfigMother.pipelineHavingJob("blahPipeline", "blahStage", "blahJob", "fii", "baz");
-        config.getConfigRepos().add(new ConfigRepoConfig(hgMaterialConfig, "id1", "foo"));
+        config.getConfigRepos().add(ConfigRepoConfig.createConfigRepoConfig(hgMaterialConfig, "id1", "foo"));
         assertThat(HealthStateScope.forMaterialConfigUpdate(hgMaterialConfig).isRemovedFromConfig(config),is(false));
     }
 

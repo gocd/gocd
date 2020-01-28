@@ -31,7 +31,7 @@ public class ConfigRepoWithResultRepresenter {
         attachLinks(json, repo);
         json.add("id", repo.getId());
         json.add("plugin_id", repo.getPluginId());
-        json.addChild("material", w -> MaterialsRepresenter.toJSON(w, repo.getMaterialConfig()));
+        json.addChild("material", w -> MaterialsRepresenter.toJSON(w, repo.getRepo()));
         json.add("can_administer", canAdminister);
         attachConfigurations(json, repo);
 

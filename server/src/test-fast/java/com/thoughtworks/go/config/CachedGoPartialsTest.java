@@ -88,7 +88,7 @@ public class CachedGoPartialsTest {
     public void shouldRemoveServerHealthMessageForAPartialWhenItsRemovedFromKnownList() {
         serverHealthService.update(ServerHealthState.error("err_repo1", "err desc", HealthStateType.general(HealthStateScope.forPartialConfigRepo(configRepo1))));
         serverHealthService.update(ServerHealthState.error("err_repo2", "err desc", HealthStateType.general(HealthStateScope.forPartialConfigRepo(configRepo2))));
-        partials.removeKnown(configRepo1.getMaterialConfig().getFingerprint());
+        partials.removeKnown(configRepo1.getRepo().getFingerprint());
         assertThat(partials.lastKnownPartials().contains(part1), is(false));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepo1)).isEmpty(), is(true));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepo2)).isEmpty(), is(false));

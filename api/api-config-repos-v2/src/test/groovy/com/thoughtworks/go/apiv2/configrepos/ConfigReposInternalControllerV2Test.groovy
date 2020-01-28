@@ -132,8 +132,8 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
 
       ConfigReposConfig repos = new ConfigReposConfig(repo(ID_1), repo(ID_2), repo("test-id"))
       when(service.getConfigRepos()).thenReturn(repos)
-      when(dataSource.getLastParseResult(repos.get(0).getMaterialConfig())).thenReturn(null)
-      when(dataSource.getLastParseResult(repos.get(1).getMaterialConfig())).thenReturn(result)
+      when(dataSource.getLastParseResult(repos.get(0).getRepo())).thenReturn(null)
+      when(dataSource.getLastParseResult(repos.get(1).getRepo())).thenReturn(result)
 
       getWithApiHeader(controller.controllerBasePath())
 
@@ -191,7 +191,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
 
       ConfigRepoConfig repo = repo(ID_1)
       when(service.getConfigRepo(ID_1)).thenReturn(repo)
-      when(dataSource.getLastParseResult(repo.getMaterialConfig())).thenReturn(result)
+      when(dataSource.getLastParseResult(repo.getRepo())).thenReturn(result)
 
       getWithApiHeader(controller.controllerPath(ID_1))
 

@@ -18,10 +18,8 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.merge.MergeConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
-import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
@@ -34,7 +32,6 @@ import org.mockito.Mock;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class DeleteEnvironmentCommandTest {
@@ -82,7 +79,7 @@ public class DeleteEnvironmentCommandTest {
     @Test
     public void shouldNotBeAbleToDeleteIfEnvironmentPartiallyDefinedInConfigRepository() {
         BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(environmentName);
-        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1");
+        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1");
         MergeConfigOrigin origins = new MergeConfigOrigin(repoConfigOrigin);
         environmentConfig.setOrigins(origins);
         DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);

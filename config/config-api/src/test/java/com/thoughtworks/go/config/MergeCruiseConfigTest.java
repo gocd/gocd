@@ -61,8 +61,8 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     @Test
     public void shouldMergeWhenSameEnvironmentExistsInManyPartials() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
-        ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
-        ConfigRepoConfig repoConfig2 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), "plugin");
+        ConfigRepoConfig repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
+        ConfigRepoConfig repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), "plugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig1, repoConfig2));
         PartialConfig partialConfigInRepo1 = PartialConfigMother.withEnvironment("environment", new RepoConfigOrigin(repoConfig1, "repo1_r1"));
         RepoConfigOrigin configOrigin = new RepoConfigOrigin(repoConfig2, "repo2_r1");
@@ -78,8 +78,8 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     @Test
     public void shouldHaveValidationErrorsForDuplicateValidSCMs() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
-        ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
-        ConfigRepoConfig repoConfig2 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), "plugin");
+        ConfigRepoConfig repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
+        ConfigRepoConfig repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), "plugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig1, repoConfig2));
         PartialConfig partialConfigInRepo1 = PartialConfigMother.withSCM("scmid",
                 "name",
@@ -100,7 +100,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     @Test
     public void shouldOnlyMergeLocalSCMsWhenEditIsTrue() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
-        ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
+        ConfigRepoConfig repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig1));
         RepoConfigOrigin configOrigin = new RepoConfigOrigin(repoConfig1, "repo1_r1");
         PartialConfig completeSCM = PartialConfigMother.withSCM("scmid",
@@ -159,7 +159,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("local-pipeline-1"));
         cruiseConfig = new BasicCruiseConfig(pipelines);
         ConfigReposConfig reposConfig = new ConfigReposConfig();
-        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(git("http://git"), "myplug");
+        ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplug");
         reposConfig.add(configRepoConfig);
         cruiseConfig.setConfigRepos(reposConfig);
         PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("remote-pipeline-1", "g2");
@@ -464,7 +464,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
         ConfigReposConfig reposConfig = new ConfigReposConfig();
         GitMaterialConfig configRepo = git("http://git");
-        reposConfig.add(new ConfigRepoConfig(configRepo, "myplug"));
+        reposConfig.add(ConfigRepoConfig.createConfigRepoConfig(configRepo, "myplug"));
         mainCruiseConfig.setConfigRepos(reposConfig);
 
         PartialConfig partialConfig = PartialConfigMother.withPipeline("pipe2");
@@ -483,7 +483,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
         ConfigReposConfig reposConfig = new ConfigReposConfig();
         GitMaterialConfig configRepo = git("http://git");
-        reposConfig.add(new ConfigRepoConfig(configRepo, "myplug"));
+        reposConfig.add(ConfigRepoConfig.createConfigRepoConfig(configRepo, "myplug"));
         mainCruiseConfig.setConfigRepos(reposConfig);
 
         PartialConfig partialConfig = PartialConfigMother.withPipeline("pipe2");
@@ -500,7 +500,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     public void shouldUpdatePipelineConfigsListWhenAPartialIsMerged() {
         cruiseConfig = new BasicCruiseConfig(pipelines);
         PartialConfig partial = PartialConfigMother.withPipeline("pipeline3");
-        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(git("http://git"), "myplug");
+        ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplug");
         partial.setOrigins(new RepoConfigOrigin(configRepoConfig, "123"));
         ConfigReposConfig reposConfig = new ConfigReposConfig();
         reposConfig.add(configRepoConfig);

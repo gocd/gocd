@@ -38,7 +38,7 @@ public class EnvironmentConfigMother {
 
     public static BasicEnvironmentConfig remote(String name) {
         BasicEnvironmentConfig env = environment(name);
-        env.setOrigins(new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.git("foo.git"), "json-plugon", "repo1"), "revision1"));
+        env.setOrigins(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.git("foo.git"), "json-plugon", "repo1"), "revision1"));
         return env;
     }
 

@@ -97,7 +97,7 @@ public class ConfigRepoConfig extends RuleAwarePluginProfile implements Cacheabl
     }
 
     private boolean isValidMaterial() {
-        MaterialConfig materialConfig = getMaterialConfig();
+        MaterialConfig materialConfig = getRepo();
         if (materialConfig == null) {
             return false;
         }

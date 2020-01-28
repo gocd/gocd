@@ -99,12 +99,12 @@ public class ConfigReposInternalControllerV3 extends ApiController implements Sp
 
     private List<ConfigRepoWithResult> allRepos() {
         return service.getConfigRepos().stream().map(r -> {
-            PartialConfigParseResult result = dataSource.getLastParseResult(r.getMaterialConfig());
+            PartialConfigParseResult result = dataSource.getLastParseResult(r.getRepo());
             return new ConfigRepoWithResult(r, result, isMaterialUpdateInProgress(r));
         }).collect(Collectors.toList());
     }
 
     private boolean isMaterialUpdateInProgress(ConfigRepoConfig configRepoConfig) {
-        return mus.isInProgress(converter.toMaterial(configRepoConfig.getMaterialConfig()));
+        return mus.isInProgress(converter.toMaterial(configRepoConfig.getRepo()));
     }
 }

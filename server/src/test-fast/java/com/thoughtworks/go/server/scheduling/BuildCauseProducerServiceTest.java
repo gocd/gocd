@@ -398,7 +398,7 @@ public class BuildCauseProducerServiceTest {
         HgMaterialConfig materialConfig1 = hg("url", null);
 
         pipelineConfig.addMaterialConfig(materialConfig1);
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig1, "plug"), "revision1"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig1, "plug"), "revision1"));
 
         when(materialConfigConverter.toMaterial(materialConfig1)).thenReturn(material1);
         when(goConfigService.hasPipelineNamed(pipelineConfig.name())).thenReturn(true);
@@ -422,7 +422,7 @@ public class BuildCauseProducerServiceTest {
         HgMaterialConfig materialConfig2 = hg("url2", null);
 
         pipelineConfig.addMaterialConfig(materialConfig1);
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig2, "plug"), "revision1"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig2, "plug"), "revision1"));
 
         when(materialConfigConverter.toMaterial(materialConfig1)).thenReturn(material1);
         when(materialConfigConverter.toMaterial(materialConfig2)).thenReturn(new MaterialConfigConverter().toMaterial(materialConfig2));
@@ -448,7 +448,7 @@ public class BuildCauseProducerServiceTest {
         HgMaterialConfig materialConfig2 = hg("url2", null);
 
         pipelineConfig.addMaterialConfig(materialConfig1);
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig1, "plug"), "revision1"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(materialConfig1, "plug"), "revision1"));
 
         when(materialConfigConverter.toMaterial(materialConfig1)).thenReturn(material1);
         when(materialConfigConverter.toMaterial(materialConfig2)).thenReturn(material2);

@@ -76,8 +76,8 @@ public class GoPartialConfigIntegrationTest {
         goCache.clear();
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        repoConfig1 = new ConfigRepoConfig(git("url1"), "plugin");
-        repoConfig2 = new ConfigRepoConfig(git("url2"), "plugin");
+        repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(git("url1"), "plugin");
+        repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin");
         configHelper.addConfigRepo(repoConfig1);
         configHelper.addConfigRepo(repoConfig2);
 
@@ -117,7 +117,7 @@ public class GoPartialConfigIntegrationTest {
 
     @Test
     public void shouldTryToValidateMergeAndSaveAllKnownPartialsWhenAPartialChange() {
-        cachedGoPartials.addOrUpdate(repoConfig1.getMaterialConfig().getFingerprint(), PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1234")));
+        cachedGoPartials.addOrUpdate(repoConfig1.getRepo().getFingerprint(), PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1234")));
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1")), is(false));
 
         goPartialConfig.onSuccessPartialConfig(repoConfig2, PartialConfigMother.withPipeline("p2_repo2", new RepoConfigOrigin(repoConfig2, "4567")));
@@ -132,7 +132,7 @@ public class GoPartialConfigIntegrationTest {
     public void shouldValidateAndMergeJustTheChangedPartialAlongWithAllValidPartialsIfValidationOfAllKnownPartialsFail() {
         goPartialConfig.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1")));
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1")), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getMaterialConfig().getFingerprint())).isEmpty(), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getRepo().getFingerprint())).isEmpty(), is(true));
 
         final String invalidPipelineInPartial = "p1_repo1_invalid";
         PartialConfig invalidPartial = PartialConfigMother.invalidPartial(invalidPipelineInPartial, new RepoConfigOrigin(repoConfig1, "2"));
@@ -171,7 +171,7 @@ public class GoPartialConfigIntegrationTest {
 
     @Test
     public void shouldMarkAnInvalidKnownPartialAsValidWhenLoadingAnotherPartialMakesThisOneValid_InterConfigRepoDependency() {
-        ConfigRepoConfig repoConfig3 = new ConfigRepoConfig(git("url3"), "plugin");
+        ConfigRepoConfig repoConfig3 = ConfigRepoConfig.createConfigRepoConfig(git("url3"), "plugin");
         configHelper.addConfigRepo(repoConfig3);
 
         PartialConfig repo1 = PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1"));

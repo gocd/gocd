@@ -104,7 +104,7 @@ public class ConfigReposMaterialParseResultManager {
     }
 
     private PartialConfigParseResult checkForMaterialErrors(String fingerprint) {
-        MaterialConfig naterial = configRepoService.findByFingerprint(fingerprint).getMaterialConfig();
+        MaterialConfig naterial = configRepoService.findByFingerprint(fingerprint).getRepo();
         HealthStateScope healthStateScope = HealthStateScope.forMaterialConfig(naterial);
         List<ServerHealthState> serverHealthStates = serverHealthService.filterByScope(healthStateScope);
 

@@ -55,7 +55,7 @@ class ConfigRepoServiceTest {
         this.repoId = "repo-1";
         this.pluginId = "json-config-repo-plugin";
         MaterialConfig repoMaterial = git("https://foo.git", "master");
-        this.configRepo = new ConfigRepoConfig(repoMaterial, pluginId, repoId);
+        this.configRepo = ConfigRepoConfig.createConfigRepoConfig(repoMaterial, pluginId, repoId);
     }
 
     @Test

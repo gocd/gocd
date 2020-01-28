@@ -115,8 +115,8 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldReturnTrueWhenValidPartialsListIsSameAsKnownPartialList() {
-        ConfigRepoConfig repo1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin");
-        ConfigRepoConfig repo2 = new ConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin");
+        ConfigRepoConfig repo1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin");
+        ConfigRepoConfig repo2 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin");
         PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(repo1, "git_r1"));
         PartialConfig partialConfig2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(repo2, "svn_r1"));
         List<PartialConfig> known = asList(partialConfig1, partialConfig2);
@@ -126,10 +126,10 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldReturnFalseWhenValidPartialsListIsNotTheSameAsKnownPartialList() {
-        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "git_r1"));
-        PartialConfig partialConfig2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin"), "svn_r1"));
-        PartialConfig partialConfig3 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "git_r2"));
-        PartialConfig partialConfig4 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin"), "svn_r2"));
+        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "git_r1"));
+        PartialConfig partialConfig2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin"), "svn_r1"));
+        PartialConfig partialConfig3 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "git_r2"));
+        PartialConfig partialConfig4 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin"), "svn_r2"));
         List<PartialConfig> known = asList(partialConfig1, partialConfig2);
         List<PartialConfig> valid = asList(partialConfig3, partialConfig4);
         assertThat(dataSource.areKnownPartialsSameAsValidPartials(known, valid), is(false));
@@ -137,8 +137,8 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldReturnFalseWhenValidPartialsListIsEmptyWhenKnownListIsNot() {
-        ConfigRepoConfig repo1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin");
-        ConfigRepoConfig repo2 = new ConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin");
+        ConfigRepoConfig repo1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin");
+        ConfigRepoConfig repo2 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin");
         PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(repo1, "git_r1"));
         PartialConfig partialConfig2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(repo2, "svn_r1"));
         List<PartialConfig> known = asList(partialConfig1, partialConfig2);
@@ -185,8 +185,8 @@ public class GoFileConfigDataSourceTest {
     @Test
     public void shouldFallbackOnLastValidPartialsIfUpdateWithLastKnownPartialsFails_OnWriteFullConfigWithLock() throws Exception {
         com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAs("loser_boozer");
-        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "git_r1"));
-        PartialConfig partialConfig2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin"), "svn_r1"));
+        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "git_r1"));
+        PartialConfig partialConfig2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin"), "svn_r1"));
         List<PartialConfig> known = asList(partialConfig1);
         List<PartialConfig> valid = asList(partialConfig2);
 
@@ -225,7 +225,7 @@ public class GoFileConfigDataSourceTest {
 
     @Test(expected = RuntimeException.class)
     public void shouldNotRetryConfigUpdateIfLastKnownAndValidPartialsAreSame_OnWriteFullConfigWithLock() throws Exception {
-        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "git_r1"));
+        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "git_r1"));
         List<PartialConfig> known = asList(partialConfig1);
         List<PartialConfig> valid = asList(partialConfig1);
 
@@ -260,7 +260,7 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldUpdateAndReloadConfigUsingFullSaveNormalFlowWithLastKnownPartials_onLoad() throws Exception {
-        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "git_r1"));
+        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "git_r1"));
         List<PartialConfig> lastKnownPartials = asList(partialConfig1);
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         MagicalGoConfigXmlLoader.setMd5(cruiseConfig, "md5");

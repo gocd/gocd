@@ -38,7 +38,7 @@ public class ConfigRepoPartialPreprocessorTest {
 
     public ConfigRepoPartialPreprocessorTest() {
         reposConfig = new ConfigReposConfig();
-        configRepoConfig = new ConfigRepoConfig(git("http://git"), "myplug");
+        configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(git("http://git"), "myplug");
         reposConfig.add(configRepoConfig);
     }
 

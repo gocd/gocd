@@ -105,7 +105,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
         materialConfig = hg(hgRepo.projectRepositoryUrl(), null);
-        configHelper.addConfigRepo(new ConfigRepoConfig(materialConfig, "gocd-xml"));
+        configHelper.addConfigRepo(ConfigRepoConfig.createConfigRepoConfig(materialConfig, "gocd-xml"));
 
         TestingEmailSender emailSender = new TestingEmailSender();
         SystemDiskSpaceChecker mockDiskSpaceChecker = Mockito.mock(SystemDiskSpaceChecker.class);

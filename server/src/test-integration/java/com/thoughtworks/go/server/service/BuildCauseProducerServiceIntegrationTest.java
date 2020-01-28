@@ -472,7 +472,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
     @Test
     public void shouldTriggerMDUOfConfigRepoMaterialIfThePipelineIsDefinedRemotelyInAConfigRepo_ManualTriggerOfPipeline_EvenIfMDUOptionIsTurnedOFFInRequest() throws Exception {
-        ConfigRepoConfig repoConfig = new ConfigRepoConfig(git("url2"), "plugin");
+        ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin");
         configHelper.addConfigRepo(repoConfig);
         PartialConfig partialConfig = PartialConfigMother.withPipelineMultipleMaterials("remote_pipeline", new RepoConfigOrigin(repoConfig, "4567"));
         PipelineConfig remotePipeline = partialConfig.getGroups().first().getPipelines().get(0);
@@ -480,7 +480,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         u.checkinInOrder(git, u.d(1), "g1r1");
         SvnMaterial svn = u.wf((SvnMaterial) new MaterialConfigConverter().toMaterial(remotePipeline.materialConfigs().getSvnMaterial()), "svn");
         u.checkinInOrder(svn, u.d(1), "svn1r11");
-        GitMaterial configRepoMaterial = u.wf((GitMaterial) new MaterialConfigConverter().toMaterial(repoConfig.getMaterialConfig()), "git");
+        GitMaterial configRepoMaterial = u.wf((GitMaterial) new MaterialConfigConverter().toMaterial(repoConfig.getRepo()), "git");
         u.checkinInOrder(configRepoMaterial, u.d(1), "s1");
         goPartialConfig.onSuccessPartialConfig(repoConfig, partialConfig);
         assertTrue(goConfigService.hasPipelineNamed(remotePipeline.name()));

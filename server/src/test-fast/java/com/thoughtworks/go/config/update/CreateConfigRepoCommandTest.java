@@ -17,7 +17,6 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -30,7 +29,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -56,7 +54,7 @@ public class CreateConfigRepoCommandTest {
         result = new HttpLocalizedOperationResult();
 
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
-        configRepo = new ConfigRepoConfig(git("https://foo.git", "master"), "json-plugin", repoId);
+        configRepo = ConfigRepoConfig.createConfigRepoConfig(git("https://foo.git", "master"), "json-plugin", repoId);
     }
 
     @Test
@@ -71,14 +69,14 @@ public class CreateConfigRepoCommandTest {
     public void isValid_shouldValidateConfigRepo() {
         GitMaterialConfig material = git("https://foo.git", "master");
         material.setAutoUpdate(false);
-        configRepo.setMaterialConfig(material);
+        configRepo.setRepo(material);
         when(configRepoExtension.canHandlePlugin(configRepo.getPluginId())).thenReturn(true);
 
         CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
         command.update(cruiseConfig);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(configRepo.getMaterialConfig().errors().on("autoUpdate"), is("Configuration repository material 'https://foo.git' must have autoUpdate enabled."));
+        assertThat(configRepo.getRepo().errors().on("autoUpdate"), is("Configuration repository material 'https://foo.git' must have autoUpdate enabled."));
     }
 
     @Test

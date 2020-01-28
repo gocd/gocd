@@ -68,7 +68,7 @@ public class GoConfigWatchListTest {
     public void shouldNotifyConfigListenersWhenSingleConfigRepoHasChanged() throws Exception {
         final ChangedRepoConfigWatchListListener listener = mock(ChangedRepoConfigWatchListListener.class);
         watchList.registerListener(listener);
-        watchList.onEntityConfigChange(new ConfigRepoConfig(git("http://git1"), "myplugin", "id"));
+        watchList.onEntityConfigChange(ConfigRepoConfig.createConfigRepoConfig(git("http://git1"), "myplugin", "id"));
 
         verify(listener, times(2)).onChangedRepoConfigWatchList(notNull(ConfigReposConfig.class));
     }
@@ -77,7 +77,7 @@ public class GoConfigWatchListTest {
     public void shouldReturnTrueWhenHasConfigRepoWithFingerprint() {
         GitMaterialConfig gitrepo = git("http://configrepo.git");
         when(cruiseConfig.getConfigRepos()).thenReturn(new ConfigReposConfig(
-                new ConfigRepoConfig(gitrepo, "myplugin")));
+                ConfigRepoConfig.createConfigRepoConfig(gitrepo, "myplugin")));
 
         watchList = new GoConfigWatchList(cachedGoConfig, goConfigService);
 
@@ -88,7 +88,7 @@ public class GoConfigWatchListTest {
     public void shouldReturnFalseWhenDoesNotHaveConfigRepoWithFingerprint() {
         GitMaterialConfig gitrepo = git("http://configrepo.git");
         when(cruiseConfig.getConfigRepos()).thenReturn(new ConfigReposConfig(
-                new ConfigRepoConfig(gitrepo, "myplugin")));
+                ConfigRepoConfig.createConfigRepoConfig(gitrepo, "myplugin")));
 
         watchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
 
@@ -100,7 +100,7 @@ public class GoConfigWatchListTest {
     @Test
     public void shouldReturnConfigRepoForMaterial() {
         GitMaterialConfig gitrepo = git("http://configrepo.git");
-        ConfigRepoConfig repoConfig = new ConfigRepoConfig(gitrepo, "myplugin");
+        ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(gitrepo, "myplugin");
         when(cruiseConfig.getConfigRepos()).thenReturn(new ConfigReposConfig(
                 repoConfig));
 

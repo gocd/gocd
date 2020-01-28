@@ -76,10 +76,7 @@ public class Jetty9Server extends AppServer {
     public void configure() throws Exception {
         server.addEventListener(mbeans());
         server.addConnector(plainConnector());
-        Connector connector = sslConnector();
-        if (connector != null) {
-            server.addConnector(connector);
-        }
+        server.addConnector(sslConnector());
         ContextHandlerCollection handlers = new ContextHandlerCollection();
         deploymentManager.setContexts(handlers);
 
@@ -200,11 +197,7 @@ public class Jetty9Server extends AppServer {
     }
 
     private Connector sslConnector() {
-        if (new File(systemEnvironment.configDir(), "keystore").exists()) {
-            return new GoSslSocketConnector(this, password, systemEnvironment, goSSLConfig).getConnector();
-        } else {
-            return null;
-        }
+        return new GoSslSocketConnector(this, password, systemEnvironment, goSSLConfig).getConnector();
     }
 
 

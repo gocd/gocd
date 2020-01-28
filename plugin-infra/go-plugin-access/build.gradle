@@ -26,6 +26,8 @@ dependencies {
   compile group: 'com.bazaarvoice.jolt', name: 'jolt-core', version: project.versions.jolt
   compile group: 'com.bazaarvoice.jolt', name: 'json-utils', version: project.versions.jolt
 
+  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle)
+
   testCompile localGroovy()
   testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
   testCompile project(':test:test-utils')

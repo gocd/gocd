@@ -39,7 +39,7 @@ import java.util.Properties;
 @Component
 public class HttpService {
     private final AgentRegistry agentRegistry;
-    private final boolean useTokenAuth = true;
+    private final boolean useTokenAuth;
     private HttpClientFactory httpClientFactory;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpService.class);
@@ -52,12 +52,13 @@ public class HttpService {
 
     @Autowired(required = false)
     public HttpService(GoAgentServerHttpClient httpClient, AgentRegistry agentRegistry) {
-        this(new HttpClientFactory(httpClient), agentRegistry);
+        this(new HttpClientFactory(httpClient), agentRegistry, Boolean.valueOf(System.getenv().getOrDefault("GO_USE_TOKEN_AUTH", "true")));
     }
 
-    HttpService(HttpClientFactory httpClientFactory, AgentRegistry agentRegistry) {
+    HttpService(HttpClientFactory httpClientFactory, AgentRegistry agentRegistry, boolean useTokenAuth) {
         this.httpClientFactory = httpClientFactory;
         this.agentRegistry = agentRegistry;
+        this.useTokenAuth = useTokenAuth;
     }
 
     public int upload(String url, long size, File artifactFile, Properties artifactChecksums) throws IOException {
@@ -119,8 +120,10 @@ public class HttpService {
     public CloseableHttpResponse execute(HttpRequestBase httpMethod) throws IOException {
         GoAgentServerHttpClient client = httpClientFactory.httpClient();
 
-        httpMethod.setHeader("X-Agent-GUID", agentRegistry.uuid());
-        httpMethod.setHeader("Authorization", agentRegistry.token());
+        if (httpMethod.getURI().getScheme().equals("http") || useTokenAuth) {
+            httpMethod.setHeader("X-Agent-GUID", agentRegistry.uuid());
+            httpMethod.setHeader("Authorization", agentRegistry.token());
+        }
 
         CloseableHttpResponse response = client.execute(httpMethod);
         LOGGER.info("Got back {} from server", response.getStatusLine().getStatusCode());

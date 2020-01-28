@@ -15,8 +15,10 @@
  */
 package com.thoughtworks.go.server.util;
 
+import com.thoughtworks.go.security.X509CertificateGenerator;
 import com.thoughtworks.go.server.Jetty9Server;
 import com.thoughtworks.go.server.config.GoSSLConfig;
+import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +28,8 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class GoSslSocketConnector implements GoSocketConnector {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GoSslSocketConnector.class.getName());
@@ -34,6 +38,7 @@ public class GoSslSocketConnector implements GoSocketConnector {
     private final GoSSLConfig goSSLConfig;
     private final File keystore;
     private final File truststore;
+    private final File agentKeystore;
     private final Connector connector;
 
     public GoSslSocketConnector(Jetty9Server server, String password, SystemEnvironment systemEnvironment, GoSSLConfig goSSLConfig) {
@@ -42,10 +47,12 @@ public class GoSslSocketConnector implements GoSocketConnector {
         this.goSSLConfig = goSSLConfig;
         this.keystore = systemEnvironment.keystore();
         this.truststore = systemEnvironment.truststore();
+        this.agentKeystore = systemEnvironment.agentkeystore();
         connector = sslConnector(server.getServer());
     }
 
     private Connector sslConnector(Server server) {
+        ensureX509Certificates();
 
         HttpConfiguration httpsConfig = new HttpConfiguration();
         httpsConfig.setOutputBufferSize(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE));
@@ -53,7 +60,7 @@ public class GoSslSocketConnector implements GoSocketConnector {
         httpsConfig.setSendServerVersion(false);
         httpsConfig.addCustomizer(new ForwardedRequestCustomizer());
 
-        SslContextFactory sslContextFactory = new SslContextFactory.Server();
+        SslContextFactory sslContextFactory = new CustomSslContextFactory();
         if(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_CLEAR_JETTY_DEFAULT_EXCLUSIONS)){
             sslContextFactory.setExcludeProtocols();
             sslContextFactory.setExcludeCipherSuites();
@@ -82,6 +89,21 @@ public class GoSslSocketConnector implements GoSocketConnector {
         https.setIdleTimeout(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT));
 
         return https;
+    }
+
+    private void ensureX509Certificates() {
+        String principalDn = "ou=Cruise server webserver certificate, cn=" + getHostname();
+
+        X509CertificateGenerator generator = new X509CertificateGenerator();
+        generator.createAndStoreX509Certificates(keystore, truststore, agentKeystore, password, principalDn);
+    }
+
+    private String getHostname() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            throw ExceptionUtils.bomb(e);
+        }
     }
 
     @Override

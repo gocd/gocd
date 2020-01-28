@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -231,7 +232,8 @@ public class AgentInstanceTest {
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         agentInstance.update(new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
 
-        assertThat(agentInstance.assignCertification(), is(true));
+        Registration entry = agentInstance.assignCertification();
+        assertThat(entry.getChain().length, is(not(0)));
     }
 
     @Test
@@ -240,8 +242,10 @@ public class AgentInstanceTest {
         AgentInstance agentInstance = createFromLiveAgent(agentRuntimeInfo, systemEnvironment,
                 mock(AgentStatusChangeListener.class));
 
-        assertThat(agentInstance.assignCertification(), is(false));
+        Registration entry = agentInstance.assignCertification();
+        assertThat(entry.getChain().length, is(0));
     }
+
 
     @Test
     void shouldInitializeTheLastHeardTimeWhenFirstPing() {

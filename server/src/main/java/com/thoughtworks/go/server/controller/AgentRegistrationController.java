@@ -19,6 +19,8 @@ import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
+import com.thoughtworks.go.security.Registration;
+import com.thoughtworks.go.security.RegistrationJSONizer;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
@@ -218,7 +220,7 @@ public class AgentRegistrationController {
                                        @RequestParam("token") String token, HttpServletRequest request) {
         final String ipAddress = request.getRemoteAddr();
         LOG.debug("Processing registration request from agent [{}/{}]", hostname, ipAddress);
-        boolean keyEntry;
+        Registration keyEntry;
         String preferredHostname = hostname;
 
         try {
@@ -285,7 +287,7 @@ public class AgentRegistrationController {
 
             final HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-            return new ResponseEntity<>("", httpHeaders, keyEntry ? OK : ACCEPTED);
+            return new ResponseEntity<>(RegistrationJSONizer.toJson(keyEntry), httpHeaders, keyEntry.isValid() ? OK : ACCEPTED);
         } catch (Exception e) {
             LOG.error("Error occurred during agent registration process. Error: HttpCode=[{}] Message=[{}] UUID=[{}] " +
                             "Hostname=[{}] ElasticAgentID=[{}] PluginID=[{}]", UNPROCESSABLE_ENTITY, getErrorMessage(e), uuid,

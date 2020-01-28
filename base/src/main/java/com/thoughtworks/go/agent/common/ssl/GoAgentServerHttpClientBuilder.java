@@ -33,7 +33,7 @@ import java.security.KeyStore;
 public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<CloseableHttpClient> {
 
     public GoAgentServerHttpClientBuilder(File rootCertFile, SslVerificationMode sslVerificationMode) {
-        super(new SystemEnvironment(), rootCertFile, sslVerificationMode);
+        super(new SystemEnvironment(), rootCertFile, AGENT_CERTIFICATE_FILE, sslVerificationMode);
     }
 
     public GoAgentServerHttpClientBuilder(SystemEnvironment systemEnvironment) {
@@ -63,7 +63,7 @@ public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<C
             sslContextBuilder.loadTrustMaterial(trustStore, trustStrategy);
         }
 
-        sslContextBuilder.loadKeyMaterial(agentKeystore(), keystorePassword());
+        sslContextBuilder.loadKeyMaterial(agentKeystore(), keystorePassword().toCharArray());
 
         SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContextBuilder.build(), hostnameVerifier);
         builder.setSSLSocketFactory(sslConnectionSocketFactory);

@@ -28,6 +28,7 @@ dependencies {
   compile group: 'cglib', name: 'cglib', version: project.versions.cglib
   testCompile project(path: ':config:config-api', configuration: 'testOutput')
   testCompile project(':test:test-utils')
+  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle)
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5

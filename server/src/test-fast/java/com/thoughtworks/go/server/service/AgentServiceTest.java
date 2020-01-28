@@ -32,6 +32,7 @@ import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.AgentDao;
@@ -59,6 +60,7 @@ import static com.thoughtworks.go.domain.AgentInstance.createFromLiveAgent;
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.Idle;
 import static com.thoughtworks.go.domain.AgentStatus.fromConfig;
 import static com.thoughtworks.go.helper.AgentInstanceMother.*;
+import static com.thoughtworks.go.security.Registration.createNullPrivateKeyEntry;
 import static com.thoughtworks.go.server.service.AgentRuntimeInfo.fromServer;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forAgent;
 import static com.thoughtworks.go.serverhealth.HealthStateType.duplicateAgent;
@@ -867,16 +869,17 @@ class AgentServiceTest {
     class RequestRegistration {
         @Test
         void requestRegistrationShouldReturnNullPrivateKeyRegistrationWhenCalledWithPendingAgent() {
-            AgentRuntimeInfo runtimeInfo = fromServer(pending().getAgent(), false, "sandbox", 0L, "linux");
+            AgentRuntimeInfo runtimeInfo = fromServer(pending().getAgent(), false, "sandbox", 0l, "linux");
             AgentInstance agentInstance = mock(AgentInstance.class);
             Agent agent = mock(Agent.class);
 
             when(agentInstances.register(runtimeInfo)).thenReturn(agentInstance);
-            when(agentInstance.assignCertification()).thenReturn(false);
+            Registration registrationWithNullPrivateKey = createNullPrivateKeyEntry();
+            when(agentInstance.assignCertification()).thenReturn(registrationWithNullPrivateKey);
             when(agentInstance.getAgent()).thenReturn(agent);
 
-            boolean registration = agentService.requestRegistration(runtimeInfo);
-            assertThat(registration, is(false));
+            Registration registration = agentService.requestRegistration(runtimeInfo);
+            assertThat(registration, is(registrationWithNullPrivateKey));
             verifyZeroInteractions(agentDao);
             verify(agent, never()).getCookie();
             verify(agent, never()).setCookie(anyString());
@@ -891,15 +894,16 @@ class AgentServiceTest {
             Agent agent = mock(Agent.class);
 
             when(agentInstances.register(runtimeInfo)).thenReturn(agentInstance);
-            when(agentInstance.assignCertification()).thenReturn(true);
+            Registration mockRegistration = mock(Registration.class);
+            when(agentInstance.assignCertification()).thenReturn(mockRegistration);
             when(agentInstance.getAgent()).thenReturn(agent);
             when(agentInstance.isRegistered()).thenReturn(true);
 
             String cookie = "cookie";
             when(uuidGenerator.randomUuid()).thenReturn(cookie);
 
-            boolean requestedRegistration = agentService.requestRegistration(runtimeInfo);
-            assertThat(requestedRegistration, is(true));
+            Registration requestedRegistration = agentService.requestRegistration(runtimeInfo);
+            assertThat(requestedRegistration, is(mockRegistration));
 
             verify(agentDao, only()).saveOrUpdate(agent);
             verify(agent, times(1)).cookieAssigned();
@@ -912,11 +916,12 @@ class AgentServiceTest {
         void requestRegistrationShouldBombIfAgentToBeRegisteredHasValidationErrors() {
             AgentInstance mockAgentInstance = mock(AgentInstance.class);
             Agent mockAgent = mock(Agent.class);
+            Registration mockRegistration = mock(Registration.class);
 
             AgentRuntimeInfo runtimeInfo = fromServer(building().getAgent(), false, "sandbox", 0l, "linux");
 
             when(agentInstances.register(runtimeInfo)).thenReturn(mockAgentInstance);
-            when(mockAgentInstance.assignCertification()).thenReturn(false);
+            when(mockAgentInstance.assignCertification()).thenReturn(mockRegistration);
             when(mockAgentInstance.getAgent()).thenReturn(mockAgent);
             when(mockAgentInstance.isRegistered()).thenReturn(true);
 

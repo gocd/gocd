@@ -62,6 +62,8 @@ dependencies {
   compile project(':agent-common')
   compile project(':common')
   compile group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
+  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   compile group: 'org.apache.commons', name: 'commons-configuration2', version: project.versions.commonsConfiguration
 
   compile group: 'org.nanohttpd', name: 'nanohttpd', version: versions.nanohttpd
@@ -124,6 +126,8 @@ task verifyJar(type: VerifyJarTask) {
       "ant-${project.versions.apacheAnt}.jar",
       "asm-3.3.1.jar",
       "base-${project.version}.jar",
+      "bcpkix-jdk15on-${project.versions.bouncyCastle}.jar",
+      "bcprov-jdk15on-${project.versions.bouncyCastle}.jar",
       "cglib-2.2.2.jar",
       "cloning-${project.versions.cloning}.jar",
       "commandline-${project.version}.jar",

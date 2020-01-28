@@ -183,7 +183,7 @@ public class PatchEnvironmentCommandTest {
         local.setOrigins(new FileConfigOrigin());
         BasicEnvironmentConfig remote = new BasicEnvironmentConfig(environmentName);
         remote.addPipeline(pipelineName);
-        ConfigRepoConfig configRepo = ConfigRepoConfig.createConfigRepoConfig(git("foo/bar.git", "master"), "myPlugin");
+        ConfigRepoConfig configRepo = ConfigRepoConfig.createConfigRepoConfig(git("foo/bar.git", "master"), "myPlugin", "id");
         remote.setOrigins(new RepoConfigOrigin(configRepo, "latest"));
 
         MergeEnvironmentConfig mergedConfig = new MergeEnvironmentConfig(local, remote);
@@ -213,7 +213,7 @@ public class PatchEnvironmentCommandTest {
         local.setOrigins(new FileConfigOrigin());
         BasicEnvironmentConfig remote = new BasicEnvironmentConfig(environmentName);
         remote.addEnvironmentVariable(variableName, "bar");
-        ConfigRepoConfig configRepo = ConfigRepoConfig.createConfigRepoConfig(git("foo/bar.git", "master"), "myPlugin");
+        ConfigRepoConfig configRepo = ConfigRepoConfig.createConfigRepoConfig(git("foo/bar.git", "master"), "myPlugin", "id");
         remote.setOrigins(new RepoConfigOrigin(configRepo, "latest"));
 
         MergeEnvironmentConfig mergedConfig = new MergeEnvironmentConfig(local, remote);

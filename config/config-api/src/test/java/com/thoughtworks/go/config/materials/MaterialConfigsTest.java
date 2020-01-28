@@ -137,8 +137,8 @@ Above scenario allowed
         PipelineConfig pipeline2 = goConfigMother.addPipeline(cruiseConfig, "pipeline2", "stage", "build");
         goConfigMother.setDependencyOn(cruiseConfig, pipeline2, "pipeline1", "stage");
 
-        pipeline1.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(svn("http://mysvn", false), "myplugin"), "123"));
-        pipeline2.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(svn("http://othersvn", false), "myplugin"), "2222"));
+        pipeline1.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(svn("http://mysvn", false), "myplugin", "id"), "123"));
+        pipeline2.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(svn("http://othersvn", false), "myplugin", "other-id"), "2222"));
 
         pipeline1.materialConfigs().validate(ConfigSaveValidationContext.forChain(cruiseConfig, new BasicPipelineConfigs(), pipeline1));
         assertThat(pipeline1.materialConfigs().errors().isEmpty(), is(true));

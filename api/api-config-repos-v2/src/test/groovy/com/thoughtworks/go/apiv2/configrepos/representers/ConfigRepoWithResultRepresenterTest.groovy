@@ -94,7 +94,7 @@ class ConfigRepoWithResultRepresenterTest {
     c.addNewConfigurationWithValue("baz", "quu", false)
 
     HgMaterialConfig materialConfig = hg(TEST_REPO_URL, "")
-    ConfigRepoConfig repo = new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
+    ConfigRepoConfig repo = ConfigRepoConfig.createConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
     repo.setConfiguration(c)
 
     return new ConfigRepoWithResult(repo, expectedParseResult, false)

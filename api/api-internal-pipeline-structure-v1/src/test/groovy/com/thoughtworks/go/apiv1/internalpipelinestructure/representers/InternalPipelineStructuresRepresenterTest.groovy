@@ -36,7 +36,7 @@ class InternalPipelineStructuresRepresenterTest {
     def template2 = PipelineTemplateConfigMother.createTemplate("second-template")
 
     def pipeline1 = PipelineConfigMother.createPipelineConfig("my-pipeline-1", "my-stage", "my-job1", "my-job2")
-    pipeline1.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(null, null, "some-config-repo-id"), "123"))
+    pipeline1.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(null, null, "some-config-repo-id"), "123"))
 
     def pipeline2 = PipelineConfigMother.createPipelineConfig("my-pipeline-2", "my-stage", "my-job1", "my-job2")
     pipeline2.setOrigin(new FileConfigOrigin())
@@ -138,7 +138,7 @@ class InternalPipelineStructuresRepresenterTest {
     def template2 = PipelineTemplateConfigMother.createTemplate("second-template")
 
     def pipeline1 = PipelineConfigMother.createPipelineConfig("my-pipeline-1", "my-stage", "my-job1", "my-job2")
-    pipeline1.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(null, null, "some-config-repo-id"), "123"))
+    pipeline1.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(null, null, "some-config-repo-id"), "123"))
 
     def pipeline2 = PipelineConfigMother.createPipelineConfig("my-pipeline-2", "my-stage", "my-job1", "my-job2")
     pipeline2.setOrigin(new FileConfigOrigin())

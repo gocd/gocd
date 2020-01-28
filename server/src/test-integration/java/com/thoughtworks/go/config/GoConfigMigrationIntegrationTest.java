@@ -1207,7 +1207,7 @@ public class GoConfigMigrationIntegrationTest {
                 "    </config-repo>\n" +
                 "  </config-repos>\n" +
                 "</cruise>";
-        String migratedContent = migrateXmlString(configXml, 114);
+        String migratedContent = ConfigMigrator.migrate(configXml, 114, 115);
 
         assertStringContainsIgnoringCarriageReturn(migratedContent,
                 "<config-repos>\n" +
@@ -2054,6 +2054,25 @@ public class GoConfigMigrationIntegrationTest {
 
         final String migratedXml = ConfigMigrator.migrate(configXml, 134, 135);
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
+    }
+
+    @Test
+    public void shouldAddADefaultAllowRuleForConfigRepos_Migration135To136() {
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<cruise schemaVersion=\"135\">" +
+                "   <config-repos>" +
+                "      <config-repo id=\"json\" pluginId=\"yaml.config.plugin\">" +
+                "          <git url=\"/tmp/config\" />" +
+                "      </config-repo>" +
+                "   </config-repos>" +
+                "</cruise>";
+
+        String defaultRuleAdded = "<allow action=\"refer\" type=\"*\">*</allow>";
+
+        final String migratedXml = migrateXmlString(configXml, 135);
+
+        XmlAssert.assertThat(migratedXml).nodesByXPath("/cruise/config-repos/config-repo/rules").exist();
+        assertThat(migratedXml).contains(defaultRuleAdded);
     }
 
     private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {

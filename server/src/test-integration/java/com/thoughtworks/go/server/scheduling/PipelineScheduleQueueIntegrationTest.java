@@ -447,7 +447,7 @@ public class PipelineScheduleQueueIntegrationTest {
         MaterialConfig materialConfig = pipelineConfig.materialConfigs().first();
         cause.getMaterialRevisions().findRevisionFor(materialConfig);
         pipelineConfig.setOrigins(new RepoConfigOrigin(
-                ConfigRepoConfig.createConfigRepoConfig(materialConfig, "123"), "plug"));
+                ConfigRepoConfig.createConfigRepoConfig(materialConfig, "123", "id1"), "plug"));
         saveRev(cause);
         queue.schedule(new CaseInsensitiveString(fixture.pipelineName), cause);
         Pipeline pipeline = queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());

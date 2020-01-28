@@ -115,8 +115,8 @@ public class PipelineGroupsTest {
         PipelineConfig pipeline2 = createPipelineConfig("pipeline1", "stage1");
         PipelineConfig pipeline3 = createPipelineConfig("pipeline1", "stage1");
         PipelineConfig pipeline4 = createPipelineConfig("pipeline1", "stage1");
-        pipeline3.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "rev1"));
-        pipeline4.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin"), "1"));
+        pipeline3.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "git-id"), "rev1"));
+        pipeline4.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin", "svn-id"), "1"));
         PipelineConfigs defaultGroup = createGroup("defaultGroup", pipeline1);
         PipelineConfigs anotherGroup = createGroup("anotherGroup", pipeline2);
         PipelineConfigs thirdGroup = createGroup("thirdGroup", pipeline3);

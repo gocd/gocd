@@ -57,7 +57,7 @@ public class PipelineConfigServiceTest {
         cruiseConfig = new BasicCruiseConfig(configs);
         cruiseConfig.addEnvironment(environment("foo", "in_env"));
         PipelineConfig remotePipeline = PipelineConfigMother.pipelineConfig("remote");
-        remotePipeline.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(git("url"), "plugin"), "1234"));
+        remotePipeline.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(git("url"), "plugin", "id"), "1234"));
         cruiseConfig.addPipeline("group", remotePipeline);
 
         goConfigService = mock(GoConfigService.class);

@@ -261,7 +261,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
 
   static ConfigRepoConfig repo(String id) {
     HgMaterialConfig materialConfig = hg("${TEST_REPO_URL}/$id", "")
-    ConfigRepoConfig repo = new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
+    ConfigRepoConfig repo = ConfigRepoConfig.createConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
 
     return repo
   }
@@ -368,7 +368,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
         MaterialConfig config = mock(MaterialConfig.class)
         Material material = mock(Material.class)
 
-        when(service.getConfigRepo(ID_1)).thenReturn(new ConfigRepoConfig(config, null, ID_1))
+        when(service.getConfigRepo(ID_1)).thenReturn(ConfigRepoConfig.createConfigRepoConfig(config, null, ID_1))
         when(converter.toMaterial(config)).thenReturn(material)
         when(materialUpdateService.isInProgress(material)).thenReturn(true)
 
@@ -386,7 +386,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
         MaterialConfig config = mock(MaterialConfig.class)
         Material material = mock(Material.class)
 
-        when(service.getConfigRepo(ID_1)).thenReturn(new ConfigRepoConfig(config, null, ID_1))
+        when(service.getConfigRepo(ID_1)).thenReturn(ConfigRepoConfig.createConfigRepoConfig(config, null, ID_1))
         when(converter.toMaterial(config)).thenReturn(material)
         when(materialUpdateService.isInProgress(material)).thenReturn(false)
 
@@ -437,7 +437,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
         MaterialConfig config = mock(MaterialConfig.class)
         Material material = mock(Material.class)
 
-        when(service.getConfigRepo(ID_1)).thenReturn(new ConfigRepoConfig(config, null, ID_1))
+        when(service.getConfigRepo(ID_1)).thenReturn(ConfigRepoConfig.createConfigRepoConfig(config, null, ID_1))
         when(converter.toMaterial(config)).thenReturn(material)
         when(materialUpdateService.updateMaterial(material)).thenReturn(true)
 
@@ -455,7 +455,7 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
         MaterialConfig config = mock(MaterialConfig.class)
         Material material = mock(Material.class)
 
-        when(service.getConfigRepo(ID_1)).thenReturn(new ConfigRepoConfig(config, null, ID_1))
+        when(service.getConfigRepo(ID_1)).thenReturn(ConfigRepoConfig.createConfigRepoConfig(config, null, ID_1))
         when(converter.toMaterial(config)).thenReturn(material)
         when(materialUpdateService.updateMaterial(material)).thenReturn(false)
 

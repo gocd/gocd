@@ -18,7 +18,7 @@ require 'rails_helper'
 
 describe ApiV1::Shared::ConfigOrigin::ConfigRepoOriginRepresenter do
   it 'should render remote config origin with hal representation' do
-    config_repo = ConfigRepoConfig.new(com.thoughtworks.go.helper.MaterialConfigsMother.git('https://github.com/config-repos/repo', 'master'), 'json-plugin', 'repo1')
+    config_repo = ConfigRepoConfig.createConfigRepoConfig(com.thoughtworks.go.helper.MaterialConfigsMother.git('https://github.com/config-repos/repo', 'master'), 'json-plugin', 'repo1')
     config_repo_origin = RepoConfigOrigin.new(config_repo, 'revision1')
     actual_json = ApiV1::Shared::ConfigOrigin::ConfigRepoOriginRepresenter.new(config_repo_origin).to_hash(url_builder: UrlBuilder.new)
 

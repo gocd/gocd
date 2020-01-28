@@ -31,7 +31,7 @@ class ConfigRepoOriginRepresenterTest {
   void 'should render remote config origin'() {
     def gitMaterialConfig = git('https://github.com/config-repos/repo', 'master')
     def actualJson = toObjectString({
-      ConfigRepoOriginRepresenter.toJSON(it, new RepoConfigOrigin(new ConfigRepoConfig(gitMaterialConfig, 'json-plugon', 'repo1'), 'revision1'))
+      ConfigRepoOriginRepresenter.toJSON(it, new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(gitMaterialConfig, 'json-plugon', 'repo1'), 'revision1'))
     })
 
     assertThatJson(actualJson).isEqualTo(expectedJson)

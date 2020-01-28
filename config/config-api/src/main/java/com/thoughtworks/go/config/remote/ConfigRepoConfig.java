@@ -18,9 +18,6 @@ package com.thoughtworks.go.config.remote;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.rules.RuleAwarePluginProfile;
-import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMetadataStore;
 import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
@@ -32,7 +29,6 @@ import java.util.List;
 import static com.thoughtworks.go.config.rules.SupportedEntity.*;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Defines single source of remote configuration and name of plugin to interpet it.
@@ -51,12 +47,8 @@ public class ConfigRepoConfig extends RuleAwarePluginProfile implements Cacheabl
     @ConfigSubtag(optional = false)
     private MaterialConfig repo;
 
-    public static ConfigRepoConfig createConfigRepoConfig(MaterialConfig repo, String pluginId) {
-        return (ConfigRepoConfig) new ConfigRepoConfig().setRepo(repo).setPluginId(pluginId);
-    }
-
     public static ConfigRepoConfig createConfigRepoConfig(MaterialConfig repo, String pluginId, String id) {
-        return (ConfigRepoConfig) createConfigRepoConfig(repo, pluginId).setId(id);
+        return (ConfigRepoConfig) new ConfigRepoConfig().setRepo(repo).setPluginId(pluginId).setId(id);
     }
 
     @Override

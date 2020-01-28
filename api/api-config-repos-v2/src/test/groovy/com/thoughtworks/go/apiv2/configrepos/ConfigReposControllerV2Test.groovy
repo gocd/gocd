@@ -408,8 +408,8 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
     void 'updates an existing repo'() {
       String id = "test-repo"
 
-      ConfigRepoConfig existing = new ConfigRepoConfig(hg("https://fakeurl.com", null), TEST_PLUGIN_ID, id)
-      ConfigRepoConfig repoFromRequest = new ConfigRepoConfig(hg("https://newfakeurl.com", null), TEST_PLUGIN_ID, id)
+      ConfigRepoConfig existing = ConfigRepoConfig.createConfigRepoConfig(hg("https://fakeurl.com", null), TEST_PLUGIN_ID, id)
+      ConfigRepoConfig repoFromRequest = ConfigRepoConfig.createConfigRepoConfig(hg("https://newfakeurl.com", null), TEST_PLUGIN_ID, id)
       when(service.getConfigRepo(id)).thenReturn(existing)
       when(entityHashingService.md5ForEntity(existing)).thenReturn('md5')
       when(entityHashingService.md5ForEntity(repoFromRequest)).thenReturn('new_md5')
@@ -454,12 +454,8 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
       String id = "test-repo"
 
       ConfigRepoConfig existing = repo(id)
-      when(service.getConfigRepo(id)).thenReturn(new ConfigRepoConfig(hg(TEST_REPO_URL, ""), TEST_PLUGIN_ID, id) {
-        @Override
-        String etag() {
-          return "no-match!"
-        }
-      })
+      when(service.getConfigRepo(id)).thenReturn(existing)
+      when(entityHashingService.md5ForEntity(existing)).thenReturn("unknown-etag")
 
       Map payload = [
         id           : id,
@@ -581,12 +577,15 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
   }
 
   static ConfigRepoConfig repo(String id) {
-    return new ConfigRepoConfig(hg("${TEST_REPO_URL}/$id", ""), TEST_PLUGIN_ID, id) {
+    def configRepo = new ConfigRepoConfig() {
       @Override
       String etag() {
         return "etag-for-${id}"
       }
-    }
+    }.setRepo(hg("${TEST_REPO_URL}/$id", ""))
+      .setId(id)
+      .setPluginId(TEST_PLUGIN_ID)
+    return configRepo as ConfigRepoConfig
   }
 
 }

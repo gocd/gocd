@@ -211,8 +211,8 @@ public class PipelineSchedulerTest {
     public void shouldRemovePipelinesOnConfigRepoDeletion() {
         //setup 2 config repos
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
-        ConfigRepoConfig repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
-        ConfigRepoConfig repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), "plugin");
+        ConfigRepoConfig repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin", "id1");
+        ConfigRepoConfig repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), "plugin", "id2");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig1, repoConfig2));
         PartialConfig partialConfigInRepo1 = PartialConfigMother.withPipeline("pipeline_in_repo1", new RepoConfigOrigin(repoConfig1, "repo1_r1"));
         PartialConfig partialConfigInRepo2 = PartialConfigMother.withPipeline("pipeline_in_repo2", new RepoConfigOrigin(repoConfig2, "repo2_r1"));

@@ -112,7 +112,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         configHelper = new GoConfigFileHelper(DEFAULT_XML_WITH_2_AGENTS);
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
-        repoConfig = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url"), XmlPartialConfigProvider.providerName);
+        repoConfig = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url"), XmlPartialConfigProvider.providerName, "git-id");
         configHelper.addConfigRepo(repoConfig);
         configHelper.addPipeline("upstream", "upstream_stage_original");
         goConfigService.forceNotifyListeners();

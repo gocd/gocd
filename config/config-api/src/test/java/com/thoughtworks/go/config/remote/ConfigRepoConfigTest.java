@@ -58,7 +58,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
         SvnMaterialConfig svn = svn("url", false);
         svn.setAutoUpdate(false);
 
-        ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(svn, "plug");
+        ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(svn, "plug", "id");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
 
         ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(cruiseConfig);
@@ -119,7 +119,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         GitMaterialConfig materialConfig = git(null, "master");
 
-        ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(materialConfig, "plug");
+        ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(materialConfig, "plug", "id");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
 
         ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(cruiseConfig);
@@ -134,7 +134,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
         MaterialConfig materialConfig = mock(MaterialConfig.class);
         when(materialConfig.errors()).thenReturn(new ConfigErrors());
 
-        ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(materialConfig, "plug");
+        ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(materialConfig, "plug", "id");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
         ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(cruiseConfig);
 
@@ -170,7 +170,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
         svnInPipelineConfig.setAutoUpdate(false);
         materialConfigs.add(svnInPipelineConfig);
 
-        ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(svnInConfigRepo, "plug");
+        ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(svnInConfigRepo, "plug", "id");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
 
         PipelineConfig pipeline1 = mother.addPipeline(cruiseConfig, "badpipe", "build", materialConfigs, "build");
@@ -186,7 +186,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
     public void hasSameMaterial_shouldReturnTrueWhenFingerprintEquals() {
         MaterialConfig configRepo = git("url", "branch");
         MaterialConfig someRepo = git("url", "branch");
-        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(configRepo, "myplugin");
+        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(configRepo, "myplugin", "id");
 
         assertThat(config.hasSameMaterial(someRepo), is(true));
     }
@@ -195,7 +195,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
     public void hasSameMaterial_shouldReturnFalseWhenFingerprintNotEquals() {
         MaterialConfig configRepo = git("url", "branch");
         MaterialConfig someRepo = git("url", "branch1");
-        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(configRepo, "myplugin");
+        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(configRepo, "myplugin", "id");
 
         assertThat(config.hasSameMaterial(someRepo), is(false));
     }
@@ -205,7 +205,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
         MaterialConfig configRepo = git("url", "branch");
         GitMaterialConfig someRepo = git("url", "branch");
         someRepo.setFolder("someFolder");
-        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(configRepo, "myplugin");
+        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(configRepo, "myplugin", "id");
 
         assertThat(config.hasSameMaterial(someRepo), is(true));
     }
@@ -215,7 +215,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
         MaterialConfig configRepo = git("url", "branch");
         GitMaterialConfig someRepo = git("url", "branch");
         someRepo.setFolder("someFolder");
-        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(configRepo, "myplugin");
+        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(configRepo, "myplugin", "id");
 
         assertThat(config.hasMaterialWithFingerprint(someRepo.getFingerprint()), is(true));
     }
@@ -224,7 +224,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
     public void hasMaterialWithFingerprint_shouldReturnFalseWhenFingerprintNotEquals() {
         MaterialConfig configRepo = git("url", "branch");
         GitMaterialConfig someRepo = git("url", "branch1");
-        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(configRepo, "myplugin");
+        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(configRepo, "myplugin", "id");
 
         assertThat(config.hasMaterialWithFingerprint(someRepo.getFingerprint()), is(false));
     }

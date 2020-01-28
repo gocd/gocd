@@ -198,7 +198,7 @@ class ConfigReposInternalControllerV3Test implements SecurityServiceTrait, Contr
 
   static ConfigRepoConfig repo(String id) {
     HgMaterialConfig materialConfig = hg("${TEST_REPO_URL}/$id", "")
-    ConfigRepoConfig repo = new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
+    ConfigRepoConfig repo = ConfigRepoConfig.createConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
 
     return repo
   }

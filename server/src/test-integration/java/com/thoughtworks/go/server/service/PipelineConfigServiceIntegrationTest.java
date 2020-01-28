@@ -124,8 +124,8 @@ public class PipelineConfigServiceIntegrationTest {
         user = new Username(new CaseInsensitiveString("current"));
         pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
         goConfigService.addPipeline(pipelineConfig, groupName);
-        repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url"), XmlPartialConfigProvider.providerName);
-        repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), XmlPartialConfigProvider.providerName);
+        repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url"), XmlPartialConfigProvider.providerName, "git-id1");
+        repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), XmlPartialConfigProvider.providerName, "git-id2");
         goConfigService.updateConfig(new UpdateConfigCommand() {
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {

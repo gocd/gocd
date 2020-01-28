@@ -66,7 +66,7 @@ class EntityConfigOriginRepresenterTest {
 
   @Test
   void 'should render config repo origin with hal representation'() {
-    def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.git("foo.git"), "json-plugon", "repo1"), "revision1");
+    def origin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.git("foo.git"), "json-plugon", "repo1"), "revision1");
     def actualJSON = toObjectString({ EntityConfigOriginRepresenter.toJSON(it, origin) })
 
     def expectedJSON = [

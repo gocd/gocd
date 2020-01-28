@@ -525,7 +525,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
       void "should not update pipeline config when the pipeline is defined remotely"() {
         def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
         def gitMaterial = git("https://github.com/config-repos/repo", "master")
-        def origin = new RepoConfigOrigin(new ConfigRepoConfig(gitMaterial, "json-plugib"), "revision1")
+        def origin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(gitMaterial, "json-plugib", "id"), "revision1")
         pipelineConfig.setOrigin(origin)
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
@@ -738,7 +738,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
 
         def gitMaterial = git("https://github.com/config-repos/repo", "master")
-        def origin = new RepoConfigOrigin(new ConfigRepoConfig(gitMaterial, "json-plugin"), "revision1")
+        def origin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(gitMaterial, "json-plugin", "id"), "revision1")
         pipeline.setOrigin(origin)
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)

@@ -26,7 +26,7 @@ public class RepoConfigOriginTest {
     @Test
     public void shouldShowDisplayName()
     {
-        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(svn("http://mysvn", false), "myplugin"), "123");
+        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(svn("http://mysvn", false), "myplugin", "id"), "123");
         assertThat(repoConfigOrigin.displayName(),is("http://mysvn at 123"));
     }
 

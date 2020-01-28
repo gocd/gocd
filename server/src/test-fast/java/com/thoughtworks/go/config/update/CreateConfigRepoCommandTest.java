@@ -53,7 +53,7 @@ public class CreateConfigRepoCommandTest {
         currentUser = new Username(new CaseInsensitiveString("user"));
         result = new HttpLocalizedOperationResult();
 
-        cruiseConfig = new GoConfigMother().defaultCruiseConfig();
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
         configRepo = ConfigRepoConfig.createConfigRepoConfig(git("https://foo.git", "master"), "json-plugin", repoId);
     }
 

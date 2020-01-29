@@ -7,6 +7,7 @@ export const loading: string;
 export const pipeline: string;
 export const pipelineDatum: string;
 export const rotate: string;
+export const selected: string;
 export const spin: string;
 export const tree: string;
 export const treeChild: string;

@@ -28,6 +28,10 @@
     width:      200px;
     flex:       0 1 auto;
     align-self: auto;
+
+    li {
+      float: unset;
+    }
   }
 
   .stage-or-job {
@@ -37,6 +41,11 @@
   }
 }
 
+.properties-wrapper {
+  li {
+    float: unset;
+  }
+}
 
 .light-color {
   color: lighten($text-color, 30%);

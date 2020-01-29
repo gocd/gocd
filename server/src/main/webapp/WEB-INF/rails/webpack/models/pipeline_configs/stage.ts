@@ -42,7 +42,7 @@ export interface StageJSON {
   jobs: JobJSON[];
 }
 
-type ApprovalType = "success" | "manual";
+export type ApprovalType = "success" | "manual";
 
 class Approval extends ValidatableMixin {
   type = Stream<ApprovalType>('success');
@@ -70,8 +70,11 @@ class Approval extends ValidatableMixin {
 
   static fromJSON(json: ApprovalJSON) {
     const approval = new Approval();
+    if (!json) {
+      return approval;
+    }
     approval.type(json.type);
-    approval.authorization;
+    approval.authorization({roles: json.authorization.roles, users: json.authorization.users});
     return approval;
   }
 }
@@ -110,8 +113,8 @@ export class Stage extends ValidatableMixin {
     stage.cleanWorkingDirectory(json.clean_working_directory);
     stage.neverCleanupArtifacts(json.never_cleanup_artifacts);
     stage.approval(Approval.fromJSON(json.approval));
-    stage.environmentVariables(EnvironmentVariables.fromJSON(json.environment_variables));
-    stage.jobs(new NameableSet(Job.fromJSONArray(json.jobs)));
+    stage.environmentVariables(EnvironmentVariables.fromJSON(json.environment_variables || []));
+    stage.jobs(new NameableSet(Job.fromJSONArray(json.jobs || [])));
     return stage;
   }
 

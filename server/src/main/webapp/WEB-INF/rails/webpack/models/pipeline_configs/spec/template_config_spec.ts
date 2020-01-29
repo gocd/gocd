@@ -17,7 +17,7 @@
 import {SparkRoutes} from "helpers/spark_routes";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 
-describe("TemplateConfig model", () => {
+describe("TemplateConfigModel", () => {
 
   xit("getTemplate()", (done) => {
     jasmine.Ajax.withMock(() => {

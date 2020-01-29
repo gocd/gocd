@@ -18,7 +18,7 @@ import {EnvironmentVariable, EnvironmentVariables} from "models/environment_vari
 import {Job} from "models/pipeline_configs/job";
 import {ExecTask} from "models/pipeline_configs/task";
 
-describe("Job model", () => {
+describe("JobModel", () => {
   function validJob() {
     return new Job("name", [new ExecTask("ls", ["-lA"])]);
   }

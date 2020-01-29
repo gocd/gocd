@@ -15,15 +15,15 @@
  */
 
 import {SparkRoutes} from "helpers/spark_routes";
+import {EnvironmentVariable, EnvironmentVariables} from "models/environment_variables/types";
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {Job} from "models/pipeline_configs/job";
 import {PipelineParameter} from "models/pipeline_configs/parameter";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 import {ExecTask} from "models/pipeline_configs/task";
-import {EnvironmentVariable, EnvironmentVariables} from "models/environment_variables/types";
 
-describe("PipelineConfig model", () => {
+describe("PipelineConfigModel", () => {
   const defaultMaterials = [new Material("git", new GitMaterialAttributes(undefined, true, "https://github.com/gocd/gocd"))];
   const defaultStages    = [new Stage("stage1", [new Job("job1", [new ExecTask("echo", [])])])];
 

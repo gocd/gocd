@@ -16,7 +16,7 @@
 
 import {ExecTask, Task} from "models/pipeline_configs/task";
 
-describe("Task", () => {
+describe("TaskModel", () => {
   it("validates attributes", () => {
     const t: Task = new ExecTask("", []);
     expect(t.isValid()).toBe(false);

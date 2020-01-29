@@ -16,7 +16,7 @@
 
 import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 
-describe("EnvironmentVariableConfig model", () => {
+describe("EnvironmentVariableConfigModel", () => {
   function validEnvironmentVariableConfig() {
     return new EnvironmentVariableConfig(false, "KEY", "value");
   }

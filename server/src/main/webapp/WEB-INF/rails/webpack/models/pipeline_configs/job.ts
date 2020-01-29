@@ -72,11 +72,11 @@ export class Job extends ValidatableMixin {
     job.runInstanceCount(json.run_instance_count);
     job.timeout(json.timeout);
     job.elasticProfileId(json.elastic_profile_id!);
-    job.environmentVariables(EnvironmentVariables.fromJSON(json.environment_variables));
+    job.environmentVariables(EnvironmentVariables.fromJSON(json.environment_variables || []));
     job.resources(json.resources);
-    job.tasks(AbstractTask.fromJSONArray(json.tasks));
-    job.tabs(Tabs.fromJSON(json.tabs));
-    job.artifacts(Artifacts.fromJSON(json.artifacts));
+    job.tasks(AbstractTask.fromJSONArray(json.tasks || []));
+    job.tabs(Tabs.fromJSON(json.tabs || []));
+    job.artifacts(Artifacts.fromJSON(json.artifacts || []));
     return job;
   }
 

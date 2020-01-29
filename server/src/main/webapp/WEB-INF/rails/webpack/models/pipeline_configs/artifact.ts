@@ -52,7 +52,9 @@ export abstract class Artifact {
 
   static fromJSON(json: ArtifactJSON) {
     switch (json.type) {
-      case "test" || "build":
+      case "test":
+        return new GoCDArtifact(json.type, json.source!, json.destination!);
+      case "build":
         return new GoCDArtifact(json.type, json.source!, json.destination!);
       case "external":
         const configurations = json.configuration ? Configurations.fromJSON(json.configuration) : new Configurations([]);

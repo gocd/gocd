@@ -17,7 +17,7 @@
 import {ErrorMessages} from "models/mixins/error_messages";
 import {PipelineParameter} from "models/pipeline_configs/parameter";
 
-describe("Parameters model", () => {
+describe("ParametersModel", () => {
   it("should have a correctly formatted name", () => {
     let param = new PipelineParameter("valid_name", "");
     expect(param.isValid()).toBe(true);

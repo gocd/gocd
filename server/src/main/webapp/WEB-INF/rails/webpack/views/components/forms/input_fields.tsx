@@ -319,10 +319,10 @@ function defaultAttributes<T, V>(attrs: BaseAttrs<T> & V,
   }
 
   return _.assign(defaultAttrs,
-                  RequiredLabel.defaultAttributes(attrs),
-                  Label.defaultAttributes(attrs),
-                  HelpText.defaultAttributes({helpTextId, ...attrs}),
-                  ErrorText.defaultAttributes({errorId, ...attrs})
+    RequiredLabel.defaultAttributes(attrs),
+    Label.defaultAttributes(attrs),
+    HelpText.defaultAttributes({helpTextId, ...attrs}),
+    ErrorText.defaultAttributes({errorId, ...attrs})
   );
 }
 
@@ -336,10 +336,10 @@ export abstract class FormField<T, V = {}> extends RestyleViewComponent<Styles, 
   view(vnode: m.Vnode<BaseAttrs<T> & V>) {
     return (
       <div class={classnames(this.css.formGroup,
-                             {
-                               [this.css.formHasError]: ErrorText.hasErrorText(vnode.attrs),
-                               [this.css.formDisabled]: vnode.attrs.readonly
-                             })}>
+        {
+          [this.css.formHasError]: ErrorText.hasErrorText(vnode.attrs),
+          [this.css.formDisabled]: vnode.attrs.readonly
+        })}>
         {[<Label {...vnode.attrs} fieldId={this.id}/>]}
         {this.renderInputField(vnode)}
         {[<ErrorText {...vnode.attrs} errorId={this.errorId}/>]}
@@ -435,9 +435,9 @@ export class TextAreaField extends FormField<string, TextAreaFieldAttrs> {
     return (
       <textarea
         class={classnames(this.css.formControl,
-                          this.css.textArea,
-                          SizeTransformer.transform(vnode.attrs.size, this.css),
-                          {[this.css.textareaFixed]: !(vnode.attrs.resizable)})}
+          this.css.textArea,
+          SizeTransformer.transform(vnode.attrs.size, this.css),
+          {[this.css.textareaFixed]: !(vnode.attrs.resizable)})}
         {...this.defaultAttributes(vnode.attrs)}
         rows={vnode.attrs.rows}
         oninput={(e: any) => {
@@ -663,6 +663,7 @@ export class RadioField extends RestyleViewComponent<Styles, RadioButtonAttrs> {
         <li data-test-id={`input-field-for-${radioData.value}`} className={this.css.radioField}>
           <input type="radio"
                  id={radioButtonId}
+                 data-test-id={`radio-${s.slugify(radioData.value)}`}
                  checked={radioData.value === vnode.attrs.property()}
                  name={this.id} onchange={() => vnode.attrs.property(radioData.value)}/>
           <label for={radioButtonId} className={this.css.radioLabel}
@@ -752,8 +753,8 @@ abstract class TextFieldWithButton extends RestyleViewComponent<Styles, TextFiel
 
     return (
       <div class={classnames(this.css.formGroup,
-                             this.css.formGroupTextFieldWithButton,
-                             {[this.css.formDisabled]: vnode.attrs.readonly})} {...defaultAttrs}>
+        this.css.formGroupTextFieldWithButton,
+        {[this.css.formDisabled]: vnode.attrs.readonly})} {...defaultAttrs}>
         {this.renderInputField(vnode)}
         {this.renderButton(vnode)}
       </div>

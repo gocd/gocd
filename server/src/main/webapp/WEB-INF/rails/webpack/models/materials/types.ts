@@ -21,6 +21,7 @@ import _ from "lodash";
 import Stream from "mithril/stream";
 import {
   DependencyMaterialAttributesJSON,
+  FilterJSON,
   GitMaterialAttributesJSON,
   HgMaterialAttributesJSON,
   MaterialAttributesJSON,
@@ -204,14 +205,34 @@ export abstract class MaterialAttributes extends ValidatableMixin {
   }
 }
 
+export class Filter {
+  readonly ignore = Stream<string[]>();
+
+  constructor(ignore: string[]) {
+    this.ignore = Stream(ignore);
+  }
+
+  static fromJSON(filter: FilterJSON) {
+    return new Filter(filter.ignore);
+  }
+}
+
 export abstract class ScmMaterialAttributes extends MaterialAttributes {
   static readonly DESTINATION_REGEX = new RegExp(
     "^(?!\\/)((([\\.]\\/)?[\\.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ]))$");
-  destination: Stream<string>       = Stream();
-  username: Stream<string | undefined>;
-  password: Stream<EncryptedValue>;
+  readonly destination              = Stream();
+  readonly username                 = Stream<string | undefined>();
+  readonly password                 = Stream<EncryptedValue>();
+  readonly filter                   = Stream<Filter | undefined>();
+  readonly invertFilter             = Stream<boolean>();
 
-  constructor(name?: string, autoUpdate?: boolean, username?: string, password?: string, encryptedPassword?: string) {
+  constructor(name?: string,
+              autoUpdate?: boolean,
+              username?: string,
+              password?: string,
+              encryptedPassword?: string,
+              filter?: Filter,
+              invertFilter: boolean = false) {
     super(name, autoUpdate);
     this.validateFormatOf("destination",
       ScmMaterialAttributes.DESTINATION_REGEX,
@@ -219,6 +240,8 @@ export abstract class ScmMaterialAttributes extends MaterialAttributes {
 
     this.username = Stream(username);
     this.password = Stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
+    this.filter(filter);
+    this.invertFilter(invertFilter);
   }
 }
 
@@ -247,12 +270,16 @@ class AuthNotSetInUrlAndUserPassFieldsValidator extends Validator {
 export class GitMaterialAttributes extends ScmMaterialAttributes {
   url: Stream<string | undefined>;
   branch: Stream<string | undefined>;
+  readonly shallowClone    = Stream<boolean>();
+  readonly submoduleFolder = Stream<string>();
 
   constructor(name?: string, autoUpdate?: boolean, url?: string, branch?: string,
               username?: string,
               password?: string,
-              encryptedPassword?: string) {
-    super(name, autoUpdate, username, password, encryptedPassword);
+              encryptedPassword?: string,
+              filter?: Filter,
+              invertFilter?: boolean) {
+    super(name, autoUpdate, username, password, encryptedPassword, filter, invertFilter);
     this.url    = Stream(url);
     this.branch = Stream(branch);
 
@@ -269,10 +296,14 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
       json.username,
       json.password,
       json.encrypted_password,
+      Filter.fromJSON(json.filter),
+      json.invert_filter
     );
     if (undefined !== json.destination) {
       attrs.destination(json.destination);
     }
+    attrs.shallowClone(json.shallow_clone);
+    attrs.submoduleFolder(json.submodule_folder);
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
@@ -288,8 +319,10 @@ export class SvnMaterialAttributes extends ScmMaterialAttributes {
               checkExternals?: boolean,
               username?: string,
               password?: string,
-              encryptedPassword?: string) {
-    super(name, autoUpdate, username, password, encryptedPassword);
+              encryptedPassword?: string,
+              filter?: Filter,
+              invertFilter?: boolean) {
+    super(name, autoUpdate, username, password, encryptedPassword, filter, invertFilter);
     this.url            = Stream(url);
     this.checkExternals = Stream(checkExternals);
 
@@ -305,6 +338,8 @@ export class SvnMaterialAttributes extends ScmMaterialAttributes {
       json.username,
       json.password,
       json.encrypted_password,
+      Filter.fromJSON(json.filter),
+      json.invert_filter
     );
     if (undefined !== json.destination) {
       attrs.destination(json.destination);
@@ -322,8 +357,10 @@ export class HgMaterialAttributes extends ScmMaterialAttributes {
               username?: string,
               password?: string,
               encryptedPassword?: string,
-              branch?: string) {
-    super(name, autoUpdate, username, password, encryptedPassword);
+              branch?: string,
+              filter?: Filter,
+              invertFilter?: boolean) {
+    super(name, autoUpdate, username, password, encryptedPassword, filter, invertFilter);
     this.url    = Stream(url);
     this.branch = Stream(branch);
 
@@ -339,7 +376,9 @@ export class HgMaterialAttributes extends ScmMaterialAttributes {
       json.username,
       json.password,
       json.encrypted_password,
-      json.branch
+      json.branch,
+      Filter.fromJSON(json.filter),
+      json.invert_filter
     );
     if (undefined !== json.destination) {
       attrs.destination(json.destination);
@@ -361,8 +400,10 @@ export class P4MaterialAttributes extends ScmMaterialAttributes {
               view?: string,
               username?: string,
               password?: string,
-              encryptedPassword?: string) {
-    super(name, autoUpdate, username, password, encryptedPassword);
+              encryptedPassword?: string,
+              filter?: Filter,
+              invertFilter?: boolean) {
+    super(name, autoUpdate, username, password, encryptedPassword, filter, invertFilter);
     this.port       = Stream(port);
     this.useTickets = Stream(useTickets);
     this.view       = Stream(view);
@@ -381,6 +422,8 @@ export class P4MaterialAttributes extends ScmMaterialAttributes {
       json.username,
       json.password,
       json.encrypted_password,
+      Filter.fromJSON(json.filter),
+      json.invert_filter
     );
 
     if (undefined !== json.destination) {
@@ -403,8 +446,10 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
               projectPath?: string,
               username?: string,
               password?: string,
-              encryptedPassword?: string) {
-    super(name, autoUpdate, username, password, encryptedPassword);
+              encryptedPassword?: string,
+              filter?: Filter,
+              invertFilter?: boolean) {
+    super(name, autoUpdate, username, password, encryptedPassword, filter, invertFilter);
     this.url         = Stream(url);
     this.domain      = Stream(domain);
     this.projectPath = Stream(projectPath);
@@ -425,6 +470,8 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
       json.username,
       json.password,
       json.encrypted_password,
+      Filter.fromJSON(json.filter),
+      json.invert_filter
     );
     if (undefined !== json.destination) {
       attrs.destination(json.destination);
@@ -435,6 +482,7 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
 }
 
 export class DependencyMaterialAttributes extends MaterialAttributes {
+  readonly ignoreForScheduling = Stream<boolean>();
   pipeline: Stream<string | undefined>;
   stage: Stream<string | undefined>;
 
@@ -454,6 +502,7 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
       json.pipeline,
       json.stage,
     );
+    attrs.ignoreForScheduling(json.ignore_for_scheduling);
     attrs.errors(new Errors(json.errors));
     return attrs;
   }

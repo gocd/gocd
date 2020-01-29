@@ -162,13 +162,13 @@ export class PipelineConfig extends ValidatableMixin {
   }
 
   static get(pipelineName: string) {
-    return ApiRequestBuilder.GET(SparkRoutes.getPipelineConfigPath(pipelineName), ApiVersion.latest);
+    return ApiRequestBuilder.GET(SparkRoutes.getOrUpdatePipelineConfigPath(pipelineName), ApiVersion.latest);
   }
 
   static fromJSON(json: PipelineConfigJSON) {
     const pipelineConfig = new PipelineConfig();
     pipelineConfig.labelTemplate(json.label_template);
-    pipelineConfig.lockBehavior(json.lock_behavior);
+    pipelineConfig.lockBehavior(json.lock_behavior || "none");
     pipelineConfig.name(json.name);
     pipelineConfig.template(json.template);
     pipelineConfig.group(json.group);
@@ -183,6 +183,10 @@ export class PipelineConfig extends ValidatableMixin {
     return pipelineConfig;
   }
 
+  firstStage(): Stage {
+    return this.stages().values().next().value;
+  }
+
   withGroup(group: string) {
     this.group(group);
     return this;
@@ -192,6 +196,12 @@ export class PipelineConfig extends ValidatableMixin {
     return ApiRequestBuilder.POST(SparkRoutes.pipelineConfigCreatePath(), ApiVersion.latest, {
       payload: this.toApiPayload(),
       headers: {"X-pause-pipeline": pause.toString(), "X-pause-cause": "Under construction"}
+    });
+  }
+
+  update() {
+    return ApiRequestBuilder.PUT(SparkRoutes.getOrUpdatePipelineConfigPath(this.name()), ApiVersion.latest, {
+      payload: JsonUtils.toSnakeCasedObject(this),
     });
   }
 

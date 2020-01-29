@@ -33,8 +33,16 @@ export interface UsernamePasswordJSON {
   encrypted_password?: string;
 }
 
+export interface FilterJSON {
+  ignore: string[];
+}
+
 export interface ScmAttributesJSON extends BaseAttributesJSON, UsernamePasswordJSON {
   destination?: string;
+  filter: FilterJSON;
+  invert_filter?: boolean;
+  shallow_clone: boolean;
+  submodule_folder: string;
 }
 
 export interface GitMaterialAttributesJSON extends ScmAttributesJSON {
@@ -67,6 +75,7 @@ export interface TfsMaterialAttributesJSON extends ScmAttributesJSON {
 export interface DependencyMaterialAttributesJSON extends BaseAttributesJSON {
   pipeline: string;
   stage: string;
+  ignore_for_scheduling: boolean;
 }
 
 export type MaterialAttributesJSON =

@@ -18,6 +18,7 @@ import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import _ from 'lodash';
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {Primary, Reset} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {NavigationWidget} from "views/pages/clicky_pipeline_config/navigation_widget";
 import {PipelineConfigWidget} from "views/pages/clicky_pipeline_config/pipeline_config_widget";
@@ -49,12 +50,20 @@ export class PipelineConfigPage<T> extends Page<null, T> {
     });
   }
 
+  save() {
+    this.pipelineConfig?.update().then((result) => result.do(this.onSuccess.bind(this), this.onFailure.bind(this)));
+  }
+
+  reset() {
+    this.pipelineConfig = PipelineConfig.fromJSON(this.originalJSON);
+  }
+
   changeRoute(event: ChangeRouteEvent, success: () => void): void {
     if (this.isPipelineConfigChanged()) {
       new ConfirmationDialog("Unsaved changes",
         "There are unsaved changes on your form. 'Proceed' will discard these changes",
         () => {
-          this.pipelineConfig = PipelineConfig.fromJSON(this.originalJSON);
+          this.reset();
           return Promise.resolve(success());
         }
       ).render();
@@ -80,6 +89,10 @@ export class PipelineConfigPage<T> extends Page<null, T> {
         <div class={styles.entityConfigContainer}>
           <PipelineConfigWidget pipelineConfig={this.pipelineConfig!}
                                 changeRoute={this.changeRoute.bind(this)}/>
+          <div>
+            <Reset onclick={this.reset.bind(this)}>RESET</Reset>
+            <Primary onclick={this.save.bind(this)}>SAVE</Primary>
+          </div>
         </div>
       </div>
     );

@@ -22,6 +22,7 @@ import {EnvironmentVariablesWidget} from "views/components/environment_variables
 import {AngleDoubleRight} from "views/components/icons";
 import {Link} from "views/components/link";
 import {Tabs} from "views/components/tab";
+import {GeneralOptionsTab} from "views/pages/clicky_pipeline_config/general_options_tab";
 import {ChangeRouteEvent} from "views/pages/clicky_pipeline_config/pipeline_config";
 import style from "./index.scss";
 
@@ -45,12 +46,7 @@ export class EnvironmentVariablesTab implements TabWidget {
   }
 }
 
-const tabs = [{
-  name: 'General',
-  renderer: (pipelineConfig: PipelineConfig) => {
-    return <div>General tab</div>;
-  }
-}, new EnvironmentVariablesTab()];
+const tabs = [new GeneralOptionsTab(), new EnvironmentVariablesTab()];
 
 export class PipelineConfigWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {

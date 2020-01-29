@@ -113,7 +113,8 @@ class Builder {
   }
 
   stageWithJobs(name: string, ...jobs: string[]) {
-    const stageBuilder = new StageBuilder(this).name(name);
+    const stageBuilder = new StageBuilder(this).name(name)
+      .approval("manual", false);
     jobs.forEach((job) => {
       stageBuilder.job().name(job).done();
     });

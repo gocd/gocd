@@ -21,7 +21,8 @@ import {NavigationWidget} from "views/pages/clicky_pipeline_config/navigation_wi
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("PipelineNavigation", () => {
-  const helper = new TestHelper();
+  const helper      = new TestHelper();
+  const changeRoute = jasmine.createSpy("changeRoute");
 
   afterEach(helper.unmount.bind(helper));
 
@@ -49,6 +50,7 @@ describe("PipelineNavigation", () => {
   });
 
   function mount(pipelineConfig: PipelineConfig) {
-    helper.mount(() => <NavigationWidget pipelineConfig={pipelineConfig}/>);
+    helper.mount(() => <NavigationWidget pipelineConfig={pipelineConfig}
+                                         changeRoute={changeRoute}/>);
   }
 });

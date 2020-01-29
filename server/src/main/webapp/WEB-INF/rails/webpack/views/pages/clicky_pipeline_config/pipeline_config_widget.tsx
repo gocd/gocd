@@ -19,10 +19,11 @@ import _ from 'lodash';
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {EnvironmentVariablesWidget} from "views/components/environment_variables";
+import {AngleDoubleRight} from "views/components/icons";
 import {Link} from "views/components/link";
 import {Tabs} from "views/components/tab";
 import {ChangeRouteEvent} from "views/pages/clicky_pipeline_config/pipeline_config";
-import {AngleDoubleRight} from "views/components/icons";
+import style from "./index.scss";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;
@@ -53,8 +54,9 @@ const tabs = [{
 
 export class PipelineConfigWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    this.header();
-    return [<div>{this.header()}</div>,
+    this.headerPanel();
+    return [
+      <div class={style.steps}>{this.headerPanel()}</div>,
       <Tabs initialSelection={this.selectedTabIndex()}
             tabs={tabs.map((eachTab) => eachTab.name)}
             contents={tabs.map((eachTab) => eachTab.renderer(vnode.attrs.pipelineConfig))}
@@ -78,7 +80,7 @@ export class PipelineConfigWidget extends MithrilViewComponent<Attrs> {
     });
   }
 
-  private header() {
+  private headerPanel() {
     const params = m.route.param();
     if (params.job_name) {
       return [

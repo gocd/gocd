@@ -34,8 +34,23 @@
   display:        flex;
   border-radius:  $global-border-radius;
   background:     $white;
-  padding:        8px 16px;
   flex-grow:      1;
   flex-direction: column;
 }
 
+.steps {
+  font-weight: 600;
+  padding:     8px 16px;
+  word-break:  break-all;
+  word-wrap:   break-word;
+  font-size:   16px;
+
+  a {
+    text-decoration: none;
+    cursor:          pointer;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}

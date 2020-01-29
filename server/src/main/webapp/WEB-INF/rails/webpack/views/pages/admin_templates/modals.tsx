@@ -193,7 +193,9 @@ export class ShowTemplateModal extends Modal {
       <div data-test-id={`selected-stage-${stage.name}`} class={styles.stageOrJob}>
         Showing stage <em>{stage.name}</em>
         <hr/>
-        <KeyValuePair data={stageProperties}/>
+        <div class={styles.propertiesWrapper}>
+          <KeyValuePair data={stageProperties}/>
+        </div>
         <Tabs
           tabs={["Environment Variables", "Permissions"]}
           contents={
@@ -214,7 +216,9 @@ export class ShowTemplateModal extends Modal {
       <div data-test-id={`selected-job-${stage.name}-${job.name}`} class={styles.stageOrJob}>
         Showing job <em>{stage.name}</em> > <em>{job.name}</em>
         <hr/>
-        <KeyValuePair data={jobProperties}/>
+        <div className={styles.propertiesWrapper}>
+          <KeyValuePair data={jobProperties}/>
+        </div>
         <Tabs
           tabs={["Tasks", "Artifacts", "Environment Variables", "Custom Tabs"]}
           contents={[this.tasks(job.tasks), this.artifacts(job.artifacts), this.environmentVariables(job.environment_variables), this.tabs(

@@ -208,10 +208,12 @@ public class JobController {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
 
         if (pluginInfo != null && pluginInfo.getCapabilities().supportsAgentStatusReport()) {
-            data.put("clusterProfileId", jobAgentMetadata.clusterProfile().getId());
-            data.put("elasticAgentProfileId", jobAgentMetadata.elasticProfile().getId());
+            String clusterProfileId = jobAgentMetadata.clusterProfile().getId();
+            String elasticProfileId = jobAgentMetadata.elasticProfile().getId();
+            data.put("clusterProfileId", clusterProfileId);
+            data.put("elasticAgentProfileId", elasticProfileId);
             data.put("elasticAgentPluginId", pluginId);
-            data.put("doesUserHaveViewAccessToStatusReportPage", securityService.doesUserHasPermissionsToViewAgentStatusReport(SessionUtils.currentUsername(), jobAgentMetadata.elasticProfile().getId()));
+            data.put("doesUserHaveViewAccessToStatusReportPage", securityService.doesUserHasPermissionsToViewAgentStatusReport(SessionUtils.currentUsername(), elasticProfileId, clusterProfileId));
 
             final Agent agent = agentService.getAgentByUUID(jobInstance.getAgentUuid());
 

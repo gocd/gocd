@@ -343,6 +343,7 @@ public class SecurityServiceTest {
     @Test
     public void shouldAllowUserToAccessAgentStatusReportPageWhenAllowViewPermissionIsDefined() {
         String elasticAgentProfileId = "elastic-profile-id";
+        String clusterProfileId = "cluster-profile-id";
         Username bob = new Username("Bob" + UUID.randomUUID());
         RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("elastic-profile-users"), new RoleUser(bob.getUsername()));
         Policy policy = new Policy();
@@ -351,12 +352,13 @@ public class SecurityServiceTest {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(goConfigService.rolesForUser(bob.getUsername())).thenReturn(new RolesConfig(roleConfig));
 
-        assertThat(securityService.doesUserHasPermissionsToViewAgentStatusReport(bob, elasticAgentProfileId), is(true));
+        assertThat(securityService.doesUserHasPermissionsToViewAgentStatusReport(bob, elasticAgentProfileId, clusterProfileId), is(true));
     }
 
     @Test
     public void shouldDenyUserToAccessAgentStatusReportPageWhenDenyViewPermissionIsDefined() {
         String elasticAgentProfileId = "elastic-profile-id";
+        String clusterProfileId = "cluster-profile-id";
         Username bob = new Username("Bob" + UUID.randomUUID());
         RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("elastic-profile-users"), new RoleUser(bob.getUsername()));
         Policy policy = new Policy();
@@ -365,17 +367,18 @@ public class SecurityServiceTest {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(goConfigService.rolesForUser(bob.getUsername())).thenReturn(new RolesConfig(roleConfig));
 
-        assertThat(securityService.doesUserHasPermissionsToViewAgentStatusReport(bob, elasticAgentProfileId), is(false));
+        assertThat(securityService.doesUserHasPermissionsToViewAgentStatusReport(bob, elasticAgentProfileId, clusterProfileId), is(false));
     }
 
     @Test
     public void shouldDenyUserToAccessAgentStatusReportPageWhenNoViewPermissionIsDefined() {
         String elasticAgentProfileId = "elastic-profile-id";
+        String clusterProfileId = "cluster-profile-id";
         Username bob = new Username("Bob" + UUID.randomUUID());
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(goConfigService.rolesForUser(bob.getUsername())).thenReturn(new RolesConfig());
 
-        assertThat(securityService.doesUserHasPermissionsToViewAgentStatusReport(bob, elasticAgentProfileId), is(false));
+        assertThat(securityService.doesUserHasPermissionsToViewAgentStatusReport(bob, elasticAgentProfileId, clusterProfileId), is(false));
     }
 
     private BasicCruiseConfig getCruiseConfigWithSecurityEnabled() {

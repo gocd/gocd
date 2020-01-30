@@ -111,6 +111,10 @@ export class Material extends ValidatableMixin {
   }
 
   materialUrl(): string {
+    if (this.type() === "dependency") {
+      const attrs = this.attributes() as DependencyMaterialAttributes;
+      return `${attrs.pipeline()}/${attrs.stage()}`;
+    }
     // @ts-ignore
     return this.type() === "p4" ? this.attributes().port() : this.attributes().url();
   }
@@ -220,7 +224,7 @@ export class Filter {
 export abstract class ScmMaterialAttributes extends MaterialAttributes {
   static readonly DESTINATION_REGEX = new RegExp(
     "^(?!\\/)((([\\.]\\/)?[\\.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ]))$");
-  readonly destination              = Stream();
+  readonly destination              = Stream<string | undefined>();
   readonly username                 = Stream<string | undefined>();
   readonly password                 = Stream<EncryptedValue>();
   readonly filter                   = Stream<Filter | undefined>();

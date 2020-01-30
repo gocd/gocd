@@ -26,6 +26,7 @@ import {GeneralOptionsTab} from "views/pages/clicky_pipeline_config/general_opti
 import {ChangeRouteEvent} from "views/pages/clicky_pipeline_config/pipeline_config";
 import style from "./index.scss";
 import {ProjectManagementTab} from "views/pages/clicky_pipeline_config/project_management_tab";
+import {MaterialsTab} from "views/pages/clicky_pipeline_config/materials_tab";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;
@@ -47,7 +48,7 @@ export class EnvironmentVariablesTab implements TabWidget {
   }
 }
 
-const tabs = [new GeneralOptionsTab(), new EnvironmentVariablesTab(), new ProjectManagementTab()];
+const tabs = [new GeneralOptionsTab(), new EnvironmentVariablesTab(), new ProjectManagementTab(), new MaterialsTab()];
 
 export class PipelineConfigWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {

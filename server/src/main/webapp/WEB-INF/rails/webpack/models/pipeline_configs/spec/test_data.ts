@@ -29,6 +29,38 @@ export class PipelineConfigTestData {
       .stageWithJobs("StageTwo", "JobOne", "JobTwo", "JobThree")
       .build();
   }
+
+  static withGitMaterial() {
+    return new Builder()
+      .name("Test")
+      .origin(OriginType.GoCD)
+      .materials(this.git())
+      .stageWithJobs("StageOne", "JobOne")
+      .stageWithJobs("StageTwo", "JobOne", "JobTwo", "JobThree")
+      .build();
+  }
+
+  private static git() {
+    return {
+      attributes: {
+        name: "GM",
+        shallow_clone: true,
+        url: "test-repo",
+        username: "abc",
+        auto_update: true,
+        branch: "master",
+        destination: "gm",
+        encrypted_password: "AES:EiGwOWJC9SLR70J/xv2Vzg==:EIJoCae8FB4vaInvh4WrCQ==",
+        invert_filter: true,
+        filter: {
+          ignore: [
+            "abc"
+          ]
+        }
+      },
+      type: "git"
+    } as MaterialJSON;
+  }
 }
 
 class Builder {

@@ -140,6 +140,8 @@ export class PipelineConfig extends ValidatableMixin {
   readonly trackingTool         = Stream<TrackingTool>();
   readonly timer                = Stream<Timer>();
 
+  private readonly __usingTemplate = Stream<boolean>(false);
+
   constructor(name: string = "", materials: Material[] = [], stages: Stage[] = []) {
     super();
 
@@ -179,12 +181,17 @@ export class PipelineConfig extends ValidatableMixin {
     pipelineConfig.stages(new NameableSet(Stage.fromJSONArray(json.stages || [])));
     pipelineConfig.trackingTool(TrackingTool.fromJSON(json.tracking_tool));
     pipelineConfig.timer(Timer.fromJSON(json.timer));
+    pipelineConfig.__usingTemplate(!!json.template);
 
     return pipelineConfig;
   }
 
   firstStage(): Stage {
     return this.stages().values().next().value;
+  }
+
+  isUsingTemplate() {
+    return this.__usingTemplate;
   }
 
   withGroup(group: string) {

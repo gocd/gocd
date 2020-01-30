@@ -307,7 +307,7 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
       attrs.destination(json.destination);
     }
     attrs.shallowClone(json.shallow_clone);
-    attrs.submoduleFolder(json.submodule_folder);
+    attrs.submoduleFolder(json.submodule_folder!);
     attrs.errors(new Errors(json.errors));
     return attrs;
   }

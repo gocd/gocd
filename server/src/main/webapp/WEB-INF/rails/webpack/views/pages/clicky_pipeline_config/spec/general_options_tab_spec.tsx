@@ -17,6 +17,7 @@ import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {GeneralOptionsTab} from "../general_options_tab";
+import {TemplateConfig} from "models/pipeline_configs/template_config";
 
 describe("GeneralOptionsTag", () => {
   const helper = new TestHelper();
@@ -34,17 +35,24 @@ describe("GeneralOptionsTag", () => {
     expect(pipelineConfig.labelTemplate()).toEqual("${LABEL}");
   });
 
-  it("should render automatic pipeline scheduling checkbox", () => {
-    const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
-    mount(pipelineConfig);
+  describe("Approval", () => {
+    it("should render automatic pipeline scheduling checkbox", () => {
+      const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
+      mount(pipelineConfig);
 
-    expect(pipelineConfig.firstStage().approval().typeAsString()).toEqual('manual');
-    expect(helper.byTestId("automatic-pipeline-scheduling")).not.toBeChecked();
+      expect(pipelineConfig.firstStage().approval().typeAsString()).toEqual('manual');
+      expect(helper.byTestId("automatic-pipeline-scheduling")).not.toBeChecked();
 
-    helper.clickByTestId("automatic-pipeline-scheduling");
+      helper.clickByTestId("automatic-pipeline-scheduling");
 
-    expect(helper.byTestId("automatic-pipeline-scheduling")).toBeChecked();
-    expect(pipelineConfig.firstStage().approval().typeAsString()).toEqual("success");
+      expect(helper.byTestId("automatic-pipeline-scheduling")).toBeChecked();
+      expect(pipelineConfig.firstStage().approval().typeAsString()).toEqual("success");
+    });
+
+    it("should render approval from template when template is configured", () => {
+      const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTemplate());
+      mount(pipelineConfig);
+    });
   });
 
   it("should render input for cron timer", () => {
@@ -100,7 +108,7 @@ describe("GeneralOptionsTag", () => {
     expect(runMultipleInstance).not.toBeChecked();
   });
 
-  function mount(pipelineConfig: PipelineConfig) {
-    helper.mount(() => new GeneralOptionsTab().renderer(pipelineConfig));
+  function mount(pipelineConfig: PipelineConfig, templateConfig = new TemplateConfig("foo", [])) {
+    helper.mount(() => new GeneralOptionsTab().content(pipelineConfig, templateConfig, true));
   }
 });

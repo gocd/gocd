@@ -76,7 +76,10 @@ describe("ConfigRepo attribute util functions", () => {
           encrypted_password: "AES:foo:bar",
           auto_update: true,
           branch: "master",
-          destination: ""
+          destination: "",
+          shallow_clone: false,
+          submodule_folder: null,
+          filter: {ignore: []}
         }
       },
       can_administer: false,

@@ -18,24 +18,30 @@ import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import Stream from "mithril/stream";
+import {Stages} from "models/pipeline_activity/pipeline_activity";
 import {PipelineParameter} from "models/pipeline_configs/parameter";
 
 export class TemplateConfig {
-  name: Stream<string>;
-  parameters: Stream<PipelineParameter[]>;
+  readonly name       = Stream<string>();
+  readonly parameters = Stream<PipelineParameter[]>();
+  readonly stages     = Stream<Stages>();
 
   constructor(name: string, parameters: PipelineParameter[]) {
-    this.name = Stream(name);
-    this.parameters = Stream(parameters);
+    this.name(name);
+    this.parameters(parameters);
   }
 
   static getTemplate(name: string, onSuccess: (result: TemplateConfig) => void) {
-    ApiRequestBuilder.GET(SparkRoutes.templatesPath(name), ApiVersion.v5).then((res) => {
+    ApiRequestBuilder.GET(SparkRoutes.templatesPath(name), ApiVersion.latest).then((res) => {
         res.map((body) => {
           const params = _.map(JSON.parse(body).parameters || [], (param) => new PipelineParameter(param.name, param.value));
           onSuccess(new TemplateConfig(name, params));
         });
       }
     );
+  }
+
+  firstStage() {
+    return this.stages().values().next().value;
   }
 }

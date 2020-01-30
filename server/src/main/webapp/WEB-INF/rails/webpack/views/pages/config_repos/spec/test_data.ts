@@ -65,44 +65,47 @@ export function createConfigRepoParsedWithError(overrides?: any): ConfigRepo {
   };
 
   return ConfigRepo.fromJSON({
-                               material: {
-                                 type: "git",
-                                 attributes: {
-                                   url: "https://example.com/git/" + (parameters.repoId),
-                                   name: "foo",
-                                   username: "bob",
-                                   encrypted_password: "AES:foo:bar",
-                                   auto_update: true,
-                                   branch: "master",
-                                   destination: ""
-                                 }
-                               },
-                               can_administer: true,
-                               configuration: [{
-                                 key: "file_pattern",
-                                 value: "*.json"
-                               }],
-                               parse_info: {
-                                 latest_parsed_modification: {
-                                   username: parameters.latestCommitUsername,
-                                   email_address: "mahesh@gmail.com",
-                                   revision: parameters.latestCommitRevision,
-                                   comment: parameters.latestCommitMessage,
-                                   modified_time: "2019-01-14T05:39:40Z"
-                                 },
-                                 good_modification: {
-                                   username: "GaneshSPatil <ganeshpl@gmail.com>",
-                                   email_address: "ganeshpl@gmail.com",
-                                   revision: "1234",
-                                   comment: "Revert \"Delete this\"\n\nThis reverts commit 9b402012ea5c24ce032c8ef4582c0a9ce2d14ade.",
-                                   modified_time: "2019-01-11T11:24:08Z"
-                                 },
-                                 error: "blah!"
-                               },
-                               id: parameters.id,
-                               plugin_id: "json.config.plugin",
-                               material_update_in_progress: parameters.material_update_in_progress
-                             });
+    material: {
+      type: "git",
+      attributes: {
+        url: "https://example.com/git/" + (parameters.repoId),
+        name: "foo",
+        username: "bob",
+        encrypted_password: "AES:foo:bar",
+        auto_update: true,
+        branch: "master",
+        destination: "",
+        shallow_clone: false,
+        submodule_folder: null,
+        filter: {ignore: []}
+      }
+    },
+    can_administer: true,
+    configuration: [{
+      key: "file_pattern",
+      value: "*.json"
+    }],
+    parse_info: {
+      latest_parsed_modification: {
+        username: parameters.latestCommitUsername,
+        email_address: "mahesh@gmail.com",
+        revision: parameters.latestCommitRevision,
+        comment: parameters.latestCommitMessage,
+        modified_time: "2019-01-14T05:39:40Z"
+      },
+      good_modification: {
+        username: "GaneshSPatil <ganeshpl@gmail.com>",
+        email_address: "ganeshpl@gmail.com",
+        revision: "1234",
+        comment: "Revert \"Delete this\"\n\nThis reverts commit 9b402012ea5c24ce032c8ef4582c0a9ce2d14ade.",
+        modified_time: "2019-01-11T11:24:08Z"
+      },
+      error: "blah!"
+    },
+    id: parameters.id,
+    plugin_id: "json.config.plugin",
+    material_update_in_progress: parameters.material_update_in_progress
+  });
 }
 
 export function createConfigRepoParsed(overrides?: any): ConfigRepo {
@@ -117,70 +120,76 @@ export function createConfigRepoParsed(overrides?: any): ConfigRepo {
   };
 
   return ConfigRepo.fromJSON({
-                               material: {
-                                 type: "git",
-                                 attributes: {
-                                   url: "https://example.com/git/" + (parameters.repoId),
-                                   name: "foo",
-                                   username: "bob",
-                                   encrypted_password: "AES:foo:bar",
-                                   auto_update: true,
-                                   branch: "master",
-                                   destination: ""
-                                 }
-                               },
-                               can_administer: false,
-                               configuration: [{
-                                 key: "file_pattern",
-                                 value: "*.json"
-                               }],
-                               parse_info: {
-                                 latest_parsed_modification: {
-                                   username: parameters.latestCommitUsername,
-                                   email_address: "mahesh@gmail.com",
-                                   revision: parameters.latestCommitRevision,
-                                   comment: parameters.latestCommitMessage,
-                                   modified_time: "2019-01-14T05:39:40Z"
-                                 },
-                                 good_modification: {
-                                   username: parameters.latestCommitUsername,
-                                   email_address: "mahesh@gmail.com",
-                                   revision: parameters.latestCommitRevision,
-                                   comment: parameters.latestCommitMessage,
-                                   modified_time: "2019-01-14T05:39:40Z"
-                                 }
-                               },
-                               id: parameters.id,
-                               plugin_id: "json.config.plugin",
-                               material_update_in_progress: parameters.material_update_in_progress
-                             });
+    material: {
+      type: "git",
+      attributes: {
+        url: "https://example.com/git/" + (parameters.repoId),
+        name: "foo",
+        username: "bob",
+        encrypted_password: "AES:foo:bar",
+        auto_update: true,
+        branch: "master",
+        destination: "",
+        shallow_clone: false,
+        submodule_folder: null,
+        filter: {ignore: []}
+      }
+    },
+    can_administer: false,
+    configuration: [{
+      key: "file_pattern",
+      value: "*.json"
+    }],
+    parse_info: {
+      latest_parsed_modification: {
+        username: parameters.latestCommitUsername,
+        email_address: "mahesh@gmail.com",
+        revision: parameters.latestCommitRevision,
+        comment: parameters.latestCommitMessage,
+        modified_time: "2019-01-14T05:39:40Z"
+      },
+      good_modification: {
+        username: parameters.latestCommitUsername,
+        email_address: "mahesh@gmail.com",
+        revision: parameters.latestCommitRevision,
+        comment: parameters.latestCommitMessage,
+        modified_time: "2019-01-14T05:39:40Z"
+      }
+    },
+    id: parameters.id,
+    plugin_id: "json.config.plugin",
+    material_update_in_progress: parameters.material_update_in_progress
+  });
 }
 
 export function createConfigRepoWithError(id?: string, repoId?: string): ConfigRepo {
   id = id || uuid();
   return ConfigRepo.fromJSON({
-                               material: {
-                                 type: "git",
-                                 attributes: {
-                                   url: "https://example.com/git/" + (repoId || uuid()),
-                                   name: "foo",
-                                   auto_update: true,
-                                   branch: "master",
-                                   destination: ""
-                                 }
-                               },
-                               can_administer: false,
-                               configuration: [{
-                                 key: "file_pattern",
-                                 value: "*.json"
-                               }],
-                               parse_info: {
-                                 error: "blah!"
-                               },
-                               id,
-                               plugin_id: "json.config.plugin",
-                               material_update_in_progress: false
-                             });
+    material: {
+      type: "git",
+      attributes: {
+        url: "https://example.com/git/" + (repoId || uuid()),
+        name: "foo",
+        auto_update: true,
+        branch: "master",
+        destination: "",
+        shallow_clone: false,
+        submodule_folder: null,
+        filter: {ignore: []}
+      }
+    },
+    can_administer: false,
+    configuration: [{
+      key: "file_pattern",
+      value: "*.json"
+    }],
+    parse_info: {
+      error: "blah!"
+    },
+    id,
+    plugin_id: "json.config.plugin",
+    material_update_in_progress: false
+  });
 }
 
 export function configRepoPluginInfo() {

@@ -16,14 +16,29 @@
 
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {Stage} from "models/pipeline_configs/stage";
+import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {Form} from "views/components/forms/form";
 import {CheckboxField, RadioField, TextField} from "views/components/forms/input_fields";
-import {TabWidget} from "views/pages/clicky_pipeline_config/pipeline_config_widget";
+import {TabWidget} from "views/pages/clicky_pipeline_config/tab_widget";
 
-export class GeneralOptionsTab implements TabWidget {
-  name: string = "General";
+export class GeneralOptionsTab extends TabWidget {
+  name(): string {
+    return "General";
+  }
 
-  renderer(entity: PipelineConfig): m.Children {
+  getPipelineSchedulingCheckBox(entity: PipelineConfig, templateConfig: TemplateConfig) {
+    const stage: Stage = entity.template() ? templateConfig.firstStage() : entity.firstStage();
+    if (stage) {
+      return <CheckboxField label="Automatic pipeline scheduling"
+                            errorText={entity.errors().errorsForDisplay("")}
+                            dataTestId={"automatic-pipeline-scheduling"}
+                            helpText="If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual."
+                            property={stage.approval().typeAsStream()}/>;
+    }
+  }
+
+  protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig): m.Children {
     return <div>
       <h3>Basic settings</h3>
       <Form compactForm={true}>
@@ -35,11 +50,7 @@ export class GeneralOptionsTab implements TabWidget {
                    dataTestId={"label-template"}
                    required={true}/>
 
-        <CheckboxField label="Automatic pipeline scheduling"
-                       errorText={entity.errors().errorsForDisplay("")}
-                       dataTestId={"automatic-pipeline-scheduling"}
-                       helpText="If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual."
-                       property={entity.firstStage().approval().typeAsStream()}/>
+        {this.getPipelineSchedulingCheckBox(entity, templateConfig)}
       </Form>
 
       <h3>Timer Settings</h3>

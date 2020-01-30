@@ -17,15 +17,18 @@
 import _ from "lodash";
 import m from "mithril";
 import {PipelineConfig, TrackingTool} from "models/pipeline_configs/pipeline_config";
+import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {Form} from "views/components/forms/form";
 import {TextField} from "views/components/forms/input_fields";
 import {Help} from "views/components/tooltip";
-import {TabWidget} from "views/pages/clicky_pipeline_config/pipeline_config_widget";
+import {TabWidget} from "views/pages/clicky_pipeline_config/tab_widget";
 
-export class ProjectManagementTab implements TabWidget {
-  readonly name = "Project Management";
+export class ProjectManagementTab extends TabWidget {
+  name() {
+    return "Project Management";
+  }
 
-  renderer(entity: PipelineConfig) {
+  protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig) {
     return <div>
       <h3>Tracking Tool Integration
         <Help

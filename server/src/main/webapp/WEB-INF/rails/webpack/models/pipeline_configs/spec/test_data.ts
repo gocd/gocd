@@ -40,6 +40,14 @@ export class PipelineConfigTestData {
       .build();
   }
 
+  static withTemplate() {
+    return new Builder()
+      .template("template")
+      .origin(OriginType.GoCD)
+      .materials(this.git())
+      .build();
+  }
+
   private static git() {
     return {
       attributes: {

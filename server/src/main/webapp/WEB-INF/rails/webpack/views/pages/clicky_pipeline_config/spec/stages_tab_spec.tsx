@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,6 @@
  * limitations under the License.
  */
 
-import {HgMaterialAttributesJSON} from "models/materials/serialization";
+describe("", () => {
 
-export class Hg {
-  static withBranch() {
-    return {
-      name: "DummyHg",
-      auto_update: false,
-      url: "https://domain.com",
-      username: "bob",
-      password: "password",
-      branch: "feature"
-    } as HgMaterialAttributesJSON;
-  }
-}
+});

@@ -18,6 +18,7 @@ import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {ProjectManagementTab} from "views/pages/clicky_pipeline_config/project_management_tab";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {TemplateConfig} from "models/pipeline_configs/template_config";
 
 describe("ProjectManagementTab", () => {
   const helper = new TestHelper();
@@ -50,7 +51,7 @@ describe("ProjectManagementTab", () => {
     expect(pipelineConfig.trackingTool().urlPattern()).toEqual("https://github.com/gocd/gocd/issues/${ID}");
   });
 
-  function mount(pipelineConfig: PipelineConfig) {
-    helper.mount(() => new ProjectManagementTab().renderer(pipelineConfig));
+  function mount(pipelineConfig: PipelineConfig, templateConfig = new TemplateConfig("foo", [])) {
+    helper.mount(() => new ProjectManagementTab().content(pipelineConfig, templateConfig, true));
   }
 });

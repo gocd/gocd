@@ -42,7 +42,7 @@ export interface ScmAttributesJSON extends BaseAttributesJSON, UsernamePasswordJ
   filter: FilterJSON;
   invert_filter?: boolean;
   shallow_clone: boolean;
-  submodule_folder: string;
+  submodule_folder: string | null;
 }
 
 export interface GitMaterialAttributesJSON extends ScmAttributesJSON {

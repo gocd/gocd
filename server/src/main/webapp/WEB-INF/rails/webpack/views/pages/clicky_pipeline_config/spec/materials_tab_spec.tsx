@@ -16,6 +16,7 @@
 
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
+import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {MaterialsTab} from "views/pages/clicky_pipeline_config/materials_tab";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -101,7 +102,7 @@ describe('MaterialsTab', () => {
     });
   });
 
-  function mount(pipelineConfig: PipelineConfig) {
-    helper.mount(() => materialTab.renderer(pipelineConfig));
+  function mount(pipelineConfig: PipelineConfig, templateConfig = new TemplateConfig("foo", [])) {
+    helper.mount(() => materialTab.content(pipelineConfig, templateConfig, true));
   }
 });

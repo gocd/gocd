@@ -18,37 +18,44 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from 'lodash';
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {EnvironmentVariablesWidget} from "views/components/environment_variables";
 import {AngleDoubleRight} from "views/components/icons";
 import {Link} from "views/components/link";
 import {Tabs} from "views/components/tab";
 import {GeneralOptionsTab} from "views/pages/clicky_pipeline_config/general_options_tab";
-import {ChangeRouteEvent} from "views/pages/clicky_pipeline_config/pipeline_config";
-import style from "./index.scss";
-import {ProjectManagementTab} from "views/pages/clicky_pipeline_config/project_management_tab";
 import {MaterialsTab} from "views/pages/clicky_pipeline_config/materials_tab";
+import {ChangeRouteEvent} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {ProjectManagementTab} from "views/pages/clicky_pipeline_config/project_management_tab";
+import {StagesTab} from "views/pages/clicky_pipeline_config/stages_tab";
+import {TabWidget} from "views/pages/clicky_pipeline_config/tab_widget";
+import style from "./index.scss";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;
+  templateConfig: TemplateConfig;
 
   changeRoute(event: ChangeRouteEvent, success: () => void): void;
 }
 
-export interface TabWidget {
-  name: string;
+export class EnvironmentVariablesTab extends TabWidget {
 
-  renderer(entity: PipelineConfig): m.Children;
-}
+  name(): string {
+    return "Environment Variables";
+  }
 
-export class EnvironmentVariablesTab implements TabWidget {
-  readonly name = "Environment Variables";
-
-  renderer(entity: PipelineConfig): m.Children {
+  protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig): m.Children {
     return <EnvironmentVariablesWidget environmentVariables={entity.environmentVariables()}/>;
   }
 }
 
-const tabs = [new GeneralOptionsTab(), new EnvironmentVariablesTab(), new ProjectManagementTab(), new MaterialsTab()];
+const tabs = [
+  new GeneralOptionsTab(),
+  new EnvironmentVariablesTab(),
+  new ProjectManagementTab(),
+  new MaterialsTab(),
+  new StagesTab()
+];
 
 export class PipelineConfigWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
@@ -56,14 +63,14 @@ export class PipelineConfigWidget extends MithrilViewComponent<Attrs> {
     return [
       <div class={style.steps}>{this.headerPanel()}</div>,
       <Tabs initialSelection={this.selectedTabIndex()}
-            tabs={tabs.map((eachTab) => eachTab.name)}
-            contents={tabs.map((eachTab) => eachTab.renderer(vnode.attrs.pipelineConfig))}
+            tabs={tabs.map((eachTab: TabWidget) => eachTab.name())}
+            contents={tabs.map((eachTab: TabWidget) => eachTab.content(vnode.attrs.pipelineConfig, vnode.attrs.templateConfig, this.isSelectedTab(eachTab)))}
             beforeChange={this.onTabChange.bind(this, vnode)}/>
     ];
   }
 
   private onTabChange(vnode: m.Vnode<Attrs>, index: number, callback: () => void) {
-    const route = `${vnode.attrs.pipelineConfig.name()}/${_.snakeCase(tabs[index].name)}`;
+    const route = `${vnode.attrs.pipelineConfig.name()}/${_.snakeCase(tabs[index].name())}`;
     vnode.attrs.changeRoute({newRoute: route}, () => {
       callback();
       if (m.route.get() !== route) {
@@ -74,8 +81,12 @@ export class PipelineConfigWidget extends MithrilViewComponent<Attrs> {
 
   private selectedTabIndex() {
     return tabs.findIndex((eachTab) => {
-      return _.snakeCase(eachTab.name) === m.route.param().tab_name;
+      return this.isSelectedTab(eachTab);
     });
+  }
+
+  private isSelectedTab(eachTab: TabWidget) {
+    return _.snakeCase(eachTab.name()) === m.route.param().tab_name;
   }
 
   private headerPanel() {

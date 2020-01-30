@@ -18,6 +18,7 @@ import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import _ from 'lodash';
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {Primary, Reset} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {NavigationWidget} from "views/pages/clicky_pipeline_config/navigation_widget";
@@ -35,6 +36,7 @@ export interface ChangeRouteEvent {
 }
 
 export class PipelineConfigPage<T> extends Page<null, T> {
+  private templateConfig?: TemplateConfig;
   private pipelineConfig?: PipelineConfig;
   private originalJSON: any;
 
@@ -88,6 +90,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
 
         <div class={styles.entityConfigContainer}>
           <PipelineConfigWidget pipelineConfig={this.pipelineConfig!}
+                                templateConfig={this.templateConfig!}
                                 changeRoute={this.changeRoute.bind(this)}/>
           <div>
             <Reset onclick={this.reset.bind(this)}>RESET</Reset>
@@ -103,7 +106,17 @@ export class PipelineConfigPage<T> extends Page<null, T> {
   }
 
   fetchData(vnode: m.Vnode<null, T>): Promise<any> {
-    return PipelineConfig.get(this.getMeta().pipelineName).then((result) => result.do(this.onSuccess.bind(this), this.onFailure.bind(this)));
+    return PipelineConfig.get(this.getMeta().pipelineName)
+      .then((result) => result.do(this.onSuccess.bind(this), this.onFailure.bind(this)))
+      .finally(() => {
+        if (this.pipelineConfig!.template()) {
+          this.pageState = PageState.LOADING;
+          TemplateConfig.getTemplate(this.pipelineConfig!.template(), (result) => {
+            this.templateConfig = result;
+            this.pageState      = PageState.OK;
+          });
+        }
+      });
   }
 
   protected getMeta(): PageMeta {

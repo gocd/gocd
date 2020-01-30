@@ -22,21 +22,10 @@ import {Secondary} from "views/components/buttons";
 import {Delete, Edit, IconGroup} from "views/components/icons";
 import {Table} from "views/components/table";
 import {MaterialModal} from "views/pages/clicky_pipeline_config/modal/material_modal";
-import {TabWidget} from "views/pages/clicky_pipeline_config/pipeline_config_widget";
 import style from "./index.scss";
+import {TabWidget} from "views/pages/clicky_pipeline_config/tab_widget";
 
-export class MaterialsTab implements TabWidget {
-  name = "Materials";
-
-  renderer(entity: PipelineConfig) {
-    return <div class={style.materialTab}>
-      <Table headers={["Type", "Material Name", "Url", ""]} data={this.tableData(entity.materials())}/>
-      <Secondary dataTestId={"add-material-button"}
-                 onclick={this.addNewMaterial.bind(this, entity.materials())}>
-        Add Material
-      </Secondary>
-    </div>;
-  }
+export class MaterialsTab extends TabWidget {
 
   addNewMaterial(materials: NameableSet<Material>) {
     MaterialModal.forAdd((material: Material) => {
@@ -49,6 +38,20 @@ export class MaterialsTab implements TabWidget {
       material.type(updateMaterial.type());
       material.attributes(updateMaterial.attributes());
     }).render();
+  }
+
+  name(): string {
+    return "Materials";
+  }
+
+  protected renderer(entity: PipelineConfig) {
+    return <div class={style.materialTab}>
+      <Table headers={["Type", "Material Name", "Url", ""]} data={this.tableData(entity.materials())}/>
+      <Secondary dataTestId={"add-material-button"}
+                 onclick={this.addNewMaterial.bind(this, entity.materials())}>
+        Add Material
+      </Secondary>
+    </div>;
   }
 
   private tableData(materials: NameableSet<Material>) {

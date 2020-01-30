@@ -15,11 +15,27 @@
  */
 package com.thoughtworks.go.apiv1.compare.representers;
 
+import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.materials.Modifications;
 
 public class ModificationRepresenter {
-    public static void toJSON(OutputWriter outputWriter, Modification modification) {
+    public static void toJSONArray(OutputListWriter outputWriter, Modifications modifications, boolean dependencyMaterialRevision) {
+        if (dependencyMaterialRevision) {
+            modifications.forEach(modification -> outputWriter.addChild(modificationWriter -> toDependencyJSON(modificationWriter, modification)));
+        } else {
+            modifications.forEach(modification -> outputWriter.addChild(modificationWriter -> toMaterialJSON(modificationWriter, modification)));
+        }
+    }
+
+    public static void toDependencyJSON(OutputWriter outputWriter, Modification modification) {
+        outputWriter.add("revision", modification.getRevision())
+                .addIfNotNull("modified_time", modification.getModifiedTime())
+                .add("pipeline_label", modification.getPipelineLabel());
+    }
+
+    public static void toMaterialJSON(OutputWriter outputWriter, Modification modification) {
         outputWriter
                 .add("revision", modification.getRevision())
                 .addIfNotNull("modified_time", modification.getModifiedTime())

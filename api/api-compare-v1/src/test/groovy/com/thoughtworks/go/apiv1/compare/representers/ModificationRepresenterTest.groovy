@@ -15,11 +15,15 @@
  */
 package com.thoughtworks.go.apiv1.compare.representers
 
+import com.thoughtworks.go.config.materials.Materials
 import com.thoughtworks.go.helper.ModificationsMother
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
+import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.MaterialsMother.dependencyMaterial
+import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class ModificationRepresenterTest {
@@ -34,7 +38,7 @@ class ModificationRepresenterTest {
       "comment"      : "Added the README file",
       "email_address": "foo@bar.com"]
 
-    def actualJson = toObjectString({ ModificationRepresenter.toJSON(it, modification) })
+    def actualJson = toObjectString({ ModificationRepresenter.toMaterialJSON(it, modification) })
 
     assertThatJson(actualJson).isEqualTo(expectedJSON)
   }
@@ -50,7 +54,43 @@ class ModificationRepresenterTest {
       "comment"      : "Added the README file",
       "email_address": "foo@bar.com"]
 
-    def actualJson = toObjectString({ ModificationRepresenter.toJSON(it, modification) })
+    def actualJson = toObjectString({ ModificationRepresenter.toMaterialJSON(it, modification) })
+
+    assertThatJson(actualJson).isEqualTo(expectedJSON)
+  }
+
+  @Test
+  void 'should render dependency material revision'() {
+    Materials materials = new Materials(dependencyMaterial())
+    def modification = modifyOneFile(materials, "1").getMaterialRevision(0).getModification(0)
+
+    def expectedJSON = [
+      "revision"      : "pipeline-name/1/stage-name/1",
+      "modified_time" : jsonDate(modification.modifiedTime),
+      "pipeline_label": "pipeline-name-1.2.3"]
+
+    def actualJson = toObjectString({ ModificationRepresenter.toDependencyJSON(it, modification) })
+
+    assertThatJson(actualJson).isEqualTo(expectedJSON)
+  }
+
+  @Test
+  void 'should render modifications'() {
+    Materials materials = new Materials(dependencyMaterial())
+    def revision = modifyOneFile(materials, "1").getMaterialRevision(0)
+
+    def expectedJSON = [
+      [
+        "modified_time" : jsonDate(revision.modifications.get(0).modifiedTime),
+        "pipeline_label": "pipeline-name-1.2.3",
+        "revision"      : "pipeline-name/1/stage-name/1"
+      ]
+    ]
+
+
+    def actualJson = toArrayString({
+      ModificationRepresenter.toJSONArray(it, revision.getModifications(), revision.isDependencyMaterialRevision())
+    })
 
     assertThatJson(actualJson).isEqualTo(expectedJSON)
   }

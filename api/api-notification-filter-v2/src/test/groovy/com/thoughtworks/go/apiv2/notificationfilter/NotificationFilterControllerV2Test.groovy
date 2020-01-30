@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
@@ -257,7 +258,7 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
       def expectedResponse = [
         "_links"       : [
           "doc" : [
-            "href": "https://api.gocd.org/20.1.0/#notification-filters"
+            "href": apiDocsUrl('#notification-filters')
           ],
           "find": [
             "href": "http://test.host/go/api/notification_filters/:id"
@@ -346,7 +347,7 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
             "href": "http://test.host/go/api/notification_filters/100"
           ],
           "doc" : [
-            "href": "https://api.gocd.org/20.1.0/#notification-filters"
+            "href": apiDocsUrl('#notification-filters')
           ],
           "find": [
             "href": "http://test.host/go/api/notification_filters/:id"

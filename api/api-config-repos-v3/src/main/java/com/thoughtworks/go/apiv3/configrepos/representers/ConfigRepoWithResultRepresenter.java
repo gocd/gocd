@@ -24,18 +24,20 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.*;
 
 public class ConfigRepoWithResultRepresenter {
-    public static void toJSON(OutputWriter json, ConfigRepoWithResult crwr) {
+    public static void toJSON(OutputWriter outputWriter, ConfigRepoWithResult crwr) {
         ConfigRepoConfig repo = crwr.repo();
         PartialConfigParseResult result = crwr.result();
 
-        attachLinks(json, repo);
-        json.add("id", repo.getId());
-        json.add("plugin_id", repo.getPluginId());
-        json.addChild("material", w -> MaterialsRepresenter.toJSON(w, repo.getRepo()));
-        attachConfigurations(json, repo);
+        attachLinks(outputWriter, repo);
+        outputWriter.add("id", repo.getId());
+        outputWriter.add("plugin_id", repo.getPluginId());
+        outputWriter.addChild("material", w -> MaterialsRepresenter.toJSON(w, repo.getRepo()));
+        attachConfigurations(outputWriter, repo);
 
-        json.add("material_update_in_progress", crwr.isMaterialUpdateInProgress());
-        json.addChild("parse_info", w -> PartialConfigParseResultRepresenter.toJSON(w, result));
+        outputWriter.addChildList("rules", rulesWriter -> RulesRepresenter.toJSON(rulesWriter, repo.getRules()));
+
+        outputWriter.add("material_update_in_progress", crwr.isMaterialUpdateInProgress());
+        outputWriter.addChild("parse_info", w -> PartialConfigParseResultRepresenter.toJSON(w, result));
     }
 
     private static void attachLinks(OutputWriter json, ConfigRepoConfig repo) {

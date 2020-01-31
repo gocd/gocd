@@ -69,6 +69,7 @@ class ConfigRepoWithResultListRepresenterTest {
         ]
       ],
       configuration              : [],
+      rules                      : [],
       material_update_in_progress: false,
       parse_info                 : [
         error                     : null,

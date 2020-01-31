@@ -70,7 +70,8 @@ class ConfigReposConfigRepresenterV3Test {
           auto_update: true
         ]
       ],
-      configuration: []
+      configuration: [],
+      rules: []
     ]
   }
 

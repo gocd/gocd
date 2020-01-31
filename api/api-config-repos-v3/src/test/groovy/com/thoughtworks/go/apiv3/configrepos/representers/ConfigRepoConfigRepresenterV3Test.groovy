@@ -19,8 +19,10 @@ import com.thoughtworks.go.api.representers.JsonReader
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
+import com.thoughtworks.go.config.rules.Allow
 import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.spark.Routes
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -33,101 +35,190 @@ class ConfigRepoConfigRepresenterV3Test {
   private static final String TEST_REPO_URL = 'https://something.com'
   private static final String ID = "repo-1"
 
-  @Test
-  void toJSON() {
-    String json = toObjectString({ w -> ConfigRepoConfigRepresenterV3.toJSON(w, repo(ID)) })
+  @Nested
+  class toJson {
+    @Test
+    void toJSON() {
+      String json = toObjectString({ w -> ConfigRepoConfigRepresenterV3.toJSON(w, repo(ID)) })
 
-    String self = "http://test.host/go${Routes.ConfigRepos.id(ID)}"
-    String find = "http://test.host/go${Routes.ConfigRepos.find()}"
+      String self = "http://test.host/go${Routes.ConfigRepos.id(ID)}"
+      String find = "http://test.host/go${Routes.ConfigRepos.find()}"
 
-    assertThatJson(json).isEqualTo([
-      _links       : [
-        self: [href: self],
-        doc : [href: Routes.ConfigRepos.DOC],
-        find: [href: find],
-      ],
-      id           : ID,
-      plugin_id    : TEST_PLUGIN_ID,
-      material     : [
-        type      : "git",
-        attributes: [
-          name       : null,
-          url        : TEST_REPO_URL,
-          branch     : "master",
-          auto_update: true
-        ]
-      ],
-      configuration: [
-        [key: "foo", value: "bar"],
-        [key: "baz", value: "quu"]
+      def expectedJson = [
+        _links       : [
+          self: [href: self],
+          doc : [href: Routes.ConfigRepos.DOC],
+          find: [href: find],
+        ],
+        id           : ID,
+        plugin_id    : TEST_PLUGIN_ID,
+        material     : [
+          type      : "git",
+          attributes: [
+            name       : null,
+            url        : TEST_REPO_URL,
+            branch     : "master",
+            auto_update: true
+          ]
+        ],
+        configuration: [
+          [key: "foo", value: "bar"],
+          [key: "baz", value: "quu"]
+        ],
+        rules: []
       ]
-    ])
+
+      assertThatJson(json).isEqualTo(expectedJson)
+    }
+
+    @Test
+    void "toJSON should serialize errors"() {
+      ConfigRepoConfig configRepo = repo(ID)
+      configRepo.addError("id", "Duplicate Id.")
+      configRepo.addError("material", "You have defined multiple configuration repositories with the same repository.")
+      configRepo.getRepo().addError("autoUpdate", "Cannot be false.")
+      String json = toObjectString({ w ->
+        ConfigRepoConfigRepresenterV3.toJSON(w, configRepo)
+      })
+
+      String self = "http://test.host/go${Routes.ConfigRepos.id(ID)}"
+      String find = "http://test.host/go${Routes.ConfigRepos.find()}"
+
+      assertThatJson(json).isEqualTo([
+        _links       : [
+          self: [href: self],
+          doc : [href: Routes.ConfigRepos.DOC],
+          find: [href: find],
+        ],
+        id           : ID,
+        plugin_id    : TEST_PLUGIN_ID,
+        errors       : ["id"      : ["Duplicate Id."],
+                        "material": ["You have defined multiple configuration repositories with the same repository."]],
+        material     : [
+          type      : "git",
+          attributes: [
+            errors     : ["auto_update": ["Cannot be false."]],
+            name       : null,
+            url        : TEST_REPO_URL,
+            branch     : "master",
+            auto_update: true
+          ]
+        ],
+        configuration: [
+          [key: "foo", value: "bar"],
+          [key: "baz", value: "quu"]
+        ] ,
+        rules: []
+      ])
+    }
+
+    @Test
+    void 'should serialize with rules'() {
+      def configRepoConfig = repo(ID)
+      configRepoConfig.getRules().add(new Allow("refer", "pipeline_group", "*"))
+
+      def actualJson = toObjectString({ ConfigRepoConfigRepresenterV3.toJSON(it, configRepoConfig) })
+
+      String self = "http://test.host/go${Routes.ConfigRepos.id(ID)}"
+      String find = "http://test.host/go${Routes.ConfigRepos.find()}"
+
+      def expectedJson = [
+        _links       : [
+          self: [href: self],
+          doc : [href: Routes.ConfigRepos.DOC],
+          find: [href: find],
+        ],
+        id           : ID,
+        plugin_id    : TEST_PLUGIN_ID,
+        material     : [
+          type      : "git",
+          attributes: [
+            name       : null,
+            url        : TEST_REPO_URL,
+            branch     : "master",
+            auto_update: true
+          ]
+        ],
+        configuration: [
+          [key: "foo", value: "bar"],
+          [key: "baz", value: "quu"]
+        ],
+        rules        : [
+          [
+            directive: "allow",
+            action   : "refer",
+            type     : "pipeline_group",
+            resource : "*"
+          ]
+        ]
+      ]
+
+      assertThatJson(actualJson).isEqualTo(expectedJson)
+    }
   }
 
-  @Test
-  void "toJSON should serialize errors"() {
-    ConfigRepoConfig configRepo = repo(ID)
-    configRepo.addError("id", "Duplicate Id.")
-    configRepo.addError("material", "You have defined multiple configuration repositories with the same repository.")
-    configRepo.getRepo().addError("autoUpdate", "Cannot be false.")
-    String json = toObjectString({ w ->
-      ConfigRepoConfigRepresenterV3.toJSON(w, configRepo)
-    })
-
-    String self = "http://test.host/go${Routes.ConfigRepos.id(ID)}"
-    String find = "http://test.host/go${Routes.ConfigRepos.find()}"
-
-    assertThatJson(json).isEqualTo([
-      _links       : [
-        self: [href: self],
-        doc : [href: Routes.ConfigRepos.DOC],
-        find: [href: find],
-      ],
-      id           : ID,
-      plugin_id    : TEST_PLUGIN_ID,
-      errors       : ["id"      : ["Duplicate Id."],
-                      "material": ["You have defined multiple configuration repositories with the same repository."]],
-      material     : [
-        type      : "git",
-        attributes: [
-          errors     : ["auto_update": ["Cannot be false."]],
-          name       : null,
-          url        : TEST_REPO_URL,
-          branch     : "master",
-          auto_update: true
+  @Nested
+  class fromJson {
+    @Test
+    void fromJSON() {
+      JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
+        id           : ID,
+        plugin_id    : TEST_PLUGIN_ID,
+        material     : [
+          type      : "git",
+          attributes: [
+            name       : null,
+            url        : TEST_REPO_URL,
+            branch     : "master",
+            auto_update: true
+          ]
+        ],
+        configuration: [
+          [key: "foo", value: "bar"],
+          [key: "baz", value: "quu"]
         ]
-      ],
-      configuration: [
-        [key: "foo", value: "bar"],
-        [key: "baz", value: "quu"]
-      ]
-    ])
-  }
+      ])
 
-  @Test
-  void fromJSON() {
-    JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
-      id           : ID,
-      plugin_id    : TEST_PLUGIN_ID,
-      material     : [
-        type      : "git",
-        attributes: [
-          name       : null,
-          url        : TEST_REPO_URL,
-          branch     : "master",
-          auto_update: true
+      ConfigRepoConfig expected = repo(ID)
+      ConfigRepoConfig actual = ConfigRepoConfigRepresenterV3.fromJSON(json)
+
+      assertEquals(expected, actual)
+    }
+
+    @Test
+    void 'should deserialize when the json contains rules'() {
+      JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
+        id           : ID,
+        plugin_id    : TEST_PLUGIN_ID,
+        material     : [
+          type      : "git",
+          attributes: [
+            name       : null,
+            url        : TEST_REPO_URL,
+            branch     : "master",
+            auto_update: true
+          ]
+        ],
+        configuration: [
+          [key: "foo", value: "bar"],
+          [key: "baz", value: "quu"]
+        ],
+        rules        : [
+          [
+            directive: "allow",
+            action   : "refer",
+            type     : "pipeline_group",
+            resource : "*"
+          ]
         ]
-      ],
-      configuration: [
-        [key: "foo", value: "bar"],
-        [key: "baz", value: "quu"]
-      ]
-    ])
+      ])
 
-    ConfigRepoConfig expected = repo(ID)
-    ConfigRepoConfig actual = ConfigRepoConfigRepresenterV3.fromJSON(json)
+      ConfigRepoConfig expected = repo(ID)
+      expected.getRules().add(new Allow("refer", "pipeline_group", "*"))
+      ConfigRepoConfig actual = ConfigRepoConfigRepresenterV3.fromJSON(json)
 
-    assertEquals(expected, actual)
+      assertEquals(expected, actual)
+    }
   }
 
   static ConfigRepoConfig repo(String id) {

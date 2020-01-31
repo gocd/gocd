@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go. apiv3.configrepos.representers
+package com.thoughtworks.go.apiv3.configrepos.representers
 
-import com.thoughtworks.go. apiv3.configrepos.ConfigRepoWithResult
+import com.thoughtworks.go.apiv3.configrepos.ConfigRepoWithResult
 import com.thoughtworks.go.config.PartialConfigParseResult
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
+import com.thoughtworks.go.config.rules.Allow
 import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.materials.Modification
 import com.thoughtworks.go.helper.ModificationsMother
@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class ConfigRepoWithResultRepresenterTest {
@@ -67,6 +68,14 @@ class ConfigRepoWithResultRepresenterTest {
         [key: "foo", value: "bar"],
         [key: "baz", value: "quu"]
       ],
+      "rules"                    : [
+        [
+          "directive": "allow",
+          "action"   : "refer",
+          "type"     : "*",
+          "resource" : "*"
+        ]
+      ],
       material_update_in_progress: false,
       parse_info                 : [
         error                     : "Boom!",
@@ -95,6 +104,7 @@ class ConfigRepoWithResultRepresenterTest {
     HgMaterialConfig materialConfig = hg(TEST_REPO_URL, "")
     ConfigRepoConfig repo = ConfigRepoConfig.createConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
     repo.setConfiguration(c)
+    repo.getRules().add(new Allow("refer", "*", "*"))
 
     return new ConfigRepoWithResult(repo, expectedParseResult, false)
   }

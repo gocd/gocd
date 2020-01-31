@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go. apiv3.configrepos.representers
+package com.thoughtworks.go.apiv3.configrepos.representers
 
 import com.thoughtworks.go.config.PartialConfigParseResult
 import com.thoughtworks.go.config.remote.PartialConfig

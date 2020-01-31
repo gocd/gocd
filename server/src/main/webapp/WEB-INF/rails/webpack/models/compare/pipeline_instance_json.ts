@@ -72,6 +72,7 @@ export interface ModificationJSON {
   user_name: string;
   comment: stringOrNull;
   email_address: stringOrNull;
+  pipeline_label: stringOrNull;
 }
 
 export interface StageJSON {

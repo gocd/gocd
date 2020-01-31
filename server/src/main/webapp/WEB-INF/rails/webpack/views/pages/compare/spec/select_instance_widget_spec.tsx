@@ -67,7 +67,7 @@ describe('SelectInstanceWidgetSpec', () => {
 
   it('should render results on input change', () => {
     mount();
-    helper.oninput(helper.byTestId("form-field-input-"), "cb");
+    helper.oninput(helper.byTestId("form-field-input-"), "11");
 
     const element = helper.byTestId("matching-instances-results");
     expect(element).toBeInDOM();
@@ -82,22 +82,33 @@ describe('SelectInstanceWidgetSpec', () => {
     expect(helper.byTestId("triggered-by", instanceElement)).toBeInDOM();
     expect(helper.byTestId("triggered-by", instanceElement).innerText).toBe(triggeredByMsg);
 
-    const modificationTable = helper.byTestId("modification-0", instanceElement);
-    const modification      = instance.buildCause().materialRevisions()[0].modifications()[0];
-    const modifiedByMsg     = `${modification.userName()} on ${timeFormatter.format(modification.modifiedTime())}`;
+    let modificationTable = helper.byTestId("modification-0", instanceElement);
+    let modification      = instance.buildCause().materialRevisions()[0].modifications()[0];
+    const modifiedByMsg   = `${modification.userName()} on ${timeFormatter.format(modification.modifiedTime())}`;
     expect(modificationTable).toBeInDOM();
     expect(helper.qa("tr", modificationTable).length).toBe(3);
     expect(helper.qa("th", modificationTable)[0].innerText).toBe("Revision");
     expect(helper.qa("th", modificationTable)[1].innerText).toBe("Comment");
     expect(helper.qa("th", modificationTable)[2].innerText).toBe("Modified by");
-    expect(helper.qa("td", modificationTable)[0].innerText).toBe("11932fecb6d3f7ec22e1b0cb3a88553a");
-    expect(helper.qa("td", modificationTable)[1].innerText).toBe("some comment");
+    expect(helper.qa("td", modificationTable)[0].innerText).toBe(modification.revision());
+    expect(helper.qa("td", modificationTable)[1].innerText).toBe(modification.comment() || "");
     expect(helper.qa("td", modificationTable)[2].innerText).toBe(modifiedByMsg);
+
+    modificationTable = helper.byTestId("pipeline-modification-0", instanceElement);
+    modification      = instance.buildCause().materialRevisions()[1].modifications()[0];
+    expect(modificationTable).toBeInDOM();
+    expect(helper.qa("tr", modificationTable).length).toBe(3);
+    expect(helper.qa("th", modificationTable)[0].innerText).toBe("Revision");
+    expect(helper.qa("th", modificationTable)[1].innerText).toBe("Comment");
+    expect(helper.qa("th", modificationTable)[2].innerText).toBe("Modified On");
+    expect(helper.qa("td", modificationTable)[0].innerText).toBe(modification.revision());
+    expect(helper.qa("td", modificationTable)[1].innerText).toBe(modification.pipelineLabel() || "");
+    expect(helper.qa("td", modificationTable)[2].innerText).toBe(timeFormatter.format(modification.modifiedTime()));
   });
 
   it('should not render revisions it does contain the input pattern', () => {
     mount();
-    helper.oninput(helper.byTestId("form-field-input-"), "ab");
+    helper.oninput(helper.byTestId("form-field-input-"), "ab2");
 
     const element = helper.byTestId("matching-instances-results");
     expect(element).toBeInDOM();
@@ -112,8 +123,8 @@ describe('SelectInstanceWidgetSpec', () => {
     expect(helper.byTestId("triggered-by", instanceElement)).toBeInDOM();
     expect(helper.byTestId("triggered-by", instanceElement).innerText).toBe(triggeredByMsg);
 
-    const modificationTable = helper.byTestId("modification-0", instanceElement);
-    expect(modificationTable).not.toBeInDOM();
+    expect(helper.byTestId("modification-0", instanceElement)).not.toBeInDOM();
+    expect(helper.byTestId("pipeline-modification-0", instanceElement)).not.toBeInDOM();
   });
 
   it('should call the spy on click on an instance from the list', () => {

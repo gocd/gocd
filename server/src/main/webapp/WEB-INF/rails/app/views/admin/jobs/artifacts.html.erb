@@ -1,5 +1,6 @@
 <h3>Artifacts</h3>
 <span class="contextual_help has_go_tip_right" title="Publish build artifacts to the artifact repository">&nbsp;</span>
+<%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
 <%= form_for @job,
                 :as => :job,
                 :url => admin_job_update_path(:current_tab => "artifacts"),

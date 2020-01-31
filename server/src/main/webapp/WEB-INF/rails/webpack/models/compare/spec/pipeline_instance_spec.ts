@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {BuildCause, MaterialRevisions, PipelineHistory, PipelineInstance, PipelineInstances} from "../pipeline_instance";
-import {PipelineHistoryJSON} from "../pipeline_instance_json";
+import {BuildCause, MaterialRevision, MaterialRevisions, PipelineHistory, PipelineInstance, PipelineInstances} from "../pipeline_instance";
+import {MaterialRevisionJSON, PipelineHistoryJSON} from "../pipeline_instance_json";
 import {PipelineInstanceData} from "./test_data";
 
 describe('PipelineHistorySpec', () => {
@@ -77,26 +77,10 @@ describe('PipelineHistorySpec', () => {
       expect(buildCause.triggerForced()).toEqual(json.build_cause.trigger_forced);
 
       const materialRevisions = buildCause.materialRevisions();
-      const materialRevision  = materialRevisions[0];
 
-      expect(materialRevisions.length).toEqual(1);
-      expect(materialRevision.changed()).toEqual(json.build_cause.material_revisions[0].changed);
-      expect(materialRevision.material().id()).toEqual(json.build_cause.material_revisions[0].material.id);
-      expect(materialRevision.material().name()).toEqual(json.build_cause.material_revisions[0].material.name);
-      expect(materialRevision.material().fingerprint()).toEqual(json.build_cause.material_revisions[0].material.fingerprint);
-      expect(materialRevision.material().type()).toEqual(json.build_cause.material_revisions[0].material.type);
-      expect(materialRevision.material().description()).toEqual(json.build_cause.material_revisions[0].material.description);
-
-      const modifications = materialRevision.modifications();
-      const modification  = modifications[0];
-
-      expect(modifications.length).toEqual(1);
-      expect(modification.comment()).toEqual(json.build_cause.material_revisions[0].modifications[0].comment);
-      expect(modification.emailAddress()).toEqual(json.build_cause.material_revisions[0].modifications[0].email_address);
-      expect(modification.id()).toEqual(json.build_cause.material_revisions[0].modifications[0].id);
-      expect(modification.modifiedTime()).toEqual(new Date(json.build_cause.material_revisions[0].modifications[0].modified_time));
-      expect(modification.revision()).toEqual(json.build_cause.material_revisions[0].modifications[0].revision);
-      expect(modification.userName()).toEqual(json.build_cause.material_revisions[0].modifications[0].user_name);
+      expect(materialRevisions.length).toEqual(2);
+      verifyMaterialRevision(materialRevisions[0], json.build_cause.material_revisions[0]);
+      verifyMaterialRevision(materialRevisions[1], json.build_cause.material_revisions[1]);
 
       const stages = pipelineInstance.stages();
       const stage  = stages[0];
@@ -134,6 +118,27 @@ describe('PipelineHistorySpec', () => {
 
       expect(pipelineInstance.isBisect()).toBeTruthy();
     });
+
+    function verifyMaterialRevision(materialRevision: MaterialRevision, materialRevisionJSON: MaterialRevisionJSON) {
+      expect(materialRevision.changed()).toEqual(materialRevisionJSON.changed);
+      expect(materialRevision.material().id()).toEqual(materialRevisionJSON.material.id);
+      expect(materialRevision.material().name()).toEqual(materialRevisionJSON.material.name);
+      expect(materialRevision.material().fingerprint()).toEqual(materialRevisionJSON.material.fingerprint);
+      expect(materialRevision.material().type()).toEqual(materialRevisionJSON.material.type);
+      expect(materialRevision.material().description()).toEqual(materialRevisionJSON.material.description);
+
+      const modifications = materialRevision.modifications();
+      const modification  = modifications[0];
+
+      expect(modifications.length).toEqual(1);
+      expect(modification.comment()).toEqual(materialRevisionJSON.modifications[0].comment);
+      expect(modification.emailAddress()).toEqual(materialRevisionJSON.modifications[0].email_address);
+      expect(modification.id()).toEqual(materialRevisionJSON.modifications[0].id);
+      expect(modification.modifiedTime()).toEqual(new Date(materialRevisionJSON.modifications[0].modified_time));
+      expect(modification.revision()).toEqual(materialRevisionJSON.modifications[0].revision);
+      expect(modification.userName()).toEqual(materialRevisionJSON.modifications[0].user_name);
+      expect(modification.pipelineLabel()).toEqual(materialRevisionJSON.modifications[0].pipeline_label);
+    }
   });
 
   describe('BuildCauseSpec', () => {

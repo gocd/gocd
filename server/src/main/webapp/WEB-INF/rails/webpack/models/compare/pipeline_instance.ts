@@ -153,6 +153,7 @@ export class MaterialRevisions extends Array<MaterialRevision> {
     return _.includes(this.getOrEmpty(modification.comment()), lowercaseFilterText) ||
            _.includes(this.getOrEmpty(modification.userName()), lowercaseFilterText) ||
            _.includes(this.getOrEmpty(modification.emailAddress()), lowercaseFilterText) ||
+           _.includes(this.getOrEmpty(modification.pipelineLabel()), lowercaseFilterText) ||
            _.includes(this.getOrEmpty(modification.revision()), lowercaseFilterText);
   }
 
@@ -188,18 +189,20 @@ class Modification {
   userName: Stream<string>;
   comment: Stream<stringOrNull>;
   emailAddress: Stream<stringOrNull>;
+  pipelineLabel: Stream<stringOrNull>;
 
-  constructor(id: number, revision: string, modifiedTime: string, userName: string, comment: stringOrNull, emailAddress: stringOrNull) {
-    this.id           = Stream(id);
-    this.revision     = Stream(revision);
-    this.modifiedTime = Stream(parseDate(modifiedTime));
-    this.userName     = Stream(userName);
-    this.comment      = Stream(comment);
-    this.emailAddress = Stream(emailAddress);
+  constructor(id: number, revision: string, modifiedTime: string, userName: string, comment: stringOrNull, emailAddress: stringOrNull, pipelineLabel: stringOrNull) {
+    this.id            = Stream(id);
+    this.revision      = Stream(revision);
+    this.modifiedTime  = Stream(parseDate(modifiedTime));
+    this.userName      = Stream(userName);
+    this.comment       = Stream(comment);
+    this.emailAddress  = Stream(emailAddress);
+    this.pipelineLabel = Stream(pipelineLabel);
   }
 
   static fromJSON(data: ModificationJSON): Modification {
-    return new Modification(data.id, data.revision, data.modified_time, data.user_name, data.comment, data.email_address);
+    return new Modification(data.id, data.revision, data.modified_time, data.user_name, data.comment, data.email_address, data.pipeline_label);
   }
 }
 

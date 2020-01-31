@@ -53,6 +53,22 @@ export class PipelineInstanceData {
                 email_address: ""
               }
             ]
+          },
+          {
+            changed:       true,
+            material:      {
+              name:        "pipeline-name",
+              fingerprint: "34b6f93309fa058e52e5e9a51d173b6ba4",
+              type:        "Pipeline",
+              description: "template-name"
+            },
+            modifications: [
+              {
+                revision:       "template-name/11/stage2/1",
+                modified_time:  "2020-01-30T11:25:18Z",
+                pipeline_label: "label-11"
+              }
+            ]
           }
         ]
       },

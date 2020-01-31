@@ -63,20 +63,34 @@ describe('PipelineInstanceWidgetSpec', () => {
     mount(instance);
 
     expect(helper.byTestId("instance-material-revisions")).toBeInDOM();
-    expect(helper.qa("ul", helper.byTestId("instance-material-revisions")).length).toBe(1);
-    expect(helper.qa("[data-test-id^='key-value-key-']").length).toBe(4);
-    expect(helper.qa("[data-test-id^='key-value-value-']").length).toBe(4);
-  });
+    const materials = helper.qa("ul", helper.byTestId("instance-material-revisions"));
+    expect(materials.length).toBe(2);
 
-  it('should render dependency revisions', () => {
-    const instance = PipelineInstance.fromJSON(PipelineInstanceData.pipeline());
-    // just replacing material type
-    instance.buildCause().materialRevisions()[0].material().type("pipeline");
-    mount(instance);
+    // verify non-pipeline material modifications
+    let keys   = helper.qa("[data-test-id^='key-value-key-']", materials[0]);
+    let values = helper.qa("[data-test-id^='key-value-value-']", materials[0]);
+    expect(keys.length).toBe(4);
+    expect(keys[0].innerText).toBe('Revision');
+    expect(keys[1].innerText).toBe('Username');
+    expect(keys[2].innerText).toBe('Comment');
+    expect(keys[3].innerText).toBe('Modified On');
+    expect(values.length).toBe(4);
+    const modification = instance.buildCause().materialRevisions()[0].modifications()[0];
+    expect(values[0].innerText).toBe(modification.revision());
+    expect(values[1].innerText).toBe(modification.userName());
+    expect(values[2].innerText).toBe(modification.comment() || "");
+    expect(values[3].innerText).toBe(timeFormatter.format(modification.modifiedTime()));
 
-    expect(helper.byTestId("instance-material-revisions")).toBeInDOM();
-    expect(helper.qa("ul", helper.byTestId("instance-material-revisions")).length).toBe(1);
-    expect(helper.qa("[data-test-id^='key-value-key-']").length).toBe(3);
-    expect(helper.qa("[data-test-id^='key-value-value-']").length).toBe(3);
+    // verify pipeline material modifications
+    keys   = helper.qa("[data-test-id^='key-value-key-']", materials[1]);
+    values = helper.qa("[data-test-id^='key-value-value-']", materials[1]);
+    expect(keys.length).toBe(3);
+    expect(keys[0].innerText).toBe('Revision');
+    expect(keys[1].innerText).toBe('Material');
+    expect(keys[2].innerText).toBe('Modified On');
+    expect(values.length).toBe(3);
+    expect(values[0].innerText).toBe(instance.buildCause().materialRevisions()[1].modifications()[0].revision());
+    expect(values[1].innerText).toBe(instance.buildCause().materialRevisions()[1].material().description());
+    expect(values[2].innerText).toBe(timeFormatter.format(instance.buildCause().materialRevisions()[1].modifications()[0].modifiedTime()));
   });
 });

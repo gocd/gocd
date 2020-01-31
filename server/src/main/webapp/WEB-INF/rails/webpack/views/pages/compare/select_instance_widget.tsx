@@ -112,6 +112,8 @@ export class SelectInstanceWidget extends Dropdown<DropdownAttrs & Attrs> {
     return materialRevison.map((revision) => {
       if (revision.material().type().toLowerCase() !== "pipeline") {
         return this.materialRevision(revision);
+      } else {
+        return this.pipelineRevision(revision);
       }
     });
   }
@@ -131,6 +133,26 @@ export class SelectInstanceWidget extends Dropdown<DropdownAttrs & Attrs> {
         <tr>
           <th>Modified by</th>
           <td>{`${modification.userName()} on ${timeFormatter.format(modification.modifiedTime())}`}</td>
+        </tr>
+      </table>;
+    });
+  }
+
+  private pipelineRevision(revision: MaterialRevision) {
+    return revision.modifications().map((modification, index) => {
+      return <table data-test-id={InstanceSelectionWidget.dataTestId("pipeline-modification", index)}
+                    class={styles.modification}>
+        <tr>
+          <th>Revision</th>
+          <td>{modification.revision()}</td>
+        </tr>
+        <tr>
+          <th>Comment</th>
+          <td>{modification.pipelineLabel()}</td>
+        </tr>
+        <tr>
+          <th>Modified On</th>
+          <td>{timeFormatter.format(modification.modifiedTime())}</td>
         </tr>
       </table>;
     });

@@ -29,14 +29,14 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
 class GitMaterialRepresenterTest {
-  private static final String REPO_URL = "https://guthib.com/chewbacca"
+  private static final String REPO_URL = "https://github.com/chewbacca"
   private static final String BRANCH = "wookie"
 
   @Nested
   class ToJSON {
     @Test
     void shouldSerializeObjectToJson() {
-      GitMaterialConfig config = git("https://guthib.com/chewbacca", BRANCH)
+      GitMaterialConfig config = git("https://github.com/chewbacca", BRANCH)
       config.setUserName("bob")
       config.setPassword("some-pass")
 

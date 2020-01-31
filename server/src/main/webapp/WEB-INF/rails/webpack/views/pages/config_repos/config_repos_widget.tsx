@@ -29,6 +29,7 @@ import {HeaderIcon} from "views/components/header_icon";
 import {Delete, Edit, IconGroup, Refresh} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
+import {ShowRulesWidget} from "views/components/rules/show_rules_widget";
 import {RequiresPluginInfos} from "views/pages/page_operations";
 import {allAttributes, resolveHumanReadableAttributes} from "./config_repo_attribute_helper";
 import {CRResult} from "./config_repo_result";
@@ -52,7 +53,7 @@ class HeaderWidget extends MithrilViewComponent<SingleAttrs> {
   private static readonly MAX_USERNAME_AND_REVISION_LENGTH: number = 40;
 
   view(vnode: m.Vnode<SingleAttrs>): m.Children | void | null {
-    const repo = vnode.attrs.vm.repo;
+    const repo        = vnode.attrs.vm.repo;
     const materialUrl = repo.material()!.materialUrl();
     return [
       this.pluginIcon(vnode.attrs.pluginInfo),
@@ -178,9 +179,9 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
 
   oninit(vnode: m.Vnode<SingleAttrs, {}>) {
     const {sm, vm, pluginInfo} = vnode.attrs;
-    const repo = vm.repo;
-    const parseInfo = repo.lastParse();
-    const linked = sm.getTarget() === repo.id();
+    const repo                 = vm.repo;
+    const parseInfo            = repo.lastParse();
+    const linked               = sm.getTarget() === repo.id();
 
     // set the initial state of the collapsible panel; alternative to setting `expanded` attribute
     // and, perhaps, more obvious that this is only matters for first load
@@ -189,10 +190,10 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
 
   view(vnode: m.Vnode<SingleAttrs>): m.Children | void | null {
     const {sm, vm, pluginInfo} = vnode.attrs;
-    const repo = vm.repo;
-    const parseInfo = repo.lastParse()!;
-    const maybeWarning = <MaybeWarning parseInfo={parseInfo} pluginInfo={pluginInfo}/>;
-    const configRepoHasErrors = !pluginInfo || _.isEmpty(parseInfo) || !!parseInfo!.error();
+    const repo                 = vm.repo;
+    const parseInfo            = repo.lastParse()!;
+    const maybeWarning         = <MaybeWarning parseInfo={parseInfo} pluginInfo={pluginInfo}/>;
+    const configRepoHasErrors  = !pluginInfo || _.isEmpty(parseInfo) || !!parseInfo!.error();
 
     const title = !repo.canAdminister() ? "You are not authorised to perform this action!" : "";
 
@@ -215,6 +216,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
         {this.lastGoodModificationDetails(parseInfo)}
         {this.configRepoMetaConfigDetails(repo.id()!, repo.pluginId()!)}
         {this.materialConfigDetails(repo)}
+        <ShowRulesWidget rules={repo.rules}/>
       </CollapsiblePanel>
     </Anchor>;
   }

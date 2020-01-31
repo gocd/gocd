@@ -19,7 +19,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {EnvironmentCRUD} from "models/environments/environment_crud";
 import {PipelineGroupCRUD} from "models/pipeline_configs/pipeline_groups_cache";
-import {Rule, Rules} from "models/secret_configs/rules";
+import {Rules} from "models/rules/rules";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
 import {SecretConfigsCRUD} from "models/secret_configs/secret_configs_crud";
 import {Configurations} from "models/shared/configuration";
@@ -62,7 +62,7 @@ export class SecretConfigsPage extends Page<null, State> {
                                                    "",
                                                    id,
                                                    new Configurations([]),
-                                                   new Rules(Stream(new Rule("deny", "refer", "*", "*")))),
+                                                   new Rules()),
                                   vnode.state.pluginInfos(),
                                   vnode.state.onSuccessfulSave, vnode.state.resourceAutocompleteHelper()).render();
     };

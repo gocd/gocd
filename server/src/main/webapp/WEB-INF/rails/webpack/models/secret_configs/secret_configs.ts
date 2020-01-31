@@ -18,7 +18,7 @@ import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
-import {Rules} from "models/secret_configs/rules";
+import {Rules} from "models/rules/rules";
 import {SecretConfigJSON, SecretConfigsJSON} from "models/secret_configs/secret_configs_json";
 import {Configurations} from "models/shared/configuration";
 

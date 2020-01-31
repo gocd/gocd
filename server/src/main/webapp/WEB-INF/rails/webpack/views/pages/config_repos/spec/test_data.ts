@@ -61,6 +61,7 @@ export function createConfigRepoParsedWithError(overrides?: any): ConfigRepo {
     latestCommitMessage: "Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d344fbbb9b1.",
     latestCommitUsername: "Mahesh <mahesh@gmail.com>",
     latestCommitRevision: "5432",
+    rules: [],
     ...overrides
   };
 
@@ -101,7 +102,8 @@ export function createConfigRepoParsedWithError(overrides?: any): ConfigRepo {
                                },
                                id: parameters.id,
                                plugin_id: "json.config.plugin",
-                               material_update_in_progress: parameters.material_update_in_progress
+                               material_update_in_progress: parameters.material_update_in_progress,
+                               rules: parameters.rules
                              });
 }
 
@@ -113,6 +115,7 @@ export function createConfigRepoParsed(overrides?: any): ConfigRepo {
     latestCommitMessage: "Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d344fbbb9b1.",
     latestCommitUsername: "Mahesh <mahesh@gmail.com>",
     latestCommitRevision: "5432",
+    rules: [],
     ...overrides
   };
 
@@ -152,7 +155,8 @@ export function createConfigRepoParsed(overrides?: any): ConfigRepo {
                                },
                                id: parameters.id,
                                plugin_id: "json.config.plugin",
-                               material_update_in_progress: parameters.material_update_in_progress
+                               material_update_in_progress: parameters.material_update_in_progress,
+                               rules: parameters.rules
                              });
 }
 
@@ -179,7 +183,8 @@ export function createConfigRepoWithError(id?: string, repoId?: string): ConfigR
                                },
                                id,
                                plugin_id: "json.config.plugin",
-                               material_update_in_progress: false
+                               material_update_in_progress: false,
+                               rules: []
                              });
 }
 

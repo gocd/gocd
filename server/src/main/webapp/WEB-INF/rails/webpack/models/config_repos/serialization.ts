@@ -15,6 +15,7 @@
  */
 import {MaterialJSON} from "models/materials/serialization";
 import {ErrorsJSON} from "models/mixins/errors";
+import {RuleJSON} from "models/rules/rules";
 
 export interface ConfigReposJSON {
   _embedded: EmbeddedJSON;
@@ -33,6 +34,7 @@ export interface ConfigRepoJSON {
   parse_info: ParseInfoJSON;
   errors?: ErrorsJSON;
   material_update_in_progress: boolean;
+  rules: RuleJSON[];
 }
 
 export interface MaterialModificationJSON {

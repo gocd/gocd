@@ -15,7 +15,7 @@
  */
 
 import Stream from "mithril/stream";
-import {Rule} from "models/secret_configs/rules";
+import {Rule} from "models/rules/rules";
 import {SuggestionProvider} from "views/components/forms/autocomplete";
 
 export class ResourceSuggestionProvider extends SuggestionProvider {

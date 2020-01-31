@@ -13,19 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  ConfigRepo,
-  MaterialModification, ParseInfo,
-} from "models/config_repos/types";
-
-import {
-  GitMaterialAttributes,
-  HgMaterialAttributes,
-  Material,
-  P4MaterialAttributes,
-  SvnMaterialAttributes,
-  TfsMaterialAttributes
-} from "models/materials/types";
+import {ConfigRepo, MaterialModification, ParseInfo} from "models/config_repos/types";
+import {GitMaterialAttributes, HgMaterialAttributes, Material, P4MaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "models/materials/types";
+import {ConfigRepoJSON} from "../serialization";
 
 describe("Config Repo Types", () => {
 
@@ -120,14 +110,69 @@ describe("Config Repo Types", () => {
       });
 
       function createConfigRepo() {
-        const attributes = new GitMaterialAttributes("SomeRepo", false, "https://githib.com/gocd", "master");
-        const material = new Material("git", attributes);
-        const goodModification = new MaterialModification("developer", "dev@github.com", "2cda5f702c5775714c060124ff03957d", "Not my best work", "19:30");
+        const attributes         = new GitMaterialAttributes("SomeRepo", false, "https://githib.com/gocd", "master");
+        const material           = new Material("git", attributes);
+        const goodModification   = new MaterialModification("developer", "dev@github.com", "2cda5f702c5775714c060124ff03957d", "Not my best work", "19:30");
         const latestModification = new MaterialModification("jrDev", "jrDev@github.com", "4926940143a238fefb7566141ba24a96", "My first commit", "19:30");
-        const lastParse = new ParseInfo(latestModification, goodModification, null);
+        const lastParse          = new ParseInfo(latestModification, goodModification, null);
 
         return new ConfigRepo("All_Test_Pipelines", "PluginId", material, false, [], lastParse);
       }
     });
+  });
+
+  it('should deserialize json into config repo object', () => {
+    const inputJson = {
+      id:                          "config-repo-id-1",
+      plugin_id:                   "yaml.config.plugin",
+      material:                    {
+        type:       "git",
+        attributes: {
+          name:        "name",
+          auto_update: true,
+          url:         "http://foo.com",
+          branch:      "master"
+        }
+      },
+      can_administer:              true,
+      configuration:               [],
+      material_update_in_progress: false,
+      parse_info:                  {
+        latest_parsed_modification: {
+          username:      "username <username@googlegroups.com>",
+          email_address: null,
+          revision:      "b07d423864ec120362b3584635c",
+          comment:       "some comment",
+          modified_time: "2019-12-23T10:25:52Z"
+        },
+        good_modification:          {
+          username:      "username <username@googlegroups.com>",
+          email_address: null,
+          revision:      "b07d6523f1252ab4ec120362b3584635c",
+          comment:       "some comment",
+          modified_time: "2019-12-23T10:25:52Z"
+        }
+      },
+      rules:                       [
+        {
+          directive: "allow",
+          action:    "refer",
+          type:      "environment",
+          resource:  "test-env"
+        }
+      ]
+    } as ConfigRepoJSON;
+
+    const configRepo = ConfigRepo.fromJSON(inputJson);
+
+    expect(configRepo.id()).toBe(inputJson.id);
+    expect(configRepo.pluginId()).toBe(inputJson.plugin_id);
+    expect(configRepo.material()!.type()).toEqual(inputJson.material.type);
+    expect(configRepo.material()!.name()).toEqual(inputJson.material.attributes.name);
+    expect(configRepo.canAdminister()).toEqual(inputJson.can_administer);
+    expect(configRepo.configuration()).not.toBeUndefined();
+    expect(configRepo.lastParse()).not.toBeUndefined();
+    expect(configRepo.materialUpdateInProgress()).toEqual(inputJson.material_update_in_progress);
+    expect(configRepo.rules()).not.toBeUndefined();
   });
 });

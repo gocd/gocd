@@ -492,4 +492,27 @@ export class SparkRoutes {
     return `/go/admin/status_reports/${plugin_id}/cluster/${cluster_profile_id}`;
   }
 
+  static pipelineHistoryPath(pipelineName: string) {
+    return `/go/pipeline/activity/${pipelineName}`;
+  }
+
+  static comparePipelines(pipelineName: string, fromCounter: number, toCounter: number) {
+    return `/go/api/pipelines/${pipelineName}/compare/${fromCounter}/${toCounter}`;
+  }
+
+  static getPipelineInstance(pipelineName: string, pipelineCounter: number) {
+    return `/go/api/pipelines/${pipelineName}/${pipelineCounter}`;
+  }
+
+  static getPipelineHistory(pipelineName: string) {
+    return `/go/api/pipelines/${pipelineName}/history`;
+  }
+
+  static getMatchingPipelineInstances(pipelineName: string, pattern: string) {
+    return `/go/api/internal/compare/${pipelineName}/list?pattern=${pattern}`;
+  }
+
+  static getStageDetailsPageUrl(pipelineName: string, pipelineCounter: number, stageName: string, stageCounter: string) {
+    return `/go/pipelines/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}`;
+  }
 }

@@ -23,7 +23,6 @@ public class MaterialRevisionRepresenter {
         outputWriter
                 .addChild("material", materialWriter -> MaterialRepresenter.toJSON(outputWriter, revision.getMaterial()))
                 .add("changed", revision.isChanged())
-                .addChildList("modifications", modificationWriter -> revision.getModifications()
-                        .forEach(modification -> modificationWriter.addChild(modWriter -> ModificationRepresenter.toJSON(modWriter, modification))));
+                .addChildList("modifications", modificationWriter -> ModificationRepresenter.toJSONArray(modificationWriter, revision.getModifications(), revision.isDependencyMaterialRevision()));
     }
 }

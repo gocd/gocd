@@ -1,0 +1,112 @@
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@import "../../global/common";
+
+$dark-background: #eee;
+$box-shadow-color: #bbb;
+$hover-background: #c5d9e0;
+
+.timeline-modal-container {
+  display:    flex;
+  width:      100%;
+  min-height: 380px;
+
+  .left-panel {
+    width:            25%;
+    margin:           -20px 10px -20px -28px;
+    background-color: $dark-background;
+    display:          flex;
+    flex-direction:   column;
+    justify-content:  space-between;
+
+    &:first-child {
+      padding-top: 10px;
+    }
+
+    .selected-instance {
+      font-weight:      600;
+      background-color: $white;
+      box-shadow:       -5px 0 5px $box-shadow-color;
+    }
+  }
+
+  .right-panel {
+    width: 100%;
+  }
+}
+
+.pipeline-run-container {
+  display:        flex;
+  flex-direction: column;
+}
+
+.pipeline-run {
+  display:        flex;
+  flex-direction: row;
+  cursor:         pointer;
+  padding:        7px 10px;
+
+  &:not(.selected-instance):hover {
+    background-color: $hover-background;
+  }
+}
+
+.pipeline-instance-counter {
+  margin: 0 0 0 10px;
+}
+
+.pipeline-instance-description {
+  table {
+    width: 100%;
+
+    td {
+      width: 40px;
+
+      & > span {
+        display:    block;
+        min-height: 18px;
+      }
+    }
+  }
+}
+
+.material-revisions {
+  margin-top: 10px;
+
+  & > ul {
+    margin:     5px 0;
+    border-top: $global-border-color 1px solid;
+  }
+}
+
+.pagination {
+  display:         flex;
+  justify-content: center;
+
+  .pagination-link {
+    margin:           4px;
+    padding:          6px 10px;
+    background-color: $white;
+    border-radius:    $global-border-radius;
+    text-align:       center;
+  }
+
+  .disabled {
+    color:           $go-disabled;
+    cursor:          not-allowed;
+    text-decoration: none;
+  }
+}

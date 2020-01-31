@@ -33,6 +33,7 @@ import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
+import s from "underscore.string";
 import urlParse from "url-parse";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 
@@ -96,7 +97,7 @@ export class Material extends ValidatableMixin {
       const newType = value;
       if (this.type() !== newType) {
         this.attributes(MaterialAttributes.deserialize({
-                                                         type: newType,
+                                                         type:       newType,
                                                          attributes: ({} as MaterialAttributesJSON)
                                                        }));
       }
@@ -148,6 +149,10 @@ export class Material extends ValidatableMixin {
       {payload}
     );
   }
+
+  typeForDisplay() {
+    return this.type() === "dependency" ? "Pipeline" : s.capitalize(this.type()!);
+  }
 }
 
 export abstract class MaterialAttributes extends ValidatableMixin {
@@ -198,6 +203,8 @@ export abstract class MaterialAttributes extends ValidatableMixin {
 
     return serialized;
   }
+
+  abstract getLongDescription(): string;
 }
 
 export abstract class ScmMaterialAttributes extends MaterialAttributes {
@@ -272,6 +279,10 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
+
+  getLongDescription(): string {
+    return `URL: ${this.url()}, Branch: ${this.branch()}`;
+  }
 }
 
 export class SvnMaterialAttributes extends ScmMaterialAttributes {
@@ -308,6 +319,10 @@ export class SvnMaterialAttributes extends ScmMaterialAttributes {
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
+
+  getLongDescription(): string {
+    return `URL: ${this.url()}, Username: ${this.username()}, CheckExternals: ${this.checkExternals()}`;
+  }
 }
 
 export class HgMaterialAttributes extends ScmMaterialAttributes {
@@ -342,6 +357,10 @@ export class HgMaterialAttributes extends ScmMaterialAttributes {
     }
     attrs.errors(new Errors(json.errors));
     return attrs;
+  }
+
+  getLongDescription(): string {
+    return `URL: ${this.url}`;
   }
 }
 
@@ -384,6 +403,10 @@ export class P4MaterialAttributes extends ScmMaterialAttributes {
     }
     attrs.errors(new Errors(json.errors));
     return attrs;
+  }
+
+  getLongDescription(): string {
+    return `URL: ${this.port()}, View: ${this.view()}, Username: ${this.username()}`;
   }
 }
 
@@ -428,6 +451,10 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
+
+  getLongDescription(): string {
+    return `URL: ${this.url()}, Username: ${this.username()}, Domain: ${this.domain()}, ProjectPath: ${this.projectPath()}`;
+  }
 }
 
 export class DependencyMaterialAttributes extends MaterialAttributes {
@@ -452,5 +479,9 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
     );
     attrs.errors(new Errors(json.errors));
     return attrs;
+  }
+
+  getLongDescription(): string {
+    return `${this.pipeline()} [ ${this.stage()} ]`;
   }
 }

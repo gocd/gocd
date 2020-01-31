@@ -229,6 +229,12 @@ export class Comment extends Icon {
   }
 }
 
+export class Warning extends Icon {
+  constructor() {
+    super(styles.warning, "Warning");
+  }
+}
+
 export class IconGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (

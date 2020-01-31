@@ -31,3 +31,4 @@ export const stepForward: string;
 export const trigger: string;
 export const usage: string;
 export const view: string;
+export const warning: string;

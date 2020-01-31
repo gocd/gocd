@@ -182,6 +182,13 @@
   </rule>
 
   <rule>
+    <name>Comparison UI</name>
+    <from>^/compare/([^/]+)/([^/]+)/with/([^/]+)(/?)$</from>
+    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="comparisonSPA"/>
+    <to last="true">/%{attribute:sparkOrRails}/compare/${escape:$1}/${escape:$2}/with/${escape:$3}</to>
+  </rule>
+
+  <rule>
     <name>Compare API</name>
     <from>^/api/pipelines/([^/]+)/compare/([^/]+)/([^/]+)(/?)$</from>
     <to last="true">/spark/api/pipelines/${escape:$1}/compare/${escape:$2}/${escape:$3}</to>

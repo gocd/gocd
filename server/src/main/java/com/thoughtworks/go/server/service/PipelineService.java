@@ -321,10 +321,10 @@ public class PipelineService implements UpstreamPipelineResolver {
         Pipeline fromPipeline = pipelineDao.findPipelineByNameAndCounter(pipelineName, fromCounter);
         Pipeline toPipeline = pipelineDao.findPipelineByNameAndCounter(pipelineName, toCounter);
         if (fromPipeline == null) {
-            throw new RecordNotFoundException(format("Pipeline `%s` with counter `%d` not found!", pipelineName, fromCounter));
+            throw new RecordNotFoundException(format("Pipeline '%s' with counter '%d' not found!", pipelineName, fromCounter));
         }
         if (toPipeline == null) {
-            throw new RecordNotFoundException(format("Pipeline `%s` with counter `%d` not found!", pipelineName, toCounter));
+            throw new RecordNotFoundException(format("Pipeline '%s' with counter '%d' not found!", pipelineName, toCounter));
         }
         return toPipeline.isBisect() || fromPipeline.isBisect();
     }

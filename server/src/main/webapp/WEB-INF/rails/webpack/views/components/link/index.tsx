@@ -27,6 +27,7 @@ export interface Attrs {
   href?: string;
   externalLinkIcon?: boolean;
   onclick?: (e: MouseEvent) => void;
+  title?: string;
 }
 
 export class Link extends MithrilViewComponent<Attrs> {
@@ -45,7 +46,8 @@ export class Link extends MithrilViewComponent<Attrs> {
                {...rel}
                onclick={vnode.attrs.disabled ? () => false : vnode.attrs.onclick}
                disabled={vnode.attrs.disabled}
-               class={classnames(styles.inlineLink, {[styles.externalIcon]: vnode.attrs.externalLinkIcon})}>
+               class={classnames(styles.inlineLink, {[styles.externalIcon]: vnode.attrs.externalLinkIcon})}
+               title={vnode.attrs.title}>
       {vnode.children}</a>);
   }
 }

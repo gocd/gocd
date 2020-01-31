@@ -871,4 +871,17 @@ public class Routes {
         public static final String BIT_BUCKET_CLOUD = "/bitbucket/notify";
         public static final String BIT_BUCKET_SERVER = "/hosted_bitbucket/notify";
     }
+
+    public static class Compare {
+        public static final String SPA_BASE = "/compare";
+        public static final String COMPARE = "/:pipeline_name/:from_counter/with/:to_counter";
+
+        public static String compare(String pipelineName, String fromCounter, String toCounter) {
+            return StrSubstitutor.replace("/go/compare/${pipeline_name}/${from_counter}/with/${to_counter}", of(
+                    "pipeline_name", pipelineName,
+                    "from_counter", fromCounter,
+                    "to_counter", toCounter
+            ));
+        }
+    }
 }

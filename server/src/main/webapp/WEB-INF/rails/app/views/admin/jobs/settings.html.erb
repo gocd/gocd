@@ -1,6 +1,6 @@
 <div class="config-container config-job-settings">
 <h3>Job Settings</h3>
-
+<%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
 <%= form_for @job,
                 :as => :job,
                 :url => admin_job_update_path(:current_tab => "settings"),

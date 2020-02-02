@@ -56,6 +56,7 @@ public class PipelineConfigErrorCopier {
                 copyCollectionErrors(fromJob.artifactTypeConfigs(), toJob.artifactTypeConfigs());
                 copyCollectionErrors(fromJob.getTabs(), toJob.getTabs());
                 copyCollectionErrors(fromJob.getVariables(), toJob.getVariables());
+                copyCollectionErrors(fromJob.resourceConfigs(), toJob.resourceConfigs());
                 Tasks toTasks = toJob.getTasks();
                 Tasks fromTasks = fromJob.getTasks();
                 copyCollectionErrors(fromTasks, toTasks);

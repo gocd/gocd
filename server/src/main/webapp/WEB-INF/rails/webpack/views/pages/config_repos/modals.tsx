@@ -19,34 +19,16 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
-import {
-  ConfigRepo,
-  humanizedMaterialAttributeName,
-  humanizedMaterialNameForMaterialType,
-} from "models/config_repos/types";
-import {
-  GitMaterialAttributes,
-  HgMaterialAttributes,
-  Material,
-  P4MaterialAttributes,
-  SvnMaterialAttributes,
-  TfsMaterialAttributes,
-} from "models/materials/types";
+import {ConfigRepo, humanizedMaterialAttributeName, humanizedMaterialNameForMaterialType} from "models/config_repos/types";
+import {GitMaterialAttributes, HgMaterialAttributes, Material, P4MaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "models/materials/types";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormBody, FormHeader} from "views/components/forms/form";
-import {
-  CheckboxField,
-  Option,
-  PasswordField,
-  SelectField,
-  SelectFieldOptions,
-  TextAreaField,
-  TextField
-} from "views/components/forms/input_fields";
+import {CheckboxField, Option, PasswordField, SelectField, SelectFieldOptions, TextAreaField, TextField} from "views/components/forms/input_fields";
 import {TestConnection} from "views/components/materials/test_connection";
 import {Modal, Size} from "views/components/modal";
+import {ConfigureRulesWidget, RulesType} from "views/components/rules/configure_rules_widget";
 import {Spinner} from "views/components/spinner";
 import styles from "views/pages/config_repos/index.scss";
 import {OperationState, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
@@ -109,7 +91,14 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
               </FormBody>
             </div>
           </div>
-        )
+        ),
+        <div>
+          <ConfigureRulesWidget css={styles}
+                                infoMsg={"Configure rules to allow what environment/pipeline group/pipeline this config repo can refer to. By default, all entities will be denied."}
+                                rules={vnode.attrs.repo.rules}
+                                types={[RulesType.PIPELINE, RulesType.PIPELINE_GROUP, RulesType.ENVIRONMENT]}
+                                resourceAutocompleteHelper={new Map()}/>
+        </div>
       ]
     );
   }

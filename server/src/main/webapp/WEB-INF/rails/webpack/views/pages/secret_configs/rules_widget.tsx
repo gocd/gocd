@@ -23,9 +23,9 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField} from "views/components/forms/autocomplete";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
+import {ResourceSuggestionProvider} from "views/components/rules/suggestion_provider";
 import {Table} from "views/components/table";
 import styles from "views/pages/secret_configs/index.scss";
-import {ResourceSuggestionProvider} from "views/pages/secret_configs/suggestion_provider";
 
 interface Attrs {
   rules: Stream<Rules>;

@@ -111,7 +111,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
       .finally(() => {
         if (this.pipelineConfig!.template()) {
           this.pageState = PageState.LOADING;
-          TemplateConfig.getTemplate(this.pipelineConfig!.template(), (result) => {
+          TemplateConfig.getTemplate(this.pipelineConfig!.template()!, (result: TemplateConfig) => {
             this.templateConfig = result;
             this.pageState      = PageState.OK;
           });

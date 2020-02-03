@@ -130,7 +130,7 @@ export class PipelineConfig extends ValidatableMixin {
   readonly labelTemplate        = Stream<string>();
   readonly lockBehavior         = Stream<LockBehavior>();
   readonly name                 = Stream<string>();
-  readonly template             = Stream<string>();
+  readonly template             = Stream<string | undefined>();
   readonly group                = Stream<string>();
   readonly origin               = Stream<Origin>();
   readonly parameters           = Stream<PipelineParameter[]>([]);

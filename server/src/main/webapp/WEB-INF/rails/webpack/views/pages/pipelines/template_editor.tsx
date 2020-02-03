@@ -117,15 +117,15 @@ export class TemplateEditor extends MithrilComponent<Attrs, State> {
   toggleTemplate(pipelineConfig: PipelineConfig, paramList: Stream<PipelineParameter[]>, state: State, event: MouseEvent) {
     const checkbox = event.currentTarget as HTMLInputElement;
     if (checkbox.checked) {
-      pipelineConfig.stages().clear();
 
       if (this.templates() && this.templates().length > 0) {
+        pipelineConfig.stages().clear();
         const templateId = this.templates()[0].name;
         this.setTemplateParams(templateId, paramList, pipelineConfig, state.notifyChange);
         pipelineConfig.template(templateId);
       }
     } else {
-      pipelineConfig.template("");
+      pipelineConfig.template(undefined);
       paramList([new PipelineParameter("", "")]);
     }
   }

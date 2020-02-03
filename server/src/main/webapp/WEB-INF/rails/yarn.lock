@@ -185,7 +185,7 @@
   dependencies:
     "@babel/types" "^7.8.3"
 
-"@babel/helper-plugin-utils@^7.0.0", "@babel/helper-plugin-utils@^7.8.0", "@babel/helper-plugin-utils@^7.8.3":
+"@babel/helper-plugin-utils@^7.8.0", "@babel/helper-plugin-utils@^7.8.3":
   version "7.8.3"
   resolved "https://registry.yarnpkg.com/@babel/helper-plugin-utils/-/helper-plugin-utils-7.8.3.tgz#9ea293be19babc0f52ff8ca88b34c3611b208670"
   integrity sha512-j+fq49Xds2smCUNYmEHF9kGNkhbet6yVIBp4e6oeQpH1RUs/Ir06xUKzDjDkGcaaokPiTNs2JBWHjaE4csUkZQ==
@@ -1094,10 +1094,10 @@
     "@types/source-list-map" "*"
     source-map "^0.6.1"
 
-"@types/webpack@*", "@types/webpack@^4.4.31", "@types/webpack@^4.41.3":
-  version "4.41.3"
-  resolved "https://registry.yarnpkg.com/@types/webpack/-/webpack-4.41.3.tgz#30c2251db1d69a45bbffd79c0577dd9baf50e7ba"
-  integrity sha512-dH+BZ6pHBZFrXpnif0YU/PbmUq3lQrvRPnqkxsciSIzvG/DE+Vm/Wrjn56T7V3+B5ryQa5fw0oGnHL8tk4ll6w==
+"@types/webpack@*", "@types/webpack@^4.4.31", "@types/webpack@^4.41.4":
+  version "4.41.4"
+  resolved "https://registry.yarnpkg.com/@types/webpack/-/webpack-4.41.4.tgz#6cd2d651d214c344640cbab1c82037289b0154cd"
+  integrity sha512-PlqTNzHzZ1UpBXKkq2wHAM8+jeMojJGfBFXjGB3/N4F4ESGeivdKsJuaS79rtbSofvjbwBIMOHP254mIq0ujiQ==
   dependencies:
     "@types/anymatch" "*"
     "@types/node" "*"

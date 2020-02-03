@@ -82,19 +82,19 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
         }
     }
 
-    public CruiseConfig merge(PartialConfig partialConfig, String fingerprint, CruiseConfig cruiseConfig) {
-        PartialConfigUpdateCommand command = buildUpdateCommand(partialConfig, fingerprint);
+    public CruiseConfig merge(PartialConfig partialConfig, String fingerprint, CruiseConfig cruiseConfig, ConfigRepoConfig repoConfig) {
+        PartialConfigUpdateCommand command = buildUpdateCommand(partialConfig, fingerprint, repoConfig);
         command.update(cruiseConfig);
         return cruiseConfig;
     }
 
-    public PartialConfigUpdateCommand buildUpdateCommand(final PartialConfig partial, final String fingerprint) {
-        return new PartialConfigUpdateCommand(partial, fingerprint, cachedGoPartials);
+    public PartialConfigUpdateCommand buildUpdateCommand(final PartialConfig partial, final String fingerprint, ConfigRepoConfig configRepoConfig) {
+        return new PartialConfigUpdateCommand(partial, fingerprint, cachedGoPartials, configRepoConfig);
     }
 
     private boolean updateConfig(final PartialConfig newPart, final String fingerprint, ConfigRepoConfig repoConfig) {
         try {
-            goConfigService.updateConfig(buildUpdateCommand(newPart, fingerprint));
+            goConfigService.updateConfig(buildUpdateCommand(newPart, fingerprint, repoConfig));
             return true;
         } catch (Exception e) {
             if (repoConfig != null) {

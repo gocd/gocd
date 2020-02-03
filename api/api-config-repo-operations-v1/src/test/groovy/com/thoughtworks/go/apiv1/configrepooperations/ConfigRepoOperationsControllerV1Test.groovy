@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
+import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.EphemeralConfigOrigin
 import com.thoughtworks.go.config.remote.PartialConfig
 import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigException
@@ -35,8 +36,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.PREFLIGHT_PATH
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.eq
+import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -142,7 +142,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
         def cruiseConfig = mock(CruiseConfig.class)
         when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
-        when(partialConfigService.merge(eq(partialConfig), any() as String, any() as CruiseConfig)).thenReturn(cruiseConfig)
+        when(partialConfigService.merge(eq(partialConfig), any() as String, any() as CruiseConfig, any() as ConfigRepoConfig)).thenReturn(cruiseConfig)
 
         postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
 
@@ -162,7 +162,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
 
         postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
 
-        verify(partialConfigService, never()).merge(any() as PartialConfig, any() as String, any() as CruiseConfig)
+        verify(partialConfigService, never()).merge(any(PartialConfig.class), anyString(), any(CruiseConfig.class), any(ConfigRepoConfig.class))
         verify(goConfigService, never()).validateCruiseConfig(any() as CruiseConfig)
 
         assertThatResponse().hasJsonBody([
@@ -178,7 +178,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
         def cruiseConfig = mock(CruiseConfig.class)
         when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
-        when(partialConfigService.merge(eq(partialConfig), any() as String, any() as CruiseConfig)).thenReturn(cruiseConfig)
+        when(partialConfigService.merge(eq(partialConfig), any() as String, any() as CruiseConfig, any() as ConfigRepoConfig)).thenReturn(cruiseConfig)
         when(goConfigService.validateCruiseConfig(cruiseConfig)).thenThrow(new GoConfigInvalidException(cruiseConfig, "nope!"))
 
         postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])

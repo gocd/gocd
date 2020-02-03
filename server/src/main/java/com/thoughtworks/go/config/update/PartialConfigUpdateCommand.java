@@ -16,8 +16,18 @@
 package com.thoughtworks.go.config.update;
 
 import com.rits.cloning.Cloner;
+import com.thoughtworks.go.config.ErrorCollector;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigException;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.thoughtworks.go.config.rules.SupportedEntity.*;
+import static java.lang.String.format;
 
 public class PartialConfigUpdateCommand implements UpdateConfigCommand {
     private static final Cloner CLONER = new Cloner();
@@ -25,11 +35,13 @@ public class PartialConfigUpdateCommand implements UpdateConfigCommand {
     private final PartialConfig partial;
     private final String fingerprint;
     private final PartialConfigResolver resolver;
+    private final ConfigRepoConfig configRepoConfig;
 
-    public PartialConfigUpdateCommand(final PartialConfig partial, final String fingerprint, PartialConfigResolver resolver) {
+    public PartialConfigUpdateCommand(final PartialConfig partial, final String fingerprint, PartialConfigResolver resolver, ConfigRepoConfig configRepoConfig) {
         this.partial = partial;
         this.fingerprint = fingerprint;
         this.resolver = resolver;
+        this.configRepoConfig = configRepoConfig;
     }
 
     @Override
@@ -41,7 +53,12 @@ public class PartialConfigUpdateCommand implements UpdateConfigCommand {
                 cruiseConfig.getPartials().remove(config);
             }
 
-            cruiseConfig.getPartials().add(CLONER.deepClone(partial));
+            PartialConfig cloned = CLONER.deepClone(partial);
+            cruiseConfig.getPartials().add(cloned);
+
+            if (!validateEntityForRules(cloned)) {
+                return cruiseConfig;
+            }
 
             for (PartialConfig partial : cruiseConfig.getPartials()) {
                 for (EnvironmentConfig environmentConfig : partial.getEnvironments()) {
@@ -57,5 +74,45 @@ public class PartialConfigUpdateCommand implements UpdateConfigCommand {
             }
         }
         return cruiseConfig;
+    }
+
+    private boolean validateEntityForRules(PartialConfig partialConfig) {
+        //preflight check
+        if (configRepoConfig == null) {
+            return true;
+        }
+
+        if (configRepoConfig.getRules().isEmpty()) {
+            throw new InvalidPartialConfigException(partialConfig, "Configurations can not be merged as no rules are defined.");
+        }
+
+        partialConfig.getEnvironments().stream()
+                .filter(env -> !configRepoConfig.canRefer(ENVIRONMENT.getEntityType(), env.name().toString()))
+                .forEach(envThatCanNotBeReferred -> {
+                    envThatCanNotBeReferred.addError(ENVIRONMENT.getType(), format("Cannot refer environment: '%s' from the config repository.", envThatCanNotBeReferred.name()));
+                });
+
+        partialConfig.getGroups().stream()
+                .filter(pipelineGrp -> !configRepoConfig.canRefer(PIPELINE_GROUP.getEntityType(), pipelineGrp.getGroup()))
+                .forEach(pipelineGrpThatCannotBeReferred -> {
+                    pipelineGrpThatCannotBeReferred.addError(PIPELINE_GROUP.getType(), format("Cannot refer pipeline group: '%s' from the config repository.", pipelineGrpThatCannotBeReferred.getGroup()));
+                });
+
+        List<DependencyMaterialConfig> dependencyMaterialConfigs = new ArrayList<>();
+        partialConfig.getGroups().forEach((pipelineGrp) -> {
+            pipelineGrp.forEach((pipelineConfig) -> dependencyMaterialConfigs.addAll(pipelineConfig.dependencyMaterialConfigs()));
+        });
+        dependencyMaterialConfigs.stream()
+                .filter(dependencyMaterialConfig -> !doesPipelineExistInPartialConfig(partialConfig, dependencyMaterialConfig.getPipelineName()))
+                .filter(dependencyMaterialConfig -> !configRepoConfig.canRefer(PIPELINE.getEntityType(), dependencyMaterialConfig.getPipelineName().toString()))
+                .forEach(dependencyMaterialConfigThatCannotBeReferred -> {
+                    dependencyMaterialConfigThatCannotBeReferred.addError(PIPELINE.getType(), format("Cannot refer pipeline: '%s' from the config repository.", dependencyMaterialConfigThatCannotBeReferred.getPipelineName()));
+                });
+
+        return ErrorCollector.getAllErrors(partialConfig).isEmpty();
+    }
+
+    private boolean doesPipelineExistInPartialConfig(PartialConfig partialConfig, CaseInsensitiveString pipelineName) {
+        return partialConfig.getGroups().stream().anyMatch(group -> group.findBy(pipelineName) != null);
     }
 }

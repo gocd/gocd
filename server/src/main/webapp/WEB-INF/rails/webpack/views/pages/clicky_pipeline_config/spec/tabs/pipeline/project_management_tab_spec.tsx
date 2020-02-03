@@ -16,7 +16,7 @@
 
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
-import {ProjectManagementTab} from "views/pages/clicky_pipeline_config/project_management_tab";
+import {ProjectManagementTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/project_management_tab";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 

@@ -21,11 +21,15 @@ import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {Form} from "views/components/forms/form";
 import {TextField} from "views/components/forms/input_fields";
 import {Help} from "views/components/tooltip";
-import {TabWidget} from "views/pages/clicky_pipeline_config/tab_widget";
+import {TabWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/tab_widget";
 
 export class ProjectManagementTab extends TabWidget {
   name() {
     return "Project Management";
+  }
+
+  hideRequiredAsterix(trackingTool: TrackingTool) {
+    return _.isEmpty(trackingTool.regex()) && _.isEmpty(trackingTool.urlPattern());
   }
 
   protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig) {
@@ -55,9 +59,5 @@ export class ProjectManagementTab extends TabWidget {
                    required={true}/>
       </Form>
     </div>;
-  }
-
-  hideRequiredAsterix(trackingTool: TrackingTool) {
-    return _.isEmpty(trackingTool.regex()) && _.isEmpty(trackingTool.urlPattern());
   }
 }

@@ -17,7 +17,7 @@
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
-import {NavigationWidget} from "views/pages/clicky_pipeline_config/navigation_widget";
+import {NavigationWidget} from "views/pages/clicky_pipeline_config/widgets/navigation_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("PipelineNavigation", () => {

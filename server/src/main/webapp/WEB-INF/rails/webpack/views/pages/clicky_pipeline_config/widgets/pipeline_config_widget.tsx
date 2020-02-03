@@ -23,13 +23,13 @@ import {EnvironmentVariablesWidget} from "views/components/environment_variables
 import {AngleDoubleRight} from "views/components/icons";
 import {Link} from "views/components/link";
 import {Tabs} from "views/components/tab";
-import {GeneralOptionsTab} from "views/pages/clicky_pipeline_config/general_options_tab";
-import {MaterialsTab} from "views/pages/clicky_pipeline_config/materials_tab";
+import style from "views/pages/clicky_pipeline_config/index.scss";
 import {ChangeRouteEvent} from "views/pages/clicky_pipeline_config/pipeline_config";
-import {ProjectManagementTab} from "views/pages/clicky_pipeline_config/project_management_tab";
-import {StagesTab} from "views/pages/clicky_pipeline_config/stages_tab";
-import {TabWidget} from "views/pages/clicky_pipeline_config/tab_widget";
-import style from "./index.scss";
+import {GeneralOptionsTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/general_options_tab";
+import {MaterialsTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/materials_tab";
+import {ProjectManagementTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/project_management_tab";
+import {StagesTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/stages_tab";
+import {TabWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/tab_widget";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;

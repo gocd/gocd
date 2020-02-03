@@ -21,9 +21,9 @@ import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Secondary} from "views/components/buttons";
 import {Delete, Edit, IconGroup} from "views/components/icons";
 import {Table} from "views/components/table";
+import style from "views/pages/clicky_pipeline_config/index.scss";
 import {MaterialModal} from "views/pages/clicky_pipeline_config/modal/material_modal";
-import style from "./index.scss";
-import {TabWidget} from "views/pages/clicky_pipeline_config/tab_widget";
+import {TabWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/tab_widget";
 
 export class MaterialsTab extends TabWidget {
 

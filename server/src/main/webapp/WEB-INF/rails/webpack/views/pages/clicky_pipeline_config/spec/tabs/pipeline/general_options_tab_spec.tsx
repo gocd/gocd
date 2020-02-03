@@ -16,7 +16,7 @@
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {GeneralOptionsTab} from "../general_options_tab";
+import {GeneralOptionsTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/general_options_tab";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 
 describe("GeneralOptionsTag", () => {

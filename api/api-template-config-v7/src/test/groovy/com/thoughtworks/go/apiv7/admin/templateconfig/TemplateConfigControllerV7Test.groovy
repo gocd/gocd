@@ -474,6 +474,7 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
       void 'should render the parameters for the template of specified name'() {
         def templateName = "template-name"
         def templateConfig = createTemplateWithParams(templateName, "param1", "param2")
+        when(entityHashingService.md5ForEntity(any(ParamsConfig) as ParamsConfig)).thenReturn('md5_for_parameters')
         when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('md5')
         when(templateConfigService.loadForView(templateName, result)).thenReturn(templateConfig)
 
@@ -481,6 +482,7 @@ class TemplateConfigControllerV7Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isOk()
+          .hasEtag('"md5_for_parameters"')
           .hasBodyWithJsonObject(ParametersRepresenter, templateName, templateConfig.referredParams())
       }
 

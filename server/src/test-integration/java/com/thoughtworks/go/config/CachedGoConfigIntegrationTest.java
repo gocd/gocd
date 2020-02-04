@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
@@ -151,7 +152,7 @@ public class CachedGoConfigIntegrationTest {
         configHelper.onSetUp();
         externalConfigRepo = temporaryFolder.newFolder();
         latestModification = setupExternalConfigRepo(externalConfigRepo);
-        configHelper.addConfigRepo(ConfigRepoConfig.createConfigRepoConfig(git(externalConfigRepo.getAbsolutePath()), XmlPartialConfigProvider.providerName, "gocd-id"));
+        configHelper.addConfigRepo(createConfigRepoWithDefaultRules(git(externalConfigRepo.getAbsolutePath()), XmlPartialConfigProvider.providerName, "gocd-id"));
         goConfigService.forceNotifyListeners();
         configRepo = configWatchList.getCurrentConfigRepos().get(0);
         cachedGoPartials.clear();
@@ -177,7 +178,7 @@ public class CachedGoConfigIntegrationTest {
         File downstreamExternalConfigRepo = temporaryFolder.newFolder();
         /*here is a pipeline 'downstream' with material dependency on 'pipe1' in other repository*/
         Modification downstreamLatestModification = setupExternalConfigRepo(downstreamExternalConfigRepo, "external_git_config_repo_referencing_first");
-        configHelper.addConfigRepo(ConfigRepoConfig.createConfigRepoConfig(git(downstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml", "id"));
+        configHelper.addConfigRepo(createConfigRepoWithDefaultRules(git(downstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml", "id"));
         goConfigService.forceNotifyListeners();//TODO what if this is not called?
         ConfigRepoConfig downstreamConfigRepo = configWatchList.getCurrentConfigRepos().get(1);
         assertThat(configWatchList.getCurrentConfigRepos().size()).isEqualTo(2);
@@ -211,11 +212,11 @@ public class CachedGoConfigIntegrationTest {
         File secondDownstreamExternalConfigRepo = temporaryFolder.newFolder();
         /*here is a pipeline 'downstream2' with material dependency on 'downstream' in other repository*/
         Modification secondDownstreamLatestModification = setupExternalConfigRepo(secondDownstreamExternalConfigRepo, "external_git_config_repo_referencing_second");
-        configHelper.addConfigRepo(ConfigRepoConfig.createConfigRepoConfig(git(secondDownstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml", "id1"));
+        configHelper.addConfigRepo(createConfigRepoWithDefaultRules(git(secondDownstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml", "id1"));
         File firstDownstreamExternalConfigRepo = temporaryFolder.newFolder();
         /*here is a pipeline 'downstream' with material dependency on 'pipe1' in other repository*/
         Modification firstDownstreamLatestModification = setupExternalConfigRepo(firstDownstreamExternalConfigRepo, "external_git_config_repo_referencing_first");
-        configHelper.addConfigRepo(ConfigRepoConfig.createConfigRepoConfig(git(firstDownstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml", "id2"));
+        configHelper.addConfigRepo(createConfigRepoWithDefaultRules(git(firstDownstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml", "id2"));
         goConfigService.forceNotifyListeners();
         ConfigRepoConfig firstDownstreamConfigRepo = configWatchList.getCurrentConfigRepos().get(1);
         ConfigRepoConfig secondDownstreamConfigRepo = configWatchList.getCurrentConfigRepos().get(2);
@@ -967,8 +968,8 @@ public class CachedGoConfigIntegrationTest {
 
     @Test
     public void shouldRemoveCorrespondingRemotePipelinesFromCachedGoConfigIfTheConfigRepoIsDeleted() {
-        final ConfigRepoConfig repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), XmlPartialConfigProvider.providerName, "id1");
-        final ConfigRepoConfig repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), XmlPartialConfigProvider.providerName, "id2");
+        final ConfigRepoConfig repoConfig1 = createConfigRepoWithDefaultRules(MaterialConfigsMother.gitMaterialConfig("url1"), XmlPartialConfigProvider.providerName, "id1");
+        final ConfigRepoConfig repoConfig2 = createConfigRepoWithDefaultRules(MaterialConfigsMother.gitMaterialConfig("url2"), XmlPartialConfigProvider.providerName, "id2");
         goConfigService.updateConfig(new UpdateConfigCommand() {
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
@@ -1339,5 +1340,11 @@ public class CachedGoConfigIntegrationTest {
         CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("config").withArg("user.email").withArg("go_test@go_test.me").withWorkingDir(configRepo).runOrBomb(null);
         CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("config").withArg("user.name").withArg("user").withWorkingDir(configRepo).runOrBomb(null);
         CommandLine.createCommandLine("git").withEncoding("utf-8").withArg("commit").withArg("-m").withArg("initial commit").withWorkingDir(configRepo).runOrBomb(null);
+    }
+
+    private ConfigRepoConfig createConfigRepoWithDefaultRules(MaterialConfig materialConfig, String pluginId, String id) {
+        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(materialConfig, pluginId, id);
+        config.getRules().add(new Allow("refer", "*", "*"));
+        return config;
     }
 }

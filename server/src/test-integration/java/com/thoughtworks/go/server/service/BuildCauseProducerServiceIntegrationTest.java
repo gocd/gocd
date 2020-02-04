@@ -30,6 +30,7 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
@@ -473,6 +474,7 @@ public class BuildCauseProducerServiceIntegrationTest {
     @Test
     public void shouldTriggerMDUOfConfigRepoMaterialIfThePipelineIsDefinedRemotelyInAConfigRepo_ManualTriggerOfPipeline_EvenIfMDUOptionIsTurnedOFFInRequest() throws Exception {
         ConfigRepoConfig repoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin", "id-2");
+        repoConfig.getRules().add(new Allow("refer", "*", "*"));
         configHelper.addConfigRepo(repoConfig);
         PartialConfig partialConfig = PartialConfigMother.withPipelineMultipleMaterials("remote_pipeline", new RepoConfigOrigin(repoConfig, "4567"));
         PipelineConfig remotePipeline = partialConfig.getGroups().first().getPipelines().get(0);

@@ -16,9 +16,11 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.scm.SCM;
@@ -76,11 +78,17 @@ public class GoPartialConfigIntegrationTest {
         goCache.clear();
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(git("url1"), "plugin", "id-1");
-        repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin", "id-2");
+        repoConfig1 = createConfigRepoWithDefaultRules(git("url1"), "plugin", "id-1");
+        repoConfig2 = createConfigRepoWithDefaultRules(git("url2"), "plugin", "id-2");
         configHelper.addConfigRepo(repoConfig1);
         configHelper.addConfigRepo(repoConfig2);
 
+    }
+
+    private ConfigRepoConfig createConfigRepoWithDefaultRules(GitMaterialConfig materialConfig, String plugin, String id) {
+        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(materialConfig, plugin, id);
+        config.getRules().add(new Allow("refer", "*", "*"));
+        return config;
     }
 
     @After
@@ -171,7 +179,7 @@ public class GoPartialConfigIntegrationTest {
 
     @Test
     public void shouldMarkAnInvalidKnownPartialAsValidWhenLoadingAnotherPartialMakesThisOneValid_InterConfigRepoDependency() {
-        ConfigRepoConfig repoConfig3 = ConfigRepoConfig.createConfigRepoConfig(git("url3"), "plugin", "id-3");
+        ConfigRepoConfig repoConfig3 = createConfigRepoWithDefaultRules(git("url3"), "plugin", "id-3");
         configHelper.addConfigRepo(repoConfig3);
 
         PartialConfig repo1 = PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1"));

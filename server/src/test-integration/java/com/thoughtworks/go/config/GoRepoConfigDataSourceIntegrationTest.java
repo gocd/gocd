@@ -16,6 +16,7 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.service.ConfigRepoService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -87,6 +88,7 @@ public class GoRepoConfigDataSourceIntegrationTest {
         File templateConfigRepo = temporaryFolder.newFolder();
         String latestRevision = setupExternalConfigRepo(templateConfigRepo, "external_git_config_repo_referencing_template_with_params");
         ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(git(templateConfigRepo.getAbsolutePath()), "gocd-xml", "config-id");
+        configRepoConfig.getRules().add(new Allow("refer", "*", "*"));
         configHelper.addConfigRepo(configRepoConfig);
 
         goConfigService.forceNotifyListeners();

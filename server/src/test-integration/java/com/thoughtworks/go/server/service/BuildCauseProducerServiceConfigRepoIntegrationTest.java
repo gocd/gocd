@@ -24,17 +24,14 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
-import com.thoughtworks.go.helper.ConfigTestRepo;
-import com.thoughtworks.go.helper.HgTestRepo;
-import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -133,7 +130,9 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
         materialConfig = hgRepo.materialConfig();
-        configHelper.addConfigRepo(ConfigRepoConfig.createConfigRepoConfig(materialConfig,"gocd-xml", "gocd-id"));
+        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(materialConfig, "gocd-xml", "gocd-id");
+        config.getRules().add(new Allow("refer", "*", "*"));
+        configHelper.addConfigRepo(config);
 
         logger = mock(MDUPerformanceLogger.class);
 

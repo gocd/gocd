@@ -29,6 +29,7 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -112,7 +113,9 @@ public class GoFileConfigDataSourceIntegrationTest {
         configHelper = new GoConfigFileHelper(DEFAULT_XML_WITH_2_AGENTS);
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
-        repoConfig = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url"), XmlPartialConfigProvider.providerName, "git-id");
+        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url"), XmlPartialConfigProvider.providerName, "git-id");
+        config.getRules().add(new Allow("refer", "*", "*"));
+        repoConfig = config;
         configHelper.addConfigRepo(repoConfig);
         configHelper.addPipeline("upstream", "upstream_stage_original");
         goConfigService.forceNotifyListeners();

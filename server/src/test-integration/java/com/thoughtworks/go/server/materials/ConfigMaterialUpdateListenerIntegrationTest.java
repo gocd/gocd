@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.ConfigTestRepo;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -105,7 +106,9 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
         materialConfig = hg(hgRepo.projectRepositoryUrl(), null);
-        configHelper.addConfigRepo(ConfigRepoConfig.createConfigRepoConfig(materialConfig, "gocd-xml", "gocd-id"));
+        ConfigRepoConfig config = ConfigRepoConfig.createConfigRepoConfig(materialConfig, "gocd-xml", "gocd-id");
+        config.getRules().add(new Allow("refer", "*", "*"));
+        configHelper.addConfigRepo(config);
 
         TestingEmailSender emailSender = new TestingEmailSender();
         SystemDiskSpaceChecker mockDiskSpaceChecker = Mockito.mock(SystemDiskSpaceChecker.class);

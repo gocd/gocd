@@ -243,7 +243,7 @@ public class CachedGoConfigIntegrationTest {
         // and errors are still shown
         messageForInvalidMerge = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(firstDownstreamConfigRepo));
         assertThat(messageForInvalidMerge.isEmpty()).isFalse();
-        assertThat(messageForInvalidMerge.get(0).getDescription()).contains("Pipeline &quot;pipe1&quot; does not exist. It is used from pipeline &quot;downstream&quot");
+        assertThat(messageForInvalidMerge.get(0).getDescription()).contains("Pipeline 'pipe1' does not exist. It is used from pipeline 'downstream'");
         // and current config is still old
         assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream"))).isFalse();
         assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream2"))).isFalse();

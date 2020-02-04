@@ -99,7 +99,7 @@ class PartialConfigUpdateCommandTest {
 
         List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(cruiseConfig.getPartials().get(0));
         assertThat(allErrors).hasSize(1);
-        assertThat(allErrors.get(0).on("pipeline_group")).isEqualTo("Cannot refer pipeline group: 'first' from the config repository.");
+        assertThat(allErrors.get(0).on("pipeline_group")).isEqualTo("Not allowed to refer pipeline group 'first' from the config repository.");
         assertThat(updated.hasPipelineGroup("first")).isFalse();
     }
 
@@ -118,7 +118,7 @@ class PartialConfigUpdateCommandTest {
 
         List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(cruiseConfig.getPartials().get(0));
         assertThat(allErrors).hasSize(1);
-        assertThat(allErrors.get(0).on("environment")).isEqualTo("Cannot refer environment: 'uat' from the config repository.");
+        assertThat(allErrors.get(0).on("environment")).isEqualTo("Not allowed to refer environment 'uat' from the config repository.");
         assertThat(updated.getEnvironments().hasEnvironmentNamed(uatEnv)).isFalse();
     }
 
@@ -136,7 +136,7 @@ class PartialConfigUpdateCommandTest {
 
         List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(cruiseConfig.getPartials().get(0));
         assertThat(allErrors).hasSize(1);
-        assertThat(allErrors.get(0).on("pipeline")).isEqualTo("Cannot refer pipeline: 'deploy' from the config repository.");
+        assertThat(allErrors.get(0).on("pipeline")).isEqualTo("Not allowed to refer pipeline 'deploy' from the config repository.");
         assertThat(updated.hasPipelineGroup("first")).isFalse();
     }
 

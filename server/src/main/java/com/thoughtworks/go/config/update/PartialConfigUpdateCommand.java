@@ -89,13 +89,13 @@ public class PartialConfigUpdateCommand implements UpdateConfigCommand {
         partialConfig.getEnvironments().stream()
                 .filter(env -> !configRepoConfig.canRefer(ENVIRONMENT.getEntityType(), env.name().toString()))
                 .forEach(envThatCanNotBeReferred -> {
-                    envThatCanNotBeReferred.addError(ENVIRONMENT.getType(), format("Cannot refer environment: '%s' from the config repository.", envThatCanNotBeReferred.name()));
+                    envThatCanNotBeReferred.addError(ENVIRONMENT.getType(), format("Not allowed to refer environment '%s' from the config repository.", envThatCanNotBeReferred.name()));
                 });
 
         partialConfig.getGroups().stream()
                 .filter(pipelineGrp -> !configRepoConfig.canRefer(PIPELINE_GROUP.getEntityType(), pipelineGrp.getGroup()))
                 .forEach(pipelineGrpThatCannotBeReferred -> {
-                    pipelineGrpThatCannotBeReferred.addError(PIPELINE_GROUP.getType(), format("Cannot refer pipeline group: '%s' from the config repository.", pipelineGrpThatCannotBeReferred.getGroup()));
+                    pipelineGrpThatCannotBeReferred.addError(PIPELINE_GROUP.getType(), format("Not allowed to refer pipeline group '%s' from the config repository.", pipelineGrpThatCannotBeReferred.getGroup()));
                 });
 
         List<DependencyMaterialConfig> dependencyMaterialConfigs = new ArrayList<>();
@@ -106,7 +106,7 @@ public class PartialConfigUpdateCommand implements UpdateConfigCommand {
                 .filter(dependencyMaterialConfig -> !doesPipelineExistInPartialConfig(partialConfig, dependencyMaterialConfig.getPipelineName()))
                 .filter(dependencyMaterialConfig -> !configRepoConfig.canRefer(PIPELINE.getEntityType(), dependencyMaterialConfig.getPipelineName().toString()))
                 .forEach(dependencyMaterialConfigThatCannotBeReferred -> {
-                    dependencyMaterialConfigThatCannotBeReferred.addError(PIPELINE.getType(), format("Cannot refer pipeline: '%s' from the config repository.", dependencyMaterialConfigThatCannotBeReferred.getPipelineName()));
+                    dependencyMaterialConfigThatCannotBeReferred.addError(PIPELINE.getType(), format("Not allowed to refer pipeline '%s' from the config repository.", dependencyMaterialConfigThatCannotBeReferred.getPipelineName()));
                 });
 
         return ErrorCollector.getAllErrors(partialConfig).isEmpty();

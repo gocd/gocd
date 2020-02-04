@@ -679,7 +679,7 @@ public class GoConfigServiceIntegrationTest {
         assertThat(validity.isValid(), is(false));
         GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) validity;
         assertThat(validity.toString(), invalidGoConfig.isType(GoConfigValidity.VT_MERGE_POST_VALIDATION_ERROR), is(true));
-        assertThat(invalidGoConfig.errorMessage(), is("Pipeline \"up_pipeline\" does not exist. It is used from pipeline \"down_pipeline\"."));
+        assertThat(invalidGoConfig.errorMessage(), is("Pipeline 'up_pipeline' does not exist. It is used from pipeline 'down_pipeline'."));
     }
 
     @Test

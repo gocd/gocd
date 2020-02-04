@@ -16,9 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.policy.Allow;
-import com.thoughtworks.go.config.policy.Deny;
-import com.thoughtworks.go.config.policy.Policy;
+import com.thoughtworks.go.config.policy.*;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import org.junit.Before;
@@ -352,7 +350,7 @@ public class SecurityServiceTest {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(goConfigService.rolesForUser(bob.getUsername())).thenReturn(new RolesConfig(roleConfig));
 
-        assertThat(securityService.doesUserHasPermissionsToViewAgentStatusReport(bob, elasticAgentProfileId, clusterProfileId), is(true));
+        assertThat(securityService.doesUserHasPermissions(bob, SupportedAction.VIEW, SupportedEntity.ELASTIC_AGENT_PROFILE, elasticAgentProfileId, clusterProfileId), is(true));
     }
 
     @Test
@@ -367,7 +365,7 @@ public class SecurityServiceTest {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(goConfigService.rolesForUser(bob.getUsername())).thenReturn(new RolesConfig(roleConfig));
 
-        assertThat(securityService.doesUserHasPermissionsToViewAgentStatusReport(bob, elasticAgentProfileId, clusterProfileId), is(false));
+        assertThat(securityService.doesUserHasPermissions(bob, SupportedAction.VIEW, SupportedEntity.ELASTIC_AGENT_PROFILE, elasticAgentProfileId, clusterProfileId), is(false));
     }
 
     @Test
@@ -378,7 +376,7 @@ public class SecurityServiceTest {
         when(goConfigService.isSecurityEnabled()).thenReturn(true);
         when(goConfigService.rolesForUser(bob.getUsername())).thenReturn(new RolesConfig());
 
-        assertThat(securityService.doesUserHasPermissionsToViewAgentStatusReport(bob, elasticAgentProfileId, clusterProfileId), is(false));
+        assertThat(securityService.doesUserHasPermissions(bob, SupportedAction.VIEW, SupportedEntity.ELASTIC_AGENT_PROFILE, elasticAgentProfileId, clusterProfileId), is(false));
     }
 
     private BasicCruiseConfig getCruiseConfigWithSecurityEnabled() {

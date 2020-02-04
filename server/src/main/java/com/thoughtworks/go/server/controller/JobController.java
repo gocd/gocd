@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.policy.SupportedAction;
+import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
@@ -213,7 +215,7 @@ public class JobController {
             data.put("clusterProfileId", clusterProfileId);
             data.put("elasticAgentProfileId", elasticProfileId);
             data.put("elasticAgentPluginId", pluginId);
-            data.put("doesUserHaveViewAccessToStatusReportPage", securityService.doesUserHasPermissionsToViewAgentStatusReport(SessionUtils.currentUsername(), elasticProfileId, clusterProfileId));
+            data.put("doesUserHaveViewAccessToStatusReportPage", securityService.doesUserHasPermissions(SessionUtils.currentUsername(), SupportedAction.VIEW, SupportedEntity.ELASTIC_AGENT_PROFILE, elasticProfileId, clusterProfileId));
 
             final Agent agent = agentService.getAgentByUUID(jobInstance.getAgentUuid());
 

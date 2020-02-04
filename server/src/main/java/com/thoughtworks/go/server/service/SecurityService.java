@@ -211,21 +211,20 @@ public class SecurityService {
 
     //todo: needs refactoring use AbstractAuthenticationHelper.doesUserHasPermissions
     //a specific method to check whether a user has permission to access agent status report has been added
-    public boolean doesUserHasPermissionsToViewAgentStatusReport(Username username, String elasticAgentProfileId, String clusterProfileId) {
+    public boolean doesUserHasPermissions(Username username, SupportedAction action, SupportedEntity entity, String resource, String resourceToOperateWithin) {
         if (this.isUserAdmin(username)) {
             return true;
         }
 
-        SupportedAction action = SupportedAction.VIEW;
-        SupportedEntity entity = SupportedEntity.ELASTIC_AGENT_PROFILE;
         List<Role> roles = goConfigService.rolesForUser(username.getUsername());
+
         boolean hasPermission = false;
         for (Role role : roles) {
-            if (role.hasExplicitDenyPermissionsFor(action, entity.getEntityType(), elasticAgentProfileId, clusterProfileId)) {
+            if (role.hasExplicitDenyPermissionsFor(action, entity.getEntityType(), resource, resourceToOperateWithin)) {
                 return false;
             }
 
-            if (role.hasPermissionsFor(action, entity.getEntityType(), elasticAgentProfileId, clusterProfileId)) {
+            if (role.hasPermissionsFor(action, entity.getEntityType(), resource, resourceToOperateWithin)) {
                 hasPermission = true;
             }
         }

@@ -19,6 +19,8 @@ import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.policy.SupportedAction;
+import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.helper.*;
@@ -201,7 +203,7 @@ public class JobControllerTest {
             ElasticProfile elasticProfile = new ElasticProfile("elastic_id", "cluster_id");
             ClusterProfile clusterProfile = new ClusterProfile("cluster_id", "cd.go.example.plugin");
 
-            when(securityService.doesUserHasPermissionsToViewAgentStatusReport(any(), eq("elastic_id"), eq("cluster_id"))).thenReturn(true);
+            when(securityService.doesUserHasPermissions(any(), eq(SupportedAction.VIEW), eq(SupportedEntity.ELASTIC_AGENT_PROFILE), eq("elastic_id"), eq("cluster_id"))).thenReturn(true);
             when(jobAgentMetadataDao.load(12L)).thenReturn(new JobAgentMetadata(12L, elasticProfile, clusterProfile));
 
             ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "2", "job1");

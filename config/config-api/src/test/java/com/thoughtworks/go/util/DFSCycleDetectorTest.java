@@ -76,7 +76,7 @@ public class DFSCycleDetectorTest {
         try {
             project.topoSort(new CaseInsensitiveString("a"), state);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Pipeline \"z\" does not exist. It is used from pipeline \"b\"."));
+            assertThat(e.getMessage(), is("Pipeline 'z' does not exist. It is used from pipeline 'b'."));
         }
     }
 }

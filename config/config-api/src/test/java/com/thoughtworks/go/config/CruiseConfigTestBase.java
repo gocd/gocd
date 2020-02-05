@@ -512,7 +512,7 @@ public abstract class CruiseConfigTestBase {
             errors.addAll(allError.getAllOn("base"));
         }
         assertThat(errors.size(), is(1));
-        assertThat(errors.get(0), is("Pipeline \"invalid\" does not exist. It is used from pipeline \"pipeline1\"."));
+        assertThat(errors.get(0), is("Pipeline 'invalid' does not exist. It is used from pipeline 'pipeline1'."));
     }
 
     @Test

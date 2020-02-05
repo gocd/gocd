@@ -71,15 +71,15 @@ public class DFSCycleDetector {
 
     private void validateRootExists(CaseInsensitiveString root, PipelineDependencyState pipelineDependencyState, Stack<CaseInsensitiveString> visiting) throws Exception {
         if (!pipelineDependencyState.hasPipeline(root)) {
-            StringBuffer sb = new StringBuffer("Pipeline \"");
+            StringBuffer sb = new StringBuffer("Pipeline '");
             sb.append(root);
-            sb.append("\" does not exist.");
+            sb.append("' does not exist.");
             visiting.pop();
             if (!visiting.empty()) {
                 CaseInsensitiveString parent = visiting.peek();
-                sb.append(" It is used from pipeline \"");
+                sb.append(" It is used from pipeline '");
                 sb.append(parent);
-                sb.append("\".");
+                sb.append("'.");
             }
             throw new Exception(sb.toString());
         }

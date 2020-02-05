@@ -76,9 +76,9 @@ public class GoPartialConfigTest {
         updateCommand = null;
         partialConfig = new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService) {
             @Override
-            public PartialConfigUpdateCommand buildUpdateCommand(PartialConfig partial, String fingerprint) {
+            public PartialConfigUpdateCommand buildUpdateCommand(PartialConfig partial, String fingerprint, ConfigRepoConfig repoConfig) {
                 if (null == updateCommand) {
-                    return super.buildUpdateCommand(partial, fingerprint);
+                    return super.buildUpdateCommand(partial, fingerprint, configRepoConfig);
                 }
                 return updateCommand;
             }
@@ -92,7 +92,7 @@ public class GoPartialConfigTest {
         updateCommand = mock(PartialConfigUpdateCommand.class);
         PartialConfig partial = new PartialConfig();
 
-        partialConfig.merge(partial, "finger", cruiseConfig);
+        partialConfig.merge(partial, "finger", cruiseConfig, configRepoConfig);
         verify(updateCommand, times(1)).update(cruiseConfig);
     }
 

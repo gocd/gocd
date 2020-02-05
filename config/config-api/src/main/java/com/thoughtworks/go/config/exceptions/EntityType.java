@@ -51,6 +51,7 @@ public enum EntityType {
 
     private final String entityType;
     private final NameOrId nameOrId;
+    public static final String RULE_ERROR_PREFIX = "Not allowed to refer";
 
     EntityType(String entityType, NameOrId nameOrId) {
         this.entityType = entityType;
@@ -194,5 +195,13 @@ public enum EntityType {
 
     public String alreadyUsesATemplate(String id) {
         return format("%s %s '%s' already uses a template.", StringUtils.capitalize(this.entityType), this.nameOrId.descriptor, id);
+    }
+
+    public String notAllowedToRefer(CaseInsensitiveString identifier) {
+        return notAllowedToRefer(identifier.toString());
+    }
+
+    public String notAllowedToRefer(String identifier) {
+        return format("%s %s '%s' from the config repository.", RULE_ERROR_PREFIX, this.entityType, identifier);
     }
 }

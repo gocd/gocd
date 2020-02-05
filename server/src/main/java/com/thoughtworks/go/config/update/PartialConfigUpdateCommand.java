@@ -21,13 +21,12 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
-import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigException;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.config.exceptions.EntityType.*;
 import static com.thoughtworks.go.config.rules.SupportedEntity.*;
-import static java.lang.String.format;
 
 public class PartialConfigUpdateCommand implements UpdateConfigCommand {
     private static final Cloner CLONER = new Cloner();
@@ -82,20 +81,16 @@ public class PartialConfigUpdateCommand implements UpdateConfigCommand {
             return true;
         }
 
-        if (configRepoConfig.getRules().isEmpty()) {
-            throw new InvalidPartialConfigException(partialConfig, "Configurations can not be merged as no rules are defined.");
-        }
-
         partialConfig.getEnvironments().stream()
                 .filter(env -> !configRepoConfig.canRefer(ENVIRONMENT.getEntityType(), env.name().toString()))
                 .forEach(envThatCanNotBeReferred -> {
-                    envThatCanNotBeReferred.addError(ENVIRONMENT.getType(), format("Not allowed to refer environment '%s' from the config repository.", envThatCanNotBeReferred.name()));
+                    envThatCanNotBeReferred.addError(ENVIRONMENT.getType(), Environment.notAllowedToRefer(envThatCanNotBeReferred.name()));
                 });
 
         partialConfig.getGroups().stream()
                 .filter(pipelineGrp -> !configRepoConfig.canRefer(PIPELINE_GROUP.getEntityType(), pipelineGrp.getGroup()))
                 .forEach(pipelineGrpThatCannotBeReferred -> {
-                    pipelineGrpThatCannotBeReferred.addError(PIPELINE_GROUP.getType(), format("Not allowed to refer pipeline group '%s' from the config repository.", pipelineGrpThatCannotBeReferred.getGroup()));
+                    pipelineGrpThatCannotBeReferred.addError(PIPELINE_GROUP.getType(), PipelineGroup.notAllowedToRefer(pipelineGrpThatCannotBeReferred.getGroup()));
                 });
 
         List<DependencyMaterialConfig> dependencyMaterialConfigs = new ArrayList<>();
@@ -106,7 +101,7 @@ public class PartialConfigUpdateCommand implements UpdateConfigCommand {
                 .filter(dependencyMaterialConfig -> !doesPipelineExistInPartialConfig(partialConfig, dependencyMaterialConfig.getPipelineName()))
                 .filter(dependencyMaterialConfig -> !configRepoConfig.canRefer(PIPELINE.getEntityType(), dependencyMaterialConfig.getPipelineName().toString()))
                 .forEach(dependencyMaterialConfigThatCannotBeReferred -> {
-                    dependencyMaterialConfigThatCannotBeReferred.addError(PIPELINE.getType(), format("Not allowed to refer pipeline '%s' from the config repository.", dependencyMaterialConfigThatCannotBeReferred.getPipelineName()));
+                    dependencyMaterialConfigThatCannotBeReferred.addError(PIPELINE.getType(), Pipeline.notAllowedToRefer(dependencyMaterialConfigThatCannotBeReferred.getPipelineName()));
                 });
 
         return ErrorCollector.getAllErrors(partialConfig).isEmpty();

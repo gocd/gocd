@@ -80,9 +80,11 @@ class PartialConfigUpdateCommandTest {
         partial.setPipelines(new PipelineGroups(group));
         PartialConfigUpdateCommand command = new PartialConfigUpdateCommand(partial, fingerprint, resolver, configRepoConfig);
 
-        assertThatCode(() -> command.update(cruiseConfig))
-                .isInstanceOf(InvalidPartialConfigException.class)
-                .hasMessage("Configurations can not be merged as no rules are defined.");
+        CruiseConfig updated = command.update(cruiseConfig);
+        List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(cruiseConfig.getPartials().get(0));
+        assertThat(allErrors).hasSize(1);
+        assertThat(allErrors.get(0).on("pipeline_group")).isEqualTo("Not allowed to refer pipeline group 'first' from the config repository.");
+        assertThat(updated.hasPipelineGroup("first")).isFalse();
     }
 
     @Test

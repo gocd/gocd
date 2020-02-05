@@ -19,7 +19,11 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.thoughtworks.go.config.exceptions.EntityType.RULE_ERROR_PREFIX;
+import static java.util.stream.Collectors.toList;
 
 public class GoConfigInvalidMergeException extends GoConfigInvalidException {
     private List<PartialConfig> partialConfigs;
@@ -47,8 +51,26 @@ public class GoConfigInvalidMergeException extends GoConfigInvalidException {
         StringBuilder b = new StringBuilder();
         b.append("Number of errors: ").append(allErrors.size()).append("+").append("\n");
 
-        for (int i = 1; i <= allErrors.size(); i++) {
-            b.append(i).append(". ").append(allErrors.get(i - 1)).append(";; \n");
+        List<String> ruleValidationErrors = allErrors.stream()
+                .filter((error) -> error.startsWith(RULE_ERROR_PREFIX))
+                .collect(toList());
+
+        if (ruleValidationErrors.isEmpty()) {
+            for (int i = 1; i <= allErrors.size(); i++) {
+                b.append(i).append(". ").append(allErrors.get(i - 1)).append(";; \n");
+            }
+        } else {
+            b.append("I. Rule Validation Errors: \n");
+            for (int i = 1; i <= ruleValidationErrors.size(); i++) {
+                b.append('\t').append(i).append(". ").append(ruleValidationErrors.get(i - 1)).append(";; \n");
+            }
+            List<String> configValidationErrors = new ArrayList<>(allErrors);
+            configValidationErrors.removeAll(ruleValidationErrors);
+            b.append("II. Config Validation Errors: \n");
+
+            for (int i = 1; i <= configValidationErrors.size(); i++) {
+                b.append('\t').append(i).append(". ").append(configValidationErrors.get(i - 1)).append(";; \n");
+            }
         }
 
         return b.toString();

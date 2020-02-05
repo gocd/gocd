@@ -16,27 +16,21 @@
 
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/tab_widget";
-import {StagesWidget} from "views/pages/clicky_pipeline_config/widgets/stages_widget";
-import {TemplateEditor} from "views/pages/pipelines/template_editor";
 
-export class StagesTab extends TabWidget<PipelineConfig> {
-  name() {
-    return "Stages";
+export class StageSettings extends TabWidget<Stage> {
+  name(): string {
+    return "Stage Settings";
   }
 
-  protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
-    return pipelineConfig;
+  protected renderer(entity: Stage, templateConfig: TemplateConfig) {
+    return <div>Stage kasdksdfjsdhfk dsfhdskfhkds fkdshfkdshfksdhfkj sfhkdshfkdsfhdksfhk</div>;
   }
 
-  protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig) {
-    return [
-      <TemplateEditor pipelineConfig={entity} isUsingTemplate={entity.isUsingTemplate()}
-                      paramList={entity.parameters}/>,
-      <StagesWidget stages={entity.stages} isUsingTemplate={entity.isUsingTemplate()}
-                    isEditable={!entity.origin().isDefinedInConfigRepo()}/>
-    ];
+  protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): Stage {
+    return pipelineConfig.stages().findByName(routeParams.stage_name!)!;
   }
 }

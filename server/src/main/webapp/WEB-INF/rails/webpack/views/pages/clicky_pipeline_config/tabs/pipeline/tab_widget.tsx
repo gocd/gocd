@@ -17,11 +17,16 @@
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 
-export abstract class TabWidget {
+export abstract class TabWidget<T> {
   //render only selected tab
-  public content(entity: PipelineConfig, templateConfig: TemplateConfig, isSelectedTab: boolean): m.Children {
+  public content(pipelineConfig: PipelineConfig,
+                 templateConfig: TemplateConfig,
+                 routeParams: PipelineConfigRouteParams,
+                 isSelectedTab: boolean): m.Children {
     if (isSelectedTab) {
+      const entity = this.selectedEntity(pipelineConfig, routeParams) as T;
       return this.renderer(entity, templateConfig);
     }
     return <div> Not a selected tab</div>;
@@ -29,5 +34,7 @@ export abstract class TabWidget {
 
   public abstract name(): string;
 
-  protected abstract renderer(entity: PipelineConfig, templateConfig: TemplateConfig): m.Children;
+  protected abstract renderer(entity: T, templateConfig: TemplateConfig): m.Children;
+
+  protected abstract selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): T;
 }

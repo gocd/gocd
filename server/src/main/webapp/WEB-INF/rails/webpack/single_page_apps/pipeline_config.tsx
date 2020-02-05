@@ -17,6 +17,13 @@
 import {RoutedSinglePageApp} from "helpers/spa_base";
 import m from 'mithril';
 import {PipelineConfigPage} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {EnvironmentVariablesTab} from "views/pages/clicky_pipeline_config/tabs/environment_variables_tab";
+import {GeneralOptionsTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/general_options_tab";
+import {MaterialsTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/materials_tab";
+import {ParametersTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/parameters_tab";
+import {ProjectManagementTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/project_management_tab";
+import {StagesTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/stages_tab";
+import {StageSettings} from "views/pages/clicky_pipeline_config/tabs/stage/settings";
 
 class RedirectToGeneralTab extends PipelineConfigPage<any> {
 
@@ -30,8 +37,17 @@ export class PipelineConfigSPA extends RoutedSinglePageApp {
   constructor() {
     super({
       "/": new RedirectToGeneralTab(),
-      "/:pipeline_name/:tab_name": new PipelineConfigPage(),
-      "/:pipeline_name/:stage_name/:tab_name": new PipelineConfigPage(),
+      "/:pipeline_name/:tab_name": new PipelineConfigPage(
+        new GeneralOptionsTab(),
+        new EnvironmentVariablesTab(),
+        new ProjectManagementTab(),
+        new MaterialsTab(),
+        new StagesTab(),
+        new ParametersTab()
+      ),
+      "/:pipeline_name/:stage_name/:tab_name": new PipelineConfigPage(
+        new StageSettings()
+      ),
       "/:pipeline_name/:stage_name/:job_name/:tab_name": new PipelineConfigPage()
     });
   }

@@ -17,12 +17,16 @@
 import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import _ from 'lodash';
 import m from "mithril";
+import {Job} from "models/pipeline_configs/job";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {Primary, Reset} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {Tabs} from "views/components/tab";
+import {TabWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/tab_widget";
 import {NavigationWidget} from "views/pages/clicky_pipeline_config/widgets/navigation_widget";
-import {PipelineConfigWidget} from "views/pages/clicky_pipeline_config/widgets/pipeline_config_widget";
+import {StepsWidget} from "views/pages/clicky_pipeline_config/widgets/steps_widget";
 import {Page, PageState} from "views/pages/page";
 import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 import styles from "./index.scss";
@@ -35,6 +39,8 @@ export interface RouteInfo<T> {
   route: string;
   params: T;
 }
+
+type SupportedTypes = PipelineConfig | Stage | Job;
 
 export interface PipelineConfigRouteParams {
   pipeline_name: string;
@@ -51,8 +57,15 @@ export class PipelineConfigPage<T> extends Page<null, T> {
   private templateConfig?: TemplateConfig;
   private pipelineConfig?: PipelineConfig;
   private originalJSON: any;
+  private readonly tabs = [] as Array<TabWidget<SupportedTypes>>;
+
+  constructor(...tabs: Array<TabWidget<SupportedTypes>>) {
+    super();
+    this.tabs = tabs;
+  }
 
   oninit(vnode: m.Vnode<null, T>) {
+    this.validateRoute();
     super.oninit(vnode);
     window.addEventListener("beforeunload", (e) => {
       if (this.isPipelineConfigChanged()) {
@@ -97,14 +110,16 @@ export class PipelineConfigPage<T> extends Page<null, T> {
         <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/>
         <div class={styles.navigation}>
           <NavigationWidget pipelineConfig={this.pipelineConfig!}
-                            routeInfo={this.routeInfo()}
+                            routeInfo={PipelineConfigPage.routeInfo()}
                             changeRoute={this.changeRoute.bind(this)}/>
         </div>
 
         <div class={styles.entityConfigContainer}>
-          <PipelineConfigWidget pipelineConfig={this.pipelineConfig!}
-                                templateConfig={this.templateConfig!}
-                                changeRoute={this.changeRoute.bind(this)}/>
+          <StepsWidget routeInfo={PipelineConfigPage.routeInfo()}/>,
+          <Tabs initialSelection={this.selectedTabIndex()}
+                tabs={this.tabs.map((eachTab: TabWidget<SupportedTypes>) => eachTab.name())}
+                contents={this.tabs.map((eachTab: TabWidget<SupportedTypes>) => eachTab.content(this.pipelineConfig!, this.templateConfig!, PipelineConfigPage.routeInfo().params, PipelineConfigPage.isSelectedTab(eachTab)))}
+                beforeChange={this.onTabChange.bind(this, vnode)}/>
           <div>
             <Reset onclick={this.reset.bind(this)}>RESET</Reset>
             <Primary onclick={this.save.bind(this)}>SAVE</Primary>
@@ -136,8 +151,28 @@ export class PipelineConfigPage<T> extends Page<null, T> {
     return super.getMeta() as PageMeta;
   }
 
-  private routeInfo(): RouteInfo<PipelineConfigRouteParams> {
+  private static isSelectedTab(eachTab: TabWidget<SupportedTypes>) {
+    return _.snakeCase(eachTab.name()) === m.route.param().tab_name;
+  }
+
+  private static routeInfo(): RouteInfo<PipelineConfigRouteParams> {
     return {route: m.route.get(), params: m.route.param()};
+  }
+
+  private onTabChange(vnode: m.Vnode<null, T>, index: number, callback: () => void) {
+    const route = `${this.pipelineConfig!.name()}/${_.snakeCase(this.tabs[index].name())}`;
+    this.changeRoute({newRoute: route}, () => {
+      callback();
+      if (m.route.get() !== route) {
+        m.route.set(route);
+      }
+    });
+  }
+
+  private selectedTabIndex() {
+    return this.tabs.findIndex((eachTab) => {
+      return PipelineConfigPage.isSelectedTab(eachTab);
+    });
   }
 
   private onSuccess(successResponse: SuccessResponse<string>) {
@@ -149,5 +184,16 @@ export class PipelineConfigPage<T> extends Page<null, T> {
   private onFailure(errorResponse: ErrorResponse) {
     this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
     this.pageState = PageState.FAILED;
+  }
+
+  private validateRoute() {
+    const routeInfo      = PipelineConfigPage.routeInfo();
+    const invalidTabName = !this.tabs.find((tab) => tab.name() === routeInfo.params.tab_name);
+    if (invalidTabName) {
+      const parts = routeInfo.route.split("/");
+      parts.pop();
+      parts.push(_.snakeCase(this.tabs[0].name()));
+      m.route.set(`/${parts.join("/")}`);
+    }
   }
 }

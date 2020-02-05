@@ -23,9 +23,10 @@ import {Delete, Edit, IconGroup} from "views/components/icons";
 import {Table} from "views/components/table";
 import style from "views/pages/clicky_pipeline_config/index.scss";
 import {MaterialModal} from "views/pages/clicky_pipeline_config/modal/add_or_edit_modal";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/tab_widget";
 
-export class MaterialsTab extends TabWidget {
+export class MaterialsTab extends TabWidget<PipelineConfig> {
 
   addNewMaterial(materials: NameableSet<Material>) {
     MaterialModal.forAdd((material: Material) => {
@@ -42,6 +43,10 @@ export class MaterialsTab extends TabWidget {
 
   name(): string {
     return "Materials";
+  }
+
+  protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
+    return pipelineConfig;
   }
 
   protected renderer(entity: PipelineConfig) {

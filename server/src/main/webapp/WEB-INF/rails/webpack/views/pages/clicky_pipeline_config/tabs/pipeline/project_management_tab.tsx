@@ -21,15 +21,20 @@ import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {Form} from "views/components/forms/form";
 import {TextField} from "views/components/forms/input_fields";
 import {Help} from "views/components/tooltip";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/tab_widget";
 
-export class ProjectManagementTab extends TabWidget {
+export class ProjectManagementTab extends TabWidget<PipelineConfig> {
   name() {
     return "Project Management";
   }
 
   hideRequiredAsterix(trackingTool: TrackingTool) {
     return _.isEmpty(trackingTool.regex()) && _.isEmpty(trackingTool.urlPattern());
+  }
+
+  protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
+    return pipelineConfig;
   }
 
   protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig) {

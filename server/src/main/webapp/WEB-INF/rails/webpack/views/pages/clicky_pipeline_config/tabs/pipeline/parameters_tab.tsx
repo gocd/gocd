@@ -18,14 +18,19 @@ import Stream from "mithril/stream";
 import {PipelineParameter} from "models/pipeline_configs/parameter";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/tab_widget";
 import {PipelineParametersEditor} from "views/pages/pipelines/parameters_editor";
 
-export class ParametersTab extends TabWidget {
+export class ParametersTab extends TabWidget<PipelineConfig> {
   readonly paramList = Stream([] as PipelineParameter[]);
 
   name(): string {
     return "Parameters";
+  }
+
+  protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
+    return pipelineConfig;
   }
 
   protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig) {

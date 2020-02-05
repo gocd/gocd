@@ -18,6 +18,7 @@ import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {GeneralOptionsTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/general_options_tab";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -122,6 +123,7 @@ describe("GeneralOptionsTag", () => {
   });
 
   function mount(pipelineConfig: PipelineConfig, templateConfig = new TemplateConfig("foo", [])) {
-    helper.mount(() => new GeneralOptionsTab().content(pipelineConfig, templateConfig, true));
+    const routeParams = {} as PipelineConfigRouteParams;
+    helper.mount(() => new GeneralOptionsTab().content(pipelineConfig, templateConfig, routeParams, true));
   }
 });

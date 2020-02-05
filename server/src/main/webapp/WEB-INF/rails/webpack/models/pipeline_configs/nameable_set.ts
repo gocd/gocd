@@ -106,4 +106,8 @@ export class NameableSet<T extends Nameable> extends ValidatableMixin implements
   values(): IterableIterator<T> {
     return this[Symbol.iterator]();
   }
+
+  findByName(name: string): T | undefined {
+    return Array.from(this._members.values()).find((value: T) => value.name() === name);
+  }
 }

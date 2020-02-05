@@ -29,11 +29,11 @@ interface Attrs {
 }
 
 export class StageEditor extends MithrilViewComponent<Attrs> {
-  private readonly APPROVAL_TYPE_HELP = "If 'on' then stage will automatically schedule once the preceding stage completes successfully. " +
+  static readonly APPROVAL_TYPE_HELP = "If 'on' then stage will automatically schedule once the preceding stage completes successfully. " +
     "Otherwise, user have to manually trigger the stage. For the first stage in a pipeline, setting this " +
     "to 'on' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.";
 
-  private readonly ALLOW_ONLY_ON_SUCCESS_HELP = "Only allow stage to be scheduled if the previous stage run is successful.";
+  static readonly ALLOW_ONLY_ON_SUCCESS_HELP = "Only allow stage to be scheduled if the previous stage run is successful.";
 
   view(vnode: m.Vnode<Attrs>) {
     const stage = vnode.attrs.stage();
@@ -44,12 +44,12 @@ export class StageEditor extends MithrilViewComponent<Attrs> {
                  errorText={stage.errors().errorsForDisplay("name")}
                  property={stage.name}/>
 
-      <SwitchBtn label={["Trigger completion of previous stage:", <Help content={this.APPROVAL_TYPE_HELP}/>]}
+      <SwitchBtn label={["Trigger completion of previous stage:", <Help content={StageEditor.APPROVAL_TYPE_HELP}/>]}
                  field={stage.approval().typeAsStream()}
                  small={true}
                  onclick={StageEditor.approvalChange.bind(this, stage)}/>
 
-      <CheckboxField label={["Allow Only On Success", <Help content={this.ALLOW_ONLY_ON_SUCCESS_HELP}/>]}
+      <CheckboxField label={["Allow Only On Success", <Help content={StageEditor.ALLOW_ONLY_ON_SUCCESS_HELP}/>]}
                      dataTestId={"allow-only-on-success-checkbox"}
                      property={stage.approval().allowOnlyOnSuccess}/>
 

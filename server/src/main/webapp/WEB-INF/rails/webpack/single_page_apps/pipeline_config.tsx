@@ -23,7 +23,7 @@ import {MaterialsTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/mat
 import {ParametersTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/parameters_tab";
 import {ProjectManagementTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/project_management_tab";
 import {StagesTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/stages_tab";
-import {StageSettings} from "views/pages/clicky_pipeline_config/tabs/stage/settings";
+import {StageSettingsTab} from "views/pages/clicky_pipeline_config/tabs/stage/settings";
 
 class RedirectToGeneralTab extends PipelineConfigPage<any> {
 
@@ -46,7 +46,7 @@ export class PipelineConfigSPA extends RoutedSinglePageApp {
         new ParametersTab()
       ),
       "/:pipeline_name/:stage_name/:tab_name": new PipelineConfigPage(
-        new StageSettings()
+        new StageSettingsTab()
       ),
       "/:pipeline_name/:stage_name/:job_name/:tab_name": new PipelineConfigPage()
     });

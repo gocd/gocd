@@ -18,19 +18,57 @@ import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import {Form} from "views/components/forms/form";
+import {CheckboxField, TextField} from "views/components/forms/input_fields";
+import {SwitchBtn} from "views/components/switch";
+import {Help} from "views/components/tooltip";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/tab_widget";
+import {StageEditor} from "views/pages/clicky_pipeline_config/widgets/stage_editor";
 
-export class StageSettings extends TabWidget<Stage> {
+export class StageSettingsTab extends TabWidget<Stage> {
   name(): string {
     return "Stage Settings";
   }
 
-  protected renderer(entity: Stage, templateConfig: TemplateConfig) {
-    return <div>Stage kasdksdfjsdhfk dsfhdskfhkds fkdshfkdshfksdhfkj sfhkdshfkdsfhdksfhk</div>;
+  protected renderer(stage: Stage, templateConfig: TemplateConfig) {
+    return <Form compactForm={true}>
+      <TextField label={"Stage name"}
+                 required={true}
+                 dataTestId={"stage-name-input"}
+                 errorText={stage.errors().errorsForDisplay("name")}
+                 property={stage.name}/>
+
+      <SwitchBtn label={["Trigger completion of previous stage:", <Help content={StageEditor.APPROVAL_TYPE_HELP}/>]}
+                 field={stage.approval().typeAsStream()}
+                 small={true}
+                 onclick={StageSettingsTab.approvalChange.bind(this, stage)}/>
+
+      <CheckboxField label={["Allow only on success", <Help content={StageEditor.ALLOW_ONLY_ON_SUCCESS_HELP}/>]}
+                     dataTestId={"allow-only-on-success-checkbox"}
+                     property={stage.approval().allowOnlyOnSuccess}/>
+
+      <CheckboxField label={["Fetch materials", <Help content={"Perform material updates or checkouts"}/>]}
+                     dataTestId={"fetch-materials-checkbox"}
+                     property={stage.fetchMaterials}/>
+      <CheckboxField label={["Never cleanup artifacts", <Help
+        content={"Never cleanup artifacts for this stage, if purging artifacts is configured at the Server Level"}/>]}
+                     dataTestId={"never-cleanup-artifacts-checkbox"}
+                     property={stage.neverCleanupArtifacts}/>
+
+      <CheckboxField label={["Never cleanup artifacts",
+        <Help content={"Remove all files/directories in the working directory on the agent"}/>]}
+                     dataTestId={"clean-working-directory-checkbox"}
+                     property={stage.cleanWorkingDirectory}/>
+    </Form>;
   }
 
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): Stage {
     return pipelineConfig.stages().findByName(routeParams.stage_name!)!;
+  }
+
+  private static approvalChange(stage: Stage, e: MouseEvent) {
+    const checkbox = e.currentTarget as HTMLInputElement;
+    stage.approval().typeAsStream()(checkbox.checked);
   }
 }

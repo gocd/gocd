@@ -193,7 +193,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
       const parts = routeInfo.route.split("/");
       parts.pop();
       parts.push(_.snakeCase(this.tabs[0].name()));
-      m.route.set(`/${parts.join("/")}`);
+      m.route.set(`${parts.join("/")}`);
     }
   }
 }

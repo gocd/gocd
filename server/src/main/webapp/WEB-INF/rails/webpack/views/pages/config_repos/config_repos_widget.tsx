@@ -52,7 +52,7 @@ class HeaderWidget extends MithrilViewComponent<SingleAttrs> {
   private static readonly MAX_USERNAME_AND_REVISION_LENGTH: number = 40;
 
   view(vnode: m.Vnode<SingleAttrs>): m.Children | void | null {
-    const repo = vnode.attrs.vm.repo;
+    const repo        = vnode.attrs.vm.repo;
     const materialUrl = repo.material()!.materialUrl();
     return [
       this.pluginIcon(vnode.attrs.pluginInfo),
@@ -70,11 +70,11 @@ class HeaderWidget extends MithrilViewComponent<SingleAttrs> {
     if (lastParsedCommit && lastParsedCommit.latestParsedModification) {
       const latestParsedModification = lastParsedCommit.latestParsedModification;
       const comment                  = _.truncate(latestParsedModification.comment,
-                                                  {length: HeaderWidget.MAX_COMMIT_MSG_LENGTH});
+        {length: HeaderWidget.MAX_COMMIT_MSG_LENGTH});
       const username                 = _.truncate(latestParsedModification.username,
-                                                  {length: HeaderWidget.MAX_USERNAME_AND_REVISION_LENGTH});
+        {length: HeaderWidget.MAX_USERNAME_AND_REVISION_LENGTH});
       const revision                 = _.truncate(latestParsedModification.revision,
-                                                  {length: HeaderWidget.MAX_USERNAME_AND_REVISION_LENGTH});
+        {length: HeaderWidget.MAX_USERNAME_AND_REVISION_LENGTH});
 
       parseStatus = (
         <div class={styles.commitInfo}>
@@ -140,8 +140,10 @@ class CRPanelActions extends MithrilViewComponent<ActionsAttrs> {
                  title={vnode.attrs.title}
                  disabled={!vnode.attrs.can_administer}
                  onclick={(e: MouseEvent) => vm.reparseRepo(e).then(vnode.attrs.flushEtag)}/>
-        <Edit data-test-id="config-repo-edit" title={vnode.attrs.title} disabled={!vnode.attrs.can_administer} onclick={vm.showEditModal}/>
-        <Delete data-test-id="config-repo-delete" title={vnode.attrs.title} disabled={!vnode.attrs.can_administer} onclick={vm.showDeleteModal}/>
+        <Edit data-test-id="config-repo-edit" title={vnode.attrs.title} disabled={!vnode.attrs.can_administer}
+              onclick={vm.showEditModal}/>
+        <Delete data-test-id="config-repo-delete" title={vnode.attrs.title} disabled={!vnode.attrs.can_administer}
+                onclick={vm.showDeleteModal}/>
       </IconGroup>];
   }
 }
@@ -153,7 +155,7 @@ interface WarningAttrs {
 
 class MaybeWarning extends MithrilViewComponent<WarningAttrs> {
   view(vnode: m.Vnode<WarningAttrs>) {
-    const parseInfo = vnode.attrs.parseInfo;
+    const parseInfo  = vnode.attrs.parseInfo;
     const pluginInfo = vnode.attrs.pluginInfo;
 
     if (!pluginInfo) {
@@ -178,9 +180,9 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
 
   oninit(vnode: m.Vnode<SingleAttrs, {}>) {
     const {sm, vm, pluginInfo} = vnode.attrs;
-    const repo = vm.repo;
-    const parseInfo = repo.lastParse();
-    const linked = sm.getTarget() === repo.id();
+    const repo                 = vm.repo;
+    const parseInfo            = repo.lastParse();
+    const linked               = sm.getTarget() === repo.id();
 
     // set the initial state of the collapsible panel; alternative to setting `expanded` attribute
     // and, perhaps, more obvious that this is only matters for first load
@@ -189,10 +191,10 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
 
   view(vnode: m.Vnode<SingleAttrs>): m.Children | void | null {
     const {sm, vm, pluginInfo} = vnode.attrs;
-    const repo = vm.repo;
-    const parseInfo = repo.lastParse()!;
-    const maybeWarning = <MaybeWarning parseInfo={parseInfo} pluginInfo={pluginInfo}/>;
-    const configRepoHasErrors = !pluginInfo || _.isEmpty(parseInfo) || !!parseInfo!.error();
+    const repo                 = vm.repo;
+    const parseInfo            = repo.lastParse()!;
+    const maybeWarning         = <MaybeWarning parseInfo={parseInfo} pluginInfo={pluginInfo}/>;
+    const configRepoHasErrors  = !pluginInfo || _.isEmpty(parseInfo) || !!parseInfo!.error();
 
     const title = !repo.canAdminister() ? "You are not authorised to perform this action!" : "";
 
@@ -224,7 +226,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
       if (this.expanded()) {
         vm.notify("expand");
       }
-      return <CRResult vm={vm} />;
+      return <CRResult vm={vm}/>;
     }
   }
 
@@ -313,7 +315,7 @@ export class ConfigReposWidget extends MithrilViewComponent<CollectionAttrs> {
 
     return <div>
       {models.map((vm: any) => {
-        const repo = vm.repo;
+        const repo       = vm.repo;
         const pluginInfo = _.find(vnode.attrs.pluginInfos(), {id: repo.pluginId()});
         return <ConfigRepoWidget key={repo.id()}
                                  flushEtag={vnode.attrs.flushEtag}

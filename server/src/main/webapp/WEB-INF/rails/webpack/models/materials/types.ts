@@ -217,7 +217,10 @@ export class Filter {
   }
 
   static fromJSON(filter: FilterJSON) {
-    return new Filter(filter.ignore);
+    if (filter) {
+      return new Filter(filter.ignore);
+    }
+    return new Filter([]);
   }
 }
 

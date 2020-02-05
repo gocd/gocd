@@ -138,10 +138,10 @@ export class EnvironmentVariableWithOrigin extends EnvironmentVariable {
 
   static fromJSON(data: EnvironmentEnvironmentVariableJSON) {
     return new EnvironmentVariableWithOrigin(data.name,
-                                             Origin.fromJSON(data.origin),
-                                             data.value,
-                                             data.secure,
-                                             data.encrypted_value);
+      Origin.fromJSON(data.origin),
+      data.value,
+      data.secure,
+      data.encrypted_value);
   }
 
   editable() {
@@ -157,10 +157,10 @@ export class EnvironmentVariableWithOrigin extends EnvironmentVariable {
 
   clone() {
     return new EnvironmentVariableWithOrigin(this.name(),
-                                             this.origin().clone(),
-                                             this.value(),
-                                             this.secure(),
-                                             this.encryptedValue().getOriginal());
+      this.origin().clone(),
+      this.value(),
+      this.secure(),
+      this.encryptedValue().getOriginal());
   }
 }
 

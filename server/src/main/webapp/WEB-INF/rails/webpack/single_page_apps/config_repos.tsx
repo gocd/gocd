@@ -20,8 +20,8 @@ import {ConfigReposPage} from "views/pages/config_repos";
 export class ConfigReposSPA extends RoutedSinglePageApp {
   constructor() {
     super({
-      "/": ConfigReposPage,
-      "/:id": ConfigReposPage
+      "/": new ConfigReposPage(),
+      "/:id": new ConfigReposPage()
     });
   }
 }

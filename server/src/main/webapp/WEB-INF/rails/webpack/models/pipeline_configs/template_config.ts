@@ -18,13 +18,14 @@ import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {Stages} from "models/pipeline_activity/pipeline_activity";
+import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {PipelineParameter} from "models/pipeline_configs/parameter";
+import {Stage} from "models/pipeline_configs/stage";
 
 export class TemplateConfig {
   readonly name       = Stream<string>();
   readonly parameters = Stream<PipelineParameter[]>();
-  readonly stages     = Stream<Stages>();
+  readonly stages     = Stream<NameableSet<Stage>>();
 
   constructor(name: string, parameters: PipelineParameter[]) {
     this.name(name);

@@ -27,7 +27,7 @@ import {TextField} from "views/components/forms/input_fields";
 import {Table} from "views/components/table";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
-import css from "./environment_variables_editor.scss";
+import css from "./parameters_editor.scss";
 
 interface Attrs {
   parameters: Stream<PipelineParameter[]>;
@@ -52,18 +52,25 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
           <div class={css.envVars}>
             <label>
               Parameters
-              <Tooltip.Help size={TooltipSize.medium} content={<span>Parameters help reduce repetition within your configurations and combined with templates allow you to setup complex configurations. <a href="https://docs.gocd.org/current/configuration/admin_use_parameters_in_configuration.html">Read more</a></span>} />
+              <Tooltip.Help size={TooltipSize.medium}
+                            content={<span>Parameters help reduce repetition within your configurations and combined with templates allow you to setup complex configurations. <a
+                              href="https://docs.gocd.org/current/configuration/admin_use_parameters_in_configuration.html">Read more</a></span>}/>
             </label>
-            <Buttons.Cancel onclick={this.add.bind(this, vnode.attrs.paramList)} small={true} icon={Buttons.ButtonIcon.ADD} />
+            <Buttons.Cancel onclick={this.add.bind(this, vnode.attrs.paramList)} small={true}
+                            icon={Buttons.ButtonIcon.ADD}/>
             <Table headers={["name", "value", ""]} data={
               _.map(vnode.attrs.paramList(), (param, i) => {
                 return [
-                  <IdentifierInputField dataTestId={`form-field-input-param-name-${i}`} property={param.name} errorText={param.errors().errorsForDisplay("name")} onchange={this.update.bind(this, vnode.attrs.parameters, vnode.attrs.paramList)} />,
-                  <TextField dataTestId={`form-field-input-param-value-${i}`} property={param.value} onchange={this.update.bind(this, vnode.attrs.parameters, vnode.attrs.paramList)} />,
-                  <Buttons.Cancel onclick={this.remove.bind(this, vnode.attrs.parameters, vnode.attrs.paramList, param)} small={true} icon={Buttons.ButtonIcon.REMOVE} />
+                  <IdentifierInputField dataTestId={`form-field-input-param-name-${i}`} property={param.name}
+                                        errorText={param.errors().errorsForDisplay("name")}
+                                        onchange={this.update.bind(this, vnode.attrs.parameters, vnode.attrs.paramList)}/>,
+                  <TextField dataTestId={`form-field-input-param-value-${i}`} property={param.value}
+                             onchange={this.update.bind(this, vnode.attrs.parameters, vnode.attrs.paramList)}/>,
+                  <Buttons.Cancel onclick={this.remove.bind(this, vnode.attrs.parameters, vnode.attrs.paramList, param)}
+                                  small={true} icon={Buttons.ButtonIcon.REMOVE}/>
                 ];
               })
-            } />
+            }/>
           </div>
         </Form>
       </FormBody>
@@ -71,7 +78,9 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
   }
 
   update(params: Stream<PipelineParameter[]>, paramsList: Stream<PipelineParameter[]>, event?: Event) {
-    if (event) {event.stopPropagation(); }
+    if (event) {
+      event.stopPropagation();
+    }
     params(paramsList().filter((p) => !p.isEmpty()));
     this.notifyChange();
   }
@@ -82,7 +91,9 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
   }
 
   remove(params: Stream<PipelineParameter[]>, paramsList: Stream<PipelineParameter[]>, paramToDelete: PipelineParameter, event?: Event) {
-    if (event) {event.stopPropagation(); }
+    if (event) {
+      event.stopPropagation();
+    }
 
     paramsList(paramsList().filter((p) => p !== paramToDelete));
 

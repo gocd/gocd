@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import Stream from "mithril/stream";
-import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
-import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {TabWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/tab_widget";
+import {StagesWidget} from "views/pages/clicky_pipeline_config/widgets/stages_widget";
 import {TemplateEditor} from "views/pages/pipelines/template_editor";
 
 export class StagesTab extends TabWidget {
@@ -33,21 +30,8 @@ export class StagesTab extends TabWidget {
     return [
       <TemplateEditor pipelineConfig={entity} isUsingTemplate={entity.isUsingTemplate()}
                       paramList={entity.parameters}/>,
-      <StagesWidget stages={entity.stages} isUsingTemplate={entity.isUsingTemplate()}/>
+      <StagesWidget stages={entity.stages} isUsingTemplate={entity.isUsingTemplate()}
+                    isEditable={!entity.origin().isDefinedInConfigRepo()}/>
     ];
-  }
-}
-
-export interface Attrs {
-  stages: Stream<NameableSet<Stage>>;
-  isUsingTemplate: Stream<boolean>;
-}
-
-export class StagesWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs, this>) {
-    if (vnode.attrs.isUsingTemplate()) {
-      return;
-    }
-    return <div>Using stages</div>;
   }
 }

@@ -18,15 +18,17 @@
 import classnames from "classnames";
 import {override} from "helpers/css_proxies";
 import {sha256} from "helpers/digest";
+// components
+import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-
-// components
-import {MithrilComponent} from "jsx/mithril-component";
+import {EnvironmentVariablesWidget} from "views/components/environment_variables";
+// CSS
+import formCss from "views/components/forms/forms.scss";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
+import * as defaultStyles from "views/pages/pac/styles.scss";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
-import {EnvironmentVariablesEditor} from "views/pages/pipelines/environment_variables_editor";
 import {JobEditor} from "views/pages/pipelines/job_editor";
 import {MaterialEditor} from "views/pages/pipelines/material_editor";
 import {PipelineConfigVMAware} from "views/pages/pipelines/pipeline_config_view_model";
@@ -34,10 +36,6 @@ import {PipelineInfoEditor} from "views/pages/pipelines/pipeline_info_editor";
 import {StageEditor} from "views/pages/pipelines/stage_editor";
 import {TaskTerminalField} from "views/pages/pipelines/task_editor";
 import {UserInputPane} from "views/pages/pipelines/user_input_pane";
-
-// CSS
-import formCss from "views/components/forms/forms.scss";
-import * as defaultStyles from "views/pages/pac/styles.scss";
 import * as uipStyles from "views/pages/pipelines/user_input_pane.scss";
 
 const uipCss: typeof uipStyles = override(uipStyles, {
@@ -61,18 +59,17 @@ export class BuilderForm extends MithrilComponent<Attrs> {
   oncreate(vnode: m.VnodeDOM<Attrs, {}>) {
     vnode.dom.addEventListener("change", (e) => {
       const vm = vnode.attrs.vm;
-      sha256(JSON.stringify(vm.pipeline.toApiPayload())).
-        then((hash) => {
-          if ("function" === typeof vnode.attrs.onContentChange) {
-            vnode.attrs.onContentChange(hash !== this.hash());
-            this.hash(hash);
-          }
-        }).catch((err) => console.warn(err)); // tslint:disable-line no-console
+      sha256(JSON.stringify(vm.pipeline.toApiPayload())).then((hash) => {
+        if ("function" === typeof vnode.attrs.onContentChange) {
+          vnode.attrs.onContentChange(hash !== this.hash());
+          this.hash(hash);
+        }
+      }).catch((err) => console.warn(err)); // tslint:disable-line no-console
     });
   }
 
   view(vnode: m.Vnode<Attrs>) {
-    const { pipeline, material, isUsingTemplate } = vnode.attrs.vm;
+    const {pipeline, material, isUsingTemplate} = vnode.attrs.vm;
 
     return <div class={defaultStyles.builderForm}>
       <UserInputPane css={uipCss}>
@@ -99,20 +96,21 @@ export class BuilderForm extends MithrilComponent<Attrs> {
 
 class PipelineBodyEditor extends MithrilComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    const { stage, job } = vnode.attrs.vm;
+    const {stage, job} = vnode.attrs.vm;
 
     return vnode.attrs.vm.whenTemplateAbsent(() => [
       <UserInputPane css={uipCss}>
         <h3 class={defaultStyles.builderSectionHeading}>Stage Details</h3>
-        <StageEditor stage={stage} />
+        <StageEditor stage={stage}/>
       </UserInputPane>,
 
       <UserInputPane css={uipCss}>
         <h3 class={defaultStyles.builderSectionHeading}>Job and Tasks</h3>
         <JobEditor job={job}/>
-        <TaskTerminalField label="Type your tasks below at the prompt" property={job.tasks} errorText={job.errors().errorsForDisplay("tasks")} required={true}/>
+        <TaskTerminalField label="Type your tasks below at the prompt" property={job.tasks}
+                           errorText={job.errors().errorsForDisplay("tasks")} required={true}/>
         <AdvancedSettings forceOpen={_.some(job.environmentVariables(), (env) => env.errors().hasErrors())}>
-          <EnvironmentVariablesEditor variables={job.environmentVariables}/>
+          <EnvironmentVariablesWidget environmentVariables={job.environmentVariables()}/>
         </AdvancedSettings>
       </UserInputPane>
     ]);

@@ -26,18 +26,35 @@ describe("PipelineNavigation", () => {
 
   afterEach(helper.unmount.bind(helper));
 
-  it("should render pipeline, stages and jobs", () => {
+  it("should render collapsed pipeline name", () => {
     const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
 
     mount(pipelineConfig);
 
     expect(helper.byTestId("tree-node-test")).toBeInDOM();
     expect(helper.byTestId("tree-node-test")).toHaveText("Test");
+  });
+
+  it("should render stages on click of pipeline name", () => {
+    const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
+
+    mount(pipelineConfig);
+
+    helper.clickByTestId("nav-test-icon");
 
     expect(helper.byTestId("tree-node-stageone")).toBeInDOM();
-    expect(helper.byTestId("tree-node-jobone")).toBeInDOM();
     expect(helper.byTestId("tree-node-stageone")).toHaveText("StageOne");
-    expect(helper.byTestId("tree-node-jobone")).toHaveText("JobOne");
+
+    expect(helper.byTestId("tree-node-stagetwo")).toBeInDOM();
+    expect(helper.byTestId("tree-node-stagetwo")).toHaveText("StageTwo");
+  });
+
+  it("should render jobs on click of stage name", () => {
+    const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
+    mount(pipelineConfig);
+    helper.clickByTestId("nav-test-icon");
+
+    helper.clickByTestId("nav-stagetwo-icon");
 
     expect(helper.byTestId("tree-node-stagetwo")).toBeInDOM();
     expect(helper.byTestId("tree-node-jobone")).toBeInDOM();
@@ -50,7 +67,12 @@ describe("PipelineNavigation", () => {
   });
 
   function mount(pipelineConfig: PipelineConfig) {
+    const routeInfo = {
+      route: "up42/general",
+      params: {pipeline_name: pipelineConfig.name(), tab_name: "general"}
+    };
     helper.mount(() => <NavigationWidget pipelineConfig={pipelineConfig}
+                                         routeInfo={routeInfo}
                                          changeRoute={changeRoute}/>);
   }
 });

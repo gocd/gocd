@@ -19,6 +19,7 @@ import {EnvironmentVariable, EnvironmentVariables} from "models/environment_vari
 import s from "underscore.string";
 import {ButtonIcon, Secondary} from "views/components/buttons";
 import {EnvironmentVariableWidget} from "./environment_variable_widget";
+import style from "./index.scss";
 
 export interface GroupedEnvironmentVariablesAttrs {
   title: string;
@@ -34,7 +35,7 @@ export class GroupedEnvironmentVariables extends MithrilComponent<GroupedEnviron
 
   view(vnode: m.Vnode<GroupedEnvironmentVariablesAttrs>): m.Children {
     return <div>
-      <h4 data-test-id={`${s.slugify(vnode.attrs.title)}-title`}>{vnode.attrs.title}</h4>
+      <h4 class={style.groupHeader} data-test-id={`${s.slugify(vnode.attrs.title)}-title`}>{vnode.attrs.title}</h4>
       {vnode.attrs.environmentVariables.map((envVar) => this.renderEnvironmentVariableWidget(vnode, envVar))}
       <Secondary small={true} icon={ButtonIcon.ADD} data-test-id={`add-${s.slugify(vnode.attrs.title)}-btn`}
                  onclick={vnode.attrs.onAdd.bind(this)}>

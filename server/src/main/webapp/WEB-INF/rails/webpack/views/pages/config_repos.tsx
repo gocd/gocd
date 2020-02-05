@@ -99,8 +99,7 @@ export class ConfigReposPage extends Page<null, State> {
       <ConfigReposWidget models={vnode.state.filteredModels}
                          flushEtag={vnode.state.flushEtag}
                          pluginInfos={vnode.state.pluginInfos}
-                         sm={sm}
-      />
+                         sm={sm}/>
     </div>;
   }
 
@@ -116,7 +115,7 @@ export class ConfigReposPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>) {
-    const state = vnode.state;
+    const state    = vnode.state;
     this.pageState = PageState.LOADING;
 
     return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO}), ConfigReposCRUD.all(this.etag())]).then((args) => {

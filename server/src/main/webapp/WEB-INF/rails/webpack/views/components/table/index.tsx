@@ -200,7 +200,7 @@ export class Table extends MithrilComponent<Attrs, State> {
               <td
                 data-id={index}
                 onmouseover={Table.disableEvent.bind(this)}>
-                <i class={styles.dragIcon}></i>
+                <i class={styles.dragIcon} data-test-id={"table-row-drag-icon"}/>
               </td>
               {_.map(row,
                      ((cell) => <td draggable={false}

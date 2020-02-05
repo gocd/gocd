@@ -31,6 +31,18 @@ interface PageMeta {
   pipelineName: string;
 }
 
+export interface RouteInfo<T> {
+  route: string;
+  params: T;
+}
+
+export interface PipelineConfigRouteParams {
+  pipeline_name: string;
+  job_name?: string;
+  stage_name?: string;
+  tab_name: string;
+}
+
 export interface ChangeRouteEvent {
   newRoute: string;
 }
@@ -85,6 +97,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
         <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/>
         <div class={styles.navigation}>
           <NavigationWidget pipelineConfig={this.pipelineConfig!}
+                            routeInfo={this.routeInfo()}
                             changeRoute={this.changeRoute.bind(this)}/>
         </div>
 
@@ -121,6 +134,10 @@ export class PipelineConfigPage<T> extends Page<null, T> {
 
   protected getMeta(): PageMeta {
     return super.getMeta() as PageMeta;
+  }
+
+  private routeInfo(): RouteInfo<PipelineConfigRouteParams> {
+    return {route: m.route.get(), params: m.route.param()};
   }
 
   private onSuccess(successResponse: SuccessResponse<string>) {

@@ -79,7 +79,7 @@ describe("PipelineConfig View Model", () => {
       {
         payload: {
           name: "** UNNAMED PIPELINE **",
-          materials: [{attributes: {password: ""}, type: "git"}],
+          materials: [{attributes: {invert_filter: false, password: ""}, type: "git"}],
           stages: [],
           parameters: []
         }
@@ -90,31 +90,31 @@ describe("PipelineConfig View Model", () => {
 
 function configRepoPlugin(id: string, supportExport: boolean) {
   return PluginInfo.fromJSON({
-                               _links: pluginImageLink(),
-                               id,
-                               about: {
-                                 name: id,
-                                 version: "0.6.1",
-                                 target_go_version: "16.12.0",
-                                 description: "Docker Based Elastic Agent Plugins for GoCD",
-                                 target_operating_systems: [],
-                                 vendor: {
-                                   name: "GoCD Contributors",
-                                   url: "https://github.com/gocd-contrib/docker-elastic-agents"
-                                 }
-                               },
-                               status: {state: "active"},
-                               extensions: [
-                                 {
-                                   type: "configrepo",
-                                   plugin_settings: {},
-                                   capabilities: {
-                                     supports_pipeline_export: supportExport,
-                                     supports_parse_content: true
-                                   }
-                                 } as ConfigRepoExtensionJSON
-                               ],
-                               plugin_file_location: "/tmp/foo",
-                               bundled_plugin: false
-                             }) as PluginInfo;
+    _links: pluginImageLink(),
+    id,
+    about: {
+      name: id,
+      version: "0.6.1",
+      target_go_version: "16.12.0",
+      description: "Docker Based Elastic Agent Plugins for GoCD",
+      target_operating_systems: [],
+      vendor: {
+        name: "GoCD Contributors",
+        url: "https://github.com/gocd-contrib/docker-elastic-agents"
+      }
+    },
+    status: {state: "active"},
+    extensions: [
+      {
+        type: "configrepo",
+        plugin_settings: {},
+        capabilities: {
+          supports_pipeline_export: supportExport,
+          supports_parse_content: true
+        }
+      } as ConfigRepoExtensionJSON
+    ],
+    plugin_file_location: "/tmp/foo",
+    bundled_plugin: false
+  }) as PluginInfo;
 }

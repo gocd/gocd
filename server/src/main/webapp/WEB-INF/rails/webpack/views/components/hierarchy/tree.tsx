@@ -130,8 +130,10 @@ export class CollapsibleTree extends Tree<CollapsibleAttrs> {
     }
 
     if (this.hideChildren()) {
-      return <CaretRight iconOnly={true} onclick={this.toggle.bind(this)}/>;
+      return <CaretRight iconOnly={true} data-test-id={`${vnode.attrs.dataTestId}-icon`}
+                         onclick={this.toggle.bind(this)}/>;
     }
-    return <CaretDown iconOnly={true} onclick={this.toggle.bind(this)}/>;
+    return <CaretDown iconOnly={true} data-test-id={`${vnode.attrs.dataTestId}-icon`}
+                      onclick={this.toggle.bind(this)}/>;
   }
 }

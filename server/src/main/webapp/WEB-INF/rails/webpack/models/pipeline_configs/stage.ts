@@ -137,6 +137,10 @@ export class Stage extends ValidatableMixin {
     return stage;
   }
 
+  firstJob(): Job {
+    return this.jobs().values().next().value;
+  }
+
   toApiPayload() {
     return JsonUtils.toSnakeCasedObject(this);
   }

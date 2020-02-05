@@ -63,13 +63,13 @@ describe("CollapsibleTree", () => {
       <CollapsibleTree datum="ChildOne" dataTestId={"first-child"}/>
     </CollapsibleTree>);
 
-    const caretDownIcon = helper.byTestId("Caret Down-icon");
+    const caretDownIcon = helper.byTestId("root-icon");
     expect(helper.byTestId("first-child")).toBeInDOM();
     expect(caretDownIcon).toHaveAttr("title", "Caret Down");
 
     helper.click(caretDownIcon);
 
-    const caretRightIcon = helper.byTestId("Caret Right-icon");
+    const caretRightIcon = helper.byTestId("root-icon");
     expect(caretDownIcon).not.toBeInDOM();
     expect(helper.byTestId("first-child")).not.toBeInDOM();
     expect(caretRightIcon).toHaveAttr("title", "Caret Right");
@@ -78,7 +78,7 @@ describe("CollapsibleTree", () => {
 
     expect(helper.byTestId("first-child")).toBeInDOM();
     expect(caretRightIcon).not.toBeInDOM();
-    expect(helper.byTestId("Caret Down-icon")).toBeInDOM();
+    expect(helper.byTestId("root-icon")).toBeInDOM();
   });
 
   it("renders optional children label if provided", () => {

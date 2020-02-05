@@ -48,6 +48,10 @@ export class PipelineConfigTestData {
       .build();
   }
 
+  static stage(stageName: string, ...jobs: string[]) {
+    return new Builder().stageWithJobs(stageName, ...jobs).build().stages[0];
+  }
+
   private static git() {
     return {
       attributes: {

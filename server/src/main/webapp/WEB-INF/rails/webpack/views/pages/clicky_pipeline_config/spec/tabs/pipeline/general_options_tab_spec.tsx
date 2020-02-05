@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
-import {TestHelper} from "views/pages/spec/test_helper";
-import {GeneralOptionsTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/general_options_tab";
+import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import {GeneralOptionsTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/general_options_tab";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("GeneralOptionsTag", () => {
   const helper = new TestHelper();
@@ -50,8 +52,19 @@ describe("GeneralOptionsTag", () => {
     });
 
     it("should render approval from template when template is configured", () => {
-      const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTemplate());
-      mount(pipelineConfig);
+      const pipelineConfig  = PipelineConfig.fromJSON(PipelineConfigTestData.withTemplate());
+      const templateConfig  = new TemplateConfig(pipelineConfig.template()!, []);
+      const stageInTemplate = new Stage("StageOne");
+      templateConfig.stages(new NameableSet([stageInTemplate]));
+      mount(pipelineConfig, templateConfig);
+
+      expect(stageInTemplate.approval().typeAsString()).toEqual('manual');
+      expect(helper.byTestId("automatic-pipeline-scheduling")).not.toBeChecked();
+
+      helper.clickByTestId("automatic-pipeline-scheduling");
+
+      expect(helper.byTestId("automatic-pipeline-scheduling")).toBeChecked();
+      expect(stageInTemplate.approval().typeAsString()).toEqual("success");
     });
   });
 

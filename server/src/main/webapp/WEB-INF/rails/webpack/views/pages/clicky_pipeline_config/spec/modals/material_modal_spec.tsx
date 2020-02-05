@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 import {GitMaterialAttributes, Material} from "models/materials/types";
-import {MaterialModal} from "views/pages/clicky_pipeline_config/modal/material_modal";
+import {MaterialModal} from "views/pages/clicky_pipeline_config/modal/add_or_edit_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("AddMaterialModal", () => {
@@ -45,7 +45,7 @@ describe("AddMaterialModal", () => {
         const url = helper.byTestId("form-field-input-repository-url");
         helper.oninput(url, "http://foo.bar");
 
-        addMaterialModal.addOrUpdateMaterial();
+        addMaterialModal.addOrUpdateEntity();
 
         expect(onSuccessfulAdd).toHaveBeenCalled();
       });
@@ -55,7 +55,7 @@ describe("AddMaterialModal", () => {
         helper.oninput(url, "http://foo.bar");
         const closeSpyFunction = spyOn(addMaterialModal, "close");
 
-        addMaterialModal.addOrUpdateMaterial();
+        addMaterialModal.addOrUpdateEntity();
 
         expect(closeSpyFunction).toHaveBeenCalled();
       });
@@ -66,7 +66,7 @@ describe("AddMaterialModal", () => {
         const url = helper.byTestId("form-field-input-repository-url");
         helper.oninput(url, "");
 
-        addMaterialModal.addOrUpdateMaterial();
+        addMaterialModal.addOrUpdateEntity();
 
         expect(onSuccessfulAdd).not.toHaveBeenCalled();
       });
@@ -76,7 +76,7 @@ describe("AddMaterialModal", () => {
         helper.oninput(url, "");
         const closeSpyFunction = spyOn(addMaterialModal, "close");
 
-        addMaterialModal.addOrUpdateMaterial();
+        addMaterialModal.addOrUpdateEntity();
 
         expect(closeSpyFunction).not.toHaveBeenCalled();
       });
@@ -113,7 +113,7 @@ describe("EditMaterialModal", () => {
         const url = helper.byTestId("form-field-input-repository-url");
         helper.oninput(url, "http://foo.bar");
 
-        editMaterialModal.addOrUpdateMaterial();
+        editMaterialModal.addOrUpdateEntity();
 
         expect(onSuccessfulAdd).toHaveBeenCalled();
       });
@@ -123,7 +123,7 @@ describe("EditMaterialModal", () => {
         const url              = helper.byTestId("form-field-input-repository-url");
         helper.oninput(url, "http://foo.bar");
 
-        editMaterialModal.addOrUpdateMaterial();
+        editMaterialModal.addOrUpdateEntity();
 
         expect(closeSpyFunction).toHaveBeenCalled();
       });
@@ -132,7 +132,7 @@ describe("EditMaterialModal", () => {
     describe("invalid material", () => {
       it("should not update material", () => {
         helper.oninput(helper.byTestId("form-field-input-repository-url"), "");
-        editMaterialModal.addOrUpdateMaterial();
+        editMaterialModal.addOrUpdateEntity();
 
         expect(onSuccessfulAdd).not.toHaveBeenCalled();
       });
@@ -142,7 +142,7 @@ describe("EditMaterialModal", () => {
 
         const closeSpyFunction = spyOn(editMaterialModal, "close");
 
-        editMaterialModal.addOrUpdateMaterial();
+        editMaterialModal.addOrUpdateEntity();
 
         expect(closeSpyFunction).not.toHaveBeenCalled();
       });

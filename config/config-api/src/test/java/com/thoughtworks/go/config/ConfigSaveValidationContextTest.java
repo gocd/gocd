@@ -27,12 +27,14 @@ import com.thoughtworks.go.domain.packagerepository.Packages;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,7 +61,7 @@ public class ConfigSaveValidationContextTest {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         HgMaterialConfig hg = hg("url", null);
         for (int i = 0; i < 10; i++) {
-            PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline" + i, new MaterialConfigs(hg));
+            PipelineConfig pipelineConfig = pipelineConfig("pipeline" + i, new MaterialConfigs(hg));
             cruiseConfig.addPipeline("defaultGroup", pipelineConfig);
         }
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
@@ -202,5 +204,21 @@ public class ConfigSaveValidationContextTest {
             assertThat(policyValidationContext.getAllowedTypes()).isEqualTo(roleConfig.allowedTypes());
 
         }
+    }
+
+    @Test
+    void shouldReturnThePipelineNamesWithTheMaterialFingerprint() {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        HgMaterialConfig hg = hg("url", null);
+        for (int i = 0; i < 5; i++) {
+            PipelineConfig pipelineConfig = pipelineConfig("pipeline" + i, new MaterialConfigs(hg));
+            cruiseConfig.addPipeline("defaultGroup", pipelineConfig);
+        }
+        cruiseConfig.addPipeline("defaultGroup", pipelineConfig("another-pipeline", new MaterialConfigs(hg("url2", "folder"))));
+        ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
+
+        Map<CaseInsensitiveString, Boolean> pipelinesWithMaterial = context.getPipelineToMaterialAutoUpdateMapByFingerprint(hg.getFingerprint());
+        assertThat(pipelinesWithMaterial.size()).isEqualTo(5);
+        assertThat(pipelinesWithMaterial.keySet()).doesNotContain(new CaseInsensitiveString("another-pipeline"));
     }
 }

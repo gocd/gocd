@@ -243,7 +243,8 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
             }
             MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(fingerprint);
             if (allMaterialsByFingerPrint != null && ((ScmMaterialConfig) material).isAutoUpdateStateMismatch(allMaterialsByFingerPrint)) {
-                ((ScmMaterialConfig) material).setAutoUpdateMismatchError();
+                Map<CaseInsensitiveString, Boolean> pipelinesWithMaterial = validationContext.getPipelineToMaterialAutoUpdateMapByFingerprint(fingerprint);
+                ((ScmMaterialConfig) material).setAutoUpdateMismatchErrorWithPipelines(pipelinesWithMaterial);
             }
         }
     }

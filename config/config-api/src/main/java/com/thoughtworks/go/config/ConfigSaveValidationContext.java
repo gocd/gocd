@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @understands providing right state required to validate a given config element
@@ -281,6 +282,19 @@ public class ConfigSaveValidationContext implements ValidationContext {
         }
         MaterialConfigs matchingMaterials = fingerprintToMaterials.get(fingerprint);
         return matchingMaterials == null ? new MaterialConfigs() : matchingMaterials;
+    }
+
+    @Override
+    public Map<CaseInsensitiveString, Boolean> getPipelineToMaterialAutoUpdateMapByFingerprint(String fingerprint) {
+        Map<CaseInsensitiveString, Boolean> map = new HashMap<>();
+        getCruiseConfig().getAllPipelineConfigs().forEach(pipeline -> {
+            pipeline.materialConfigs().stream()
+                    .filter(materialConfig -> materialConfig.getFingerprint().equals(fingerprint))
+                    .findFirst()
+                    .ifPresent(expectedMaterialConfig -> map.put(pipeline.name(), expectedMaterialConfig.isAutoUpdate()));
+
+        });
+        return map;
     }
 
     private void primeForMaterialValidations() {

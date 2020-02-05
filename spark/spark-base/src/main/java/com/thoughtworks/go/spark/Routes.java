@@ -161,8 +161,8 @@ public class Routes {
 
         public static String vsm(String materialFingerprint, String revision) {
             return StrSubstitutor.replace("/materials/value_stream_map/${material_fingerprint}/${revision}", of(
-                "material_fingerprint", materialFingerprint,
-                "revision", revision));
+                    "material_fingerprint", materialFingerprint,
+                    "revision", revision));
         }
     }
 
@@ -292,7 +292,7 @@ public class Routes {
     public static class PipelineInstance {
         public static String vsm(String pipelineName, int pipelineCounter) {
             return StrSubstitutor.replace("/pipelines/value_stream_map/${pipeline_name}/${pipeline_counter}",
-                of("pipeline_name", pipelineName, "pipeline_counter", pipelineCounter));
+                    of("pipeline_name", pipelineName, "pipeline_counter", pipelineCounter));
         }
 
         public static final String BASE = "/api/pipelines";
@@ -303,8 +303,8 @@ public class Routes {
 
         public static String instance(String pipelineName, int pipelineCounter) {
             return BASE + INSTANCE_PATH
-                .replaceAll(":pipeline_name", pipelineName)
-                .replaceAll(":pipeline_counter", String.valueOf(pipelineCounter));
+                    .replaceAll(":pipeline_name", pipelineName)
+                    .replaceAll(":pipeline_counter", String.valueOf(pipelineCounter));
         }
 
         public static String history(String pipelineName) {
@@ -333,10 +333,10 @@ public class Routes {
 
         public static String self(String pipelineName, String pipelineCounter, String stageName, String stageCounter) {
             return StrSubstitutor.replace("/api/stages/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}", of(
-                "pipeline_name", pipelineName,
-                "pipeline_counter", pipelineCounter,
-                "stage_name", stageName,
-                "stage_counter", stageCounter));
+                    "pipeline_name", pipelineName,
+                    "pipeline_counter", pipelineCounter,
+                    "stage_name", stageName,
+                    "stage_counter", stageCounter));
         }
 
         public static String stageDetailTab(String pipelineName,
@@ -344,10 +344,10 @@ public class Routes {
                                             String stageName,
                                             int stageCounter) {
             return StrSubstitutor.replace("/pipelines/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}", of(
-                "pipeline_name", pipelineName,
-                "pipeline_counter", pipelineCounter,
-                "stage_name", stageName,
-                "stage_counter", stageCounter));
+                    "pipeline_name", pipelineName,
+                    "pipeline_counter", pipelineCounter,
+                    "stage_name", stageName,
+                    "stage_counter", stageCounter));
         }
 
 
@@ -367,18 +367,18 @@ public class Routes {
 
         public static String previous(String pipelineName, String stageName, String jobConfigName, long before) {
             return BASE
-                + JOB_HISTORY.replaceAll(":pipeline_name", pipelineName)
-                .replaceAll(":stage_name", stageName)
-                .replaceAll(":job_name", jobConfigName)
-                + "?before=" + before;
+                    + JOB_HISTORY.replaceAll(":pipeline_name", pipelineName)
+                    .replaceAll(":stage_name", stageName)
+                    .replaceAll(":job_name", jobConfigName)
+                    + "?before=" + before;
         }
 
         public static String next(String pipelineName, String stageName, String jobConfigName, long after) {
             return BASE
-                + JOB_HISTORY.replaceAll(":pipeline_name", pipelineName)
-                .replaceAll(":stage_name", stageName)
-                .replaceAll(":job_name", jobConfigName)
-                + "?after=" + after;
+                    + JOB_HISTORY.replaceAll(":pipeline_name", pipelineName)
+                    .replaceAll(":stage_name", stageName)
+                    .replaceAll(":job_name", jobConfigName)
+                    + "?after=" + after;
         }
     }
 
@@ -867,10 +867,13 @@ public class Routes {
 
     public static class Webhook {
         public static String BASE = "/api/webhooks";
-        public static final String GITHUB = "/github/notify";
-        public static final String GITLAB = "/gitlab/notify";
-        public static final String BIT_BUCKET_CLOUD = "/bitbucket/notify";
-        public static final String BIT_BUCKET_SERVER = "/hosted_bitbucket/notify";
+
+        public static class Push {
+            public static final String GITHUB = "/github/notify";
+            public static final String GITLAB = "/gitlab/notify";
+            public static final String BIT_BUCKET_CLOUD = "/bitbucket/notify";
+            public static final String BIT_BUCKET_SERVER = "/hosted_bitbucket/notify";
+        }
     }
 
     public static class Compare {

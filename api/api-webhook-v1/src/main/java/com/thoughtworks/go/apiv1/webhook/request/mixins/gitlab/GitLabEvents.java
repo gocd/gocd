@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.webhook.request.payload;
+package com.thoughtworks.go.apiv1.webhook.request.mixins.gitlab;
 
-public interface Payload {
-    String getHostname();
+import com.thoughtworks.go.apiv1.webhook.request.mixins.HasEvents;
+import spark.Request;
 
-    String getFullName();
+public interface GitLabEvents extends HasEvents {
+    default String parseEvent(Request request) {
+        return request.headers("X-Gitlab-Event");
+    }
 }

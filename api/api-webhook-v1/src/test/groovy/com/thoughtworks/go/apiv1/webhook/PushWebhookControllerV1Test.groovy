@@ -31,7 +31,7 @@ import static org.mockito.ArgumentMatchers.anyCollection
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.MockitoAnnotations.initMocks
 
-class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<WebhookControllerV1> {
+class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<PushWebhookControllerV1> {
   @Mock
   private MaterialUpdateService materialUpdateService
   @Mock
@@ -43,8 +43,8 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
   }
 
   @Override
-  WebhookControllerV1 createControllerInstance() {
-    new WebhookControllerV1(materialUpdateService, serverConfigService)
+  PushWebhookControllerV1 createControllerInstance() {
+    new PushWebhookControllerV1(materialUpdateService, serverConfigService)
   }
 
   @Nested
@@ -65,10 +65,10 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
         "X-GitHub-Event" : "Foo"
       ]
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.GITHUB), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITHUB), headers, payload)
 
       assertThatResponse().isBadRequest()
-        .hasJsonMessage("Invalid event type 'Foo'. Allowed events are [ping, push].")
+        .hasJsonMessage("Invalid event type `Foo`. Allowed events are [push, ping].")
     }
 
     @Test
@@ -79,7 +79,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
       ]
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.GITHUB), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITHUB), headers, payload)
 
       assertThatResponse().isBadRequest()
         .hasJsonMessage("HMAC signature specified via 'X-Hub-Signature' did not match!")
@@ -93,7 +93,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
       ]
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.GITHUB), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITHUB), headers, payload)
 
       assertThatResponse()
         .isAccepted()
@@ -109,7 +109,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
       Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(false)
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.GITHUB), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITHUB), headers, payload)
 
       assertThatResponse()
         .isAccepted()
@@ -125,7 +125,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
       Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(true)
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.GITHUB), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITHUB), headers, payload)
 
       assertThatResponse()
         .isAccepted()
@@ -150,10 +150,10 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
         "X-Gitlab-Event": "Foo"
       ]
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.GITLAB), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITLAB), headers, payload)
 
       assertThatResponse().isBadRequest()
-        .hasJsonMessage("Invalid event type 'Foo'. Only 'Push Hook' event is allowed.")
+        .hasJsonMessage("Invalid event type `Foo`. Allowed events are [Push Hook].")
     }
 
     @Test
@@ -164,7 +164,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
       ]
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.GITLAB), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITLAB), headers, payload)
 
       assertThatResponse().isBadRequest()
         .hasJsonMessage("Token specified in the 'X-Gitlab-Token' header did not match!")
@@ -179,7 +179,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
       Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(false)
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.GITLAB), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITLAB), headers, payload)
 
       assertThatResponse()
         .isAccepted()
@@ -195,7 +195,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
       Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(true)
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.GITLAB), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITLAB), headers, payload)
 
       assertThatResponse()
         .isAccepted()
@@ -225,10 +225,10 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
         "X-Event-Key"  : "Foo"
       ]
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_CLOUD), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_CLOUD), headers, payload)
 
       assertThatResponse().isBadRequest()
-        .hasJsonMessage("Invalid event type 'Foo'. Allowed events are [repo:push]")
+        .hasJsonMessage("Invalid event type `Foo`. Allowed events are [repo:push].")
     }
 
     @Test
@@ -239,7 +239,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
       ]
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_CLOUD), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_CLOUD), headers, payload)
 
       assertThatResponse().isBadRequest()
         .hasJsonMessage("Token specified via basic authentication did not match!")
@@ -254,7 +254,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
       Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(false)
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_CLOUD), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_CLOUD), headers, payload)
 
       assertThatResponse()
         .isAccepted()
@@ -270,7 +270,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
       Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(true)
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_CLOUD), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_CLOUD), headers, payload)
 
       assertThatResponse()
         .isAccepted()
@@ -300,10 +300,10 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
         "X-Event-Key"  : "Foo"
       ]
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_SERVER), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_SERVER), headers, payload)
 
       assertThatResponse().isBadRequest()
-        .hasJsonMessage("Invalid event type 'Foo'. Allowed events are [repo:refs_changed, diagnostics:ping]")
+        .hasJsonMessage("Invalid event type `Foo`. Allowed events are [repo:refs_changed, diagnostics:ping].")
     }
 
     @Test
@@ -314,7 +314,7 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
       ]
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_SERVER), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_SERVER), headers, payload)
 
       assertThatResponse().isBadRequest()
         .hasJsonMessage("HMAC signature specified via 'X-Hub-Signature' did not match!")
@@ -324,12 +324,12 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
     void 'should error out when material is not configured in GoCD'() {
       def headers = [
         "X-Hub-Signature": "sha256=5b421defd19aacb4772fa869beb40ad1518b76774c61e85d70552e2ec9169204",
-        "X-Event-Key"  : "repo:refs_changed"
+        "X-Event-Key"    : "repo:refs_changed"
       ]
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
       Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(false)
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_SERVER), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_SERVER), headers, payload)
 
       assertThatResponse()
         .isAccepted()
@@ -340,12 +340,12 @@ class WebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<W
     void 'should handle ref changed request'() {
       def headers = [
         "X-Hub-Signature": "sha256=5b421defd19aacb4772fa869beb40ad1518b76774c61e85d70552e2ec9169204",
-        "X-Event-Key"  : "repo:refs_changed"
+        "X-Event-Key"    : "repo:refs_changed"
       ]
       Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
       Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(true)
 
-      postWithApiHeader(controller.controllerPath(Routes.Webhook.BIT_BUCKET_SERVER), headers, payload)
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_SERVER), headers, payload)
 
       assertThatResponse()
         .isAccepted()

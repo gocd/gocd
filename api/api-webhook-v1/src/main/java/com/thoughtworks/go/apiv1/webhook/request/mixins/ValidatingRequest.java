@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.webhook.request.payload;
+package com.thoughtworks.go.apiv1.webhook.request.mixins;
 
-public interface Payload {
-    String getHostname();
-
-    String getFullName();
+public interface ValidatingRequest extends HasEvents, HasAuth {
+    default void validate(String webhookSecret) {
+        validateEvents(allowedEvents());
+        validateAuth(webhookSecret);
+    }
 }

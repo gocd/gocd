@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.webhook.request.payload;
+package com.thoughtworks.go.apiv1.webhook.request.mixins.bitbucketserver;
 
-public interface Payload {
-    String getHostname();
+import com.thoughtworks.go.apiv1.webhook.request.mixins.HasEvents;
+import spark.Request;
 
-    String getFullName();
+public interface BitBucketServerEvents extends HasEvents {
+    @Override
+    default String parseEvent(Request request) {
+        return request().headers("X-Event-Key");
+    }
 }

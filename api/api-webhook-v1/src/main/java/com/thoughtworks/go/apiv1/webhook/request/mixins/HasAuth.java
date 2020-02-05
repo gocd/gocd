@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.webhook.request.payload;
+package com.thoughtworks.go.apiv1.webhook.request.mixins;
 
-public interface Payload {
-    String getHostname();
-
-    String getFullName();
+public interface HasAuth extends LogsFatal, WrapsRequest {
+    void validateAuth(String webhookSecret);
 }

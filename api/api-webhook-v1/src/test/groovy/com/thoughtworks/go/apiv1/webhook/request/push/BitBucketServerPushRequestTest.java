@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.webhook.request;
+package com.thoughtworks.go.apiv1.webhook.request.push;
 
-import com.thoughtworks.go.apiv1.webhook.request.payload.BitBucketServerPayload;
+import com.thoughtworks.go.apiv1.webhook.request.payload.push.BitBucketServerPushPayload;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.junit5.FileSource;
 import org.junit.jupiter.api.Nested;
@@ -32,16 +32,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.*;
 
-class BitBucketServerRequestTest {
+class BitBucketServerPushRequestTest {
     @Test
     void shouldSupportOnlyJsonPayload() {
         Request request = newRequest("repo:refs_changed", "", "{}");
 
-        BitBucketServerRequest bitBucketServerRequest = new BitBucketServerRequest(request);
+        BitBucketServerPushRequest bitBucketServerPushRequest = new BitBucketServerPushRequest(request);
 
-        assertThat(bitBucketServerRequest.supportedContentType())
-            .hasSize(2)
-            .contains(APPLICATION_JSON, APPLICATION_JSON_UTF8);
+        assertThat(bitBucketServerPushRequest.supportedContentTypes())
+                .hasSize(2)
+                .contains(APPLICATION_JSON, APPLICATION_JSON_UTF8);
     }
 
     @ParameterizedTest
@@ -49,9 +49,9 @@ class BitBucketServerRequestTest {
     void shouldParsePayloadJson(String body) {
         Request request = newRequest("repo:refs_changed", "", body);
 
-        BitBucketServerRequest bitBucketServerRequest = new BitBucketServerRequest(request);
+        BitBucketServerPushRequest bitBucketServerPushRequest = new BitBucketServerPushRequest(request);
 
-        assertPayload(bitBucketServerRequest.getPayload());
+        assertPayload(bitBucketServerPushRequest.getPayload());
     }
 
     @ParameterizedTest
@@ -59,12 +59,12 @@ class BitBucketServerRequestTest {
     void shouldGetRepoUrlsWithoutCredentialsFromPayload(String body) {
         Request request = newRequest("repo:refs_changed", "", body);
 
-        BitBucketServerRequest bitBucketServerRequest = new BitBucketServerRequest(request);
+        BitBucketServerPushRequest bitBucketServerPushRequest = new BitBucketServerPushRequest(request);
 
-        assertThat(bitBucketServerRequest.webhookUrls())
-            .hasSize(2)
-            .contains("ssh://bitbucket-server/gocd/spaceship.git",
-                "http://bitbucket-server/scm/gocd/spaceship.git");
+        assertThat(bitBucketServerPushRequest.webhookUrls())
+                .hasSize(2)
+                .contains("ssh://bitbucket-server/gocd/spaceship.git",
+                        "http://bitbucket-server/scm/gocd/spaceship.git");
     }
 
     @Nested
@@ -74,26 +74,26 @@ class BitBucketServerRequestTest {
         void shouldAllowOnlyRefChangedEvent(String event) {
             Request request = newRequest(event, "", "{}");
 
-            assertThatCode(() -> new BitBucketServerRequest(request).validate("webhook-secret"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage(format("Invalid event type '%s'. Allowed events are [repo:refs_changed, diagnostics:ping]", event));
+            assertThatCode(() -> new BitBucketServerPushRequest(request).validate("webhook-secret"))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage(format("Invalid event type `%s`. Allowed events are [repo:refs_changed, diagnostics:ping].", event));
         }
 
         @Test
         void shouldSkipValidationForPingRequest() {
             Request request = newRequest("diagnostics:ping", "", "{}");
 
-            assertThatCode(() -> new BitBucketServerRequest(request).validate("webhook-secret"))
-                .doesNotThrowAnyException();
+            assertThatCode(() -> new BitBucketServerPushRequest(request).validate("webhook-secret"))
+                    .doesNotThrowAnyException();
         }
 
         @Test
         void shouldErrorOutIfXHubSignatureHeaderIsMissing() {
             Request request = newRequest("repo:refs_changed", "", "{}");
 
-            assertThatCode(() -> new BitBucketServerRequest(request).validate("webhook-secret"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("No HMAC signature specified via 'X-Hub-Signature' header!");
+            assertThatCode(() -> new BitBucketServerPushRequest(request).validate("webhook-secret"))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage("No HMAC signature specified via 'X-Hub-Signature' header!");
 
         }
 
@@ -101,9 +101,9 @@ class BitBucketServerRequestTest {
         void shouldErrorOutWhenSignatureDoesNotMatch() {
             Request request = newRequest("repo:refs_changed", "random-signature", "{}");
 
-            assertThatCode(() -> new BitBucketServerRequest(request).validate("webhook-secret"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("HMAC signature specified via 'X-Hub-Signature' did not match!");
+            assertThatCode(() -> new BitBucketServerPushRequest(request).validate("webhook-secret"))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage("HMAC signature specified via 'X-Hub-Signature' did not match!");
         }
 
         @Test
@@ -112,9 +112,9 @@ class BitBucketServerRequestTest {
 
             Request request = newRequest("repo:refs_changed", "sha256=3fdbe90db77c598e4bd54de9abefb5b5aa6797e8188bb9a09fa2e00ef9ab286e", body);
 
-            assertThatCode(() -> new BitBucketServerRequest(request).validate("021757dde54540ff083dcf680688c4c9676e5c44"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("Only 'git' repositories are currently supported!");
+            assertThatCode(() -> new BitBucketServerPushRequest(request).validate("021757dde54540ff083dcf680688c4c9676e5c44"))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage("Only 'git' repositories are currently supported!");
         }
 
         @Test
@@ -123,13 +123,13 @@ class BitBucketServerRequestTest {
 
             Request request = newRequest("repo:refs_changed", "sha256=cd05cc9d2638cb5379a8bfc208fa8c16d50caf661f8047fe63bfe60e6b6efe50", body);
 
-            assertThatCode(() -> new BitBucketServerRequest(request).validate("021757dde54540ff083dcf680688c4c9676e5c44"))
-                .doesNotThrowAnyException();
+            assertThatCode(() -> new BitBucketServerPushRequest(request).validate("021757dde54540ff083dcf680688c4c9676e5c44"))
+                    .doesNotThrowAnyException();
 
         }
     }
 
-    private void assertPayload(BitBucketServerPayload payload) {
+    private void assertPayload(BitBucketServerPushPayload payload) {
         assertThat(payload.getBranch()).isEqualTo("release");
         assertThat(payload.getHostname()).isEqualTo("bitbucket-server");
         assertThat(payload.getScmType()).isEqualTo("git");

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.webhook.request.payload;
+package com.thoughtworks.go.apiv1.webhook.request.mixins;
 
-public interface Payload {
-    String getHostname();
+import spark.Request;
 
-    String getFullName();
+public interface WrapsRequest {
+    Request request();
 }

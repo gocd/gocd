@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.webhook.request.payload;
+package com.thoughtworks.go.apiv1.webhook.request.mixins;
 
-public interface Payload {
-    String getHostname();
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 
-    String getFullName();
+public interface LogsFatal {
+    BadRequestException die(String message);
 }

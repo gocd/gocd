@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.webhook.request;
+package com.thoughtworks.go.apiv1.webhook.request.push;
 
-import com.thoughtworks.go.apiv1.webhook.request.payload.BitBucketCloudPayload;
+import com.thoughtworks.go.apiv1.webhook.request.payload.push.BitBucketCloudPushPayload;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.junit5.FileSource;
 import org.junit.jupiter.api.Nested;
@@ -34,16 +34,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.*;
 
-class BitBucketCloudRequestTest {
+class BitBucketCloudPushRequestTest {
     @Test
     void shouldSupportOnlyJsonPayload() {
         Request request = newRequestWithAuthorizationHeader("repo:push", "", "{}");
 
-        BitBucketCloudRequest bitBucketCloudRequest = new BitBucketCloudRequest(request);
+        BitBucketCloudPushRequest bitBucketCloudPushRequest = new BitBucketCloudPushRequest(request);
 
-        assertThat(bitBucketCloudRequest.supportedContentType())
-            .hasSize(2)
-            .contains(APPLICATION_JSON, APPLICATION_JSON_UTF8);
+        assertThat(bitBucketCloudPushRequest.supportedContentTypes())
+                .hasSize(2)
+                .contains(APPLICATION_JSON, APPLICATION_JSON_UTF8);
     }
 
     @ParameterizedTest
@@ -51,9 +51,9 @@ class BitBucketCloudRequestTest {
     void shouldParsePayloadJson(String body) {
         Request request = newRequestWithAuthorizationHeader("repo:push", "", body);
 
-        BitBucketCloudRequest bitBucketCloudRequest = new BitBucketCloudRequest(request);
+        BitBucketCloudPushRequest bitBucketCloudPushRequest = new BitBucketCloudPushRequest(request);
 
-        assertPayload(bitBucketCloudRequest.getPayload());
+        assertPayload(bitBucketCloudPushRequest.getPayload());
     }
 
     @ParameterizedTest
@@ -61,36 +61,36 @@ class BitBucketCloudRequestTest {
     void shouldGuessTheWebhookUrls(String body) {
         Request request = newRequestWithAuthorizationHeader("repo:push", "", body);
 
-        BitBucketCloudRequest bitBucketCloudRequest = new BitBucketCloudRequest(request);
+        BitBucketCloudPushRequest bitBucketCloudPushRequest = new BitBucketCloudPushRequest(request);
 
-        assertThat(bitBucketCloudRequest.webhookUrls())
-            .hasSize(24)
-            .contains(
-                "https://bitbucket.org/gocd/spaceship",
-                "https://bitbucket.org/gocd/spaceship/",
-                "https://bitbucket.org/gocd/spaceship.git",
-                "https://bitbucket.org/gocd/spaceship.git/",
-                "http://bitbucket.org/gocd/spaceship",
-                "http://bitbucket.org/gocd/spaceship/",
-                "http://bitbucket.org/gocd/spaceship.git",
-                "http://bitbucket.org/gocd/spaceship.git/",
-                "git://bitbucket.org/gocd/spaceship",
-                "git://bitbucket.org/gocd/spaceship/",
-                "git://bitbucket.org/gocd/spaceship.git",
-                "git://bitbucket.org/gocd/spaceship.git/",
-                "git@bitbucket.org:gocd/spaceship",
-                "git@bitbucket.org:gocd/spaceship/",
-                "git@bitbucket.org:gocd/spaceship.git",
-                "git@bitbucket.org:gocd/spaceship.git/",
-                "ssh://git@bitbucket.org/gocd/spaceship",
-                "ssh://git@bitbucket.org/gocd/spaceship/",
-                "ssh://git@bitbucket.org/gocd/spaceship.git",
-                "ssh://git@bitbucket.org/gocd/spaceship.git/",
-                "ssh://bitbucket.org/gocd/spaceship",
-                "ssh://bitbucket.org/gocd/spaceship/",
-                "ssh://bitbucket.org/gocd/spaceship.git",
-                "ssh://bitbucket.org/gocd/spaceship.git/"
-            );
+        assertThat(bitBucketCloudPushRequest.webhookUrls())
+                .hasSize(24)
+                .contains(
+                        "https://bitbucket.org/gocd/spaceship",
+                        "https://bitbucket.org/gocd/spaceship/",
+                        "https://bitbucket.org/gocd/spaceship.git",
+                        "https://bitbucket.org/gocd/spaceship.git/",
+                        "http://bitbucket.org/gocd/spaceship",
+                        "http://bitbucket.org/gocd/spaceship/",
+                        "http://bitbucket.org/gocd/spaceship.git",
+                        "http://bitbucket.org/gocd/spaceship.git/",
+                        "git://bitbucket.org/gocd/spaceship",
+                        "git://bitbucket.org/gocd/spaceship/",
+                        "git://bitbucket.org/gocd/spaceship.git",
+                        "git://bitbucket.org/gocd/spaceship.git/",
+                        "git@bitbucket.org:gocd/spaceship",
+                        "git@bitbucket.org:gocd/spaceship/",
+                        "git@bitbucket.org:gocd/spaceship.git",
+                        "git@bitbucket.org:gocd/spaceship.git/",
+                        "ssh://git@bitbucket.org/gocd/spaceship",
+                        "ssh://git@bitbucket.org/gocd/spaceship/",
+                        "ssh://git@bitbucket.org/gocd/spaceship.git",
+                        "ssh://git@bitbucket.org/gocd/spaceship.git/",
+                        "ssh://bitbucket.org/gocd/spaceship",
+                        "ssh://bitbucket.org/gocd/spaceship/",
+                        "ssh://bitbucket.org/gocd/spaceship.git",
+                        "ssh://bitbucket.org/gocd/spaceship.git/"
+                );
     }
 
     @Nested
@@ -100,18 +100,18 @@ class BitBucketCloudRequestTest {
         void shouldErrorOutIfEventTypeIsNotPush(String event) {
             Request request = newRequestWithAuthorizationHeader(event, "", "{}");
 
-            assertThatCode(() -> new BitBucketCloudRequest(request).validate("webhook-secret"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage(format("Invalid event type '%s'. Allowed events are [repo:push]", event));
+            assertThatCode(() -> new BitBucketCloudPushRequest(request).validate("webhook-secret"))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage(format("Invalid event type `%s`. Allowed events are [repo:push].", event));
         }
 
         @Test
         void shouldErrorOutIfAuthorizationHeaderIsNotSpecified() {
             Request request = newRequestWithoutAuthorizationHeader("repo:push", "{}");
 
-            assertThatCode(() -> new BitBucketCloudRequest(request).validate("webhook-secret"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("No token specified via basic authentication!");
+            assertThatCode(() -> new BitBucketCloudPushRequest(request).validate("webhook-secret"))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage("No token specified via basic authentication!");
 
         }
 
@@ -119,9 +119,9 @@ class BitBucketCloudRequestTest {
         void shouldErrorOutIfTokenDoesNotMatch() {
             Request request = newRequestWithAuthorizationHeader("repo:push", "random-signature", "{}");
 
-            assertThatCode(() -> new BitBucketCloudRequest(request).validate("webhook-secret"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("Token specified via basic authentication did not match!");
+            assertThatCode(() -> new BitBucketCloudPushRequest(request).validate("webhook-secret"))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage("Token specified via basic authentication did not match!");
         }
 
         @Test
@@ -130,9 +130,9 @@ class BitBucketCloudRequestTest {
 
             Request request = newRequestWithAuthorizationHeader("repo:push", "021757dde54540ff083dcf680688c4c9676e5c44", body);
 
-            assertThatCode(() -> new BitBucketCloudRequest(request).validate("021757dde54540ff083dcf680688c4c9676e5c44"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("Only 'git' repositories are currently supported!");
+            assertThatCode(() -> new BitBucketCloudPushRequest(request).validate("021757dde54540ff083dcf680688c4c9676e5c44"))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage("Only 'git' repositories are currently supported!");
         }
 
         @Test
@@ -141,13 +141,13 @@ class BitBucketCloudRequestTest {
 
             Request request = newRequestWithAuthorizationHeader("repo:push", "021757dde54540ff083dcf680688c4c9676e5c44", body);
 
-            assertThatCode(() -> new BitBucketCloudRequest(request).validate("021757dde54540ff083dcf680688c4c9676e5c44"))
-                .doesNotThrowAnyException();
+            assertThatCode(() -> new BitBucketCloudPushRequest(request).validate("021757dde54540ff083dcf680688c4c9676e5c44"))
+                    .doesNotThrowAnyException();
 
         }
     }
 
-    private void assertPayload(BitBucketCloudPayload payload) {
+    private void assertPayload(BitBucketCloudPushPayload payload) {
         assertThat(payload.getBranch()).isEqualTo("release");
         assertThat(payload.getFullName()).isEqualTo("gocd/spaceship");
         assertThat(payload.getHostname()).isEqualTo("bitbucket.org");

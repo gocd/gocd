@@ -14,10 +14,29 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.webhook.request.payload;
+package com.thoughtworks.go.apiv1.webhook.request.json;
 
-public interface Payload {
-    String getHostname();
+import com.google.gson.annotations.SerializedName;
 
-    String getFullName();
+import java.net.URI;
+import java.net.URISyntaxException;
+
+public class GitLabProject {
+    @SerializedName("http_url")
+    private String httpUrl;
+
+    @SerializedName("path_with_namespace")
+    private String fullName;
+
+    public String getHostname() {
+        try {
+            return new URI(httpUrl).getHost();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
 }

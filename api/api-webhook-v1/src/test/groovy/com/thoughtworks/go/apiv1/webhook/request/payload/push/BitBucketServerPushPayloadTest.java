@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.webhook.request.payload;
+package com.thoughtworks.go.apiv1.webhook.request.payload.push;
 
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.junit5.FileSource;
@@ -22,14 +22,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class GitHubPayloadTest {
+class BitBucketServerPushPayloadTest {
     @ParameterizedTest
-    @FileSource(files = "/github-payload.json")
-    void shouldParseRequestBodyOfContentTypeOfApplicationJson(String inputJSON) {
-        GitHubPayload gitHubPayload = GsonTransformer.getInstance().fromJson(inputJSON, GitHubPayload.class);
+    @FileSource(files = "/bitbucket-server-payload.json")
+    void shouldParseRequestBody(String inputJSON) {
+        BitBucketServerPushPayload payload = GsonTransformer.getInstance().fromJson(inputJSON, BitBucketServerPushPayload.class);
 
-        assertThat(gitHubPayload.getBranch()).isEqualTo("release");
-        assertThat(gitHubPayload.getFullName()).isEqualTo("gocd/spaceship");
-        assertThat(gitHubPayload.getHostname()).isEqualTo("github.com");
+        assertThat(payload.getBranch()).isEqualTo("release");
+        assertThat(payload.getHostname()).isEqualTo("bitbucket-server");
+        assertThat(payload.getScmType()).isEqualTo("git");
     }
 }

@@ -27,6 +27,7 @@ import style from "views/pages/clicky_pipeline_config/index.scss";
 import {ChangeRouteEvent} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {GeneralOptionsTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/general_options_tab";
 import {MaterialsTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/materials_tab";
+import {ParametersTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/parameters_tab";
 import {ProjectManagementTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/project_management_tab";
 import {StagesTab} from "views/pages/clicky_pipeline_config/tabs/pipeline/stages_tab";
 import {TabWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/tab_widget";
@@ -54,7 +55,8 @@ const tabs = [
   new EnvironmentVariablesTab(),
   new ProjectManagementTab(),
   new MaterialsTab(),
-  new StagesTab()
+  new StagesTab(),
+  new ParametersTab()
 ];
 
 export class PipelineConfigWidget extends MithrilViewComponent<Attrs> {

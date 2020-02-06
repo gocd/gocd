@@ -42,11 +42,11 @@ public class OutputFormatter {
     }
 
     public OutputFormatter withSubject() {
-        return appendWithIndent("subject", "|-%n%w(,4,4)%s", 2);
+        return appendWithIndent("subject", "|-2%n%w(,4,4)%s", 2);
     }
 
     public OutputFormatter withRawBody() {
-        return appendWithIndent("rawBody", "|-%n%w(,4,4)%B", 2);
+        return appendWithIndent("rawBody", "|-2%n%w(,4,4)%B", 2);
     }
 
     public OutputFormatter withAdditionalInfo() {

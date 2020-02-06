@@ -56,36 +56,55 @@ class GitModificationParserTest {
         assertThat(firstModification.getComment()).isEqualTo("Added remote file");
         assertThat(firstModification.getModifiedTime()).isEqualTo(DateUtils.parseISO8601("2009-02-11 17:26:36 -0800"));
         assertThat(firstModification.getAdditionalDataMap())
-                .hasSize(8)
-                .containsEntry("subject", "Added remote file")
-                .containsEntry("signed", "N")
-                .containsEntry("signerName", null)
-                .containsEntry("signingKey", null)
-                .containsEntry("signingMessage", "This is signing message with\n" +
-                        "multiple lines")
-                .containsEntry("committerName", "Chris Turner")
-                .containsEntry("committerEmail", "cturner@thoughtworks.com")
-                .containsEntry("commitDate", "2009-02-11 17:26:36 -0800");
+            .hasSize(8)
+            .containsEntry("subject", "Added remote file")
+            .containsEntry("signed", "N")
+            .containsEntry("signerName", null)
+            .containsEntry("signingKey", null)
+            .containsEntry("signingMessage", "This is signing message with\n" +
+                "multiple lines")
+            .containsEntry("committerName", "Chris Turner")
+            .containsEntry("committerEmail", "cturner@thoughtworks.com")
+            .containsEntry("commitDate", "2009-02-11 17:26:36 -0800");
 
         Modification secondModification = modifications.get(1);
         assertThat(secondModification.getRevision()).isEqualTo("ewehsjf232349fef97af1cd3a8920fefe5f656cb57");
         assertThat(secondModification.getUserName()).isEqualTo("Bob Ford");
         assertThat(secondModification.getEmailAddress()).isEqualTo("bford@thoughtworks.com");
         assertThat(secondModification.getComment()).isEqualTo("Initial commit\n" +
-                "\n" +
-                "  - Added remote file\n" +
-                "  - Added .gitignore");
+            "\n" +
+            "  - Added remote file\n" +
+            "  - Added .gitignore");
 
         assertThat(secondModification.getModifiedTime()).isEqualTo(DateUtils.parseISO8601("2009-02-11 17:26:36 -0800"));
         assertThat(secondModification.getAdditionalDataMap())
-                .hasSize(8)
-                .containsEntry("subject", "Initial commit")
-                .containsEntry("signed", "N")
-                .containsEntry("signerName", null)
-                .containsEntry("signingKey", null)
-                .containsEntry("signingMessage", null)
-                .containsEntry("committerName", "Chris Turner")
-                .containsEntry("committerEmail", "cturner@thoughtworks.com")
-                .containsEntry("commitDate", "2009-02-11 17:26:36 -0800");
+            .hasSize(8)
+            .containsEntry("subject", "Initial commit")
+            .containsEntry("signed", "N")
+            .containsEntry("signerName", null)
+            .containsEntry("signingKey", null)
+            .containsEntry("signingMessage", null)
+            .containsEntry("committerName", "Chris Turner")
+            .containsEntry("committerEmail", "cturner@thoughtworks.com")
+            .containsEntry("commitDate", "2009-02-11 17:26:36 -0800");
+    }
+
+    @ParameterizedTest
+    @FileSource(files = "/git/with-spaces-in-raw-body.yaml")
+    void shouldParseYamlWhereRawBodyStartWithSpaces(String inputYaml) {
+        List<Modification> modifications = new GitModificationParser().parse(inputYaml);
+
+        assertThat(modifications).hasSize(2);
+        String secondLastCommit = "Multiple space\n" +
+            "     Five spaces\n" +
+            "    Four spaces\n" +
+            "   Three spaces\n" +
+            "  Two spaces\n" +
+            " One space\n" +
+            "No space";
+        String lastCommit = "Added remote file";
+
+        assertThat(modifications.stream().map(Modification::getComment))
+            .contains(lastCommit, secondLastCommit);
     }
 }

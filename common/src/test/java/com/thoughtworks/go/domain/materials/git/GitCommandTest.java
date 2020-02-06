@@ -23,11 +23,9 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.mail.SysOutStreamConsumer;
-import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.jupiter.api.AfterEach;
@@ -40,7 +38,6 @@ import org.junit.rules.TestRule;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -249,8 +246,8 @@ public class GitCommandTest {
             fail("should have failed for non 0 return code");
         } catch (Exception e) {
             assertThat(e.getMessage()).containsPattern(
-                    String.format("[Cc]lone of '%s' into submodule path '((.*)[\\/])?sub1' failed",
-                            Pattern.quote(FileUtil.toFileURI(submoduleFolder.getAbsolutePath()) + "/")));
+                String.format("[Cc]lone of '%s' into submodule path '((.*)[\\/])?sub1' failed",
+                    Pattern.quote(FileUtil.toFileURI(submoduleFolder.getAbsolutePath()) + "/")));
         }
     }
 
@@ -375,7 +372,7 @@ public class GitCommandTest {
         remoteRepo.addFileAndAmend("bar", "amendedCommit");
 
         assertThatCode(() -> command.modificationsSince(new StringRevision(modification.getRevision())))
-                .isInstanceOf(CommandLineException.class);
+            .isInstanceOf(CommandLineException.class);
     }
 
     @Test
@@ -388,7 +385,7 @@ public class GitCommandTest {
         Modification modification = remoteRepo.checkInOneFile("foo", "Adding a commit").get(0);
 
         assertThatCode(() -> command.modificationsSince(new StringRevision(modification.getRevision())))
-                .isInstanceOf(CommandLineException.class);
+            .isInstanceOf(CommandLineException.class);
     }
 
     @Test
@@ -526,7 +523,7 @@ public class GitCommandTest {
         GitCommand gitCommand = new GitCommand(null, null, null, false, null);
 
         assertThatCode(() -> gitCommand.checkConnection(new UrlArgument("git://somewhere.is.not.exist"), "master"))
-                .isInstanceOf(Exception.class);
+            .isInstanceOf(Exception.class);
     }
 
     @Test
@@ -534,7 +531,7 @@ public class GitCommandTest {
         GitCommand gitCommand = new GitCommand(null, null, null, false, null);
 
         assertThatCode(() -> gitCommand.checkConnection(new UrlArgument(gitRepo.projectRepositoryUrl()), "Invalid_Branch"))
-                .isInstanceOf(Exception.class);
+            .isInstanceOf(Exception.class);
     }
 
 
@@ -569,7 +566,7 @@ public class GitCommandTest {
             fail("Should throw exception when repo cannot connected");
         } catch (Exception e) {
             assertThat(e.getMessage()).matches(str -> str.contains("The remote end hung up unexpectedly") ||
-                    str.contains("Could not read from remote repository"));
+                str.contains("Could not read from remote repository"));
         }
     }
 
@@ -611,7 +608,7 @@ public class GitCommandTest {
 
         /* Commit a change to the file on the repo. */
         List<Modification> modifications = submoduleRepos.modifyOneFileInSubmoduleAndUpdateMainRepo(
-                remoteSubmoduleLocation, submoduleDirectoryName, fileInSubmodule.getName(), "NEW CONTENT OF FILE");
+            remoteSubmoduleLocation, submoduleDirectoryName, fileInSubmodule.getName(), "NEW CONTENT OF FILE");
 
         /* Simulate start of a new build on agent. */
         clonedCopy.fetch(outputStreamConsumer);
@@ -651,7 +648,7 @@ public class GitCommandTest {
         clonedCopy.clone(outputStreamConsumer, FileUtil.toFileURI(repoContainingSubmodule.mainRepo().getUrl()), 1);
         clonedCopy.fetchAndResetToHead(outputStreamConsumer, true);
         ConsoleResult consoleResult = executeOnDir(new File(cloneDirectory, submoduleDirectoryName),
-                "git", "rev-list", "--count", "master");
+            "git", "rev-list", "--count", "master");
         assertThat(consoleResult.outputAsString()).isEqualTo("1");
     }
 
@@ -669,7 +666,7 @@ public class GitCommandTest {
         clonedCopy.clone(outputStreamConsumer, FileUtil.toFileURI(repoContainingSubmodule.mainRepo().getUrl()), 1);
         clonedCopy.fetchAndResetToHead(outputStreamConsumer, true);
         ConsoleResult consoleResult = executeOnDir(new File(cloneDirectory, submoduleDirectoryName),
-                "git", "rev-list", "--count", "master");
+            "git", "rev-list", "--count", "master");
         assertThat(consoleResult.outputAsString()).isEqualTo("2");
     }
 
@@ -706,6 +703,50 @@ public class GitCommandTest {
     void shouldNotThrowExceptionWhenSubmoduleIsAddedWithACustomName() {
         executeOnDir(gitLocalRepoDir, "git", "submodule", "add", "--name", "Custom", gitFooBranchBundle.projectRepositoryUrl());
         git.fetchAndResetToHead(inMemoryConsumer());
+    }
+
+    @Test
+    void shouldParseGitCommitsWithSpacesInSubject() throws IOException {
+        GitTestRepo testRepo = new GitTestRepo(GIT_WITH_WHITESPACES_IN_SUBJECT, temporaryFolder);
+        File tempWorkingDirectory = createTempWorkingDirectory();
+        GitCommand git = new GitCommand(null, tempWorkingDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, null);
+        git.cloneWithNoCheckout(inMemoryConsumer(), testRepo.projectRepositoryUrl());
+
+        List<Modification> modifications = git.modificationsSince(new StringRevision("5a428bd"));
+
+        assertThat(modifications).hasSize(4);
+        assertThat(modifications.stream().map(modification -> modification.getAdditionalDataMap().get("subject")))
+            .contains(
+                "         more then 3 spaces",
+                "   Three spaces",
+                " One space in subject line",
+                "  Two spaces in subject line"
+            );
+    }
+
+    @Test
+    void shouldParseGitCommitsWithSpacesInMessage() throws IOException {
+        GitTestRepo testRepo = new GitTestRepo(GIT_WITH_WHITESPACES_IN_COMMIT, temporaryFolder);
+        File tempWorkingDirectory = createTempWorkingDirectory();
+        GitCommand git = new GitCommand(null, tempWorkingDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, null);
+        git.cloneWithNoCheckout(inMemoryConsumer(), testRepo.projectRepositoryUrl());
+
+        List<Modification> modifications = git.modificationsSince(new StringRevision("29cbc1491d"));
+
+        assertThat(modifications).hasSize(2);
+        String lastCommitMessage = "One space in subject line\n" +
+            "\n" +
+            "            Multiple spaces\n" +
+            "    Four spaces\n" +
+            "   Three spaces\n" +
+            "  Two spaces\n" +
+            " One space";
+        String secondLastCommitMessage = "No spaces in commit subject\n" +
+            "\n" +
+            "No spaces in message as well";
+
+        assertThat(modifications.stream().map(Modification::getComment))
+            .contains(lastCommitMessage, secondLastCommitMessage);
     }
 
     private List<File> allFilesIn(File directory, String prefixOfFiles) {

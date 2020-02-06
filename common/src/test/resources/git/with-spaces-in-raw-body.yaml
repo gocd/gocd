@@ -3,16 +3,16 @@
   authorName: Chris Turner
   authorEmail: cturner@thoughtworks.com
   date: 2009-02-11 17:26:36 -0800
-  subject: |-2
-    Added remote file
-  rawBody: |-2
-    Added remote file
+  subject: |2-
+                 Added remote file
+  rawBody: |2-
+                Added remote file
 
   additionalInfo:
     signed: N
     signerName:
     signingKey:
-    signingMessage: |-2
+    signingMessage: |-
       This is signing message with
       multiple lines
     committerName: Chris Turner
@@ -24,13 +24,16 @@
   authorName: Bob Ford
   authorEmail: bford@thoughtworks.com
   date: 2009-02-11 17:26:36 -0800
-  subject: |-2
+  subject: |2-
     Initial commit
-  rawBody: |-2
-    Initial commit
-
-      - Added remote file
-      - Added .gitignore
+  rawBody: |2-
+                Multiple space
+         Five spaces
+        Four spaces
+       Three spaces
+      Two spaces
+     One space
+    No space
 
   additionalInfo:
     signed: N

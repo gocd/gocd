@@ -75,6 +75,14 @@ export class PipelineConfigTestData {
   }
 }
 
+export class JobTestData {
+  static with(name: string) {
+    return new JobBuilder()
+      .name(name)
+      .build();
+  }
+}
+
 class Builder {
   readonly json = {} as PipelineConfigJSON;
 
@@ -229,9 +237,9 @@ class StageBuilder {
 
 class JobBuilder {
   readonly json = {} as JobJSON;
-  private readonly _parent: StageBuilder;
+  private readonly _parent?: StageBuilder;
 
-  constructor(parent: StageBuilder) {
+  constructor(parent?: StageBuilder) {
     this._parent = parent;
   }
 
@@ -250,10 +258,14 @@ class JobBuilder {
   }
 
   done() {
-    if (!this._parent.json.jobs) {
-      this._parent.json.jobs = [];
+    if (!this._parent!.json.jobs) {
+      this._parent!.json.jobs = [];
     }
-    this._parent.json.jobs.push(this.json);
+    this._parent!.json.jobs.push(this.json);
     return this._parent;
+  }
+
+  build(): JobJSON {
+    return this.json;
   }
 }

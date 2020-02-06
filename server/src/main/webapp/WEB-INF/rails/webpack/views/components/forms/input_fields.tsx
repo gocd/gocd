@@ -365,8 +365,6 @@ export interface TextFieldAttrs extends BaseAttrs<string>, RequiredFieldAttr, Pl
   type?: string;
 }
 
-export type NumberFieldAttrs = BaseAttrs<number> & RequiredFieldAttr & PlaceholderAttr;
-
 export class TextField extends FormField<string, RequiredFieldAttr & PlaceholderAttr> {
   renderInputField(vnode: m.Vnode<TextFieldAttrs>) {
     const baseAttrs: { [key: string]: string } = {
@@ -391,12 +389,19 @@ export class TextField extends FormField<string, RequiredFieldAttr & Placeholder
   }
 }
 
-export class NumberField extends FormField<number, RequiredFieldAttr & PlaceholderAttr> {
+interface NumberFieldAttrs extends BaseAttrs<number>, RequiredFieldAttr, PlaceholderAttr {
+  min?: number;
+  max?: number;
+}
+
+export class NumberField extends FormField<number, NumberFieldAttrs> {
 
   renderInputField(vnode: m.Vnode<NumberFieldAttrs>) {
     return (
       <input type="number"
              className={classnames(this.css.formControl)}
+             min={vnode.attrs.min}
+             max={vnode.attrs.max}
              {...this.defaultAttributes(vnode.attrs)}
              {...this.bindingAttributes(vnode.attrs, "oninput", "value")}
       />
@@ -609,19 +614,22 @@ export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
 }
 
 interface RadioData {
-  label: string;
+  label: m.Child[] | string;
   value: string;
   helpText?: string;
+  tooltip?: m.Child;
 }
 
 export interface RadioButtonAttrs extends RestyleAttrs<Styles> {
-  label?: string;
+  label?: m.Child[] | string;
   errorText?: string;
   disabled?: boolean;
   required?: boolean;
   inline?: boolean;
   property: (newValue?: string) => string;
   possibleValues: RadioData[];
+  onchange?: (newValue: string) => void;
+  dataTestId?: string;
 }
 
 export class RadioField extends RestyleViewComponent<Styles, RadioButtonAttrs> {
@@ -637,7 +645,8 @@ export class RadioField extends RestyleViewComponent<Styles, RadioButtonAttrs> {
                                                      data-test-id="form-field-label">
       {vnode.attrs.label}{maybeRequired}:</label> : undefined;
     return (
-      <li className={classnames(this.css.formGroup, {[this.css.formHasError]: this.hasErrorText(vnode)})}>
+      <li className={classnames(this.css.formGroup, {[this.css.formHasError]: this.hasErrorText(vnode)})}
+          data-test-id={vnode.attrs.dataTestId}>
         {maybeLabel}
         <div class={vnode.attrs.inline ? this.css.inlineRadioBtns : undefined}>
           {this.renderInputField(vnode)}
@@ -665,9 +674,16 @@ export class RadioField extends RestyleViewComponent<Styles, RadioButtonAttrs> {
                  id={radioButtonId}
                  data-test-id={`radio-${s.slugify(radioData.value)}`}
                  checked={radioData.value === vnode.attrs.property()}
-                 name={this.id} onchange={() => vnode.attrs.property(radioData.value)}/>
+                 name={this.id}
+                 onchange={() => {
+                   vnode.attrs.property(radioData.value);
+                   if (vnode.attrs.onchange) {
+                     vnode.attrs.onchange(radioData.value);
+                   }
+                 }}/>
           <label for={radioButtonId} className={this.css.radioLabel}
                  data-test-id="form-field-label">{radioData.label}</label>
+          {radioData?.tooltip}
           <HelpText helpText={radioData.helpText} helpTextId={`help-text-${radioButtonId}`} css={this.css}/>
         </li>
       );

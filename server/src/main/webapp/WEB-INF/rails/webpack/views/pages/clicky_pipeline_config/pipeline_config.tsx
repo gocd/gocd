@@ -159,8 +159,15 @@ export class PipelineConfigPage<T> extends Page<null, T> {
     return {route: m.route.get(), params: m.route.param()};
   }
 
+  private static routeForTabName(route: string, tabName: string): string {
+    const parts = route.split("/");
+    parts.pop();
+    parts.push(_.snakeCase(tabName));
+    return parts.join("/");
+  }
+
   private onTabChange(vnode: m.Vnode<null, T>, index: number, callback: () => void) {
-    const route = `${this.pipelineConfig!.name()}/${_.snakeCase(this.tabs[index].name())}`;
+    const route = PipelineConfigPage.routeForTabName(PipelineConfigPage.routeInfo().route, this.tabs[index].name());
     this.changeRoute({newRoute: route}, () => {
       callback();
       if (m.route.get() !== route) {
@@ -190,10 +197,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
     const routeInfo      = PipelineConfigPage.routeInfo();
     const invalidTabName = !this.tabs.find((tab) => tab.name() === routeInfo.params.tab_name);
     if (invalidTabName) {
-      const parts = routeInfo.route.split("/");
-      parts.pop();
-      parts.push(_.snakeCase(this.tabs[0].name()));
-      m.route.set(`${parts.join("/")}`);
+      m.route.set(PipelineConfigPage.routeForTabName(routeInfo.route, this.tabs[0].name()));
     }
   }
 }

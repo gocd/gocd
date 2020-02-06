@@ -4,4 +4,5 @@ export const entity_config_container: string;
 export const mainContainer: string;
 export const materialTab: string;
 export const navigation: string;
+export const radioLabelWithInlineTextfield: string;
 export const steps: string;

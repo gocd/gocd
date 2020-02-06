@@ -62,3 +62,24 @@
     }
   }
 }
+
+table tr td {
+  i {
+    margin: 0;
+  }
+}
+
+.radio-label-with-inline-textfield {
+  display:        flex;
+  flex-direction: row;
+
+  span {
+    display:      flex;
+    margin-right: 5px;
+  }
+
+  input {
+    margin-left: 5px;
+    width:       50px;
+  }
+}

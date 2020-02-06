@@ -57,9 +57,10 @@ $draggable-row-color: #e2f7fa;
   }
 
   td {
-    padding:    10px;
-    border-top: 1px solid $table-border-top-color;
-    font-size:  13px;
+    padding:        10px;
+    border-top:     1px solid $table-border-top-color;
+    font-size:      13px;
+    vertical-align: baseline;
   }
 }
 
@@ -98,7 +99,6 @@ $draggable-row-color: #e2f7fa;
 
   font-size: 12px;
   color:     $icon-drag;
-  margin:    10px;
 
   &:active {
     @include sort-cursor-active;

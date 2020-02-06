@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Material} from "models/materials/types";
@@ -24,6 +23,7 @@ import {Stage} from "models/pipeline_configs/stage";
 import s from "underscore.string";
 import * as Buttons from "views/components/buttons";
 import {Modal, Size} from "views/components/modal";
+import {JobEditor} from "views/pages/clicky_pipeline_config/widgets/job_editor";
 import {StageEditor} from "views/pages/clicky_pipeline_config/widgets/stage_editor";
 import {MaterialEditor} from "views/pages/pipelines/material_editor";
 
@@ -80,12 +80,18 @@ export class StageModal extends AddOrEditEntityModal<Stage> {
     return new StageModal("Add new stage", Stream(newStage), onSuccessfulAdd);
   }
 
-  static forEdit(stage: Stage, onSuccessfulAdd: (stage: Stage) => void) {
-    const title = `Edit material - ${s.capitalize(stage.name())}`;
-    return new StageModal(title, Stream(_.clone(stage)), onSuccessfulAdd);
+  body() {
+    return <StageEditor stage={this.entity}/>;
+  }
+}
+
+export class JobModal extends AddOrEditEntityModal<Job> {
+  static forAdd(onSuccessfulAdd: (job: Job) => void) {
+    const newJob = new Job();
+    return new JobModal("Add new job", Stream(newJob), onSuccessfulAdd);
   }
 
   body() {
-    return <StageEditor stage={this.entity}/>;
+    return <JobEditor job={this.entity()}/>;
   }
 }

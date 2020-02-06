@@ -25,6 +25,12 @@
 <urlrewrite>
 
   <rule>
+    <name>Permissions API</name>
+    <from>^/api/auth/permissions(/?)$</from>
+    <to last="true">/spark/api/auth/permissions</to>
+  </rule>
+
+  <rule>
     <name>Internal Compare APIs</name>
     <from>^/api/internal/compare/([^/]+)/list(/?)$</from>
     <to last="true">/spark/api/internal/compare/${escape:$1}/list</to>

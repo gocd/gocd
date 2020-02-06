@@ -885,4 +885,9 @@ public class Routes {
             ));
         }
     }
+
+    public static class Permissions {
+        public static final String BASE = "/api/auth/permissions";
+        public static final String DOC = apiDocsUrl("permissions");
+    }
 }

@@ -525,3 +525,7 @@ api/api-template-config-v7/out/
 api/api-template-config-v7/target/
 api/api-template-config-v7/logs/
 api/api-template-config-v7/config/
+api/api-permissions-v1/out/
+api/api-permissions-v1/target/
+api/api-permissions-v1/logs/
+api/api-permissions-v1/config/

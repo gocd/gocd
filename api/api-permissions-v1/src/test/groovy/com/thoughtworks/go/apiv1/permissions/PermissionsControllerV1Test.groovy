@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.permissions
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.server.service.PermissionsService
+import com.thoughtworks.go.server.service.permissions.PermissionsService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -56,7 +56,6 @@ class PermissionsControllerV1Test implements SecurityServiceTrait, ControllerTra
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
-
       @Override
       String getControllerMethodUnderTest() {
         return "index"
@@ -68,28 +67,113 @@ class PermissionsControllerV1Test implements SecurityServiceTrait, ControllerTra
       }
     }
 
-    @Test
-    void 'should represent user permissions'() {
-      def permissions = [
-        'environments': [
+    @Nested
+    class AsNormalUser {
+      List permissibleEntities
+      Map<String, Object> environmentPermission, configRepoPermission
+
+      @BeforeEach
+      void setUp() {
+        permissibleEntities = ['environment', 'config_repo']
+        environmentPermission = [
           'view'      : ['QA', 'UAT', 'PROD'],
           'administer': ['QA', 'UAT']
         ]
-      ]
+        configRepoPermission = [
+          'view'      : ['repo1', 'repo2', 'repo3'],
+          'administer': ['repo1']
+        ]
 
-      when(permissionsService.getPermissionsForCurrentUser()).thenReturn(permissions)
+        when(permissionsService.allEntitiesSupportsPermission()).thenReturn(permissibleEntities)
+      }
 
-      getWithApiHeader(controller.controllerBasePath())
+      @Test
+      void 'should not fail when no type param is specified'() {
+        getWithApiHeader(controller.controllerBasePath())
 
-      assertThatResponse()
-        .isOk()
-        .hasJsonBody([
-        "_links"     : [
-          "self": ["href": "http://test.host/go/api/auth/permissions"],
-          "doc" : ["href": apiDocsUrl("#permissions")]
-        ],
-        "permissions": permissions
-      ])
+        assertThatResponse()
+          .isOk()
+      }
+
+      @Test
+      void 'should fail when invalid type param is specified'() {
+        getWithApiHeader(controller.controllerBasePath() + '?type=everything')
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Your request could not be processed. Invalid permission type 'everything'. It has to be one of 'environment, config_repo'.")
+      }
+
+      @Test
+      void 'should fail when one of the specified type param is invalid'() {
+        getWithApiHeader(controller.controllerBasePath() + '?type=environment,dashboard,config_repo')
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Your request could not be processed. Invalid permission type 'dashboard'. It has to be one of 'environment, config_repo'.")
+      }
+
+      @Test
+      void 'should represent user permissions'() {
+        def permissions = [
+          'environment': environmentPermission,
+          'config_repo': configRepoPermission
+        ]
+
+        when(permissionsService.getPermissions(permissibleEntities)).thenReturn(permissions)
+
+        getWithApiHeader(controller.controllerBasePath())
+
+        assertThatResponse()
+          .isOk()
+          .hasJsonBody([
+          "_links"     : [
+            "self": ["href": "http://test.host/go/api/auth/permissions"],
+            "doc" : ["href": apiDocsUrl("#permissions")]
+          ],
+          "permissions": permissions
+        ])
+      }
+
+      @Test
+      void 'should represent user permissions for requested type'() {
+        def permissions = ['environment': environmentPermission]
+        when(permissionsService.getPermissions(['environment'])).thenReturn(permissions)
+
+        getWithApiHeader(controller.controllerPath() + '?type=environment')
+
+        assertThatResponse()
+          .isOk()
+          .hasJsonBody([
+          "_links"     : [
+            "self": ["href": "http://test.host/go/api/auth/permissions"],
+            "doc" : ["href": apiDocsUrl("#permissions")]
+          ],
+          "permissions": permissions
+        ])
+      }
+
+      @Test
+      void 'should represent user permissions for requested multiple type'() {
+        def permissions = [
+          'environment': environmentPermission,
+          'config_repo': configRepoPermission
+        ]
+
+        when(permissionsService.getPermissions(['environment', 'config_repo'])).thenReturn(permissions)
+
+        getWithApiHeader(controller.controllerPath() + '?type=environment,config_repo')
+
+        assertThatResponse()
+          .isOk()
+          .hasJsonBody([
+          "_links"     : [
+            "self": ["href": "http://test.host/go/api/auth/permissions"],
+            "doc" : ["href": apiDocsUrl("#permissions")]
+          ],
+          "permissions": permissions
+        ])
+      }
     }
   }
 }

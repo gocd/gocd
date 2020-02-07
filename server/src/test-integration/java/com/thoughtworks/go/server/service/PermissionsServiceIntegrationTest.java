@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.policy.Policy;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
+import com.thoughtworks.go.server.service.permissions.PermissionsService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -70,6 +71,16 @@ public class PermissionsServiceIntegrationTest {
     }
 
     @Test
+    public void shouldReturnAllTheEntityNamesThatSupportsPermission() {
+        assertThat(permissionsService.allEntitiesSupportsPermission()).containsExactlyInAnyOrder(
+                "environment",
+                "config_repo",
+                "elastic_agent_profile",
+                "cluster_profile"
+        );
+    }
+
+    @Test
     public void shouldShowUserSpecificEnvironments() {
         goConfigService.updateConfig(cruiseConfig -> {
             defineSecurity(cruiseConfig);
@@ -82,7 +93,7 @@ public class PermissionsServiceIntegrationTest {
             return cruiseConfig;
         });
 
-        Map<String, Object> permissions = permissionsService.getPermissionsForCurrentUser();
+        Map<String, Object> permissions = permissionsService.getPermissions(Arrays.asList("environment"));
 
         Map<String, Object> expectedEnvs = new LinkedHashMap<>();
         expectedEnvs.put("view", Arrays.asList("prod", "dev1", "dev2"));
@@ -104,7 +115,7 @@ public class PermissionsServiceIntegrationTest {
             return cruiseConfig;
         });
 
-        Map<String, Object> permissions = permissionsService.getPermissionsForCurrentUser();
+        Map<String, Object> permissions = permissionsService.getPermissions(Arrays.asList("config_repo"));
 
         Map<String, Object> expectedCR = new LinkedHashMap<>();
         expectedCR.put("view", Arrays.asList("repo1", "repo2"));
@@ -125,7 +136,7 @@ public class PermissionsServiceIntegrationTest {
             return cruiseConfig;
         });
 
-        Map<String, Object> permissions = permissionsService.getPermissionsForCurrentUser();
+        Map<String, Object> permissions = permissionsService.getPermissions(Arrays.asList("cluster_profile"));
 
         Map<String, Object> expectedClusterProfiles = new LinkedHashMap<>();
         expectedClusterProfiles.put("view", Arrays.asList("dev-cluster", "prod-cluster"));
@@ -151,7 +162,7 @@ public class PermissionsServiceIntegrationTest {
             return cruiseConfig;
         });
 
-        Map<String, Object> permissions = permissionsService.getPermissionsForCurrentUser();
+        Map<String, Object> permissions = permissionsService.getPermissions(Arrays.asList("elastic_agent_profile"));
 
         Map<String, Object> expectedElasticProfiles = new LinkedHashMap<>();
         expectedElasticProfiles.put("view", Arrays.asList("build-agent", "deploy-agent"));

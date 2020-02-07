@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.webhook.request;
+package com.thoughtworks.go.apiv1.webhook.request.push;
 
-import com.thoughtworks.go.apiv1.webhook.request.payload.GitHubPayload;
+import com.thoughtworks.go.apiv1.webhook.request.payload.push.GitHubPushPayload;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.junit5.FileSource;
 import org.junit.jupiter.api.Nested;
@@ -33,16 +33,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.*;
 
-class GitHubRequestTest {
+class GitHubPushRequestTest {
     @Test
     void shouldSupportJsonAndUrlEncodedPayload() {
         Request request = newRequest("push", "", "{}", APPLICATION_JSON);
 
-        GitHubRequest gitHubRequest = new GitHubRequest(request);
+        GitHubPushRequest gitHubPushRequest = new GitHubPushRequest(request);
 
-        assertThat(gitHubRequest.supportedContentType())
-            .hasSize(3)
-            .contains(APPLICATION_FORM_URLENCODED, APPLICATION_JSON, APPLICATION_JSON_UTF8);
+        assertThat(gitHubPushRequest.supportedContentTypes())
+                .hasSize(3)
+                .contains(APPLICATION_FORM_URLENCODED, APPLICATION_JSON, APPLICATION_JSON_UTF8);
     }
 
     @ParameterizedTest
@@ -50,10 +50,10 @@ class GitHubRequestTest {
     void shouldParseWebhookRequestToGitHubRequest(String body) {
         Request request = newRequest("push", "", body, APPLICATION_JSON);
 
-        GitHubRequest gitHubRequest = new GitHubRequest(request);
+        GitHubPushRequest gitHubPushRequest = new GitHubPushRequest(request);
 
-        assertThat(gitHubRequest.getEvent()).isEqualTo("push");
-        assertPayload(gitHubRequest.getPayload());
+        assertThat(gitHubPushRequest.event()).isEqualTo("push");
+        assertPayload(gitHubPushRequest.getPayload());
     }
 
     @ParameterizedTest
@@ -61,10 +61,10 @@ class GitHubRequestTest {
     void shouldParseRequestWithUrlEncodedPayload(String urlEncodedPayload) {
         Request request = newRequest("push", "", urlEncodedPayload, APPLICATION_FORM_URLENCODED);
 
-        GitHubRequest gitHubRequest = new GitHubRequest(request);
+        GitHubPushRequest gitHubPushRequest = new GitHubPushRequest(request);
 
-        assertThat(gitHubRequest.getEvent()).isEqualTo("push");
-        assertPayload(gitHubRequest.getPayload());
+        assertThat(gitHubPushRequest.event()).isEqualTo("push");
+        assertPayload(gitHubPushRequest.getPayload());
     }
 
     @ParameterizedTest
@@ -72,36 +72,36 @@ class GitHubRequestTest {
     void shouldGuessTheGitHubUrls(String body) {
         Request request = newRequest("push", "", body, APPLICATION_JSON);
 
-        GitHubRequest gitHubRequest = new GitHubRequest(request);
+        GitHubPushRequest gitHubPushRequest = new GitHubPushRequest(request);
 
-        assertThat(gitHubRequest.webhookUrls())
-            .hasSize(24)
-            .contains(
-                "https://github.com/gocd/spaceship",
-                "https://github.com/gocd/spaceship/",
-                "https://github.com/gocd/spaceship.git",
-                "https://github.com/gocd/spaceship.git/",
-                "http://github.com/gocd/spaceship",
-                "http://github.com/gocd/spaceship/",
-                "http://github.com/gocd/spaceship.git",
-                "http://github.com/gocd/spaceship.git/",
-                "git://github.com/gocd/spaceship",
-                "git://github.com/gocd/spaceship/",
-                "git://github.com/gocd/spaceship.git",
-                "git://github.com/gocd/spaceship.git/",
-                "git@github.com:gocd/spaceship",
-                "git@github.com:gocd/spaceship/",
-                "git@github.com:gocd/spaceship.git",
-                "git@github.com:gocd/spaceship.git/",
-                "ssh://git@github.com/gocd/spaceship",
-                "ssh://git@github.com/gocd/spaceship/",
-                "ssh://git@github.com/gocd/spaceship.git",
-                "ssh://git@github.com/gocd/spaceship.git/",
-                "ssh://github.com/gocd/spaceship",
-                "ssh://github.com/gocd/spaceship/",
-                "ssh://github.com/gocd/spaceship.git",
-                "ssh://github.com/gocd/spaceship.git/"
-            );
+        assertThat(gitHubPushRequest.webhookUrls())
+                .hasSize(24)
+                .contains(
+                        "https://github.com/gocd/spaceship",
+                        "https://github.com/gocd/spaceship/",
+                        "https://github.com/gocd/spaceship.git",
+                        "https://github.com/gocd/spaceship.git/",
+                        "http://github.com/gocd/spaceship",
+                        "http://github.com/gocd/spaceship/",
+                        "http://github.com/gocd/spaceship.git",
+                        "http://github.com/gocd/spaceship.git/",
+                        "git://github.com/gocd/spaceship",
+                        "git://github.com/gocd/spaceship/",
+                        "git://github.com/gocd/spaceship.git",
+                        "git://github.com/gocd/spaceship.git/",
+                        "git@github.com:gocd/spaceship",
+                        "git@github.com:gocd/spaceship/",
+                        "git@github.com:gocd/spaceship.git",
+                        "git@github.com:gocd/spaceship.git/",
+                        "ssh://git@github.com/gocd/spaceship",
+                        "ssh://git@github.com/gocd/spaceship/",
+                        "ssh://git@github.com/gocd/spaceship.git",
+                        "ssh://git@github.com/gocd/spaceship.git/",
+                        "ssh://github.com/gocd/spaceship",
+                        "ssh://github.com/gocd/spaceship/",
+                        "ssh://github.com/gocd/spaceship.git",
+                        "ssh://github.com/gocd/spaceship.git/"
+                );
     }
 
     @Nested
@@ -111,18 +111,18 @@ class GitHubRequestTest {
         void shouldErrorOutIfEventTypeIsNotPingOrPush(String event) {
             Request request = newRequest(event, "", "{}", APPLICATION_JSON);
 
-            assertThatCode(() -> new GitHubRequest(request).validate("webhook-secret"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage(format("Invalid event type '%s'. Allowed events are [ping, push].", event));
+            assertThatCode(() -> new GitHubPushRequest(request).validate("webhook-secret"))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage(format("Invalid event type `%s`. Allowed events are [push, ping].", event));
         }
 
         @Test
         void shouldErrorOutIfSignatureHeaderIsNull() {
             Request request = newRequest("push", null, "{}", APPLICATION_JSON);
 
-            assertThatCode(() -> new GitHubRequest(request).validate("webhook-secret"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("No HMAC signature specified via 'X-Hub-Signature' header!");
+            assertThatCode(() -> new GitHubPushRequest(request).validate("webhook-secret"))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage("No HMAC signature specified via 'X-Hub-Signature' header!");
 
         }
 
@@ -130,9 +130,9 @@ class GitHubRequestTest {
         void shouldErrorOutIfSignatureHeaderDoesNotMatch() {
             Request request = newRequest("push", "random-signature", "{}", APPLICATION_JSON);
 
-            assertThatCode(() -> new GitHubRequest(request).validate("webhook-secret"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("HMAC signature specified via 'X-Hub-Signature' did not match!");
+            assertThatCode(() -> new GitHubPushRequest(request).validate("webhook-secret"))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessage("HMAC signature specified via 'X-Hub-Signature' did not match!");
 
         }
 
@@ -141,8 +141,8 @@ class GitHubRequestTest {
         void shouldBeValidWhenEventTypeAndSignatureMatches(String event) {
             Request request = newRequest(event, "sha1=021757dde54540ff083dcf680688c4c9676e5c44", "{}", APPLICATION_JSON);
 
-            assertThatCode(() -> new GitHubRequest(request).validate("webhook-secret"))
-                .doesNotThrowAnyException();
+            assertThatCode(() -> new GitHubPushRequest(request).validate("webhook-secret"))
+                    .doesNotThrowAnyException();
 
         }
     }
@@ -157,7 +157,7 @@ class GitHubRequestTest {
         return request;
     }
 
-    private void assertPayload(GitHubPayload payload) {
+    private void assertPayload(GitHubPushPayload payload) {
         assertThat(payload.getBranch()).isEqualTo("release");
         assertThat(payload.getFullName()).isEqualTo("gocd/spaceship");
         assertThat(payload.getHostname()).isEqualTo("github.com");

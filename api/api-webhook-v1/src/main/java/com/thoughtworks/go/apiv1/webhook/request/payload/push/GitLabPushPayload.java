@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.webhook.request.payload;
+package com.thoughtworks.go.apiv1.webhook.request.payload.push;
 
 import com.google.gson.annotations.SerializedName;
+import com.thoughtworks.go.apiv1.webhook.request.json.GitLabProject;
 import org.apache.commons.lang3.RegExUtils;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-public class GitLabPayload implements Payload {
+public class GitLabPushPayload implements PushPayload {
     @SerializedName("ref")
     private String ref;
 
     @SerializedName("project")
-    private Project project;
+    private GitLabProject project;
 
-    public GitLabPayload() {
+    public GitLabPushPayload() {
     }
 
     @Override
@@ -47,23 +45,4 @@ public class GitLabPayload implements Payload {
         return project.getFullName();
     }
 
-    public static class Project {
-        @SerializedName("http_url")
-        private String httpUrl;
-
-        @SerializedName("path_with_namespace")
-        private String fullName;
-
-        public String getHostname() {
-            try {
-                return new URI(httpUrl).getHost();
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public String getFullName() {
-            return fullName;
-        }
-    }
 }

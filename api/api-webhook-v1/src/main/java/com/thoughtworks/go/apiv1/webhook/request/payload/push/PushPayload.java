@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.webhook.request.payload;
+package com.thoughtworks.go.apiv1.webhook.request.payload.push;
 
-public interface Payload {
-    String getHostname();
+import com.thoughtworks.go.apiv1.webhook.request.payload.Payload;
 
-    String getFullName();
+public interface PushPayload extends Payload {
+    String getBranch();
 }

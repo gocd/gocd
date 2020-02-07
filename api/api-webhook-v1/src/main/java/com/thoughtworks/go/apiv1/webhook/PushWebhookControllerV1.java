@@ -18,16 +18,15 @@ package com.thoughtworks.go.apiv1.webhook;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.apiv1.webhook.request.BitBucketCloudRequest;
-import com.thoughtworks.go.apiv1.webhook.request.BitBucketServerRequest;
-import com.thoughtworks.go.apiv1.webhook.request.GitHubRequest;
-import com.thoughtworks.go.apiv1.webhook.request.GitLabRequest;
-import com.thoughtworks.go.apiv1.webhook.request.payload.Payload;
+import com.thoughtworks.go.apiv1.webhook.request.payload.push.PushPayload;
+import com.thoughtworks.go.apiv1.webhook.request.push.BitBucketCloudPushRequest;
+import com.thoughtworks.go.apiv1.webhook.request.push.BitBucketServerPushRequest;
+import com.thoughtworks.go.apiv1.webhook.request.push.GitHubPushRequest;
+import com.thoughtworks.go.apiv1.webhook.request.push.GitLabPushRequest;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.ServerConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,15 +41,16 @@ import static spark.Spark.path;
 import static spark.Spark.post;
 
 @Component
-public class WebhookControllerV1 extends ApiController implements SparkSpringController {
+public class PushWebhookControllerV1 extends ApiController implements SparkSpringController {
     public static final String PING_RESPONSE = "Keep it logically awesome.";
+
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     protected final MaterialUpdateService materialUpdateService;
     protected final ServerConfigService serverConfigService;
 
     @Autowired
-    public WebhookControllerV1(MaterialUpdateService materialUpdateService,
-                               ServerConfigService serverConfigService) {
+    public PushWebhookControllerV1(MaterialUpdateService materialUpdateService,
+                                   ServerConfigService serverConfigService) {
         super(ApiVersion.v1);
         this.materialUpdateService = materialUpdateService;
         this.serverConfigService = serverConfigService;
@@ -64,49 +64,49 @@ public class WebhookControllerV1 extends ApiController implements SparkSpringCon
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            post(Routes.Webhook.GITHUB, mimeType, this::github);
-            post(Routes.Webhook.GITLAB, mimeType, this::gitlab);
-            post(Routes.Webhook.BIT_BUCKET_CLOUD, mimeType, this::bitbucketCloud);
-            post(Routes.Webhook.BIT_BUCKET_SERVER, mimeType, this::bitbucketServer);
+            post(Routes.Webhook.Push.GITHUB, mimeType, this::github);
+            post(Routes.Webhook.Push.GITLAB, mimeType, this::gitlab);
+            post(Routes.Webhook.Push.BIT_BUCKET_CLOUD, mimeType, this::bitbucketCloud);
+            post(Routes.Webhook.Push.BIT_BUCKET_SERVER, mimeType, this::bitbucketServer);
         });
     }
 
     protected String bitbucketServer(Request request, Response response) {
-        BitBucketServerRequest bitBucketServerRequest = new BitBucketServerRequest(request);
-        bitBucketServerRequest.validate(serverConfigService.getWebhookSecret());
+        BitBucketServerPushRequest push = new BitBucketServerPushRequest(request);
+        push.validate(serverConfigService.getWebhookSecret());
 
-        if (StringUtils.equals(bitBucketServerRequest.getEvent(), "diagnostics:ping")) {
+        if ("diagnostics:ping".equals(push.event())) {
             return renderMessage(response, HttpStatus.ACCEPTED.value(), PING_RESPONSE);
         }
 
-        return notify(response, bitBucketServerRequest.webhookUrls(), bitBucketServerRequest.getPayload());
+        return notify(response, push.webhookUrls(), push.getPayload());
     }
 
     protected String bitbucketCloud(Request request, Response response) {
-        BitBucketCloudRequest bitBucketCloudRequest = new BitBucketCloudRequest(request);
-        bitBucketCloudRequest.validate(serverConfigService.getWebhookSecret());
-        return notify(response, bitBucketCloudRequest.webhookUrls(), bitBucketCloudRequest.getPayload());
+        BitBucketCloudPushRequest push = new BitBucketCloudPushRequest(request);
+        push.validate(serverConfigService.getWebhookSecret());
+        return notify(response, push.webhookUrls(), push.getPayload());
     }
 
     protected String gitlab(Request request, Response response) {
-        GitLabRequest gitLabRequest = new GitLabRequest(request);
-        gitLabRequest.validate(serverConfigService.getWebhookSecret());
+        GitLabPushRequest push = new GitLabPushRequest(request);
+        push.validate(serverConfigService.getWebhookSecret());
 
-        return notify(response, gitLabRequest.webhookUrls(), gitLabRequest.getPayload());
+        return notify(response, push.webhookUrls(), push.getPayload());
     }
 
     protected String github(Request request, Response response) {
-        GitHubRequest githubRequest = new GitHubRequest(request);
-        githubRequest.validate(serverConfigService.getWebhookSecret());
+        GitHubPushRequest push = new GitHubPushRequest(request);
+        push.validate(serverConfigService.getWebhookSecret());
 
-        if (StringUtils.equals(githubRequest.getEvent(), "ping")) {
+        if ("ping".equals(push.event())) {
             return renderMessage(response, HttpStatus.ACCEPTED.value(), PING_RESPONSE);
         }
 
-        return notify(response, githubRequest.webhookUrls(), githubRequest.getPayload());
+        return notify(response, push.webhookUrls(), push.getPayload());
     }
 
-    private String notify(Response response, List<String> webhookUrls, Payload payload) {
+    private String notify(Response response, List<String> webhookUrls, PushPayload payload) {
         LOGGER.info("[WebHook] Noticed a git push to {} on branch {}.", payload.getFullName(), payload.getBranch());
 
         if (materialUpdateService.updateGitMaterial(payload.getBranch(), webhookUrls)) {

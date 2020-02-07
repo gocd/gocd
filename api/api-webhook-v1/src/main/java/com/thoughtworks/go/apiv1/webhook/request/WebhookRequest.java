@@ -17,6 +17,8 @@
 package com.thoughtworks.go.apiv1.webhook.request;
 
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.apiv1.webhook.request.mixins.RequestContents;
+import com.thoughtworks.go.apiv1.webhook.request.mixins.ValidatingRequest;
 import com.thoughtworks.go.apiv1.webhook.request.payload.Payload;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import org.slf4j.Logger;
@@ -25,68 +27,55 @@ import org.springframework.util.MimeType;
 import spark.Request;
 
 import java.lang.reflect.ParameterizedType;
-import java.util.List;
 
 import static java.lang.String.format;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 
-public abstract class WebhookRequest<T extends Payload> {
+public abstract class WebhookRequest<T extends Payload> implements ValidatingRequest, RequestContents {
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-    private final String event;
-    private final String body;
-    private final MimeType contentType;
+
+    private final Request request;
     private T payload;
 
     public WebhookRequest(Request request) {
-        event = parseEvent(request);
-        body = request.body();
-        contentType = MimeType.valueOf(request.contentType());
+        this.request = request;
     }
 
-    public String getEvent() {
-        return event;
+    public Request request() {
+        return request;
     }
 
     public T getPayload() {
         if (payload == null) {
-            this.payload = parsePayload(contentType);
+            this.payload = parsePayload();
         }
         return payload;
     }
 
-    public abstract void validate(String webhookSecret);
-
-    public abstract List<String> webhookUrls();
-
-    public String getRawBody() {
-        return body;
+    public BadRequestException die(String message) {
+        LOGGER.error("[WebHook] " + message);
+        return new BadRequestException(message);
     }
 
-    protected abstract String parseEvent(Request request);
+    protected T parsePayload() {
+        MimeType contentType = contentType();
 
-    protected List<MimeType> supportedContentType() {
-        return List.of(APPLICATION_JSON, APPLICATION_JSON_UTF8);
-    }
-
-    protected T parsePayload(MimeType contentType) {
-        if (!supportedContentType().contains(contentType)) {
-            LOGGER.error(format("[WebHook] Could not understand the content type '%s'!", contentType));
-            throw new BadRequestException(format("Could not understand the content type '%s'!", contentType));
+        if (!supportedContentTypes().contains(contentType)) {
+            throw die(format("Could not understand the Content-Type: %s!", contentType));
         }
 
-        if (contentType.equals(APPLICATION_JSON) || contentType.equals(APPLICATION_JSON_UTF8)) {
+        String body = contents();
+
+        try {
             LOGGER.debug(format("[WebHook] Parsing '%s' payload!", contentType));
             return GsonTransformer.getInstance().fromJson(body, getParameterClass());
+        } catch (Throwable e) {
+            throw die(format("Failed to deserialize payload. Error: %s; Body: %s; Content-Type: %s", e.getMessage(), body, contentType));
         }
-
-        LOGGER.error("[WebHook] Could not understand the payload!");
-        throw new BadRequestException("Could not understand the payload!");
     }
 
-    @SuppressWarnings("unchecked")
     protected Class<T> getParameterClass() {
         return ((Class<T>) ((ParameterizedType) getClass().getGenericSuperclass())
-            .getActualTypeArguments()[0]);
+                .getActualTypeArguments()[0]);
     }
+
 }

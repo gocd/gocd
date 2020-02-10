@@ -349,10 +349,6 @@ api/api-plugin-settings-v1/out/
 api/api-plugin-settings-v1/target/
 api/api-plugin-settings-v1/logs/
 api/api-plugin-settings-v1/config/
-api/api-security-auth-config-v1/out/
-api/api-security-auth-config-v1/target/
-api/api-security-auth-config-v1/logs/
-api/api-security-auth-config-v1/config/
 api/api-dashboard-v4/out/
 api/api-dashboard-v4/target/
 api/api-dashboard-v4/logs/

@@ -61,7 +61,6 @@
   <context:component-scan base-package="com.thoughtworks.go.apiv1.backupconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.pipelinesascodeinternal"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.pluginsettings"/>
-  <context:component-scan base-package="com.thoughtworks.go.apiv1.securityauthconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv4.dashboard"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.materials"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv6.plugininfos"/>

@@ -35,7 +35,7 @@ class MergedEnvironmentRepresenterTest {
     def mergeEnvironmentConfig = new MergeEnvironmentConfig(env, remoteEnv)
 
     def actualJson = toObjectString({
-      MergedEnvironmentRepresenter.toJSON(it, mergeEnvironmentConfig, { name -> true })
+      MergedEnvironmentRepresenter.toJSON(it, mergeEnvironmentConfig)
     })
 
     def agentsJSON = mergeEnvironmentConfig.agents.collect { agent ->
@@ -58,7 +58,6 @@ class MergedEnvironmentRepresenterTest {
 
     def expected = [
       "name"                 : environmentName,
-      "can_administer"       : true,
       origins                : [
         toObject({ ConfigXmlOriginRepresenter.toJSON(it, null) }),
         toObject({ ConfigRepoOriginRepresenter.toJSON(it, remoteEnv.getOrigin() as RepoConfigOrigin) })

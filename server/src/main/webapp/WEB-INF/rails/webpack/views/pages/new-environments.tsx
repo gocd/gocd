@@ -21,6 +21,7 @@ import {Agents} from "models/agents/agents";
 import {AgentsCRUD} from "models/agents/agents_crud";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
+import {Permissions, SupportedEntity} from "models/shared/permissions";
 import {AnchorVM, ScrollManager} from "views/components/anchor/anchor";
 import {Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -103,8 +104,12 @@ export class NewEnvironmentsPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return Promise.all([EnvironmentsAPIs.all(), AgentsCRUD.all()]).then((results) => {
+    return Promise.all([EnvironmentsAPIs.all(), AgentsCRUD.all(), Permissions.all([SupportedEntity.environment])]).then((results) => {
       results[0].do((successResponse) => {
+        results[2].do((permissionsResponse) => {
+          this.mergePermissionsWithEnvironment(successResponse.body, permissionsResponse.body);
+        }, this.setErrorState);
+
         this.pageState = PageState.OK;
         this.environments(successResponse.body);
       }, this.setErrorState);
@@ -124,5 +129,12 @@ export class NewEnvironmentsPage extends Page<null, State> {
 
   private parseEnvironmentLink(sm: ScrollManager) {
     sm.setTarget(m.route.param().name || "");
+  }
+
+  private mergePermissionsWithEnvironment(environments: Environments, permissions: Permissions) {
+    const envPermissions = permissions.for(SupportedEntity.environment);
+    environments.forEach((env) => {
+      env.canAdminister(envPermissions.canAdminister(env.name()));
+    });
   }
 }

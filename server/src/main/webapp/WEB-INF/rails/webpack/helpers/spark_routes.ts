@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import m, {Params} from "mithril";
+import {SupportedEntity} from "models/shared/permissions";
 import {AnalyticsCapability} from "models/shared/plugin_infos_new/analytics_plugin_capabilities";
 import {PluginInfoQuery} from "models/shared/plugin_infos_new/plugin_info_crud";
 
@@ -514,5 +515,14 @@ export class SparkRoutes {
 
   static getStageDetailsPageUrl(pipelineName: string, pipelineCounter: number, stageName: string, stageCounter: string) {
     return `/go/pipelines/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}`;
+  }
+
+  static apiPermissionsPath(type?: SupportedEntity[]) {
+    const basePath = `/go/api/auth/permissions`;
+    if (!type || type.length === 0) {
+      return basePath;
+    } else {
+      return `${basePath}?${m.buildQueryString({type: type.join(",")})}`;
+    }
   }
 }

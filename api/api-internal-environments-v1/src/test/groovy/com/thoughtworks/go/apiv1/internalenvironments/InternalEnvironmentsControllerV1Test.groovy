@@ -149,7 +149,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [env1, env2], { name -> true }) }))
+          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [env1, env2]) }))
       }
 
       @Test
@@ -174,7 +174,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [env1, env2], { name -> true }) }))
+          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [env1, env2]) }))
       }
 
       @Test
@@ -199,7 +199,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [], { name -> true }) }))
+          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, []) }))
       }
 
       @Test
@@ -216,7 +216,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
         assertThatResponse()
           .isOk()
           .hasBodyWithJson(toObjectString({
-          MergedEnvironmentsRepresenter.toJSON(it, [mergeEnvironmentConfig], { name -> true })
+          MergedEnvironmentsRepresenter.toJSON(it, [mergeEnvironmentConfig])
         }))
       }
 
@@ -228,7 +228,7 @@ class InternalEnvironmentsControllerV1Test implements SecurityServiceTrait, Cont
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, [], { name -> true }) }))
+          .hasBodyWithJson(toObjectString({ MergedEnvironmentsRepresenter.toJSON(it, []) }))
       }
     }
   }

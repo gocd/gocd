@@ -22,12 +22,10 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 
 public class MergedEnvironmentRepresenter {
-    public static void toJSON(OutputWriter outputWriter, EnvironmentConfig environmentConfig, Function<String, Boolean> canUserAdministerEnvironment) {
+    public static void toJSON(OutputWriter outputWriter, EnvironmentConfig environmentConfig) {
         outputWriter.add("name", environmentConfig.name());
-        outputWriter.add("can_administer", canUserAdministerEnvironment.apply(environmentConfig.name().toString()));
         addOrigin(outputWriter, environmentConfig.getOrigin());
         outputWriter.addChildList("pipelines", outputListWriter -> {
             environmentConfig.getPipelines().forEach(pipeline -> outputListWriter.addChild(writer -> EnvironmentPipelineRepresenter.toJSON(writer, pipeline, environmentConfig)));

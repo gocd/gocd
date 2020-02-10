@@ -45,7 +45,6 @@ import static spark.Spark.*;
 
 @Component
 public class InternalEnvironmentsControllerV1 extends ApiController implements SparkSpringController {
-
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final EnvironmentConfigService environmentConfigService;
     private final AgentService agentService;
@@ -97,8 +96,7 @@ public class InternalEnvironmentsControllerV1 extends ApiController implements S
             }
         }
 
-        Function<String, Boolean> canUserAdministerEnvironment = envName -> apiAuthenticationHelper.doesUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, SupportedEntity.ENVIRONMENT, envName);
-        return writerForTopLevelObject(request, response, outputWriter -> MergedEnvironmentsRepresenter.toJSON(outputWriter, userSpecificEnvironments, canUserAdministerEnvironment));
+        return writerForTopLevelObject(request, response, outputWriter -> MergedEnvironmentsRepresenter.toJSON(outputWriter, userSpecificEnvironments));
     }
 
     String updateAgentAssociation(Request request, Response response) {

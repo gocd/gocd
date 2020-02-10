@@ -22,11 +22,11 @@ import java.util.List;
 import java.util.function.Function;
 
 public class MergedEnvironmentsRepresenter {
-    public static void toJSON(OutputWriter outputWriter, List<EnvironmentConfig> allMergedEnvironments, Function<String, Boolean> canUserAdministerEnvironment) {
+    public static void toJSON(OutputWriter outputWriter, List<EnvironmentConfig> allMergedEnvironments) {
         outputWriter.addChild("_embedded", embeddedWriter -> {
             embeddedWriter.addChildList("environments", outputListWriter -> {
                 allMergedEnvironments.forEach(environmentConfig -> {
-                    outputListWriter.addChild(childWriter -> MergedEnvironmentRepresenter.toJSON(childWriter, environmentConfig, canUserAdministerEnvironment));
+                    outputListWriter.addChild(childWriter -> MergedEnvironmentRepresenter.toJSON(childWriter, environmentConfig));
                 });
             });
         });

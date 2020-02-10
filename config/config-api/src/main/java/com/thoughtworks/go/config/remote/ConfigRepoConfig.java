@@ -21,11 +21,16 @@ import com.thoughtworks.go.config.rules.RuleAwarePluginProfile;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMetadataStore;
 import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.List;
+import java.util.Map;
 
+import static com.thoughtworks.go.config.materials.ScmMaterialConfig.AUTO_UPDATE;
 import static com.thoughtworks.go.config.rules.SupportedEntity.*;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
@@ -128,10 +133,30 @@ public class ConfigRepoConfig extends RuleAwarePluginProfile implements Cacheabl
         if (material != null) {
             MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(material.getFingerprint());
             if (allMaterialsByFingerPrint.stream().anyMatch(m -> !m.isAutoUpdate())) {
-                getRepo().errors().add("autoUpdate", format("Material of type %s (%s) is specified as a configuration repository and pipeline material with disabled autoUpdate."
-                        + " All copies of this material must have autoUpdate enabled or configuration repository must be removed", material.getTypeForDisplay(), material.getDescription()));
+                String message = format("The material of type %s (%s) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). All copies of this material must have autoUpdate enabled or configuration repository must be removed. Config Repository: %s (%s).", material.getTypeForDisplay(), material.getDescription(), getId(), getAutoUpdateStatus(material.isAutoUpdate()));
+                Map<CaseInsensitiveString, Boolean> pipelinesWithMaterial = validationContext.getPipelineToMaterialAutoUpdateMapByFingerprint(material.getFingerprint());
+                if (!pipelinesWithMaterial.isEmpty()) {
+                    message = message.concat(format(" Pipelines: %s", join(pipelinesWithMaterial)));
+                }
+                getRepo().errors().add(AUTO_UPDATE, message);
             }
         }
+    }
+
+    private String getAutoUpdateStatus(boolean autoUpdate) {
+        return autoUpdate ? "auto update enabled" : "auto update disabled";
+    }
+
+    private String join(Map<CaseInsensitiveString, Boolean> pipelinesWithThisMaterial) {
+        if (pipelinesWithThisMaterial == null || pipelinesWithThisMaterial.isEmpty()) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        pipelinesWithThisMaterial.forEach((key, value) -> {
+            builder.append(format("%s (%s), ", key, getAutoUpdateStatus(value)));
+        });
+
+        return builder.delete(builder.lastIndexOf(","), builder.length()).toString();
     }
 
     @Override

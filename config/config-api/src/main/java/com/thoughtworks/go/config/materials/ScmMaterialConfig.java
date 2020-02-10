@@ -326,14 +326,25 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         return false;
     }
 
-    public void setAutoUpdateMismatchError() {
-        addError(AUTO_UPDATE, format("Material of type %s (%s) is specified more than once in the configuration with different values for the autoUpdate attribute."
-                + " All copies of this material must have the same value for this attribute.", getTypeForDisplay(), getDescription()));
+    public void setAutoUpdateMismatchErrorWithPipelines(Map<CaseInsensitiveString, Boolean> pipelinesWithThisMaterial) {
+        String message = format("The material of type %s (%s) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). Those values should be the same. Pipelines: %s", getTypeForDisplay(), getDescription(), join(pipelinesWithThisMaterial));
+        addError(AUTO_UPDATE, message);
     }
 
-    public void setAutoUpdateMismatchErrorWithConfigRepo() {
-        addError(AUTO_UPDATE, format("Material of type %s (%s) is specified as a configuration repository and pipeline material with disabled autoUpdate."
-                + " All copies of this material must have autoUpdate enabled or configuration repository must be removed", getTypeForDisplay(), getDescription()));
+    private String getAutoUpdateStatus(boolean autoUpdate) {
+        return autoUpdate ? "auto update enabled" : "auto update disabled";
+    }
+
+    private String join(Map<CaseInsensitiveString, Boolean> pipelinesWithThisMaterial) {
+        if (pipelinesWithThisMaterial == null || pipelinesWithThisMaterial.isEmpty()) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        pipelinesWithThisMaterial.forEach((key, value) -> {
+            builder.append(format("%s (%s), ", key, getAutoUpdateStatus(value)));
+        });
+
+        return builder.delete(builder.lastIndexOf(","), builder.length()).toString();
     }
 
     public void setDestinationFolderError(String message) {

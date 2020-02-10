@@ -24,6 +24,10 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.util.SystemEnvironment;
 
+import java.util.Map;
+
+import static java.util.Collections.emptyMap;
+
 public interface ValidationContext {
     ConfigReposConfig getConfigRepos();
 
@@ -83,6 +87,10 @@ public interface ValidationContext {
 
     default PolicyValidationContext getPolicyValidationContext() {
         return null;
+    }
+
+    default Map<CaseInsensitiveString, Boolean> getPipelineToMaterialAutoUpdateMapByFingerprint(String fingerprint) {
+        return emptyMap();
     }
 }
 

@@ -174,7 +174,6 @@ class ConfigReposInternalControllerV3Test implements SecurityServiceTrait, Contr
         ]
       ],
       configuration              : [],
-      can_administer             : true,
       material_update_in_progress: isInProgress,
       parse_info                 : null == revision ? [:] : [
         error                     : error,

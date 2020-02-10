@@ -89,8 +89,8 @@ public class ConfigReposInternalControllerV3 extends ApiController implements Sp
         if (fresh(req, etag)) {
             return notModified(res);
         }
-        Function<String, Boolean> canUserAdministerConfigRepo = repoId -> authHelper.doesUserHasPermissions(currentUsername(), SupportedAction.ADMINISTER, CONFIG_REPO, repoId);
-        return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultListRepresenter.toJSON(w, userSpecificRepos, canUserAdministerConfigRepo));
+
+        return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultListRepresenter.toJSON(w, userSpecificRepos));
     }
 
     private String etagFor(Object entity) {

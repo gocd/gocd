@@ -24,16 +24,11 @@ import java.util.function.Function;
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.BASE;
 
 public class ConfigRepoWithResultListRepresenter {
-    public static void toJSON(OutputWriter json, List<ConfigRepoWithResult> repos, Function<String, Boolean> canUserAdministerConfigRepo) {
+    public static void toJSON(OutputWriter json, List<ConfigRepoWithResult> repos) {
         attachLinks(json);
         json.addChild("_embedded", w -> w.addChildList(
                 "config_repos", all -> repos.forEach(
-                        repo -> {
-                            boolean canAdminister = canUserAdministerConfigRepo.apply(repo.repo().getId());
-                            all.addChild(
-                                    el -> ConfigRepoWithResultRepresenter.toJSON(el, repo, canAdminister)
-                            );
-                        }
+                        repo -> all.addChild(el -> ConfigRepoWithResultRepresenter.toJSON(el, repo))
                 )
         ));
     }

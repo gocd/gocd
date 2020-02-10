@@ -15,12 +15,13 @@
  */
 
 import {AjaxPoller} from "helpers/ajax_poller";
-import {ApiResult} from "helpers/api_request_builder";
+import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {ConfigRepo} from "models/config_repos/types";
+import {Permissions, SupportedEntity} from "models/shared/permissions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
@@ -119,7 +120,11 @@ export class ConfigReposPage extends Page<null, State> {
     const state = vnode.state;
     this.pageState = PageState.LOADING;
 
-    return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO}), ConfigReposCRUD.all(this.etag())]).then((args) => {
+    return Promise.all([
+                         PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO}),
+                         ConfigReposCRUD.all(this.etag()),
+                         Permissions.all([SupportedEntity.config_repo])
+                       ]).then((args) => {
       const pluginInfosResponse: ApiResult<PluginInfos> = args[0];
       pluginInfosResponse.do(
         (successResponse) => {
@@ -132,12 +137,14 @@ export class ConfigReposPage extends Page<null, State> {
         }
       );
       const apiResponse: ApiResult<ConfigRepo[]> = args[1];
-      this.onConfigReposAPIResponse(apiResponse, vnode);
+      const permissionsResponse: ApiResult<Permissions> = args[2];
+      this.onConfigReposAPIResponse(apiResponse, permissionsResponse, vnode);
     });
   }
 
   refreshConfigRepos(vnode: m.Vnode<null, State>) {
-    return ConfigReposCRUD.all(this.etag()).then((response) => this.onConfigReposAPIResponse(response, vnode));
+    return Promise.all([ConfigReposCRUD.all(), Permissions.all([SupportedEntity.config_repo])])
+                  .then((args) => this.onConfigReposAPIResponse(args[0], args[1], vnode));
   }
 
   parseRepoLink(sm: ScrollManager) {
@@ -148,8 +155,8 @@ export class ConfigReposPage extends Page<null, State> {
     return "Config repositories";
   }
 
-  private onConfigReposAPIResponse(apiResponse: ApiResult<ConfigRepo[]>, vnode: m.Vnode<null, State>) {
-    if (304 === apiResponse.getStatusCode()) {
+  private onConfigReposAPIResponse(apiResponse: ApiResult<ConfigRepo[]>, permissionsResponse: ApiResult<Permissions>, vnode: m.Vnode<null, State>) {
+    if (304 === apiResponse.getStatusCode() && 304 === permissionsResponse.getStatusCode()) {
       return;
     }
 
@@ -157,16 +164,21 @@ export class ConfigReposPage extends Page<null, State> {
       this.etag(apiResponse.getEtag()!);
     }
 
-    apiResponse.do(
-      (successResponse) => {
+    const onError = (errorResponse: ErrorResponse) => {
+      vnode.state.onError(JSON.parse(errorResponse.body!).message);
+      this.pageState = PageState.FAILED;
+    };
+
+    apiResponse.do((successResponse) => {
+        permissionsResponse.do((permissions) => {
+          const repoPermissions = permissions.body.for(SupportedEntity.config_repo);
+          successResponse.body.map((repo) => {
+            repo.canAdminister(repoPermissions.canAdminister(repo.id()!));
+          });
+        }, onError);
         this.pageState = PageState.OK;
         const models   = _.map(successResponse.body, (repo) => new ConfigRepoVM(repo, vnode.state));
         vnode.state.unfilteredModels(models);
-      },
-      (errorResponse) => {
-        vnode.state.onError(JSON.parse(errorResponse.body!).message);
-        this.pageState = PageState.FAILED;
-      }
-    );
+      }, onError);
   }
 }

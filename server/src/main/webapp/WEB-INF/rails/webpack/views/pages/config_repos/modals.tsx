@@ -34,6 +34,7 @@ import {ConfigureRulesWidget, RulesType} from "views/components/rules/configure_
 import {Spinner} from "views/components/spinner";
 import styles from "views/pages/config_repos/index.scss";
 import {OperationState, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
+import materialStyles from "./materials.scss";
 
 type EditableMaterial = SaveOperation
   & { repo: ConfigRepo }
@@ -55,25 +56,30 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
         (errorMessage),
         (<FormHeader>
           <Form>
+            <TextField label="Config repository name"
+                       readonly={!vnode.attrs.isNew}
+                       property={vnode.attrs.repo.id}
+                       errorText={vnode.attrs.repo.errors().errorsForDisplay("id")}
+                       css={styles}
+                       required={true}/>
             <SelectField label="Plugin ID"
                          property={vnode.attrs.repo.pluginId}
                          required={true}
+                         css={styles}
                          errorText={vnode.attrs.repo.errors().errorsForDisplay("pluginId")}>
               <SelectFieldOptions selected={vnode.attrs.repo.pluginId()}
                                   items={pluginList}/>
             </SelectField>
+          </Form>
+          <Form>
             <SelectField label={"Material type"}
+                         css={styles}
                          property={vnode.attrs.repo.material()!.typeProxy.bind(vnode.attrs.repo.material()!)}
                          required={true}
                          errorText={vnode.attrs.repo.errors().errorsForDisplay("material")}>
               <SelectFieldOptions selected={vnode.attrs.repo.material()!.type()}
                                   items={this.materialSelectOptions()}/>
             </SelectField>
-            <TextField label="Config repository name"
-                       readonly={!vnode.attrs.isNew}
-                       property={vnode.attrs.repo.id}
-                       errorText={vnode.attrs.repo.errors().errorsForDisplay("id")}
-                       required={true}/>
           </Form>
         </FormHeader>),
         (<div>
@@ -83,9 +89,7 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
                   {vnode.children}
                 </Form>
               </FormBody>
-              <div class={styles.materialTestConnectionWrapper}>
-                <TestConnection material={vnode.attrs.repo.material()!}/>
-              </div>
+              <TestConnection material={vnode.attrs.repo.material()!}/>
             </div>
             <div class={styles.pluginFilePatternConfigWrapper}>
               <FormBody>
@@ -97,8 +101,7 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
           </div>
         ),
         <div>
-          <ConfigureRulesWidget
-                                infoMsg={infoMsg}
+          <ConfigureRulesWidget infoMsg={infoMsg}
                                 rules={vnode.attrs.repo.rules}
                                 types={[RulesType.PIPELINE, RulesType.PIPELINE_GROUP, RulesType.ENVIRONMENT]}
                                 resourceAutocompleteHelper={new Map()}/>
@@ -112,12 +115,13 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
     if (ConfigRepo.JSON_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
       pluginConfig = [
         <TextField property={vnode.attrs.repo.__jsonPluginPipelinesPattern}
+                   css={styles}
                    label="GoCD pipeline files pattern"/>,
         <TextField property={vnode.attrs.repo.__jsonPluginEnvPattern}
                    label="GoCD environment files pattern"/>
       ];
     } else if (ConfigRepo.YAML_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
-      pluginConfig = (<TextField property={vnode.attrs.repo.__yamlPluginPattern} label="GoCD YAML files pattern"/>);
+      pluginConfig = (<TextField property={vnode.attrs.repo.__yamlPluginPattern} css={styles} label="GoCD YAML files pattern"/>);
     }
     return pluginConfig;
   }
@@ -146,21 +150,25 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
       return (
         <MaterialEditWidget {...vnode.attrs}>
-
-          <TextField label={humanizedMaterialAttributeName("url")}
-                     property={materialAttributes.url}
-                     required={true}
-                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
-
-          <TextField label={humanizedMaterialAttributeName("branch")}
-                     placeholder="master"
-                     property={materialAttributes.branch}/>
-
-          <TextField label={humanizedMaterialAttributeName("username")}
-                     property={materialAttributes.username}/>
-
-          <PasswordField label={humanizedMaterialAttributeName("password")}
-                         property={materialAttributes.password}/>
+          <div>
+            <TextField label={humanizedMaterialAttributeName("url")}
+                       property={materialAttributes.url}
+                       required={true}
+                       css={styles}
+                       errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+            <TextField label={humanizedMaterialAttributeName("username")}
+                       css={styles}
+                       property={materialAttributes.username}/>
+          </div>
+          <div>
+            <TextField label={humanizedMaterialAttributeName("branch")}
+                       placeholder="master"
+                       css={styles}
+                       property={materialAttributes.branch}/>
+            <PasswordField label={humanizedMaterialAttributeName("password")}
+                           css={styles}
+                           property={materialAttributes.password}/>
+          </div>
         </MaterialEditWidget>
       );
     }
@@ -172,19 +180,25 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
       return (
         <MaterialEditWidget {...vnode.attrs}>
-          <TextField label={humanizedMaterialAttributeName("url")}
-                     property={materialAttributes.url}
-                     required={true}
-                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+          <div>
+            <TextField label={humanizedMaterialAttributeName("url")}
+                       property={materialAttributes.url}
+                       required={true}
+                       css={styles}
+                       errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+            <TextField label={humanizedMaterialAttributeName("username")}
+                       css={styles}
+                       property={materialAttributes.username}/>
+          </div>
+          <div class={styles.adjustHeight}>
+            <CheckboxField label={humanizedMaterialAttributeName("checkExternals")}
+                           css={styles}
+                           property={materialAttributes.checkExternals}/>
 
-          <CheckboxField label={humanizedMaterialAttributeName("checkExternals")}
-                         property={materialAttributes.checkExternals}/>
-
-          <TextField label={humanizedMaterialAttributeName("username")}
-                     property={materialAttributes.username}/>
-
-          <PasswordField label={humanizedMaterialAttributeName("password")}
-                         property={materialAttributes.password}/>
+            <PasswordField label={humanizedMaterialAttributeName("password")}
+                           css={styles}
+                           property={materialAttributes.password}/>
+          </div>
         </MaterialEditWidget>
       );
     }
@@ -196,20 +210,27 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
       return (
         <MaterialEditWidget {...vnode.attrs}>
-          <TextField label={humanizedMaterialAttributeName("url")}
-                     property={materialAttributes.url}
-                     required={true}
-                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+          <div>
+            <TextField label={humanizedMaterialAttributeName("url")}
+                       property={materialAttributes.url}
+                       required={true}
+                       css={styles}
+                       errorText={materialAttributes.errors().errorsForDisplay("url")}/>
 
-          <TextField label={humanizedMaterialAttributeName("branch")}
-                     placeholder="default"
-                     property={materialAttributes.branch}/>
+            <TextField label={humanizedMaterialAttributeName("username")}
+                       css={styles}
+                       property={materialAttributes.username}/>
+          </div>
+          <div>
+            <TextField label={humanizedMaterialAttributeName("branch")}
+                       placeholder="default"
+                       css={styles}
+                       property={materialAttributes.branch}/>
 
-          <TextField label={humanizedMaterialAttributeName("username")}
-                     property={materialAttributes.username}/>
-
-          <PasswordField label={humanizedMaterialAttributeName("password")}
-                         property={materialAttributes.password}/>
+            <PasswordField label={humanizedMaterialAttributeName("password")}
+                           css={styles}
+                           property={materialAttributes.password}/>
+          </div>
         </MaterialEditWidget>
       );
     }
@@ -223,6 +244,7 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
           <TextField label={humanizedMaterialAttributeName("port")}
                      property={materialAttributes.port}
                      required={true}
+                     css={materialStyles}
                      errorText={materialAttributes.errors().errorsForDisplay("port")}/>
 
           <CheckboxField label={humanizedMaterialAttributeName("useTickets")}
@@ -234,6 +256,7 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
                          errorText={materialAttributes.errors().errorsForDisplay("view")}/>
 
           <TextField label={humanizedMaterialAttributeName("username")}
+                     css={materialStyles}
                      property={materialAttributes.username}/>
 
           <PasswordField label={humanizedMaterialAttributeName("password")}
@@ -252,6 +275,7 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
           <TextField label={humanizedMaterialAttributeName("url")}
                      property={materialAttributes.url}
+                     css={materialStyles}
                      required={true}
                      errorText={materialAttributes.errors().errorsForDisplay("url")}/>
 
@@ -266,6 +290,7 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
           <TextField label={humanizedMaterialAttributeName("username")}
                      property={materialAttributes.username}
                      required={true}
+                     css={materialStyles}
                      errorText={materialAttributes.errors().errorsForDisplay("username")}/>
 
           <PasswordField label={humanizedMaterialAttributeName("password")}
@@ -289,7 +314,7 @@ export abstract class ConfigRepoModal extends Modal {
   protected constructor(onSuccessfulSave: (msg: m.Children) => any,
                         onError: (msg: m.Children) => any,
                         pluginInfos: Stream<PluginInfos>) {
-    super(Size.medium);
+    super(Size.large);
     this.onSuccessfulSave = onSuccessfulSave;
     this.onError          = onError;
     this.pluginInfos      = pluginInfos;

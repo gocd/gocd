@@ -26,6 +26,7 @@ import {
   ElasticAgentProfiles
 } from "models/elastic_profiles/types";
 import {Configurations} from "models/shared/configuration";
+import {Permission, Permissions, SupportedEntity} from "models/shared/permissions";
 import {ElasticAgentsExtensionType, ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
@@ -302,6 +303,7 @@ export class ElasticAgentsPage extends Page<null, State> {
         PluginInfoCRUD.all({type: ExtensionTypeString.ELASTIC_AGENTS}),
         ClusterProfilesCRUD.all(),
         ElasticAgentProfilesCRUD.all(),
+        Permissions.all([SupportedEntity.elastic_agent_profile, SupportedEntity.cluster_profile])
       ]
     ).then((results) => {
       results[0].do(
@@ -314,18 +316,27 @@ export class ElasticAgentsPage extends Page<null, State> {
           this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
         }
       );
-      results[1].do(
-        (successResponse) => {
-          vnode.state.clusterProfiles(successResponse.body);
+
+      results[1].do((clusterProfilesResponse) => {
+          vnode.state.clusterProfiles(clusterProfilesResponse.body);
           this.pageState = PageState.OK;
-        },
-        () => this.setErrorState()
-      );
-      results[2].do(
-        (successResponse) => {
-          successResponse.body.inferPluginIdFromReferencedCluster(vnode.state.clusterProfiles());
-          vnode.state.elasticProfiles(successResponse.body);
-          this.pageState = PageState.OK;
+
+          results[2].do((elasticProfilesResponse) => {
+
+            elasticProfilesResponse.body.inferPluginIdFromReferencedCluster(vnode.state.clusterProfiles());
+            vnode.state.elasticProfiles(elasticProfilesResponse.body);
+            this.pageState = PageState.OK;
+
+            results[3].do((permissionsResponse) => {
+              const clusterProfilePermissions = permissionsResponse.body.for(SupportedEntity.cluster_profile);
+              const elasticProfilePermissions = permissionsResponse.body.for(SupportedEntity.elastic_agent_profile);
+              this.mergeClusterProfilePermissions(vnode.state.clusterProfiles(), clusterProfilePermissions);
+              this.mergeElasticProfilePermissions(vnode.state.elasticProfiles(), elasticProfilePermissions);
+
+              this.pageState = PageState.OK;
+            }, () => this.setErrorState());
+
+          }, () => this.setErrorState());
         },
         () => this.setErrorState()
       );
@@ -334,6 +345,14 @@ export class ElasticAgentsPage extends Page<null, State> {
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     return <HeaderPanel title={this.pageName()} buttons={this.buttons(vnode)}/>;
+  }
+
+  private mergeClusterProfilePermissions(clusterProfiles: ClusterProfiles, permission: Permission) {
+    clusterProfiles.all().forEach((p) => p.canAdminister(permission.canAdminister(p.id()!)));
+  }
+
+  private mergeElasticProfilePermissions(elasticProfiles: ElasticAgentProfiles, permission: Permission) {
+    elasticProfiles.all()().forEach((p) => p.canAdminister(permission.canAdminister(p.id()!)));
   }
 
   private buttons(vnode: m.Vnode<null, State>) {

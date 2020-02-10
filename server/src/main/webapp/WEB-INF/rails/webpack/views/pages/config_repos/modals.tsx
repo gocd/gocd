@@ -15,6 +15,7 @@
  */
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import {docsUrl} from "gen/gocd_version";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -26,6 +27,7 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormBody, FormHeader} from "views/components/forms/form";
 import {CheckboxField, Option, PasswordField, SelectField, SelectFieldOptions, TextAreaField, TextField} from "views/components/forms/input_fields";
+import {Link} from "views/components/link";
 import {TestConnection} from "views/components/materials/test_connection";
 import {Modal, Size} from "views/components/modal";
 import {ConfigureRulesWidget, RulesType} from "views/components/rules/configure_rules_widget";
@@ -46,6 +48,8 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
     });
 
     const errorMessage = vnode.attrs.error ? <div class={styles.errorWrapper}>{vnode.attrs.error}</div> : undefined;
+    const infoMsg = <span>Configure rules to allow which environment/pipeline group/pipeline the config repository can refer to. By default, the config repository cannot refer to an entity unless explicitly allowed. <Link
+      href={docsUrl("advanced_usage/pipelines_as_code.html")} externalLinkIcon={true}>Learn More</Link></span>;
     return (
       [
         (errorMessage),
@@ -93,8 +97,8 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
           </div>
         ),
         <div>
-          <ConfigureRulesWidget css={styles}
-                                infoMsg={"Configure rules to allow what environment/pipeline group/pipeline this config repo can refer to. By default, all entities will be denied."}
+          <ConfigureRulesWidget
+                                infoMsg={infoMsg}
                                 rules={vnode.attrs.repo.rules}
                                 types={[RulesType.PIPELINE, RulesType.PIPELINE_GROUP, RulesType.ENVIRONMENT]}
                                 resourceAutocompleteHelper={new Map()}/>

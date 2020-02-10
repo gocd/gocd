@@ -513,10 +513,6 @@ api/api-cluster-profiles-v2/out/
 api/api-cluster-profiles-v2/target/
 api/api-cluster-profiles-v2/logs/
 api/api-cluster-profiles-v2/config/
-api/api-elastic-profile-v3/out/
-api/api-elastic-profile-v3/target/
-api/api-elastic-profile-v3/logs/
-api/api-elastic-profile-v3/config/
 api/api-webhook-v1/out/
 api/api-webhook-v1/target/
 api/api-webhook-v1/logs/

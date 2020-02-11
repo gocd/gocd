@@ -19,6 +19,7 @@ import m from "mithril";
 import {PipelineConfigPage} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {EnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/common/environment_variables_tab_content";
 import {GeneralOptionsTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/general_options_tab";
+import {ParametersTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/parameters_tab_content";
 
 class RedirectToGeneralTab extends PipelineConfigPage<any> {
 
@@ -35,6 +36,7 @@ export class PipelineConfigSPA extends RoutedSinglePageApp {
             "/:pipeline_name/:tab_name": new PipelineConfigPage(
               new GeneralOptionsTabContent(),
               new EnvironmentVariablesTabContent(),
+              new ParametersTabContent()
             ),
             "/:pipeline_name/:stage_name/:tab_name": new PipelineConfigPage(new EnvironmentVariablesTabContent()),
             "/:pipeline_name/:stage_name/:job_name/:tab_name": new PipelineConfigPage(new EnvironmentVariablesTabContent())

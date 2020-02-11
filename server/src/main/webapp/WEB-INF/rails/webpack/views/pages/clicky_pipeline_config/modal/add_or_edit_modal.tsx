@@ -18,10 +18,13 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Material} from "models/materials/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {Job} from "models/pipeline_configs/job";
+import {Stage} from "models/pipeline_configs/stage";
 import s from "underscore.string";
 import * as Buttons from "views/components/buttons";
 import {Modal, Size} from "views/components/modal";
 import {MaterialEditor} from "views/pages/pipelines/material_editor";
+import {StageEditor} from "../widgets/stage_editor_widget";
 
 abstract class AddOrEditEntityModal<T extends ValidatableMixin> extends Modal {
   protected readonly entity: Stream<T>;
@@ -66,5 +69,17 @@ export class MaterialModal extends AddOrEditEntityModal<Material> {
 
   body(): m.Children {
     return <MaterialEditor material={this.entity()}/>;
+  }
+}
+
+export class StageModal extends AddOrEditEntityModal<Stage> {
+  static forAdd(onSuccessfulAdd: (stage: Stage) => void) {
+    const newStage = new Stage();
+    newStage.jobs().add(new Job());
+    return new StageModal("Add new stage", Stream(newStage), onSuccessfulAdd);
+  }
+
+  body() {
+    return <StageEditor stage={this.entity}/>;
   }
 }

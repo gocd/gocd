@@ -24,6 +24,18 @@ interface PageMeta {
   pipelineName: string;
 }
 
+export interface RouteInfo<T> {
+  route: string;
+  params: T;
+}
+
+export interface PipelineConfigRouteParams {
+  pipeline_name: string;
+  job_name?: string;
+  stage_name?: string;
+  tab_name: string;
+}
+
 export class PipelineConfigPage<T> extends Page<null, T> {
   private pipelineConfig?: PipelineConfig;
 

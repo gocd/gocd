@@ -65,7 +65,7 @@ export class SparkRoutes {
     return `/go/api/admin/pipelines`;
   }
 
-  static getPipelineConfigPath(pipelineName: string): string {
+  static getOrUpdatePipelineConfigPath(pipelineName: string): string {
     return `/go/api/admin/pipelines/${pipelineName}`;
   }
 

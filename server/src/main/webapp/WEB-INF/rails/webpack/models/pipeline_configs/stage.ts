@@ -42,10 +42,10 @@ export interface StageJSON {
   jobs: JobJSON[];
 }
 
-type ApprovalType = "success" | "manual";
+export type ApprovalType = "success" | "manual";
 
 class Approval extends ValidatableMixin {
-  type = Stream<ApprovalType>('success');
+  type = Stream<ApprovalType>("success");
   state: (value?: boolean) => boolean;
 
   //authorization must be present for server side validations
@@ -62,9 +62,9 @@ class Approval extends ValidatableMixin {
     // and `this` won't refer to an Approval object
     this.state = (value?: boolean) => {
       if ("boolean" === typeof value) {
-        this.type(value ? 'success' : 'manual');
+        this.type(value ? "success" : "manual");
       }
-      return 'success' === this.type();
+      return "success" === this.type();
     };
   }
 
@@ -110,8 +110,8 @@ export class Stage extends ValidatableMixin {
     stage.cleanWorkingDirectory(json.clean_working_directory);
     stage.neverCleanupArtifacts(json.never_cleanup_artifacts);
     stage.approval(Approval.fromJSON(json.approval));
-    stage.environmentVariables(EnvironmentVariables.fromJSON(json.environment_variables));
-    stage.jobs(new NameableSet(Job.fromJSONArray(json.jobs)));
+    stage.environmentVariables(EnvironmentVariables.fromJSON(json.environment_variables || []));
+    stage.jobs(new NameableSet(Job.fromJSONArray(json.jobs || [])));
     return stage;
   }
 

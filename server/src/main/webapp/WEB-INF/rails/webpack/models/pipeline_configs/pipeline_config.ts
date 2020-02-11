@@ -27,67 +27,67 @@ import {NameableSet} from "./nameable_set";
 import {ParameterJSON, PipelineParameter} from "./parameter";
 import {Stage, StageJSON} from "./stage";
 
-type LockBehavior = "lockOnFailure" | "unlockWhenFinished" | "none";
+export type LockBehavior = "lockOnFailure" | "unlockWhenFinished" | "none";
 
 interface TimerSpecJSON {
   spec: string;
   only_on_changes: boolean;
 }
 
-declare namespace PipelineConfigJSON {
-  export interface PipelineConfigJSON {
-    label_template: string;
-    lock_behavior: LockBehavior;
-    name: string;
-    template: string;
-    group: string;
-    origin: OriginJSON;
-    parameters: ParameterJSON[];
-    environment_variables: EnvironmentVariableJSON[];
-    materials: MaterialJSON[];
-    stages: StageJSON[];
-    tracking_tool: TrackingToolJSON;
-    timer: TimerSpecJSON;
-  }
+export interface PipelineConfigJSON {
+  label_template: string;
+  lock_behavior: LockBehavior;
+  name: string;
+  template: string;
+  group: string;
+  origin: OriginJSON;
+  parameters: ParameterJSON[];
+  environment_variables: EnvironmentVariableJSON[];
+  materials: MaterialJSON[];
+  stages: StageJSON[];
+  tracking_tool: TrackingToolJSON;
+  timer: TimerSpecJSON;
+}
 
-  export interface Artifact {
-    type: string;
-    source: string;
-    destination: string;
-  }
+export interface Artifact {
+  type: string;
+  source: string;
+  destination: string;
+}
 
-  export interface Task {
-    type: string;
-    attributes: TaskAttributes;
-  }
+export interface Task {
+  type: string;
+  attributes: TaskAttributesJSON;
+}
 
-  export interface TaskAttributes {
-    artifact_origin?: string;
-    pipeline?: string;
-    stage?: string;
-    job?: string;
-    run_if: string[];
-    is_source_a_file?: boolean;
-    source?: string;
-    destination?: string;
-    command?: string;
-    arguments?: string[];
-    working_directory?: string;
-  }
+export interface TaskAttributesJSON {
+  artifact_origin?: string;
+  pipeline?: string;
+  stage?: string;
+  job?: string;
+  run_if: string[];
+  is_source_a_file?: boolean;
+  source?: string;
+  destination?: string;
+  command?: string;
+  arguments?: string[];
+  working_directory?: string;
 }
 
 export class Timer {
   spec          = Stream<string>();
   onlyOnChanges = Stream<boolean>();
 
-  constructor(spec: string,
-              onlyOnChanges: boolean) {
-    this.spec(spec);
-    this.onlyOnChanges(onlyOnChanges);
+  constructor(spec?: string, onlyOnChanges?: boolean) {
+    this.spec(spec!);
+    this.onlyOnChanges(onlyOnChanges!);
   }
 
   static fromJSON(json: TimerSpecJSON) {
-    return new Timer(json.spec, json.only_on_changes);
+    if (json) {
+      return new Timer(json.spec, json.only_on_changes);
+    }
+    return new Timer();
   }
 
   toApiPayload() {
@@ -111,8 +111,10 @@ export class TrackingTool {
 
   static fromJSON(json: TrackingToolJSON) {
     const tracingTool = new TrackingTool();
-    tracingTool.regex(json.attributes.regex);
-    tracingTool.urlPattern(json.attributes.url_pattern);
+    if (json) {
+      tracingTool.regex(json.attributes.regex);
+      tracingTool.urlPattern(json.attributes.url_pattern);
+    }
     return tracingTool;
   }
 
@@ -138,6 +140,8 @@ export class PipelineConfig extends ValidatableMixin {
   readonly trackingTool         = Stream<TrackingTool>();
   readonly timer                = Stream<Timer>();
 
+  private readonly __usingTemplate = Stream<boolean>(false);
+
   constructor(name: string = "", materials: Material[] = [], stages: Stage[] = []) {
     super();
 
@@ -162,25 +166,34 @@ export class PipelineConfig extends ValidatableMixin {
   }
 
   static get(pipelineName: string) {
-    return ApiRequestBuilder.GET(SparkRoutes.getPipelineConfigPath(pipelineName), ApiVersion.latest);
+    return ApiRequestBuilder.GET(SparkRoutes.getOrUpdatePipelineConfigPath(pipelineName), ApiVersion.latest);
   }
 
-  static fromJSON(json: PipelineConfigJSON.PipelineConfigJSON) {
+  static fromJSON(json: PipelineConfigJSON) {
     const pipelineConfig = new PipelineConfig();
     pipelineConfig.labelTemplate(json.label_template);
-    pipelineConfig.lockBehavior(json.lock_behavior);
+    pipelineConfig.lockBehavior(json.lock_behavior || "none");
     pipelineConfig.name(json.name);
     pipelineConfig.template(json.template);
     pipelineConfig.group(json.group);
     pipelineConfig.origin(Origin.fromJSON(json.origin));
-    pipelineConfig.parameters(PipelineParameter.fromJSONArray(json.parameters));
-    pipelineConfig.environmentVariables(EnvironmentVariables.fromJSON(json.environment_variables));
-    pipelineConfig.materials(new NameableSet<Material>(Materials.fromJSONArray(json.materials)));
-    pipelineConfig.stages(new NameableSet(Stage.fromJSONArray(json.stages)));
+    pipelineConfig.parameters(PipelineParameter.fromJSONArray(json.parameters || []));
+    pipelineConfig.environmentVariables(EnvironmentVariables.fromJSON(json.environment_variables || []));
+    pipelineConfig.materials(new NameableSet<Material>(Materials.fromJSONArray(json.materials || [])));
+    pipelineConfig.stages(new NameableSet(Stage.fromJSONArray(json.stages || [])));
     pipelineConfig.trackingTool(TrackingTool.fromJSON(json.tracking_tool));
     pipelineConfig.timer(Timer.fromJSON(json.timer));
+    pipelineConfig.__usingTemplate(!!json.template);
 
     return pipelineConfig;
+  }
+
+  firstStage(): Stage {
+    return this.stages().values().next().value;
+  }
+
+  isUsingTemplate() {
+    return this.__usingTemplate;
   }
 
   withGroup(group: string) {
@@ -192,6 +205,12 @@ export class PipelineConfig extends ValidatableMixin {
     return ApiRequestBuilder.POST(SparkRoutes.pipelineConfigCreatePath(), ApiVersion.latest, {
       payload: this.toApiPayload(),
       headers: {"X-pause-pipeline": pause.toString(), "X-pause-cause": "Under construction"}
+    });
+  }
+
+  update() {
+    return ApiRequestBuilder.PUT(SparkRoutes.getOrUpdatePipelineConfigPath(this.name()), ApiVersion.latest, {
+      payload: JsonUtils.toSnakeCasedObject(this),
     });
   }
 

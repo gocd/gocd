@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import {TextField} from "views/components/forms/input_fields";
 import {Table} from "views/components/table";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
-import css from "./environment_variables_editor.scss";
+import css from "./parameters_editor.scss";
 
 interface Attrs {
   parameters: Stream<PipelineParameter[]>;
@@ -49,7 +49,7 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
     return (
       <FormBody>
         <Form last={true} compactForm={true}>
-          <div class={css.envVars}>
+          <div class={css.parameters}>
             <label>
               Parameters
               <Tooltip.Help size={TooltipSize.medium} content={<span>Parameters help reduce repetition within your configurations and combined with templates allow you to setup complex configurations. <a href="https://docs.gocd.org/current/configuration/admin_use_parameters_in_configuration.html">Read more</a></span>} />

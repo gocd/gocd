@@ -26,7 +26,7 @@ interface Attrs {
   initialSelection?: number;
   tabs: m.Child[] | any;
   contents: m.Child[] | any;
-  callback?: (selectedTabIndex: number) => void;
+  beforeChange?: (selectedTabIndex: number, done: () => void) => void;
 }
 
 interface State {
@@ -49,10 +49,15 @@ export class Tabs extends MithrilComponent<Attrs, State> {
           const classesToApply = classnames(styles.tabHead, {[styles.active]: vnode.state.isSelected(index)});
 
           return <li onclick={() => {
-            if (vnode.attrs.callback) {
-              vnode.attrs.callback(index);
+            const done = () => {
+              vnode.state.selectedTabIndex(index);
+            };
+
+            if (vnode.attrs.beforeChange) {
+              vnode.attrs.beforeChange(index, done);
+            } else {
+              done();
             }
-            return vnode.state.selectedTabIndex(index);
           }}>
             <a class={classesToApply}
                href={"javascript:void(0);"}
@@ -67,7 +72,7 @@ export class Tabs extends MithrilComponent<Attrs, State> {
         {vnode.attrs.contents.map((content: any, index: number) => {
           return [
             <h3 class={classnames(styles.tabAccordionHeading,
-              {[styles.active]: vnode.state.isSelected(index)})}
+                                  {[styles.active]: vnode.state.isSelected(index)})}
                 onclick={() => vnode.state.selectedTabIndex(index)}>
               {vnode.attrs.tabs[index]}
             </h3>,

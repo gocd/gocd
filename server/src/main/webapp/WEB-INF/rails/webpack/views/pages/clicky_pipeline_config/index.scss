@@ -15,6 +15,28 @@
  */
 @import "../../global/common";
 
+.main-container {
+  display: flex;
+}
+
+.navigation {
+  display:       flex;
+  min-width:     200px;
+  border-radius: $global-border-radius;
+  background:    $white;
+  padding:       8px 16px;
+  margin-right:  16px;
+  width:         200px;
+}
+
+.entity_config_container {
+  display:        flex;
+  border-radius:  $global-border-radius;
+  background:     $white;
+  flex-grow:      1;
+  flex-direction: column;
+}
+
 .steps {
   font-weight: 600;
   padding:     8px 16px;

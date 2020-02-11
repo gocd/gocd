@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {Rule, Rules} from "models/secret_configs/rules";
-import {rulesTestData, ruleTestData} from "models/secret_configs/spec/test_data";
+import {Rule, Rules} from "models/rules/rules";
+import {rulesTestData, ruleTestData} from "./test_data";
 
 describe("RulesModelSpec", () => {
 

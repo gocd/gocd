@@ -18,6 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
 import {GitMaterialAttributes, Material} from "models/materials/types";
+import {Rule} from "models/rules/rules";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {ConfigRepoModal} from "views/pages/config_repos/modals";
 import {configRepoPluginInfo, createConfigRepoParsedWithError} from "views/pages/config_repos/spec/test_data";
@@ -46,9 +47,11 @@ class TestConfigRepoModal extends ConfigRepoModal {
 
   protected getRepo(): ConfigRepo {
     const configRepo = new ConfigRepo(undefined,
-                                    this.pluginInfos()[0].id,
-                                    new Material("git", new GitMaterialAttributes()));
-    return this.isNew ? configRepo : createConfigRepoParsedWithError();
+                                      this.pluginInfos()[0].id,
+                                      new Material("git", new GitMaterialAttributes()));
+    const parsedRepo = createConfigRepoParsedWithError();
+    parsedRepo.rules().push(Stream(new Rule("allow", "refer", "pipeline", "common*")));
+    return this.isNew ? configRepo : parsedRepo;
   }
 
 }
@@ -93,6 +96,15 @@ describe("ConfigRepoModal", () => {
       expect(helper.byTestId("form-field-input-config-repository-name")).toBeInDOM();
       expect(helper.byTestId("form-field-input-config-repository-name")).not.toBeDisabled();
     });
+
+    it('should not add any default rule', () => {
+      const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos);
+      helper.mount(modal.body.bind(modal));
+
+      expect(helper.byTestId('rules-widget')).toBeInDOM();
+      expect(helper.byTestId('rules-table')).not.toBeInDOM();
+      expect(helper.byTestId('add-rule-button')).toBeInDOM();
+    });
   });
 
   describe("EditModal", () => {
@@ -101,6 +113,14 @@ describe("ConfigRepoModal", () => {
       helper.mount(modal.body.bind(modal));
 
       expect(helper.byTestId("form-field-input-config-repository-name")).toBeDisabled();
+    });
+
+    it('should render any rules configures', () => {
+      const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos, false);
+      helper.mount(modal.body.bind(modal));
+
+      expect(helper.byTestId('rules-table')).toBeInDOM();
+      expect(helper.qa('tr', helper.byTestId('rules-table')).length).toBe(2);
     });
   });
 

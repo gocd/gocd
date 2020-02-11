@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 @import "../../global/common";
+@import "../../components/forms/forms";
 
 $error-message-margin-bottom: 40px;
+$input-length-for-rules: 300px;
 
 @mixin header-icon($type, $color) {
   @include icon-before($type: $type, $color: $color, $size: 25px, $margin: 0) {
@@ -78,10 +80,6 @@ code {
 
 .material-config-wrapper {
   border-bottom: 1px solid $border-color;
-}
-
-.material-test-connection-wrapper {
-  padding-left: 15px;
 }
 
 .header-title {
@@ -148,4 +146,23 @@ code {
 
 .error-wrapper{
   margin-bottom: $error-message-margin-bottom;
+}
+
+.form-group {
+  margin-right: 50px;
+}
+
+select.form-control { //sass-lint:disable-line no-qualifying-elements
+  width:        $input-length-for-rules;
+}
+
+input.form-control { //sass-lint:disable-line no-qualifying-elements
+  width:        $input-length-for-rules;
+}
+
+.adjust-height {
+  div:first-child {
+    padding-top: 10px;
+    height:      50px;
+  }
 }

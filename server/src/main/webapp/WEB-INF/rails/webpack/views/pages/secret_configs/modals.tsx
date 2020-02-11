@@ -17,7 +17,7 @@
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import { Rule, Rules } from "models/secret_configs/rules";
+import { Rule, Rules } from "models/rules/rules";
 import { SecretConfig, SecretConfigs } from "models/secret_configs/secret_configs";
 import { SecretConfigsCRUD } from "models/secret_configs/secret_configs_crud";
 import { SecretConfigJSON } from "models/secret_configs/secret_configs_json";

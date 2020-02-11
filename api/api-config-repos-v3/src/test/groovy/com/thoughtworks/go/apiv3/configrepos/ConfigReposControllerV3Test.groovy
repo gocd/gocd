@@ -17,13 +17,7 @@ package com.thoughtworks.go.apiv3.configrepos
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.config.BasicPipelineConfigs
-import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.config.EnvironmentsConfig
-import com.thoughtworks.go.config.PipelineConfig
-import com.thoughtworks.go.config.PipelineConfigs
-import com.thoughtworks.go.config.RoleConfig
-import com.thoughtworks.go.config.Users
+import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.policy.Allow
 import com.thoughtworks.go.config.policy.Deny
@@ -404,7 +398,8 @@ class ConfigReposControllerV3Test implements SecurityServiceTrait, ControllerTra
           errors       : [
               id: ["ConfigRepo ids should be unique. A ConfigRepo with the same id already exists."]
           ],
-          configuration: []
+          configuration: [],
+          rules        : []
       ]
       postWithApiHeader(controller.controllerBasePath(), payload)
 
@@ -817,7 +812,8 @@ class ConfigReposControllerV3Test implements SecurityServiceTrait, ControllerTra
                 auto_update: true
             ]
         ],
-        configuration: []
+        configuration: [],
+        rules        : []
     ]
   }
 

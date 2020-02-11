@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import "../../components/forms/forms";
 
-import {ErrorsJSON} from "models/mixins/errors";
-import {RuleJSON} from "models/rules/rules";
-import {PropertyJSON} from "models/shared/configuration";
-
-interface EmbeddedJSON {
-  secret_configs: SecretConfigJSON[];
-}
-
-export interface SecretConfigsJSON {
-  _embedded: EmbeddedJSON;
-}
-
-export interface SecretConfigJSON {
-  id: string;
-  description: string;
-  plugin_id: string;
-  properties: PropertyJSON[];
-  rules: RuleJSON[];
-  errors?: ErrorsJSON;
+.form-group {
+  padding: 0;
 }

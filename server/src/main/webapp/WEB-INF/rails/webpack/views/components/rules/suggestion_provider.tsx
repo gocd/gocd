@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 import Stream from "mithril/stream";
-import {Rule} from "models/secret_configs/rules";
+import {Rule} from "models/rules/rules";
 import {SuggestionProvider} from "views/components/forms/autocomplete";
 
 export class ResourceSuggestionProvider extends SuggestionProvider {

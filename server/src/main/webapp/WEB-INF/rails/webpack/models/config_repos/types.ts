@@ -15,15 +15,12 @@
  */
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {
-  ConfigRepoJSON,
-  ConfigReposJSON, MaterialModificationJSON,
-  ParseInfoJSON,
-} from "models/config_repos/serialization";
+import {ConfigRepoJSON, ConfigReposJSON, MaterialModificationJSON, ParseInfoJSON, } from "models/config_repos/serialization";
 import {Material, Materials} from "models/materials/types";
 import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {Rules} from "models/rules/rules";
 import {Configuration, PlainTextValue} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 
 //tslint:disable-next-line
@@ -35,22 +32,23 @@ export interface LastParse extends ValidatableMixin {
 }
 
 export class ConfigRepo implements ValidatableMixin {
-  static readonly PIPELINE_PATTERN                             = "pipeline_pattern";
-  static readonly ENVIRONMENT_PATTERN                          = "environment_pattern";
-  static readonly FILE_PATTERN                                 = "file_pattern";
-  static readonly JSON_PLUGIN_ID                               = "json.config.plugin";
-  static readonly YAML_PLUGIN_ID                               = "yaml.config.plugin";
-  static readonly GROOVY_PLUGIN_ID                             = "cd.go.contrib.plugins.configrepo.groovy";
-                  id: Stream<string | undefined>;
-                  pluginId: Stream<string | undefined>;
-                  material: Stream<Material | undefined>;
-                  canAdminister: Stream<boolean>;
-                  configuration: Stream<Configuration[] | undefined>;
-                  lastParse: Stream<ParseInfo | null | undefined>;
-                  __jsonPluginPipelinesPattern: Stream<string> = Stream("");
-                  __jsonPluginEnvPattern: Stream<string>       = Stream("");
-                  __yamlPluginPattern: Stream<string>          = Stream("");
-                  materialUpdateInProgress: Stream<boolean>;
+  static readonly PIPELINE_PATTERN             = "pipeline_pattern";
+  static readonly ENVIRONMENT_PATTERN          = "environment_pattern";
+  static readonly FILE_PATTERN                 = "file_pattern";
+  static readonly JSON_PLUGIN_ID               = "json.config.plugin";
+  static readonly YAML_PLUGIN_ID               = "yaml.config.plugin";
+  static readonly GROOVY_PLUGIN_ID             = "cd.go.contrib.plugins.configrepo.groovy";
+  id: Stream<string | undefined>;
+  pluginId: Stream<string | undefined>;
+  material: Stream<Material | undefined>;
+  canAdminister: Stream<boolean>;
+  configuration: Stream<Configuration[] | undefined>;
+  lastParse: Stream<ParseInfo | null | undefined>;
+  __jsonPluginPipelinesPattern: Stream<string> = Stream("");
+  __jsonPluginEnvPattern: Stream<string>       = Stream("");
+  __yamlPluginPattern: Stream<string>          = Stream("");
+  materialUpdateInProgress: Stream<boolean>;
+  rules: Stream<Rules>;
 
   constructor(id?: string,
               pluginId?: string,
@@ -58,7 +56,8 @@ export class ConfigRepo implements ValidatableMixin {
               canAdminister?: boolean,
               configuration?: Configuration[],
               lastParse?: ParseInfo | null,
-              materialUpdateInProgress?: boolean) {
+              materialUpdateInProgress?: boolean,
+              rules?: Rules) {
     this.id                       = Stream(id);
     this.pluginId                 = Stream(pluginId);
     this.material                 = Stream(material);
@@ -66,6 +65,7 @@ export class ConfigRepo implements ValidatableMixin {
     this.configuration            = Stream(configuration);
     this.lastParse                = Stream(lastParse);
     this.materialUpdateInProgress = Stream(materialUpdateInProgress || false);
+    this.rules                    = Stream(rules || []);
     if (configuration) {
       this.__jsonPluginPipelinesPattern = Stream(ConfigRepo.findConfigurationValue(configuration,
                                                                                    ConfigRepo.PIPELINE_PATTERN));
@@ -75,10 +75,11 @@ export class ConfigRepo implements ValidatableMixin {
                                                                                    ConfigRepo.FILE_PATTERN));
     }
     ValidatableMixin.call(this);
-    this.validatePresenceOf("id", { message: "Please provide a name for this repository" });
-    this.validateIdFormat("id", { message: "Only letters, numbers, hyphens, underscores, and periods. Must not start with a period. Max 255 chars." });
+    this.validatePresenceOf("id", {message: "Please provide a name for this repository"});
+    this.validateIdFormat("id", {message: "Only letters, numbers, hyphens, underscores, and periods. Must not start with a period. Max 255 chars."});
     this.validatePresenceOf("pluginId");
     this.validateAssociated("material");
+    this.validateEach("rules");
   }
 
   static findConfigurationValue(configuration: Configuration[], key: string) {
@@ -96,7 +97,8 @@ export class ConfigRepo implements ValidatableMixin {
                                       json.can_administer,
                                       configurations,
                                       parseInfo,
-                                      json.material_update_in_progress);
+                                      json.material_update_in_progress,
+                                      Rules.fromJSON(json.rules));
     configRepo.errors(new Errors(json.errors));
     return configRepo;
   }
@@ -207,32 +209,32 @@ export class ParseInfo {
 }
 
 const HUMAN_NAMES_FOR_MATERIAL_ATTRIBUTES: { [index: string]: string } = {
-  autoUpdate: "Auto-update",
-  branch: "Branch",
-  checkExternals: "Check Externals",
-  domain: "Domain",
+  autoUpdate:        "Auto-update",
+  branch:            "Branch",
+  checkExternals:    "Check Externals",
+  domain:            "Domain",
   encryptedPassword: "Password",
-  name: "Material Name",
-  destination: "Alternate Checkout Path",
-  projectPath: "Project Path",
-  url: "URL",
-  username: "Username",
-  password: "Password",
-  port: "Host and Port",
-  useTickets: "Use Tickets",
-  view: "View",
-  emailAddress: "Email",
-  revision: "Revision",
-  comment: "Comment",
-  modifiedTime: "Modified Time"
+  name:              "Material Name",
+  destination:       "Alternate Checkout Path",
+  projectPath:       "Project Path",
+  url:               "URL",
+  username:          "Username",
+  password:          "Password",
+  port:              "Host and Port",
+  useTickets:        "Use Tickets",
+  view:              "View",
+  emailAddress:      "Email",
+  revision:          "Revision",
+  comment:           "Comment",
+  modifiedTime:      "Modified Time"
 };
 
 const MATERIAL_TYPE_MAP: { [index: string]: string } = {
   git: "Git",
-  hg: "Mercurial",
+  hg:  "Mercurial",
   tfs: "Team Foundation Server",
   svn: "Subversion",
-  p4: "Perforce",
+  p4:  "Perforce",
 };
 
 const CONFIG_ATTRIBUTE: { [index: string]: string } = {

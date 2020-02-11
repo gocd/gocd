@@ -18,14 +18,14 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Rule, Rules} from "models/secret_configs/rules";
+import {Rule, Rules} from "models/rules/rules";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField} from "views/components/forms/autocomplete";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
+import {ResourceSuggestionProvider} from "views/components/rules/suggestion_provider";
 import {Table} from "views/components/table";
 import styles from "views/pages/secret_configs/index.scss";
-import {ResourceSuggestionProvider} from "views/pages/secret_configs/suggestion_provider";
 
 interface Attrs {
   rules: Stream<Rules>;
@@ -90,18 +90,22 @@ export class RulesWidget extends MithrilViewComponent<AutoCompleteAttrs> {
         vnode.attrs.rules().splice(index, 1);
       }
     };
-    return <div data-test-id="rules-widget">
-      <h2>Rules </h2>
-      <FlashMessage type={MessageType.info}
-                    message="The default rule is to deny access to this secret configuration for all GoCD entities. Configure rules below to override that behavior."/>
-      <div data-test-id="rules-table" class={styles.rulesTable}>
+    const ruleBody           = _.isEmpty(vnode.attrs.rules())
+      ? undefined
+      : <div data-test-id="rules-table"
+             class={styles.rulesTable}>
         <Table headers={RulesWidget.headers()}
                data={new RulesWidgetBody(vnode.attrs.rules,
                                          vnode.attrs.resourceAutocompleteHelper,
                                          removeRuleCallback).getData()}
                draggable={true}
                dragHandler={this.reArrange.bind(this, vnode.attrs.rules)}/>
-      </div>
+      </div>;
+    return <div data-test-id="rules-widget">
+      <h2>Rules </h2>
+      <FlashMessage type={MessageType.info}
+                    message="The default rule is to deny access to this secret configuration for all GoCD entities. Configure rules below to override that behavior."/>
+      {ruleBody}
     </div>;
   }
 

@@ -16,8 +16,8 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Rule, Rules} from "models/secret_configs/rules";
-import {rulesTestData, ruleTestData} from "models/secret_configs/spec/test_data";
+import {Rule, Rules} from "models/rules/rules";
+import {rulesTestData, ruleTestData} from "models/rules/specs/test_data";
 import {RulesWidget} from "views/pages/secret_configs/rules_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 

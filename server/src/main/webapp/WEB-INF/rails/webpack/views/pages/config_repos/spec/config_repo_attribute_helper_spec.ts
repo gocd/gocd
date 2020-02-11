@@ -87,7 +87,8 @@ describe("ConfigRepo attribute util functions", () => {
       parse_info: {},
       id: "my-repo",
       plugin_id: "json.config.plugin",
-      material_update_in_progress: false
+      material_update_in_progress: false,
+      rules: []
     });
 
     const map = allAttributes(repo);

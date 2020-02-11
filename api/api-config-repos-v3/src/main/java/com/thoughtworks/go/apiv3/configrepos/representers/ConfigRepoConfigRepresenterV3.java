@@ -27,15 +27,16 @@ import java.util.Collections;
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.*;
 
 public class ConfigRepoConfigRepresenterV3 {
-    public static void toJSON(OutputWriter json, ConfigRepoConfig repo) {
-        attachLinks(json, repo);
-        json.add("id", repo.getId());
-        json.add("plugin_id", repo.getPluginId());
-        json.addChild("material", w -> MaterialsRepresenter.toJSON(w, repo.getRepo()));
+    public static void toJSON(OutputWriter outputWriter, ConfigRepoConfig repo) {
+        attachLinks(outputWriter, repo);
+        outputWriter.add("id", repo.getId());
+        outputWriter.add("plugin_id", repo.getPluginId());
+        outputWriter.addChild("material", w -> MaterialsRepresenter.toJSON(w, repo.getRepo()));
         if (!repo.errors().isEmpty()) {
-            json.addChild("errors", errorWriter -> new ErrorGetter(Collections.emptyMap()).toJSON(errorWriter, repo));
+            outputWriter.addChild("errors", errorWriter -> new ErrorGetter(Collections.emptyMap()).toJSON(errorWriter, repo));
         }
-        attachConfigurations(json, repo);
+        attachConfigurations(outputWriter, repo);
+        outputWriter.addChildList("rules", rulesWriter -> RulesRepresenter.toJSON(rulesWriter, repo.getRules()));
     }
 
     public static ConfigRepoConfig fromJSON(JsonReader jsonReader) {
@@ -46,6 +47,9 @@ public class ConfigRepoConfigRepresenterV3 {
         repo.setRepo(material);
 
         repo.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "configuration"));
+        jsonReader.readArrayIfPresent("rules", array -> {
+            repo.setRules(RulesRepresenter.fromJSON(array));
+        });
         return repo;
     }
 

@@ -14,32 +14,6 @@
  * limitations under the License.
  */
 
-export function ruleTestData() {
-  return {
-    directive: "allow",
-    action: "refer",
-    type: "pipeline_group",
-    resource: "DeployPipelines"
-  };
-}
-
-export function rulesTestData() {
-  return [
-    {
-      directive: "allow",
-      action: "refer",
-      type: "pipeline_group",
-      resource: "DeployPipelines"
-    },
-    {
-      directive: "deny",
-      action: "refer",
-      type: "pipeline_group",
-      resource: "TestPipelines"
-    }
-  ];
-}
-
 export function newSecretConfig(id = "secrets_id", pluginId = "cd.go.secrets.file") {
   return {
     id,

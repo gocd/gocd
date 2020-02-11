@@ -18,6 +18,7 @@ import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
+import {Rule} from "models/rules/rules";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {ScrollManager} from "views/components/anchor/anchor";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
@@ -180,6 +181,22 @@ describe("ConfigReposWidget", () => {
       expect(keyValuePair[4]).toContainText("2019-01-14T05:39:40Z");
       expect(keyValuePair[5]).toContainText("Error");
       expect(keyValuePair[5]).toContainText("blah!");
+    });
+
+    it('should render rules info if present', () => {
+      const configRepo = createConfigRepoParsed();
+      const rule       = new Rule("allow", "refer", "environment", "test-env");
+      configRepo.rules().push(Stream(rule));
+      models([vm(configRepo)]);
+      helper.redraw();
+
+      expect(helper.byTestId('rules-info')).toBeInDOM();
+      const values = helper.qa('td', helper.byTestId('rule-table'));
+      expect(values.length).toBe(4);
+      expect(values[0].textContent).toBe(rule.directive());
+      expect(values[1].textContent).toBe(rule.action());
+      expect(values[2].textContent).toBe(rule.type());
+      expect(values[3].textContent).toBe(rule.resource());
     });
   });
 

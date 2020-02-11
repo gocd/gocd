@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-import {ErrorsJSON} from "models/mixins/errors";
-import {RuleJSON} from "models/rules/rules";
-import {PropertyJSON} from "models/shared/configuration";
-
-interface EmbeddedJSON {
-  secret_configs: SecretConfigJSON[];
+export function ruleTestData() {
+  return {
+    directive: "allow",
+    action:    "refer",
+    type:      "pipeline_group",
+    resource:  "DeployPipelines"
+  };
 }
 
-export interface SecretConfigsJSON {
-  _embedded: EmbeddedJSON;
-}
-
-export interface SecretConfigJSON {
-  id: string;
-  description: string;
-  plugin_id: string;
-  properties: PropertyJSON[];
-  rules: RuleJSON[];
-  errors?: ErrorsJSON;
+export function rulesTestData() {
+  return [
+    {
+      directive: "allow",
+      action:    "refer",
+      type:      "pipeline_group",
+      resource:  "DeployPipelines"
+    },
+    {
+      directive: "deny",
+      action:    "refer",
+      type:      "pipeline_group",
+      resource:  "TestPipelines"
+    }
+  ];
 }

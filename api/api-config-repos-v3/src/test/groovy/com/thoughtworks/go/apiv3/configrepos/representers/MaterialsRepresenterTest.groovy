@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows
 import static org.mockito.Mockito.mock
 
 class MaterialsRepresenterTest {
-  private static final String REPO_URL = "https://guthib.com/chewbacca"
+  private static final String REPO_URL = "https://github.com/chewbacca"
   private static final String BRANCH = "wookie"
 
   @Test

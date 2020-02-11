@@ -54,6 +54,7 @@ public class SpaControllers implements SparkSpringController {
         LayoutTemplateProvider componentTemplate = () -> COMPONENT_LAYOUT_PATH;
         LayoutTemplateProvider railsCompatibleTemplate = () -> RAILS_COMPATIBLE_PAGE_LAYOUT_PATH;
 
+		sparkControllers.add(new ClickyPipelineConfigController(authenticationHelper, templateEngineFactory.create(ClickyPipelineConfigController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new StatusReportsController(authenticationHelper, templateEngineFactory.create(
                 StatusReportsController.class, railsCompatibleTemplate), elasticAgentPluginService, jobInstanceService));
         sparkControllers.add(new CompareController(authenticationHelper, templateEngineFactory.create(CompareController.class, () -> COMPONENT_LAYOUT_PATH), pipelineService));

@@ -29,6 +29,7 @@ module Admin
 
     before_action :load_config_for_edit, :only => [:new, :create]
     before_action :load_template_list, :only => [:new, :create]
+    before_action :load_new_spa_toggle_value
 
     load_pipeline_except_for :update, :new, :create, :clone, :save_clone
 
@@ -279,5 +280,8 @@ module Admin
       assert_load :pipeline_stages_json, pipeline_stages_json(go_config_service.getCurrentConfig(), current_user, security_service, params)
     end
 
+    def load_new_spa_toggle_value
+      @should_show_new_spa_link = feature_toggle_service.isToggleOn(Toggles.NEW_PIPELINE_CONFIG_SPA)
+    end
   end
 end

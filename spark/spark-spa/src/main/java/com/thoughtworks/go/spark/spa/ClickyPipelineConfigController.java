@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -31,10 +33,12 @@ import static spark.Spark.*;
 
 public class ClickyPipelineConfigController implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
+    private final FeatureToggleService featureToggleService;
     private final TemplateEngine engine;
 
-    public ClickyPipelineConfigController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public ClickyPipelineConfigController(SPAAuthenticationHelper authenticationHelper, FeatureToggleService featureToggleService, TemplateEngine engine) {
         this.authenticationHelper = authenticationHelper;
+        this.featureToggleService = featureToggleService;
         this.engine = engine;
     }
 
@@ -52,6 +56,9 @@ public class ClickyPipelineConfigController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
+        if (!featureToggleService.isToggleOn(Toggles.NEW_PIPELINE_CONFIG_SPA)) {
+            throw authenticationHelper.renderNotFoundResponse("The page you are looking for is not found.");
+        }
         String pipelineName = request.params("pipeline_name");
         Map<Object, Object> object = new HashMap<>() {{
             put("viewTitle", "Pipeline");

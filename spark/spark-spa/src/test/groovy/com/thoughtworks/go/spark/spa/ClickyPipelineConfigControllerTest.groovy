@@ -16,22 +16,26 @@
 
 package com.thoughtworks.go.spark.spa
 
-
 import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService
 import com.thoughtworks.go.server.service.SecurityAuthConfigService
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
+import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
-import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import spark.HaltException
 import spark.ModelAndView
 import spark.Request
 import spark.Response
 
+import static org.assertj.core.api.Assertions.assertThat
+import static org.assertj.core.api.Assertions.assertThatCode
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
@@ -43,6 +47,8 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
   private SecurityAuthConfigService securityAuthConfigService
   @Mock
   private Response response
+  @Mock
+  private FeatureToggleService featureToggleService
 
   @BeforeEach
   void setUp() {
@@ -51,7 +57,7 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
 
   @Override
   ClickyPipelineConfigController createControllerInstance() {
-    return new ClickyPipelineConfigController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+    return new ClickyPipelineConfigController(new SPAAuthenticationHelper(securityService, goConfigService), featureToggleService, templateEngine)
   }
 
   @Nested
@@ -68,8 +74,14 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
     }
   }
 
+  @AfterEach
+  void teardown() {
+    Toggles.deinitialize()
+  }
+
   @Test
   void "should add pipeline name in page meta"() {
+    when(featureToggleService.isToggleOn(Toggles.NEW_PIPELINE_CONFIG_SPA)).thenReturn(true)
     def pipelineName = "up42"
     def request = mock(Request)
     when(request.params("pipeline_name")).thenReturn(pipelineName)
@@ -77,7 +89,17 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
     ModelAndView modalAndView = controller.index(request, response)
     Map<Object, Object> model = modalAndView.getModel() as Map<Object, Object>
 
-    Assertions.assertThat(model.get("meta") as Map<String, Object>)
+    assertThat(model.get("meta") as Map<String, Object>)
       .containsEntry("pipelineName", pipelineName)
+  }
+
+  @Test
+  void 'should return 404 when toggle is off'() {
+    when(featureToggleService.isToggleOn(Toggles.NEW_PIPELINE_CONFIG_SPA)).thenReturn(false)
+    def request = mock(Request)
+
+    assertThatCode({ controller.index(request, null) })
+      .isInstanceOf(HaltException)
+      .satisfies({ HaltException ex -> assertThat(ex.statusCode()).isEqualTo(404) })
   }
 }

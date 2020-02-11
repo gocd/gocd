@@ -19,6 +19,7 @@ import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spa.*;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -40,21 +41,29 @@ public class SpaControllers implements SparkSpringController {
     private final List<SparkController> sparkControllers = new ArrayList<>();
 
     @Autowired
-    public SpaControllers(SPAAuthenticationHelper authenticationHelper, FreemarkerTemplateEngineFactory templateEngineFactory,
-                          SecurityService securityService, PipelineConfigService pipelineConfigService,
-                          SystemEnvironment systemEnvironment, AnalyticsExtension analyticsExtension,
+    public SpaControllers(SPAAuthenticationHelper authenticationHelper,
+                          FreemarkerTemplateEngineFactory templateEngineFactory,
+                          SecurityService securityService,
+                          PipelineConfigService pipelineConfigService,
+                          SystemEnvironment systemEnvironment,
+                          AnalyticsExtension analyticsExtension,
                           GoConfigService goConfigService,
                           AuthorizationExtensionCacheService authorizationExtensionCacheService,
                           SecurityAuthConfigService securityAuthConfigService,
                           BackupService backupService,
-                          Clock clock, ArtifactsDirHolder artifactsDirHolder, SystemService systemService,
-                          GoCache goCache, ElasticAgentPluginService elasticAgentPluginService, JobInstanceService jobInstanceService,
-                          PipelineService pipelineService) {
+                          Clock clock,
+                          ArtifactsDirHolder artifactsDirHolder,
+                          SystemService systemService,
+                          GoCache goCache,
+                          ElasticAgentPluginService elasticAgentPluginService,
+                          JobInstanceService jobInstanceService,
+                          PipelineService pipelineService,
+                          FeatureToggleService featureToggleService) {
         LayoutTemplateProvider defaultTemplate = () -> DEFAULT_LAYOUT_PATH;
         LayoutTemplateProvider componentTemplate = () -> COMPONENT_LAYOUT_PATH;
         LayoutTemplateProvider railsCompatibleTemplate = () -> RAILS_COMPATIBLE_PAGE_LAYOUT_PATH;
 
-		sparkControllers.add(new ClickyPipelineConfigController(authenticationHelper, templateEngineFactory.create(ClickyPipelineConfigController.class, () -> COMPONENT_LAYOUT_PATH)));
+        sparkControllers.add(new ClickyPipelineConfigController(authenticationHelper, featureToggleService, templateEngineFactory.create(ClickyPipelineConfigController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new StatusReportsController(authenticationHelper, templateEngineFactory.create(
                 StatusReportsController.class, railsCompatibleTemplate), elasticAgentPluginService, jobInstanceService));
         sparkControllers.add(new CompareController(authenticationHelper, templateEngineFactory.create(CompareController.class, () -> COMPONENT_LAYOUT_PATH), pipelineService));

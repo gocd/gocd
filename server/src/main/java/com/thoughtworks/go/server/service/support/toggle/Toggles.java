@@ -26,6 +26,7 @@ public class Toggles {
     public static String NEW_FEED_API = "new_feed_api";
     public static String RAILS_WEBHOOK_API = "rails_webhook_api";
     public static String SHOW_OLD_COMPARISON_SPA = "show_old_comparison_spa";
+    public static String NEW_PIPELINE_CONFIG_SPA = "new_pipeline_config_spa";
 
     private static FeatureToggleService service;
 

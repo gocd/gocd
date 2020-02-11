@@ -15,20 +15,20 @@
  */
 @import "../../global/common";
 
-$table-border-color: $line-color;
-$table-header-bg: $secondary-bg;
+$table-border-color:     $line-color;
+$table-header-bg:        $secondary-bg;
 $table_background_color: #fff;
-$icon_disable_color: #ccc;
-$draggable-row-color: #e2f7fa;
+$icon_disable_color:     #ccc;
+$draggable-row-color:    #e2f7fa;
 
 .table {
   $table-border-top-color: #dee2e6;
-  border:          1px solid $table-border-color;
-  border-collapse: collapse;
-  display:         table;
-  width:           100%;
-  background:      $table_background_color;
-  margin:          0 0 $global-margin-bottom 0;
+  border:                  1px solid $table-border-color;
+  border-collapse:         collapse;
+  display:                 table;
+  width:                   100%;
+  background:              $table_background_color;
+  margin:                  0 0 $global-margin-bottom 0;
 
   caption {
     text-align:   left;
@@ -98,7 +98,6 @@ $draggable-row-color: #e2f7fa;
 
   font-size: 12px;
   color:     $icon-drag;
-  margin:    10px;
 
   &:active {
     @include sort-cursor-active;

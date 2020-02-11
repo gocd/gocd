@@ -24,16 +24,8 @@ export interface Nameable extends Validatable {
 // Specialized Set<T> implementation where member equality is based on only the `name`
 // of the material, and NOT the identity or the structure.
 export class NameableSet<T extends Nameable> extends ValidatableMixin implements Set<T> {
-  get size(): number {
-    return this._members.size;
-  }
-
-  get length(): number {
-    return this._members.size;
-  }
-
-  [Symbol.toStringTag]: string     = `NameableSet`;
-  private _members: Map<string, T> = new Map(); // preserves insertion order
+  [Symbol.toStringTag]: string = `NameableSet`;
+  private readonly _members    = new Map<string, T>(); // preserves insertion order
 
   constructor(items?: readonly T[] | null) {
     super();
@@ -42,6 +34,14 @@ export class NameableSet<T extends Nameable> extends ValidatableMixin implements
     if (items) {
       items.forEach(this.add.bind(this));
     }
+  }
+
+  get size(): number {
+    return this._members.size;
+  }
+
+  get length(): number {
+    return this._members.size;
   }
 
   toJSON(): any {
@@ -105,5 +105,9 @@ export class NameableSet<T extends Nameable> extends ValidatableMixin implements
 
   values(): IterableIterator<T> {
     return this[Symbol.iterator]();
+  }
+
+  findByName(name: string): T | undefined {
+    return Array.from(this._members.values()).find((value: T) => value.name() === name);
   }
 }

@@ -23,6 +23,7 @@ import {Stage} from "models/pipeline_configs/stage";
 import s from "underscore.string";
 import * as Buttons from "views/components/buttons";
 import {Modal, Size} from "views/components/modal";
+import {JobEditor} from "views/pages/clicky_pipeline_config/widgets/job_editor_widget";
 import {MaterialEditor} from "views/pages/pipelines/material_editor";
 import {StageEditor} from "../widgets/stage_editor_widget";
 
@@ -81,5 +82,16 @@ export class StageModal extends AddOrEditEntityModal<Stage> {
 
   body() {
     return <StageEditor stage={this.entity}/>;
+  }
+}
+
+export class JobModal extends AddOrEditEntityModal<Job> {
+  static forAdd(onSuccessfulAdd: (job: Job) => void) {
+    const newJob = new Job();
+    return new JobModal("Add new job", Stream(newJob), onSuccessfulAdd);
+  }
+
+  body() {
+    return <JobEditor job={this.entity()}/>;
   }
 }

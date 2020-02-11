@@ -609,19 +609,22 @@ export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
 }
 
 interface RadioData {
-  label: string;
+  label: string | m.Children;
   value: string;
   helpText?: string;
+  tooltip?: m.Child;
 }
 
 export interface RadioButtonAttrs extends RestyleAttrs<Styles> {
-  label?: string;
+  label?: string | m.Children;
   errorText?: string;
   disabled?: boolean;
   required?: boolean;
   inline?: boolean;
   property: (newValue?: string) => string;
   possibleValues: RadioData[];
+  onchange?: (newValue: string) => void;
+  dataTestId?: string;
 }
 
 export class RadioField extends RestyleViewComponent<Styles, RadioButtonAttrs> {
@@ -666,9 +669,16 @@ export class RadioField extends RestyleViewComponent<Styles, RadioButtonAttrs> {
                  id={radioButtonId}
                  checked={radioData.value === vnode.attrs.property()}
                  data-test-id={`radio-${s.slugify(radioData.value)}`}
-                 name={this.id} onchange={() => vnode.attrs.property(radioData.value)}/>
+                 name={this.id}
+                 onchange={() => {
+                   vnode.attrs.property(radioData.value);
+                   if (vnode.attrs.onchange) {
+                     vnode.attrs.onchange(radioData.value);
+                   }
+                 }}/>
           <label for={radioButtonId} className={this.css.radioLabel}
                  data-test-id="form-field-label">{radioData.label}</label>
+          {radioData?.tooltip}
           <HelpText helpText={radioData.helpText} helpTextId={`help-text-${radioButtonId}`} css={this.css}/>
         </li>
       );

@@ -15,6 +15,7 @@
  */
 
 import {JsonUtils} from "helpers/json_utils";
+import _ from "lodash";
 import Stream from "mithril/stream";
 import {TaskJSON} from "models/admin_templates/templates";
 import {EnvironmentVariableJSON, EnvironmentVariables} from "models/environment_variables/types";
@@ -41,7 +42,7 @@ export class Job extends ValidatableMixin {
   readonly timeout              = Stream<"never" | number | null>();
   readonly elasticProfileId     = Stream<string>();
   readonly environmentVariables = Stream<EnvironmentVariables>();
-  readonly resources            = Stream<string[]>();
+  readonly resources            = Stream<string>();
   readonly tasks                = Stream<Task[]>();
   readonly tabs                 = Stream<Tabs>();
   readonly artifacts            = Stream<Artifacts>();
@@ -75,7 +76,7 @@ export class Job extends ValidatableMixin {
     job.timeout(json.timeout);
     job.elasticProfileId(json.elastic_profile_id!);
     job.environmentVariables(EnvironmentVariables.fromJSON(json.environment_variables || []));
-    job.resources(json.resources);
+    job.resources(_.join(json.resources, ","));
     job.tasks(AbstractTask.fromJSONArray(json.tasks || []));
     job.tabs(Tabs.fromJSON(json.tabs || []));
     job.artifacts(Artifacts.fromJSON(json.artifacts || []));

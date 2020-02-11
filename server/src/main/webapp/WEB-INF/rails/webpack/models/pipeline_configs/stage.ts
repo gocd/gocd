@@ -45,12 +45,14 @@ export interface StageJSON {
 export type ApprovalType = "success" | "manual";
 
 class Approval extends ValidatableMixin {
-  type = Stream<ApprovalType>("success");
+  type               = Stream<ApprovalType>("success");
   state: (value?: boolean) => boolean;
-
+  allowOnlyOnSuccess = Stream<boolean>();
   //authorization must be present for server side validations
   //even though it's not editable from the create pipeline page
   authorization: Stream<any> = Stream({});
+
+  private readonly __typeAsStream = Stream<boolean>();
 
   constructor() {
     super();
@@ -70,9 +72,29 @@ class Approval extends ValidatableMixin {
 
   static fromJSON(json: ApprovalJSON) {
     const approval = new Approval();
+    if (!json) {
+      return approval;
+    }
     approval.type(json.type);
-    approval.authorization;
+    approval.__typeAsStream(json.type === "success");
+    approval.authorization({roles: json.authorization.roles, users: json.authorization.users});
+    approval.allowOnlyOnSuccess(json.allow_only_on_success);
     return approval;
+  }
+
+  typeAsString() {
+    return this.__typeAsStream() ? "success" : "manual";
+  }
+
+  typeAsStream() {
+    return this.__typeAsStream;
+  }
+
+  toApiPayload() {
+    return {
+      type: this.typeAsString(),
+      authorization: JsonUtils.toSnakeCasedObject(this.authorization)
+    };
   }
 }
 
@@ -113,6 +135,10 @@ export class Stage extends ValidatableMixin {
     stage.environmentVariables(EnvironmentVariables.fromJSON(json.environment_variables || []));
     stage.jobs(new NameableSet(Job.fromJSONArray(json.jobs || [])));
     return stage;
+  }
+
+  firstJob(): Job {
+    return this.jobs().values().next().value;
   }
 
   toApiPayload() {

@@ -54,3 +54,16 @@
   }
 }
 
+.material-tab {
+  table {
+    td:last-child {
+      width: 100px;
+    }
+  }
+}
+
+table tr td {
+  i {
+    margin: 0;
+  }
+}

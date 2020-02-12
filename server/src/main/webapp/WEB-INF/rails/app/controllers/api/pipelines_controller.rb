@@ -15,6 +15,7 @@
 #
 
 class Api::PipelinesController < Api::ApiController
+  include DeprecatedApiHelper
   include ComparisonHelper
   helper Api::PipelinesHelper
   include Api::PipelinesHelper
@@ -42,6 +43,9 @@ class Api::PipelinesController < Api::ApiController
     pipeline_name = params[:pipeline_name]
     pipeline_counter = params[:pipeline_counter].to_i
     result = HttpOperationResult.new
+
+    add_deprecation_headers(request, response, "unversioned", "/go/api/pipelines/#{pipeline_name}/#{pipeline_counter}",
+                            "v1", "20.1.0", "20.4.0", "Pipeline Instance")
 
     pipeline_instance_model = pipeline_history_service.findPipelineInstance(pipeline_name, pipeline_counter, current_user, result)
 

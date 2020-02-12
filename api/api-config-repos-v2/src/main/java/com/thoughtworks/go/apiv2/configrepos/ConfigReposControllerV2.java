@@ -24,6 +24,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv2.configrepos.representers.ConfigRepoConfigRepresenterV2;
 import com.thoughtworks.go.apiv2.configrepos.representers.ConfigReposConfigRepresenterV2;
+import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
@@ -46,6 +47,7 @@ import static java.util.stream.Collectors.toCollection;
 import static spark.Spark.*;
 
 @Component
+@DeprecatedAPI(deprecatedApiVersion = ApiVersion.v2, successorApiVersion = ApiVersion.v3, deprecatedIn = "20.2.0", removalIn = "20.5.0", entityName = "Config Repo")
 public class ConfigReposControllerV2 extends ApiController implements SparkSpringController, CrudController<ConfigRepoConfig> {
     private final ApiAuthenticationHelper authHelper;
     private final ConfigRepoService service;

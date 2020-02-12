@@ -20,11 +20,10 @@ import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService
 import com.thoughtworks.go.server.service.SecurityAuthConfigService
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
 import com.thoughtworks.go.server.service.support.toggle.Toggles
-import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -61,8 +60,7 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
   }
 
   @Nested
-  class Security implements SecurityTestTrait, AdminUserSecurity {
-
+  class Security implements SecurityTestTrait, GroupAdminUserSecurity {
     @Override
     String getControllerMethodUnderTest() {
       return "index"
@@ -70,13 +68,8 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
 
     @Override
     void makeHttpCall() {
-      get(controller.controllerPath("up42", "edit"))
+      get(controller.controllerPath("foo", "edit"))
     }
-  }
-
-  @AfterEach
-  void teardown() {
-    Toggles.deinitialize()
   }
 
   @Test

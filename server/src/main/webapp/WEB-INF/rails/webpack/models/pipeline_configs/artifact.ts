@@ -17,7 +17,9 @@
 import Stream = require("mithril/stream");
 import {Configurations, PropertyJSON} from "models/shared/configuration";
 
-type ArtifactType = "test" | "build" | "external";
+export enum ArtifactType {
+  test = "test", build = "build", external = "external"
+}
 
 export interface ArtifactJSON {
   type: ArtifactType;
@@ -52,9 +54,9 @@ export abstract class Artifact {
 
   static fromJSON(json: ArtifactJSON) {
     switch (json.type) {
-      case "test" || "build":
+      case ArtifactType.test || ArtifactType.build:
         return new GoCDArtifact(json.type, json.source!, json.destination!);
-      case "external":
+      case ArtifactType.external:
         const configurations = json.configuration ? Configurations.fromJSON(json.configuration) : new Configurations([]);
         return new ExternalArtifact(json.artifact_id!, json.store_id!, configurations);
       default:
@@ -67,7 +69,7 @@ export class GoCDArtifact extends Artifact {
   readonly source      = Stream<string>();
   readonly destination = Stream<string>();
 
-  constructor(type: "test" | "build", source: string, destination: string) {
+  constructor(type: ArtifactType.test | ArtifactType.build, source: string, destination: string) {
     super(type);
     this.source(source);
     this.destination(destination);
@@ -80,7 +82,7 @@ export class ExternalArtifact extends Artifact {
   readonly configuration = Stream<Configurations>();
 
   constructor(artifactId: string, storeId: string, configurations = new Configurations([])) {
-    super("external");
+    super(ArtifactType.external);
     this.artifactId(artifactId);
     this.storeId(storeId);
     this.configuration(configurations);

@@ -25,10 +25,13 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.ConfigReposConfig
 import com.thoughtworks.go.config.remote.PartialConfig
 import com.thoughtworks.go.domain.materials.Modification
+import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.materials.MaterialUpdateService
 import com.thoughtworks.go.server.service.ConfigRepoService
+import com.thoughtworks.go.server.service.EnvironmentConfigService
 import com.thoughtworks.go.server.service.MaterialConfigConverter
+import com.thoughtworks.go.server.service.PipelineConfigsService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.Routes
@@ -41,6 +44,7 @@ import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.anyString
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -62,6 +66,11 @@ class ConfigReposInternalControllerV3Test implements SecurityServiceTrait, Contr
   @Mock
   MaterialConfigConverter converter
 
+  @Mock
+  private EnvironmentConfigService environmentConfigService
+  @Mock
+  private PipelineConfigsService pipelineConfigsService
+
   @BeforeEach
   void setUp() {
     initMocks(this)
@@ -76,11 +85,13 @@ class ConfigReposInternalControllerV3Test implements SecurityServiceTrait, Contr
       }
       return [roleConfig]
     })
+    when(environmentConfigService.getEnvironmentNames()).thenReturn([])
+    when(pipelineConfigsService.getGroupsForUser(anyString())).thenReturn([])
   }
 
   @Override
   ConfigReposInternalControllerV3 createControllerInstance() {
-    new ConfigReposInternalControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), service, dataSource, materialUpdateService, converter)
+    new ConfigReposInternalControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), service, dataSource, materialUpdateService, converter, environmentConfigService, pipelineConfigsService)
   }
 
   @Nested
@@ -122,16 +133,21 @@ class ConfigReposInternalControllerV3Test implements SecurityServiceTrait, Contr
       assertThatResponse()
         .isOk()
         .hasJsonBody([
-          _links   : [
-            self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
-          ],
-          _embedded: [
-            config_repos: [
-              expectedRepoJson(ID_1, null, null, false),
-              expectedRepoJson(ID_2, "abc", null, false)
-            ]
+        _links         : [
+          self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
+        ],
+        _embedded      : [
+          config_repos: [
+            expectedRepoJson(ID_1, null, null, false),
+            expectedRepoJson(ID_2, "abc", null, false)
           ]
-        ])
+        ],
+        auto_completion: [
+          [key: "pipeline", value: []],
+          [key: "environment", value: []],
+          [key: "pipeline_group", value: []]
+        ]
+      ])
     }
 
     @Test
@@ -141,17 +157,61 @@ class ConfigReposInternalControllerV3Test implements SecurityServiceTrait, Contr
 
       getWithApiHeader(controller.controllerBasePath())
 
+      def expectedJson = [
+        _links         : [
+          self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
+        ],
+        _embedded      : [
+          config_repos: []
+        ],
+        auto_completion: [
+          [key: "pipeline", value: []],
+          [key: "environment", value: []],
+          [key: "pipeline_group", value: []]
+        ]
+      ]
       assertThatResponse()
         .isOk()
         .hasEtag("\"${new ConfigReposConfig().etag()}\"")
-        .hasJsonBody([
-          _links   : [
-            self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
+        .hasJsonBody(expectedJson)
+    }
+
+    @Test
+    void 'should set autocompletion values'() {
+      ConfigReposConfig repos = new ConfigReposConfig(repo("test-id"), repo("another-id"))
+
+      when(service.getConfigRepos()).thenReturn(repos)
+      when(environmentConfigService.getEnvironmentNames()).thenReturn(Arrays.asList("env1", "env2"))
+      when(pipelineConfigsService.getGroupsForUser(anyString())).thenReturn(Arrays.asList(new BasicPipelineConfigs("grp1", new Authorization(), PipelineConfigMother.pipelineConfig("pipeline"))))
+
+      getWithApiHeader(controller.controllerBasePath())
+
+      def expectedJson = [
+        _links         : [
+          self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
+        ],
+        _embedded      : [
+          config_repos: []
+        ],
+        auto_completion: [
+          [
+            key  : "pipeline",
+            value: ["pipeline"]
           ],
-          _embedded: [
-            config_repos: []
+          [
+            key  : "environment",
+            value: ["env1", "env2"]
+          ],
+          [
+            key  : "pipeline_group",
+            value: ["grp1"]
           ]
-        ])
+        ]
+      ]
+
+      assertThatResponse()
+        .isOk()
+        .hasJsonBody(expectedJson)
     }
   }
 
@@ -202,4 +262,5 @@ class ConfigReposInternalControllerV3Test implements SecurityServiceTrait, Contr
 
     return repo
   }
+
 }

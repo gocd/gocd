@@ -26,9 +26,9 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderIcon} from "views/components/header_icon";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
+import {ShowRulesWidget} from "views/components/rules/show_rules_widget";
 import {CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos} from "views/pages/page_operations";
 import styles from "views/pages/secret_configs/index.scss";
-import {RulesInfoWidget} from "views/pages/secret_configs/rules_widget";
 
 interface Attrs extends RequiresPluginInfos, EditOperation<SecretConfig>, CloneOperation<SecretConfig>, DeleteOperation<SecretConfig> {
   secretConfigs: Stream<SecretConfigs>;
@@ -66,7 +66,7 @@ export class SecretConfigsWidget extends MithrilViewComponent<Attrs> {
             actions={this.getActionButtons(vnode, secretConfig())}>
             {descriptionText}
             {this.infoFor(secretConfig())}
-            <RulesInfoWidget rules={secretConfig().rules}/>
+            <ShowRulesWidget rules={secretConfig().rules}/>
           </CollapsiblePanel>;
         })
       }

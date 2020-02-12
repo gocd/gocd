@@ -165,32 +165,3 @@ class RulesWidgetBody {
     });
   }
 }
-
-export class RulesInfoWidget extends MithrilViewComponent<Attrs> {
-  static headers() {
-    return [
-      "Directive"
-      , "Type"
-      , "Resource"
-    ];
-  }
-
-  view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
-    if (!vnode.attrs.rules || vnode.attrs.rules().length === 0) {
-      return;
-    }
-    const ruleData = vnode.attrs.rules().map((rule) => {
-      return [
-        rule().directive(),
-        rule().type(),
-        rule().resource()
-      ];
-    });
-    return <div data-test-id="rules-info">
-      <h3>Rules</h3>
-      <div data-test-id="rule-table" class={styles.rulesWrapper}>
-        <Table headers={RulesInfoWidget.headers()} data={ruleData}/>
-      </div>
-    </div>;
-  }
-}

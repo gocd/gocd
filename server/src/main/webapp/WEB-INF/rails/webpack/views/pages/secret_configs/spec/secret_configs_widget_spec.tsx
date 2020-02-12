@@ -119,22 +119,18 @@ describe("SecretConfigsWidget", () => {
 
   it("should list rules information for secrets", () => {
     mount(secretConfigs, pluginInfos);
-    const table = helper.byTestId("rule-table");
 
-    const headerRow = helper.qa("th", helper.byTestId("table-header", table));
-    expect(headerRow.length).toBe(3);
-    expect(headerRow.item(0)).toContainText("Directive");
-    expect(headerRow.item(1)).toContainText("Type");
-    expect(headerRow.item(2)).toContainText("Resource");
+    expect(helper.byTestId('rules-info')).toBeInDOM();
+    const values = helper.qa('td', helper.byTestId('rule-table'));
+    expect(values.length).toBe(6);
 
-    const ruleBodyRow = helper.qa("td", helper.byTestId("table-body", table));
-    expect(ruleBodyRow.item(0)).toContainText("allow");
-    expect(ruleBodyRow.item(1)).toContainText("pipeline_group");
-    expect(ruleBodyRow.item(2)).toContainText("DeployPipelines");
+    expect(values[0].textContent).toBe('Allow');
+    expect(values[1].textContent).toBe('Pipeline Group');
+    expect(values[2].textContent).toBe('DeployPipelines');
 
-    expect(ruleBodyRow.item(3)).toContainText("deny");
-    expect(ruleBodyRow.item(4)).toContainText("pipeline_group");
-    expect(ruleBodyRow.item(5)).toContainText("TestPipelines");
+    expect(values[3].textContent).toBe('Deny');
+    expect(values[4].textContent).toBe('Pipeline Group');
+    expect(values[5].textContent).toBe('TestPipelines');
   });
 
   it("should display info when no secret configs are present", () => {

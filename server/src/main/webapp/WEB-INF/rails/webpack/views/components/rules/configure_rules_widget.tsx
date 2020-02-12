@@ -47,7 +47,6 @@ export type RuleInfos = RuleInfo[];
 interface Attrs {
   rules: Stream<Rules>;
   resourceAutocompleteHelper: Map<string, string[]>;
-  minChars?: number;
   infoMsg?: m.Children;
   actions?: RuleInfos;
   types: RuleInfos;

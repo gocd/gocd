@@ -25,7 +25,6 @@ import { Configurations } from "models/shared/configuration";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import { SecretExtension } from "models/shared/plugin_infos_new/extensions";
 import { PluginInfo, PluginInfos } from "models/shared/plugin_infos_new/plugin_info";
-import * as Buttons from "views/components/buttons";
 import { Form, FormHeader } from "views/components/forms/form";
 import {
   SelectField,
@@ -36,8 +35,8 @@ import {
 } from "views/components/forms/input_fields";
 import {Size} from "views/components/modal";
 import {EntityModal} from "views/components/modal/entity_modal";
+import {ConfigureRulesWidget, RulesType} from "views/components/rules/configure_rules_widget";
 import styles from "views/pages/secret_configs/index.scss";
-import { RulesWidget } from "views/pages/secret_configs/rules_widget";
 
 const AngularPluginNew = require('views/shared/angular_plugin_new').AngularPluginNew;
 
@@ -124,12 +123,11 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
             key={pluginInfo.id} />
         </div>
       </div>
-      <RulesWidget rules={this.entity().rules} resourceAutocompleteHelper={this.resourceAutocompleteHelper} />
-      <div class={styles.addRule}>
-        <Buttons.Secondary data-test-id="add-rule-button" onclick={this.addNewRule.bind(this)}>
-          + New Rule
-        </Buttons.Secondary>
-      </div>
+      <ConfigureRulesWidget
+        infoMsg={"The default rule is to deny access to this secret configuration for all GoCD entities. Configure rules below to override that behavior."}
+        rules={this.entity().rules}
+        types={[RulesType.PIPELINE_GROUP, RulesType.ENVIRONMENT]}
+        resourceAutocompleteHelper={this.resourceAutocompleteHelper}/>
     </div>;
   }
 
@@ -147,10 +145,6 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
 
   protected performFetch(entity: SecretConfig): Promise<any> {
     return SecretConfigsCRUD.get(entity);
-  }
-
-  protected addNewRule() {
-    this.entity().rules().push(Stream(new Rule("", "refer", "", "")));
   }
 
   protected afterSuccess(): void {

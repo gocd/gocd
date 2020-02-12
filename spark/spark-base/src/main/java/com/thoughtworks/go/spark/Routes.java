@@ -746,10 +746,6 @@ public class Routes {
         public static final String DOC = apiDocsUrl("#backup-config");
     }
 
-    public class PipelineConfigs {
-        public static final String SPA_BASE = "/admin/pipeline_configs";
-    }
-
     public class InternalPipelineStructure {
         public static final String BASE = "/api/internal/pipeline_structure";
     }

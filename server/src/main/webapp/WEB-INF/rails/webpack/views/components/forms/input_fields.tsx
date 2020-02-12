@@ -609,14 +609,14 @@ export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
 }
 
 interface RadioData {
-  label: string | m.Children;
+  label: m.Children;
   value: string;
   helpText?: string;
   tooltip?: m.Child;
 }
 
 export interface RadioButtonAttrs extends RestyleAttrs<Styles> {
-  label?: string | m.Children;
+  label?: m.Children;
   errorText?: string;
   disabled?: boolean;
   required?: boolean;

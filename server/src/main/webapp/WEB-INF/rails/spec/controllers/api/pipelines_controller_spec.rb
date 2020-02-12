@@ -47,8 +47,23 @@ describe Api::PipelinesController do
     allow(@status).to receive(:canContinue).and_return(true)
     allow(@status).to receive(:httpCode).and_return(200)
   end
-  
+
   describe "instance_by_counter" do
+
+    it "should add deprecation API headers" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with('up42', 1, loser, anything).and_return(create_pipeline_model)
+
+      get :instance_by_counter, params:{:pipeline_name => 'up42', :pipeline_counter => '1', :no_layout => true}
+
+      expect(response).to be_ok
+      expect(response.headers["X-GoCD-API-Deprecated-In"]).to eq('v20.1.0')
+      expect(response.headers["X-GoCD-API-Removal-In"]).to eq('v20.4.0')
+      expect(response.headers["X-GoCD-API-Deprecation-Info"]).to eq("https://api.gocd.org/20.1.0/#api-changelog")
+      expect(response.headers["Link"]).to eq('<http://test.host/go/api/pipelines/up42/1>; Accept="application/vnd.go.cd.v1+json"; rel="successor-version"')
+      expect(response.headers["Warning"]).to eq('299 GoCD/v20.1.0 "The Pipeline Instance unversioned API has been deprecated in GoCD Release v20.1.0. This version will be removed in GoCD Release v20.4.0. Version v1 of the API is available, and users are encouraged to use it"')
+    end
 
     it "should render instance json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))

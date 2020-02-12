@@ -205,17 +205,11 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
       rename 'wrapper.conf.in', 'wrapper.conf'
     }
 
-
-    // the example properties file for reference
-    from("include/wrapper-properties.conf.example") {
-      into 'wrapper-config'
-    }
-
     // the actual default config file
     from("include/wrapper-properties-${installerType.baseName}.conf") {
       into 'wrapper-config'
       rename ".*", "wrapper-properties.conf"
-      filter(ConcatFilter, append: file("include/wrapper-properties.conf.example"))
+      filter(ConcatFilter, append: file("include/wrapper-properties.${installerType.baseName}.conf.example"))
     }
 
     from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/bin") {

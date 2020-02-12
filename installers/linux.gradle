@@ -289,13 +289,10 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
           rename 'wrapper.conf.in', 'wrapper.conf'
         }
 
-        // the example properties file for reference
-        from("include/wrapper-properties.conf.example")
-
         // the actual default config file
         from("include/wrapper-properties-${installerType.baseName}.conf") {
           rename ".*", "wrapper-properties.conf"
-          filter(ConcatFilter, append: file("include/wrapper-properties.conf.example"))
+          filter(ConcatFilter, append: file("include/wrapper-properties.${installerType.baseName}.conf.example"))
         }
       }
 

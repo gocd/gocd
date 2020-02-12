@@ -49,12 +49,11 @@ describe('ShowRulesWidgetSpec', () => {
 
     expect(helper.byTestId('rules-info')).toBeInDOM();
     expect(helper.q('h3').textContent).toBe('Rules');
-    expect(helper.q('thead').textContent).toBe('DirectiveActionTypeResource');
+    expect(helper.q('thead').textContent).toBe('DirectiveTypeResource');
     const values = helper.qa('tbody td');
-    expect(values.length).toBe(4);
-    expect(values[0].textContent).toBe(rules()[0]().directive());
-    expect(values[1].textContent).toBe(rules()[0]().action());
-    expect(values[2].textContent).toBe(rules()[0]().type());
-    expect(values[3].textContent).toBe(rules()[0]().resource());
+    expect(values.length).toBe(3);
+    expect(values[0].textContent).toBe('Allow');
+    expect(values[1].textContent).toBe('Pipeline Group');
+    expect(values[2].textContent).toBe(rules()[0]().resource());
   });
 });

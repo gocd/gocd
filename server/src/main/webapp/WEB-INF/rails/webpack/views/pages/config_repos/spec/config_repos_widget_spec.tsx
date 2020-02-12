@@ -192,11 +192,10 @@ describe("ConfigReposWidget", () => {
 
       expect(helper.byTestId('rules-info')).toBeInDOM();
       const values = helper.qa('td', helper.byTestId('rule-table'));
-      expect(values.length).toBe(4);
-      expect(values[0].textContent).toBe(rule.directive());
-      expect(values[1].textContent).toBe(rule.action());
-      expect(values[2].textContent).toBe(rule.type());
-      expect(values[3].textContent).toBe(rule.resource());
+      expect(values.length).toBe(3);
+      expect(values[0].textContent).toBe('Allow');
+      expect(values[1].textContent).toBe('Environment');
+      expect(values[2].textContent).toBe(rule.resource());
     });
   });
 

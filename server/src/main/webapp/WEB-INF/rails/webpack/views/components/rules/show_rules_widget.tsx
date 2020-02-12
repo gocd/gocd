@@ -15,6 +15,7 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Rules} from "models/rules/rules";
@@ -28,7 +29,6 @@ export class ShowRulesWidget extends MithrilViewComponent<Attrs> {
   static headers() {
     return [
       "Directive",
-      "Action",
       "Type",
       "Resource"
     ];
@@ -43,9 +43,8 @@ export class ShowRulesWidget extends MithrilViewComponent<Attrs> {
     }
     const ruleData = vnode.attrs.rules().map((rule) => {
       return [
-        rule().directive(),
-        rule().action(),
-        rule().type(),
+        ShowRulesWidget.getUserReadableString(rule().directive()),
+        ShowRulesWidget.getUserReadableString(rule().type()),
         rule().resource()
       ];
     });
@@ -55,5 +54,12 @@ export class ShowRulesWidget extends MithrilViewComponent<Attrs> {
         <Table headers={ShowRulesWidget.headers()} data={ruleData}/>
       </div>
     </div>;
+  }
+
+  private static getUserReadableString(str: string): string {
+    if (str === "*") {
+      return str;
+    }
+    return _.startCase(str);
   }
 }

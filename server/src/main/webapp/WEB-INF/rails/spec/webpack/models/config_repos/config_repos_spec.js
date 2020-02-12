@@ -24,6 +24,7 @@ describe("Config Repo CRUD model", () => {
           "_embedded": {
             "config_repos": []
           },
+          "auto_completion": []
         }),
         responseHeaders: {
           "Content-Type": "application/vnd.go.cd.v1+json"

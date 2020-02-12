@@ -26,7 +26,9 @@ import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {EditConfigRepoModal} from "views/pages/config_repos/modals";
 import {FlashContainer, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 
-interface PageResources extends SaveOperation, RequiresPluginInfos, FlashContainer {}
+interface PageResources extends SaveOperation, RequiresPluginInfos, FlashContainer {
+  resourceAutocompleteHelper: Stream<Map<string, string[]>>;
+}
 
 class CRResultCache extends AbstractObjCache<DefinedStructures> {
   private repoId: string;
@@ -110,7 +112,8 @@ export class ConfigRepoVM {
       new EditConfigRepoModal(this.repo.id()!,
                               page.onSuccessfulSave,
                               page.onError,
-                              page.pluginInfos).render();
+                              page.pluginInfos,
+                              page.resourceAutocompleteHelper()).render();
     };
 
     this.showDeleteModal = (e) => {

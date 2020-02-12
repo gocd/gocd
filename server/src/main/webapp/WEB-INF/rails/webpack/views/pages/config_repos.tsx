@@ -20,7 +20,7 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
-import {ConfigRepo} from "models/config_repos/types";
+import {ConfigRepo, ConfigRepos} from "models/config_repos/types";
 import {Permissions, SupportedEntity} from "models/shared/permissions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -41,6 +41,7 @@ interface SearchOperation {
   unfilteredModels: Stream<ConfigRepoVM[]>;
   filteredModels: Stream<ConfigRepoVM[]>;
   searchText: Stream<string>;
+  resourceAutocompleteHelper: Stream<Map<string, string[]>>;
 }
 
 interface State extends AddOperation<ConfigRepo>, SaveOperation, SearchOperation, RequiresPluginInfos, FlashContainer {
@@ -62,7 +63,7 @@ export class ConfigReposPage extends Page<null, State> {
       (collection: Stream<ConfigRepoVM[]>) => _.filter(collection(), (vm) => vm.repo.matches(vnode.state.searchText())),
       [vnode.state.unfilteredModels]
     );
-
+    vnode.state.resourceAutocompleteHelper = Stream(new Map());
     vnode.state.flushEtag = () => {
       this.etag = Stream();
     };
@@ -81,7 +82,7 @@ export class ConfigReposPage extends Page<null, State> {
     vnode.state.onAdd = (e: MouseEvent) => {
       e.stopPropagation();
       this.flashMessage.clear();
-      new NewConfigRepoModal(vnode.state.onSuccessfulSave, vnode.state.onError, vnode.state.pluginInfos).render();
+      new NewConfigRepoModal(vnode.state.onSuccessfulSave, vnode.state.onError, vnode.state.pluginInfos, vnode.state.resourceAutocompleteHelper()).render();
     };
 
     new AjaxPoller({repeaterFn: this.refreshConfigRepos.bind(this, vnode), initialIntervalSeconds: 10}).start();
@@ -136,7 +137,7 @@ export class ConfigReposPage extends Page<null, State> {
           this.pageState = PageState.FAILED;
         }
       );
-      const apiResponse: ApiResult<ConfigRepo[]> = args[1];
+      const apiResponse: ApiResult<ConfigRepos> = args[1];
       const permissionsResponse: ApiResult<Permissions> = args[2];
       this.onConfigReposAPIResponse(apiResponse, permissionsResponse, vnode);
     });
@@ -155,7 +156,7 @@ export class ConfigReposPage extends Page<null, State> {
     return "Config repositories";
   }
 
-  private onConfigReposAPIResponse(apiResponse: ApiResult<ConfigRepo[]>, permissionsResponse: ApiResult<Permissions>, vnode: m.Vnode<null, State>) {
+  private onConfigReposAPIResponse(apiResponse: ApiResult<ConfigRepos>, permissionsResponse: ApiResult<Permissions>, vnode: m.Vnode<null, State>) {
     if (304 === apiResponse.getStatusCode() && 304 === permissionsResponse.getStatusCode()) {
       return;
     }
@@ -172,13 +173,17 @@ export class ConfigReposPage extends Page<null, State> {
     apiResponse.do((successResponse) => {
         permissionsResponse.do((permissions) => {
           const repoPermissions = permissions.body.for(SupportedEntity.config_repo);
-          successResponse.body.map((repo) => {
+          successResponse.body.configRepos.map((repo) => {
             repo.canAdminister(repoPermissions.canAdminister(repo.id()!));
           });
         }, onError);
         this.pageState = PageState.OK;
-        const models   = _.map(successResponse.body, (repo) => new ConfigRepoVM(repo, vnode.state));
+        const models   = _.map(successResponse.body.configRepos, (repo) => new ConfigRepoVM(repo, vnode.state));
         vnode.state.unfilteredModels(models);
+
+        successResponse.body.autoCompletion.forEach((suggestion) => {
+          vnode.state.resourceAutocompleteHelper().set(suggestion.key, ["*"].concat(suggestion.value));
+        });
       }, onError);
   }
 }

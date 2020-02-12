@@ -16,7 +16,7 @@
 import {ApiResult, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import {ConfigReposCRUD, configRepoToSnakeCaseJSON} from "models/config_repos/config_repos_crud";
-import {ConfigRepo} from "models/config_repos/types";
+import {ConfigRepo, ConfigRepos} from "models/config_repos/types";
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {Configuration, PlainTextValue} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 
@@ -33,7 +33,7 @@ describe("Config Repo Serialization", () => {
                                           false,
                                           [configuration1, configuration2]);
     const json           = configRepoToSnakeCaseJSON(configRepo);
-    const expectedJSON     = [
+    const expectedJSON   = [
       {key: "pipeline_pattern", value: "test-value-1"},
       {key: "environment_pattern", value: "test-value-2"}
     ];
@@ -76,10 +76,18 @@ describe('ConfigRepoCRUD', () => {
 
     const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
       const responseJSON = response.unwrap() as SuccessResponse<any>;
-      const configRepos  = (responseJSON.body as ConfigRepo[]);
-      expect(configRepos).toHaveLength(2);
-      expect(configRepos[0].id()).toBe("config-repo-id-1");
-      expect(configRepos[1].id()).toBe("config-repo-id-2");
+      const result       = (responseJSON.body as ConfigRepos);
+      expect(result.configRepos).toHaveLength(2);
+      expect(result.configRepos[0].id()).toBe("config-repo-id-1");
+      expect(result.configRepos[1].id()).toBe("config-repo-id-2");
+
+      expect(result.autoCompletion).toHaveLength(3);
+      expect(result.autoCompletion[0].key).toBe('pipeline');
+      expect(result.autoCompletion[0].value).toEqual(['deploy', 'test']);
+      expect(result.autoCompletion[1].key).toBe('environment');
+      expect(result.autoCompletion[1].value).toEqual(['teamA', 'teamB']);
+      expect(result.autoCompletion[2].key).toBe('pipeline_group');
+      expect(result.autoCompletion[2].value).toEqual(['qa', 'prod']);
       done();
     });
 
@@ -188,151 +196,165 @@ describe('ConfigRepoCRUD', () => {
 
   function getJSON() {
     return {
-      _embedded: {
+      _embedded:       {
         config_repos: [
           {
-            id: "config-repo-id-1",
-            plugin_id: "yaml.config.plugin",
-            material: {
-              type: "git",
+            id:                          "config-repo-id-1",
+            plugin_id:                   "yaml.config.plugin",
+            material:                    {
+              type:       "git",
               attributes: {
-                name: null,
+                name:        null,
                 auto_update: true,
-                url: "http://foo.com",
-                branch: "master"
+                url:         "http://foo.com",
+                branch:      "master"
               }
             },
-            can_administer: true,
-            configuration: [],
+            can_administer:              true,
+            configuration:               [],
             material_update_in_progress: false,
-            parse_info: {
+            parse_info:                  {
               latest_parsed_modification: {
-                username: "username <username@googlegroups.com>",
+                username:      "username <username@googlegroups.com>",
                 email_address: null,
-                revision: "b07d423864ec120362b3584635c",
-                comment: "some comment",
+                revision:      "b07d423864ec120362b3584635c",
+                comment:       "some comment",
                 modified_time: "2019-12-23T10:25:52Z"
               },
-              good_modification: {
-                username: "username <username@googlegroups.com>",
+              good_modification:          {
+                username:      "username <username@googlegroups.com>",
                 email_address: null,
-                revision: "b07d6523f1252ab4ec120362b3584635c",
-                comment: "some comment",
+                revision:      "b07d6523f1252ab4ec120362b3584635c",
+                comment:       "some comment",
                 modified_time: "2019-12-23T10:25:52Z"
               },
-              error: null
+              error:                      null
             }
           },
           {
-            id: "config-repo-id-2",
-            plugin_id: "yaml.config.plugin",
-            material: {
-              type: "git",
+            id:                          "config-repo-id-2",
+            plugin_id:                   "yaml.config.plugin",
+            material:                    {
+              type:       "git",
               attributes: {
-                name: null,
+                name:        null,
                 auto_update: true,
-                url: "https://bar.com",
-                branch: "master"
+                url:         "https://bar.com",
+                branch:      "master"
               }
             },
-            can_administer: true,
-            configuration: [],
+            can_administer:              true,
+            configuration:               [],
             material_update_in_progress: false,
-            parse_info: {
+            parse_info:                  {
               latest_parsed_modification: {
-                username: "username1 <27856297+username1@users.noreply.github.com>",
+                username:      "username1 <27856297+username1@users.noreply.github.com>",
                 email_address: null,
-                revision: "f1a4bf2f85542d8f8c19ff9823e3b92",
-                comment: "some major comment",
+                revision:      "f1a4bf2f85542d8f8c19ff9823e3b92",
+                comment:       "some major comment",
                 modified_time: "2019-12-27T07:57:57Z"
               },
-              good_modification: {
-                username: "username1 <27856297+username1@users.noreply.github.com>",
+              good_modification:          {
+                username:      "username1 <27856297+username1@users.noreply.github.com>",
                 email_address: null,
-                revision: "f1a4bf2f85542d8f8c19ff9823e3b92",
-                comment: "some major comment",
+                revision:      "f1a4bf2f85542d8f8c19ff9823e3b92",
+                comment:       "some major comment",
                 modified_time: "2019-12-27T07:57:57Z"
               },
-              error: null
+              error:                      null
             }
           }]
-      }
+      },
+      auto_completion: [
+        {
+          key:   "pipeline",
+          value: ["deploy", "test"]
+        },
+        {
+          key:   "environment",
+          value: ["teamA", "teamB"]
+        },
+        {
+          key:   "pipeline_group",
+          value: ["qa", "prod"]
+        }
+      ]
     };
   }
 
   function getAllConfigRepos() {
     return {
-      status: 200,
+      status:          200,
       responseHeaders: {
         "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
-        "ETag": "some-etag"
+        "ETag":         "some-etag"
       },
-      responseText: JSON.stringify(getJSON())
+      responseText:    JSON.stringify(getJSON())
     };
   }
 
   function getConfigRepo() {
     return {
-      status: 200,
+      status:          200,
       responseHeaders: {
         "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
-        "ETag": "some-etag"
+        "ETag":         "some-etag"
       },
-      responseText: JSON.stringify({
-                                     id: "config-repo-id-1",
-                                     plugin_id: "yaml.config.plugin",
-                                     material: {
-                                       type: "git",
-                                       attributes: {
-                                         name: null,
-                                         auto_update: true,
-                                         url: "http://foo.com",
-                                         branch: "master"
-                                       }
-                                     },
-                                     can_administer: true,
-                                     configuration: [],
-                                     material_update_in_progress: false,
-                                     parse_info: {
-                                       latest_parsed_modification: {
-                                         username: "username <username@googlegroups.com>",
-                                         email_address: null,
-                                         revision: "b07d423864ec120362b3584635c",
-                                         comment: "some comment",
-                                         modified_time: "2019-12-23T10:25:52Z"
-                                       },
-                                       good_modification: {
-                                         username: "username <username@googlegroups.com>",
-                                         email_address: null,
-                                         revision: "b07d6523f1252ab4ec120362b3584635c",
-                                         comment: "some comment",
-                                         modified_time: "2019-12-23T10:25:52Z"
-                                       },
-                                       error: null
-                                     }
-                                   })
+      responseText:    JSON.stringify({
+                                        id:                          "config-repo-id-1",
+                                        plugin_id:                   "yaml.config.plugin",
+                                        material:                    {
+                                          type:       "git",
+                                          attributes: {
+                                            name:        null,
+                                            auto_update: true,
+                                            url:         "http://foo.com",
+                                            branch:      "master"
+                                          }
+                                        },
+                                        can_administer:              true,
+                                        configuration:               [],
+                                        material_update_in_progress: false,
+                                        parse_info:                  {
+                                          latest_parsed_modification: {
+                                            username:      "username <username@googlegroups.com>",
+                                            email_address: null,
+                                            revision:      "b07d423864ec120362b3584635c",
+                                            comment:       "some comment",
+                                            modified_time: "2019-12-23T10:25:52Z"
+                                          },
+                                          good_modification:          {
+                                            username:      "username <username@googlegroups.com>",
+                                            email_address: null,
+                                            revision:      "b07d6523f1252ab4ec120362b3584635c",
+                                            comment:       "some comment",
+                                            modified_time: "2019-12-23T10:25:52Z"
+                                          },
+                                          error:                      null
+                                        }
+                                      })
     };
   }
 
   function deleteConfigRepoResponse() {
     return {
-      status: 200,
+      status:          200,
       responseHeaders: {
         "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
-        "ETag": "some-etag"
+        "ETag":         "some-etag"
       },
-      responseText: JSON.stringify({message: "Deleted Successfully!"})
+      responseText:    JSON.stringify({message: "Deleted Successfully!"})
     };
   }
 
   function triggerUpdateResponse() {
     return {
-      status: 200,
+      status:          200,
       responseHeaders: {
         "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
-        "ETag": "some-etag"
+        "ETag":         "some-etag"
       },
-      responseText: JSON.stringify({message: "Updated triggered!"})
+      responseText:    JSON.stringify({message: "Updated triggered!"})
     };
   }
 });

@@ -15,10 +15,12 @@
  */
 import {MaterialJSON} from "models/materials/serialization";
 import {ErrorsJSON} from "models/mixins/errors";
+import {AutoSuggestionJSON} from "models/roles/auto_suggestion";
 import {RuleJSON} from "models/rules/rules";
 
 export interface ConfigReposJSON {
   _embedded: EmbeddedJSON;
+  auto_completion: AutoSuggestionJSON[];
 }
 
 export interface EmbeddedJSON {

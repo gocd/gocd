@@ -28,8 +28,10 @@ class TestConfigRepoModal extends ConfigRepoModal {
 
   constructor(onSuccessfulSave: (msg: m.Children) => any,
               onError: (msg: m.Children) => any,
-              pluginInfos: Stream<PluginInfos>, isNew: boolean = true) {
-    super(onSuccessfulSave, onError, pluginInfos);
+              pluginInfos: Stream<PluginInfos>,
+              resourceAutocompleteHelper: Map<string, string[]> = new Map(),
+              isNew: boolean = true) {
+    super(onSuccessfulSave, onError, pluginInfos, resourceAutocompleteHelper);
     this.isNew = isNew;
   }
 
@@ -109,14 +111,14 @@ describe("ConfigRepoModal", () => {
 
   describe("EditModal", () => {
     it("should disable id while editing secret config", () => {
-      const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos, false);
+      const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos, new Map(), false);
       helper.mount(modal.body.bind(modal));
 
       expect(helper.byTestId("form-field-input-config-repository-name")).toBeDisabled();
     });
 
     it('should render any rules configures', () => {
-      const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos, false);
+      const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos, new Map(), false);
       helper.mount(modal.body.bind(modal));
 
       expect(helper.byTestId('rules-table')).toBeInDOM();

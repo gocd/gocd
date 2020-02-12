@@ -18,6 +18,7 @@ package com.thoughtworks.go.spark;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
+import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -26,10 +27,13 @@ import org.apache.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static java.lang.String.format;
 import static org.springframework.http.MediaType.*;
 import static spark.Spark.*;
 
@@ -56,6 +60,8 @@ public class RoutesHelper {
         before("/*", (request, response) -> request.attribute(TIMER_START, new RuntimeHeaderEmitter(request, response)));
         before("/*", (request, response) -> response.header("Cache-Control", "max-age=0, private, must-revalidate"));
 
+        controllers.forEach(this::addDeprecationHeaders);
+
         controllers.forEach(SparkSpringController::setupRoutes);
         sparkControllers.forEach(SparkController::setupRoutes);
 
@@ -65,6 +71,30 @@ public class RoutesHelper {
         exception(UnprocessableEntityException.class, this::unprocessableEntity);
 
         afterAfter("/*", (request, response) -> request.<RuntimeHeaderEmitter>attribute(TIMER_START).render());
+    }
+
+    private void addDeprecationHeaders(SparkSpringController controller) {
+        boolean isDeprecated = controller.getClass().isAnnotationPresent(DeprecatedAPI.class);
+        if (!isDeprecated) {
+            return;
+        }
+
+        DeprecatedAPI deprecated = controller.getClass().getAnnotation(DeprecatedAPI.class);
+        String controllerBasePath, mimeType;
+
+        try {
+            controllerBasePath = (String) controller.getClass().getMethod("controllerBasePath").invoke(controller);
+            Field field = controller.getClass().getSuperclass().getDeclaredField("mimeType");
+            field.setAccessible(true);
+            mimeType = (String) field.get(controller);
+        } catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+
+        path(controllerBasePath, () -> {
+            before("", mimeType, (req, res) -> setDeprecationHeaders(req, res, deprecated));
+            before("/*", mimeType, (req, res) -> setDeprecationHeaders(req, res, deprecated));
+        });
     }
 
     private void unprocessableEntity(UnprocessableEntityException exception, Request request, Response response) {
@@ -119,5 +149,23 @@ public class RoutesHelper {
                 response.header("X-Runtime", String.valueOf(System.currentTimeMillis() - timerStart));
             }
         }
+    }
+
+    void setDeprecationHeaders(Request request, Response response, DeprecatedAPI controller) {
+        String deprecatedRelease = controller.deprecatedIn();
+        String removalRelease = controller.removalIn();
+        String entityName = controller.entityName();
+        ApiVersion deprecatedApiVersion = controller.deprecatedApiVersion();
+        ApiVersion successorApiVersion = controller.successorApiVersion();
+
+        String changelogUrl = format("https://api.gocd.org/%s/#api-changelog", deprecatedRelease);
+        String link = format("<%s>; Accept=\"%s\"; rel=\"successor-version\"", request.url(), successorApiVersion.mimeType());
+        String warning = format("299 GoCD/v%s \"The %s API version %s has been deprecated in GoCD Release v%s. This version will be removed in GoCD Release v%s. Version %s of the API is available, and users are encouraged to use it\"", deprecatedRelease, entityName, deprecatedApiVersion, deprecatedRelease, removalRelease, successorApiVersion);
+
+        response.header("X-GoCD-API-Deprecated-In", format("v%s", deprecatedRelease));
+        response.header("X-GoCD-API-Removal-In", format("v%s", removalRelease));
+        response.header("X-GoCD-API-Deprecation-Info", changelogUrl);
+        response.header("Link", link);
+        response.header("Warning", warning);
     }
 }

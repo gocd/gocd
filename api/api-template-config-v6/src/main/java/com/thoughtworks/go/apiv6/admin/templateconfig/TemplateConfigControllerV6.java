@@ -33,6 +33,7 @@ import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.TemplateConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,7 @@ import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
 
 @Component
+@DeprecatedAPI(deprecatedApiVersion = ApiVersion.v6, successorApiVersion = ApiVersion.v7, deprecatedIn = "20.2.0", removalIn = "20.5.0", entityName = "Templates")
 public class TemplateConfigControllerV6 extends ApiController implements SparkSpringController, CrudController<PipelineTemplateConfig> {
 
     private final TemplateConfigService templateConfigService;

@@ -37,7 +37,7 @@ import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
-class TemplateConfigControllerV6Test implements SecurityServiceTrait, ControllerTrait<TemplateConfigControllerV6> {
+class TemplateConfigControllerV6Test implements SecurityServiceTrait, ControllerTrait<TemplateConfigControllerV6>, DeprecatedApiTrait {
 
   private PipelineTemplateConfig template
 

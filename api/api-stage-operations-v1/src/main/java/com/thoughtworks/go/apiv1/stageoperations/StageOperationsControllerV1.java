@@ -35,6 +35,7 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.slf4j.Logger;
@@ -54,6 +55,7 @@ import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
 import static spark.Spark.*;
 
 @Component
+@DeprecatedAPI(deprecatedApiVersion = ApiVersion.v1, successorApiVersion = ApiVersion.v2, deprecatedIn = "20.1.0", removalIn = "20.4.0", entityName = "Stages")
 public class StageOperationsControllerV1 extends ApiController implements SparkSpringController {
     private static final Logger LOGGER = LoggerFactory.getLogger(StageOperationsControllerV1.class);
     private final static String JOB_NAMES_PROPERTY = "jobs";

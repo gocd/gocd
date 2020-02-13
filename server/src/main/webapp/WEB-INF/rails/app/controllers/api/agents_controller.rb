@@ -16,6 +16,7 @@
 
 class Api::AgentsController < Api::ApiController
   include AuthenticationHelper
+  include DeprecatedApiHelper
 
   before_action :check_user_and_404
   before_action :check_admin_user_and_403, except: [:index, :show, :job_run_history]
@@ -23,6 +24,8 @@ class Api::AgentsController < Api::ApiController
   JobHistoryColumns = com.thoughtworks.go.server.service.JobInstanceService::JobHistoryColumns
 
   def job_run_history
+    add_deprecation_headers(request, response, "unversioned", nil, "v1", "19.12.0", "20.3.0", "Agent Job Run History")
+
     offset = params[:offset].to_i
     page_size = 10
     job_instance_count = job_instance_service.totalCompletedJobsCountOn(params[:uuid])

@@ -16,9 +16,11 @@
 
 module ApiV1
   class NotificationFiltersController < ApiV1::BaseController
+    include DeprecatedApiHelper
     before_action :check_user_and_404
     before_action :load_current_user
     before_action :check_filter_params, only: :create
+    before_action :deprecation_headers_action
 
     def index
       render_user_notification_filters
@@ -42,6 +44,10 @@ module ApiV1
     end
 
     private
+
+    def deprecation_headers_action
+      add_deprecation_headers(request, response, "v1", nil, "v2", "20.1.0", "20.4.0", "Notification Filter")
+    end
 
     def render_user_notification_filters
       render DEFAULT_FORMAT => NotificationFiltersRepresenter.new(@user_to_operate.notificationFilters).to_hash

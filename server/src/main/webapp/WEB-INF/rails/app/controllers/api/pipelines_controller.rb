@@ -58,6 +58,9 @@ class Api::PipelinesController < Api::ApiController
   end
 
   def status
+    add_deprecation_headers(request, response, "unversioned", nil,
+                            "v1", "20.1.0", "20.4.0", "Pipeline Status")
+
     pipeline_name = params[:pipeline_name]
     result = HttpOperationResult.new
 

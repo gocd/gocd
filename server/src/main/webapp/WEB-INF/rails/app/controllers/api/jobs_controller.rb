@@ -17,6 +17,7 @@
 java_import 'org.springframework.dao.DataRetrievalFailureException'
 
 class Api::JobsController < Api::ApiController
+  include DeprecatedApiHelper
   include ApplicationHelper
 
   def render_not_found()
@@ -40,6 +41,8 @@ class Api::JobsController < Api::ApiController
   end
 
   def history
+    add_deprecation_headers(request, response, "unversioned", nil, "v1", "20.1.0", "20.4.0", "Job History")
+
     pipeline_name = params[:pipeline_name]
     stage_name = params[:stage_name]
     job_name = params[:job_name]

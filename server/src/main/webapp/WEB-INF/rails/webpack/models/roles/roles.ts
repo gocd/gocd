@@ -19,6 +19,7 @@ import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Configurations, PropertyJSON} from "models/shared/configuration";
+import {AutoSuggestionJSON, AutoSuggestions} from "./auto_suggestion";
 
 export enum RoleType {
   gocd, plugin
@@ -276,36 +277,6 @@ export class Roles extends Array<GoCDRole | PluginRole> {
       return Role.fromJSON(value);
     });
     return new Roles(...roles);
-  }
-}
-
-interface AutoSuggestionJSON {
-  key: string;
-  value: string[];
-}
-
-class AutoSuggestion {
-  key: string;
-  value: string[];
-
-  constructor(key: string, value: string[]) {
-    this.key   = key;
-    this.value = value;
-  }
-
-  static fromJSON(data: AutoSuggestionJSON): AutoSuggestion {
-    return new AutoSuggestion(data.key, data.value);
-  }
-}
-
-class AutoSuggestions extends Array<AutoSuggestion> {
-  constructor(...vals: AutoSuggestion[]) {
-    super(...vals);
-    Object.setPrototypeOf(this, Object.create(AutoSuggestions.prototype));
-  }
-
-  static fromJSON(data: AutoSuggestionJSON[]): AutoSuggestions {
-    return new AutoSuggestions(...data.map((a) => AutoSuggestion.fromJSON(a)));
   }
 }
 

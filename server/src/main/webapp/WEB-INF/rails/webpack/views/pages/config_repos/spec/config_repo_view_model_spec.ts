@@ -74,6 +74,7 @@ class MockResources implements FlashContainer, RequiresPluginInfos, SaveOperatio
   // tslint:disable-next-line no-empty
   flash = { clear() {}, success() {}, alert() {} };
   pluginInfos: Stream<PluginInfos> = Stream();
+  resourceAutocompleteHelper: Stream<Map<string, string[]>> = Stream(new Map());
   // tslint:disable-next-line no-empty
   onError() {}
   // tslint:disable-next-line no-empty

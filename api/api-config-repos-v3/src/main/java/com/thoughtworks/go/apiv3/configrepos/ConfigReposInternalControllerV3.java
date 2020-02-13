@@ -21,11 +21,13 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv3.configrepos.representers.ConfigRepoWithResultListRepresenter;
 import com.thoughtworks.go.config.GoRepoConfigDataSource;
 import com.thoughtworks.go.config.PartialConfigParseResult;
-import com.thoughtworks.go.config.policy.SupportedAction;
+import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.ConfigRepoService;
+import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
+import com.thoughtworks.go.server.service.PipelineConfigsService;
 import com.thoughtworks.go.spark.Routes.ConfigRepos;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +36,14 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 import static com.thoughtworks.go.config.policy.SupportedEntity.CONFIG_REPO;
 import static com.thoughtworks.go.util.CachedDigestUtils.sha256Hex;
+import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
 @Component
@@ -50,15 +54,19 @@ public class ConfigReposInternalControllerV3 extends ApiController implements Sp
     private final ApiAuthenticationHelper authHelper;
     private final MaterialUpdateService mus;
     private final MaterialConfigConverter converter;
+    private final EnvironmentConfigService environmentConfigService;
+    private final PipelineConfigsService pipelineConfigsService;
 
     @Autowired
-    public ConfigReposInternalControllerV3(ApiAuthenticationHelper authHelper, ConfigRepoService service, GoRepoConfigDataSource dataSource, MaterialUpdateService mus, MaterialConfigConverter converter) {
+    public ConfigReposInternalControllerV3(ApiAuthenticationHelper authHelper, ConfigRepoService service, GoRepoConfigDataSource dataSource, MaterialUpdateService mus, MaterialConfigConverter converter, EnvironmentConfigService environmentConfigService, PipelineConfigsService pipelineConfigsService) {
         super(ApiVersion.v3);
         this.service = service;
         this.dataSource = dataSource;
         this.authHelper = authHelper;
         this.mus = mus;
         this.converter = converter;
+        this.environmentConfigService = environmentConfigService;
+        this.pipelineConfigsService = pipelineConfigsService;
     }
 
     @Override
@@ -80,7 +88,7 @@ public class ConfigReposInternalControllerV3 extends ApiController implements Sp
     String listRepos(Request req, Response res) throws IOException {
         List<ConfigRepoWithResult> userSpecificRepos = allRepos().stream()
                 .filter(repo -> authHelper.doesUserHasPermissions(currentUsername(), getAction(req), CONFIG_REPO, repo.repo().getId()))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         final String etag = etagFor(userSpecificRepos);
 
@@ -89,8 +97,22 @@ public class ConfigReposInternalControllerV3 extends ApiController implements Sp
         if (fresh(req, etag)) {
             return notModified(res);
         }
+        Map<String, List<String>> autoSuggestions = new HashMap<>();
+        ArrayList<String> pipelineNames = new ArrayList<>();
+        ArrayList<String> pipelineGroupNames = new ArrayList<>();
 
-        return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultListRepresenter.toJSON(w, userSpecificRepos));
+        List<String> envNames = environmentConfigService.getEnvironmentNames();
+        List<PipelineConfigs> groupsForUser = pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString());
+        groupsForUser.forEach((grp) -> {
+            pipelineGroupNames.add(grp.getGroup());
+            pipelineNames.addAll(grp.getPipelines().stream().map((pipelineConfig) -> pipelineConfig.name().toString()).collect(toList()));
+        });
+
+        autoSuggestions.put("environment", envNames);
+        autoSuggestions.put("pipeline_group", pipelineGroupNames);
+        autoSuggestions.put("pipeline", pipelineNames);
+
+        return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultListRepresenter.toJSON(w, userSpecificRepos, autoSuggestions));
     }
 
     private String etagFor(Object entity) {
@@ -101,7 +123,7 @@ public class ConfigReposInternalControllerV3 extends ApiController implements Sp
         return service.getConfigRepos().stream().map(r -> {
             PartialConfigParseResult result = dataSource.getLastParseResult(r.getRepo());
             return new ConfigRepoWithResult(r, result, isMaterialUpdateInProgress(r));
-        }).collect(Collectors.toList());
+        }).collect(toList());
     }
 
     private boolean isMaterialUpdateInProgress(ConfigRepoConfig configRepoConfig) {

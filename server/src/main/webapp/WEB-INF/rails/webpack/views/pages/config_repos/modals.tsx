@@ -40,7 +40,8 @@ type EditableMaterial = SaveOperation
   & { repo: ConfigRepo }
   & { isNew: boolean }
   & RequiresPluginInfos
-  & { error?: m.Children };
+  & { error?: m.Children }
+  & { resourceAutocompleteHelper: Map<string, string[]> };
 
 class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
   view(vnode: m.Vnode<EditableMaterial>) {
@@ -104,7 +105,7 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
           <ConfigureRulesWidget infoMsg={infoMsg}
                                 rules={vnode.attrs.repo.rules}
                                 types={[RulesType.PIPELINE, RulesType.PIPELINE_GROUP, RulesType.ENVIRONMENT]}
-                                resourceAutocompleteHelper={new Map()}/>
+                                resourceAutocompleteHelper={vnode.attrs.resourceAutocompleteHelper}/>
         </div>
       ]
     );
@@ -310,14 +311,17 @@ export abstract class ConfigRepoModal extends Modal {
   protected isNew: boolean = false;
   protected pluginInfos: Stream<PluginInfos>;
   private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
+  private resourceAutocompleteHelper: Map<string, string[]>;
 
   protected constructor(onSuccessfulSave: (msg: m.Children) => any,
                         onError: (msg: m.Children) => any,
-                        pluginInfos: Stream<PluginInfos>) {
+                        pluginInfos: Stream<PluginInfos>,
+                        resourceAutocompleteHelper: Map<string, string[]>) {
     super(Size.large);
     this.onSuccessfulSave = onSuccessfulSave;
     this.onError          = onError;
     this.pluginInfos      = pluginInfos;
+    this.resourceAutocompleteHelper = resourceAutocompleteHelper;
   }
 
   body(): m.Children {
@@ -345,7 +349,8 @@ export abstract class ConfigRepoModal extends Modal {
                repo: this.getRepo(),
                isNew: this.isNew,
                pluginInfos: this.pluginInfos,
-               error: errorMessage
+               error: errorMessage,
+               resourceAutocompleteHelper: this.resourceAutocompleteHelper
              });
 
   }
@@ -376,8 +381,9 @@ export class NewConfigRepoModal extends ConfigRepoModal {
 
   constructor(onSuccessfulSave: (msg: (m.Children)) => any,
               onError: (msg: (m.Children)) => any,
-              pluginInfos: Stream<PluginInfos>) {
-    super(onSuccessfulSave, onError, pluginInfos);
+              pluginInfos: Stream<PluginInfos>,
+              resourceAutocompleteHelper: Map<string, string[]>) {
+    super(onSuccessfulSave, onError, pluginInfos, resourceAutocompleteHelper);
 
     // prefer the YAML plugin and fallback to the first plugin when not present
     const defaultPlugin = pluginInfos().find((p) => ConfigRepo.YAML_PLUGIN_ID === p.id) || pluginInfos()[0];
@@ -431,8 +437,9 @@ export class EditConfigRepoModal extends ConfigRepoModal {
   constructor(repoId: string,
               onSuccessfulSave: (msg: (m.Children)) => any,
               onError: (msg: (m.Children)) => any,
-              pluginInfos: Stream<PluginInfos>) {
-    super(onSuccessfulSave, onError, pluginInfos);
+              pluginInfos: Stream<PluginInfos>,
+              resourceAutocompleteHelper: Map<string, string[]>) {
+    super(onSuccessfulSave, onError, pluginInfos, resourceAutocompleteHelper);
     this.repoId = repoId;
 
     ConfigReposCRUD

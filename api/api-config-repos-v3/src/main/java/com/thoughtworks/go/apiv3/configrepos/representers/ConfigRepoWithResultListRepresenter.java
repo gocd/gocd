@@ -19,17 +19,21 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.apiv3.configrepos.ConfigRepoWithResult;
 
 import java.util.List;
-import java.util.function.Function;
+import java.util.Map;
 
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.BASE;
 
 public class ConfigRepoWithResultListRepresenter {
-    public static void toJSON(OutputWriter json, List<ConfigRepoWithResult> repos) {
-        attachLinks(json);
-        json.addChild("_embedded", w -> w.addChildList(
+    public static void toJSON(OutputWriter outputWriter, List<ConfigRepoWithResult> repos, Map<String, List<String>> autoSuggestions) {
+        attachLinks(outputWriter);
+        outputWriter.addChild("_embedded", w -> w.addChildList(
                 "config_repos", all -> repos.forEach(
                         repo -> all.addChild(el -> ConfigRepoWithResultRepresenter.toJSON(el, repo))
                 )
+        )).addChildList("auto_completion", (suggestionWriter) -> autoSuggestions.forEach(
+                (key, value) -> suggestionWriter.addChild(childWriter -> childWriter
+                        .add("key", key)
+                        .addChildList("value", value))
         ));
     }
 

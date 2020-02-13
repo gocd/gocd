@@ -15,13 +15,14 @@
  */
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {ConfigRepoJSON, ConfigReposJSON, MaterialModificationJSON, ParseInfoJSON, } from "models/config_repos/serialization";
+import {ConfigRepoJSON, ConfigReposJSON, MaterialModificationJSON, ParseInfoJSON,} from "models/config_repos/serialization";
 import {Material, Materials} from "models/materials/types";
 import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Rules} from "models/rules/rules";
 import {Configuration, PlainTextValue} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
+import {AutoSuggestions} from "../roles/auto_suggestion";
 
 //tslint:disable-next-line
 export interface ConfigRepo extends ValidatableMixin {
@@ -141,11 +142,20 @@ export class ConfigRepo implements ValidatableMixin {
 
 applyMixins(ConfigRepo, ValidatableMixin);
 
-export abstract class ConfigRepos {
-  static fromJSON(json?: ConfigReposJSON): ConfigRepo[] {
-    return _.map(json!._embedded.config_repos, (json: ConfigRepoJSON) => {
+export class ConfigRepos {
+  configRepos: ConfigRepo[];
+  autoCompletion: AutoSuggestions;
+
+  constructor(configRepos: ConfigRepo[], autoCompletion: AutoSuggestions) {
+    this.configRepos    = configRepos;
+    this.autoCompletion = autoCompletion;
+  }
+
+  static fromJSON(json?: ConfigReposJSON): ConfigRepos {
+    const configRepos = _.map(json!._embedded.config_repos, (json: ConfigRepoJSON) => {
       return ConfigRepo.fromJSON(json);
     });
+    return new ConfigRepos(configRepos, AutoSuggestions.fromJSON(json!.auto_completion));
   }
 }
 

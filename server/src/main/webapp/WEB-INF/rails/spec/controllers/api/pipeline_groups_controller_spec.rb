@@ -35,6 +35,21 @@ describe Api::PipelineGroupsController do
       expect(:get => "/api/config/pipeline_groups").to route_to(:controller => "api/pipeline_groups", :action => "list_configs", :no_layout=>true)
     end
 
+    it "should add deprecation API headers" do
+      loser = Username.new(CaseInsensitiveString.new("loser"))
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@pipeline_configs_service).to receive(:getGroupsForUser).with("loser").and_return([create_pipeline_group_config_model])
+
+      get :list_configs, params:{:no_layout => true}
+
+      expect(response).to be_ok
+      expect(response.headers["X-GoCD-API-Deprecated-In"]).to eq('v19.12.0')
+      expect(response.headers["X-GoCD-API-Removal-In"]).to eq('v20.3.0')
+      expect(response.headers["X-GoCD-API-Deprecation-Info"]).to eq("https://api.gocd.org/19.12.0/#api-changelog")
+      expect(response.headers["Link"]).to eq('<http://test.host/go/api/admin/pipeline_groups>; Accept="application/vnd.go.cd.v1+json"; rel="successor-version"')
+      expect(response.headers["Warning"]).to eq('299 GoCD/v19.12.0 "The Pipeline Groups Config Listing unversioned API has been deprecated in GoCD Release v19.12.0. This version will be removed in GoCD Release v20.3.0. Version v1 of the API is available, and users are encouraged to use it"')
+    end
+
     it "should render pipeline group list json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
       expect(controller).to receive(:current_user).and_return(loser)

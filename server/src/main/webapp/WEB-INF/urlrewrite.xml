@@ -30,6 +30,20 @@
   </rule>
 
   <rule>
+    <name>Package Repositories SPA with toggle</name>
+    <from>^/admin/package_repositories(/?)$</from>
+    <run class="com.thoughtworks.go.server.PackageRepositoriesSparkOrRailsToggle" method="redirect"/>
+    <to last="true">/%{attribute:url}</to>
+  </rule>
+
+  <rule>
+    <name>Package Repositories SPA with toggle</name>
+    <from>^/admin/package_repositories/(.*)$</from>
+    <run class="com.thoughtworks.go.server.PackageRepositoriesSparkOrRailsToggle" method="redirect"/>
+    <to last="true">/%{attribute:url}</to>
+  </rule>
+
+  <rule>
     <name>Clicky pipeline config SPA</name>
     <from>^/admin/pipelines/([^/]+)/edit(/?)$</from>
     <to last="true">/spark/admin/pipelines/${escape:$1}/edit</to>

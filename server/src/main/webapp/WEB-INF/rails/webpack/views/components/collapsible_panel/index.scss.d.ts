@@ -7,4 +7,5 @@ export const error: string;
 export const expanded: string;
 export const headerDetails: string;
 export const hide: string;
+export const nonCollapseHeader: string;
 export const warning: string;

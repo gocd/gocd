@@ -16,6 +16,7 @@
 
 import {JsonUtils} from "helpers/json_utils";
 import Stream from "mithril/stream";
+import {AuthorizationUsersAndRolesJSON, AuthorizedUsersAndRoles} from "models/authorization/authorization";
 import {EnvironmentVariableJSON, EnvironmentVariables} from "models/environment_variables/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Job, JobJSON} from "./job";
@@ -24,12 +25,7 @@ import {NameableSet} from "./nameable_set";
 export interface ApprovalJSON {
   type: ApprovalType;
   allow_only_on_success: boolean;
-  authorization: AuthorizationJSON;
-}
-
-export interface AuthorizationJSON {
-  roles: string[];
-  users: string[];
+  authorization: AuthorizationUsersAndRolesJSON;
 }
 
 export interface StageJSON {
@@ -45,12 +41,12 @@ export interface StageJSON {
 export type ApprovalType = "success" | "manual";
 
 class Approval extends ValidatableMixin {
-  type               = Stream<ApprovalType>("success");
-  state: (value?: boolean) => boolean;
-  allowOnlyOnSuccess = Stream<boolean>();
+  readonly type               = Stream<ApprovalType>("success");
+  readonly state: (value?: boolean) => boolean;
+  readonly allowOnlyOnSuccess = Stream<boolean>();
   //authorization must be present for server side validations
   //even though it's not editable from the create pipeline page
-  authorization: Stream<any> = Stream({});
+  readonly authorization = Stream<AuthorizedUsersAndRoles>();
 
   private readonly __typeAsStream = Stream<boolean>();
 
@@ -77,7 +73,7 @@ class Approval extends ValidatableMixin {
     }
     approval.type(json.type);
     approval.__typeAsStream(json.type === "success");
-    approval.authorization({roles: json.authorization.roles, users: json.authorization.users});
+    approval.authorization(AuthorizedUsersAndRoles.fromJSON(json.authorization));
     approval.allowOnlyOnSuccess(json.allow_only_on_success);
     return approval;
   }

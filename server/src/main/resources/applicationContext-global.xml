@@ -25,6 +25,7 @@
 
   <context:annotation-config/>
 
+  <context:component-scan base-package="com.thoughtworks.go.apiv2.apiinfo"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.permissions"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv7.admin.templateconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.webhook"/>

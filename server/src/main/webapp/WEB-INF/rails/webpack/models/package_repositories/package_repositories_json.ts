@@ -58,3 +58,12 @@ export interface PackageJSON {
   package_repo: PackageRepositorySummaryJSON;
   errors?: ErrorsJSON;
 }
+
+export interface PackageUsageJSON {
+  group: string;
+  pipeline: string;
+}
+
+export interface PackageUsagesJSON {
+  usages: PackageUsageJSON[];
+}

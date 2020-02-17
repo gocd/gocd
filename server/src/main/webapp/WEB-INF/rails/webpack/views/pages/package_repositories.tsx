@@ -14,20 +14,44 @@
  * limitations under the License.
  */
 
+import {ErrorResponse} from "helpers/api_request_builder";
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {PackageRepositories} from "models/package_repositories/package_repositories";
+import {Package, PackageRepositories, PackageRepository} from "models/package_repositories/package_repositories";
+import {PackagesCRUD} from "models/package_repositories/packages_crud";
 import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
 import {ExtensionTypeString, PackageRepoExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
+import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {HeaderPanel} from "views/components/header_panel";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
+import {ClonePackageRepositoryModal, CreatePackageRepositoryModal, DeletePackageRepositoryModal, EditPackageRepositoryModal} from "views/pages/package_repositories/package_repository_modals";
 import {PackageRepositoriesWidget} from "views/pages/package_repositories/package_repositories_widget";
 import {Page, PageState} from "views/pages/page";
-import {RequiresPluginInfos} from "views/pages/page_operations";
+import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
+import {ClonePackageModal, CreatePackageModal, DeletePackageModal, EditPackageModal, UsagePackageModal} from "./package_repositories/package_modals";
 
-interface State extends RequiresPluginInfos {
+export class PackageRepoOperations {
+  onAdd: (e: MouseEvent) => void                            = () => _.noop;
+  onEdit: (obj: PackageRepository, e: MouseEvent) => void   = () => _.noop;
+  onClone: (obj: PackageRepository, e: MouseEvent) => void  = () => _.noop;
+  onDelete: (obj: PackageRepository, e: MouseEvent) => void = () => _.noop;
+}
+
+export class PackageOperations {
+  onAdd: (packageRepo: PackageRepository, e: MouseEvent) => void = () => _.noop;
+  onEdit: (obj: Package, e: MouseEvent) => void                  = () => _.noop;
+  onClone: (obj: Package, e: MouseEvent) => void                 = () => _.noop;
+  onDelete: (obj: Package, e: MouseEvent) => void                = () => _.noop;
+  showUsages: (obj: Package, e: MouseEvent) => void              = () => _.noop;
+}
+
+interface State extends RequiresPluginInfos, SaveOperation {
   packageRepositories: Stream<PackageRepositories>;
+  packageRepoOperations: PackageRepoOperations;
+  packageOperations: PackageOperations;
 }
 
 export class PackageRepositoriesPage extends Page<null, State> {
@@ -35,17 +59,31 @@ export class PackageRepositoriesPage extends Page<null, State> {
     super.oninit(vnode);
     vnode.state.packageRepositories = Stream();
     vnode.state.pluginInfos         = Stream();
+
+    vnode.state.onSuccessfulSave = (msg: m.Children) => {
+      this.flashMessage.setMessage(MessageType.success, msg);
+      this.fetchData(vnode);
+    };
+
+    vnode.state.onError = (msg: m.Children) => {
+      this.flashMessage.setMessage(MessageType.alert, msg);
+    };
+
+    this.setPackageRepoOperations(vnode);
+    this.setPackageOperations(vnode);
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    if (vnode.state.pluginInfos().length === 0) {
+    if (!this.isPluginInstalled(vnode)) {
       return (<NoPluginsOfTypeInstalled extensionType={new PackageRepoExtensionType()}/>);
     }
 
     return <div>
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       <PackageRepositoriesWidget packageRepositories={vnode.state.packageRepositories}
-                                 pluginInfos={vnode.state.pluginInfos}/>
+                                 pluginInfos={vnode.state.pluginInfos}
+                                 packageRepoOperations={vnode.state.packageRepoOperations}
+                                 packageOperations={vnode.state.packageOperations}/>
     </div>;
   }
 
@@ -74,4 +112,105 @@ export class PackageRepositoriesPage extends Page<null, State> {
                   });
 
   }
+
+  protected headerPanel(vnode: m.Vnode<null, State>): any {
+    const buttons = this.isPluginInstalled(vnode) ?
+      <Primary icon={ButtonIcon.ADD} onclick={vnode.state.packageRepoOperations.onAdd}>Create Package
+        Repository</Primary>
+      : undefined;
+    return <HeaderPanel title={this.pageName()} buttons={buttons}/>;
+  }
+
+  private isPluginInstalled(vnode: m.Vnode<null, State>) {
+    return vnode.state.pluginInfos().length !== 0;
+  }
+
+  private setPackageRepoOperations(vnode: m.Vnode<null, State>) {
+    vnode.state.packageRepoOperations = new PackageRepoOperations();
+
+    vnode.state.packageRepoOperations.onAdd = (e: MouseEvent) => {
+      e.stopPropagation();
+
+      const pluginId          = vnode.state.pluginInfos()[0].id;
+      const packageRepository = PackageRepository.default();
+      packageRepository.pluginMetadata().id(pluginId);
+      new CreatePackageRepositoryModal(packageRepository, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
+        .render();
+    };
+
+    vnode.state.packageRepoOperations.onEdit = (pkgRepo: PackageRepository, e: MouseEvent) => {
+      e.stopPropagation();
+
+      new EditPackageRepositoryModal(pkgRepo, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
+        .render();
+    };
+
+    vnode.state.packageRepoOperations.onClone = (pkgRepo: PackageRepository, e: MouseEvent) => {
+      e.stopPropagation();
+      new ClonePackageRepositoryModal(pkgRepo, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
+        .render();
+    };
+
+    vnode.state.packageRepoOperations.onDelete = (pkgRepo: PackageRepository, e: MouseEvent) => {
+      e.stopPropagation();
+
+      new DeletePackageRepositoryModal(pkgRepo, vnode.state.onSuccessfulSave, this.onOperationError(vnode))
+        .render();
+    };
+  }
+
+  private setPackageOperations(vnode: m.Vnode<null, State>) {
+    vnode.state.packageOperations = new PackageOperations();
+
+    vnode.state.packageOperations.onAdd = (packageRepo: PackageRepository, e: MouseEvent) => {
+      e.stopPropagation();
+
+      const pkg = Package.default();
+      pkg.packageRepo().id(packageRepo.repoId());
+      new CreatePackageModal(pkg, vnode.state.packageRepositories(), vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
+        .render()
+    };
+
+    vnode.state.packageOperations.onEdit = (pkg: Package, e: MouseEvent) => {
+      e.stopPropagation();
+
+      new EditPackageModal(pkg, vnode.state.packageRepositories(), vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
+        .render();
+    };
+
+    vnode.state.packageOperations.onClone = (pkg: Package, e: MouseEvent) => {
+      e.stopPropagation();
+
+      new ClonePackageModal(pkg, vnode.state.packageRepositories(), vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
+        .render();
+    };
+
+    vnode.state.packageOperations.onDelete = (pkg: Package, e: MouseEvent) => {
+      e.stopPropagation();
+
+      new DeletePackageModal(pkg, vnode.state.onSuccessfulSave, this.onOperationError(vnode))
+        .render();
+    };
+
+    vnode.state.packageOperations.showUsages = (pkg: Package, e: MouseEvent) => {
+      e.stopPropagation();
+
+      PackagesCRUD.usages(pkg.id())
+                  .then((result) => {
+                    result.do(
+                      (successResponse) => {
+                        new UsagePackageModal(pkg.id(), successResponse.body).render();
+                      },
+                      this.onOperationError(vnode)
+                    );
+                  })
+    };
+  }
+
+  private onOperationError(vnode: m.Vnode<null, State>): (errorResponse: ErrorResponse) => void {
+    return (errorResponse: ErrorResponse) => {
+      vnode.state.onError(JSON.parse(errorResponse.body!).message);
+    };
+  }
+
 }

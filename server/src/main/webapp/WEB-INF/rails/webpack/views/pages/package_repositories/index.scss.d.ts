@@ -3,3 +3,4 @@ export const configurationDetails: string;
 export const configurationDetailsContainer: string;
 export const configurationDetailsHeader: string;
 export const expanded: string;
+export const packageRepositoryCrudActions: string;

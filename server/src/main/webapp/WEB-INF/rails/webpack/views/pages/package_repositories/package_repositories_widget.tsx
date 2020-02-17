@@ -20,10 +20,13 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {PackageRepositories} from "models/package_repositories/package_repositories";
 import {RequiresPluginInfos} from "views/pages/page_operations";
+import {PackageOperations, PackageRepoOperations} from "views/pages/package_repositories";
 import {PackageRepositoryWidget} from "./package_repository_widget";
 
 interface Attrs extends RequiresPluginInfos {
   packageRepositories: Stream<PackageRepositories>;
+  packageRepoOperations: PackageRepoOperations;
+  packageOperations: PackageOperations;
 }
 
 export class PackageRepositoriesWidget extends MithrilViewComponent<Attrs> {
@@ -31,7 +34,12 @@ export class PackageRepositoriesWidget extends MithrilViewComponent<Attrs> {
     return <div>
       {vnode.attrs.packageRepositories().map(packageRepo => {
         const pluginInfo = _.find(vnode.attrs.pluginInfos(), {id: packageRepo.pluginMetadata().id()});
-        return <PackageRepositoryWidget packageRepository={packageRepo} pluginInfo={pluginInfo}/>
+        return <PackageRepositoryWidget packageRepository={packageRepo}
+                                        packageOperations={vnode.attrs.packageOperations}
+                                        pluginInfo={pluginInfo}
+                                        onEdit={vnode.attrs.packageRepoOperations.onEdit}
+                                        onClone={vnode.attrs.packageRepoOperations.onClone}
+                                        onDelete={vnode.attrs.packageRepoOperations.onDelete}/>
       })}
     </div>;
   }

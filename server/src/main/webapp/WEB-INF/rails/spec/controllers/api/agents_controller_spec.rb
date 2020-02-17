@@ -27,6 +27,21 @@ describe Api::AgentsController do
   describe "job_run_history" do
     include APIModelMother
 
+    it "should add deprecation API headers" do
+      expect(@job_instance_service).to receive(:totalCompletedJobsCountOn).with('uuid').and_return(10)
+      expect(@job_instance_service).to receive(:completedJobsOnAgent).with('uuid', anything, anything, anything).and_return(create_agent_job_run_history_model)
+
+      get :job_run_history, params:{:uuid => 'uuid', :offset => '5', :no_layout => true}
+
+      expect(response).to be_ok
+      expect(response.headers["X-GoCD-API-Deprecated-In"]).to eq('v19.12.0')
+      expect(response.headers["X-GoCD-API-Removal-In"]).to eq('v20.3.0')
+      expect(response.headers["X-GoCD-API-Deprecation-Info"]).to eq("https://api.gocd.org/19.12.0/#api-changelog")
+      expect(response.headers["Link"]).to eq('<http://test.host/api/agents/uuid/job_run_history/5>; Accept="application/vnd.go.cd.v1+json"; rel="successor-version"')
+      expect(response.headers["Warning"]).to eq('299 GoCD/v19.12.0 "The Agent Job Run History unversioned API has been deprecated in GoCD Release v19.12.0. This version will be removed in GoCD Release v20.3.0. Version v1 of the API is available, and users are encouraged to use it"')
+    end
+
+
     it "should resolve routes" do
       expect(:get => "/api/agents/1234/job_run_history").to route_to({:controller => 'api/agents', :action => 'job_run_history', :uuid => '1234', :offset => '0', :no_layout => true})
       expect(:get => "/api/agents/1234/job_run_history/1").to route_to({:controller => 'api/agents', :action => 'job_run_history', :uuid => '1234', :offset => '1', :no_layout => true})

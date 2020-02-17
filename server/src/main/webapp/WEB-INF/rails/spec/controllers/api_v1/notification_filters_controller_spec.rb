@@ -29,6 +29,19 @@ describe ApiV1::NotificationFiltersController do
   end
 
   describe "index" do
+    it("should add deprecation headers") do
+      allow(@user).to receive(:notificationFilters).and_return([])
+
+      get_with_api_header(:index)
+
+      expect(response).to be_ok
+      expect(response.headers["X-GoCD-API-Deprecated-In"]).to eq('v20.1.0')
+      expect(response.headers["X-GoCD-API-Removal-In"]).to eq('v20.4.0')
+      expect(response.headers["X-GoCD-API-Deprecation-Info"]).to eq("https://api.gocd.org/20.1.0/#api-changelog")
+      expect(response.headers["Link"]).to eq('<http://test.host/api/notification_filters?format=json>; Accept="application/vnd.go.cd.v2+json"; rel="successor-version"')
+      expect(response.headers["Warning"]).to eq('299 GoCD/v20.1.0 "The Notification Filter API version v1 has been deprecated in GoCD Release v20.1.0. This version will be removed in GoCD Release v20.4.0. Version v2 of the API is available, and users are encouraged to use it"')
+    end
+
     it("returns a list of filters serialized to JSON") do
       allow(@user).to receive(:notificationFilters).and_return([
         filter_for("pipeline1", "defaultStage", "Fails", true, 1),
@@ -47,6 +60,20 @@ describe ApiV1::NotificationFiltersController do
   end
 
   describe "create" do
+    it("should add deprecation headers") do
+      allow(@user).to receive(:notificationFilters).and_return([]) # not verifying this
+      expect(@user_service).to receive(:oldAddNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", false))
+
+      post_with_api_header(:create, params:{pipeline: "foo", stage: "bar", event: "Breaks"})
+
+      expect(response).to be_ok
+      expect(response.headers["X-GoCD-API-Deprecated-In"]).to eq('v20.1.0')
+      expect(response.headers["X-GoCD-API-Removal-In"]).to eq('v20.4.0')
+      expect(response.headers["X-GoCD-API-Deprecation-Info"]).to eq("https://api.gocd.org/20.1.0/#api-changelog")
+      expect(response.headers["Link"]).to eq('<http://test.host/api/notification_filters>; Accept="application/vnd.go.cd.v2+json"; rel="successor-version"')
+      expect(response.headers["Warning"]).to eq('299 GoCD/v20.1.0 "The Notification Filter API version v1 has been deprecated in GoCD Release v20.1.0. This version will be removed in GoCD Release v20.4.0. Version v2 of the API is available, and users are encouraged to use it"')
+    end
+
     it("creates a filter to match any commit") do
       allow(@user).to receive(:notificationFilters).and_return([]) # not verifying this
       expect(@user_service).to receive(:oldAddNotificationFilter).with(@user.id, filter_for("foo", "bar", "Breaks", false))
@@ -76,6 +103,20 @@ describe ApiV1::NotificationFiltersController do
   end
 
   describe "destroy" do
+    it("should add deprecation headers") do
+      allow(@user).to receive(:notificationFilters).and_return([]) # really don't care
+      expect(@user_service).to receive(:removeNotificationFilter).with(@user.id, 5)
+
+      delete_with_api_header(:destroy, params:{id: "5"})
+
+      expect(response).to be_ok
+      expect(response.headers["X-GoCD-API-Deprecated-In"]).to eq('v20.1.0')
+      expect(response.headers["X-GoCD-API-Removal-In"]).to eq('v20.4.0')
+      expect(response.headers["X-GoCD-API-Deprecation-Info"]).to eq("https://api.gocd.org/20.1.0/#api-changelog")
+      expect(response.headers["Link"]).to eq('<http://test.host/api/notification_filters/5>; Accept="application/vnd.go.cd.v2+json"; rel="successor-version"')
+      expect(response.headers["Warning"]).to eq('299 GoCD/v20.1.0 "The Notification Filter API version v1 has been deprecated in GoCD Release v20.1.0. This version will be removed in GoCD Release v20.4.0. Version v2 of the API is available, and users are encouraged to use it"')
+    end
+
     it("destroys a filter") do
       allow(@user).to receive(:notificationFilters).and_return([]) # really don't care
       expect(@user_service).to receive(:removeNotificationFilter).with(@user.id, 5)

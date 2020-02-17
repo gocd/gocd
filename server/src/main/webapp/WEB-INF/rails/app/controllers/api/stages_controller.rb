@@ -18,8 +18,12 @@ java_import 'org.springframework.dao.DataRetrievalFailureException'
 
 class Api::StagesController < Api::ApiController
   include ApplicationHelper
+  include DeprecatedApiHelper
 
   def index
+    add_deprecation_headers(request, response, "unversioned", "/go/api/feed/pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter.xml",
+                            nil, "20.1.0", "20.4.0", "Stage Feed")
+
     return render_not_found unless number?(params[:id])
 
     stage_id = Integer(params[:id])

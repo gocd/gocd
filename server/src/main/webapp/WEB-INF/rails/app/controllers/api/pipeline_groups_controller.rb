@@ -15,9 +15,11 @@
 #
 
 class Api::PipelineGroupsController < Api::ApiController
+  include DeprecatedApiHelper
   before_action :check_api_enabled_toggle_and_404
 
   def list_configs
+    add_deprecation_headers(request, response, "unversioned", "/go/api/admin/pipeline_groups", "v1", "19.12.0", "20.3.0", "Pipeline Groups Config Listing")
     pipeline_group_configs = pipeline_configs_service.getGroupsForUser(CaseInsensitiveString.str(current_user.getUsername()))
     pipeline_group_config_api_models = pipeline_group_configs.collect do |pipeline_group_config|
       PipelineGroupConfigAPIModel.new(pipeline_group_config)

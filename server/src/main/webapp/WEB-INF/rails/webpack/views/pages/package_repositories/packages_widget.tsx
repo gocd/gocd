@@ -18,20 +18,24 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {PackageRepositories} from "models/package_repositories/package_repositories";
-import {RequiresPluginInfos} from "views/pages/page_operations";
-import {PackageRepositoryWidget} from "./package_repository_widget";
+import {Packages} from "models/package_repositories/package_repositories";
+import {FlashMessage, MessageType} from "views/components/flash_message";
+import {PackageWidget} from "./package_widget";
 
-interface Attrs extends RequiresPluginInfos {
-  packageRepositories: Stream<PackageRepositories>;
+interface Attrs {
+  packages: Stream<Packages>
 }
 
-export class PackageRepositoriesWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
-    return <div>
-      {vnode.attrs.packageRepositories().map(packageRepo => {
-        const pluginInfo = _.find(vnode.attrs.pluginInfos(), {id: packageRepo.pluginMetadata().id()});
-        return <PackageRepositoryWidget packageRepository={packageRepo} pluginInfo={pluginInfo}/>
+export class PackagesWidget extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
+    if (_.isEmpty(vnode.attrs.packages())) {
+      return <FlashMessage type={MessageType.info}
+                           message={"There are no packages defined in this package repository."}/>
+    }
+    return <div data-test-id="packages-widget">
+      <h4>Packages</h4>
+      {vnode.attrs.packages().map(pkg => {
+        return <PackageWidget package={pkg}/>;
       })}
     </div>;
   }

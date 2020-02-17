@@ -199,6 +199,20 @@ describe Api::PipelinesController do
   end
 
   describe "pipeline_instance" do
+    it "should add deprecation API headers" do
+      pipeline = PipelineInstanceModel.createPipeline("pipeline", 1, "label", BuildCause.createWithEmptyModifications(), stage_history_for("blah-stage"))
+      expect(@pipeline_history_service).to receive(:load).with(10, "user", anything).and_return(pipeline)
+
+      get :pipeline_instance, params:{:id => '10', :name => "pipeline", :format => "xml", :no_layout => true}
+
+      expect(response).to be_ok
+      expect(response.headers["X-GoCD-API-Deprecated-In"]).to eq('v20.1.0')
+      expect(response.headers["X-GoCD-API-Removal-In"]).to eq('v20.4.0')
+      expect(response.headers["X-GoCD-API-Deprecation-Info"]).to eq("https://api.gocd.org/20.1.0/#api-changelog")
+      expect(response.headers["Link"]).to eq('<http://test.host/go/api/feed/pipelines/pipeline/10.xml>; rel="successor-version"')
+      expect(response.headers["Warning"]).to eq('299 GoCD/v20.1.0 "The Pipeline Feed unversioned API has been deprecated in GoCD Release v20.1.0. This version will be removed in GoCD Release v20.4.0. Newer version of the API is available, and users are encouraged to use it"')
+    end
+
     it "should load pipeline by id" do
       pipeline = PipelineInstanceModel.createPipeline("pipeline", 1, "label", BuildCause.createWithEmptyModifications(), stage_history_for("blah-stage"))
       expect(@pipeline_history_service).to receive(:load).with(10, "user", anything).and_return(pipeline)
@@ -261,6 +275,19 @@ describe Api::PipelinesController do
   end
 
   describe "pipelines" do
+    it "should add deprecation API headers" do
+      expect(@pipeline_history_service).to receive(:latestInstancesForConfiguredPipelines).with("user").and_return(:pipeline_instance)
+
+      get :pipelines, params:{:format => "xml", :no_layout => true}
+
+      expect(response).to be_ok
+      expect(response.headers["X-GoCD-API-Deprecated-In"]).to eq('v20.1.0')
+      expect(response.headers["X-GoCD-API-Removal-In"]).to eq('v20.4.0')
+      expect(response.headers["X-GoCD-API-Deprecation-Info"]).to eq("https://api.gocd.org/20.1.0/#api-changelog")
+      expect(response.headers["Link"]).to eq('<http://test.host/go/api/feed/pipelines.xml>; rel="successor-version"')
+      expect(response.headers["Warning"]).to eq('299 GoCD/v20.1.0 "The Pipelines Feed unversioned API has been deprecated in GoCD Release v20.1.0. This version will be removed in GoCD Release v20.4.0. Newer version of the API is available, and users are encouraged to use it"')
+    end
+
     it "should assign pipeline_configs and latest instance of each pipeline configured" do
       expect(@pipeline_history_service).to receive(:latestInstancesForConfiguredPipelines).with("user").and_return(:pipeline_instance)
       get :pipelines, params:{:format => "xml", :no_layout => true}
@@ -290,6 +317,19 @@ describe Api::PipelinesController do
 
     it "should answer for /api/pipelines/foo/stages.xml" do
       expect(:get => '/api/pipelines/foo/stages.xml').to route_to(:controller => "api/pipelines", :action => "stage_feed", :format=>"xml", :name => 'foo', :no_layout => true)
+    end
+
+    it "should add deprecation API headers" do
+      expect(Feed).to receive(:new).with(@user, an_instance_of(PipelineStagesFeedService::PipelineStageFeedResolver), an_instance_of(HttpLocalizedOperationResult), have_key(:controller)).and_return(:stage_feed)
+      expect(@go_config_service).to receive(:hasPipelineNamed).with(CaseInsensitiveString.new('pipeline')).and_return(true)
+      get 'stage_feed', params:{:format => "xml", :no_layout => true, :name => 'pipeline'}
+
+      expect(response).to be_ok
+      expect(response.headers["X-GoCD-API-Deprecated-In"]).to eq('v20.1.0')
+      expect(response.headers["X-GoCD-API-Removal-In"]).to eq('v20.4.0')
+      expect(response.headers["X-GoCD-API-Deprecation-Info"]).to eq("https://api.gocd.org/20.1.0/#api-changelog")
+      expect(response.headers["Link"]).to eq('<http://test.host/go/api/feed/pipelines/pipeline/stages.xml>; rel="successor-version"')
+      expect(response.headers["Warning"]).to eq('299 GoCD/v20.1.0 "The Stages Feed unversioned API has been deprecated in GoCD Release v20.1.0. This version will be removed in GoCD Release v20.4.0. Newer version of the API is available, and users are encouraged to use it"')
     end
 
     it "should set the stage feed from the java side" do

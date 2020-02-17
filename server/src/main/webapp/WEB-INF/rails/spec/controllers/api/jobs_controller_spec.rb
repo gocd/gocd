@@ -45,6 +45,24 @@ describe Api::JobsController do
     expect(:get => "/api/jobs/blah_id.xml").to route_to(:id => "blah_id", :action => "index", :controller => 'api/jobs', :format => "xml", :no_layout => true)
   end
 
+  it "should add deprecation API headers" do
+    job = job_instance('job')
+
+    allow(@xml_api_service).to receive(:write).with(JobXmlViewModel.new(job), "http://test.host/go").and_return(:dom)
+
+    expect(@job_instance_service).to receive(:buildById).with(1).and_return(job)
+    fake_template_presence 'api/jobs/index', 'some data'
+
+    get 'index', params: {:id => "1", :format => "xml", :no_layout => true}
+    expect(response).to be_ok
+
+    expect(response.headers["X-GoCD-API-Deprecated-In"]).to eq('v20.1.0')
+    expect(response.headers["X-GoCD-API-Removal-In"]).to eq('v20.4.0')
+    expect(response.headers["X-GoCD-API-Deprecation-Info"]).to eq("https://api.gocd.org/20.1.0/#api-changelog")
+    expect(response.headers["Link"]).to eq('<http://test.host/go/api/feed/pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/:job_name.xml>; rel="successor-version"')
+    expect(response.headers["Warning"]).to eq('299 GoCD/v20.1.0 "The Job Feed unversioned API has been deprecated in GoCD Release v20.1.0. This version will be removed in GoCD Release v20.4.0. Newer version of the API is available, and users are encouraged to use it"')
+  end
+
   it "should load job and properties based on passed on id param" do
     job = job_instance('job')
 

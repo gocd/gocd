@@ -25,6 +25,9 @@ class Api::JobsController < Api::ApiController
   end
 
   def index
+    add_deprecation_headers(request, response, "unversioned", "/go/api/feed/pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/:job_name.xml",
+                            nil, "20.1.0", "20.4.0", "Job Feed")
+
     return render_not_found unless number?(params[:id])
     job_id = Integer(params[:id])
     begin

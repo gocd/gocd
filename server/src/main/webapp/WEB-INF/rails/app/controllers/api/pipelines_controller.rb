@@ -74,6 +74,9 @@ class Api::PipelinesController < Api::ApiController
   end
 
   def pipeline_instance
+    add_deprecation_headers(request, response, "unversioned", "/go/api/feed/pipelines/#{params[:name]}/#{params[:id]}.xml", nil,
+                            "20.1.0", "20.4.0", "Pipeline Feed")
+
     pipeline = pipeline_history_service.load(params[:id].to_i, current_user, result = HttpOperationResult.new)
     if (result.canContinue())
       @doc = xml_api_service.write(PipelineXmlViewModel.new(pipeline), "#{request.protocol}#{request.host_with_port}/go")
@@ -82,10 +85,15 @@ class Api::PipelinesController < Api::ApiController
   end
 
   def pipelines
+    add_deprecation_headers(request, response, "unversioned", "/go/api/feed/pipelines.xml", nil,
+                            "20.1.0", "20.4.0", "Pipelines Feed")
     @pipelines = pipeline_history_service.latestInstancesForConfiguredPipelines(current_user)
   end
 
   def stage_feed
+    add_deprecation_headers(request, response, "unversioned", "/go/api/feed/pipelines/#{params[:name]}/stages.xml", nil,
+                            "20.1.0", "20.4.0", "Stages Feed")
+
     @title = @pipeline_name = params[:name]
     if !go_config_service.hasPipelineNamed(CaseInsensitiveString.new(@pipeline_name))
       render_error_response "Pipeline not found", 404, true

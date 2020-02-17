@@ -18,11 +18,13 @@ module DeprecatedApiHelper
 
   def add_deprecation_headers(request, response, deprecated_api_version, successor_api_url, successor_api_version, deprecated_in, removal_in, entity_name)
     version_text = "unversioned".eql?(deprecated_api_version) ? "unversioned API" : "API version #{deprecated_api_version}"
-    successor_api_url = (successor_api_url == nil || successor_api_url.blank?) ? request.url: "#{request.protocol}#{request.host}#{successor_api_url}"
+    successor_api_url = (successor_api_url == nil || successor_api_url.blank?) ? request.url : "#{request.protocol}#{request.host}#{successor_api_url}"
+    successor_mimetype = successor_api_version ? "Accept=\"application/vnd.go.cd.#{successor_api_version}+json\"; " : nil
+    successor_api_version_text = successor_api_version ? "Version #{successor_api_version}" : "Newer version"
 
     changelog_url = "https://api.gocd.org/#{deprecated_in}/#api-changelog"
-    link = "<#{successor_api_url}>; Accept=\"application/vnd.go.cd.#{successor_api_version}+json\"; rel=\"successor-version\""
-    warning = "299 GoCD/v#{deprecated_in} \"The #{entity_name} #{version_text} has been deprecated in GoCD Release v#{deprecated_in}. This version will be removed in GoCD Release v#{removal_in}. Version #{successor_api_version} of the API is available, and users are encouraged to use it\""
+    link = "<#{successor_api_url}>; #{successor_mimetype}rel=\"successor-version\""
+    warning = "299 GoCD/v#{deprecated_in} \"The #{entity_name} #{version_text} has been deprecated in GoCD Release v#{deprecated_in}. This version will be removed in GoCD Release v#{removal_in}. #{successor_api_version_text} of the API is available, and users are encouraged to use it\""
 
     response.set_header("X-GoCD-API-Deprecated-In", "v#{deprecated_in}")
     response.set_header("X-GoCD-API-Removal-In", "v#{removal_in}")

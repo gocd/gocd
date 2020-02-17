@@ -36,6 +36,21 @@ describe Api::StagesController do
       expect(response.status).to eq(404)
     end
 
+
+    it "should add deprecation API headers" do
+      updated_date = java.util.Date.new
+      stage = StageMother.create_passed_stage("pipeline_name", 100, "blah-stage", 12, "dev", updated_date)
+      expect(@stage_service).to receive(:stageById).with(99).and_return(stage)
+      get 'index', params:{:id => "99", :format => "xml", :no_layout => true}
+
+      expect(response).to be_ok
+      expect(response.headers["X-GoCD-API-Deprecated-In"]).to eq('v20.1.0')
+      expect(response.headers["X-GoCD-API-Removal-In"]).to eq('v20.4.0')
+      expect(response.headers["X-GoCD-API-Deprecation-Info"]).to eq("https://api.gocd.org/20.1.0/#api-changelog")
+      expect(response.headers["Link"]).to eq('<http://test.host/go/api/feed/pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter.xml>; rel="successor-version"')
+      expect(response.headers["Warning"]).to eq('299 GoCD/v20.1.0 "The Stage Feed unversioned API has been deprecated in GoCD Release v20.1.0. This version will be removed in GoCD Release v20.4.0. Newer version of the API is available, and users are encouraged to use it"')
+    end
+
     it "should load stage data" do
       updated_date = java.util.Date.new
       stage = StageMother.create_passed_stage("pipeline_name", 100, "blah-stage", 12, "dev", updated_date)

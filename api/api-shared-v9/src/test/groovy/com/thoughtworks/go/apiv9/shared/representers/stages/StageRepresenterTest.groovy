@@ -42,14 +42,14 @@ class StageRepresenterTest  {
       assertThatJson(actualJson).isEqualTo(stageHash)
     }
 
-    def stageHash =
-    [
+    def stageHash = [
       name:                    'stage1',
       fetch_materials:         true,
       clean_working_directory: false,
       never_cleanup_artifacts: false,
       approval:                [
-        type:          'success',
+        type                 : 'success',
+        allow_only_on_success: false,
         authorization: [
           roles: [],
           users: []
@@ -194,24 +194,19 @@ class StageRepresenterTest  {
       fetch_materials: true,
       clean_working_directory: false,
       never_cleanup_artifacts: false,
-      approval:
-      [
-        type: "success",
-        authorization:
-        [
-          roles:
-          [],
-          users:
-          []
+      approval: [
+        type                 : "success",
+        allow_only_on_success: false,
+        authorization        : [
+          roles: [],
+          users: []
         ]
       ],
-      environment_variables:
-      [
+      environment_variables: [
         [
           secure: true,
           name: "MULTIPLE_LINES",
-          encrypted_value:
-          stageConfig.variables.get(0).getEncryptedValue()
+          encrypted_value: stageConfig.variables.get(0).getEncryptedValue()
         ],
         [
           secure: false,

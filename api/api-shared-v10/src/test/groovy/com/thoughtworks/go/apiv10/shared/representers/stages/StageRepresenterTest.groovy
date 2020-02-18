@@ -49,8 +49,9 @@ class StageRepresenterTest  {
       clean_working_directory: false,
       never_cleanup_artifacts: false,
       approval:                [
-        type:          'success',
-        authorization: [
+        type                 : 'success',
+        allow_only_on_success: false,
+        authorization        : [
           roles: [],
           users: []
         ]
@@ -196,8 +197,9 @@ class StageRepresenterTest  {
       never_cleanup_artifacts: false,
       approval:
       [
-        type: "success",
-        authorization:
+        type                 : "success",
+        allow_only_on_success: false,
+        authorization        :
         [
           roles:
           [],

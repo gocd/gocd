@@ -579,7 +579,7 @@ class PipelineConfigRepresenterTest {
           errors: [destination: ['Destination directory is required when specifying multiple scm materials'], url: ['URL cannot be blank']]
         ]
       ],
-      stages               : [[name: 'stage1', fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: [type: 'success', authorization: [roles: [], users: []]], environment_variables: [], jobs: []]],
+      stages: [[name: 'stage1', fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: [type: 'success', allow_only_on_success: false, authorization: [roles: [], users: []]], environment_variables: [], jobs: []]],
       timer                : [spec: '0 0 22 ? * MON-FRI', only_on_changes: true],
       tracking_tool        : [
         type  : 'generic', attributes: [url_pattern: '', regex: ''],

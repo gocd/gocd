@@ -16,8 +16,7 @@
 
 import m from "mithril";
 import {Package} from "models/package_repositories/package_repositories";
-import {getPackage, pluginInfoWithPackageRepositoryExtension} from "models/package_repositories/spec/test_data";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {getPackage} from "models/package_repositories/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PackageWidget} from "../package_widget";
 
@@ -28,17 +27,17 @@ describe('PackageWidgetSpec', () => {
   const onDelete     = jasmine.createSpy("onDelete");
   const onShowUsages = jasmine.createSpy("showUsages");
   let pkg: Package;
-  let pluginInfo: PluginInfo;
+  let disableActions: boolean;
 
   beforeEach(() => {
-    pkg        = Package.fromJSON(getPackage());
-    pluginInfo = PluginInfo.fromJSON(pluginInfoWithPackageRepositoryExtension());
+    pkg            = Package.fromJSON(getPackage());
+    disableActions = false;
   });
   afterEach((done) => helper.unmount(done));
 
   function mount() {
     helper.mount(() => <PackageWidget package={pkg}
-                                      pluginInfo={pluginInfo}
+                                      disableActions={disableActions}
                                       onEdit={onEdit}
                                       onClone={onClone}
                                       onDelete={onDelete}

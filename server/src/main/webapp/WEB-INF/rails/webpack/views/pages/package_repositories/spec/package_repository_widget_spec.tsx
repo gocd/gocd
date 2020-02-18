@@ -16,8 +16,7 @@
 
 import m from "mithril";
 import {PackageRepository} from "models/package_repositories/package_repositories";
-import {getPackageRepository, pluginInfoWithPackageRepositoryExtension} from "models/package_repositories/spec/test_data";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {getPackageRepository} from "models/package_repositories/spec/test_data";
 import {PackageOperations} from "views/pages/package_repositories";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PackageRepositoryWidget} from "../package_repository_widget";
@@ -29,11 +28,11 @@ describe('PackageRepositoryWidgetSpec', () => {
   const onPkgRepoClone  = jasmine.createSpy("onClone");
   const onPkgRepoDelete = jasmine.createSpy("onDelete");
   let packageRepository: PackageRepository;
-  let pluginInfo: PluginInfo;
+  let disableActions: boolean;
 
   beforeEach(() => {
     packageRepository = PackageRepository.fromJSON(getPackageRepository());
-    pluginInfo        = PluginInfo.fromJSON(pluginInfoWithPackageRepositoryExtension());
+    disableActions    = false;
   });
   afterEach((done) => helper.unmount(done));
 
@@ -44,7 +43,7 @@ describe('PackageRepositoryWidgetSpec', () => {
     pkgOperations.onDelete   = jasmine.createSpy("onDelete");
     pkgOperations.showUsages = jasmine.createSpy("showUsages");
     helper.mount(() => <PackageRepositoryWidget packageRepository={packageRepository}
-                                                pluginInfo={pluginInfo}
+                                                disableActions={disableActions}
                                                 packageOperations={pkgOperations}
                                                 onEdit={onPkgRepoEdit} onClone={onPkgRepoClone}
                                                 onDelete={onPkgRepoDelete}/>);
@@ -58,7 +57,7 @@ describe('PackageRepositoryWidgetSpec', () => {
     expect(helper.textByTestId('key-value-key-name')).toBe('Name');
     expect(helper.textByTestId('key-value-value-name')).toBe(packageRepository.name());
     expect(helper.textByTestId('key-value-key-plugin-id')).toBe('Plugin Id');
-    expect(helper.textByTestId('key-value-value-plugin-id')).toBe('nuget');
+    expect(helper.textByTestId('key-value-value-plugin-id')).toBe('npm');
 
     expect(helper.byTestId('configuration-details-widget')).toBeInDOM();
     expect(helper.byTestId('packages-widget')).toBeInDOM();

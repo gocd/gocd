@@ -36,7 +36,7 @@ export class PackageRepositoriesWidget extends MithrilViewComponent<Attrs> {
         const pluginInfo = _.find(vnode.attrs.pluginInfos(), {id: packageRepo.pluginMetadata().id()});
         return <PackageRepositoryWidget packageRepository={packageRepo}
                                         packageOperations={vnode.attrs.packageOperations}
-                                        pluginInfo={pluginInfo}
+                                        disableActions={pluginInfo === undefined}
                                         onEdit={vnode.attrs.packageRepoOperations.onEdit}
                                         onClone={vnode.attrs.packageRepoOperations.onClone}
                                         onDelete={vnode.attrs.packageRepoOperations.onDelete}/>

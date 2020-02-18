@@ -17,8 +17,7 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Package, Packages} from "models/package_repositories/package_repositories";
-import {getPackage, pluginInfoWithPackageRepositoryExtension} from "models/package_repositories/spec/test_data";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {getPackage} from "models/package_repositories/spec/test_data";
 import {PackageOperations} from "views/pages/package_repositories";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PackagesWidget} from "../packages_widget";
@@ -27,7 +26,7 @@ describe('PackagesWidgetSpec', () => {
   const helper        = new TestHelper();
   const pkgOperations = new PackageOperations();
   let packages: Stream<Packages>;
-  let pluginInfo: PluginInfo;
+  let disableActions: boolean;
 
   beforeEach(() => {
     packages = Stream(new Packages());
@@ -40,9 +39,9 @@ describe('PackagesWidgetSpec', () => {
     pkgOperations.onEdit     = jasmine.createSpy("onEdit");
     pkgOperations.onDelete   = jasmine.createSpy("onDelete");
     pkgOperations.showUsages = jasmine.createSpy("showUsages");
-    pluginInfo               = PluginInfo.fromJSON(pluginInfoWithPackageRepositoryExtension());
+    disableActions           = false;
     helper.mount(() => <PackagesWidget packages={packages}
-                                       pluginInfo={pluginInfo}
+                                       disableActions={disableActions}
                                        packageOperations={pkgOperations}/>);
   }
 

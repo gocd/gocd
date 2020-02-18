@@ -19,15 +19,14 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Packages} from "models/package_repositories/package_repositories";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {PackageOperations} from "views/pages/package_repositories";
 import {PackageWidget} from "./package_widget";
 
 interface Attrs {
   packages: Stream<Packages>
-  pluginInfo: PluginInfo;
   packageOperations: PackageOperations
+  disableActions: boolean;
 }
 
 export class PackagesWidget extends MithrilViewComponent<Attrs> {
@@ -40,7 +39,7 @@ export class PackagesWidget extends MithrilViewComponent<Attrs> {
       <h4>Packages</h4>
       {vnode.attrs.packages().map(pkg => {
         return <PackageWidget package={pkg}
-                              pluginInfo={vnode.attrs.pluginInfo}
+                              disableActions={vnode.attrs.disableActions}
                               onEdit={vnode.attrs.packageOperations.onEdit}
                               onClone={vnode.attrs.packageOperations.onClone}
                               onDelete={vnode.attrs.packageOperations.onDelete}

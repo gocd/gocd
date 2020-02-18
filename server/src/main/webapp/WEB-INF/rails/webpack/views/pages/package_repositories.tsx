@@ -78,8 +78,9 @@ export class PackageRepositoriesPage extends Page<null, State> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    let noPluginMsg;
     if (!this.isPluginInstalled(vnode)) {
-      return (<NoPluginsOfTypeInstalled extensionType={new PackageRepoExtensionType()}/>);
+      noPluginMsg = <NoPluginsOfTypeInstalled extensionType={new PackageRepoExtensionType()}/>;
     }
     const filteredPackageRepos: Stream<PackageRepositories> = Stream();
     if (vnode.state.searchText()) {
@@ -87,6 +88,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
 
       if (_.isEmpty(results)) {
         return <div>
+          {noPluginMsg}
           <FlashMessage type={MessageType.info}>No Results for the search
             string: <em>{vnode.state.searchText()}</em></FlashMessage>
         </div>;
@@ -97,6 +99,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
     }
 
     return <div>
+      {noPluginMsg}
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       <PackageRepositoriesWidget packageRepositories={filteredPackageRepos}
                                  pluginInfos={vnode.state.pluginInfos}

@@ -16,7 +16,6 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {Package} from "models/package_repositories/package_repositories";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {Clone, Delete, Edit, IconGroup, Usage} from "views/components/icons";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
@@ -24,8 +23,8 @@ import {CloneOperation, DeleteOperation, EditOperation} from "../page_operations
 
 interface Attrs extends EditOperation<Package>, CloneOperation<Package>, DeleteOperation<Package> {
   package: Package;
-  pluginInfo: PluginInfo;
   showUsages: (obj: Package, e: MouseEvent) => void;
+  disableActions: boolean;
 }
 
 export class PackageWidget extends MithrilViewComponent<Attrs> {
@@ -41,10 +40,10 @@ export class PackageWidget extends MithrilViewComponent<Attrs> {
     const actionButtons = [
       <IconGroup>
         <Edit data-test-id="package-edit"
-              disabled={!vnode.attrs.pluginInfo}
+              disabled={vnode.attrs.disableActions}
               onclick={vnode.attrs.onEdit.bind(vnode.attrs, vnode.attrs.package)}/>
         <Clone data-test-id="package-clone"
-               disabled={!vnode.attrs.pluginInfo}
+               disabled={vnode.attrs.disableActions}
                onclick={vnode.attrs.onClone.bind(vnode.attrs, vnode.attrs.package)}/>
         <Delete data-test-id="package-delete"
                 onclick={vnode.attrs.onDelete.bind(vnode.attrs, vnode.attrs.package)}/>

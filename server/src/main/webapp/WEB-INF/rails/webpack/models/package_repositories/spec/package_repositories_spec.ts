@@ -131,11 +131,12 @@ describe('PackageRepositoriesModelSpec', () => {
     expect(packageRepository.errors().keys()).toEqual(["name"]);
   });
 
-  it('should return true if repo name or any of the package name matches', () => {
+  it('should return true if repo name, plugin id or any of the package name matches', () => {
     const packageRepository = PackageRepository.fromJSON(getPackageRepository());
 
     expect(packageRepository.matches('pkg-repo-')).toBeTrue();
     expect(packageRepository.matches('pkg-nam')).toBeTrue();
+    expect(packageRepository.matches('npm')).toBeTrue();
     expect(packageRepository.matches('pkg123')).toBeFalse();
   });
 

@@ -16,7 +16,6 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {PackageRepository} from "models/package_repositories/package_repositories";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {ButtonIcon, Secondary} from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
@@ -29,14 +28,14 @@ import styles from "./index.scss";
 
 interface Attrs extends EditOperation<PackageRepository>, CloneOperation<PackageRepository>, DeleteOperation<PackageRepository> {
   packageRepository: PackageRepository;
-  pluginInfo: PluginInfo;
   packageOperations: PackageOperations;
+  disableActions: boolean;
 }
 
 export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
     const header = <KeyValuePair inline={true}
-                                 data={PackageRepositoryWidget.headerMap(vnode.attrs.packageRepository, vnode.attrs.pluginInfo)}/>;
+                                 data={PackageRepositoryWidget.headerMap(vnode.attrs.packageRepository)}/>;
 
     const packageRepository = vnode.attrs.packageRepository;
     const pkgRepoProperties = packageRepository.configuration() ? packageRepository.configuration()!.asMap() : [];
@@ -48,17 +47,17 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
     const actionButtons     = [
       <Secondary onclick={vnode.attrs.packageOperations.onAdd.bind(vnode.attrs, packageRepository)}
                  data-test-id={"package-create"}
-                 disabled={!vnode.attrs.pluginInfo}
+                 disabled={vnode.attrs.disableActions}
                  icon={ButtonIcon.ADD}>
         Create Package
       </Secondary>,
       <div className={styles.packageRepositoryCrudActions}>
         <IconGroup>
           <Edit data-test-id="package-repo-edit"
-                disabled={!vnode.attrs.pluginInfo}
+                disabled={vnode.attrs.disableActions}
                 onclick={vnode.attrs.onEdit.bind(vnode.attrs, packageRepository)}/>
           <Clone data-test-id="package-repo-clone"
-                 disabled={!vnode.attrs.pluginInfo}
+                 disabled={vnode.attrs.disableActions}
                  onclick={vnode.attrs.onClone.bind(vnode.attrs, packageRepository)}/>
           <Delete data-test-id="package-repo-delete"
                   onclick={vnode.attrs.onDelete.bind(vnode.attrs, packageRepository)}/>
@@ -72,17 +71,15 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
                              dataTestId={"package-repository-panel"}>
       <ConfigurationDetailsWidget header={"Package Repository configuration"} data={pkgRepoDetails}/>
       <PackagesWidget packages={vnode.attrs.packageRepository.packages}
-                      pluginInfo={vnode.attrs.pluginInfo}
+                      disableActions={vnode.attrs.disableActions}
                       packageOperations={vnode.attrs.packageOperations}/>
     </CollapsiblePanel>;
   }
 
-  private static headerMap(packageRepository: PackageRepository, pluginInfo?: PluginInfo) {
+  private static headerMap(packageRepository: PackageRepository) {
     const map = new Map();
     map.set("Name", packageRepository.name());
-    if (pluginInfo) {
-      map.set("Plugin Id", pluginInfo.id);
-    }
+    map.set("Plugin Id", packageRepository.pluginMetadata().id());
     return map;
   }
 }

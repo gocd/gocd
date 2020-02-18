@@ -1,10 +1,11 @@
-# This is an example configuration file to override any GoCD configuration.
-
 # For a detailed description about setting various environment variables, see the page at
 # https://wrapper.tanukisoftware.com/doc/english/props-envvars.html
 
 # For a detailed description about setting JVM options and system properties, see the page at
 # https://wrapper.tanukisoftware.com/doc/english/props-jvm.html
+
+# To understand how properties can be overridden in this file, see the page at:
+# https://wrapper.tanukisoftware.com/doc/english/props-cascading.html
 
 # To use a custom JVM:
 # wrapper.java.command=/path/to/java

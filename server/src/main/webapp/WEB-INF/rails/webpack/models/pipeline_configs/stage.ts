@@ -46,7 +46,7 @@ class Approval extends ValidatableMixin {
   readonly allowOnlyOnSuccess = Stream<boolean>();
   //authorization must be present for server side validations
   //even though it's not editable from the create pipeline page
-  readonly authorization = Stream<AuthorizedUsersAndRoles>();
+  readonly authorization = Stream<AuthorizedUsersAndRoles>(new AuthorizedUsersAndRoles([], []));
 
   private readonly __typeAsStream = Stream<boolean>();
 

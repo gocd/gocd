@@ -16,136 +16,73 @@
 
 import m from "mithril";
 import {PackageRepository} from "models/package_repositories/package_repositories";
-import {getPackageRepository} from "models/package_repositories/spec/test_data";
+import {getPackageRepository, pluginInfoWithPackageRepositoryExtension} from "models/package_repositories/spec/test_data";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {PackageRepoExtensionJSON, PluginInfoJSON} from "models/shared/plugin_infos_new/serialization";
-import {about, activeStatus} from "models/shared/plugin_infos_new/spec/test_data";
+import {PackageOperations} from "views/pages/package_repositories";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PackageRepositoryWidget} from "../package_repository_widget";
 
 describe('PackageRepositoryWidgetSpec', () => {
-  const helper = new TestHelper();
+  const helper          = new TestHelper();
+  const pkgOperations   = new PackageOperations();
+  const onPkgRepoEdit   = jasmine.createSpy("onEdit");
+  const onPkgRepoClone  = jasmine.createSpy("onClone");
+  const onPkgRepoDelete = jasmine.createSpy("onDelete");
   let packageRepository: PackageRepository;
   let pluginInfo: PluginInfo;
 
-  const pluginInfoWithPackageRepositoryExtension: PluginInfoJSON = {
-    _links:               {},
-    id:                   "nuget",
-    status:               activeStatus,
-    plugin_file_location: "/foo/bar.jar",
-    bundled_plugin:       false,
-    about,
-    extensions:           [
-      {
-        type:                "package-repository",
-        package_settings:    {
-          configurations: [
-            {
-              key:      "PACKAGE_ID",
-              metadata: {
-                part_of_identity: true,
-                display_order:    0,
-                secure:           false,
-                display_name:     "Package ID",
-                required:         true
-              }
-            },
-            {
-              key:      "POLL_VERSION_FROM",
-              metadata: {
-                part_of_identity: false,
-                display_order:    1,
-                secure:           false,
-                display_name:     "Version to poll >=",
-                required:         false
-              }
-            },
-            {
-              key:      "POLL_VERSION_TO",
-              metadata: {
-                part_of_identity: false,
-                display_order:    2,
-                secure:           false,
-                display_name:     "Version to poll <",
-                required:         false
-              }
-            },
-            {
-              key:      "INCLUDE_PRE_RELEASE",
-              metadata: {
-                part_of_identity: false,
-                display_order:    3,
-                secure:           false,
-                display_name:     "Include Prerelease? (yes/no, defaults to yes)",
-                required:         false
-              }
-            }
-          ]
-        },
-        repository_settings: {
-          configurations: [
-            {
-              key:      "REPO_URL",
-              metadata: {
-                part_of_identity: true,
-                display_order:    0,
-                secure:           false,
-                display_name:     "Repository Url",
-                required:         true
-              }
-            },
-            {
-              key:      "USERNAME",
-              metadata: {
-                part_of_identity: false,
-                display_order:    1,
-                secure:           false,
-                display_name:     "Username",
-                required:         false
-              }
-            },
-            {
-              key:      "PASSWORD",
-              metadata: {
-                part_of_identity: false,
-                display_order:    2,
-                secure:           true,
-                display_name:     "Password (use only with https)",
-                required:         false
-              }
-            }
-          ]
-        },
-        plugin_settings:     {
-          configurations: [
-            {
-              key:      "another-property",
-              metadata: {
-                secure:   false,
-                required: true
-              }
-            }
-          ],
-          view:           {
-            template: "Plugin Settings View for package repository plugin"
-          }
-        }
-      } as PackageRepoExtensionJSON
-    ]
-  };
-
   beforeEach(() => {
     packageRepository = PackageRepository.fromJSON(getPackageRepository());
-    pluginInfo        = PluginInfo.fromJSON(pluginInfoWithPackageRepositoryExtension);
+    pluginInfo        = PluginInfo.fromJSON(pluginInfoWithPackageRepositoryExtension());
   });
   afterEach((done) => helper.unmount(done));
 
   function mount() {
-    helper.mount(() => <PackageRepositoryWidget packageRepository={packageRepository} pluginInfo={pluginInfo}/>);
+    pkgOperations.onAdd      = jasmine.createSpy("onAdd");
+    pkgOperations.onClone    = jasmine.createSpy("onClone");
+    pkgOperations.onEdit     = jasmine.createSpy("onEdit");
+    pkgOperations.onDelete   = jasmine.createSpy("onDelete");
+    pkgOperations.showUsages = jasmine.createSpy("showUsages");
+    helper.mount(() => <PackageRepositoryWidget packageRepository={packageRepository}
+                                                pluginInfo={pluginInfo}
+                                                packageOperations={pkgOperations}
+                                                onEdit={onPkgRepoEdit} onClone={onPkgRepoClone}
+                                                onDelete={onPkgRepoDelete}/>);
   }
 
-  it('should render package repo details', () => {
+  it('should render basic package repo details and action buttons', () => {
     mount();
+
+    expect(helper.byTestId('package-repository-panel')).toBeInDOM();
+
+    expect(helper.textByTestId('key-value-key-name')).toBe('Name');
+    expect(helper.textByTestId('key-value-value-name')).toBe(packageRepository.name());
+    expect(helper.textByTestId('key-value-key-plugin-id')).toBe('Plugin Id');
+    expect(helper.textByTestId('key-value-value-plugin-id')).toBe('nuget');
+
+    expect(helper.byTestId('configuration-details-widget')).toBeInDOM();
+    expect(helper.byTestId('packages-widget')).toBeInDOM();
+
+    expect(helper.byTestId('package-create')).toBeInDOM();
+    expect(helper.byTestId('package-repo-edit')).toBeInDOM();
+    expect(helper.byTestId('package-repo-clone')).toBeInDOM();
+    expect(helper.byTestId('package-repo-delete')).toBeInDOM();
+  });
+
+  it('should give a call to the callbacks on relevant button clicks', () => {
+    mount();
+
+    helper.clickByTestId('package-create');
+    expect(pkgOperations.onAdd).toHaveBeenCalled();
+
+    helper.clickByTestId('package-repo-edit');
+    expect(onPkgRepoEdit).toHaveBeenCalled();
+
+    helper.clickByTestId('package-repo-clone');
+    expect(onPkgRepoClone).toHaveBeenCalled();
+
+    helper.clickByTestId('package-repo-delete');
+    expect(onPkgRepoDelete).toHaveBeenCalled();
   });
 
 });

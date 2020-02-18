@@ -47,7 +47,7 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
                                       ]);
     const actionButtons     = [
       <Secondary onclick={vnode.attrs.packageOperations.onAdd.bind(vnode.attrs, packageRepository)}
-                 data-test-id={"new-package-button"}
+                 data-test-id={"package-create"}
                  disabled={!vnode.attrs.pluginInfo}
                  icon={ButtonIcon.ADD}>
         Package

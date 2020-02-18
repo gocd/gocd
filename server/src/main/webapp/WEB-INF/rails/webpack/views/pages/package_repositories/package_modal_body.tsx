@@ -67,7 +67,7 @@ export class PackageModalBody extends MithrilViewComponent<Attrs> {
   }
 
   private packageRepoIdProxy(vnode: m.Vnode<Attrs, this>, newPackageRepoId?: string) {
-    if (newPackageRepoId) {
+    if (!newPackageRepoId) {
       return vnode.attrs.package.packageRepo().id();
     }
     const packageRepo = _.find(vnode.attrs.packageRepositories, (pkgRepo: PackageRepository) => pkgRepo.repoId() === newPackageRepoId);

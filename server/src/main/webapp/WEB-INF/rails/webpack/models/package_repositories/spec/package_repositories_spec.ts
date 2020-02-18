@@ -20,7 +20,7 @@ import {Package, PackageRepository} from "../package_repositories";
 describe('PackageRepositoriesModelSpec', () => {
 
   describe('PackageModelSpec', () => {
-    it("should validate presence of  repo id", () => {
+    it("should validate presence of repo id", () => {
       const packageJSON = getPackage();
       delete packageJSON.package_repo.id;
       const pkg = Package.fromJSON(packageJSON);

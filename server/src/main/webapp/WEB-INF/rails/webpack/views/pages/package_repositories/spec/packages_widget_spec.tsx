@@ -17,13 +17,17 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Package, Packages} from "models/package_repositories/package_repositories";
-import {getPackage} from "models/package_repositories/spec/test_data";
+import {getPackage, pluginInfoWithPackageRepositoryExtension} from "models/package_repositories/spec/test_data";
+import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PackageOperations} from "views/pages/package_repositories";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PackagesWidget} from "../packages_widget";
 
 describe('PackagesWidgetSpec', () => {
-  const helper = new TestHelper();
+  const helper        = new TestHelper();
+  const pkgOperations = new PackageOperations();
   let packages: Stream<Packages>;
+  let pluginInfo: PluginInfo;
 
   beforeEach(() => {
     packages = Stream(new Packages());
@@ -31,7 +35,15 @@ describe('PackagesWidgetSpec', () => {
   afterEach((done) => helper.unmount(done));
 
   function mount() {
-    helper.mount(() => <PackagesWidget packages={packages}/>);
+    pkgOperations.onAdd      = jasmine.createSpy("onAdd");
+    pkgOperations.onClone    = jasmine.createSpy("onClone");
+    pkgOperations.onEdit     = jasmine.createSpy("onEdit");
+    pkgOperations.onDelete   = jasmine.createSpy("onDelete");
+    pkgOperations.showUsages = jasmine.createSpy("showUsages");
+    pluginInfo               = PluginInfo.fromJSON(pluginInfoWithPackageRepositoryExtension());
+    helper.mount(() => <PackagesWidget packages={packages}
+                                       pluginInfo={pluginInfo}
+                                       packageOperations={pkgOperations}/>);
   }
 
   it('should render message saying no packages configured', () => {

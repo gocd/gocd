@@ -80,11 +80,6 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
         this.ignoreForScheduling = ignoreForScheduling;
     }
 
-    @Override
-    public CaseInsensitiveString getName() {
-        return super.getName() == null ? pipelineName : super.getName();
-    }
-
     public String getUserName() {
         return "cruise";
     }
@@ -207,7 +202,8 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
 
     @Override
     public String getDisplayName() {
-        return CaseInsensitiveString.str(getName());
+        CaseInsensitiveString name = getName() == null ? pipelineName : getName();
+        return name.toString();
     }
 
     @Override

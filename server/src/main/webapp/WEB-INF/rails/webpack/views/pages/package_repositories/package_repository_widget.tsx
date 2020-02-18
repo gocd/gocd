@@ -50,7 +50,7 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
                  data-test-id={"package-create"}
                  disabled={!vnode.attrs.pluginInfo}
                  icon={ButtonIcon.ADD}>
-        Package
+        Create Package
       </Secondary>,
       <div className={styles.packageRepositoryCrudActions}>
         <IconGroup>

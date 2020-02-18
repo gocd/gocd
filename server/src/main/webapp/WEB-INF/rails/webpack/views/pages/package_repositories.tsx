@@ -26,7 +26,9 @@ import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
+import {SearchField} from "views/components/forms/input_fields";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
+import configRepoStyles from "views/pages/config_repos/index.scss";
 import {ClonePackageRepositoryModal, CreatePackageRepositoryModal, DeletePackageRepositoryModal, EditPackageRepositoryModal} from "views/pages/package_repositories/package_repository_modals";
 import {PackageRepositoriesWidget} from "views/pages/package_repositories/package_repositories_widget";
 import {Page, PageState} from "views/pages/page";
@@ -52,11 +54,13 @@ interface State extends RequiresPluginInfos, SaveOperation {
   packageRepositories: Stream<PackageRepositories>;
   packageRepoOperations: PackageRepoOperations;
   packageOperations: PackageOperations;
+  searchText: Stream<string>;
 }
 
 export class PackageRepositoriesPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
+    vnode.state.searchText          = Stream();
     vnode.state.packageRepositories = Stream();
     vnode.state.pluginInfos         = Stream();
 
@@ -77,10 +81,24 @@ export class PackageRepositoriesPage extends Page<null, State> {
     if (!this.isPluginInstalled(vnode)) {
       return (<NoPluginsOfTypeInstalled extensionType={new PackageRepoExtensionType()}/>);
     }
+    const filteredPackageRepos: Stream<PackageRepositories> = Stream();
+    if (vnode.state.searchText()) {
+      const results = _.filter(vnode.state.packageRepositories(), (vm: PackageRepository) => vm.matches(vnode.state.searchText()));
+
+      if (_.isEmpty(results)) {
+        return <div>
+          <FlashMessage type={MessageType.info}>No Results for the search
+            string: <em>{vnode.state.searchText()}</em></FlashMessage>
+        </div>;
+      }
+      filteredPackageRepos(results);
+    } else {
+      filteredPackageRepos(vnode.state.packageRepositories());
+    }
 
     return <div>
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-      <PackageRepositoriesWidget packageRepositories={vnode.state.packageRepositories}
+      <PackageRepositoriesWidget packageRepositories={filteredPackageRepos}
                                  pluginInfos={vnode.state.pluginInfos}
                                  packageRepoOperations={vnode.state.packageRepoOperations}
                                  packageOperations={vnode.state.packageOperations}/>
@@ -114,10 +132,16 @@ export class PackageRepositoriesPage extends Page<null, State> {
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {
-    const buttons = this.isPluginInstalled(vnode) ?
-      <Primary icon={ButtonIcon.ADD} onclick={vnode.state.packageRepoOperations.onAdd}>Create Package
-        Repository</Primary>
-      : undefined;
+    const buttons = [
+      <div class={configRepoStyles.wrapperForSearchBox}>
+        <SearchField property={vnode.state.searchText} dataTestId={"search-box"}
+                     placeholder="Search for a package repository or a package"/>
+      </div>
+    ];
+    if (this.isPluginInstalled(vnode)) {
+      buttons.push(<Primary icon={ButtonIcon.ADD} onclick={vnode.state.packageRepoOperations.onAdd}>Create Package
+        Repository</Primary>);
+    }
     return <HeaderPanel title={this.pageName()} buttons={buttons}/>;
   }
 

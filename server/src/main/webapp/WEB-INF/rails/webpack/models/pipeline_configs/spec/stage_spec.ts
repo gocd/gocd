@@ -101,7 +101,10 @@ describe("Stage model", () => {
       name: "foo",
       approval: {
         type: "success",
-        authorization: {}
+        authorization: {
+          users: [],
+          roles: []
+        }
       },
       jobs: [
         {

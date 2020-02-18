@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,17 @@ export interface Nameable extends Validatable {
 // Specialized Set<T> implementation where member equality is based on only the `name`
 // of the material, and NOT the identity or the structure.
 export class NameableSet<T extends Nameable> extends ValidatableMixin implements Set<T> {
+  [Symbol.toStringTag]: string = `NameableSet`;
+  private readonly _members    = new Map<string, T>(); // preserves insertion order
+
+  constructor(items?: readonly T[] | null) {
+    super();
+    Object.setPrototypeOf(this, Object.create(NameableSet.prototype));
+
+    if (items) {
+      items.forEach(this.add.bind(this));
+    }
+  }
 
   get size(): number {
     return this._members.size;
@@ -31,17 +42,6 @@ export class NameableSet<T extends Nameable> extends ValidatableMixin implements
 
   get length(): number {
     return this._members.size;
-  }
-
-  [Symbol.toStringTag]: string = `NameableSet`;
-  private _members: Map<string, T> = new Map(); // preserves insertion order
-
-  constructor(items: T[]) {
-    super();
-
-    for (let i = 0, len = items.length; i < len; i++) {
-      this.add(items[i]);
-    }
   }
 
   toJSON(): any {
@@ -105,5 +105,9 @@ export class NameableSet<T extends Nameable> extends ValidatableMixin implements
 
   values(): IterableIterator<T> {
     return this[Symbol.iterator]();
+  }
+
+  findByName(name: string): T | undefined {
+    return Array.from(this._members.values()).find((value: T) => value.name() === name);
   }
 }

@@ -33,9 +33,7 @@ public class ApprovalRepresenter {
         }
 
         jsonWriter.add("type", approval.getType());
-        if (approval.isAllowOnlyOnSuccess()) {
-            jsonWriter.add(Approval.ALLOW_ONLY_ON_SUCCESS, approval.isAllowOnlyOnSuccess());
-        }
+        jsonWriter.add(Approval.ALLOW_ONLY_ON_SUCCESS, approval.isAllowOnlyOnSuccess());
         jsonWriter.addChild("authorization", authConfigWriter -> StageAuthorizationRepresenter.toJSON(authConfigWriter, approval.getAuthConfig()));
     }
 

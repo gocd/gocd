@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 import {JsonUtils} from "helpers/json_utils";
 import Stream from "mithril/stream";
+import {ExecTaskAttributesJSON, TaskJSON} from "models/admin_templates/templates";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
@@ -35,6 +36,7 @@ type Partial<T extends TaskOpts> = { [P in keyof T]?: T[P] };
 export interface Task extends ValidatableMixin {
   type: ValidTypes;
   attributes: Stream<TaskAttributes>;
+
   hasErrors(): boolean;
 }
 
@@ -44,13 +46,36 @@ export interface TaskAttributes extends ValidatableMixin {
   onCancel: Stream<Task>;
 }
 
-abstract class AbstractTask extends ValidatableMixin implements Task {
+export abstract class AbstractTask extends ValidatableMixin implements Task {
   abstract type: ValidTypes;
   attributes: Stream<TaskAttributes> = Stream();
 
   constructor() {
     super();
     this.validateAssociated("attributes");
+  }
+
+  static fromJSONArray(json: TaskJSON[]) {
+    return json.map(this.fromJSON);
+  }
+
+  //TODO: Implement me and remove ts ignore
+  //@ts-ignore
+  static fromJSON(json: TaskJSON): Task {
+    switch (json.type) {
+      case "pluggable_task":
+        break;
+      case "fetch":
+        break;
+      case "ant":
+        break;
+      case "nant":
+        break;
+      case "exec":
+        return ExecTask.from(json.attributes as ExecTaskAttributesJSON);
+      case "rake":
+        break;
+    }
   }
 
   hasErrors() {
@@ -69,17 +94,6 @@ abstract class AbstractTask extends ValidatableMixin implements Task {
   }
 }
 
-abstract class AbstractTaskAttributes extends ValidatableMixin implements TaskAttributes {
-  runIf: Stream<RunIfCondition[]> = Stream([] as RunIfCondition[]);
-  onCancel: Stream<Task> = Stream();
-
-  constructor() {
-    super();
-  }
-
-  abstract toApiPayload(): any;
-}
-
 export class ExecTask extends AbstractTask {
   readonly type: ValidTypes = "exec";
 
@@ -87,6 +101,21 @@ export class ExecTask extends AbstractTask {
     super();
     this.attributes(new ExecTaskAttributes(cmd, args, opts));
   }
+
+  static from(attributes: ExecTaskAttributesJSON) {
+    return new ExecTask(attributes.command, attributes.arguments!, {workingDirectory: attributes.working_directory});
+  }
+}
+
+abstract class AbstractTaskAttributes extends ValidatableMixin implements TaskAttributes {
+  runIf: Stream<RunIfCondition[]> = Stream([] as RunIfCondition[]);
+  onCancel: Stream<Task>          = Stream();
+
+  constructor() {
+    super();
+  }
+
+  abstract toApiPayload(): any;
 }
 
 export class ExecTaskAttributes extends AbstractTaskAttributes {

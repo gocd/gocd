@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ describe("AddPipeline: JobEditor", () => {
   let job: Job;
 
   beforeEach(() => {
-    job = new Job("", [], []);
+    job = new Job("", []);
     helper.mount(() => <JobEditor job={job}/>);
   });
 

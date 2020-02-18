@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -174,6 +174,12 @@ export class CaretDown extends Icon {
   }
 }
 
+export class CaretRight extends Icon {
+  constructor() {
+    super(styles.caretRight, "Caret Right");
+  }
+}
+
 export class StepForward extends Icon {
   constructor() {
     super(styles.stepForward, "Step Forward");
@@ -231,6 +237,12 @@ export class Comment extends Icon {
 export class Warning extends Icon {
   constructor() {
     super(styles.warning, "Warning");
+  }
+}
+
+export class AngleDoubleRight extends Icon {
+  constructor() {
+    super(styles.angleDoubleRight, "Angle Double Right");
   }
 }
 

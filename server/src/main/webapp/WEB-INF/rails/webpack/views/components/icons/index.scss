@@ -15,7 +15,7 @@
  */
 @import "../../global/common";
 
-$global-icon-size: 16px;
+$global-icon-size:        16px;
 $btn-group-border-radius: $global-border-radius;
 
 .btn-icon {
@@ -139,6 +139,10 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-caret-down);
 }
 
+.caret-right {
+  @include icon-before($type: $fa-var-caret-right);
+}
+
 .step-forward {
   @include icon-before($type: $fa-var-step-forward);
 }
@@ -177,6 +181,10 @@ $btn-group-border-radius: $global-border-radius;
 
 .warning {
   @include icon-before($type: $fa-var-exclamation-triangle);
+}
+
+.angle-double-right {
+  @include icon-before($type: $fa-var-angle-double-right);
 }
 
 .icon-group {

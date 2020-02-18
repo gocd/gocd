@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import {Job} from "models/pipeline_configs/job";
 import {Stage} from "models/pipeline_configs/stage";
 import {ExecTask} from "models/pipeline_configs/task";
+import {EnvironmentVariable, EnvironmentVariables} from "models/environment_variables/types";
 
 describe("Stage model", () => {
   function validJob() {
-    return new Job("name", [new ExecTask("ls", ["-lA"])], []);
+    return new Job("name", [new ExecTask("ls", ["-lA"])]);
   }
 
   it("should include a name", () => {
@@ -64,15 +64,18 @@ describe("Stage model", () => {
 
   it("adopts errors in server response", () => {
     const stage = new Stage("meow", [
-      new Job("scooby", [new ExecTask("whoami", [])], [new EnvironmentVariableConfig(false, "FOO", "OOF")]),
-      new Job("doo", [new ExecTask("id", ["apache"])], [new EnvironmentVariableConfig(false, "BAR", "RAB")])
+      new Job("scooby", [new ExecTask("whoami", [])], new EnvironmentVariables(new EnvironmentVariable("FOO", "OOF"))),
+      new Job("doo", [new ExecTask("id", ["apache"])], new EnvironmentVariables(new EnvironmentVariable("BAR", "RAB")))
     ]);
 
     const unmatched = stage.consumeErrorsResponse({
-      errors: { name: ["yay"] },
+      errors: {name: ["yay"]},
       jobs: [
-        { errors: { name: ["ruh-roh!"] }, tasks: [{ errors: { command: ["who are you?"] } }], environment_variables: [{}] },
-        { tasks: [{}], environment_variables: [{ errors: { name: ["BAR? yes please!"], not_exist: ["well, ain't that a doozy"] } }] }
+        {errors: {name: ["ruh-roh!"]}, tasks: [{errors: {command: ["who are you?"]}}], environment_variables: [{}]},
+        {
+          tasks: [{}],
+          environment_variables: [{errors: {name: ["BAR? yes please!"], not_exist: ["well, ain't that a doozy"]}}]
+        }
       ]
     });
 
@@ -98,12 +101,15 @@ describe("Stage model", () => {
       name: "foo",
       approval: {
         type: "success",
-        authorization: {}
+        authorization: {
+          users: [],
+          roles: []
+        }
       },
       jobs: [
         {
           name: "name",
-          environment_variables: [ ],
+          environment_variables: [],
           tasks: [{
             type: "exec",
             attributes: {

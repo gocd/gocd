@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,8 @@ export class CompareHeaderWidget extends MithrilViewComponent<Attrs> {
       <div className={styles.pipelineInfo}>
         <span className={styles.label} data-test-id="page-header-pipeline-label">Pipeline</span>
         <span className={styles.value} data-test-id="page-header-pipeline-name">
-          <Link href={SparkRoutes.pipelineHistoryPath(vnode.attrs.pipelineName)} title="Pipeline Activities"> {vnode.attrs.pipelineName}</Link>
+          <Link href={SparkRoutes.pipelineHistoryPath(vnode.attrs.pipelineName)}
+                title="Pipeline Activities"> {vnode.attrs.pipelineName}</Link>
         </span>
       </div>
     </div>;

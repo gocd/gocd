@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,17 @@
  */
 
 import {JsonUtils} from "helpers/json_utils";
-import _ from "lodash";
 import Stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import s from 'underscore.string';
+
+export interface ParameterJSON {
+  name: string;
+  value: string;
+}
 
 export class PipelineParameter extends ValidatableMixin {
-  name: Stream<string> = Stream();
+  name: Stream<string>  = Stream();
   value: Stream<string> = Stream();
 
   constructor(name: string, value: string) {
@@ -32,8 +37,16 @@ export class PipelineParameter extends ValidatableMixin {
     this.validateIdFormat("name");
   }
 
+  static fromJSONArray(parameters: ParameterJSON[]) {
+    return parameters.map(this.fromJSON);
+  }
+
+  static fromJSON(parameter: ParameterJSON) {
+    return new PipelineParameter(parameter.name, parameter.value);
+  }
+
   isEmpty() {
-    return "" === this.name() && "" === this.value();
+    return s.isBlank(this.name()) && s.isBlank(this.value());
   }
 
   toApiPayload() {

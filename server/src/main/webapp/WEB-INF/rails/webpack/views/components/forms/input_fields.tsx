@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -609,19 +609,22 @@ export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
 }
 
 interface RadioData {
-  label: string;
+  label: m.Children;
   value: string;
   helpText?: string;
+  tooltip?: m.Child;
 }
 
 export interface RadioButtonAttrs extends RestyleAttrs<Styles> {
-  label?: string;
+  label?: m.Children;
   errorText?: string;
   disabled?: boolean;
   required?: boolean;
   inline?: boolean;
   property: (newValue?: string) => string;
   possibleValues: RadioData[];
+  onchange?: (newValue: string) => void;
+  dataTestId?: string;
 }
 
 export class RadioField extends RestyleViewComponent<Styles, RadioButtonAttrs> {
@@ -637,7 +640,8 @@ export class RadioField extends RestyleViewComponent<Styles, RadioButtonAttrs> {
                                                      data-test-id="form-field-label">
       {vnode.attrs.label}{maybeRequired}:</label> : undefined;
     return (
-      <li className={classnames(this.css.formGroup, {[this.css.formHasError]: this.hasErrorText(vnode)})}>
+      <li className={classnames(this.css.formGroup, {[this.css.formHasError]: this.hasErrorText(vnode)})}
+          data-test-id={vnode.attrs.dataTestId}>
         {maybeLabel}
         <div class={vnode.attrs.inline ? this.css.inlineRadioBtns : undefined}>
           {this.renderInputField(vnode)}
@@ -664,9 +668,17 @@ export class RadioField extends RestyleViewComponent<Styles, RadioButtonAttrs> {
           <input type="radio"
                  id={radioButtonId}
                  checked={radioData.value === vnode.attrs.property()}
-                 name={this.id} onchange={() => vnode.attrs.property(radioData.value)}/>
+                 data-test-id={`radio-${s.slugify(radioData.value)}`}
+                 name={this.id}
+                 onchange={() => {
+                   vnode.attrs.property(radioData.value);
+                   if (vnode.attrs.onchange) {
+                     vnode.attrs.onchange(radioData.value);
+                   }
+                 }}/>
           <label for={radioButtonId} className={this.css.radioLabel}
                  data-test-id="form-field-label">{radioData.label}</label>
+          {radioData?.tooltip}
           <HelpText helpText={radioData.helpText} helpTextId={`help-text-${radioButtonId}`} css={this.css}/>
         </li>
       );

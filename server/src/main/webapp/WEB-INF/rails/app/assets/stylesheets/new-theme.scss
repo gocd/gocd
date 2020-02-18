@@ -1647,7 +1647,6 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 }
 
 
-
 .edit_panel {
   button.submit:hover span, button.submit_hover span, a.link_as_button:hover span, a.link_as_button_hover span {
     color: #333;
@@ -3829,4 +3828,8 @@ button#allow_edit_password {
   // force some reasonable defaults see `body` in `global.scss`
   font-size: 14px;
   line-height: 1.5;
+}
+
+.quick_edit_button {
+  float: right !important;
 }

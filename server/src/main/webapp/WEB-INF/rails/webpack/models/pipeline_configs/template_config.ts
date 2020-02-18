@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,20 @@ import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {PipelineParameter} from "models/pipeline_configs/parameter";
+import {NameableSet} from "models/pipeline_configs/nameable_set";
+import {ParameterJSON, PipelineParameter} from "models/pipeline_configs/parameter";
+import {Stage, StageJSON} from "models/pipeline_configs/stage";
+
+export interface TemplateConfigJSON {
+  name: string;
+  parameters: ParameterJSON[];
+  stages: StageJSON[];
+}
 
 export class TemplateConfig {
   name: Stream<string>;
   parameters: Stream<PipelineParameter[]>;
+  readonly stages     = Stream<NameableSet<Stage>>();
 
   constructor(name: string, parameters: PipelineParameter[]) {
     this.name = Stream(name);
@@ -37,5 +46,14 @@ export class TemplateConfig {
         });
       }
     );
+  }
+
+  fromJSON(json: TemplateConfigJSON) {
+    const template = new TemplateConfig(json.name, PipelineParameter.fromJSONArray(json.parameters || []));
+    template.stages(new NameableSet(Stage.fromJSONArray(json.stages || [])));
+  }
+
+  firstStage() {
+    return this.stages().values().next().value;
   }
 }

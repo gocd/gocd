@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 import {queryParamAsString} from "helpers/url";
 import _ from "lodash";
 import m from "mithril";
+import {EnvironmentVariablesWidget} from "views/components/environment_variables";
 import {Page, PageState} from "views/pages/page";
 
 // models
@@ -27,7 +28,6 @@ import {PipelineConfigVM} from "views/pages/pipelines/pipeline_config_view_model
 import {ConceptDiagram} from "views/components/concept_diagram";
 import {PipelineActions} from "views/pages/pipelines/actions";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
-import {EnvironmentVariablesEditor} from "views/pages/pipelines/environment_variables_editor";
 import {FillableSection} from "views/pages/pipelines/fillable_section";
 import {JobEditor} from "views/pages/pipelines/job_editor";
 import {MaterialEditor} from "views/pages/pipelines/material_editor";
@@ -94,7 +94,7 @@ export class PipelineCreatePage extends Page {
             <JobEditor job={job}/>
             <TaskTerminalField label="Type your tasks below at the prompt" property={job.tasks} errorText={job.errors().errorsForDisplay("tasks")} required={true}/>
             <AdvancedSettings forceOpen={_.some(job.environmentVariables(), (env) => env.errors().hasErrors())}>
-              <EnvironmentVariablesEditor variables={job.environmentVariables}/>
+              <EnvironmentVariablesWidget environmentVariables={job.environmentVariables()}/>
             </AdvancedSettings>
           </UserInputPane>
           <ConceptDiagram image={jobImg}>

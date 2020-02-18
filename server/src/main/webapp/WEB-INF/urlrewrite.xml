@@ -23,6 +23,11 @@
 -->
 
 <urlrewrite>
+  <rule>
+    <name>Clicky pipeline config SPA</name>
+    <from>^/admin/pipelines/([^/]+)/edit(/?)$</from>
+    <to last="true">/spark/admin/pipelines/${escape:$1}/edit</to>
+  </rule>
 
   <rule>
     <name>Permissions API</name>

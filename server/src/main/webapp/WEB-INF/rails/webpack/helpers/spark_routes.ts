@@ -65,6 +65,10 @@ export class SparkRoutes {
     return `/go/api/admin/pipelines`;
   }
 
+  static getOrUpdatePipelineConfigPath(pipelineName: string): string {
+    return `/go/api/admin/pipelines/${pipelineName}`;
+  }
+
   static pipelinePausePath(pipelineName: string): string {
     return `/go/api/pipelines/${pipelineName}/pause`;
   }
@@ -87,10 +91,10 @@ export class SparkRoutes {
 
   static pipelineMaterialSearchPath(pipelineName: string, fingerprint: string, searchText: string): string {
     const queryString = m.buildQueryString({
-      fingerprint,
-      pipeline_name: pipelineName,
-      search_text: searchText
-    });
+                                             fingerprint,
+                                             pipeline_name: pipelineName,
+                                             search_text: searchText
+                                           });
     return `/go/api/internal/material_search?${queryString}`;
   }
 
@@ -435,7 +439,7 @@ export class SparkRoutes {
                                            withAdditionalInfo: boolean = false) {
     const values: Params = {
       pipeline_group_authorization: groupAuthorization,
-      template_authorization:       templateAuthorization,
+      template_authorization: templateAuthorization,
     };
     if (withAdditionalInfo) {
       values.with_additional_info = true;
@@ -513,7 +517,10 @@ export class SparkRoutes {
     return `/go/api/internal/compare/${pipelineName}/list?pattern=${pattern}`;
   }
 
-  static getStageDetailsPageUrl(pipelineName: string, pipelineCounter: number, stageName: string, stageCounter: string) {
+  static getStageDetailsPageUrl(pipelineName: string,
+                                pipelineCounter: number,
+                                stageName: string,
+                                stageCounter: string) {
     return `/go/pipelines/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}`;
   }
 

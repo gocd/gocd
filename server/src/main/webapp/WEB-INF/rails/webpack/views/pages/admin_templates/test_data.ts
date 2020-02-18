@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 
 import {Template} from "models/admin_templates/templates";
+import {ArtifactType} from "models/pipeline_configs/artifact";
 
 function getEnvironmentVariables(type: "pipeline" | "stage" | "job") {
   return [
@@ -41,6 +42,7 @@ export function massiveTemplate(): Template {
       never_cleanup_artifacts: false,
       approval: {
         type: "success",
+        allow_only_on_success: false,
         authorization: {
           roles: [],
           users: []
@@ -74,11 +76,11 @@ export function massiveTemplate(): Template {
           path: "JUnitResults/allTests/index.html"
         }],
         artifacts: [{
-          type: "build",
+          type: "build" as ArtifactType,
           source: "target/reports/tests/allTests",
           destination: "JUnitResults"
         }, {
-          type: "build",
+          type: "build" as ArtifactType,
           source: "server/target/heap-dumps",
           destination: ""
         }]
@@ -105,11 +107,11 @@ export function massiveTemplate(): Template {
         }],
         tabs: [],
         artifacts: [{
-          type: "test",
+          type: "test" as ArtifactType,
           source: "server/target/karma_reports/*.xml",
           destination: "karma"
         }, {
-          type: "build",
+          type: "build" as ArtifactType,
           source: "server/target/karma_reports/Firefox*/*.*",
           destination: "karma-ff"
         }]
@@ -121,6 +123,7 @@ export function massiveTemplate(): Template {
       never_cleanup_artifacts: false,
       approval: {
         type: "success",
+        allow_only_on_success: false,
         authorization: {
           roles: [],
           users: []
@@ -154,11 +157,11 @@ export function massiveTemplate(): Template {
           path: "JUnitResults/integrationTest/index.html"
         }],
         artifacts: [{
-          type: "test",
+          type: "test" as ArtifactType,
           source: "server/target/test-results/test/*.xml",
           destination: "test-reports"
         }, {
-          type: "build",
+          type: "build" as ArtifactType,
           source: "server/target/reports/tests/**/*.*",
           destination: "JUnitResults"
         }]
@@ -186,7 +189,7 @@ export function massiveTemplate(): Template {
         }],
         tabs: [],
         artifacts: [{
-          type: "test",
+          type: "test" as ArtifactType,
           source: "server/target/rspec-results/*.xml",
           destination: "test-reports"
         }]

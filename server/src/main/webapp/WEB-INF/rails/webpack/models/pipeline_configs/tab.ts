@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,36 @@
  * limitations under the License.
  */
 
-import {JsonUtils} from "helpers/json_utils";
-import _ from "lodash";
-import Stream from "mithril/stream";
+import Stream = require("mithril/stream");
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
-export class EnvironmentVariableConfig extends ValidatableMixin {
-  name: Stream<string>    = Stream();
-  value: Stream<string>   = Stream();
-  secure: Stream<boolean> = Stream();
+export interface TabJSON {
+  name: string;
+  path: string;
+}
 
-  constructor(secure: boolean, name: string, value: string) {
-    super();
-    this.name(name);
-    this.value(value);
-    this.secure(secure);
-
-    this.validatePresenceOf("name", { message: "Name is required" });
+export class Tabs extends Array<Tab> {
+  constructor(...tabs: Tab[]) {
+    super(...tabs);
+    Object.setPrototypeOf(this, Object.create(Tabs.prototype));
   }
 
-  toApiPayload() {
-    return JsonUtils.toSnakeCasedObject(this);
+  static fromJSON(json: TabJSON[]) {
+    return new Tabs(...json.map(Tab.fromJSON));
+  }
+}
+
+export class Tab extends ValidatableMixin {
+  readonly name = Stream<string>();
+  readonly path = Stream<string>();
+
+  constructor(name: string, path: string) {
+    super();
+    this.name(name);
+    this.path(path);
+  }
+
+  static fromJSON(json: TabJSON) {
+    return new Tab(json.name, json.path);
   }
 }

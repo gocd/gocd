@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import {
-  AntTaskAttributes,
-  ExecTaskAttributes,
-  FetchTaskAttributes,
-  NAntTaskAttributes,
-  PluginTaskAttributes,
-  RakeTaskAttributes,
-  Task,
-  WorkingDirAttributes
+  AntTaskAttributesJSON,
+  ExecTaskAttributesJSON,
+  FetchTaskAttributesJSON,
+  NAntTaskAttributesJSON,
+  PluginTaskAttributesJSON,
+  RakeTaskAttributesJSON,
+  TaskJSON,
+  WorkingDirAttributesJSON
 } from "models/admin_templates/templates";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import ShellQuote from "shell-quote";
@@ -34,7 +34,7 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import styles from "views/pages/admin_templates/modals.scss";
 
 interface TaskWidgetAttrs {
-  task: Task;
+  task: TaskJSON;
   pluginInfos: PluginInfos;
 }
 
@@ -44,24 +44,24 @@ export class TaskWidget extends MithrilViewComponent<TaskWidgetAttrs> {
     return this.task(vnode.attrs.pluginInfos, vnode.attrs.task);
   }
 
-  private task(pluginInfos: PluginInfos, task: Task) {
+  private task(pluginInfos: PluginInfos, task: TaskJSON) {
     switch (task.type) {
       case "pluggable_task":
-        return this.pluggableTask(task.attributes as PluginTaskAttributes, pluginInfos);
+        return this.pluggableTask(task.attributes as PluginTaskAttributesJSON, pluginInfos);
       case "fetch":
-        return this.fetchTask(task.attributes as FetchTaskAttributes, pluginInfos);
+        return this.fetchTask(task.attributes as FetchTaskAttributesJSON, pluginInfos);
       case "ant":
-        return this.antTask(task.attributes as AntTaskAttributes, pluginInfos);
+        return this.antTask(task.attributes as AntTaskAttributesJSON, pluginInfos);
       case "exec":
-        return this.execTask(task.attributes as ExecTaskAttributes, pluginInfos);
+        return this.execTask(task.attributes as ExecTaskAttributesJSON, pluginInfos);
       case "nant":
-        return this.nantTask(task.attributes as NAntTaskAttributes, pluginInfos);
+        return this.nantTask(task.attributes as NAntTaskAttributesJSON, pluginInfos);
       case "rake":
-        return this.rakeTask(task.attributes as RakeTaskAttributes, pluginInfos);
+        return this.rakeTask(task.attributes as RakeTaskAttributesJSON, pluginInfos);
     }
   }
 
-  private pluggableTask(attributes: PluginTaskAttributes, pluginInfos: PluginInfos) {
+  private pluggableTask(attributes: PluginTaskAttributesJSON, pluginInfos: PluginInfos) {
     const plugin     = pluginInfos.findByPluginId(attributes.plugin_configuration.id);
     const pluginInfo = new Map([["Plugin", plugin ? plugin.about.name : "Unknown plugin"]]);
     const pluginData = new Map(attributes.configuration.map((eachConfig) => {
@@ -78,7 +78,7 @@ export class TaskWidget extends MithrilViewComponent<TaskWidgetAttrs> {
     );
   }
 
-  private antTask(attributes: AntTaskAttributes, pluginInfos: PluginInfos) {
+  private antTask(attributes: AntTaskAttributesJSON, pluginInfos: PluginInfos) {
     const commands = ["ant"];
     if (attributes.build_file) {
       commands.push("-f", attributes.build_file);
@@ -93,7 +93,7 @@ export class TaskWidget extends MithrilViewComponent<TaskWidgetAttrs> {
     );
   }
 
-  private rakeTask(attributes: RakeTaskAttributes, pluginInfos: PluginInfos) {
+  private rakeTask(attributes: RakeTaskAttributesJSON, pluginInfos: PluginInfos) {
     const commands = ["rake"];
     if (attributes.build_file) {
       commands.push("-f", attributes.build_file);
@@ -108,7 +108,7 @@ export class TaskWidget extends MithrilViewComponent<TaskWidgetAttrs> {
     );
   }
 
-  private nantTask(attributes: NAntTaskAttributes, pluginInfos: PluginInfos) {
+  private nantTask(attributes: NAntTaskAttributesJSON, pluginInfos: PluginInfos) {
     const nantPathPrefix = _.isEmpty(attributes.nant_path) ? "" : `${attributes.nant_path}\\`;
 
     const commands = [`${nantPathPrefix}nant`];
@@ -126,7 +126,7 @@ export class TaskWidget extends MithrilViewComponent<TaskWidgetAttrs> {
     );
   }
 
-  private execTask(attributes: ExecTaskAttributes, pluginInfos: PluginInfos) {
+  private execTask(attributes: ExecTaskAttributesJSON, pluginInfos: PluginInfos) {
     const commands = [attributes.command];
 
     if (!_.isEmpty(attributes.arguments)) {
@@ -145,7 +145,7 @@ export class TaskWidget extends MithrilViewComponent<TaskWidgetAttrs> {
     );
   }
 
-  private fetchTask(attributes: FetchTaskAttributes, pluginInfos: PluginInfos) {
+  private fetchTask(attributes: FetchTaskAttributesJSON, pluginInfos: PluginInfos) {
     return (
       <code>
         <span class={styles.lightColor} title="Working directory">Fetch Artifact</span>
@@ -168,18 +168,18 @@ export class TaskWidget extends MithrilViewComponent<TaskWidgetAttrs> {
     return ShellQuote.quote(commands);
   }
 
-  private workingDir(attributes: WorkingDirAttributes) {
+  private workingDir(attributes: WorkingDirAttributesJSON) {
     const WHITESPACE = " "; // because intellij auto-indent has a tendency to clear whitespaces
     return <span class={styles.lightColor} title="Working directory">{attributes.working_directory}${WHITESPACE}</span>;
   }
 
-  private maybeAppendTarget(attributes: RakeTaskAttributes, commands: string[]) {
+  private maybeAppendTarget(attributes: RakeTaskAttributesJSON, commands: string[]) {
     if (attributes.target) {
       commands.push(...Shellwords.split(attributes.target));
     }
   }
 
-  private maybeOnCancelTask(onCancel: Task | undefined, pluginInfos: PluginInfos) {
+  private maybeOnCancelTask(onCancel: TaskJSON | undefined, pluginInfos: PluginInfos) {
     if (!onCancel) {
       return;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ describe('PipelineInstanceWidgetSpec', () => {
   }
 
   it('should render a flash message if instance is not passed', () => {
+    //@ts-ignore
     helper.mount(() => <PipelineInstanceWidget/>);
 
     expect(helper.byTestId("pipeline-instance-widget")).not.toBeInDOM();

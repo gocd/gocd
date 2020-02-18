@@ -90,7 +90,7 @@ abstract class AbstractPage {
   }
 }
 
-type GoCDComponentTypes = (new(...args: any[]) => m.Component<any, any>) | (() => m.Component<any, any>); // slightly more specialized than m.ComponentTypes
+type GoCDComponentTypes = (new(...args: any[]) => m.Component<any, any>) | (() => m.Component<any, any>) | m.ComponentTypes<any,any>; // slightly more specialized than m.ComponentTypes
 
 interface RoutesTable {
   [route: string]: GoCDComponentTypes;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 import m from "mithril";
 import {
-  AntTaskAttributes,
-  ExecTaskAttributes,
-  NAntTaskAttributes,
-  RakeTaskAttributes,
-  Task
+  AntTaskAttributesJSON,
+  ExecTaskAttributesJSON,
+  NAntTaskAttributesJSON,
+  RakeTaskAttributesJSON,
+  TaskJSON,
 } from "models/admin_templates/templates";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {TaskWidget} from "views/pages/admin_templates/task_widget";
@@ -32,9 +32,9 @@ describe("TaskWidget", () => {
 
   describe("Ant Task", () => {
     it("should render task without args", () => {
-      const task: Task = {
+      const task: TaskJSON = {
         type: "ant",
-        attributes: {} as AntTaskAttributes
+        attributes: {} as AntTaskAttributesJSON
       };
       testHelper.mount(() => {
         return <TaskWidget pluginInfos={new PluginInfos()} task={task}/>;
@@ -44,11 +44,11 @@ describe("TaskWidget", () => {
     });
 
     it("should render task with working dir", () => {
-      const task: Task = {
+      const task: TaskJSON = {
         type: "ant",
         attributes: {
           working_directory: "blah"
-        } as AntTaskAttributes
+        } as AntTaskAttributesJSON
       };
       testHelper.mount(() => {
         return <TaskWidget pluginInfos={new PluginInfos()} task={task}/>;
@@ -58,13 +58,13 @@ describe("TaskWidget", () => {
     });
 
     it("should render task with buildfile and target", () => {
-      const task: Task = {
+      const task: TaskJSON = {
         type: "ant",
         attributes: {
           working_directory: "blah",
           build_file: "boo\\blah with spaces.xml",
           target: "target with spaces 'boo bah'"
-        } as AntTaskAttributes
+        } as AntTaskAttributesJSON
       };
       testHelper.mount(() => {
         return <TaskWidget pluginInfos={new PluginInfos()} task={task}/>;
@@ -77,9 +77,9 @@ describe("TaskWidget", () => {
 
   describe("Rake Task", () => {
     it("should render task without args", () => {
-      const task: Task = {
+      const task: TaskJSON = {
         type: "rake",
-        attributes: {} as RakeTaskAttributes
+        attributes: {} as RakeTaskAttributesJSON
       };
       testHelper.mount(() => {
         return <TaskWidget pluginInfos={new PluginInfos()} task={task}/>;
@@ -89,11 +89,11 @@ describe("TaskWidget", () => {
     });
 
     it("should render task with working dir", () => {
-      const task: Task = {
+      const task: TaskJSON = {
         type: "rake",
         attributes: {
           working_directory: "blah"
-        } as RakeTaskAttributes
+        } as RakeTaskAttributesJSON
       };
       testHelper.mount(() => {
         return <TaskWidget pluginInfos={new PluginInfos()} task={task}/>;
@@ -103,13 +103,13 @@ describe("TaskWidget", () => {
     });
 
     it("should render task with buildfile and target", () => {
-      const task: Task = {
+      const task: TaskJSON = {
         type: "rake",
         attributes: {
           working_directory: "blah",
           build_file: "boo\\blah with spaces.rake",
           target: "target with spaces 'boo bah'"
-        } as RakeTaskAttributes
+        } as RakeTaskAttributesJSON
       };
       testHelper.mount(() => {
         return <TaskWidget pluginInfos={new PluginInfos()} task={task}/>;
@@ -122,9 +122,9 @@ describe("TaskWidget", () => {
 
   describe("NAnt Task", () => {
     it("should render task without args", () => {
-      const task: Task = {
+      const task: TaskJSON = {
         type: "nant",
-        attributes: {} as NAntTaskAttributes
+        attributes: {} as NAntTaskAttributesJSON
       };
       testHelper.mount(() => {
         return <TaskWidget pluginInfos={new PluginInfos()} task={task}/>;
@@ -134,11 +134,11 @@ describe("TaskWidget", () => {
     });
 
     it("should render task with working dir", () => {
-      const task: Task = {
+      const task: TaskJSON = {
         type: "nant",
         attributes: {
           working_directory: "blah"
-        } as NAntTaskAttributes
+        } as NAntTaskAttributesJSON
       };
       testHelper.mount(() => {
         return <TaskWidget pluginInfos={new PluginInfos()} task={task}/>;
@@ -148,14 +148,14 @@ describe("TaskWidget", () => {
     });
 
     it("should render task with buildfile and target", () => {
-      const task: Task = {
+      const task: TaskJSON = {
         type: "nant",
         attributes: {
           nant_path: "c:\\nant",
           working_directory: "blah",
           build_file: "boo\\blah with spaces.xml",
           target: "target with spaces 'boo bah'"
-        } as NAntTaskAttributes
+        } as NAntTaskAttributesJSON
       };
       testHelper.mount(() => {
         return <TaskWidget pluginInfos={new PluginInfos()} task={task}/>;
@@ -168,11 +168,11 @@ describe("TaskWidget", () => {
 
   describe("Exec Task", () => {
     it("should render task without args", () => {
-      const task: Task = {
+      const task: TaskJSON = {
         type: "exec",
         attributes: {
           command: "ls"
-        } as ExecTaskAttributes
+        } as ExecTaskAttributesJSON
       };
       testHelper.mount(() => {
         return <TaskWidget pluginInfos={new PluginInfos()} task={task}/>;
@@ -182,12 +182,12 @@ describe("TaskWidget", () => {
     });
 
     it("should render task with working dir", () => {
-      const task: Task = {
+      const task: TaskJSON = {
         type: "exec",
         attributes: {
           working_directory: "blah",
           command: "ls",
-        } as ExecTaskAttributes
+        } as ExecTaskAttributesJSON
       };
       testHelper.mount(() => {
         return <TaskWidget pluginInfos={new PluginInfos()} task={task}/>;
@@ -197,13 +197,13 @@ describe("TaskWidget", () => {
     });
 
     it("should render task with working dir and arg string", () => {
-      const task: Task = {
+      const task: TaskJSON = {
         type: "exec",
         attributes: {
           working_directory: "blah",
           command: "ls",
           args: "-al \"/tmp/dir with spaces/boo\""
-        } as ExecTaskAttributes
+        } as ExecTaskAttributesJSON
       };
       testHelper.mount(() => {
         return <TaskWidget pluginInfos={new PluginInfos()} task={task}/>;
@@ -214,13 +214,13 @@ describe("TaskWidget", () => {
     });
 
     it("should render task with working dir and arg list", () => {
-      const task: Task = {
+      const task: TaskJSON = {
         type: "exec",
         attributes: {
           working_directory: "blah",
           command: "ls",
           arguments: ["-al", "/tmp/dir with spaces/boo"]
-        } as ExecTaskAttributes
+        } as ExecTaskAttributesJSON
       };
       testHelper.mount(() => {
         return <TaskWidget pluginInfos={new PluginInfos()} task={task}/>;
@@ -233,7 +233,7 @@ describe("TaskWidget", () => {
 
   describe("Fetch Task", () => {
     it("should render task", () => {
-      const task: Task = {
+      const task: TaskJSON = {
         type: "fetch",
         attributes: {
           artifact_origin: "gocd",
@@ -260,7 +260,7 @@ describe("TaskWidget", () => {
 
   describe("Plugin Task", () => {
     it("should render task", () => {
-      const task: Task = {
+      const task: TaskJSON = {
         type: "pluggable_task",
         attributes: {
           run_if: ["passed"],

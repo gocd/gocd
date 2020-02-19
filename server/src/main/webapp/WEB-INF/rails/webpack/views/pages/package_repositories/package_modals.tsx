@@ -57,7 +57,6 @@ abstract class PackageModal extends EntityModal<Package> {
         <Buttons.Cancel data-test-id="button-cancel" onclick={(e: MouseEvent) => this.close()}
                         ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Buttons.Cancel>
         <Buttons.Primary data-test-id="button-save"
-                         disabled={true}
                          ajaxOperationMonitor={this.ajaxOperationMonitor}
                          ajaxOperation={this.performOperation.bind(this)}>Save</Buttons.Primary>
       </ButtonGroup>

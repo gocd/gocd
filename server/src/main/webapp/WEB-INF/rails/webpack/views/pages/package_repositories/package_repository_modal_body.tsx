@@ -18,9 +18,11 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import {PackageRepository} from "models/package_repositories/package_repositories";
+import {PackageRepoExtension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
-import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {Form, FormHeader} from "views/components/forms/form";
+import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {PluginView} from "views/pages/package_repositories/package_repo_plugin_view";
 
 interface Attrs {
   pluginInfos: PluginInfos;
@@ -34,6 +36,11 @@ export class PackageRepositoryModalBody extends MithrilViewComponent<Attrs> {
     const pluginList = _.map(vnode.attrs.pluginInfos, (pluginInfo: PluginInfo) => {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
     });
+
+    const selectedPluginInfo = _.find(vnode.attrs.pluginInfos, (pluginInfo: PluginInfo) => {
+      return pluginInfo.id === vnode.attrs.pluginIdProxy();
+    })!;
+
     return <div><FormHeader>
       <Form>
         <TextField label="Name"
@@ -53,9 +60,8 @@ export class PackageRepositoryModalBody extends MithrilViewComponent<Attrs> {
       </Form>
     </FormHeader>
 
-      <div>
-        The plugin view will come here.
-      </div>
+      <PluginView pluginSettings={(selectedPluginInfo.extensions[0] as PackageRepoExtension).repositorySettings}
+                  configurations={vnode.attrs.packageRepo.configuration()}/>
     </div>;
   }
 }

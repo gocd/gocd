@@ -482,7 +482,13 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
                               propertyAttribute: string): any {
     if (attrs.property()!.isEditing()) {
       return {
-        [eventName]: (evt: any) => attrs.property()!.value(evt.currentTarget.value),
+        [eventName]: (evt: any) => {
+          if (attrs.onchange) {
+            attrs.onchange(evt);
+          }
+
+          return attrs.property()!.value(evt.currentTarget.value);
+        },
         [propertyAttribute]: attrs.property()!.value()
       };
     } else {
@@ -496,9 +502,11 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
   private static resetOrOverride(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>) {
     if (vnode.attrs.property()!.isEditing()) {
       return <FormResetButton css={vnode.attrs.css}
+                              data-test-id="reset-input"
                               onclick={vnode.attrs.property()!.resetToOriginal.bind(vnode.attrs.property())}>Reset</FormResetButton>;
     } else {
       return <FormResetButton css={vnode.attrs.css}
+                              data-test-id="change-input"
                               onclick={vnode.attrs.property()!.edit.bind(vnode.attrs.property())}>Change</FormResetButton>;
     }
   }

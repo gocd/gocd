@@ -18,10 +18,12 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import {Package, PackageRepositories, PackageRepository} from "models/package_repositories/package_repositories";
-import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
-import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {PackageRepoExtension} from "models/shared/plugin_infos_new/extensions";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormHeader} from "views/components/forms/form";
+import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {PluginView} from "views/pages/package_repositories/package_repo_plugin_view";
 
 interface Attrs {
   pluginInfos: PluginInfos;
@@ -36,12 +38,19 @@ export class PackageModalBody extends MithrilViewComponent<Attrs> {
     const packageRepos = _.map(vnode.attrs.packageRepositories, (pkgRepo: PackageRepository) => {
       return {id: pkgRepo.repoId(), text: pkgRepo.name()};
     });
-    const msgForNewPkg = vnode.attrs.disableId ? ""
-      : <FlashMessage type={MessageType.info}
-                      message={"The new package will be available to be used as material in all pipelines. Other admins might be able to edit this package."}/>;
+    const msgForNewPkg = vnode.attrs.disableId ? "" : "The new package will be available to be used as material in all pipelines. Other admins might be able to edit this package.";
+
+    const selectedPackageRepository = vnode.attrs.packageRepositories.find((repo) => {
+      return repo.repoId() === vnode.attrs.package.packageRepo().id();
+    })!;
+
+    const pluginInfo = _.find(vnode.attrs.pluginInfos, (pluginInfo: PluginInfo) => {
+      return pluginInfo.id === selectedPackageRepository.pluginMetadata().id();
+    })!;
+
     return <div>
       <FormHeader>
-        {msgForNewPkg}
+        <FlashMessage type={MessageType.info} message={msgForNewPkg}/>
         <Form>
           <TextField label="Name"
                      readonly={vnode.attrs.disableId}
@@ -60,9 +69,8 @@ export class PackageModalBody extends MithrilViewComponent<Attrs> {
         </Form>
       </FormHeader>
 
-      <div>
-        The plugin view will come here.
-      </div>
+      <PluginView pluginSettings={(pluginInfo.extensions[0] as PackageRepoExtension).packageSettings}
+                  configurations={vnode.attrs.package.configuration()}/>
     </div>;
   }
 

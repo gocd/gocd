@@ -48,7 +48,7 @@ class Configuration {
   }
 }
 
-class PluginSettings {
+export class PluginSettings {
   readonly configurations: Stream<Configuration[]>;
   readonly viewTemplate: Stream<string | undefined>;
 

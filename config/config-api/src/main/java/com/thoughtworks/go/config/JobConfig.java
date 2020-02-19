@@ -226,11 +226,12 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
 	public boolean isRunMultipleInstanceType() {
-		return getRunInstanceCountValue() > 0;
+        Integer runInstanceCountValue = getRunInstanceCountValue();
+        return runInstanceCountValue != null && runInstanceCountValue > 0;
 	}
 
 	public Integer getRunInstanceCountValue() {
-		return runInstanceCount == null ? 0 : Integer.valueOf(runInstanceCount);
+		return isBlank(runInstanceCount) ? null : Integer.valueOf(runInstanceCount);
 	}
 
 	public String getRunInstanceCount() {
@@ -431,7 +432,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         }
         if (attributesMap.containsKey("elasticProfileId")) {
             String elasticProfileId = (String) attributesMap.get("elasticProfileId");
-            setElasticProfileId(StringUtils.isBlank(elasticProfileId) ? null : elasticProfileId);
+            setElasticProfileId(isBlank(elasticProfileId) ? null : elasticProfileId);
         }
 
         if (attributesMap.containsKey(TASKS)) {

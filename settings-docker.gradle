@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
+ * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,5 +25,5 @@ Distro.values().each { Distro distro ->
   }
 }
 
-include ":docker:gocd-server:${Distro.centos.projectName(Distro.centos.getVersion('7'))}"
-include ":docker:gocd-server:${Distro.alpine.projectName(Distro.alpine.getVersion('3.9'))}"
+include ":docker:gocd-server:${Distro.centos.projectName(Distro.centos.getVersion('8'))}"
+include ":docker:gocd-server:${Distro.alpine.projectName(Distro.alpine.getVersion('3.11'))}"

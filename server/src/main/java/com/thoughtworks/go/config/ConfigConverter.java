@@ -770,7 +770,7 @@ public class ConfigConverter {
 
         if (jobConfig.isRunOnAllAgents()) {
             job.setRunOnAllAgents(jobConfig.isRunOnAllAgents());
-        } else {
+        } else if (jobConfig.isRunMultipleInstanceType()) {
             job.setRunInstanceCount(jobConfig.getRunInstanceCountValue());
         }
 

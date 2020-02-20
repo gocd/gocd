@@ -41,7 +41,7 @@ $dropdown-button-content-z-index: 5;
   width:          $width-for-instance-selection;
   vertical-align: baseline;
 
-  input[type="search"] {  //sass-lint:disable-line no-qualifying-elements
+  input[type="search"] { //sass-lint:disable-line no-qualifying-elements
     width: $width-for-instance-selection;
   }
 }
@@ -159,5 +159,25 @@ $dropdown-button-content-z-index: 5;
     display:  inline-block;
     position: relative;
     left:     -10px;
+  }
+}
+
+.commit-msg {
+  white-space: pre-line;
+}
+
+.material-modifications {
+  table td {
+    &:nth-child(1) {
+      width: 10%;
+    }
+
+    &:nth-child(2) {
+      width: 20%;
+    }
+
+    &:nth-child(3) {
+      width: 15%;
+    }
   }
 }

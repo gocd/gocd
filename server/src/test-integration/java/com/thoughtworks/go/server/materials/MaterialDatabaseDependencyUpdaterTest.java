@@ -130,7 +130,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
         }
 
         HealthStateType scope = HealthStateType.general(HealthStateScope.forMaterial(dependencyMaterial));
-        ServerHealthState state = ServerHealthState.errorWithHtml("Modification check failed for material: pipeline-name\nNo pipelines are affected by this material, perhaps this material is unused.", "Description of error", scope);
+        ServerHealthState state = ServerHealthState.errorWithHtml("Modification check failed for material: pipeline-name [ stage-name ]\nNo pipelines are affected by this material, perhaps this material is unused.", "Description of error", scope);
         Mockito.verify(healthService).update(state);
     }
 

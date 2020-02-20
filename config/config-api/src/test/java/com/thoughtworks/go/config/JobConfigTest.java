@@ -26,19 +26,14 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 
 import java.util.HashMap;
-import java.util.stream.Stream;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
 class JobConfigTest {
@@ -550,24 +545,24 @@ class JobConfigTest {
     }
 
     @Nested
-    @TestInstance(PER_CLASS)
     class RunInstanceCount {
-        @ParameterizedTest
-        @MethodSource("runInstanceCountTestValues")
-        void shouldReturnNullIfNoInstanceCountIsSet(String instanceCount, Integer instanceCountValue, boolean isRunMultipleType) {
-            JobConfig jobConfig = new JobConfig("plan-name");
-            jobConfig.setRunInstanceCount(instanceCount);
+        @Test
+        void shouldThrowExceptionIsSingleInstanceJobType() {
+            JobConfig jobConfig = new JobConfig("job");
 
-            assertThat(jobConfig.getRunInstanceCountValue()).isEqualTo(instanceCountValue);
-            assertThat(jobConfig.isRunMultipleInstanceType()).isEqualTo(isRunMultipleType);
+            assertThatCode(jobConfig::getRunInstanceCountValue)
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("This job config is a single instance type job.");
+            assertThat(jobConfig.isRunMultipleInstanceType()).isFalse();
         }
 
-        Stream<Arguments> runInstanceCountTestValues() {
-            return Stream.of(
-                    Arguments.of(null, null, false),
-                    Arguments.of("", null, false),
-                    Arguments.of("10", 10, true)
-            );
+        @Test
+        void shouldNotThrowExceptionIfMultipleInstanceJobType() {
+            JobConfig jobConfig = new JobConfig("job");
+            jobConfig.setRunInstanceCount(10);
+
+            assertThat(jobConfig.getRunInstanceCountValue()).isEqualTo(10);
+            assertThat(jobConfig.isRunMultipleInstanceType()).isTrue();
         }
     }
 

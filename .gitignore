@@ -513,3 +513,7 @@ api/api-api-info-v2/out/
 api/api-api-info-v2/target/
 api/api-api-info-v2/logs/
 api/api-api-info-v2/config/
+api/api-compare-v2/out/
+api/api-compare-v2/target/
+api/api-compare-v2/logs/
+api/api-compare-v2/config/

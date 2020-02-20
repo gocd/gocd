@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
+import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -37,51 +38,28 @@ class MaterialRevisionsRepresenterTest {
     })
 
     def expectedJson = [
-        [
-            "material": [
-                "attributes": [
-                    "auto_update"  : true,
-                    "destination"  : "hg",
-                    "filter"       : null,
-                    "invert_filter": false,
-                    "name"         : null,
-                    "url"          : "hg-url"
-                ],
-                "type"      : "hg"
-            ],
-            "revision": [
-                [
-                    "commit_message": "#4521 - get gadget working",
-                    "modified_at"   : jsonDate(checkinTime),
-                    "modified_by"   : "committer",
-                    "revision_sha"  : "cdef"
-                ]
-            ]
-        ],
-        [
-            "material": [
-                "attributes": [
-                    "auto_update"     : true,
-                    "branch"          : "master",
-                    "destination"     : "git",
-                    "filter"          : null,
-                    "invert_filter"   : false,
-                    "name"            : null,
-                    "shallow_clone"   : false,
-                    "submodule_folder": null,
-                    "url"             : "http://github.com"
-                ],
-                "type"      : "git"
-            ],
-            "revision": [
-                [
-                    "commit_message": "#4200 - whatever",
-                    "modified_at"   : jsonDate(checkinTime),
-                    "modified_by"   : "committer",
-                    "revision_sha"  : "2345"
-                ]
-            ]
+      [
+        "material": toObject({ MaterialRepresenter.toJSON(it, revisions.get(0).getMaterial().config()) }),
+        "revision": [
+          [
+            "commit_message": "#4521 - get gadget working",
+            "modified_at"   : jsonDate(checkinTime),
+            "modified_by"   : "committer",
+            "revision_sha"  : "cdef"
+          ]
         ]
+      ],
+      [
+        "material": toObject({ MaterialRepresenter.toJSON(it, revisions.get(1).getMaterial().config()) }),
+        "revision": [
+          [
+            "commit_message": "#4200 - whatever",
+            "modified_at"   : jsonDate(checkinTime),
+            "modified_by"   : "committer",
+            "revision_sha"  : "2345"
+          ]
+        ]
+      ]
     ]
 
     assertThatJson(json).isEqualTo(expectedJson)
@@ -97,8 +75,8 @@ class MaterialRevisionsRepresenterTest {
     Modification gitCommit = checkinWithComment("2345", "#4200 - whatever", checkinTime)
 
     List<MaterialRevision> revisionList = Arrays.asList(
-        new MaterialRevision(hg, hgCommit),
-        new MaterialRevision(git, gitCommit))
+      new MaterialRevision(hg, hgCommit),
+      new MaterialRevision(git, gitCommit))
     return revisionList
   }
 }

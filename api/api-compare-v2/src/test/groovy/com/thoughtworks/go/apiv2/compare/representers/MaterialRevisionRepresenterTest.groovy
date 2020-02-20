@@ -74,7 +74,7 @@ class MaterialRevisionRepresenterTest {
         "name"       : "pipeline-name",
         "fingerprint": "2636be2398c16aaa366f57131a2a4ee6e2929b5e5773a29edad035bb84e08fba",
         "type"       : "Pipeline",
-        "description": "pipeline-name"
+        "description": "pipeline-name [ stage-name ]"
       ],
       "changed"      : true,
       "modifications": [

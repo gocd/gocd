@@ -15,12 +15,11 @@
  */
 package com.thoughtworks.go.apiv2.compare.representers
 
-
 import com.thoughtworks.go.domain.MaterialRevision
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
-import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
+import static com.thoughtworks.go.api.base.JsonUtils.toArray
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.apiv2.compare.representers.MaterialRevisionsRepresenterTest.getRevisions
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
@@ -52,53 +51,7 @@ class ComparisonRepresenterTest {
       "from_counter" : fromCounter,
       "to_counter"   : toCounter,
       "is_bisect"    : isBisect,
-      "changes"      : [
-        [
-          "material": [
-            "attributes": [
-              "auto_update"  : true,
-              "destination"  : "hg",
-              "filter"       : null,
-              "invert_filter": false,
-              "name"         : null,
-              "url"          : "hg-url"
-            ],
-            "type"      : "hg"
-          ],
-          "revision": [
-            [
-              "commit_message": "#4521 - get gadget working",
-              "modified_at"   : jsonDate(date),
-              "modified_by"   : "committer",
-              "revision_sha"  : "cdef"
-            ]
-          ]
-        ],
-        [
-          "material": [
-            "attributes": [
-              "auto_update"     : true,
-              "branch"          : "master",
-              "destination"     : "git",
-              "filter"          : null,
-              "invert_filter"   : false,
-              "name"            : null,
-              "shallow_clone"   : false,
-              "submodule_folder": null,
-              "url"             : "http://github.com"
-            ],
-            "type"      : "git"
-          ],
-          "revision": [
-            [
-              "commit_message": "#4200 - whatever",
-              "modified_at"   : jsonDate(date),
-              "modified_by"   : "committer",
-              "revision_sha"  : "2345"
-            ]
-          ]
-        ]
-      ]
+      "changes"      : toArray({ MaterialRevisionsRepresenter.toJSONArray(it, revisionList) })
     ]
 
     assertThatJson(json).isEqualTo(expectedJson)

@@ -20,7 +20,7 @@ import {Comparison} from "./compare";
 import {ComparisonJSON} from "./compare_json";
 
 export class ComparisonCRUD {
-  private static API_VERSION_HEADER = ApiVersion.v1;
+  private static API_VERSION_HEADER = ApiVersion.v2;
 
   public static getDifference(pipelineName: string, fromCounter: number, toCounter: number) {
     return ApiRequestBuilder.GET(SparkRoutes.comparePipelines(pipelineName, fromCounter, toCounter), this.API_VERSION_HEADER)

@@ -24,8 +24,13 @@ export interface ComparisonJSON {
   changes: ChangeJSON[];
 }
 
+export interface ChangeMaterialJSON extends MaterialJSON{
+  display_type: string;
+  description: string;
+}
+
 export interface ChangeJSON {
-  material: MaterialJSON;
+  material: ChangeMaterialJSON;
   revision: RevisionJSON[];
 }
 

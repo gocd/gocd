@@ -127,7 +127,7 @@ public class DependencyMaterial extends AbstractMaterial {
 
     @Override
     public String getLongDescription() {
-        return getDescription();
+        return String.format("%s [ %s ]", CaseInsensitiveString.str(pipelineName), CaseInsensitiveString.str(stageName));
     }
 
     @Override

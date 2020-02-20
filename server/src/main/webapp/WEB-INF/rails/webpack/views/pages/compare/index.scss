@@ -147,6 +147,7 @@ $dropdown-button-content-z-index: 5;
   font-size:  0.625rem;
   border-top: 1px solid $border-color;
   margin:     5px 0;
+  word-break: break-all;
 
   th {
     width:          80px;

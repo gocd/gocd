@@ -19,16 +19,7 @@ import {JsonUtils} from "helpers/json_utils";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {
-  DependencyMaterialAttributesJSON,
-  GitMaterialAttributesJSON,
-  HgMaterialAttributesJSON,
-  MaterialAttributesJSON,
-  MaterialJSON,
-  P4MaterialAttributesJSON,
-  SvnMaterialAttributesJSON,
-  TfsMaterialAttributesJSON,
-} from "models/materials/serialization";
+import {DependencyMaterialAttributesJSON, GitMaterialAttributesJSON, HgMaterialAttributesJSON, MaterialAttributesJSON, MaterialJSON, P4MaterialAttributesJSON, PackageMaterialAttributesJSON, PluggableScmMaterialAttributesJSON, SvnMaterialAttributesJSON, TfsMaterialAttributesJSON,} from "models/materials/serialization";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
@@ -36,6 +27,7 @@ import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
 import s from "underscore.string";
 import urlParse from "url-parse";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
+import {Filter} from "../maintenance_mode/material";
 
 //tslint:disable-next-line
 export interface Material extends ValidatableMixin {
@@ -184,6 +176,10 @@ export abstract class MaterialAttributes extends ValidatableMixin {
         return TfsMaterialAttributes.fromJSON(material.attributes as TfsMaterialAttributesJSON);
       case "dependency":
         return DependencyMaterialAttributes.fromJSON(material.attributes as DependencyMaterialAttributesJSON);
+      case "package":
+        return PackageMaterialAttributes.fromJSON(material.attributes as PackageMaterialAttributesJSON);
+      case "plugin":
+        return PluggableScmMaterialAttributes.fromJSON(material.attributes as PluggableScmMaterialAttributesJSON);
       default:
         throw new Error(`Unknown material type ${material.type}`);
     }
@@ -207,8 +203,6 @@ export abstract class MaterialAttributes extends ValidatableMixin {
 
     return serialized;
   }
-
-  abstract getLongDescription(): string;
 }
 
 export abstract class ScmMaterialAttributes extends MaterialAttributes {
@@ -283,10 +277,6 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
-
-  getLongDescription(): string {
-    return `URL: ${this.url()}, Branch: ${this.branch()}`;
-  }
 }
 
 export class SvnMaterialAttributes extends ScmMaterialAttributes {
@@ -323,10 +313,6 @@ export class SvnMaterialAttributes extends ScmMaterialAttributes {
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
-
-  getLongDescription(): string {
-    return `URL: ${this.url()}, Username: ${this.username()}, CheckExternals: ${this.checkExternals()}`;
-  }
 }
 
 export class HgMaterialAttributes extends ScmMaterialAttributes {
@@ -361,10 +347,6 @@ export class HgMaterialAttributes extends ScmMaterialAttributes {
     }
     attrs.errors(new Errors(json.errors));
     return attrs;
-  }
-
-  getLongDescription(): string {
-    return `URL: ${this.url}`;
   }
 }
 
@@ -407,10 +389,6 @@ export class P4MaterialAttributes extends ScmMaterialAttributes {
     }
     attrs.errors(new Errors(json.errors));
     return attrs;
-  }
-
-  getLongDescription(): string {
-    return `URL: ${this.port()}, View: ${this.view()}, Username: ${this.username()}`;
   }
 }
 
@@ -455,10 +433,6 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
-
-  getLongDescription(): string {
-    return `URL: ${this.url()}, Username: ${this.username()}, Domain: ${this.domain()}, ProjectPath: ${this.projectPath()}`;
-  }
 }
 
 export class DependencyMaterialAttributes extends MaterialAttributes {
@@ -484,8 +458,34 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
+}
 
-  getLongDescription(): string {
-    return `${this.pipeline()} [ ${this.stage()} ]`;
+class PackageMaterialAttributes extends MaterialAttributes {
+  ref: Stream<string | undefined>;
+
+  constructor(name?: string, autoUpdate?: boolean, ref?: string) {
+    super(name, autoUpdate);
+    this.ref = Stream(ref);
+  }
+
+  static fromJSON(data: PackageMaterialAttributesJSON): PackageMaterialAttributes {
+    return new PackageMaterialAttributes(data.name, data.auto_update, data.ref);
+  }
+}
+
+class PluggableScmMaterialAttributes extends MaterialAttributes {
+  ref: Stream<string>;
+  filter: Stream<Filter>;
+  destination: Stream<string>;
+
+  constructor(name: string, autoUpdate: boolean, ref: string, destination: string, filter: Filter) {
+    super(name, autoUpdate);
+    this.ref         = Stream(ref);
+    this.filter      = Stream(filter);
+    this.destination = Stream(destination);
+  }
+
+  static fromJSON(data: PluggableScmMaterialAttributesJSON): PluggableScmMaterialAttributes {
+    return new PluggableScmMaterialAttributes(data.name, data.auto_update, data.ref, data.destination, Filter.fromJSON(data.filter));
   }
 }

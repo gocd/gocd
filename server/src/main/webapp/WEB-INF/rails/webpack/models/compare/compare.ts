@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import {MaterialJSON} from "models/materials/serialization";
 import {Material, MaterialAttributes} from "models/materials/types";
-import {ChangeJSON, ComparisonJSON, DependencyRevisionJSON, MaterialRevisionJSON} from "./compare_json";
+import {ChangeJSON, ChangeMaterialJSON, ComparisonJSON, DependencyRevisionJSON, MaterialRevisionJSON} from "./compare_json";
 import {parseDate} from "./pipeline_instance";
 import {dateOrUndefined} from "./pipeline_instance_json";
 
@@ -43,20 +42,16 @@ export class Comparison {
 }
 
 export class Change {
-  material: Material;
+  material: ChangeMaterial;
   revision: Revisions;
 
-  constructor(material: Material, revision: Revisions) {
+  constructor(material: ChangeMaterial, revision: Revisions) {
     this.material = material;
     this.revision = revision;
   }
 
   static fromJSON(data: ChangeJSON): Change {
-    return new Change(Change.parseMaterial(data.material), Revision.deserialize(data));
-  }
-
-  private static parseMaterial(material: MaterialJSON) {
-    return new Material(material.type, MaterialAttributes.deserialize(material));
+    return new Change(ChangeMaterial.fromJSON(data.material), Revision.deserialize(data));
   }
 }
 
@@ -68,6 +63,21 @@ class Changes extends Array<Change> {
 
   static fromJSON(data: ChangeJSON[]): Changes {
     return new Changes(...data.map((change) => Change.fromJSON(change)));
+  }
+}
+
+class ChangeMaterial extends Material {
+  displayType: string;
+  description: string;
+
+  constructor(type: string, displayType: string, description: string, attributes: MaterialAttributes) {
+    super(type, attributes);
+    this.displayType = displayType;
+    this.description = description;
+  }
+
+  static fromJSON(data: ChangeMaterialJSON): ChangeMaterial {
+    return new ChangeMaterial(data.type, data.display_type, data.description, MaterialAttributes.deserialize(data));
   }
 }
 

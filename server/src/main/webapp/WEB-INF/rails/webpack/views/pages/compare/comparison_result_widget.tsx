@@ -60,7 +60,7 @@ export class ComparisonResultWidget extends MithrilViewComponent<Attrs> {
             }
             return <div data-test-id="material-changes">
             <span
-              data-test-id="material-header">{change.material.typeForDisplay()} - {change.material.attributes()!.getLongDescription()}</span>
+              data-test-id="material-header">{change.material.displayType} - {change.material.description}</span>
               {viewBody}
             </div>;
           })

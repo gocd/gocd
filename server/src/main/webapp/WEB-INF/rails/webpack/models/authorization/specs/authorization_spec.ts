@@ -14,14 +14,22 @@
  * limitations under the License.
  */
 
+import Stream from "mithril/stream";
 import {Errors} from "../../mixins/errors";
-import {Authorization, AuthorizationJSON, AuthorizedUsersAndRoles, PermissionForEntity, PermissionsForUsersAndRoles} from "../authorization";
+import {
+  Authorization,
+  AuthorizationJSON,
+  AuthorizedUsersAndRoles,
+  PermissionForEntity,
+  PermissionsForUsersAndRoles
+} from "../authorization";
 
-describe('AuthorizationViewModel', () => {
-  it('should initialize authorization roles and users', () => {
-    const admins                 = new AuthorizedUsersAndRoles(["user_foo_admin"], ["role_foo_admin"]);
-    const view                   = new AuthorizedUsersAndRoles(["user_foo_view"], ["role_foo_view"]);
-    const operate                = new AuthorizedUsersAndRoles(["user_foo_operate"], ["role_foo_operate"]);
+describe("AuthorizationViewModel", () => {
+  it("should initialize authorization roles and users", () => {
+    const admins                 = new AuthorizedUsersAndRoles([Stream("user_foo_admin")], [Stream("role_foo_admin")]);
+    const view                   = new AuthorizedUsersAndRoles([Stream("user_foo_view")], [Stream("role_foo_view")]);
+    const operate                = new AuthorizedUsersAndRoles([Stream("user_foo_operate")],
+                                                               [Stream("role_foo_operate")]);
     const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization(view, admins, operate));
 
     const userWithViewPermission    = new PermissionForEntity("user_foo_view", true, false, false);
@@ -32,13 +40,19 @@ describe('AuthorizationViewModel', () => {
     const roleWithAdminPermission   = new PermissionForEntity("role_foo_admin", false, false, true);
     const roleWithOperatePermission = new PermissionForEntity("role_foo_operate", false, true, false);
 
-    expect(arePermissionForEntitiesEqual(authorizationViewModel.authorizedUsers()[0], userWithViewPermission)).toBe(true);
-    expect(arePermissionForEntitiesEqual(authorizationViewModel.authorizedUsers()[1], userWithOperatePermission)).toBe(true);
-    expect(arePermissionForEntitiesEqual(authorizationViewModel.authorizedUsers()[2], userWithAdminPermission)).toBe(true);
+    expect(arePermissionForEntitiesEqual(authorizationViewModel.authorizedUsers()[0], userWithViewPermission))
+      .toBe(true);
+    expect(arePermissionForEntitiesEqual(authorizationViewModel.authorizedUsers()[1], userWithOperatePermission))
+      .toBe(true);
+    expect(arePermissionForEntitiesEqual(authorizationViewModel.authorizedUsers()[2], userWithAdminPermission))
+      .toBe(true);
 
-    expect(arePermissionForEntitiesEqual(authorizationViewModel.authorizedRoles()[0], roleWithViewPermission)).toBe(true);
-    expect(arePermissionForEntitiesEqual(authorizationViewModel.authorizedRoles()[1], roleWithOperatePermission)).toBe(true);
-    expect(arePermissionForEntitiesEqual(authorizationViewModel.authorizedRoles()[2], roleWithAdminPermission)).toBe(true);
+    expect(arePermissionForEntitiesEqual(authorizationViewModel.authorizedRoles()[0], roleWithViewPermission))
+      .toBe(true);
+    expect(arePermissionForEntitiesEqual(authorizationViewModel.authorizedRoles()[1], roleWithOperatePermission))
+      .toBe(true);
+    expect(arePermissionForEntitiesEqual(authorizationViewModel.authorizedRoles()[2], roleWithAdminPermission))
+      .toBe(true);
   });
 
   it("should validate that one of the permission is present", () => {
@@ -48,15 +62,19 @@ describe('AuthorizationViewModel', () => {
     authorizationViewModel.addAuthorizedRole(new PermissionForEntity("new-role", false, false, false));
 
     expect(authorizationViewModel.isValid()).toEqual(false);
-    expect(authorizationViewModel.authorizedUsers()[0].errors().errors("name")).toEqual(["At least one permission should be enabled."]);
-    expect(authorizationViewModel.authorizedRoles()[0].errors().errors("name")).toEqual(["At least one permission should be enabled."]);
+    expect(authorizationViewModel.authorizedUsers()[0].errors().errors("name"))
+      .toEqual(["At least one permission should be enabled."]);
+    expect(authorizationViewModel.authorizedRoles()[0].errors().errors("name"))
+      .toEqual(["At least one permission should be enabled."]);
   });
 
-  describe('User', () => {
+  describe("User", () => {
     it("should add authorized user", () => {
-      const admins                 = new AuthorizedUsersAndRoles(["user_foo_admin"], ["role_foo_admin"]);
-      const view                   = new AuthorizedUsersAndRoles(["user_foo_view"], ["role_foo_view"]);
-      const operate                = new AuthorizedUsersAndRoles(["user_foo_operate"], ["role_foo_operate"]);
+      const admins                 = new AuthorizedUsersAndRoles([Stream("user_foo_admin")],
+                                                                 [Stream("role_foo_admin")]);
+      const view                   = new AuthorizedUsersAndRoles([Stream("user_foo_view")], [Stream("role_foo_view")]);
+      const operate                = new AuthorizedUsersAndRoles([Stream("user_foo_operate")],
+                                                                 [Stream("role_foo_operate")]);
       const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization(view, admins, operate));
 
       const newUser = new PermissionForEntity("newUser", false, false, true);
@@ -67,9 +85,11 @@ describe('AuthorizationViewModel', () => {
     });
 
     it("should remove authorized user", () => {
-      const admins                 = new AuthorizedUsersAndRoles(["user_foo_admin"], ["role_foo_admin"]);
-      const view                   = new AuthorizedUsersAndRoles(["user_foo_view"], ["role_foo_view"]);
-      const operate                = new AuthorizedUsersAndRoles(["user_foo_operate"], ["role_foo_operate"]);
+      const admins                 = new AuthorizedUsersAndRoles([Stream("user_foo_admin")],
+                                                                 [Stream("role_foo_admin")]);
+      const view                   = new AuthorizedUsersAndRoles([Stream("user_foo_view")], [Stream("role_foo_view")]);
+      const operate                = new AuthorizedUsersAndRoles([Stream("user_foo_operate")],
+                                                                 [Stream("role_foo_operate")]);
       const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization(view, admins, operate));
 
       const removedUser = authorizationViewModel.authorizedUsers()[1];
@@ -82,7 +102,7 @@ describe('AuthorizationViewModel', () => {
       expect(authorizationViewModel.authorizedUsers().length).toBe(2);
     });
 
-    it('should set true for view and operate if admin privilege is present', () => {
+    it("should set true for view and operate if admin privilege is present", () => {
       const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization());
 
       authorizationViewModel.addAuthorizedUser(new PermissionForEntity("new-user", false, false, true));
@@ -92,7 +112,7 @@ describe('AuthorizationViewModel', () => {
       expect(authorizationViewModel.authorizedUsers()[0].admin()).toBeTruthy();
     });
 
-    it('should set true for view if operate privilege is present', () => {
+    it("should set true for view if operate privilege is present", () => {
       const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization());
 
       authorizationViewModel.addAuthorizedUser(new PermissionForEntity("new-user", false, true, false));
@@ -103,11 +123,13 @@ describe('AuthorizationViewModel', () => {
     });
   });
 
-  describe('Role', () => {
+  describe("Role", () => {
     it("should add authorized role", () => {
-      const admins                 = new AuthorizedUsersAndRoles(["user_foo_admin"], ["role_foo_admin"]);
-      const view                   = new AuthorizedUsersAndRoles(["user_foo_view"], ["role_foo_view"]);
-      const operate                = new AuthorizedUsersAndRoles(["user_foo_operate"], ["role_foo_operate"]);
+      const admins                 = new AuthorizedUsersAndRoles([Stream("user_foo_admin")],
+                                                                 [Stream("role_foo_admin")]);
+      const view                   = new AuthorizedUsersAndRoles([Stream("user_foo_view")], [Stream("role_foo_view")]);
+      const operate                = new AuthorizedUsersAndRoles([Stream("user_foo_operate")],
+                                                                 [Stream("role_foo_operate")]);
       const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization(view, admins, operate));
 
       const newRole = new PermissionForEntity("newRole", false, false, true);
@@ -117,9 +139,11 @@ describe('AuthorizationViewModel', () => {
     });
 
     it("should remove authorized role", () => {
-      const admins                 = new AuthorizedUsersAndRoles(["user_foo_admin"], ["role_foo_admin"]);
-      const view                   = new AuthorizedUsersAndRoles(["user_foo_view"], ["role_foo_view"]);
-      const operate                = new AuthorizedUsersAndRoles(["user_foo_operate"], ["role_foo_operate"]);
+      const admins                 = new AuthorizedUsersAndRoles([Stream("user_foo_admin")],
+                                                                 [Stream("role_foo_admin")]);
+      const view                   = new AuthorizedUsersAndRoles([Stream("user_foo_view")], [Stream("role_foo_view")]);
+      const operate                = new AuthorizedUsersAndRoles([Stream("user_foo_operate")],
+                                                                 [Stream("role_foo_operate")]);
       const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization(view, admins, operate));
 
       const removedRole = authorizationViewModel.authorizedRoles()[1];
@@ -130,7 +154,7 @@ describe('AuthorizationViewModel', () => {
       expect(authorizationViewModel.authorizedRoles().length).toBe(2);
     });
 
-    it('should set true for view and operate if admin privilege is present', () => {
+    it("should set true for view and operate if admin privilege is present", () => {
       const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization());
 
       authorizationViewModel.addAuthorizedRole(new PermissionForEntity("new-role", false, false, true));
@@ -140,7 +164,7 @@ describe('AuthorizationViewModel', () => {
       expect(authorizationViewModel.authorizedRoles()[0].admin()).toBeTruthy();
     });
 
-    it('should set true for view if operate privilege is present', () => {
+    it("should set true for view if operate privilege is present", () => {
       const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization());
 
       authorizationViewModel.addAuthorizedRole(new PermissionForEntity("new-role", false, true, false));
@@ -151,22 +175,25 @@ describe('AuthorizationViewModel', () => {
     });
   });
 
-  it('should initialize authorization with errors', () => {
+  it("should initialize authorization with errors", () => {
     const errors = new Errors();
     errors.add("roles", "Some error msg");
-    const admins                 = new AuthorizedUsersAndRoles(["user_foo_admin"], ["role_foo_admin"], errors);
-    const view                   = new AuthorizedUsersAndRoles(["user_foo_view"], ["role_foo_view"]);
-    const operate                = new AuthorizedUsersAndRoles(["user_foo_operate"], ["role_foo_operate"]);
+    const admins                 = new AuthorizedUsersAndRoles([Stream("user_foo_admin")],
+                                                               [Stream("role_foo_admin")],
+                                                               errors);
+    const view                   = new AuthorizedUsersAndRoles([Stream("user_foo_view")], [Stream("role_foo_view")]);
+    const operate                = new AuthorizedUsersAndRoles([Stream("user_foo_operate")],
+                                                               [Stream("role_foo_operate")]);
     const authorizationViewModel = new PermissionsForUsersAndRoles(new Authorization(view, admins, operate));
 
     expect(authorizationViewModel.errors().hasErrors()).toBeTruthy();
-    expect(authorizationViewModel.errors().errorsForDisplay('roles')).toBe('Some error msg.');
+    expect(authorizationViewModel.errors().errorsForDisplay("roles")).toBe("Some error msg.");
   });
 });
 
 describe("AuthorizedUsersAndRoles", () => {
 
-  it('should deserialize JSON', () => {
+  it("should deserialize JSON", () => {
     const usersAndRoles                                    = {users: ["foo_user"], roles: ["foo_role"]};
     const authorizedUsersAndRoles: AuthorizedUsersAndRoles = AuthorizedUsersAndRoles.fromJSON(usersAndRoles);
 
@@ -175,8 +202,8 @@ describe("AuthorizedUsersAndRoles", () => {
 
   });
 
-  it('should serialize JSON', () => {
-    const usersAndRoles = new AuthorizedUsersAndRoles(["foo_user"], ["foo_role"]);
+  it("should serialize JSON", () => {
+    const usersAndRoles = new AuthorizedUsersAndRoles([Stream("foo_user")], [Stream("foo_role")]);
 
     const actualJSON = usersAndRoles.toJSON();
 
@@ -185,14 +212,14 @@ describe("AuthorizedUsersAndRoles", () => {
 
   });
 
-  describe('isEmpty', () => {
-    it('should return true if both users and roles are empty', () => {
+  describe("isEmpty", () => {
+    it("should return true if both users and roles are empty", () => {
       const authorizedUsersAndRoles = new AuthorizedUsersAndRoles([], []);
       expect(authorizedUsersAndRoles.isEmpty()).toBe(true);
     });
 
-    it('should return false if only users empty', () => {
-      const authorizedUsersAndRoles = new AuthorizedUsersAndRoles([], ["role1"]);
+    it("should return false if only users empty", () => {
+      const authorizedUsersAndRoles = new AuthorizedUsersAndRoles([], [Stream("role1")]);
       expect(authorizedUsersAndRoles.isEmpty()).toBe(false);
     });
 
@@ -201,7 +228,7 @@ describe("AuthorizedUsersAndRoles", () => {
 
 describe("Authorization", () => {
   describe("deserialize JSON", () => {
-    it('when all data is present', () => {
+    it("when all data is present", () => {
       const viewJSON    = {users: ["user1"], roles: ["foo"]};
       const operateJSON = {users: ["user2"], roles: ["bar"]};
       const adminsJSON  = {users: ["user3"], roles: ["bazz"]};
@@ -223,14 +250,14 @@ describe("Authorization", () => {
       expect(authorization.operate().users()).toEqual(["user2"]);
     });
 
-    it('should deserialize JSON if no data is present', () => {
+    it("should deserialize JSON if no data is present", () => {
       const authorization     = new Authorization();
       const authorizationJSON = authorization.toJSON();
 
       expect(authorizationJSON).toEqual({});
     });
 
-    it('when partial data is present', () => {
+    it("when partial data is present", () => {
       const viewJSON    = {users: [], roles: ["foo"]};
       const operateJSON = {users: ["user2"], roles: []};
 
@@ -249,25 +276,25 @@ describe("Authorization", () => {
       expect(authorization.operate().users()).toEqual(["user2"]);
     });
 
-    it('with errors', () => {
-      const viewJSON    = {users: [], roles: ["foo"], errors: {roles: ['some error msg']}};
+    it("with errors", () => {
+      const viewJSON    = {users: [], roles: ["foo"], errors: {roles: ["some error msg"]}};
       const operateJSON = {users: ["user2"], roles: []};
 
       const authorizationJSON: AuthorizationJSON = {
-        view:    viewJSON,
+        view: viewJSON,
         operate: operateJSON
       };
       const authorization: Authorization         = Authorization.fromJSON(authorizationJSON);
 
       expect(authorization.view().errors().hasErrors()).toBeTruthy();
-      expect(authorization.view().errors().errorsForDisplay('roles')).toBe('some error msg.');
+      expect(authorization.view().errors().errorsForDisplay("roles")).toBe("some error msg.");
     });
   });
 
-  it('should serialize JSON', () => {
-    const viewAccess    = new AuthorizedUsersAndRoles(["view_user"], ["view_role"]);
-    const adminAccess   = new AuthorizedUsersAndRoles(["admin_user"], ["admin_role"]);
-    const operateAccess = new AuthorizedUsersAndRoles(["operate_user"], ["operate_role"]);
+  it("should serialize JSON", () => {
+    const viewAccess    = new AuthorizedUsersAndRoles([Stream("view_user")], [Stream("view_role")]);
+    const adminAccess   = new AuthorizedUsersAndRoles([Stream("admin_user")], [Stream("admin_role")]);
+    const operateAccess = new AuthorizedUsersAndRoles([Stream("operate_user")], [Stream("operate_role")]);
 
     const authorization     = new Authorization(viewAccess, adminAccess, operateAccess);
     const authorizationJSON = authorization.toJSON();
@@ -289,6 +316,25 @@ describe("Authorization", () => {
 
     expect(authorizationJSON).toEqual(expectedJSON);
   });
+
+  it("should serialize to empty JSON when permissions are inherited", () => {
+    const viewAccess = new AuthorizedUsersAndRoles([Stream("view_user")], [Stream("view_role")]);
+
+    const expectedJSON = {
+      users: ["view_user"],
+      roles: ["view_role"]
+    };
+
+    const emptyJSON = {
+      users: ["view_user"],
+      roles: ["view_role"]
+    };
+
+    expect(expectedJSON).toEqual(viewAccess.toJSON());
+    viewAccess.isInherited(false);
+    expect(emptyJSON).toEqual(viewAccess.toJSON());
+  });
+
 });
 
 function arePermissionForEntitiesEqual(entity: PermissionForEntity, otherEntity: PermissionForEntity) {

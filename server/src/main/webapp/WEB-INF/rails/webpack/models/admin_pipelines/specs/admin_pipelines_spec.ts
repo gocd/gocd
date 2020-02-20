@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import Stream from "mithril/stream";
 import {Authorization, AuthorizedUsersAndRoles, PermissionForEntity} from "../../authorization/authorization";
 import {PipelineGroup, PipelineGroupViewModel} from "../admin_pipelines";
 
@@ -21,9 +22,9 @@ describe("PipelineGroup", () => {
   it("should deserialize", () => {
     const pipelineGroup = PipelineGroup.fromJSON(pipelineGroupJSON());
 
-    const expectedAuthorizationObject = new Authorization(new AuthorizedUsersAndRoles(["user1"], ["role1"]),
-                                                          new AuthorizedUsersAndRoles(["admin"], ["admin"]),
-                                                          new AuthorizedUsersAndRoles(["superUser"], ["role2"]));
+    const expectedAuthorizationObject = new Authorization(new AuthorizedUsersAndRoles([Stream("user1")], [Stream("role1")]),
+                                                          new AuthorizedUsersAndRoles([Stream("admin")], [Stream("admin")]),
+                                                          new AuthorizedUsersAndRoles([Stream("superUser")], [Stream("role2")]));
 
     expect(pipelineGroup.name()).toBe("pipeline-group");
 
@@ -31,9 +32,9 @@ describe("PipelineGroup", () => {
   });
 
   it("should serialize", () => {
-    const authorization = new Authorization(new AuthorizedUsersAndRoles(["user1"], ["role1"]),
-                                            new AuthorizedUsersAndRoles(["admin"], ["admin"]),
-                                            new AuthorizedUsersAndRoles(["superUser"], ["role2"]));
+    const authorization = new Authorization(new AuthorizedUsersAndRoles([Stream("user1")], [Stream("role1")]),
+                                            new AuthorizedUsersAndRoles([Stream("admin")], [Stream("admin")]),
+                                            new AuthorizedUsersAndRoles([Stream("superUser")], [Stream("role2")]));
 
     const pipelineGroup = new PipelineGroup("pipeline-group", authorization);
 

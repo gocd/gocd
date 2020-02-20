@@ -19,6 +19,7 @@ import m from "mithril";
 import {MaterialRevisions} from "models/compare/compare";
 import {Table} from "views/components/table";
 import {PipelineInstanceWidget} from "./pipeline_instance_widget";
+import styles from "./index.scss";
 
 interface MaterialRevisionsAttrs {
   result: MaterialRevisions;
@@ -31,9 +32,9 @@ export class MaterialRevisionsWidget extends MithrilViewComponent<MaterialRevisi
         <div>{materialRev.revisionSha}</div>
         , <div>{materialRev.modifiedBy}</div>
         , <div>{PipelineInstanceWidget.getTimeToDisplay(materialRev.modifiedAt)}</div>
-        , <div>{materialRev.commitMessage}</div>];
+        , <div className={styles.commitMsg}>{materialRev.commitMessage}</div>];
     });
-    return <div data-test-id="material-revisions-widget">
+    return <div data-test-id="material-revisions-widget" className={styles.materialModifications}>
       <Table headers={MaterialRevisionsWidget.headers()} data={data}/>
     </div>;
   }

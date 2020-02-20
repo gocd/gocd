@@ -32,11 +32,7 @@ public class DevelopmentAgent {
         new ProcessRunner().command("curl", "--insecure", "http://localhost:8153/go/admin/tfs-impl.jar", "--fail", "--silent", "--output", "tfs-impl.jar").failOnError(false).run();
         new SystemEnvironment().set(SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH, "go-plugin-activator.jar");
         assertActivationJarPresent();
-        AgentMain.main("-serverUrl", "https://agents.internal.example.com/go",
-                "-rootCertFile", "/Users/ketan/.ca/webserver-root/certs/webserver-root.crt",
-                "-sslPrivateKey", "/Users/ketan/.openssl-ca/certs/01-alice.key",
-                "-sslCertificate", "/Users/ketan/.openssl-ca/certs/01-alice.full.crt",
-                "-sslPrivateKeyPassphraseFile", "/Users/ketan/.openssl-ca/certs/01-alice.pass");
+        AgentMain.main("-serverUrl", "http://localhost:8153/go");
     }
 
     private static void assertActivationJarPresent() {

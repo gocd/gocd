@@ -15,6 +15,7 @@
  */
 
 import {ErrorsJSON} from "models/mixins/errors";
+import {FilterJSON} from "../maintenance_mode/material";
 
 export interface MaterialJSON {
   type: string;
@@ -69,10 +70,22 @@ export interface DependencyMaterialAttributesJSON extends BaseAttributesJSON {
   stage: string;
 }
 
+export interface PackageMaterialAttributesJSON extends BaseAttributesJSON {
+  ref: string;
+}
+
+export interface PluggableScmMaterialAttributesJSON extends BaseAttributesJSON {
+  ref: string;
+  filter?: FilterJSON;
+  destination: string;
+}
+
 export type MaterialAttributesJSON =
   GitMaterialAttributesJSON
   | SvnMaterialAttributesJSON
   | HgMaterialAttributesJSON
   | P4MaterialAttributesJSON
   | TfsMaterialAttributesJSON
-  | DependencyMaterialAttributesJSON;
+  | DependencyMaterialAttributesJSON
+  | PackageMaterialAttributesJSON
+  | PluggableScmMaterialAttributesJSON;

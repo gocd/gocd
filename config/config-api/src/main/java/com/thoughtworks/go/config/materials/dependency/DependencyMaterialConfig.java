@@ -15,17 +15,17 @@
  */
 package com.thoughtworks.go.config.materials.dependency;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.DependencyFilter;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
@@ -91,7 +91,7 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
 
     @Override
     public String getLongDescription() {
-        return getDescription();
+        return String.format("%s [ %s ]", CaseInsensitiveString.str(pipelineName), CaseInsensitiveString.str(stageName));
     }
 
     @Override

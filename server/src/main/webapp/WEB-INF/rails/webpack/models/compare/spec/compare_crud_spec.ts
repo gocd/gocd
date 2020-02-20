@@ -43,7 +43,7 @@ describe('CompareCrudSpec', () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(apiPath);
     expect(request.method).toEqual("GET");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
   });
 });
 
@@ -51,7 +51,7 @@ function comparisonResponse() {
   return {
     status:          200,
     responseHeaders: {
-      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+      "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8",
       "ETag":         "some-etag"
     },
     responseText:    JSON.stringify(ComparisonData.compare())

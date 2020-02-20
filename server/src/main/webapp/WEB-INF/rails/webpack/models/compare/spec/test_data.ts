@@ -109,8 +109,10 @@ export class ComparisonData {
       changes:       [
         {
           material: {
-            type:       "git",
-            attributes: {
+            type:         "git",
+            display_type: "Git",
+            description:  "URL: git@github.com:sample_repo/example.git, Branch: master",
+            attributes:   {
               destination:      null,
               filter:           null,
               invert_filter:    false,
@@ -126,8 +128,10 @@ export class ComparisonData {
         },
         {
           material: {
-            type:       "dependency",
-            attributes: {
+            type:         "dependency",
+            display_type: "Pipeline",
+            description:  "upstream [ upstream_stage ]",
+            attributes:   {
               pipeline:    "upstream",
               stage:       "upstream_stage",
               name:        "upstream_material",

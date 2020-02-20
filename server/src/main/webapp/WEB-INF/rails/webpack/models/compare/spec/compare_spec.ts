@@ -15,11 +15,7 @@
  */
 
 import {DependencyMaterialAttributes, GitMaterialAttributes} from "models/materials/types";
-import {
-  Comparison,
-  DependencyRevision,
-  MaterialRevision,
-} from "../compare";
+import {Comparison, DependencyRevision, MaterialRevision,} from "../compare";
 import {DependencyRevisionJSON, MaterialRevisionJSON} from "../compare_json";
 import {parseDate} from "../pipeline_instance";
 import {ComparisonData} from "./test_data";
@@ -39,6 +35,8 @@ describe('ComparisonModelSpec', () => {
     const changes = comparison.changes;
 
     expect(changes[0].material.type()).toEqual("git");
+    expect(changes[0].material.displayType).toEqual("Git");
+    expect(changes[0].material.description).toEqual("URL: git@github.com:sample_repo/example.git, Branch: master");
     expect(changes[0].material.attributes()).toBeInstanceOf(GitMaterialAttributes);
     expect(changes[0].revision.length).toEqual(1);
 
@@ -52,6 +50,8 @@ describe('ComparisonModelSpec', () => {
     expect((revision0 as MaterialRevision).modifiedBy).toEqual(revisionJSON0.modified_by);
 
     expect(changes[1].material.type()).toEqual("dependency");
+    expect(changes[1].material.displayType).toEqual("Pipeline");
+    expect(changes[1].material.description).toEqual("upstream [ upstream_stage ]");
     expect(changes[1].material.attributes()).toBeInstanceOf(DependencyMaterialAttributes);
     expect(changes[1].revision.length).toEqual(1);
 

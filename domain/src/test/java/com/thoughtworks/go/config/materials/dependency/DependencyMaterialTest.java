@@ -239,4 +239,11 @@ class DependencyMaterialTest {
         DependencyMaterial material = new DependencyMaterial();
         assertThat(material.supportsDestinationFolder()).isFalse();
     }
+
+    @Test
+    void shouldSetLongDescriptionAsCombinationOfPipelineAndStageName() {
+        DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
+
+        assertThat(material.getLongDescription()).isEqualTo("pipeline-name [ stage-name ]");
+    }
 }

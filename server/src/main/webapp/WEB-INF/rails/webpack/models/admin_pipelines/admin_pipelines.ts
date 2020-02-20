@@ -79,17 +79,18 @@ export class PipelineGroupViewModel {
 
   getUpdatedPipelineGroup(): PipelineGroup {
     const viewAccess    = new AuthorizedUsersAndRoles(
-      this.authorizedUsers().filter((user) => !_.isEmpty(user.name()) && user.view()).map((user) => user.name()),
-      this.authorizedRoles().filter((role) => !_.isEmpty(role.name()) && role.view()).map((role) => role.name())
+      this.authorizedUsers().filter((user) => !_.isEmpty(user.name()) && user.view()).map((user) => Stream(user.name())),
+      this.authorizedRoles().filter((role) => !_.isEmpty(role.name()) && role.view()).map((role) => Stream(role.name()))
     );
     const operateAccess = new AuthorizedUsersAndRoles(
-      this.authorizedUsers().filter((user) => !_.isEmpty(user.name()) && user.operate()).map((user) => user.name()),
-      this.authorizedRoles().filter((role) => !_.isEmpty(role.name()) && role.operate()).map((role) => role.name())
+      this.authorizedUsers().filter((user) => !_.isEmpty(user.name()) && user.operate()).map((user) => Stream(user.name())),
+      this.authorizedRoles().filter((role) => !_.isEmpty(role.name()) && role.operate()).map((role) => Stream(role.name()))
     );
     const adminAccess   = new AuthorizedUsersAndRoles(
-      this.authorizedUsers().filter((user) => !_.isEmpty(user.name()) && user.admin()).map((user) => user.name()),
-      this.authorizedRoles().filter((role) => !_.isEmpty(role.name()) && role.admin()).map((role) => role.name())
+      this.authorizedUsers().filter((user) => !_.isEmpty(user.name()) && user.admin()).map((user) => Stream(user.name())),
+      this.authorizedRoles().filter((role) => !_.isEmpty(role.name()) && role.admin()).map((role) => Stream(role.name()))
     );
+
     return new PipelineGroup(this.name(), new Authorization(viewAccess, adminAccess, operateAccess));
   }
 

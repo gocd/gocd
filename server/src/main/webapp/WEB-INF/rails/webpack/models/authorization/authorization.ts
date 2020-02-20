@@ -32,20 +32,32 @@ export interface AuthorizationJSON {
 }
 
 export class AuthorizedUsersAndRoles extends ValidatableMixin {
-  readonly users: Stream<string[]>;
-  readonly roles: Stream<string[]>;
+  readonly isInherited: Stream<boolean>;
+  readonly _users: Array<Stream<string>>;
+  readonly _roles: Array<Stream<string>>;
 
-  constructor(users: string[], roles: string[], errors: Errors = new Errors()) {
+  constructor(users: Array<Stream<string>>, roles: Array<Stream<string>>, errors: Errors = new Errors()) {
     super();
     ValidatableMixin.call(this);
-    this.users = Stream(users);
-    this.roles = Stream(roles);
+    this._users      = users;
+    this._roles      = roles;
+    this.isInherited = Stream(this.isEmpty());
     this.errors(errors);
   }
 
   static fromJSON(usersAndRoles: AuthorizationUsersAndRolesJSON) {
     const errors = new Errors(usersAndRoles.errors);
-    return new AuthorizedUsersAndRoles(usersAndRoles.users, usersAndRoles.roles, errors);
+    return new AuthorizedUsersAndRoles(usersAndRoles.users.map(u => Stream(u)),
+                                       usersAndRoles.roles.map(u => Stream(u)),
+                                       errors);
+  }
+
+  users(): string[] {
+    return this._users.map(u => u());
+  }
+
+  roles(): string[] {
+    return this._roles.map(u => u());
   }
 
   isEmpty(): boolean {
@@ -53,6 +65,13 @@ export class AuthorizedUsersAndRoles extends ValidatableMixin {
   }
 
   toJSON(): AuthorizationUsersAndRolesJSON {
+    if (this.isInherited()) {
+      return {
+        users: [],
+        roles: []
+      };
+    }
+
     return {
       users: this.users(),
       roles: this.roles()

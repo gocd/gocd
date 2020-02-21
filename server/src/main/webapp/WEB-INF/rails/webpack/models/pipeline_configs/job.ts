@@ -37,6 +37,10 @@ export interface JobJSON {
 }
 
 export class Job extends ValidatableMixin {
+  //view state
+  readonly runType        = Stream<"one" | "all" | "number">();
+  readonly jobTimeoutType = Stream<"never" | "default" | "number">();
+
   readonly name                 = Stream<string>();
   readonly runInstanceCount     = Stream<number | "all" | null>();
   readonly timeout              = Stream<"never" | number | null>();
@@ -72,15 +76,40 @@ export class Job extends ValidatableMixin {
   static fromJSON(json: JobJSON) {
     const job = new Job();
     job.name(json.name);
-    job.runInstanceCount(json.run_instance_count);
-    job.timeout(json.timeout);
+    job.setRunInstanceCount(json.run_instance_count);
+    job.setJobTimeout(json.timeout);
     job.elasticProfileId(json.elastic_profile_id!);
     job.environmentVariables(EnvironmentVariables.fromJSON(json.environment_variables || []));
     job.resources(_.join(json.resources, ","));
     job.tasks(AbstractTask.fromJSONArray(json.tasks || []));
     job.tabs(Tabs.fromJSON(json.tabs || []));
     job.artifacts(Artifacts.fromJSON(json.artifacts || []));
+
     return job;
+  }
+
+  setJobTimeout(timeout: "never" | number | null) {
+    if (timeout === "never") {
+      this.jobTimeoutType("never");
+    } else if (timeout === null || timeout === undefined) {
+      this.jobTimeoutType("default");
+    } else if ("number" === typeof timeout) {
+      this.jobTimeoutType("number");
+    }
+
+    this.timeout(timeout);
+  }
+
+  setRunInstanceCount(runInstanceCount: number | "all" | null) {
+    if (runInstanceCount === "all") {
+      this.runType("all");
+    } else if (runInstanceCount === null || runInstanceCount === undefined) {
+      this.runType("one");
+    } else if ("number" === typeof runInstanceCount) {
+      this.runType("number");
+    }
+
+    this.runInstanceCount(runInstanceCount);
   }
 
   toApiPayload() {

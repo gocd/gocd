@@ -27,6 +27,7 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -196,5 +197,21 @@ class DependencyMaterialConfigTest {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("upstream_stage"), new CaseInsensitiveString("upstream_pipeline"), new CaseInsensitiveString("stage"));
 
         assertThat(dependencyMaterialConfig.getLongDescription()).isEqualTo("upstream_pipeline [ stage ]");
+    }
+
+    @Nested
+    class getNameWithoutDefaults {
+        @Test
+        void shouldNotDefaultToPipelineNameSinceItsUsedToSerializeConfigToJSON() {
+            DependencyMaterialConfig config = new DependencyMaterialConfig(
+                    new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
+
+            assertThat(config.getNameWithoutDefaults()).isNull();
+
+            config = new DependencyMaterialConfig(new CaseInsensitiveString("material_name"),
+                    new CaseInsensitiveString("pipeline_name"), new CaseInsensitiveString("stage_name"));
+
+            assertThat(config.getNameWithoutDefaults()).isEqualTo(new CaseInsensitiveString("material_name"));
+        }
     }
 }

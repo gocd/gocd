@@ -85,6 +85,10 @@ public class DependencyMaterialConfig extends AbstractMaterialConfig implements 
         return super.getName() == null ? pipelineName : super.getName();
     }
 
+    public CaseInsensitiveString getNameWithoutDefaults() {
+        return super.getName();
+    }
+
     public String getUserName() {
         return "cruise";
     }

@@ -47,7 +47,7 @@ class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait<Depe
       attributes : [
         pipeline   : "pipeline-name",
         stage      : "stage-name",
-        name       : "pipeline-name",
+        name       : null,
         auto_update: true
       ]
     ]
@@ -62,7 +62,7 @@ class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait<Depe
         [
           pipeline   : "",
           stage      : "",
-          name       : "",
+          name       : null,
           auto_update: true
         ],
       errors     : [

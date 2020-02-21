@@ -19,6 +19,7 @@ import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {applyMixins} from "models/mixins/mixins";
 import {PackageJSON, PackageRepositoryJSON, PackageRepositorySummaryJSON, PackageUsageJSON, PackageUsagesJSON, PluginMetadataJSON} from "./package_repositories_json";
 import {Configurations} from "../shared/configuration";
+import {Errors} from "../mixins/errors";
 
 class PackageRepositorySummary extends ValidatableMixin {
   id: Stream<string>;
@@ -56,7 +57,7 @@ export class Package extends ValidatableMixin {
   packageRepo: Stream<PackageRepositorySummary>;
   configuration: Stream<Configurations>;
 
-  constructor(id: string, name: string, autoUpdate: boolean, configuration: Configurations, packageRepo: PackageRepositorySummary) {
+  constructor(id: string, name: string, autoUpdate: boolean, configuration: Configurations, packageRepo: PackageRepositorySummary, errors: Errors = new Errors()) {
     super();
     ValidatableMixin.call(this);
     this.id            = Stream(id);
@@ -64,18 +65,21 @@ export class Package extends ValidatableMixin {
     this.autoUpdate    = Stream(autoUpdate);
     this.configuration = Stream(configuration);
     this.packageRepo   = Stream(packageRepo);
+    this.errors(errors);
 
     this.validatePresenceOf("id");
-    this.validateFormatOf("id",
+    this.validatePresenceOf("name");
+    this.validateFormatOf("name",
                           new RegExp("^[-a-zA-Z0-9_][-a-zA-Z0-9_.]*$"),
                           {message: "Invalid Id. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period)."});
-    this.validateMaxLength("id", 255, {message: "The maximum allowed length is 255 characters."});
+    this.validateMaxLength("name", 255, {message: "The maximum allowed length is 255 characters."});
     this.validateAssociated('packageRepo')
   }
 
   static fromJSON(data: PackageJSON): Package {
+    const errors         = new Errors(data.errors);
     const configurations = data.configuration ? Configurations.fromJSON(data.configuration) : new Configurations([]);
-    return new Package(data.id, data.name, data.auto_update, configurations, PackageRepositorySummary.fromJSON(data.package_repo));
+    return new Package(data.id, data.name, data.auto_update, configurations, PackageRepositorySummary.fromJSON(data.package_repo), errors);
   }
 
   static default() {
@@ -137,7 +141,7 @@ export class PackageRepository extends ValidatableMixin {
   configuration: Stream<Configurations>;
   packages: Stream<Packages>;
 
-  constructor(repoId: string, name: string, pluginMetadata: PluginMetadata, configuration: Configurations, packages: Packages) {
+  constructor(repoId: string, name: string, pluginMetadata: PluginMetadata, configuration: Configurations, packages: Packages, errors: Errors = new Errors()) {
     super();
     ValidatableMixin.call(this);
     this.repoId         = Stream(repoId);
@@ -145,6 +149,7 @@ export class PackageRepository extends ValidatableMixin {
     this.pluginMetadata = Stream(pluginMetadata);
     this.configuration  = Stream(configuration);
     this.packages       = Stream(packages);
+    this.errors((errors));
 
     this.validatePresenceOf("repoId");
     this.validatePresenceOf("name");
@@ -157,7 +162,8 @@ export class PackageRepository extends ValidatableMixin {
   }
 
   static fromJSON(data: PackageRepositoryJSON): PackageRepository {
-    return new PackageRepository(data.repo_id, data.name, PluginMetadata.fromJSON(data.plugin_metadata), Configurations.fromJSON(data.configuration), Packages.fromJSON(data._embedded.packages));
+    const errors = new Errors(data.errors);
+    return new PackageRepository(data.repo_id, data.name, PluginMetadata.fromJSON(data.plugin_metadata), Configurations.fromJSON(data.configuration), Packages.fromJSON(data._embedded.packages), errors);
   }
 
   static default() {

@@ -22,8 +22,6 @@ import {PackageRepository} from "models/package_repositories/package_repositorie
 import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
 import {PackageRepositoryJSON} from "models/package_repositories/package_repositories_json";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
-import * as Buttons from "views/components/buttons";
-import {ButtonGroup} from "views/components/buttons";
 import {Size} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {EntityModal} from "views/components/modal/entity_modal";
@@ -43,19 +41,6 @@ abstract class PackageRepositoryModal extends EntityModal<PackageRepository> {
     this.disableId          = disableId;
     this.originalEntityId   = entity.repoId();
     this.originalEntityName = entity.name();
-  }
-
-  buttons() {
-    //todo: remove the override
-    return [
-      <ButtonGroup>
-        <Buttons.Cancel data-test-id="button-cancel" onclick={(e: MouseEvent) => this.close()}
-                        ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Buttons.Cancel>
-        <Buttons.Primary data-test-id="button-save"
-                         ajaxOperationMonitor={this.ajaxOperationMonitor}
-                         ajaxOperation={this.performOperation.bind(this)}>Save</Buttons.Primary>
-      </ButtonGroup>
-    ];
   }
 
   protected modalBody(): m.Children {

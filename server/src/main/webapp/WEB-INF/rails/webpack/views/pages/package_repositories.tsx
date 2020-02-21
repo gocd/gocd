@@ -23,6 +23,7 @@ import {PackagesCRUD} from "models/package_repositories/packages_crud";
 import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
 import {ExtensionTypeString, PackageRepoExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
+import uuid from "uuid/v4";
 import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
@@ -148,14 +149,17 @@ export class PackageRepositoriesPage extends Page<null, State> {
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     const buttons = [
-      <div class={configRepoStyles.wrapperForSearchBox}>
+      <Primary icon={ButtonIcon.ADD} disabled={!this.isPluginInstalled(vnode)}
+               onclick={vnode.state.packageRepoOperations.onAdd}>
+        Create Package Repository
+      </Primary>
+    ];
+    if (!_.isEmpty(vnode.state.packageRepositories())) {
+      const searchBox = <div className={configRepoStyles.wrapperForSearchBox}>
         <SearchField property={vnode.state.searchText} dataTestId={"search-box"}
                      placeholder="Search for a package repository or a package"/>
-      </div>
-    ];
-    if (this.isPluginInstalled(vnode)) {
-      buttons.push(<Primary icon={ButtonIcon.ADD} onclick={vnode.state.packageRepoOperations.onAdd}>Create Package
-        Repository</Primary>);
+      </div>;
+      buttons.splice(0, 0, searchBox);
     }
     return <HeaderPanel title={this.pageName()} buttons={buttons}/>;
   }
@@ -195,6 +199,8 @@ export class PackageRepositoriesPage extends Page<null, State> {
 
       const pluginId          = vnode.state.pluginInfos()[0].id;
       const packageRepository = PackageRepository.default();
+      //todo: decide whether or not this is correct
+      packageRepository.repoId(uuid());
       packageRepository.pluginMetadata().id(pluginId);
       new CreatePackageRepositoryModal(packageRepository, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
         .render();
@@ -229,6 +235,8 @@ export class PackageRepositoriesPage extends Page<null, State> {
 
       const pkg = Package.default();
       pkg.packageRepo().id(packageRepo.repoId());
+      //todo: decide whether or not this is correct
+      pkg.id(uuid());
       new CreatePackageModal(pkg, vnode.state.packageRepositories(), vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
         .render()
     };

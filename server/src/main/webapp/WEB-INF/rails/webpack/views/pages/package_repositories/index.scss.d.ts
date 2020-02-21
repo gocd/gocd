@@ -4,3 +4,4 @@ export const configurationDetailsContainer: string;
 export const configurationDetailsHeader: string;
 export const expanded: string;
 export const packageRepositoryCrudActions: string;
+export const tips: string;

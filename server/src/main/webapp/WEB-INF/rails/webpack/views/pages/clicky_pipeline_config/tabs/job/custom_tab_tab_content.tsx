@@ -31,7 +31,7 @@ import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import styles from "./custom_tabs.scss";
 
 export class CustomTabTabContent extends TabContent<Job> {
-;
+
   name(): string {
     return "Custom Tabs";
   }

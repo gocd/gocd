@@ -63,22 +63,34 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
     public void pluginJarAdded(BundleOrPluginFileDetails bundleOrPluginFileDetails) {
         final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(bundleOrPluginFileDetails);
 
-        validateIfExternalPluginRemovingBundledPlugin(bundleDescriptor);
-        validatePluginCompatibilityWithCurrentOS(bundleDescriptor);
-        validatePluginCompatibilityWithGoCD(bundleDescriptor);
-        addPlugin(bundleOrPluginFileDetails, bundleDescriptor);
+        try {
+            LOGGER.info("Plugin load starting: {}", bundleOrPluginFileDetails.file());
+
+            validateIfExternalPluginRemovingBundledPlugin(bundleDescriptor);
+            validatePluginCompatibilityWithCurrentOS(bundleDescriptor);
+            validatePluginCompatibilityWithGoCD(bundleDescriptor);
+            addPlugin(bundleOrPluginFileDetails, bundleDescriptor);
+        } finally {
+            LOGGER.info("Plugin load finished: {}", bundleOrPluginFileDetails.file());
+        }
     }
 
     @Override
     public void pluginJarUpdated(BundleOrPluginFileDetails bundleOrPluginFileDetails) {
         final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(bundleOrPluginFileDetails);
 
-        validateIfExternalPluginRemovingBundledPlugin(bundleDescriptor);
-        validateIfSamePluginUpdated(bundleDescriptor);
-        validatePluginCompatibilityWithCurrentOS(bundleDescriptor);
-        validatePluginCompatibilityWithGoCD(bundleDescriptor);
-        removePlugin(bundleDescriptor);
-        addPlugin(bundleOrPluginFileDetails, bundleDescriptor);
+        try {
+            LOGGER.info("Plugin update starting: {}", bundleOrPluginFileDetails.file());
+
+            validateIfExternalPluginRemovingBundledPlugin(bundleDescriptor);
+            validateIfSamePluginUpdated(bundleDescriptor);
+            validatePluginCompatibilityWithCurrentOS(bundleDescriptor);
+            validatePluginCompatibilityWithGoCD(bundleDescriptor);
+            removePlugin(bundleDescriptor);
+            addPlugin(bundleOrPluginFileDetails, bundleDescriptor);
+        } finally {
+            LOGGER.info("Plugin update finished: {}", bundleOrPluginFileDetails.file());
+        }
     }
 
     @Override
@@ -87,14 +99,20 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
         if (existingDescriptor == null) {
             return;
         }
-        boolean externalPlugin = !bundleOrPluginFileDetails.isBundledPlugin();
-        boolean bundledPlugin = existingDescriptor.isBundledPlugin();
-        boolean externalPluginWithSameIdAsBundledPlugin = bundledPlugin && externalPlugin;
-        if (externalPluginWithSameIdAsBundledPlugin) {
-            LOGGER.info("External Plugin file '{}' having same name as bundled plugin file has been removed. Refusing to unload bundled plugin with id: '{}'", bundleOrPluginFileDetails.file(), existingDescriptor.id());
-            return;
+        try {
+            LOGGER.info("Plugin removal starting: {}", bundleOrPluginFileDetails.file());
+
+            boolean externalPlugin = !bundleOrPluginFileDetails.isBundledPlugin();
+            boolean bundledPlugin = existingDescriptor.isBundledPlugin();
+            boolean externalPluginWithSameIdAsBundledPlugin = bundledPlugin && externalPlugin;
+            if (externalPluginWithSameIdAsBundledPlugin) {
+                LOGGER.info("External Plugin file '{}' having same name as bundled plugin file has been removed. Refusing to unload bundled plugin with id: '{}'", bundleOrPluginFileDetails.file(), existingDescriptor.id());
+                return;
+            }
+            removePlugin(existingDescriptor.bundleDescriptor());
+        } finally {
+            LOGGER.info("Plugin removal finished: {}", bundleOrPluginFileDetails.file());
         }
-        removePlugin(existingDescriptor.bundleDescriptor());
     }
 
     private void addPlugin(BundleOrPluginFileDetails bundleOrPluginFileDetails,

@@ -54,7 +54,17 @@ docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-d \
         gocd/${imageName}:v${goVersion}
 ```
 
-If the `AGENT_AUTO_REGISTER_*` variables are provided (we recommend that you do), then the agent will be automatically approved by the server. See the [auto registration docs](https://docs.gocd.io/current/advanced_usage/agent_auto_register.html) on the GoCD website.
+If the `AGENT_AUTO_REGISTER_*` variables are provided (we recommend that you do), then the agent will be automatically approved by the server. See the [auto registration docs](https://docs.gocd.org/${goVersion}/advanced_usage/agent_auto_register.html) on the GoCD website.
+
+## Configuring SSL
+
+To configure SSL parameters, pass the parameters using the environment variable `AGENT_BOOTSTRAPPER_ARGS`. See [this documentation](https://docs.gocd.org/${goVersion}/installation/ssl_tls/end_to_end_transport_security.html) for supported options.
+
+```shell
+    docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-d \
+    -e AGENT_BOOTSTRAPPER_ARGS='-sslVerificationMode NONE ...' \
+    gocd/${imageName}:v${goVersion}
+```
 
 <#if !distro.privilegedModeSupport>
 ## Usage with docker and swarm elastic agent plugins

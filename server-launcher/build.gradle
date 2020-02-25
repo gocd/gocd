@@ -116,6 +116,9 @@ task mainJar(type: Jar) {
   }
 
   from(project.configurations.packagingInMainJarBaseJar.collect { it.isDirectory() ? it : zipTree(it) }) {
+    include "**/gocd-version.properties"
+    include "**/CurrentGoCDVersion*.class"
+
     include "**/LogHelper.class"
     include "**/AssertJava.class"
     include "**/JavaVersion.class"

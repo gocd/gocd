@@ -142,6 +142,16 @@ if [ "$1" = "${AGENT_WORK_DIR}/bin/go-agent" ]; then
     echo "wrapper.java.additional.${tanuki_index}=${AGENT_BOOTSTRAPPER_JVM_ARGS[$array_index]}" >> /go-agent/wrapper-config/wrapper-properties.conf
   done
 
+  # parse/split the AGENT_BOOTSTRAPPER_ARGS for configuring additional SSL settings
+  eval stringToArgsArray "$AGENT_BOOTSTRAPPER_ARGS"
+  AGENT_BOOTSTRAPPER_ARGS=("${_stringToArgs[@]}")
+
+  for array_index in "${!AGENT_BOOTSTRAPPER_ARGS[@]}"
+  do
+    tanuki_index=$(($array_index + 200))
+    echo "wrapper.app.parameter.${tanuki_index}=${AGENT_BOOTSTRAPPER_ARGS[$array_index]}" >> /go-agent/wrapper-config/wrapper-properties.conf
+  done
+
   echo "set.default.GOCD_AGENT_JVM_OPTS=" >> /go-agent/wrapper-config/wrapper-properties.conf
   echo "set.AGENT_STARTUP_ARGS=%AGENT_STARTUP_ARGS% -Dgo.console.stdout=true %GOCD_AGENT_JVM_OPTS%" >> /go-agent/wrapper-config/wrapper-properties.conf
 fi

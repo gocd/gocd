@@ -16,14 +16,17 @@
 @import "../../../../global/common";
 
 .built-in-artifact-container {
-  display:       flex;
-  padding:       0 0 10px 0;
-  border-bottom: 1px solid $border-color;
-  margin-bottom: 30px;
+  display: flex;
+  padding: 0 0 10px 0;
 
   :nth-child(n) {
     margin-right: 20px;
   }
+}
+
+.artifact-container {
+  margin-bottom: 30px;
+  border-bottom: 1px solid $border-color;
 }
 
 .artifact-type {
@@ -43,6 +46,10 @@
   span {
     margin-right: 205px;
   }
+
+  .id-header {
+    margin-right: 245px;
+  }
 }
 
 .add-artifact-wrapper {
@@ -57,4 +64,9 @@
   button {
     margin-top: 4px;
   }
+}
+
+.plugin-view {
+  width:  275px;
+  margin: 0 0 0 240px;
 }

@@ -19,6 +19,7 @@ import {OriginType} from "models/origin";
 import {JobJSON} from "models/pipeline_configs/job";
 import {LockBehavior, PipelineConfigJSON} from "models/pipeline_configs/pipeline_config";
 import {ApprovalType, StageJSON} from "models/pipeline_configs/stage";
+import {AntTask, ExecTask, NantTask, RakeTask} from "models/pipeline_configs/task";
 
 export class PipelineConfigTestData {
   static withTwoStages(): PipelineConfigJSON {
@@ -80,6 +81,46 @@ export class JobTestData {
     return new JobBuilder()
       .name(name)
       .build();
+  }
+}
+
+export class TaskTestData {
+  static exec(cmd: string = "ls", args: [] = []): ExecTask {
+    return new ExecTask(cmd, args, {
+      runIf: ["passed"],
+      workingDirectory: "/tmp"
+    });
+  }
+
+  static ant(buildFile: string = "ant-build-file"): AntTask {
+    return new AntTask({
+                         buildFile,
+                         runIf: ["any"],
+                         onCancel: TaskTestData.exec(),
+                         workingDirectory: "/tmp",
+                         target: "target"
+                       });
+  }
+
+  static nant(buildFile: string = "nant-build-file", nantPath: string = "path-to-nant-exec"): NantTask {
+    return new NantTask({
+                          buildFile,
+                          nantPath,
+                          runIf: ["any"],
+                          onCancel: TaskTestData.exec(),
+                          workingDirectory: "/tmp",
+                          target: "target"
+                        });
+  }
+
+  static rake(buildFile: string = "rake-build-file"): RakeTask {
+    return new RakeTask({
+                          buildFile,
+                          runIf: ["any"],
+                          onCancel: TaskTestData.exec(),
+                          workingDirectory: "/tmp",
+                          target: "target"
+                        });
   }
 }
 
@@ -166,7 +207,7 @@ class Builder {
 
   stageWithJobs(name: string, ...jobs: string[]) {
     const stageBuilder = new StageBuilder(this).name(name)
-      .approval("manual", false);
+                                               .approval("manual", false);
     jobs.forEach((job) => {
       stageBuilder.job().name(job).done();
     });

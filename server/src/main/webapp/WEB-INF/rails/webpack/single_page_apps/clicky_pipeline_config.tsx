@@ -21,6 +21,7 @@ import {EnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config
 import {ArtifactsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/artifacts_tab_content";
 import {CustomTabTabContent} from "views/pages/clicky_pipeline_config/tabs/job/custom_tab_tab_content";
 import {JobSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/job_settings_tab_content";
+import {TasksTabContent} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
 import {GeneralOptionsTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/general_options_tab";
 import {MaterialsTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/materials_tab_content";
 import {ParametersTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/parameters_tab_content";
@@ -57,6 +58,7 @@ export class PipelineConfigSPA extends RoutedSinglePageApp {
               new PermissionsTabContent()
             ),
             "/:pipeline_name/:stage_name/:job_name/:tab_name": new PipelineConfigPage(
+              new TasksTabContent(),
               new JobSettingsTabContent(),
               new EnvironmentVariablesTabContent(),
               new CustomTabTabContent(),

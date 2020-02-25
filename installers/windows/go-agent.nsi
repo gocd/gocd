@@ -68,7 +68,7 @@ FunctionEnd
 
 Function "MaybeCreateDefaultWrapperProperties"
   StrCmp $GO_SERVER_URL "" 0 +2
-    StrCpy $GO_SERVER_URL "https://127.0.0.1:8154/go"
+    StrCpy $GO_SERVER_URL "http://127.0.0.1:8153/go"
 
   ${LogText} "Checking if default wrapper-properties.conf exists"
   ${IfNot} ${FileExists} "$INSTDIR\wrapper-config\wrapper-properties.conf"

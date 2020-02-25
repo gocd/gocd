@@ -55,7 +55,7 @@ class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait {
     attributes: [
       pipeline: "pipeline-name",
       stage: "stage-name",
-      name: "pipeline-name",
+      name: null,
       auto_update: true,
       ignore_for_scheduling: true
     ]
@@ -68,7 +68,7 @@ class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait {
     [
       pipeline: "",
       stage: "",
-      name: "",
+      name: null,
       auto_update: true,
       ignore_for_scheduling: true
     ],

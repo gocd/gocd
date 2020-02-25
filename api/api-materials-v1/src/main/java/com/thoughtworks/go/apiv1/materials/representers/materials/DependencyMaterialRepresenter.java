@@ -27,7 +27,7 @@ public class DependencyMaterialRepresenter implements MaterialRepresenter<Depend
         return jsonWriter -> {
             jsonWriter.add("pipeline", dependencyMaterialConfig.getPipelineName());
             jsonWriter.add("stage", dependencyMaterialConfig.getStageName());
-            jsonWriter.add("name", dependencyMaterialConfig.getName());
+            jsonWriter.add("name", dependencyMaterialConfig.getNameWithoutDefaults());
             jsonWriter.add("auto_update", dependencyMaterialConfig.isAutoUpdate());
         };
     }

@@ -16,19 +16,44 @@
 
 import {JsonUtils} from "helpers/json_utils";
 import Stream from "mithril/stream";
-import {ExecTaskAttributesJSON, TaskJSON} from "models/admin_templates/templates";
+import {
+  AntTaskAttributesJSON,
+  ExecTaskAttributesJSON,
+  NAntTaskAttributesJSON,
+  RakeTaskAttributesJSON,
+  TaskJSON
+} from "models/admin_templates/templates";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
-type ValidTypes = "exec" | "fetchArtifact";
+type ValidTypes = "exec" | "ant" | "nant" | "rake" | "fetchArtifact";
 export type RunIfCondition = "passed" | "failed" | "any";
 
 interface TaskOpts {
+  onCancel: Task | undefined;
   runIf: RunIfCondition[];
 }
 
 interface ExecOpts extends TaskOpts {
   workingDirectory: string;
+}
+
+interface BuildOpts extends TaskOpts {
+  buildFile: string;
+  target: string;
+  workingDirectory: string;
+}
+
+// tslint:disable-next-line:no-empty-interface
+interface AntOpts extends BuildOpts {
+}
+
+interface NantOpts extends BuildOpts {
+  nantPath: string;
+}
+
+// tslint:disable-next-line:no-empty-interface
+interface RakeOpts extends BuildOpts {
 }
 
 type Partial<T extends TaskOpts> = { [P in keyof T]?: T[P] };
@@ -42,6 +67,7 @@ export interface Task extends ValidatableMixin {
 
 export interface TaskAttributes extends ValidatableMixin {
   runIf: Stream<RunIfCondition[]>;
+  properties: () => Map<string, string>;
   toApiPayload: () => any;
   onCancel: Stream<Task>;
 }
@@ -68,13 +94,13 @@ export abstract class AbstractTask extends ValidatableMixin implements Task {
       case "fetch":
         break;
       case "ant":
-        break;
+        return AntTask.from(json.attributes as AntTaskAttributesJSON);
       case "nant":
-        break;
+        return NantTask.from(json.attributes as NAntTaskAttributesJSON);
       case "exec":
         return ExecTask.from(json.attributes as ExecTaskAttributesJSON);
       case "rake":
-        break;
+        return RakeTask.from(json.attributes as ExecTaskAttributesJSON);
     }
   }
 
@@ -94,6 +120,153 @@ export abstract class AbstractTask extends ValidatableMixin implements Task {
   }
 }
 
+abstract class AbstractTaskAttributes extends ValidatableMixin implements TaskAttributes {
+  readonly runIf: Stream<RunIfCondition[]> = Stream([] as RunIfCondition[]);
+  readonly onCancel: Stream<Task>          = Stream();
+
+  constructor(opts: TaskOpts) {
+    super();
+    this.setRunIf(opts);
+    this.setOnCancel(opts);
+  }
+
+  abstract properties(): Map<string, string>;
+
+  abstract toApiPayload(): any;
+
+  protected setRunIf(opts: TaskOpts) {
+    if (opts.runIf) {
+      this.runIf(opts.runIf);
+    }
+
+    if (opts.onCancel) {
+      this.onCancel(opts.onCancel);
+    }
+  }
+
+  protected setOnCancel(opts: TaskOpts) {
+    if (opts.onCancel) {
+      this.onCancel(opts.onCancel);
+    }
+  }
+}
+
+export abstract class BuildTaskAttributes extends AbstractTaskAttributes {
+  buildFile: Stream<string>        = Stream();
+  target: Stream<string>           = Stream();
+  workingDirectory: Stream<string> = Stream();
+
+  constructor(opts: Partial<AntOpts>) {
+    super(opts as TaskOpts);
+
+    this.buildFile = Stream(opts.buildFile || "");
+    this.target    = Stream(opts.target || "");
+
+    if (opts.workingDirectory) {
+      this.workingDirectory(opts.workingDirectory);
+    }
+  }
+
+  properties(): Map<string, string> {
+    const map: Map<string, string> = new Map();
+    map.set("Build File", this.buildFile());
+    map.set("Target", this.target());
+    map.set("Working Directory", this.workingDirectory());
+
+    return map;
+  }
+
+  toApiPayload(): any {
+    return JsonUtils.toSnakeCasedObject(this);
+  }
+}
+
+export class AntTask extends AbstractTask {
+  readonly type: ValidTypes = "ant";
+
+  constructor(opts: Partial<AntOpts> = {}) {
+    super();
+    this.attributes(new AntTaskAttributes(opts));
+  }
+
+  static from(attributes: AntTaskAttributesJSON) {
+    return new AntTask({
+                         buildFile: attributes.build_file,
+                         target: attributes.target,
+                         onCancel: attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined,
+                         runIf: attributes.run_if,
+                         workingDirectory: attributes.working_directory
+                       });
+  }
+}
+
+export class AntTaskAttributes extends BuildTaskAttributes {
+}
+
+export class NantTask extends AbstractTask {
+  readonly type: ValidTypes = "nant";
+
+  constructor(opts: Partial<NantOpts> = {}) {
+    super();
+    this.attributes(new NantTaskAttributes(opts));
+  }
+
+  static from(attributes: NAntTaskAttributesJSON) {
+    return new NantTask({
+                          nantPath: attributes.nant_path || "",
+                          buildFile: attributes.build_file,
+                          target: attributes.target,
+                          onCancel: attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined,
+                          runIf: attributes.run_if,
+                          workingDirectory: attributes.working_directory
+                        });
+  }
+}
+
+export class NantTaskAttributes extends BuildTaskAttributes {
+  readonly nantPath: Stream<string> = Stream();
+
+  constructor(opts: Partial<NantOpts>) {
+    super(opts);
+    this.nantPath = Stream(opts.nantPath || "");
+  }
+
+  properties(): Map<string, string> {
+    const properties = super.properties();
+    properties.set("Nant Path", this.nantPath());
+
+    return properties;
+  }
+
+  toApiPayload(): any {
+    const json: any   = super.toApiPayload();
+    json.nant_path = this.nantPath();
+    return json;
+  }
+}
+
+export class RakeTask extends AbstractTask {
+  readonly type: ValidTypes = "rake";
+
+  constructor(opts: Partial<RakeOpts> = {}) {
+    super();
+    this.attributes(new RakeTaskAttributes(opts));
+  }
+
+  static from(attributes: RakeTaskAttributesJSON) {
+    return new RakeTask({
+                          buildFile: attributes.build_file,
+                          target: attributes.target,
+                          onCancel: attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined,
+                          runIf: attributes.run_if,
+                          workingDirectory: attributes.working_directory
+                        });
+  }
+}
+
+export class RakeTaskAttributes extends BuildTaskAttributes {
+}
+
 export class ExecTask extends AbstractTask {
   readonly type: ValidTypes = "exec";
 
@@ -103,19 +276,12 @@ export class ExecTask extends AbstractTask {
   }
 
   static from(attributes: ExecTaskAttributesJSON) {
-    return new ExecTask(attributes.command, attributes.arguments!, {workingDirectory: attributes.working_directory});
+    return new ExecTask(attributes.command, attributes.arguments!, {
+      onCancel: attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined,
+      runIf: attributes.run_if,
+      workingDirectory: attributes.working_directory
+    });
   }
-}
-
-abstract class AbstractTaskAttributes extends ValidatableMixin implements TaskAttributes {
-  runIf: Stream<RunIfCondition[]> = Stream([] as RunIfCondition[]);
-  onCancel: Stream<Task>          = Stream();
-
-  constructor() {
-    super();
-  }
-
-  abstract toApiPayload(): any;
 }
 
 export class ExecTaskAttributes extends AbstractTaskAttributes {
@@ -125,7 +291,7 @@ export class ExecTaskAttributes extends AbstractTaskAttributes {
   workingDirectory: Stream<string> = Stream();
 
   constructor(cmd: string, args: string[], opts: Partial<ExecOpts>) {
-    super();
+    super(opts as TaskOpts);
     this.command = Stream(cmd);
     this.validatePresenceOf("command");
 
@@ -134,10 +300,15 @@ export class ExecTaskAttributes extends AbstractTaskAttributes {
     if (opts.workingDirectory) {
       this.workingDirectory(opts.workingDirectory);
     }
+  }
 
-    if (opts.runIf) {
-      this.runIf(opts.runIf);
-    }
+  properties(): Map<string, string> {
+    const map: Map<string, string> = new Map();
+    map.set("Command", this.command());
+    map.set("Arguments", this.arguments().join(" "));
+    map.set("Working Directory", this.workingDirectory());
+
+    return map;
   }
 
   toApiPayload(): any {

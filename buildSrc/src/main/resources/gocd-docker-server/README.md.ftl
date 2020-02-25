@@ -11,11 +11,11 @@ Please make sure to log them at https://github.com/gocd/gocd.
 Start the container with this:
 
 ```shell
-docker run -d -p8153:8153 -p8154:8154 gocd/${imageName}:v${goVersion}
+docker run -d -p8153:8153 gocd/${imageName}:v${goVersion}
 ```
 
-This will expose container ports 8153(http) and 8154(https) onto your server.
-You can now open `http://localhost:8153` and `https://localhost:8154`
+This will expose container ports 8153(http) onto your server.
+You can now open `http://localhost:8153`
 
 # Available configuration options
 
@@ -135,14 +135,13 @@ Once the GoCD server is up, we should be able to determine its ip address and th
 The IP address and ports of the GoCD server in a docker container are important to know as they will be used by the GoCD agents to connect to it.
 If you have started the container with
 ```shell
-docker run --name server -it -p8153:8153 -p8154:8154 gocd/${imageName}:v${goVersion}
+docker run --name server -it -p8153:8153 gocd/${imageName}:v${goVersion}
 ```
 
 Then, the below commands will determine to GoCD server IP, server port and ssl port
 ```shell
 docker inspect --format='{{(index (index .NetworkSettings.IPAddress))}}' server
 docker inspect --format='{{(index (index .NetworkSettings.Ports "8153/tcp") 0).HostPort}}' server
-docker inspect --format='{{(index (index .NetworkSettings.Ports "8154/tcp") 0).HostPort}}' server
 ```
 
 # Running GoCD Containers as Non Root

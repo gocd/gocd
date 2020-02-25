@@ -41,7 +41,7 @@ LABEL gocd.version="${goVersion}" \
   gocd.git.sha="${gitRevision}"
 
 # the ports that go server runs on
-EXPOSE 8153 8154
+EXPOSE 8153
 
 <#list additionalFiles as filePath, fileDescriptor>
 ADD ${fileDescriptor.url} ${filePath}

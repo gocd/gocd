@@ -85,13 +85,13 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
 
     private void validateResponse(HttpResponse response) throws IOException {
         StatusLine status = response.getStatusLine();
-        if (status.getStatusCode() == 403) {
-            String messagePrefix = "The server returned status code 403. Possible reasons include:";
+        if (status.getStatusCode() >= 400) {
+            String messagePrefix = String.format("The server returned status code %d. Possible reasons include:", status.getStatusCode());
 
             List<String> reasons = Arrays.asList(
                     "This agent has been deleted from the configuration",
                     "This agent is pending approval",
-                    "There is possibly a reverse proxy (or load balancer) that is terminating SSL. Hint: use port 8154 of the GoCD server. See "
+                    "There is possibly a reverse proxy (or load balancer) that has been misconfigured. See "
                             + docsUrl("/installation/configure-reverse-proxy.html#agents-and-reverse-proxies") +
                             " for details."
             );

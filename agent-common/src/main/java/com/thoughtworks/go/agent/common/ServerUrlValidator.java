@@ -38,7 +38,7 @@ public class ServerUrlValidator implements IParameterValidator {
         }
 
         if (!serverUrl.toString().endsWith("/go") && !serverUrl.toString().endsWith("/go/")) {
-            throw new ParameterException(name + " must end with '/go' (https://localhost:8154/go)");
+            throw new ParameterException(name + " must end with '/go' (http://localhost:8153/go)");
         }
     }
 }

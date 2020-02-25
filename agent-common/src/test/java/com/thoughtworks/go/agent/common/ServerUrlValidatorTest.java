@@ -37,7 +37,7 @@ class ServerUrlValidatorTest {
             new ServerUrlValidator().validate("foo", "https://example.com");
         })
                 .isOfAnyClassIn(ParameterException.class)
-                .hasMessageContaining("must end with '/go' (https://localhost:8154/go)");
+                .hasMessageContaining("must end with '/go' (http://localhost:8153/go)");
     }
 
     @Test

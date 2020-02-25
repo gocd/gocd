@@ -14,20 +14,29 @@
  * limitations under the License.
  */
 
-import {ArtifactType, GoCDArtifact} from "models/pipeline_configs/artifact";
+import {ArtifactStore, ArtifactStores} from "models/artifact_stores/artifact_stores";
+import {ArtifactType, ExternalArtifact, GoCDArtifact} from "models/pipeline_configs/artifact";
 import {Job} from "models/pipeline_configs/job";
 import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {JobTestData, PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import {Configurations} from "models/shared/configuration";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {ArtifactPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {ArtifactsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/artifacts_tab_content";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Artifacts Tab", () => {
+  let tab: ArtifactsTabContent;
   const helper = new TestHelper();
+
+  beforeEach(() => {
+    tab = new ArtifactsTabContent(jasmine.createSpy());
+  });
 
   afterEach(helper.unmount.bind(helper));
 
@@ -166,6 +175,92 @@ describe("Artifacts Tab", () => {
     expect((job.artifacts()[0] as GoCDArtifact).destination()).toEqual("/path/to/dest");
   });
 
+  it("should render no artifact store configured message", () => {
+    mount(Job.fromJSON(JobTestData.with("test")));
+
+    const input = helper.q("select");
+
+    (input as HTMLSelectElement).value = ArtifactType.external;
+    simulateEvent.simulate(input, "change");
+
+    helper.redraw();
+
+    const expectedMsg = "Can not define external artifact! No Artifact store configured.";
+    expect(helper.byTestId("flash-message-alert")).toContainText(expectedMsg);
+
+    expect(helper.q("button")).toBeDisabled();
+  });
+
+  it("should allow adding external artifact store", () => {
+    const pluginInfo = PluginInfo.fromJSON(ArtifactPluginInfo.docker());
+    tab.pluginInfos(new PluginInfos(pluginInfo));
+    tab.artifactStores(new ArtifactStores(new ArtifactStore("storeid", pluginInfo.id, new Configurations([]))));
+
+    const job = Job.fromJSON(JobTestData.with("test"));
+    mount(job);
+
+    expect(job.artifacts()).toHaveLength(0);
+    expect(helper.allByTestId("build-artifact-view")).toHaveLength(0);
+    expect(helper.allByTestId("test-artifact-view")).toHaveLength(0);
+
+    const input = helper.q("select");
+
+    (input as HTMLSelectElement).value = ArtifactType.external;
+    simulateEvent.simulate(input, "change");
+
+    helper.click(`button`);
+
+    expect(helper.allByTestId("external-artifact-view")).toHaveLength(1);
+    expect(job.artifacts()).toHaveLength(1);
+  });
+
+  it("should render external artifact", () => {
+    const pluginInfo = PluginInfo.fromJSON(ArtifactPluginInfo.docker());
+    tab.pluginInfos(new PluginInfos(pluginInfo));
+    tab.artifactStores(new ArtifactStores(new ArtifactStore("storeid", pluginInfo.id, new Configurations([]))));
+
+    const job = Job.fromJSON(JobTestData.with("test"));
+    job.artifacts().push(new ExternalArtifact("id", "storeid"));
+    mount(job);
+
+    const typeDescription    = "There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact.";
+    const idDescription      = "This id is used to identify the artifact that is pushed to an external store. The id is used later in a downstream pipeline to fetch the artifact from the external store.";
+    const storeIdDescription = "This is a reference to the global artifact store defined in the config. At the time of publishing the artifact to an external store, the plugin makes use of the global properties associated with this store id.";
+
+    expect(helper.byTestId("type-header")).toContainText("Type");
+    expect(helper.allByTestId("tooltip-wrapper")[0]).toContainText(typeDescription);
+
+    expect(helper.byTestId("id-header")).toContainText("Id");
+    expect(helper.allByTestId("tooltip-wrapper")[1]).toContainText(idDescription);
+
+    expect(helper.byTestId("store-id-header")).toContainText("Store Id");
+    expect(helper.allByTestId("tooltip-wrapper")[2]).toContainText(storeIdDescription);
+
+    expect(job.artifacts()).toHaveLength(1);
+    expect(helper.allByTestId("external-artifact-view")).toHaveLength(1);
+
+    expect(helper.byTestId("artifact-type")).toHaveText("External Artifact");
+
+    expect(helper.byTestId("artifact-id-id")).toHaveValue("id");
+    expect(helper.byTestId("form-field-input-")).toHaveValue("storeid");
+  });
+
+  it("should remove external artifact", () => {
+    const pluginInfo = PluginInfo.fromJSON(ArtifactPluginInfo.docker());
+    tab.pluginInfos(new PluginInfos(pluginInfo));
+    tab.artifactStores(new ArtifactStores(new ArtifactStore("storeid", pluginInfo.id, new Configurations([]))));
+
+    const job = Job.fromJSON(JobTestData.with("test"));
+    job.artifacts().push(new ExternalArtifact("id", "storeid"));
+    mount(job);
+
+    expect(helper.allByTestId("external-artifact-view")).toHaveLength(1);
+
+    helper.click(`[data-test-id="remove-artifact"]`);
+
+    expect(helper.allByTestId("external-artifact-view")).toHaveLength(0);
+  });
+
   function mount(job: Job) {
     const pipelineConfig = new PipelineConfig();
 
@@ -179,6 +274,6 @@ describe("Artifacts Tab", () => {
     } as PipelineConfigRouteParams;
 
     const templateConfig = new TemplateConfig("foo", []);
-    helper.mount(() => new ArtifactsTabContent().content(pipelineConfig, templateConfig, routeParams, true));
+    helper.mount(() => tab.content(pipelineConfig, templateConfig, routeParams, true));
   }
 });

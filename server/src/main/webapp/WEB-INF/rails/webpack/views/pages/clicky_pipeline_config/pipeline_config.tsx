@@ -111,7 +111,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
         </div>
 
         <div class={styles.entityConfigContainer}>
-          <StepsWidget routeInfo={PipelineConfigPage.routeInfo()}/>,
+          <StepsWidget routeInfo={PipelineConfigPage.routeInfo()}/>
           <Tabs initialSelection={this.selectedTabIndex()}
                 tabs={this.tabs.map((eachTab: TabContent<SupportedTypes>) => eachTab.name())}
                 contents={this.tabs.map((eachTab: TabContent<SupportedTypes>) => eachTab.content(this.pipelineConfig!,

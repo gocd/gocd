@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
+import m from "mithril";
+import Stream from "mithril/stream";
 import {Job} from "models/pipeline_configs/job";
-import {NameableSet} from "models/pipeline_configs/nameable_set";
-import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
-import {JobTestData, PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
-import {Stage} from "models/pipeline_configs/stage";
+import {JobTestData} from "models/pipeline_configs/spec/test_data";
 import {ExecTask, ExecTaskAttributes} from "models/pipeline_configs/task";
-import {TemplateConfig} from "models/pipeline_configs/template_config";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
-import {TasksTabContent} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {TasksWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Tasks Tab Content", () => {
@@ -64,7 +62,7 @@ describe("Tasks Tab Content", () => {
 
     it("should render exec task type", () => {
       const rows = helper.qa("td", helper.byTestId("table-row"));
-      expect(rows[1]).toContainText("exec");
+      expect(rows[1]).toContainText("Custom Command");
     });
 
     it("should render failed run if condition", () => {
@@ -107,18 +105,10 @@ describe("Tasks Tab Content", () => {
   });
 
   function mount(job: Job) {
-    const pipelineConfig = new PipelineConfig();
-
-    const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
-    stage.jobs(new NameableSet([job]));
-    pipelineConfig.stages().add(stage);
-
-    const routeParams = {
-      stage_name: stage.name(),
-      job_name: job.name()
-    } as PipelineConfigRouteParams;
-
-    const templateConfig = new TemplateConfig("foo", []);
-    helper.mount(() => new TasksTabContent().content(pipelineConfig, templateConfig, routeParams, true));
+    helper.mount(() => {
+      return <TasksWidget tasks={job.tasks}
+                          isEditable={true}
+                          pluginInfos={Stream(new PluginInfos())}/>;
+    });
   }
 });

@@ -22,6 +22,8 @@ import {
   ExecTaskAttributesJSON,
   FetchTaskAttributesJSON,
   NAntTaskAttributesJSON,
+  PluginConfiguration,
+  PluginTaskAttributesJSON,
   RakeTaskAttributesJSON,
   TaskJSON,
   TaskType
@@ -29,12 +31,15 @@ import {
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Configurations} from "models/shared/configuration";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 
 export type RunIfCondition = "passed" | "failed" | "any";
 
 export interface Task extends ValidatableMixin {
   type: TaskType;
   attributes: Stream<TaskAttributes>;
+
+  description(pluginInfos: PluginInfos): string;
 
   hasErrors(): boolean;
 
@@ -61,12 +66,10 @@ export abstract class AbstractTask extends ValidatableMixin implements Task {
     return json.map(this.fromJSON);
   }
 
-  //TODO: Implement me and remove ts ignore
-  //@ts-ignore
   static fromJSON(json: TaskJSON): Task {
     switch (json.type) {
-      // case "pluggable_task":
-      //   break;
+      case "pluggable_task":
+        return PluggableTask.from(json.attributes as PluginTaskAttributesJSON);
       case "fetch":
         return FetchArtifactTask.from(json.attributes as FetchTaskAttributesJSON);
       case "ant":
@@ -81,6 +84,8 @@ export abstract class AbstractTask extends ValidatableMixin implements Task {
         throw new Error(`Invalid task type ${json.type}.`);
     }
   }
+
+  abstract description(pluginInfos: PluginInfos): string;
 
   hasErrors() {
     return this.errors().hasErrors() || this.attributes().errors().hasErrors();
@@ -167,6 +172,10 @@ export class AntTask extends AbstractTask {
                        attributes.run_if,
                        attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined);
   }
+
+  description(pluginInfos: PluginInfos): string {
+    return "Ant";
+  }
 }
 
 export class NantTaskAttributes extends BuildTaskAttributes {
@@ -218,6 +227,10 @@ export class RakeTask extends AbstractTask {
                         attributes.run_if,
                         attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined);
   }
+
+  description(pluginInfos: PluginInfos): string {
+    return "Rake";
+  }
 }
 
 export class NantTask extends AbstractTask {
@@ -241,6 +254,10 @@ export class NantTask extends AbstractTask {
                         attributes.run_if,
                         attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined);
   }
+
+  description(pluginInfos: PluginInfos): string {
+    return "NAnt";
+  }
 }
 
 export class ExecTask extends AbstractTask {
@@ -257,6 +274,10 @@ export class ExecTask extends AbstractTask {
                         attributes.working_directory,
                         attributes.run_if,
                         attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined);
+  }
+
+  description(pluginInfos: PluginInfos): string {
+    return "Custom Command";
   }
 }
 
@@ -335,6 +356,10 @@ export class FetchArtifactTask extends AbstractTask {
                                  json.run_if,
                                  json.on_cancel ? AbstractTask.fromJSON(json.on_cancel) : undefined);
   }
+
+  description(pluginInfos: PluginInfos): string {
+    return "Fetch Artifact";
+  }
 }
 
 export class FetchTaskAttributes extends AbstractTaskAttributes {
@@ -398,4 +423,52 @@ export class FetchTaskAttributes extends AbstractTaskAttributes {
   toApiPayload(): any {
     return JsonUtils.toSnakeCasedObject(this);
   }
+}
+
+export class PluggableTask extends AbstractTask {
+  readonly type: TaskType = "pluggable_task";
+
+  constructor(pluginConfiguration: PluginConfiguration,
+              configuration: Configurations,
+              runIf: RunIfCondition[],
+              onCancel?: Task) {
+    super();
+    this.attributes(new PluggableTaskAttributes(pluginConfiguration, configuration, runIf, onCancel));
+  }
+
+  static from(json: PluginTaskAttributesJSON) {
+    return new PluggableTask(json.plugin_configuration,
+                             Configurations.fromJSON(json.configuration),
+                             json.run_if,
+                             json.on_cancel ? AbstractTask.fromJSON(json.on_cancel) : undefined);
+  }
+
+  description(pluginInfos: PluginInfos): string {
+    const pluginId = (this.attributes() as PluggableTaskAttributes).pluginConfiguration().id;
+    return pluginInfos.findByPluginId(pluginId)!.about.name;
+  }
+}
+
+export class PluggableTaskAttributes extends AbstractTaskAttributes {
+  readonly pluginConfiguration: Stream<PluginConfiguration> = Stream();
+  readonly configuration: Stream<Configurations>            = Stream();
+
+  constructor(pluginConfiguration: PluginConfiguration,
+              configuration: Configurations,
+              runIf: RunIfCondition[],
+              onCancel?: Task) {
+    super(runIf, onCancel);
+
+    this.pluginConfiguration(pluginConfiguration);
+    this.configuration(configuration);
+  }
+
+  properties(): Map<string, any> {
+    return this.configuration().asMap();
+  }
+
+  toApiPayload(): any {
+    return JsonUtils.toSnakeCasedObject(this);
+  }
+
 }

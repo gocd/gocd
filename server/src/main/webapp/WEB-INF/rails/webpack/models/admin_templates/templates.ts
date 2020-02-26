@@ -42,8 +42,10 @@ export interface Template {
   stages: StageJSON[];
 }
 
+export type TaskType = "pluggable_task" | "fetch" | "ant" | "exec" | "nant" | "rake";
+
 export interface TaskJSON {
-  type: "pluggable_task" | "fetch" | "ant" | "exec" | "nant" | "rake";
+  type: TaskType;
   attributes: AntTaskAttributesJSON | NAntTaskAttributesJSON | RakeTaskAttributesJSON | ExecTaskAttributesJSON | FetchTaskAttributesJSON | PluginTaskAttributesJSON;
 }
 
@@ -82,8 +84,10 @@ export interface PluginConfiguration {
   version: string;
 }
 
+export type ArtifactOrigin = "external" | "gocd";
+
 export interface FetchTaskAttributesJSON extends BaseTaskAttributesJSON {
-  artifact_origin: "external" | "gocd";
+  artifact_origin: ArtifactOrigin;
   pipeline?: string;
   stage: string;
   job: string;

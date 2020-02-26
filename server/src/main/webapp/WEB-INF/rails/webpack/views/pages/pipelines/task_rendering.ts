@@ -76,7 +76,7 @@ export class TerminalCrud {
     const mod = $(`[data-cwd]`, taskLine);
     const workingDirectory = mod ? JSON.parse(mod.getAttribute("data-cwd")!) : void 0;
 
-    return attachErrorAutoUpdates(new ExecTask(cmd, args, { workingDirectory }), taskLine, this.scheduler);
+    return attachErrorAutoUpdates(new ExecTask(cmd, args, workingDirectory, [], undefined), taskLine, this.scheduler);
   }
 
   /** builds a DOM element representing a saved task entry from a shell-parsed result (i.e., from parsing the editor textContent) */

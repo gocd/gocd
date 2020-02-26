@@ -23,6 +23,8 @@ import {
   RakeTaskAttributes,
   Task
 } from "models/pipeline_configs/task";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {TaskPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 
 describe("Task", () => {
   describe("Exec", () => {
@@ -61,6 +63,11 @@ describe("Task", () => {
                                                                run_if: []
                                                              }
                                                            });
+    });
+
+    it("should provide description", () => {
+      const task = new ExecTask("", []);
+      expect(task.description(new PluginInfos())).toEqual("Custom Command");
     });
   });
 
@@ -108,6 +115,11 @@ describe("Task", () => {
       };
 
       expect(task.attributes().toApiPayload()).toEqual(expected);
+    });
+
+    it("should provide description", () => {
+      const task = TaskTestData.ant();
+      expect(task.description(new PluginInfos())).toEqual("Ant");
     });
   });
 
@@ -159,6 +171,11 @@ describe("Task", () => {
 
       expect(task.attributes().toApiPayload()).toEqual(expected);
     });
+
+    it("should provide description", () => {
+      const task = TaskTestData.nant();
+      expect(task.description(new PluginInfos())).toEqual("NAnt");
+    });
   });
 
   describe("Rake", () => {
@@ -206,10 +223,14 @@ describe("Task", () => {
 
       expect(task.attributes().toApiPayload()).toEqual(expected);
     });
+
+    it("should provide description", () => {
+      const task = TaskTestData.rake();
+      expect(task.description(new PluginInfos())).toEqual("Rake");
+    });
   });
 
   describe("Fetch Artifact", () => {
-
     it("should deserialize from JSON", () => {
       const task = TaskTestData.fetchGoCDTask();
       const copy = AbstractTask.fromJSON(task.toJSON());
@@ -237,5 +258,39 @@ describe("Task", () => {
                                                              ]));
     });
 
+    it("should provide description for GoCD Artifact", () => {
+      const task = TaskTestData.fetchGoCDTask();
+      expect(task.description(new PluginInfos())).toEqual("Fetch Artifact");
+    });
+
+    it("should provide description for external Artifact", () => {
+      const task = TaskTestData.fetchExternalTask();
+      expect(task.description(new PluginInfos())).toEqual("Fetch Artifact");
+    });
+  });
+
+  describe("Pluggable Artifact", () => {
+    it("should deserialize from JSON", () => {
+      const task = TaskTestData.pluggableTask();
+      const copy = AbstractTask.fromJSON(task.toJSON());
+
+      expect(task.toJSON()).toEqual(copy.toJSON());
+    });
+
+    it("should provide properties for pluggable task", () => {
+      const task = TaskTestData.pluggableTask();
+      expect(task.attributes().properties()).toEqual(new Map([
+                                                               ["username", "bob"],
+                                                               ["password", "**********************"],
+                                                             ]));
+    });
+
+    it("should provide description", () => {
+      const task        = TaskTestData.pluggableTask();
+      const data        = TaskPluginInfo.scriptExecutor();
+      const pluginInfos = new PluginInfos(PluginInfo.fromJSON(data));
+
+      expect(task.description(pluginInfos)).toEqual("Script Executor");
+    });
   });
 });

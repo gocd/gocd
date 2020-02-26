@@ -15,12 +15,16 @@
  */
 import {
   AboutJSON,
-  AnalyticsCapabilityJSON, AnalyticsExtensionJSON,
+  AnalyticsCapabilityJSON,
+  AnalyticsExtensionJSON,
   AuthorizationExtensionJSON,
   ElasticAgentExtensionJSON,
   LinksJSON,
   PluginInfoJSON,
-  SecretConfigExtensionJSON, StatusJSON, VendorJSON, ViewJSON
+  SecretConfigExtensionJSON,
+  StatusJSON,
+  VendorJSON,
+  ViewJSON
 } from "models/shared/plugin_infos_new/serialization";
 
 export function pluginImageLink() {
@@ -335,7 +339,7 @@ export class AuthorizationPluginInfo extends BasePluginInfo {
                               "File based authorization plugin");
   }
 
-  static ldap() {
+  static ldap(): PluginInfoJSON {
     return {
       _links: pluginImageLink(),
       id: "cd.go.authorization.ldap",
@@ -390,11 +394,13 @@ export class AuthorizationPluginInfo extends BasePluginInfo {
               },
             ],
             view: {
-              template: "<div class=\"form_item_block\">This is ldap auth config view." +
-                "<input type='text' id='test-field-1'/>" +
-                "<textarea id='test-field-2'/><select id='test-field-3'>" +
-                "<option value='test'>Test</option></select>" +
-                "</div>"
+              template: `
+                          <div class="form_item_block">
+                            This is ldap auth config view.
+                            <input type="text" id="test-field-1"/>
+                            <textarea id="test-field-2"></textarea>
+                            <select id="test-field-3"><option value="test">Test</option></select>
+                          </div>`
             }
           },
           role_settings: {
@@ -609,5 +615,53 @@ export class AnalyticsPluginInfo extends BasePluginInfo {
         ]
       }
     } as AnalyticsExtensionJSON;
+  }
+}
+
+export class TaskPluginInfo {
+  static scriptExecutor(): PluginInfoJSON {
+    return {
+      _links: pluginImageLink(),
+      id: "script-executor",
+      status: {
+        state: "active"
+      },
+      plugin_file_location: "server/plugins/external/script-executor-0.3.0.jar",
+      bundled_plugin: false,
+      about: {
+        name: "Script Executor",
+        version: "0.3.0",
+        target_go_version: "16.1.0",
+        description: "Thoughtworks Go plugin to run scripts",
+        target_operating_systems: [],
+        vendor: {
+          name: "Srinivas Upadhya",
+          url: "https://github.com/srinivasupadhya"
+        }
+      },
+      extensions: [{
+        type: "task",
+        display_name: "Script Executor",
+        task_settings: {
+          configurations: [{
+            key: "script",
+            metadata: {
+              secure: false,
+              required: true
+            }
+          }, {
+            key: "shtype",
+            metadata: {
+              secure: false,
+              required: true
+            }
+          }],
+          view: {
+            template: "<div>this is plugin view</div>"
+          }
+        }
+      }
+      ]
+    };
   }
 }

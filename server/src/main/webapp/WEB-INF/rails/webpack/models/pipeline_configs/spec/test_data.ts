@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+import {PluginConfiguration} from "models/admin_templates/templates";
 import {MaterialJSON} from "models/materials/serialization";
 import {OriginType} from "models/origin";
 import {JobJSON} from "models/pipeline_configs/job";
 import {LockBehavior, PipelineConfigJSON} from "models/pipeline_configs/pipeline_config";
 import {ApprovalType, StageJSON} from "models/pipeline_configs/stage";
-import {AntTask, ExecTask, FetchArtifactTask, NantTask, RakeTask} from "models/pipeline_configs/task";
-import {Configurations} from "models/shared/configuration";
+import {AntTask, ExecTask, FetchArtifactTask, NantTask, PluggableTask, RakeTask} from "models/pipeline_configs/task";
+import {Configurations, PropertyJSON} from "models/shared/configuration";
 
 export class PipelineConfigTestData {
   static withTwoStages(): PipelineConfigJSON {
@@ -141,6 +142,28 @@ export class TaskTestData {
                                  new Configurations([]),
                                  ["any"],
                                  TaskTestData.exec());
+  }
+
+  static pluggableTask() {
+    const pluginConfiguration: PluginConfiguration = {
+      id: "script-executor",
+      version: "1"
+    };
+
+    const property: PropertyJSON = {
+      key: "username",
+      value: "bob"
+    };
+
+    const encryptedProperty: PropertyJSON = {
+      key: "password",
+      encrypted_value: "AES:someencryptedvalue"
+    };
+
+    return new PluggableTask(pluginConfiguration,
+                             Configurations.fromJSON([property, encryptedProperty]),
+                             ["any"],
+                             TaskTestData.exec());
   }
 }
 

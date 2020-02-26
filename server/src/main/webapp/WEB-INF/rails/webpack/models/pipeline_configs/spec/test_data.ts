@@ -19,7 +19,8 @@ import {OriginType} from "models/origin";
 import {JobJSON} from "models/pipeline_configs/job";
 import {LockBehavior, PipelineConfigJSON} from "models/pipeline_configs/pipeline_config";
 import {ApprovalType, StageJSON} from "models/pipeline_configs/stage";
-import {AntTask, ExecTask, NantTask, RakeTask} from "models/pipeline_configs/task";
+import {AntTask, ExecTask, FetchArtifactTask, NantTask, RakeTask} from "models/pipeline_configs/task";
+import {Configurations} from "models/shared/configuration";
 
 export class PipelineConfigTestData {
   static withTwoStages(): PipelineConfigJSON {
@@ -86,41 +87,60 @@ export class JobTestData {
 
 export class TaskTestData {
   static exec(cmd: string = "ls", args: [] = []): ExecTask {
-    return new ExecTask(cmd, args, {
-      runIf: ["passed"],
-      workingDirectory: "/tmp"
-    });
+    return new ExecTask(cmd, args, "/tmp", ["passed"]);
   }
 
   static ant(buildFile: string = "ant-build-file"): AntTask {
-    return new AntTask({
-                         buildFile,
-                         runIf: ["any"],
-                         onCancel: TaskTestData.exec(),
-                         workingDirectory: "/tmp",
-                         target: "target"
-                       });
+    return new AntTask(buildFile,
+                       "target",
+                       "/tmp",
+                       ["any"],
+                       TaskTestData.exec());
   }
 
   static nant(buildFile: string = "nant-build-file", nantPath: string = "path-to-nant-exec"): NantTask {
-    return new NantTask({
-                          buildFile,
-                          nantPath,
-                          runIf: ["any"],
-                          onCancel: TaskTestData.exec(),
-                          workingDirectory: "/tmp",
-                          target: "target"
-                        });
+    return new NantTask(buildFile, "target",
+                        nantPath,
+                        "/tmp",
+                        ["any"],
+                        TaskTestData.exec());
+
   }
 
   static rake(buildFile: string = "rake-build-file"): RakeTask {
-    return new RakeTask({
-                          buildFile,
-                          runIf: ["any"],
-                          onCancel: TaskTestData.exec(),
-                          workingDirectory: "/tmp",
-                          target: "target"
-                        });
+    return new RakeTask(buildFile,
+                        "target",
+                        "/tmp",
+                        ["any"],
+                        TaskTestData.exec());
+  }
+
+  static fetchGoCDTask(pipelineName: string = "pipeline", stageName: string = "stage", jobName: string = "job") {
+    return new FetchArtifactTask("gocd",
+                                 pipelineName,
+                                 stageName,
+                                 jobName,
+                                 true,
+                                 "source-file",
+                                 "destination-file",
+                                 undefined,
+                                 new Configurations([]),
+                                 ["any"],
+                                 TaskTestData.exec());
+  }
+
+  static fetchExternalTask(pipelineName: string = "pipeline", stageName: string = "stage", jobName: string = "job") {
+    return new FetchArtifactTask("external",
+                                 pipelineName,
+                                 stageName,
+                                 jobName,
+                                 false,
+                                 undefined,
+                                 undefined,
+                                 "artifact-id",
+                                 new Configurations([]),
+                                 ["any"],
+                                 TaskTestData.exec());
   }
 }
 

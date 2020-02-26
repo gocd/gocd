@@ -74,7 +74,7 @@ describe("Task", () => {
       expect(attributes.buildFile()).toEqual("ant-build-file");
       expect(attributes.target()).toEqual("target");
       expect(attributes.workingDirectory()).toEqual("/tmp");
-      expect(attributes.onCancel().type).toEqual("exec");
+      expect(attributes.onCancel()!.type).toEqual("exec");
       expect(attributes.runIf()).toEqual(["any"]);
     });
 
@@ -122,7 +122,7 @@ describe("Task", () => {
       expect(attributes.nantPath()).toEqual("path-to-nant-exec");
       expect(attributes.target()).toEqual("target");
       expect(attributes.workingDirectory()).toEqual("/tmp");
-      expect(attributes.onCancel().type).toEqual("exec");
+      expect(attributes.onCancel()!.type).toEqual("exec");
       expect(attributes.runIf()).toEqual(["any"]);
     });
 
@@ -171,7 +171,7 @@ describe("Task", () => {
       expect(attributes.buildFile()).toEqual("rake-build-file");
       expect(attributes.target()).toEqual("target");
       expect(attributes.workingDirectory()).toEqual("/tmp");
-      expect(attributes.onCancel().type).toEqual("exec");
+      expect(attributes.onCancel()!.type).toEqual("exec");
       expect(attributes.runIf()).toEqual(["any"]);
     });
 
@@ -206,5 +206,36 @@ describe("Task", () => {
 
       expect(task.attributes().toApiPayload()).toEqual(expected);
     });
+  });
+
+  describe("Fetch Artifact", () => {
+
+    it("should deserialize from JSON", () => {
+      const task = TaskTestData.fetchGoCDTask();
+      const copy = AbstractTask.fromJSON(task.toJSON());
+
+      expect(task.toJSON()).toEqual(copy.toJSON());
+    });
+
+    it("should provide properties for gocd artifact", () => {
+      const task = TaskTestData.fetchGoCDTask();
+      expect(task.attributes().properties()).toEqual(new Map([
+                                                               ["Pipeline Name", "pipeline"],
+                                                               ["Stage Name", "stage"],
+                                                               ["Job Name", "job"],
+                                                               ["Source", "source-file"],
+                                                               ["Destination", "destination-file"]
+                                                             ]));
+    });
+
+    it("should provide properties for external artifact", () => {
+      const task = TaskTestData.fetchExternalTask();
+      expect(task.attributes().properties()).toEqual(new Map([
+                                                               ["Pipeline Name", "pipeline"],
+                                                               ["Stage Name", "stage"],
+                                                               ["Job Name", "job"]
+                                                             ]));
+    });
+
   });
 });

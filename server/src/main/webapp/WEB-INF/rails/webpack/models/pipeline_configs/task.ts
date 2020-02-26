@@ -18,62 +18,38 @@ import {JsonUtils} from "helpers/json_utils";
 import Stream from "mithril/stream";
 import {
   AntTaskAttributesJSON,
+  ArtifactOrigin,
   ExecTaskAttributesJSON,
+  FetchTaskAttributesJSON,
   NAntTaskAttributesJSON,
   RakeTaskAttributesJSON,
-  TaskJSON
+  TaskJSON,
+  TaskType
 } from "models/admin_templates/templates";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {Configurations} from "models/shared/configuration";
 
-type ValidTypes = "exec" | "ant" | "nant" | "rake" | "fetchArtifact";
 export type RunIfCondition = "passed" | "failed" | "any";
 
-interface TaskOpts {
-  onCancel: Task | undefined;
-  runIf: RunIfCondition[];
-}
-
-interface ExecOpts extends TaskOpts {
-  workingDirectory: string;
-}
-
-interface BuildOpts extends TaskOpts {
-  buildFile: string;
-  target: string;
-  workingDirectory: string;
-}
-
-// tslint:disable-next-line:no-empty-interface
-interface AntOpts extends BuildOpts {
-}
-
-interface NantOpts extends BuildOpts {
-  nantPath: string;
-}
-
-// tslint:disable-next-line:no-empty-interface
-interface RakeOpts extends BuildOpts {
-}
-
-type Partial<T extends TaskOpts> = { [P in keyof T]?: T[P] };
-
 export interface Task extends ValidatableMixin {
-  type: ValidTypes;
+  type: TaskType;
   attributes: Stream<TaskAttributes>;
 
   hasErrors(): boolean;
+
+  toJSON(): any;
 }
 
 export interface TaskAttributes extends ValidatableMixin {
   runIf: Stream<RunIfCondition[]>;
   properties: () => Map<string, string>;
   toApiPayload: () => any;
-  onCancel: Stream<Task>;
+  onCancel: Stream<Task | undefined>;
 }
 
 export abstract class AbstractTask extends ValidatableMixin implements Task {
-  abstract type: ValidTypes;
+  abstract type: TaskType;
   attributes: Stream<TaskAttributes> = Stream();
 
   constructor() {
@@ -89,10 +65,10 @@ export abstract class AbstractTask extends ValidatableMixin implements Task {
   //@ts-ignore
   static fromJSON(json: TaskJSON): Task {
     switch (json.type) {
-      case "pluggable_task":
-        break;
+      // case "pluggable_task":
+      //   break;
       case "fetch":
-        break;
+        return FetchArtifactTask.from(json.attributes as FetchTaskAttributesJSON);
       case "ant":
         return AntTask.from(json.attributes as AntTaskAttributesJSON);
       case "nant":
@@ -101,6 +77,8 @@ export abstract class AbstractTask extends ValidatableMixin implements Task {
         return ExecTask.from(json.attributes as ExecTaskAttributesJSON);
       case "rake":
         return RakeTask.from(json.attributes as ExecTaskAttributesJSON);
+      default:
+        throw new Error(`Invalid task type ${json.type}.`);
     }
   }
 
@@ -121,54 +99,40 @@ export abstract class AbstractTask extends ValidatableMixin implements Task {
 }
 
 abstract class AbstractTaskAttributes extends ValidatableMixin implements TaskAttributes {
-  readonly runIf: Stream<RunIfCondition[]> = Stream([] as RunIfCondition[]);
-  readonly onCancel: Stream<Task>          = Stream();
+  readonly runIf: Stream<RunIfCondition[]>    = Stream([] as RunIfCondition[]);
+  readonly onCancel: Stream<Task | undefined> = Stream();
 
-  constructor(opts: TaskOpts) {
+  constructor(runIf?: RunIfCondition[], onCancel?: Task) {
     super();
-    this.setRunIf(opts);
-    this.setOnCancel(opts);
+    this.runIf(runIf || []);
+    this.onCancel(onCancel);
   }
 
   abstract properties(): Map<string, string>;
 
   abstract toApiPayload(): any;
-
-  protected setRunIf(opts: TaskOpts) {
-    if (opts.runIf) {
-      this.runIf(opts.runIf);
-    }
-
-    if (opts.onCancel) {
-      this.onCancel(opts.onCancel);
-    }
-  }
-
-  protected setOnCancel(opts: TaskOpts) {
-    if (opts.onCancel) {
-      this.onCancel(opts.onCancel);
-    }
-  }
 }
 
 export abstract class BuildTaskAttributes extends AbstractTaskAttributes {
-  buildFile: Stream<string>        = Stream();
-  target: Stream<string>           = Stream();
-  workingDirectory: Stream<string> = Stream();
+  buildFile: Stream<string | undefined>        = Stream();
+  target: Stream<string | undefined>           = Stream();
+  workingDirectory: Stream<string | undefined> = Stream();
 
-  constructor(opts: Partial<AntOpts>) {
-    super(opts as TaskOpts);
+  constructor(buildFile: string | undefined,
+              target: string | undefined,
+              workingDir: string | undefined,
+              runIf: RunIfCondition[],
+              onCancel?: Task) {
 
-    this.buildFile = Stream(opts.buildFile || "");
-    this.target    = Stream(opts.target || "");
+    super(runIf, onCancel);
 
-    if (opts.workingDirectory) {
-      this.workingDirectory(opts.workingDirectory);
-    }
+    this.buildFile(buildFile);
+    this.target(target);
+    this.workingDirectory(workingDir);
   }
 
-  properties(): Map<string, string> {
-    const map: Map<string, string> = new Map();
+  properties(): Map<string, any> {
+    const map: Map<string, string | undefined> = new Map();
     map.set("Build File", this.buildFile());
     map.set("Target", this.target());
     map.set("Working Directory", this.workingDirectory());
@@ -181,54 +145,41 @@ export abstract class BuildTaskAttributes extends AbstractTaskAttributes {
   }
 }
 
-export class AntTask extends AbstractTask {
-  readonly type: ValidTypes = "ant";
-
-  constructor(opts: Partial<AntOpts> = {}) {
-    super();
-    this.attributes(new AntTaskAttributes(opts));
-  }
-
-  static from(attributes: AntTaskAttributesJSON) {
-    return new AntTask({
-                         buildFile: attributes.build_file,
-                         target: attributes.target,
-                         onCancel: attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined,
-                         runIf: attributes.run_if,
-                         workingDirectory: attributes.working_directory
-                       });
-  }
-}
-
 export class AntTaskAttributes extends BuildTaskAttributes {
 }
 
-export class NantTask extends AbstractTask {
-  readonly type: ValidTypes = "nant";
+export class AntTask extends AbstractTask {
+  readonly type: TaskType = "ant";
 
-  constructor(opts: Partial<NantOpts> = {}) {
+  constructor(buildFile: string | undefined,
+              target: string | undefined,
+              workingDir: string | undefined,
+              runIf: RunIfCondition[],
+              onCancel?: Task) {
     super();
-    this.attributes(new NantTaskAttributes(opts));
+    this.attributes(new AntTaskAttributes(buildFile, target, workingDir, runIf, onCancel));
   }
 
-  static from(attributes: NAntTaskAttributesJSON) {
-    return new NantTask({
-                          nantPath: attributes.nant_path || "",
-                          buildFile: attributes.build_file,
-                          target: attributes.target,
-                          onCancel: attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined,
-                          runIf: attributes.run_if,
-                          workingDirectory: attributes.working_directory
-                        });
+  static from(attributes: AntTaskAttributesJSON) {
+    return new AntTask(attributes.build_file,
+                       attributes.target,
+                       attributes.working_directory,
+                       attributes.run_if,
+                       attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined);
   }
 }
 
 export class NantTaskAttributes extends BuildTaskAttributes {
-  readonly nantPath: Stream<string> = Stream();
+  readonly nantPath: Stream<string | undefined> = Stream();
 
-  constructor(opts: Partial<NantOpts>) {
-    super(opts);
-    this.nantPath = Stream(opts.nantPath || "");
+  constructor(buildFile: string | undefined,
+              target: string | undefined,
+              nantPath: string | undefined,
+              workingDir: string | undefined,
+              runIf: RunIfCondition[],
+              onCancel?: Task) {
+    super(buildFile, target, workingDir, runIf, onCancel);
+    this.nantPath(nantPath);
   }
 
   properties(): Map<string, string> {
@@ -239,74 +190,207 @@ export class NantTaskAttributes extends BuildTaskAttributes {
   }
 
   toApiPayload(): any {
-    const json: any   = super.toApiPayload();
-    json.nant_path = this.nantPath();
+    const json: any = super.toApiPayload();
+    json.nant_path  = this.nantPath();
     return json;
-  }
-}
-
-export class RakeTask extends AbstractTask {
-  readonly type: ValidTypes = "rake";
-
-  constructor(opts: Partial<RakeOpts> = {}) {
-    super();
-    this.attributes(new RakeTaskAttributes(opts));
-  }
-
-  static from(attributes: RakeTaskAttributesJSON) {
-    return new RakeTask({
-                          buildFile: attributes.build_file,
-                          target: attributes.target,
-                          onCancel: attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined,
-                          runIf: attributes.run_if,
-                          workingDirectory: attributes.working_directory
-                        });
   }
 }
 
 export class RakeTaskAttributes extends BuildTaskAttributes {
 }
 
-export class ExecTask extends AbstractTask {
-  readonly type: ValidTypes = "exec";
+export class RakeTask extends AbstractTask {
+  readonly type: TaskType = "rake";
 
-  constructor(cmd: string, args: string[], opts: Partial<ExecOpts> = {}) {
+  constructor(buildFile: string | undefined,
+              target: string | undefined,
+              workingDir: string | undefined,
+              runIf: RunIfCondition[],
+              onCancel?: Task) {
     super();
-    this.attributes(new ExecTaskAttributes(cmd, args, opts));
+    this.attributes(new RakeTaskAttributes(buildFile, target, workingDir, runIf, onCancel));
+  }
+
+  static from(attributes: RakeTaskAttributesJSON) {
+    return new RakeTask(attributes.build_file,
+                        attributes.target,
+                        attributes.working_directory,
+                        attributes.run_if,
+                        attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined);
+  }
+}
+
+export class NantTask extends AbstractTask {
+  readonly type: TaskType = "nant";
+
+  constructor(buildFile: string | undefined,
+              target: string | undefined,
+              nantPath: string | undefined,
+              workingDir: string | undefined,
+              runIf: RunIfCondition[],
+              onCancel?: Task) {
+    super();
+    this.attributes(new NantTaskAttributes(buildFile, target, nantPath, workingDir, runIf, onCancel));
+  }
+
+  static from(attributes: NAntTaskAttributesJSON) {
+    return new NantTask(attributes.build_file,
+                        attributes.target,
+                        attributes.nant_path,
+                        attributes.working_directory,
+                        attributes.run_if,
+                        attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined);
+  }
+}
+
+export class ExecTask extends AbstractTask {
+  readonly type: TaskType = "exec";
+
+  constructor(cmd: string, args: string[], workingDir?: string, runIf?: RunIfCondition[], onCancel?: Task) {
+    super();
+    this.attributes(new ExecTaskAttributes(cmd, args, workingDir, runIf, onCancel));
   }
 
   static from(attributes: ExecTaskAttributesJSON) {
-    return new ExecTask(attributes.command, attributes.arguments!, {
-      onCancel: attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined,
-      runIf: attributes.run_if,
-      workingDirectory: attributes.working_directory
-    });
+    return new ExecTask(attributes.command,
+                        attributes.arguments || [],
+                        attributes.working_directory,
+                        attributes.run_if,
+                        attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined);
   }
 }
 
 export class ExecTaskAttributes extends AbstractTaskAttributes {
-  // validators expect streams for attrs
-  command: Stream<string>;
-  arguments: Stream<string[]>;
-  workingDirectory: Stream<string> = Stream();
+  command: Stream<string>                      = Stream();
+  arguments: Stream<string[]>                  = Stream();
+  workingDirectory: Stream<string | undefined> = Stream();
 
-  constructor(cmd: string, args: string[], opts: Partial<ExecOpts>) {
-    super(opts as TaskOpts);
-    this.command = Stream(cmd);
+  constructor(cmd: string,
+              args: string[],
+              workingDir?: string | undefined,
+              runIf?: RunIfCondition[],
+              onCancel?: Task) {
+    super(runIf, onCancel);
+
+    this.command(cmd);
     this.validatePresenceOf("command");
 
-    this.arguments = Stream(args || []);
+    this.arguments(args);
 
-    if (opts.workingDirectory) {
-      this.workingDirectory(opts.workingDirectory);
-    }
+    this.workingDirectory(workingDir);
   }
 
-  properties(): Map<string, string> {
-    const map: Map<string, string> = new Map();
+  properties(): Map<string, any> {
+    const map: Map<string, any> = new Map();
     map.set("Command", this.command());
     map.set("Arguments", this.arguments().join(" "));
     map.set("Working Directory", this.workingDirectory());
+
+    return map;
+  }
+
+  toApiPayload(): any {
+    return JsonUtils.toSnakeCasedObject(this);
+  }
+}
+
+export class FetchArtifactTask extends AbstractTask {
+  type: TaskType = "fetch";
+
+  constructor(artifactOrigin: ArtifactOrigin,
+              pipelineName: string | undefined,
+              stageName: string,
+              jobName: string,
+              isSourceAFile: boolean,
+              source: string | undefined,
+              destination: string | undefined,
+              artifactId: string | undefined,
+              configuration: Configurations,
+              runIf: RunIfCondition[],
+              onCancel?: Task) {
+    super();
+    this.attributes(new FetchTaskAttributes(artifactOrigin,
+                                            pipelineName,
+                                            stageName,
+                                            jobName,
+                                            isSourceAFile,
+                                            source,
+                                            destination,
+                                            artifactId,
+                                            configuration,
+                                            runIf,
+                                            onCancel));
+  }
+
+  static from(json: FetchTaskAttributesJSON): FetchArtifactTask {
+    return new FetchArtifactTask(json.artifact_origin,
+                                 json.pipeline,
+                                 json.stage,
+                                 json.job,
+                                 json.is_source_a_file || false,
+                                 json.source,
+                                 json.destination,
+                                 json.artifact_id,
+                                 Configurations.fromJSON(json.configuration || []),
+                                 json.run_if,
+                                 json.on_cancel ? AbstractTask.fromJSON(json.on_cancel) : undefined);
+  }
+}
+
+export class FetchTaskAttributes extends AbstractTaskAttributes {
+  readonly artifactOrigin: Stream<ArtifactOrigin> = Stream();
+  readonly pipeline: Stream<string | undefined>   = Stream();
+  readonly stage: Stream<string>                  = Stream();
+  readonly job: Stream<string>                    = Stream();
+
+  readonly isSourceAFile: Stream<boolean>          = Stream();
+  readonly source: Stream<string | undefined>      = Stream();
+  readonly destination: Stream<string | undefined> = Stream();
+
+  readonly artifactId: Stream<string | undefined> = Stream();
+  readonly configuration: Stream<Configurations>  = Stream();
+
+  constructor(artifactOrigin: ArtifactOrigin,
+              pipelineName: string | undefined,
+              stageName: string,
+              jobName: string,
+              isSourceAFile: boolean,
+              source: string | undefined,
+              destination: string | undefined,
+              artifactId: string | undefined,
+              configuration: Configurations,
+              runIf: RunIfCondition[],
+              onCancel: Task | undefined) {
+    super(runIf, onCancel);
+
+    this.artifactOrigin(artifactOrigin);
+    this.pipeline(pipelineName);
+    this.stage(stageName);
+    this.job(jobName);
+
+    this.isSourceAFile(isSourceAFile);
+    this.source(source);
+    this.destination(destination);
+
+    this.artifactId(artifactId);
+    this.configuration(configuration);
+  }
+
+  isBuiltInArtifact(): boolean {
+    return this.artifactOrigin() === "gocd";
+  }
+
+  properties(): Map<string, any> {
+    const map: Map<string, any> = new Map();
+
+    map.set("Pipeline Name", this.pipeline());
+    map.set("Stage Name", this.stage());
+    map.set("Job Name", this.job());
+
+    if (this.isBuiltInArtifact()) {
+      map.set("Source", this.source());
+      map.set("Destination", this.destination());
+    }
 
     return map;
   }

@@ -64,7 +64,7 @@ class TasksWidget extends MithrilViewComponent<Attrs> {
         <b>{task.type}</b>,
         <i>{task.attributes().runIf().join(", ")}</i>,
         <KeyValuePair inline={true} data={task.attributes().properties()}/>,
-        task.attributes().onCancel() ? task.attributes().onCancel().type : "No"
+        task.attributes().onCancel()?.type || "No"
       ];
 
       if (isEditable) {

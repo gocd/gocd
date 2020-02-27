@@ -42,9 +42,9 @@ public class AgentBootstrapperArgs {
     public static final String SERVER_URL = "serverUrl";
     public static final String SSL_VERIFICATION_MODE = "sslVerificationMode";
     public static final String ROOT_CERT_FILE = "rootCertFile";
-    public static final String PRIVATE_KEY = "sslPrivateKey";
+    public static final String PRIVATE_KEY = "sslPrivateKeyFile";
     public static final String PRIVATE_KEY_PASSPHRASE_FILE = "sslPrivateKeyPassphraseFile";
-    public static final String SSL_CERTIFICATE = "sslCertificate";
+    public static final String SSL_CERTIFICATE = "sslCertificateFile";
 
     @Parameter(names = "-serverUrl", description = "The GoCD server URL. Example: http://gocd.example.com:8153/go", required = true, validateWith = ServerUrlValidator.class)
     private URL serverUrl;
@@ -55,14 +55,14 @@ public class AgentBootstrapperArgs {
     @Parameter(names = "-sslVerificationMode", description = "The SSL verification mode.")
     private SslMode sslVerificationMode = SslMode.FULL;
 
-    @Parameter(names = "-sslPrivateKey", description = "The private key for mutual TLS.")
-    private File sslPrivateKey;
+    @Parameter(names = "-sslPrivateKeyFile", description = "The private key for mutual TLS.", validateWith = FileIsReadableValidator.class)
+    private File sslPrivateKeyFile;
 
-    @Parameter(names = "-sslPrivateKeyPassphraseFile", description = "The file containing the passphrase for decoding the SSL private key.")
+    @Parameter(names = "-sslPrivateKeyPassphraseFile", description = "The file containing the passphrase for decoding the SSL private key.", validateWith = FileIsReadableValidator.class)
     private File sslPrivateKeyPassphraseFile;
 
-    @Parameter(names = "-sslCertificate", description = "The X509 certificate for mutual TLS.")
-    private File sslCertificate;
+    @Parameter(names = "-sslCertificateFile", description = "The X509 certificate for mutual TLS.", validateWith = FileIsReadableValidator.class)
+    private File sslCertificateFile;
 
     @Parameter(names = "-help", help = true, description = "Print this help")
     boolean help;
@@ -75,16 +75,16 @@ public class AgentBootstrapperArgs {
         properties.put(SERVER_URL, serverUrl.toString());
         properties.put(SSL_VERIFICATION_MODE, sslVerificationMode.name());
 
-        if (sslPrivateKey != null) {
-            properties.put(PRIVATE_KEY, sslPrivateKey.getPath());
+        if (sslPrivateKeyFile != null) {
+            properties.put(PRIVATE_KEY, sslPrivateKeyFile.getPath());
         }
 
         if (sslPrivateKeyPassphraseFile != null) {
             properties.put(PRIVATE_KEY_PASSPHRASE_FILE, sslPrivateKeyPassphraseFile.getPath());
         }
 
-        if (sslCertificate != null) {
-            properties.put(SSL_CERTIFICATE, sslCertificate.getPath());
+        if (sslCertificateFile != null) {
+            properties.put(SSL_CERTIFICATE, sslCertificateFile.getPath());
         }
 
         if (rootCertFile != null) {
@@ -106,7 +106,7 @@ public class AgentBootstrapperArgs {
             }
 
             if (properties.containsKey(PRIVATE_KEY)) {
-                agentBootstrapperArgs.setSslPrivateKey(new File(properties.get(PRIVATE_KEY)));
+                agentBootstrapperArgs.setSslPrivateKeyFile(new File(properties.get(PRIVATE_KEY)));
             }
 
             if (properties.containsKey(PRIVATE_KEY_PASSPHRASE_FILE)) {
@@ -114,7 +114,7 @@ public class AgentBootstrapperArgs {
             }
 
             if (properties.containsKey(SSL_CERTIFICATE)) {
-                agentBootstrapperArgs.setSslCertificate(new File(properties.get(SSL_CERTIFICATE)));
+                agentBootstrapperArgs.setSslCertificateFile(new File(properties.get(SSL_CERTIFICATE)));
             }
             return agentBootstrapperArgs;
         } catch (MalformedURLException e) {

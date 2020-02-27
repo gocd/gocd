@@ -99,9 +99,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String SERVICE_URL = "serviceUrl";
     public static final String AGENT_SSL_VERIFICATION_MODE = "sslVerificationMode";
     public static final String AGENT_ROOT_CERT_FILE = "rootCertFile";
-    public static final String AGENT_PRIVATE_KEY = "sslPrivateKey";
+    public static final String AGENT_PRIVATE_KEY = "sslPrivateKeyFile";
     public static final String AGENT_PRIVATE_KEY_PASSPHRASE_FILE = "sslPrivateKeyPassphraseFile";
-    public static final String AGENT_SSL_CERTIFICATE = "sslCertificate";
+    public static final String AGENT_SSL_CERTIFICATE = "sslCertificateFile";
 
     public static final String CONFIG_DIR_PROPERTY = "cruise.config.dir";
     public static final String DES_CONFIG_CIPHER = "cipher";

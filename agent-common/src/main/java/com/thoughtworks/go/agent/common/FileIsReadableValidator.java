@@ -13,31 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.agent.common;
 
+import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.ParameterException;
-import com.thoughtworks.go.agent.common.ssl.CertificateFileParser;
 
 import java.io.File;
 
-public class CertificateFileValidator extends FileIsReadableValidator {
-
+public class FileIsReadableValidator implements IParameterValidator {
     @Override
     public void validate(String name, String value) throws ParameterException {
-        super.validate(name, value);
+        if (value == null || value.trim().isEmpty()) {
+            throw new ParameterException(name + " must be specified.");
+        }
 
-        try {
-            if (new CertificateFileParser().certificates(new File(value)).isEmpty()) {
-                throw badCertfile(name);
-            }
-        } catch (Exception e) {
-            throw badCertfile(name);
+        if (!new File(value).canRead()) {
+            throw new ParameterException(name + " must be a file that is readable.");
         }
     }
-
-    private ParameterException badCertfile(String name) {
-        return new ParameterException(name + " must contain one or more X.509 certificates in DER encoded " +
-                "and may be supplied in binary or Base64 encoding.");
-    }
-
 }

@@ -59,9 +59,9 @@ public class ServerBinaryDownloader implements Downloader {
         this(new GoAgentServerHttpClientBuilder(
                 bootstrapperArgs.getRootCertFile(),
                 SslVerificationMode.valueOf(bootstrapperArgs.getSslVerificationMode().name()),
-                bootstrapperArgs.getSslPrivateKey(),
+                bootstrapperArgs.getSslPrivateKeyFile(),
                 bootstrapperArgs.getSslPrivateKeyPassphraseFile(),
-                bootstrapperArgs.getSslCertificate()
+                bootstrapperArgs.getSslCertificateFile()
         ), urlGenerator);
     }
 

@@ -15,16 +15,14 @@
  */
 package com.thoughtworks.go.agent.common;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.UUID;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 public class AgentCLITest {
 
@@ -44,11 +42,11 @@ public class AgentCLITest {
     public void shouldDieIfNoArguments() {
         try {
             agentCLI.parse();
-            Assert.fail("Was expecting an exception!");
+            fail("Was expecting an exception!");
         } catch (ExitException e) {
-            assertThat(e.getStatus(), is(1));
-            assertThat(errorStream.toString(), containsString("The following option is required: [-serverUrl]"));
-            assertThat(errorStream.toString(), containsString("Usage: java -jar agent-bootstrapper.jar"));
+            assertThat(e.getStatus()).isEqualTo(1);
+            assertThat(errorStream.toString()).contains("The following option is required: [-serverUrl]");
+            assertThat(errorStream.toString()).contains("Usage: java -jar agent-bootstrapper.jar");
         }
     }
 
@@ -56,46 +54,100 @@ public class AgentCLITest {
     public void serverURLMustBeAValidURL() {
         try {
             agentCLI.parse("-serverUrl", "foobar");
-            Assert.fail("Was expecting an exception!");
+            fail("Was expecting an exception!");
         } catch (ExitException e) {
-            assertThat(e.getStatus(), is(1));
-            assertThat(errorStream.toString(), containsString("-serverUrl is not a valid url"));
-            assertThat(errorStream.toString(), containsString("Usage: java -jar agent-bootstrapper.jar"));
+            assertThat(e.getStatus()).isEqualTo(1);
+            assertThat(errorStream.toString()).contains("-serverUrl is not a valid url");
+            assertThat(errorStream.toString()).contains("Usage: java -jar agent-bootstrapper.jar");
         }
     }
 
     @Test
     public void shouldPassIfCorrectArgumentsAreProvided() {
         AgentBootstrapperArgs agentBootstrapperArgs = agentCLI.parse("-serverUrl", "https://go.example.com:8154/go", "-sslVerificationMode", "NONE");
-        assertThat(agentBootstrapperArgs.getServerUrl().toString(), is("https://go.example.com:8154/go"));
-        assertThat(agentBootstrapperArgs.getSslVerificationMode(), is(AgentBootstrapperArgs.SslMode.NONE));
+        assertThat(agentBootstrapperArgs.getServerUrl().toString()).isEqualTo("https://go.example.com:8154/go");
+        assertThat(agentBootstrapperArgs.getSslVerificationMode()).isEqualTo(AgentBootstrapperArgs.SslMode.NONE);
     }
 
     @Test
     public void shouldRaisExceptionWhenInvalidSslModeIsPassed() {
-        try {
+        assertThatCode(() -> {
             agentCLI.parse("-serverUrl", "https://go.example.com:8154/go", "-sslVerificationMode", "FOOBAR");
-            Assert.fail("Was expecting an exception!");
-        } catch (ExitException e) {
-            assertThat(e.getStatus(), is(1));
-            assertThat(errorStream.toString(), containsString("Invalid value for -sslVerificationMode parameter. Allowed values:[FULL, NONE, NO_VERIFY_HOST]"));
-            assertThat(errorStream.toString(), containsString("Usage: java -jar agent-bootstrapper.jar"));
-        }
+        })
+                .isInstanceOf(ExitException.class)
+                .satisfies(o -> {
+                    assertThat(((ExitException) o).getStatus()).isEqualTo(1);
+                });
+
+        assertThat(errorStream.toString()).contains("Invalid value for -sslVerificationMode parameter. Allowed values:[FULL, NONE, NO_VERIFY_HOST]");
+        assertThat(errorStream.toString()).contains("Usage: java -jar agent-bootstrapper.jar");
+    }
+
+    @Test
+    public void shouldRaiseExceptionWhenRootCertificateFileIsNotPresent() {
+        assertThatCode(() -> {
+            agentCLI.parse("-serverUrl", "http://example.com/go", "-rootCertFile", UUID.randomUUID().toString());
+        })
+                .isInstanceOf(ExitException.class)
+                .satisfies(o -> {
+                    assertThat(((ExitException) o).getStatus()).isEqualTo(1);
+                });
+
+        assertThat(errorStream.toString()).contains("-rootCertFile must be a file that is readable.");
+    }
+
+    @Test
+    public void shouldRaiseExceptionWhenSSLCertificateFileIsNotPresent() {
+        assertThatCode(() -> {
+            agentCLI.parse("-serverUrl", "http://example.com/go", "-sslCertificateFile", UUID.randomUUID().toString());
+        })
+                .isInstanceOf(ExitException.class)
+                .satisfies(o -> {
+                    assertThat(((ExitException) o).getStatus()).isEqualTo(1);
+                });
+
+        assertThat(errorStream.toString()).contains("-sslCertificateFile must be a file that is readable.");
+    }
+
+    @Test
+    public void shouldRaiseExceptionWhenSSLPrivateKeyPassphraseFileIsNotPresent() {
+        assertThatCode(() -> {
+            agentCLI.parse("-serverUrl", "http://example.com/go", "-sslPrivateKeyPassphraseFile", UUID.randomUUID().toString());
+        })
+                .isInstanceOf(ExitException.class)
+                .satisfies(o -> {
+                    assertThat(((ExitException) o).getStatus()).isEqualTo(1);
+                });
+
+        assertThat(errorStream.toString()).contains("-sslPrivateKeyPassphraseFile must be a file that is readable.");
+    }
+
+    @Test
+    public void shouldRaiseExceptionWhenSSLPrivateKeyFileIsNotPresent() {
+        assertThatCode(() -> {
+            agentCLI.parse("-serverUrl", "http://example.com/go", "-sslPrivateKeyFile", UUID.randomUUID().toString());
+        })
+                .isInstanceOf(ExitException.class)
+                .satisfies(o -> {
+                    assertThat(((ExitException) o).getStatus()).isEqualTo(1);
+                });
+
+        assertThat(errorStream.toString()).contains("-sslPrivateKeyFile must be a file that is readable.");
     }
 
     @Test
     public void shouldDefaultsTheSslModeToFullWhenNotSpecified() {
         AgentBootstrapperArgs agentBootstrapperArgs = agentCLI.parse("-serverUrl", "https://go.example.com/go");
-        assertThat(agentBootstrapperArgs.getSslVerificationMode(), is(AgentBootstrapperArgs.SslMode.FULL));
+        assertThat(agentBootstrapperArgs.getSslVerificationMode()).isEqualTo(AgentBootstrapperArgs.SslMode.FULL);
     }
 
     @Test
     public void printsHelpAndExitsWith0() {
         try {
             agentCLI.parse("-help");
-            Assert.fail("Was expecting an exception!");
+            fail("Was expecting an exception!");
         } catch (ExitException e) {
-            assertThat(e.getStatus(), is(0));
+            assertThat(e.getStatus()).isEqualTo(0);
         }
     }
 

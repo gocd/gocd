@@ -110,6 +110,7 @@ describe("Stage model", () => {
         {
           name: "name",
           environment_variables: [],
+          resources: [],
           tasks: [{
             type: "exec",
             attributes: {

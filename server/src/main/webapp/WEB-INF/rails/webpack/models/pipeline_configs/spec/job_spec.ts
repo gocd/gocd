@@ -82,6 +82,7 @@ describe("Job model", () => {
     expect(job.toApiPayload()).toEqual({
       name: "name",
       environment_variables: [],
+      resources: [],
       tasks: [{
         type: "exec",
         attributes: {

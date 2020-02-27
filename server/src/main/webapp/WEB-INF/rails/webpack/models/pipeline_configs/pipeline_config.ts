@@ -90,7 +90,11 @@ export class Timer {
     return new Timer();
   }
 
-  toApiPayload() {
+  toJSON() {
+    if (!this.spec() && !this.onlyOnChanges()) {
+      return null;
+    }
+
     return JsonUtils.toSnakeCasedObject(this);
   }
 }
@@ -118,10 +122,17 @@ export class TrackingTool {
     return tracingTool;
   }
 
-  toApiPayload(): any {
+  toJSON(): any {
+    if (!this.regex() && !this.urlPattern()) {
+      return null;
+    }
+
     return {
       type: "generic",
-      attributes: JsonUtils.toSnakeCasedObject(this)
+      attributes: {
+        url_pattern: this.urlPattern(),
+        regex: this.regex()
+      }
     };
   }
 }
@@ -208,9 +219,9 @@ export class PipelineConfig extends ValidatableMixin {
     });
   }
 
-  update() {
+  update(etag: string) {
     return ApiRequestBuilder.PUT(SparkRoutes.getOrUpdatePipelineConfigPath(this.name()), ApiVersion.latest, {
-      payload: JsonUtils.toSnakeCasedObject(this),
+      payload: this.toPutApiPayload(), etag
     });
   }
 
@@ -224,5 +235,9 @@ export class PipelineConfig extends ValidatableMixin {
     delete raw.group;
 
     return {group, pipeline: raw};
+  }
+
+  toPutApiPayload(): any {
+    return JsonUtils.toSnakeCasedObject(this);
   }
 }

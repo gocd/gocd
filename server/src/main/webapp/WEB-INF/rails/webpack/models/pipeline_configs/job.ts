@@ -113,6 +113,10 @@ export class Job extends ValidatableMixin {
   }
 
   toApiPayload() {
-    return JsonUtils.toSnakeCasedObject(this);
+    const json = JsonUtils.toSnakeCasedObject(this);
+    if (json.resources) {
+      json.resources = (json.resources as string).split(",").map((r: string) => r.trim());
+    }
+    return json;
   }
 }

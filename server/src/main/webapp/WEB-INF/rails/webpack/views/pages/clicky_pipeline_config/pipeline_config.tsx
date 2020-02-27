@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
+import {ApiResult, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {Job} from "models/pipeline_configs/job";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
@@ -50,6 +51,7 @@ export interface PipelineConfigRouteParams {
 }
 
 export class PipelineConfigPage<T> extends Page<null, T> {
+  private etag: Stream<string> = Stream();
   private templateConfig?: TemplateConfig;
   private pipelineConfig?: PipelineConfig;
   private originalJSON: any;
@@ -74,7 +76,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
   }
 
   save() {
-    this.pipelineConfig?.update().then((result) => result.do(this.onSuccess.bind(this), this.onFailure.bind(this)));
+    this.pipelineConfig?.update(this.etag()).then((result) => result.do(this.onSuccess.bind(this, result), this.onFailure.bind(this)));
   }
 
   reset() {
@@ -134,7 +136,9 @@ export class PipelineConfigPage<T> extends Page<null, T> {
 
   fetchData(vnode: m.Vnode<null, T>): Promise<any> {
     return PipelineConfig.get(this.getMeta().pipelineName)
-                         .then((result) => result.do(this.onSuccess.bind(this), this.onFailure.bind(this)))
+                         .then((result) => {
+                           return result.do(this.onSuccess.bind(this, result), this.onFailure.bind(this));
+                         })
                          .finally(() => {
                            if (this.pipelineConfig!.template()) {
                              this.pageState = PageState.LOADING;
@@ -181,7 +185,9 @@ export class PipelineConfigPage<T> extends Page<null, T> {
     });
   }
 
-  private onSuccess(successResponse: SuccessResponse<string>) {
+  private onSuccess(result: ApiResult<any>, successResponse: SuccessResponse<string>) {
+    this.etag(result.getEtag()!);
+
     this.originalJSON   = JSON.parse(successResponse.body);
     this.pipelineConfig = PipelineConfig.fromJSON(this.originalJSON);
     this.pageState      = PageState.OK;

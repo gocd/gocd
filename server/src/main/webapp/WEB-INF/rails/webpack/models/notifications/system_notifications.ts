@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import _ from "lodash";
-import uuid4 from "uuid/v4";
+import { v4 as uuid4 } from 'uuid';
 
 export class Notification {
   id: string;

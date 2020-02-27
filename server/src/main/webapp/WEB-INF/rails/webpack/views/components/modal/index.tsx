@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 
-import uuid4 from "uuid/v4";
+import { v4 as uuid4 } from 'uuid';
 import {Spinner} from "views/components/spinner";
 import * as Buttons from "../buttons";
 import styles from "./index.scss";

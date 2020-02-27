@@ -19,7 +19,7 @@ import {DefinedStructures} from "models/config_repos/defined_structures";
 import {ConfigRepo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {LinksJSON, PluginInfoJSON} from "models/shared/plugin_infos_new/serialization";
-import uuid from "uuid/v4";
+import { v4 as uuid } from 'uuid';
 
 class MockCache implements ObjectCache<DefinedStructures> {
   ready: () => boolean;

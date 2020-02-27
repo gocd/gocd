@@ -19,7 +19,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {UserJSON} from "models/users/users";
 import {UsersCRUD, UserSearchCRUD} from "models/users/users_crud";
-import uuid from "uuid/v4";
+import { v4 as uuid } from 'uuid';
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, FlashMessageModel, MessageType} from "views/components/flash_message";
 import {SearchFieldWithButton} from "views/components/forms/input_fields";

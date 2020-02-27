@@ -15,7 +15,7 @@
  */
 import _ from "lodash";
 import {mixins as s} from "helpers/string-plus";
-import uuid4 from "uuid/v4";
+import { v4 as uuid4 } from 'uuid';
 import Stream from "mithril/stream";
 
 export const Mixins = {};

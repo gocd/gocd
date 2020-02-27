@@ -15,7 +15,7 @@
  */
 
 import {AgentJSON, AgentsJSON} from "models/agents/agents_json";
-import uuid from "uuid/v4";
+import { v4 as uuid } from 'uuid';
 
 export class AgentsTestData {
   static list() {

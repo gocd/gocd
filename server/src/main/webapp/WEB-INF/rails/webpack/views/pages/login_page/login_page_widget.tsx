@@ -19,7 +19,7 @@ import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {AuthPluginInfo} from "models/authentication/auth_plugin_info";
 import s from "underscore.string";
-import uuid from "uuid/v4";
+import { v4 as uuid } from 'uuid';
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import styles from "./login_page_widget.scss";
 

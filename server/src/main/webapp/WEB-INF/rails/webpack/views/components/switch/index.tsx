@@ -20,7 +20,7 @@ import Stream from "mithril/stream";
 import classnames from "classnames";
 import styles from "./index.scss";
 
-import uuid4 from "uuid/v4";
+import { v4 as uuid4 } from 'uuid';
 
 export interface Attrs {
   inProgress?: boolean;

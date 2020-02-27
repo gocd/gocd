@@ -22,7 +22,7 @@ import * as Buttons from "views/components/buttons/index";
 import {ModalManager} from "views/components/modal/modal_manager";
 import styles from "./index.scss";
 
-import uuid4 from "uuid/v4";
+import { v4 as uuid4 } from 'uuid';
 
 const classnames = bind(styles);
 

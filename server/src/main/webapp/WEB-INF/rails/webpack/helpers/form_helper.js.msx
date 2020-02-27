@@ -16,7 +16,7 @@
 import m from "mithril";
 import $ from "jquery";
 import _ from "lodash";
-import uuid4 from "uuid/v4";
+import { v4 as uuid4 } from 'uuid';
 import Stream from "mithril/stream";
 import {mixins as s} from "helpers/string-plus";
 import 'foundation-sites';

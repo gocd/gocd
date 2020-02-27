@@ -17,7 +17,7 @@ import m from "mithril";
 import {f} from "helpers/form_helper";
 import _ from "lodash";
 import $ from "jquery";
-import uuid4 from "uuid/v4";
+import { v4 as uuid4 } from 'uuid';
 // instead of each modal being a top level component of its own (and causing a redraw of everything else on the page)
 // we manage a single component that's always mounted as soon as the page loads up, creating a new modal will create
 // a sub-component in the top level component.

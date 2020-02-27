@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Job} from "models/pipeline_configs/job";
@@ -24,10 +24,15 @@ import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
+import {Secondary} from "views/components/buttons";
+import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {Delete} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Table} from "views/components/table";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {AntTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/ant";
+import {NantTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/nant";
+import styles from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab.scss";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 
 export interface Attrs {
@@ -36,13 +41,54 @@ export interface Attrs {
   pluginInfos: Stream<PluginInfos>;
 }
 
-export class TasksWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
+export interface State {
+  allTaskTypes: string[];
+  selectedTaskTypeToAdd: Stream<string>;
+}
+
+export class TasksWidget extends MithrilComponent<Attrs, State> {
+  static getTaskTypes(): string[] {
+    return ["ant", "nant", "rake", "exec", "fetch", "pluggable_task"];
+  }
+
+  static getTaskModal(type: string, task: Task | undefined, onAdd: (t: Task) => void, showOnCancel: boolean) {
+    switch (type) {
+      case "ant":
+        return new AntTaskModal(task, showOnCancel, onAdd);
+      case "nant":
+        return new NantTaskModal(task, showOnCancel, onAdd);
+      default:
+        throw new Error("Unsupported Task Type!");
+    }
+  }
+
+  oninit(vnode: m.Vnode<Attrs, State>) {
+    vnode.state.allTaskTypes          = TasksWidget.getTaskTypes();
+    vnode.state.selectedTaskTypeToAdd = Stream(vnode.state.allTaskTypes[0]);
+  }
+
+  onTaskAdd(vnode: m.Vnode<Attrs, State>, task: Task) {
+    vnode.attrs.tasks().push(task);
+  }
+
+  view(vnode: m.Vnode<Attrs, State>) {
     return <div data-test-id={"tasks-container"}>
       <Table headers={TasksWidget.getTableHeaders(vnode.attrs.isEditable)}
              draggable={vnode.attrs.isEditable}
              dragHandler={TasksWidget.reArrange.bind(this, vnode.attrs.tasks)}
              data={TasksWidget.getTableData(vnode.attrs.pluginInfos(), vnode.attrs.tasks(), vnode.attrs.isEditable)}/>
+      <div className={styles.addTaskWrapper}>
+        <SelectField property={vnode.state.selectedTaskTypeToAdd}>
+          <SelectFieldOptions selected={vnode.state.selectedTaskTypeToAdd()}
+                              items={vnode.state.allTaskTypes}/>
+        </SelectField>
+        <Secondary small={true}
+                   onclick={() => TasksWidget.getTaskModal(vnode.state.selectedTaskTypeToAdd(),
+                                                           undefined,
+                                                           this.onTaskAdd.bind(this, vnode), true)!.render()}>
+          Add Task
+        </Secondary>
+      </div>
     </div>;
   }
 

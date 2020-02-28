@@ -31,6 +31,7 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import {Table} from "views/components/table";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {AntTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/ant";
+import {ExecTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/exec";
 import {NantTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/nant";
 import {RakeTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/rake";
 import styles from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab.scss";
@@ -60,6 +61,8 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
         return new NantTaskModal(task, showOnCancel, onAdd);
       case "rake":
         return new RakeTaskModal(task, showOnCancel, onAdd);
+      case "exec":
+        return new ExecTaskModal(task, showOnCancel, onAdd);
       default:
         throw new Error("Unsupported Task Type!");
     }

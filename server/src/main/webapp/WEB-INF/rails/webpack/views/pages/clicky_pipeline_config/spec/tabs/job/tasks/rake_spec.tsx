@@ -15,6 +15,7 @@
  */
 
 import {RakeTask, RakeTaskAttributes, Task} from "models/pipeline_configs/task";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {RakeTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/rake";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -132,7 +133,7 @@ describe("Rake Task Modal", () => {
 
   function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true) {
     helper.mount(() => {
-      return new RakeTaskModal(task, shouldShowOnCancel, jasmine.createSpy()).body();
+      return new RakeTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), new PluginInfos()).body();
     });
   }
 });

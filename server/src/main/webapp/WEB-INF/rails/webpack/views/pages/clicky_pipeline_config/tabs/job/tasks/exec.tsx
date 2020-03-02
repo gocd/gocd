@@ -17,35 +17,28 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ExecTask, ExecTaskAttributes, Task} from "models/pipeline_configs/task";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {Size, TextAreaField, TextField} from "views/components/forms/input_fields";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
-import {OnCancelTaskWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks/common/on_cancel_widget";
-import {RunIfConditionWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks/common/run_if_widget";
+import {OnCancelView} from "views/pages/clicky_pipeline_config/tabs/job/tasks/common/on_cancel_view";
 
 export class ExecTaskModal extends AbstractTaskModal {
   private readonly task: ExecTask;
   private readonly args: Stream<string>;
   private readonly showOnCancel: boolean;
+  private readonly pluginInfos: PluginInfos;
 
-  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => void) {
+  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => void, pluginInfos: PluginInfos) {
     super(onAdd);
     this.task = task ? task : new ExecTask("", [], undefined, [], undefined);
     this.args = Stream((this.task.attributes() as ExecTaskAttributes).arguments().join("\n"));
 
+    this.pluginInfos  = pluginInfos;
     this.showOnCancel = showOnCancel;
   }
 
   body(): m.Children {
     const attributes = this.task.attributes() as ExecTaskAttributes;
-
-    let onCancel: m.Child | undefined;
-    if (this.showOnCancel) {
-      onCancel = <div data-test-id="exec-on-cancel-view">
-        <RunIfConditionWidget runIf={attributes.runIf}/>
-        <h3>Advanced Option</h3>
-        <OnCancelTaskWidget onCancel={attributes.onCancel}/>
-      </div>;
-    }
 
     return <div data-test-id="exec-task-modal">
       <h3>Basic Settings</h3>
@@ -59,11 +52,13 @@ export class ExecTaskModal extends AbstractTaskModal {
                      resizable={true}
                      label="Arguments"
                      property={this.args}/>
-      <TextField
-        helpText="The directory in which the script or command is to be executed. This is always relative to the directory where the agent checks out materials."
-        label="Working Directory"
-        property={attributes.workingDirectory}/>
-      {onCancel}
+      <TextField helpText="The directory in which the script or command is to be executed. This is always relative to the directory where the agent checks out materials."
+                 label="Working Directory"
+                 property={attributes.workingDirectory}/>
+      <OnCancelView showOnCancel={this.showOnCancel}
+                    onCancel={attributes.onCancel}
+                    pluginInfos={this.pluginInfos}
+                    runIf={attributes.runIf}/>
     </div>;
   }
 

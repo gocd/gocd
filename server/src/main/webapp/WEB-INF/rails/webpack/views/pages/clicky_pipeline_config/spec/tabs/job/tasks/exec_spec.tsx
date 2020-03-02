@@ -15,6 +15,7 @@
  */
 
 import {ExecTask, ExecTaskAttributes, Task} from "models/pipeline_configs/task";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as simulateEvent from "simulate-event";
 import {ExecTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/exec";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -140,7 +141,7 @@ describe("Exec Task Modal", () => {
 
   function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true) {
     helper.mount(() => {
-      modal = new ExecTaskModal(task, shouldShowOnCancel, jasmine.createSpy());
+      modal = new ExecTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), new PluginInfos());
       return modal.body();
     });
   }

@@ -17,6 +17,7 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {AntTask, Task} from "models/pipeline_configs/task";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {OnCancelTaskWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks/common/on_cancel_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -49,7 +50,7 @@ describe("On Cancel Task Widget", () => {
 
   const mount = (onCancel: Stream<Task | undefined>) => {
     helper.mount(() => {
-      return <OnCancelTaskWidget onCancel={onCancel}/>;
+      return <OnCancelTaskWidget onCancel={onCancel} pluginInfos={new PluginInfos()}/>;
     });
   };
 });

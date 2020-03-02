@@ -19,7 +19,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Job} from "models/pipeline_configs/job";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
-import {Task} from "models/pipeline_configs/task";
+import {AbstractTask, Task} from "models/pipeline_configs/task";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -28,11 +28,13 @@ import {Secondary} from "views/components/buttons";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {Delete} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
+import {Link} from "views/components/link";
 import {Table} from "views/components/table";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {AntTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/ant";
 import {ExecTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/exec";
 import {NantTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/nant";
+import {PluggableTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/plugin";
 import {RakeTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/rake";
 import styles from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab.scss";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
@@ -49,27 +51,40 @@ export interface State {
 }
 
 export class TasksWidget extends MithrilComponent<Attrs, State> {
-  static getTaskTypes(): string[] {
-    return ["ant", "nant", "rake", "exec", "fetch", "pluggable_task"];
+  static getTaskTypes(): Map<string, string> {
+    return new Map([
+                     ["ant", "Ant"],
+                     ["nant", "NAnt"],
+                     ["rake", "Rake"],
+                     ["exec", "Custom Command"],
+                     ["fetch", "Fetch Artifact"],
+                     ["pluggable_task", "Plugin Task"]
+                   ]);
   }
 
-  static getTaskModal(type: string, task: Task | undefined, onAdd: (t: Task) => void, showOnCancel: boolean) {
+  static getTaskModal(type: string,
+                      task: Task | undefined,
+                      onSave: (t: Task) => void,
+                      showOnCancel: boolean,
+                      pluginInfos: PluginInfos) {
     switch (type) {
-      case "ant":
-        return new AntTaskModal(task, showOnCancel, onAdd);
-      case "nant":
-        return new NantTaskModal(task, showOnCancel, onAdd);
-      case "rake":
-        return new RakeTaskModal(task, showOnCancel, onAdd);
-      case "exec":
-        return new ExecTaskModal(task, showOnCancel, onAdd);
+      case "Ant":
+        return new AntTaskModal(task, showOnCancel, onSave, pluginInfos);
+      case "NAnt":
+        return new NantTaskModal(task, showOnCancel, onSave, pluginInfos);
+      case "Rake":
+        return new RakeTaskModal(task, showOnCancel, onSave, pluginInfos);
+      case "Custom Command":
+        return new ExecTaskModal(task, showOnCancel, onSave, pluginInfos);
+      case "Plugin Task":
+        return new PluggableTaskModal(task, showOnCancel, onSave, pluginInfos);
       default:
         throw new Error("Unsupported Task Type!");
     }
   }
 
   oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.allTaskTypes          = TasksWidget.getTaskTypes();
+    vnode.state.allTaskTypes          = Array.from(TasksWidget.getTaskTypes().values());
     vnode.state.selectedTaskTypeToAdd = Stream(vnode.state.allTaskTypes[0]);
   }
 
@@ -82,7 +97,9 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
       <Table headers={TasksWidget.getTableHeaders(vnode.attrs.isEditable)}
              draggable={vnode.attrs.isEditable}
              dragHandler={TasksWidget.reArrange.bind(this, vnode.attrs.tasks)}
-             data={TasksWidget.getTableData(vnode.attrs.pluginInfos(), vnode.attrs.tasks(), vnode.attrs.isEditable)}/>
+             data={TasksWidget.getTableData(vnode.attrs.pluginInfos(),
+                                            vnode.attrs.tasks,
+                                            vnode.attrs.isEditable)}/>
       <div className={styles.addTaskWrapper}>
         <SelectField property={vnode.state.selectedTaskTypeToAdd}>
           <SelectFieldOptions selected={vnode.state.selectedTaskTypeToAdd()}
@@ -91,7 +108,9 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
         <Secondary small={true}
                    onclick={() => TasksWidget.getTaskModal(vnode.state.selectedTaskTypeToAdd(),
                                                            undefined,
-                                                           this.onTaskAdd.bind(this, vnode), true)!.render()}>
+                                                           this.onTaskAdd.bind(this, vnode),
+                                                           true,
+                                                           vnode.attrs.pluginInfos())!.render()}>
           Add Task
         </Secondary>
       </div>
@@ -114,10 +133,21 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
     return headers;
   }
 
-  private static getTableData(pluginInfos: PluginInfos, tasks: Task[], isEditable: boolean): m.Child[][] {
-    return tasks.map((task: Task, index: number) => {
+  private static getTableData(pluginInfos: PluginInfos,
+                              tasks: Stream<Task[]>,
+                              isEditable: boolean): m.Child[][] {
+
+    return tasks().map((task: Task, index: number) => {
       const cells: m.Child[] = [
-        <b>{task.description(pluginInfos)}</b>,
+        <Link onclick={() => TasksWidget.getTaskModal(TasksWidget.getTaskTypes().get(task.type)!,
+                                                      AbstractTask.fromJSON(task.toJSON()),
+                                                      (updated: Task) => {
+                                                        tasks()[index] = updated;
+                                                      },
+                                                      true,
+                                                      pluginInfos)!.render()}>
+          <b>{task.description(pluginInfos)}</b>
+        </Link>,
         <i>{task.attributes().runIf().join(", ")}</i>,
         <KeyValuePair inline={true} data={task.attributes().properties()}/>,
         task.attributes().onCancel()?.type || "No"
@@ -125,7 +155,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
 
       if (isEditable) {
         cells.push(<Delete iconOnly={true}
-                           onclick={() => tasks.splice(index, 1)}/>);
+                           onclick={() => tasks().splice(index, 1)}/>);
       }
       return cells;
     });

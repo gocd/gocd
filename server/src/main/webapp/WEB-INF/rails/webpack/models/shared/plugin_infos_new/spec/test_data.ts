@@ -657,7 +657,7 @@ export class TaskPluginInfo {
             }
           }],
           view: {
-            template: "<div>this is plugin view</div>"
+            template: "this is plugin view"
           }
         }
       }

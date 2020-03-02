@@ -15,6 +15,7 @@
  */
 
 import {AntTask, AntTaskAttributes, Task} from "models/pipeline_configs/task";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {AntTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/ant";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -132,7 +133,7 @@ describe("Ant Task Modal", () => {
 
   function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true) {
     helper.mount(() => {
-      return new AntTaskModal(task, shouldShowOnCancel, jasmine.createSpy()).body();
+      return new AntTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), new PluginInfos()).body();
     });
   }
 });

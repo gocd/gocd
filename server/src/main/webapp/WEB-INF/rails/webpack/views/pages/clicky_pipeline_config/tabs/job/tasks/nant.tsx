@@ -16,33 +16,25 @@
 
 import m from "mithril";
 import {NantTask, NantTaskAttributes, Task} from "models/pipeline_configs/task";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {TextField} from "views/components/forms/input_fields";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
-import {OnCancelTaskWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks/common/on_cancel_widget";
-import {RunIfConditionWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks/common/run_if_widget";
+import {OnCancelView} from "views/pages/clicky_pipeline_config/tabs/job/tasks/common/on_cancel_view";
 
 export class NantTaskModal extends AbstractTaskModal {
   private readonly showOnCancel: boolean;
   private readonly task: Task;
+  private readonly pluginInfos: PluginInfos;
 
-  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => void) {
+  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => void, pluginInfos: PluginInfos) {
     super(onAdd);
     this.showOnCancel = showOnCancel;
     this.task         = task ? task : new NantTask(undefined, undefined, undefined, undefined, [], undefined);
+    this.pluginInfos  = pluginInfos;
   }
 
   body(): m.Children {
     const attributes = this.task.attributes() as NantTaskAttributes;
-
-    let onCancel: m.Child | undefined;
-
-    if (this.showOnCancel) {
-      onCancel = <div data-test-id="nant-on-cancel-view">
-        <RunIfConditionWidget runIf={attributes.runIf}/>
-        <h3>Advanced Option</h3>
-        <OnCancelTaskWidget onCancel={attributes.onCancel}/>
-      </div>;
-    }
 
     return <div data-test-id="nant-task-modal">
       <h3>Basic Settings</h3>
@@ -57,10 +49,15 @@ export class NantTaskModal extends AbstractTaskModal {
       <TextField helpText="The directory from where nant is invoked."
                  label="Working Directory"
                  property={attributes.workingDirectory}/>
-      <TextField helpText="Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path."
-                 label="NAnt Path"
-                 property={attributes.nantPath}/>
-      {onCancel}
+      <TextField
+        helpText="Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path."
+        label="NAnt Path"
+        property={attributes.nantPath}/>
+
+      <OnCancelView showOnCancel={this.showOnCancel}
+                    onCancel={attributes.onCancel}
+                    pluginInfos={this.pluginInfos}
+                    runIf={attributes.runIf}/>
     </div>;
   }
 

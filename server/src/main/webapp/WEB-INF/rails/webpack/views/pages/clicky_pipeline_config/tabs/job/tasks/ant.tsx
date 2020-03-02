@@ -16,32 +16,25 @@
 
 import m from "mithril";
 import {AntTask, AntTaskAttributes, Task} from "models/pipeline_configs/task";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {TextField} from "views/components/forms/input_fields";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
-import {OnCancelTaskWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks/common/on_cancel_widget";
-import {RunIfConditionWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks/common/run_if_widget";
+import {OnCancelView} from "views/pages/clicky_pipeline_config/tabs/job/tasks/common/on_cancel_view";
 
 export class AntTaskModal extends AbstractTaskModal {
   private readonly task: AntTask;
   private readonly showOnCancel: boolean;
+  private readonly pluginInfos: PluginInfos;
 
-  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => void) {
+  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => void, pluginInfos: PluginInfos) {
     super(onAdd);
     this.showOnCancel = showOnCancel;
+    this.pluginInfos  = pluginInfos;
     this.task         = task ? task : new AntTask(undefined, undefined, undefined, [], undefined);
   }
 
   body(): m.Children {
     const attributes = this.task.attributes() as AntTaskAttributes;
-
-    let onCancel: m.Child | undefined;
-    if (this.showOnCancel) {
-      onCancel = <div data-test-id="ant-on-cancel-view">
-        <RunIfConditionWidget runIf={attributes.runIf}/>
-        <h3>Advanced Option</h3>
-        <OnCancelTaskWidget onCancel={attributes.onCancel}/>
-      </div>;
-    }
 
     return <div data-test-id="ant-task-modal">
       <h3>Basic Settings</h3>
@@ -56,7 +49,10 @@ export class AntTaskModal extends AbstractTaskModal {
       <TextField helpText="The directory from where ant is invoked."
                  label="Working Directory"
                  property={attributes.workingDirectory}/>
-      {onCancel}
+      <OnCancelView showOnCancel={this.showOnCancel}
+                    onCancel={attributes.onCancel}
+                    pluginInfos={this.pluginInfos}
+                    runIf={attributes.runIf}/>
     </div>;
   }
 

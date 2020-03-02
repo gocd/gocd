@@ -18,6 +18,7 @@ import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Task} from "models/pipeline_configs/task";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {CheckboxField, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {TasksWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
 
@@ -29,6 +30,7 @@ export interface State {
 
 export interface Attrs {
   onCancel: Stream<Task | undefined>;
+  pluginInfos: PluginInfos;
 }
 
 export class OnCancelTaskWidget extends MithrilComponent<Attrs, State> {
@@ -36,7 +38,7 @@ export class OnCancelTaskWidget extends MithrilComponent<Attrs, State> {
     vnode.state.onCancelCheckbox = Stream();
     vnode.state.onCancelCheckbox(!!vnode.attrs.onCancel());
 
-    vnode.state.allTaskTypes          = TasksWidget.getTaskTypes();
+    vnode.state.allTaskTypes          = Array.from(TasksWidget.getTaskTypes().values());
     vnode.state.selectedTaskTypeToAdd = Stream(vnode.state.allTaskTypes[0]);
   }
 
@@ -45,25 +47,43 @@ export class OnCancelTaskWidget extends MithrilComponent<Attrs, State> {
 
     if (vnode.state.onCancelCheckbox()) {
       onCancelView = <div data-test-id="on-cancel-body">
-        <SelectField property={vnode.state.selectedTaskTypeToAdd}>
+        <SelectField property={vnode.state.selectedTaskTypeToAdd}
+                     onchange={this.updateOnCancelTask.bind(this, vnode)}>
           <SelectFieldOptions selected={vnode.state.selectedTaskTypeToAdd()}
                               items={vnode.state.allTaskTypes}/>
         </SelectField>
-        {TasksWidget.getTaskModal(vnode.state.selectedTaskTypeToAdd(),
-                                  vnode.attrs.onCancel(),
-                                  this.noOperation,
-                                  false)!.body()}
+        {this.getTaskModal(vnode).body()}
       </div>;
     }
 
     return <div data-test-id="on-cancel-view">
       <CheckboxField label="On Cancel Task"
+                     onchange={this.updateOnCancelTask.bind(this, vnode)}
                      property={vnode.state.onCancelCheckbox}/>
       {onCancelView}
     </div>;
   }
 
+  updateOnCancelTask(vnode: m.Vnode<Attrs, State>) {
+    if (vnode.state.onCancelCheckbox()) {
+      //clear the existing task type
+      vnode.attrs.onCancel(undefined);
+      const task = this.getTaskModal(vnode).getTask();
+      vnode.attrs.onCancel(task);
+    } else {
+      vnode.attrs.onCancel(undefined);
+    }
+  }
+
   noOperation() {
     //do nothing
+  }
+
+  private getTaskModal(vnode: m.Vnode<Attrs, State>) {
+    return TasksWidget.getTaskModal(vnode.state.selectedTaskTypeToAdd(),
+                                    vnode.attrs.onCancel(),
+                                    this.noOperation,
+                                    false,
+                                    vnode.attrs.pluginInfos);
   }
 }

@@ -139,7 +139,7 @@ export class AutocompleteField extends RestyleViewComponent<Styles, AutoCompAttr
 
 export class TextFieldForAutoComplete extends TextField {
   renderInputField(vnode: m.Vnode<TextFieldAttrs>) {
-    return <div id="autocomplete-input-container">
+    return <div id="autocomplete-input-container" class={defaultStyles.autocompleteInputContainer}>
       {super.renderInputField(vnode)}
     </div>;
   }

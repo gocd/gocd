@@ -67,10 +67,7 @@ export abstract class SuggestionProvider {
   }
 
   update(): void {
-    this.getData().
-      then(this.receiver).
-      catch(this.errorMsg).
-      finally(this.done);
+    this.getData().then(this.receiver).catch(this.errorMsg).finally(this.done);
   }
 
   abstract getData(): Promise<Awesomplete.Suggestion[]>;
@@ -81,17 +78,18 @@ export class AutocompleteField extends RestyleViewComponent<Styles, AutoCompAttr
 
   ensureInited(vnode: m.VnodeDOM<AutoCompAttrs, State>): void {
     const css = this.css;
-    vnode.dom.classList.add(css.awesomplete);
+    const dom = vnode.dom && vnode.dom.children[1];
 
-    if (!vnode.state._asm && vnode.dom) {
-      const input = Awesomplete.$("input", vnode.dom!) as HTMLInputElement;
+    if (!vnode.state._asm && dom) {
+      dom.classList.add(css.awesomplete);
+      const input = Awesomplete.$("input", dom!) as HTMLInputElement;
 
       const asm = new Awesomplete(input, _.assign(
         {
           sort: false,
           minChars: 0,
           container(input: HTMLElement): Element {
-            return vnode.dom!;
+            return dom;
           },
           replace(text: Awesomplete.Suggestion) {
             input.value = text.toString();
@@ -135,6 +133,14 @@ export class AutocompleteField extends RestyleViewComponent<Styles, AutoCompAttr
       attrs.css = vnode.attrs.fieldCss;
     }
 
-    return <TextField {...attrs} />;
+    return <TextFieldForAutoComplete {...attrs} />;
+  }
+}
+
+export class TextFieldForAutoComplete extends TextField {
+  renderInputField(vnode: m.Vnode<TextFieldAttrs>) {
+    return <div id="autocomplete-input-container">
+      {super.renderInputField(vnode)}
+    </div>;
   }
 }

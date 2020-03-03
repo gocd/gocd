@@ -517,3 +517,7 @@ api/api-compare-v2/out/
 api/api-compare-v2/target/
 api/api-compare-v2/logs/
 api/api-compare-v2/config/
+api/api-internal-dependency-pipelines-v1/out/
+api/api-internal-dependency-pipelines-v1/target/
+api/api-internal-dependency-pipelines-v1/logs/
+api/api-internal-dependency-pipelines-v1/config/

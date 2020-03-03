@@ -889,4 +889,8 @@ public class Routes {
         public static final String BASE = "/api/auth/permissions";
         public static final String DOC = apiDocsUrl("permissions");
     }
+
+    public class InternalDependencyPipelines {
+        public static final String BASE = "/api/internal/pipelines/:pipeline_name/:stage_name/upstream";
+    }
 }

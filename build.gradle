@@ -168,7 +168,7 @@ rootProject.ext.versions = [
   apacheAnt             : '1.10.7',
   apacheHttpComponents  : '4.5.6',
   aspectj               : '1.9.5',
-  assertJ               : '3.15.0',
+  assertJ               : '3.12.2',
   bouncyCastle          : '1.59', // bouncycastle version has to be compatible with the jruby version
   bundler               : '2.1.1',
   cglib                 : '3.3.0',
@@ -236,10 +236,7 @@ rootProject.ext.versions = [
   tokenBucket           : '1.7',
   urlrewrite            : '3.2.0',
   velocityToolsView     : '1.4',
-  velocityToolsView     : '1.4',
-  xmlUnitMatchers       : '2.6.3',
-  xmlUnitMatchers       : '2.6.3',
-  xmlunitassertj        : '2.6.3',
+  xmlUnit               : '2.6.3',
   seleniumDrivers       : [
     chromedriver  : '2.41',
     geckodriver   : '0.21.0',

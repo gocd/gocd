@@ -331,9 +331,9 @@ dependencies {
   testCompile project(':jetty9')
   testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
   testCompile group: 'org.jsoup', name: 'jsoup', version: project.versions.jsoup
-  testCompile group: 'org.xmlunit', name: 'xmlunit-matchers', version: project.versions.xmlUnitMatchers
+  testCompile group: 'org.xmlunit', name: 'xmlunit-matchers', version: project.versions.xmlUnit
   testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
-  testCompile group: 'org.xmlunit', name: 'xmlunit-assertj', version: project.versions.xmlunitassertj
+  testCompile group: 'org.xmlunit', name: 'xmlunit-assertj', version: project.versions.xmlUnit
 
   testCompile project(':test:http-mocks')
 

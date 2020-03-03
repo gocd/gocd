@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @import "../../global/common.scss";
 @import "~awesomplete/awesomplete"; // don't add the `.css` extension!! See https://github.com/sass/node-sass/issues/2362#issuecomment-388634848
 
 .awesomplete > ul > li {
   color: $black;
+}
+
+// scss-lint:disable
+.autocomplete-input-container + span {
+  display: block;
 }

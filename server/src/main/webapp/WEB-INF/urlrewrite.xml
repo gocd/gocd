@@ -24,6 +24,12 @@
 
 <urlrewrite>
   <rule>
+    <name>Internal Dependency Pipelines API</name>
+    <from>^/api/internal/pipelines/([^/]+)/([^/]+)/upstream(/?)$</from>
+    <to last="true">/spark/api/internal/pipelines/${escape:$1}/${escape:$2}/upstream</to>
+  </rule>
+
+  <rule>
     <name>Clicky pipeline config SPA</name>
     <from>^/admin/pipelines/([^/]+)/edit(/?)$</from>
     <to last="true">/spark/admin/pipelines/${escape:$1}/edit</to>

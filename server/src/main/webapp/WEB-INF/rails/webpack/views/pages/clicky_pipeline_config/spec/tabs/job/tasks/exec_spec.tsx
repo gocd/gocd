@@ -77,7 +77,6 @@ describe("Exec Task Modal", () => {
     let attributes = modal.getTask().attributes() as ExecTaskAttributes;
 
     expect(attributes.arguments()).toEqual(["-a", "-h"]);
-    expect(helper.byTestId("form-field-input-arguments")).toHaveValue("-a\n-h");
 
     const input = helper.byTestId("form-field-input-arguments") as HTMLInputElement;
     input.value = "-alh";

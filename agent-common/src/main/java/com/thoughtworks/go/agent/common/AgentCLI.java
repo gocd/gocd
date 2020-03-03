@@ -59,7 +59,7 @@ public class AgentCLI {
         StringBuilder out = new StringBuilder();
         JCommander jCommander = new JCommander(new AgentBootstrapperArgs());
         jCommander.setProgramName("java -jar agent-bootstrapper.jar");
-        jCommander.usage(out);
+        jCommander.getUsageFormatter().usage(out);
         stderr.print(out);
         exit(exitCode);
     }

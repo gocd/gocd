@@ -532,4 +532,9 @@ export class SparkRoutes {
       return `${basePath}?${m.buildQueryString({type: type.join(",")})}`;
     }
   }
+
+  static getUpstreamPipelines(pipelineName: string, stageName: string) {
+    return `/go/api/internal/pipelines/${pipelineName}/${stageName}/upstream`;
+  }
+
 }

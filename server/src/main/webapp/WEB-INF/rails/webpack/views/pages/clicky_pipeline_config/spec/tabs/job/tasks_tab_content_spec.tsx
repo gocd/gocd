@@ -108,6 +108,7 @@ describe("Tasks Tab Content", () => {
     helper.mount(() => {
       return <TasksWidget tasks={job.tasks}
                           isEditable={true}
+                          autoSuggestions={Stream({})}
                           pluginInfos={Stream(new PluginInfos())}/>;
     });
   }

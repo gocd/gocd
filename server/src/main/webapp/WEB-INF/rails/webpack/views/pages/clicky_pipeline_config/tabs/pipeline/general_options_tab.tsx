@@ -58,7 +58,7 @@ export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {
       <Form compactForm={true}>
         <TextField property={entity.timer().spec}
                    label={"Cron Timer Specification"}
-                   errorText={entity.errors().errorsForDisplay("labelTemplate")}
+                   errorText={entity.errors().errorsForDisplay("timer")}
                    dataTestId={"cron-timer"}
                    helpText={"A cron-like schedule to build the pipeline. For example to run a pipeline once every night at 10 pm on weekdays, use '0 0 22 ? * MON-FRI'."}
                    docLink={"configuration/admin_timer.html"}/>

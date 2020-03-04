@@ -55,7 +55,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
   private templateConfig?: TemplateConfig;
   private pipelineConfig?: PipelineConfig;
   private originalJSON: any;
-  private readonly tabs = [] as Array<TabContent<SupportedTypes>>;
+  private readonly tabs        = [] as Array<TabContent<SupportedTypes>>;
 
   constructor(...tabs: Array<TabContent<SupportedTypes>>) {
     super();
@@ -76,7 +76,8 @@ export class PipelineConfigPage<T> extends Page<null, T> {
   }
 
   save() {
-    this.pipelineConfig?.update(this.etag()).then((result) => result.do(this.onSuccess.bind(this, result), this.onFailure.bind(this)));
+    this.pipelineConfig?.update(this.etag())
+        .then((result) => result.do(this.onSuccess.bind(this, result), this.onFailure.bind(this)));
   }
 
   reset() {
@@ -104,26 +105,29 @@ export class PipelineConfigPage<T> extends Page<null, T> {
 
   componentToDisplay(vnode: m.Vnode<null, T>): m.Children {
     return (
-      <div class={styles.mainContainer}>
+      <div>
         <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/>
-        <div class={styles.navigation}>
-          <NavigationWidget pipelineConfig={this.pipelineConfig!}
-                            routeInfo={PipelineConfigPage.routeInfo()}
-                            changeRoute={this.changeRoute.bind(this)}/>
-        </div>
+        <div class={styles.mainContainer}>
+          <div class={styles.navigation}>
+            <NavigationWidget pipelineConfig={this.pipelineConfig!}
+                              routeInfo={PipelineConfigPage.routeInfo()}
+                              changeRoute={this.changeRoute.bind(this)}/>
+          </div>
 
-        <div class={styles.entityConfigContainer}>
-          <StepsWidget routeInfo={PipelineConfigPage.routeInfo()}/>
-          <Tabs initialSelection={this.selectedTabIndex()}
-                tabs={this.tabs.map((eachTab: TabContent<SupportedTypes>) => eachTab.name())}
-                contents={this.tabs.map((eachTab: TabContent<SupportedTypes>) => eachTab.content(this.pipelineConfig!,
-                                                                                                 this.templateConfig!,
-                                                                                                 PipelineConfigPage.routeInfo().params,
-                                                                                                 PipelineConfigPage.isSelectedTab(eachTab)))}
-                beforeChange={this.onTabChange.bind(this, vnode)}/>
-          <div>
-            <Reset onclick={this.reset.bind(this)}>RESET</Reset>
-            <Primary onclick={this.save.bind(this)}>SAVE</Primary>
+          <div class={styles.entityConfigContainer}>
+            <StepsWidget routeInfo={PipelineConfigPage.routeInfo()}/>
+            <Tabs initialSelection={this.selectedTabIndex()}
+                  tabs={this.tabs.map((eachTab: TabContent<SupportedTypes>) => eachTab.name())}
+                  contents={this.tabs.map((eachTab: TabContent<SupportedTypes>) => eachTab.content(this.pipelineConfig!,
+                                                                                                   this.templateConfig!,
+                                                                                                   PipelineConfigPage.routeInfo().params,
+                                                                                                   PipelineConfigPage.isSelectedTab(
+                                                                                                     eachTab)))}
+                  beforeChange={this.onTabChange.bind(this, vnode)}/>
+            <div>
+              <Reset onclick={this.reset.bind(this)}>RESET</Reset>
+              <Primary onclick={this.save.bind(this)}>SAVE</Primary>
+            </div>
           </div>
         </div>
       </div>
@@ -194,8 +198,13 @@ export class PipelineConfigPage<T> extends Page<null, T> {
   }
 
   private onFailure(errorResponse: ErrorResponse) {
-    this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-    this.pageState = PageState.FAILED;
+    try {
+      this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+      this.pipelineConfig = PipelineConfig.fromJSON(JSON.parse(errorResponse.body!).data);
+      this.pipelineConfig.consumeErrorsResponse(JSON.parse(errorResponse.body!).data);
+    } catch (e) {
+      this.pageState = PageState.FAILED;
+    }
   }
 
   private validateRoute() {

@@ -101,6 +101,13 @@ export class AutocompleteField extends RestyleViewComponent<Styles, AutoCompAttr
       asm.status.classList.remove("visually-hidden");
       asm.status.classList.add(css.visuallyHidden);
 
+      input.addEventListener("awesomplete-select", (event: any) => {
+        vnode.attrs.property(event.text.value);
+        if (vnode.attrs.onchange) {
+          vnode.attrs.onchange(event);
+        }
+      });
+
       vnode.attrs.provider.onData((data: Awesomplete.Suggestion[]) => {
         asm.list = data;
         if (vnode.attrs.autoEvaluate === undefined || vnode.attrs.autoEvaluate === true) {

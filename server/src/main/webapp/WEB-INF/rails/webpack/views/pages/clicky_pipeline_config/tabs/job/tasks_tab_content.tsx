@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
+import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -33,6 +35,7 @@ import {Table} from "views/components/table";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {AntTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/ant";
 import {ExecTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/exec";
+import {FetchArtifactTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch";
 import {NantTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/nant";
 import {PluggableTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/plugin";
 import {RakeTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/rake";
@@ -43,6 +46,7 @@ export interface Attrs {
   tasks: Stream<Task[]>;
   isEditable: boolean;
   pluginInfos: Stream<PluginInfos>;
+  autoSuggestions: Stream<any>;
 }
 
 export interface State {
@@ -66,7 +70,8 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
                       task: Task | undefined,
                       onSave: (t: Task) => void,
                       showOnCancel: boolean,
-                      pluginInfos: PluginInfos) {
+                      pluginInfos: PluginInfos,
+                      autoSuggestions: Stream<any>) {
     switch (type) {
       case "Ant":
         return new AntTaskModal(task, showOnCancel, onSave, pluginInfos);
@@ -78,6 +83,8 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
         return new ExecTaskModal(task, showOnCancel, onSave, pluginInfos);
       case "Plugin Task":
         return new PluggableTaskModal(task, showOnCancel, onSave, pluginInfos);
+      case "Fetch Artifact":
+        return new FetchArtifactTaskModal(task, showOnCancel, onSave, pluginInfos, autoSuggestions);
       default:
         throw new Error("Unsupported Task Type!");
     }
@@ -98,6 +105,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
              draggable={vnode.attrs.isEditable}
              dragHandler={TasksWidget.reArrange.bind(this, vnode.attrs.tasks)}
              data={TasksWidget.getTableData(vnode.attrs.pluginInfos(),
+                                            vnode.attrs.autoSuggestions,
                                             vnode.attrs.tasks,
                                             vnode.attrs.isEditable)}/>
       <div className={styles.addTaskWrapper}>
@@ -110,7 +118,8 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
                                                            undefined,
                                                            this.onTaskAdd.bind(this, vnode),
                                                            true,
-                                                           vnode.attrs.pluginInfos())!.render()}>
+                                                           vnode.attrs.pluginInfos(),
+                                                           vnode.attrs.autoSuggestions)!.render()}>
           Add Task
         </Secondary>
       </div>
@@ -134,6 +143,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   }
 
   private static getTableData(pluginInfos: PluginInfos,
+                              autoSuggestions: Stream<any>,
                               tasks: Stream<Task[]>,
                               isEditable: boolean): m.Child[][] {
 
@@ -145,7 +155,8 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
                                                         tasks()[index] = updated;
                                                       },
                                                       true,
-                                                      pluginInfos)!.render()}>
+                                                      pluginInfos,
+                                                      autoSuggestions)!.render()}>
           <b>{task.description(pluginInfos)}</b>
         </Link>,
         <i>{task.attributes().runIf().join(", ")}</i>,
@@ -164,6 +175,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
 
 export class TasksTabContent extends TabContent<Job> {
   private readonly pluginInfos: Stream<PluginInfos> = Stream();
+  private autoSuggestions: Stream<any>              = Stream();
 
   constructor() {
     super();
@@ -174,8 +186,21 @@ export class TasksTabContent extends TabContent<Job> {
     return "Tasks";
   }
 
+  content(pipelineConfig: PipelineConfig,
+          templateConfig: TemplateConfig,
+          routeParams: PipelineConfigRouteParams,
+          isSelectedTab: boolean): m.Children {
+    if (!this.autoSuggestions()) {
+      this.fetchUpstreamPipelines(pipelineConfig.name(), routeParams.stage_name!);
+    }
+    return super.content(pipelineConfig, templateConfig, routeParams, isSelectedTab);
+  }
+
   protected renderer(entity: Job, templateConfig: TemplateConfig): m.Children {
-    return <TasksWidget pluginInfos={this.pluginInfos} tasks={entity.tasks} isEditable={true}/>;
+    return <TasksWidget pluginInfos={this.pluginInfos}
+                        autoSuggestions={this.autoSuggestions}
+                        tasks={entity.tasks}
+                        isEditable={true}/>;
   }
 
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): Job {
@@ -191,4 +216,14 @@ export class TasksTabContent extends TabContent<Job> {
                            }, super.pageLoadFailure);
                          });
   }
+
+  private fetchUpstreamPipelines(pipelineName: string, stageName: string): any {
+    return ApiRequestBuilder.GET(SparkRoutes.getUpstreamPipelines(pipelineName, stageName), ApiVersion.v1)
+                            .then((result: ApiResult<string>) => {
+                              return result.map((str) => {
+                                return this.autoSuggestions(JSON.parse(str));
+                              });
+                            });
+  }
+
 }

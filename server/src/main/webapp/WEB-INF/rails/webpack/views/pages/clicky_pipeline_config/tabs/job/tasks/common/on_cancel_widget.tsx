@@ -38,7 +38,7 @@ export class OnCancelTaskWidget extends MithrilComponent<Attrs, State> {
     vnode.state.onCancelCheckbox = Stream();
     vnode.state.onCancelCheckbox(!!vnode.attrs.onCancel());
 
-    vnode.state.allTaskTypes          = Array.from(TasksWidget.getTaskTypes().values());
+    vnode.state.allTaskTypes          = Array.from(TasksWidget.getTaskTypes().values()).filter((t) => t !== "Fetch Artifact");
     vnode.state.selectedTaskTypeToAdd = Stream(vnode.state.allTaskTypes[0]);
   }
 
@@ -84,6 +84,7 @@ export class OnCancelTaskWidget extends MithrilComponent<Attrs, State> {
                                     vnode.attrs.onCancel(),
                                     this.noOperation,
                                     false,
-                                    vnode.attrs.pluginInfos);
+                                    vnode.attrs.pluginInfos,
+                                    Stream({}));
   }
 }

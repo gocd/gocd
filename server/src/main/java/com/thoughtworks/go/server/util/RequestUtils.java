@@ -18,11 +18,11 @@ package com.thoughtworks.go.server.util;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.HttpServletRequest;
 
-import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
+import static org.eclipse.jetty.server.Request.MULTIPART_CONFIG_ELEMENT;
 
 public class RequestUtils {
     public static void configureMultipart(HttpServletRequest req) {
-        req.setAttribute(__MULTIPART_CONFIG_ELEMENT, new MultipartConfigElement(System.getProperty("java.io.tmpdir", "tmp")));
+        req.setAttribute(MULTIPART_CONFIG_ELEMENT, new MultipartConfigElement(System.getProperty("java.io.tmpdir", "tmp")));
     }
 
     private RequestUtils() {

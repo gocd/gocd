@@ -15,8 +15,6 @@
  */
 
 apply plugin: 'groovy'
-apply plugin: 'jacoco'
-
 dependencies {
   compile project(':spark:spark-base')
   compile group: 'oro', name: 'oro', version: project.versions.oro

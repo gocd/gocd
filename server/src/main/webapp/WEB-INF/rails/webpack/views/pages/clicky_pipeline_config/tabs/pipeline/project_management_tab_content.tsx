@@ -47,7 +47,7 @@ export class ProjectManagementTabContent extends TabContent<PipelineConfig> {
       <Form compactForm={true}>
         <TextField property={entity.trackingTool().regex}
                    label={"Pattern"}
-                   errorText={entity.errors().errorsForDisplay("regex")}
+                   errorText={entity.trackingTool().errors().errorsForDisplay("regex")}
                    helpText={"A regular expression to identify card or bug numbers from your checkin comments."}
                    docLink={"integration"}
                    hideRequiredAsterix={this.hideRequiredAsterix(entity.trackingTool())}
@@ -56,7 +56,7 @@ export class ProjectManagementTabContent extends TabContent<PipelineConfig> {
 
         <TextField property={entity.trackingTool().urlPattern}
                    label={"URI"}
-                   errorText={entity.errors().errorsForDisplay("uri")}
+                   errorText={entity.trackingTool().errors().errorsForDisplay("urlPattern")}
                    helpText={"The URI to your tracking tool. This must contain the string ${ID} which will be replaced with the number identified using the pattern."}
                    docLink={"integration"}
                    dataTestId={"project-management-uri"}

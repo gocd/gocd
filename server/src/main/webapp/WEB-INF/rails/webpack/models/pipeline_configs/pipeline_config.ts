@@ -114,16 +114,18 @@ export interface TrackingToolAttributesJSON {
   regex: string;
 }
 
-export class TrackingTool {
+export class TrackingTool extends ValidatableMixin {
   readonly regex      = Stream<string>();
   readonly urlPattern = Stream<string>();
 
   static fromJSON(json: TrackingToolJSON) {
     const tracingTool = new TrackingTool();
+
     if (json) {
       tracingTool.regex(json.attributes.regex);
       tracingTool.urlPattern(json.attributes.url_pattern);
     }
+
     return tracingTool;
   }
 

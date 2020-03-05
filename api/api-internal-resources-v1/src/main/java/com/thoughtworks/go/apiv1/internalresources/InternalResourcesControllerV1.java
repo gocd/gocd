@@ -59,7 +59,7 @@ public class InternalResourcesControllerV1 extends ApiController implements Spar
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
             get("", mimeType, this::index);
         });

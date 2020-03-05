@@ -19,8 +19,8 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.server.service.AgentService
 import com.thoughtworks.go.server.service.GoConfigService
-import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -50,7 +50,7 @@ class InternalResourcesControllerV1Test implements SecurityServiceTrait, Control
   class Index {
 
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return 'index'

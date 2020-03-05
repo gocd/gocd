@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import Stream from "mithril/stream";
 import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
-import Stream from "mithril/stream";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {GeneralOptionsTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/general_options_tab";
 import {OperationState} from "views/pages/page_operations";
@@ -45,7 +45,7 @@ describe("GeneralOptionsTag", () => {
       const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
       mount(pipelineConfig);
 
-      expect(pipelineConfig.firstStage().approval().typeAsString()).toEqual('manual');
+      expect(pipelineConfig.firstStage().approval().typeAsString()).toEqual("manual");
       expect(helper.byTestId("automatic-pipeline-scheduling")).not.toBeChecked();
 
       helper.clickByTestId("automatic-pipeline-scheduling");
@@ -61,7 +61,7 @@ describe("GeneralOptionsTag", () => {
       templateConfig.stages(new NameableSet([stageInTemplate]));
       mount(pipelineConfig, templateConfig);
 
-      expect(stageInTemplate.approval().typeAsString()).toEqual('manual');
+      expect(stageInTemplate.approval().typeAsString()).toEqual("manual");
       expect(helper.byTestId("automatic-pipeline-scheduling")).not.toBeChecked();
 
       helper.clickByTestId("automatic-pipeline-scheduling");
@@ -89,6 +89,10 @@ describe("GeneralOptionsTag", () => {
 
     expect(pipelineConfig.timer().onlyOnChanges()).toBeUndefined();
     expect(helper.byTestId("run-only-on-new-material")).not.toBeChecked();
+    expect(helper.byTestId("run-only-on-new-material")).toBeDisabled();
+
+    helper.oninput(helper.byTestId("cron-timer"), "0 0/1 * 1/1 * ? *");
+    expect(helper.byTestId("run-only-on-new-material")).not.toBeDisabled();
 
     helper.clickByTestId("run-only-on-new-material");
 
@@ -126,6 +130,10 @@ describe("GeneralOptionsTag", () => {
 
   function mount(pipelineConfig: PipelineConfig, templateConfig = new TemplateConfig("foo", [])) {
     const routeParams = {} as PipelineConfigRouteParams;
-    helper.mount(() => new GeneralOptionsTabContent().content(pipelineConfig, templateConfig, routeParams, true, Stream<OperationState>(OperationState.UNKNOWN)));
+    helper.mount(() => new GeneralOptionsTabContent().content(pipelineConfig,
+                                                              templateConfig,
+                                                              routeParams,
+                                                              true,
+                                                              Stream<OperationState>(OperationState.UNKNOWN)));
   }
 });

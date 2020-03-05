@@ -58,13 +58,13 @@ export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {
       <Form compactForm={true}>
         <TextField property={entity.timer().spec}
                    label={"Cron Timer Specification"}
-                   errorText={entity.errors().errorsForDisplay("timer")}
+                   errorText={entity.timer().errors().errorsForDisplay("spec")}
                    dataTestId={"cron-timer"}
                    helpText={"A cron-like schedule to build the pipeline. For example to run a pipeline once every night at 10 pm on weekdays, use '0 0 22 ? * MON-FRI'."}
                    docLink={"configuration/admin_timer.html"}/>
         <CheckboxField label="Run only on new material"
+                       readonly={!entity.timer().spec()}
                        dataTestId={"run-only-on-new-material"}
-                       errorText={entity.errors().errorsForDisplay("")}
                        helpText="Run only if the pipeline hasn't previously run with the latest material(s). This option is typically useful when automatic pipeline scheduling is turned off. For this pipeline to schedule conditionally, please ensure at least one of its materials has polling enabled."
                        property={entity.timer().onlyOnChanges}/>
       </Form>

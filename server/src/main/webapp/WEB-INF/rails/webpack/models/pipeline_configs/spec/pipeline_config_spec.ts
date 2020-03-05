@@ -19,7 +19,8 @@ import {EnvironmentVariable, EnvironmentVariables} from "models/environment_vari
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {Job} from "models/pipeline_configs/job";
 import {PipelineParameter} from "models/pipeline_configs/parameter";
-import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {PipelineConfig, Timer} from "models/pipeline_configs/pipeline_config";
+import {Builder} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {ExecTask} from "models/pipeline_configs/task";
 
@@ -149,6 +150,45 @@ describe("PipelineConfig model", () => {
     const s1j1envs = s1jobs[0].environmentVariables();
     expect(s1j1envs[0].errors().hasErrors()).toBe(false);
     expect(s1j1envs[1].errors().errorsForDisplay("name")).toBe("BAR? yes please!.");
+  });
+
+  describe("Timer", () => {
+    it("should deserialize empty timer", () => {
+      const timer = Timer.fromJSON(null!);
+
+      expect(timer.spec()).toBeFalsy();
+      expect(timer.onlyOnChanges()).toBeFalsy();
+    });
+
+    it("should deserialize from json", () => {
+      const timer = Timer.fromJSON({
+                                     spec: "0 0 22 ? * MON-FRI",
+                                     only_on_changes: true
+                                   });
+
+      expect(timer.spec()).toBe("0 0 22 ? * MON-FRI");
+      expect(timer.onlyOnChanges()).toBeTrue();
+    });
+
+    it("should be validatable", () => {
+      const timer = new Timer();
+      expect(timer.errors().count()).toBe(0);
+    });
+
+    it("should convert empty timer to json", () => {
+      const timer = Timer.fromJSON(null!);
+      expect(timer.toJSON()).toBe(null);
+    });
+
+    it("should convert timer to json", () => {
+      const json = {
+        spec: "0 0 22 ? * MON-FRI",
+        only_on_changes: false
+      };
+
+      const timer = Timer.fromJSON(json);
+      expect(timer.toJSON()).toEqual(json);
+    });
   });
 
   it("create()", (done) => {

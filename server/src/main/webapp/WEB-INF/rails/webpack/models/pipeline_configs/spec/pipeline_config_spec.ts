@@ -19,8 +19,7 @@ import {EnvironmentVariable, EnvironmentVariables} from "models/environment_vari
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {Job} from "models/pipeline_configs/job";
 import {PipelineParameter} from "models/pipeline_configs/parameter";
-import {PipelineConfig, Timer} from "models/pipeline_configs/pipeline_config";
-import {Builder} from "models/pipeline_configs/spec/test_data";
+import {PipelineConfig, Timer, TrackingTool} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 import {ExecTask} from "models/pipeline_configs/task";
 
@@ -189,6 +188,11 @@ describe("PipelineConfig model", () => {
       const timer = Timer.fromJSON(json);
       expect(timer.toJSON()).toEqual(json);
     });
+  });
+
+  it("tracking tool should be validatable", () => {
+    const trackingTool = new TrackingTool();
+    expect(trackingTool.errors().count()).toBe(0);
   });
 
   it("create()", (done) => {

@@ -78,8 +78,12 @@ export class PipelineConfigPage<T> extends Page<null, T> {
   }
 
   save() {
+    this.flashMessage.clear();
     return this.pipelineConfig!.update(this.etag()).then((result) => {
-      return result.do(this.onSuccess.bind(this, result), this.onFailure.bind(this));
+      return result.do(() => {
+        this.flashMessage.setMessage(MessageType.success, "Saved Successfully!");
+        this.onSuccess.bind(this, result);
+      }, this.onFailure.bind(this));
     });
   }
 
@@ -129,7 +133,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
                                            this.ajaxOperationMonitor);
                   })}
                   beforeChange={this.onTabChange.bind(this, vnode)}/>
-            <div>
+            <div class={styles.buttonContainer}>
               <Reset data-test-id={"cancel"}
                      ajaxOperationMonitor={this.ajaxOperationMonitor}
                      onclick={this.reset.bind(this)}>
@@ -211,10 +215,14 @@ export class PipelineConfigPage<T> extends Page<null, T> {
   }
 
   private onFailure(errorResponse: ErrorResponse) {
+    const parsed = JSON.parse(errorResponse.body!);
+    this.flashMessage.setMessage(MessageType.alert, parsed.message);
+
     try {
-      this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
-      this.pipelineConfig = PipelineConfig.fromJSON(JSON.parse(errorResponse.body!).data);
-      this.pipelineConfig.consumeErrorsResponse(JSON.parse(errorResponse.body!).data);
+      if (parsed.data) {
+        this.pipelineConfig = PipelineConfig.fromJSON(parsed.data);
+        this.pipelineConfig.consumeErrorsResponse(parsed.data);
+      }
     } catch (e) {
       this.pageState = PageState.FAILED;
     }

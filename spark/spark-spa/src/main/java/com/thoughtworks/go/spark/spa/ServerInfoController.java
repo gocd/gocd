@@ -18,7 +18,6 @@ package com.thoughtworks.go.spark.spa;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 import com.thoughtworks.go.server.service.PipelineConfigService;
-import com.thoughtworks.go.server.service.SystemService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -36,14 +35,12 @@ public class ServerInfoController implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
     private ArtifactsDirHolder artifactsDirHolder;
-    private SystemService systemService;
     private PipelineConfigService pipelineConfigService;
 
-    public ServerInfoController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, ArtifactsDirHolder artifactsDirHolder, SystemService systemService, PipelineConfigService pipelineConfigService) {
+    public ServerInfoController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, ArtifactsDirHolder artifactsDirHolder, PipelineConfigService pipelineConfigService) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
         this.artifactsDirHolder = artifactsDirHolder;
-        this.systemService = systemService;
         this.pipelineConfigService = pipelineConfigService;
     }
 
@@ -63,10 +60,9 @@ public class ServerInfoController implements SparkController {
     public ModelAndView index(Request request, Response response) {
         Map<String, Object> meta = new HashMap<>();
         meta.put("go_server_version", CurrentGoCDVersion.getInstance().formatted());
-        meta.put("jvm_version", systemService.getJvmVersion());
-        meta.put("os_information", systemService.getOsInfo());
+        meta.put("jvm_version", System.getProperty("java.version"));
+        meta.put("os_information", System.getProperty("os.name") + " " + System.getProperty("os.version"));
         meta.put("usable_space_in_artifacts_repository", artifactsDirHolder.getArtifactsDir().getUsableSpace());
-        meta.put("database_schema_version", systemService.getSchemaVersion());
         meta.put("pipeline_count", pipelineConfigService.totalPipelinesCount());
 
         Map<Object, Object> object = new HashMap<Object, Object>() {{

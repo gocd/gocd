@@ -26,12 +26,14 @@ import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
 import com.thoughtworks.go.server.view.artifacts.PathBasedArtifactsLocator;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipInputStream;
@@ -44,24 +46,22 @@ public class ArtifactsService implements ArtifactUrlReader {
     private final ZipUtil zipUtil;
     private final JobResolverService jobResolverService;
     private final StageDao stageDao;
-    private SystemService systemService;
     public static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsService.class);
     public static final String LOG_XML_NAME = "log.xml";
     private ArtifactDirectoryChooser chooser;
 
     @Autowired
     public ArtifactsService(JobResolverService jobResolverService, StageDao stageDao,
-                            ArtifactsDirHolder artifactsDirHolder, ZipUtil zipUtil, SystemService systemService) {
-        this(jobResolverService, stageDao, artifactsDirHolder, zipUtil, systemService, new ArtifactDirectoryChooser());
+                            ArtifactsDirHolder artifactsDirHolder, ZipUtil zipUtil) {
+        this(jobResolverService, stageDao, artifactsDirHolder, zipUtil, new ArtifactDirectoryChooser());
     }
 
     protected ArtifactsService(JobResolverService jobResolverService, StageDao stageDao,
-                               ArtifactsDirHolder artifactsDirHolder, ZipUtil zipUtil, SystemService systemService, ArtifactDirectoryChooser chooser) {
+                               ArtifactsDirHolder artifactsDirHolder, ZipUtil zipUtil, ArtifactDirectoryChooser chooser) {
         this.artifactsDirHolder = artifactsDirHolder;
         this.zipUtil = zipUtil;
         this.jobResolverService = jobResolverService;
         this.stageDao = stageDao;
-        this.systemService = systemService;
 
         //This is a Chain of Responsibility to decide which view should be shown for a particular artifact URL
         this.chooser = chooser;
@@ -80,7 +80,9 @@ public class ArtifactsService implements ArtifactUrlReader {
             if (shouldUnzip) {
                 zipUtil.unzip(new ZipInputStream(stream), dest);
             } else {
-                systemService.streamToFile(stream, dest);
+                try (FileOutputStream out = FileUtils.openOutputStream(dest, true)) {
+                    IOUtils.copyLarge(stream, out);
+                }
             }
             LOGGER.trace("File [{}] saved.", destPath);
             return true;
@@ -103,7 +105,9 @@ public class ArtifactsService implements ArtifactUrlReader {
         String destPath = dest.getAbsolutePath();
         try {
             LOGGER.trace("Appending file [{}]", destPath);
-            systemService.streamToFile(stream, dest);
+            try (FileOutputStream out = FileUtils.openOutputStream(dest, true)) {
+                IOUtils.copyLarge(stream, out);
+            }
             LOGGER.trace("File [{}] appended.", destPath);
             return true;
         } catch (IOException e) {

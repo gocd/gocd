@@ -19,7 +19,6 @@ import {Page} from "views/pages/page";
 import {ServerInfoWidget} from "views/pages/server_info/server_info_widget.tsx";
 
 export interface MetaJSON {
-  database_schema_version: string;
   go_server_version: string;
   jvm_version: string;
   pipeline_count: number;

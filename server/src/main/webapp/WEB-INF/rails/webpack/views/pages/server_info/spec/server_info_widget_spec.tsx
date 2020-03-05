@@ -24,7 +24,6 @@ describe("Server Info Widget", () => {
   afterEach((done) => helper.unmount(done));
 
   const metaInfo = {
-    database_schema_version: "1230005",
     go_server_version: "19.4.0 (9155-0f01ab091e85a0d735b8b580eee5f83245fba2e5)",
     jvm_version: "12.0.1",
     pipeline_count: 184,
@@ -46,9 +45,6 @@ describe("Server Info Widget", () => {
 
     expect(helper.textByTestId("about-page")).toContain("Usable space in artifacts repository:");
     expect(helper.textByTestId("about-page")).toContain(filesize(metaInfo.usable_space_in_artifacts_repository));
-
-    expect(helper.textByTestId("about-page")).toContain("Database schema version:");
-    expect(helper.textByTestId("about-page")).toContain(metaInfo.database_schema_version);
 
     expect(helper.textByTestId("about-page")).toContain("Pipelines Count:");
     expect(helper.textByTestId("about-page")).toContain(`${metaInfo.pipeline_count}`);

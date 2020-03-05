@@ -18,7 +18,6 @@ package com.thoughtworks.go.spark.spa
 import com.thoughtworks.go.CurrentGoCDVersion
 import com.thoughtworks.go.server.service.ArtifactsDirHolder
 import com.thoughtworks.go.server.service.PipelineConfigService
-import com.thoughtworks.go.server.service.SystemService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -37,14 +36,11 @@ class ServerInfoControllerTest implements ControllerTrait<ServerInfoController>,
   ArtifactsDirHolder artifactsDirHolder
 
   @Mock
-  SystemService systemService
-
-  @Mock
   PipelineConfigService pipelineConfigService
 
   @Override
   ServerInfoController createControllerInstance() {
-    return new ServerInfoController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, artifactsDirHolder, systemService, pipelineConfigService)
+    return new ServerInfoController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, artifactsDirHolder, pipelineConfigService)
   }
 
   @Nested
@@ -71,15 +67,11 @@ class ServerInfoControllerTest implements ControllerTrait<ServerInfoController>,
 
   @Test
   void 'should set appropriate meta information on view model'() {
-    def jvmVersion = "12.0.1"
-    def osInfo = "Linux 4.14.104-95.84.amzn2.x86_64"
-    def schemaVersion = 12300823
+    def jvmVersion = System.getProperty("java.version")
+    def osInfo = System.getProperty("os.name") + " " + System.getProperty("os.version")
     def pipelineCount = 200
     def artifactsDir = new File("/tmp/foo")
     when(artifactsDirHolder.getArtifactsDir()).thenReturn(artifactsDir)
-    when(systemService.getJvmVersion()).thenReturn(jvmVersion)
-    when(systemService.getOsInfo()).thenReturn(osInfo)
-    when(systemService.getSchemaVersion()).thenReturn(schemaVersion)
     when(pipelineConfigService.totalPipelinesCount()).thenReturn(pipelineCount)
 
     def res = createControllerInstance().index(null, null)
@@ -90,7 +82,6 @@ class ServerInfoControllerTest implements ControllerTrait<ServerInfoController>,
       "jvm_version"                         : jvmVersion,
       "os_information"                      : osInfo,
       "usable_space_in_artifacts_repository": artifactsDir.getUsableSpace(),
-      "database_schema_version"             : schemaVersion,
       "pipeline_count"                      : pipelineCount
     ])
   }

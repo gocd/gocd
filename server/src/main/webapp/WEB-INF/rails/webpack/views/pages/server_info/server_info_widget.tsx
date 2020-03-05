@@ -34,7 +34,6 @@ export class ServerInfoWidget extends MithrilViewComponent<Attrs> {
       [<div class={styles.key}>JVM version:</div>, meta.jvm_version],
       [<div class={styles.key}>OS Information:</div>, meta.os_information],
       [<div class={styles.key}>Usable space in artifacts repository:</div>, filesize(meta.usable_space_in_artifacts_repository)],
-      [<div class={styles.key}>Database schema version:</div>, meta.database_schema_version],
       [<div class={styles.key}>Pipelines Count:</div>, meta.pipeline_count],
     ];
 

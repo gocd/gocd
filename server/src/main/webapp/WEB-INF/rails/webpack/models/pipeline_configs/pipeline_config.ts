@@ -74,11 +74,13 @@ export interface TaskAttributesJSON {
   working_directory?: string;
 }
 
-export class Timer {
+export class Timer extends ValidatableMixin {
   spec          = Stream<string>();
   onlyOnChanges = Stream<boolean>();
 
   constructor(spec?: string, onlyOnChanges?: boolean) {
+    super();
+
     this.spec(spec!);
     this.onlyOnChanges(onlyOnChanges!);
   }
@@ -91,11 +93,14 @@ export class Timer {
   }
 
   toJSON() {
-    if (!this.spec() && !this.onlyOnChanges()) {
+    if (!this.spec()) {
       return null;
     }
 
-    return JsonUtils.toSnakeCasedObject(this);
+    return {
+      spec: this.spec(),
+      only_on_changes: this.onlyOnChanges()
+    };
   }
 }
 

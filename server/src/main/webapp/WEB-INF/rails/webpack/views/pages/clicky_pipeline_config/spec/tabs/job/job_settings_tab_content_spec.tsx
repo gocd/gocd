@@ -20,8 +20,10 @@ import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {JobTestData, PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import Stream from "mithril/stream";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {JobSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/job_settings_tab_content";
+import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Job Settings Tab Content", () => {
@@ -253,6 +255,6 @@ describe("Job Settings Tab Content", () => {
     } as PipelineConfigRouteParams;
 
     const templateConfig = new TemplateConfig("foo", []);
-    helper.mount(() => new JobSettingsTabContent().content(pipelineConfig, templateConfig, routeParams, true));
+    helper.mount(() => new JobSettingsTabContent().content(pipelineConfig, templateConfig, routeParams, true, Stream<OperationState>(OperationState.UNKNOWN)));
   }
 });

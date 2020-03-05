@@ -36,13 +36,6 @@ export class CustomTabTabContent extends TabContent<Job> {
     return "Custom Tabs";
   }
 
-  content(pipelineConfig: PipelineConfig,
-          templateConfig: TemplateConfig,
-          routeParams: PipelineConfigRouteParams,
-          isSelectedTab: boolean): m.Children {
-    return super.content(pipelineConfig, templateConfig, routeParams, isSelectedTab);
-  }
-
   protected renderer(entity: Job, templateConfig: TemplateConfig): m.Children {
     const msg     = "Custom Tabs lets you add new tabs within the Job Details page.";
     const docLink = <HelpText helpText=" "

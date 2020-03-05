@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import Stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {StageSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/stage_settings_tab_content";
+import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("StageSettingsTab", () => {
@@ -108,6 +110,10 @@ describe("StageSettingsTab", () => {
     pipelineConfig.stages().add(stage);
     const routeParams    = {stage_name: stage.name()} as PipelineConfigRouteParams;
     const templateConfig = new TemplateConfig("foo", []);
-    helper.mount(() => new StageSettingsTabContent().content(pipelineConfig, templateConfig, routeParams, true));
+    helper.mount(() => new StageSettingsTabContent().content(pipelineConfig,
+                                                             templateConfig,
+                                                             routeParams,
+                                                             true,
+                                                             Stream<OperationState>(OperationState.UNKNOWN)));
   }
 });

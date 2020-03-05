@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import Stream from "mithril/stream";
 import {ArtifactStore, ArtifactStores} from "models/artifact_stores/artifact_stores";
 import {ArtifactType, ExternalArtifact, GoCDArtifact} from "models/pipeline_configs/artifact";
 import {Job} from "models/pipeline_configs/job";
@@ -28,6 +29,7 @@ import {ArtifactPluginInfo} from "models/shared/plugin_infos_new/spec/test_data"
 import * as simulateEvent from "simulate-event";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {ArtifactsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/artifacts_tab_content";
+import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Artifacts Tab", () => {
@@ -274,6 +276,10 @@ describe("Artifacts Tab", () => {
     } as PipelineConfigRouteParams;
 
     const templateConfig = new TemplateConfig("foo", []);
-    helper.mount(() => tab.content(pipelineConfig, templateConfig, routeParams, true));
+    helper.mount(() => tab.content(pipelineConfig,
+                                   templateConfig,
+                                   routeParams,
+                                   true,
+                                   Stream<OperationState>(OperationState.UNKNOWN)));
   }
 });

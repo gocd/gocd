@@ -15,6 +15,7 @@
  */
 
 import _ from "lodash";
+import Stream from "mithril/stream";
 import {Job} from "models/pipeline_configs/job";
 import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
@@ -24,6 +25,7 @@ import {Tab} from "models/pipeline_configs/tab";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {CustomTabTabContent} from "views/pages/clicky_pipeline_config/tabs/job/custom_tab_tab_content";
+import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Custom Tab Tab Content", () => {
@@ -140,6 +142,10 @@ describe("Custom Tab Tab Content", () => {
     } as PipelineConfigRouteParams;
 
     const templateConfig = new TemplateConfig("foo", []);
-    helper.mount(() => new CustomTabTabContent().content(pipelineConfig, templateConfig, routeParams, true));
+    helper.mount(() => new CustomTabTabContent().content(pipelineConfig,
+                                                         templateConfig,
+                                                         routeParams,
+                                                         true,
+                                                         Stream<OperationState>(OperationState.UNKNOWN)));
   }
 });

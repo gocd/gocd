@@ -41,6 +41,7 @@ import {PluggableTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/ta
 import {RakeTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/rake";
 import styles from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab.scss";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {OperationState} from "views/pages/page_operations";
 
 export interface Attrs {
   tasks: Stream<Task[]>;
@@ -189,11 +190,13 @@ export class TasksTabContent extends TabContent<Job> {
   content(pipelineConfig: PipelineConfig,
           templateConfig: TemplateConfig,
           routeParams: PipelineConfigRouteParams,
-          isSelectedTab: boolean): m.Children {
+          isSelectedTab: boolean,
+          ajaxOperationMonitor: Stream<OperationState>): m.Children {
     if (!this.autoSuggestions()) {
       this.fetchUpstreamPipelines(pipelineConfig.name(), routeParams.stage_name!);
     }
-    return super.content(pipelineConfig, templateConfig, routeParams, isSelectedTab);
+
+    return super.content(pipelineConfig, templateConfig, routeParams, isSelectedTab, ajaxOperationMonitor);
   }
 
   protected renderer(entity: Job, templateConfig: TemplateConfig): m.Children {

@@ -15,12 +15,15 @@
  */
 
 import m from "mithril";
+import Stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {PageLoadError} from "views/components/page_load_error";
 import {Spinner} from "views/components/spinner";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {PageState} from "views/pages/page";
+import {OperationState} from "views/pages/page_operations";
+import styles from "./tab_content.scss";
 
 export abstract class TabContent<T> {
   private pageState = PageState.OK;
@@ -29,7 +32,8 @@ export abstract class TabContent<T> {
   public content(pipelineConfig: PipelineConfig,
                  templateConfig: TemplateConfig,
                  routeParams: PipelineConfigRouteParams,
-                 isSelectedTab: boolean): m.Children {
+                 isSelectedTab: boolean,
+                 ajaxOperationMonitor: Stream<OperationState>): m.Children {
     switch (this.pageState) {
       case PageState.FAILED:
         return <PageLoadError message={`There was a problem fetching ${this.name()} tab`}/>;
@@ -37,9 +41,15 @@ export abstract class TabContent<T> {
         return <Spinner/>;
       case PageState.OK:
         if (isSelectedTab) {
-          const entity = this.selectedEntity(pipelineConfig, routeParams) as T;
-          return this.renderer(entity, templateConfig);
+          const entity         = this.selectedEntity(pipelineConfig, routeParams) as T;
+          const saveInProgress = ajaxOperationMonitor() === OperationState.IN_PROGRESS;
+
+          return <div class={saveInProgress ? styles.blur : ""}>
+            {saveInProgress ? <Spinner/> : undefined}
+            {this.renderer(entity, templateConfig)}
+          </div>;
         }
+
         return <div> Not a selected tab</div>;
     }
   }

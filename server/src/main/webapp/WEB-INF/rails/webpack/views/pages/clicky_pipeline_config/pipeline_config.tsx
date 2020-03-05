@@ -29,6 +29,7 @@ import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {NavigationWidget} from "views/pages/clicky_pipeline_config/widgets/navigation_widget";
 import {StepsWidget} from "views/pages/clicky_pipeline_config/widgets/steps_widget";
 import {Page, PageState} from "views/pages/page";
+import {OperationState} from "views/pages/page_operations";
 import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 import styles from "./index.scss";
 
@@ -51,6 +52,7 @@ export interface PipelineConfigRouteParams {
 }
 
 export class PipelineConfigPage<T> extends Page<null, T> {
+  private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
   private etag: Stream<string> = Stream();
   private templateConfig?: TemplateConfig;
   private pipelineConfig?: PipelineConfig;
@@ -76,8 +78,9 @@ export class PipelineConfigPage<T> extends Page<null, T> {
   }
 
   save() {
-    this.pipelineConfig?.update(this.etag())
-        .then((result) => result.do(this.onSuccess.bind(this, result), this.onFailure.bind(this)));
+    return this.pipelineConfig!.update(this.etag()).then((result) => {
+      return result.do(this.onSuccess.bind(this, result), this.onFailure.bind(this));
+    });
   }
 
   reset() {
@@ -118,15 +121,25 @@ export class PipelineConfigPage<T> extends Page<null, T> {
             <StepsWidget routeInfo={PipelineConfigPage.routeInfo()}/>
             <Tabs initialSelection={this.selectedTabIndex()}
                   tabs={this.tabs.map((eachTab: TabContent<SupportedTypes>) => eachTab.name())}
-                  contents={this.tabs.map((eachTab: TabContent<SupportedTypes>) => eachTab.content(this.pipelineConfig!,
-                                                                                                   this.templateConfig!,
-                                                                                                   PipelineConfigPage.routeInfo().params,
-                                                                                                   PipelineConfigPage.isSelectedTab(
-                                                                                                     eachTab)))}
+                  contents={this.tabs.map((eachTab: TabContent<SupportedTypes>) => {
+                    return eachTab.content(this.pipelineConfig!,
+                                           this.templateConfig!,
+                                           PipelineConfigPage.routeInfo().params,
+                                           PipelineConfigPage.isSelectedTab(eachTab),
+                                           this.ajaxOperationMonitor);
+                  })}
                   beforeChange={this.onTabChange.bind(this, vnode)}/>
             <div>
-              <Reset onclick={this.reset.bind(this)}>RESET</Reset>
-              <Primary onclick={this.save.bind(this)}>SAVE</Primary>
+              <Reset data-test-id={"cancel"}
+                     ajaxOperationMonitor={this.ajaxOperationMonitor}
+                     onclick={this.reset.bind(this)}>
+                RESET
+              </Reset>
+              <Primary data-test-id={"save"}
+                       ajaxOperationMonitor={this.ajaxOperationMonitor}
+                       ajaxOperation={this.save.bind(this)}>
+                SAVE
+              </Primary>
             </div>
           </div>
         </div>

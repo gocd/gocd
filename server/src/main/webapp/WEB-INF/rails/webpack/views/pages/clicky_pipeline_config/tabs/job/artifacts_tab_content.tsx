@@ -52,13 +52,6 @@ export class ArtifactsTabContent extends TabContent<Job> {
     fetchData ? fetchData() : this.fetchData();
   }
 
-  content(pipelineConfig: PipelineConfig,
-          templateConfig: TemplateConfig,
-          routeParams: PipelineConfigRouteParams,
-          isSelectedTab: boolean): m.Children {
-    return super.content(pipelineConfig, templateConfig, routeParams, isSelectedTab);
-  }
-
   name(): string {
     return "Artifacts";
   }

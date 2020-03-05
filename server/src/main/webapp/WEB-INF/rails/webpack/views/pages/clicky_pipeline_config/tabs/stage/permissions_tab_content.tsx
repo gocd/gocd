@@ -31,13 +31,6 @@ import styles from "./permissions.scss";
 export class PermissionsTabContent extends TabContent<Stage> {
   private selectedPermission: Stream<string> = Stream();
 
-  content(pipelineConfig: PipelineConfig,
-          templateConfig: TemplateConfig,
-          routeParams: PipelineConfigRouteParams,
-          isSelectedTab: boolean): m.Children {
-    return super.content(pipelineConfig, templateConfig, routeParams, isSelectedTab);
-  }
-
   name(): string {
     return "Permissions";
   }

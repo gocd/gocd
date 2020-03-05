@@ -21,6 +21,7 @@ import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {PermissionsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/permissions_tab_content";
+import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Permissions Tab Content", () => {
@@ -250,6 +251,6 @@ describe("Permissions Tab Content", () => {
     pipelineConfig.stages().add(stage);
     const routeParams    = {stage_name: stage.name()} as PipelineConfigRouteParams;
     const templateConfig = new TemplateConfig("foo", []);
-    helper.mount(() => new PermissionsTabContent().content(pipelineConfig, templateConfig, routeParams, true));
+    helper.mount(() => new PermissionsTabContent().content(pipelineConfig, templateConfig, routeParams, true, Stream<OperationState>(OperationState.UNKNOWN)));
   }
 });

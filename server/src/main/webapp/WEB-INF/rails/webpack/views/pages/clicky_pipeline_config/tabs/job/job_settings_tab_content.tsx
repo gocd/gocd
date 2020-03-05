@@ -24,13 +24,6 @@ import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import styles from "./job_settings.scss";
 
 export class JobSettingsTabContent extends TabContent<Job> {
-  content(pipelineConfig: PipelineConfig,
-          templateConfig: TemplateConfig,
-          routeParams: PipelineConfigRouteParams,
-          isSelectedTab: boolean): m.Children {
-    return super.content(pipelineConfig, templateConfig, routeParams, isSelectedTab);
-  }
-
   name(): string {
     return "Job Settings";
   }

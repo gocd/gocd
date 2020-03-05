@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+import Stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {MaterialsTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/materials_tab_content";
+import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("MaterialsTabContent", () => {
@@ -105,6 +107,10 @@ describe("MaterialsTabContent", () => {
 
   function mount(pipelineConfig: PipelineConfig, templateConfig = new TemplateConfig("foo", [])) {
     const routeParams = {} as PipelineConfigRouteParams;
-    helper.mount(() => materialTab.content(pipelineConfig, templateConfig, routeParams, true));
+    helper.mount(() => materialTab.content(pipelineConfig,
+                                           templateConfig,
+                                           routeParams,
+                                           true,
+                                           Stream<OperationState>(OperationState.UNKNOWN)));
   }
 });

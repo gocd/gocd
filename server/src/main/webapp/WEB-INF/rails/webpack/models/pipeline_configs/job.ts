@@ -40,7 +40,6 @@ export class Job extends ValidatableMixin {
   //view state
   readonly runType        = Stream<"one" | "all" | "number">();
   readonly jobTimeoutType = Stream<"never" | "default" | "number">();
-
   readonly name                 = Stream<string>();
   readonly runInstanceCount     = Stream<number | "all" | null>();
   readonly timeout              = Stream<"never" | number | null>();
@@ -51,9 +50,12 @@ export class Job extends ValidatableMixin {
   readonly tabs                 = Stream<Tabs>();
   readonly artifacts            = Stream<Artifacts>();
 
+  private readonly __name       = Stream<string>();
+
   constructor(name: string = "", tasks: Task[] = [], envVars = new EnvironmentVariables()) {
     super();
 
+    this.__name               = Stream(name);
     this.name                 = Stream(name);
     this.tasks                = Stream(tasks);
     this.environmentVariables = Stream(envVars!);
@@ -75,6 +77,7 @@ export class Job extends ValidatableMixin {
 
   static fromJSON(json: JobJSON) {
     const job = new Job();
+    job.__name(json.name);
     job.name(json.name);
     job.setRunInstanceCount(json.run_instance_count);
     job.setJobTimeout(json.timeout);
@@ -110,6 +113,10 @@ export class Job extends ValidatableMixin {
     }
 
     this.runInstanceCount(runInstanceCount);
+  }
+
+  getOriginalName() {
+    return this.__name();
   }
 
   toApiPayload() {

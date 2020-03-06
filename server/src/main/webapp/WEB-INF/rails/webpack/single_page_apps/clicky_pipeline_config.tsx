@@ -58,11 +58,11 @@ export class PipelineConfigSPA extends RoutedSinglePageApp {
               new PermissionsTabContent()
             ),
             "/:pipeline_name/:stage_name/:job_name/:tab_name": new PipelineConfigPage(
-              new TasksTabContent(),
               new JobSettingsTabContent(),
+              new TasksTabContent(),
+              new ArtifactsTabContent(),
               new EnvironmentVariablesTabContent(),
-              new CustomTabTabContent(),
-              new ArtifactsTabContent()
+              new CustomTabTabContent()
             )
           });
   }

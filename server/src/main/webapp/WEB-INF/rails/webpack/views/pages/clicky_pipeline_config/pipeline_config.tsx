@@ -227,8 +227,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
 
     try {
       if (parsed.data) {
-        this.pipelineConfig = PipelineConfig.fromJSON(parsed.data);
-        this.pipelineConfig.consumeErrorsResponse(parsed.data);
+        this.pipelineConfig!.consumeErrorsResponse(parsed.data);
       }
     } catch (e) {
       this.pageState = PageState.FAILED;

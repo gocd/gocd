@@ -102,7 +102,9 @@ export class AutocompleteField extends RestyleViewComponent<Styles, AutoCompAttr
       asm.status.classList.add(css.visuallyHidden);
 
       input.addEventListener("awesomplete-select", (event: any) => {
-        vnode.attrs.property(event.text.value);
+        if (!vnode.attrs.replace) {
+          vnode.attrs.property(event.text.value);
+        }
         if (vnode.attrs.onchange) {
           vnode.attrs.onchange(event);
         }

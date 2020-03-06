@@ -98,7 +98,7 @@ export class ApiResult<T> {
     }
   }
 
-  do(onSuccess: (successResponse: SuccessResponse<T>) => any, onError: (errorResponse: ErrorResponse) => any) {
+  do(onSuccess: (successResponse: SuccessResponse<T>) => any, onError: (errorResponse: ErrorResponse) => any = () => { /* donothing */}) {
     if (this.successResponse) {
       onSuccess(this.successResponse);
     } else if (this.errorResponse) {

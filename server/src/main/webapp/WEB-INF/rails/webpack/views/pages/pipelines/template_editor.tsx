@@ -99,7 +99,7 @@ export class TemplateEditor extends MithrilComponent<Attrs, State> {
     const errors = config.errors();
 
     if (attrs.isUsingTemplate()) {
-      if (!this.templates().length) {
+      if (!this.templates() || !this.templates().length) {
         return <FlashMessage type={errors.hasErrors("template") ? MessageType.alert : MessageType.warning}>
           <code>
             There are no templates configured or you are unauthorized to view the existing templates.

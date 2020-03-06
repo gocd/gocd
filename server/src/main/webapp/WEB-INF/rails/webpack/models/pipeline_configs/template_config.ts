@@ -16,7 +16,6 @@
 
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import _ from "lodash";
 import Stream from "mithril/stream";
 import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {ParameterJSON, PipelineParameter} from "models/pipeline_configs/parameter";
@@ -31,26 +30,25 @@ export interface TemplateConfigJSON {
 export class TemplateConfig {
   name: Stream<string>;
   parameters: Stream<PipelineParameter[]>;
-  readonly stages     = Stream<NameableSet<Stage>>();
+  readonly stages = Stream<NameableSet<Stage>>();
 
   constructor(name: string, parameters: PipelineParameter[]) {
-    this.name = Stream(name);
+    this.name       = Stream(name);
     this.parameters = Stream(parameters);
   }
 
   static getTemplate(name: string, onSuccess: (result: TemplateConfig) => void) {
-    ApiRequestBuilder.GET(SparkRoutes.templatesPath(name), ApiVersion.v5).then((res) => {
-        res.map((body) => {
-          const params = _.map(JSON.parse(body).parameters || [], (param) => new PipelineParameter(param.name, param.value));
-          onSuccess(new TemplateConfig(name, params));
-        });
-      }
-    );
+    ApiRequestBuilder.GET(SparkRoutes.templatesPath(name), ApiVersion.v5)
+                     .then((res) => {
+                       res.map((body) => onSuccess(TemplateConfig.fromJSON(JSON.parse(body))));
+                     });
   }
 
-  fromJSON(json: TemplateConfigJSON) {
+  static fromJSON(json: TemplateConfigJSON) {
     const template = new TemplateConfig(json.name, PipelineParameter.fromJSONArray(json.parameters || []));
     template.stages(new NameableSet(Stage.fromJSONArray(json.stages || [])));
+
+    return template;
   }
 
   firstStage() {

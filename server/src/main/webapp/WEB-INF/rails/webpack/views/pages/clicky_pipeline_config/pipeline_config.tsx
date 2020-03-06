@@ -24,6 +24,7 @@ import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {Primary, Reset} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {Spinner} from "views/components/spinner";
 import {Tabs} from "views/components/tab";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {NavigationWidget} from "views/pages/clicky_pipeline_config/widgets/navigation_widget";
@@ -111,6 +112,13 @@ export class PipelineConfigPage<T> extends Page<null, T> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, T>): m.Children {
+    const doesPipelineExists = !!this.pipelineConfig;
+    const doesTemplateExists = this.pipelineConfig!.isUsingTemplate()() ? !!this.templateConfig : true;
+
+    if (!doesPipelineExists || !doesTemplateExists) {
+      return <Spinner/>;
+    }
+
     return (
       <div>
         <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/>
@@ -159,15 +167,6 @@ export class PipelineConfigPage<T> extends Page<null, T> {
     return PipelineConfig.get(this.getMeta().pipelineName)
                          .then((result) => {
                            return result.do(this.onSuccess.bind(this, result), this.onFailure.bind(this));
-                         })
-                         .finally(() => {
-                           if (this.pipelineConfig!.template()) {
-                             this.pageState = PageState.LOADING;
-                             TemplateConfig.getTemplate(this.pipelineConfig!.template()!, (result: TemplateConfig) => {
-                               this.templateConfig = result;
-                               this.pageState      = PageState.OK;
-                             });
-                           }
                          });
   }
 
@@ -211,7 +210,15 @@ export class PipelineConfigPage<T> extends Page<null, T> {
 
     this.originalJSON   = JSON.parse(successResponse.body);
     this.pipelineConfig = PipelineConfig.fromJSON(this.originalJSON);
-    this.pageState      = PageState.OK;
+
+    if (this.pipelineConfig!.template()) {
+      return TemplateConfig.getTemplate(this.pipelineConfig!.template()!, (result: TemplateConfig) => {
+        this.templateConfig = result;
+        this.pageState      = PageState.OK;
+      });
+    }
+
+    return Promise.resolve(successResponse);
   }
 
   private onFailure(errorResponse: ErrorResponse) {

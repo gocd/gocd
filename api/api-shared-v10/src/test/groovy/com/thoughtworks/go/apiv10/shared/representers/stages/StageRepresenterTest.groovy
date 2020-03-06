@@ -150,6 +150,16 @@ class StageRepresenterTest  {
       assertEquals(JobConfigMother.jobConfig(), stageConfig.getJobs().first())
     }
 
+    @Test
+    void 'should not fail to deserialize stage config which has duplicate jobs'() {
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom([
+        jobs: [jobHash, jobHash]
+      ])
+
+      def stageConfig = StageRepresenter.fromJSON(jsonReader)
+      assertEquals(stageConfig.getJobs().size(), 2)
+    }
+
     def jobHash =
     [
       name:                  'defaultJob',

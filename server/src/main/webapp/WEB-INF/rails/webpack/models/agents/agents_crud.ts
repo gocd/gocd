@@ -98,7 +98,7 @@ export class EnvironmentsService implements GetAllService {
 }
 
 export class ResourcesService implements GetAllService {
-  all(onSuccess: (data: string) => void, onError: (message: string) => void): void {
+  all(onSuccess: (data: string) => void, onError: (message: string) => void = () => { /* do nothing */}): void {
     ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalResourcesPath(), ApiVersion.v1)
                      .then((result: ApiResult<string>) => {
                        result.do((successResponse: SuccessResponse<string>) => onSuccess(successResponse.body),

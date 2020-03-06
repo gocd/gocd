@@ -78,7 +78,7 @@ public class StageRepresenter {
         JobConfigs allJobs = new JobConfigs();
         jsonReader.readArrayIfPresent("jobs", jobs -> {
             jobs.forEach(job -> {
-                allJobs.add(JobRepresenter.fromJSON(new JsonReader(job.getAsJsonObject())));
+                allJobs.addJobWithoutValidityAssertion(JobRepresenter.fromJSON(new JsonReader(job.getAsJsonObject())));
             });
         });
 

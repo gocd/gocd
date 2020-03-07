@@ -371,6 +371,7 @@ class JobRepresenterTest {
   void 'should map errors' () {
     def jobConfig =  new JobConfig()
     jobConfig.setRunInstanceCount(-2)
+    jobConfig.setResourceConfigs(new ResourceConfigs("!@#^&*"))
     def plans = new ArtifactTypeConfigs()
     plans.add(new TestArtifactConfig(null, '../foo'))
     jobConfig.setArtifactTypeConfigs(plans)
@@ -391,7 +392,7 @@ class JobRepresenterTest {
       run_instance_count: -2,
       timeout: null,
       environment_variables: [],
-      resources: [],
+      resources: ["!@#^&*"],
       tasks:
       [
         [
@@ -451,7 +452,8 @@ class JobRepresenterTest {
       errors:
       [
         run_instance_count: ["'Run Instance Count' cannot be a negative number as it represents number of instances Go needs to spawn during runtime."],
-        name: ["Name is a required field"]
+        name: ["Name is a required field"],
+        resources: ["Resource name '!@#^&*' is not valid. Valid names much match '^[-\\w\\s|.]*\$'"]
       ]
     ]
   }

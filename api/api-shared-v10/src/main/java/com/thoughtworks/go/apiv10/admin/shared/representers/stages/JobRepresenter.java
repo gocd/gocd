@@ -36,12 +36,15 @@ public class JobRepresenter {
     private static JsonReader jsonReader;
 
     public static void toJSON(OutputWriter jsonWriter, JobConfig jobConfig) {
-        if (!jobConfig.errors().isEmpty()) {
+        if (!jobConfig.errors().isEmpty() || !jobConfig.resourceConfigs().errors().isEmpty()) {
             jsonWriter.addChild("errors", errorWriter -> {
                 HashMap<String, String> errorMapping = new HashMap<>();
                 errorMapping.put("runType", "run_instance_count");
-
                 new ErrorGetter(errorMapping).toJSON(errorWriter, jobConfig);
+
+                HashMap<String, String> resourcesErrorMapping = new HashMap<>();
+                resourcesErrorMapping.put("resources", "resources");
+                new ErrorGetter(resourcesErrorMapping).toJSON(errorWriter, jobConfig.resourceConfigs());
             });
         }
 

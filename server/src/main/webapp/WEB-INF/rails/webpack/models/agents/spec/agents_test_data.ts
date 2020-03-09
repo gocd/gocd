@@ -268,7 +268,7 @@ class AgentJSONBuilder {
   }
 
   private static randomAgentConfigState() {
-    return ["Disabled", "Enabled", "Pending"][this.getRandomIntegerInRange(0, 2)];
+    return ["Disabled", "Enabled"][this.getRandomIntegerInRange(0, 1)];
   }
 
   private static randomAgentState() {

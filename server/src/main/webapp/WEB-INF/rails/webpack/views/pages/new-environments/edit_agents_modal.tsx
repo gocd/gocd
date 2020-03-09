@@ -17,7 +17,7 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Agent, Agents} from "models/agents/agents";
+import {Agent, AgentConfigState, Agents} from "models/agents/agents";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import s from "underscore.string";
@@ -46,14 +46,16 @@ export class AgentCheckboxListWidget extends MithrilViewComponent<AgentCheckboxL
     return <div class={styles.pipelinesContainer} data-test-id={s.slugify(vnode.attrs.title)}>
       <div class={styles.header}>{vnode.attrs.title}</div>
       {
-        agents.map((agent: Agent) => {
-          return <div class={styles.pipelineCheckbox} data-test-id={`agent-checkbox-for-${agent.uuid}`}>
-            <CheckboxField label={agent.hostname}
-                           dataTestId={`form-field-input-${agent.uuid}`}
-                           readonly={vnode.attrs.readonly}
-                           property={vnode.attrs.agentSelectedFn(agent)}/>
-          </div>;
-        })
+        agents
+          .filter((agent: Agent) => agent.agentConfigState !== AgentConfigState.Pending)
+          .map((agent: Agent) => {
+            return <div class={styles.pipelineCheckbox} data-test-id={`agent-checkbox-for-${agent.uuid}`}>
+              <CheckboxField label={agent.hostname}
+                             dataTestId={`form-field-input-${agent.uuid}`}
+                             readonly={vnode.attrs.readonly}
+                             property={vnode.attrs.agentSelectedFn(agent)}/>
+            </div>;
+          })
       }
     </div>;
   }

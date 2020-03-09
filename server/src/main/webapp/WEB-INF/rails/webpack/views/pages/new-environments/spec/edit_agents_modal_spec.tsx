@@ -261,4 +261,21 @@ describe("Edit Agents Modal", () => {
     expect(helper.byTestId("cancel-button")).toBeDisabled();
     expect(helper.byTestId("spinner")).toBeInDOM();
   });
+
+  it('should not render pending agents', () => {
+    helper.unmount();
+
+    agentsJSON._embedded.agents[2].agent_config_state = "Pending";
+    modal                                             = new EditAgentsModal(environment,
+                                                                            environments,
+                                                                            Agents.fromJSON(agentsJSON),
+                                                                            jasmine.createSpy("onSuccessfulSave"));
+
+    helper.mount(() => modal.view());
+    const availableAgentsSection = helper.byTestId(`available-agents`);
+    const agent2Selector         = `agent-checkbox-for-${unassociatedStaticAgent}`;
+
+    expect(availableAgentsSection).toBeInDOM();
+    expect(helper.byTestId(agent2Selector, availableAgentsSection)).not.toBeInDOM();
+  });
 });

@@ -186,6 +186,7 @@ rootProject.ext.versions = [
   commonsLang           : '2.6',
   commonsLang3          : '3.9',
   commonsPool           : '2.8.0',
+  commonsText           : '1.8',
   dbunit                : '2.7.0',
   ehcache               : '2.10.6',
   felix                 : '5.6.10',

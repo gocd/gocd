@@ -23,6 +23,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 
+import static org.apache.commons.text.StringEscapeUtils.unescapeXml;
+
 @Getter
 @Setter
 public class GitLog {
@@ -39,13 +41,13 @@ public class GitLog {
 
     Modification toModification() {
         Modification modification = new Modification(
-                StringUtils.stripToNull(authorName),
-                StringUtils.stripToNull(rawBody),
-                StringUtils.stripToNull(authorEmail),
-                DateUtils.parseISO8601(date),
-                StringUtils.stripToNull(commitHash));
+                StringUtils.stripToNull(unescapeXml(authorName)),
+                StringUtils.stripToNull(unescapeXml(rawBody)),
+                StringUtils.stripToNull(unescapeXml(authorEmail)),
+                DateUtils.parseISO8601(unescapeXml(date)),
+                StringUtils.stripToNull(unescapeXml(commitHash)));
 
-        additionalInfo.put("subject", subject);
+        additionalInfo.put("subject", unescapeXml(subject));
         modification.setAdditionalData(additionalInfo);
         return modification;
     }

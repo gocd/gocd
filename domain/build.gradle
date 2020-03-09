@@ -22,6 +22,8 @@ dependencies {
   compile group: 'org.springframework', name: 'spring-tx', version: project.versions.spring
   compile group: 'de.skuzzle', name: 'semantic-version', version: project.versions.semanticVersion
   compile group: 'org.yaml', name: 'snakeyaml', version: project.versions.snakeYaml
+  compile group: 'org.apache.commons', name: 'commons-text', version: project.versions.commonsText
+
   compileOnly group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
 

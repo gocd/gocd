@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.text.StringEscapeUtils.escapeXml11;
+
 public class GitModificationParser {
     private Yaml yaml = new Yaml();
 
@@ -31,7 +33,7 @@ public class GitModificationParser {
             return Collections.emptyList();
         }
 
-        List<GitLog> gitLogs = yaml.load(output);
+        List<GitLog> gitLogs = yaml.load(escapeXml11(output));
 
         if (gitLogs.isEmpty()) {
             return Collections.emptyList();

@@ -19,13 +19,12 @@ import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
-import {Form} from "views/components/forms/form";
-import {CheckboxField, TextField} from "views/components/forms/input_fields";
+import {TextField} from "views/components/forms/input_fields";
 import {SwitchBtn} from "views/components/switch";
-import {Help} from "views/components/tooltip";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {StageEditor} from "views/pages/clicky_pipeline_config/widgets/stage_editor_widget";
+import styles from "./stage_settings.scss";
 
 export class StageSettingsTabContent extends TabContent<Stage> {
   name(): string {
@@ -37,7 +36,7 @@ export class StageSettingsTabContent extends TabContent<Stage> {
   }
 
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): Stage {
-    return pipelineConfig.stages().findByName(routeParams.stage_name!)!;
+    return Array.from(pipelineConfig.stages()).find(s => s.getOriginalName() === routeParams.stage_name!)!;
   }
 }
 
@@ -48,35 +47,48 @@ interface Attrs {
 export class StageSettingsWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const stage = vnode.attrs.stage;
-    return <Form compactForm={true}>
-      <TextField label={"Stage name"}
+    return <div data-test-id="stage-settings">
+      <TextField label="Stage name"
                  required={true}
-                 dataTestId={"stage-name-input"}
+                 dataTestId="stage-name-input"
                  errorText={stage.errors().errorsForDisplay("name")}
                  property={stage.name}/>
-
-      <SwitchBtn label={["Trigger completion of previous stage:", <Help content={StageEditor.APPROVAL_TYPE_HELP}/>]}
-                 field={stage.approval().typeAsStream()}
-                 small={true}
-                 onclick={StageSettingsWidget.approvalChange.bind(this, stage)}/>
-
-      <CheckboxField label={["Allow only on success", <Help content={StageEditor.ALLOW_ONLY_ON_SUCCESS_HELP}/>]}
-                     dataTestId={"allow-only-on-success-checkbox"}
-                     property={stage.approval().allowOnlyOnSuccess}/>
-
-      <CheckboxField label={["Fetch materials", <Help content={"Perform material updates or checkouts"}/>]}
-                     dataTestId={"fetch-materials-checkbox"}
-                     property={stage.fetchMaterials}/>
-      <CheckboxField label={["Never cleanup artifacts", <Help
-        content={"Never cleanup artifacts for this stage, if purging artifacts is configured at the Server Level"}/>]}
-                     dataTestId={"never-cleanup-artifacts-checkbox"}
-                     property={stage.neverCleanupArtifacts}/>
-
-      <CheckboxField label={["Never cleanup artifacts",
-        <Help content={"Remove all files/directories in the working directory on the agent"}/>]}
-                     dataTestId={"clean-working-directory-checkbox"}
-                     property={stage.cleanWorkingDirectory}/>
-    </Form>;
+      <div class={styles.switchWrapper}>
+        <SwitchBtn label="Trigger completion of previous stage:"
+                   helpText={StageEditor.APPROVAL_TYPE_HELP}
+                   field={stage.approval().typeAsStream()}
+                   small={true}
+                   onclick={StageSettingsWidget.approvalChange.bind(this, stage)}/>
+      </div>
+      <div class={styles.switchWrapper}>
+        <SwitchBtn label="Allow only on success"
+                   helpText={StageEditor.ALLOW_ONLY_ON_SUCCESS_HELP}
+                   small={true}
+                   dataTestId="allow-only-on-success-checkbox"
+                   field={stage.approval().allowOnlyOnSuccess}/>
+      </div>
+      <div class={styles.switchWrapper}>
+        <SwitchBtn label="Fetch materials"
+                   helpText="Perform material updates or checkouts."
+                   dataTestId="fetch-materials-checkbox"
+                   small={true}
+                   field={stage.fetchMaterials}/>
+      </div>
+      <div class={styles.switchWrapper}>
+        <SwitchBtn label="Never cleanup artifacts"
+                   helpText="Never cleanup artifacts for this stage, if purging artifacts is configured at the Server Level."
+                   dataTestId="never-cleanup-artifacts-checkbox"
+                   small={true}
+                   field={stage.neverCleanupArtifacts}/>
+      </div>
+      <div class={styles.switchWrapper}>
+        <SwitchBtn label="Never cleanup artifacts"
+                   helpText="Remove all files/directories in the working directory on the agent."
+                   dataTestId="clean-working-directory-checkbox"
+                   small={true}
+                   field={stage.cleanWorkingDirectory}/>
+      </div>
+    </div>;
   }
 
   private static approvalChange(stage: Stage, e: MouseEvent) {

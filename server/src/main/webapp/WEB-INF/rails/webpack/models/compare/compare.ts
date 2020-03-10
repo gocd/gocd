@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {Material, MaterialAttributes} from "models/materials/types";
-import {ChangeJSON, ChangeMaterialJSON, ComparisonJSON, DependencyRevisionJSON, MaterialRevisionJSON} from "./compare_json";
+import {ChangeJSON, ComparisonJSON, DependencyRevisionJSON, MaterialRevisionJSON} from "./compare_json";
 import {parseDate} from "./pipeline_instance";
 import {dateOrUndefined} from "./pipeline_instance_json";
+import {ChangeMaterial} from "./material";
 
 type Revisions = MaterialRevisions | DependencyRevisions;
 
@@ -63,21 +63,6 @@ class Changes extends Array<Change> {
 
   static fromJSON(data: ChangeJSON[]): Changes {
     return new Changes(...data.map((change) => Change.fromJSON(change)));
-  }
-}
-
-class ChangeMaterial extends Material {
-  displayType: string;
-  description: string;
-
-  constructor(type: string, displayType: string, description: string, attributes: MaterialAttributes) {
-    super(type, attributes);
-    this.displayType = displayType;
-    this.description = description;
-  }
-
-  static fromJSON(data: ChangeMaterialJSON): ChangeMaterial {
-    return new ChangeMaterial(data.type, data.display_type, data.description, MaterialAttributes.deserialize(data));
   }
 }
 

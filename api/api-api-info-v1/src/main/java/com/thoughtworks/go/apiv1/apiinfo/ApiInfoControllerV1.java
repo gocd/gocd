@@ -59,7 +59,7 @@ public class ApiInfoControllerV1 extends ApiController implements SparkSpringCon
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
-            get("", this::index);
+            get("", mimeType, this::index);
         });
     }
 

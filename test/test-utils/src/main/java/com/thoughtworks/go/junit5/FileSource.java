@@ -22,7 +22,7 @@ import java.lang.annotation.*;
 @Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@ArgumentsSource(JsonSourceProvider.class)
-public @interface JsonSource {
-    String[] jsonFiles();
+@ArgumentsSource(FileSourceProvider.class)
+public @interface FileSource {
+    String[] files();
 }

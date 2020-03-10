@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
-import com.thoughtworks.go.junit5.JsonSource;
+import com.thoughtworks.go.junit5.FileSource;
 import com.thoughtworks.go.server.domain.xml.builder.ElementBuilder;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -36,7 +36,7 @@ import static org.xmlunit.assertj.XmlAssert.assertThat;
 
 public class ScmMaterialXmlRepresenterTest {
     @ParameterizedTest
-    @JsonSource(jsonFiles = "/feeds/materials/git-material.xml")
+    @FileSource(files = "/feeds/materials/git-material.xml")
     void shouldGenerateXmlFromMaterialRevision(String expectedXML) {
         GitMaterial gitMaterial = gitMaterial("https://material/example.git");
         gitMaterial.setId(100);

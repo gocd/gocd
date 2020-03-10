@@ -21,7 +21,7 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.helper.StageMother;
-import com.thoughtworks.go.junit5.JsonSource;
+import com.thoughtworks.go.junit5.FileSource;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.dom4j.Document;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,7 +31,7 @@ import static org.xmlunit.assertj.XmlAssert.assertThat;
 
 public class StageXmlRepresenterTest {
     @ParameterizedTest
-    @JsonSource(jsonFiles = "/feeds/stage.xml")
+    @FileSource(files = "/feeds/stage.xml")
     void shouldGenerateDocumentForStage(String expectedXML) {
         String pipelineName = "BulletinBoard";
         String stageName = "UnitTest";

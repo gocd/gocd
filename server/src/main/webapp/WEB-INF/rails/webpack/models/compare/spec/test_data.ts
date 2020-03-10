@@ -16,6 +16,7 @@
 
 import {ComparisonJSON} from "../compare_json";
 import {PipelineInstanceJSON} from "../pipeline_instance_json";
+import {MaterialJSON} from "../material_json";
 
 export class PipelineInstanceData {
   static pipeline(counter: number = 2) {
@@ -109,10 +110,8 @@ export class ComparisonData {
       changes:       [
         {
           material: {
-            type:         "git",
-            display_type: "Git",
-            description:  "URL: git@github.com:sample_repo/example.git, Branch: master",
-            attributes:   {
+            type:       "git",
+            attributes: {
               destination:      null,
               filter:           null,
               invert_filter:    false,
@@ -121,21 +120,23 @@ export class ComparisonData {
               url:              "git@github.com:sample_repo/example.git",
               branch:           "master",
               submodule_folder: null,
-              shallow_clone:    false
+              shallow_clone:    false,
+              display_type:     "Git",
+              description:      "URL: git@github.com:sample_repo/example.git, Branch: master"
             }
           },
           revision: this.materialRevisions()
         },
         {
           material: {
-            type:         "dependency",
-            display_type: "Pipeline",
-            description:  "upstream [ upstream_stage ]",
-            attributes:   {
-              pipeline:    "upstream",
-              stage:       "upstream_stage",
-              name:        "upstream_material",
-              auto_update: true
+            type:       "dependency",
+            attributes: {
+              pipeline:     "upstream",
+              stage:        "upstream_stage",
+              name:         "upstream_material",
+              auto_update:  true,
+              display_type: "Pipeline",
+              description:  "upstream [ upstream_stage ]"
             }
           },
           revision: this.dependencyMaterialRevisions()
@@ -163,5 +164,126 @@ export class ComparisonData {
         completed_at:     "2019-10-17T06:55:07Z"
       }
     ];
+  }
+}
+
+export class MaterialData {
+  static git() {
+    return {
+      type:       "git",
+      attributes: {
+        invert_filter: false,
+        name:          null,
+        auto_update:   true,
+        url:           "git@github.com:sample_repo/example.git",
+        branch:        "master",
+        shallow_clone: false,
+        display_type:  "Git",
+        description:   "URL: git@github.com:sample_repo/example.git, Branch: master"
+      }
+    } as MaterialJSON;
+  }
+
+  static svn() {
+    return {
+      type:       "svn",
+      attributes: {
+        url:             "url",
+        destination:     "svnDir",
+        name:            "SvnMaterial",
+        auto_update:     true,
+        check_externals: true,
+        username:        "user",
+        display_type:    "Subversion",
+        description:     "URL: url, Username: user, CheckExternals: true"
+      }
+    } as MaterialJSON;
+  }
+
+  static hg() {
+    return {
+      type:       "hg",
+      attributes: {
+        url:          "hg-url",
+        destination:  "foo_bar",
+        name:         null,
+        auto_update:  true,
+        display_type: "Mercurial",
+        description:  "URL: hg-url"
+      },
+    } as MaterialJSON;
+  }
+
+  static p4() {
+    return {
+      type:       "p4",
+      attributes: {
+        destination:  "bar",
+        name:         "Dummy git",
+        auto_update:  true,
+        use_tickets:  false,
+        view:         "some-view",
+        port:         "some-port",
+        display_type: "Perforce",
+        description:  "URL: some-port, View: some-view, Username: "
+      }
+    } as MaterialJSON;
+  }
+
+  static tfs() {
+    return {
+      type:       "tfs",
+      attributes: {
+        url:          "foo/bar",
+        destination:  "bar",
+        name:         "Dummy tfs",
+        auto_update:  true,
+        domain:       "foo.com",
+        project_path: "/var/project",
+        username:     "bob",
+        display_type: "Tfs",
+        description:  "URL: foo/bar, Username: bob, Domain: foo.com, ProjectPath: /var/project"
+      }
+    } as MaterialJSON;
+  }
+
+  static dependency() {
+    return {
+      type:       "dependency",
+      attributes: {
+        pipeline:     "upstream",
+        stage:        "upstream_stage",
+        name:         "upstream_material",
+        auto_update:  true,
+        display_type: "Pipeline",
+        description:  "upstream [ upstream_stage ]"
+      }
+    } as MaterialJSON;
+  }
+
+  static package() {
+    return {
+      type:       'package',
+      attributes: {
+        ref:          "pkg-id",
+        display_type: "Package",
+        description:  "Repository: [k1=repo-v1, k2=repo-v2] - Package: [k3=package-v1]",
+      }
+    } as MaterialJSON;
+  }
+
+  static pluggable() {
+    return {
+      type:       'plugin',
+      attributes: {
+        ref:          "scm-id",
+        filter:       {
+          ignore: ["**/*.html", "**/foobar/"]
+        },
+        destination:  'des-folder',
+        display_type: "Github",
+        description:  "k1:v1",
+      }
+    } as MaterialJSON;
   }
 }

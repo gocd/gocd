@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import {Comparison, DependencyRevisions, MaterialRevisions} from "models/compare/compare";
-import {DependencyMaterialAttributes} from "models/materials/types";
+import {DependencyMaterialAttributes} from "models/compare/material";
 import {InfoCircle} from "views/components/icons";
 import {DependencyRevisionsWidget} from "./dependency_revisions_widget";
 import styles from "./index.scss";
@@ -47,7 +47,7 @@ export class ComparisonResultWidget extends MithrilViewComponent<Attrs> {
             let viewBody: m.Child;
             switch (change.material.type()) {
               case "dependency":
-                const pipelineAttrs = change.material.attributes()! as DependencyMaterialAttributes;
+                const pipelineAttrs = change.material.attributes() as DependencyMaterialAttributes;
                 viewBody            = <div>
                   <DependencyRevisionsWidget pipelineName={pipelineAttrs.pipeline()}
                                              result={change.revision as DependencyRevisions}/>
@@ -60,7 +60,7 @@ export class ComparisonResultWidget extends MithrilViewComponent<Attrs> {
             }
             return <div data-test-id="material-changes">
             <span
-              data-test-id="material-header">{change.material.displayType} - {change.material.description}</span>
+              data-test-id="material-header">{change.material.attributes().displayType()} - {change.material.attributes().description()}</span>
               {viewBody}
             </div>;
           })

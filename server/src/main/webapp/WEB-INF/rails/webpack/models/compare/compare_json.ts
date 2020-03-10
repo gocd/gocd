@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MaterialJSON} from "../materials/serialization";
+import {MaterialJSON} from "./material_json";
 
 export interface ComparisonJSON {
   pipeline_name: string;
@@ -24,13 +24,8 @@ export interface ComparisonJSON {
   changes: ChangeJSON[];
 }
 
-export interface ChangeMaterialJSON extends MaterialJSON{
-  display_type: string;
-  description: string;
-}
-
 export interface ChangeJSON {
-  material: ChangeMaterialJSON;
+  material: MaterialJSON;
   revision: RevisionJSON[];
 }
 

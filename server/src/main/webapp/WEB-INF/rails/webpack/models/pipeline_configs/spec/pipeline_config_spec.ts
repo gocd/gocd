@@ -50,7 +50,7 @@ describe("PipelineConfig model", () => {
         "Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
   });
 
-  it("should validate mutual exclusivity of template and stages", () => {
+  xit("should validate mutual exclusivity of template and stages", () => {
     const pip = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
     expect(pip.isValid()).toBe(true);
 

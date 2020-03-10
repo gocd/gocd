@@ -80,6 +80,14 @@ export class PipelineConfigPage<T> extends Page<null, T> {
 
   save() {
     this.flashMessage.clear();
+    const isValid = this.pipelineConfig!.isValid();
+
+    if (!isValid) {
+      const msg = "Validation Failed! Please fix the below errors before submitting.";
+      this.flashMessage.setMessage(MessageType.alert, msg);
+      return Promise.resolve();
+    }
+
     return this.pipelineConfig!.update(this.etag()).then((result) => {
       return result.do(() => {
         this.flashMessage.setMessage(MessageType.success, "Saved Successfully!");

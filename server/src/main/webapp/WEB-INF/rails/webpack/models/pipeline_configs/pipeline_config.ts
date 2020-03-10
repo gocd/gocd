@@ -177,9 +177,6 @@ export class PipelineConfig extends ValidatableMixin {
     this.stages = Stream(new NameableSet(stages));
     this.validateAssociated("stages");
 
-    this.validateMutualExclusivityOf("template",
-                                     "stages",
-                                     {message: "Pipeline stages must not be defined when using a pipeline template"});
     this.validateChildAttrIsUnique("parameters", "name", {message: "Parameter names must be unique"});
   }
 

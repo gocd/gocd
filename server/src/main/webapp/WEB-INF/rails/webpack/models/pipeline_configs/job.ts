@@ -38,8 +38,8 @@ export interface JobJSON {
 
 export class Job extends ValidatableMixin {
   //view state
-  readonly runType        = Stream<"one" | "all" | "number">();
-  readonly jobTimeoutType = Stream<"never" | "default" | "number">();
+  readonly runType              = Stream<"one" | "all" | "number">();
+  readonly jobTimeoutType       = Stream<"never" | "default" | "number">();
   readonly name                 = Stream<string>();
   readonly runInstanceCount     = Stream<number | "all" | null>();
   readonly timeout              = Stream<"never" | number | null>();
@@ -50,7 +50,7 @@ export class Job extends ValidatableMixin {
   readonly tabs                 = Stream<Tabs>();
   readonly artifacts            = Stream<Artifacts>();
 
-  private readonly __name       = Stream<string>();
+  private readonly __name = Stream<string>();
 
   constructor(name: string = "", tasks: Task[] = [], envVars = new EnvironmentVariables()) {
     super();
@@ -66,6 +66,8 @@ export class Job extends ValidatableMixin {
     this.validateNonEmptyCollection("tasks", {message: "A job must have at least one task"});
     this.validateEach("tasks");
     this.validateEach("environmentVariables");
+    this.validatePresenceOf("timeout", {condition: () => this.jobTimeoutType() === "number"});
+    this.validatePresenceOf("runInstanceCount", {condition: () => this.runType() === "number"});
     this.validateChildAttrIsUnique("environmentVariables",
                                    "name",
                                    {message: "Environment Variable names must be unique"});

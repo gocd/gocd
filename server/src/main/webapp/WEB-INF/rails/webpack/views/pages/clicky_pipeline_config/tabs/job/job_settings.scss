@@ -20,9 +20,16 @@
 }
 
 .number-field-wrapper {
+  width:         90px;
+  margin-bottom: -20px;
+
   input {
     width:  75px;
-    margin: 0 3px 0 3px;
+    margin: 0 0 0 8px;
+  }
+
+  span {
+    width: 300px;
   }
 }
 

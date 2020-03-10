@@ -44,7 +44,9 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
     const entity = vnode.attrs.entity;
 
     const numberFieldForTimeout = <div class={styles.numberFieldWrapper}>
-      <NumberField property={entity.timeout as any} readonly={entity.jobTimeoutType() !== "number"}/>
+      <NumberField property={entity.jobTimeoutType() !== "number" ? Stream() : (entity.timeout as any)}
+                   errorText={entity.errors().errorsForDisplay("timeout")}
+                   readonly={entity.jobTimeoutType() !== "number"}/>
     </div>;
 
     const jobTimeoutInNumber: m.Child = <div class={styles.cancelAfterInactivityWrapper}>
@@ -52,7 +54,9 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
     </div>;
 
     const numberFieldForRunInstance = <div class={styles.numberFieldWrapper}>
-      <NumberField property={entity.runInstanceCount as any} readonly={entity.runType() !== "number"}/>
+      <NumberField property={entity.runType() !== "number" ? Stream() : (entity.runInstanceCount as any)}
+                   errorText={entity.errors().errorsForDisplay("runInstanceCount")}
+                   readonly={entity.runType() !== "number"}/>
     </div>;
 
     const runInstanceInNumber: m.Child = <div class={styles.cancelAfterInactivityWrapper}>
@@ -79,6 +83,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
                          property={entity.resources}/>
       <AutocompleteField label="Elastic Agent Profile Id"
                          autoEvaluate={false}
+                         errorText={entity.errors().errorsForDisplay("elasticProfileId")}
                          provider={vnode.attrs.elasticAgentsSuggestions}
                          readonly={!!entity.resources()}
                          helpText="The Elastic Agent Profile that the current job requires to run"
@@ -131,13 +136,13 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
   private toggleJobTimeout(timeoutType: "never" | "default" | "number", entity: Job) {
     (timeoutType === "never")
       ? entity.timeout("never")
-      : ((timeoutType === "default") ? entity.timeout(null) : entity.timeout(entity.timeout()));
+      : ((timeoutType === "default") ? entity.timeout(null) : entity.timeout(0));
   }
 
   private toggleRunInstance(timeoutType: "one" | "all" | "number", entity: Job) {
     (timeoutType === "all")
       ? entity.runInstanceCount("all")
-      : ((timeoutType === "one") ? entity.runInstanceCount(null) : entity.timeout(entity.timeout()));
+      : ((timeoutType === "one") ? entity.runInstanceCount(null) : entity.runInstanceCount(0));
   }
 }
 

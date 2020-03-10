@@ -20,7 +20,7 @@
     "@shopify/draggable": "^1.0.0-beta.8",
     "angular": "file:node-vendor/angular",
     "awesomplete": "^1.1.5",
-    "bourbon": "^6.0.0",
+    "bourbon": "^7.0.0",
     "chart.js": "^2.9.3",
     "chartjs-plugin-zoom": "^0.7.5",
     "classnames": "^2.2.6",

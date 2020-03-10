@@ -40,10 +40,8 @@ class TfsMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   def materialHash =
     [
-      type        : 'tfs',
-      display_type: "Tfs",
-      description : "URL: http://10.4.4.101:8080/tfs/Sample, Username: loser, Domain: some_domain, ProjectPath: walk_this_path",
-      attributes  : [
+      type      : 'tfs',
+      attributes: [
         url               : "http://10.4.4.101:8080/tfs/Sample",
         destination       : "dest-folder",
         filter            : [
@@ -55,17 +53,17 @@ class TfsMaterialRepresenterTest implements MaterialRepresenterTrait {
         encrypted_password: new GoCipher().encrypt("passwd"),
         project_path      : "walk_this_path",
         name              : "tfs-material",
-        auto_update       : true
+        auto_update       : true,
+        display_type      : "Tfs",
+        description       : "URL: http://10.4.4.101:8080/tfs/Sample, Username: loser, Domain: some_domain, ProjectPath: walk_this_path",
       ]
     ]
 
 
   def expectedMaterialHashWithErrors =
     [
-      type        : "tfs",
-      display_type: "Tfs",
-      description : "URL: , Username: , Domain: , ProjectPath: /some-path/",
-      attributes  : [
+      type      : "tfs",
+      attributes: [
         url          : "",
         destination  : null,
         filter       : null,
@@ -74,9 +72,11 @@ class TfsMaterialRepresenterTest implements MaterialRepresenterTrait {
         auto_update  : true,
         domain       : "",
         username     : "",
-        project_path : "/some-path/"
+        project_path : "/some-path/",
+        display_type : "Tfs",
+        description  : "URL: , Username: , Domain: , ProjectPath: /some-path/",
       ],
-      errors      :
+      errors    :
         [
           url     : ["URL cannot be blank"],
           username: ["Username cannot be blank"]

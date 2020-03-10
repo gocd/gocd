@@ -52,10 +52,8 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
 
     def expectedJson =
       [
-        type        : 'git',
-        display_type: "Git",
-        description : "URL: http://user:******@funk.com/blank, Branch: master",
-        attributes  : [
+        type      : 'git',
+        attributes: [
           url             : "http://user:password@funk.com/blank",
           destination     : null,
           filter          : null,
@@ -64,7 +62,9 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
           auto_update     : true,
           branch          : "master",
           submodule_folder: null,
-          shallow_clone   : false
+          shallow_clone   : false,
+          display_type    : "Git",
+          description     : "URL: http://user:******@funk.com/blank, Branch: master",
         ]
       ]
 
@@ -80,10 +80,8 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   def materialHash =
     [
-      type        : 'git',
-      display_type: "Git",
-      description : "URL: http://user:******@funk.com/blank, Branch: branch",
-      attributes  : [
+      type      : 'git',
+      attributes: [
         url             : "http://user:password@funk.com/blank",
         destination     : "destination",
         filter          : [
@@ -94,16 +92,16 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         submodule_folder: 'sub_module_folder',
         shallow_clone   : true,
         name            : 'AwesomeGitMaterial',
-        auto_update     : false
+        auto_update     : false,
+        display_type    : "Git",
+        description     : "URL: http://user:******@funk.com/blank, Branch: branch",
       ]
     ]
 
   def gitMaterialBasicHash =
     [
-      type        : 'git',
-      display_type: "Git",
-      description : "URL: http://user:******@funk.com/blank, Branch: ",
-      attributes  : [
+      type      : 'git',
+      attributes: [
         url             : "http://user:password@funk.com/blank",
         destination     : null,
         filter          : null,
@@ -112,16 +110,16 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         auto_update     : true,
         branch          : "master",
         submodule_folder: null,
-        shallow_clone   : false
+        shallow_clone   : false,
+        display_type    : "Git",
+        description     : "URL: http://user:******@funk.com/blank, Branch: ",
       ]
     ]
 
   def expectedMaterialHashWithErrors =
     [
-      type        : "git",
-      display_type: "Git",
-      description : "URL: , Branch: ",
-      attributes  : [
+      type      : "git",
+      attributes: [
         url             : "",
         destination     : "",
         filter          : null,
@@ -130,9 +128,11 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         auto_update     : true,
         branch          : "master",
         submodule_folder: "",
-        shallow_clone   : false
+        shallow_clone   : false,
+        display_type    : "Git",
+        description     : "URL: , Branch: ",
       ],
-      errors      : [
+      errors    : [
         name       : ["You have defined multiple materials called '!nV@l!d'. Material names are case-insensitive and must be unique. Note that for dependency materials the default materialName is the name of the upstream pipeline. You can override this by setting the materialName explicitly for the upstream pipeline.", "Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
         destination: ["Destination directory is required when specifying multiple scm materials"],
         url        : ["URL cannot be blank"]

@@ -75,9 +75,7 @@ public class MaterialRepresenter {
             });
 
         }
-        jsonWriter.add("type", classToTypeMap.get(materialConfig.getClass()))
-                .add("display_type", materialConfig.getTypeForDisplay())
-                .add("description", materialConfig.getLongDescription());
+        jsonWriter.add("type", classToTypeMap.get(materialConfig.getClass()));
         switch (classToTypeMap.get(materialConfig.getClass())) {
             case "git":
                 jsonWriter.addChild("attributes", attributeWriter -> GitMaterialRepresenter.toJSON(attributeWriter, (GitMaterialConfig) materialConfig));

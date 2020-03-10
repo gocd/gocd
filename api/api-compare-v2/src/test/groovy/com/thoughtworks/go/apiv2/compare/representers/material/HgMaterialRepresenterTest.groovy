@@ -41,10 +41,8 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   def materialHash =
     [
-      type        : 'hg',
-      display_type: "Mercurial",
-      description : "URL: http://user:******@domain/path##branch",
-      attributes  : [
+      type      : 'hg',
+      attributes: [
         url          : "http://user:pass@domain/path##branch",
         destination  : "dest-folder",
         filter       : [
@@ -52,24 +50,26 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
         ],
         invert_filter: false,
         name         : "hg-material",
-        auto_update  : true
+        auto_update  : true,
+        display_type : "Mercurial",
+        description  : "URL: http://user:******@domain/path##branch",
       ]
     ]
 
   def expectedMaterialHashWithErrors =
     [
-      type        : "hg",
-      display_type: "Mercurial",
-      description : "URL: ",
-      attributes  : [
+      type      : "hg",
+      attributes: [
         url          : "",
         destination  : "/dest/",
         filter       : null,
         invert_filter: false,
         name         : "!nV@l!d",
-        auto_update  : true
+        auto_update  : true,
+        display_type : "Mercurial",
+        description  : "URL: ",
       ],
-      errors      : [
+      errors    : [
         name       : ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
         destination: ["Dest folder '/dest/' is not valid. It must be a sub-directory of the working folder."],
         url        : ["URL cannot be blank"]

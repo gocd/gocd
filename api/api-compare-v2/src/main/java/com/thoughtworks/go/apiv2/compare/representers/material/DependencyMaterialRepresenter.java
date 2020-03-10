@@ -21,9 +21,11 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 public class DependencyMaterialRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, DependencyMaterialConfig dependencyMaterialConfig) {
-        jsonWriter.add("pipeline", dependencyMaterialConfig.getPipelineName());
-        jsonWriter.add("stage", dependencyMaterialConfig.getStageName());
-        jsonWriter.add("name", dependencyMaterialConfig.getNameWithoutDefaults());
-        jsonWriter.add("auto_update", dependencyMaterialConfig.isAutoUpdate());
+        jsonWriter.add("name", dependencyMaterialConfig.getNameWithoutDefaults())
+                .add("pipeline", dependencyMaterialConfig.getPipelineName())
+                .add("stage", dependencyMaterialConfig.getStageName())
+                .add("auto_update", dependencyMaterialConfig.isAutoUpdate())
+                .add("display_type", dependencyMaterialConfig.getTypeForDisplay())
+                .add("description", dependencyMaterialConfig.getLongDescription());
     }
 }

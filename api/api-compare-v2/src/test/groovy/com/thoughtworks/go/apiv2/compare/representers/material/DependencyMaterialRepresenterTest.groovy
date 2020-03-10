@@ -41,30 +41,30 @@ class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   def materialHash =
     [
-      type        : 'dependency',
-      display_type: "Pipeline",
-      description : "pipeline-name [ stage-name ]",
-      attributes  : [
-        pipeline   : "pipeline-name",
-        stage      : "stage-name",
-        name       : null,
-        auto_update: true
+      type      : 'dependency',
+      attributes: [
+        pipeline    : "pipeline-name",
+        stage       : "stage-name",
+        name        : null,
+        auto_update : true,
+        display_type: "Pipeline",
+        description : "pipeline-name [ stage-name ]",
       ]
     ]
 
   def expectedMaterialHashWithErrors =
     [
-      type        : "dependency",
-      display_type: "Pipeline",
-      description : " [  ]",
-      attributes  :
+      type      : "dependency",
+      attributes:
         [
-          pipeline   : "",
-          stage      : "",
-          name       : null,
-          auto_update: true
+          pipeline    : "",
+          stage       : "",
+          name        : null,
+          auto_update : true,
+          display_type: "Pipeline",
+          description : " [  ]",
         ],
-      errors      : [
+      errors    : [
         pipeline: ["Pipeline with name '' does not exist, it is defined as a dependency for pipeline 'p' (cruise-config.xml)"]
       ]
     ]

@@ -21,6 +21,8 @@ import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 public class PackageMaterialRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, PackageMaterialConfig packageMaterialConfig) {
-        jsonWriter.add("ref", packageMaterialConfig.getPackageId());
+        jsonWriter.add("ref", packageMaterialConfig.getPackageId())
+                .add("display_type", packageMaterialConfig.getTypeForDisplay())
+                .add("description", packageMaterialConfig.getLongDescription());
     }
 }

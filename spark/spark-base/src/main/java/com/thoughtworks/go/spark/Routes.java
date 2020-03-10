@@ -847,7 +847,7 @@ public class Routes {
     }
 
     public static class ApiInfo {
-        public static final String BASE = "/api/apis";
+        public static final String BASE = "/api/internal/apis";
     }
 
     public static class FeedsAPI {

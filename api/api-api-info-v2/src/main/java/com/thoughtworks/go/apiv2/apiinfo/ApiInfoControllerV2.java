@@ -61,7 +61,7 @@ public class ApiInfoControllerV2 extends ApiController implements SparkSpringCon
             before("", mimeType, this::setContentType);
             before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
-            get("", this::index);
+            get("", mimeType, this::index);
         });
     }
 

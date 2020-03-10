@@ -17,35 +17,36 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertThat;
 
-class ResourcesTest {
+public class ResourcesTest {
     @Test
-    void shouldConvertResourceConfigsToListOfResource() {
+    public void shouldConvertResourceConfigsToListOfResource() {
         final Resources resources = new Resources(new ResourceConfigs("foo,bar"));
 
-        assertThat(resources).hasSize(2);
-        assertThat(resources).containsExactly(new Resource("foo"), new Resource("bar"));
+        assertThat(resources, hasSize(2));
+        assertThat(resources, contains(new Resource("foo"), new Resource("bar")));
     }
 
     @Test
-    void shouldConvertResourceListToResourceConfigs() {
+    public void shouldConvertResourceListToResourceConfigs() {
         final Resources resources = new Resources(new Resource("foo"), new Resource("bar"));
 
         final ResourceConfigs resourceConfigs = resources.toResourceConfigs();
 
-        assertThat(resourceConfigs.size()).isEqualTo(2);
-        assertThat(resourceConfigs.get(0)).isEqualTo(new ResourceConfig("foo"));
-        assertThat(resourceConfigs.get(1)).isEqualTo(new ResourceConfig("bar"));
+        assertThat(resourceConfigs, hasSize(2));
+        assertThat(resourceConfigs, contains(new ResourceConfig("foo"), new ResourceConfig("bar")));
     }
 
     @Test
-    void shouldConvertCommaSeparatedResourcesStringToResources() {
+    public void shouldConvertCommaSeparatedResourcesStringToResources() {
         final Resources resources = new Resources("foo,bar,baz");
 
-        assertThat(resources).hasSize(3);
-        assertThat(resources).containsExactly(new Resource("foo"), new Resource("bar"), new Resource("baz"));
+        assertThat(resources, hasSize(3));
+        assertThat(resources, contains(new Resource("foo"), new Resource("bar"), new Resource("baz")));
     }
 }

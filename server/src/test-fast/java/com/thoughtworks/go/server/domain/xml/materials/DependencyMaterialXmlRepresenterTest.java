@@ -19,7 +19,7 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.junit5.FileSource;
+import com.thoughtworks.go.junit5.JsonSource;
 import com.thoughtworks.go.server.domain.xml.builder.ElementBuilder;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -35,7 +35,7 @@ import static org.xmlunit.assertj.XmlAssert.assertThat;
 
 public class DependencyMaterialXmlRepresenterTest {
     @ParameterizedTest
-    @FileSource(files = "/feeds/materials/dependency-material.xml")
+    @JsonSource(jsonFiles = "/feeds/materials/dependency-material.xml")
     void shouldRepresentDependencyMaterial(String expectedXML) {
         Date date = DateUtils.parseISO8601("2019-12-31T15:31:49+05:30");
         DependencyMaterial material = MaterialsMother.dependencyMaterial();

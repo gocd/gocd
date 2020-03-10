@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.domain.xml;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.helper.JobInstanceMother;
-import com.thoughtworks.go.junit5.FileSource;
+import com.thoughtworks.go.junit5.JsonSource;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.dom4j.Document;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,7 +32,7 @@ import static org.xmlunit.assertj.XmlAssert.assertThat;
 
 public class JobXmlRepresenterTest {
     @ParameterizedTest
-    @FileSource(files = "/feeds/job.xml")
+    @JsonSource(jsonFiles = "/feeds/job.xml")
     void shouldGenerateDocumentForJob(String expectedXML) throws IllegalArtifactLocationException {
         ArtifactUrlReader urlReader = mock(ArtifactUrlReader.class);
         JobInstance jobInstance = JobInstanceMother.failed("unit-test");

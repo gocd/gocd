@@ -15,23 +15,24 @@
  */
 package com.thoughtworks.go.domain;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
-class StageConfigIdentifierTest {
+public class StageConfigIdentifierTest {
 
     @Test
-    void shouldUseCaseInsensitiveStringForPipelineName() {
+    public void shouldUseCaseInsensitiveStringForPipelineName() {
         StageConfigIdentifier stageConfigIdentifier1 = new StageConfigIdentifier("pipelineName", "stageName");
         StageConfigIdentifier stageConfigIdentifier2 = new StageConfigIdentifier("pipelinename", "stageName");
-        assertThat(stageConfigIdentifier1).isEqualTo(stageConfigIdentifier2);
+        assertThat(stageConfigIdentifier1, is(stageConfigIdentifier2));
     }
 
     @Test
-    void shouldUseCaseInsensitiveStringForStageName() {
+    public void shouldUseCaseInsensitiveStringForStageName() {
         StageConfigIdentifier stageConfigIdentifier1 = new StageConfigIdentifier("pipelineName", "stageName");
         StageConfigIdentifier stageConfigIdentifier2 = new StageConfigIdentifier("pipelineName", "Stagename");
-        assertThat(stageConfigIdentifier1).isEqualTo(stageConfigIdentifier2);
+        assertThat(stageConfigIdentifier1, is(stageConfigIdentifier2));
     }
 }

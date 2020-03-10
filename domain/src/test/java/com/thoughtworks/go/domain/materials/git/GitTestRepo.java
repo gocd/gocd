@@ -40,8 +40,6 @@ import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMem
 
 public class GitTestRepo extends TestRepo {
     private static final String GIT_3_REVISIONS_BUNDLE = "../common/src/test/resources/data/git/git-3-revisions.git";
-    public static final String GIT_WITH_WHITESPACES_IN_SUBJECT = "../common/src/test/resources/data/git/whitespace-in-subject.git";
-    public static final String GIT_WITH_WHITESPACES_IN_COMMIT = "../common/src/test/resources/data/git/whitespace-in-commit.git";
     public static final String GIT_FOO_BRANCH_BUNDLE = "../common/src/test/resources/data/git/foo-branch.git";
     public static final String GIT_SUBMODULE_REF_BUNDLE = "../common/src/test/resources/data/git/referenced-submodule.git";
 

@@ -13,20 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.domain.materials.git.builder;
+package com.thoughtworks.go.junit5;
 
-import com.thoughtworks.go.util.command.CommandLine;
-import com.thoughtworks.go.util.command.SecretString;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
-import java.io.File;
-import java.util.List;
+import java.lang.annotation.*;
 
-public interface Builder {
-    Builder withWorkingDir(File workingDir);
-
-    Builder outputFormatYaml();
-
-    Builder withNonArgSecrets(List<SecretString> secrets);
-
-    CommandLine build();
+@Documented
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@ArgumentsSource(JsonSourceProvider.class)
+public @interface JsonSource {
+    String[] jsonFiles();
 }

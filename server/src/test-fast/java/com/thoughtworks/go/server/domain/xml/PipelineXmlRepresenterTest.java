@@ -24,7 +24,7 @@ import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.helper.PipelineHistoryMother;
-import com.thoughtworks.go.junit5.FileSource;
+import com.thoughtworks.go.junit5.JsonSource;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -61,7 +61,7 @@ public class PipelineXmlRepresenterTest {
     }
 
     @ParameterizedTest
-    @FileSource(files = "/feeds/pipeline.xml")
+    @JsonSource(jsonFiles = "/feeds/pipeline.xml")
     void shouldGeneratePipelineXml(String expectedXML) {
         Document document = new PipelineXmlRepresenter(model).toXml(context);
 

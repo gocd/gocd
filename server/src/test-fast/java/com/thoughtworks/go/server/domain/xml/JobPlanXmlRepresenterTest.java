@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.domain.xml;
 
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.JobInstanceMother;
-import com.thoughtworks.go.junit5.FileSource;
+import com.thoughtworks.go.junit5.JsonSource;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.dom4j.Document;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,7 +29,7 @@ import static org.xmlunit.assertj.XmlAssert.assertThat;
 
 public class JobPlanXmlRepresenterTest {
     @ParameterizedTest
-    @FileSource(files = "/feeds/job-plan.xml")
+    @JsonSource(jsonFiles = "/feeds/job-plan.xml")
     void shouldGenerateDocumentForJobPlan(String expectedXML) {
         EnvironmentVariable secureEnvVariable = new EnvironmentVariable("secureVariable", "value2", true);
         DefaultJobPlan jobPlan1 = JobInstanceMother.jobPlan("job-1", 1);

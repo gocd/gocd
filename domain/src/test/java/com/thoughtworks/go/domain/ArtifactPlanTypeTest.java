@@ -15,16 +15,16 @@
  */
 package com.thoughtworks.go.domain;
 
+import org.junit.Test;
 
-import org.junit.jupiter.api.Test;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-class ArtifactPlanTypeTest {
+public class ArtifactPlanTypeTest {
     @Test
-    void shouldConvertArtifactTypeToArtifactPlanType() {
-        assertThat(ArtifactPlanType.fromArtifactType(ArtifactType.external)).isEqualTo(ArtifactPlanType.external);
-        assertThat(ArtifactPlanType.fromArtifactType(ArtifactType.test)).isEqualTo(ArtifactPlanType.unit);
-        assertThat(ArtifactPlanType.fromArtifactType(ArtifactType.build)).isEqualTo(ArtifactPlanType.file);
+    public void shouldConvertArtifactTypeToArtifactPlanType() {
+        assertThat(ArtifactPlanType.fromArtifactType(ArtifactType.external), is(ArtifactPlanType.external));
+        assertThat(ArtifactPlanType.fromArtifactType(ArtifactType.test), is(ArtifactPlanType.unit));
+        assertThat(ArtifactPlanType.fromArtifactType(ArtifactType.build), is(ArtifactPlanType.file));
     }
 }

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.domain.xml;
 
 import com.thoughtworks.go.domain.XmlWriterContext;
-import com.thoughtworks.go.junit5.FileSource;
+import com.thoughtworks.go.junit5.JsonSource;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 public class PipelinesXmlRepresenterTest {
     @ParameterizedTest
-    @FileSource(files = "/feeds/pipelines.xml")
+    @JsonSource(jsonFiles = "/feeds/pipelines.xml")
     void shouldConvertPipelineInstanceModelsToDocument(String expectedXML) {
         XmlWriterContext context = new XmlWriterContext("https://go-server/go", null, null, null, new SystemEnvironment());
         PipelineInstanceModel up42Model = pipelineInstanceModel("up42");

@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.SCMCommand;
-import com.thoughtworks.go.domain.materials.git.builder.GitLogCommandBuilder;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.util.NamedProcessTag;
 import com.thoughtworks.go.util.command.*;
@@ -93,30 +92,15 @@ public class GitCommand extends SCMCommand {
     }
 
     public List<Modification> latestModification() {
-        CommandLine command = new GitLogCommandBuilder()
-                .latestCommit()
-                .withRemoteBranch(remoteBranch())
-                .withWorkingDir(workingDir)
-                .withNonArgSecrets(secrets)
-                .outputFormatYaml()
-                .build();
-
-        return gitLog(command);
+        return gitLog("-1", "--date=iso", "--no-decorate", "--pretty=medium", "--no-color", remoteBranch());
 
     }
 
     public List<Modification> modificationsSince(Revision revision) {
-        CommandLine command = new GitLogCommandBuilder()
-                .between(revision.getRevision(), remoteBranch())
-                .withWorkingDir(workingDir)
-                .withNonArgSecrets(secrets)
-                .outputFormatYaml()
-                .build();
-
-        return gitLog(command);
+        return gitLog("--date=iso", "--pretty=medium", "--no-decorate", "--no-color", String.format("%s..%s", revision.getRevision(), remoteBranch()));
     }
 
-    private List<Modification> gitLog(CommandLine gitCmd) {
+    private List<Modification> gitLog(String... args) {
         // Git log will only show changes before the currently checked out revision
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
 
@@ -128,9 +112,11 @@ public class GitCommand extends SCMCommand {
             throw new RuntimeException(String.format("Working directory: %s\n%s", workingDir, outputStreamConsumer.getStdError()), e);
         }
 
+        CommandLine gitCmd = git().withArg("log").withArgs(args).withWorkingDir(workingDir);
         ConsoleResult result = runOrBomb(gitCmd);
+
         GitModificationParser parser = new GitModificationParser();
-        List<Modification> mods = parser.parse(result.outputAsString());
+        List<Modification> mods = parser.parse(result.output());
         for (Modification mod : mods) {
             addModifiedFiles(mod);
         }

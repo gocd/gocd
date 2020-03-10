@@ -35,7 +35,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -44,46 +44,49 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother.create;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.*;
 
-class PackageMaterialTest {
+public class PackageMaterialTest {
     @Test
-    void shouldCreatePackageMaterialInstance() {
+    public void shouldCreatePackageMaterialInstance() {
         PackageMaterial material = MaterialsMother.packageMaterial();
         PackageMaterialInstance materialInstance = (PackageMaterialInstance) material.createMaterialInstance();
 
-        assertThat(materialInstance).isNotNull();
-        assertThat(materialInstance.getFlyweightName()).isNotNull();
-        assertThat(materialInstance.getConfiguration()).isEqualTo(JsonHelper.toJsonString(material));
+        assertThat(materialInstance, is(notNullValue()));
+        assertThat(materialInstance.getFlyweightName(), is(notNullValue()));
+        assertThat(materialInstance.getConfiguration(), is(JsonHelper.toJsonString(material)));
     }
 
     @Test
-    void shouldGetMaterialInstanceType() {
-        assertThat(new PackageMaterial().getInstanceType().equals(PackageMaterialInstance.class)).isTrue();
+    public void shouldGetMaterialInstanceType() {
+        assertThat(new PackageMaterial().getInstanceType().equals(PackageMaterialInstance.class), is(true));
     }
 
     @Test
-    void shouldGetSqlCriteria() {
+    public void shouldGetSqlCriteria() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
         Map<String, Object> criteria = material.getSqlCriteria();
-        assertThat(criteria.get("type")).isEqualTo(PackageMaterial.class.getSimpleName());
-        assertThat(criteria.get("fingerprint")).isEqualTo(material.getFingerprint());
+        assertThat(criteria.get("type"), is(PackageMaterial.class.getSimpleName()));
+        assertThat(criteria.get("fingerprint"), is(material.getFingerprint()));
     }
 
     @Test
-    void shouldGetFingerprintForMaterial() {
+    public void shouldGetFingerprintForMaterial() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", "pluginid", "version",
                 new Configuration(ConfigurationPropertyMother.create("k1", false, "v1"), ConfigurationPropertyMother.create("secure-key", true, "secure-value")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
-        assertThat(material.getFingerprint()).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=pluginid<|>k2=v2<|>k1=v1<|>secure-key=secure-value"));
+        assertThat(material.getFingerprint(), is(CachedDigestUtils.sha256Hex("plugin-id=pluginid<|>k2=v2<|>k1=v1<|>secure-key=secure-value")));
     }
 
     @Test
-    void shouldGetDifferentFingerprintWhenPluginIdChanges() {
+    public void shouldGetDifferentFingerprintWhenPluginIdChanges() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", "yum-1", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id-1", "name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
@@ -93,44 +96,44 @@ class PackageMaterialTest {
         PackageRepository anotherRepository = PackageRepositoryMother.create("repo-id", "repo", "yum-2", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         anotherMaterial.setPackageDefinition(PackageDefinitionMother.create("p-id-2", "name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), anotherRepository));
 
-        assertThat(material.getFingerprint().equals(anotherMaterial.getFingerprint())).isFalse();
+        assertThat(material.getFingerprint().equals(anotherMaterial.getFingerprint()), is(false));
     }
 
     @Test
-    void shouldGetDescription() {
+    public void shouldGetDescription() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
-        assertThat(material.getDescription()).isEqualTo("repo-name_package-name");
+        assertThat(material.getDescription(), is("repo-name_package-name"));
     }
 
     @Test
-    void shouldGetDisplayName() {
+    public void shouldGetDisplayName() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
-        assertThat(material.getDisplayName()).isEqualTo("repo-name_package-name");
+        assertThat(material.getDisplayName(), is("repo-name_package-name"));
     }
 
     @Test
-    void shouldTypeForDisplay() {
+    public void shouldTypeForDisplay() {
         PackageMaterial material = new PackageMaterial();
-        assertThat(material.getTypeForDisplay()).isEqualTo("Package");
+        assertThat(material.getTypeForDisplay(), is("Package"));
     }
 
     @Test
-    void shouldGetAttributesForXml() {
+    public void shouldGetAttributesForXml() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
         Map<String, Object> attributesForXml = material.getAttributesForXml();
-        assertThat(attributesForXml.get("type").toString()).isEqualTo("PackageMaterial");
-        assertThat(attributesForXml.get("repositoryName").toString()).isEqualTo("repo-name");
-        assertThat(attributesForXml.get("packageName").toString()).isEqualTo("package-name");
+        assertThat(attributesForXml.get("type").toString(), is("PackageMaterial"));
+        assertThat(attributesForXml.get("repositoryName").toString(), is("repo-name"));
+        assertThat(attributesForXml.get("packageName").toString(), is("package-name"));
     }
 
     @Test
-    void shouldConvertPackageMaterialToJsonFormatToBeStoredInDb() throws CryptoException {
+    public void shouldConvertPackageMaterialToJsonFormatToBeStoredInDb() throws CryptoException {
         GoCipher cipher = new GoCipher();
         String encryptedPassword = cipher.encrypt("password");
         ConfigurationProperty secureRepoProperty = new ConfigurationProperty(new ConfigurationKey("secure-key"), null, new EncryptedConfigurationValue(encryptedPassword), cipher);
@@ -152,26 +155,26 @@ class PackageMaterialTest {
 
         String expected = "{\"package\":{\"config\":[{\"configKey\":{\"name\":\"secure-key\"},\"encryptedConfigValue\":{\"value\":" + new Gson().toJson(encryptedPassword) + "}},{\"configKey\":{\"name\":\"non-secure-key\"},\"configValue\":{\"value\":\"value\"}}],\"repository\":{\"plugin\":{\"id\":\"plugin-id\",\"version\":\"1.0\"},\"config\":[{\"configKey\":{\"name\":\"secure-key\"},\"encryptedConfigValue\":{\"value\":" + new Gson().toJson(encryptedPassword) + "}},{\"configKey\":{\"name\":\"non-secure-key\"},\"configValue\":{\"value\":\"value\"}}]}}}";
 
-        assertThat(json).isEqualTo(expected);
-        assertThat(JsonHelper.fromJson(expected, PackageMaterial.class)).isEqualTo(packageMaterial);
+        assertThat(json, is(expected));
+        assertThat(JsonHelper.fromJson(expected, PackageMaterial.class), is(packageMaterial));
     }
 
     @Test
-    void shouldGetJsonRepresentationForPackageMaterial() {
+    public void shouldGetJsonRepresentationForPackageMaterial() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
         Map<String, String> jsonMap = new LinkedHashMap<>();
         material.toJson(jsonMap, new PackageMaterialRevision("rev123", new Date()));
 
-        assertThat(jsonMap.get("scmType")).isEqualTo("Package");
-        assertThat(jsonMap.get("materialName")).isEqualTo("repo-name_package-name");
-        assertThat(jsonMap.get("action")).isEqualTo("Modified");
-        assertThat(jsonMap.get("location")).isEqualTo(material.getUriForDisplay());
+        assertThat(jsonMap.get("scmType"), is("Package"));
+        assertThat(jsonMap.get("materialName"), is("repo-name_package-name"));
+        assertThat(jsonMap.get("action"), is("Modified"));
+        assertThat(jsonMap.get("location"), is(material.getUriForDisplay()));
     }
 
     @Test
-    void shouldGetEmailContentForPackageMaterial() {
+    public void shouldGetEmailContentForPackageMaterial() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
@@ -180,40 +183,40 @@ class PackageMaterialTest {
         Date date = new Date(1367472329111L);
         material.emailContent(content, new Modification(null, null, null, date, "rev123"));
 
-        assertThat(content.toString()).isEqualTo(String.format("Package : repo-name_package-name\nrevision: rev123, completed on %s", date.toString()));
+        assertThat(content.toString(), is(String.format("Package : repo-name_package-name\nrevision: rev123, completed on %s", date.toString())));
     }
 
     @Test
-    void shouldReturnFalseForIsUsedInFetchArtifact() {
+    public void shouldReturnFalseForIsUsedInFetchArtifact() {
         PackageMaterial material = new PackageMaterial();
-        assertThat(material.isUsedInFetchArtifact(new PipelineConfig())).isFalse();
+        assertThat(material.isUsedInFetchArtifact(new PipelineConfig()), is(false));
     }
 
     @Test
-    void shouldReturnMatchedRevisionForPackageMaterial() {
+    public void shouldReturnMatchedRevisionForPackageMaterial() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
 
         Date timestamp = new Date();
         MatchedRevision matchedRevision = material.createMatchedRevision(new Modification("go", "comment", null, timestamp, "rev123"), "rev");
-        assertThat(matchedRevision.getShortRevision()).isEqualTo("rev123");
-        assertThat(matchedRevision.getLongRevision()).isEqualTo("rev123");
-        assertThat(matchedRevision.getCheckinTime()).isEqualTo(timestamp);
-        assertThat(matchedRevision.getUser()).isEqualTo("go");
-        assertThat(matchedRevision.getComment()).isEqualTo("comment");
+        assertThat(matchedRevision.getShortRevision(), is("rev123"));
+        assertThat(matchedRevision.getLongRevision(), is("rev123"));
+        assertThat(matchedRevision.getCheckinTime(), is(timestamp));
+        assertThat(matchedRevision.getUser(), is("go"));
+        assertThat(matchedRevision.getComment(), is("comment"));
     }
 
     @Test
-    void shouldGetNameFromRepoNameAndPackageName() {
+    public void shouldGetNameFromRepoNameAndPackageName() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
-        assertThat(material.getName().toString()).isEqualTo("repo-name_package-name");
+        assertThat(material.getName().toString(), is("repo-name_package-name"));
     }
 
     @Test
-    void shouldPopulateEnvironmentContext() {
+    public void shouldPopulateEnvironmentContext() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "tw-dev", "pluginid", "version",
                 new Configuration(ConfigurationPropertyMother.create("k1", false, "v1"), ConfigurationPropertyMother.create("repo-secure", true, "value")));
@@ -223,17 +226,17 @@ class PackageMaterialTest {
         Modifications modifications = new Modifications(new Modification(null, null, null, new Date(), "revision-123"));
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         material.populateEnvironmentContext(environmentVariableContext, new MaterialRevision(material, modifications), null);
-        assertThat(environmentVariableContext.getProperty("GO_REPO_TW_DEV_GO_AGENT_K1")).isEqualTo("v1");
-        assertThat(environmentVariableContext.getProperty("GO_REPO_TW_DEV_GO_AGENT_REPO_SECURE")).isEqualTo("value");
-        assertThat(environmentVariableContext.getPropertyForDisplay("GO_REPO_TW_DEV_GO_AGENT_REPO_SECURE")).isEqualTo(EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE);
-        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_K2")).isEqualTo("v2");
-        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_PKG_SECURE")).isEqualTo("value");
-        assertThat(environmentVariableContext.getPropertyForDisplay("GO_PACKAGE_TW_DEV_GO_AGENT_PKG_SECURE")).isEqualTo(EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE);
-        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_LABEL")).isEqualTo("revision-123");
+        assertThat(environmentVariableContext.getProperty("GO_REPO_TW_DEV_GO_AGENT_K1"), is("v1"));
+        assertThat(environmentVariableContext.getProperty("GO_REPO_TW_DEV_GO_AGENT_REPO_SECURE"), is("value"));
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_REPO_TW_DEV_GO_AGENT_REPO_SECURE"), is(EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE));
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_K2"), is("v2"));
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_PKG_SECURE"), is("value"));
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_PACKAGE_TW_DEV_GO_AGENT_PKG_SECURE"), is(EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE));
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_LABEL"), is("revision-123"));
     }
 
     @Test
-    void shouldPopulateEnvironmentContextWithEnvironmentVariablesCreatedOutOfAdditionalDataFromModification() {
+    public void shouldPopulateEnvironmentContextWithEnvironmentVariablesCreatedOutOfAdditionalDataFromModification() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "tw-dev", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "go-agent", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
@@ -247,14 +250,14 @@ class PackageMaterialTest {
 
         material.populateEnvironmentContext(environmentVariableContext, new MaterialRevision(material, modifications), null);
 
-        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_LABEL")).isEqualTo("revision-123");
-        assertThat(environmentVariableContext.getProperty("GO_REPO_TW_DEV_GO_AGENT_K1")).isEqualTo("v1");
-        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_K2")).isEqualTo("v2");
-        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_MY_NEW_KEY")).isEqualTo("my_value");
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_LABEL"), is("revision-123"));
+        assertThat(environmentVariableContext.getProperty("GO_REPO_TW_DEV_GO_AGENT_K1"), is("v1"));
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_K2"), is("v2"));
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_MY_NEW_KEY"), is("my_value"));
     }
 
     @Test
-    void shouldMarkEnvironmentContextCreatedForAdditionalDataAsSecureIfTheValueContainsAnySpecialCharacters() throws UnsupportedEncodingException {
+    public void shouldMarkEnvironmentContextCreatedForAdditionalDataAsSecureIfTheValueContainsAnySpecialCharacters() throws UnsupportedEncodingException {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "tw-dev", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "go-agent", new Configuration(ConfigurationPropertyMother.create("k2", true, "!secure_value:with_special_chars"),
@@ -271,20 +274,20 @@ class PackageMaterialTest {
 
         material.populateEnvironmentContext(environmentVariableContext, new MaterialRevision(material, modifications), null);
 
-        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_LABEL")).isEqualTo("revision-123");
-        assertThat(environmentVariableContext.getProperty("GO_REPO_TW_DEV_GO_AGENT_K1")).isEqualTo("v1");
-        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_K2")).isEqualTo("!secure_value:with_special_chars");
-        assertThat(environmentVariableContext.getPropertyForDisplay("GO_PACKAGE_TW_DEV_GO_AGENT_K2")).isEqualTo("********");
-        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_ADDITIONAL_DATA_ONE")).isEqualTo("foobar:!secure_value:with_special_chars");
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_LABEL"), is("revision-123"));
+        assertThat(environmentVariableContext.getProperty("GO_REPO_TW_DEV_GO_AGENT_K1"), is("v1"));
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_K2"), is("!secure_value:with_special_chars"));
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_PACKAGE_TW_DEV_GO_AGENT_K2"), is("********"));
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_ADDITIONAL_DATA_ONE"), is("foobar:!secure_value:with_special_chars"));
 
-        assertThat(environmentVariableContext.getPropertyForDisplay("GO_PACKAGE_TW_DEV_GO_AGENT_ADDITIONAL_DATA_ONE")).isEqualTo("foobar:!secure_value:with_special_chars");
-        assertThat(environmentVariableContext.getPropertyForDisplay("GO_PACKAGE_TW_DEV_GO_AGENT_ADDITIONAL_DATA_TWO")).isEqualTo("foobar:secure_value_with_regular_chars");
-        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_ADDITIONAL_DATA_URL_ENCODED")).isEqualTo("something:%21secure_value%3Awith_special_chars");
-        assertThat(environmentVariableContext.getPropertyForDisplay("GO_PACKAGE_TW_DEV_GO_AGENT_ADDITIONAL_DATA_URL_ENCODED")).isEqualTo("********");
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_PACKAGE_TW_DEV_GO_AGENT_ADDITIONAL_DATA_ONE"), is("foobar:!secure_value:with_special_chars"));
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_PACKAGE_TW_DEV_GO_AGENT_ADDITIONAL_DATA_TWO"), is("foobar:secure_value_with_regular_chars"));
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_ADDITIONAL_DATA_URL_ENCODED"), is("something:%21secure_value%3Awith_special_chars"));
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_PACKAGE_TW_DEV_GO_AGENT_ADDITIONAL_DATA_URL_ENCODED"), is("********"));
     }
 
     @Test
-    void shouldNotThrowUpWhenAdditionalDataIsNull() {
+    public void shouldNotThrowUpWhenAdditionalDataIsNull() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "tw-dev", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "go-agent", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
@@ -294,13 +297,13 @@ class PackageMaterialTest {
 
         material.populateEnvironmentContext(environmentVariableContext, new MaterialRevision(material, modifications), null);
 
-        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_LABEL")).isEqualTo("revision-123");
-        assertThat(environmentVariableContext.getProperty("GO_REPO_TW_DEV_GO_AGENT_K1")).isEqualTo("v1");
-        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_K2")).isEqualTo("v2");
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_LABEL"), is("revision-123"));
+        assertThat(environmentVariableContext.getProperty("GO_REPO_TW_DEV_GO_AGENT_K1"), is("v1"));
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_K2"), is("v2"));
     }
 
     @Test
-    void shouldNotThrowUpWhenAdditionalDataIsRandomJunkAndNotJSON() {
+    public void shouldNotThrowUpWhenAdditionalDataIsRandomJunkAndNotJSON() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "tw-dev", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "go-agent", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
@@ -310,13 +313,13 @@ class PackageMaterialTest {
 
         material.populateEnvironmentContext(environmentVariableContext, new MaterialRevision(material, modifications), null);
 
-        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_LABEL")).isEqualTo("revision-123");
-        assertThat(environmentVariableContext.getProperty("GO_REPO_TW_DEV_GO_AGENT_K1")).isEqualTo("v1");
-        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_K2")).isEqualTo("v2");
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_LABEL"), is("revision-123"));
+        assertThat(environmentVariableContext.getProperty("GO_REPO_TW_DEV_GO_AGENT_K1"), is("v1"));
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_K2"), is("v2"));
     }
 
     @Test
-    void shouldGetUriForDisplay() {
+    public void shouldGetUriForDisplay() {
         RepositoryMetadataStore.getInstance().addMetadataFor("some-plugin", new PackageConfigurations());
         PackageMetadataStore.getInstance().addMetadataFor("some-plugin", new PackageConfigurations());
 
@@ -325,112 +328,112 @@ class PackageMaterialTest {
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "some-plugin", "version", configuration);
         PackageDefinition packageDefinition = PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k3", false, "package-v1")), repository);
         material.setPackageDefinition(packageDefinition);
-        assertThat(material.getUriForDisplay()).isEqualTo("Repository: [k1=repo-v1, k2=repo-v2] - Package: [k3=package-v1]");
+        assertThat(material.getUriForDisplay(), is("Repository: [k1=repo-v1, k2=repo-v2] - Package: [k3=package-v1]"));
     }
 
     @Test
-    void shouldGetUriForDisplayNameIfNameIsNull() {
+    public void shouldGetUriForDisplayNameIfNameIsNull() {
         PackageMaterial material = new PackageMaterial();
         PackageRepository repository = PackageRepositoryMother.create("repo-id", null, "pluginid", "version",
                 new Configuration(ConfigurationPropertyMother.create("k1", false, "repo-v1"), ConfigurationPropertyMother.create("k2", false, "repo-v2")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", null, new Configuration(ConfigurationPropertyMother.create("k3", false, "package-v1")), repository));
-        assertThat(material.getDisplayName()).isEqualTo(material.getUriForDisplay());
+        assertThat(material.getDisplayName(), is(material.getUriForDisplay()));
     }
 
     @Test
-    void shouldGetLongDescription() {
+    public void shouldGetLongDescription() {
         PackageMaterial material = new PackageMaterial();
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("k1", false, "repo-v1"), ConfigurationPropertyMother.create("k2", false, "repo-v2"));
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo-name", "pluginid", "version", configuration);
         PackageDefinition packageDefinition = PackageDefinitionMother.create("p-id", "package-name", new Configuration(ConfigurationPropertyMother.create("k3", false, "package-v1")), repository);
         material.setPackageDefinition(packageDefinition);
-        assertThat(material.getLongDescription()).isEqualTo(material.getUriForDisplay());
+        assertThat(material.getLongDescription(), is(material.getUriForDisplay()));
     }
 
     @Test
-    void shouldPassEqualsCheckIfFingerprintIsSame() {
+    public void shouldPassEqualsCheckIfFingerprintIsSame() {
         PackageMaterial material1 = MaterialsMother.packageMaterial();
         material1.setName(new CaseInsensitiveString("name1"));
         PackageMaterial material2 = MaterialsMother.packageMaterial();
         material2.setName(new CaseInsensitiveString("name2"));
 
-        assertThat(material1.equals(material2)).isTrue();
+        assertThat(material1.equals(material2), is(true));
     }
 
     @Test
-    void shouldFailEqualsCheckIfFingerprintDiffers() {
+    public void shouldFailEqualsCheckIfFingerprintDiffers() {
         PackageMaterial material1 = MaterialsMother.packageMaterial();
         material1.getPackageDefinition().getConfiguration().first().setConfigurationValue(new ConfigurationValue("new-url"));
         PackageMaterial material2 = MaterialsMother.packageMaterial();
 
-        assertThat(material1.equals(material2)).isFalse();
+        assertThat(material1.equals(material2), is(false));
     }
 
     @Test
-    void shouldReturnSomethingMoreSaneForToString() throws Exception {
+    public void shouldReturnSomethingMoreSaneForToString() throws Exception {
         PackageMaterial material = MaterialsMother.packageMaterial();
 
         RepositoryMetadataStore.getInstance().addMetadataFor(material.getPluginId(), new PackageConfigurations());
         PackageMetadataStore.getInstance().addMetadataFor(material.getPluginId(), new PackageConfigurations());
 
-        assertThat(material.toString()).isEqualTo("'PackageMaterial{Repository: [k1=repo-v1, k2=repo-v2] - Package: [k3=package-v1]}'");
+        assertThat(material.toString(), is("'PackageMaterial{Repository: [k1=repo-v1, k2=repo-v2] - Package: [k3=package-v1]}'"));
     }
 
     @Test
-    void shouldReturnNameAsNullIfPackageDefinitionIsNotSet() {
-        assertThat(new PackageMaterial().getName()).isNull();
+    public void shouldReturnNameAsNullIfPackageDefinitionIsNotSet() {
+        assertThat(new PackageMaterial().getName(), is(nullValue()));
     }
 
     @Test
-    void shouldNotCalculateFingerprintWhenAvailable() {
+    public void shouldNotCalculateFingerprintWhenAvailable() {
         String fingerprint = "fingerprint";
         PackageDefinition packageDefinition = mock(PackageDefinition.class);
         PackageMaterial packageMaterial = new PackageMaterial();
         packageMaterial.setPackageDefinition(packageDefinition);
         packageMaterial.setFingerprint(fingerprint);
-        assertThat(packageMaterial.getFingerprint()).isEqualTo(fingerprint);
+        assertThat(packageMaterial.getFingerprint(),is(fingerprint));
         verify(packageDefinition,never()).getFingerprint(anyString());
     }
 
     @Test
-    void shouldTakeValueOfIsAutoUpdateFromPackageDefinition() throws Exception {
+    public void shouldTakeValueOfIsAutoUpdateFromPackageDefinition() throws Exception {
         PackageMaterial material = MaterialsMother.packageMaterial();
 
         material.getPackageDefinition().setAutoUpdate(true);
-        assertThat(material.isAutoUpdate()).isTrue();
+        assertThat(material.isAutoUpdate(), is(true));
 
         material.getPackageDefinition().setAutoUpdate(false);
-        assertThat(material.isAutoUpdate()).isFalse();
+        assertThat(material.isAutoUpdate(), is(false));
     }
 
     @Test
-    void shouldGetAttributesWithSecureFields() {
+    public void shouldGetAttributesWithSecureFields() {
         PackageMaterial material = createPackageMaterialWithSecureConfiguration();
         Map<String, Object> attributes = material.getAttributes(true);
 
-        assertThat(attributes.get("type")).isEqualTo("package");
-        assertThat(attributes.get("plugin-id")).isEqualTo("pluginid");
+        assertThat(attributes.get("type"), is("package"));
+        assertThat(attributes.get("plugin-id"), is("pluginid"));
         Map<String, Object> repositoryConfiguration = (Map<String, Object>) attributes.get("repository-configuration");
-        assertThat(repositoryConfiguration.get("k1")).isEqualTo("repo-v1");
-        assertThat(repositoryConfiguration.get("k2")).isEqualTo("repo-v2");
+        assertThat(repositoryConfiguration.get("k1"), is("repo-v1"));
+        assertThat(repositoryConfiguration.get("k2"), is("repo-v2"));
         Map<String, Object> packageConfiguration = (Map<String, Object>) attributes.get("package-configuration");
-        assertThat(packageConfiguration.get("k3")).isEqualTo("package-v1");
-        assertThat(packageConfiguration.get("k4")).isEqualTo("package-v2");
+        assertThat(packageConfiguration.get("k3"), is("package-v1"));
+        assertThat(packageConfiguration.get("k4"), is("package-v2"));
     }
 
     @Test
-    void shouldGetAttributesWithoutSecureFields() {
+    public void shouldGetAttributesWithoutSecureFields() {
         PackageMaterial material = createPackageMaterialWithSecureConfiguration();
         Map<String, Object> attributes = material.getAttributes(false);
 
-        assertThat(attributes.get("type")).isEqualTo("package");
-        assertThat(attributes.get("plugin-id")).isEqualTo("pluginid");
+        assertThat(attributes.get("type"), is("package"));
+        assertThat(attributes.get("plugin-id"), is("pluginid"));
         Map<String, Object> repositoryConfiguration = (Map<String, Object>) attributes.get("repository-configuration");
-        assertThat(repositoryConfiguration.get("k1")).isEqualTo("repo-v1");
-        assertThat(repositoryConfiguration.get("k2")).isNull();
+        assertThat(repositoryConfiguration.get("k1"), is("repo-v1"));
+        assertThat(repositoryConfiguration.get("k2"), is(nullValue()));
         Map<String, Object> packageConfiguration = (Map<String, Object>) attributes.get("package-configuration");
-        assertThat(packageConfiguration.get("k3")).isEqualTo("package-v1");
-        assertThat(packageConfiguration.get("k4")).isNull();
+        assertThat(packageConfiguration.get("k3"), is("package-v1"));
+        assertThat(packageConfiguration.get("k4"), is(nullValue()));
     }
 
     private PackageMaterial createPackageMaterialWithSecureConfiguration() {
@@ -442,8 +445,8 @@ class PackageMaterialTest {
     }
 
     @Test
-    void shouldReturnFalseForPackageMaterial_supportsDestinationFolder() throws Exception {
+    public void shouldReturnFalseForPackageMaterial_supportsDestinationFolder() throws Exception {
         PackageMaterial material = new PackageMaterial();
-        assertThat(material.supportsDestinationFolder()).isFalse();
+        assertThat(material.supportsDestinationFolder(), is(false));
     }
 }

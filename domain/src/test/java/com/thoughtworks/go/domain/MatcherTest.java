@@ -15,113 +15,116 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.validation.Validator;
-import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.thoughtworks.go.validation.Validator;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
-class MatcherTest {
+import org.junit.Test;
+
+public class MatcherTest {
     @Test
-    void shouldRemoveTheLastEmptyMatcher() {
-        assertThat(new Matcher("JH,Pavan,")).isEqualTo(new Matcher("JH,Pavan"));
+    public void shouldRemoveTheLastEmptyMatcher() {
+        assertThat(new Matcher("JH,Pavan,"), is(new Matcher("JH,Pavan")));
     }
 
     @Test
-    void shouldAllowWhiteSpace() {
-        assertThat(new Matcher("JH Pavan").toCollection().size()).isEqualTo(1);
+    public void shouldAllowWhiteSpace() {
+        assertThat(new Matcher("JH Pavan").toCollection().size(), is(1));
     }
 
     @Test
-    void shouldRemoveDuplication() {
-        assertThat(new Matcher("JH,JH")).isEqualTo(new Matcher("JH"));
+    public void shouldRemoveDuplication() {
+        assertThat(new Matcher("JH,JH"), is(new Matcher("JH")));
     }
 
     @Test
-    void shouldRemoveTheFirstEmptyMatcher() {
-        assertThat(new Matcher(",JH,Pavan")).isEqualTo(new Matcher("JH,Pavan"));
+    public void shouldRemoveTheFirstEmptyMatcher() {
+        assertThat(new Matcher(",JH,Pavan"), is(new Matcher("JH,Pavan")));
     }
 
     @Test
-    void shouldRemoveTheEmptyMatcherInTheMiddle() {
-        assertThat(new Matcher("JH,,Pavan")).isEqualTo(new Matcher("JH,Pavan"));
+    public void shouldRemoveTheEmptyMatcherInTheMiddle() {
+        assertThat(new Matcher("JH,,Pavan"), is(new Matcher("JH,Pavan")));
     }
 
     @Test
-    void shouldReturnCommaSplittedString() {
-        assertThat(new Matcher("JH,Pavan").toString()).isEqualTo("JH,Pavan");
+    public void shouldReturnCommaSplittedString() {
+        assertThat(new Matcher("JH,Pavan").toString(), is("JH,Pavan"));
     }
 
     @Test
-    void shouldSplitEachElement() {
+    public void shouldSplitEachElement() {
         String[] array = new String[]{"JH", "Pavan,Jez", "HK"};
-        assertThat(new Matcher(array)).isEqualTo(new Matcher("JH,Pavan,Jez,HK"));
+        assertThat(new Matcher(array), is(new Matcher("JH,Pavan,Jez,HK")));
     }
 
     @Test
-    void shouldRemoveTheDuplicationFromEachElement() {
+    public void shouldRemoveTheDuplicationFromEachElement() {
         String[] array = new String[]{"JH", "Pavan,Jez", "Pavan"};
-        assertThat(new Matcher(array)).isEqualTo(new Matcher("JH,Pavan,Jez"));
+        assertThat(new Matcher(array), is(new Matcher("JH,Pavan,Jez")));
     }
 
     @Test
-    void shouldReturnMatchersAsArray() {
-        assertThat(new Matcher("JH,Pavan").toCollection()).isEqualTo(Arrays.asList("JH", "Pavan"));
+    public void shouldReturnMatchersAsArray() {
+        assertThat(new Matcher("JH,Pavan").toCollection(), is(Arrays.asList("JH", "Pavan")));
     }
 
     @Test
-    void shouldTrim() {
-        assertThat(new Matcher("  JH   , Pavan ")).isEqualTo(new Matcher("JH,Pavan"));
+    public void shouldTrim() {
+        assertThat(new Matcher("  JH   , Pavan "), is(new Matcher("JH,Pavan")));
     }
 
     @Test
-    void shouldMatchWordBoundaries() throws Exception {
-        assertThat(new Matcher("!!").matches("!!")).isTrue();
-        assertThat(new Matcher("ja").matches(" ja")).isTrue();
-        assertThat(new Matcher("ja").matches("ja ")).isTrue();
-        assertThat(new Matcher("ja").matches(" ja")).isTrue();
-        assertThat(new Matcher("ja").matches("ja:")).isTrue();
-        assertThat(new Matcher("jez.humble@thoughtworks.com").matches("[jez.humble@thoughtworks.com] i checkin")).isTrue();
-        assertThat(new Matcher("ja").matches("ja&jh")).isTrue();
+    public void shouldMatchWordBoundaries() throws Exception {
+        assertThat(new Matcher("!!").matches("!!"), is(true));
+        assertThat(new Matcher("ja").matches(" ja"), is(true));
+        assertThat(new Matcher("ja").matches("ja "), is(true));
+        assertThat(new Matcher("ja").matches(" ja"), is(true));
+        assertThat(new Matcher("ja").matches("ja:"), is(true));
+        assertThat(new Matcher("jez.humble@thoughtworks.com").matches("[jez.humble@thoughtworks.com] i checkin"),
+                is(true));
+        assertThat(new Matcher("ja").matches("ja&jh"), is(true));
     }
 
     @Test
-    void shouldNotMatchWordContainsMatcher() throws Exception {
-        assertThat(new Matcher("ja").matches("javascript")).isFalse();
-        assertThat(new Matcher("ja").matches("kaja")).isFalse();
-        assertThat(new Matcher("jez.humble@thoughtworks.com").matches("jez.humble")).isFalse();
+    public void shouldNotMatchWordContainsMatcher() throws Exception {
+        assertThat(new Matcher("ja").matches("javascript"), is(false));
+        assertThat(new Matcher("ja").matches("kaja"), is(false));
+        assertThat(new Matcher("jez.humble@thoughtworks.com").matches("jez.humble"), is(false));
     }
 
     @Test
-    void shouldEscapeRegexes() throws Exception {
-        assertThat(new Matcher("[").matches("[")).isTrue();
-        assertThat(new Matcher("]").matches("]]")).isTrue();
-        assertThat(new Matcher("\\").matches("\\\\")).isTrue();
-        assertThat(new Matcher("^^").matches("^^")).isTrue();
-        assertThat(new Matcher("$").matches("$$")).isTrue();
-        assertThat(new Matcher("..").matches("...")).isTrue();
-        assertThat(new Matcher("|||").matches("||||")).isTrue();
-        assertThat(new Matcher("??").matches("???")).isTrue();
-        assertThat(new Matcher("**").matches("**")).isTrue();
-        assertThat(new Matcher("++").matches("++")).isTrue();
-        assertThat(new Matcher("((").matches("(((")).isTrue();
-        assertThat(new Matcher("))").matches(")))")).isTrue();
+    public void shouldEscapeRegexes() throws Exception {
+        assertThat(new Matcher("[").matches("["), is(true));
+        assertThat(new Matcher("]").matches("]]"), is(true));
+        assertThat(new Matcher("\\").matches("\\\\"), is(true));
+        assertThat(new Matcher("^^").matches("^^"), is(true));
+        assertThat(new Matcher("$").matches("$$"), is(true));
+        assertThat(new Matcher("..").matches("..."), is(true));
+        assertThat(new Matcher("|||").matches("||||"), is(true));
+        assertThat(new Matcher("??").matches("???"), is(true));
+        assertThat(new Matcher("**").matches("**"), is(true));
+        assertThat(new Matcher("++").matches("++"), is(true));
+        assertThat(new Matcher("((").matches("((("), is(true));
+        assertThat(new Matcher("))").matches(")))"), is(true));
     }
 
     @Test
-    void shouldNotMatchAnyThing() throws Exception {
-        assertThat(new Matcher("").matches("ja")).isFalse();
+    public void shouldNotMatchAnyThing() throws Exception {
+        assertThat(new Matcher("").matches("ja"), is(false));
     }
 
     @Test
-    void shouldValidateAllMatchersUsingAValidator() throws Exception {
+    public void shouldValidateAllMatchersUsingAValidator() throws Exception {
         new Matcher(new String[]{"aaa,a"}).validateUsing(Validator.lengthValidator(200));
     }
 
     @Test
-    void shouldMatchInMultiLineText() throws Exception {
-        assertThat(new Matcher("abc").matches("abc def\nghi jkl")).isTrue();
-        assertThat(new Matcher("ghi").matches("abc def\nghi jkl")).isTrue();
+    public void shouldMatchInMultiLineText() throws Exception {
+        assertThat(new Matcher("abc").matches("abc def\nghi jkl"), is(true));
+        assertThat(new Matcher("ghi").matches("abc def\nghi jkl"), is(true));
     }
 }

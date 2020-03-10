@@ -53,25 +53,24 @@ class PackageMaterialRepresenterTest {
 
   def packageMaterialHash(packageId = "p-id") {
     return [
-      type        : 'package',
-      display_type: "Package",
-      description : "WARNING! Plugin missing for Repository: [k1=repo-v1, k2=repo-v2] - Package: [k3=package-v1]",
-      attributes  : [
-        ref:
-          packageId
+      type      : 'package',
+      attributes: [
+        ref         : packageId,
+        display_type: "Package",
+        description : "WARNING! Plugin missing for Repository: [k1=repo-v1, k2=repo-v2] - Package: [k3=package-v1]",
       ]
     ]
   }
 
 
   def expectedMaterialHashWithErrors = [
-    type        : "package",
-    display_type: "Package",
-    description : "WARNING! Plugin missing for Repository: [] - Package: []",
-    attributes  : [
-      ref: ""
+    type      : "package",
+    attributes: [
+      ref         : "",
+      display_type: "Package",
+      description : "WARNING! Plugin missing for Repository: [] - Package: []",
     ],
-    errors      : [
+    errors    : [
       ref: ["Please select a repository and package"]
     ]
   ]

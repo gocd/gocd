@@ -59,29 +59,29 @@ class PluggableScmMaterialRepresenterTest {
 
   def pluggableScmMaterialHash =
     [
-      type        : 'plugin',
-      display_type: "SCM",
-      description : "WARNING! Plugin missing. []",
-      attributes  : [
-        ref        : "scm-id",
-        filter     : [
+      type      : 'plugin',
+      attributes: [
+        ref         : "scm-id",
+        filter      : [
           ignore: ["**/*.html", "**/foobar/"]
         ],
-        destination: 'des-folder'
+        destination : 'des-folder',
+        display_type: "SCM",
+        description : "WARNING! Plugin missing. []",
       ]
     ]
 
   def expectedMaterialHashWithErrors =
     [
-      type        : "plugin",
-      display_type: "SCM",
-      description : "k1:v1",
-      attributes  : [
-        ref        : null,
-        filter     : null,
-        destination: "/dest"
+      type      : "plugin",
+      attributes: [
+        ref         : null,
+        filter      : null,
+        destination : "/dest",
+        display_type: "SCM",
+        description : "k1:v1",
       ],
-      errors      : [
+      errors    : [
         destination: ["Dest folder '/dest' is not valid. It must be a sub-directory of the working folder."],
         ref        : ["Please select a SCM"]
       ]

@@ -41,10 +41,8 @@ class PerforceMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   def materialHash =
     [
-      type        : 'p4',
-      display_type: "Perforce",
-      description : "URL: host:9876, View: view, Username: user",
-      attributes  : [
+      type      : 'p4',
+      attributes: [
         destination       : "dest-folder",
         filter            : [
           ignore: ['**/*.html', '**/foobar/']
@@ -56,16 +54,16 @@ class PerforceMaterialRepresenterTest implements MaterialRepresenterTrait {
         use_tickets       : true,
         view              : "view",
         name              : "p4-material",
-        auto_update       : true
+        auto_update       : true,
+        display_type      : "Perforce",
+        description       : "URL: host:9876, View: view, Username: user",
       ]
     ]
 
   def expectedMaterialHashWithErrors =
     [
-      type        : "p4",
-      display_type: "Perforce",
-      description : "URL: , View: , Username: ",
-      attributes  : [
+      type      : "p4",
+      attributes: [
         destination       : "/dest/",
         filter            : null,
         invert_filter     : false,
@@ -75,9 +73,11 @@ class PerforceMaterialRepresenterTest implements MaterialRepresenterTrait {
         username          : "",
         use_tickets       : false,
         view              : "",
-        encrypted_password: null
+        encrypted_password: null,
+        display_type      : "Perforce",
+        description       : "URL: , View: , Username: ",
       ],
-      errors      : [
+      errors    : [
         view       : ["P4 view cannot be empty."],
         destination: ["Dest folder '/dest/' is not valid. It must be a sub-directory of the working folder."],
         port       : ["P4 port cannot be empty."]

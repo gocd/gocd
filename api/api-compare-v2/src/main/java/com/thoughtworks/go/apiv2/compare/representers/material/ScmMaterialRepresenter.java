@@ -29,8 +29,10 @@ public class ScmMaterialRepresenter {
         } else {
             jsonWriter.addChild("filter", filterWriter -> FilterRepresenter.toJSON(filterWriter, scmMaterialConfig.filter()));
         }
-        jsonWriter.add("invert_filter", scmMaterialConfig.isInvertFilter());
-        jsonWriter.add("name", scmMaterialConfig.getName());
-        jsonWriter.add("auto_update", scmMaterialConfig.isAutoUpdate());
+        jsonWriter.add("invert_filter", scmMaterialConfig.isInvertFilter())
+                .add("name", scmMaterialConfig.getName())
+                .add("auto_update", scmMaterialConfig.isAutoUpdate())
+                .add("display_type", scmMaterialConfig.getTypeForDisplay())
+                .add("description", scmMaterialConfig.getLongDescription());
     }
 }

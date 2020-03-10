@@ -28,6 +28,8 @@ public class PluggableScmMaterialRepresenter {
         } else {
             jsonWriter.addChild("filter", filterWriter -> FilterRepresenter.toJSON(filterWriter, pluggableSCMMaterialConfig.filter()));
         }
-        jsonWriter.add("destination", pluggableSCMMaterialConfig.getFolder());
+        jsonWriter.add("destination", pluggableSCMMaterialConfig.getFolder())
+                .add("display_type", pluggableSCMMaterialConfig.getTypeForDisplay())
+                .add("description", pluggableSCMMaterialConfig.getLongDescription());
     }
 }

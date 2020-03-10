@@ -41,10 +41,8 @@ class SvnMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   def materialHash =
     [
-      type        : 'svn',
-      display_type: "Subversion",
-      description : "URL: url, Username: user, CheckExternals: true",
-      attributes  : [
+      type      : 'svn',
+      attributes: [
         url               : "url",
         destination       : "svnDir",
         filter            : [
@@ -57,16 +55,16 @@ class SvnMaterialRepresenterTest implements MaterialRepresenterTrait {
         auto_update       : false,
         check_externals   : true,
         username          : "user",
-        encrypted_password: new GoCipher().encrypt("pass")
+        encrypted_password: new GoCipher().encrypt("pass"),
+        display_type      : "Subversion",
+        description       : "URL: url, Username: user, CheckExternals: true",
       ]
     ]
 
   def expectedMaterialHashWithErrors =
     [
-      type        : "svn",
-      display_type: "Subversion",
-      description : "URL: , Username: , CheckExternals: true",
-      attributes  : [
+      type      : "svn",
+      attributes: [
         url            : "",
         destination    : "",
         filter         : null,
@@ -74,9 +72,11 @@ class SvnMaterialRepresenterTest implements MaterialRepresenterTrait {
         name           : "!nV@l!d",
         auto_update    : true,
         check_externals: true,
-        username       : ""
+        username       : "",
+        display_type   : "Subversion",
+        description    : "URL: , Username: , CheckExternals: true",
       ],
-      errors      : [
+      errors    : [
         name: ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
         url : ["URL cannot be blank"]
       ]

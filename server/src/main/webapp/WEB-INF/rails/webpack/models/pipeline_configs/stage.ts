@@ -103,8 +103,12 @@ export class Stage extends ValidatableMixin {
   readonly neverCleanupArtifacts = Stream<boolean>();
   readonly environmentVariables  = Stream<EnvironmentVariables>();
 
+  private readonly __name = Stream<string>();
+
   constructor(name: string = "", jobs: Job[] = []) {
     super();
+
+    this.__name = Stream(name);
 
     this.name = Stream(name);
     this.validatePresenceOf("name");
@@ -124,6 +128,7 @@ export class Stage extends ValidatableMixin {
   static fromJSON(json: StageJSON) {
     const stage = new Stage();
     stage.name(json.name);
+    stage.__name(json.name);
     stage.fetchMaterials(json.fetch_materials);
     stage.cleanWorkingDirectory(json.clean_working_directory);
     stage.neverCleanupArtifacts(json.never_cleanup_artifacts);
@@ -135,6 +140,10 @@ export class Stage extends ValidatableMixin {
 
   firstJob(): Job {
     return this.jobs().values().next().value;
+  }
+
+  getOriginalName() {
+    return this.__name();
   }
 
   toApiPayload() {

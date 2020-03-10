@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import classnames from "classnames";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 
-import classnames from "classnames";
+import {v4 as uuid4} from "uuid";
+import {HelpText} from "views/components/forms/input_fields";
 import styles from "./index.scss";
-
-import { v4 as uuid4 } from 'uuid';
 
 export interface Attrs {
   inProgress?: boolean;
@@ -33,9 +33,9 @@ export interface Attrs {
 
 export class SwitchBtn extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    const isSmall    = vnode.attrs.small;
-    const switchId   = `switch-${uuid4()}`;
-    let label        = null;
+    const isSmall  = vnode.attrs.small;
+    const switchId = `switch-${uuid4()}`;
+    let label      = null;
     if (vnode.attrs.label) {
       label = <label for={switchId} class={classnames({[styles.disabled]: vnode.attrs.disabled}, styles.switchLabel)}
                      data-test-id="switch-label">
@@ -44,26 +44,29 @@ export class SwitchBtn extends MithrilViewComponent<Attrs> {
     }
 
     return (
-      <div class={classnames({[styles.switchSmall]: isSmall}, styles.switchBtn)} data-test-id="switch-wrapper">
-        {label}
-        <input id={switchId} type="checkbox"
-               {...vnode.attrs}
-               checked={vnode.attrs.field()}
-               onclick={(e: MouseEvent) => {
-                 if (vnode.attrs.onclick) {
-                   vnode.attrs.onclick(e);
-                 }
+      <div>
+        <div class={classnames({[styles.switchSmall]: isSmall}, styles.switchBtn)} data-test-id="switch-wrapper">
+          {label}
+          <input id={switchId} type="checkbox"
+                 {...vnode.attrs}
+                 checked={vnode.attrs.field()}
+                 onclick={(e: MouseEvent) => {
+                   if (vnode.attrs.onclick) {
+                     vnode.attrs.onclick(e);
+                   }
 
-                 const target = e.target as HTMLInputElement;
-                 vnode.attrs.field(target.checked);
-               }}
-               class={styles.switchInput}
-               data-test-id="switch-checkbox"/>
-        <label for={switchId} class={classnames({
-                                                      [styles.inProgress]: vnode.attrs.field() && vnode.attrs.inProgress,
-                                                      [styles.isSuccess]: vnode.attrs.field() && !vnode.attrs.inProgress,
-                                                      [styles.disabled]: vnode.attrs.disabled
-                                                    }, styles.switchPaddle)} data-test-id="switch-paddle"/>
+                   const target = e.target as HTMLInputElement;
+                   vnode.attrs.field(target.checked);
+                 }}
+                 class={styles.switchInput}
+                 data-test-id="switch-checkbox"/>
+          <label for={switchId} class={classnames({
+                                                    [styles.inProgress]: vnode.attrs.field() && vnode.attrs.inProgress,
+                                                    [styles.isSuccess]: vnode.attrs.field() && !vnode.attrs.inProgress,
+                                                    [styles.disabled]: vnode.attrs.disabled
+                                                  }, styles.switchPaddle)} data-test-id="switch-paddle"/>
+        </div>
+        {[<HelpText {...vnode.attrs} helpTextId={"switch-btn-help-text"}/>]}
       </div>);
   }
 }

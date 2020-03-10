@@ -59,48 +59,45 @@ describe("StageSettingsTab", () => {
     expect(stage.approval().typeAsString()).toEqual("success");
   });
 
-  it("should render checkbox for allow only in success", () => {
+  it("should render allow only in success", () => {
     const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "Job1"));
     mount(stage);
     expect(stage.approval().allowOnlyOnSuccess()).toBeFalse();
 
-    helper.clickByTestId("allow-only-on-success-checkbox");
+    helper.click(helper.allByTestId("switch-checkbox")[1]);
 
     expect(stage.approval().allowOnlyOnSuccess()).toBeTrue();
   });
 
-  it("should render fetch material type checkbox", () => {
+  it("should render fetch material", () => {
     const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "Job1"));
     mount(stage);
 
-    expect(helper.byTestId("fetch-materials-checkbox")).toBeInDOM();
-    expect(stage.fetchMaterials()).toBeUndefined();
+    expect(stage.fetchMaterials()).toBeFalsy();
 
-    helper.clickByTestId("fetch-materials-checkbox");
+    helper.click(helper.allByTestId("switch-checkbox")[2]);
 
     expect(stage.fetchMaterials()).toBeTrue();
   });
 
-  it("should render never cleanup artifacts directory checkbox", () => {
+  it("should render never cleanup artifacts directory", () => {
     const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "Job1"));
     mount(stage);
 
-    expect(helper.byTestId("never-cleanup-artifacts-checkbox")).toBeInDOM();
-    expect(stage.neverCleanupArtifacts()).toBeUndefined();
+    expect(stage.neverCleanupArtifacts()).toBeFalsy();
 
-    helper.clickByTestId("never-cleanup-artifacts-checkbox");
+    helper.click(helper.allByTestId("switch-checkbox")[3]);
 
     expect(stage.neverCleanupArtifacts()).toBeTrue();
   });
 
-  it("should render clean working directory checkbox", () => {
+  it("should render clean working directory", () => {
     const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "Job1"));
     mount(stage);
 
-    expect(helper.byTestId("clean-working-directory-checkbox")).toBeInDOM();
-    expect(stage.cleanWorkingDirectory()).toBeUndefined();
+    expect(stage.cleanWorkingDirectory()).toBeFalsy();
 
-    helper.clickByTestId("clean-working-directory-checkbox");
+    helper.click(helper.allByTestId("switch-checkbox")[4]);
 
     expect(stage.cleanWorkingDirectory()).toBeTrue();
   });

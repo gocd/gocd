@@ -22,10 +22,11 @@ import com.thoughtworks.go.domain.materials.ModifiedFile;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.text.ParseException;
@@ -35,47 +36,44 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class P4OutputParserTest {
+class P4OutputParserTest {
     private P4OutputParser parser;
     private static final SimpleDateFormat DESCRIPTION_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     private P4Client p4Client;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         p4Client = mock(P4Client.class);
         parser = new P4OutputParser(p4Client);
     }
 
     @Test
-    public void shouldRetrieveRevisionFromChangesOutput() throws Exception {
+    void shouldRetrieveRevisionFromChangesOutput() {
         String output = "Change 2 on 2008/08/19 by cceuser@connect4 'some modification message'";
         long revision = parser.revisionFromChange(output);
-        assertThat(revision, is(2L));
+        assertThat(revision).isEqualTo(2L);
     }
 
     @Test
-    public void shouldThrowExceptionIfP4ReturnDifferentDateFormatWhenCannotParseFistLineOfP4Describe()
-            throws Exception {
+    void shouldThrowExceptionIfP4ReturnDifferentDateFormatWhenCannotParseFistLineOfP4Describe() {
         String output = "Change 2 on 08/08/19 by cceuser@connect4 'some modification message'";
         Modification modification = new Modification();
         try {
             parser.parseFistline(modification, output, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         } catch (P4OutputParseException e) {
-            assertThat(e.getMessage(), containsString("Could not parse P4 describe:"));
+            assertThat(e.getMessage()).contains("Could not parse P4 describe:");
 
         }
     }
 
     @Test
-    public void shouldRetrieveModificationFromDescription() throws Exception {
+    void shouldRetrieveModificationFromDescription() throws P4OutputParseException, ParseException {
         String output =
                 "Change 2 by cce123user@connect4_10.18.2.31 on 2008/08/19 15:04:43\n"
                         + "\n"
@@ -88,17 +86,17 @@ public class P4OutputParserTest {
                         + "... //depot/cruise-output/log.xml#1 delete\n"
                         + "";
         Modification mod = parser.modificationFromDescription(output, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
-        assertThat(mod.getRevision(), is("2"));
-        assertThat(mod.getUserName(), is("cce123user@connect4_10.18.2.31"));
-        assertThat(mod.getModifiedTime(), is(DESCRIPTION_FORMAT.parse("2008/08/19 15:04:43")));
-        assertThat(mod.getComment(), is("Added config file"));
+        assertThat(mod.getRevision()).isEqualTo("2");
+        assertThat(mod.getUserName()).isEqualTo("cce123user@connect4_10.18.2.31");
+        assertThat(mod.getModifiedTime()).isEqualTo(DESCRIPTION_FORMAT.parse("2008/08/19 15:04:43"));
+        assertThat(mod.getComment()).isEqualTo("Added config file");
         List<ModifiedFile> files = mod.getModifiedFiles();
-        assertThat(files.size(), is(3));
-        assertThat(files.get(0).getAction(), is(ModifiedAction.added));
-        assertThat(files.get(0).getFileName(), is("cruise-config.xml"));
-        assertThat(files.get(1).getAction(), is(ModifiedAction.modified));
-        assertThat(files.get(2).getAction(), is(ModifiedAction.deleted));
-        assertThat(files.get(2).getFileName(), is("cruise-output/log.xml"));
+        assertThat(files.size()).isEqualTo(3);
+        assertThat(files.get(0).getAction()).isEqualTo(ModifiedAction.added);
+        assertThat(files.get(0).getFileName()).isEqualTo("cruise-config.xml");
+        assertThat(files.get(1).getAction()).isEqualTo(ModifiedAction.modified);
+        assertThat(files.get(2).getAction()).isEqualTo(ModifiedAction.deleted);
+        assertThat(files.get(2).getFileName()).isEqualTo("cruise-output/log.xml");
     }
 
     /*
@@ -106,30 +104,29 @@ public class P4OutputParserTest {
      * It caused a frequent StackOverflow in the java regex library.
      */
     @Test
-    public void shouldParseChangesWithLotsOfFilesWithoutError() throws Exception {
+    void shouldParseChangesWithLotsOfFilesWithoutError() throws IOException, P4OutputParseException {
         final StringWriter writer = new StringWriter();
         IOUtils.copy(new ClassPathResource("/BIG_P4_OUTPUT.txt").getInputStream(), writer, Charset.defaultCharset());
         String output = writer.toString();
         Modification modification = parser.modificationFromDescription(output, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
-        assertThat(modification.getModifiedFiles().size(), is(1304));
-        assertThat(modification.getModifiedFiles().get(0).getFileName(),
-                is("Internal Projects/ABC/Customers3/ABC/RIP/SomeProject/data/main/config/lib/java/AdvJDBCColumnHandler.jar"));
+        assertThat(modification.getModifiedFiles().size()).isEqualTo(1304);
+        assertThat(modification.getModifiedFiles().get(0).getFileName()).isEqualTo("Internal Projects/ABC/Customers3/ABC/RIP/SomeProject/data/main/config/lib/java/AdvJDBCColumnHandler.jar");
     }
 
 
     @Test
-    public void shouldThrowExceptionWhenCannotParseChanges() {
+    void shouldThrowExceptionWhenCannotParseChanges() {
         String line = "Some line I don't understand";
         try {
             parser.modificationFromDescription(line, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
             fail("Should throw exception if can't parse the description");
         } catch (P4OutputParseException expected) {
-            assertThat(expected.getMessage(), containsString(line));
+            assertThat(expected.getMessage()).contains(line);
         }
     }
 
     @Test
-    public void shouldParseDescriptionProperly_Bug2456() throws P4OutputParseException {
+    void shouldParseDescriptionProperly_Bug2456() throws P4OutputParseException {
         String description =
                 "Change 570548 by michael@michael_AB2-ENV-WXP-000_ABcore on 2009/01/12 14:47:04\n"
                         + "\n"
@@ -159,15 +156,14 @@ public class P4OutputParserTest {
                         + "";
 
         Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
-        assertThat(modification.getComment(), is(
-                "Add a WCF CrossDomainPolicyService and CrossDomain.xml.\n"
-                        + "Update service reference.\n"
-                        + "Update app.config and template config files."));
+        assertThat(modification.getComment()).isEqualTo("Add a WCF CrossDomainPolicyService and CrossDomain.xml.\n"
+                + "Update service reference.\n"
+                + "Update app.config and template config files.");
 
     }
 
     @Test
-    public void shouldParseCommentWithAffectedFilesCorrectly() throws P4OutputParseException {
+    void shouldParseCommentWithAffectedFilesCorrectly() throws P4OutputParseException {
         String description =
                 "Change 5 by cceuser@CceDev01 on 2009/08/06 14:21:30\n"
                         + "\n"
@@ -180,15 +176,14 @@ public class P4OutputParserTest {
                         + "... //depot/file#5 edit";
 
         Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
-        assertThat(modification.getComment(), is(
-                "Affected files ...\n"
-                        + "\n"
-                        + "... //DEPOT/FILE#943 edit"));
+        assertThat(modification.getComment()).isEqualTo("Affected files ...\n"
+                + "\n"
+                + "... //DEPOT/FILE#943 edit");
 
     }
 
     @Test
-    public void shouldParseCorrectlyWhenCommentIsEmpty() throws P4OutputParseException {
+    void shouldParseCorrectlyWhenCommentIsEmpty() throws P4OutputParseException {
         String description =
                 "Change 102 by godev@blrstdcrspair03 on 2013/06/04 12:00:35\n"
                         + "\n"
@@ -198,7 +193,7 @@ public class P4OutputParserTest {
                         + "... //another_depot/1.txt#6 edit";
 
         Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
-        assertThat(modification.getComment(), is(""));
+        assertThat(modification.getComment()).isEqualTo("");
     }
 
     private static final String BUG_2503_OUTPUT = "Change 122636 by ipaipa@ipaipa-STANDARD-DHTML on 2009/02/06 17:53:57\n"
@@ -218,17 +213,17 @@ public class P4OutputParserTest {
             + "... //APP/RF/Core/Somemv.Core/Somemv.Core#1 add\n";
 
     @Test
-    public void shouldMatchWhenCommentsAreMultipleLines() throws Exception {
+    void shouldMatchWhenCommentsAreMultipleLines() throws P4OutputParseException, ParseException {
         Modification modification = parser.modificationFromDescription(BUG_2503_OUTPUT, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
 
-        assertThat(parser.revisionFromChange(BUG_2503_OUTPUT), is(122636L));
-        assertThat(modification.getModifiedTime(), is(DESCRIPTION_FORMAT.parse("2009/02/06 17:53:57")));
-        assertThat(modification.getModifiedFiles().size(), is(1));
-        assertThat(modification.getUserName(), is("ipaipa@ipaipa-STANDARD-DHTML"));
+        assertThat(parser.revisionFromChange(BUG_2503_OUTPUT)).isEqualTo(122636L);
+        assertThat(modification.getModifiedTime()).isEqualTo(DESCRIPTION_FORMAT.parse("2009/02/06 17:53:57"));
+        assertThat(modification.getModifiedFiles().size()).isEqualTo(1);
+        assertThat(modification.getUserName()).isEqualTo("ipaipa@ipaipa-STANDARD-DHTML");
     }
 
     @Test
-    public void shouldIgnoreEmptyLinesInChanges() throws ParseException {
+    void shouldIgnoreEmptyLinesInChanges() {
         final String output =
                 "Change 539921 on 2008/09/24 by abc@SomeRefinery_abc_sa1-sgr-xyz-001 'more work in progress on ABC un'\n"
                         + "Change 539920 on 2008/09/24 by "
@@ -264,11 +259,11 @@ public class P4OutputParserTest {
                 + "");
 
         List<Modification> modifications = parser.modifications(new ConsoleResult(0, Arrays.asList(output.split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
-        assertThat(modifications.size(), is(20));
+        assertThat(modifications.size()).isEqualTo(20);
     }
 
     @Test
-    public void shouldIgnoreBadLinesAndLogThem() throws ParseException {
+    void shouldIgnoreBadLinesAndLogThem() {
         try (LogFixture logging = logFixtureFor(P4OutputParser.class, Level.DEBUG)) {
             final String output = "Change 539921 on 2008/09/24 "
                     + "by abc@SomeRefinery_abc_sa1-sgr-xyz-001 'more work in progress on MDC un'\n";
@@ -277,8 +272,8 @@ public class P4OutputParserTest {
             when(p4Client.describe(any(Long.class))).thenReturn(description);
 
             List<Modification> modifications = parser.modifications(new ConsoleResult(0, Arrays.asList(output.split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
-            assertThat(modifications.size(), is(0));
-            assertThat(logging.getLog(), containsString(description));
+            assertThat(modifications.size()).isEqualTo(0);
+            assertThat(logging.getLog()).contains(description);
         }
     }
 }

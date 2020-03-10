@@ -16,19 +16,18 @@
 package com.thoughtworks.go.domain;
 
 import com.rits.cloning.Cloner;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class ResourceTest {
+class ResourceTest {
     @Test
-    public void shouldBeAbleToCreateACopyOfItself() {
+    void shouldBeAbleToCreateACopyOfItself() {
         Resource existingResource = new Resource("some-name");
         existingResource.setId(2);
         existingResource.setBuildId(10);
 
-        assertThat(existingResource, equalTo(new Resource(existingResource)));
-        assertThat(existingResource, equalTo(new Cloner().deepClone(existingResource)));
+        assertThat(existingResource).isEqualTo(new Resource(existingResource));
+        assertThat(existingResource).isEqualTo(new Cloner().deepClone(existingResource));
     }
 }

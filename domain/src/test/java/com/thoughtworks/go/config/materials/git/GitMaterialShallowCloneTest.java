@@ -24,11 +24,11 @@ import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -39,151 +39,153 @@ import java.util.Map;
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.*;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class GitMaterialShallowCloneTest {
+@EnableRuleMigrationSupport
+class GitMaterialShallowCloneTest {
     @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private GitTestRepo repo;
     private File workingDir;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void setup() throws IOException {
+        temporaryFolder.create();
         repo = new GitTestRepo(temporaryFolder);
         workingDir = temporaryFolder.newFolder("working-dir");
     }
 
 
-    @After
-    public void teardown() throws Exception {
+    @AfterEach
+    void teardown() {
+        TestRepo.internalTearDown();
+        temporaryFolder.delete();
+    }
+
+    @Test
+    void defaultShallowFlagIsOff() {
+        assertThat(new GitMaterial(repo.projectRepositoryUrl()).isShallowClone()).isFalse();
+        assertThat(new GitMaterial(repo.projectRepositoryUrl(), null).isShallowClone()).isFalse();
+        assertThat(new GitMaterial(repo.projectRepositoryUrl(), true).isShallowClone()).isTrue();
+        assertThat(new GitMaterial(git(repo.projectRepositoryUrl())).isShallowClone()).isFalse();
+        assertThat(new GitMaterial(git(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, true)).isShallowClone()).isTrue();
+        assertThat(new GitMaterial(git(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, false)).isShallowClone()).isFalse();
         TestRepo.internalTearDown();
     }
 
     @Test
-    public void defaultShallowFlagIsOff() throws Exception {
-        assertThat(new GitMaterial(repo.projectRepositoryUrl()).isShallowClone(), is(false));
-        assertThat(new GitMaterial(repo.projectRepositoryUrl(), null).isShallowClone(), is(false));
-        assertThat(new GitMaterial(repo.projectRepositoryUrl(), true).isShallowClone(), is(true));
-        assertThat(new GitMaterial(git(repo.projectRepositoryUrl())).isShallowClone(), is(false));
-        assertThat(new GitMaterial(git(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, true)).isShallowClone(), is(true));
-        assertThat(new GitMaterial(git(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, false)).isShallowClone(), is(false));
-        TestRepo.internalTearDown();
-    }
-
-    @Test
-    public void shouldGetLatestModificationWithShallowClone() throws IOException {
+    void shouldGetLatestModificationWithShallowClone() throws IOException {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         List<Modification> mods = material.latestModification(workingDir, context());
-        assertThat(mods.size(), is(1));
-        assertThat(mods.get(0).getComment(), Matchers.is("Added 'run-till-file-exists' ant target"));
-        assertThat(localRepoFor(material).isShallow(), is(true));
-        assertThat(localRepoFor(material).containsRevisionInBranch(REVISION_0), is(false));
-        assertThat(localRepoFor(material).currentRevision(), is(REVISION_4.getRevision()));
+        assertThat(mods.size()).isEqualTo(1);
+        assertThat(mods.get(0).getComment()).isEqualTo("Added 'run-till-file-exists' ant target");
+        assertThat(localRepoFor(material).isShallow()).isTrue();
+        assertThat(localRepoFor(material).containsRevisionInBranch(REVISION_0)).isFalse();
+        assertThat(localRepoFor(material).currentRevision()).isEqualTo(REVISION_4.getRevision());
     }
 
     @Test
-    public void shouldGetModificationSinceANotInitiallyClonedRevision() {
+    void shouldGetModificationSinceANotInitiallyClonedRevision() {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
 
         List<Modification> modifications = material.modificationsSince(workingDir, REVISION_0, context());
-        assertThat(modifications.size(), is(4));
-        assertThat(modifications.get(0).getRevision(), is(REVISION_4.getRevision()));
-        assertThat(modifications.get(0).getComment(), is("Added 'run-till-file-exists' ant target"));
-        assertThat(modifications.get(1).getRevision(), is(REVISION_3.getRevision()));
-        assertThat(modifications.get(1).getComment(), is("adding build.xml"));
-        assertThat(modifications.get(2).getRevision(), is(REVISION_2.getRevision()));
-        assertThat(modifications.get(2).getComment(), is("Created second.txt from first.txt"));
-        assertThat(modifications.get(3).getRevision(), is(REVISION_1.getRevision()));
-        assertThat(modifications.get(3).getComment(), is("Added second line"));
+        assertThat(modifications.size()).isEqualTo(4);
+        assertThat(modifications.get(0).getRevision()).isEqualTo(REVISION_4.getRevision());
+        assertThat(modifications.get(0).getComment()).isEqualTo("Added 'run-till-file-exists' ant target");
+        assertThat(modifications.get(1).getRevision()).isEqualTo(REVISION_3.getRevision());
+        assertThat(modifications.get(1).getComment()).isEqualTo("adding build.xml");
+        assertThat(modifications.get(2).getRevision()).isEqualTo(REVISION_2.getRevision());
+        assertThat(modifications.get(2).getComment()).isEqualTo("Created second.txt from first.txt");
+        assertThat(modifications.get(3).getRevision()).isEqualTo(REVISION_1.getRevision());
+        assertThat(modifications.get(3).getComment()).isEqualTo("Added second line");
     }
 
 
     @Test
-    public void shouldBeAbleToUpdateToRevisionNotFetched() {
+    void shouldBeAbleToUpdateToRevisionNotFetched() {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
 
         material.updateTo(inMemoryConsumer(), workingDir, new RevisionContext(REVISION_3, REVISION_2, 2), context());
 
-        assertThat(localRepoFor(material).currentRevision(), is(REVISION_3.getRevision()));
-        assertThat(localRepoFor(material).containsRevisionInBranch(REVISION_2), is(true));
-        assertThat(localRepoFor(material).containsRevisionInBranch(REVISION_3), is(true));
+        assertThat(localRepoFor(material).currentRevision()).isEqualTo(REVISION_3.getRevision());
+        assertThat(localRepoFor(material).containsRevisionInBranch(REVISION_2)).isTrue();
+        assertThat(localRepoFor(material).containsRevisionInBranch(REVISION_3)).isTrue();
     }
 
     @Test
-    public void configShouldIncludesShallowFlag() {
+    void configShouldIncludesShallowFlag() {
         GitMaterialConfig shallowConfig = (GitMaterialConfig) new GitMaterial(repo.projectRepositoryUrl(), true).config();
-        assertThat(shallowConfig.isShallowClone(), is(true));
+        assertThat(shallowConfig.isShallowClone()).isTrue();
         GitMaterialConfig normalConfig = (GitMaterialConfig) new GitMaterial(repo.projectRepositoryUrl(), null).config();
-        assertThat(normalConfig.isShallowClone(), is(false));
+        assertThat(normalConfig.isShallowClone()).isFalse();
     }
 
     @Test
-    public void xmlAttributesShouldIncludesShallowFlag() {
+    void xmlAttributesShouldIncludesShallowFlag() {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
-        assertThat(material.getAttributesForXml().get("shallowClone"), is(true));
+        assertThat(material.getAttributesForXml().get("shallowClone")).isEqualTo(true);
     }
 
     @Test
-    public void attributesShouldIncludeShallowFlag() {
+    void attributesShouldIncludeShallowFlag() {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         Map gitConfig = (Map) (material.getAttributes(false).get("git-configuration"));
-        assertThat(gitConfig.get("shallow-clone"), is(true));
+        assertThat(gitConfig.get("shallow-clone")).isEqualTo(true);
     }
 
     @Test
-    public void shouldConvertExistingRepoToFullRepoWhenShallowCloneIsOff() {
+    void shouldConvertExistingRepoToFullRepoWhenShallowCloneIsOff() {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         material.latestModification(workingDir, context());
-        assertThat(localRepoFor(material).isShallow(), is(true));
+        assertThat(localRepoFor(material).isShallow()).isTrue();
         material = new GitMaterial(repo.projectRepositoryUrl(), false);
         material.latestModification(workingDir, context());
-        assertThat(localRepoFor(material).isShallow(), is(false));
+        assertThat(localRepoFor(material).isShallow()).isFalse();
     }
 
     @Test
-    public void withShallowCloneShouldGenerateANewMaterialWithOverriddenShallowConfig() {
+    void withShallowCloneShouldGenerateANewMaterialWithOverriddenShallowConfig() {
         GitMaterial original = new GitMaterial(repo.projectRepositoryUrl(), false);
-        assertThat(original.withShallowClone(true).isShallowClone(), is(true));
-        assertThat(original.withShallowClone(false).isShallowClone(), is(false));
-        assertThat(original.isShallowClone(), is(false));
+        assertThat(original.withShallowClone(true).isShallowClone()).isTrue();
+        assertThat(original.withShallowClone(false).isShallowClone()).isFalse();
+        assertThat(original.isShallowClone()).isFalse();
     }
 
     @Test
-    public void updateToANewRevisionShouldNotResultInUnshallowing() throws IOException {
+    void updateToANewRevisionShouldNotResultInUnshallowing() throws IOException {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         material.updateTo(inMemoryConsumer(), workingDir, new RevisionContext(REVISION_4, REVISION_4, 1), context());
-        assertThat(localRepoFor(material).isShallow(), is(true));
+        assertThat(localRepoFor(material).isShallow()).isTrue();
         List<Modification> modifications = repo.addFileAndPush("newfile", "add new file");
         StringRevision newRevision = new StringRevision(modifications.get(0).getRevision());
         material.updateTo(inMemoryConsumer(), workingDir, new RevisionContext(newRevision, newRevision, 1), context());
-        assertThat(new File(workingDir, "newfile").exists(), is(true));
-        assertThat(localRepoFor(material).isShallow(), is(true));
+        assertThat(new File(workingDir, "newfile").exists()).isTrue();
+        assertThat(localRepoFor(material).isShallow()).isTrue();
     }
 
     @Test
-    public void shouldUnshallowServerSideRepoCompletelyOnRetrievingModificationsSincePreviousRevision() {
+    void shouldUnshallowServerSideRepoCompletelyOnRetrievingModificationsSincePreviousRevision() {
         SystemEnvironment mockSystemEnvironment = mock(SystemEnvironment.class);
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         when(mockSystemEnvironment.get(SystemEnvironment.GO_SERVER_SHALLOW_CLONE)).thenReturn(false);
 
         material.modificationsSince(workingDir, REVISION_4, new TestSubprocessExecutionContext(mockSystemEnvironment, true));
 
-        assertThat(localRepoFor(material).isShallow(), is(false));
+        assertThat(localRepoFor(material).isShallow()).isFalse();
     }
 
     @Test
-    public void shouldNotUnshallowOnServerSideIfShallowClonePropertyIsOnAndRepoIsAlreadyShallow() {
+    void shouldNotUnshallowOnServerSideIfShallowClonePropertyIsOnAndRepoIsAlreadyShallow() {
         SystemEnvironment mockSystemEnvironment = mock(SystemEnvironment.class);
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         when(mockSystemEnvironment.get(SystemEnvironment.GO_SERVER_SHALLOW_CLONE)).thenReturn(true);
 
         material.modificationsSince(workingDir, REVISION_4, new TestSubprocessExecutionContext(mockSystemEnvironment, false));
 
-        assertThat(localRepoFor(material).isShallow(), is(true));
+        assertThat(localRepoFor(material).isShallow()).isTrue();
     }
 
     private TestSubprocessExecutionContext context() {

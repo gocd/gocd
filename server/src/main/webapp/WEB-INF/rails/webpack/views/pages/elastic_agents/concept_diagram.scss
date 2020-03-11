@@ -14,24 +14,10 @@
  * limitations under the License.
  */
 
-@import "../../global/common";
+@import "../../components/concept_diagram/index";
 
 $diagram-caption-width: 300px;
 
 .concept-diagram {
-  margin: 0;
-  padding: 0;
-
-  flex: 0 0 auto;
-
-  object {
-    background-color: $white;
-  }
-
-  figcaption {
-    font-size: 16px;
-    text-align: left;
-    max-width: $diagram-caption-width;
-    margin: 10px auto 0;
-  }
+  width: auto;
 }

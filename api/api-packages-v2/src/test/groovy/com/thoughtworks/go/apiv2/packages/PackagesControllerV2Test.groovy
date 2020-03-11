@@ -19,14 +19,21 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv2.packages.representers.PackageDefinitionRepresenter
 import com.thoughtworks.go.apiv2.packages.representers.PackageDefinitionsRepresenter
+import com.thoughtworks.go.apiv2.packages.representers.PackageUsageRepresenter
+import com.thoughtworks.go.config.Authorization
+import com.thoughtworks.go.config.BasicPipelineConfigs
+import com.thoughtworks.go.config.PipelineConfig
+import com.thoughtworks.go.config.PipelineConfigs
 import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.packagerepository.*
+import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
+import com.thoughtworks.go.util.Pair
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -34,9 +41,9 @@ import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.anyString
-import static org.mockito.ArgumentMatchers.eq
+import static java.util.Collections.emptyList
+import static java.util.Collections.emptyMap
+import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -54,7 +61,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
 
   @Override
   PackagesControllerV2 createControllerInstance() {
-    new PackagesControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, packageDefinitionService)
+    new PackagesControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, packageDefinitionService, goConfigService)
   }
 
   @Nested
@@ -471,6 +478,59 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
           .isNotFound()
           .hasJsonMessage(controller.entityType.notFoundMessage("id"))
       }
+    }
+  }
+
+  @Nested
+  class Usages {
+
+    @BeforeEach
+    void setUp() {
+      loginAsGroupAdmin()
+    }
+
+    @Nested
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "usagesForPackage"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerBasePath() + "/pkg_id/usages")
+      }
+    }
+
+    @Test
+    void 'should return a list of pipelines which uses the specified package'() {
+      def pipelineConfig = PipelineConfigMother.pipelineConfig("some-pipeline")
+      Pair<PipelineConfig, PipelineConfigs> pair = new Pair<>(pipelineConfig, new BasicPipelineConfigs("pipeline-group", new Authorization(), pipelineConfig))
+      ArrayList<Pair<PipelineConfig, PipelineConfigs>> pairs = new ArrayList<>()
+      pairs.add(pair)
+
+      def allUsages = new HashMap()
+      allUsages.put("pkg_id", pairs)
+
+      when(goConfigService.getPackageUsageInPipelines()).thenReturn(allUsages)
+
+      getWithApiHeader(controller.controllerBasePath() + "/pkg_id/usages")
+
+      assertThatResponse()
+        .isOk()
+        .hasBodyWithJsonObject(PackageUsageRepresenter.class, pairs)
+    }
+
+    @Test
+    void 'should return a empty list if no usages found'() {
+      when(goConfigService.getPackageUsageInPipelines()).thenReturn(emptyMap())
+
+      getWithApiHeader(controller.controllerBasePath() + "/pkg_id/usages")
+
+      assertThatResponse()
+        .isOk()
+        .hasBodyWithJsonObject(PackageUsageRepresenter.class, emptyList())
     }
   }
 }

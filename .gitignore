@@ -517,3 +517,7 @@ api/api-internal-dependency-pipelines-v1/out/
 api/api-internal-dependency-pipelines-v1/target/
 api/api-internal-dependency-pipelines-v1/logs/
 api/api-internal-dependency-pipelines-v1/config/
+api/api-packages-v2/out/
+api/api-packages-v2/target/
+api/api-packages-v2/logs/
+api/api-packages-v2/config/

@@ -409,10 +409,6 @@ api/api-agents-v6/out/
 api/api-agents-v6/target/
 api/api-agents-v6/logs/
 api/api-agents-v6/config/
-api/api-template-config-v5/out/
-api/api-template-config-v5/target/
-api/api-template-config-v5/logs/
-api/api-template-config-v5/config/
 api/api-feature-toggles-v1/out/
 api/api-feature-toggles-v1/target/
 api/api-feature-toggles-v1/logs/

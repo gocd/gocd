@@ -23,9 +23,11 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.mail.SysOutStreamConsumer;
+import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.jupiter.api.AfterEach;
@@ -38,6 +40,7 @@ import org.junit.rules.TestRule;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -246,16 +249,15 @@ public class GitCommandTest {
             fail("should have failed for non 0 return code");
         } catch (Exception e) {
             assertThat(e.getMessage()).containsPattern(
-                String.format("[Cc]lone of '%s' into submodule path '((.*)[\\/])?sub1' failed",
-                    Pattern.quote(FileUtil.toFileURI(submoduleFolder.getAbsolutePath()) + "/")));
+                    String.format("[Cc]lone of '%s' into submodule path '((.*)[\\/])?sub1' failed",
+                            Pattern.quote(FileUtil.toFileURI(submoduleFolder.getAbsolutePath()) + "/")));
         }
     }
 
     @Test
-    void shouldRetrieveLatestModification() {
+    void shouldRetrieveLatestModification() throws Exception {
         Modification mod = git.latestModification().get(0);
-        assertThat(mod.getUserName()).isEqualTo("Chris Turner");
-        assertThat(mod.getEmailAddress()).isEqualTo("cturner@thoughtworks.com");
+        assertThat(mod.getUserName()).isEqualTo("Chris Turner <cturner@thoughtworks.com>");
         assertThat(mod.getComment()).isEqualTo("Added 'run-till-file-exists' ant target");
         assertThat(mod.getModifiedTime()).isEqualTo(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800"));
         assertThat(mod.getRevision()).isEqualTo("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
@@ -267,11 +269,10 @@ public class GitCommandTest {
     }
 
     @Test
-    void shouldRetrieveLatestModificationWhenColoringIsSetToAlways() {
+    void shouldRetrieveLatestModificationWhenColoringIsSetToAlways() throws Exception {
         setColoring();
         Modification mod = git.latestModification().get(0);
-        assertThat(mod.getUserName()).isEqualTo("Chris Turner");
-        assertThat(mod.getEmailAddress()).isEqualTo("cturner@thoughtworks.com");
+        assertThat(mod.getUserName()).isEqualTo("Chris Turner <cturner@thoughtworks.com>");
         assertThat(mod.getComment()).isEqualTo("Added 'run-till-file-exists' ant target");
         assertThat(mod.getModifiedTime()).isEqualTo(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800"));
         assertThat(mod.getRevision()).isEqualTo("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
@@ -286,8 +287,7 @@ public class GitCommandTest {
     void shouldRetrieveLatestModificationWhenLogDecorationIsPresent() throws Exception {
         setLogDecoration();
         Modification mod = git.latestModification().get(0);
-        assertThat(mod.getUserName()).isEqualTo("Chris Turner");
-        assertThat(mod.getEmailAddress()).isEqualTo("cturner@thoughtworks.com");
+        assertThat(mod.getUserName()).isEqualTo("Chris Turner <cturner@thoughtworks.com>");
         assertThat(mod.getComment()).isEqualTo("Added 'run-till-file-exists' ant target");
         assertThat(mod.getModifiedTime()).isEqualTo(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800"));
         assertThat(mod.getRevision()).isEqualTo("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
@@ -299,13 +299,13 @@ public class GitCommandTest {
     }
 
     @Test
-    void retrieveLatestModificationShouldNotResultInWorkingCopyCheckOut() {
+    void retrieveLatestModificationShouldNotResultInWorkingCopyCheckOut() throws Exception {
         git.latestModification();
         assertWorkingCopyNotCheckedOut();
     }
 
     @Test
-    void getModificationsSinceShouldNotResultInWorkingCopyCheckOut() {
+    void getModificationsSinceShouldNotResultInWorkingCopyCheckOut() throws Exception {
         git.modificationsSince(GitTestRepo.REVISION_2);
         assertWorkingCopyNotCheckedOut();
     }
@@ -372,7 +372,7 @@ public class GitCommandTest {
         remoteRepo.addFileAndAmend("bar", "amendedCommit");
 
         assertThatCode(() -> command.modificationsSince(new StringRevision(modification.getRevision())))
-            .isInstanceOf(CommandLineException.class);
+                .isInstanceOf(CommandLineException.class);
     }
 
     @Test
@@ -385,7 +385,7 @@ public class GitCommandTest {
         Modification modification = remoteRepo.checkInOneFile("foo", "Adding a commit").get(0);
 
         assertThatCode(() -> command.modificationsSince(new StringRevision(modification.getRevision())))
-            .isInstanceOf(CommandLineException.class);
+                .isInstanceOf(CommandLineException.class);
     }
 
     @Test
@@ -427,8 +427,7 @@ public class GitCommandTest {
 
         Modification mod = branchedGit.latestModification().get(0);
 
-        assertThat(mod.getUserName()).isEqualTo("Chris Turner");
-        assertThat(mod.getEmailAddress()).isEqualTo("cturner@thoughtworks.com");
+        assertThat(mod.getUserName()).isEqualTo("Chris Turner <cturner@thoughtworks.com>");
         assertThat(mod.getComment()).isEqualTo("Started foo branch");
         assertThat(mod.getModifiedTime()).isEqualTo(parseRFC822("Tue, 05 Feb 2009 14:28:08 -0800"));
         assertThat(mod.getRevision()).isEqualTo("b4fa7271c3cef91822f7fa502b999b2eab2a380d");
@@ -523,7 +522,7 @@ public class GitCommandTest {
         GitCommand gitCommand = new GitCommand(null, null, null, false, null);
 
         assertThatCode(() -> gitCommand.checkConnection(new UrlArgument("git://somewhere.is.not.exist"), "master"))
-            .isInstanceOf(Exception.class);
+                .isInstanceOf(Exception.class);
     }
 
     @Test
@@ -531,7 +530,7 @@ public class GitCommandTest {
         GitCommand gitCommand = new GitCommand(null, null, null, false, null);
 
         assertThatCode(() -> gitCommand.checkConnection(new UrlArgument(gitRepo.projectRepositoryUrl()), "Invalid_Branch"))
-            .isInstanceOf(Exception.class);
+                .isInstanceOf(Exception.class);
     }
 
 
@@ -566,8 +565,34 @@ public class GitCommandTest {
             fail("Should throw exception when repo cannot connected");
         } catch (Exception e) {
             assertThat(e.getMessage()).matches(str -> str.contains("The remote end hung up unexpectedly") ||
-                str.contains("Could not read from remote repository"));
+                    str.contains("Could not read from remote repository"));
         }
+    }
+
+    @Test
+    void shouldParseGitOutputCorrectly() throws IOException {
+        List<String> stringList;
+        try (InputStream resourceAsStream = getClass().getResourceAsStream("git_sample_output.text")) {
+            stringList = IOUtils.readLines(resourceAsStream, UTF_8);
+        }
+
+        GitModificationParser parser = new GitModificationParser();
+        List<Modification> mods = parser.parse(stringList);
+        assertThat(mods).hasSize(3);
+
+        Modification mod = mods.get(2);
+        assertThat(mod.getRevision()).isEqualTo("46cceff864c830bbeab0a7aaa31707ae2302762f");
+        assertThat(mod.getModifiedTime()).isEqualTo(DateUtils.parseISO8601("2009-08-11 12:37:09 -0700"));
+        assertThat(mod.getUserDisplayName()).isEqualTo("Cruise Developer <cruise@cruise-sf3.(none)>");
+        assertThat(mod.getComment()).isEqualTo("author:cruise <cceuser@CceDev01.(none)>\n"
+                + "node:ecfab84dd4953105e3301c5992528c2d381c1b8a\n"
+                + "date:2008-12-31 14:32:40 +0800\n"
+                + "description:Moving rakefile to build subdirectory for #2266\n"
+                + "\n"
+                + "author:CceUser <cceuser@CceDev01.(none)>\n"
+                + "node:fd16efeb70fcdbe63338c49995ce9ff7659e6e77\n"
+                + "date:2008-12-31 14:17:06 +0800\n"
+                + "description:Adding rakefile");
     }
 
     @Test
@@ -608,7 +633,7 @@ public class GitCommandTest {
 
         /* Commit a change to the file on the repo. */
         List<Modification> modifications = submoduleRepos.modifyOneFileInSubmoduleAndUpdateMainRepo(
-            remoteSubmoduleLocation, submoduleDirectoryName, fileInSubmodule.getName(), "NEW CONTENT OF FILE");
+                remoteSubmoduleLocation, submoduleDirectoryName, fileInSubmodule.getName(), "NEW CONTENT OF FILE");
 
         /* Simulate start of a new build on agent. */
         clonedCopy.fetch(outputStreamConsumer);
@@ -648,7 +673,7 @@ public class GitCommandTest {
         clonedCopy.clone(outputStreamConsumer, FileUtil.toFileURI(repoContainingSubmodule.mainRepo().getUrl()), 1);
         clonedCopy.fetchAndResetToHead(outputStreamConsumer, true);
         ConsoleResult consoleResult = executeOnDir(new File(cloneDirectory, submoduleDirectoryName),
-            "git", "rev-list", "--count", "master");
+                "git", "rev-list", "--count", "master");
         assertThat(consoleResult.outputAsString()).isEqualTo("1");
     }
 
@@ -666,7 +691,7 @@ public class GitCommandTest {
         clonedCopy.clone(outputStreamConsumer, FileUtil.toFileURI(repoContainingSubmodule.mainRepo().getUrl()), 1);
         clonedCopy.fetchAndResetToHead(outputStreamConsumer, true);
         ConsoleResult consoleResult = executeOnDir(new File(cloneDirectory, submoduleDirectoryName),
-            "git", "rev-list", "--count", "master");
+                "git", "rev-list", "--count", "master");
         assertThat(consoleResult.outputAsString()).isEqualTo("2");
     }
 
@@ -703,50 +728,6 @@ public class GitCommandTest {
     void shouldNotThrowExceptionWhenSubmoduleIsAddedWithACustomName() {
         executeOnDir(gitLocalRepoDir, "git", "submodule", "add", "--name", "Custom", gitFooBranchBundle.projectRepositoryUrl());
         git.fetchAndResetToHead(inMemoryConsumer());
-    }
-
-    @Test
-    void shouldParseGitCommitsWithSpacesInSubject() throws IOException {
-        GitTestRepo testRepo = new GitTestRepo(GIT_WITH_WHITESPACES_IN_SUBJECT, temporaryFolder);
-        File tempWorkingDirectory = createTempWorkingDirectory();
-        GitCommand git = new GitCommand(null, tempWorkingDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, null);
-        git.cloneWithNoCheckout(inMemoryConsumer(), testRepo.projectRepositoryUrl());
-
-        List<Modification> modifications = git.modificationsSince(new StringRevision("5a428bd"));
-
-        assertThat(modifications).hasSize(4);
-        assertThat(modifications.stream().map(modification -> modification.getAdditionalDataMap().get("subject")))
-            .contains(
-                "         more then 3 spaces",
-                "   Three spaces",
-                " One space in subject line",
-                "  Two spaces in subject line"
-            );
-    }
-
-    @Test
-    void shouldParseGitCommitsWithSpacesInMessage() throws IOException {
-        GitTestRepo testRepo = new GitTestRepo(GIT_WITH_WHITESPACES_IN_COMMIT, temporaryFolder);
-        File tempWorkingDirectory = createTempWorkingDirectory();
-        GitCommand git = new GitCommand(null, tempWorkingDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, null);
-        git.cloneWithNoCheckout(inMemoryConsumer(), testRepo.projectRepositoryUrl());
-
-        List<Modification> modifications = git.modificationsSince(new StringRevision("29cbc1491d"));
-
-        assertThat(modifications).hasSize(2);
-        String lastCommitMessage = "One space in subject line\n" +
-            "\n" +
-            "            Multiple spaces\n" +
-            "    Four spaces\n" +
-            "   Three spaces\n" +
-            "  Two spaces\n" +
-            " One space";
-        String secondLastCommitMessage = "No spaces in commit subject\n" +
-            "\n" +
-            "No spaces in message as well";
-
-        assertThat(modifications.stream().map(Modification::getComment))
-            .contains(lastCommitMessage, secondLastCommitMessage);
     }
 
     private List<File> allFilesIn(File directory, String prefixOfFiles) {

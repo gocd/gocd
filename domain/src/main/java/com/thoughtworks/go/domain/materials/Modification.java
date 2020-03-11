@@ -94,7 +94,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
     public Modification(Modification modification, boolean shouldCopyModifiedFiles) {
         this(modification.userName, modification.comment, modification.emailAddress, modification.modifiedTime, modification.getRevision());
         this.id = modification.id;
-        if (shouldCopyModifiedFiles) {
+        if(shouldCopyModifiedFiles){
             this.files = modification.files;
         }
         this.pipelineLabel = modification.pipelineLabel;
@@ -111,18 +111,13 @@ public class Modification extends PersistentObject implements Comparable, Serial
     }
 
     public HashMap<String, String> getAdditionalDataMap() {
-        return additionalDataMap == null ? new HashMap<>() : additionalDataMap;
+        return additionalDataMap == null ? new HashMap<>(): additionalDataMap;
     }
 
 
     public void setAdditionalData(String additionalData) {
         this.additionalData = additionalData;
         this.additionalDataMap = JsonHelper.safeFromJson(this.additionalData, HashMap.class);
-    }
-
-    public void setAdditionalData(HashMap<String, String> additionalDataMap) {
-        this.additionalData = JsonHelper.toJsonString(additionalDataMap);
-        this.additionalDataMap = additionalDataMap;
     }
 
     /**
@@ -171,7 +166,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
      * Returns the list of modified files for this modification set.
      *
      * @return list of {@link ModifiedFile} objects. If there are no files, this returns an empty list
-     * (<code>null</code> is never returned).
+     *         (<code>null</code> is never returned).
      */
     public List<ModifiedFile> getModifiedFiles() {
         return Collections.unmodifiableList(new ArrayList<>(files));
@@ -411,7 +406,7 @@ public class Modification extends PersistentObject implements Comparable, Serial
         if (modifications.isEmpty()) {
             throw new RuntimeException("Cannot find oldest revision.");
         } else {
-            return new StringRevision(modifications.get(modifications.size() - 1).getRevision());
+            return new StringRevision(modifications.get(modifications.size()-1).getRevision());
         }
     }
 

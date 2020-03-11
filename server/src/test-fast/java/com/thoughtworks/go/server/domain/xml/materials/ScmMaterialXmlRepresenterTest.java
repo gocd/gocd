@@ -45,19 +45,19 @@ public class ScmMaterialXmlRepresenterTest {
         ElementBuilder builder = new ElementBuilder(root);
         XmlWriterContext context = new XmlWriterContext("https://test.host/go", null, null, null, new SystemEnvironment());
 
-        new ScmMaterialXmlRepresenter("up42", 1, materialRevision).populate(builder, context);
+        new ScmMaterialXmlRepresenter("up42", 1,materialRevision).populate(builder, context);
 
         assertThat(root.asXML()).and(expectedXML)
-            .ignoreWhitespace()
-            .areIdentical();
+                .ignoreWhitespace()
+                .areIdentical();
     }
 
     private List<Modification> modifications() {
         Date date = DateUtils.parseISO8601("2019-12-31T15:31:49+05:30");
         return Arrays.asList(
-            modification(date, "Bob", "Adding build.xml", "3", "build.xml", ModifiedAction.added),
-            modification(date, "Sam", "Fixing the not checked in files", "2", "tools/bin/go.jruby", ModifiedAction.added),
-            modification(date, "Sam", "Adding .gitignore", "1", ".gitignore", ModifiedAction.modified)
+                modification(date, "Bob", "Adding build.xml", "3", "build.xml", ModifiedAction.added),
+                modification(date, "Sam", "Fixing the not checked in files", "2", "tools/bin/go.jruby", ModifiedAction.added),
+                modification(date, "Sam", "Adding .gitignore", "1", ".gitignore", ModifiedAction.modified)
         );
     }
 

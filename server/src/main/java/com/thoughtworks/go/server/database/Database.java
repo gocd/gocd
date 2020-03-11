@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.database;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.database.migration.DatabaseMigrator;
+import com.thoughtworks.go.server.database.migration.DbDeploySchemaVerifier;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,10 @@ public class Database {
     @Bean(name = "goDataSource")
     public BasicDataSource getDataSource() throws SQLException {
         BasicDataSource dataSource = connectionManager.getDataSourceInstance();
+        try (Connection connection = dataSource.getConnection()) {
+            new DbDeploySchemaVerifier().verify(connection);
+        }
+
         try (Connection connection = dataSource.getConnection()) {
             new DatabaseMigrator().migrate(connection);
         }

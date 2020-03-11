@@ -29,6 +29,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,7 @@ import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesN
 import static spark.Spark.*;
 
 @Component
+@DeprecatedAPI(deprecatedApiVersion = ApiVersion.v1, successorApiVersion = ApiVersion.v2, deprecatedIn = "20.3.0", removalIn = "20.6.0", entityName = "Packages")
 public class PackagesControllerV1 extends ApiController implements SparkSpringController, CrudController<PackageDefinition> {
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;

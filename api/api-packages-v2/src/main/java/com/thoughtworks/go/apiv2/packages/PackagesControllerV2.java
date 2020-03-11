@@ -24,13 +24,18 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv2.packages.representers.PackageDefinitionRepresenter;
 import com.thoughtworks.go.apiv2.packages.representers.PackageDefinitionsRepresenter;
+import com.thoughtworks.go.apiv2.packages.representers.PackageUsageRepresenter;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.server.service.EntityHashingService;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import com.thoughtworks.go.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -38,9 +43,11 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesNotMatch;
+import static java.util.Collections.emptyList;
 import static spark.Spark.*;
 
 @Component
@@ -49,14 +56,16 @@ public class PackagesControllerV2 extends ApiController implements SparkSpringCo
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final EntityHashingService entityHashingService;
     private final PackageDefinitionService packageDefinitionService;
+    private final GoConfigService goConfigService;
 
     @Autowired
     public PackagesControllerV2(ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService,
-                                PackageDefinitionService packageDefinitionService) {
+                                PackageDefinitionService packageDefinitionService, GoConfigService goConfigService) {
         super(ApiVersion.v2);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.entityHashingService = entityHashingService;
         this.packageDefinitionService = packageDefinitionService;
+        this.goConfigService = goConfigService;
     }
 
     @Override
@@ -77,6 +86,7 @@ public class PackagesControllerV2 extends ApiController implements SparkSpringCo
             post("", mimeType, this::create);
             put(Routes.Packages.PACKAGE_ID, mimeType, this::update);
             delete(Routes.Packages.PACKAGE_ID, mimeType, this::remove);
+            get(Routes.Packages.USAGES, mimeType, this::usagesForPackage);
         });
     }
 
@@ -132,6 +142,15 @@ public class PackagesControllerV2 extends ApiController implements SparkSpringCo
         packageDefinitionService.deletePackage(packageDefinition, currentUsername(), result);
 
         return handleSimpleMessageResponse(response, result);
+    }
+
+    String usagesForPackage(Request request, Response response) throws IOException {
+        String packageId = request.params("package_id");
+
+        Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> allUsages = goConfigService.getPackageUsageInPipelines();
+        List<Pair<PipelineConfig, PipelineConfigs>> packageUsageInPipelines = allUsages.getOrDefault(packageId, emptyList());
+
+        return writerForTopLevelObject(request, response, outputWriter -> PackageUsageRepresenter.toJSON(outputWriter, packageUsageInPipelines));
     }
 
     @Override

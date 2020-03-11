@@ -143,6 +143,12 @@
   </rule>
 
   <rule>
+    <name>Packages Usages API</name>
+    <from>^/api/admin/packages/([^/]+)/usages(/?)$</from>
+    <to last="true">/spark/api/admin/packages/${escape:$1}/usages</to>
+  </rule>
+
+  <rule>
     <name>Package Repositories API</name>
     <from>^/api/admin/repositories(/?)$</from>
     <to last="true">/spark/api/admin/repositories</to>

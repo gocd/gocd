@@ -784,6 +784,7 @@ public class Routes {
         public static final String DOC = apiDocsUrl("packages");
         public static final String PACKAGE_ID = "/:package_id";
         public static final String FIND = BASE + PACKAGE_ID;
+        public static final String USAGES = PACKAGE_ID + "/usages";
 
         public static String self(String id) {
             return BASE + "/" + id;

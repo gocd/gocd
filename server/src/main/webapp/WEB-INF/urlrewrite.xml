@@ -69,8 +69,8 @@
 
   <rule>
     <name>APIs info API</name>
-    <from>^/api/apis(/?)$</from>
-    <to last="true">/spark/api/apis</to>
+    <from>^/api/internal/apis(/?)$</from>
+    <to last="true">/spark/api/internal/apis</to>
   </rule>
 
   <rule>

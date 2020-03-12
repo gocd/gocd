@@ -20,7 +20,10 @@ import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
-import {PermissionsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/permissions_tab_content";
+import {
+  PermissionsTabContent,
+  RolesSuggestionProvider
+} from "views/pages/clicky_pipeline_config/tabs/stage/permissions_tab_content";
 import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -246,11 +249,60 @@ describe("Permissions Tab Content", () => {
     expect(helper.qa("input", helper.byTestId("roles"))).toHaveLength(1);
   });
 
+  describe("Role Autocompletion", () => {
+    beforeEach(() => {
+      const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
+      stage.approval().authorization().isInherited(false);
+      mount(stage);
+    });
+
+    it("should provide all roles", (done) => {
+      const allRoles        = Stream(["admin", "operators", "viewers"] as string[]);
+      const configuredRoles = [] as string[];
+
+      const provider = new RolesSuggestionProvider(allRoles, configuredRoles);
+
+      provider.getData().then((suggestions) => {
+        expect(suggestions).toEqual(allRoles());
+        done();
+      });
+    });
+
+    it("should provide no roles suggestions when all roles are configured", (done) => {
+      const allRoles        = Stream(["admin", "operators", "viewers"] as string[]);
+      const configuredRoles = ["admin", "operators", "viewers"] as string[];
+
+      const provider = new RolesSuggestionProvider(allRoles, configuredRoles);
+
+      provider.getData().then((suggestions) => {
+        expect(suggestions).toEqual([]);
+        done();
+      });
+    });
+
+    it("should provide roles suggestions which are not configured", (done) => {
+      const allRoles        = Stream(["admin", "operators", "viewers"] as string[]);
+      const configuredRoles = ["admin"] as string[];
+
+      const provider = new RolesSuggestionProvider(allRoles, configuredRoles);
+
+      provider.getData().then((suggestions) => {
+        expect(suggestions).toEqual(["operators", "viewers"]);
+        done();
+      });
+    });
+  });
+
   function mount(stage: Stage) {
     const pipelineConfig = new PipelineConfig();
     pipelineConfig.stages().add(stage);
     const routeParams    = {stage_name: stage.name()} as PipelineConfigRouteParams;
     const templateConfig = new TemplateConfig("foo", []);
-    helper.mount(() => new PermissionsTabContent().content(pipelineConfig, templateConfig, routeParams, Stream<OperationState>(OperationState.UNKNOWN), jasmine.createSpy(), jasmine.createSpy()));
+    helper.mount(() => new PermissionsTabContent().content(pipelineConfig,
+                                                           templateConfig,
+                                                           routeParams,
+                                                           Stream<OperationState>(OperationState.UNKNOWN),
+                                                           jasmine.createSpy(),
+                                                           jasmine.createSpy()));
   }
 });

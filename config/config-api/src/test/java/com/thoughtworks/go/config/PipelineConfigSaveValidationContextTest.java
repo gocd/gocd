@@ -20,177 +20,180 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.domain.packagerepository.*;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
+import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
+import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
+import com.thoughtworks.go.domain.packagerepository.Packages;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.util.Node;
-import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class PipelineConfigSaveValidationContextTest {
+class PipelineConfigSaveValidationContextTest {
 
     private PipelineConfig pipelineConfig;
     private PipelineConfigSaveValidationContext pipelineContext;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         pipelineConfig = mock(PipelineConfig.class);
         pipelineContext = PipelineConfigSaveValidationContext.forChain(true, "group", pipelineConfig);
     }
 
     @Test
-    public void shouldCreatePipelineValidationContext() {
-        assertThat(pipelineContext.getPipeline(), is(pipelineConfig));
-        assertThat(pipelineContext.getStage(), is(nullValue()));
-        assertThat(pipelineContext.getJob(), is(nullValue()));
+    void shouldCreatePipelineValidationContext() {
+        assertThat(pipelineContext.getPipeline()).isEqualTo(pipelineConfig);
+        assertThat(pipelineContext.getStage()).isNull();
+        assertThat(pipelineContext.getJob()).isNull();
     }
 
     @Test
-    public void shouldCreateStageValidationContextBasedOnParent() {
+    void shouldCreateStageValidationContextBasedOnParent() {
         StageConfig stageConfig = mock(StageConfig.class);
         PipelineConfigSaveValidationContext stageContext = PipelineConfigSaveValidationContext.forChain(true, "group", pipelineConfig, stageConfig);
 
-        assertThat(stageContext.getPipeline(), is(pipelineConfig));
-        assertThat(stageContext.getStage(), is(stageConfig));
-        assertThat(stageContext.getJob(), is(nullValue()));
+        assertThat(stageContext.getPipeline()).isEqualTo(pipelineConfig);
+        assertThat(stageContext.getStage()).isEqualTo(stageConfig);
+        assertThat(stageContext.getJob()).isNull();
     }
 
     @Test
-    public void shouldCreateJobValidationContextBasedOnParent() {
+    void shouldCreateJobValidationContextBasedOnParent() {
         StageConfig stageConfig = mock(StageConfig.class);
         JobConfig jobConfig = mock(JobConfig.class);
         PipelineConfigSaveValidationContext jobContext = PipelineConfigSaveValidationContext.forChain(true, "group", pipelineConfig, stageConfig, jobConfig);
-        assertThat(jobContext.getPipeline(), is(pipelineConfig));
-        assertThat(jobContext.getStage(), is(stageConfig));
-        assertThat(jobContext.getJob(), is(jobConfig));
+        assertThat(jobContext.getPipeline()).isEqualTo(pipelineConfig);
+        assertThat(jobContext.getStage()).isEqualTo(stageConfig);
+        assertThat(jobContext.getJob()).isEqualTo(jobConfig);
     }
 
     @Test
-    public void shouldGetAllMaterialsByFingerPrint() throws Exception {
+    void shouldGetAllMaterialsByFingerPrint() throws Exception {
         CruiseConfig cruiseConfig = new GoConfigMother().cruiseConfigWithPipelineUsingTwoMaterials();
         MaterialConfig expectedMaterial = MaterialConfigsMother.multipleMaterialConfigs().get(1);
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
         MaterialConfigs allMaterialsByFingerPrint = context.getAllMaterialsByFingerPrint(expectedMaterial.getFingerprint());
-        assertThat(allMaterialsByFingerPrint.size(), is(1));
-        assertThat(allMaterialsByFingerPrint.first(), is(expectedMaterial));
+        assertThat(allMaterialsByFingerPrint.size()).isEqualTo(1);
+        assertThat(allMaterialsByFingerPrint.first()).isEqualTo(expectedMaterial);
     }
+
     @Test
-    public void shouldReturnNullIfMatchingMaterialConfigIsNotFound() throws Exception {
+    void shouldReturnNullIfMatchingMaterialConfigIsNotFound() throws Exception {
         CruiseConfig cruiseConfig = new GoConfigMother().cruiseConfigWithPipelineUsingTwoMaterials();
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
-        assertThat(context.getAllMaterialsByFingerPrint("does_not_exist"), is(nullValue()));
+        assertThat(context.getAllMaterialsByFingerPrint("does_not_exist")).isNull();
     }
 
     @Test
-    public void shouldGetDependencyMaterialsForPipelines(){
+    void shouldGetDependencyMaterialsForPipelines() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2", "p3");
         PipelineConfig p2 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p2"));
-        p2.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p1"),new CaseInsensitiveString("stage") ));
+        p2.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p1"), new CaseInsensitiveString("stage")));
         PipelineConfig p3 = cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("p3"));
-        p3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p2"),new CaseInsensitiveString("stage") ));
+        p3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p2"), new CaseInsensitiveString("stage")));
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
 
 
-        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("p1")).getDependencies().isEmpty(), is(true));
-        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("p2")).getDependencies(), contains(new Node.DependencyNode(new CaseInsensitiveString("p1"),new CaseInsensitiveString("stage"))));
-        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("p3")).getDependencies(), contains(new Node.DependencyNode(new CaseInsensitiveString("p2"),new CaseInsensitiveString("stage"))));
-        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("junk")).getDependencies().isEmpty(), is(true));
+        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("p1")).getDependencies().isEmpty()).isTrue();
+        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("p2")).getDependencies()).containsExactly(new Node.DependencyNode(new CaseInsensitiveString("p1"), new CaseInsensitiveString("stage")));
+        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("p3")).getDependencies()).containsExactly(new Node.DependencyNode(new CaseInsensitiveString("p2"), new CaseInsensitiveString("stage")));
+        assertThat(context.getDependencyMaterialsFor(new CaseInsensitiveString("junk")).getDependencies().isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldGetParentDisplayName(){
-        assertThat(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()).getParentDisplayName(), is("pipeline"));
-        assertThat(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(), new StageConfig()).getParentDisplayName(), is("stage"));
-        assertThat(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(), new StageConfig(), new JobConfig()).getParentDisplayName(), is("job"));
+    void shouldGetParentDisplayName() {
+        assertThat(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()).getParentDisplayName()).isEqualTo("pipeline");
+        assertThat(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(), new StageConfig()).getParentDisplayName()).isEqualTo("stage");
+        assertThat(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig(), new StageConfig(), new JobConfig()).getParentDisplayName()).isEqualTo("job");
     }
 
     @Test
-    public void shouldFindPipelineByName(){
+    void shouldFindPipelineByName() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig(new CaseInsensitiveString("p2"), new MaterialConfigs()));
-        assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("p1")), is(cruiseConfig.allPipelines().get(0)));
+        assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("p1"))).isEqualTo(cruiseConfig.allPipelines().get(0));
     }
 
     @Test
-    public void shouldReturnNullWhenNoMatchingPipelineIsFound() throws Exception {
+    void shouldReturnNullWhenNoMatchingPipelineIsFound() throws Exception {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig(new CaseInsensitiveString("p2"), new MaterialConfigs()));
-        assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("does_not_exist")), is(nullValue()));
+        assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("does_not_exist"))).isNull();
     }
 
 
     @Test
-    public void shouldGetPipelineGroupForPipelineInContext(){
+    void shouldGetPipelineGroupForPipelineInContext() {
         String pipelineName = "p1";
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines(pipelineName);
         PipelineConfig p1 = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, PipelineConfigs.DEFAULT_GROUP, cruiseConfig, p1);
-        assertThat(context.getPipelineGroup(), is(cruiseConfig.findGroup(PipelineConfigs.DEFAULT_GROUP)));
+        assertThat(context.getPipelineGroup()).isEqualTo(cruiseConfig.findGroup(PipelineConfigs.DEFAULT_GROUP));
     }
 
     @Test
-    public void shouldGetServerSecurityContext() {
+    void shouldGetServerSecurityContext() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         SecurityConfig securityConfig = new SecurityConfig();
         securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("admin")));
         securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("super-admin")));
         cruiseConfig.server().useSecurity(securityConfig);
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
-        Assert.assertThat(context.getServerSecurityConfig(), is(securityConfig));
+        assertThat(context.getServerSecurityConfig()).isEqualTo(securityConfig);
     }
 
     @Test
-    public void shouldReturnIfTheContextBelongsToPipeline(){
+    void shouldReturnIfTheContextBelongsToPipeline() {
         ValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig());
-        Assert.assertThat(context.isWithinPipelines(), is(true));
-        Assert.assertThat(context.isWithinTemplates(), is(false));
+        assertThat(context.isWithinPipelines()).isTrue();
+        assertThat(context.isWithinTemplates()).isFalse();
     }
 
     @Test
-    public void shouldCheckForExistenceOfTemplate(){
+    void shouldCheckForExistenceOfTemplate() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("t1")));
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig());
 
-        assertThat(context.doesTemplateExist(new CaseInsensitiveString("t1")), is(true));
-        assertThat(context.doesTemplateExist(new CaseInsensitiveString("t2")), is(false));
+        assertThat(context.doesTemplateExist(new CaseInsensitiveString("t1"))).isTrue();
+        assertThat(context.doesTemplateExist(new CaseInsensitiveString("t2"))).isFalse();
     }
 
     @Test
-    public void shouldCheckForExistenceOfSCM() throws Exception {
+    void shouldCheckForExistenceOfSCM() throws Exception {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setSCMs(new SCMs(SCMMother.create("scm-id")));
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
 
-        MatcherAssert.assertThat(context.findScmById("scm-id").getId(), is("scm-id"));
+        assertThat(context.findScmById("scm-id").getId()).isEqualTo("scm-id");
 
     }
 
     @Test
-    public void shouldCheckForExistenceOfPackage() throws Exception {
+    void shouldCheckForExistenceOfPackage() throws Exception {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setPackageRepositories(new PackageRepositories(PackageRepositoryMother.create("repo-id")));
         cruiseConfig.getPackageRepositories().find("repo-id").setPackages(new Packages(PackageDefinitionMother.create("package-id")));
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
 
-        MatcherAssert.assertThat(context.findPackageById("package-id").getId(), is("repo-id"));
+        assertThat(context.findPackageById("package-id").getId()).isEqualTo("repo-id");
     }
 
     @Test
-    public void isValidProfileIdShouldBeValidInPresenceOfElasticProfile() {
+    void isValidProfileIdShouldBeValidInPresenceOfElasticProfile() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         ElasticConfig elasticConfig = new ElasticConfig();
         elasticConfig.setProfiles(new ElasticProfiles(new ElasticProfile("docker.unit-test", "prod-cluster")));
@@ -201,21 +204,37 @@ public class PipelineConfigSaveValidationContextTest {
     }
 
     @Test
-    public void isValidProfileIdShouldBeInValidInAbsenceOfElasticProfileForTheGivenId() {
+    void isValidProfileIdShouldBeInValidInAbsenceOfElasticProfileForTheGivenId() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         ElasticConfig elasticConfig = new ElasticConfig();
         elasticConfig.setProfiles(new ElasticProfiles(new ElasticProfile("docker.unit-test", "prod-cluster")));
         cruiseConfig.setElasticConfig(elasticConfig);
         ValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig());
 
-        assertFalse(context.isValidProfileId("invalid.profile-id"));
+        assertThat(context.isValidProfileId("invalid.profile-id")).isFalse();
     }
 
     @Test
-    public void isValidProfileIdShouldBeInValidInAbsenceOfElasticProfiles() {
+    void isValidProfileIdShouldBeInValidInAbsenceOfElasticProfiles() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         ValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig());
 
-        assertFalse(context.isValidProfileId("docker.unit-test"));
+        assertThat(context.isValidProfileId("docker.unit-test")).isFalse();
+    }
+
+    @Test
+    void shouldReturnThePipelineNamesWithTheMaterialFingerprint() {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        HgMaterialConfig hg = hg("url", null);
+        for (int i = 0; i < 5; i++) {
+            PipelineConfig pipelineConfig = pipelineConfig("pipeline" + i, new MaterialConfigs(hg));
+            cruiseConfig.addPipeline("defaultGroup", pipelineConfig);
+        }
+        cruiseConfig.addPipeline("defaultGroup", pipelineConfig("another-pipeline", new MaterialConfigs(hg("url2", "folder"))));
+        ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
+
+        Map<CaseInsensitiveString, Boolean> pipelinesWithMaterial = context.getPipelineToMaterialAutoUpdateMapByFingerprint(hg.getFingerprint());
+        assertThat(pipelinesWithMaterial.size()).isEqualTo(5);
+        assertThat(pipelinesWithMaterial.keySet()).doesNotContain(new CaseInsensitiveString("another-pipeline"));
     }
 }

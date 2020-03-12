@@ -133,7 +133,7 @@ public class ConfigRepoConfig extends RuleAwarePluginProfile implements Cacheabl
         if (material != null) {
             MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(material.getFingerprint());
             if (allMaterialsByFingerPrint.stream().anyMatch(m -> !m.isAutoUpdate())) {
-                String message = format("The material of type %s (%s) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). All copies of this material must have autoUpdate enabled or configuration repository must be removed. Config Repository: %s (%s).", material.getTypeForDisplay(), material.getDescription(), getId(), getAutoUpdateStatus(material.isAutoUpdate()));
+                String message = format("The material of type %s (%s) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). All copies of this material must have autoUpdate enabled or configuration repository must be removed.\n Config Repository: %s (%s).\n", material.getTypeForDisplay(), material.getDescription(), getId(), getAutoUpdateStatus(material.isAutoUpdate()));
                 Map<CaseInsensitiveString, Boolean> pipelinesWithMaterial = validationContext.getPipelineToMaterialAutoUpdateMapByFingerprint(material.getFingerprint());
                 if (!pipelinesWithMaterial.isEmpty()) {
                     message = message.concat(format(" Pipelines: %s", join(pipelinesWithMaterial)));

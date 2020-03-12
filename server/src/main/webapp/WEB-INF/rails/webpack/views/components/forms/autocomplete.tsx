@@ -78,7 +78,7 @@ export class AutocompleteField extends RestyleViewComponent<Styles, AutoCompAttr
 
   ensureInited(vnode: m.VnodeDOM<AutoCompAttrs, State>): void {
     const css = this.css;
-    const dom = vnode.dom && vnode.dom.children[1];
+    const dom = vnode.dom.children[1] || vnode.dom;
 
     if (!vnode.state._asm && dom) {
       dom.classList.add(css.awesomplete);

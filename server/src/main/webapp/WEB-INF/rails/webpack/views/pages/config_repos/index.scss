@@ -144,8 +144,9 @@ code {
   font-weight: 600;
 }
 
-.error-wrapper{
+.error-wrapper {
   margin-bottom: $error-message-margin-bottom;
+  white-space:   pre-wrap;
 }
 
 .form-group {

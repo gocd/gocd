@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.DeprecatedApiTrait
 import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
@@ -42,7 +43,7 @@ import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
-class CompareControllerV1Test implements SecurityServiceTrait, ControllerTrait<CompareControllerV1> {
+class CompareControllerV1Test implements SecurityServiceTrait, ControllerTrait<CompareControllerV1>, DeprecatedApiTrait {
 
   @Mock
   private ChangesetService changesetService

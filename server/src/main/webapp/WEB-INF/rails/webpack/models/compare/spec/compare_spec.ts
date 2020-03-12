@@ -16,9 +16,9 @@
 
 import {Comparison, DependencyRevision, MaterialRevision,} from "../compare";
 import {DependencyRevisionJSON, MaterialRevisionJSON} from "../compare_json";
-import {DependencyMaterialAttributes, GitMaterialAttributes} from "../material";
+import {DependencyMaterialAttributes, GitMaterialAttributes, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "../material";
 import {parseDate} from "../pipeline_instance";
-import {ComparisonData} from "./test_data";
+import {ComparisonData, MaterialData} from "./test_data";
 
 describe('ComparisonModelSpec', () => {
   it('should parse json into object', () => {
@@ -58,5 +58,43 @@ describe('ComparisonModelSpec', () => {
     expect((revision1 as DependencyRevision).revision).toEqual(revisionJSON1.revision);
     expect((revision1 as DependencyRevision).pipelineCounter).toEqual(revisionJSON1.pipeline_counter);
     expect((revision1 as DependencyRevision).completedAt).toEqual(parseDate(revisionJSON1.completed_at));
+  });
+
+  it('should parse json into object with package material', () => {
+    const json               = ComparisonData.compare();
+    json.changes[0].material = MaterialData.package();
+    json.changes.splice(1, 1);
+
+    const comparison = Comparison.fromJSON(json);
+
+    expect(comparison.pipelineName).toEqual(json.pipeline_name);
+    expect(comparison.fromCounter).toEqual(json.from_counter);
+    expect(comparison.toCounter).toEqual(json.to_counter);
+    expect(comparison.isBisect).toEqual(json.is_bisect);
+
+    expect(comparison.changes.length).toEqual(1);
+
+    expect(comparison.changes[0].material.type()).toEqual("package");
+    expect(comparison.changes[0].material.attributes()).toBeInstanceOf(PackageMaterialAttributes);
+    expect(comparison.changes[0].revision.length).toEqual(1);
+  });
+
+  it('should parse json into object with pluggable scm material', () => {
+    const json               = ComparisonData.compare();
+    json.changes[0].material = MaterialData.pluggable();
+    json.changes.splice(1, 1);
+
+    const comparison = Comparison.fromJSON(json);
+
+    expect(comparison.pipelineName).toEqual(json.pipeline_name);
+    expect(comparison.fromCounter).toEqual(json.from_counter);
+    expect(comparison.toCounter).toEqual(json.to_counter);
+    expect(comparison.isBisect).toEqual(json.is_bisect);
+
+    expect(comparison.changes.length).toEqual(1);
+
+    expect(comparison.changes[0].material.type()).toEqual("plugin");
+    expect(comparison.changes[0].material.attributes()).toBeInstanceOf(PluggableScmMaterialAttributes);
+    expect(comparison.changes[0].revision.length).toEqual(1);
   });
 });

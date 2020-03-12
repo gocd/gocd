@@ -20,16 +20,24 @@ import Stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import {RolesCRUD} from "models/roles/roles_crud";
 import {Secondary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {RadioField, TextField} from "views/components/forms/input_fields";
+import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
+import {RadioField} from "views/components/forms/input_fields";
 import * as Icons from "views/components/icons/index";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import styles from "./permissions.scss";
 
 export class PermissionsTabContent extends TabContent<Stage> {
+  private allRoles: Stream<string[]>         = Stream([] as string[]);
   private selectedPermission: Stream<string> = Stream();
+
+  constructor() {
+    super();
+    this.fetchAllRoles();
+  }
 
   static tabName(): string {
     return "Permissions";
@@ -77,33 +85,73 @@ export class PermissionsTabContent extends TabContent<Stage> {
     const roles = stage.approval().authorization()._roles;
 
     return <div data-test-id="users-and-roles">
-
       <div data-test-id="users">
         <h3>Users</h3>
-        {users.map((user) => this.getInputField("username", user, users))}
+        {
+          users.map((user, index) => this.getInputField(
+            "username", user, users, index, new RolesSuggestionProvider(Stream([] as string[]), [])
+          ))
+        }
         {this.addEntityButton(users)}
       </div>
 
       <div data-test-id="roles">
         <h3>Roles</h3>
-        {roles.map((role) => this.getInputField("role", role, roles))}
+        {
+          roles.map((role, index) => this.getInputField(
+            "role", role, roles, index, new RolesSuggestionProvider(this.allRoles, roles.map(s => s()))
+          ))
+        }
+
         {this.addEntityButton(roles)}
       </div>
     </div>;
   }
 
-  private getInputField(placeholder: string, entity: Stream<string>, collection: Array<Stream<string>>) {
-    return <div class={styles.inputFieldContainer} data-test-id={`input-field-for-${entity()}`}>
-      <TextField placeholder={placeholder} property={entity}/>
-      <Icons.Close iconOnly={true} onclick={() => this.removeEntity(entity, collection)}/>
+  private getInputField(placeholder: string,
+                        entity: Stream<string>,
+                        collection: Array<Stream<string>>,
+                        index: number,
+                        provider: SuggestionProvider) {
+    return <div class={styles.inputFieldContainer}
+                data-test-id={`input-field-for-${entity()}`}>
+      <AutocompleteField placeholder={placeholder}
+                         provider={provider}
+                         property={entity}/>
+      <Icons.Close iconOnly={true} onclick={() => this.removeEntity(index, collection)}/>
     </div>;
   }
 
-  private removeEntity(entityToRemove: Stream<string>, collection: Array<Stream<string>>) {
-    _.remove(collection, (e) => e() === entityToRemove());
+  private removeEntity(index: number, collection: Array<Stream<string>>) {
+    _.pullAt(collection, [index]);
   }
 
   private addEntityButton(collection: Array<Stream<string>>) {
     return (<Secondary small={true} onclick={() => collection.push(Stream())}>+ Add</Secondary>);
+  }
+
+  private fetchAllRoles() {
+    RolesCRUD.all().then((rolesResult) => {
+      rolesResult.do((successResponse) => {
+        this.allRoles(successResponse.body.map(r => r.name()));
+      });
+    });
+  }
+}
+
+export class RolesSuggestionProvider extends SuggestionProvider {
+  private allRoles: Stream<string[]>;
+  private configuredRoles: string[];
+
+  constructor(allRoles: Stream<string[]>, configuredRoles: string[]) {
+    super();
+    this.allRoles        = allRoles;
+    this.configuredRoles = configuredRoles;
+  }
+
+  getData(): Promise<Awesomplete.Suggestion[]> {
+    return new Promise<Awesomplete.Suggestion[]>((resolve) => {
+      resolve(_.difference(this.allRoles(), this.configuredRoles));
+    });
   }
 }

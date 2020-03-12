@@ -24,6 +24,7 @@ const classnames = bind(styles);
 
 interface Attrs {
   stages: Stages;
+  pipelineCounter?: number;
   onClick?: (stage: Stage) => void;
 }
 
@@ -36,13 +37,20 @@ export class StagesWidget extends MithrilViewComponent<Attrs> {
           e.stopPropagation();
           vnode.attrs.onClick!(stage);
         };
-        return <td title={title}
-                   className={classnames(styles.stage, StagesWidget.stageStatusClass(stage.status()), styles.clickable)}
-                   onclick={onclick}/>;
+        return <td title={title} className={styles.clickable}
+                   onclick={onclick}>
+          <div className={classnames(styles.stage, StagesWidget.stageStatusClass(stage.status()))}/>
+        </td>;
       }
-      return <td title={title}
-                 class={classnames(styles.stage, StagesWidget.stageStatusClass(stage.status()))}/>;
+      return <td title={title}>
+        <div class={classnames(styles.stage, StagesWidget.stageStatusClass(stage.status()))}/>
+      </td>;
     });
+    if (vnode.attrs.pipelineCounter) {
+      const counter = <td data-test-id="instance-counter"
+                          className={styles.pipelineInstanceCounter}>{vnode.attrs.pipelineCounter}</td>;
+      stages.splice(0, 0, counter);
+    }
 
     return <table data-test-id="stages" class={styles.stagesContainer}>
       <tr>{stages}</tr>

@@ -81,10 +81,10 @@ describe('TimelineModalSpec', () => {
     mount();
     expect(helper.byTestId("timeline-modal-body")).toBeInDOM();
 
-    expect(helper.q("span", helper.byTestId("instance-2")).innerText).toBe("2");
+    expect(helper.byTestId("instance-counter", helper.byTestId("instance-2")).textContent).toBe("2");
 
     expect(helper.qa("tr", helper.byTestId("left-pane")).length).toBe(1); //pipeline histories
-    expect(helper.qa("td", helper.byTestId("instance-2")).length).toBe(1); //stages in that
+    expect(helper.qa("td", helper.byTestId("instance-2")).length).toBe(2); //stages plus counter in that
   });
 
   it('should have enabled next and previous buttons if both links are available', () => {

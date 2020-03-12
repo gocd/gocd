@@ -22,6 +22,12 @@ $icon-size: 10px;
 .stages-container {
   width:        100%;
   table-layout: fixed;
+
+  .pipeline-instance-counter {
+    width:      30px;
+    text-align: end;
+    word-wrap:  break-word;
+  }
 }
 
 .stage {
@@ -31,6 +37,7 @@ $icon-size: 10px;
   font-size:   8px;
   white-space: nowrap;
   overflow:    hidden;
+  width:       100%;
 
   &:before {
     position: relative;

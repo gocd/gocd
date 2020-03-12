@@ -26,6 +26,12 @@ $diagram-caption-width: 300px;
 
   flex: 0 0 auto;
 
+  &.adaptive {
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   object {
     background-color: $white;
   }

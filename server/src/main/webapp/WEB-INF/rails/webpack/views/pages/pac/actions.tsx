@@ -49,7 +49,7 @@ export class PacActions extends MithrilViewComponent<Attrs> {
         <div class={css.finishBtnWrapper}>
           <div class={css.errorResponse}>{this.globalError()}</div>
 
-          <Buttons.Primary css={css} onclick={this.onSave.bind(this, vnode.attrs.configRepo())} small={false} disabled={!!vnode.attrs.disabled}>Finish</Buttons.Primary>
+          <Buttons.Primary css={css} onclick={this.onSave.bind(this, vnode.attrs.configRepo())} small={false} disabled={!!vnode.attrs.disabled}>Save</Buttons.Primary>
         </div>
       </div>
     );

@@ -21,6 +21,8 @@ export const iconGear: string;
 export const iconRemove: string;
 export const iconSpinner: string;
 export const leftAlign: string;
+export const multiSection: string;
 export const rightAlign: string;
 export const saveBtns: string;
 export const spin: string;
+export const subSection: string;

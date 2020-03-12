@@ -14,14 +14,30 @@
  * limitations under the License.
  */
 
-@import "../../global/common";
+@import "vals";
 
 .fillable {
   background-color: $white;
-  max-width: 1200px;
-  min-width: 1000px;
-  margin: 30px auto;
-  padding: 30px;
+  max-width: $fillable-section-width-max;
+  min-width: $fillable-section-width-min;
+  margin: $fillable-section-margin auto;
+  padding: $fillable-section-margin;
   display: flex;
   justify-content: space-between;
+
+
+  &.multi-section {
+    display: block;
+
+    .sub-section {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-bottom: $fillable-section-margin;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
 }

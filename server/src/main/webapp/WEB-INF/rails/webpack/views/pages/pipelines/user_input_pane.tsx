@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import classnames from "classnames";
 import {RestyleAttrs, RestyleComponent} from "jsx/mithril-component";
 import m from "mithril";
 import css from "./user_input_pane.scss";
@@ -23,6 +24,7 @@ type Styles = typeof css;
 interface Attrs extends RestyleAttrs<Styles> {
   heading?: m.Children;
   onchange?: (e: Event) => void;
+  constrainedWidth?: boolean;
 }
 
 export class UserInputPane extends RestyleComponent<Styles, Attrs> {
@@ -31,7 +33,7 @@ export class UserInputPane extends RestyleComponent<Styles, Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const {heading, onchange} = vnode.attrs;
 
-    return <section class={this.css.userInput} onchange={onchange}>
+    return <section class={classnames(this.css.userInput, {[this.css.constrained]: !!vnode.attrs.constrainedWidth})} onchange={onchange}>
       {heading ? <SectionHeading css={this.css}>{heading}</SectionHeading> : void 0}
       {vnode.children}
     </section>;

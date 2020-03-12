@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-import {RestyleComponent} from "jsx/mithril-component";
+import classnames from "classnames";
+import {RestyleAttrs, RestyleComponent} from "jsx/mithril-component";
 import m from "mithril";
 import defaultStyles from "./fillable_section.scss";
 
-export class FillableSection extends RestyleComponent<typeof defaultStyles> {
+type Styles = typeof defaultStyles;
+
+interface Attrs extends RestyleAttrs<Styles> {
+  hasSubsections?: boolean;
+}
+
+export class FillableSection extends RestyleComponent<Styles, Attrs> {
   css = defaultStyles;
 
-  view(vnode: m.Vnode) {
-    return <article class={this.css.fillable}>
+  view(vnode: m.Vnode<Attrs>) {
+    return <article class={classnames(this.css.fillable, { [this.css.multiSection]: vnode.attrs.hasSubsections })}>
       {vnode.children}
     </article>;
   }

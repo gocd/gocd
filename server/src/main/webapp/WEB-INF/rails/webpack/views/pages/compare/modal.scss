@@ -54,10 +54,8 @@ $hover-background: #c5d9e0;
 }
 
 .pipeline-run {
-  display:        flex;
-  flex-direction: row;
-  cursor:         pointer;
-  padding:        7px 10px;
+  cursor:  pointer;
+  padding: 4px 2px;
 
   &:not(.selected-instance):hover {
     background-color: $hover-background;

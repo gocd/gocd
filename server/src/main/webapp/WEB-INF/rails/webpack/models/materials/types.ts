@@ -438,11 +438,13 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
 export class DependencyMaterialAttributes extends MaterialAttributes {
   pipeline: Stream<string | undefined>;
   stage: Stream<string | undefined>;
+  ignoreForScheduling: Stream<boolean | undefined>;
 
-  constructor(name?: string, autoUpdate?: boolean, pipeline?: string, stage?: string) {
+  constructor(name?: string, autoUpdate?: boolean, pipeline?: string, stage?: string, ignoreForScheduling?:boolean) {
     super(name, autoUpdate);
-    this.pipeline = Stream(pipeline);
-    this.stage    = Stream(stage);
+    this.pipeline            = Stream(pipeline);
+    this.stage               = Stream(stage);
+    this.ignoreForScheduling = Stream(ignoreForScheduling);
 
     this.validatePresenceOf("pipeline");
     this.validatePresenceOf("stage");
@@ -454,6 +456,7 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
       json.auto_update,
       json.pipeline,
       json.stage,
+      json.ignore_for_scheduling
     );
     attrs.errors(new Errors(json.errors));
     return attrs;

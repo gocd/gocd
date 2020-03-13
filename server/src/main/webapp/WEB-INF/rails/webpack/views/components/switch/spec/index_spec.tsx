@@ -75,6 +75,14 @@ describe("SwitchBtn component", () => {
     expect(switchStream()).toBe(false);
   });
 
+  it('should render errors if any', () => {
+    helper.mount(() => <SwitchBtn field={switchStream} label={"This is switch"} small={false}
+                                  errorText={"Some error text"}/>);
+
+    expect(helper.q("#switch-btn-error-text")).toBeInDOM();
+    expect(helper.q("#switch-btn-error-text").textContent).toBe('Some error text');
+  });
+
   function mount(isSmallSwitch?: boolean) {
     helper.mount(() => <SwitchBtn field={switchStream} label={"This is switch"} small={isSmallSwitch}/>);
   }

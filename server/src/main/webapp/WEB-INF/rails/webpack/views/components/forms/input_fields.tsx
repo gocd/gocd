@@ -53,7 +53,7 @@ interface PlaceholderAttr {
   placeholder?: string;
 }
 
-interface DataTestIdAttr {
+export interface DataTestIdAttr {
   dataTestId?: string;
 }
 
@@ -244,7 +244,7 @@ export class HelpText extends RestyleViewComponent<Styles, HelpTextComponentAttr
 
 }
 
-class ErrorText extends RestyleViewComponent<Styles, ErrorTextComponentAttrs & RestyleAttrs<Styles>> {
+export class ErrorText extends RestyleViewComponent<Styles, ErrorTextComponentAttrs & RestyleAttrs<Styles>> {
   css = defaultStyles;
 
   static hasErrorText(attrs: ErrorTextAttr) {

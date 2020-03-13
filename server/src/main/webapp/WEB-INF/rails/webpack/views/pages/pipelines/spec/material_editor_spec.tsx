@@ -68,6 +68,7 @@ describe("AddPipeline: Material Editor", () => {
     helper.onchange("select", "p4");
     expect(material.type()).toBe("p4");
     expect(material.attributes() instanceof P4MaterialAttributes).toBe(true);
+    expect(material.attributes()!.autoUpdate()).toBeTrue();
     expect(helper.byTestId("form-field-label-repository-url")).toBeFalsy();
     expect(helper.byTestId("form-field-label-p4-view")).toBeTruthy();
     expect(helper.byTestId("form-field-label-p4-view").textContent).toBe("P4 View*");
@@ -75,6 +76,7 @@ describe("AddPipeline: Material Editor", () => {
     helper.onchange("select", "git");
     expect(material.type()).toBe("git");
     expect(material.attributes() instanceof GitMaterialAttributes).toBe(true);
+    expect(material.attributes()!.autoUpdate()).toBeTrue();
     expect(helper.byTestId("form-field-label-p4-view")).toBeFalsy();
     expect(helper.byTestId("form-field-label-repository-url")).toBeTruthy();
     expect(helper.byTestId("form-field-label-repository-url").textContent).toBe("Repository URL*");

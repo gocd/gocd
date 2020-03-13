@@ -15,14 +15,7 @@
  */
 
 import m from "mithril";
-import {
-  GitMaterialAttributes,
-  HgMaterialAttributes,
-  Material,
-  P4MaterialAttributes,
-  SvnMaterialAttributes,
-  TfsMaterialAttributes,
-} from "models/materials/types";
+import {GitMaterialAttributes, HgMaterialAttributes, Material, P4MaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes,} from "models/materials/types";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {GitFields, HgFields, P4Fields, SvnFields, TfsFields} from "../scm_material_fields";
 
@@ -43,6 +36,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
     });
+    assertAutoUpdateSwitchPresent();
 
     expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
@@ -59,6 +53,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
     });
+    assertAutoUpdateSwitchPresent();
 
     expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
@@ -75,6 +70,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
     });
+    assertAutoUpdateSwitchPresent();
 
     expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
@@ -92,6 +88,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "alternate-checkout-path":   "Alternate Checkout Path",
       "material-name":             "Material Name",
     });
+    assertAutoUpdateSwitchPresent();
 
     expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
@@ -109,6 +106,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
     });
+    assertAutoUpdateSwitchPresent();
 
     expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
@@ -125,6 +123,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
     });
+    assertAutoUpdateSwitchPresent();
 
     expect(helper.byTestId("test-connection-button")).toBe(null!);
   });
@@ -151,6 +150,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "alternate-checkout-path",
       "material-name",
     );
+    assertAutoUpdateSwitchAbsent();
 
     expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
@@ -173,5 +173,17 @@ describe("AddPipeline: SCM Material Fields", () => {
       expect(helper.byTestId(`form-field-label-${id}`)).toBe(null!);
       expect(helper.byTestId(`form-field-input-${id}`)).toBe(null!);
     }
+  }
+
+  function assertAutoUpdateSwitchPresent() {
+    const helpTextElement = helper.q('#switch-btn-help-text');
+
+    expect(helper.byTestId('auto-update-material')).toBeInDOM();
+    expect(helper.textByTestId('switch-label')).toBe('Poll for new changes');
+    expect(helpTextElement.textContent).toEqual("By default GoCD polls the repository for changes automatically. If set to false, then GoCD will not poll the repository for changes");
+  }
+
+  function assertAutoUpdateSwitchAbsent() {
+    expect(helper.byTestId('auto-update-material')).not.toBeInDOM();
   }
 });

@@ -59,10 +59,7 @@ export class ConfigReposPage extends Page<null, State> {
     vnode.state.unfilteredModels = Stream();
     vnode.state.searchText       = Stream();
     vnode.state.flash            = this.flashMessage;
-    vnode.state.filteredModels   = Stream.combine<ConfigRepoVM[]>(
-      (collection: Stream<ConfigRepoVM[]>) => _.filter(collection(), (vm) => vm.repo.matches(vnode.state.searchText())),
-      [vnode.state.unfilteredModels]
-    );
+    this.updateFilterText(vnode);
     vnode.state.resourceAutocompleteHelper = Stream(new Map());
     vnode.state.flushEtag = () => {
       this.etag = Stream();
@@ -88,6 +85,13 @@ export class ConfigReposPage extends Page<null, State> {
     new AjaxPoller({repeaterFn: this.refreshConfigRepos.bind(this, vnode), initialIntervalSeconds: 10}).start();
   }
 
+  updateFilterText(vnode: m.Vnode<null, State>) {
+    vnode.state.filteredModels   = Stream.combine<ConfigRepoVM[]>(
+      (collection: Stream<ConfigRepoVM[]>) => _.filter(collection(), (vm) => vm.repo.matches(vnode.state.searchText())),
+      [vnode.state.unfilteredModels]
+    );
+  }
+
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     this.parseRepoLink(sm);
 
@@ -109,7 +113,9 @@ export class ConfigReposPage extends Page<null, State> {
   headerPanel(vnode: m.Vnode<null, State>) {
     const headerButtons = [
       <div class={styles.wrapperForSearchBox}>
-        <SearchField property={vnode.state.searchText} dataTestId={"search-box"}
+        <SearchField property={vnode.state.searchText}
+                     onchange={this.updateFilterText.bind(this, vnode)}
+                     dataTestId={"search-box"}
                      placeholder="Search Config Repo"/>
       </div>,
       <Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add</Buttons.Primary>

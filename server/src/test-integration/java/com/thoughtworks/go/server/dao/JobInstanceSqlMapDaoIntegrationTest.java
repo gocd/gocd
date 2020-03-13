@@ -56,6 +56,7 @@ import org.springframework.transaction.support.TransactionCallback;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
@@ -66,6 +67,7 @@ import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -187,22 +189,21 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         List<JobInstance> runningJobs = jobInstanceDao.getRunningJobs();
 
         assertThat(runningJobs.size(), is(2));
-        assertThat(runningJobs.get(0).getName(), is(JOB_NAME));
-        assertThat(runningJobs.get(1).getName(), is(OTHER_JOB_NAME));
+        List<String> jobNames = runningJobs.stream().map(JobInstance::getName).collect(toList());
+        assertThat(jobNames, containsInAnyOrder(JOB_NAME, OTHER_JOB_NAME));
     }
 
     @Test
     public void shouldNotIncludeCompletedJobsAsPartOfRunningJobs() throws Exception {
-        JobInstance completed = JobInstanceMother.completed(JOB_NAME, JobResult.Unknown);
+        JobInstance completed = JobInstanceMother.completed("Completed_Job", JobResult.Unknown);
         completed.setScheduledDate(MOST_RECENT_DATE);
         completed = jobInstanceDao.save(stageId, completed);
 
         List<JobInstance> runningJobs = jobInstanceDao.getRunningJobs();
 
+        List<String> jobNames = runningJobs.stream().map(JobInstance::getName).collect(toList());
         assertThat(runningJobs.size(), is(2));
-        assertThat(runningJobs.get(0).getName(), is(JOB_NAME));
-        assertThat(runningJobs.get(1).getName(), is(OTHER_JOB_NAME));
-
+        assertThat(jobNames, containsInAnyOrder(JOB_NAME, OTHER_JOB_NAME));
         assertThat(runningJobs.contains(completed), is(false));
     }
 

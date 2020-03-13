@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.8.7",
-    "@babel/parser": "^7.8.6",
+    "@babel/parser": "^7.8.8",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-decorators": "^7.8.3",
     "@babel/plugin-proposal-export-namespace-from": "^7.8.3",

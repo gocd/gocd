@@ -19,10 +19,10 @@ import m from "mithril";
 import Stream from "mithril/stream";
 
 import {v4 as uuid4} from "uuid";
-import {HelpText} from "views/components/forms/input_fields";
+import {DataTestIdAttr, ErrorText, HelpText} from "views/components/forms/input_fields";
 import styles from "./index.scss";
 
-export interface Attrs {
+export interface Attrs extends DataTestIdAttr {
   inProgress?: boolean;
   small?: boolean;
   disabled?: boolean;
@@ -43,6 +43,7 @@ export class SwitchBtn extends MithrilViewComponent<Attrs> {
       </label>;
     }
 
+    const dataTestId = vnode.attrs.dataTestId? vnode.attrs.dataTestId: "switch-checkbox";
     return (
       <div>
         <div class={classnames({[styles.switchSmall]: isSmall}, styles.switchBtn)} data-test-id="switch-wrapper">
@@ -59,7 +60,7 @@ export class SwitchBtn extends MithrilViewComponent<Attrs> {
                    vnode.attrs.field(target.checked);
                  }}
                  class={styles.switchInput}
-                 data-test-id="switch-checkbox"/>
+                 data-test-id={dataTestId}/>
           <label for={switchId} class={classnames({
                                                     [styles.inProgress]: vnode.attrs.field() && vnode.attrs.inProgress,
                                                     [styles.isSuccess]: vnode.attrs.field() && !vnode.attrs.inProgress,
@@ -67,6 +68,7 @@ export class SwitchBtn extends MithrilViewComponent<Attrs> {
                                                   }, styles.switchPaddle)} data-test-id="switch-paddle"/>
         </div>
         {[<HelpText {...vnode.attrs} helpTextId={"switch-btn-help-text"}/>]}
+        {[<ErrorText {...vnode.attrs} errorId={`switch-btn-error-text`}/>]}
       </div>);
   }
 }

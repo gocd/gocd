@@ -18,6 +18,7 @@ import m from "mithril";
 import {DependencyMaterialAttributes, Material} from "models/materials/types";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {DependencyFields, SuggestionCache} from "../non_scm_material_fields";
+import {docsUrl} from "gen/gocd_version";
 
 describe("AddPipeline: Non-SCM Material Fields", () => {
   const helper = new TestHelper();
@@ -33,6 +34,7 @@ describe("AddPipeline: Non-SCM Material Fields", () => {
       "upstream-stage":    "Upstream Stage*",
       "material-name":     "Material Name",
     });
+    assertIgnoreForSchedulingSwitchPresent();
   });
 
   it("does not display advanced settings when `showLocalWorkingCopyOptions` === false", () => {
@@ -47,6 +49,7 @@ describe("AddPipeline: Non-SCM Material Fields", () => {
     assertLabelledInputsAbsent(
       "material-name",
     );
+    assertIgnoreForSchedulingSwitchAbsent();
   });
 
   function assertLabelledInputsPresent(idsToLabels: {[key: string]: string}) {
@@ -67,6 +70,19 @@ describe("AddPipeline: Non-SCM Material Fields", () => {
       expect(helper.byTestId(`form-field-label-${id}`)).toBe(null!);
       expect(helper.byTestId(`form-field-input-${id}`)).toBe(null!);
     }
+  }
+
+  function assertIgnoreForSchedulingSwitchPresent() {
+    const helpTextElement = helper.q('#switch-btn-help-text');
+
+    expect(helper.byTestId('material-ignore-for-scheduling')).toBeInDOM();
+    expect(helper.textByTestId('switch-label')).toBe('Do not schedule the pipeline when this material is updated');
+    expect(helpTextElement.textContent!.startsWith("When set to true, the pipeline will not be automatically scheduled for changes to this material.")).toBeTrue();
+    expect(helper.q('a', helpTextElement)).toHaveAttr('href', docsUrl("configuration/configuration_reference.html#pipeline-1"));
+  }
+
+  function assertIgnoreForSchedulingSwitchAbsent() {
+    expect(helper.byTestId('material-ignore-for-scheduling')).not.toBeInDOM();
   }
 });
 

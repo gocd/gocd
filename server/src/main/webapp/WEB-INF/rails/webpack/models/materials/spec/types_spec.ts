@@ -15,15 +15,8 @@
  */
 
 import {Hg} from "models/materials/spec/material_test_data";
-import {
-  GitMaterialAttributes,
-  HgMaterialAttributes,
-  Material,
-  P4MaterialAttributes,
-  ScmMaterialAttributes,
-  SvnMaterialAttributes,
-  TfsMaterialAttributes
-} from "models/materials/types";
+import {DependencyMaterialAttributes, GitMaterialAttributes, HgMaterialAttributes, Material, P4MaterialAttributes, ScmMaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "models/materials/types";
+import {DependencyMaterialAttributesJSON} from "../serialization";
 
 describe("Material Types", () => {
   describe("Deserialize", () => {
@@ -32,6 +25,22 @@ describe("Material Types", () => {
       const hgMaterialAttributes = HgMaterialAttributes.fromJSON(hgJson);
 
       expect(hgMaterialAttributes.branch()).toBe(hgJson.branch);
+    });
+
+    it('should deserialize dependency material', () => {
+      const json = {
+        name:                  "dependencyMaterial",
+        pipeline:              "upstream",
+        stage:                 "stage",
+        ignore_for_scheduling: false
+      } as DependencyMaterialAttributesJSON;
+
+      const materialAttrs = DependencyMaterialAttributes.fromJSON(json);
+
+      expect(materialAttrs.name()).toBe(json.name);
+      expect(materialAttrs.pipeline()).toBe(json.pipeline);
+      expect(materialAttrs.stage()).toBe(json.stage);
+      expect(materialAttrs.ignoreForScheduling()).toBeFalse();
     });
   });
 

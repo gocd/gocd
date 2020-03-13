@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @import "../../global/common";
+@import "../../../views/components/forms/forms";
 
 .advanced-settings {
-  display: block;
-  width: 100%;
+  display:    block;
+  width:      100%;
 
-  margin: 5px 0 0;
-  padding: 15px 0 5px;
+  margin:     5px 0 0;
+  padding:    15px 0 5px;
   border-top: 1px solid $line-color;
 
   .summary {
     @include icon-before($type: $fa-var-chevron-right, $color: $text-color, $size: 16px, $line-height: 25px, $margin: 0 5px);
 
     line-height: 25px;
-    cursor: pointer;
-    outline: none;
+    cursor:      pointer;
+    outline:     none;
     font-weight: 600;
   }
 
   .details {
-    margin: 0;
+    margin:  0;
     padding: 0;
     display: none;
   }
@@ -48,7 +48,9 @@
       }
     }
 
-    .details { display: block; }
+    .details {
+      display: block;
+    }
   }
 
   &.lock-open .summary {
@@ -58,4 +60,8 @@
       color: lighten($text-color, 50%);
     }
   }
+}
+
+.form-error-text{
+  color: $form-failed-color;
 }

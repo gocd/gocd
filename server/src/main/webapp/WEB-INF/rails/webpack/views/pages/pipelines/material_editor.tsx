@@ -85,27 +85,27 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     switch (material.type()) {
       case "git":
         if (!(material.attributes() instanceof GitMaterialAttributes)) {
-          material.attributes(new GitMaterialAttributes());
+          material.attributes(new GitMaterialAttributes("", true));
         }
         return <GitFields material={material} hideTestConnection={hideTestConnection} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "hg":
         if (!(material.attributes() instanceof HgMaterialAttributes)) {
-          material.attributes(new HgMaterialAttributes());
+          material.attributes(new HgMaterialAttributes("", true));
         }
         return <HgFields material={material} hideTestConnection={hideTestConnection} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "svn":
         if (!(material.attributes() instanceof SvnMaterialAttributes)) {
-          material.attributes(new SvnMaterialAttributes());
+          material.attributes(new SvnMaterialAttributes("", true));
         }
         return <SvnFields material={material} hideTestConnection={hideTestConnection} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "p4":
         if (!(material.attributes() instanceof P4MaterialAttributes)) {
-          material.attributes(new P4MaterialAttributes());
+          material.attributes(new P4MaterialAttributes("", true));
         }
         return <P4Fields material={material} hideTestConnection={hideTestConnection} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "tfs":
         if (!(material.attributes() instanceof TfsMaterialAttributes)) {
-          material.attributes(new TfsMaterialAttributes());
+          material.attributes(new TfsMaterialAttributes("", true));
         }
         return <TfsFields material={material} hideTestConnection={hideTestConnection} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "dependency":

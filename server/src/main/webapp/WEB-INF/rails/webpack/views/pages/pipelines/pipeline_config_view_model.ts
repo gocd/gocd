@@ -41,7 +41,7 @@ const VANITY_PLUGIN_NAMES: {[key: string]: string} = {
 };
 
 export class PipelineConfigVM {
-  material: Material = new Material("git", new GitMaterialAttributes());
+  material: Material = new Material("git", new GitMaterialAttributes("", true));
   job: Job = new Job("", []);
   stage: Stage = new Stage("", [this.job]);
   pipeline: PipelineConfig = new PipelineConfig("", [this.material], []);

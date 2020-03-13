@@ -22,8 +22,10 @@ import {DependencyMaterialAutocomplete, PipelineNameCache} from "models/material
 import {DependencyMaterialAttributes, Material, MaterialAttributes} from "models/materials/types";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {SwitchBtn} from "views/components/switch";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
+import styles from "./advanced_settings.scss";
 
 interface Attrs {
   material: Material;
@@ -113,6 +115,15 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
     if (showLocalWorkingCopyOptions) {
       return <AdvancedSettings forceOpen={mat.errors().hasErrors("name")}>
         <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="A human-friendly label for this material" property={mat.name}/>
+
+        <SwitchBtn label="Do not schedule the pipeline when this material is updated"
+                   helpText="When set to true, the pipeline will not be automatically scheduled for changes to this material."
+                   docLink={"/configuration/configuration_reference.html#pipeline-1"}
+                   dataTestId="material-ignore-for-scheduling"
+                   small={true}
+                   css={styles}
+                   field={mat.ignoreForScheduling}
+                   errorText={this.errs(mat, "ignoreForScheduling")}/>
       </AdvancedSettings>;
     }
   }

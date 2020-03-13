@@ -54,7 +54,7 @@ describe("StageSettingsTab", () => {
 
     expect(stage.approval().typeAsString()).toEqual("manual");
 
-    helper.clickByTestId("switch-checkbox");
+    helper.clickByTestId("approval-checkbox");
 
     expect(stage.approval().typeAsString()).toEqual("success");
   });
@@ -64,7 +64,7 @@ describe("StageSettingsTab", () => {
     mount(stage);
     expect(stage.approval().allowOnlyOnSuccess()).toBeFalse();
 
-    helper.click(helper.allByTestId("switch-checkbox")[1]);
+    helper.clickByTestId("allow-only-on-success-checkbox");
 
     expect(stage.approval().allowOnlyOnSuccess()).toBeTrue();
   });
@@ -75,7 +75,7 @@ describe("StageSettingsTab", () => {
 
     expect(stage.fetchMaterials()).toBeFalsy();
 
-    helper.click(helper.allByTestId("switch-checkbox")[2]);
+    helper.clickByTestId("fetch-materials-checkbox");
 
     expect(stage.fetchMaterials()).toBeTrue();
   });
@@ -86,7 +86,7 @@ describe("StageSettingsTab", () => {
 
     expect(stage.neverCleanupArtifacts()).toBeFalsy();
 
-    helper.click(helper.allByTestId("switch-checkbox")[3]);
+    helper.clickByTestId("never-cleanup-artifacts-checkbox");
 
     expect(stage.neverCleanupArtifacts()).toBeTrue();
   });
@@ -97,7 +97,7 @@ describe("StageSettingsTab", () => {
 
     expect(stage.cleanWorkingDirectory()).toBeFalsy();
 
-    helper.click(helper.allByTestId("switch-checkbox")[4]);
+    helper.clickByTestId("clean-working-directory-checkbox");
 
     expect(stage.cleanWorkingDirectory()).toBeTrue();
   });

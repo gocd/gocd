@@ -68,6 +68,7 @@ export interface TfsMaterialAttributesJSON extends ScmAttributesJSON {
 export interface DependencyMaterialAttributesJSON extends BaseAttributesJSON {
   pipeline: string;
   stage: string;
+  ignore_for_scheduling: boolean;
 }
 
 export interface PackageMaterialAttributesJSON extends BaseAttributesJSON {

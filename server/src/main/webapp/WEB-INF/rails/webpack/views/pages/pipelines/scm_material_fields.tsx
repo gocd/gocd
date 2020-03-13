@@ -16,22 +16,15 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {
-  GitMaterialAttributes,
-  HgMaterialAttributes,
-  Material,
-  MaterialAttributes,
-  P4MaterialAttributes,
-  ScmMaterialAttributes,
-  SvnMaterialAttributes,
-  TfsMaterialAttributes
-} from "models/materials/types";
+import {GitMaterialAttributes, HgMaterialAttributes, Material, MaterialAttributes, P4MaterialAttributes, ScmMaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "models/materials/types";
 import {CheckboxField, FormField, PasswordField, TextField} from "views/components/forms/input_fields";
 import {TestConnection} from "views/components/materials/test_connection";
-import {TooltipSize} from "views/components/tooltip";
+import {SwitchBtn} from "views/components/switch";
 import * as Tooltip from "views/components/tooltip";
+import {TooltipSize} from "views/components/tooltip";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import {DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
+import styles from "./advanced_settings.scss";
 
 interface Attrs {
   material: Material;
@@ -86,22 +79,40 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
     let settings = this.extraFields(mattrs);
 
     if (showLocalWorkingCopyOptions) {
-      settings = settings.concat([
-        <TextField label={[
-          "Alternate Checkout Path",
-          " ",
-          <Tooltip.Help size={TooltipSize.medium} content={DESTINATION_DIR_HELP_MESSAGE}/>
-        ]} property={mattrs.destination} errorText={this.errs(mattrs, "destination")}/>,
-        <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="A human-friendly label for this material" property={mattrs.name} errorText={this.errs(mattrs, "name")}/>
-      ]);
+      const labelForDestination = [
+        "Alternate Checkout Path",
+        " ",
+        <Tooltip.Help size={TooltipSize.medium} content={DESTINATION_DIR_HELP_MESSAGE}/>
+      ];
+      const commonSettings      = [
+        <TextField label={labelForDestination} property={mattrs.destination}
+                   errorText={this.errs(mattrs, "destination")}/>,
+
+        <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE}
+                   placeholder="A human-friendly label for this material" property={mattrs.name}
+                   errorText={this.errs(mattrs, "name")}/>,
+
+        <SwitchBtn label="Poll for new changes"
+                   helpText="By default GoCD polls the repository for changes automatically. If set to false, then GoCD will not poll the repository for changes"
+                   dataTestId="auto-update-material"
+                   small={true}
+                   css={styles}
+                   field={mattrs.autoUpdate}
+                   errorText={this.errs(mattrs, "autoUpdate")}/>
+      ];
+      settings                  = settings.concat(commonSettings);
     }
 
-    return <AdvancedSettings forceOpen={mattrs.errors().hasErrors("name") || mattrs.errors().hasErrors("destination")}>
+    const shouldForceOpen = mattrs.errors().hasErrors("name") ||
+                            mattrs.errors().hasErrors("destination") ||
+                            mattrs.errors().hasErrors("autoUpdate");
+    return <AdvancedSettings forceOpen={shouldForceOpen}>
       {settings}
     </AdvancedSettings>;
   }
 
   abstract requiredFields(attrs: MaterialAttributes): m.ChildArray;
+
   abstract extraFields(attrs: MaterialAttributes): m.ChildArray;
 }
 

@@ -18,7 +18,7 @@ import classnames from "classnames";
 import {ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {PipelineHistory, PipelineInstance} from "models/compare/pipeline_instance";
+import {PipelineHistory, PipelineInstance, Stages} from "models/compare/pipeline_instance";
 import {PipelineInstanceCRUD} from "models/compare/pipeline_instance_crud";
 import {stringOrUndefined} from "models/compare/pipeline_instance_json";
 import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
@@ -76,6 +76,7 @@ export class TimelineModal extends Modal {
         this.fetchHistory(this.history().nextLink);
       }
     };
+    const maxLength       = Math.max(...this.history().pipelineInstances.map((instance: PipelineInstance) => instance.counter().toString().length));
 
     return <div data-test-id="timeline-modal-body" class={styles.timelineModalContainer}>
       <div data-test-id="left-pane" class={styles.leftPanel}>
@@ -85,7 +86,9 @@ export class TimelineModal extends Modal {
             return <div data-test-id={InstanceSelectionWidget.dataTestId("instance", instance.counter())}
                         class={classnames(styles.pipelineRun, className)}
                         onclick={updateSelectedInstance.bind(this, instance)}>
-              <StagesWidget pipelineCounter={instance.counter()} stages={instance.stages()}/>
+              <span class={this.getPipelineInstanceClassName(maxLength)}
+                    data-test-id="instance-counter">{instance.counter()}</span>
+              {this.getStages(instance.stages())}
             </div>;
           })}
         </div>
@@ -121,6 +124,34 @@ export class TimelineModal extends Modal {
 
   title(): string {
     return "Select a pipeline to compare";
+  }
+
+  private getPipelineInstanceClassName(maxLength: number) {
+    switch (maxLength) {
+      case 1:
+      case 2:
+        return styles.xSmall;
+      case 3:
+        return styles.small;
+      case 4:
+      case 5:
+        return styles.medium;
+      case 6:
+      case 7:
+        return styles.large;
+      default:
+        return styles.xLarge;
+    }
+  }
+
+  private getStages(stages: Stages) {
+    return <div class={styles.stagesContainer}>
+      {stages.map((stage) => {
+        const title = `${stage.name()} (${stage.status()})`;
+        return <div title={title}
+                    className={classnames(styles.stage, StagesWidget.stageStatusClass(stage.status()))}/>
+      })}
+    </div>
   }
 
   private fetchHistory(link?: string) {

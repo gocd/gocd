@@ -54,11 +54,39 @@ $hover-background: #c5d9e0;
 }
 
 .pipeline-run {
-  cursor:  pointer;
-  padding: 4px 2px;
+  display:        flex;
+  flex-direction: row;
+  cursor:         pointer;
+  padding:        4px 2px;
 
   &:not(.selected-instance):hover {
     background-color: $hover-background;
+  }
+
+  span {
+    margin:     5px;
+    text-align: end;
+    flex:       none;
+
+    &.x-small {
+      width: 8%;
+    }
+
+    &.small {
+      width: 12%;
+    }
+
+    &.medium {
+      width: 18%;
+    }
+
+    &.large {
+      width: 27%;
+    }
+
+    &.x-large {
+      width: 30%;
+    }
   }
 }
 
@@ -106,5 +134,28 @@ $hover-background: #c5d9e0;
     color:           $go-disabled;
     cursor:          not-allowed;
     text-decoration: none;
+  }
+}
+
+.stages-container {
+  display:        flex;
+  flex-direction: row;
+  align-items:    center;
+  flex-wrap:      wrap;
+}
+
+.stage {
+  width:       25px;
+  height:      12px;
+  margin:      2px;
+  text-align:  center;
+  color:       $white;
+  border:      1px solid $border-color;
+  font-size:   8px;
+  white-space: nowrap;
+  overflow:    hidden;
+
+  &:before {
+    position: relative;
   }
 }

@@ -24,40 +24,12 @@ const classnames = bind(styles);
 
 interface Attrs {
   stages: Stages;
-  pipelineCounter?: number;
   onClick?: (stage: Stage) => void;
 }
 
 export class StagesWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>): m.Children {
-    const stages = vnode.attrs.stages.map((stage) => {
-      const title = `${stage.name()} (${stage.status()})`;
-      if (vnode.attrs.onClick) {
-        const onclick = (e: MouseEvent) => {
-          e.stopPropagation();
-          vnode.attrs.onClick!(stage);
-        };
-        return <td title={title} className={styles.clickable}
-                   onclick={onclick}>
-          <div className={classnames(styles.stage, StagesWidget.stageStatusClass(stage.status()))}/>
-        </td>;
-      }
-      return <td title={title}>
-        <div class={classnames(styles.stage, StagesWidget.stageStatusClass(stage.status()))}/>
-      </td>;
-    });
-    if (vnode.attrs.pipelineCounter) {
-      const counter = <td data-test-id="instance-counter"
-                          className={styles.pipelineInstanceCounter}>{vnode.attrs.pipelineCounter}</td>;
-      stages.splice(0, 0, counter);
-    }
 
-    return <table data-test-id="stages" class={styles.stagesContainer}>
-      <tr>{stages}</tr>
-    </table>;
-  }
-
-  private static stageStatusClass(status: string) {
+  static stageStatusClass(status: string) {
     if (!status) {
       return styles.unknown;
     }
@@ -76,5 +48,28 @@ export class StagesWidget extends MithrilViewComponent<Attrs> {
       default:
         return styles.unknown;
     }
+  }
+
+  view(vnode: m.Vnode<Attrs>): m.Children {
+    const stages = vnode.attrs.stages.map((stage) => {
+      const title = `${stage.name()} (${stage.status()})`;
+      if (vnode.attrs.onClick) {
+        const onclick = (e: MouseEvent) => {
+          e.stopPropagation();
+          vnode.attrs.onClick!(stage);
+        };
+        return <td title={title} className={styles.clickable}
+                   onclick={onclick}>
+          <div className={classnames(styles.stage, StagesWidget.stageStatusClass(stage.status()))}/>
+        </td>;
+      }
+      return <td title={title}>
+        <div class={classnames(styles.stage, StagesWidget.stageStatusClass(stage.status()))}/>
+      </td>;
+    });
+
+    return <table data-test-id="stages" class={styles.stagesContainer}>
+      <tr>{stages}</tr>
+    </table>;
   }
 }

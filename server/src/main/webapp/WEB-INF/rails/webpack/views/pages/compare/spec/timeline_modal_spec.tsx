@@ -81,10 +81,10 @@ describe('TimelineModalSpec', () => {
     mount();
     expect(helper.byTestId("timeline-modal-body")).toBeInDOM();
 
-    expect(helper.byTestId("instance-counter", helper.byTestId("instance-2")).textContent).toBe("2");
+    expect(helper.qa("div[data-test-id^='instance-']", helper.byTestId("left-pane")).length).toBe(1); //pipeline histories
+    expect(helper.qa("div[class*='modal__stage__']", helper.byTestId("instance-2")).length).toBe(1); //stages in that
 
-    expect(helper.qa("tr", helper.byTestId("left-pane")).length).toBe(1); //pipeline histories
-    expect(helper.qa("td", helper.byTestId("instance-2")).length).toBe(2); //stages plus counter in that
+    expect(helper.byTestId("instance-counter", helper.byTestId("instance-2")).textContent).toBe("2");
   });
 
   it('should have enabled next and previous buttons if both links are available', () => {
@@ -123,6 +123,27 @@ describe('TimelineModalSpec', () => {
     helper.clickByTestId("button-select-instance");
 
     expect(onInstanceSelectionSpy).toHaveBeenCalledWith(2);
+  });
+
+  const parameters = [
+    {counter: 1, class: styles.xSmall},
+    {counter: 12, class: styles.xSmall},
+    {counter: 123, class: styles.small},
+    {counter: 1234, class: styles.medium},
+    {counter: 12345, class: styles.medium},
+    {counter: 123456, class: styles.large},
+    {counter: 1234567, class: styles.large},
+    {counter: 12345678, class: styles.xLarge},
+    {counter: 12345679, class: styles.xLarge},
+  ];
+
+  it('should set class based on pipeline instance length', () => {
+    mount();
+    parameters.forEach((parameter) => {
+      pipelineHistory.pipelineInstances[0].counter(parameter.counter);
+      helper.redraw();
+      expect(helper.byTestId('instance-counter')).toHaveClass(parameter.class);
+    });
   });
 });
 

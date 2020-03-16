@@ -25,8 +25,8 @@ describe('StagesWidgetSpec', () => {
 
   afterEach((done) => helper.unmount(done));
 
-  function mount(stages: Stages, onClick?: (stage: Stage) => void, pipelineCounter?:number) {
-    helper.mount(() => <StagesWidget stages={stages} onClick={onClick} pipelineCounter={pipelineCounter}/>);
+  function mount(stages: Stages, onClick?: (stage: Stage) => void) {
+    helper.mount(() => <StagesWidget stages={stages} onClick={onClick} />);
   }
 
   const parameters = [
@@ -86,22 +86,5 @@ describe('StagesWidgetSpec', () => {
     helper.click(stageCols);
 
     expect(spy).toHaveBeenCalledWith(stage);
-  });
-
-  it('should render pipeline counter if present', () => {
-    const stages = new Stages();
-    const jobs   = new Jobs();
-
-    const stage = new Stage(1, "stage", "1", false, "Passed", "passed", "", "", false, false, jobs);
-    stages.push(stage);
-    const spy = jasmine.createSpy("onClick");
-
-    mount(stages, spy, 4567);
-
-    const stageElement = helper.byTestId("stages");
-    const stageCols    = helper.qa("td", stageElement);
-
-    expect(stageCols).toHaveLength(2);
-    expect(stageCols[0].textContent).toBe("4567");
   });
 });

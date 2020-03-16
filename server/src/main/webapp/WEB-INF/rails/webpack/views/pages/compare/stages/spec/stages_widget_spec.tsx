@@ -104,4 +104,21 @@ describe('StagesWidgetSpec', () => {
     expect(stageCols).toHaveLength(2);
     expect(stageCols[0].textContent).toBe("4567");
   });
+
+  it('should render pipeline counter with ellipsis if longer than 5 digits', () => {
+    const stages = new Stages();
+    const jobs   = new Jobs();
+
+    const stage = new Stage(1, "stage", "1", false, "Passed", "passed", "", "", false, false, jobs);
+    stages.push(stage);
+    const spy = jasmine.createSpy("onClick");
+
+    mount(stages, spy, 456789);
+
+    const stageElement = helper.byTestId("stages");
+    const stageCols    = helper.qa("td", stageElement);
+
+    expect(stageCols).toHaveLength(2);
+    expect(stageCols[0].textContent).toBe("45678..");
+  });
 });

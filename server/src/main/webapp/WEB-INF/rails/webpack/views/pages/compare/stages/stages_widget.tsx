@@ -47,8 +47,12 @@ export class StagesWidget extends MithrilViewComponent<Attrs> {
       </td>;
     });
     if (vnode.attrs.pipelineCounter) {
-      const counter = <td data-test-id="instance-counter"
-                          className={styles.pipelineInstanceCounter}>{vnode.attrs.pipelineCounter}</td>;
+      const pipelineCounter = vnode.attrs.pipelineCounter.toString().length > 5
+        ? vnode.attrs.pipelineCounter.toString().substr(0, 5) + ".."
+        : vnode.attrs.pipelineCounter;
+      const counter         = <td data-test-id="instance-counter" className={styles.pipelineInstanceCounter}>
+        {pipelineCounter}
+      </td>;
       stages.splice(0, 0, counter);
     }
 

@@ -114,7 +114,7 @@ export class ConfigReposPage extends Page<null, State> {
     const headerButtons = [
       <div class={styles.wrapperForSearchBox}>
         <SearchField property={vnode.state.searchText}
-                     onchange={this.updateFilterText.bind(this, vnode)}
+                     oninput={this.updateFilterText.bind(this, vnode)}
                      dataTestId={"search-box"}
                      placeholder="Search Config Repo"/>
       </div>,

@@ -48,8 +48,8 @@
     },
     {
       "key": "show_old_comparison_spa",
-      "description": "Switch to the old comparison SPA. Default is false.",
-      "value": false
+      "description": "Switch to the old comparison SPA. Default is true.",
+      "value": true
     },
     {
       "key": "new_pipeline_config_spa",

@@ -195,6 +195,22 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     @Test
+    public void shouldCreatePipelineConfigWhenCaseInsensitivePipelineGroupIsSpecified() {
+        GoConfigHolder goConfigHolderBeforeUpdate = goConfigDao.loadConfigHolder();
+        pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
+        pipelineConfigService.createPipelineConfig(user, pipelineConfig, result, groupName.toUpperCase());
+
+        assertThat(result.toString(), result.isSuccessful(), is(true));
+        assertThat(goConfigDao.loadConfigHolder(), is(not(goConfigHolderBeforeUpdate)));
+        PipelineConfig savedPipelineConfig = goConfigDao.loadForEditing().getPipelineConfigByName(pipelineConfig.name());
+        assertThat(savedPipelineConfig, is(pipelineConfig));
+
+        CruiseConfig configForEdit = goConfigDao.loadConfigHolder().configForEdit;
+
+        assertThat(configForEdit.findGroup(groupName), is(configForEdit.findGroup(groupName.toUpperCase())));
+    }
+
+    @Test
     public void shouldUpdatePipelineConfigWhenDependencyMaterialHasTemplateDefined() throws Exception {
         CaseInsensitiveString templateName = new CaseInsensitiveString("template_with_param");
         saveTemplateWithParamToConfig(templateName);
@@ -563,7 +579,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.toString(), result.httpCode(), is(403));
-        assertThat(result.toString(), result.message().equals("User 'unauthorized_user' does not have permission to edit pipeline with name '"+pipelineConfig.name()+"'"), is(true));
+        assertThat(result.toString(), result.message().equals("User 'unauthorized_user' does not have permission to edit pipeline with name '" + pipelineConfig.name() + "'"), is(true));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
         assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolderBeforeUpdate.configForEdit));
         assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolderBeforeUpdate.config));

@@ -190,7 +190,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     private boolean isSameGroup(String groupName) {
-        return StringUtils.equals(groupName, this.getGroup());
+        return StringUtils.equalsIgnoreCase(groupName, this.getGroup());
     }
 
     @Override

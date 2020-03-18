@@ -25,7 +25,8 @@ import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipe
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 
 export class ProjectManagementTabContent extends TabContent<PipelineConfig> {
-  name() {
+  static tabName(): string {
+
     return "Project Management";
   }
 

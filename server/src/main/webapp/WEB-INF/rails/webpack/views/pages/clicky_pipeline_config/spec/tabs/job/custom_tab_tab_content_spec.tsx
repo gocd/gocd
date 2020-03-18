@@ -145,7 +145,6 @@ describe("Custom Tab Tab Content", () => {
     helper.mount(() => new CustomTabTabContent().content(pipelineConfig,
                                                          templateConfig,
                                                          routeParams,
-                                                         true,
                                                          Stream<OperationState>(OperationState.UNKNOWN)));
   }
 });

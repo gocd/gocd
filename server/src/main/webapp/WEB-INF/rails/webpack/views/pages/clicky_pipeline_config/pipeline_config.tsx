@@ -26,6 +26,19 @@ import {Primary, Reset} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Spinner} from "views/components/spinner";
 import {Tabs} from "views/components/tab";
+import {EnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/common/environment_variables_tab_content";
+import {ArtifactsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/artifacts_tab_content";
+import {CustomTabTabContent} from "views/pages/clicky_pipeline_config/tabs/job/custom_tab_tab_content";
+import {JobSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/job_settings_tab_content";
+import {TasksTabContent} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
+import {GeneralOptionsTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/general_options_tab";
+import {MaterialsTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/materials_tab_content";
+import {ParametersTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/parameters_tab_content";
+import {ProjectManagementTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/project_management_tab_content";
+import {StagesTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/stages_tab_content";
+import {JobsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/jobs_tab_content";
+import {PermissionsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/permissions_tab_content";
+import {StageSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/stage_settings_tab_content";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {NavigationWidget} from "views/pages/clicky_pipeline_config/widgets/navigation_widget";
 import {StepsWidget} from "views/pages/clicky_pipeline_config/widgets/steps_widget";
@@ -52,21 +65,26 @@ export interface PipelineConfigRouteParams {
   tab_name: string;
 }
 
+type TabLevel = "pipeline" | "stage" | "job";
+
 export class PipelineConfigPage<T> extends Page<null, T> {
   private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
   private etag: Stream<string> = Stream();
   private templateConfig?: TemplateConfig;
   private pipelineConfig?: PipelineConfig;
   private originalJSON: any;
-  private readonly tabs        = [] as Array<TabContent<SupportedTypes>>;
 
-  constructor(...tabs: Array<TabContent<SupportedTypes>>) {
+  private tabFor: Stream<TabLevel> = Stream();
+
+  private readonly tab: Stream<TabContent<SupportedTypes>>             = Stream();
+  private readonly cachedTabs: Map<string, TabContent<SupportedTypes>> = new Map();
+
+  constructor() {
     super();
-    this.tabs = tabs;
   }
 
   oninit(vnode: m.Vnode<null, T>) {
-    this.validateRoute();
+    this.initializeTab();
     super.oninit(vnode);
     window.addEventListener("beforeunload", (e) => {
       if (this.isPipelineConfigChanged()) {
@@ -76,6 +94,10 @@ export class PipelineConfigPage<T> extends Page<null, T> {
       }
       return true;
     });
+  }
+
+  onbeforeupdate(vnode: m.Vnode<null, T>, old: m.VnodeDOM<null, T>): boolean | void {
+    this.initializeTab();
   }
 
   save() {
@@ -127,29 +149,32 @@ export class PipelineConfigPage<T> extends Page<null, T> {
       return <Spinner/>;
     }
 
-    return (
-      <div>
+    return [
+      <div key={m.route.param().tab_name}>
         <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/>
-        <div class={styles.mainContainer}>
-          <div class={styles.navigation}>
+        <div className={styles.mainContainer}>
+          <div className={styles.navigation}>
             <NavigationWidget pipelineConfig={this.pipelineConfig!}
                               routeInfo={PipelineConfigPage.routeInfo()}
                               changeRoute={this.changeRoute.bind(this)}/>
           </div>
 
-          <div class={styles.entityConfigContainer}>
+          <div className={styles.entityConfigContainer}>
             <StepsWidget routeInfo={PipelineConfigPage.routeInfo()}/>
-            <Tabs initialSelection={this.selectedTabIndex()}
-                  tabs={this.tabs.map((eachTab: TabContent<SupportedTypes>) => eachTab.name())}
-                  contents={this.tabs.map((eachTab: TabContent<SupportedTypes>) => {
-                    return eachTab.content(this.pipelineConfig!,
-                                           this.templateConfig!,
-                                           PipelineConfigPage.routeInfo().params,
-                                           PipelineConfigPage.isSelectedTab(eachTab),
-                                           this.ajaxOperationMonitor);
-                  })}
+            <Tabs tabs={Array.from(this.currentSelectionTabs().keys()).map((name) => name.replace("_", " "))}
+                  initialSelection={this.getIndexOfCurrentSelection()}
+                  contents={
+                    Array.from(this.currentSelectionTabs().keys()).map((k) => {
+                      if (m.route.param().tab_name === k) {
+                        return this.tab().content(this.pipelineConfig!,
+                                                  this.templateConfig!,
+                                                  PipelineConfigPage.routeInfo().params,
+                                                  this.ajaxOperationMonitor);
+                      }
+                    })
+                  }
                   beforeChange={this.onTabChange.bind(this, vnode)}/>
-            <div class={styles.buttonContainer}>
+            <div className={styles.buttonContainer}>
               <Reset data-test-id={"cancel"}
                      ajaxOperationMonitor={this.ajaxOperationMonitor}
                      onclick={this.reset.bind(this)}>
@@ -164,7 +189,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
           </div>
         </div>
       </div>
-    );
+    ];
   }
 
   pageName(): string {
@@ -182,10 +207,6 @@ export class PipelineConfigPage<T> extends Page<null, T> {
     return super.getMeta() as PageMeta;
   }
 
-  private static isSelectedTab(eachTab: TabContent<SupportedTypes>) {
-    return _.snakeCase(eachTab.name()) === m.route.param().tab_name;
-  }
-
   private static routeInfo(): RouteInfo<PipelineConfigRouteParams> {
     return {route: m.route.get(), params: m.route.param()};
   }
@@ -193,23 +214,27 @@ export class PipelineConfigPage<T> extends Page<null, T> {
   private static routeForTabName(route: string, tabName: string): string {
     const parts = route.split("/");
     parts.pop();
-    parts.push(_.snakeCase(tabName));
+    parts.push(getTabName(tabName));
     return parts.join("/");
   }
 
+  private currentSelectionTabs() {
+    return this.getAllTabsInformation().get(this.tabFor())!;
+  }
+
+  private getIndexOfCurrentSelection(): number {
+    return Array.from(this.currentSelectionTabs().keys()).indexOf(m.route.param().tab_name);
+  }
+
   private onTabChange(vnode: m.Vnode<null, T>, index: number, callback: () => void) {
-    const route = PipelineConfigPage.routeForTabName(PipelineConfigPage.routeInfo().route, this.tabs[index].name());
+    const tab   = Array.from(this.currentSelectionTabs().keys())[index];
+    const route = PipelineConfigPage.routeForTabName(PipelineConfigPage.routeInfo().route, tab);
+
     this.changeRoute(route, () => {
       callback();
       if (m.route.get() !== route) {
         m.route.set(route);
       }
-    });
-  }
-
-  private selectedTabIndex() {
-    return this.tabs.findIndex((eachTab) => {
-      return PipelineConfigPage.isSelectedTab(eachTab);
     });
   }
 
@@ -242,11 +267,64 @@ export class PipelineConfigPage<T> extends Page<null, T> {
     }
   }
 
-  private validateRoute() {
-    const routeInfo      = PipelineConfigPage.routeInfo();
-    const invalidTabName = !this.tabs.find((tab) => tab.name() === routeInfo.params.tab_name);
-    if (invalidTabName) {
-      m.route.set(PipelineConfigPage.routeForTabName(routeInfo.route, this.tabs[0].name()));
+  private initializeTab() {
+    const routeInfo = PipelineConfigPage.routeInfo();
+    const tabList   = this.getAllTabsInformation();
+
+    const tabName = routeInfo.params.tab_name;
+    let tab       = this.cachedTabs.get(tabName);
+
+    if (tab) {
+      return this.tab(tab);
     }
+
+    const tabFor: TabLevel = _.includes(Array.from(tabList.get("pipeline")!.keys()), tabName) ? "pipeline"
+      : _.includes(Array.from(tabList.get("stage")!.keys()), tabName) ? "stage" : "job";
+
+    tab = new (tabList.get(tabFor)!.get(tabName)!)();
+    this.tabFor(tabFor);
+    this.cachedTabs.set(tabName, tab);
+    this.tab(tab);
   }
+
+  private getAllTabsInformation() {
+    const pipelineTabList: Map<string, new() => TabContent<SupportedTypes>> = new Map();
+    const stageTabList: Map<string, new() => TabContent<SupportedTypes>>    = new Map();
+    const jobTabList: Map<string, new() => TabContent<SupportedTypes>>      = new Map();
+
+    [
+      GeneralOptionsTabContent,
+      ProjectManagementTabContent,
+      MaterialsTabContent,
+      StagesTabContent,
+      EnvironmentVariablesTabContent,
+      ParametersTabContent
+    ].forEach(t => pipelineTabList.set(_.snakeCase(t.tabName()), t));
+
+    [
+      StageSettingsTabContent,
+      JobsTabContent,
+      EnvironmentVariablesTabContent,
+      PermissionsTabContent
+    ].forEach(t => stageTabList.set(_.snakeCase(t.tabName()), t));
+
+    [
+      JobSettingsTabContent,
+      TasksTabContent,
+      ArtifactsTabContent,
+      EnvironmentVariablesTabContent,
+      CustomTabTabContent
+    ].forEach(t => jobTabList.set(_.snakeCase(t.tabName()), t));
+
+    const tabList: Map<string, Map<string, new() => TabContent<SupportedTypes>>> = new Map();
+    tabList.set("pipeline" as TabLevel, pipelineTabList);
+    tabList.set("stage" as TabLevel, stageTabList);
+    tabList.set("job" as TabLevel, jobTabList);
+
+    return tabList;
+  }
+}
+
+function getTabName(name: string) {
+  return _.snakeCase(name);
 }

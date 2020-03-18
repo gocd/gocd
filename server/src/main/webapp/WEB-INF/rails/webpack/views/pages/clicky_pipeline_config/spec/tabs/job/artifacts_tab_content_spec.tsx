@@ -279,7 +279,6 @@ describe("Artifacts Tab", () => {
     helper.mount(() => tab.content(pipelineConfig,
                                    templateConfig,
                                    routeParams,
-                                   true,
                                    Stream<OperationState>(OperationState.UNKNOWN)));
   }
 });

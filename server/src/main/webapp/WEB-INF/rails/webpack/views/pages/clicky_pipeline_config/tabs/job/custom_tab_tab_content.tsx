@@ -32,7 +32,7 @@ import styles from "./custom_tabs.scss";
 
 export class CustomTabTabContent extends TabContent<Job> {
 
-  name(): string {
+  static tabName(): string {
     return "Custom Tabs";
   }
 

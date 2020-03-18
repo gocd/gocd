@@ -110,7 +110,6 @@ describe("MaterialsTabContent", () => {
     helper.mount(() => materialTab.content(pipelineConfig,
                                            templateConfig,
                                            routeParams,
-                                           true,
                                            Stream<OperationState>(OperationState.UNKNOWN)));
   }
 });

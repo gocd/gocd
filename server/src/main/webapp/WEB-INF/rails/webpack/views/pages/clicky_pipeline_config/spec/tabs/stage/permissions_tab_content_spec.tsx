@@ -251,6 +251,6 @@ describe("Permissions Tab Content", () => {
     pipelineConfig.stages().add(stage);
     const routeParams    = {stage_name: stage.name()} as PipelineConfigRouteParams;
     const templateConfig = new TemplateConfig("foo", []);
-    helper.mount(() => new PermissionsTabContent().content(pipelineConfig, templateConfig, routeParams, true, Stream<OperationState>(OperationState.UNKNOWN)));
+    helper.mount(() => new PermissionsTabContent().content(pipelineConfig, templateConfig, routeParams, Stream<OperationState>(OperationState.UNKNOWN)));
   }
 });

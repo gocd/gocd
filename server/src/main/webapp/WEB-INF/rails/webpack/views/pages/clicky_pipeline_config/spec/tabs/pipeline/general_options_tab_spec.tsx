@@ -133,7 +133,6 @@ describe("GeneralOptionsTag", () => {
     helper.mount(() => new GeneralOptionsTabContent().content(pipelineConfig,
                                                               templateConfig,
                                                               routeParams,
-                                                              true,
                                                               Stream<OperationState>(OperationState.UNKNOWN)));
   }
 });

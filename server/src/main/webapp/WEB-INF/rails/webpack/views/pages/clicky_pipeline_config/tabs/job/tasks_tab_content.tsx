@@ -183,20 +183,19 @@ export class TasksTabContent extends TabContent<Job> {
     this.fetchPluginInfos();
   }
 
-  name(): string {
+  static tabName(): string {
     return "Tasks";
   }
 
   content(pipelineConfig: PipelineConfig,
           templateConfig: TemplateConfig,
           routeParams: PipelineConfigRouteParams,
-          isSelectedTab: boolean,
           ajaxOperationMonitor: Stream<OperationState>): m.Children {
     if (!this.autoSuggestions()) {
       this.fetchUpstreamPipelines(pipelineConfig.name(), routeParams.stage_name!);
     }
 
-    return super.content(pipelineConfig, templateConfig, routeParams, isSelectedTab, ajaxOperationMonitor);
+    return super.content(pipelineConfig, templateConfig, routeParams, ajaxOperationMonitor);
   }
 
   protected renderer(entity: Job, templateConfig: TemplateConfig): m.Children {

@@ -17,7 +17,8 @@
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
-import {NavigationWidget} from "views/pages/clicky_pipeline_config/widgets/navigation_widget";
+import {PipelineConfigRouteParams, RouteInfo} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {Attrs, NavigationWidget} from "views/pages/clicky_pipeline_config/widgets/navigation_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("PipelineNavigation", () => {
@@ -66,13 +67,70 @@ describe("PipelineNavigation", () => {
     expect(helper.byTestId("tree-node-jobthree")).toHaveText("JobThree");
   });
 
-  function mount(pipelineConfig: PipelineConfig) {
+  it("should answer whether the current route is a pipeline route", () => {
+    mount(PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages()));
+
     const routeInfo = {
-      route: "up42/general",
-      params: {pipeline_name: pipelineConfig.name(), tab_name: "general"}
+      params: {
+        pipeline_name: "pipeline"
+      }
     };
+
+    // @ts-ignore
+    const vnode = {attrs: {routeInfo}} as m.Vnode<Attrs>;
+
+    expect(NavigationWidget.isPipelineRoute(vnode)).toBeTrue();
+    expect(NavigationWidget.isStageRoute(vnode, "stage")).toBeFalse();
+    expect(NavigationWidget.isJobRoute(vnode, "stage", "job")).toBeFalse();
+  });
+
+  it("should answer whether the current route is a stage route", () => {
+    mount(PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages()));
+
+    const routeInfo = {
+      params: {
+        pipeline_name: "pipeline",
+        stage_name: "stage"
+      }
+    };
+
+    // @ts-ignore
+    const vnode = {attrs: {routeInfo}} as m.Vnode<Attrs>;
+
+    expect(NavigationWidget.isPipelineRoute(vnode)).toBeFalse();
+    expect(NavigationWidget.isStageRoute(vnode, "stage")).toBeTrue();
+    expect(NavigationWidget.isJobRoute(vnode, "stage", "job")).toBeFalse();
+  });
+
+  it("should answer whether the current route is a job route", () => {
+    mount(PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages()));
+
+    const routeInfo = {
+      params: {
+        pipeline_name: "pipeline",
+        stage_name: "stage",
+        job_name: "job"
+      }
+    };
+
+    // @ts-ignore
+    const vnode = {attrs: {routeInfo}} as m.Vnode<Attrs>;
+
+    expect(NavigationWidget.isPipelineRoute(vnode)).toBeFalse();
+    expect(NavigationWidget.isStageRoute(vnode, "stage")).toBeFalse();
+    expect(NavigationWidget.isJobRoute(vnode, "stage", "job")).toBeTrue();
+  });
+
+  function mount(pipelineConfig: PipelineConfig, routeInfo?: RouteInfo<PipelineConfigRouteParams>) {
+    if (!routeInfo) {
+      routeInfo = {
+        route: "up42/general",
+        params: {pipeline_name: pipelineConfig.name(), tab_name: "general"}
+      };
+    }
+
     helper.mount(() => <NavigationWidget pipelineConfig={pipelineConfig}
-                                         routeInfo={routeInfo}
+                                         routeInfo={routeInfo!}
                                          changeRoute={changeRoute}/>);
   }
 });

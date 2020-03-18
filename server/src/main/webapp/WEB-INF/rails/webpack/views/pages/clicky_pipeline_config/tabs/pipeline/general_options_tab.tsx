@@ -24,7 +24,7 @@ import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipe
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 
 export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {
-  name(): string {
+  static tabName(): string {
     return "General";
   }
 

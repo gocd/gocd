@@ -25,7 +25,7 @@ import {PipelineParametersEditor} from "views/pages/pipelines/parameters_editor"
 export class ParametersTabContent extends TabContent<PipelineConfig> {
   readonly paramList = Stream([] as PipelineParameter[]);
 
-  name(): string {
+  static tabName(): string {
     return "Parameters";
   }
 

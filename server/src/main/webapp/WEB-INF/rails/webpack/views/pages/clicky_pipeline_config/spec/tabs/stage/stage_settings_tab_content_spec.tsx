@@ -110,7 +110,6 @@ describe("StageSettingsTab", () => {
     helper.mount(() => new StageSettingsTabContent().content(pipelineConfig,
                                                              templateConfig,
                                                              routeParams,
-                                                             true,
                                                              Stream<OperationState>(OperationState.UNKNOWN)));
   }
 });

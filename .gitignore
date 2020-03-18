@@ -521,3 +521,7 @@ api/api-packages-v2/out/
 api/api-packages-v2/target/
 api/api-packages-v2/logs/
 api/api-packages-v2/config/
+api/api-config-repos-v4/out/
+api/api-config-repos-v4/target/
+api/api-config-repos-v4/logs/
+api/api-config-repos-v4/config/

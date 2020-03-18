@@ -16,6 +16,7 @@
 package com.thoughtworks.go.api.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.domain.config.ConfigurationProperty
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.Nested
@@ -74,6 +75,22 @@ class ConfigurationPropertyRepresenterTest {
       def encryptedValue = new GoCipher().encrypt('password')
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([key: 'user', encrypted_value: encryptedValue])
       def property = ConfigurationPropertyRepresenter.fromJSON(jsonReader)
+      assertThat(property).isEqualTo(ConfigurationPropertyMother.create("user", true, 'password'))
+    }
+
+    @Test
+    void 'fromJSONHandlingEncryption() deserializes to encrypted property if the secure flag is set'() {
+      String plainText = 'password'
+      JsonReader jsonReader = GsonTransformer.instance.jsonReaderFrom([key: 'user', value: plainText, is_secure: true])
+      ConfigurationProperty property = ConfigurationPropertyRepresenter.fromJSONHandlingEncryption(jsonReader)
+      assertThat(property).isEqualTo(ConfigurationPropertyMother.create("user", true, plainText))
+    }
+
+    @Test
+    void 'fromJSONHandlingEncryption() ignores is_secure flag if encrypted_value is set'() {
+      String encryptedValue = new GoCipher().encrypt('password')
+      JsonReader jsonReader = GsonTransformer.instance.jsonReaderFrom([key: 'user', encrypted_value: encryptedValue, is_secure: false])
+      ConfigurationProperty property = ConfigurationPropertyRepresenter.fromJSONHandlingEncryption(jsonReader)
       assertThat(property).isEqualTo(ConfigurationPropertyMother.create("user", true, 'password'))
     }
 

@@ -158,7 +158,7 @@ export class JobSettingsTabContent extends TabContent<Job> {
     this.fetchDefaultJobTimeout();
   }
 
-  name(): string {
+  static tabName(): string {
     return "Job Settings";
   }
 

@@ -28,6 +28,10 @@ import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 
 export class MaterialsTabContent extends TabContent<PipelineConfig> {
 
+  static tabName(): string {
+    return "Materials";
+  }
+
   addNewMaterial(materials: NameableSet<Material>) {
     MaterialModal.forAdd((material: Material) => {
       materials.add(material);
@@ -39,10 +43,6 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
       material.type(updateMaterial.type());
       material.attributes(updateMaterial.attributes());
     }).render();
-  }
-
-  name(): string {
-    return "Materials";
   }
 
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {

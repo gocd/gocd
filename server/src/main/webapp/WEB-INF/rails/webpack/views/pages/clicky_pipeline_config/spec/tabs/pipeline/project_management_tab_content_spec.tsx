@@ -59,7 +59,6 @@ describe("ProjectManagementTab", () => {
     helper.mount(() => new ProjectManagementTabContent().content(pipelineConfig,
                                                                  templateConfig,
                                                                  routeParams,
-                                                                 true,
                                                                  Stream<OperationState>(OperationState.UNKNOWN)));
   }
 });

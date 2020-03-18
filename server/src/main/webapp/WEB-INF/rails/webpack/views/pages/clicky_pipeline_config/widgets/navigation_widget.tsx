@@ -24,7 +24,7 @@ import s from "underscore.string";
 import {CollapsibleTree} from "views/components/hierarchy/tree";
 import {PipelineConfigRouteParams, RouteInfo} from "views/pages/clicky_pipeline_config/pipeline_config";
 
-interface Attrs {
+export interface Attrs {
   pipelineConfig: PipelineConfig;
   routeInfo: RouteInfo<PipelineConfigRouteParams>;
 
@@ -32,12 +32,30 @@ interface Attrs {
 }
 
 export class NavigationWidget extends MithrilViewComponent<Attrs> {
+
+  static isPipelineRoute(vnode: m.Vnode<Attrs>) {
+    return !!vnode.attrs.routeInfo.params.pipeline_name
+      && !vnode.attrs.routeInfo.params.stage_name
+      && !vnode.attrs.routeInfo.params.job_name;
+  }
+
+  static isStageRoute(vnode: m.Vnode<Attrs>, stage: string) {
+    return !!vnode.attrs.routeInfo.params.pipeline_name
+      && vnode.attrs.routeInfo.params.stage_name === stage
+      && !vnode.attrs.routeInfo.params.job_name;
+  }
+
+  static isJobRoute(vnode: m.Vnode<Attrs>, stage: string, job: string) {
+    return !!vnode.attrs.routeInfo.params.pipeline_name
+      && vnode.attrs.routeInfo.params.stage_name === stage
+      && vnode.attrs.routeInfo.params.job_name === job;
+  }
   view(vnode: m.Vnode<Attrs>): m.Children {
     const pipelineConfig   = vnode.attrs.pipelineConfig;
-    const routeForPipeline = `${pipelineConfig.name()}/${vnode.attrs.routeInfo.params.tab_name}`;
+    const routeForPipeline = `${pipelineConfig.name()}/general`;
     return <CollapsibleTree datum={pipelineConfig.name()}
                             collapsed={this.treeStage(vnode, pipelineConfig.name())}
-                            selected={this.isCurrentRoute(vnode, routeForPipeline)}
+                            selected={NavigationWidget.isPipelineRoute(vnode)}
                             onclick={this.onClick.bind(this, vnode, routeForPipeline)}
                             dataTestId={NavigationWidget.dataTestId(pipelineConfig.name())}>
       {this.stages(pipelineConfig.stages(), pipelineConfig.name(), vnode)}
@@ -46,10 +64,10 @@ export class NavigationWidget extends MithrilViewComponent<Attrs> {
 
   stages(set: NameableSet<Stage>, pipelineName: string, vnode: m.Vnode<Attrs>) {
     return Array.from(set.values()).map((stage) => {
-      const routeForStage = `${pipelineName}/${stage.name()}/${vnode.attrs.routeInfo.params.tab_name}`;
+      const routeForStage = `${pipelineName}/${stage.name()}/stage_settings`;
       return <CollapsibleTree datum={stage.name()}
                               collapsed={this.treeStage(vnode, stage.name())}
-                              selected={this.isCurrentRoute(vnode, routeForStage)}
+                              selected={NavigationWidget.isStageRoute(vnode, stage.name())}
                               onclick={this.onClick.bind(this, vnode, routeForStage)}
                               dataTestId={NavigationWidget.dataTestId(stage.name())}>
         {this.jobs(stage.jobs(), pipelineName, stage.name(), vnode)}
@@ -59,9 +77,9 @@ export class NavigationWidget extends MithrilViewComponent<Attrs> {
 
   jobs(jobs: NameableSet<Job>, pipelineName: string, stageName: string, vnode: m.Vnode<Attrs>) {
     return Array.from(jobs.values()).map((item) => {
-      const routeForJob = `${pipelineName}/${stageName}/${item.name()}/${vnode.attrs.routeInfo.params.tab_name}`;
+      const routeForJob = `${pipelineName}/${stageName}/${item.name()}/tasks`;
       return <CollapsibleTree datum={item.name()}
-                              selected={this.isCurrentRoute(vnode, routeForJob)}
+                              selected={NavigationWidget.isJobRoute(vnode, stageName, item.name())}
                               onclick={this.onClick.bind(this, vnode, routeForJob)}
                               dataTestId={NavigationWidget.dataTestId(stageName, item.name())}/>;
     });
@@ -73,10 +91,6 @@ export class NavigationWidget extends MithrilViewComponent<Attrs> {
         m.route.set(newRoute);
       }
     });
-  }
-
-  isCurrentRoute(vnode: m.Vnode<Attrs>, route: string) {
-    return vnode.attrs.routeInfo.route!.toLowerCase() === route.toLowerCase();
   }
 
   treeStage(vnode: m.Vnode<Attrs>, entityName: string) {

@@ -32,29 +32,22 @@ export abstract class TabContent<T> {
   public content(pipelineConfig: PipelineConfig,
                  templateConfig: TemplateConfig,
                  routeParams: PipelineConfigRouteParams,
-                 isSelectedTab: boolean,
                  ajaxOperationMonitor: Stream<OperationState>): m.Children {
     switch (this.pageState) {
       case PageState.FAILED:
-        return <PageLoadError message={`There was a problem fetching ${this.name()} tab`}/>;
+        return <PageLoadError message={`There was a problem fetching current tab`}/>;
       case PageState.LOADING:
         return <Spinner/>;
       case PageState.OK:
-        if (isSelectedTab) {
-          const entity         = this.selectedEntity(pipelineConfig, routeParams) as T;
-          const saveInProgress = ajaxOperationMonitor() === OperationState.IN_PROGRESS;
+        const entity         = this.selectedEntity(pipelineConfig, routeParams) as T;
+        const saveInProgress = ajaxOperationMonitor() === OperationState.IN_PROGRESS;
 
-          return <div class={saveInProgress ? styles.blur : ""}>
-            {saveInProgress ? <Spinner/> : undefined}
-            {this.renderer(entity, templateConfig)}
-          </div>;
-        }
-
-        return <div> Not a selected tab</div>;
+        return <div class={saveInProgress ? styles.blur : ""}>
+          {saveInProgress ? <Spinner/> : undefined}
+          {this.renderer(entity, templateConfig)}
+        </div>;
     }
   }
-
-  public abstract name(): string;
 
   public pageLoadFailure() {
     this.pageState = PageState.FAILED;

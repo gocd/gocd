@@ -31,7 +31,7 @@ import styles from "./permissions.scss";
 export class PermissionsTabContent extends TabContent<Stage> {
   private selectedPermission: Stream<string> = Stream();
 
-  name(): string {
+  static tabName(): string {
     return "Permissions";
   }
 

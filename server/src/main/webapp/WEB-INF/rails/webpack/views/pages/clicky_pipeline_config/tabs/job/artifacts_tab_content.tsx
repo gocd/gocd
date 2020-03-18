@@ -52,7 +52,7 @@ export class ArtifactsTabContent extends TabContent<Job> {
     fetchData ? fetchData() : this.fetchData();
   }
 
-  name(): string {
+  static tabName(): string {
     return "Artifacts";
   }
 

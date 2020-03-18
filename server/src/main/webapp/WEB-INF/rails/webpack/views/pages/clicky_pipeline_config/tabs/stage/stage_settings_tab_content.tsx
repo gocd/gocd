@@ -27,7 +27,7 @@ import {StageEditor} from "views/pages/clicky_pipeline_config/widgets/stage_edit
 import styles from "./stage_settings.scss";
 
 export class StageSettingsTabContent extends TabContent<Stage> {
-  name(): string {
+  static tabName(): string {
     return "Stage Settings";
   }
 

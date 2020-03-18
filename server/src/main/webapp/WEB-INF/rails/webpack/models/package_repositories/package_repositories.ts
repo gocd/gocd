@@ -21,7 +21,7 @@ import {PackageJSON, PackageRepositoryJSON, PackageRepositorySummaryJSON, Packag
 import {Configurations} from "../shared/configuration";
 import {Errors} from "../mixins/errors";
 
-class PackageRepositorySummary extends ValidatableMixin {
+export class PackageRepositorySummary extends ValidatableMixin {
   id: Stream<string>;
   name: Stream<string>;
 

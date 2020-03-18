@@ -37,7 +37,7 @@ export class PackagesWidget extends MithrilViewComponent<Attrs> {
     }
     return <div data-test-id="packages-widget">
       <h4>Packages</h4>
-      {vnode.attrs.packages().map(pkg => {
+      {vnode.attrs.packages().map((pkg) => {
         return <PackageWidget package={pkg}
                               disableActions={vnode.attrs.disableActions}
                               onEdit={vnode.attrs.packageOperations.onEdit}

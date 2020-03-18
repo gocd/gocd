@@ -54,7 +54,7 @@ export class PluginView extends MithrilComponent<Attrs, State> {
   view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
 
     const elements = (vnode.attrs.pluginSettings.configurations() as PackageSettingsConfiguration[]).map((config) => {
-      let found = vnode.attrs.configurations.findConfiguration(config.key)!;
+      const found = vnode.attrs.configurations.findConfiguration(config.key)!;
 
       if (config.metadata.secure) {
         return <PasswordField required={config.metadata.required}

@@ -21,7 +21,7 @@ import {PluginSettings} from "models/shared/plugin_infos_new/extensions";
 import {PluginView} from "views/pages/package_repositories/package_repo_plugin_view";
 import {TestHelper} from "views/pages/spec/test_helper";
 
-describe("Package Repo Plugin View", function () {
+describe("Package Repo Plugin View", () => {
   const helper         = new TestHelper();
   const pluginSettings = PluginSettings.fromJSON(pluginSettingsJSON());
 
@@ -92,7 +92,7 @@ describe("Package Repo Plugin View", function () {
     expect((helper.byTestId("input-for-Version to poll >=") as HTMLInputElement)).toHaveValue("some-package-version");
   });
 
-  it("should allow updating existing plain text configuration value", function () {
+  it("should allow updating existing plain text configuration value", () => {
     const configurations = new Configurations([]);
     configurations.setConfiguration("PACKAGE_ID", "my-package-id");
 
@@ -106,7 +106,7 @@ describe("Package Repo Plugin View", function () {
     expect(configurations.findConfiguration("PACKAGE_ID")!.getValue()).toBe("package-id");
   });
 
-  it("should allow updating existing secure text configuration value", function () {
+  it("should allow updating existing secure text configuration value", () => {
     const configurations = new Configurations([]);
     configurations.setConfiguration("POLL_VERSION_FROM", "some-package-version");
 
@@ -120,7 +120,7 @@ describe("Package Repo Plugin View", function () {
     expect(configurations.findConfiguration("POLL_VERSION_FROM")!.getValue()).toBe("package-version");
   });
 
-  it("should render errors associated with the field", function () {
+  it("should render errors associated with the field", () => {
     const configurations = new Configurations([new Configuration("PACKAGE_ID", new PlainTextValue("repo-1"), ["Boom!"])]);
     mount(configurations);
 
@@ -129,25 +129,25 @@ describe("Package Repo Plugin View", function () {
 
   function pluginSettingsJSON() {
     return {
-      "configurations": [
+      configurations: [
         {
-          "key": "PACKAGE_ID",
-          "metadata": {
-            "secure": false,
-            "required": true,
-            "part_of_identity": true,
-            "display_name": "Package Id",
-            "display_order": 0
+          key: "PACKAGE_ID",
+          metadata: {
+            secure: false,
+            required: true,
+            part_of_identity: true,
+            display_name: "Package Id",
+            display_order: 0
           }
         },
         {
-          "key": "POLL_VERSION_FROM",
-          "metadata": {
-            "secure": true,
-            "required": false,
-            "part_of_identity": false,
-            "display_name": "Version to poll >=",
-            "display_order": 1
+          key: "POLL_VERSION_FROM",
+          metadata: {
+            secure: true,
+            required: false,
+            part_of_identity: false,
+            display_name: "Version to poll >=",
+            display_order: 1
           }
         }
       ]

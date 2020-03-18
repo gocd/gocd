@@ -44,21 +44,33 @@ describe('PackageRepositoriesModelSpec', () => {
       expect(pkg.errors().keys()).toEqual(["id"]);
     });
 
-    it("should validate pattern for id", () => {
+    it("should validate presence of name", () => {
       const packageJSON = getPackage();
-      packageJSON.id    = "&%$Not-allowed";
+      delete packageJSON.name;
+      const pkg = Package.fromJSON(packageJSON);
+
+      const isValid = pkg.isValid();
+
+      expect(isValid).toBe(false);
+      expect(pkg.errors().count()).toEqual(1);
+      expect(pkg.errors().keys()).toEqual(["name"]);
+    });
+
+    it("should validate pattern for name", () => {
+      const packageJSON = getPackage();
+      packageJSON.name  = "&%$Not-allowed";
       const pkg         = Package.fromJSON(packageJSON);
 
       const isValid = pkg.isValid();
 
       expect(isValid).toBe(false);
       expect(pkg.errors().count()).toEqual(1);
-      expect(pkg.errors().keys()).toEqual(["id"]);
+      expect(pkg.errors().keys()).toEqual(["name"]);
     });
 
-    it("should validate length for id", () => {
+    it("should validate length for name", () => {
       const packageJSON = getPackage();
-      packageJSON.id
+      packageJSON.name
                         = "This-is-longer-then-255-characters_This-is-longer-then-255-characters_This-is-longer-then-255-characters_This-is-longer-then-255-characters_This-is-longer-then-255-characters_This-is-longer-then-255-characters_This-is-longer-then-255-characters_This-is-longer-then-255-characters";
       const pkg         = Package.fromJSON(packageJSON);
 
@@ -66,7 +78,7 @@ describe('PackageRepositoriesModelSpec', () => {
 
       expect(isValid).toBe(false);
       expect(pkg.errors().count()).toEqual(1);
-      expect(pkg.errors().keys()).toEqual(["id"]);
+      expect(pkg.errors().keys()).toEqual(["name"]);
     });
   });
 

@@ -23,7 +23,11 @@ import {PackageRepositoryModalBody} from "../package_repository_modal_body";
 
 describe('PackageRepositoryModalBodySpec', () => {
   const helper        = new TestHelper();
-  const pluginIdProxy = jasmine.createSpy("pluginIdProxy");
+  const spy           = jasmine.createSpy("pluginIdProxy");
+  const pluginIdProxy = () => {
+    spy();
+    return "npm"
+  };
   let pluginInfos: PluginInfos;
   let packageRepo: PackageRepository;
   let disabled: boolean;
@@ -72,6 +76,6 @@ describe('PackageRepositoryModalBodySpec', () => {
 
     helper.onchange(helper.byTestId("form-field-input-plugin"), "new-plugin-id");
 
-    expect(pluginIdProxy).toHaveBeenCalled();
+    expect(spy).toHaveBeenCalled();
   });
 });

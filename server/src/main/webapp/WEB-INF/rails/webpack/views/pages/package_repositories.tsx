@@ -18,12 +18,12 @@ import {ErrorResponse} from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Package, PackageRepositories, PackageRepository, Packages} from "models/package_repositories/package_repositories";
+import {Package, PackageRepositories, PackageRepository, PackageRepositorySummary, Packages} from "models/package_repositories/package_repositories";
 import {PackagesCRUD} from "models/package_repositories/packages_crud";
 import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
 import {ExtensionTypeString, PackageRepoExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
-import uuid from "uuid/v4";
+import {v4 as uuidv4} from 'uuid';
 import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
@@ -180,6 +180,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
         if (completePkg !== undefined) {
           pkg.autoUpdate(completePkg.autoUpdate());
           pkg.configuration(completePkg.configuration());
+          pkg.packageRepo(new PackageRepositorySummary(pkgRepo.repoId(), pkgRepo.name()))
         }
       });
     });
@@ -200,7 +201,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
       const pluginId          = vnode.state.pluginInfos()[0].id;
       const packageRepository = PackageRepository.default();
       //todo: decide whether or not this is correct
-      packageRepository.repoId(uuid());
+      packageRepository.repoId(uuidv4());
       packageRepository.pluginMetadata().id(pluginId);
       new CreatePackageRepositoryModal(packageRepository, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
         .render();
@@ -236,7 +237,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
       const pkg = Package.default();
       pkg.packageRepo().id(packageRepo.repoId());
       //todo: decide whether or not this is correct
-      pkg.id(uuid());
+      pkg.id(uuidv4());
       new CreatePackageModal(pkg, vnode.state.packageRepositories(), vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
         .render()
     };
@@ -269,7 +270,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
                   .then((result) => {
                     result.do(
                       (successResponse) => {
-                        new UsagePackageModal(pkg.id(), successResponse.body).render();
+                        new UsagePackageModal(pkg.name(), successResponse.body).render();
                       },
                       this.onOperationError(vnode)
                     );

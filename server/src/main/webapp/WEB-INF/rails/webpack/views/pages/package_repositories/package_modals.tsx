@@ -200,7 +200,7 @@ export class UsagePackageModal extends Modal {
 
   body(): m.Children {
     if (this.usages.length <= 0) {
-      return (<span> No usages for package '{this.profileId}' found.</span>);
+      return (<i> No usages for package '{this.profileId}' found.</i>);
     }
 
     const data = this.usages.map((usage) => {

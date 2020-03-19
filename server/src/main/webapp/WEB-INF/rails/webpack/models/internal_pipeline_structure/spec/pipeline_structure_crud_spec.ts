@@ -68,6 +68,8 @@ const json = {
       origin: {
         type: "gocd"
       },
+      environment: null,
+      dependant_pipelines: [],
       stages: [{
         name: "up42_stage",
         jobs: [{

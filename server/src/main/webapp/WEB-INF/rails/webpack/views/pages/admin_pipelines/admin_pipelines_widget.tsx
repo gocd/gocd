@@ -75,6 +75,17 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
     if (operation === "extract template from" && pipeline.usesTemplate()) {
       return `Cannot ${operation} pipeline '${pipeline.name()}' because it uses a template.`;
     }
+    if (operation === "delete") {
+      if (pipeline.isDefinedRemotely()) {
+        return `Cannot delete pipeline '${pipeline.name()}' defined in configuration repository '${pipeline.origin().id()}'.`
+      }
+      if (pipeline.environment() !== undefined && pipeline.environment() !== null) {
+        return `Cannot delete pipeline '${pipeline.name()}' as it is present in environment '${pipeline.environment()}'.`;
+      }
+      if (pipeline.dependantPipelines() !== undefined && pipeline.dependantPipelines()!.length > 0) {
+        return `Cannot delete pipeline '${pipeline.name()}' as pipeline(s) '${pipeline.dependantPipelines()}' depends on it.`;
+      }
+    }
 
     return `${s.capitalize(operation)} pipeline '${pipeline.name()}'`;
   }
@@ -101,7 +112,7 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
           title={PipelineWidget.messageForOperation(eachPipeline, "clone")}
           onclick={vnode.attrs.doClonePipeline.bind(vnode.attrs, eachPipeline)}/>
         <Delete
-          disabled={eachPipeline.origin().isDefinedInConfigRepo()}
+          disabled={!eachPipeline.canBeDeleted()}
           data-test-id={`delete-pipeline-${eachPipeline.name()}`}
           title={PipelineWidget.messageForOperation(eachPipeline, "delete")}
           onclick={vnode.attrs.doDeletePipeline.bind(vnode.attrs, eachPipeline)}/>

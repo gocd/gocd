@@ -26,6 +26,8 @@ export interface PipelineJSON extends Nameable {
   origin: OriginJSON;
   stages: StageJSON[];
   template_name?: string;
+  environment: string | null;
+  dependant_pipelines: string[];
 }
 
 export interface PipelineGroupJSON extends Nameable {
@@ -70,19 +72,25 @@ export class PipelineWithOrigin extends Pipeline {
   readonly origin: Stream<Origin>;
   readonly templateName: Stream<string | undefined>;
   readonly stages: Stream<Stages>;
+  readonly environment: Stream<string | null>;
+  readonly dependantPipelines: Stream<string[]>;
 
-  constructor(name: string, templateName: string | undefined, origin: Origin, stages: Stages) {
+  constructor(name: string, templateName: string | undefined, origin: Origin, stages: Stages, environment: string | null, dependantPipelines: string[]) {
     super(name);
-    this.origin       = Stream(origin);
-    this.templateName = Stream(templateName);
-    this.stages       = Stream(stages);
+    this.origin             = Stream(origin);
+    this.templateName       = Stream(templateName);
+    this.stages             = Stream(stages);
+    this.environment        = Stream(environment);
+    this.dependantPipelines = Stream(dependantPipelines);
   }
 
   static fromJSON(data: PipelineJSON) {
     return new PipelineWithOrigin(data.name,
                                   data.template_name,
                                   Origin.fromJSON(data.origin),
-                                  Stages.fromJSON(data.stages));
+                                  Stages.fromJSON(data.stages),
+                                  data.environment,
+                                  data.dependant_pipelines);
   }
 
   usesTemplate() {
@@ -90,11 +98,24 @@ export class PipelineWithOrigin extends Pipeline {
   }
 
   clone() {
-    return new PipelineWithOrigin(this.name(), this.templateName(), this.origin(), this.stages().map((s) => s.clone()));
+    return new PipelineWithOrigin(this.name(), this.templateName(), this.origin(), this.stages().map((s) => s.clone()), this.environment(), this.dependantPipelines());
   }
 
   isDefinedRemotely() {
     return this.origin().isDefinedInConfigRepo();
+  }
+
+  canBeDeleted(): boolean {
+    const envNotDefined        = this.environment() === undefined || this.environment() === null;
+    const noDependantPipelines = this.dependantPipelines() === undefined || this.dependantPipelines()!.length === 0;
+
+    if (!envNotDefined) {
+      return false;
+    }
+    if (!noDependantPipelines) {
+      return false;
+    }
+    return !this.isDefinedRemotely();
   }
 }
 

@@ -20,13 +20,22 @@ import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.util.Pair;
 
 import java.util.List;
 
+import static java.lang.String.format;
+
 public class PackageUsageRepresenter {
-    public static void toJSON(OutputWriter outputWriter, List<Pair<PipelineConfig, PipelineConfigs>> packageUsageInPipelines) {
-        outputWriter.addChildList("usages", usagesWriter -> packageUsageInPipelines.forEach(pair -> toJSON(usagesWriter, pair)));
+    public static void toJSON(OutputWriter outputWriter, String packageId, List<Pair<PipelineConfig, PipelineConfigs>> packageUsageInPipelines) {
+        outputWriter
+                .addLinks(linksWriter -> {
+                    linksWriter.addLink("self", format("%s/%s/usages", Routes.Packages.BASE, packageId));
+                    linksWriter.addAbsoluteLink("doc", Routes.Packages.DOC);
+                    linksWriter.addLink("find", Routes.Packages.USAGES);
+                })
+                .addChildList("usages", usagesWriter -> packageUsageInPipelines.forEach(pair -> toJSON(usagesWriter, pair)));
     }
 
     private static void toJSON(OutputListWriter outputListWriter, Pair<PipelineConfig, PipelineConfigs> pair) {

@@ -519,7 +519,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
 
       assertThatResponse()
         .isOk()
-        .hasBodyWithJsonObject(PackageUsageRepresenter.class, pairs)
+        .hasBodyWithJsonObject(PackageUsageRepresenter.class, "pkg_id", pairs)
     }
 
     @Test
@@ -530,7 +530,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
 
       assertThatResponse()
         .isOk()
-        .hasBodyWithJsonObject(PackageUsageRepresenter.class, emptyList())
+        .hasBodyWithJsonObject(PackageUsageRepresenter.class, "pkg_id", emptyList())
     }
   }
 }

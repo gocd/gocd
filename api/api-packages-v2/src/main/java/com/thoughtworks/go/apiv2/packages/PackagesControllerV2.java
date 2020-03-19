@@ -150,7 +150,7 @@ public class PackagesControllerV2 extends ApiController implements SparkSpringCo
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> allUsages = goConfigService.getPackageUsageInPipelines();
         List<Pair<PipelineConfig, PipelineConfigs>> packageUsageInPipelines = allUsages.getOrDefault(packageId, emptyList());
 
-        return writerForTopLevelObject(request, response, outputWriter -> PackageUsageRepresenter.toJSON(outputWriter, packageUsageInPipelines));
+        return writerForTopLevelObject(request, response, outputWriter -> PackageUsageRepresenter.toJSON(outputWriter, packageId, packageUsageInPipelines));
     }
 
     @Override

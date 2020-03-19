@@ -24,6 +24,7 @@ import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.util.Pair
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static java.util.Collections.emptyList
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
@@ -36,8 +37,19 @@ class PackageUsageRepresenterTest {
     ArrayList<Pair<PipelineConfig, PipelineConfigs>> pairs = new ArrayList<>()
     pairs.add(pair)
 
-    def actualJSON = toObjectString({ PackageUsageRepresenter.toJSON(it, pairs) })
+    def actualJSON = toObjectString({ PackageUsageRepresenter.toJSON(it, "package-id", pairs) })
     def expectedJSON = [
+      "_links": [
+        "self": [
+          "href": "http://test.host/go/api/admin/packages/package-id/usages"
+        ],
+        "doc" : [
+          "href": apiDocsUrl("#packages")
+        ],
+        "find": [
+          "href": "http://test.host/go/:package_id/usages"
+        ]
+      ],
       "usages": [
         [
           "group"   : "pipeline-group",
@@ -51,8 +63,19 @@ class PackageUsageRepresenterTest {
 
   @Test
   void 'should return empty list if no usages found'() {
-    def actualJSON = toObjectString({ PackageUsageRepresenter.toJSON(it, emptyList()) })
+    def actualJSON = toObjectString({ PackageUsageRepresenter.toJSON(it, "package-id", emptyList()) })
     def expectedJSON = [
+      "_links": [
+        "self": [
+          "href": "http://test.host/go/api/admin/packages/package-id/usages"
+        ],
+        "doc" : [
+          "href": apiDocsUrl("#packages")
+        ],
+        "find": [
+          "href": "http://test.host/go/:package_id/usages"
+        ]
+      ],
       "usages": []
     ]
 

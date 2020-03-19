@@ -33,7 +33,7 @@ public class PackageUsageRepresenter {
                 .addLinks(linksWriter -> {
                     linksWriter.addLink("self", format("%s/%s/usages", Routes.Packages.BASE, packageId));
                     linksWriter.addAbsoluteLink("doc", Routes.Packages.DOC);
-                    linksWriter.addLink("find", Routes.Packages.USAGES);
+                    linksWriter.addLink("find", format("%s%s", Routes.Packages.BASE, Routes.Packages.USAGES));
                 })
                 .addChildList("usages", usagesWriter -> packageUsageInPipelines.forEach(pair -> toJSON(usagesWriter, pair)));
     }

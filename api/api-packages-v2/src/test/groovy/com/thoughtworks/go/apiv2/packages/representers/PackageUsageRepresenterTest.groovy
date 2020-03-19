@@ -47,7 +47,7 @@ class PackageUsageRepresenterTest {
           "href": apiDocsUrl("#packages")
         ],
         "find": [
-          "href": "http://test.host/go/:package_id/usages"
+          "href": "http://test.host/go/api/admin/packages/:package_id/usages"
         ]
       ],
       "usages": [
@@ -73,7 +73,7 @@ class PackageUsageRepresenterTest {
           "href": apiDocsUrl("#packages")
         ],
         "find": [
-          "href": "http://test.host/go/:package_id/usages"
+          "href": "http://test.host/go/api/admin/packages/:package_id/usages"
         ]
       ],
       "usages": []

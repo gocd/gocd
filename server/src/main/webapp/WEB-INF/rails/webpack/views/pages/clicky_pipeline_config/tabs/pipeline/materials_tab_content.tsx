@@ -45,6 +45,10 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
     }).render();
   }
 
+  public shouldShowSaveAndResetButtons(): boolean {
+    return false;
+  }
+
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
     return pipelineConfig;
   }

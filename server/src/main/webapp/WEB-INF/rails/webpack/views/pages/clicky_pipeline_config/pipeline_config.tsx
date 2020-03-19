@@ -149,6 +149,24 @@ export class PipelineConfigPage<T> extends Page<null, T> {
       return <Spinner/>;
     }
 
+    let saveAndResetButtons: m.Children;
+    if (this.tab().shouldShowSaveAndResetButtons()) {
+      saveAndResetButtons = (
+        <div className={styles.buttonContainer}>
+          <Reset data-test-id={"cancel"}
+                 ajaxOperationMonitor={this.ajaxOperationMonitor}
+                 onclick={this.reset.bind(this)}>
+            RESET
+          </Reset>
+          <Primary data-test-id={"save"}
+                   ajaxOperationMonitor={this.ajaxOperationMonitor}
+                   ajaxOperation={this.save.bind(this)}>
+            SAVE
+          </Primary>
+        </div>
+      );
+    }
+
     return [
       <div key={m.route.param().tab_name}>
         <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/>
@@ -171,21 +189,11 @@ export class PipelineConfigPage<T> extends Page<null, T> {
                                                   PipelineConfigPage.routeInfo().params,
                                                   this.ajaxOperationMonitor);
                       }
+                      return <Spinner/>;
                     })
                   }
                   beforeChange={this.onTabChange.bind(this, vnode)}/>
-            <div className={styles.buttonContainer}>
-              <Reset data-test-id={"cancel"}
-                     ajaxOperationMonitor={this.ajaxOperationMonitor}
-                     onclick={this.reset.bind(this)}>
-                RESET
-              </Reset>
-              <Primary data-test-id={"save"}
-                       ajaxOperationMonitor={this.ajaxOperationMonitor}
-                       ajaxOperation={this.save.bind(this)}>
-                SAVE
-              </Primary>
-            </div>
+            {saveAndResetButtons}
           </div>
         </div>
       </div>

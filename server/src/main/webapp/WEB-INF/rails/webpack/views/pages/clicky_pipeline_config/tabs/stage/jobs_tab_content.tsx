@@ -35,6 +35,10 @@ export class JobsTabContent extends TabContent<Stage> {
     return "Jobs";
   }
 
+  public shouldShowSaveAndResetButtons(): boolean {
+    return false;
+  }
+
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): Stage {
     return pipelineConfig.stages().findByName(routeParams.stage_name!)!;
   }

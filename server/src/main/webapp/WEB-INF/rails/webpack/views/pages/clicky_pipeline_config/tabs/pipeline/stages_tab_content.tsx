@@ -35,6 +35,10 @@ export class StagesTabContent extends TabContent<PipelineConfig> {
     return "Stages";
   }
 
+  public shouldShowSaveAndResetButtons(): boolean {
+    return false;
+  }
+
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
     return pipelineConfig;
   }

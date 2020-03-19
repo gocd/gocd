@@ -61,6 +61,10 @@ export abstract class TabContent<T> {
     this.pageState = PageState.OK;
   }
 
+  public shouldShowSaveAndResetButtons(): boolean {
+    return true;
+  }
+
   protected abstract renderer(entity: T, templateConfig: TemplateConfig): m.Children;
 
   protected abstract selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): T;

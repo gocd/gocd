@@ -198,6 +198,10 @@ export class TasksTabContent extends TabContent<Job> {
     return super.content(pipelineConfig, templateConfig, routeParams, ajaxOperationMonitor);
   }
 
+  shouldShowSaveAndResetButtons(): boolean {
+    return false;
+  }
+
   protected renderer(entity: Job, templateConfig: TemplateConfig): m.Children {
     return <TasksWidget pluginInfos={this.pluginInfos}
                         autoSuggestions={this.autoSuggestions}

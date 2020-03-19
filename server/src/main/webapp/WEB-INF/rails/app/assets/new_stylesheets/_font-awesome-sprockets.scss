@@ -39,7 +39,7 @@ $fa-font-path: 'font-awesome/fonts';
 
 @include font-face($font-family: 'FontAwesome',
                    $file-path: "#{$fa-font-path}/fontawesome-webfont",
-                   $file-formats: eot woff woff2 ttf,
+                   $file-formats: ("woff2", "woff"),
                    $asset-pipeline: true
 );
 

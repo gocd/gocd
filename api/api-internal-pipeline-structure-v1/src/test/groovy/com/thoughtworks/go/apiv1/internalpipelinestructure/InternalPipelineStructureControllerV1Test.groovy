@@ -17,18 +17,20 @@ package com.thoughtworks.go.apiv1.internalpipelinestructure
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.apiv1.internalpipelinestructure.models.PipelineStructureViewModel
 import com.thoughtworks.go.apiv1.internalpipelinestructure.representers.InternalPipelineStructuresRepresenter
-import com.thoughtworks.go.config.PipelineConfigs
-import com.thoughtworks.go.config.TemplatesConfig
+import com.thoughtworks.go.config.*
 import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother
+import com.thoughtworks.go.server.service.EnvironmentConfigService
 import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.server.service.TemplateConfigService
 import com.thoughtworks.go.server.service.UserService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
+import com.thoughtworks.go.util.Node
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -36,6 +38,7 @@ import org.mockito.Mock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static java.util.Arrays.asList
+import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -46,6 +49,8 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
   @Mock
   TemplateConfigService templateConfigService
   @Mock
+  EnvironmentConfigService environmentConfigService
+  @Mock
   private UserService userService
 
   @BeforeEach
@@ -55,28 +60,42 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
 
   @Override
   InternalPipelineStructureControllerV1 createControllerInstance() {
-    new InternalPipelineStructureControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pipelineConfigService, templateConfigService, userService)
+    new InternalPipelineStructureControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pipelineConfigService, templateConfigService, userService, goConfigService, environmentConfigService)
   }
 
   @Nested
   class Index {
+    private Hashtable<CaseInsensitiveString, Node> hashtable
+
     @BeforeEach
     void setUp() {
       loginAsUser()
+
+      hashtable = new Hashtable<CaseInsensitiveString, Node>()
+      def cruiseConfig = mock(BasicCruiseConfig.class)
+      when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
+      when(cruiseConfig.getDependencyTable()).thenReturn(hashtable)
     }
 
     @Test
-    void 'test should render list of all pipeline groups'() {
+    void 'should render list of all pipeline groups'() {
       PipelineConfigs group = PipelineConfigMother.createGroup("my-group", PipelineConfigMother.createPipelineConfig("my-pipeline", "my-stage", "my-job1", "my-job2"))
       def template = PipelineTemplateConfigMother.createTemplate("my-template")
+
       when(pipelineConfigService.viewableGroupsForUserIncludingConfigRepos(currentUsername())).thenReturn(new PipelineGroups([group]))
       when(templateConfigService.templateConfigsThatCanBeViewedBy(currentUsername())).thenReturn(new TemplatesConfig(template))
 
       getWithApiHeader(controller.controllerBasePath())
 
+      def pipelineStructureViewModel = new PipelineStructureViewModel()
+        .setPipelineGroups(new PipelineGroups([group]))
+        .setTemplatesConfig(new TemplatesConfig(template))
+        .setEnvironmentsConfig(new EnvironmentsConfig())
+        .setPipelineDependencyTable(hashtable)
+
       assertThatResponse()
         .isOk()
-        .hasBodyWithJsonObject(InternalPipelineStructuresRepresenter.class, new PipelineGroups([group]), new TemplatesConfig(template))
+        .hasBodyWithJsonObject(InternalPipelineStructuresRepresenter.class, pipelineStructureViewModel)
     }
 
     @Nested
@@ -109,8 +128,14 @@ class InternalPipelineStructureControllerV1Test implements SecurityServiceTrait,
 
       getWithApiHeader(controller.controllerBasePath() + '?with_additional_info=true')
 
+      def pipelineStructureViewModel = new PipelineStructureViewModel()
+        .setPipelineGroups(groups)
+        .setTemplatesConfig(templateConfigs)
+        .setEnvironmentsConfig(new EnvironmentsConfig())
+        .setPipelineDependencyTable(hashtable)
+
       def expectedJSON = toObjectString({
-        InternalPipelineStructuresRepresenter.toJSON(it, groups, templateConfigs, users, roles)
+        InternalPipelineStructuresRepresenter.toJSON(it, pipelineStructureViewModel, users, roles)
       })
 
       assertThatResponse()

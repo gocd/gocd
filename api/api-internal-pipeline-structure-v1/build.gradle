@@ -20,6 +20,8 @@ apply plugin: 'groovy'
 dependencies {
   compile project(':api:api-base')
 
+  compileOnly group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
   testCompile project(path: ':api:api-base', configuration: 'testOutput')
 
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5

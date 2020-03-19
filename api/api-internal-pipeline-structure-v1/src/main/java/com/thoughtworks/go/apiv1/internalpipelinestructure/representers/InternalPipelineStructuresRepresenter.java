@@ -16,22 +16,25 @@
 package com.thoughtworks.go.apiv1.internalpipelinestructure.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.TemplatesConfig;
+import com.thoughtworks.go.apiv1.internalpipelinestructure.models.PipelineStructureViewModel;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
-import com.thoughtworks.go.domain.PipelineGroups;
+import com.thoughtworks.go.util.Node;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 public class InternalPipelineStructuresRepresenter {
-    public static void toJSON(OutputWriter outputWriter, PipelineGroups groups, TemplatesConfig templatesList) {
+    public static void toJSON(OutputWriter outputWriter, PipelineStructureViewModel pipelineStructureViewModel) {
         outputWriter.
                 addChildList("groups", groupsWriter -> {
-                    groups.forEach(group -> {
+                    pipelineStructureViewModel.getPipelineGroups().forEach(group -> {
                         groupsWriter.addChild(groupWriter -> {
                             groupWriter.add("name", group.getGroup())
                                     .addChildList("pipelines",
@@ -41,8 +44,10 @@ public class InternalPipelineStructuresRepresenter {
                                                             .add("name", pipelineConfig.name())
                                                             .addIfNotNull("template_name", pipelineConfig.getTemplateName());
                                                     writeOrigin(pipelineWriter, pipelineConfig.getOrigin());
+                                                    renderEnvironment(pipelineWriter, pipelineConfig, pipelineStructureViewModel.getEnvironmentsConfig());
+                                                    renderDependantPipelines(pipelineWriter, pipelineConfig, pipelineStructureViewModel.getPipelineDependencyTable());
                                                     if (pipelineConfig.hasTemplate()) {
-                                                        renderStages(templatesList.templateByName(pipelineConfig.getTemplateName()), pipelineWriter);
+                                                        renderStages(pipelineStructureViewModel.getTemplatesConfig().templateByName(pipelineConfig.getTemplateName()), pipelineWriter);
                                                     } else {
                                                         renderStages(pipelineConfig, pipelineWriter);
                                                     }
@@ -52,7 +57,7 @@ public class InternalPipelineStructuresRepresenter {
                     });
                 })
                 .addChildList("templates", templatesWriter -> {
-                    templatesList.forEach(template -> {
+                    pipelineStructureViewModel.getTemplatesConfig().forEach(template -> {
                         templatesWriter.addChild(templateWriter -> {
                             templateWriter
                                     .add("name", template.name())
@@ -61,6 +66,23 @@ public class InternalPipelineStructuresRepresenter {
                         });
                     });
                 });
+    }
+
+    private static void renderDependantPipelines(OutputWriter pipelineWriter, PipelineConfig pipelineConfig, Hashtable<CaseInsensitiveString, Node> pipelineDependencyTable) {
+        List<String> dependantPipelines = pipelineDependencyTable.entrySet().stream()
+                .filter((entry) -> entry.getValue().hasDependency(pipelineConfig.name()))
+                .map((entry) -> entry.getKey().toString())
+                .collect(toList());
+        pipelineWriter.addChildList("dependant_pipelines", dependantPipelines);
+    }
+
+    private static void renderEnvironment(OutputWriter pipelineWriter, PipelineConfig pipelineConfig, EnvironmentsConfig environments) {
+        EnvironmentConfig envForPipeline = environments.findEnvironmentForPipeline(pipelineConfig.name());
+        if (envForPipeline != null) {
+            pipelineWriter.add("environment", envForPipeline.name());
+        } else {
+            pipelineWriter.renderNull("environment");
+        }
     }
 
     private static void writeOrigin(OutputWriter jsonWriter, ConfigOrigin origin) {
@@ -99,8 +121,8 @@ public class InternalPipelineStructuresRepresenter {
                 });
     }
 
-    public static void toJSON(OutputWriter outputWriter, PipelineGroups groups, TemplatesConfig templateConfigs, Collection<String> users, Collection<String> roles) {
-        toJSON(outputWriter, groups, templateConfigs);
+    public static void toJSON(OutputWriter outputWriter, PipelineStructureViewModel pipelineStructureViewModel, Collection<String> users, Collection<String> roles) {
+        toJSON(outputWriter, pipelineStructureViewModel);
         outputWriter.addChild("additional_info", (writer) -> writer.addChildList("users", users)
                 .addChildList("roles", roles));
     }

@@ -29,7 +29,9 @@ function pipelineAssociationInXmlJson(): PipelineJSON {
   return {
     name: `pipeline-${randomString()}`,
     origin: originData.file_origin(),
-    stages: []
+    stages: [],
+    environment: null,
+    dependant_pipelines: [],
   };
 }
 
@@ -37,7 +39,9 @@ function pipelineAssociationInConfigRepoJson(): PipelineJSON {
   return {
     name: `pipeline-${randomString()}`,
     origin: originData.config_repo_origin(),
-    stages: []
+    stages: [],
+    environment: null,
+    dependant_pipelines: [],
   };
 }
 

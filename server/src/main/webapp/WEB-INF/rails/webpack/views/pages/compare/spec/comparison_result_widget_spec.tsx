@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import {Comparison} from "models/compare/compare";
 import {ComparisonData} from "models/compare/spec/test_data";
@@ -49,9 +50,13 @@ describe('ComparisonResultWidgetSpec', () => {
     comparison.isBisect = true;
     mount(comparison);
 
+    const infoMsgElement = helper.byTestId("info-msg");
+
     expect(helper.byTestId("info-msg")).toBeInDOM();
     expect(helper.byTestId("comparison-result-widget")).toBeInDOM();
-    expect(helper.textByTestId("info-msg")).toBe("This comparison involves a pipeline instance that was triggered with a non-sequential material revision.");
+    expect(infoMsgElement.textContent).toBe("This comparison involves a pipeline instance that was triggered with a non-sequential material revision. Learn More");
+    expect(helper.q('a', infoMsgElement)).toBeInDOM();
+    expect(helper.q('a', infoMsgElement)).toHaveAttr('href', docsUrl('advanced_usage/compare_pipelines.html'));
     expect(helper.byTestId("Info Circle-icon")).toBeInDOM();
   });
 });

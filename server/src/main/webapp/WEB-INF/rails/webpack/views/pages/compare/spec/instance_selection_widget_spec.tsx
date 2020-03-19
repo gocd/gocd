@@ -60,13 +60,12 @@ describe('InstanceSelectionWidgetSpec', () => {
     expect(helper.textByTestId("triggered-by")).toBe(`Triggered by ${instance.buildCause().getApprover()} on ${timeFormatter.format(instance.scheduledDate())}`);
   });
 
-  it('should render warning msg instead of stages if the instance is a bisect', () => {
+  it('should render warning msg if the instance is a bisect', () => {
     instance.naturalOrder(9.5);
     mount();
 
-    expect(helper.byTestId("stages")).not.toBeInDOM();
     expect(helper.byTestId("warning")).toBeInDOM();
     expect(helper.byTestId("Warning-icon")).toBeInDOM();
-    expect(helper.textByTestId("warning")).toBe("This pipeline instance cannot be used to perform a comparison because it was triggered with a non-sequential material revision.");
+    expect(helper.textByTestId("warning")).toBe("This pipeline instance was triggered with a non-sequential material revision.");
   });
 });

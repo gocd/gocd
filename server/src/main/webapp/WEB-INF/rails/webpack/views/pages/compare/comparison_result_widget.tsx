@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import {Comparison, DependencyRevisions, MaterialRevisions} from "models/compare/compare";
 import {DependencyMaterialAttributes} from "models/compare/material";
 import {InfoCircle} from "views/components/icons";
+import {Link} from "views/components/link";
 import {DependencyRevisionsWidget} from "./dependency_revisions_widget";
 import styles from "./index.scss";
 import {MaterialRevisionsWidget} from "./material_revisions_widget";
@@ -36,8 +38,11 @@ export class ComparisonResultWidget extends MithrilViewComponent<Attrs> {
 
     let warning: m.Child;
     if (vnode.attrs.comparisonResult.isBisect) {
-      warning = <div data-test-id="info-msg" class={styles.infoMsg}><InfoCircle iconOnly={true}/>This comparison involves a pipeline instance
-        that was triggered with a non-sequential material revision.</div>;
+      warning = <div data-test-id="info-msg" class={styles.infoMsg}><InfoCircle iconOnly={true}/>This comparison
+        involves a pipeline instance
+        that was triggered with a non-sequential material revision.
+        <Link href={docsUrl("advanced_usage/compare_pipelines.html")} target="_blank" externalLinkIcon={true}> Learn More</Link>
+      </div>;
     }
 
     return [warning,

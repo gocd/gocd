@@ -36,7 +36,7 @@ export interface InstanceAttrs {
 }
 
 export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs> {
-  readonly showSuggestions: Stream<boolean>             = Stream();
+  readonly showSuggestions: Stream<boolean> = Stream();
 
   static dataTestId(...parts: StringOrNumber[]) {
     return s.slugify(parts.join("-").trim().toLowerCase());
@@ -53,15 +53,19 @@ export class InstanceSelectionWidget extends MithrilViewComponent<InstanceAttrs>
   }
 
   private getStagesOrWarning(vnode: m.Vnode<InstanceAttrs, this>) {
+    let bisectWarningMsg;
     if (vnode.attrs.instance.isBisect()) {
-      return <div data-test-id="warning" class={styles.warning}><Warning iconOnly={true}/>This pipeline instance cannot
-        be used to perform a comparison because it was triggered with a non-sequential material revision.</div>;
+      bisectWarningMsg = <div data-test-id="warning" class={styles.warning}>
+        <Warning iconOnly={true}/>
+        This pipeline instance was triggered with a non-sequential material revision.
+      </div>;
     }
     return <div>
       <StagesWidget stages={vnode.attrs.instance.stages()} onClick={this.onStageClick.bind(this, vnode)}/>
       <span data-test-id="triggered-by" className={styles.label}>
         Triggered by {vnode.attrs.instance.buildCause().getApprover()} on {PipelineInstanceWidget.getTimeToDisplay(vnode.attrs.instance.scheduledDate())}
       </span>
+      {bisectWarningMsg}
     </div>;
   }
 

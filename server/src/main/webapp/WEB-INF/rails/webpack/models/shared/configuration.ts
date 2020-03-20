@@ -69,6 +69,13 @@ export class Configurations {
   public toJSON() {
     return this.configurations;
   }
+
+  public asString(): string {
+    const configValues = this.configurations
+                             .map((config) => `${config.key}=${config.displayValue()}`)
+                             .join(',');
+    return `[${configValues}]`
+  }
 }
 
 export class Configuration {

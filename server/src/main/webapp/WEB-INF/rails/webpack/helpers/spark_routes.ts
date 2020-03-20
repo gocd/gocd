@@ -537,4 +537,24 @@ export class SparkRoutes {
     return `/go/api/internal/pipelines/${pipelineName}/${stageName}/upstream`;
   }
 
+  static packageRepositoryPath(id?: string) {
+    if (id) {
+      return `/go/api/admin/repositories/${id}`
+    }
+    return '/go/api/admin/repositories';
+  }
+
+  static packagePath(id?: string) {
+    if (id) {
+      return `/go/api/admin/packages/${id}`
+    }
+    return '/go/api/admin/packages';
+  }
+
+  static pluggableScmPath(id?: string) {
+    if (id) {
+      return `/go/api/admin/scms/${id}`
+    }
+    return '/go/api/admin/scms';
+  }
 }

@@ -15,9 +15,13 @@
  */
 
 import m from "mithril";
-import {Material} from "models/materials/types";
-import {NameableSet} from "models/pipeline_configs/nameable_set";
-import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import Stream from "mithril/stream";
+import {Scms} from "models/materials/pluggable_scm";
+import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
+import {Material, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
+import {PackagesCRUD} from "models/package_repositories/packages_crud";
+import {Packages} from "models/package_repositories/package_repositories";
+import {Materials, PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Secondary} from "views/components/buttons";
 import {Delete, Edit, IconGroup} from "views/components/icons";
 import {Table} from "views/components/table";
@@ -27,14 +31,22 @@ import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipe
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 
 export class MaterialsTabContent extends TabContent<PipelineConfig> {
+  private readonly packages: Stream<Packages> = Stream();
+  private readonly scmMaterials: Stream<Scms> = Stream();
+
+  constructor() {
+    super();
+    this.fetchAllPackages();
+    this.fetchScmMaterials();
+  }
 
   static tabName(): string {
     return "Materials";
   }
 
-  addNewMaterial(materials: NameableSet<Material>) {
+  addNewMaterial(materials: Materials) {
     MaterialModal.forAdd((material: Material) => {
-      materials.add(material);
+      materials.push(material);
     }).render();
   }
 
@@ -49,13 +61,22 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
     return false;
   }
 
+  name(): string {
+    return "Materials";
+  }
+
+  deleteMaterial(materials: Materials, material: Material, e: MouseEvent) {
+    e.stopPropagation();
+    materials.delete(material)
+  }
+
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
     return pipelineConfig;
   }
 
   protected renderer(entity: PipelineConfig) {
     return <div class={style.materialTab}>
-      <Table headers={["Type", "Material Name", "Url", ""]} data={this.tableData(entity.materials())}/>
+      <Table headers={["Material Name", "Type", "Url", ""]} data={this.tableData(entity.materials())}/>
       <Secondary dataTestId={"add-material-button"}
                  onclick={this.addNewMaterial.bind(this, entity.materials())}>
         Add Material
@@ -63,17 +84,67 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
     </div>;
   }
 
-  private tableData(materials: NameableSet<Material>) {
-    return Array.from(materials.values()).map((material) => {
+  private tableData(materials: Materials) {
+    return Array.from(materials.values()).map((material: Material) => {
       return [
-        material.type(),
-        material.name(),
-        material.materialUrl(),
+        this.getMaterialDisplayName(material),
+        material.typeForDisplay(),
+        this.getMaterialUrlForDisplay(material),
         <IconGroup>
           <Edit onclick={this.updateMaterial.bind(this, material)} data-test-id={"edit-material-button"}/>
-          <Delete onclick={() => materials.delete(material)} data-test-id={"delete-material-button"}/>
+          <Delete onclick={this.deleteMaterial.bind(this, materials, material)}
+                  data-test-id={"delete-material-button"}/>
         </IconGroup>
       ];
     });
+  }
+
+  private getMaterialUrlForDisplay(material: Material) {
+    const url = material.materialUrl();
+    if (url.length === 0 && material.type() === "package") {
+      const attrs   = material.attributes() as PackageMaterialAttributes;
+      const pkgInfo = this.packages().find((pkg) => pkg.id() === attrs.ref())!;
+      return `Repository: ${pkgInfo.packageRepo().name()} - Package: ${pkgInfo.name()} ${pkgInfo.configuration().asString()}`;
+    }
+    if (url.length === 0 && material.type() === "plugin") {
+      const attrs       = material.attributes() as PluggableScmMaterialAttributes;
+      const scmMaterial = this.scmMaterials().find((pkg) => pkg.id() === attrs.ref())!;
+      return `${scmMaterial.name()}: ${scmMaterial.configuration().asString()}`;
+    }
+    return url;
+  }
+
+  private getMaterialDisplayName(material: Material) {
+    const displayName = material.displayName();
+    if (displayName.length === 0 && material.type() === "package") {
+      const attrs   = material.attributes() as PackageMaterialAttributes;
+      const pkgInfo = this.packages().find((pkg) => pkg.id() === attrs.ref())!;
+      return `${pkgInfo.packageRepo().name()}_${pkgInfo.name()}`;
+    }
+    if (displayName.length === 0 && material.type() === "plugin") {
+      const attrs       = material.attributes() as PluggableScmMaterialAttributes;
+      const scmMaterial = this.scmMaterials().find((pkg) => pkg.id() === attrs.ref())!;
+      return scmMaterial.name();
+    }
+    return displayName;
+  }
+
+  private fetchAllPackages() {
+    PackagesCRUD.all()
+                .then((result) => {
+                  result.do((successResponse) => {
+                    this.packages(successResponse.body);
+                    super.pageLoaded();
+                  }, super.pageLoadFailure)
+                });
+  }
+
+  private fetchScmMaterials() {
+    PluggableScmCRUD.all()
+                    .then((result) => {
+                      result.do((successResponse) => {
+                        this.scmMaterials(successResponse.body);
+                      })
+                    })
   }
 }

@@ -24,10 +24,20 @@ import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
-import s from "underscore.string";
 import urlParse from "url-parse";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 import {Filter} from "../maintenance_mode/material";
+
+const mapTypeToDisplayType: { [key: string]: string; } = {
+  git:        "Git",
+  svn:        "Subversion",
+  hg:         "Mercurial",
+  p4:         "Perforce",
+  tfs:        "Tfs",
+  dependency: "Pipeline",
+  package:    "Package",
+  plugin:     "Plugin"
+};
 
 //tslint:disable-next-line
 export interface Material extends ValidatableMixin {
@@ -103,8 +113,19 @@ export class Material extends ValidatableMixin {
   }
 
   materialUrl(): string {
-    // @ts-ignore
-    return this.type() === "p4" ? this.attributes().port() : this.attributes().url();
+    switch (this.type()) {
+      case "p4":
+        return (this.attributes() as P4MaterialAttributes).port()!;
+      case "dependency":
+        const attrs = (this.attributes() as DependencyMaterialAttributes);
+        return `${attrs.pipeline()} / ${attrs.stage()}`;
+      case "package":
+      case "plugin":
+        return "";
+      default:
+        // @ts-ignore
+        return this.attributes()!.url();
+    }
   }
 
   errorContainerFor(subkey: string): ErrorsConsumer {
@@ -147,7 +168,25 @@ export class Material extends ValidatableMixin {
   }
 
   typeForDisplay() {
-    return this.type() === "dependency" ? "Pipeline" : s.capitalize(this.type()!);
+    return mapTypeToDisplayType[this.type()!]
+  }
+
+  displayName() {
+    const name = this.name();
+    if (name.length > 0) {
+      return name;
+    }
+    if (this.type() === "dependency") {
+      return (this.attributes() as DependencyMaterialAttributes).pipeline();
+    }
+    if (this.type() === "package" || this.type() === "plugin") {
+      return "";
+    }
+    if (this.type() === "p4") {
+      return (this.attributes() as P4MaterialAttributes).port();
+    }
+    // @ts-ignore
+    return this.attributes()!.url();
   }
 }
 
@@ -463,7 +502,7 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
   }
 }
 
-class PackageMaterialAttributes extends MaterialAttributes {
+export class PackageMaterialAttributes extends MaterialAttributes {
   ref: Stream<string | undefined>;
 
   constructor(name?: string, autoUpdate?: boolean, ref?: string) {
@@ -476,7 +515,7 @@ class PackageMaterialAttributes extends MaterialAttributes {
   }
 }
 
-class PluggableScmMaterialAttributes extends MaterialAttributes {
+export class PluggableScmMaterialAttributes extends MaterialAttributes {
   ref: Stream<string>;
   filter: Stream<Filter>;
   destination: Stream<string>;

@@ -106,7 +106,8 @@ public abstract class RuleAwarePluginProfile implements Validatable, RulesAware 
     public void encryptSecureConfigurations() {
         if (hasPluginInfo()) {
             for (ConfigurationProperty configuration : this.getConfiguration()) {
-                configuration.handleSecureValueConfiguration(isSecure(configuration.getConfigKeyName()));
+                final boolean isSecure = configuration.isSecure() || isSecure(configuration.getConfigKeyName());
+                configuration.handleSecureValueConfiguration(isSecure);
             }
         }
     }

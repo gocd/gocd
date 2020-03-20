@@ -325,7 +325,6 @@
               SELECT max(pipelines.id)
               FROM pipelines
               WHERE pipelines.name = #{pipelineName}
-              GROUP BY pipelines.name
           )
         )
         AND pipelines.name = #{pipelineName}

@@ -76,4 +76,55 @@ public class ConfigurationPropertyRepresenter {
             throw new JsonParseException("Could not parse configuration property");
         }
     }
+
+    /**
+     * Like {@link #fromJSONArray(JsonReader, String)}, but honors the `is_secure` flag
+     *
+     * @param jsonReader the reader for JSON input
+     * @param arrayKey   the JSON key holding the configuration properties block
+     * @return a {@link List<ConfigurationProperty>}
+     */
+    public static List<ConfigurationProperty> fromJSONArrayHandlingEncryption(JsonReader jsonReader, String arrayKey) {
+        List<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        jsonReader.readArrayIfPresent(arrayKey, properties -> {
+            properties.forEach(property -> {
+                JsonReader configPropertyReader = new JsonReader(property.getAsJsonObject());
+                ConfigurationProperty configurationProperty = fromJSONHandlingEncryption(configPropertyReader);
+                configurationProperties.add(configurationProperty);
+            });
+
+        });
+        return configurationProperties;
+    }
+
+    /**
+     * Like {@link #fromJSON(JsonReader)}, but handles an additional `is_secure` flag.
+     * <p>
+     * Behavior:
+     * <p>
+     * 1. if `encrypted_value` is provided, it behaves like {@link #fromJSON(JsonReader)} and ignores `is_secure`
+     * 2. only if `value` and `is_secure` are present, conditionally encrypts `value` => `encrypted_value` depending
+     * on the `is_secure` flag: `true` causes encryption, `false` leaves as plaintext.
+     *
+     * @param jsonReader a reader for the serialized JSON input
+     * @return a {@link ConfigurationProperty}
+     */
+    public static ConfigurationProperty fromJSONHandlingEncryption(JsonReader jsonReader) {
+        try {
+            final String key = jsonReader.getString("key");
+            final String value = jsonReader.optString("value").orElse(null);
+            final String encryptedValue = jsonReader.optString("encrypted_value").orElse(null);
+            final Boolean isSecure = jsonReader.optBoolean("is_secure").orElse(null);
+
+            final ConfigurationProperty property = new ConfigurationProperty().deserialize(key, value, encryptedValue);
+
+            if (isBlank(encryptedValue) && null != isSecure) {
+                property.handleSecureValueConfiguration(isSecure); // handle encryptions
+            }
+
+            return property;
+        } catch (Exception e) {
+            throw new JsonParseException("Could not parse configuration property");
+        }
+    }
 }

@@ -26,8 +26,8 @@ import {Secondary} from "views/components/buttons";
 import {Delete, Edit, IconGroup} from "views/components/icons";
 import {Table} from "views/components/table";
 import style from "views/pages/clicky_pipeline_config/index.scss";
-import {MaterialModal} from "views/pages/clicky_pipeline_config/modal/add_or_edit_modal";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {MaterialModal} from "views/pages/clicky_pipeline_config/modal/material_modal";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 
 export class MaterialsTabContent extends TabContent<PipelineConfig> {
@@ -45,13 +45,13 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
   }
 
   addNewMaterial(materials: Materials) {
-    MaterialModal.forAdd((material: Material) => {
+    MaterialModal.forAdd(this.packages, (material: Material) => {
       materials.push(material);
     }).render();
   }
 
   updateMaterial(material: Material) {
-    MaterialModal.forEdit(material, (updateMaterial: Material) => {
+    MaterialModal.forEdit(material, this.packages, (updateMaterial: Material) => {
       material.type(updateMaterial.type());
       material.attributes(updateMaterial.attributes());
     }).render();
@@ -144,7 +144,8 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
                     .then((result) => {
                       result.do((successResponse) => {
                         this.scmMaterials(successResponse.body);
-                      })
+                        super.pageLoaded();
+                      }, super.pageLoadFailure)
                     })
   }
 }

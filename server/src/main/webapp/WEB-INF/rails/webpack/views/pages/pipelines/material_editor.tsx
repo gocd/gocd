@@ -16,18 +16,11 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {
-  DependencyMaterialAttributes,
-  GitMaterialAttributes,
-  HgMaterialAttributes,
-  Material,
-  P4MaterialAttributes,
-  SvnMaterialAttributes,
-  TfsMaterialAttributes
-} from "models/materials/types";
+import {DependencyMaterialAttributes, GitMaterialAttributes, HgMaterialAttributes, Material, P4MaterialAttributes, PackageMaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "models/materials/types";
+import {Packages} from "models/package_repositories/package_repositories";
 import {Form, FormBody} from "views/components/forms/form";
 import {Option, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
-import {DefaultCache, DependencyFields, SuggestionCache} from "./non_scm_material_fields";
+import {DefaultCache, DependencyFields, PackageFields, SuggestionCache} from "./non_scm_material_fields";
 import {GitFields, HgFields, P4Fields, SvnFields, TfsFields} from "./scm_material_fields";
 
 interface Attrs {
@@ -37,6 +30,8 @@ interface Attrs {
   showLocalWorkingCopyOptions?: boolean;
   scmOnly?: boolean;
   disabled?: boolean;
+  showExtraMaterials?: boolean;
+  packages?: Packages;
 }
 
 export class MaterialEditor extends MithrilViewComponent<Attrs> {
@@ -49,18 +44,24 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>) {
-    const attrs = vnode.attrs;
+    const attrs                       = vnode.attrs;
     const showLocalWorkingCopyOptions = "showLocalWorkingCopyOptions" in attrs ? !!attrs.showLocalWorkingCopyOptions : true;
-    const scmOnly = !!attrs.scmOnly;
-    const hideTestConnection = !!vnode.attrs.hideTestConnection;
+    const scmOnly                     = !!attrs.scmOnly;
+    const hideTestConnection          = !!attrs.hideTestConnection;
+
+    const supportedMaterials: Array<Option | string> = this.supportedMaterials(scmOnly);
+    if (!!attrs.showExtraMaterials) {
+      supportedMaterials.push({id: "package", text: "Package"});
+    }
 
     return <FormBody>
-      <SelectField label="Material Type" property={vnode.attrs.material.type} required={true} readonly={vnode.attrs.disabled}>
-        <SelectFieldOptions selected={vnode.attrs.material.type()} items={this.supportedMaterials(scmOnly)}/>
+      <SelectField label="Material Type" property={vnode.attrs.material.type} required={true}
+                   readonly={vnode.attrs.disabled}>
+        <SelectFieldOptions selected={vnode.attrs.material.type()} items={supportedMaterials}/>
       </SelectField>
 
       <Form last={true} compactForm={true}>
-        {this.fieldsForType(vnode.attrs.material, this.cache, showLocalWorkingCopyOptions, hideTestConnection, vnode.attrs.disabled)}
+        {this.fieldsForType(attrs.material, this.cache, showLocalWorkingCopyOptions, hideTestConnection, attrs.disabled, attrs.packages)}
       </Form>
     </FormBody>;
   }
@@ -81,38 +82,51 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     return options;
   }
 
-  fieldsForType(material: Material, cacheable: SuggestionCache, showLocalWorkingCopyOptions: boolean, hideTestConnection: boolean, disabled?: boolean): m.Children {
+  fieldsForType(material: Material, cacheable: SuggestionCache, showLocalWorkingCopyOptions: boolean, hideTestConnection: boolean, disabled?: boolean, packages?: Packages): m.Children {
     switch (material.type()) {
       case "git":
         if (!(material.attributes() instanceof GitMaterialAttributes)) {
           material.attributes(new GitMaterialAttributes("", true));
         }
-        return <GitFields material={material} hideTestConnection={hideTestConnection} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
+        return <GitFields material={material} hideTestConnection={hideTestConnection}
+                          showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "hg":
         if (!(material.attributes() instanceof HgMaterialAttributes)) {
           material.attributes(new HgMaterialAttributes("", true));
         }
-        return <HgFields material={material} hideTestConnection={hideTestConnection} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
+        return <HgFields material={material} hideTestConnection={hideTestConnection}
+                         showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "svn":
         if (!(material.attributes() instanceof SvnMaterialAttributes)) {
           material.attributes(new SvnMaterialAttributes("", true));
         }
-        return <SvnFields material={material} hideTestConnection={hideTestConnection} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
+        return <SvnFields material={material} hideTestConnection={hideTestConnection}
+                          showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "p4":
         if (!(material.attributes() instanceof P4MaterialAttributes)) {
           material.attributes(new P4MaterialAttributes("", true));
         }
-        return <P4Fields material={material} hideTestConnection={hideTestConnection} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
+        return <P4Fields material={material} hideTestConnection={hideTestConnection}
+                         showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "tfs":
         if (!(material.attributes() instanceof TfsMaterialAttributes)) {
           material.attributes(new TfsMaterialAttributes("", true));
         }
-        return <TfsFields material={material} hideTestConnection={hideTestConnection} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
+        return <TfsFields material={material} hideTestConnection={hideTestConnection}
+                          showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "dependency":
         if (!(material.attributes() instanceof DependencyMaterialAttributes)) {
           material.attributes(new DependencyMaterialAttributes());
         }
-        return <DependencyFields material={material} cache={cacheable} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}/>;
+        return <DependencyFields material={material} cache={cacheable}
+                                 showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}/>;
+      case "package":
+        if (!(material.attributes() instanceof PackageMaterialAttributes)) {
+          material.attributes(new PackageMaterialAttributes("", true, ""));
+        }
+        packages = packages === undefined ? new Packages() : packages;
+        return <PackageFields material={material} packages={packages}
+                              showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}/>;
       default:
         break;
     }

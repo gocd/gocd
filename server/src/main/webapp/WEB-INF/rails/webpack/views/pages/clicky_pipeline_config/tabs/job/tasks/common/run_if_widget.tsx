@@ -36,6 +36,10 @@ interface State {
 
 export class RunIfConditionWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
+    if (vnode.attrs.runIf().length === 0) {
+      vnode.attrs.runIf(["passed"]);
+    }
+
     vnode.state.passed = Stream(vnode.attrs.runIf().indexOf("passed") !== -1);
     vnode.state.failed = Stream(vnode.attrs.runIf().indexOf("failed") !== -1);
     vnode.state.any    = Stream(vnode.attrs.runIf().indexOf("any") !== -1);

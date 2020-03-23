@@ -32,6 +32,16 @@ describe("Run If Condition Widget", () => {
     expect(helper.byTestId("run-if-condition")).toContainText("Run If Conditions");
   });
 
+  it("should select passed by default", () => {
+    const runIf = Stream([] as RunIfCondition[]);
+    mount(runIf);
+
+    expect(helper.byTestId("form-field-input-passed")).toBeChecked();
+    expect(helper.byTestId("form-field-input-failed")).not.toBeChecked();
+    expect(helper.byTestId("form-field-input-any")).not.toBeChecked();
+    expect(runIf()).toEqual(["passed"]);
+  });
+
   it("should render passed selection", () => {
     const runIf = Stream(["passed"] as RunIfCondition[]);
     mount(runIf);
@@ -60,14 +70,18 @@ describe("Run If Condition Widget", () => {
   });
 
   it("should select passed selection", () => {
-    const runIf = Stream([] as RunIfCondition[]);
+    const runIf = Stream(["failed"] as RunIfCondition[]);
     mount(runIf);
 
     expect(helper.byTestId("form-field-input-passed")).not.toBeChecked();
-    expect(helper.byTestId("form-field-input-failed")).not.toBeChecked();
+    expect(helper.byTestId("form-field-input-failed")).toBeChecked();
     expect(helper.byTestId("form-field-input-any")).not.toBeChecked();
-    expect(runIf()).toEqual([]);
+    expect(runIf()).toEqual(["failed"]);
 
+    //uncheck failed
+    helper.clickByTestId("form-field-input-failed");
+
+    //check passed
     helper.clickByTestId("form-field-input-passed");
 
     expect(helper.byTestId("form-field-input-passed")).toBeChecked();
@@ -77,14 +91,18 @@ describe("Run If Condition Widget", () => {
   });
 
   it("should select failed selection", () => {
-    const runIf = Stream([] as RunIfCondition[]);
+    const runIf = Stream(["passed"] as RunIfCondition[]);
     mount(runIf);
 
-    expect(helper.byTestId("form-field-input-passed")).not.toBeChecked();
+    expect(helper.byTestId("form-field-input-passed")).toBeChecked();
     expect(helper.byTestId("form-field-input-failed")).not.toBeChecked();
     expect(helper.byTestId("form-field-input-any")).not.toBeChecked();
-    expect(runIf()).toEqual([]);
+    expect(runIf()).toEqual(["passed"]);
 
+    //uncheck passed
+    helper.clickByTestId("form-field-input-passed");
+
+    //check passed
     helper.clickByTestId("form-field-input-failed");
 
     expect(helper.byTestId("form-field-input-passed")).not.toBeChecked();
@@ -94,13 +112,13 @@ describe("Run If Condition Widget", () => {
   });
 
   it("should select any selection", () => {
-    const runIf = Stream([] as RunIfCondition[]);
+    const runIf = Stream(["passed"] as RunIfCondition[]);
     mount(runIf);
 
-    expect(helper.byTestId("form-field-input-passed")).not.toBeChecked();
+    expect(helper.byTestId("form-field-input-passed")).toBeChecked();
     expect(helper.byTestId("form-field-input-failed")).not.toBeChecked();
     expect(helper.byTestId("form-field-input-any")).not.toBeChecked();
-    expect(runIf()).toEqual([]);
+    expect(runIf()).toEqual(["passed"]);
 
     helper.clickByTestId("form-field-input-any");
 

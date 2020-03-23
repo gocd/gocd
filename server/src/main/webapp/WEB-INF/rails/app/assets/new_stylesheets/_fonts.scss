@@ -63,7 +63,7 @@ $opensans-variants: (
   $variant: map-get($opensans-variants, $variant-name);
   @include font-face($font-family: 'Open Sans',
                      $file-path: 'opensans/OpenSans-#{$variant-name}-webfont',
-                     $file-formats: ("woff2", "woff"),
+                     $file-formats: ("woff"),
                      $asset-pipeline: true
   ) {
     font-style: map-get($variant, 'font-style');

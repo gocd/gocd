@@ -172,7 +172,7 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
     }
 
     private Optional<PipelineConfigs> findPipelineGroup(String name) {
-        return streamAllPipelineGroups().filter(p -> p.getGroup().equals(name)).findFirst();
+        return streamAllPipelineGroups().filter(p -> p.getGroup().equalsIgnoreCase(name)).findFirst();
     }
 
     @Override

@@ -20,7 +20,7 @@ import {SparkRoutes} from "helpers/spark_routes";
 import Stream from "mithril/stream";
 import {EnvironmentVariableJSON, EnvironmentVariables} from "models/environment_variables/types";
 import {MaterialJSON} from "models/materials/serialization";
-import {Material, Materials} from "models/materials/types";
+import {Material, MaterialAttributes} from "models/materials/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Origin, OriginJSON} from "models/origin";
 import {NameableSet} from "./nameable_set";
@@ -98,7 +98,7 @@ export class Timer extends ValidatableMixin {
     }
 
     return {
-      spec: this.spec(),
+      spec:            this.spec(),
       only_on_changes: this.onlyOnChanges()
     };
   }
@@ -135,10 +135,10 @@ export class TrackingTool extends ValidatableMixin {
     }
 
     return {
-      type: "generic",
+      type:       "generic",
       attributes: {
         url_pattern: this.urlPattern(),
-        regex: this.regex()
+        regex:       this.regex()
       }
     };
   }
@@ -153,7 +153,7 @@ export class PipelineConfig extends ValidatableMixin {
   readonly origin               = Stream<Origin>();
   readonly parameters           = Stream<PipelineParameter[]>([]);
   readonly environmentVariables = Stream<EnvironmentVariables>();
-  readonly materials            = Stream(new NameableSet<Material>());
+  readonly materials            = Stream(new Materials());
   readonly stages               = Stream(new NameableSet<Stage>());
   readonly trackingTool         = Stream<TrackingTool>();
   readonly timer                = Stream<Timer>();
@@ -170,9 +170,9 @@ export class PipelineConfig extends ValidatableMixin {
     this.validatePresenceOf("group");
     this.validateIdFormat("group");
 
-    this.materials = Stream(new NameableSet(materials));
+    this.materials = Stream(new Materials(...materials));
     this.validateNonEmptyCollection("materials", {message: `A pipeline must have at least one material`});
-    this.validateAssociated("materials");
+    this.validateEach("materials");
 
     this.stages = Stream(new NameableSet(stages));
     this.validateAssociated("stages");
@@ -194,7 +194,7 @@ export class PipelineConfig extends ValidatableMixin {
     pipelineConfig.origin(Origin.fromJSON(json.origin));
     pipelineConfig.parameters(PipelineParameter.fromJSONArray(json.parameters || []));
     pipelineConfig.environmentVariables(EnvironmentVariables.fromJSON(json.environment_variables || []));
-    pipelineConfig.materials(new NameableSet<Material>(Materials.fromJSONArray(json.materials || [])));
+    pipelineConfig.materials(Materials.fromJSONArray(json.materials));
     pipelineConfig.stages(new NameableSet(Stage.fromJSONArray(json.stages || [])));
     pipelineConfig.trackingTool(TrackingTool.fromJSON(json.tracking_tool));
     pipelineConfig.timer(Timer.fromJSON(json.timer));
@@ -243,5 +243,27 @@ export class PipelineConfig extends ValidatableMixin {
 
   toPutApiPayload(): any {
     return JsonUtils.toSnakeCasedObject(this);
+  }
+}
+
+export class Materials extends Array<Material> {
+  constructor(...vals: Material[]) {
+    super(...vals);
+    Object.setPrototypeOf(this, Object.create(Materials.prototype));
+  }
+
+  static fromJSON(material: MaterialJSON): Material {
+    return new Material(material.type, MaterialAttributes.deserialize(material));
+  }
+
+  static fromJSONArray(data: MaterialJSON[]): Materials {
+    return new Materials(...data.map((a) => Materials.fromJSON(a)));
+  }
+
+  delete(material: Material) {
+    const index = this.indexOf(material, 0);
+    if (index > -1) {
+      this.splice(index, 1);
+    }
   }
 }

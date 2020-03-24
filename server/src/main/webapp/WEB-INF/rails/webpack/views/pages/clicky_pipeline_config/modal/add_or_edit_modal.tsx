@@ -16,20 +16,17 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Material} from "models/materials/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Job} from "models/pipeline_configs/job";
 import {Stage} from "models/pipeline_configs/stage";
-import s from "underscore.string";
 import * as Buttons from "views/components/buttons";
 import {Modal, Size} from "views/components/modal";
 import {JobEditor} from "views/pages/clicky_pipeline_config/widgets/job_editor_widget";
-import {MaterialEditor} from "views/pages/pipelines/material_editor";
 import {TaskTerminalField} from "views/pages/pipelines/task_editor";
 import style from "../index.scss";
 import {StageEditor} from "../widgets/stage_editor_widget";
 
-abstract class AddOrEditEntityModal<T extends ValidatableMixin> extends Modal {
+export abstract class AddOrEditEntityModal<T extends ValidatableMixin> extends Modal {
   protected readonly entity: Stream<T>;
   private readonly __title: string;
   protected readonly onSuccessfulAdd: (entity: T) => void;
@@ -56,22 +53,6 @@ abstract class AddOrEditEntityModal<T extends ValidatableMixin> extends Modal {
       this.close();
       this.onSuccessfulAdd(this.entity());
     }
-  }
-}
-
-export class MaterialModal extends AddOrEditEntityModal<Material> {
-  static forAdd(onSuccessfulAdd: (material: Material) => void) {
-    return new MaterialModal("Add material", Stream(new Material("git")), onSuccessfulAdd);
-  }
-
-  static forEdit(material: Material, onSuccessfulAdd: (material: Material) => void) {
-    const title          = `Edit material - ${s.capitalize(material.type()!)}`;
-    const copyOfMaterial = Stream(new Material(material.type(), material.attributes()));
-    return new MaterialModal(title, copyOfMaterial, onSuccessfulAdd);
-  }
-
-  body(): m.Children {
-    return <MaterialEditor material={this.entity()}/>;
   }
 }
 

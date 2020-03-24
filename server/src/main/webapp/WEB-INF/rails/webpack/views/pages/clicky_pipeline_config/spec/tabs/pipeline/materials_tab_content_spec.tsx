@@ -36,16 +36,27 @@ describe("MaterialsTabContent", () => {
     const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withGitMaterial());
     mount(pipelineConfig);
 
+    expect(helper.byTestId('flash-message-alert')).not.toBeInDOM();
     const headerRow = helper.byTestId("table-header-row");
-    expect(helper.qa("th", headerRow)[0]).toHaveText("Type");
-    expect(helper.qa("th", headerRow)[1]).toHaveText("Material Name");
-    expect(helper.qa("th", headerRow)[2]).toHaveText("Url");
+    expect(helper.qa("th", headerRow)[0].textContent).toBe("Material Name");
+    expect(helper.qa("th", headerRow)[1].textContent).toBe("Type");
+    expect(helper.qa("th", headerRow)[2].textContent).toBe("Url");
 
     const dataRow = helper.byTestId("table-row");
     expect(helper.qa("td", dataRow)).toHaveLength(4);
-    expect(helper.qa("td", dataRow)[0]).toHaveText("git");
-    expect(helper.qa("td", dataRow)[1]).toHaveText("GM");
-    expect(helper.qa("td", dataRow)[2]).toHaveText("test-repo");
+    expect(helper.qa("td", dataRow)[0].textContent).toBe("GM");
+    expect(helper.qa("td", dataRow)[1].textContent).toBe("Git");
+    expect(helper.qa("td", dataRow)[2].textContent).toBe("test-repo");
+  });
+
+  it('should render all the errors on all the materials', () => {
+    const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withGitMaterial());
+    pipelineConfig.materials()[0].errors().add("name", "some error");
+    pipelineConfig.materials()[0].errors().add("type", "some error on another property");
+    mount(pipelineConfig);
+
+    expect(helper.byTestId('flash-message-alert')).toBeInDOM();
+    expect(helper.textByTestId('flash-message-alert')).toBe('some error.some error on another property.');
   });
 
   describe("Add Material", () => {

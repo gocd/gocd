@@ -15,7 +15,8 @@
  */
 
 import m from "mithril";
-import {GitMaterialAttributes, Material, P4MaterialAttributes} from "models/materials/types";
+import {GitMaterialAttributes, Material, P4MaterialAttributes, PackageMaterialAttributes} from "models/materials/types";
+import {Packages} from "models/package_repositories/package_repositories";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialEditor} from "../material_editor";
 
@@ -80,5 +81,19 @@ describe("AddPipeline: Material Editor", () => {
     expect(helper.byTestId("form-field-label-p4-view")).toBeFalsy();
     expect(helper.byTestId("form-field-label-repository-url")).toBeTruthy();
     expect(helper.byTestId("form-field-label-repository-url").textContent).toBe("Repository URL*");
+  });
+
+  it('should render the package options', () => {
+    helper.mount(() => <MaterialEditor material={material} showExtraMaterials={true} packages={new Packages()}/>);
+
+    expect(helper.q("label").textContent).toBe("Material Type*");
+    expect(helper.textAll("option")).toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server", "Another Pipeline", "Package"]);
+
+    helper.onchange("select", "package");
+
+    expect(material.type()).toBe("package");
+    expect(material.attributes() instanceof PackageMaterialAttributes).toBe(true);
+    expect(material.attributes()!.autoUpdate()).toBeTrue();
+    expect((material.attributes() as PackageMaterialAttributes)!.ref()).toBe("");
   });
 });

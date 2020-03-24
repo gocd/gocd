@@ -24,10 +24,20 @@ import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
-import s from "underscore.string";
 import urlParse from "url-parse";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 import {Filter} from "../maintenance_mode/material";
+
+const mapTypeToDisplayType: { [key: string]: string; } = {
+  git:        "Git",
+  svn:        "Subversion",
+  hg:         "Mercurial",
+  p4:         "Perforce",
+  tfs:        "Tfs",
+  dependency: "Pipeline",
+  package:    "Package",
+  plugin:     "Plugin"
+};
 
 //tslint:disable-next-line
 export interface Material extends ValidatableMixin {
@@ -93,7 +103,7 @@ export class Material extends ValidatableMixin {
       const newType = value;
       if (this.type() !== newType) {
         this.attributes(MaterialAttributes.deserialize({
-                                                         type: newType,
+                                                         type:       newType,
                                                          attributes: ({} as MaterialAttributesJSON)
                                                        }));
       }
@@ -103,8 +113,19 @@ export class Material extends ValidatableMixin {
   }
 
   materialUrl(): string {
-    // @ts-ignore
-    return this.type() === "p4" ? this.attributes().port() : this.attributes().url();
+    switch (this.type()) {
+      case "p4":
+        return (this.attributes() as P4MaterialAttributes).port()!;
+      case "dependency":
+        const attrs = (this.attributes() as DependencyMaterialAttributes);
+        return `${attrs.pipeline()} / ${attrs.stage()}`;
+      case "package":
+      case "plugin":
+        return "";
+      default:
+        // @ts-ignore
+        return this.attributes()!.url();
+    }
   }
 
   errorContainerFor(subkey: string): ErrorsConsumer {
@@ -147,7 +168,31 @@ export class Material extends ValidatableMixin {
   }
 
   typeForDisplay() {
-    return this.type() === "dependency" ? "Pipeline" : s.capitalize(this.type()!);
+    return mapTypeToDisplayType[this.type()!]
+  }
+
+  displayName() {
+    const name = this.name();
+    if (name.length > 0) {
+      return name;
+    }
+    if (this.type() === "dependency") {
+      return (this.attributes() as DependencyMaterialAttributes).pipeline();
+    }
+    if (this.type() === "package" || this.type() === "plugin") {
+      return "";
+    }
+    if (this.type() === "p4") {
+      return (this.attributes() as P4MaterialAttributes).port();
+    }
+    // @ts-ignore
+    return this.attributes()!.url();
+  }
+
+  allErrors(): string[] {
+    const errors = this.errors().allErrorsForDisplay();
+    errors.push(...this.attributes()!.errors().allErrorsForDisplay());
+    return errors;
   }
 }
 
@@ -215,8 +260,8 @@ export abstract class ScmMaterialAttributes extends MaterialAttributes {
   constructor(name?: string, autoUpdate?: boolean, username?: string, password?: string, encryptedPassword?: string) {
     super(name, autoUpdate);
     this.validateFormatOf("destination",
-      ScmMaterialAttributes.DESTINATION_REGEX,
-      {message: "Must be a relative path within the pipeline's working directory"});
+                          ScmMaterialAttributes.DESTINATION_REGEX,
+                          {message: "Must be a relative path within the pipeline's working directory"});
 
     this.username = Stream(username);
     this.password = Stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
@@ -233,8 +278,7 @@ class AuthNotSetInUrlAndUserPassFieldsValidator extends Validator {
 
       if ((!!username || !!(password && password.value())) && (!!urlObj.username || !!urlObj.password || url.indexOf("@") !== -1)) {
         entity.errors()
-          .add(attr,
-            "URL credentials must be set in either the URL or the username+password fields, but not both.");
+              .add(attr, "URL credentials must be set in either the URL or the username+password fields, but not both.");
       }
     }
   }
@@ -440,7 +484,7 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
   stage: Stream<string | undefined>;
   ignoreForScheduling: Stream<boolean | undefined>;
 
-  constructor(name?: string, autoUpdate?: boolean, pipeline?: string, stage?: string, ignoreForScheduling?:boolean) {
+  constructor(name?: string, autoUpdate?: boolean, pipeline?: string, stage?: string, ignoreForScheduling?: boolean) {
     super(name, autoUpdate);
     this.pipeline            = Stream(pipeline);
     this.stage               = Stream(stage);
@@ -463,7 +507,7 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
   }
 }
 
-class PackageMaterialAttributes extends MaterialAttributes {
+export class PackageMaterialAttributes extends MaterialAttributes {
   ref: Stream<string | undefined>;
 
   constructor(name?: string, autoUpdate?: boolean, ref?: string) {
@@ -472,11 +516,13 @@ class PackageMaterialAttributes extends MaterialAttributes {
   }
 
   static fromJSON(data: PackageMaterialAttributesJSON): PackageMaterialAttributes {
-    return new PackageMaterialAttributes(data.name, data.auto_update, data.ref);
+    const attrs = new PackageMaterialAttributes(data.name, data.auto_update, data.ref);
+    attrs.errors(new Errors(data.errors));
+    return attrs;
   }
 }
 
-class PluggableScmMaterialAttributes extends MaterialAttributes {
+export class PluggableScmMaterialAttributes extends MaterialAttributes {
   ref: Stream<string>;
   filter: Stream<Filter>;
   destination: Stream<string>;
@@ -489,6 +535,8 @@ class PluggableScmMaterialAttributes extends MaterialAttributes {
   }
 
   static fromJSON(data: PluggableScmMaterialAttributesJSON): PluggableScmMaterialAttributes {
-    return new PluggableScmMaterialAttributes(data.name, data.auto_update, data.ref, data.destination, Filter.fromJSON(data.filter));
+    const attrs = new PluggableScmMaterialAttributes(data.name, data.auto_update, data.ref, data.destination, Filter.fromJSON(data.filter));
+    attrs.errors(new Errors(data.errors));
+    return attrs;
   }
 }

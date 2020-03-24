@@ -28,6 +28,7 @@ export class PipelineConfigTestData {
     return new Builder()
       .name("Test")
       .origin(OriginType.GoCD)
+      .materials(this.git())
       .stageWithJobs("StageOne", "JobOne")
       .stageWithJobs("StageTwo", "JobOne", "JobTwo", "JobThree")
       .build();

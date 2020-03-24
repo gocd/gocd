@@ -56,6 +56,10 @@
 
 .material-tab {
   table {
+    td {
+      vertical-align: middle;
+    }
+
     td:last-child {
       width: 100px;
     }

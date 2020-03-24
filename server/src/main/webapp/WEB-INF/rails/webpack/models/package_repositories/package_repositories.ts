@@ -16,7 +16,7 @@
 
 import Stream from "mithril/stream";
 import {Configurations} from "../shared/configuration";
-import {PackageJSON, PackageRepositorySummaryJSON} from "./package_repositories_json";
+import {PackageJSON, PackageRepositoryJSON, PackageRepositorySummaryJSON, PluginMetadataJSON} from "./package_repositories_json";
 
 class PackageRepositorySummary {
   id: Stream<string>;
@@ -84,5 +84,50 @@ export class Packages extends Array<Package> {
 
   static fromJSON(data: PackageJSON[]): Packages {
     return new Packages(...data.map((a) => Package.fromJSON(a)));
+  }
+}
+
+class PluginMetadata {
+  id: Stream<string>;
+  version: Stream<string>;
+
+  constructor(id: string, version: string) {
+    this.id      = Stream(id);
+    this.version = Stream(version);
+  }
+
+  static fromJSON(data: PluginMetadataJSON): PluginMetadata {
+    return new PluginMetadata(data.id, data.version);
+  }
+}
+
+export class PackageRepository {
+  repoId: Stream<string>;
+  name: Stream<string>;
+  pluginMetadata: Stream<PluginMetadata>;
+  configuration: Stream<Configurations>;
+  packages: Stream<Packages>;
+
+  constructor(repoId: string, name: string, pluginMetadata: PluginMetadata, configuration: Configurations, packages: Packages) {
+    this.repoId         = Stream(repoId);
+    this.name           = Stream(name);
+    this.pluginMetadata = Stream(pluginMetadata);
+    this.configuration  = Stream(configuration);
+    this.packages       = Stream(packages);
+  }
+
+  static fromJSON(data: PackageRepositoryJSON): PackageRepository {
+    return new PackageRepository(data.repo_id, data.name, PluginMetadata.fromJSON(data.plugin_metadata), Configurations.fromJSON(data.configuration), Packages.fromJSON(data._embedded.packages));
+  }
+}
+
+export class PackageRepositories extends Array<PackageRepository> {
+  constructor(...pkgRepo: PackageRepository[]) {
+    super(...pkgRepo);
+    Object.setPrototypeOf(this, Object.create(PackageRepositories.prototype));
+  }
+
+  static fromJSON(data: PackageRepositoryJSON[]): PackageRepositories {
+    return new PackageRepositories(...data.map((a) => PackageRepository.fromJSON(a)));
   }
 }

@@ -17,6 +17,26 @@
 import {ErrorsJSON} from "models/mixins/errors";
 import {PropertyJSON} from "models/shared/configuration";
 
+export interface PluginMetadataJSON {
+  id: string;
+  version: string;
+}
+
+export interface PackageRepositoryJSON {
+  repo_id: string;
+  name: string;
+  plugin_metadata: PluginMetadataJSON;
+  configuration: PropertyJSON[];
+  _embedded: EmbeddedJSON;
+  errors?: ErrorsJSON;
+}
+
+export interface PackageRepositoriesJSON {
+  _embedded: {
+    package_repositories: PackageRepositoryJSON[];
+  }
+}
+
 export interface PackageRepositorySummaryJSON {
   id: string;
   name: string;

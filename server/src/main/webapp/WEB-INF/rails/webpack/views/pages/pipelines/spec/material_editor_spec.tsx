@@ -16,7 +16,7 @@
 
 import m from "mithril";
 import {GitMaterialAttributes, Material, P4MaterialAttributes, PackageMaterialAttributes} from "models/materials/types";
-import {Packages} from "models/package_repositories/package_repositories";
+import {PackageRepositories} from "models/package_repositories/package_repositories";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialEditor} from "../material_editor";
 
@@ -84,7 +84,8 @@ describe("AddPipeline: Material Editor", () => {
   });
 
   it('should render the package options', () => {
-    helper.mount(() => <MaterialEditor material={material} showExtraMaterials={true} packages={new Packages()}/>);
+    helper.mount(() => <MaterialEditor material={material} showExtraMaterials={true}
+                                       packageRepositories={new PackageRepositories()}/>);
 
     expect(helper.q("label").textContent).toBe("Material Type*");
     expect(helper.textAll("option")).toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server", "Another Pipeline", "Package"]);

@@ -17,7 +17,9 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {DependencyMaterialAttributes, GitMaterialAttributes, HgMaterialAttributes, Material, P4MaterialAttributes, PackageMaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "models/materials/types";
-import {Packages} from "models/package_repositories/package_repositories";
+import {PackageRepositories} from "models/package_repositories/package_repositories";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {Form, FormBody} from "views/components/forms/form";
 import {Option, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {DefaultCache, DependencyFields, PackageFields, SuggestionCache} from "./non_scm_material_fields";
@@ -31,7 +33,8 @@ interface Attrs {
   scmOnly?: boolean;
   disabled?: boolean;
   showExtraMaterials?: boolean;
-  packages?: Packages;
+  packageRepositories?: PackageRepositories;
+  pluginInfos?: PluginInfos;
 }
 
 export class MaterialEditor extends MithrilViewComponent<Attrs> {
@@ -61,7 +64,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
       </SelectField>
 
       <Form last={true} compactForm={true}>
-        {this.fieldsForType(attrs.material, this.cache, showLocalWorkingCopyOptions, hideTestConnection, attrs.disabled, attrs.packages)}
+        {this.fieldsForType(attrs.material, this.cache, showLocalWorkingCopyOptions, hideTestConnection, attrs.disabled, attrs.packageRepositories, attrs.pluginInfos)}
       </Form>
     </FormBody>;
   }
@@ -82,7 +85,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     return options;
   }
 
-  fieldsForType(material: Material, cacheable: SuggestionCache, showLocalWorkingCopyOptions: boolean, hideTestConnection: boolean, disabled?: boolean, packages?: Packages): m.Children {
+  fieldsForType(material: Material, cacheable: SuggestionCache, showLocalWorkingCopyOptions: boolean, hideTestConnection: boolean, disabled?: boolean, packageRepositories?: PackageRepositories, pluginInfos?: PluginInfos): m.Children {
     switch (material.type()) {
       case "git":
         if (!(material.attributes() instanceof GitMaterialAttributes)) {
@@ -124,9 +127,11 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
         if (!(material.attributes() instanceof PackageMaterialAttributes)) {
           material.attributes(new PackageMaterialAttributes("", true, ""));
         }
-        packages = packages === undefined ? new Packages() : packages;
-        return <PackageFields material={material} packages={packages}
-                              showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}/>;
+        packageRepositories = packageRepositories === undefined ? new PackageRepositories() : packageRepositories;
+        pluginInfos         = pluginInfos === undefined ? new PluginInfos()
+          : pluginInfos!.filterForExtension(ExtensionTypeString.PACKAGE_REPO);
+        return <PackageFields material={material} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}
+                              packageRepositories={packageRepositories} pluginInfos={pluginInfos}/>;
       default:
         break;
     }

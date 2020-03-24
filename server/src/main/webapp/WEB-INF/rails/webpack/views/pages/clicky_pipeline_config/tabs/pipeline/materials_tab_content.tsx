@@ -18,23 +18,18 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Scms} from "models/materials/pluggable_scm";
 import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
-import {Material, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
 import {PackagesCRUD} from "models/package_repositories/packages_crud";
 import {PackageRepositories, Packages} from "models/package_repositories/package_repositories";
 import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
-import {Secondary} from "views/components/buttons";
-import {FlashMessage, MessageType} from "views/components/flash_message";
-import {Delete, Edit, IconGroup} from "views/components/icons";
-import {Table} from "views/components/table";
-import style from "views/pages/clicky_pipeline_config/index.scss";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
-import {MaterialModal} from "views/pages/clicky_pipeline_config/modal/material_modal";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
+import {MaterialsWidget} from "./materials_widget";
+import {Material} from "models/materials/types";
 
 export class MaterialsTabContent extends TabContent<PipelineConfig> {
   private readonly pluginInfos: Stream<PluginInfos>                 = Stream(new PluginInfos());
@@ -53,19 +48,6 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
     return "Materials";
   }
 
-  addNewMaterial(pipelineConfig: PipelineConfig) {
-    MaterialModal.forAdd(this.packageRepositories, this.pluginInfos, (material: Material) => {
-      pipelineConfig.materials().push(material);
-    }).render();
-  }
-
-  updateMaterial(material: Material, pipelineConfig: PipelineConfig) {
-    MaterialModal.forEdit(material, this.packageRepositories, this.pluginInfos, (updateMaterial: Material) => {
-      material.type(updateMaterial.type());
-      material.attributes(updateMaterial.attributes());
-    }).render();
-  }
-
   public shouldShowSaveAndResetButtons(): boolean {
     return false;
   }
@@ -74,76 +56,21 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
     return "Materials";
   }
 
-  deleteMaterial(pipelineConfig: PipelineConfig, material: Material, e: MouseEvent) {
-    e.stopPropagation();
-    pipelineConfig.materials().delete(material);
-  }
-
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
     return pipelineConfig;
   }
 
-  protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig, pipelineConfigSave: () => any, pipelineConfigReset: () => any) {
-    const allErrors = entity.materials()
-                            .map((material) => material.allErrors())
-                            .filter((errors) => errors.length > 0);
-    const errorMsgs = allErrors.length === 0
-      ? undefined
-      : <FlashMessage type={MessageType.alert} message={allErrors}/>;
-    return <div class={style.materialTab}>
-      {errorMsgs}
-      <Table headers={["Material Name", "Type", "Url", ""]} data={this.tableData(entity)}/>
-      <Secondary dataTestId={"add-material-button"}
-                 onclick={this.addNewMaterial.bind(this, entity)}>
-        Add Material
-      </Secondary>
-    </div>;
-  }
-
-  private tableData(pipelineConfig: PipelineConfig) {
-    return Array.from(pipelineConfig.materials().values()).map((material: Material) => {
-      return [
-        this.getMaterialDisplayName(material),
-        material.typeForDisplay(),
-        this.getMaterialUrlForDisplay(material),
-        <IconGroup>
-          <Edit onclick={this.updateMaterial.bind(this, material, pipelineConfig)}
-                data-test-id={"edit-material-button"}/>
-          <Delete onclick={this.deleteMaterial.bind(this, pipelineConfig, material)}
-                  data-test-id={"delete-material-button"}/>
-        </IconGroup>
-      ];
-    });
-  }
-
-  private getMaterialUrlForDisplay(material: Material) {
-    const url = material.materialUrl();
-    if (url.length === 0 && material.type() === "package") {
-      const attrs   = material.attributes() as PackageMaterialAttributes;
-      const pkgInfo = this.packages().find((pkg) => pkg.id() === attrs.ref())!;
-      return `Repository: ${pkgInfo.packageRepo().name()} - Package: ${pkgInfo.name()} ${pkgInfo.configuration().asString()}`;
-    }
-    if (url.length === 0 && material.type() === "plugin") {
-      const attrs       = material.attributes() as PluggableScmMaterialAttributes;
-      const scmMaterial = this.scmMaterials().find((pkg) => pkg.id() === attrs.ref())!;
-      return `${scmMaterial.name()}: ${scmMaterial.configuration().asString()}`;
-    }
-    return url;
-  }
-
-  private getMaterialDisplayName(material: Material) {
-    const displayName = material.displayName();
-    if (displayName.length === 0 && material.type() === "package") {
-      const attrs   = material.attributes() as PackageMaterialAttributes;
-      const pkgInfo = this.packages().find((pkg) => pkg.id() === attrs.ref())!;
-      return `${pkgInfo.packageRepo().name()}_${pkgInfo.name()}`;
-    }
-    if (displayName.length === 0 && material.type() === "plugin") {
-      const attrs       = material.attributes() as PluggableScmMaterialAttributes;
-      const scmMaterial = this.scmMaterials().find((pkg) => pkg.id() === attrs.ref())!;
-      return scmMaterial.name();
-    }
-    return displayName;
+  protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig, pipelineConfigSave: () => Promise<any>, pipelineConfigReset: () => any) {
+    const onMaterialAdd = (material: Material): Promise<any> => {
+      if (material.isValid()) {
+        entity.materials().push(material);
+        return pipelineConfigSave();
+      }
+      return Promise.reject();
+    };
+    return <MaterialsWidget materials={entity.materials} pluginInfos={this.pluginInfos}
+                            packageRepositories={this.packageRepositories} packages={this.packages}
+                            scmMaterials={this.scmMaterials} onMaterialAdd={onMaterialAdd.bind(this)}/>;
   }
 
   private fetchAllPackageReposAndPackages() {

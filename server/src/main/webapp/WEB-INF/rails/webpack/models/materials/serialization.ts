@@ -20,6 +20,7 @@ import {FilterJSON} from "../maintenance_mode/material";
 export interface MaterialJSON {
   type: string;
   attributes: MaterialAttributesJSON;
+  errors?: ErrorsJSON;
 }
 
 export interface BaseAttributesJSON {

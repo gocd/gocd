@@ -103,7 +103,7 @@ export class Material extends ValidatableMixin {
       const newType = value;
       if (this.type() !== newType) {
         this.attributes(MaterialAttributes.deserialize({
-                                                         type: newType,
+                                                         type:       newType,
                                                          attributes: ({} as MaterialAttributesJSON)
                                                        }));
       }
@@ -188,6 +188,12 @@ export class Material extends ValidatableMixin {
     // @ts-ignore
     return this.attributes()!.url();
   }
+
+  allErrors(): string[] {
+    const errors = this.errors().allErrorsForDisplay();
+    errors.push(...this.attributes()!.errors().allErrorsForDisplay());
+    return errors;
+  }
 }
 
 export abstract class MaterialAttributes extends ValidatableMixin {
@@ -254,8 +260,8 @@ export abstract class ScmMaterialAttributes extends MaterialAttributes {
   constructor(name?: string, autoUpdate?: boolean, username?: string, password?: string, encryptedPassword?: string) {
     super(name, autoUpdate);
     this.validateFormatOf("destination",
-      ScmMaterialAttributes.DESTINATION_REGEX,
-      {message: "Must be a relative path within the pipeline's working directory"});
+                          ScmMaterialAttributes.DESTINATION_REGEX,
+                          {message: "Must be a relative path within the pipeline's working directory"});
 
     this.username = Stream(username);
     this.password = Stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
@@ -272,8 +278,7 @@ class AuthNotSetInUrlAndUserPassFieldsValidator extends Validator {
 
       if ((!!username || !!(password && password.value())) && (!!urlObj.username || !!urlObj.password || url.indexOf("@") !== -1)) {
         entity.errors()
-          .add(attr,
-            "URL credentials must be set in either the URL or the username+password fields, but not both.");
+              .add(attr, "URL credentials must be set in either the URL or the username+password fields, but not both.");
       }
     }
   }
@@ -479,7 +484,7 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
   stage: Stream<string | undefined>;
   ignoreForScheduling: Stream<boolean | undefined>;
 
-  constructor(name?: string, autoUpdate?: boolean, pipeline?: string, stage?: string, ignoreForScheduling?:boolean) {
+  constructor(name?: string, autoUpdate?: boolean, pipeline?: string, stage?: string, ignoreForScheduling?: boolean) {
     super(name, autoUpdate);
     this.pipeline            = Stream(pipeline);
     this.stage               = Stream(stage);
@@ -511,7 +516,9 @@ export class PackageMaterialAttributes extends MaterialAttributes {
   }
 
   static fromJSON(data: PackageMaterialAttributesJSON): PackageMaterialAttributes {
-    return new PackageMaterialAttributes(data.name, data.auto_update, data.ref);
+    const attrs = new PackageMaterialAttributes(data.name, data.auto_update, data.ref);
+    attrs.errors(new Errors(data.errors));
+    return attrs;
   }
 }
 
@@ -528,6 +535,8 @@ export class PluggableScmMaterialAttributes extends MaterialAttributes {
   }
 
   static fromJSON(data: PluggableScmMaterialAttributesJSON): PluggableScmMaterialAttributes {
-    return new PluggableScmMaterialAttributes(data.name, data.auto_update, data.ref, data.destination, Filter.fromJSON(data.filter));
+    const attrs = new PluggableScmMaterialAttributes(data.name, data.auto_update, data.ref, data.destination, Filter.fromJSON(data.filter));
+    attrs.errors(new Errors(data.errors));
+    return attrs;
   }
 }

@@ -21,8 +21,10 @@ import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
 import {Material, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
 import {PackagesCRUD} from "models/package_repositories/packages_crud";
 import {Packages} from "models/package_repositories/package_repositories";
-import {Materials, PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {Secondary} from "views/components/buttons";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Delete, Edit, IconGroup} from "views/components/icons";
 import {Table} from "views/components/table";
 import style from "views/pages/clicky_pipeline_config/index.scss";
@@ -44,13 +46,13 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
     return "Materials";
   }
 
-  addNewMaterial(materials: Materials) {
+  addNewMaterial(pipelineConfig: PipelineConfig) {
     MaterialModal.forAdd(this.packages, (material: Material) => {
-      materials.push(material);
+      pipelineConfig.materials().push(material);
     }).render();
   }
 
-  updateMaterial(material: Material) {
+  updateMaterial(material: Material, pipelineConfig: PipelineConfig) {
     MaterialModal.forEdit(material, this.packages, (updateMaterial: Material) => {
       material.type(updateMaterial.type());
       material.attributes(updateMaterial.attributes());
@@ -65,34 +67,42 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
     return "Materials";
   }
 
-  deleteMaterial(materials: Materials, material: Material, e: MouseEvent) {
+  deleteMaterial(pipelineConfig: PipelineConfig, material: Material, e: MouseEvent) {
     e.stopPropagation();
-    materials.delete(material)
+    pipelineConfig.materials().delete(material);
   }
 
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
     return pipelineConfig;
   }
 
-  protected renderer(entity: PipelineConfig) {
+  protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig) {
+    const allErrors = entity.materials()
+                            .map((material) => material.allErrors())
+                            .filter((errors) => errors.length > 0);
+    const errorMsgs = allErrors.length === 0
+      ? undefined
+      : <FlashMessage type={MessageType.alert} message={allErrors}/>;
     return <div class={style.materialTab}>
-      <Table headers={["Material Name", "Type", "Url", ""]} data={this.tableData(entity.materials())}/>
+      {errorMsgs}
+      <Table headers={["Material Name", "Type", "Url", ""]} data={this.tableData(entity)}/>
       <Secondary dataTestId={"add-material-button"}
-                 onclick={this.addNewMaterial.bind(this, entity.materials())}>
+                 onclick={this.addNewMaterial.bind(this, entity)}>
         Add Material
       </Secondary>
     </div>;
   }
 
-  private tableData(materials: Materials) {
-    return Array.from(materials.values()).map((material: Material) => {
+  private tableData(pipelineConfig: PipelineConfig) {
+    return Array.from(pipelineConfig.materials().values()).map((material: Material) => {
       return [
         this.getMaterialDisplayName(material),
         material.typeForDisplay(),
         this.getMaterialUrlForDisplay(material),
         <IconGroup>
-          <Edit onclick={this.updateMaterial.bind(this, material)} data-test-id={"edit-material-button"}/>
-          <Delete onclick={this.deleteMaterial.bind(this, materials, material)}
+          <Edit onclick={this.updateMaterial.bind(this, material, pipelineConfig)}
+                data-test-id={"edit-material-button"}/>
+          <Delete onclick={this.deleteMaterial.bind(this, pipelineConfig, material)}
                   data-test-id={"delete-material-button"}/>
         </IconGroup>
       ];

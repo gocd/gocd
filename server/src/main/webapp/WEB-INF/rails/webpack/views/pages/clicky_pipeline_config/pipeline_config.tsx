@@ -100,14 +100,14 @@ export class PipelineConfigPage<T> extends Page<null, T> {
     this.initializeTab();
   }
 
-  save() {
+  save(): Promise<any> {
     this.flashMessage.clear();
     const isValid = this.pipelineConfig!.isValid();
 
     if (!isValid) {
       const msg = "Validation Failed! Please fix the below errors before submitting.";
       this.flashMessage.setMessage(MessageType.alert, msg);
-      return Promise.resolve();
+      return Promise.reject();
     }
 
     return this.pipelineConfig!.update(this.etag()).then((result) => {
@@ -187,7 +187,9 @@ export class PipelineConfigPage<T> extends Page<null, T> {
                         return this.tab().content(this.pipelineConfig!,
                                                   this.templateConfig!,
                                                   PipelineConfigPage.routeInfo().params,
-                                                  this.ajaxOperationMonitor);
+                                                  this.ajaxOperationMonitor,
+                                                  this.save.bind(this),
+                                                  this.reset.bind(this));
                       }
                       return <Spinner/>;
                     })
@@ -273,6 +275,8 @@ export class PipelineConfigPage<T> extends Page<null, T> {
     } catch (e) {
       this.pageState = PageState.FAILED;
     }
+
+    return Promise.reject(errorResponse);
   }
 
   private initializeTab() {

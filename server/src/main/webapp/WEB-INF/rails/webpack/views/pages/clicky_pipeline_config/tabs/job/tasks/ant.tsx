@@ -37,17 +37,21 @@ export class AntTaskModal extends AbstractTaskModal {
     const attributes = this.task.attributes() as AntTaskAttributes;
 
     return <div data-test-id="ant-task-modal">
+      {this.renderFlashMessage()}
       <h3>Basic Settings</h3>
       <TextField helpText="Path to Ant build file. If not specified, the path defaults to 'build.xml'."
                  label="Build File"
                  placeholder="build.xml"
+                 errorText={attributes.errors().errorsForDisplay("buildFile")}
                  property={attributes.buildFile}/>
       <TextField helpText="Ant target(s) to run. If not specified, the target defaults to 'default'."
                  label="Target"
                  placeholder="default"
+                 errorText={attributes.errors().errorsForDisplay("target")}
                  property={attributes.target}/>
       <TextField helpText="The directory from where ant is invoked."
                  label="Working Directory"
+                 errorText={attributes.errors().errorsForDisplay("workingDirectory")}
                  property={attributes.workingDirectory}/>
       <OnCancelView showOnCancel={this.showOnCancel}
                     onCancel={attributes.onCancel}

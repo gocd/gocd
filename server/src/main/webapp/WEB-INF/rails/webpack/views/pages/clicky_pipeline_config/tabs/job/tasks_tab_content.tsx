@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
@@ -27,12 +27,14 @@ import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {Secondary} from "views/components/buttons";
+import {MessageType} from "views/components/flash_message";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {Delete} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import {Table} from "views/components/table";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
 import {AntTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/ant";
 import {ExecTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/exec";
 import {FetchArtifactTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch";
@@ -48,11 +50,14 @@ export interface Attrs {
   isEditable: boolean;
   pluginInfos: Stream<PluginInfos>;
   autoSuggestions: Stream<any>;
+  pipelineConfigSave: () => Promise<any>;
+  pipelineConfigReset: () => any;
 }
 
 export interface State {
   allTaskTypes: string[];
   selectedTaskTypeToAdd: Stream<string>;
+  modal: AbstractTaskModal;
 }
 
 export class TasksWidget extends MithrilComponent<Attrs, State> {
@@ -72,6 +77,8 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
                       onSave: (t: Task) => void,
                       showOnCancel: boolean,
                       pluginInfos: PluginInfos,
+                      pipelineConfigSave: () => Promise<any>,
+                      pipelineConfigReset: () => any,
                       autoSuggestions: Stream<any>) {
     switch (type) {
       case "Ant":
@@ -96,8 +103,17 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
     vnode.state.selectedTaskTypeToAdd = Stream(vnode.state.allTaskTypes[0]);
   }
 
-  onTaskAdd(vnode: m.Vnode<Attrs, State>, task: Task) {
-    vnode.attrs.tasks().push(task);
+  onTaskSave(vnode: m.Vnode<Attrs, State>) {
+    vnode.attrs.tasks().push(vnode.state.modal.getTask());
+    this.performPipelineSave(vnode);
+  }
+
+  onTaskUpdate(vnode: m.Vnode<Attrs, State>, index: number, updated: Task) {
+    const tasks  = vnode.attrs.tasks();
+    tasks[index] = updated;
+    vnode.attrs.tasks(tasks);
+
+    this.performPipelineSave(vnode);
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
@@ -105,22 +121,25 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
       <Table headers={TasksWidget.getTableHeaders(vnode.attrs.isEditable)}
              draggable={vnode.attrs.isEditable}
              dragHandler={TasksWidget.reArrange.bind(this, vnode.attrs.tasks)}
-             data={TasksWidget.getTableData(vnode.attrs.pluginInfos(),
-                                            vnode.attrs.autoSuggestions,
-                                            vnode.attrs.tasks,
-                                            vnode.attrs.isEditable)}/>
+             data={this.getTableData(vnode)}/>
       <div className={styles.addTaskWrapper}>
         <SelectField property={vnode.state.selectedTaskTypeToAdd}>
           <SelectFieldOptions selected={vnode.state.selectedTaskTypeToAdd()}
                               items={vnode.state.allTaskTypes}/>
         </SelectField>
         <Secondary small={true}
-                   onclick={() => TasksWidget.getTaskModal(vnode.state.selectedTaskTypeToAdd(),
-                                                           undefined,
-                                                           this.onTaskAdd.bind(this, vnode),
-                                                           true,
-                                                           vnode.attrs.pluginInfos(),
-                                                           vnode.attrs.autoSuggestions)!.render()}>
+                   onclick={() => {
+                     vnode.state.modal = TasksWidget.getTaskModal(vnode.state.selectedTaskTypeToAdd(),
+                                                                  undefined,
+                                                                  this.onTaskSave.bind(this, vnode),
+                                                                  true,
+                                                                  vnode.attrs.pluginInfos(),
+                                                                  vnode.attrs.pipelineConfigSave,
+                                                                  vnode.attrs.pipelineConfigReset,
+                                                                  vnode.attrs.autoSuggestions)!;
+
+                     vnode.state.modal.render();
+                   }}>
           Add Task
         </Secondary>
       </div>
@@ -143,31 +162,50 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
     return headers;
   }
 
-  private static getTableData(pluginInfos: PluginInfos,
-                              autoSuggestions: Stream<any>,
-                              tasks: Stream<Task[]>,
-                              isEditable: boolean): m.Child[][] {
+  private onTaskSaveFailure(vnode: m.Vnode<Attrs, State>, errorResponse?: ErrorResponse) {
+    if (errorResponse) {
+      const parsed = JSON.parse(errorResponse.body!);
+      vnode.state.modal.getTask()!.consumeErrorsResponse(parsed.data);
+      vnode.state.modal.flashMessage.setMessage(MessageType.alert, parsed.message);
+      vnode.attrs.tasks().pop();
+    }
 
-    return tasks().map((task: Task, index: number) => {
+    m.redraw.sync();
+  }
+
+  private performPipelineSave(vnode: m.Vnode<Attrs, State>) {
+    vnode.attrs.pipelineConfigSave()
+         .then(vnode.state.modal.close.bind(vnode.state.modal))
+         .catch((errorResponse?: ErrorResponse) => {
+           this.onTaskSaveFailure(vnode, errorResponse);
+         });
+  }
+
+  private getTableData(vnode: m.Vnode<Attrs, State>) {
+    return vnode.attrs.tasks().map((task: Task, index: number) => {
       const cells: m.Child[] = [
-        <Link onclick={() => TasksWidget.getTaskModal(TasksWidget.getTaskTypes().get(task.type)!,
-                                                      AbstractTask.fromJSON(task.toJSON()),
-                                                      (updated: Task) => {
-                                                        tasks()[index] = updated;
-                                                      },
-                                                      true,
-                                                      pluginInfos,
-                                                      autoSuggestions)!.render()}>
-          <b>{task.description(pluginInfos)}</b>
+        <Link onclick={() => {
+          vnode.state.modal = TasksWidget.getTaskModal(TasksWidget.getTaskTypes().get(task.type)!,
+                                                       AbstractTask.fromJSON(task.toJSON()),
+                                                       this.onTaskUpdate.bind(this, vnode, index),
+                                                       true,
+                                                       vnode.attrs.pluginInfos(),
+                                                       vnode.attrs.pipelineConfigSave,
+                                                       vnode.attrs.pipelineConfigReset,
+                                                       vnode.attrs.autoSuggestions)!;
+
+          vnode.state.modal.render();
+        }}>
+          <b>{task.description(vnode.attrs.pluginInfos())}</b>
         </Link>,
         <i>{task.attributes().runIf().join(", ")}</i>,
         <KeyValuePair inline={true} data={task.attributes().properties()}/>,
         task.attributes().onCancel()?.type || "No"
       ];
 
-      if (isEditable) {
+      if (vnode.attrs.isEditable) {
         cells.push(<Delete iconOnly={true}
-                           onclick={() => tasks().splice(index, 1)}/>);
+                           onclick={() => vnode.attrs.tasks().splice(index, 1)}/>);
       }
       return cells;
     });
@@ -190,21 +228,25 @@ export class TasksTabContent extends TabContent<Job> {
   content(pipelineConfig: PipelineConfig,
           templateConfig: TemplateConfig,
           routeParams: PipelineConfigRouteParams,
-          ajaxOperationMonitor: Stream<OperationState>): m.Children {
+          ajaxOperationMonitor: Stream<OperationState>,
+          save: () => Promise<any>,
+          reset: () => any): m.Children {
     if (!this.autoSuggestions()) {
       this.fetchUpstreamPipelines(pipelineConfig.name(), routeParams.stage_name!);
     }
 
-    return super.content(pipelineConfig, templateConfig, routeParams, ajaxOperationMonitor);
+    return super.content(pipelineConfig, templateConfig, routeParams, ajaxOperationMonitor, save, reset);
   }
 
   shouldShowSaveAndResetButtons(): boolean {
     return false;
   }
 
-  protected renderer(entity: Job, templateConfig: TemplateConfig): m.Children {
+  protected renderer(entity: Job, template: TemplateConfig, save: () => Promise<any>, reset: () => any): m.Children {
     return <TasksWidget pluginInfos={this.pluginInfos}
                         autoSuggestions={this.autoSuggestions}
+                        pipelineConfigSave={save}
+                        pipelineConfigReset={reset}
                         tasks={entity.tasks}
                         isEditable={true}/>;
   }

@@ -54,17 +54,20 @@ export class BuiltInArtifactView extends MithrilComponent<BuiltInArtifactViewAtt
     return <div data-test-id="built-in-artifact-view">
       <AutocompleteField helpText={pipelineHelpText}
                          required={false}
+                         errorText={attributes.errors().errorsForDisplay("pipeline")}
                          provider={vnode.state.pipelineSuggestions}
                          onchange={vnode.state.stageSuggestions.update.bind(vnode.state.stageSuggestions)}
                          label="Pipeline"
                          property={attributes.pipeline}/>
       <AutocompleteField helpText={stageHelpText}
+                         errorText={attributes.errors().errorsForDisplay("stage")}
                          provider={vnode.state.stageSuggestions}
                          onchange={vnode.state.jobSuggestions.update.bind(vnode.state.jobSuggestions)}
                          required={true}
                          label="Stage"
                          property={attributes.stage}/>
       <AutocompleteField helpText={jobHelpText}
+                         errorText={attributes.errors().errorsForDisplay("job")}
                          provider={vnode.state.jobSuggestions}
                          required={true}
                          label="Job"
@@ -72,11 +75,13 @@ export class BuiltInArtifactView extends MithrilComponent<BuiltInArtifactViewAtt
       <TextField helpText={sourceHelpText}
                  required={true}
                  label="Source"
+                 errorText={attributes.errors().errorsForDisplay("source")}
                  property={attributes.source}/>
       <CheckboxField label="Source is a file(Not a directory)"
                      property={attributes.isSourceAFile}/>
       <TextField helpText={destinationHelpText}
                  label="Destination"
+                 errorText={attributes.errors().errorsForDisplay("destination")}
                  property={attributes.destination}/>
 
     </div>;

@@ -145,6 +145,8 @@ describe("Custom Tab Tab Content", () => {
     helper.mount(() => new CustomTabTabContent().content(pipelineConfig,
                                                          templateConfig,
                                                          routeParams,
-                                                         Stream<OperationState>(OperationState.UNKNOWN)));
+                                                         Stream<OperationState>(OperationState.UNKNOWN),
+                                                         jasmine.createSpy(),
+                                                         jasmine.createSpy()));
   }
 });

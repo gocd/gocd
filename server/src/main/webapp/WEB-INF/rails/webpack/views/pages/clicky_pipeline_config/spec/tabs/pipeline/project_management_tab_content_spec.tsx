@@ -59,6 +59,8 @@ describe("ProjectManagementTab", () => {
     helper.mount(() => new ProjectManagementTabContent().content(pipelineConfig,
                                                                  templateConfig,
                                                                  routeParams,
-                                                                 Stream<OperationState>(OperationState.UNKNOWN)));
+                                                                 Stream<OperationState>(OperationState.UNKNOWN),
+                                                                 jasmine.createSpy(),
+                                                                 jasmine.createSpy()));
   }
 });

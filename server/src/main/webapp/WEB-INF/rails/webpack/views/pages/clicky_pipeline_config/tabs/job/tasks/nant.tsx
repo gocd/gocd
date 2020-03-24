@@ -37,22 +37,26 @@ export class NantTaskModal extends AbstractTaskModal {
     const attributes = this.task.attributes() as NantTaskAttributes;
 
     return <div data-test-id="nant-task-modal">
+      {this.renderFlashMessage()}
       <h3>Basic Settings</h3>
       <TextField helpText="Relative path to a NAnt build file. If not specified, the path defaults to 'default.build'."
                  label="Build File"
                  placeholder="default.build"
+                 errorText={attributes.errors().errorsForDisplay("buildFile")}
                  property={attributes.buildFile}/>
       <TextField helpText="NAnt target(s) to run. If not specified, defaults to the default target of the build file."
                  label="Target"
                  placeholder="default"
+                 errorText={attributes.errors().errorsForDisplay("target")}
                  property={attributes.target}/>
       <TextField helpText="The directory from where nant is invoked."
                  label="Working Directory"
+                 errorText={attributes.errors().errorsForDisplay("workingDirectory")}
                  property={attributes.workingDirectory}/>
-      <TextField
-        helpText="Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path."
-        label="NAnt Path"
-        property={attributes.nantPath}/>
+      <TextField helpText="Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path."
+                 label="NAnt Path"
+                 errorText={attributes.errors().errorsForDisplay("nantPath")}
+                 property={attributes.nantPath}/>
 
       <OnCancelView showOnCancel={this.showOnCancel}
                     onCancel={attributes.onCancel}

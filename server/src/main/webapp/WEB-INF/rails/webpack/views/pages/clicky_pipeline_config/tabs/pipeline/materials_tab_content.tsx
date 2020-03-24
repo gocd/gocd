@@ -20,9 +20,11 @@ import {Scms} from "models/materials/pluggable_scm";
 import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
 import {Material, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
 import {PackagesCRUD} from "models/package_repositories/packages_crud";
-import {Packages} from "models/package_repositories/package_repositories";
+import {PackageRepositories, Packages} from "models/package_repositories/package_repositories";
+import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {Secondary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Delete, Edit, IconGroup} from "views/components/icons";
@@ -31,14 +33,19 @@ import style from "views/pages/clicky_pipeline_config/index.scss";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {MaterialModal} from "views/pages/clicky_pipeline_config/modal/material_modal";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 
 export class MaterialsTabContent extends TabContent<PipelineConfig> {
-  private readonly packages: Stream<Packages> = Stream();
-  private readonly scmMaterials: Stream<Scms> = Stream();
+  private readonly pluginInfos: Stream<PluginInfos>                 = Stream(new PluginInfos());
+  private readonly packageRepositories: Stream<PackageRepositories> = Stream();
+  private readonly packages: Stream<Packages>                       = Stream();
+  private readonly scmMaterials: Stream<Scms>                       = Stream();
 
   constructor() {
     super();
-    this.fetchAllPackages();
+    this.fetchRelatedPluginInfos();
+    this.fetchAllPackageReposAndPackages();
     this.fetchScmMaterials();
   }
 
@@ -47,13 +54,13 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
   }
 
   addNewMaterial(pipelineConfig: PipelineConfig) {
-    MaterialModal.forAdd(this.packages, (material: Material) => {
+    MaterialModal.forAdd(this.packageRepositories, this.pluginInfos, (material: Material) => {
       pipelineConfig.materials().push(material);
     }).render();
   }
 
   updateMaterial(material: Material, pipelineConfig: PipelineConfig) {
-    MaterialModal.forEdit(material, this.packages, (updateMaterial: Material) => {
+    MaterialModal.forEdit(material, this.packageRepositories, this.pluginInfos, (updateMaterial: Material) => {
       material.type(updateMaterial.type());
       material.attributes(updateMaterial.attributes());
     }).render();
@@ -76,7 +83,7 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
     return pipelineConfig;
   }
 
-  protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig) {
+  protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig, pipelineConfigSave: () => any, pipelineConfigReset: () => any) {
     const allErrors = entity.materials()
                             .map((material) => material.allErrors())
                             .filter((errors) => errors.length > 0);
@@ -139,14 +146,17 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
     return displayName;
   }
 
-  private fetchAllPackages() {
-    PackagesCRUD.all()
-                .then((result) => {
-                  result.do((successResponse) => {
-                    this.packages(successResponse.body);
-                    super.pageLoaded();
-                  }, super.pageLoadFailure)
-                });
+  private fetchAllPackageReposAndPackages() {
+    Promise.all([PackageRepositoriesCRUD.all(), PackagesCRUD.all()])
+           .then((result) => {
+             result[0].do((successResponse) => {
+               this.packageRepositories(successResponse.body);
+             }, super.pageLoadFailure);
+             result[1].do((successResponse) => {
+               this.packages(successResponse.body);
+             }, super.pageLoadFailure);
+           })
+           .finally(() => super.pageLoaded());
   }
 
   private fetchScmMaterials() {
@@ -157,5 +167,15 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
                         super.pageLoaded();
                       }, super.pageLoadFailure)
                     })
+  }
+
+  private fetchRelatedPluginInfos() {
+    Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.PACKAGE_REPO}), PluginInfoCRUD.all({type: ExtensionTypeString.SCM})])
+           .then((result) => {
+             result.forEach((apiResult) => apiResult.do((successResponse) => {
+               this.pluginInfos().push(...successResponse.body);
+               this.pageLoaded();
+             }, super.pageLoadFailure));
+           });
   }
 }

@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
+import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {DependencyMaterialAttributes, Material, PackageMaterialAttributes} from "models/materials/types";
-import {Packages} from "models/package_repositories/package_repositories";
-import {getPackage} from "models/package_repositories/spec/test_data";
+import {PackageRepositories, Packages} from "models/package_repositories/package_repositories";
+import {
+  getPackageRepository,
+  pluginInfoWithPackageRepositoryExtension
+} from "models/package_repositories/spec/test_data";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {DependencyFields, PackageFields, SuggestionCache} from "../non_scm_material_fields";
-import {docsUrl} from "gen/gocd_version";
 
 describe("AddPipeline: Non-SCM Material Fields", () => {
   const helper = new TestHelper();
@@ -94,16 +99,19 @@ class DummyCache implements SuggestionCache {
 describe('PackageFieldsSpec', () => {
   const helper = new TestHelper();
   let material: Material;
-  let packages: Packages;
+  let packageRepositories: PackageRepositories;
+  let pluginInfos: PluginInfos;
 
   beforeEach(() => {
-    material = new Material("package", new PackageMaterialAttributes());
-    packages = Packages.fromJSON([getPackage()]);
+    material            = new Material("package", new PackageMaterialAttributes());
+    packageRepositories = PackageRepositories.fromJSON([getPackageRepository()]);
+    pluginInfos         = new PluginInfos(PluginInfo.fromJSON(pluginInfoWithPackageRepositoryExtension()));
   });
   afterEach((done) => helper.unmount(done));
 
   it('should render package structure', () => {
-    helper.mount(() => <PackageFields material={material} packages={packages}/>);
+    helper.mount(() => <PackageFields material={material} packageRepositories={packageRepositories}
+                                      pluginInfos={pluginInfos}/>);
 
     assertLabelledInputsPresent(helper, {
       "package-repository": "Package Repository*",
@@ -114,7 +122,9 @@ describe('PackageFieldsSpec', () => {
   });
 
   it('should render advanced options if showLocalWorkingCopyOptions is set to true', () => {
-    helper.mount(() => <PackageFields material={material} packages={packages} showLocalWorkingCopyOptions={true}/>);
+    helper.mount(() => <PackageFields material={material} packageRepositories={packageRepositories}
+                                      pluginInfos={pluginInfos}
+                                      showLocalWorkingCopyOptions={true}/>);
 
     assertLabelledInputsPresent(helper, {
       "package-repository": "Package Repository*",
@@ -124,7 +134,8 @@ describe('PackageFieldsSpec', () => {
   });
 
   it('should update packages on selecting a package repository', () => {
-    helper.mount(() => <PackageFields material={material} packages={packages}/>);
+    helper.mount(() => <PackageFields material={material} packageRepositories={packageRepositories}
+                                      pluginInfos={pluginInfos}/>);
 
     const pkgRepoElement = helper.byTestId('form-field-input-package-repository');
     expect(helper.textAll("option", pkgRepoElement)).toEqual(['Select a package repository', 'pkg-repo-name']);
@@ -133,6 +144,31 @@ describe('PackageFieldsSpec', () => {
     helper.onchange(pkgRepoElement, 'pkg-repo-id');
 
     expect(helper.textAll("option", helper.byTestId('form-field-input-package'))).toEqual(['Select a package', 'pkg-name']);
+  });
+
+  it('should render plugin not found error message', () => {
+    packageRepositories[0].pluginMetadata().id('non-existent-plugin');
+    helper.mount(() => <PackageFields material={material} packageRepositories={packageRepositories}
+                                      pluginInfos={pluginInfos}/>);
+
+    helper.onchange(helper.byTestId('form-field-input-package-repository'), 'pkg-repo-id');
+
+    const errorElement = helper.q('span[class*="forms__form-error-text"]');
+    expect(errorElement).toBeInDOM();
+    expect(errorElement.textContent).toBe("Associated plugin 'non-existent-plugin' not found. Please contact the system administrator to install the plugin.");
+  });
+
+  it('should show an error text if no packages are defined for a given package repo', () => {
+    packageRepositories[0].packages(new Packages());
+    helper.mount(() => <PackageFields material={material} packageRepositories={packageRepositories}
+                                      pluginInfos={pluginInfos}/>);
+
+    helper.onchange(helper.byTestId('form-field-input-package-repository'), 'pkg-repo-id');
+
+    const errorElement = helper.q('span[class*="advanced_settings__form-error-text"]');
+    expect(errorElement).toBeInDOM();
+    expect(errorElement.textContent).toBe('No packages defined for the selected package repository. Go to Package Repositories SPA to define one.');
+    expect(helper.q('a', errorElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA());
   });
 });
 

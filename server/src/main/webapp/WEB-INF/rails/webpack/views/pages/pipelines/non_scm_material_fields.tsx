@@ -15,14 +15,22 @@
  */
 
 import Awesomplete from "awesomplete";
+import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {DependencyMaterialAutocomplete, PipelineNameCache} from "models/materials/dependency_autocomplete_cache";
-import {DependencyMaterialAttributes, Material, MaterialAttributes, PackageMaterialAttributes} from "models/materials/types";
-import {Packages} from "models/package_repositories/package_repositories";
+import {
+  DependencyMaterialAttributes,
+  Material,
+  MaterialAttributes,
+  PackageMaterialAttributes
+} from "models/materials/types";
+import {PackageRepositories, PackageRepository} from "models/package_repositories/package_repositories";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {Link} from "views/components/link";
 import {SwitchBtn} from "views/components/switch";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
@@ -141,7 +149,8 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
 
 interface PackageAttrs {
   material: Material;
-  packages: Packages;
+  packageRepositories: PackageRepositories;
+  pluginInfos: PluginInfos;
   showLocalWorkingCopyOptions?: boolean;
   disabled?: boolean;
 }
@@ -162,22 +171,31 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
   view(vnode: m.Vnode<PackageAttrs, PackageState>): m.Children | void | null {
     const attrs                                = vnode.attrs.material.attributes() as PackageMaterialAttributes;
     const packageRepos: Array<Option | string> = [{id: "", text: "Select a package repository"}];
-    packageRepos.push(...vnode.attrs.packages.map((pkg) => {
-      const packageRepo = pkg.packageRepo();
-      return {id: packageRepo.id(), text: packageRepo.name()};
+    packageRepos.push(...vnode.attrs.packageRepositories.map((packageRepo) => {
+      return {id: packageRepo.repoId(), text: packageRepo.name()};
     }));
     const readonly                    = !!vnode.attrs.disabled;
     const showLocalWorkingCopyOptions = !!vnode.attrs.showLocalWorkingCopyOptions;
+    const noPkgsDefinedMsg            = vnode.state.pkgRepoId().length > 0 && vnode.state.pkgs().length === 1
+      ? <span className={styles.formErrorText}>No packages defined for the selected package repository. Go to <Link
+        href={SparkRoutes.packageRepositoriesSPA()}>Package Repositories SPA</Link> to define one.</span>
+      : undefined;
     return [
       <SelectField property={this.packageRepoProxy.bind(this, vnode)}
                    label="Package Repository"
+                   errorText={attrs.errors().errorsForDisplay("pkgRepo")}
                    required={true} readonly={readonly}>
         <SelectFieldOptions selected={vnode.state.pkgRepoId()} items={packageRepos}/>
       </SelectField>,
 
-      <SelectField property={attrs.ref} label="Package" required={true} readonly={readonly}>
-        <SelectFieldOptions selected={attrs.ref()} items={vnode.state.pkgs()}/>
-      </SelectField>,
+      <div>
+        <SelectField property={attrs.ref} label="Package" required={true}
+                     errorText={attrs.errors().errorsForDisplay("ref")}
+                     readonly={readonly || attrs.errors().hasErrors("pkgRepo")}>
+          <SelectFieldOptions selected={attrs.ref()} items={vnode.state.pkgs()}/>
+        </SelectField>
+        {noPkgsDefinedMsg}
+      </div>,
 
       this.advanced(attrs, showLocalWorkingCopyOptions)
     ];
@@ -189,13 +207,15 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
     }
 
     vnode.state.pkgRepoId(pkgRepoId);
-    const pkgs = this.defaultPkgs.concat(...vnode.attrs.packages
-                                                 .filter((pkg) => pkg.packageRepo().id() === pkgRepoId)
-                                                 .map((pkg) => {
-                                                   return {id: pkg.id(), text: pkg.name()};
-                                                 })
-    );
+    const selectedPkgRepo = vnode.attrs.packageRepositories.find((pkgRepo) => pkgRepo.repoId() === pkgRepoId)!;
+    const pkgs            = this.defaultPkgs
+                                .concat(...selectedPkgRepo.packages()
+                                                          .map((pkg) => {
+                                                            return {id: pkg.id(), text: pkg.name()};
+                                                          }));
     vnode.state.pkgs(pkgs);
+    vnode.attrs.material.attributes()!.clearErrors("pkgRepo");
+    this.setErrorIfPluginNotPresent(vnode, selectedPkgRepo);
 
     return pkgRepoId;
   }
@@ -206,6 +226,14 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
         <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE}
                    placeholder="A human-friendly label for this material" property={attrs.name}/>
       </AdvancedSettings>;
+    }
+  }
+
+  private setErrorIfPluginNotPresent(vnode: m.Vnode<PackageAttrs, PackageState>, selectedPkgRepo: PackageRepository) {
+    const pluginInfo = vnode.attrs.pluginInfos.findByPluginId(selectedPkgRepo.pluginMetadata().id());
+    if (pluginInfo === undefined) {
+      vnode.attrs.material.attributes()!
+        .errors().add("pkgRepo", `Associated plugin '${selectedPkgRepo.pluginMetadata().id()}' not found. Please contact the system administrator to install the plugin.`)
     }
   }
 }

@@ -17,30 +17,34 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Material} from "models/materials/types";
-import {Packages} from "models/package_repositories/package_repositories";
+import {PackageRepositories} from "models/package_repositories/package_repositories";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import s from "underscore.string";
 import {MaterialEditor} from "views/pages/pipelines/material_editor";
 import {AddOrEditEntityModal} from "./add_or_edit_modal";
 
 export class MaterialModal extends AddOrEditEntityModal<Material> {
-  private readonly packages: Stream<Packages> = Stream();
+  private readonly pluginInfos: Stream<PluginInfos>      = Stream();
+  private readonly packages: Stream<PackageRepositories> = Stream();
 
-  constructor(title: string, entity: Stream<Material>, packages: Stream<Packages>, onSuccessfulAdd: (entity: Material) => void) {
+  constructor(title: string, entity: Stream<Material>, packages: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>, onSuccessfulAdd: (entity: Material) => void) {
     super(title, entity, onSuccessfulAdd);
-    this.packages = packages;
+    this.packages    = packages;
+    this.pluginInfos = pluginInfos;
   }
 
-  static forAdd(packages: Stream<Packages>, onSuccessfulAdd: (material: Material) => void) {
-    return new MaterialModal("Add material", Stream(new Material("git")), packages, onSuccessfulAdd);
+  static forAdd(packages: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>, onSuccessfulAdd: (material: Material) => void) {
+    return new MaterialModal("Add material", Stream(new Material("git")), packages, pluginInfos, onSuccessfulAdd);
   }
 
-  static forEdit(material: Material, packages: Stream<Packages>, onSuccessfulAdd: (material: Material) => void) {
+  static forEdit(material: Material, packages: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>, onSuccessfulAdd: (material: Material) => void) {
     const title          = `Edit material - ${s.capitalize(material.type()!)}`;
     const copyOfMaterial = Stream(new Material(material.type(), material.attributes()));
-    return new MaterialModal(title, copyOfMaterial, packages, onSuccessfulAdd);
+    return new MaterialModal(title, copyOfMaterial, packages, pluginInfos, onSuccessfulAdd);
   }
 
   body(): m.Children {
-    return <MaterialEditor material={this.entity()} packages={this.packages()} showExtraMaterials={true}/>;
+    return <MaterialEditor material={this.entity()} showExtraMaterials={true}
+                           packages={this.packages()} pluginInfos={this.pluginInfos()}/>;
   }
 }

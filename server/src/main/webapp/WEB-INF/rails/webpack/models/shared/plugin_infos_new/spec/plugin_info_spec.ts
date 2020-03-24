@@ -17,7 +17,8 @@ import _ from "lodash";
 import {
   AnalyticsExtension,
   ArtifactExtension,
-  AuthorizationExtension, ConfigRepoExtension,
+  AuthorizationExtension,
+  ConfigRepoExtension,
   ElasticAgentExtension,
   PackageRepoExtension,
   ScmExtension,
@@ -36,18 +37,21 @@ import {
   PackageMetadataJSON,
   PackageRepoExtensionJSON,
   PluginInfoJSON,
-  SCMExtensionJSON, SCMMetadataJSON,
+  SCMExtensionJSON,
+  SCMMetadataJSON,
   SecretConfigExtensionJSON,
   TaskExtensionJSON,
   VendorJSON,
 } from "models/shared/plugin_infos_new/serialization";
 import {AnalyticsCapability} from "../analytics_plugin_capabilities";
 import {ExtensionTypeString} from "../extension_type";
-import {PluginInfo} from "../plugin_info";
+import {PluginInfo, PluginInfos} from "../plugin_info";
 import {
   about,
-  activeStatus, AnalyticsPluginInfo,
-  pluginImageLink, pluginInfoWithElasticAgentExtensionV4,
+  activeStatus,
+  AnalyticsPluginInfo,
+  pluginImageLink,
+  pluginInfoWithElasticAgentExtensionV4,
   pluginInfoWithElasticAgentExtensionV5,
   SecretPluginInfo,
   view
@@ -1025,6 +1029,17 @@ describe("PluginInfos New", () => {
       expect(pluginInfo.about.vendor.name).toBeUndefined();
       expect(pluginInfo.about.vendor.url).toBeUndefined();
     });
+  });
+
+  it('should filter plugins infos based on extension type', () => {
+    const pluginInfo1 = PluginInfo.fromJSON(pluginInfoWithSCMExtension);
+    const pluginInfo2 = PluginInfo.fromJSON(pluginInfoWithAuthorizationExtension);
+
+    const pluginInfos        = new PluginInfos(pluginInfo1, pluginInfo2);
+    const filteredPluginInfo = pluginInfos.filterForExtension(ExtensionTypeString.SCM);
+
+    expect(filteredPluginInfo.length).toBe(1);
+    expect(filteredPluginInfo[0].id).toBe(pluginInfo1.id);
   });
 
   const verifyBasicProperties = (pluginInfo: PluginInfo,

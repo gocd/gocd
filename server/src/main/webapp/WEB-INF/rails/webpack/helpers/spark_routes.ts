@@ -557,4 +557,8 @@ export class SparkRoutes {
     }
     return '/go/api/admin/scms';
   }
+
+  static packageRepositoriesSPA() {
+    return '/go/admin/package_repositories';
+  }
 }

@@ -160,4 +160,9 @@ export class PluginInfos extends Array<PluginInfo> {
     const filteredPluginInfos = _.filter(this, filterFn) as unknown as PluginInfo[];
     return new PluginInfos(...filteredPluginInfos);
   }
+
+  filterForExtension(type: ExtensionTypeString) {
+    const filteredPluginInfos = _.filter(this, (pluginInfo: PluginInfo) => pluginInfo.extensionOfType(type) !== undefined);
+    return new PluginInfos(...filteredPluginInfos);
+  }
 }

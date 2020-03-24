@@ -148,7 +148,7 @@ export const AngularPluginNew = {
       const pluginView = document.getElementsByClassName("plugin-view");
       if (pluginView && pluginView.length) {
         const elementsToDisable = ["input", "textarea", "select"];
-        elementsToDisable.forEach((elementName) => pluginView[0].getElementsByTagName(elementName)
+        elementsToDisable.forEach((elementName) => Array.from(pluginView[0].getElementsByTagName(elementName))
           .forEach((element) => element.setAttribute("disabled", "true")));
       }
     }

@@ -54,7 +54,7 @@ PluggableInstanceSettings.Configurations.Configuration = function({key, metadata
 
 PluggableInstanceSettings.Configurations.Configuration.create = (data) => new PluggableInstanceSettings.Configurations.Configuration(data);
 
-PluggableInstanceSettings.Configurations.Configuration.fromJSON = (data = {}) => new PluggableInstanceSettings.Configurations.Configuration.create({
+PluggableInstanceSettings.Configurations.Configuration.fromJSON = (data = {}) => PluggableInstanceSettings.Configurations.Configuration.create({
   key:      data.key,
   metadata: data.metadata
 });

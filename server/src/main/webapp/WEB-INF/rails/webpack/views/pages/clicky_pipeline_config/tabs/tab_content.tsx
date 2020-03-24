@@ -32,7 +32,9 @@ export abstract class TabContent<T> {
   public content(pipelineConfig: PipelineConfig,
                  templateConfig: TemplateConfig,
                  routeParams: PipelineConfigRouteParams,
-                 ajaxOperationMonitor: Stream<OperationState>): m.Children {
+                 ajaxOperationMonitor: Stream<OperationState>,
+                 pipelineConfigSave: () => Promise<any>,
+                 pipelineConfigReset: () => void): m.Children {
     switch (this.pageState) {
       case PageState.FAILED:
         return <PageLoadError message={`There was a problem fetching current tab`}/>;
@@ -44,7 +46,7 @@ export abstract class TabContent<T> {
 
         return <div class={saveInProgress ? styles.blur : ""}>
           {saveInProgress ? <Spinner/> : undefined}
-          {this.renderer(entity, templateConfig)}
+          {this.renderer(entity, templateConfig, pipelineConfigSave, pipelineConfigReset)}
         </div>;
     }
   }
@@ -65,7 +67,7 @@ export abstract class TabContent<T> {
     return true;
   }
 
-  protected abstract renderer(entity: T, templateConfig: TemplateConfig): m.Children;
+  protected abstract renderer(entity: T, templateConfig: TemplateConfig, pipelineConfigSave: () => any, pipelineConfigReset: () => any): m.Children;
 
   protected abstract selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): T;
 }

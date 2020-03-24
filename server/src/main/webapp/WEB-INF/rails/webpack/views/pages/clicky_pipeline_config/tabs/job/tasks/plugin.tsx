@@ -68,6 +68,7 @@ export class PluggableTaskModal extends AbstractTaskModal {
 
     const attributes = this.task.attributes() as PluggableTaskAttributes;
     return <div data-test-id="task-plugin-modal">
+      {this.renderFlashMessage()}
       <SelectField property={this.selectedPluginId}
                    label="Select Task Plugin:"
                    onchange={this.setPluginConfigOnTask.bind(this)}

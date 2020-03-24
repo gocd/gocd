@@ -76,15 +76,17 @@ export class OnCancelTaskWidget extends MithrilComponent<Attrs, State> {
   }
 
   noOperation() {
-    //do nothing
+    return Promise.resolve();
   }
 
   private getTaskModal(vnode: m.Vnode<Attrs, State>) {
     return TasksWidget.getTaskModal(vnode.state.selectedTaskTypeToAdd(),
                                     vnode.attrs.onCancel(),
-                                    this.noOperation,
+                                    this.noOperation.bind(this),
                                     false,
                                     vnode.attrs.pluginInfos,
+                                    this.noOperation.bind(this),
+                                    this.noOperation.bind(this),
                                     Stream({}));
   }
 }

@@ -71,6 +71,7 @@ export class FetchArtifactTaskModal extends AbstractTaskModal {
     }
 
     return <div data-test-id="fetch-artifact-task-modal">
+      {this.renderFlashMessage()}
       <div class={styles.radioWrapper}>
         <RadioField label="Type of Fetch Artifact"
                     inline={true}

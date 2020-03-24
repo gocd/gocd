@@ -108,6 +108,8 @@ describe("Tasks Tab Content", () => {
     helper.mount(() => {
       return <TasksWidget tasks={job.tasks}
                           isEditable={true}
+                          pipelineConfigSave={jasmine.createSpy()}
+                          pipelineConfigReset={jasmine.createSpy()}
                           autoSuggestions={Stream({})}
                           pluginInfos={Stream(new PluginInfos())}/>;
     });

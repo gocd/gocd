@@ -15,15 +15,24 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
+import _ from "lodash";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {Scms} from "models/materials/pluggable_scm";
+import {RequiresPluginInfos} from "views/pages/page_operations";
+import {PluggableScmWidget} from "./pluggable_scm_widget";
 
-interface Attrs {
-  dummy?: Scms;
+interface Attrs extends RequiresPluginInfos {
+  scms: Stream<Scms>;
 }
 
 export class PluggableScmsWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    return <div> This is widget</div>;
+    return <div data-test-id="scms">
+      {vnode.attrs.scms().map((scm) => {
+        const pluginInfo = _.find(vnode.attrs.pluginInfos(), {id: scm.pluginMetadata().id()});
+        return <PluggableScmWidget scm={scm} disableActions={pluginInfo === undefined}/>
+      })}
+    </div>;
   }
 }

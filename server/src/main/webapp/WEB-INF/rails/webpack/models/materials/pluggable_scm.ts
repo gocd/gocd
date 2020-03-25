@@ -25,7 +25,7 @@ interface EmbeddedJSON {
   scms: ScmJSON[];
 }
 
-interface ScmJSON {
+export interface ScmJSON {
   id: string;
   name: string;
   auto_update: boolean;
@@ -52,7 +52,7 @@ class PluginMetadata {
   }
 }
 
-class Scm {
+export class Scm {
   id: Stream<string>;
   name: Stream<string>;
   autoUpdate: Stream<boolean>;

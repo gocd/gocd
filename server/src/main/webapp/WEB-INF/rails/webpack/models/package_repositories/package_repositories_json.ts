@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import {PropertyJSON} from "../shared/configuration";
 import {ErrorsJSON} from "models/mixins/errors";
-import {PropertyJSON} from "models/shared/configuration";
 
 export interface PluginMetadataJSON {
   id: string;
@@ -42,6 +42,14 @@ export interface PackageRepositorySummaryJSON {
   name: string;
 }
 
+export interface PackagesJSON {
+  _embedded: EmbeddedJSON;
+}
+
+interface EmbeddedJSON {
+  packages: PackageJSON[];
+}
+
 export interface PackageJSON {
   id: string;
   name: string;
@@ -51,10 +59,11 @@ export interface PackageJSON {
   errors?: ErrorsJSON;
 }
 
-export interface PackagesJSON {
-  _embedded: EmbeddedJSON;
+export interface PackageUsageJSON {
+  group: string;
+  pipeline: string;
 }
 
-interface EmbeddedJSON {
-  packages: PackageJSON[];
+export interface PackageUsagesJSON {
+  usages: PackageUsageJSON[];
 }

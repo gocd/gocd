@@ -551,6 +551,10 @@ export class SparkRoutes {
     return '/go/api/admin/packages';
   }
 
+  static packagesUsagePath(packageId: string): string {
+    return `/go/api/admin/packages/${packageId}/usages`;
+  }
+
   static pluggableScmPath(id?: string) {
     if (id) {
       return `/go/api/admin/scms/${id}`

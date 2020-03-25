@@ -16,6 +16,7 @@
 
 import classnames from "classnames";
 import {MithrilComponent} from "jsx/mithril-component";
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import styles from "./index.scss";
@@ -43,6 +44,9 @@ interface Attrs {
 
   onexpand?: () => void;
   oncollapse?: () => void;
+
+  //adding to prevent any user interactions
+  nonExpandable?: boolean
 }
 
 interface State extends CollapsibleStateModel {
@@ -102,7 +106,9 @@ export class CollapsiblePanel extends MithrilComponent<Attrs, State> {
       </div>;
     }
 
-    const expandCollapseState = vnode.state.expanded() ? "expanded" : "collapsed";
+    const expandCollapseState = vnode.attrs.nonExpandable || vnode.state.expanded() ? "expanded" : "collapsed";
+    const toggle              = vnode.attrs.nonExpandable ? _.noop : vnode.state.toggle;
+    const header              = vnode.attrs.nonExpandable ? styles.nonCollapseHeader : styles.collapseHeader;
 
     return (
       <div data-test-id={vnode.attrs.dataTestId}
@@ -110,9 +116,9 @@ export class CollapsiblePanel extends MithrilComponent<Attrs, State> {
            data-test-has-error={vnode.attrs.error}
            data-test-has-warning={vnode.attrs.warning}
            class={classnames(styles.collapse, collapsibleClasses)}>
-        <div class={classnames(styles.collapseHeader, collapsibleClasses)}
+        <div class={classnames(header, collapsibleClasses)}
              data-test-id="collapse-header"
-             onclick={vnode.state.toggle}>
+             onclick={toggle}>
           <div class={styles.headerDetails}>
             {vnode.attrs.header}
           </div>
@@ -120,7 +126,7 @@ export class CollapsiblePanel extends MithrilComponent<Attrs, State> {
         </div>
 
         <div data-test-id="collapse-body"
-             class={classnames(styles.collapseBody, {[styles.hide]: !vnode.state.expanded()})}>
+             class={classnames(styles.collapseBody, {[styles.hide]: expandCollapseState === "collapsed"})}>
           {vnode.children}
         </div>
       </div>

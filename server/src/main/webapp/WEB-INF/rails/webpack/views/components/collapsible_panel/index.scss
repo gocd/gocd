@@ -80,6 +80,43 @@ $collapsible-header-height: 50px;
   }
 }
 
+.non-collapse-header {
+  position:       relative;
+  display:        flex;
+  flex-wrap:      wrap;
+  flex-direction: column;
+  padding:        $header-padding;
+  box-sizing:     border-box;
+  min-height:     $collapsible-header-height;
+  @media (min-width: $screen-md) {
+    justify-content: space-between;
+  }
+  @media (min-width: $screen-lg) {
+    flex-direction: row;
+    align-items:    center;
+  }
+
+  &:before {
+    position:   absolute;
+    right:      16px;
+    font-size:  22px;
+    color:      $icon-color;
+    top:        50%;
+    transition: $transition;
+    transform:  translateY(-50%);
+    margin:     0;
+  }
+
+  &.expanded {
+    &:before {
+      transform:  rotate(90deg) translateY(-50%);
+      transition: $transition;
+      right:      25px;
+      top:        34%;
+    }
+  }
+}
+
 .header-details {
   display:        flex;
   flex-direction: column;

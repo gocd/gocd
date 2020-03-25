@@ -59,6 +59,22 @@ describe("Collapsible Panel Component", () => {
     expect(helper.byTestId("collapsible-panel-wrapper")).toHaveClass(styles.error);
   });
 
+  it('should not toggle component state on click if nonExpandable is set to true', () => {
+    helper.mount(() => <CollapsiblePanel dataTestId={"collapsible-panel-wrapper"}
+                                         header={pageTitle} nonExpandable={true}>{body}</CollapsiblePanel>);
+
+    // by default it will be expanded now
+    expect(helper.byTestId("collapse-header")).toHaveClass(styles.nonCollapseHeader);
+    expect(helper.byTestId("collapse-header")).not.toHaveClass(styles.collapse);
+    expect(helper.byTestId("collapse-body")).not.toHaveClass(styles.hide);
+    helper.clickByTestId("collapse-header");
+
+    // clicking the header will now have no effect
+    expect(helper.byTestId("collapse-header")).toHaveClass(styles.nonCollapseHeader);
+    expect(helper.byTestId("collapse-header")).not.toHaveClass(styles.collapse);
+    expect(helper.byTestId("collapse-body")).not.toHaveClass(styles.hide);
+  });
+
   function mount(error?: boolean) {
     helper.mount(() => <CollapsiblePanel error={error} dataTestId={"collapsible-panel-wrapper"}
                                          header={pageTitle}>{body}</CollapsiblePanel>);

@@ -792,6 +792,7 @@ public class Routes {
     }
 
     public static class PackageRepository {
+        public static final String SPA_BASE = "/admin/package_repositories";
         public static final String BASE = "/api/admin/repositories";
         public static final String DOC = apiDocsUrl("package-repositories");
         public static final String REPO_ID = "/:repo_id";

@@ -47,6 +47,11 @@
       "value": false
     },
     {
+      "key": "show_old_pkg_repos_spa",
+      "description": "Switch to the old package repositories SPA. Default is false.",
+      "value": false
+    },
+    {
       "key": "show_old_comparison_spa",
       "description": "Switch to the old comparison SPA. Default is false.",
       "value": false

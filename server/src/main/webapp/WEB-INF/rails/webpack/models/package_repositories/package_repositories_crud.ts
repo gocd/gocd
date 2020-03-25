@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {PackageRepositoriesJSON} from "./package_repositories_json";
-import {PackageRepositories} from "./package_repositories";
+import {PackageRepositories, PackageRepository} from "./package_repositories";
+import {PackageRepositoriesJSON, PackageRepositoryJSON} from "./package_repositories_json";
 
 export class PackageRepositoriesCRUD {
   private static API_VERSION_HEADER = ApiVersion.latest;
@@ -28,5 +28,38 @@ export class PackageRepositoriesCRUD {
                               const data = JSON.parse(body) as PackageRepositoriesJSON;
                               return PackageRepositories.fromJSON(data._embedded.package_repositories);
                             }));
+  }
+
+  static get(repoId: string) {
+    return ApiRequestBuilder.GET(SparkRoutes.packageRepositoryPath(repoId), this.API_VERSION_HEADER)
+                            .then(this.extractObjectWithEtag);
+  }
+
+  static create(packageRepository: PackageRepository) {
+    return ApiRequestBuilder.POST(SparkRoutes.packageRepositoryPath(), this.API_VERSION_HEADER,
+                                  {payload: packageRepository})
+                            .then(this.extractObjectWithEtag)
+  }
+
+  static update(packageRepository: PackageRepository, etag: string) {
+    return ApiRequestBuilder.PUT(SparkRoutes.packageRepositoryPath(packageRepository.repoId()),
+                                 this.API_VERSION_HEADER,
+                                 {payload: packageRepository, etag})
+                            .then(this.extractObjectWithEtag);
+  }
+
+  static delete(repoId: string) {
+    return ApiRequestBuilder.DELETE(SparkRoutes.packageRepositoryPath(repoId), this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
+  }
+
+  private static extractObjectWithEtag(result: ApiResult<string>) {
+    return result.map((body) => {
+      const packageRepositoryJSON = JSON.parse(body) as PackageRepositoryJSON;
+      return {
+        object: PackageRepository.fromJSON(packageRepositoryJSON),
+        etag:   result.getEtag()
+      } as ObjectWithEtag<PackageRepository>;
+    });
   }
 }

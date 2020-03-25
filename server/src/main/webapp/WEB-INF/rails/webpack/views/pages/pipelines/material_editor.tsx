@@ -89,31 +89,31 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     switch (material.type()) {
       case "git":
         if (!(material.attributes() instanceof GitMaterialAttributes)) {
-          material.attributes(new GitMaterialAttributes("", true));
+          material.attributes(new GitMaterialAttributes(undefined, true));
         }
         return <GitFields material={material} hideTestConnection={hideTestConnection}
                           showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "hg":
         if (!(material.attributes() instanceof HgMaterialAttributes)) {
-          material.attributes(new HgMaterialAttributes("", true));
+          material.attributes(new HgMaterialAttributes(undefined, true));
         }
         return <HgFields material={material} hideTestConnection={hideTestConnection}
                          showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "svn":
         if (!(material.attributes() instanceof SvnMaterialAttributes)) {
-          material.attributes(new SvnMaterialAttributes("", true));
+          material.attributes(new SvnMaterialAttributes(undefined, true));
         }
         return <SvnFields material={material} hideTestConnection={hideTestConnection}
                           showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "p4":
         if (!(material.attributes() instanceof P4MaterialAttributes)) {
-          material.attributes(new P4MaterialAttributes("", true));
+          material.attributes(new P4MaterialAttributes(undefined, true));
         }
         return <P4Fields material={material} hideTestConnection={hideTestConnection}
                          showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "tfs":
         if (!(material.attributes() instanceof TfsMaterialAttributes)) {
-          material.attributes(new TfsMaterialAttributes("", true));
+          material.attributes(new TfsMaterialAttributes(undefined, true));
         }
         return <TfsFields material={material} hideTestConnection={hideTestConnection}
                           showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
@@ -125,7 +125,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
                                  showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}/>;
       case "package":
         if (!(material.attributes() instanceof PackageMaterialAttributes)) {
-          material.attributes(new PackageMaterialAttributes("", true, ""));
+          material.attributes(new PackageMaterialAttributes(undefined, true, ""));
         }
         packageRepositories = packageRepositories === undefined ? new PackageRepositories() : packageRepositories;
         pluginInfos         = pluginInfos === undefined ? new PluginInfos()

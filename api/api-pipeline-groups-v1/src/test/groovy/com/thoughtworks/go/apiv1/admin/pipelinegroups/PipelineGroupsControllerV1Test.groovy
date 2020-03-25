@@ -195,6 +195,20 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
           .isUnprocessableEntity()
           .hasJsonMessage("Failed to add pipeline group 'group'. Another pipeline group with the same name already exists.")
       }
+
+      @Test
+      void "should fail if a group by same name different case already exists"() {
+        def pipelineGroup = new BasicPipelineConfigs()
+        pipelineGroup.setGroup("group")
+
+        when(pipelineConfigsService.getGroupsForUser(any())).thenReturn([pipelineGroup])
+
+        postWithApiHeader(controller.controllerPath(), [name: 'Group'])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Failed to add pipeline group 'Group'. Another pipeline group with the same name already exists.")
+      }
     }
   }
 

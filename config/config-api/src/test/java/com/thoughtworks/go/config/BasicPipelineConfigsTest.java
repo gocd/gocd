@@ -25,7 +25,7 @@ import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertSame;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
 
@@ -44,25 +44,23 @@ public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
         return new BasicPipelineConfigs(first, second);
     }
 
-
     @Test
-    public void shouldReturnSelfForGetLocalWhenOriginIsNull()
-    {
+    public void shouldReturnSelfForGetLocalWhenOriginIsNull() {
         PipelineConfigs pipelineConfigs = createEmpty();
         assertThat(pipelineConfigs.getLocal().size(), is(0));
-        assertSame(pipelineConfigs,pipelineConfigs.getLocal());
+        assertSame(pipelineConfigs, pipelineConfigs.getLocal());
     }
+
     @Test
-    public void shouldReturnSelfForGetLocalPartsWhenOriginIsFile()
-    {
+    public void shouldReturnSelfForGetLocalPartsWhenOriginIsFile() {
         PipelineConfigs pipelineConfigs = createEmpty();
         pipelineConfigs.setOrigins(new FileConfigOrigin());
         assertThat(pipelineConfigs.getLocal().size(), is(0));
         assertSame(pipelineConfigs, pipelineConfigs.getLocal());
     }
+
     @Test
-    public void shouldReturnNullGetLocalPartsWhenOriginIsRepo()
-    {
+    public void shouldReturnNullGetLocalPartsWhenOriginIsRepo() {
         PipelineConfigs pipelineConfigs = createEmpty();
         pipelineConfigs.setOrigins(new RepoConfigOrigin());
         assertNull(pipelineConfigs.getLocal());
@@ -76,6 +74,7 @@ public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
         group.setOrigins(new FileConfigOrigin());
         assertThat(pipe.getOrigin(), is(new FileConfigOrigin()));
     }
+
     @Test
     public void shouldSetOriginInAuthorization() {
         PipelineConfig pipe = PipelineConfigMother.pipelineConfig("pipeline1");
@@ -84,6 +83,17 @@ public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
         assertThat(group.getAuthorization().getOrigin(), is(new FileConfigOrigin()));
     }
 
+    @Test
+    public void shouldAnswerWhetherTheGroupNameIsSame() {
+        BasicPipelineConfigs group = new BasicPipelineConfigs("first", new Authorization());
+
+        assertFalse(group.isNamed("second"));
+
+        assertTrue(group.isNamed("First"));
+        assertTrue(group.isNamed("FiRsT"));
+        assertTrue(group.isNamed("FIRST"));
+        assertTrue(group.isNamed("first"));
+    }
 
     @Test
     public void shouldUpdateName() {

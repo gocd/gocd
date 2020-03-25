@@ -445,7 +445,7 @@ public class MergePipelineConfigs implements PipelineConfigs {
     }
 
     private boolean isSameGroup(String groupName) {
-        return StringUtils.equals(groupName, this.getGroup());
+        return StringUtils.equalsIgnoreCase(groupName, this.getGroup());
     }
 
     private int getIndex(String pipelineName) {

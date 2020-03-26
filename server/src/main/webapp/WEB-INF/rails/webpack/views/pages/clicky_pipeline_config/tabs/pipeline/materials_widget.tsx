@@ -16,6 +16,7 @@
 
 import {ErrorResponse} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Scms} from "models/materials/pluggable_scm";
@@ -100,30 +101,30 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
 
   private getMaterialUrlForDisplay(material: Material, vnode: m.Vnode<MaterialsAttrs, this>) {
     const url = material.materialUrl();
-    if (url.length === 0 && material.type() === "package") {
+    if (url.length === 0 && material.type() === "package" && !_.isEmpty(vnode.attrs.packages())) {
       const attrs   = material.attributes() as PackageMaterialAttributes;
-      const pkgInfo = vnode.attrs.packages().find((pkg) => pkg.id() === attrs.ref())!;
-      return `Repository: ${pkgInfo.packageRepo().name()} - Package: ${pkgInfo.name()} ${pkgInfo.configuration().asString()}`;
+      const pkgInfo = vnode.attrs.packages().find((pkg) => pkg.id() === attrs.ref());
+      return pkgInfo === undefined ? "" : `Repository: ${pkgInfo.packageRepo().name()} - Package: ${pkgInfo.name()} ${pkgInfo.configuration().asString()}`;
     }
-    if (url.length === 0 && material.type() === "plugin") {
+    if (url.length === 0 && material.type() === "plugin" && !_.isEmpty(vnode.attrs.scmMaterials())) {
       const attrs       = material.attributes() as PluggableScmMaterialAttributes;
-      const scmMaterial = vnode.attrs.scmMaterials().find((pkg) => pkg.id() === attrs.ref())!;
-      return `${scmMaterial.name()}: ${scmMaterial.configuration().asString()}`;
+      const scmMaterial = vnode.attrs.scmMaterials().find((pkg) => pkg.id() === attrs.ref());
+      return scmMaterial === undefined ? "" : `${scmMaterial.name()}: ${scmMaterial.configuration().asString()}`;
     }
     return url;
   }
 
   private getMaterialDisplayName(material: Material, vnode: m.Vnode<MaterialsAttrs, this>) {
     const displayName = material.displayName();
-    if (displayName.length === 0 && material.type() === "package") {
+    if (displayName.length === 0 && material.type() === "package" && !_.isEmpty(vnode.attrs.packages())) {
       const attrs   = material.attributes() as PackageMaterialAttributes;
-      const pkgInfo = vnode.attrs.packages().find((pkg) => pkg.id() === attrs.ref())!;
-      return `${pkgInfo.packageRepo().name()}_${pkgInfo.name()}`;
+      const pkgInfo = vnode.attrs.packages().find((pkg) => pkg.id() === attrs.ref());
+      return pkgInfo === undefined ? "" : `${pkgInfo.packageRepo().name()}_${pkgInfo.name()}`;
     }
-    if (displayName.length === 0 && material.type() === "plugin") {
+    if (displayName.length === 0 && material.type() === "plugin" && !_.isEmpty(vnode.attrs.scmMaterials())) {
       const attrs       = material.attributes() as PluggableScmMaterialAttributes;
-      const scmMaterial = vnode.attrs.scmMaterials().find((pkg) => pkg.id() === attrs.ref())!;
-      return scmMaterial.name();
+      const scmMaterial = vnode.attrs.scmMaterials().find((pkg) => pkg.id() === attrs.ref());
+      return scmMaterial === undefined ? "" : scmMaterial.name();
     }
     return displayName;
   }

@@ -117,6 +117,10 @@ describe('PackageFieldsSpec', () => {
       "package-repository": "Package Repository*",
       "package":            "Package*"
     });
+    assertLabelledInputsDisabledOrNot(helper, {
+      "package-repository": false,
+      "package":            true
+    });
     expect(helper.textAll("option", helper.byTestId('form-field-input-package-repository'))).toEqual(['Select a package repository', 'pkg-repo-name']);
     expect(helper.textAll("option", helper.byTestId('form-field-input-package'))).toEqual(['Select a package']);
   });
@@ -131,6 +135,10 @@ describe('PackageFieldsSpec', () => {
 
     helper.onchange(pkgRepoElement, 'pkg-repo-id');
 
+    assertLabelledInputsDisabledOrNot(helper, {
+      "package-repository": false,
+      "package":            false
+    });
     expect(helper.textAll("option", helper.byTestId('form-field-input-package'))).toEqual(['Select a package', 'pkg-name']);
   });
 
@@ -146,6 +154,22 @@ describe('PackageFieldsSpec', () => {
     expect(errorElement.textContent).toBe("Associated plugin 'non-existent-plugin' not found. Please contact the system administrator to install the plugin.");
   });
 
+  it('should show an error text if no package repositories are defined', () => {
+    packageRepositories = new PackageRepositories();
+    helper.mount(() => <PackageFields material={material} packageRepositories={packageRepositories}
+                                      pluginInfos={pluginInfos}/>);
+
+    assertLabelledInputsDisabledOrNot(helper, {
+      "package-repository": true,
+      "package":            true
+    });
+
+    const errorElement = helper.byTestId('flash-message-alert');
+    expect(errorElement).toBeInDOM();
+    expect(errorElement.textContent).toBe('No package repositories defined. Go to Package Repositories to define one.');
+    expect(helper.q('a', errorElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA());
+  });
+
   it('should show an error text if no packages are defined for a given package repo', () => {
     packageRepositories[0].packages(new Packages());
     helper.mount(() => <PackageFields material={material} packageRepositories={packageRepositories}
@@ -153,9 +177,13 @@ describe('PackageFieldsSpec', () => {
 
     helper.onchange(helper.byTestId('form-field-input-package-repository'), 'pkg-repo-id');
 
-    const errorElement = helper.q('span[class*="advanced_settings__form-error-text"]');
+    assertLabelledInputsDisabledOrNot(helper, {
+      "package-repository": false,
+      "package":            true
+    });
+    const errorElement = helper.byTestId('flash-message-alert');
     expect(errorElement).toBeInDOM();
-    expect(errorElement.textContent).toBe('No packages defined for the selected package repository. Go to Package Repositories SPA to define one.');
+    expect(errorElement.textContent).toBe('No packages defined for the selected package repository. Go to Package Repositories to define one.');
     expect(helper.q('a', errorElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA());
   });
 });
@@ -191,4 +219,14 @@ function assertIgnoreForSchedulingSwitchPresent(helper: TestHelper) {
 
 function assertIgnoreForSchedulingSwitchAbsent(helper: TestHelper) {
   expect(helper.byTestId('material-ignore-for-scheduling')).not.toBeInDOM();
+}
+
+function assertLabelledInputsDisabledOrNot(helper: TestHelper, idsMap: { [key: string]: boolean }) {
+  const keys = Object.keys(idsMap);
+  expect(keys.length > 0).toBe(true);
+
+  for (const id of keys) {
+    expect(helper.byTestId(`form-field-input-${id}`)).toBeInDOM();
+    expect(helper.byTestId(`form-field-input-${id}`).hasAttribute('readonly')).toBe(idsMap[id]);
+  }
 }

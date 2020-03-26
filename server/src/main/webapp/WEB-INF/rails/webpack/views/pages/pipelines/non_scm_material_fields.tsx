@@ -23,6 +23,7 @@ import {DependencyMaterialAutocomplete, PipelineNameCache} from "models/material
 import {DependencyMaterialAttributes, Material, MaterialAttributes, PackageMaterialAttributes} from "models/materials/types";
 import {PackageRepositories, PackageRepository} from "models/package_repositories/package_repositories";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";
@@ -152,7 +153,10 @@ interface PackageState {
 }
 
 export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> {
-  readonly defaultPkgs = [{id: "", text: "Select a package"}];
+  private readonly defaultPkgs         = [{id: "", text: "Select a package"}];
+  private disablePkgRepoField: boolean = false;
+  private disablePkgField: boolean     = true;
+  private errorMessage?: m.Children    = undefined;
 
   oninit(vnode: m.Vnode<PackageAttrs, PackageState>): any {
     vnode.state.pkgRepoId = Stream("");
@@ -177,28 +181,42 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
     packageRepos.push(...vnode.attrs.packageRepositories.map((packageRepo) => {
       return {id: packageRepo.repoId(), text: packageRepo.name()};
     }));
-    const readonly         = !!vnode.attrs.disabled;
-    const noPkgsDefinedMsg = vnode.state.pkgRepoId().length > 0 && vnode.state.pkgs().length === 1
-      ? <span className={styles.formErrorText}>No packages defined for the selected package repository. Go to <Link
-        href={SparkRoutes.packageRepositoriesSPA()}>Package Repositories SPA</Link> to define one.</span>
-      : undefined;
+    const readonly                    = !!vnode.attrs.disabled;
+    this.setErrorMessageIfApplicable(vnode, packageRepos);
     return [
+      this.errorMessage,
+
       <SelectField property={this.packageRepoProxy.bind(this, vnode)}
                    label="Package Repository"
                    errorText={attrs.errors().errorsForDisplay("pkgRepo")}
-                   required={true} readonly={readonly}>
+                   required={true} readonly={readonly || this.disablePkgRepoField}>
         <SelectFieldOptions selected={vnode.state.pkgRepoId()} items={packageRepos}/>
       </SelectField>,
 
-      <div>
-        <SelectField property={attrs.ref} label="Package" required={true}
-                     errorText={attrs.errors().errorsForDisplay("ref")}
-                     readonly={readonly || attrs.errors().hasErrors("pkgRepo")}>
-          <SelectFieldOptions selected={attrs.ref()} items={vnode.state.pkgs()}/>
-        </SelectField>
-        {noPkgsDefinedMsg}
-      </div>
+      <SelectField property={attrs.ref} label="Package" required={true}
+                   errorText={attrs.errors().errorsForDisplay("ref")}
+                   readonly={readonly || this.disablePkgField}>
+        <SelectFieldOptions selected={attrs.ref()} items={vnode.state.pkgs()}/>
+      </SelectField>
     ];
+  }
+
+  private setErrorMessageIfApplicable(vnode: m.Vnode<PackageAttrs, PackageState>, packageRepos: Array<Option | string>) {
+    this.errorMessage = undefined;
+    if (packageRepos.length === 1) {
+      this.errorMessage        = <FlashMessage type={MessageType.alert}>
+        No package repositories defined. Go to <Link href={SparkRoutes.packageRepositoriesSPA()}>Package
+        Repositories</Link> to define one.
+      </FlashMessage>;
+      this.disablePkgRepoField = true;
+    }
+    if (vnode.state.pkgRepoId().length > 0 && vnode.state.pkgs().length === 1) {
+      this.errorMessage    = <FlashMessage type={MessageType.alert}>
+        No packages defined for the selected package repository. Go to <Link
+        href={SparkRoutes.packageRepositoriesSPA()}>Package Repositories</Link> to define one.
+      </FlashMessage>;
+      this.disablePkgField = true;
+    }
   }
 
   private packageRepoProxy(vnode: m.Vnode<PackageAttrs, PackageState>, pkgRepoId?: string): any {
@@ -207,10 +225,11 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
     }
 
     vnode.state.pkgRepoId(pkgRepoId);
+    (vnode.attrs.material.attributes() as PackageMaterialAttributes).ref("");
     const selectedPkgRepo = vnode.attrs.packageRepositories.find((pkgRepo) => pkgRepo.repoId() === pkgRepoId)!;
     const pkgs            = this.mapAndConcatPackages(selectedPkgRepo);
     vnode.state.pkgs(pkgs);
-    vnode.attrs.material.attributes()!.clearErrors("pkgRepo");
+    this.resetErrorAndWarningFields(vnode);
     this.setErrorIfPluginNotPresent(vnode, selectedPkgRepo);
 
     return pkgRepoId;
@@ -229,6 +248,12 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
     if (pluginInfo === undefined) {
       vnode.attrs.material.attributes()!
         .errors().add("pkgRepo", `Associated plugin '${selectedPkgRepo.pluginMetadata().id()}' not found. Please contact the system administrator to install the plugin.`);
+      this.disablePkgField = true;
     }
+  }
+
+  private resetErrorAndWarningFields(vnode: m.Vnode<PackageAttrs, PackageState>) {
+    vnode.attrs.material.attributes()!.clearErrors("pkgRepo");
+    this.disablePkgField = false;
   }
 }

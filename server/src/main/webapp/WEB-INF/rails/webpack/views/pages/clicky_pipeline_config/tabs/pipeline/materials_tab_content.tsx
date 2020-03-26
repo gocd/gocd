@@ -33,9 +33,9 @@ import {MaterialsWidget} from "./materials_widget";
 
 export class MaterialsTabContent extends TabContent<PipelineConfig> {
   private readonly pluginInfos: Stream<PluginInfos>                 = Stream(new PluginInfos());
-  private readonly packageRepositories: Stream<PackageRepositories> = Stream();
-  private readonly packages: Stream<Packages>                       = Stream();
-  private readonly scmMaterials: Stream<Scms>                       = Stream();
+  private readonly packageRepositories: Stream<PackageRepositories> = Stream(new PackageRepositories());
+  private readonly packages: Stream<Packages>                       = Stream(new Packages());
+  private readonly scmMaterials: Stream<Scms>                       = Stream(new Scms());
 
   constructor() {
     super();

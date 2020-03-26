@@ -214,6 +214,7 @@ public class Routes {
         public static final String DOC = apiDocsUrl("#scms");
         public static final String BASE = "/api/admin/scms";
         public static final String ID = "/:material_name";
+        public static final String USAGES = ID + "/usages";
 
         public static String find() {
             return BASE + ID;

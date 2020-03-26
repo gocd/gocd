@@ -24,14 +24,19 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv3.scms.representers.SCMRepresenter;
 import com.thoughtworks.go.apiv3.scms.representers.SCMsRepresenter;
+import com.thoughtworks.go.apiv3.scms.representers.ScmUsageRepresenter;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.server.service.EntityHashingService;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import com.thoughtworks.go.util.Pair;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -39,10 +44,13 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 import static spark.Spark.*;
 
 @Component
@@ -52,13 +60,15 @@ public class SCMControllerV3 extends ApiController implements SparkSpringControl
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PluggableScmService pluggableScmService;
     private final EntityHashingService entityHashingService;
+    private final GoConfigService goConfigService;
 
     @Autowired
-    public SCMControllerV3(ApiAuthenticationHelper apiAuthenticationHelper, PluggableScmService pluggableScmService, EntityHashingService entityHashingService) {
+    public SCMControllerV3(ApiAuthenticationHelper apiAuthenticationHelper, PluggableScmService pluggableScmService, EntityHashingService entityHashingService, GoConfigService goConfigService) {
         super(ApiVersion.v3);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.pluggableScmService = pluggableScmService;
         this.entityHashingService = entityHashingService;
+        this.goConfigService = goConfigService;
     }
 
     @Override
@@ -82,6 +92,7 @@ public class SCMControllerV3 extends ApiController implements SparkSpringControl
             get(Routes.SCM.ID, mimeType, this::show);
             put(Routes.SCM.ID, mimeType, this::update);
             delete(Routes.SCM.ID, mimeType, this::destroy);
+            get(Routes.SCM.USAGES, mimeType, this::getUsages);
         });
     }
 
@@ -150,6 +161,15 @@ public class SCMControllerV3 extends ApiController implements SparkSpringControl
         pluggableScmService.deletePluggableSCM(currentUsername(), scm, result);
 
         return renderHTTPOperationResult(result, request, response);
+    }
+
+    public String getUsages(Request request, Response response) throws IOException {
+        String materialName = request.params(MATERIAL_NAME);
+        SCM scm = fetchEntityFromConfig(materialName);
+        Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> allUsages = goConfigService.getCurrentConfig().getGroups().getPluggableSCMMaterialUsageInPipelines();
+        List<Pair<PipelineConfig, PipelineConfigs>> scmUsageInPipelines = allUsages.getOrDefault(scm.getId(), emptyList());
+
+        return writerForTopLevelObject(request, response, outputWriter -> ScmUsageRepresenter.toJSON(outputWriter, materialName, scmUsageInPipelines));
     }
 
     @Override

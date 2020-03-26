@@ -21,7 +21,10 @@ import {PluggableScmWidget} from "../pluggable_scm_widget";
 import {getPluggableScm} from "./test_data";
 
 describe('PluggableScmWidgetSpec', () => {
-  const helper = new TestHelper();
+  const helper    = new TestHelper();
+  const editSpy   = jasmine.createSpy("onEdit");
+  const cloneSpy  = jasmine.createSpy("onClone");
+  const deleteSpy = jasmine.createSpy("onDelete");
   let scm: Scm;
   let disableActions: boolean;
 
@@ -32,7 +35,8 @@ describe('PluggableScmWidgetSpec', () => {
   afterEach((done) => helper.unmount(done));
 
   function mount() {
-    helper.mount(() => <PluggableScmWidget scm={scm} disableActions={disableActions}/>);
+    helper.mount(() => <PluggableScmWidget scm={scm} disableActions={disableActions}
+                                           onEdit={editSpy} onClone={cloneSpy} onDelete={deleteSpy}/>);
   }
 
   it('should render scm details and action buttons', () => {
@@ -55,7 +59,32 @@ describe('PluggableScmWidgetSpec', () => {
     expect(helper.textByTestId('key-value-value-url', scmDetails)).toBe('https://github.com/sample/example.git');
 
     expect(helper.byTestId('pluggable-scm-edit')).toBeInDOM();
+    expect(helper.byTestId('pluggable-scm-edit')).not.toBeDisabled();
     expect(helper.byTestId('pluggable-scm-clone')).toBeInDOM();
+    expect(helper.byTestId('pluggable-scm-clone')).not.toBeDisabled();
     expect(helper.byTestId('pluggable-scm-delete')).toBeInDOM();
+    expect(helper.byTestId('pluggable-scm-delete')).not.toBeDisabled();
+  });
+
+  it('should give a call to the callbacks on relevant button clicks', () => {
+    mount();
+
+    helper.clickByTestId('pluggable-scm-edit');
+    expect(editSpy).toHaveBeenCalled();
+
+    helper.clickByTestId('pluggable-scm-clone');
+    expect(cloneSpy).toHaveBeenCalled();
+
+    helper.clickByTestId('pluggable-scm-delete');
+    expect(deleteSpy).toHaveBeenCalled();
+  });
+
+  it('should disable edit and clone button', () => {
+    disableActions = true;
+    mount();
+
+    expect(helper.byTestId('pluggable-scm-edit')).toBeDisabled();
+    expect(helper.byTestId('pluggable-scm-clone')).toBeDisabled();
+    expect(helper.byTestId('pluggable-scm-delete')).not.toBeDisabled();
   });
 });

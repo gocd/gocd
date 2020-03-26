@@ -16,6 +16,8 @@
 
 import {Configurations, PropertyJSON} from "models/shared/configuration";
 import Stream from "mithril/stream";
+import {applyMixins} from "models/mixins/mixins";
+import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
 export interface ScmsJSON {
   _embedded: EmbeddedJSON;
@@ -38,13 +40,17 @@ export interface PluginMetadataJSON {
   version: string;
 }
 
-class PluginMetadata {
+export class PluginMetadata extends ValidatableMixin {
   id: Stream<string>;
   version: Stream<string>;
 
   constructor(id: string, version: string) {
+    super();
+    ValidatableMixin.call(this);
     this.id      = Stream(id);
     this.version = Stream(version);
+
+    this.validatePresenceOf("id");
   }
 
   static fromJSON(data: PluginMetadataJSON): PluginMetadata {
@@ -52,7 +58,9 @@ class PluginMetadata {
   }
 }
 
-export class Scm {
+applyMixins(PluginMetadata, ValidatableMixin);
+
+export class Scm extends ValidatableMixin {
   id: Stream<string>;
   name: Stream<string>;
   autoUpdate: Stream<boolean>;
@@ -60,17 +68,42 @@ export class Scm {
   configuration: Stream<Configurations>;
 
   constructor(id: string, name: string, autoUpdate: boolean, pluginMetadata: PluginMetadata, configuration: Configurations) {
+    super();
+    ValidatableMixin.call(this);
     this.id             = Stream(id);
     this.name           = Stream(name);
     this.autoUpdate     = Stream(autoUpdate);
     this.pluginMetadata = Stream(pluginMetadata);
     this.configuration  = Stream(configuration);
+
+    this.validatePresenceOf("id");
+    this.validatePresenceOf("name");
+    this.validateFormatOf("name",
+                          new RegExp("^[-a-zA-Z0-9_][-a-zA-Z0-9_.]*$"),
+                          {message: "Invalid Id. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period)."});
+    this.validateMaxLength("name", 255, {message: "The maximum allowed length is 255 characters."});
+    this.validateAssociated("pluginMetadata");
   }
 
   static fromJSON(data: ScmJSON): Scm {
     return new Scm(data.id, data.name, data.auto_update, PluginMetadata.fromJSON(data.plugin_metadata), Configurations.fromJSON(data.configuration));
   }
+
+  toJSON(): object {
+    return {
+      id:              this.id(),
+      name:            this.name(),
+      auto_update:     this.autoUpdate(),
+      plugin_metadata: {
+        id:      this.pluginMetadata().id(),
+        version: this.pluginMetadata().version()
+      },
+      configuration:   this.configuration().toJSON()
+    }
+  }
 }
+
+applyMixins(Scm, ValidatableMixin);
 
 export class Scms extends Array<Scm> {
   constructor(...vals: Scm[]) {

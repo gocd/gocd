@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import m from "mithril";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import {Scm} from "models/materials/pluggable_scm";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
+import {CloneOperation, DeleteOperation, EditOperation} from "../page_operations";
 
-interface Attrs {
+interface Attrs extends EditOperation<Scm>, CloneOperation<Scm>, DeleteOperation<Scm> {
   scm: Scm;
   disableActions: boolean;
 }
@@ -41,10 +43,13 @@ export class PluggableScmWidget extends MithrilViewComponent<Attrs> {
       <div>
         <IconGroup>
           <Edit data-test-id="pluggable-scm-edit"
-                disabled={vnode.attrs.disableActions}/>
+                disabled={vnode.attrs.disableActions}
+                onclick={vnode.attrs.onEdit.bind(this, scm)}/>
           <Clone data-test-id="pluggable-scm-clone"
-                 disabled={vnode.attrs.disableActions}/>
-          <Delete data-test-id="pluggable-scm-delete"/>
+                 disabled={vnode.attrs.disableActions}
+                 onclick={vnode.attrs.onClone.bind(this, scm)}/>
+          <Delete data-test-id="pluggable-scm-delete"
+                  onclick={vnode.attrs.onDelete.bind(this, scm)}/>
         </IconGroup>
       </div>];
 

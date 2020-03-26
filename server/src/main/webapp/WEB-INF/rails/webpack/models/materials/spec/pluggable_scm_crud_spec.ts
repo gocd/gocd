@@ -91,7 +91,7 @@ describe('PluggableScmCRUDSpec', () => {
   });
 
   it("should update a scm", () => {
-    const url = SparkRoutes.pluggableScmPath("scm-id");
+    const url = SparkRoutes.pluggableScmPath("pluggable.scm.material.name");
     jasmine.Ajax.stubRequest(url).andReturn(scmResponse());
 
     const scm = Scm.fromJSON(getPluggableScm());

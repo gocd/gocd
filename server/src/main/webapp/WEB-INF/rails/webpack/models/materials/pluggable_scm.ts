@@ -16,6 +16,7 @@
 
 import {Configurations, PropertyJSON} from "models/shared/configuration";
 import Stream from "mithril/stream";
+import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
@@ -33,6 +34,7 @@ export interface ScmJSON {
   auto_update: boolean;
   plugin_metadata: PluginMetadataJSON;
   configuration: PropertyJSON[]
+  errors?: ErrorsJSON;
 }
 
 export interface PluginMetadataJSON {
@@ -95,7 +97,9 @@ export class Scm extends ValidatableMixin {
   }
 
   static fromJSON(data: ScmJSON): Scm {
-    return new Scm(data.id, data.name, data.auto_update, PluginMetadata.fromJSON(data.plugin_metadata), Configurations.fromJSON(data.configuration));
+    const scm = new Scm(data.id, data.name, data.auto_update, PluginMetadata.fromJSON(data.plugin_metadata), Configurations.fromJSON(data.configuration));
+    scm.errors(new Errors(data.errors));
+    return scm;
   }
 
   toJSON(): object {

@@ -21,6 +21,7 @@ import Stream from "mithril/stream";
 import {Scm, ScmJSON} from "models/materials/pluggable_scm";
 import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {v4 as uuidv4} from 'uuid';
 import {Size} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {EntityModal} from "views/components/modal/entity_modal";
@@ -143,7 +144,7 @@ export class ClonePluggableScmModal extends PluggableScmModal {
   }
 
   fetchCompleted() {
-    this.entity().id("");
+    this.entity().id(uuidv4());
     this.entity().name("");
   }
 }

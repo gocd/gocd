@@ -35,6 +35,7 @@ export class PluggableScmWidget extends MithrilViewComponent<Attrs> {
 
     const scm            = vnode.attrs.scm;
     const scmRepoDetails = new Map([
+                                     ["Id", scm.id()],
                                      ["Name", scm.name()],
                                      ["Plugin Id", scm.pluginMetadata().id()],
                                      ...Array.from(scm.configuration().asMap())

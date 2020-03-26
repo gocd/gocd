@@ -53,6 +53,8 @@ describe('PluggableScmWidgetSpec', () => {
     expect(helper.textByTestId('key-value-value-plugin-id', headerPanel)).toBe(scm.pluginMetadata().id());
 
     const scmDetails = helper.byTestId('pluggable-scm-details');
+    expect(helper.textByTestId('key-value-key-id', scmDetails)).toBe('Id');
+    expect(helper.textByTestId('key-value-value-id', scmDetails)).toBe(scm.id());
     expect(helper.textByTestId('key-value-key-name', scmDetails)).toBe('Name');
     expect(helper.textByTestId('key-value-value-name', scmDetails)).toBe(scm.name());
     expect(helper.textByTestId('key-value-key-plugin-id', scmDetails)).toBe('Plugin Id');

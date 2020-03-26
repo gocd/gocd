@@ -71,6 +71,15 @@ export class PluggableScmModalBody extends MithrilViewComponent<Attrs> {
         </Form>
       </FormHeader>
 
+      <div>
+        <TextField label="Id"
+                   readonly={vnode.attrs.disableId}
+                   property={vnode.attrs.scm.id}
+                   placeholder={"Enter a unique id for this material"}
+                   helpText={"Each material is associated with an id by which it can be referenced in the pipelines. Once defined, cannot be updated"}
+                   errorText={vnode.attrs.scm.errors().errorsForDisplay("scmId")}/>
+      </div>
+
       <div className="row collapse">
         <AngularPluginNew
           pluginInfoSettings={Stream(settings)}

@@ -19,12 +19,13 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import {Scm} from "models/materials/pluggable_scm";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {KeyValuePair} from "views/components/key_value_pair";
-import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
+import {Clone, Delete, Edit, IconGroup, Usage} from "views/components/icons";
 import {CloneOperation, DeleteOperation, EditOperation} from "../page_operations";
 
 interface Attrs extends EditOperation<Scm>, CloneOperation<Scm>, DeleteOperation<Scm> {
   scm: Scm;
   disableActions: boolean;
+  showUsages: (scm: Scm, e: MouseEvent) => void;
 }
 
 export class PluggableScmWidget extends MithrilViewComponent<Attrs> {
@@ -50,6 +51,8 @@ export class PluggableScmWidget extends MithrilViewComponent<Attrs> {
                  onclick={vnode.attrs.onClone.bind(this, scm)}/>
           <Delete data-test-id="pluggable-scm-delete"
                   onclick={vnode.attrs.onDelete.bind(this, scm)}/>
+          <Usage data-test-id="pluggable-scm-usages"
+                 onclick={vnode.attrs.showUsages.bind(this, scm)}/>
         </IconGroup>
       </div>];
 

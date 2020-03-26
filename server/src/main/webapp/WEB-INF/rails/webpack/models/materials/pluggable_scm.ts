@@ -40,6 +40,15 @@ export interface PluginMetadataJSON {
   version: string;
 }
 
+export interface ScmUsageJSON {
+  group: string;
+  pipeline: string;
+}
+
+export interface ScmUsagesJSON {
+  usages: ScmUsageJSON[];
+}
+
 export class PluginMetadata extends ValidatableMixin {
   id: Stream<string>;
   version: Stream<string>;
@@ -113,5 +122,30 @@ export class Scms extends Array<Scm> {
 
   static fromJSON(data: ScmJSON[]): Scms {
     return new Scms(...data.map((a) => Scm.fromJSON(a)));
+  }
+}
+
+class ScmUsage {
+  group: string;
+  pipeline: string;
+
+  constructor(group: string, pipeline: string) {
+    this.group    = group;
+    this.pipeline = pipeline;
+  }
+
+  static fromJSON(data: ScmUsageJSON): ScmUsage {
+    return new ScmUsage(data.group, data.pipeline);
+  }
+}
+
+export class ScmUsages extends Array<ScmUsage> {
+  constructor(...vals: ScmUsage[]) {
+    super(...vals);
+    Object.setPrototypeOf(this, Object.create(ScmUsages.prototype));
+  }
+
+  static fromJSON(data: ScmUsagesJSON): ScmUsages {
+    return new ScmUsages(...data.usages.map((a) => ScmUsage.fromJSON(a)));
   }
 }

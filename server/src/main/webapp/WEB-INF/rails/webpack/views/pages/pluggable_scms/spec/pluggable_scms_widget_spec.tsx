@@ -38,7 +38,8 @@ describe('PluggableScmsWidgetSpec', () => {
     helper.mount(() => <PluggableScmsWidget scms={Stream(scms)} pluginInfos={Stream(pluginInfos)}
                                             onEdit={jasmine.createSpy("onEdit")}
                                             onClone={jasmine.createSpy("onClone")}
-                                            onDelete={jasmine.createSpy("onDelete")}/>);
+                                            onDelete={jasmine.createSpy("onDelete")}
+                                            showUsages={jasmine.createSpy("showUsages")}/>);
   }
 
   it('should render info div if repos is empty', () => {

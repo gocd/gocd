@@ -25,6 +25,7 @@ describe('PluggableScmWidgetSpec', () => {
   const editSpy   = jasmine.createSpy("onEdit");
   const cloneSpy  = jasmine.createSpy("onClone");
   const deleteSpy = jasmine.createSpy("onDelete");
+  const usagesSpy = jasmine.createSpy("showUsages");
   let scm: Scm;
   let disableActions: boolean;
 
@@ -36,7 +37,8 @@ describe('PluggableScmWidgetSpec', () => {
 
   function mount() {
     helper.mount(() => <PluggableScmWidget scm={scm} disableActions={disableActions}
-                                           onEdit={editSpy} onClone={cloneSpy} onDelete={deleteSpy}/>);
+                                           onEdit={editSpy} onClone={cloneSpy} onDelete={deleteSpy}
+                                           showUsages={usagesSpy}/>);
   }
 
   it('should render scm details and action buttons', () => {
@@ -64,6 +66,8 @@ describe('PluggableScmWidgetSpec', () => {
     expect(helper.byTestId('pluggable-scm-clone')).not.toBeDisabled();
     expect(helper.byTestId('pluggable-scm-delete')).toBeInDOM();
     expect(helper.byTestId('pluggable-scm-delete')).not.toBeDisabled();
+    expect(helper.byTestId('pluggable-scm-usages')).toBeInDOM();
+    expect(helper.byTestId('pluggable-scm-usages')).not.toBeDisabled();
   });
 
   it('should give a call to the callbacks on relevant button clicks', () => {
@@ -77,6 +81,9 @@ describe('PluggableScmWidgetSpec', () => {
 
     helper.clickByTestId('pluggable-scm-delete');
     expect(deleteSpy).toHaveBeenCalled();
+
+    helper.clickByTestId('pluggable-scm-usages');
+    expect(usagesSpy).toHaveBeenCalled();
   });
 
   it('should disable edit and clone button', () => {
@@ -86,5 +93,6 @@ describe('PluggableScmWidgetSpec', () => {
     expect(helper.byTestId('pluggable-scm-edit')).toBeDisabled();
     expect(helper.byTestId('pluggable-scm-clone')).toBeDisabled();
     expect(helper.byTestId('pluggable-scm-delete')).not.toBeDisabled();
+    expect(helper.byTestId('pluggable-scm-usages')).not.toBeDisabled();
   });
 });

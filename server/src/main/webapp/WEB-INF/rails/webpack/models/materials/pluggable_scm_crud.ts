@@ -16,7 +16,7 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {Scm, ScmJSON, Scms, ScmsJSON} from "./pluggable_scm";
+import {Scm, ScmJSON, Scms, ScmsJSON, ScmUsages, ScmUsagesJSON} from "./pluggable_scm";
 
 export class PluggableScmCRUD {
   private static API_VERSION_HEADER = ApiVersion.latest;
@@ -50,6 +50,14 @@ export class PluggableScmCRUD {
   static delete(scmName: string) {
     return ApiRequestBuilder.DELETE(SparkRoutes.pluggableScmPath(scmName), this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
+  }
+
+  static usages(id: string) {
+    return ApiRequestBuilder.GET(SparkRoutes.scmUsagePath(id), this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => result.map((response) => {
+                              const usages = JSON.parse(response) as ScmUsagesJSON;
+                              return ScmUsages.fromJSON(usages);
+                            }));
   }
 
   private static extractObjectWithEtag(result: ApiResult<string>) {

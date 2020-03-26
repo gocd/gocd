@@ -27,6 +27,7 @@ import {PluggableScmWidget} from "./pluggable_scm_widget";
 
 interface Attrs extends RequiresPluginInfos, EditOperation<Scm>, CloneOperation<Scm>, DeleteOperation<Scm> {
   scms: Stream<Scms>;
+  showUsages: (scm: Scm, e: MouseEvent) => void;
 }
 
 export class PluggableScmsWidget extends MithrilViewComponent<Attrs> {

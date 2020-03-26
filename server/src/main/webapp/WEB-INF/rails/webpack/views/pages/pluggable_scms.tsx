@@ -43,9 +43,11 @@ import {
   DeletePluggableScmModal,
   EditPluggableScmModal
 } from "./pluggable_scms/modals";
+import {UsagePackageModal} from "./package_repositories/package_modals";
 
 interface State extends RequiresPluginInfos, AddOperation<Scm>, EditOperation<Scm>, CloneOperation<Scm>, DeleteOperation<Scm>, SaveOperation {
   scms: Stream<Scms>;
+  showUsages: (scm: Scm, e: MouseEvent) => void;
 }
 
 export class PluggableScmsPage extends Page<null, State> {
@@ -61,6 +63,10 @@ export class PluggableScmsPage extends Page<null, State> {
 
     vnode.state.onError = (msg: m.Children) => {
       this.flashMessage.setMessage(MessageType.alert, msg);
+    };
+
+    const onOperationError = (errorResponse: ErrorResponse) => {
+      vnode.state.onError(JSON.parse(errorResponse.body!).message);
     };
 
     vnode.state.onAdd = (e: MouseEvent) => {
@@ -89,9 +95,19 @@ export class PluggableScmsPage extends Page<null, State> {
     vnode.state.onDelete = (scm: Scm, e: MouseEvent) => {
       e.stopPropagation();
 
-      new DeletePluggableScmModal(scm, vnode.state.onSuccessfulSave, (errorResponse: ErrorResponse) => {
-        vnode.state.onError(JSON.parse(errorResponse.body!).message);
-      }).render();
+      new DeletePluggableScmModal(scm, vnode.state.onSuccessfulSave, onOperationError).render();
+    };
+
+    vnode.state.showUsages = (scm: Scm, e: MouseEvent) => {
+      e.stopPropagation();
+
+      PluggableScmCRUD.usages(scm.name())
+                      .then((result) => {
+                        result.do(
+                          (successResponse) => {
+                            new UsagePackageModal(scm.name(), successResponse.body).render();
+                          }, onOperationError);
+                      })
     };
   }
 

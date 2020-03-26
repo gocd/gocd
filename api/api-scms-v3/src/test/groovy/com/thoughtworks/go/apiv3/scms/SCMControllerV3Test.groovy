@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv2.scms
+package com.thoughtworks.go.apiv3.scms
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.apiv2.scms.representers.SCMRepresenter
-import com.thoughtworks.go.apiv2.scms.representers.SCMsRepresenter
+import com.thoughtworks.go.apiv3.scms.representers.SCMRepresenter
+import com.thoughtworks.go.apiv3.scms.representers.SCMsRepresenter
+import com.thoughtworks.go.apiv3.scms.representers.ScmUsageRepresenter
+import com.thoughtworks.go.config.*
+import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.domain.scm.SCM
 import com.thoughtworks.go.domain.scm.SCMMother
 import com.thoughtworks.go.domain.scm.SCMs
+import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.EntityHashingService
@@ -31,9 +35,9 @@ import com.thoughtworks.go.server.service.materials.PluggableScmService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.DeprecatedApiTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
+import com.thoughtworks.go.util.Pair
 import groovy.json.JsonBuilder
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -44,11 +48,14 @@ import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
 import static com.thoughtworks.go.api.util.HaltApiMessages.renameOfEntityIsNotSupportedMessage
+import static java.util.Collections.emptyList
+import static java.util.Collections.emptyMap
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
-class SCMControllerV2Test implements SecurityServiceTrait, ControllerTrait<SCMControllerV2>, DeprecatedApiTrait {
+class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMControllerV3> {
   @Mock
   PluggableScmService scmService
 
@@ -61,8 +68,8 @@ class SCMControllerV2Test implements SecurityServiceTrait, ControllerTrait<SCMCo
   }
 
   @Override
-  SCMControllerV2 createControllerInstance() {
-    return new SCMControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), scmService, entityHashingService)
+  SCMControllerV3 createControllerInstance() {
+    return new SCMControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), scmService, entityHashingService, goConfigService)
   }
 
   @Nested
@@ -739,7 +746,7 @@ class SCMControllerV2Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           Mockito.any() as Username,
           Mockito.any() as SCM,
           Mockito.any() as LocalizedOperationResult,
-          )
+        )
         ).then(
           {
             InvocationOnMock invocation ->
@@ -758,6 +765,71 @@ class SCMControllerV2Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           .hasContentType(controller.mimeType)
           .hasJsonBody(new JsonBuilder(expectedResponseBody).toString())
       }
+    }
+  }
+
+  @Nested
+  class Usages {
+    PipelineGroups pipelineGroups
+
+    @BeforeEach
+    void setUp() {
+      loginAsGroupAdmin()
+
+      def cruiseConfig = mock(BasicCruiseConfig.class)
+      pipelineGroups = mock(PipelineGroups.class)
+      when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
+      when(cruiseConfig.getGroups()).thenReturn(pipelineGroups)
+
+
+      SCM scm = SCMMother.create("scm-id", "scm-name", "plugin1", "v1.0", new Configuration())
+
+      when(entityHashingService.md5ForEntity(scm)).thenReturn('md5')
+      when(scmService.findPluggableScmMaterial("scm-name")).thenReturn(scm)
+    }
+
+    @Nested
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "getUsages"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerBasePath() + "/scm-name/usages")
+      }
+    }
+
+    @Test
+    void 'should return a list of pipelines which uses the specified scm'() {
+      def pipelineConfig = PipelineConfigMother.pipelineConfig("some-pipeline")
+      Pair<PipelineConfig, PipelineConfigs> pair = new Pair<>(pipelineConfig, new BasicPipelineConfigs("pipeline-group", new Authorization(), pipelineConfig))
+      ArrayList<Pair<PipelineConfig, PipelineConfigs>> pairs = new ArrayList<>()
+      pairs.add(pair)
+
+      def allUsages = new HashMap()
+      allUsages.put("scm-id", pairs)
+
+      when(pipelineGroups.getPluggableSCMMaterialUsageInPipelines()).thenReturn(allUsages)
+
+      getWithApiHeader(controller.controllerBasePath() + "/scm-name/usages")
+
+      assertThatResponse()
+        .isOk()
+        .hasBodyWithJsonObject(ScmUsageRepresenter.class, "scm-name", pairs)
+    }
+
+    @Test
+    void 'should return a empty list if no usages found'() {
+      when(pipelineGroups.getPluggableSCMMaterialUsageInPipelines()).thenReturn(emptyMap())
+
+      getWithApiHeader(controller.controllerBasePath() + "/scm-name/usages")
+
+      assertThatResponse()
+        .isOk()
+        .hasBodyWithJsonObject(ScmUsageRepresenter.class, "scm-name", emptyList())
     }
   }
 }

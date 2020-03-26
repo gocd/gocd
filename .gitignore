@@ -525,3 +525,7 @@ api/api-config-repos-v4/out/
 api/api-config-repos-v4/target/
 api/api-config-repos-v4/logs/
 api/api-config-repos-v4/config/
+api/api-scms-v3/out/
+api/api-scms-v3/target/
+api/api-scms-v3/logs/
+api/api-scms-v3/config/

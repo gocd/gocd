@@ -31,6 +31,8 @@ import com.thoughtworks.go.server.service.materials.PluggableScmService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.DeprecatedAPI
+import com.thoughtworks.go.spark.DeprecatedApiTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import groovy.json.JsonBuilder
@@ -47,7 +49,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
-class SCMControllerV1Test implements SecurityServiceTrait, ControllerTrait<SCMControllerV1> {
+class SCMControllerV1Test implements SecurityServiceTrait, ControllerTrait<SCMControllerV1>, DeprecatedApiTrait {
   @Mock
   PluggableScmService scmService
 

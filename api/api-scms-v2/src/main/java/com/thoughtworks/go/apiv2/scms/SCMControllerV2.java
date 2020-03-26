@@ -30,6 +30,7 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +47,8 @@ import static java.lang.String.format;
 import static spark.Spark.*;
 
 @Component
+
+@DeprecatedAPI(entityName = "Scms", deprecatedApiVersion = ApiVersion.v2, successorApiVersion = ApiVersion.v3, deprecatedIn = "20.3.0", removalIn = "20.6.0")
 public class SCMControllerV2 extends ApiController implements SparkSpringController, CrudController<SCM> {
 
     public static final String MATERIAL_NAME = "material_name";

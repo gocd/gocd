@@ -49,16 +49,6 @@ export class PipelineActivityService {
     return ApiRequestBuilder.POST(SparkRoutes.pipelineTriggerPath(pipelineName), PipelineActivityService.API_VERSION_HEADER);
   }
 
-  pausePipeline(pipelineName: string, pauseCause: string) {
-    return ApiRequestBuilder.POST(SparkRoutes.pipelinePausePath(pipelineName),
-      PipelineActivityService.API_VERSION_HEADER,
-      {payload: {pause_cause: pauseCause}});
-  }
-
-  unpausePipeline(pipelineName: string) {
-    return ApiRequestBuilder.POST(SparkRoutes.pipelineUnpausePath(pipelineName), PipelineActivityService.API_VERSION_HEADER);
-  }
-
   commentOnPipelineRun(pipelineName: string, labelOrCounter: string | number, comment: string) {
     return ApiRequestBuilder.POST(SparkRoutes.commentOnPipelineInstance(pipelineName, labelOrCounter),
       PipelineActivityService.API_VERSION_HEADER,

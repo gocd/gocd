@@ -18,17 +18,29 @@ import {ErrorResponse} from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {
+  Package,
+  PackageRepositories,
+  PackageRepository,
+  PackageRepositorySummary,
+  Packages
+} from "models/package_repositories/package_repositories";
 import {PackagesCRUD} from "models/package_repositories/packages_crud";
-import {Package, PackageRepositories, PackageRepository, PackageRepositorySummary, Packages} from "models/package_repositories/package_repositories";
 import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
 import {ExtensionTypeString, PackageRepoExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
+import {SearchField} from "views/components/forms/input_fields";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import configRepoStyles from "views/pages/config_repos/index.scss";
+import {
+  ClonePackageRepositoryModal,
+  CreatePackageRepositoryModal,
+  DeletePackageRepositoryModal,
+  EditPackageRepositoryModal
+} from "views/pages/package_repositories/package_repository_modals";
 import {PackageRepositoriesWidget} from "views/pages/package_repositories/package_repositories_widget";
 import {
   ClonePackageRepositoryModal,
@@ -38,7 +50,13 @@ import {
 } from "views/pages/package_repositories/package_repository_modals";
 import {Page, PageState} from "views/pages/page";
 import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
-import {ClonePackageModal, CreatePackageModal, DeletePackageModal, EditPackageModal, UsagePackageModal} from "./package_repositories/package_modals";
+import {
+  ClonePackageModal,
+  CreatePackageModal,
+  DeletePackageModal,
+  EditPackageModal,
+  UsagePackageModal
+} from "./package_repositories/package_modals";
 
 export class PackageRepoOperations {
   onAdd: (e: MouseEvent) => void                            = () => _.noop;
@@ -64,6 +82,31 @@ interface State extends RequiresPluginInfos, SaveOperation {
 }
 
 export class PackageRepositoriesPage extends Page<null, State> {
+
+  public static getMergedList(originalPkgRepos: Stream<PackageRepositories>, pkgs: Stream<Packages>): PackageRepositories {
+    const pkgRepos = originalPkgRepos();
+
+    if (!pkgs || _.isEmpty(pkgs())) {
+      return pkgRepos;
+    }
+
+    pkgRepos.forEach((pkgRepo) => {
+      const pkgsForRepo = pkgs()
+        .filter((pkg) => pkg.packageRepo().id() === pkgRepo.repoId());
+
+      pkgRepo.packages().forEach((pkg) => {
+        const completePkg = pkgsForRepo.find((p) => p.id() === pkg.id());
+        if (completePkg !== undefined) {
+          pkg.autoUpdate(completePkg.autoUpdate());
+          pkg.configuration(completePkg.configuration());
+          pkg.packageRepo(new PackageRepositorySummary(pkgRepo.repoId(), pkgRepo.name()))
+        }
+      });
+    });
+
+    return pkgRepos;
+  }
+
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
     vnode.state.searchText          = Stream();
@@ -90,7 +133,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
       noPluginMsg = <NoPluginsOfTypeInstalled extensionType={new PackageRepoExtensionType()}/>;
     }
 
-    const mergedPackageRepos: Stream<PackageRepositories>   = Stream(this.getMergedList(vnode));
+    const mergedPackageRepos: Stream<PackageRepositories>   = Stream(PackageRepositoriesPage.getMergedList(vnode.state.packageRepositories, vnode.state.packages));
     const filteredPackageRepos: Stream<PackageRepositories> = Stream();
     if (vnode.state.searchText()) {
       const results = _.filter(mergedPackageRepos(), (vm: PackageRepository) => vm.matches(vnode.state.searchText()));
@@ -166,30 +209,6 @@ export class PackageRepositoriesPage extends Page<null, State> {
       buttons.splice(0, 0, searchBox);
     }
     return <HeaderPanel title={this.pageName()} buttons={buttons}/>;
-  }
-
-  private getMergedList(vnode: m.Vnode<null, State>): PackageRepositories {
-    const pkgRepos = vnode.state.packageRepositories();
-
-    if (!vnode.state.packages || _.isEmpty(vnode.state.packages())) {
-      return pkgRepos;
-    }
-
-    pkgRepos.forEach((pkgRepo) => {
-      const pkgsForRepo = vnode.state.packages()
-                               .filter((pkg) => pkg.packageRepo().id() === pkgRepo.repoId());
-
-      pkgRepo.packages().forEach((pkg) => {
-        const completePkg = pkgsForRepo.find((p) => p.id() === pkg.id());
-        if (completePkg !== undefined) {
-          pkg.autoUpdate(completePkg.autoUpdate());
-          pkg.configuration(completePkg.configuration());
-          pkg.packageRepo(new PackageRepositorySummary(pkgRepo.repoId(), pkgRepo.name()));
-        }
-      });
-    });
-
-    return pkgRepos;
   }
 
   private isPluginInstalled(vnode: m.Vnode<null, State>) {

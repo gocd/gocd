@@ -62,6 +62,13 @@
   }
 }
 
-.form-error-text{
-  color: $form-failed-color;
+.package-fields {
+  table {
+    width:        100%;
+    table-layout: fixed;
+
+    td {
+      vertical-align: top;
+    }
+  }
 }

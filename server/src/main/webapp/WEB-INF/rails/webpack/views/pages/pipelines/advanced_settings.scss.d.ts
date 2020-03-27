@@ -25,6 +25,7 @@ export const inputSmall: string;
 export const last: string;
 export const lockOpen: string;
 export const open: string;
+export const packageFields: string;
 export const quickAddButton: string;
 export const radioField: string;
 export const radioLabel: string;

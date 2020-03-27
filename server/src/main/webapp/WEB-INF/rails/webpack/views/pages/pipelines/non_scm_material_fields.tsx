@@ -26,8 +26,11 @@ import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import {SwitchBtn} from "views/components/switch";
+import {PackageRepositoryWidget} from "views/pages/package_repositories/package_repository_widget";
+import {PackageWidget} from "views/pages/package_repositories/package_widget";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import styles from "./advanced_settings.scss";
 import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
@@ -183,22 +186,32 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
     }));
     const readonly                    = !!vnode.attrs.disabled;
     this.setErrorMessageIfApplicable(vnode, packageRepos);
-    return [
-      this.errorMessage,
-
-      <SelectField property={this.packageRepoProxy.bind(this, vnode)}
-                   label="Package Repository"
-                   errorText={attrs.errors().errorsForDisplay("pkgRepo")}
-                   required={true} readonly={readonly || this.disablePkgRepoField}>
-        <SelectFieldOptions selected={vnode.state.pkgRepoId()} items={packageRepos}/>
-      </SelectField>,
-
-      <SelectField property={attrs.ref} label="Package" required={true}
-                   errorText={attrs.errors().errorsForDisplay("ref")}
-                   readonly={readonly || this.disablePkgField}>
-        <SelectFieldOptions selected={attrs.ref()} items={vnode.state.pkgs()}/>
-      </SelectField>
-    ];
+    return <div className={styles.packageFields}>
+      {this.errorMessage}
+      <table>
+        <tr>
+          <td>
+            <SelectField property={this.packageRepoProxy.bind(this, vnode)}
+                         label="Package Repository"
+                         errorText={attrs.errors().errorsForDisplay("pkgRepo")}
+                         required={true} readonly={readonly || this.disablePkgRepoField}>
+              <SelectFieldOptions selected={vnode.state.pkgRepoId()} items={packageRepos}/>
+            </SelectField>
+          </td>
+          <td>
+            <SelectField property={attrs.ref} label="Package" required={true}
+                         errorText={attrs.errors().errorsForDisplay("ref")}
+                         readonly={readonly || this.disablePkgField}>
+              <SelectFieldOptions selected={attrs.ref()} items={vnode.state.pkgs()}/>
+            </SelectField>
+          </td>
+        </tr>
+        <tr>
+          <td>{this.showSelectedPkgRepoConfig(vnode)}</td>
+          <td>{this.showSelectedPkgConfig(vnode)}</td>
+        </tr>
+      </table>
+    </div>;
   }
 
   private setErrorMessageIfApplicable(vnode: m.Vnode<PackageAttrs, PackageState>, packageRepos: Array<Option | string>) {
@@ -255,5 +268,25 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
   private resetErrorAndWarningFields(vnode: m.Vnode<PackageAttrs, PackageState>) {
     vnode.attrs.material.attributes()!.clearErrors("pkgRepo");
     this.disablePkgField = false;
+  }
+
+  private showSelectedPkgRepoConfig(vnode: m.Vnode<PackageAttrs, PackageState>) {
+    const selectedPkgRepo = vnode.attrs.packageRepositories.find((pkgRepo) => pkgRepo.repoId() === vnode.state.pkgRepoId());
+    if (selectedPkgRepo !== undefined) {
+      return <KeyValuePair data-test-id={"selected-pkg-repo-details"}
+                           data={PackageRepositoryWidget.getPkgRepoDetails(selectedPkgRepo)}/>;
+    }
+  }
+
+  private showSelectedPkgConfig(vnode: m.Vnode<PackageAttrs, PackageState>) {
+    const selectedPkgRepo = vnode.attrs.packageRepositories.find((pkgRepo) => pkgRepo.repoId() === vnode.state.pkgRepoId());
+    if (selectedPkgRepo !== undefined) {
+      const attrs       = vnode.attrs.material.attributes() as PluggableScmMaterialAttributes;
+      const selectedPkg = selectedPkgRepo.packages().find((pkg) => pkg.id() === attrs.ref());
+      if (selectedPkg !== undefined) {
+        return <KeyValuePair data-test-id={"selected-pkg-details"}
+                             data={PackageWidget.getPkgDetails(selectedPkg)}/>;
+      }
+    }
   }
 }

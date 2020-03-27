@@ -29,6 +29,7 @@ import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {PackageRepositoriesPage} from "views/pages/package_repositories";
 import {MaterialsWidget} from "./materials_widget";
 
 export class MaterialsTabContent extends TabContent<PipelineConfig> {
@@ -61,8 +62,9 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
   }
 
   protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig, flashMessage: FlashMessageModelWithTimeout, pipelineConfigSave: () => Promise<any>, pipelineConfigReset: () => any) {
+    const mergedPkgRepos = PackageRepositoriesPage.getMergedList(this.packageRepositories, this.packages);
     return <MaterialsWidget materials={entity.materials} pluginInfos={this.pluginInfos} flashMessage={flashMessage}
-                            packageRepositories={this.packageRepositories} packages={this.packages}
+                            packageRepositories={Stream(mergedPkgRepos)} packages={this.packages}
                             scmMaterials={this.scmMaterials} pipelineConfigSave={pipelineConfigSave}/>;
   }
 

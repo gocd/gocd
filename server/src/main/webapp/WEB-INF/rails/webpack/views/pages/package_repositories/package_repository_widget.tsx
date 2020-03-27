@@ -37,15 +37,18 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
 
   public static getPkgRepoDetails(packageRepository: PackageRepository) {
     const pkgRepoProperties = packageRepository.configuration() ? packageRepository.configuration()!.asMap() : [];
-    return new Map([
-                     ["Repo Id", packageRepository.repoId()],
-                     ["Plugin Id", packageRepository.pluginMetadata().id()],
-                     ...Array.from(pkgRepoProperties)
-                   ]);
+    const pkgRepoDetails    = new Map([
+                                        ["Repo Id", packageRepository.repoId()],
+                                        ["Plugin Id", packageRepository.pluginMetadata().id()],
+                                        ...Array.from(pkgRepoProperties)
+                                      ]);
+    return pkgRepoDetails;
   }
 
   view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
-    const header            = <KeyValuePair inline={true} data={PackageRepositoryWidget.headerMap(vnode.attrs.packageRepository)}/>;
+    const header = <KeyValuePair inline={true}
+                                 data={PackageRepositoryWidget.headerMap(vnode.attrs.packageRepository)}/>;
+
     const packageRepository = vnode.attrs.packageRepository;
     const pkgRepoDetails    = PackageRepositoryWidget.getPkgRepoDetails(packageRepository);
     const disabled          = vnode.attrs.disableActions;

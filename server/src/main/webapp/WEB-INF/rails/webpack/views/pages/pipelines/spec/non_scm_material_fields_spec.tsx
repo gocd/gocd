@@ -140,6 +140,7 @@ describe('PackageFieldsSpec', () => {
       "package":            false
     });
     expect(helper.textAll("option", helper.byTestId('form-field-input-package'))).toEqual(['Select a package', 'pkg-name']);
+    expect(helper.byTestId('selected-pkg-repo-details')).toBeInDOM();
   });
 
   it('should render plugin not found error message', () => {
@@ -149,6 +150,7 @@ describe('PackageFieldsSpec', () => {
 
     helper.onchange(helper.byTestId('form-field-input-package-repository'), 'pkg-repo-id');
 
+    expect(helper.byTestId('selected-pkg-repo-details')).toBeInDOM();
     const errorElement = helper.q('span[class*="forms__form-error-text"]');
     expect(errorElement).toBeInDOM();
     expect(errorElement.textContent).toBe("Associated plugin 'non-existent-plugin' not found. Please contact the system administrator to install the plugin.");
@@ -168,6 +170,7 @@ describe('PackageFieldsSpec', () => {
     expect(errorElement).toBeInDOM();
     expect(errorElement.textContent).toBe('No package repositories defined. Go to Package Repositories to define one.');
     expect(helper.q('a', errorElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA());
+    expect(helper.byTestId('selected-pkg-repo-details')).not.toBeInDOM();
   });
 
   it('should show an error text if no packages are defined for a given package repo', () => {
@@ -177,6 +180,7 @@ describe('PackageFieldsSpec', () => {
 
     helper.onchange(helper.byTestId('form-field-input-package-repository'), 'pkg-repo-id');
 
+    expect(helper.byTestId('selected-pkg-repo-details')).toBeInDOM();
     assertLabelledInputsDisabledOrNot(helper, {
       "package-repository": false,
       "package":            true
@@ -185,6 +189,19 @@ describe('PackageFieldsSpec', () => {
     expect(errorElement).toBeInDOM();
     expect(errorElement.textContent).toBe('No packages defined for the selected package repository. Go to Package Repositories to define one.');
     expect(helper.q('a', errorElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA());
+  });
+
+  it('should show selected package details', () => {
+    helper.mount(() => <PackageFields material={material} packageRepositories={packageRepositories}
+                                      pluginInfos={pluginInfos}/>);
+
+    helper.onchange(helper.byTestId('form-field-input-package-repository'), 'pkg-repo-id');
+
+    expect(helper.byTestId('selected-pkg-repo-details')).toBeInDOM();
+
+    helper.onchange(helper.byTestId('form-field-input-package'), 'pkg-id');
+
+    expect(helper.byTestId('selected-pkg-details')).toBeInDOM();
   });
 });
 

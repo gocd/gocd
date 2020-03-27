@@ -48,9 +48,8 @@ export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {
                    errorText={entity.errors().errorsForDisplay("labelTemplate")}
                    helpText={"Customize the label for this pipeline."}
                    docLink={"configuration/pipeline_labeling.html"}
-                   dataTestId={"label-template"}
-                   required={true}/>
-
+                   placeholder={"${COUNT}"}
+                   dataTestId={"label-template"}/>
         {this.getPipelineSchedulingCheckBox(entity, templateConfig)}
       </Form>
 

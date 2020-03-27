@@ -58,6 +58,7 @@ describe("GeneralOptionsTag", () => {
       const pipelineConfig  = PipelineConfig.fromJSON(PipelineConfigTestData.withTemplate());
       const templateConfig  = new TemplateConfig(pipelineConfig.template()!, []);
       const stageInTemplate = new Stage("StageOne");
+      stageInTemplate.approval().state(false);
       templateConfig.stages(new NameableSet([stageInTemplate]));
       mount(pipelineConfig, templateConfig);
 

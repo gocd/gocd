@@ -111,9 +111,9 @@ export class PipelineConfigPage<T> extends Page<null, T> {
     }
 
     return this.pipelineConfig!.update(this.etag()).then((result) => {
-      return result.do(() => {
+      return result.do((successResponse) => {
         this.flashMessage.setMessage(MessageType.success, "Saved Successfully!");
-        this.onSuccess.bind(this, result);
+        this.onSuccess(result, successResponse);
       }, this.onFailure.bind(this));
     });
   }

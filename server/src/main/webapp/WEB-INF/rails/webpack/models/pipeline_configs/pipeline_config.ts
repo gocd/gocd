@@ -252,7 +252,12 @@ export class PipelineConfig extends ValidatableMixin {
   }
 
   toPutApiPayload(): any {
-    return JsonUtils.toSnakeCasedObject(this);
+    const json = JsonUtils.toSnakeCasedObject(this);
+    if (_.isEmpty(json.label_template)) {
+      delete json.label_template;
+    }
+
+    return json;
   }
 }
 

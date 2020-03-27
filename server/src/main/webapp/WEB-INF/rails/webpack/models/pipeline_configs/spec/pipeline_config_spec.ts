@@ -217,6 +217,20 @@ describe("PipelineConfig model", () => {
     expect(trackingTool.errors().errorsForDisplay("urlPattern")).toBe("URL pattern must be present.");
   });
 
+  it("should serialize pipeline config template", () => {
+    const config = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
+    config.labelTemplate("${COUNT}-pipeline");
+
+    expect(config.toPutApiPayload().label_template).toBe("${COUNT}-pipeline");
+  });
+
+  it("should serialize pipeline config template", () => {
+    const config = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
+    config.labelTemplate("");
+
+    expect(config.toPutApiPayload().label_template).toEqual(undefined);
+  });
+
   it("create()", (done) => {
     jasmine.Ajax.withMock(() => {
       const config = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");

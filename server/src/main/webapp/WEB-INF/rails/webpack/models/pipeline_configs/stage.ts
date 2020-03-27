@@ -41,14 +41,14 @@ export interface StageJSON {
 export type ApprovalType = "success" | "manual";
 
 class Approval extends ValidatableMixin {
-  readonly type               = Stream<ApprovalType>("success");
+  readonly type                   = Stream<ApprovalType>("success");
+
   readonly state: (value?: boolean) => boolean;
   readonly allowOnlyOnSuccess = Stream<boolean>();
   //authorization must be present for server side validations
   //even though it's not editable from the create pipeline page
   readonly authorization = Stream<AuthorizedUsersAndRoles>(new AuthorizedUsersAndRoles([], []));
-
-  private readonly __typeAsStream = Stream<boolean>();
+  private readonly __typeAsStream = Stream<boolean>(true);
 
   constructor() {
     super();
@@ -61,7 +61,9 @@ class Approval extends ValidatableMixin {
     this.state = (value?: boolean) => {
       if ("boolean" === typeof value) {
         this.type(value ? "success" : "manual");
+        this.__typeAsStream(this.type() === "success");
       }
+
       return "success" === this.type();
     };
   }
@@ -71,8 +73,10 @@ class Approval extends ValidatableMixin {
     if (!json) {
       return approval;
     }
-    approval.type(json.type);
+
+    approval.type(json.type || "success");
     approval.__typeAsStream(json.type === "success");
+
     approval.authorization(AuthorizedUsersAndRoles.fromJSON(json.authorization));
     approval.allowOnlyOnSuccess(json.allow_only_on_success);
     return approval;
@@ -86,7 +90,7 @@ class Approval extends ValidatableMixin {
     return this.__typeAsStream;
   }
 
-  toApiPayload() {
+  toJSON() {
     return {
       type: this.typeAsString(),
       authorization: JsonUtils.toSnakeCasedObject(this.authorization)

@@ -565,4 +565,8 @@ export class SparkRoutes {
   static packageRepositoriesSPA() {
     return '/go/admin/package_repositories';
   }
+
+  static pipelineStatusApiPath(pipelineName: string) {
+    return `/go/api/pipelines/${pipelineName}/status`;
+  }
 }

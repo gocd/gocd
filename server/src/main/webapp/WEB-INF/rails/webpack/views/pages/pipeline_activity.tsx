@@ -21,16 +21,16 @@ import Stream from "mithril/stream";
 import {PipelineActivity, Stage} from "models/pipeline_activity/pipeline_activity";
 import {PipelineActivityService} from "models/pipeline_activity/pipeline_activity_crud";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {SearchField, Size, TextAreaField} from "views/components/forms/input_fields";
+import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {PaginationWidget} from "views/components/pagination";
 import {Pagination} from "views/components/pagination/models/pagination";
 import {Page, PageState} from "views/pages/page";
 import {ResultAwarePage} from "views/pages/page_operations";
+import {PipelinePauseHeader} from "views/pages/pipeline_activity/common/pipeline_pause_header";
 import {PipelineActivityWidget} from "views/pages/pipeline_activity/pipeline_activity_widget";
 import {ConfirmationDialog} from "./pipeline_activity/confirmation_modal";
 import styles from "./pipeline_activity/index.scss";
-import {PipelineActivityHeader} from "./pipeline_activity/page_header";
 
 interface PageMeta {
   pipelineName: string;
@@ -58,9 +58,9 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   constructor() {
     super();
     this.poller = new AjaxPoller({
-      repeaterFn: this.fetchPipelineHistory.bind(this),
-      initialIntervalSeconds: 10
-    });
+                                   repeaterFn: this.fetchPipelineHistory.bind(this),
+                                   initialIntervalSeconds: 10
+                                 });
   }
 
   oninit(vnode: m.Vnode<null, State>) {
@@ -68,66 +68,40 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
     this.startPolling();
   }
 
-  pausePipeline() {
-    const cause = Stream<string>();
-    new ConfirmationDialog("Pause pipeline",
-      <TextAreaField required={false} size={Size.MATCH_PARENT}
-                     property={cause}
-                     rows={5}
-                     dataTestId="pause-pipeline-textarea"
-                     label="Specify the reason why you want to stop scheduling on this pipeline"/>,
-      () => this.service.pausePipeline(this.meta.pipelineName, cause())
-        .then((result) => this.handleActionApiResponse(result, () => {
-          this.pipelineActivity().paused(true);
-          this.pipelineActivity().canForce(false);
-          this.pipelineActivity().pauseCause(cause());
-          const user = Page.readAttribute("data-user-display-name");
-          this.pipelineActivity().pauseBy(user ? user : "");
-        }))
-    ).render();
-  }
-
-  unpausePipeline() {
-    this.service.unpausePipeline(this.meta.pipelineName)
-      .then((result) => this.handleActionApiResponse(result, () => {
-        this.pipelineActivity().paused(false);
-      }));
-  }
-
   runPipeline() {
     this.service.run(this.meta.pipelineName)
-      .then((result) => this.handleActionApiResponse(result, () => {
-        this.pipelineActivity().canForce(false);
-      }));
+        .then((result) => this.handleActionApiResponse(result, () => {
+          this.pipelineActivity().canForce(false);
+        }));
   }
 
   runStage(stage: Stage) {
     new ConfirmationDialog("Run stage",
       <div>{`Do you want to run the stage '${stage.stageName()}'?`}</div>,
-      () => this.service
-        .runStage(stage)
-        .then((result) => this.handleActionApiResponse(result, () => {
-          stage.getCanRun(false);
-          stage.stageStatus("waiting");
-        }))
+                           () => this.service
+                                     .runStage(stage)
+                                     .then((result) => this.handleActionApiResponse(result, () => {
+                                       stage.getCanRun(false);
+                                       stage.stageStatus("waiting");
+                                     }))
     ).render();
   }
 
   addOrUpdateComment(updatedComment: string, labelOrCounter: string | number): void {
     this.service
-      .commentOnPipelineRun(this.meta.pipelineName, labelOrCounter, updatedComment)
-      .then((result) => this.handleActionApiResponse(result));
+        .commentOnPipelineRun(this.meta.pipelineName, labelOrCounter, updatedComment)
+        .then((result) => this.handleActionApiResponse(result));
   }
 
   cancelStageInstance(stage: Stage) {
     new ConfirmationDialog("Cancel stage instance",
       <div>{"This will cancel all active jobs in this stage. Are you sure?"}</div>,
-      () => this.service
-        .cancelStageInstance(stage)
-        .then((result) => this.handleActionApiResponse(result, () => {
-          stage.getCanCancel(false);
-          stage.stageStatus("waiting");
-        }))
+                           () => this.service
+                                     .cancelStageInstance(stage)
+                                     .then((result) => this.handleActionApiResponse(result, () => {
+                                       stage.getCanCancel(false);
+                                       stage.stageStatus("waiting");
+                                     }))
     ).render();
   }
 
@@ -176,17 +150,16 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
       return;
     }
     this.pageState = PageState.LOADING;
-    const offset = this.pipelineActivity().perPage() * (pageNumber - 1);
+    const offset   = this.pipelineActivity().perPage() * (pageNumber - 1);
     this.pagination(new Pagination(offset, this.pagination().total, this.pagination().pageSize));
     this.fetchPipelineHistory();
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {
-    const title = <PipelineActivityHeader pipelineActivity={this.pipelineActivity()}
-                                          unpausePipeline={this.unpausePipeline.bind(this)}
-                                          pausePipeline={this.pausePipeline.bind(this)}
-                                          isAdmin={Page.isUserAnAdmin()}
-                                          isGroupAdmin={Page.isUserAGroupAdmin()}/>;
+    const title = <PipelinePauseHeader pipelineName={this.pipelineActivity().pipelineName()}
+                                       flashMessage={this.flashMessage}
+                                       shouldShowPauseUnpause={this.pipelineActivity().canPause()}
+                                       shouldShowPipelineSettings={Page.isUserAnAdmin() || Page.isUserAGroupAdmin()}/>;
     return <HeaderPanel title={title} sectionName={this.pageName()} buttons={
       <SearchField property={this.filterText} label={"Search"}
                    dataTestId={"search-field"}
@@ -203,14 +176,14 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   private handleActionApiResponse(result: ApiResult<string>, onSuccess?: () => void) {
     this.startPolling();
     result.do((successResponse) => {
-        const body = JSON.parse(successResponse.body);
-        this.flashMessage.setMessage(MessageType.success, body.message);
-        this.fetchPipelineHistory();
-        if (onSuccess) {
-          onSuccess();
-        }
-      },
-      (errorResponse) => this.flashMessage.setMessage(MessageType.alert, errorResponse.message));
+                const body = JSON.parse(successResponse.body);
+                this.flashMessage.setMessage(MessageType.success, body.message);
+                this.fetchPipelineHistory();
+                if (onSuccess) {
+                  onSuccess();
+                }
+              },
+              (errorResponse) => this.flashMessage.setMessage(MessageType.alert, errorResponse.message));
   }
 
   private startPolling() {

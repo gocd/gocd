@@ -71,44 +71,6 @@ describe("PipelineActivityPage", () => {
     expect(helper.byTestId("search-field")).toBeInDOM();
   });
 
-  describe("Pause", () => {
-    it("should show dialog on click of pause button", () => {
-      const activity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
-      activity.paused(false);
-      activity.canPause(true);
-
-      mount(new PipelineActivityPageWrapper(activity));
-
-      helper.clickByTestId("page-header-pause-btn");
-
-      const modal = helper.modal();
-      expect(helper.byTestId("form-field-label-specify-the-reason-why-you-want-to-stop-scheduling-on-this-pipeline", modal))
-        .toHaveText("Specify the reason why you want to stop scheduling on this pipeline");
-      expect(helper.byTestId("pause-pipeline-textarea", modal)).toBeInDOM();
-    });
-
-    it("should make pipeline pause request with cause", (done) => {
-      const activity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
-      activity.paused(false);
-      activity.canPause(true);
-
-      mount(new PipelineActivityPageWrapper(activity));
-
-      helper.clickByTestId("page-header-pause-btn");
-
-      const modal = helper.modal();
-      helper.oninput(helper.byTestId("pause-pipeline-textarea", modal), "This is a pause cause");
-      helper.clickByTestId("primary-action-button", modal);
-
-      const request = jasmine.Ajax.requests.mostRecent();
-      expect(request.url).toEqual(SparkRoutes.pipelinePausePath(activity.pipelineName()));
-      expect(request.method).toEqual("POST");
-      expect(request.data()).toEqual({pause_cause: 'This is a pause cause'});
-      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
-      done();
-    });
-  });
-
   it("should update the pagination when pageChangeCallback called", () => {
     const activity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
     const page     = new PipelineActivityPageWrapper(activity);
@@ -119,24 +81,6 @@ describe("PipelineActivityPage", () => {
 
     page.pageChangeCallback(3);
     expect(page.offset()).toEqual(20);
-  });
-
-  describe("Unpause", () => {
-    it("should unpause the pipeline on click of unpause button", () => {
-      const activity = PipelineActivity.fromJSON(PipelineActivityData.oneStage());
-      activity.paused(true);
-      activity.canPause(true);
-
-      mount(new PipelineActivityPageWrapper(activity));
-
-      helper.clickByTestId("page-header-unpause-btn");
-
-      const request = jasmine.Ajax.requests.mostRecent();
-      expect(request.url).toEqual(SparkRoutes.pipelineUnpausePath(activity.pipelineName()));
-      expect(request.method).toEqual("POST");
-      expect(request.data()).toEqual({});
-      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
-    });
   });
 
   describe("ForceTrigger", () => {
@@ -160,8 +104,13 @@ describe("PipelineActivityPage", () => {
     it("should show confirmation dialog", () => {
       const pipelineName = "up42";
       const activity     = PipelineActivity.fromJSON(PipelineActivityData.withStages(pipelineName,
-        passed("UnitTest", 1),
-        PipelineActivityData.stage(2, "Deploy", "Unknown", 2, pipelineName, "1")));
+                                                                                     passed("UnitTest", 1),
+                                                                                     PipelineActivityData.stage(2,
+                                                                                                                "Deploy",
+                                                                                                                "Unknown",
+                                                                                                                2,
+                                                                                                                pipelineName,
+                                                                                                                "1")));
       activity.groups()[0].config().stages()[1].isAutoApproved(false);
 
       mount(new PipelineActivityPageWrapper(activity));
@@ -173,7 +122,8 @@ describe("PipelineActivityPage", () => {
 
       const manualStage = activity.groups()[0].history()[0].stages()[1];
       const request     = jasmine.Ajax.requests.mostRecent();
-      expect(request.url).toEqual(SparkRoutes.runStage(activity.pipelineName(), manualStage.pipelineCounter(), manualStage.stageName()));
+      expect(request.url)
+        .toEqual(SparkRoutes.runStage(activity.pipelineName(), manualStage.pipelineCounter(), manualStage.stageName()));
       expect(request.method).toEqual("POST");
       expect(request.data()).toEqual({});
       expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");

@@ -17,6 +17,7 @@
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import {JsonUtils} from "helpers/json_utils";
 import {SparkRoutes} from "helpers/spark_routes";
+import _ from "lodash";
 import Stream from "mithril/stream";
 import {EnvironmentVariableJSON, EnvironmentVariables} from "models/environment_variables/types";
 import {MaterialJSON} from "models/materials/serialization";
@@ -98,7 +99,7 @@ export class Timer extends ValidatableMixin {
     }
 
     return {
-      spec:            this.spec(),
+      spec: this.spec(),
       only_on_changes: this.onlyOnChanges()
     };
   }
@@ -118,6 +119,13 @@ export class TrackingTool extends ValidatableMixin {
   readonly regex      = Stream<string>();
   readonly urlPattern = Stream<string>();
 
+  constructor() {
+    super();
+
+    this.validatePresenceOf("regex", {condition: () => !_.isEmpty(this.urlPattern())});
+    this.validatePresenceOf("urlPattern", {condition: () => !_.isEmpty(this.regex())});
+  }
+
   static fromJSON(json: TrackingToolJSON) {
     const tracingTool = new TrackingTool();
 
@@ -135,10 +143,10 @@ export class TrackingTool extends ValidatableMixin {
     }
 
     return {
-      type:       "generic",
+      type: "generic",
       attributes: {
         url_pattern: this.urlPattern(),
-        regex:       this.regex()
+        regex: this.regex()
       }
     };
   }
@@ -176,6 +184,8 @@ export class PipelineConfig extends ValidatableMixin {
 
     this.stages = Stream(new NameableSet(stages));
     this.validateAssociated("stages");
+
+    this.validateAssociated("trackingTool");
 
     this.validateChildAttrIsUnique("parameters", "name", {message: "Parameter names must be unique"});
   }

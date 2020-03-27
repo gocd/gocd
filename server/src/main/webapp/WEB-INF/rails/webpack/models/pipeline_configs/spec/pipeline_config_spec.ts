@@ -195,6 +195,28 @@ describe("PipelineConfig model", () => {
     expect(trackingTool.errors().count()).toBe(0);
   });
 
+  it("tracking tool should validate presence of regex when URI is specified", () => {
+    const trackingTool = new TrackingTool();
+    trackingTool.urlPattern("uri");
+
+    const isValid = trackingTool.isValid();
+
+    expect(isValid).toBeFalse();
+    expect(trackingTool.errors().count()).toBe(1);
+    expect(trackingTool.errors().errorsForDisplay("regex")).toBe("Regex must be present.");
+  });
+
+  it("tracking tool should validate presence of URI when regex is specified", () => {
+    const trackingTool = new TrackingTool();
+    trackingTool.regex("some-regex");
+
+    const isValid = trackingTool.isValid();
+
+    expect(isValid).toBeFalse();
+    expect(trackingTool.errors().count()).toBe(1);
+    expect(trackingTool.errors().errorsForDisplay("urlPattern")).toBe("URL pattern must be present.");
+  });
+
   it("create()", (done) => {
     jasmine.Ajax.withMock(() => {
       const config = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");

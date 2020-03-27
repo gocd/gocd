@@ -24,6 +24,7 @@ import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {Primary, Reset} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {HeaderPanel} from "views/components/header_panel";
 import {Spinner} from "views/components/spinner";
 import {Tabs} from "views/components/tab";
 import {EnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/common/environment_variables_tab_content";
@@ -44,6 +45,7 @@ import {NavigationWidget} from "views/pages/clicky_pipeline_config/widgets/navig
 import {StepsWidget} from "views/pages/clicky_pipeline_config/widgets/steps_widget";
 import {Page, PageState} from "views/pages/page";
 import {OperationState} from "views/pages/page_operations";
+import {PipelinePauseHeader} from "views/pages/pipeline_activity/common/pipeline_pause_header";
 import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 import styles from "./index.scss";
 
@@ -211,6 +213,15 @@ export class PipelineConfigPage<T> extends Page<null, T> {
                          .then((result) => {
                            return result.do(this.onSuccess.bind(this, result), this.onFailure.bind(this));
                          });
+  }
+
+  protected headerPanel(vnode: m.Vnode<null, T>): any {
+    const title = <PipelinePauseHeader pipelineName={PipelineConfigPage.routeInfo().params.pipeline_name}
+                                       flashMessage={this.flashMessage}
+                                       shouldShowPauseUnpause={true}
+                                       shouldShowPipelineSettings={false}/>;
+
+    return <HeaderPanel title={title} sectionName={this.pageName()}/>;
   }
 
   protected getMeta(): PageMeta {

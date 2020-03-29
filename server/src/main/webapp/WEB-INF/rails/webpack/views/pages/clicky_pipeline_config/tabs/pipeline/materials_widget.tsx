@@ -54,12 +54,12 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
 
   private addMaterial(vnode: m.Vnode<MaterialsAttrs, this>, e: MouseEvent) {
     e.stopPropagation();
-    MaterialModal.forAdd(vnode.attrs.materials, vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.pipelineConfigSave).render();
+    MaterialModal.forAdd(vnode.attrs.materials, vnode.attrs.scmMaterials, vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.pipelineConfigSave).render();
   }
 
   private updateMaterial(vnode: m.Vnode<MaterialsAttrs, this>, materialToUpdate: Material, e: MouseEvent) {
     e.stopPropagation();
-    MaterialModal.forEdit(materialToUpdate, vnode.attrs.materials, vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.pipelineConfigSave).render();
+    MaterialModal.forEdit(materialToUpdate, vnode.attrs.materials, vnode.attrs.scmMaterials, vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.pipelineConfigSave).render();
   }
 
   private deleteMaterial(vnode: m.Vnode<MaterialsAttrs, this>, materialToRemove: Material, e: MouseEvent) {

@@ -19,7 +19,18 @@ import {JsonUtils} from "helpers/json_utils";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {DependencyMaterialAttributesJSON, GitMaterialAttributesJSON, HgMaterialAttributesJSON, MaterialAttributesJSON, MaterialJSON, P4MaterialAttributesJSON, PackageMaterialAttributesJSON, PluggableScmMaterialAttributesJSON, SvnMaterialAttributesJSON, TfsMaterialAttributesJSON,} from "models/materials/serialization";
+import {
+  DependencyMaterialAttributesJSON,
+  GitMaterialAttributesJSON,
+  HgMaterialAttributesJSON,
+  MaterialAttributesJSON,
+  MaterialJSON,
+  P4MaterialAttributesJSON,
+  PackageMaterialAttributesJSON,
+  PluggableScmMaterialAttributesJSON,
+  SvnMaterialAttributesJSON,
+  TfsMaterialAttributesJSON,
+} from "models/materials/serialization";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
@@ -527,7 +538,7 @@ export class PluggableScmMaterialAttributes extends MaterialAttributes {
   filter: Stream<Filter>;
   destination: Stream<string>;
 
-  constructor(name: string, autoUpdate: boolean, ref: string, destination: string, filter: Filter) {
+  constructor(name: string | undefined, autoUpdate: boolean, ref: string, destination: string, filter: Filter) {
     super(name, autoUpdate);
     this.ref         = Stream(ref);
     this.filter      = Stream(filter);

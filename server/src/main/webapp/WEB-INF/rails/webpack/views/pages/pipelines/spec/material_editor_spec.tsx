@@ -15,7 +15,13 @@
  */
 
 import m from "mithril";
-import {GitMaterialAttributes, Material, P4MaterialAttributes, PackageMaterialAttributes} from "models/materials/types";
+import {
+  GitMaterialAttributes,
+  Material,
+  P4MaterialAttributes,
+  PackageMaterialAttributes,
+  PluggableScmMaterialAttributes
+} from "models/materials/types";
 import {PackageRepositories} from "models/package_repositories/package_repositories";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialEditor} from "../material_editor";
@@ -88,7 +94,7 @@ describe("AddPipeline: Material Editor", () => {
                                        packageRepositories={new PackageRepositories()}/>);
 
     expect(helper.q("label").textContent).toBe("Material Type*");
-    expect(helper.textAll("option")).toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server", "Another Pipeline", "Package"]);
+    expect(helper.textAll("option")).toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server", "Another Pipeline", "Package", "SCM"]);
 
     helper.onchange("select", "package");
 
@@ -96,5 +102,24 @@ describe("AddPipeline: Material Editor", () => {
     expect(material.attributes() instanceof PackageMaterialAttributes).toBe(true);
     expect(material.attributes()!.autoUpdate()).toBeTrue();
     expect((material.attributes() as PackageMaterialAttributes)!.ref()).toBe("");
+  });
+
+  it('should render the scm options', () => {
+    helper.mount(() => <MaterialEditor material={material} showExtraMaterials={true}
+                                       packageRepositories={new PackageRepositories()}/>);
+
+    expect(helper.q("label").textContent).toBe("Material Type*");
+    expect(helper.textAll("option")).toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server", "Another Pipeline", "Package", "SCM"]);
+
+    helper.onchange("select", "plugin");
+
+    expect(material.type()).toBe("plugin");
+    expect(material.attributes() instanceof PluggableScmMaterialAttributes).toBe(true);
+    expect(material.attributes()!.autoUpdate()).toBeTrue();
+
+    const attributes = (material.attributes() as PluggableScmMaterialAttributes)!;
+    expect(attributes.ref()).toBe("");
+    expect(attributes.destination()).toBe("");
+    expect(attributes.filter().ignore()).toEqual([]);
   });
 });

@@ -16,6 +16,7 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
+import {Scms} from "models/materials/pluggable_scm";
 import {Material} from "models/materials/types";
 import {PackageRepositories} from "models/package_repositories/package_repositories";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -32,31 +33,33 @@ export class MaterialModal extends Modal {
   private readonly errorMessage: Stream<string>;
   private readonly pluginInfos: Stream<PluginInfos>;
   private readonly packageRepositories: Stream<PackageRepositories>;
+  private readonly pluggableScms: Stream<Scms>;
   private readonly onSuccessfulAdd: (material: Material) => Promise<any>;
 
-  constructor(title: string, entity: Stream<Material>,
+  constructor(title: string, entity: Stream<Material>, scms: Stream<Scms>,
               packages: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
               onSuccessfulAdd: (material: Material) => Promise<any>) {
     super(Size.large);
     this.__title             = title;
     this.entity              = entity;
+    this.pluggableScms       = scms;
     this.packageRepositories = packages;
     this.pluginInfos         = pluginInfos;
     this.onSuccessfulAdd     = onSuccessfulAdd;
     this.errorMessage        = Stream();
   }
 
-  static forAdd(packageRepositories: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
+  static forAdd(scms: Stream<Scms>, packageRepositories: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
                 onSuccessfulAdd: (material: Material) => Promise<any>) {
-    return new MaterialModal("Add material", Stream(new Material("git")), packageRepositories, pluginInfos, onSuccessfulAdd);
+    return new MaterialModal("Add material", Stream(new Material("git")), scms, packageRepositories, pluginInfos, onSuccessfulAdd);
   }
 
-  static forEdit(material: Material,
+  static forEdit(material: Material, scms: Stream<Scms>,
                  packageRepositories: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
                  onSuccessfulAdd: (material: Material) => Promise<any>) {
     const title          = `Edit material - ${s.capitalize(material.type()!)}`;
     const copyOfMaterial = Stream(new Material(material.type(), material.attributes()));
-    return new MaterialModal(title, copyOfMaterial, packageRepositories, pluginInfos, onSuccessfulAdd);
+    return new MaterialModal(title, copyOfMaterial, scms, packageRepositories, pluginInfos, onSuccessfulAdd);
   }
 
   title(): string {
@@ -66,7 +69,7 @@ export class MaterialModal extends Modal {
   body(): m.Children {
     return <div>
       <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
-      <MaterialEditor material={this.entity()} showExtraMaterials={true}
+      <MaterialEditor material={this.entity()} showExtraMaterials={true} pluggableScms={this.pluggableScms()}
                       packageRepositories={this.packageRepositories()} pluginInfos={this.pluginInfos()}/>
     </div>;
   }

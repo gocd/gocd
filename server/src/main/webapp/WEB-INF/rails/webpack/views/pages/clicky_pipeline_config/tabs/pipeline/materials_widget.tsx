@@ -57,7 +57,7 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
 
   private addMaterial(vnode: m.Vnode<MaterialsAttrs, this>, e: MouseEvent) {
     e.stopPropagation();
-    MaterialModal.forAdd(vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.onMaterialAdd).render();
+    MaterialModal.forAdd(vnode.attrs.scmMaterials, vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.onMaterialAdd).render();
   }
 
   private tableData(vnode: m.Vnode<MaterialsAttrs, this>) {

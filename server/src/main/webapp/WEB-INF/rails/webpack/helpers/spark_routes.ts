@@ -573,4 +573,8 @@ export class SparkRoutes {
   static scmUsagePath(scm_name: string): string {
     return `/go/api/admin/scms/${scm_name}/usages`;
   }
+
+  static pluggableScmSPA() {
+    return '/go/admin/scms';
+  }
 }

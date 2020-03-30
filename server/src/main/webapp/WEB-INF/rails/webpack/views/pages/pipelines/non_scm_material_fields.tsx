@@ -358,6 +358,10 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
             </SelectField>
           </td>
         </tr>
+        <tr>
+          <td>{this.showSelectedPluginConfig(vnode)}</td>
+          <td>{this.showSelectedScmConfig(vnode)}</td>
+        </tr>
       </table>
       {this.advanced(attrs, showLocalWorkingCopyOptions)}
     </div>;
@@ -404,16 +408,16 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
     if (plugins.length === 1) {
       this.errorMessage       = <FlashMessage type={MessageType.alert}>
         There are no SCM plugins installed. Please see
-        <Link href={new SCMExtensionType().linkForDocs()} target="_blank" externalLinkIcon={true}> this page</Link> for a
-        list of supported plugins.
+        <Link href={new SCMExtensionType().linkForDocs()} target="_blank" externalLinkIcon={true}> this page</Link> for
+        a list of supported plugins.
       </FlashMessage>;
       this.disablePluginField = true;
       this.disableScmField    = true;
     }
+
     if (_.isEmpty(vnode.attrs.scms)) {
       this.errorMessage       = <FlashMessage type={MessageType.alert}>
-        There are no SCMs configured. Go to <Link href={SparkRoutes.pluggableScmSPA()}>Pluggable SCM</Link> to define
-        one.
+        There are no SCMs configured. Go to <Link href={SparkRoutes.pluggableScmSPA()}>Pluggable SCM</Link> to define one.
       </FlashMessage>;
       this.disablePluginField = true;
       this.disableScmField    = true;
@@ -425,6 +429,32 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
         <Link href={SparkRoutes.pluggableScmSPA()}> Pluggable SCM</Link> to define one.
       </FlashMessage>;
       this.disableScmField = true;
+    }
+  }
+
+  private showSelectedPluginConfig(vnode: m.Vnode<PluginAttrs, PluginState>) {
+    const selectedPlugin = vnode.attrs.pluginInfos.findByPluginId(vnode.state.pluginId());
+    if (selectedPlugin !== undefined) {
+      const data = new Map<string, string | m.Children>([
+                                                          ["Id", selectedPlugin.id],
+                                                          ["Name", selectedPlugin.about.name],
+                                                          ["Description", selectedPlugin.about.description],
+                                                        ]);
+      return <KeyValuePair data-test-id={"selected-plugin-details"} data={data}/>;
+    }
+  }
+
+  private showSelectedScmConfig(vnode: m.Vnode<PluginAttrs, PluginState>) {
+    const attrs       = vnode.attrs.material.attributes() as PluggableScmMaterialAttributes;
+    const selectedScm = vnode.attrs.scms.find((scm) => scm.id() === attrs.ref());
+    if (selectedScm !== undefined) {
+      const scmRepoDetails = new Map([
+                                       ["Id", selectedScm.id()],
+                                       ["Name", selectedScm.name()],
+                                       ["Plugin Id", selectedScm.pluginMetadata().id()],
+                                       ...Array.from(selectedScm.configuration().asMap())
+                                     ]);
+      return <KeyValuePair data-test-id={"selected-scm-details"} data={scmRepoDetails}/>;
     }
   }
 }

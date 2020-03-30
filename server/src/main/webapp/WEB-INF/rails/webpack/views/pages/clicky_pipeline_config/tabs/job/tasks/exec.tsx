@@ -47,6 +47,7 @@ export class ExecTaskModal extends AbstractTaskModal {
                  errorText={attributes.errors().errorsForDisplay("command")}
                  required={true}
                  label="Command"
+                 placeholder="ls"
                  property={attributes.command}/>
       <TextAreaField helpText="Enter each argument on a new line"
                      errorText={attributes.errors().errorsForDisplay("args")}

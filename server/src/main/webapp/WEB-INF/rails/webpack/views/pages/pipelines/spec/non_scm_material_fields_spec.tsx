@@ -17,21 +17,13 @@
 import {docsUrl} from "gen/gocd_version";
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
-import {
-  DependencyMaterialAttributes,
-  Material,
-  PackageMaterialAttributes,
-  PluggableScmMaterialAttributes
-} from "models/materials/types";
+import {DependencyMaterialAttributes, Material, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
 import {PackageRepositories, Packages} from "models/package_repositories/package_repositories";
-import {
-  getPackageRepository,
-  pluginInfoWithPackageRepositoryExtension
-} from "models/package_repositories/spec/test_data";
+import {getPackageRepository, pluginInfoWithPackageRepositoryExtension} from "models/package_repositories/spec/test_data";
 import {Filter} from "models/maintenance_mode/material";
-import {Scm, ScmJSON, Scms} from "models/materials/pluggable_scm";
-import {PluginInfoJSON} from "models/shared/plugin_infos_new/serialization";
+import {Scm, Scms} from "models/materials/pluggable_scm";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {getPluggableScm, getScmPlugin} from "views/pages/pluggable_scms/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {DependencyFields, PackageFields, PluginFields, SuggestionCache} from "../non_scm_material_fields";
 
@@ -327,72 +319,50 @@ describe('PluginFieldsSpec', () => {
     expect(errorElement.textContent).toBe('There are no SCMs configured. Go to Pluggable SCM to define one.');
     expect(helper.q('a', errorElement)).toHaveAttr('href', SparkRoutes.pluggableScmSPA());
   });
+
+  it('should render plugin configs if a plugin is selected', () => {
+    helper.mount(() => <PluginFields material={material} pluginInfos={pluginInfos} scms={scms}/>);
+
+    expect(helper.byTestId('selected-plugin-details')).not.toBeInDOM();
+
+    helper.onchange(helper.byTestId('form-field-input-scm-plugin'), 'scm-plugin-id');
+
+    expect(helper.byTestId('selected-plugin-details')).toBeInDOM();
+
+    assertConfigsPresent(helper, 'selected-plugin-details', {
+      id:          "Id",
+      name:        "Name",
+      description: "Description"
+    });
+  });
+
+  it('should render scm configs if selected', () => {
+    helper.mount(() => <PluginFields material={material} pluginInfos={pluginInfos} scms={scms}/>);
+
+    helper.onchange(helper.byTestId('form-field-input-scm-plugin'), 'scm-plugin-id');
+    expect(helper.byTestId('selected-scm-details')).not.toBeInDOM();
+
+    helper.onchange(helper.byTestId('form-field-input-scm'), 'scm-id');
+
+    expect(helper.byTestId('selected-scm-details')).toBeInDOM();
+    assertConfigsPresent(helper, 'selected-scm-details', {
+      "id":        "Id",
+      "name":      "Name",
+      "plugin-id": "Plugin Id",
+      "url":       "url"
+    });
+  });
+
+  function assertConfigsPresent(helper: TestHelper, parentElementSelector: string, idsToValueMap: { [key: string]: string }) {
+    const keys = Object.keys(idsToValueMap);
+    expect(keys.length > 0).toBe(true);
+
+    const parentElement = helper.byTestId(parentElementSelector);
+
+    expect(helper.qa('label[data-test-id*="key-value-key"]', parentElement).length).toBe(keys.length);
+    for (const id of keys) {
+      expect(helper.byTestId(`key-value-key-${id}`, parentElement)).toBeInDOM();
+      expect(helper.byTestId(`key-value-key-${id}`, parentElement).textContent).toBe(idsToValueMap[id]);
+    }
+  }
 });
-
-function getPluggableScm() {
-  return {
-    id:              "scm-id",
-    name:            "pluggable.scm.material.name",
-    plugin_metadata: {
-      id:      "scm-plugin-id",
-      version: "1"
-    },
-    auto_update:     true,
-    configuration:   [
-      {
-        key:   "url",
-        value: "https://github.com/sample/example.git"
-      }
-    ]
-  } as ScmJSON;
-}
-
-function getScmPlugin() {
-  return {
-    _links:               {
-      self: {
-        href: "http://test-server:8153/go/api/admin/plugin_info/github.pr"
-      },
-      doc:  {
-        href: "https://api.gocd.org/#plugin-info"
-      },
-      find: {
-        href: "http://test-server:8153/go/api/admin/plugin_info/:id"
-      }
-    },
-    id:                   "scm-plugin-id",
-    status:               {
-      state: "active"
-    },
-    plugin_file_location: "/tmp/abc.jar",
-    bundled_plugin:       false,
-    about:                {
-      name:                     "SCM Plugin",
-      version:                  "1.4.0-RC2",
-      target_go_version:        "15.1.0",
-      description:              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
-      target_operating_systems: [],
-      vendor:                   {
-        name: "User",
-        url:  "https://github.com/user/abc"
-      }
-    },
-    extensions:           [{
-      type:         "scm",
-      display_name: "Github",
-      scm_settings: {
-        configurations: [{
-          key:      "url",
-          metadata: {
-            secure:           false,
-            required:         true,
-            part_of_identity: true
-          }
-        }],
-        view:           {
-          template: "<div>some view template</div>"
-        }
-      }
-    }]
-  } as PluginInfoJSON;
-}

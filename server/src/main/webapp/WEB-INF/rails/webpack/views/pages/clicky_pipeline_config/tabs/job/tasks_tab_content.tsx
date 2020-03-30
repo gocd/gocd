@@ -79,7 +79,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
                       pluginInfos: PluginInfos,
                       pipelineConfigSave: () => Promise<any>,
                       pipelineConfigReset: () => any,
-                      autoSuggestions: Stream<any>) {
+                      autoSuggestions?: Stream<any>) {
     switch (type) {
       case "Ant":
         return new AntTaskModal(task, showOnCancel, onSave, pluginInfos);
@@ -92,7 +92,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
       case "Plugin Task":
         return new PluggableTaskModal(task, showOnCancel, onSave, pluginInfos);
       case "Fetch Artifact":
-        return new FetchArtifactTaskModal(task, showOnCancel, onSave, pluginInfos, autoSuggestions);
+        return new FetchArtifactTaskModal(task, showOnCancel, onSave, pluginInfos, autoSuggestions!);
       default:
         throw new Error("Unsupported Task Type!");
     }

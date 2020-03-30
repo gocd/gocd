@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Job} from "models/pipeline_configs/job";
@@ -26,11 +26,17 @@ import s from "underscore.string";
 import {Secondary} from "views/components/buttons";
 import {Delete} from "views/components/icons";
 import {Table} from "views/components/table";
-import {JobModal} from "views/pages/clicky_pipeline_config/modal/add_or_edit_modal";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {AddJobModal} from "views/pages/clicky_pipeline_config/tabs/stage/jobs/add_job_modal";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {OperationState} from "views/pages/page_operations";
+import styles from "./jobs_tab_content.scss";
 
 export class JobsTabContent extends TabContent<Stage> {
+  private pipelineConfig?: PipelineConfig;
+  private routeParams?: PipelineConfigRouteParams;
+  private ajaxOperationMonitor?: Stream<OperationState>;
+
   static tabName(): string {
     return "Jobs";
   }
@@ -39,13 +45,34 @@ export class JobsTabContent extends TabContent<Stage> {
     return false;
   }
 
+  content(pipelineConfig: PipelineConfig,
+          templateConfig: TemplateConfig,
+          routeParams: PipelineConfigRouteParams,
+          ajaxOperationMonitor: Stream<OperationState>,
+          save: () => Promise<any>,
+          reset: () => void): m.Children {
+    this.pipelineConfig       = pipelineConfig;
+    this.routeParams          = routeParams;
+    this.ajaxOperationMonitor = ajaxOperationMonitor;
+
+    return super.content(pipelineConfig, templateConfig, routeParams, ajaxOperationMonitor, save, reset);
+  }
+
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): Stage {
     return pipelineConfig.stages().findByName(routeParams.stage_name!)!;
   }
 
-  protected renderer(stage: Stage, templateConfig: TemplateConfig) {
+  protected renderer(stage: Stage, templateConfig: TemplateConfig, save: () => Promise<any>, reset: () => void) {
     return [
-      <JobsWidget jobs={stage.jobs} isEditable={true}/>
+      <JobsWidget jobs={stage.jobs}
+                  stage={stage}
+                  templateConfig={templateConfig}
+                  pipelineConfig={this.pipelineConfig!}
+                  routeParams={this.routeParams!}
+                  ajaxOperationMonitor={this.ajaxOperationMonitor!}
+                  pipelineConfigSave={save}
+                  pipelineConfigReset={reset}
+                  isEditable={true}/>
     ];
   }
 }
@@ -53,19 +80,44 @@ export class JobsTabContent extends TabContent<Stage> {
 export interface Attrs {
   jobs: Stream<NameableSet<Job>>;
   isEditable: boolean;
+  stage: Stage;
+  templateConfig: TemplateConfig;
+  pipelineConfig: PipelineConfig;
+  routeParams: PipelineConfigRouteParams;
+  ajaxOperationMonitor: Stream<OperationState>;
+  pipelineConfigSave: () => Promise<any>;
+  pipelineConfigReset: () => void;
 }
 
-export class JobsWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
+export interface State {
+  getModal: () => AddJobModal;
+}
+
+export class JobsWidget extends MithrilComponent<Attrs, State> {
+  oninit(vnode: m.Vnode<Attrs, State>) {
+    vnode.state.getModal = () => new AddJobModal(vnode.attrs.stage,
+                                                 vnode.attrs.templateConfig,
+                                                 vnode.attrs.pipelineConfig,
+                                                 vnode.attrs.routeParams,
+                                                 vnode.attrs.ajaxOperationMonitor,
+                                                 vnode.attrs.pipelineConfigSave,
+                                                 vnode.attrs.pipelineConfigReset);
+  }
+
+  view(vnode: m.Vnode<Attrs, State>) {
     return <div data-test-id={"stages-container"}>
-      <span>Manage jobs for this stage. All these jobs will be run in parallel (given sufficient matching agents), so they should not depend on each other.</span>
+      <div class={styles.jobHelpText}>
+        Manage jobs for this stage. All these jobs will be run in parallel (given sufficient matching agents), so they
+        should not depend on each other.
+      </div>
+
       <Table headers={JobsWidget.getTableHeaders(vnode.attrs.isEditable)}
              data={JobsWidget.getTableData(vnode.attrs.jobs(), vnode.attrs.isEditable)}
-             draggable={vnode.attrs.isEditable}
+             draggable={false}
              dragHandler={JobsWidget.reArrange.bind(this, vnode.attrs.jobs)}/>
       <Secondary disabled={!vnode.attrs.isEditable}
-                 dataTestId={"add-stage-button"}
-                 onclick={JobsWidget.showAddJobModal.bind(this, vnode.attrs.jobs)}>Add new job</Secondary>
+                 dataTestId={"add-jobs-button"}
+                 onclick={() => vnode.state.getModal().render()}>Add new job</Secondary>
     </div>;
   }
 
@@ -94,11 +146,5 @@ export class JobsWidget extends MithrilViewComponent<Attrs> {
     const array = Array.from(jobs().values());
     array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
     jobs(new NameableSet(array));
-  }
-
-  private static showAddJobModal(jobs: Stream<NameableSet<Job>>) {
-    return JobModal.forAdd((updatedJob: Job) => {
-      jobs().add(updatedJob);
-    }).render();
   }
 }

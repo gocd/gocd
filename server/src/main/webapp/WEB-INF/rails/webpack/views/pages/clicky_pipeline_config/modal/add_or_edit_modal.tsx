@@ -21,9 +21,6 @@ import {Job} from "models/pipeline_configs/job";
 import {Stage} from "models/pipeline_configs/stage";
 import * as Buttons from "views/components/buttons";
 import {Modal, Size} from "views/components/modal";
-import {JobEditor} from "views/pages/clicky_pipeline_config/widgets/job_editor_widget";
-import {TaskTerminalField} from "views/pages/pipelines/task_editor";
-import style from "../index.scss";
 import {StageEditor} from "../widgets/stage_editor_widget";
 
 export abstract class AddOrEditEntityModal<T extends ValidatableMixin> extends Modal {
@@ -65,23 +62,5 @@ export class StageModal extends AddOrEditEntityModal<Stage> {
 
   body() {
     return <StageEditor stage={this.entity}/>;
-  }
-}
-
-export class JobModal extends AddOrEditEntityModal<Job> {
-  static forAdd(onSuccessfulAdd: (job: Job) => void) {
-    const newJob = new Job();
-    return new JobModal("Add new job", Stream(newJob), onSuccessfulAdd);
-  }
-
-  body() {
-    return [
-      <JobEditor job={this.entity()}/>,
-      <h3>Initial Task</h3>,
-      <span class={style.help}>This job requires at least one task. You can add more tasks once this job has been created.</span>,
-      <TaskTerminalField label="Type your tasks below at the prompt"
-                         property={this.entity().tasks}
-                         errorText={this.entity().errors().errorsForDisplay("tasks")} required={true}/>
-    ];
   }
 }

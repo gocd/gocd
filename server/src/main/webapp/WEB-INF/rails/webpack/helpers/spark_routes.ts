@@ -569,4 +569,8 @@ export class SparkRoutes {
   static pipelineStatusApiPath(pipelineName: string) {
     return `/go/api/pipelines/${pipelineName}/status`;
   }
+
+  static scmUsagePath(scm_name: string): string {
+    return `/go/api/admin/scms/${scm_name}/usages`;
+  }
 }

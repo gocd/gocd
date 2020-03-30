@@ -15,8 +15,19 @@
  */
 
 import {Hg} from "models/materials/spec/material_test_data";
-import {DependencyMaterialAttributes, GitMaterialAttributes, HgMaterialAttributes, Material, P4MaterialAttributes, ScmMaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "models/materials/types";
+import {
+  DependencyMaterialAttributes,
+  GitMaterialAttributes,
+  HgMaterialAttributes,
+  Material,
+  P4MaterialAttributes,
+  ScmMaterialAttributes,
+  SvnMaterialAttributes,
+  TfsMaterialAttributes
+} from "models/materials/types";
 import {DependencyMaterialAttributesJSON} from "../serialization";
+import {PluginMetadata, Scm} from "../pluggable_scm";
+import {Configurations} from "../../shared/configuration";
 
 describe("Material Types", () => {
   describe("Deserialize", () => {
@@ -183,6 +194,21 @@ describe("Material Types", () => {
       expect(material.attributes()!.errors().keys()).toEqual(["url"]);
       expect(material.attributes()!.errors().errorsForDisplay("url"))
         .toBe("URL credentials must be set in either the URL or the username+password fields, but not both.");
+    });
+
+    it('should validate Scm material', () => {
+      const material = new Scm("", "", false, new PluginMetadata("", ""), new Configurations([]));
+
+      const isValid = material.isValid();
+
+      expect(isValid).toBeFalse();
+
+      expect(material.errors().count()).toBe(2);
+      expect(material.errors().errorsForDisplay('id')).toBe('Id must be present.');
+      expect(material.errors().errorsForDisplay('name')).toBe('Name must be present.');
+
+      expect(material.pluginMetadata().errors().count()).toBe(1);
+      expect(material.pluginMetadata().errors().errorsForDisplay('id')).toBe('Id must be present.');
     });
   });
 });

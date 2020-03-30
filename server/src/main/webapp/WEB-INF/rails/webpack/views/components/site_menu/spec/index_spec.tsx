@@ -60,8 +60,9 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/security/auth_configs")).toHaveText("Authorization Configuration");
     expect(findMenuItem("/go/admin/security/roles")).toHaveText("Role configuration");
     expect(findMenuItem("/go/admin/admin_access_tokens")).toHaveText("Access Tokens Management");
+    expect(findMenuItem("/go/admin/scms")).toHaveText("Pluggable SCMs");
     expect(helper.qa(`a.${styles.siteNavLink}`)).toHaveLength(4);
-    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(18);
+    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(19);
   });
 
   it("should display the menus for users who can view templates", () => {
@@ -96,6 +97,7 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/package_repositories/new")).toBeFalsy();
     expect(findMenuItem("/go/admin/security/auth_configs")).toBeFalsy();
     expect(findMenuItem("/go/admin/security/roles")).toBeFalsy();
+    expect(findMenuItem("/go/admin/scms")).toBeFalsy();
     expect(helper.qa(`a.${styles.siteNavLink}`)).toHaveLength(4);
     expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(4);
   });
@@ -132,8 +134,9 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/package_repositories/new")).toHaveText("Package Repositories");
     expect(findMenuItem("/go/admin/security/auth_configs")).toBeFalsy();
     expect(findMenuItem("/go/admin/security/roles")).toBeFalsy();
+    expect(findMenuItem("/go/admin/scms")).toHaveText("Pluggable SCMs");
     expect(helper.qa(`a.${styles.siteNavLink}`)).toHaveLength(4);
-    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(8);
+    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(9);
   });
 
   it("should not show analytics when the attribute is passed as false", () => {
@@ -174,6 +177,7 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/environments")).toHaveText("Environments");
     expect(findMenuItem("/go/admin/config_repos")).toHaveText("Config Repositories");
     expect(findMenuItem("/go/admin/elastic_agent_configurations")).toHaveText("Elastic Agent Configurations");
+    expect(findMenuItem("/go/admin/scms")).toBeFalsy();
 
     expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(3);
   });

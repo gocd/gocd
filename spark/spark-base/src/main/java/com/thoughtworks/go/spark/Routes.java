@@ -216,6 +216,8 @@ public class Routes {
         public static final String ID = "/:material_name";
         public static final String USAGES = ID + "/usages";
 
+        public static final String SPA_BASE = "/admin/scms";
+
         public static String find() {
             return BASE + ID;
         }

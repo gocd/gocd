@@ -24,6 +24,12 @@
 
 <urlrewrite>
   <rule>
+    <name>Pluggable SCMs SPA</name>
+    <from>^/admin/scms(/?)$</from>
+    <to last="true">/spark/admin/scms</to>
+  </rule>
+
+  <rule>
     <name>Internal Dependency Pipelines API</name>
     <from>^/api/internal/pipelines/([^/]+)/([^/]+)/upstream(/?)$</from>
     <to last="true">/spark/api/internal/pipelines/${escape:$1}/${escape:$2}/upstream</to>

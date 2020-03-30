@@ -167,6 +167,7 @@ export class SiteMenu extends MithrilViewComponent<Attrs> {
                 <SiteSubNavItem href="/go/admin/config_repos" text="Config Repositories"/>
                 <SiteSubNavItem href="/go/admin/artifact_stores" text="Artifact Stores"/>
                 <SiteSubNavItem href="/go/admin/secret_configs" text="Secret Management"/>
+                <SiteSubNavItem href="/go/admin/scms" text="Pluggable SCMs"/>
               </SiteSubNav>
               <SiteSubNav>
                 <SiteSubNavHeading text="Server configuration"/>
@@ -198,6 +199,7 @@ export class SiteMenu extends MithrilViewComponent<Attrs> {
               <SiteSubNavItem href="/go/admin/package_repositories/new" text="Package Repositories"/>
               <SiteSubNavItem href="/go/admin/config_repos" text="Config Repositories"/>
               <SiteSubNavItem href="/go/admin/elastic_agent_configurations" text="Elastic Agent Configurations"/>
+              <SiteSubNavItem href="/go/admin/scms" text="Pluggable SCMs"/>
             </SiteSubNav>
           </div>
         </SiteNavItem>;

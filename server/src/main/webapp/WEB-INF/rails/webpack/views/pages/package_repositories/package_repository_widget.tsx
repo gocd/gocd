@@ -64,6 +64,7 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
                  icon={ButtonIcon.ADD}>
         Create Package
       </Secondary>,
+
       <div className={styles.packageRepositoryCrudActions}>
         <IconGroup>
           <Edit data-test-id="package-repo-edit"
@@ -78,7 +79,8 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
                   title={PackageRepositoryWidget.getMsgForOperation(disabled, packageRepository.name(), "delete")}
                   onclick={vnode.attrs.onDelete.bind(vnode.attrs, packageRepository)}/>
         </IconGroup>
-      </div>];
+      </div>
+    ];
 
     return <CollapsiblePanel key={vnode.attrs.packageRepository.repoId()}
                              header={header} error={disabled}

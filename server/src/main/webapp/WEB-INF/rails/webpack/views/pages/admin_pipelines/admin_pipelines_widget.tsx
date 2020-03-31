@@ -44,6 +44,7 @@ interface Operations extends SaveOperation {
 interface PipelineGroupAttrs extends Operations {
   group: PipelineGroup;
   scrollOptions: PipelinesScrollOptions;
+  canMovePipeline: boolean;
 }
 
 export interface PipelinesScrollOptions {
@@ -57,7 +58,7 @@ export interface Attrs extends Operations {
   scrollOptions: PipelinesScrollOptions;
 }
 
-type PipelineWidgetAttrs = PipelineGroupAttrs & { pipeline: PipelineWithOrigin };
+type PipelineWidgetAttrs = PipelineGroupAttrs & { pipeline: PipelineWithOrigin; };
 
 class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
   view(vnode: m.Vnode<PipelineWidgetAttrs, this>) {
@@ -90,7 +91,18 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
     return `${s.capitalize(operation)} pipeline '${pipeline.name()}'`;
   }
 
+  private static messageForMove(pipeline: PipelineWithOrigin, canMovePipeline: boolean) {
+    if (pipeline.origin().isDefinedInConfigRepo()) {
+      return `Cannot move pipeline '${pipeline.name()}' as it is defined in configuration repository '${pipeline.origin().id()}'.`;
+    }
+    if (!canMovePipeline) {
+      return `Cannot move pipeline '${pipeline.name()}' as there are no other group(s).`;
+    }
+    return `Move pipeline '${pipeline.name()}'`;
+  }
+
   private actions(vnode: m.Vnode<PipelineWidgetAttrs, this>, eachPipeline: PipelineWithOrigin) {
+    const titleForMove = PipelineWidget.messageForMove(eachPipeline, vnode.attrs.canMovePipeline);
     return (
       <IconGroup>
         <Edit
@@ -98,9 +110,9 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
           title={PipelineWidget.messageForOperation(eachPipeline, "edit")}
           onclick={vnode.attrs.doEditPipeline.bind(vnode.attrs, eachPipeline)}/>
         <ChevronRightCircle
-          disabled={eachPipeline.origin().isDefinedInConfigRepo()}
+          disabled={eachPipeline.origin().isDefinedInConfigRepo() || !vnode.attrs.canMovePipeline}
           data-test-id={`move-pipeline-${s.slugify(eachPipeline.name())}`}
-          title={PipelineWidget.messageForOperation(eachPipeline, "move")}
+          title={titleForMove}
           onclick={vnode.attrs.doMovePipeline.bind(vnode.attrs, vnode.attrs.group, eachPipeline)}/>
         <Download
           data-test-id={`download-pipeline-${s.slugify(eachPipeline.name())}`}
@@ -216,10 +228,11 @@ export class PipelineGroupsWidget extends MithrilViewComponent<Attrs> {
         Either no pipelines have been defined or you are not authorized to view the same. {docLink}
       </FlashMessage>;
     }
+    const canMovePipeline = vnode.attrs.pipelineGroups().length > 1;
     return (
       <div data-test-id="pipeline-groups">
         {vnode.attrs.pipelineGroups().map((group) => {
-          return <PipelineGroupWidget group={group} {...vnode.attrs} />;
+          return <PipelineGroupWidget canMovePipeline={canMovePipeline} group={group} {...vnode.attrs} />;
         })}
       </div>
     );

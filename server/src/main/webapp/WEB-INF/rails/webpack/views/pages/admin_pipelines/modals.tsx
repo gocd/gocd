@@ -28,7 +28,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormBody} from "views/components/forms/form";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";
-import {Modal} from "views/components/modal";
+import {Modal, Size} from "views/components/modal";
 import {OperationState} from "../page_operations";
 
 export class MoveConfirmModal extends Modal {
@@ -279,7 +279,7 @@ export class DeletePipelineGroupModal extends Modal {
   private apiService: ApiService<string>;
 
   constructor(pipelineGrpName: string, successCallback: (msg: m.Children) => void, apiService?: ApiService<string>) {
-    super();
+    super(Size.small);
     this.pipelineGrpName = pipelineGrpName;
     this.successCallback = successCallback;
     this.apiService      = apiService ? apiService : new DeletePipelineGroupService(pipelineGrpName);

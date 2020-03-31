@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {ApiRequestBuilder, ApiVersion, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
+import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -27,6 +29,7 @@ import {Form, FormBody} from "views/components/forms/form";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";
 import {Modal} from "views/components/modal";
+import {OperationState} from "../page_operations";
 
 export class MoveConfirmModal extends Modal {
   private readonly pipeline: PipelineWithOrigin;
@@ -229,8 +232,8 @@ export class ExtractTemplateModal extends Modal {
   constructor(sourcePipelineName: string, callback: (templateName: string) => void) {
     super();
     this.sourcePipelineName = sourcePipelineName;
-    this.callback       = callback;
-    this.templateName   = new ModelWithNameIdentifierValidator();
+    this.callback           = callback;
+    this.templateName       = new ModelWithNameIdentifierValidator();
   }
 
   body() {
@@ -265,4 +268,85 @@ export class ExtractTemplateModal extends Modal {
     this.close();
   }
 
+}
+
+export class DeletePipelineGroupModal extends Modal {
+  private pipelineGrpName: string;
+  private successCallback: (msg: m.Children) => void;
+  private readonly message: m.Children;
+  private operationState: Stream<OperationState> = Stream<OperationState>(OperationState.UNKNOWN);
+  private errorMessage?: string;
+  private apiService: ApiService<string>;
+
+  constructor(pipelineGrpName: string, successCallback: (msg: m.Children) => void, apiService?: ApiService<string>) {
+    super();
+    this.pipelineGrpName = pipelineGrpName;
+    this.successCallback = successCallback;
+    this.apiService      = apiService ? apiService : new DeletePipelineGroupService(pipelineGrpName);
+    this.message         = <span>Are you sure you want to delete the pipeline group <em>{pipelineGrpName}</em>?</span>;
+  }
+
+  body(): m.Children {
+    if (this.errorMessage !== undefined) {
+      return <FlashMessage type={MessageType.alert} message={this.errorMessage}/>;
+    }
+    return <div>{this.message}</div>;
+  }
+
+  title(): string {
+    return "Are you sure?";
+  }
+
+  buttons(): m.ChildArray {
+    if (this.errorMessage !== undefined) {
+      return [
+        <Buttons.Primary ajaxOperationMonitor={this.operationState} data-test-id='button-no-delete'
+                         onclick={this.close.bind(this)}>OK</Buttons.Primary>
+      ];
+    }
+    return [
+      <Buttons.Danger data-test-id='button-delete'
+                      ajaxOperationMonitor={this.operationState}
+                      ajaxOperation={this.delete.bind(this)}>Yes Delete</Buttons.Danger>,
+      <Buttons.Cancel ajaxOperationMonitor={this.operationState}
+                      data-test-id='button-no-delete' onclick={this.close.bind(this)}
+      >No</Buttons.Cancel>
+    ];
+  }
+
+  private delete() {
+    return this.apiService.performOperation(
+      () => {
+        this.successCallback(
+          <span>The pipeline group <em>{this.pipelineGrpName}</em> was deleted successfully!</span>
+        );
+        this.close();
+      },
+      (errorResponse: ErrorResponse) => {
+        if (errorResponse.body) {
+          this.errorMessage = JSON.parse(errorResponse.body).message;
+        }
+      }
+    );
+  }
+}
+
+export interface ApiService<T> {
+  performOperation(onSuccess: (data: SuccessResponse<T>) => void,
+                   onError: (message: ErrorResponse) => void): Promise<void>;
+}
+
+class DeletePipelineGroupService implements ApiService<string> {
+  private pipelineGrpName: string;
+
+  constructor(pipelineGrpName: string) {
+    this.pipelineGrpName = pipelineGrpName;
+  }
+
+  performOperation(onSuccess: (data: SuccessResponse<string>) => void,
+                   onError: (message: ErrorResponse) => void): Promise<void> {
+    return ApiRequestBuilder.DELETE(SparkRoutes.pipelineGroupsPath(this.pipelineGrpName), ApiVersion.latest)
+                            .then((result) => result.do(onSuccess, onError));
+
+  }
 }

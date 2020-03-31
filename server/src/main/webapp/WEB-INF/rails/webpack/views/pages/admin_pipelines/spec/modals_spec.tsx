@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
+import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import {Pipeline} from "models/environments/types";
 import {PipelineGroups} from "models/internal_pipeline_structure/pipeline_structure";
 import data from "models/new-environments/spec/test_data";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {
+  ApiService,
   ClonePipelineConfigModal,
   CreatePipelineGroupModal,
+  DeletePipelineGroupModal,
   ExtractTemplateModal,
   MoveConfirmModal
 } from "views/pages/admin_pipelines/modals";
@@ -139,5 +142,54 @@ describe("ExtractTemplateModal", () => {
     modalTestHelper.oninput(modalTestHelper.byTestId("form-field-input-new-template-name"), "new-template");
     modalTestHelper.clickButtonOnActiveModal(`[data-test-id="button-extract-template"]`);
     expect(callback).toHaveBeenCalledWith("new-template");
+  });
+});
+
+describe('DeletePipelinGroupModalSpec', () => {
+  let modal: DeletePipelineGroupModal;
+  const successCallBack: (msg: m.Children) => void = jasmine.createSpy("successCallBack");
+
+  afterEach(() => {
+    ModalManager.closeAll();
+  });
+
+  it('should render modal', () => {
+    const dummyService = new class implements ApiService<string> {
+      performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void): Promise<void> {
+        onSuccess({body: "some msg"});
+        return Promise.resolve();
+      }
+    }();
+    modal              = new DeletePipelineGroupModal("pipeline-grp-name", successCallBack, dummyService);
+    modal.render();
+    m.redraw.sync();
+
+    const modalTestHelper: TestHelper = new TestHelper().forModal();
+
+    expect(modal).toContainTitle("Are you sure?");
+    expect(modal).toContainButtons(["No", "Yes Delete"]);
+
+    modalTestHelper.clickButtonOnActiveModal(`[data-test-id="button-delete"]`);
+    expect(successCallBack).toHaveBeenCalled();
+  });
+
+  it('should render error message if an error occurs', () => {
+    const dummyService = new class implements ApiService<string> {
+      performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void): Promise<void> {
+        onError({message: 'some error', body: '{"message": "some major error"}'});
+        return Promise.reject();
+      }
+    }();
+    modal              = new DeletePipelineGroupModal("pipeline-grp-name", successCallBack, dummyService);
+    modal.render();
+    m.redraw.sync();
+
+    const modalTestHelper: TestHelper = new TestHelper().forModal();
+
+    modalTestHelper.clickButtonOnActiveModal(`[data-test-id="button-delete"]`);
+
+    expect(modal).toContainError("some major error");
+    expect(modal).toContainButtons(["OK"]);
+
   });
 });

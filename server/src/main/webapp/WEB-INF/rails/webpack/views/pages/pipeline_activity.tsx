@@ -156,10 +156,15 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {
-    const title = <PipelinePauseHeader pipelineName={this.pipelineActivity().pipelineName()}
-                                       flashMessage={this.flashMessage}
-                                       shouldShowPauseUnpause={this.pipelineActivity().canPause()}
-                                       shouldShowPipelineSettings={Page.isUserAnAdmin() || Page.isUserAGroupAdmin()}/>;
+    let title: m.Children = <div data-test-id="pipeline-pause-header"/>;
+
+    if (this.pipelineActivity()) {
+      title = <PipelinePauseHeader pipelineName={this.pipelineActivity().pipelineName()}
+                                   flashMessage={this.flashMessage}
+                                   shouldShowPauseUnpause={this.pipelineActivity().canPause()}
+                                   shouldShowPipelineSettings={Page.isUserAnAdmin() || Page.isUserAGroupAdmin()}/>;
+    }
+
     return <HeaderPanel title={title} sectionName={this.pageName()} buttons={
       <SearchField property={this.filterText} label={"Search"}
                    dataTestId={"search-field"}

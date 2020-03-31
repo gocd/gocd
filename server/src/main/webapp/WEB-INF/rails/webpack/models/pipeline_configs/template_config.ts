@@ -38,7 +38,7 @@ export class TemplateConfig {
   }
 
   static getTemplate(name: string, onSuccess: (result: TemplateConfig) => void) {
-    ApiRequestBuilder.GET(SparkRoutes.templatesPath(name), ApiVersion.v5)
+    ApiRequestBuilder.GET(SparkRoutes.templatesPath(name), ApiVersion.v7)
                      .then((res) => {
                        res.map((body) => onSuccess(TemplateConfig.fromJSON(JSON.parse(body))));
                      });

@@ -27,7 +27,7 @@ export class NameableSet<T extends Nameable> extends ValidatableMixin implements
   [Symbol.toStringTag]: string = `NameableSet`;
   private readonly _members    = new Map<string, T>(); // preserves insertion order
 
-  constructor(items?: readonly T[] | null) {
+  constructor(readonly items?: T[] | null) {
     super();
     Object.setPrototypeOf(this, Object.create(NameableSet.prototype));
 

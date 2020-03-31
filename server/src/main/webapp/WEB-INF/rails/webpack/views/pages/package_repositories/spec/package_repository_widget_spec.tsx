@@ -62,10 +62,18 @@ describe('PackageRepositoryWidgetSpec', () => {
     expect(helper.byTestId('configuration-details-widget')).toBeInDOM();
     expect(helper.byTestId('packages-widget')).toBeInDOM();
 
-    expect(helper.byTestId('package-create')).toBeInDOM();
-    expect(helper.byTestId('package-repo-edit')).toBeInDOM();
-    expect(helper.byTestId('package-repo-clone')).toBeInDOM();
-    expect(helper.byTestId('package-repo-delete')).toBeInDOM();
+    const buttonKeys: { [key: string]: string } = {
+      'package-create':      "Create package for package repository 'pkg-repo-name'",
+      'package-repo-edit':   "Edit package repository 'pkg-repo-name'",
+      'package-repo-clone':  "Clone package repository 'pkg-repo-name'",
+      'package-repo-delete': "Delete package repository 'pkg-repo-name'"
+    };
+    Object.keys(buttonKeys)
+          .forEach((key) => {
+            expect(helper.byTestId(key)).toBeInDOM();
+            expect(helper.byTestId(key)).not.toBeDisabled();
+            expect(helper.byTestId(key)).toHaveAttr('title', buttonKeys[key]);
+          });
   });
 
   it('should give a call to the callbacks on relevant button clicks', () => {
@@ -84,4 +92,14 @@ describe('PackageRepositoryWidgetSpec', () => {
     expect(onPkgRepoDelete).toHaveBeenCalled();
   });
 
+  it('should disabled action buttons when disabled is set to true', () => {
+    disableActions = true;
+    mount();
+
+    ['package-create', 'package-repo-edit', 'package-repo-clone'].forEach((key) => {
+      expect(helper.byTestId(key)).toBeDisabled();
+      expect(helper.byTestId(key)).toHaveAttr('title', "Plugin not found!");
+    });
+    expect(helper.byTestId('package-repo-delete')).not.toBeDisabled();
+  });
 });

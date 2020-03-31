@@ -41,24 +41,34 @@ export class PackageRepositoryModalBody extends MithrilViewComponent<Attrs> {
       return pluginInfo.id === vnode.attrs.pluginIdProxy();
     })!;
 
-    return <div><FormHeader>
-      <Form>
-        <TextField label="Name"
-                   readonly={vnode.attrs.disableId}
-                   property={vnode.attrs.packageRepo.name}
-                   placeholder={"Enter the package repository name"}
-                   errorText={vnode.attrs.packageRepo.errors().errorsForDisplay("name")}
-                   required={true}/>
+    return <div>
+      <FormHeader>
+        <Form>
+          <TextField label="Name"
+                     readonly={vnode.attrs.disableId}
+                     property={vnode.attrs.packageRepo.name}
+                     placeholder={"Enter the package repository name"}
+                     errorText={vnode.attrs.packageRepo.errors().errorsForDisplay("name")}
+                     required={true}/>
 
-        <SelectField label="Plugin"
-                     property={vnode.attrs.pluginIdProxy.bind(this)}
-                     required={true}
-                     errorText={vnode.attrs.packageRepo.errors().errorsForDisplay("pluginId")}>
-          <SelectFieldOptions selected={vnode.attrs.packageRepo.pluginMetadata().id()}
-                              items={pluginList}/>
-        </SelectField>
-      </Form>
-    </FormHeader>
+          <SelectField label="Plugin"
+                       property={vnode.attrs.pluginIdProxy.bind(this)}
+                       required={true}
+                       errorText={vnode.attrs.packageRepo.errors().errorsForDisplay("pluginId")}>
+            <SelectFieldOptions selected={vnode.attrs.packageRepo.pluginMetadata().id()}
+                                items={pluginList}/>
+          </SelectField>
+        </Form>
+      </FormHeader>
+
+      <div>
+        <TextField label="Repo Id"
+                   readonly={vnode.attrs.disableId}
+                   property={vnode.attrs.packageRepo.repoId}
+                   placeholder={"Enter a unique id for this package repository"}
+                   helpText={"Each package repository is associated with an id. Once defined it cannot be updated"}
+                   errorText={vnode.attrs.packageRepo.errors().errorsForDisplay("repoId")}/>
+      </div>
 
       <PluginView pluginSettings={(selectedPluginInfo.extensions[0] as PackageRepoExtension).repositorySettings}
                   configurations={vnode.attrs.packageRepo.configuration()}/>

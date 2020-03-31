@@ -16,6 +16,7 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {PackageRepository} from "models/package_repositories/package_repositories";
+import s from "underscore.string";
 import {ButtonIcon, Secondary} from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
@@ -44,22 +45,27 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
                                         ["Plugin Id", packageRepository.pluginMetadata().id()],
                                         ...Array.from(pkgRepoProperties)
                                       ]);
+    const disabled          = vnode.attrs.disableActions;
     const actionButtons     = [
       <Secondary onclick={vnode.attrs.packageOperations.onAdd.bind(vnode.attrs, packageRepository)}
                  data-test-id={"package-create"}
-                 disabled={vnode.attrs.disableActions}
+                 disabled={disabled}
+                 title={PackageRepositoryWidget.getMsgForOperation(disabled, packageRepository.name(), "create package for")}
                  icon={ButtonIcon.ADD}>
         Create Package
       </Secondary>,
       <div className={styles.packageRepositoryCrudActions}>
         <IconGroup>
           <Edit data-test-id="package-repo-edit"
-                disabled={vnode.attrs.disableActions}
+                disabled={disabled}
+                title={PackageRepositoryWidget.getMsgForOperation(disabled, packageRepository.name(), "edit")}
                 onclick={vnode.attrs.onEdit.bind(vnode.attrs, packageRepository)}/>
           <Clone data-test-id="package-repo-clone"
-                 disabled={vnode.attrs.disableActions}
+                 disabled={disabled}
+                 title={PackageRepositoryWidget.getMsgForOperation(disabled, packageRepository.name(), "clone")}
                  onclick={vnode.attrs.onClone.bind(vnode.attrs, packageRepository)}/>
           <Delete data-test-id="package-repo-delete"
+                  title={PackageRepositoryWidget.getMsgForOperation(disabled, packageRepository.name(), "delete")}
                   onclick={vnode.attrs.onDelete.bind(vnode.attrs, packageRepository)}/>
         </IconGroup>
       </div>];
@@ -71,7 +77,7 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
                              dataTestId={"package-repository-panel"}>
       <ConfigurationDetailsWidget header={"Package Repository configuration"} data={pkgRepoDetails}/>
       <PackagesWidget packages={vnode.attrs.packageRepository.packages}
-                      disableActions={vnode.attrs.disableActions}
+                      disableActions={disabled}
                       packageOperations={vnode.attrs.packageOperations}/>
     </CollapsiblePanel>;
   }
@@ -81,5 +87,12 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
     map.set("Name", packageRepository.name());
     map.set("Plugin Id", packageRepository.pluginMetadata().id());
     return map;
+  }
+
+  private static getMsgForOperation(disabled: boolean, pkgRepoName: string, operation: "edit" | "clone" | "delete" | "create package for"): string | undefined {
+    if (disabled && operation !== "delete") {
+      return "Plugin not found!";
+    }
+    return `${s.capitalize(operation)} package repository '${pkgRepoName}'`;
   }
 }

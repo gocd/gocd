@@ -233,7 +233,7 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
     const pluginInfo = vnode.attrs.pluginInfos.findByPluginId(selectedPkgRepo.pluginMetadata().id());
     if (pluginInfo === undefined) {
       vnode.attrs.material.attributes()!
-        .errors().add("pkgRepo", `Associated plugin '${selectedPkgRepo.pluginMetadata().id()}' not found. Please contact the system administrator to install the plugin.`)
+        .errors().add("pkgRepo", `Associated plugin '${selectedPkgRepo.pluginMetadata().id()}' not found. Please contact the system administrator to install the plugin.`);
     }
   }
 }

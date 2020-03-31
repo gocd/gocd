@@ -74,7 +74,7 @@ export class Configurations {
     const configValues = this.configurations
                              .map((config) => `${config.key}=${config.displayValue()}`)
                              .join(',');
-    return `[${configValues}]`
+    return `[${configValues}]`;
   }
 }
 

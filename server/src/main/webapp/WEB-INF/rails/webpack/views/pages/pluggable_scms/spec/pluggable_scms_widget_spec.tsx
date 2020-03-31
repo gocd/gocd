@@ -30,7 +30,7 @@ describe('PluggableScmsWidgetSpec', () => {
 
   beforeEach(() => {
     scms        = Scms.fromJSON([]);
-    pluginInfos = new PluginInfos(PluginInfo.fromJSON(getScmPlugin()))
+    pluginInfos = new PluginInfos(PluginInfo.fromJSON(getScmPlugin()));
   });
   afterEach((done) => helper.unmount(done));
 

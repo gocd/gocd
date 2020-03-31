@@ -46,7 +46,7 @@ interface Attrs {
   oncollapse?: () => void;
 
   //adding to prevent any user interactions
-  nonExpandable?: boolean
+  nonExpandable?: boolean;
 }
 
 interface State extends CollapsibleStateModel {

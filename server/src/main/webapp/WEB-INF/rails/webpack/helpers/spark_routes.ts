@@ -539,14 +539,14 @@ export class SparkRoutes {
 
   static packageRepositoryPath(id?: string) {
     if (id) {
-      return `/go/api/admin/repositories/${id}`
+      return `/go/api/admin/repositories/${id}`;
     }
     return '/go/api/admin/repositories';
   }
 
   static packagePath(id?: string) {
     if (id) {
-      return `/go/api/admin/packages/${id}`
+      return `/go/api/admin/packages/${id}`;
     }
     return '/go/api/admin/packages';
   }
@@ -557,7 +557,7 @@ export class SparkRoutes {
 
   static pluggableScmPath(id?: string) {
     if (id) {
-      return `/go/api/admin/scms/${id}`
+      return `/go/api/admin/scms/${id}`;
     }
     return '/go/api/admin/scms';
   }

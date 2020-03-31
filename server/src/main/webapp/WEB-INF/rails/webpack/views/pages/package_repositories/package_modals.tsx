@@ -209,7 +209,7 @@ export class UsagePackageModal extends Modal {
         <span>{usage.group}</span>,
         <span>{usage.pipeline}</span>,
         <Link href={href}>Pipeline Material Settings</Link>
-      ]
+      ];
     });
     return (
       <div>

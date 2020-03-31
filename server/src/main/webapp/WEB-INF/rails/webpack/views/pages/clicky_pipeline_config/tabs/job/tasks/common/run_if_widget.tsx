@@ -22,7 +22,7 @@ import {CheckboxField} from "views/components/forms/input_fields";
 import styles from "./run_if.scss";
 
 interface Attrs {
-  runIf: Stream<RunIfCondition[]>
+  runIf: Stream<RunIfCondition[]>;
 }
 
 interface State {

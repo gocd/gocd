@@ -92,8 +92,8 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
                       result.do((successResponse) => {
                         this.scmMaterials(successResponse.body);
                         super.pageLoaded();
-                      }, super.pageLoadFailure)
-                    })
+                      }, super.pageLoadFailure);
+                    });
   }
 
   private fetchRelatedPluginInfos() {

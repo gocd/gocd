@@ -168,7 +168,7 @@ export class Material extends ValidatableMixin {
   }
 
   typeForDisplay() {
-    return mapTypeToDisplayType[this.type()!]
+    return mapTypeToDisplayType[this.type()!];
   }
 
   displayName() {

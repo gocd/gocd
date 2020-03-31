@@ -24,8 +24,8 @@ import {PackageOperations} from "views/pages/package_repositories";
 import {PackageWidget} from "./package_widget";
 
 interface Attrs {
-  packages: Stream<Packages>
-  packageOperations: PackageOperations
+  packages: Stream<Packages>;
+  packageOperations: PackageOperations;
   disableActions: boolean;
 }
 
@@ -33,7 +33,7 @@ export class PackagesWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
     if (_.isEmpty(vnode.attrs.packages())) {
       return <FlashMessage type={MessageType.info}
-                           message={"There are no packages defined in this package repository."}/>
+                           message={"There are no packages defined in this package repository."}/>;
     }
     return <div data-test-id="packages-widget">
       <h4>Packages</h4>

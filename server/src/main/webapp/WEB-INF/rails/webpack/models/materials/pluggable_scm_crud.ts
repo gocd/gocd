@@ -37,7 +37,7 @@ export class PluggableScmCRUD {
   static create(scm: Scm) {
     return ApiRequestBuilder.POST(SparkRoutes.pluggableScmPath(), this.API_VERSION_HEADER,
                                   {payload: scm})
-                            .then(this.extractObjectWithEtag)
+                            .then(this.extractObjectWithEtag);
   }
 
   static update(scm: Scm, etag: string) {

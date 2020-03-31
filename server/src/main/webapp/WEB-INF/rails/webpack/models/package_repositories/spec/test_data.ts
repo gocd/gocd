@@ -33,7 +33,7 @@ export function getPackageRepository() {
     _embedded:       {
       packages: [getPackage()]
     }
-  } as PackageRepositoryJSON
+  } as PackageRepositoryJSON;
 }
 
 export function getPackage() {

@@ -42,7 +42,7 @@ export class PackageRepositoriesWidget extends MithrilViewComponent<Attrs> {
             from <Link target="_blank" href={docsUrl("extension_points/package_repository_extension.html")}>here</Link>.
           </li>
         </ul>
-      </div>
+      </div>;
     }
     return <div data-test-id="package-repositories-widget">
       {vnode.attrs.packageRepositories().map(packageRepo => {
@@ -52,7 +52,7 @@ export class PackageRepositoriesWidget extends MithrilViewComponent<Attrs> {
                                         disableActions={pluginInfo === undefined}
                                         onEdit={vnode.attrs.packageRepoOperations.onEdit}
                                         onClone={vnode.attrs.packageRepoOperations.onClone}
-                                        onDelete={vnode.attrs.packageRepoOperations.onDelete}/>
+                                        onDelete={vnode.attrs.packageRepoOperations.onDelete}/>;
       })}
     </div>;
   }

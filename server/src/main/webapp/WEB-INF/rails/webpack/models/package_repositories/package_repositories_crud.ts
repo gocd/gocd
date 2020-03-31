@@ -38,7 +38,7 @@ export class PackageRepositoriesCRUD {
   static create(packageRepository: PackageRepository) {
     return ApiRequestBuilder.POST(SparkRoutes.packageRepositoryPath(), this.API_VERSION_HEADER,
                                   {payload: packageRepository})
-                            .then(this.extractObjectWithEtag)
+                            .then(this.extractObjectWithEtag);
   }
 
   static update(packageRepository: PackageRepository, etag: string) {

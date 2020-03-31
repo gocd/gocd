@@ -107,7 +107,7 @@ export class PluggableScmsPage extends Page<null, State> {
                           (successResponse) => {
                             new UsagePackageModal(scm.name(), successResponse.body).render();
                           }, onOperationError);
-                      })
+                      });
     };
   }
 
@@ -144,7 +144,7 @@ export class PluggableScmsPage extends Page<null, State> {
                     }, (errorResponse) => {
                       this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
                       this.pageState = PageState.FAILED;
-                    })
+                    });
                   });
   }
 

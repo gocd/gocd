@@ -27,7 +27,7 @@ describe('PluggableScmModalBodySpec', () => {
   const spy           = jasmine.createSpy("pluginIdProxy");
   const pluginIdProxy = () => {
     spy();
-    return "scm-plugin-id"
+    return "scm-plugin-id";
   };
   let pluginInfos: PluginInfos;
   let scm: Scm;

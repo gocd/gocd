@@ -142,7 +142,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
                     }, (errorResponse) => {
                       this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
                       this.pageState = PageState.FAILED;
-                    })
+                    });
                   });
 
   }
@@ -180,7 +180,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
         if (completePkg !== undefined) {
           pkg.autoUpdate(completePkg.autoUpdate());
           pkg.configuration(completePkg.configuration());
-          pkg.packageRepo(new PackageRepositorySummary(pkgRepo.repoId(), pkgRepo.name()))
+          pkg.packageRepo(new PackageRepositorySummary(pkgRepo.repoId(), pkgRepo.name()));
         }
       });
     });
@@ -239,7 +239,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
       //todo: decide whether or not this is correct
       pkg.id(uuidv4());
       new CreatePackageModal(pkg, vnode.state.packageRepositories(), vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
-        .render()
+        .render();
     };
 
     vnode.state.packageOperations.onEdit = (pkg: Package, e: MouseEvent) => {
@@ -274,7 +274,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
                       },
                       this.onOperationError(vnode)
                     );
-                  })
+                  });
     };
   }
 

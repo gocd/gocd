@@ -34,7 +34,7 @@ export interface PackageRepositoryJSON {
 export interface PackageRepositoriesJSON {
   _embedded: {
     package_repositories: PackageRepositoryJSON[];
-  }
+  };
 }
 
 export interface PackageRepositorySummaryJSON {

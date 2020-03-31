@@ -53,7 +53,7 @@ abstract class PackageRepositoryModal extends EntityModal<PackageRepository> {
   protected onPluginChange(entity: Stream<PackageRepository>, pluginInfo: PluginInfo): void {
     const pluginMetadata = entity().pluginMetadata();
     pluginMetadata.id(pluginInfo.id);
-    entity(new PackageRepository(entity().repoId(), entity().name(), pluginMetadata, entity().configuration(), entity().packages()))
+    entity(new PackageRepository(entity().repoId(), entity().name(), pluginMetadata, entity().configuration(), entity().packages()));
   }
 
   protected parseJsonToEntity(json: object): PackageRepository {

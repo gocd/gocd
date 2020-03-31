@@ -124,7 +124,7 @@ describe("Package Repo Plugin View", () => {
     const configurations = new Configurations([new Configuration("PACKAGE_ID", new PlainTextValue("repo-1"), ["Boom!"])]);
     mount(configurations);
 
-    expect(helper.qa("span", helper.byTestId("plugin-view"))[1].innerText).toBe("Boom!")
+    expect(helper.qa("span", helper.byTestId("plugin-view"))[1].innerText).toBe("Boom!");
   });
 
   function pluginSettingsJSON() {

@@ -149,9 +149,9 @@ export class TimelineModal extends Modal {
       {stages.map((stage) => {
         const title = `${stage.name()} (${stage.status()})`;
         return <div title={title}
-                    className={classnames(styles.stage, StagesWidget.stageStatusClass(stage.status()))}/>
+                    className={classnames(styles.stage, StagesWidget.stageStatusClass(stage.status()))}/>;
       })}
-    </div>
+    </div>;
   }
 
   private fetchHistory(link?: string) {

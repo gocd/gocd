@@ -26,7 +26,7 @@ describe('PackageRepositoryModalBodySpec', () => {
   const spy           = jasmine.createSpy("pluginIdProxy");
   const pluginIdProxy = () => {
     spy();
-    return "npm"
+    return "npm";
   };
   let pluginInfos: PluginInfos;
   let packageRepo: PackageRepository;

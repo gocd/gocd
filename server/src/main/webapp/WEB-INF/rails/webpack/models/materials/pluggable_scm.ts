@@ -33,7 +33,7 @@ export interface ScmJSON {
   name: string;
   auto_update: boolean;
   plugin_metadata: PluginMetadataJSON;
-  configuration: PropertyJSON[]
+  configuration: PropertyJSON[];
   errors?: ErrorsJSON;
 }
 
@@ -112,7 +112,7 @@ export class Scm extends ValidatableMixin {
         version: this.pluginMetadata().version()
       },
       configuration:   this.configuration().toJSON()
-    }
+    };
   }
 }
 

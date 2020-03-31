@@ -77,7 +77,7 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
     }
     if (operation === "delete") {
       if (pipeline.isDefinedRemotely()) {
-        return `Cannot delete pipeline '${pipeline.name()}' defined in configuration repository '${pipeline.origin().id()}'.`
+        return `Cannot delete pipeline '${pipeline.name()}' defined in configuration repository '${pipeline.origin().id()}'.`;
       }
       if (pipeline.environment() !== undefined && pipeline.environment() !== null) {
         return `Cannot delete pipeline '${pipeline.name()}' as it is present in environment '${pipeline.environment()}'.`;

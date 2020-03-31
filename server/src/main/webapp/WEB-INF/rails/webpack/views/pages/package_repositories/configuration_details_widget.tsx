@@ -31,7 +31,7 @@ const flag: (val?: boolean) => Stream<boolean> = Stream;
 
 interface Attrs {
   header: m.Children;
-  data: Map<string, m.Children>
+  data: Map<string, m.Children>;
 }
 
 export class ConfigurationDetailsWidget extends MithrilComponent<Attrs, State> {

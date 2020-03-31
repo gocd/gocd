@@ -40,14 +40,14 @@ export class PluggableScmsWidget extends MithrilViewComponent<Attrs> {
             from <Link target="_blank" href={docsUrl("extension_points/scm_extension.html")}>here</Link>.
           </li>
         </ul>
-      </div>
+      </div>;
     }
     return <div data-test-id="scms-widget">
       {vnode.attrs.scms().map((scm) => {
         const pluginInfo = _.find(vnode.attrs.pluginInfos(), {id: scm.pluginMetadata().id()});
         return <PluggableScmWidget scm={scm}
                                    disableActions={pluginInfo === undefined}
-                                   {...vnode.attrs}/>
+                                   {...vnode.attrs}/>;
       })}
     </div>;
   }

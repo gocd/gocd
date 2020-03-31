@@ -44,7 +44,7 @@ export class PackageRepositorySummary extends ValidatableMixin {
   toJSON(): object {
     return {
       id: this.id()
-    }
+    };
   }
 }
 
@@ -73,7 +73,7 @@ export class Package extends ValidatableMixin {
                           new RegExp("^[-a-zA-Z0-9_][-a-zA-Z0-9_.]*$"),
                           {message: "Invalid Id. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period)."});
     this.validateMaxLength("name", 255, {message: "The maximum allowed length is 255 characters."});
-    this.validateAssociated('packageRepo')
+    this.validateAssociated('packageRepo');
   }
 
   static fromJSON(data: PackageJSON): Package {
@@ -93,7 +93,7 @@ export class Package extends ValidatableMixin {
       auto_update:   this.autoUpdate(),
       package_repo:  this.packageRepo.toJSON(),
       configuration: this.configuration().toJSON()
-    }
+    };
   }
 }
 
@@ -179,7 +179,7 @@ export class PackageRepository extends ValidatableMixin {
         version: this.pluginMetadata().version()
       },
       configuration:   this.configuration().toJSON()
-    }
+    };
   }
 
   matches(textToMatch: string): boolean {

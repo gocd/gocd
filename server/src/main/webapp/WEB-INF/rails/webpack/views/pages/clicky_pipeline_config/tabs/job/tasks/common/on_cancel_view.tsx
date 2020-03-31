@@ -25,7 +25,7 @@ import {RunIfConditionWidget} from "views/pages/clicky_pipeline_config/tabs/job/
 interface Attrs {
   showOnCancel: boolean;
   runIf: Stream<RunIfCondition[]>;
-  onCancel: Stream<Task | undefined>
+  onCancel: Stream<Task | undefined>;
   pluginInfos: PluginInfos;
 }
 

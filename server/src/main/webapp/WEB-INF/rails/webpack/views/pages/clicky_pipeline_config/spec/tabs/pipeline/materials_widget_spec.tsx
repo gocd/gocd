@@ -29,7 +29,7 @@ describe('MaterialsWidgetSpec', () => {
   let pipelineConfig: PipelineConfig;
 
   beforeEach(() => {
-    pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withGitMaterial())
+    pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withGitMaterial());
   });
   afterEach((done) => helper.unmount(done));
 

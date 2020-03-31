@@ -114,6 +114,9 @@ describe("StagesWidget", () => {
   });
 
   function mount(stages: Stream<NameableSet<Stage>>, isUsingTemplate = Stream<boolean>(false), isEditable = true) {
-    helper.mount(() => <StagesWidget stages={stages} isUsingTemplate={isUsingTemplate} isEditable={isEditable}/>);
+    helper.mount(() => <StagesWidget stages={stages}
+                                     pipelineConfigSave={jasmine.createSpy()}
+                                     isUsingTemplate={isUsingTemplate}
+                                     isEditable={isEditable}/>);
   }
 });

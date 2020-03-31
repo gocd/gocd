@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {NameableSet} from "models/pipeline_configs/nameable_set";
@@ -25,8 +25,8 @@ import s from "underscore.string";
 import {Secondary} from "views/components/buttons";
 import {Delete} from "views/components/icons";
 import {Table} from "views/components/table";
-import {StageModal} from "views/pages/clicky_pipeline_config/modal/add_or_edit_modal";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {AddStageModal} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/add_stage_modal";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {TemplateEditor} from "views/pages/pipelines/template_editor";
 
@@ -43,11 +43,13 @@ export class StagesTabContent extends TabContent<PipelineConfig> {
     return pipelineConfig;
   }
 
-  protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig) {
+  protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig, save: () => any, reset: () => any) {
     return [
       <TemplateEditor pipelineConfig={entity} isUsingTemplate={entity.isUsingTemplate()}
                       paramList={entity.parameters}/>,
-      <StagesWidget stages={entity.stages} isUsingTemplate={entity.isUsingTemplate()}
+      <StagesWidget stages={entity.stages}
+                    isUsingTemplate={entity.isUsingTemplate()}
+                    pipelineConfigSave={save}
                     isEditable={!entity.origin().isDefinedInConfigRepo()}/>
     ];
   }
@@ -57,13 +59,23 @@ export interface Attrs {
   stages: Stream<NameableSet<Stage>>;
   isUsingTemplate: Stream<boolean>;
   isEditable: boolean;
+  pipelineConfigSave: () => any;
 }
 
-export class StagesWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
+export interface State {
+  getModal: () => AddStageModal;
+}
+
+export class StagesWidget extends MithrilComponent<Attrs, State> {
+  oninit(vnode: m.Vnode<Attrs, State>) {
+    vnode.state.getModal = () => new AddStageModal(vnode.attrs.stages(), vnode.attrs.pipelineConfigSave);
+  }
+
+  view(vnode: m.Vnode<Attrs, State>) {
     if (vnode.attrs.isUsingTemplate()) {
       return;
     }
+
     return <div data-test-id={"stages-container"}>
       <Table headers={StagesWidget.getTableHeaders(vnode.attrs.isEditable)}
              data={StagesWidget.getTableData(vnode.attrs.stages(), vnode.attrs.isEditable)}
@@ -71,7 +83,7 @@ export class StagesWidget extends MithrilViewComponent<Attrs> {
              dragHandler={StagesWidget.reArrange.bind(this, vnode.attrs.stages)}/>
       <Secondary disabled={!vnode.attrs.isEditable}
                  dataTestId={"add-stage-button"}
-                 onclick={StagesWidget.showAddStageModal.bind(this, vnode.attrs.stages)}>Add new stage</Secondary>
+                 onclick={() => vnode.state.getModal().render()}>Add new stage</Secondary>
     </div>;
   }
 
@@ -98,11 +110,5 @@ export class StagesWidget extends MithrilViewComponent<Attrs> {
     const array = Array.from(stages().values());
     array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
     stages(new NameableSet(array));
-  }
-
-  private static showAddStageModal(stages: Stream<NameableSet<Stage>>) {
-    return StageModal.forAdd((updatedStage: Stage) => {
-      stages().add(updatedStage);
-    }).render();
   }
 }

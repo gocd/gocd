@@ -46,8 +46,12 @@ describe('PackageRepositoryModalBodySpec', () => {
                                                    pluginIdProxy={pluginIdProxy}/>);
   }
 
-  it('should render input fields for name and package repo', () => {
+  it('should render input fields for id, name and package repo', () => {
     mount();
+
+    expect(helper.byTestId('form-field-input-repo-id')).toBeInDOM();
+    expect(helper.byTestId('form-field-input-repo-id')).not.toBeDisabled();
+    expect(helper.byTestId("form-field-input-repo-id")).toHaveValue(packageRepo.repoId());
 
     expect(helper.byTestId('form-field-input-name')).toBeInDOM();
     expect(helper.byTestId('form-field-input-name')).not.toBeDisabled();
@@ -58,10 +62,11 @@ describe('PackageRepositoryModalBodySpec', () => {
     expect(helper.byTestId("form-field-input-plugin").children[0].textContent).toBe('NPM plugin for package repo');
   });
 
-  it('should render the name as readonly', () => {
+  it('should render the id and name as readonly', () => {
     disabled = true;
     mount();
 
+    expect(helper.byTestId('form-field-input-repo-id')).toBeDisabled();
     expect(helper.byTestId('form-field-input-name')).toBeDisabled();
   });
 

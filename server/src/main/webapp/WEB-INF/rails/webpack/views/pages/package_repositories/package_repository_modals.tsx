@@ -22,6 +22,7 @@ import {PackageRepository} from "models/package_repositories/package_repositorie
 import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
 import {PackageRepositoryJSON} from "models/package_repositories/package_repositories_json";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {v4 as uuidv4} from 'uuid';
 import {Size} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {EntityModal} from "views/components/modal/entity_modal";
@@ -41,6 +42,13 @@ abstract class PackageRepositoryModal extends EntityModal<PackageRepository> {
     this.disableId          = disableId;
     this.originalEntityId   = entity.repoId();
     this.originalEntityName = entity.name();
+  }
+
+  operationError(errorResponse: any, statusCode: number) {
+    this.errorMessage(errorResponse.message);
+    if (errorResponse.data) {
+      this.entity(this.parseJsonToEntity(errorResponse.data));
+    }
   }
 
   protected modalBody(): m.Children {
@@ -136,6 +144,7 @@ export class ClonePackageRepositoryModal extends PackageRepositoryModal {
   }
 
   fetchCompleted() {
+    this.entity().repoId(uuidv4());
     this.entity().name("");
   }
 }

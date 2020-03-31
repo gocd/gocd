@@ -69,6 +69,15 @@ export class PackageModalBody extends MithrilViewComponent<Attrs> {
         </Form>
       </FormHeader>
 
+      <div>
+        <TextField label="Id"
+                   readonly={vnode.attrs.disableId}
+                   property={vnode.attrs.package.id}
+                   placeholder={"Enter a unique id for this package"}
+                   helpText={"Each package is associated with an id by which it can be referenced in the pipelines. Once defined, cannot be updated"}
+                   errorText={vnode.attrs.package.errors().errorsForDisplay("id")}/>
+      </div>
+
       <PluginView pluginSettings={(pluginInfo.extensions[0] as PackageRepoExtension).packageSettings}
                   configurations={vnode.attrs.package.configuration()}/>
     </div>;

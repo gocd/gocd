@@ -22,6 +22,7 @@ import {PackagesCRUD} from "models/package_repositories/packages_crud";
 import {Package, PackageRepositories, PackageRepository, PackageUsages} from "models/package_repositories/package_repositories";
 import {PackageJSON} from "models/package_repositories/package_repositories_json";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {v4 as uuidv4} from 'uuid';
 import {Link} from "views/components/link";
 import {EntityModal} from "views/components/modal/entity_modal";
 import {Modal, Size} from "views/components/modal";
@@ -146,6 +147,7 @@ export class ClonePackageModal extends PackageModal {
   }
 
   fetchCompleted() {
+    this.entity().id(uuidv4());
     this.entity().name("");
   }
 }

@@ -52,8 +52,12 @@ describe('PackageModalBodySpec', () => {
     expect(helper.textByTestId('flash-message-info')).toBe('The new package will be available to be used as material in all pipelines. Other admins might be able to edit this package.');
   });
 
-  it('should render input fields for name and package repo', () => {
+  it('should render input fields for id, name and package repo', () => {
     mount();
+
+    expect(helper.byTestId('form-field-input-id')).toBeInDOM();
+    expect(helper.byTestId('form-field-input-id')).not.toBeDisabled();
+    expect(helper.byTestId("form-field-input-id")).toHaveValue(pkg.id());
 
     expect(helper.byTestId('form-field-input-name')).toBeInDOM();
     expect(helper.byTestId('form-field-input-name')).not.toBeDisabled();
@@ -76,11 +80,12 @@ describe('PackageModalBodySpec', () => {
     expect(onPackageRepoChange).toHaveBeenCalledWith(pkgRepo);
   });
 
-  it('should not render the msg and make the name as readonly', () => {
+  it('should not render the msg and make the id and name as readonly', () => {
     disabled = true;
     mount();
 
     expect(helper.byTestId('flash-message-info')).not.toBeInDOM();
+    expect(helper.byTestId('form-field-input-id')).toBeDisabled();
     expect(helper.byTestId('form-field-input-name')).toBeDisabled();
   });
 });

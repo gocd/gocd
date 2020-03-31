@@ -44,18 +44,32 @@ describe('PackageWidgetSpec', () => {
                                       showUsages={onShowUsages}/>);
   }
 
-  it('should render package information', () => {
+  it('should render package information and action buttons', () => {
     mount();
 
     expect(helper.byTestId('package-panel')).toBeInDOM();
     expect(helper.textByTestId('package-id')).toBe(pkg.name());
 
     const configElements = helper.qa('li');
-    expect(configElements.length).toBe(3);
+    expect(configElements.length).toBe(4);
 
-    expect(configElements[0].textContent).toBe('Namepkg-name');
-    expect(configElements[1].textContent).toBe('Auto Updatetrue');
-    expect(configElements[2].textContent).toBe('PACKAGE_IDpkg');
+    expect(configElements[0].textContent).toBe('Idpkg-id');
+    expect(configElements[1].textContent).toBe('Namepkg-name');
+    expect(configElements[2].textContent).toBe('Auto Updatetrue');
+    expect(configElements[3].textContent).toBe('PACKAGE_IDpkg');
+
+    const buttonKeys: { [key: string]: string } = {
+      'package-edit':   "Edit package 'pkg-name'",
+      'package-clone':  "Clone package 'pkg-name'",
+      'package-delete': "Delete package 'pkg-name'",
+      'package-usages': "Show usages for package 'pkg-name'"
+    };
+    Object.keys(buttonKeys)
+          .forEach((key) => {
+            expect(helper.byTestId(key)).toBeInDOM();
+            expect(helper.byTestId(key)).not.toBeDisabled();
+            expect(helper.byTestId(key)).toHaveAttr('title', buttonKeys[key]);
+          });
   });
 
   it('should give a call to the callbacks on relevant button clicks', () => {
@@ -72,6 +86,18 @@ describe('PackageWidgetSpec', () => {
 
     helper.clickByTestId('package-usages');
     expect(onShowUsages).toHaveBeenCalled();
+  });
+
+  it('should disabled action buttons when disabled is set to true', () => {
+    disableActions = true;
+    mount();
+
+    ['package-edit', 'package-clone'].forEach((key) => {
+      expect(helper.byTestId(key)).toBeDisabled();
+      expect(helper.byTestId(key)).toHaveAttr('title', "Plugin not found!");
+    });
+    expect(helper.byTestId('package-delete')).not.toBeDisabled();
+    expect(helper.byTestId('package-usages')).not.toBeDisabled();
   });
 
 });

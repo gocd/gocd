@@ -19,8 +19,7 @@ import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Pipeline} from "models/environments/types";
-import {PipelineGroup, PipelineGroups, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
+import {Pipeline, PipelineGroup, PipelineGroups, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
 import {ModelWithNameIdentifierValidator} from "models/shared/name_validation";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
@@ -121,16 +120,19 @@ export class CreatePipelineGroupModal extends Modal {
 
 export class ClonePipelineConfigModal extends Modal {
   errorMessage?: string;
-  private readonly sourcePipeline: Pipeline;
+  private readonly sourcePipeline: Stream<Pipeline>;
   private readonly newPipelineName: ModelWithNameIdentifierValidator;
   private readonly newPipelineGroupName: ModelWithNameIdentifierValidator;
-  private readonly callback: (newPipelineName: string, newPipelineGroup: string) => void;
+  private readonly successCallback: (newPipelineName: string) => void;
+  private apiService: ApiService;
 
-  constructor(sourcePipeline: Pipeline,
-              callback: (newPipelineName: string, newPipelineGroup: string) => void) {
+  constructor(sourcePipeline: Stream<Pipeline>,
+              successCallback: (newPipelineName: string) => void,
+              apiService?: ApiService) {
     super();
     this.sourcePipeline       = sourcePipeline;
-    this.callback             = callback;
+    this.successCallback      = successCallback;
+    this.apiService           = apiService ? apiService : new MovePipelineGroupService();
     this.newPipelineName      = new ModelWithNameIdentifierValidator();
     this.newPipelineGroupName = new ModelWithNameIdentifierValidator();
   }
@@ -139,10 +141,12 @@ export class ClonePipelineConfigModal extends Modal {
     if (this.isLoading()) {
       return;
     }
-    if (!_.isEmpty(this.errorMessage)) {
-      return <FlashMessage type={MessageType.alert} message={this.errorMessage}/>;
-    }
-    return (
+    const errorMsg = _.isEmpty(this.errorMessage)
+      ? undefined
+      : <FlashMessage type={MessageType.alert} message={this.errorMessage}/>;
+    return [
+      errorMsg,
+
       <FormBody>
         <Form last={true} compactForm={true}>
           <TextField
@@ -160,11 +164,12 @@ export class ClonePipelineConfigModal extends Modal {
             helpText={"A new pipeline group will be created, if it does not already exist."}/>
         </Form>
       </FormBody>
-    );
+    ];
   }
 
   title(): string {
-    return `Clone pipeline - ${this.sourcePipeline.name()}`;
+    const name = this.sourcePipeline().name;
+    return `Clone pipeline - ${typeof name === 'function' ? name() : name}`;
   }
 
   buttons(): m.ChildArray {
@@ -178,8 +183,28 @@ export class ClonePipelineConfigModal extends Modal {
   }
 
   private save() {
-    this.callback(this.newPipelineName.name(), this.newPipelineGroupName.name());
-    this.close();
+    // deep copy the pipeline, and change the name/group name
+    const pipelineToSave = _.cloneDeep(this.sourcePipeline()) as any;
+    pipelineToSave.name  = this.newPipelineName.name();
+    pipelineToSave.group = this.newPipelineGroupName.name();
+
+    const data = {
+      grp_name:         this.newPipelineGroupName.name(),
+      pipeline_to_save: pipelineToSave
+    };
+
+    this.apiService.performOperation(
+      () => {
+        this.successCallback(this.newPipelineName.name());
+        this.close();
+      },
+      (errorResponse) => {
+        this.errorMessage = errorResponse.message;
+        if (errorResponse.body) {
+          this.errorMessage = JSON.parse(errorResponse.body).message;
+        }
+      },
+      data);
   }
 
 }
@@ -276,9 +301,9 @@ export class DeletePipelineGroupModal extends Modal {
   private readonly message: m.Children;
   private operationState: Stream<OperationState> = Stream<OperationState>(OperationState.UNKNOWN);
   private errorMessage?: string;
-  private apiService: ApiService<string>;
+  private apiService: ApiService;
 
-  constructor(pipelineGrpName: string, successCallback: (msg: m.Children) => void, apiService?: ApiService<string>) {
+  constructor(pipelineGrpName: string, successCallback: (msg: m.Children) => void, apiService?: ApiService) {
     super(Size.small);
     this.pipelineGrpName = pipelineGrpName;
     this.successCallback = successCallback;
@@ -331,12 +356,13 @@ export class DeletePipelineGroupModal extends Modal {
   }
 }
 
-export interface ApiService<T> {
-  performOperation(onSuccess: (data: SuccessResponse<T>) => void,
-                   onError: (message: ErrorResponse) => void): Promise<void>;
+export interface ApiService {
+  performOperation(onSuccess: (data: SuccessResponse<string>) => void,
+                   onError: (message: ErrorResponse) => void,
+                   data?: { [key: string]: any }): Promise<void>;
 }
 
-class DeletePipelineGroupService implements ApiService<string> {
+class DeletePipelineGroupService implements ApiService {
   private pipelineGrpName: string;
 
   constructor(pipelineGrpName: string) {
@@ -349,4 +375,23 @@ class DeletePipelineGroupService implements ApiService<string> {
                             .then((result) => result.do(onSuccess, onError));
 
   }
+}
+
+class MovePipelineGroupService implements ApiService {
+  performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void, data?: { [key: string]: any }): Promise<void> {
+    return ApiRequestBuilder.POST(SparkRoutes.pipelineConfigCreatePath(),
+                                  ApiVersion.latest,
+                                  {
+                                    payload: {
+                                      group:    data!.grp_name,
+                                      pipeline: data!.pipeline_to_save
+                                    },
+                                    headers: {
+                                      "X-pause-pipeline": "true",
+                                      "X-pause-cause":    "Under construction"
+                                    }
+                                  })
+                            .then((result) => result.do(onSuccess, onError));
+  }
+
 }

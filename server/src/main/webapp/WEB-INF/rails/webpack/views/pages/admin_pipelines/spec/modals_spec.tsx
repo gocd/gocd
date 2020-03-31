@@ -16,8 +16,8 @@
 
 import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
-import {Pipeline} from "models/environments/types";
-import {PipelineGroups} from "models/internal_pipeline_structure/pipeline_structure";
+import Stream from "mithril/stream";
+import {Pipeline, PipelineGroups} from "models/internal_pipeline_structure/pipeline_structure";
 import data from "models/new-environments/spec/test_data";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {
@@ -58,30 +58,53 @@ describe("CreatePipelineGroupModal", () => {
 });
 
 describe("ClonePipelineConfigModal", () => {
-  let modal: ClonePipelineConfigModal;
-  let callback: (newPipelineName: string, newPipelineGroup: string) => void;
-  let modalTestHelper: TestHelper;
-
-  beforeEach(() => {
-    callback = jasmine.createSpy("callback");
-    modal    = new ClonePipelineConfigModal(new Pipeline("blah"), callback);
-    modal.render();
-    m.redraw.sync();
-    modalTestHelper = new TestHelper().forModal();
-  });
+  const successCallback: (newPipelineName: string) => void = jasmine.createSpy("successCallback");
 
   afterEach(() => {
     ModalManager.closeAll();
   });
 
   it("should render modal", () => {
+    const dummyService = new class implements ApiService {
+      performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void): Promise<void> {
+        onSuccess({body: "some msg"});
+        return Promise.resolve();
+      }
+    }();
+    const modal        = new ClonePipelineConfigModal(Stream(new Pipeline("blah")), successCallback, dummyService);
+    modal.render();
+    m.redraw.sync();
+    const modalTestHelper = new TestHelper().forModal();
+
     expect(modal).toContainTitle(`Clone pipeline - blah`);
     expect(modal).toContainButtons(["Clone"]);
 
     modalTestHelper.oninput(modalTestHelper.byTestId("form-field-input-new-pipeline-name"), "new-pipeline-name");
     modalTestHelper.oninput(modalTestHelper.byTestId("form-field-input-pipeline-group-name"), "new-pipeline-group");
     modalTestHelper.clickButtonOnActiveModal(`[data-test-id="button-clone"]`);
-    expect(callback).toHaveBeenCalledWith("new-pipeline-name", "new-pipeline-group");
+    expect(successCallback).toHaveBeenCalledWith("new-pipeline-name");
+  });
+
+  it('should render error message if clone operation fails', () => {
+    const dummyService = new class implements ApiService {
+      performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void): Promise<void> {
+        onError({message: "some msg", body: '{"message": "some major error"}'});
+        return Promise.reject();
+      }
+    }();
+    const modal        = new ClonePipelineConfigModal(Stream(new Pipeline("blah")), successCallback, dummyService);
+    modal.render();
+    m.redraw.sync();
+    const modalTestHelper = new TestHelper().forModal();
+
+    expect(modalTestHelper.byTestId('flash-message-alert')).not.toBeInDOM();
+
+    modalTestHelper.oninput(modalTestHelper.byTestId("form-field-input-new-pipeline-name"), "new-pipeline-name");
+    modalTestHelper.oninput(modalTestHelper.byTestId("form-field-input-pipeline-group-name"), "new-pipeline-group");
+    modalTestHelper.clickButtonOnActiveModal(`[data-test-id="button-clone"]`);
+
+    expect(modalTestHelper.byTestId('flash-message-alert')).toBeInDOM();
+    expect(modal).toContainError("some major error");
   });
 });
 
@@ -154,7 +177,7 @@ describe('DeletePipelinGroupModalSpec', () => {
   });
 
   it('should render modal', () => {
-    const dummyService = new class implements ApiService<string> {
+    const dummyService = new class implements ApiService {
       performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void): Promise<void> {
         onSuccess({body: "some msg"});
         return Promise.resolve();
@@ -174,7 +197,7 @@ describe('DeletePipelinGroupModalSpec', () => {
   });
 
   it('should render error message if an error occurs', () => {
-    const dummyService = new class implements ApiService<string> {
+    const dummyService = new class implements ApiService {
       performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void): Promise<void> {
         onError({message: 'some error', body: '{"message": "some major error"}'});
         return Promise.reject();

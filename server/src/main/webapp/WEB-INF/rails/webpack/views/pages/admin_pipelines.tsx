@@ -239,46 +239,17 @@ export class AdminPipelinesPage extends Page<null, State> {
     };
 
     vnode.state.doClonePipeline = (shallowPipeline) => {
-      const copyOfPipelineConfigFromServer = Stream<any>();
+      const copyOfPipelineConfigFromServer = Stream<any>(shallowPipeline);
       const etag                           = Stream<string>();
 
-      const cloneOperation = (newPipelineName: string, newPipelineGroup: string) => {
-        // deep copy the pipeline, and change the name/group name
-        const pipelineToSave = _.cloneDeep(copyOfPipelineConfigFromServer());
-        pipelineToSave.name  = newPipelineName;
-        pipelineToSave.group = newPipelineGroup;
-
-        ApiRequestBuilder
-          .POST(SparkRoutes.pipelineConfigCreatePath(),
-                ApiVersion.latest,
-                {
-                  payload: {
-                    group:    newPipelineGroup,
-                    pipeline: pipelineToSave
-                  },
-                  headers: {
-                    "X-pause-pipeline": "true",
-                    "X-pause-cause":    "Under construction"
-                  }
-                })
-          .then((apiResult) => {
-            apiResult.do(
-              () => {
-                const newPipeline = shallowPipeline.clone();
-                newPipeline.name(newPipelineName);
-                vnode.state.doEditPipeline(newPipeline);
-              },
-              onOperationError
-            );
-
-          })
-          .finally(() => {
-            modal.close();
-          });
-
+      const cloneOperation = (newPipelineName: string) => {
+        const newPipeline = shallowPipeline.clone();
+        newPipeline.name(newPipelineName);
+        vnode.state.doEditPipeline(newPipeline);
       };
-      const modal          = new ClonePipelineConfigModal(shallowPipeline, cloneOperation);
-      modal.modalState     = ModalState.LOADING;
+
+      const modal      = new ClonePipelineConfigModal(copyOfPipelineConfigFromServer, cloneOperation);
+      modal.modalState = ModalState.LOADING;
       modal.render();
 
       this.fetchPipelineConfigFromServer(shallowPipeline.name(),
@@ -322,6 +293,7 @@ export class AdminPipelinesPage extends Page<null, State> {
         }).catch((error) => {
           const msg = "There was an unknown error downloading the pipeline configuration. Please refresh the page and try again.";
           vnode.state.onError(msg);
+          this.scrollToTop();
         }).finally(() => {
           modal.close();
         });

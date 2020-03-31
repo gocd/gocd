@@ -493,7 +493,7 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
       };
     } else {
       return {
-        value: "************"
+        value: attrs.property()!.valueForDisplay()
       };
     }
 

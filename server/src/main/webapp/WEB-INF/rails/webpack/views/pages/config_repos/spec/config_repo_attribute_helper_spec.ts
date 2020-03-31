@@ -96,7 +96,7 @@ describe("ConfigRepo attribute util functions", () => {
     const expectations: { [key: string]: string } = {
       "Type": "git",
       "Username": "bob",
-      "Password": "**********",
+      "Password": "********************************",
       "URL": "https://example.com/git/my-repo",
       "Branch": "master",
       "File Pattern": "*.json",

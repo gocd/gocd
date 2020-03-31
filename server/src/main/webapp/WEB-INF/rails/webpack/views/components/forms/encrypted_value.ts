@@ -27,6 +27,8 @@ interface EncryptedData {
 }
 
 export class EncryptedValue {
+  private static readonly MASKED = "********************************";
+
   private readonly _originalValue: Stream<string>;
   private readonly _value: Stream<string>;
   private readonly _isEncrypted: Stream<boolean>;
@@ -63,7 +65,7 @@ export class EncryptedValue {
 
   valueForDisplay() {
     if (!_.isEmpty(this.value())) {
-      return "**********";
+      return EncryptedValue.MASKED;
     }
   }
 

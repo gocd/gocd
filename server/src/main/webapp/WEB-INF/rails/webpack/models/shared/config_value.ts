@@ -24,6 +24,7 @@ export interface ConfigValue {
 }
 
 export class EncryptedValue implements ConfigValue {
+  private static readonly MASKED = "********************************";
   private val: string;
 
   constructor(val: string) {
@@ -44,7 +45,7 @@ export class EncryptedValue implements ConfigValue {
 
   getDisplayValue(): string {
     if (this.getValue()) {
-      return this.getValue().replace(/./gi, "*");
+      return EncryptedValue.MASKED;
     }
     return this.getValue();
   }

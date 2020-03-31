@@ -281,7 +281,7 @@ describe("Task", () => {
       const task = TaskTestData.pluggableTask();
       expect(task.attributes().properties()).toEqual(new Map([
                                                                ["username", "bob"],
-                                                               ["password", "**********************"],
+                                                               ["password", "********************************"],
                                                              ]));
     });
 

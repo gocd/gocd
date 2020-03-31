@@ -106,7 +106,7 @@ describe("EncryptedValue", () => {
 
   it("should show display value", () => {
     const encryptedValue = new EncryptedValue({cipherText: "c!ph3rt3xt"});
-    expect(encryptedValue.valueForDisplay()).toEqual("**********");
+    expect(encryptedValue.valueForDisplay()).toEqual("********************************");
 
     const encryptedEmptyValue = new EncryptedValue({clearText: ""});
     expect(encryptedEmptyValue.valueForDisplay()).toEqual(undefined);

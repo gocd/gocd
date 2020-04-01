@@ -97,7 +97,7 @@ describe('ConfigRepoCRUD', () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(api);
     expect(request.method).toEqual("GET");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
   it("should make a show request", (done) => {
@@ -117,7 +117,7 @@ describe('ConfigRepoCRUD', () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(api);
     expect(request.method).toEqual("GET");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
   it("should make a create request", (done) => {
@@ -139,7 +139,7 @@ describe('ConfigRepoCRUD', () => {
     expect(request.url).toEqual(api);
     expect(request.method).toEqual("POST");
     expect(request.data()).toEqual(configRepoToSnakeCaseJSON(configRepo));
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
   it("should make an update request", (done) => {
@@ -161,7 +161,7 @@ describe('ConfigRepoCRUD', () => {
     expect(request.url).toEqual(api);
     expect(request.method).toEqual("PUT");
     expect(request.data()).toEqual(configRepoToSnakeCaseJSON(configRepo));
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
   it("should make an delete request", (done) => {
@@ -180,7 +180,7 @@ describe('ConfigRepoCRUD', () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(api);
     expect(request.method).toEqual("DELETE");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
   it("should make a trigger update request", () => {
@@ -192,7 +192,7 @@ describe('ConfigRepoCRUD', () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(api);
     expect(request.method).toEqual("POST");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
   function getJSON() {
@@ -287,7 +287,7 @@ describe('ConfigRepoCRUD', () => {
     return {
       status:          200,
       responseHeaders: {
-        "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
+        "Content-Type": "application/vnd.go.cd+json; charset=utf-8",
         "ETag":         "some-etag"
       },
       responseText:    JSON.stringify(getJSON())
@@ -298,7 +298,7 @@ describe('ConfigRepoCRUD', () => {
     return {
       status:          200,
       responseHeaders: {
-        "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
+        "Content-Type": "application/vnd.go.cd+json; charset=utf-8",
         "ETag":         "some-etag"
       },
       responseText:    JSON.stringify({
@@ -341,7 +341,7 @@ describe('ConfigRepoCRUD', () => {
     return {
       status:          200,
       responseHeaders: {
-        "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
+        "Content-Type": "application/vnd.go.cd+json; charset=utf-8",
         "ETag":         "some-etag"
       },
       responseText:    JSON.stringify({message: "Deleted Successfully!"})
@@ -352,7 +352,7 @@ describe('ConfigRepoCRUD', () => {
     return {
       status:          200,
       responseHeaders: {
-        "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
+        "Content-Type": "application/vnd.go.cd+json; charset=utf-8",
         "ETag":         "some-etag"
       },
       responseText:    JSON.stringify({message: "Updated triggered!"})

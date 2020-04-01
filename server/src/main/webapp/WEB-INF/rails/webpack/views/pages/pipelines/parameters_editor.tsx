@@ -21,6 +21,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineParameter} from "models/pipeline_configs/parameter";
 import * as Buttons from "views/components/buttons";
+import {ButtonIcon, Secondary} from "views/components/buttons";
 import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
 import {Form, FormBody} from "views/components/forms/form";
 import {TextField} from "views/components/forms/input_fields";
@@ -54,7 +55,6 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
               Parameters
               <Tooltip.Help size={TooltipSize.medium} content={<span>Parameters help reduce repetition within your configurations and combined with templates allow you to setup complex configurations. <a href="https://docs.gocd.org/current/configuration/admin_use_parameters_in_configuration.html">Read more</a></span>} />
             </label>
-            <Buttons.Cancel onclick={this.add.bind(this, vnode.attrs.paramList)} small={true} icon={Buttons.ButtonIcon.ADD} />
             <Table headers={["name", "value", ""]} data={
               _.map(vnode.attrs.paramList(), (param, i) => {
                 return [
@@ -64,6 +64,11 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
                 ];
               })
             } />
+            <Secondary small={true}
+                       icon={ButtonIcon.ADD}
+                       onclick={this.add.bind(this, vnode.attrs.paramList)}>
+              Add
+            </Secondary>
           </div>
         </Form>
       </FormBody>

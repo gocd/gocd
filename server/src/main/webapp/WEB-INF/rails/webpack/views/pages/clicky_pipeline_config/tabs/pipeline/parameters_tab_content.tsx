@@ -21,6 +21,7 @@ import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {PipelineParametersEditor} from "views/pages/pipelines/parameters_editor";
+import styles from "./parameters.scss";
 
 export class ParametersTabContent extends TabContent<PipelineConfig> {
   readonly paramList = Stream([] as PipelineParameter[]);
@@ -34,6 +35,8 @@ export class ParametersTabContent extends TabContent<PipelineConfig> {
   }
 
   protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig) {
-    return <PipelineParametersEditor paramList={this.paramList} parameters={entity.parameters}/>;
+    return (<div class={styles.mainContainer}>
+      <PipelineParametersEditor paramList={this.paramList} parameters={entity.parameters}/>
+    </div>);
   }
 }

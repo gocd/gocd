@@ -15,9 +15,9 @@
  */
 
 import {ChangeJSON, ComparisonJSON, DependencyRevisionJSON, MaterialRevisionJSON} from "./compare_json";
+import {ChangeMaterial} from "./material";
 import {parseDate} from "./pipeline_instance";
 import {dateOrUndefined} from "./pipeline_instance_json";
-import {ChangeMaterial} from "./material";
 
 type Revisions = MaterialRevisions | DependencyRevisions;
 

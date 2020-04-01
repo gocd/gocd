@@ -23,8 +23,8 @@ import {Artifact, Artifacts, ArtifactType, ExternalArtifact, GoCDArtifact} from 
 import {Job} from "models/pipeline_configs/job";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
-import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {ArtifactExtension} from "models/shared/plugin_infos_new/extensions";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {Secondary} from "views/components/buttons";

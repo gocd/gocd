@@ -24,8 +24,8 @@ import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {ScrollManager} from "views/components/anchor/anchor";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import * as headerIconStyles from "views/components/header_icon/index.scss";
-import {ConfigRepoVM} from "views/pages/config_repos/config_repo_view_model";
 import {ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
+import {ConfigRepoVM} from "views/pages/config_repos/config_repo_view_model";
 import styles from "views/pages/config_repos/index.scss";
 import {
   configRepoPluginInfo,

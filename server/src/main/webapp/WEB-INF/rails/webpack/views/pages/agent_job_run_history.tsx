@@ -16,8 +16,8 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
-import {AgentJobRunHistoryAPI, AgentJobRunHistoryAPIJSON} from "models/agent_job_run_history";
 import {Agent} from "models/agents/agents";
+import {AgentJobRunHistoryAPI, AgentJobRunHistoryAPIJSON} from "models/agent_job_run_history";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AgentJobRunHistoryWidget} from "views/pages/agent-job-run-history/agent_job_run_history_widget";
 import {Page, PageState} from "views/pages/page";

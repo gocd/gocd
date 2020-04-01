@@ -19,12 +19,12 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
-import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
+import {UserFilters} from "models/users/user_filters";
 import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {UserViewHelper} from "views/pages/users/user_view_helper";
 import {Attrs, UsersWidget} from "views/pages/users/users_widget";
+import {UserViewHelper} from "views/pages/users/user_view_helper";
 
 const flag: (val?: boolean) => Stream<boolean> = Stream;
 

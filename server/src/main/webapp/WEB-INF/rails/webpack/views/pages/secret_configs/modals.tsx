@@ -22,8 +22,8 @@ import { SecretConfig, SecretConfigs } from "models/secret_configs/secret_config
 import { SecretConfigsCRUD } from "models/secret_configs/secret_configs_crud";
 import { SecretConfigJSON } from "models/secret_configs/secret_configs_json";
 import { Configurations } from "models/shared/configuration";
-import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import { SecretExtension } from "models/shared/plugin_infos_new/extensions";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import { PluginInfo, PluginInfos } from "models/shared/plugin_infos_new/plugin_info";
 import { Form, FormHeader } from "views/components/forms/form";
 import {

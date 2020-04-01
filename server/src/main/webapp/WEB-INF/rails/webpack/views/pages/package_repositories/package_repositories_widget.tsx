@@ -21,10 +21,10 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {PackageRepositories} from "models/package_repositories/package_repositories";
 import {Link} from "views/components/link";
-import {RequiresPluginInfos} from "views/pages/page_operations";
 import {PackageOperations, PackageRepoOperations} from "views/pages/package_repositories";
-import {PackageRepositoryWidget} from "./package_repository_widget";
+import {RequiresPluginInfos} from "views/pages/page_operations";
 import styles from "./index.scss";
+import {PackageRepositoryWidget} from "./package_repository_widget";
 
 interface Attrs extends RequiresPluginInfos {
   packageRepositories: Stream<PackageRepositories>;

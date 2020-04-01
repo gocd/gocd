@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+import {EnvironmentVariable, EnvironmentVariables} from "models/environment_variables/types";
 import {Job} from "models/pipeline_configs/job";
 import {Stage} from "models/pipeline_configs/stage";
 import {ExecTask} from "models/pipeline_configs/task";
-import {EnvironmentVariable, EnvironmentVariables} from "models/environment_variables/types";
 
 describe("Stage model", () => {
   function validJob() {

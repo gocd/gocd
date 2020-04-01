@@ -24,8 +24,8 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import {PackageOperations} from "views/pages/package_repositories";
 import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
 import {ConfigurationDetailsWidget} from "./configuration_details_widget";
-import {PackagesWidget} from "./packages_widget";
 import styles from "./index.scss";
+import {PackagesWidget} from "./packages_widget";
 
 interface Attrs extends EditOperation<PackageRepository>, CloneOperation<PackageRepository>, DeleteOperation<PackageRepository> {
   packageRepository: PackageRepository;

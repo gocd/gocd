@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {AgentComparator} from "models/agents/agent_comparator";
 import {Agent} from "models/agents/agents";
+import {AgentComparator} from "models/agents/agent_comparator";
 import {AgentsTestData} from "models/agents/spec/agents_test_data";
 
 describe("AgentComparator", () => {

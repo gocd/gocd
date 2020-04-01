@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {Configurations, PropertyJSON} from "models/shared/configuration";
 import Stream from "mithril/stream";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {Configurations, PropertyJSON} from "models/shared/configuration";
 
 export interface ScmsJSON {
   _embedded: EmbeddedJSON;

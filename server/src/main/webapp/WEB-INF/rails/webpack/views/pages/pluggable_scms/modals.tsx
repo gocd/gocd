@@ -22,11 +22,11 @@ import {Scm, ScmJSON} from "models/materials/pluggable_scm";
 import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {v4 as uuidv4} from 'uuid';
+import {FlashMessageModel, MessageType} from "views/components/flash_message";
+import {Warning} from "views/components/icons";
 import {Size} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {EntityModal} from "views/components/modal/entity_modal";
-import {FlashMessageModel, MessageType} from "views/components/flash_message";
-import {Warning} from "views/components/icons";
 import {PluggableScmModalBody} from "./pluggable_scm_modal_body";
 
 abstract class PluggableScmModal extends EntityModal<Scm> {

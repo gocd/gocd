@@ -18,18 +18,18 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Scms} from "models/materials/pluggable_scm";
 import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
+import {Material} from "models/materials/types";
 import {PackagesCRUD} from "models/package_repositories/packages_crud";
 import {PackageRepositories, Packages} from "models/package_repositories/package_repositories";
 import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
-import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
-import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {MaterialsWidget} from "./materials_widget";
-import {Material} from "models/materials/types";
 
 export class MaterialsTabContent extends TabContent<PipelineConfig> {
   private readonly pluginInfos: Stream<PluginInfos>                 = Stream(new PluginInfos());

@@ -25,9 +25,9 @@ import {
   SvnMaterialAttributes,
   TfsMaterialAttributes
 } from "models/materials/types";
-import {DependencyMaterialAttributesJSON} from "../serialization";
-import {PluginMetadata, Scm} from "../pluggable_scm";
 import {Configurations} from "../../shared/configuration";
+import {PluginMetadata, Scm} from "../pluggable_scm";
+import {DependencyMaterialAttributesJSON} from "../serialization";
 
 describe("Material Types", () => {
   describe("Deserialize", () => {

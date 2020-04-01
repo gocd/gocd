@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {SparkRoutes} from "helpers/spark_routes";
 import {ApiResult, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
-import {Package, Packages, PackageUsages} from "../package_repositories";
+import {SparkRoutes} from "helpers/spark_routes";
 import {PackagesCRUD} from "../packages_crud";
+import {Package, Packages, PackageUsages} from "../package_repositories";
 import {getPackage} from "./test_data";
 
 describe('PackagesCRUDSpec', () => {

@@ -15,12 +15,12 @@
  */
 
 import m from "mithril";
-import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {Scm} from "models/materials/pluggable_scm";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {FlashMessageModel, MessageType} from "../../../components/flash_message";
 import {PluggableScmModalBody} from "../pluggable_scm_modal_body";
 import {getPluggableScm, getScmPlugin} from "./test_data";
-import {FlashMessageModel, MessageType} from "../../../components/flash_message";
 
 describe('PluggableScmModalBodySpec', () => {
   const helper        = new TestHelper();

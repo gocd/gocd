@@ -15,8 +15,8 @@
  */
 
 import m from "mithril";
-import {getPackageRepository, pluginInfoWithPackageRepositoryExtension} from "models/package_repositories/spec/test_data";
 import {PackageRepository} from "models/package_repositories/package_repositories";
+import {getPackageRepository, pluginInfoWithPackageRepositoryExtension} from "models/package_repositories/spec/test_data";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PackageRepositoryModalBody} from "../package_repository_modal_body";

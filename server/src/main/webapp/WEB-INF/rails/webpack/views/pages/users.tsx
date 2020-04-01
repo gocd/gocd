@@ -21,9 +21,9 @@ import {BulkUserRoleUpdateJSON, GoCDAttributes, GoCDRole, Roles} from "models/ro
 import {RolesCRUD} from "models/roles/roles_crud";
 import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
 import {computeBulkUpdateRolesJSON, computeRolesSelection} from "models/users/role_selection";
-import {UserFilters} from "models/users/user_filters";
 import {BulkUserUpdateJSON, User, Users} from "models/users/users";
 import {UsersCRUD} from "models/users/users_crud";
+import {UserFilters} from "models/users/user_filters";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
@@ -31,9 +31,9 @@ import {Page, PageState} from "views/pages/page";
 import {AddOperation, OperationState} from "views/pages/page_operations";
 import {UserSearchModal} from "views/pages/users/add_user_modal";
 import {DeleteUserConfirmModal} from "views/pages/users/delete_user_confirmation_modal";
+import {Attrs as UsersWidgetAttrs, UsersTableWidget} from "views/pages/users/users_widget";
 import {Attrs as UserActionsAttrs, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 import {UserViewHelper} from "views/pages/users/user_view_helper";
-import {Attrs as UsersWidgetAttrs, UsersTableWidget} from "views/pages/users/users_widget";
 import styles from "./users/index.scss";
 
 interface State extends UserActionsAttrs, AddOperation<Users>, UsersWidgetAttrs {

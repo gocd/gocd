@@ -24,9 +24,9 @@ import {PackageJSON} from "models/package_repositories/package_repositories_json
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {v4 as uuidv4} from 'uuid';
 import {Link} from "views/components/link";
-import {EntityModal} from "views/components/modal/entity_modal";
 import {Modal, Size} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
+import {EntityModal} from "views/components/modal/entity_modal";
 import {Table} from "views/components/table";
 import {PackageModalBody} from "./package_modal_body";
 

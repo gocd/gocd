@@ -17,8 +17,8 @@
 import _ from "lodash";
 import Stream from "mithril/stream";
 import {Agent, Agents} from "models/agents/agents";
-import {AgentWithOrigin} from "models/new-environments/environment_agents";
 import {EnvironmentWithOrigin} from "models/new-environments/environments";
+import {AgentWithOrigin} from "models/new-environments/environment_agents";
 import {Origin, OriginType} from "models/origin";
 
 export class AgentsViewModel {

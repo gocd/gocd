@@ -33,8 +33,8 @@ import {Option, SelectField, SelectFieldOptions, TextField} from "views/componen
 import {Link} from "views/components/link";
 import {SwitchBtn} from "views/components/switch";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
-import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 import styles from "./advanced_settings.scss";
+import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
 interface Attrs {
   material: Material;

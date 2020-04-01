@@ -21,8 +21,8 @@ import {PackageRepositories, Packages} from "models/package_repositories/package
 import {Materials, PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
-import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialsWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/materials_widget";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe('MaterialsWidgetSpec', () => {
   const helper = new TestHelper();

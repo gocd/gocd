@@ -24,8 +24,8 @@ import {
   ElasticAgentProfile,
   ElasticProfileJSON
 } from "models/elastic_profiles/types";
-import {PlainTextValue} from "models/shared/config_value";
 import {Configuration, Configurations} from "models/shared/configuration";
+import {PlainTextValue} from "models/shared/config_value";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {
   pluginInfoWithElasticAgentExtensionV4,

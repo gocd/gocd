@@ -18,8 +18,8 @@ import {JsonUtils} from "helpers/json_utils";
 import {mixins as s} from "helpers/string-plus";
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
+import {ErrorMessages} from "models/mixins/error_messages";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 

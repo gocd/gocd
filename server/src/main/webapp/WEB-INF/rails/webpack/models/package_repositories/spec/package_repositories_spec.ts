@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {getPackage, getPackageRepository} from "./test_data";
 import {Package, PackageRepository} from "../package_repositories";
+import {getPackage, getPackageRepository} from "./test_data";
 
 describe('PackageRepositoriesModelSpec', () => {
 

@@ -20,8 +20,8 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
-import {UserFilters} from "models/users/user_filters";
 import {Users} from "models/users/users";
+import {UserFilters} from "models/users/user_filters";
 import {
   ButtonGroup,
   ButtonIcon,

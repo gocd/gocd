@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {PropertyJSON} from "../shared/configuration";
 import {ErrorsJSON} from "models/mixins/errors";
+import {PropertyJSON} from "../shared/configuration";
 
 export interface PluginMetadataJSON {
   id: string;

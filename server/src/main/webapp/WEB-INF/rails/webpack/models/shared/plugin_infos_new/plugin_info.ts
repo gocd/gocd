@@ -23,8 +23,8 @@ import {
   StatusJSON
 } from "models/shared/plugin_infos_new/serialization";
 import {About} from "./about";
-import {ExtensionType, ExtensionTypeString} from "./extension_type";
 import {AuthorizationExtension, ConfigRepoExtension, Extension} from "./extensions";
+import {ExtensionType, ExtensionTypeString} from "./extension_type";
 
 class Status {
   readonly state: PluginState;

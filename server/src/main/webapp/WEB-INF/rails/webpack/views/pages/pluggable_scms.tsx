@@ -29,6 +29,7 @@ import {HeaderPanel} from "views/components/header_panel";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import {Page, PageState} from "views/pages/page";
 import {PluggableScmsWidget} from "views/pages/pluggable_scms/pluggable_scms_widget";
+import {UsagePackageModal} from "./package_repositories/package_modals";
 import {
   AddOperation,
   CloneOperation,
@@ -43,7 +44,6 @@ import {
   DeletePluggableScmModal,
   EditPluggableScmModal
 } from "./pluggable_scms/modals";
-import {UsagePackageModal} from "./package_repositories/package_modals";
 
 interface State extends RequiresPluginInfos, AddOperation<Scm>, EditOperation<Scm>, CloneOperation<Scm>, DeleteOperation<Scm>, SaveOperation {
   scms: Stream<Scms>;

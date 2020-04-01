@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {PackageJSON, PackageRepositoryJSON} from "../package_repositories_json";
 import {AboutJSON, PackageRepoExtensionJSON, PluginInfoJSON} from "models/shared/plugin_infos_new/serialization";
 import {activeStatus, someVendor} from "models/shared/plugin_infos_new/spec/test_data";
+import {PackageJSON, PackageRepositoryJSON} from "../package_repositories_json";
 
 export function getPackageRepository() {
   return {

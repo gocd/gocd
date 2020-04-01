@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 import _ from "lodash";
-import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
 import {BaseErrorsConsumer, ErrorsConsumer} from "models/mixins/errors_consumer";
+import {ErrorMessages} from "models/mixins/error_messages";
 import s from "underscore.string";
 
 export interface ValidatorOptions {

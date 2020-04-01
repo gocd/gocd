@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {ErrorsJSON} from "../mixins/errors";
 import {FilterJSON} from "../maintenance_mode/material";
+import {ErrorsJSON} from "../mixins/errors";
 
 export interface MaterialJSON {
   type: string;

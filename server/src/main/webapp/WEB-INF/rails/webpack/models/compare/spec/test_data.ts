@@ -15,8 +15,8 @@
  */
 
 import {ComparisonJSON} from "../compare_json";
-import {PipelineInstanceJSON} from "../pipeline_instance_json";
 import {MaterialJSON} from "../material_json";
+import {PipelineInstanceJSON} from "../pipeline_instance_json";
 
 export class PipelineInstanceData {
   static pipeline(counter: number = 2) {

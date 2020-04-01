@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {docsUrl} from "gen/gocd_version";
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import {docsUrl} from "gen/gocd_version";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";

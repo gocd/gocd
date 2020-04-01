@@ -17,8 +17,8 @@
 import {timeFormatter} from "helpers/time_formatter";
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
+import {ErrorMessages} from "models/mixins/error_messages";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";

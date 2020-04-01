@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
+import {ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Material} from "models/materials/types";
 import {PackageRepositories} from "models/package_repositories/package_repositories";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import s from "underscore.string";
-import {MaterialEditor} from "views/pages/pipelines/material_editor";
 import {Cancel, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Modal, Size} from "views/components/modal";
-import {ErrorResponse} from "helpers/api_request_builder";
+import {MaterialEditor} from "views/pages/pipelines/material_editor";
 
 export class MaterialModal extends Modal {
   protected readonly entity: Stream<Material>;

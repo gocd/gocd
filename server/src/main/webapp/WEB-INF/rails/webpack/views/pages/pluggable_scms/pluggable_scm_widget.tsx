@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import m from "mithril";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import m from "mithril";
 import {Scm} from "models/materials/pluggable_scm";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
-import {KeyValuePair} from "views/components/key_value_pair";
 import {Clone, Delete, Edit, IconGroup, Usage} from "views/components/icons";
+import {KeyValuePair} from "views/components/key_value_pair";
 import {CloneOperation, DeleteOperation, EditOperation} from "../page_operations";
 
 interface Attrs extends EditOperation<Scm>, CloneOperation<Scm>, DeleteOperation<Scm> {

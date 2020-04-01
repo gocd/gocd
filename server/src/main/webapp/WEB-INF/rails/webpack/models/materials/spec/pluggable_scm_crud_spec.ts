@@ -17,8 +17,8 @@
 import {ApiResult, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import {getPluggableScm} from "views/pages/pluggable_scms/spec/test_data";
-import {PluggableScmCRUD} from "../pluggable_scm_crud";
 import {Scm, ScmJSON, Scms} from "../pluggable_scm";
+import {PluggableScmCRUD} from "../pluggable_scm_crud";
 
 describe('PluggableScmCRUDSpec', () => {
   beforeEach(() => jasmine.Ajax.install());

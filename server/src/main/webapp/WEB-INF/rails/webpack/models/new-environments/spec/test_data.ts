@@ -17,8 +17,8 @@
 import {Agent} from "models/agents/agents";
 import {AgentJSON} from "models/agents/agents_json";
 import {PipelineJSON, PipelineStructureJSON} from "models/internal_pipeline_structure/pipeline_structure";
-import {AgentWithOrigin} from "models/new-environments/environment_agents";
 import {EnvironmentJSON} from "models/new-environments/environments";
+import {AgentWithOrigin} from "models/new-environments/environment_agents";
 import originData from "models/origin/spec/test_data";
 
 function randomString(): string {

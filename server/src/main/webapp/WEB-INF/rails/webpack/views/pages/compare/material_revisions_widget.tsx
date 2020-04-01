@@ -18,8 +18,8 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {MaterialRevisions} from "models/compare/compare";
 import {Table} from "views/components/table";
-import {PipelineInstanceWidget} from "./pipeline_instance_widget";
 import styles from "./index.scss";
+import {PipelineInstanceWidget} from "./pipeline_instance_widget";
 
 interface MaterialRevisionsAttrs {
   result: MaterialRevisions;

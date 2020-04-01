@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 import {ClusterProfile, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
-import {EncryptedValue, PlainTextValue} from "models/shared/config_value";
 import {Configuration, Configurations} from "models/shared/configuration";
+import {EncryptedValue, PlainTextValue} from "models/shared/config_value";
 
 describe("Types", () => {
   describe("Elastic Agent Profiles", () => {

@@ -15,8 +15,8 @@
  */
 
 import m from "mithril";
-import {PlainTextValue} from "models/shared/config_value";
 import {Configuration, Configurations} from "models/shared/configuration";
+import {PlainTextValue} from "models/shared/config_value";
 import {PluginSettings} from "models/shared/plugin_infos_new/extensions";
 import {PluginView} from "views/pages/package_repositories/package_repo_plugin_view";
 import {TestHelper} from "views/pages/spec/test_helper";

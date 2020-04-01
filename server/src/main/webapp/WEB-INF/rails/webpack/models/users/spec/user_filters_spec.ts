@@ -15,8 +15,8 @@
  */
 
 import {usersJSON} from "models/users/spec/fixtures";
-import {UserFilters} from "models/users/user_filters";
 import {Users} from "models/users/users";
+import {UserFilters} from "models/users/user_filters";
 
 describe("UsersFilter", () => {
 

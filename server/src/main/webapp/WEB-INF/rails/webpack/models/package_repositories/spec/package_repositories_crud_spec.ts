@@ -16,10 +16,10 @@
 
 import {ApiResult, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {PackageRepositoriesCRUD} from "../package_repositories_crud";
 import {PackageRepositories, PackageRepository} from "../package_repositories";
-import {getPackageRepository} from "./test_data";
+import {PackageRepositoriesCRUD} from "../package_repositories_crud";
 import {PackageRepositoryJSON} from "../package_repositories_json";
+import {getPackageRepository} from "./test_data";
 
 describe('PackageRepositoriesCRUDSpec', () => {
   beforeEach(() => jasmine.Ajax.install());

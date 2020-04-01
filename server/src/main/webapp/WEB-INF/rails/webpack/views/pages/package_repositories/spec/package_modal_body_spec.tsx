@@ -15,10 +15,10 @@
  */
 
 import m from "mithril";
-import {TestHelper} from "views/pages/spec/test_helper";
-import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {Package, PackageRepositories, PackageRepository} from "models/package_repositories/package_repositories";
 import {getPackage, getPackageRepository, pluginInfoWithPackageRepositoryExtension} from "models/package_repositories/spec/test_data";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {PackageModalBody} from "../package_modal_body";
 
 describe('PackageModalBodySpec', () => {

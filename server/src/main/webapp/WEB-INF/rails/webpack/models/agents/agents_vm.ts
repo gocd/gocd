@@ -16,8 +16,8 @@
 
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {AgentComparator} from "models/agents/agent_comparator";
 import {Agent, AgentConfigState, Agents} from "models/agents/agents";
+import {AgentComparator} from "models/agents/agent_comparator";
 import {SortOrder, TableSortHandler} from "views/components/table";
 
 export abstract class BaseVM {

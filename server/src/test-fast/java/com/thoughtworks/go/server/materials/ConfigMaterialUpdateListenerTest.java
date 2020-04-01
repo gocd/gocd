@@ -159,4 +159,3 @@ public class ConfigMaterialUpdateListenerTest {
         return modification;
     }
 }
-

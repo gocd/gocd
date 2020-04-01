@@ -312,11 +312,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
 
         ScmMaterial that = (ScmMaterial) o;
 
-        if (folder != null ? !folder.equals(that.folder) : that.folder != null) {
-            return false;
-        }
-
-        return true;
+        return folder != null ? folder.equals(that.folder) : that.folder == null;
     }
 
     @Override

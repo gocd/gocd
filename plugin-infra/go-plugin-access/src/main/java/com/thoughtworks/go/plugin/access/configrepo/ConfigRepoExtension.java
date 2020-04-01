@@ -71,7 +71,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
     @Override
     public ExportedConfig pipelineExport(final String pluginId, final CRPipeline pipeline) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PIPELINE_EXPORT, new DefaultPluginInteractionCallback<ExportedConfig>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PIPELINE_EXPORT, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForPipelineExport(pipeline);
@@ -95,7 +95,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
         if (resolvedExtensionVersion.equals("1.0")) {
             return new Capabilities(false, false);
         }
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILITIES, new DefaultPluginInteractionCallback<Capabilities>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILITIES, new DefaultPluginInteractionCallback<>() {
             @Override
             public Capabilities onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).getCapabilitiesFromResponse(responseBody);
@@ -109,7 +109,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
         if (resolvedExtensionVersion.equals("1.0") || resolvedExtensionVersion.equals("2.0")) {
             return ConfigFileList.withError("Unsupported Operation", "This plugin version does not support list config files");
         }
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_CONFIG_FILES, new DefaultPluginInteractionCallback<ConfigFileList>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_CONFIG_FILES, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageConfigFiles(destinationFolder, configurations);
@@ -129,7 +129,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
     @Override
     public CRParseResult parseDirectory(String pluginId, final String destinationFolder, final Collection<CRConfigurationProperty> configurations) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PARSE_DIRECTORY, new DefaultPluginInteractionCallback<CRParseResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PARSE_DIRECTORY, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForParseDirectory(destinationFolder, configurations);
@@ -149,7 +149,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
     @Override
     public CRParseResult parseContent(String pluginId, Map<String, String> content) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PARSE_CONTENT, new DefaultPluginInteractionCallback<CRParseResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PARSE_CONTENT, new DefaultPluginInteractionCallback<>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForParseContent(content);
@@ -185,7 +185,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     }
 
     public Image getIcon(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<>() {
             @Override
             public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).getImageResponseFromBody(responseBody);

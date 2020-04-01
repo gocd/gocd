@@ -61,7 +61,7 @@ public class ConfigMaterialUpdateListener implements GoMessageListener<MaterialU
     @Override
     public void onMessage(MaterialUpdateCompletedMessage message) {
         Material material = message.getMaterial();
-        //MDU is done using the checkout, it has done db update and stored latest changes
+        // MDU is done using the checkout, it has done db update and stored latest changes
         // but MUS is still waiting for material updated message on MaterialUpdateCompletedTopic
         LOGGER.debug("[Config Material Update] Config material update completed for material {}. Starting parse process", material);
         try {

@@ -149,7 +149,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
         return new PartialConfigLoadContext() {
             @Override
             public Configuration configuration() {
-                return null;
+                return null; // don't allow parse-content to view configurations as they may expose secrets
             }
 
             /**

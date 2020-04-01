@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.config.GoRepoConfigDataSource;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
-import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -39,19 +38,16 @@ public class ConfigMaterialUpdateListener implements GoMessageListener<MaterialU
 
     private GoRepoConfigDataSource repoConfigDataSource;
     private MaterialRepository materialRepository;
-    private MaterialChecker materialChecker;
     private MaterialUpdateCompletedTopic topic;
     private MaterialService materialService;
     private SubprocessExecutionContext subprocessExecutionContext;
 
     public ConfigMaterialUpdateListener(GoRepoConfigDataSource repoConfigDataSource,
                                         MaterialRepository materialRepository,
-                                        MaterialChecker materialChecker,
                                         MaterialUpdateCompletedTopic topic,
                                         MaterialService materialService,
                                         SubprocessExecutionContext subprocessExecutionContext) {
         this.repoConfigDataSource = repoConfigDataSource;
-        this.materialChecker = materialChecker;
         this.materialRepository = materialRepository;
         this.topic = topic;
         this.materialService = materialService;
@@ -73,18 +69,19 @@ public class ConfigMaterialUpdateListener implements GoMessageListener<MaterialU
                 MaterialRevisions latestModification = materialRepository.findLatestModification(material);
                 Modification modification = latestModification.firstModifiedMaterialRevision().getLatestModification();
 
-                MaterialRevision lastParseRevision = getMaterialRevisionAtLastParseAttempt(message);
-                if (lastParseRevision == null) {
-                    //never parsed
-                    updateConfigurationFromCheckout(folder, modification, material);
-                } else if (latestModification.findRevisionFor(material.config()).hasChangedSince(lastParseRevision) ||
-                        this.repoConfigDataSource.hasConfigRepoConfigChangedSinceLastUpdate(material.config())) {
-                    // revision has changed. the config files might have been updated
-                    updateConfigurationFromCheckout(folder, modification, material);
-                } else {
-                    // revision is the same as last time, no need to parse again
-                    LOGGER.debug("[Config Material Update] Skipping parsing of Config material {} since material has no change since last parse.", material);
-                }
+                // Previously, we only forced a parse when the repo had never been parsed before and if a new revision
+                // was pushed to the material; if no new revisions existed, we did a no-op.
+                //
+                // Now, we need to reparse every time to support ref/branch scanning; even if there are no changes to
+                // the current material, new branches/refs could have been created that might change the output of
+                // templated config repo definitions that use this feature.
+                //
+                // In theory, this should be inexpensive, as the working copies of materials are cached on disk. This
+                // will cause more frequent `parse-directory` messages, however. Generally (crosses fingers), evaluating
+                // this is fast, but we may need to consider only merging into the main config if different?
+                //
+                // Open to any better ideas :).
+                updateConfigurationFromCheckout(folder, modification, material);
             }
             LOGGER.debug("[Config Material Update] Completed parsing of Config material {}.", material);
         } catch (Exception ex) {
@@ -100,20 +97,5 @@ public class ConfigMaterialUpdateListener implements GoMessageListener<MaterialU
         Revision revision = new StringRevision(modification.getRevision());
         this.materialService.checkout(material, folder, revision, this.subprocessExecutionContext);
         this.repoConfigDataSource.onCheckoutComplete(material.config(), folder, modification);
-    }
-
-    private MaterialRevision getMaterialRevisionAtLastParseAttempt(MaterialUpdateCompletedMessage message) {
-        MaterialRevision lastParseRevision;
-        try {
-            String materialRevisionAtLastAttempt = repoConfigDataSource.getRevisionAtLastAttempt(message.getMaterial().config());
-            if (materialRevisionAtLastAttempt == null)
-                return null;
-            lastParseRevision = materialChecker.findSpecificRevision(message.getMaterial(),
-                    materialRevisionAtLastAttempt);
-        } catch (Exception ex) {
-            LOGGER.error("[Config Material Update] failed to get last parsed material revision. Reason: {}", ex.getMessage());
-            lastParseRevision = null;
-        }
-        return lastParseRevision;
     }
 }

@@ -195,25 +195,6 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         }
     }
 
-
-    @Test
-    public void shouldNotParseAgainWhenNoChangesInMaterial() throws Exception {
-        materialUpdateService.updateMaterial(material);
-        // time for messages to pass through all services
-        waitForMaterialNotInProgress();
-        String revision = goRepoConfigDataSource.getRevisionAtLastAttempt(materialConfig);
-        assertNotNull(revision);
-
-        PartialConfig partial = goRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
-
-        materialUpdateService.updateMaterial(material);
-        // time for messages to pass through all services
-        waitForMaterialNotInProgress();
-        PartialConfig partial2 = goRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
-        assertSame(partial, partial2);
-    }
-
-
     @Test
     public void shouldParseAgainWhenChangesInMaterial() throws Exception {
         materialUpdateService.updateMaterial(material);

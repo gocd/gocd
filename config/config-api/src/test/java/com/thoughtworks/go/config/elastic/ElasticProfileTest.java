@@ -83,7 +83,7 @@ public class ElasticProfileTest {
         ElasticProfile profile = new ElasticProfile("!123", "prod-cluster");
         profile.validate(null);
         assertThat(profile.errors().size(), is(1));
-        assertThat(profile.errors().on(ElasticProfile.ID), is("Invalid id '!123'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(profile.errors().on(ElasticProfile.ID), is("Invalid id '!123'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test

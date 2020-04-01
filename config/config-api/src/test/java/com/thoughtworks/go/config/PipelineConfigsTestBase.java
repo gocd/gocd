@@ -96,7 +96,7 @@ public abstract class PipelineConfigsTestBase {
         PipelineConfigs group = createEmpty();
         group.validate(null);
         assertThat(group.errors().on(BasicPipelineConfigs.GROUP),
-                is("Invalid group name 'null'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+                is("Invalid group name 'null'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
     @Test
     public void shouldErrorWhenAuthorizationIsDefinedInConfigRepo() {

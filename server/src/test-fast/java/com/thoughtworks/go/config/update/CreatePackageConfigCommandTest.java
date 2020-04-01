@@ -123,7 +123,7 @@ public class CreatePackageConfigCommandTest {
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, pkg, repoId, currentUser, result, packageDefinitionService);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(pkg.errors().getAllOn("name"), is(Arrays.asList("Invalid Package name '!$#'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
+        assertThat(pkg.errors().getAllOn("name"), is(Arrays.asList("Invalid Package name '!$#'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
     }
 
     @Test

@@ -114,7 +114,7 @@ public class RoleConfigTest {
 
         assertThat(role.errors().size()).isEqualTo(1);
         assertThat(role.errors().get("name").get(0)).isEqualTo("Invalid role name name ''. This must be alphanumeric and can" +
-                " contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+                " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     private void validateNullRoleName(Validator v) {
@@ -124,7 +124,7 @@ public class RoleConfigTest {
 
         assertThat(role.errors().size()).isEqualTo(1);
         assertThat(role.errors().get("name").get(0)).isEqualTo("Invalid role name name 'null'. This must be alphanumeric and can" +
-                " contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+                " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     public void validateUniquenessOfRoleName(Validator v) throws Exception {

@@ -149,7 +149,7 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
             fail("should not have allowed two SCMs with same id");
         } catch (GoConfigInvalidException e) {
             assertThat(e.getMessage(),
-                    is("Invalid SCM name 'name with space'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+                    is("Invalid SCM name 'name with space'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
         }
     }
 

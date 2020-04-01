@@ -564,7 +564,7 @@ class PipelineConfigRepresenterTest {
           errors: [
             name: [
               "Parameter cannot have an empty name for pipeline 'wunderbar'.",
-              "Invalid parameter name 'null'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."
+              "Invalid parameter name 'null'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."
             ]
           ]
         ]

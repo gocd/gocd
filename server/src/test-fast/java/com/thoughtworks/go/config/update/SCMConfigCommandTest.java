@@ -100,7 +100,7 @@ public class SCMConfigCommandTest {
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
         assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(scm.errors().getAllOn("name"), is(Arrays.asList("Invalid SCM name '+!@'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
+        assertThat(scm.errors().getAllOn("name"), is(Arrays.asList("Invalid SCM name '+!@'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
 
     }
 

@@ -91,7 +91,7 @@ public class ArtifactStoreTest {
         ArtifactStore store = new ArtifactStore("!123", "docker");
         store.validate(null);
         assertThat(store.errors().size(), is(1));
-        assertThat(store.errors().on(ArtifactStore.ID), is("Invalid id '!123'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(store.errors().on(ArtifactStore.ID), is("Invalid id '!123'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test

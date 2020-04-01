@@ -320,7 +320,7 @@ public class SCMTest {
 
         assertThat(scm.errors().isEmpty(), is(false));
         assertThat(scm.errors().getAllOn(SCM.NAME).get(0),
-                is("Invalid SCM name 'some name'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+                is("Invalid SCM name 'some name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test

@@ -271,7 +271,7 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
         packageDefinition.validate(new ConfigSaveValidationContext(null));
         assertThat(packageDefinition.errors().isEmpty(), is(false));
         assertThat(packageDefinition.errors().getAllOn(PackageDefinition.NAME).get(0),
-                is("Invalid Package name 'some name'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+                is("Invalid Package name 'some name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test

@@ -25,7 +25,7 @@ public class NameTypeValidator {
     static final String NAME_TYPE_PATTERN = "[a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*";
     static final Pattern NAME_TYPE_PATTERN_REGEX = Pattern.compile(String.format("^(%s)$", NAME_TYPE_PATTERN));
     public static final String ERROR_MESSAGE =
-            String.format("This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is %d characters.", MAX_LENGTH);
+            String.format("This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is %d characters.", MAX_LENGTH);
 
     public boolean isNameValid(String name) {
         return name != null && name.length() <= MAX_LENGTH && XmlUtils.matchUsingRegex(NAME_TYPE_PATTERN_REGEX, name);

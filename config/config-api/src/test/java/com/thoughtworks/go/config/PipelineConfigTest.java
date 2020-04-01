@@ -666,7 +666,7 @@ public class PipelineConfigTest {
         pipelineConfig.validate(null);
         assertThat(pipelineConfig.errors().isEmpty(), is(false));
         assertThat(pipelineConfig.errors().on(PipelineConfig.NAME),
-                is("Invalid pipeline name 'foo bar'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+                is("Invalid pipeline name 'foo bar'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test

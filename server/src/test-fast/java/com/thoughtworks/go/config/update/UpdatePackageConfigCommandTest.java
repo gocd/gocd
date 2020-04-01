@@ -142,7 +142,7 @@ public class UpdatePackageConfigCommandTest {
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
         assertThat(pkg.errors().size(), is(1));
-        assertThat(pkg.errors().firstError(), is("Invalid Package name '!$#'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(pkg.errors().firstError(), is("Invalid Package name '!$#'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test

@@ -171,7 +171,7 @@ public class PluggableArtifactConfigTest {
         final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
 
         assertFalse(result);
-        assertThat(artifactConfig.errors().getAllOn("id"), is(Arrays.asList("\"Id\" is required for PluggableArtifact", "Invalid pluggable artifact id name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
+        assertThat(artifactConfig.errors().getAllOn("id"), is(Arrays.asList("\"Id\" is required for PluggableArtifact", "Invalid pluggable artifact id name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
     }
 
     @Test
@@ -203,7 +203,7 @@ public class PluggableArtifactConfigTest {
         final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
 
         assertFalse(result);
-        assertThat(artifactConfig.errors().getAllOn("id"), is(Arrays.asList("Invalid pluggable artifact id name 'asf@%'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
+        assertThat(artifactConfig.errors().getAllOn("id"), is(Arrays.asList("Invalid pluggable artifact id name 'asf@%'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
     }
 
     @Test

@@ -219,11 +219,11 @@ public class StageConfigTest {
         assertThat(allErrors.size(), is(4));
         assertThat(allErrors.get(0).on(JobConfig.NAME), is("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique."));
         assertThat(allErrors.get(1).on(JobConfig.NAME), is("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique."));
-        assertThat(allErrors.get(2).on(StageConfig.NAME), is("Invalid stage name '.'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(allErrors.get(2).on(StageConfig.NAME), is("Invalid stage name '.'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
         assertThat(allErrors.get(3).on(JobConfig.NAME), is("Invalid job name 'foo!'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is 255 characters."));
         assertThat(stageConfig.getJobs().get(0).errors().on(JobConfig.NAME), is("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique."));
         assertThat(stageConfig.getJobs().get(1).errors().on(JobConfig.NAME), is("You have defined multiple jobs called 'con-job'. Job names are case-insensitive and must be unique."));
-        assertThat(newlyAddedStage.errors().on(StageConfig.NAME), is("Invalid stage name '.'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(newlyAddedStage.errors().on(StageConfig.NAME), is("Invalid stage name '.'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
         assertThat(newJob.errors().on(JobConfig.NAME), is("Invalid job name 'foo!'. This must be alphanumeric and may contain underscores and periods. The maximum allowed length is 255 characters."));
     }
 

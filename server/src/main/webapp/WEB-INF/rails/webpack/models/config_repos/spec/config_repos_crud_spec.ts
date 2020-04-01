@@ -18,7 +18,8 @@ import {SparkRoutes} from "helpers/spark_routes";
 import {ConfigReposCRUD, configRepoToSnakeCaseJSON} from "models/config_repos/config_repos_crud";
 import {ConfigRepo, ConfigRepos} from "models/config_repos/types";
 import {GitMaterialAttributes, Material} from "models/materials/types";
-import {Configuration, PlainTextValue} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
+import {Configuration} from "models/shared/configuration";
+import {PlainTextValue} from "models/shared/config_value";
 
 describe("Config Repo Serialization", () => {
   it("should serialize configuration properties for JSON plugin", () => {

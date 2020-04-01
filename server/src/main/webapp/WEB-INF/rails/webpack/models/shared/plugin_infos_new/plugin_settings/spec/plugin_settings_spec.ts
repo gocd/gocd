@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Configuration, EncryptedValue, PlainTextValue, PluginSettings} from "../plugin_settings";
+import {Configuration} from "models/shared/configuration";
+import {EncryptedValue, PlainTextValue} from "models/shared/config_value";
+import {PluginSettings} from "../plugin_settings";
 
 describe("Plugin Settings", () => {
 

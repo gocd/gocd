@@ -81,11 +81,11 @@ export class Configurations {
 export class Configuration {
   readonly key: string;
   readonly errors?: string[];
-  private value: ConfigValue;
+  private _value: ConfigValue;
 
   constructor(key: string, value: EncryptedValue | PlainTextValue, errors?: string[]) {
     this.key    = key;
-    this.value  = value;
+    this._value  = value;
     this.errors = errors;
   }
 
@@ -104,21 +104,32 @@ export class Configuration {
     return new Configuration(config.key, value, errors);
   }
 
+  get value(): string {
+    return this.getValue();
+  }
+
+  set value(val: string) {
+    if (val === this.getValue()) {
+      return;
+    }
+    this._value = new PlainTextValue(val);
+  }
+
   public displayValue(): string {
-    return this.value.getDisplayValue();
+    return this._value.getDisplayValue();
   }
 
   public getValue(): string {
-    return this.value.getValue();
+    return this._value.getValue();
   }
 
   public isEncrypted(): boolean {
-    return this.value.isEncrypted();
+    return this._value.isEncrypted();
   }
 
   public updateValue(value: string) {
     if (value !== this.getValue()) {
-      this.value = new PlainTextValue(value);
+      this._value = new PlainTextValue(value);
     }
   }
 

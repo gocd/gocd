@@ -21,7 +21,8 @@ import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Rules} from "models/rules/rules";
-import {Configuration, PlainTextValue} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
+import {Configuration} from "models/shared/configuration";
+import {PlainTextValue} from "models/shared/config_value";
 import {AutoSuggestions} from "../roles/auto_suggestion";
 
 //tslint:disable-next-line
@@ -85,7 +86,7 @@ export class ConfigRepo implements ValidatableMixin {
 
   static findConfigurationValue(configuration: Configuration[], key: string) {
     const config = configuration.find((config) => config.key === key);
-    return config ? config.value : "";
+    return config && config.value ? config.value : "";
   }
 
   static fromJSON(json: ConfigRepoJSON) {

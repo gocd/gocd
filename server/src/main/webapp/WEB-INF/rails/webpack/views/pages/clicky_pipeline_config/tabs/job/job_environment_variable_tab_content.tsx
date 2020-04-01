@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-import m from "mithril";
 import {Job} from "models/pipeline_configs/job";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
-import {Stage} from "models/pipeline_configs/stage";
-import {TemplateConfig} from "models/pipeline_configs/template_config";
-import {EnvironmentVariablesWidget} from "views/components/environment_variables";
-import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {EnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/common/environment_variables_tab_content";
 
-export abstract class EnvironmentVariablesTabContent extends TabContent<PipelineConfig | Stage | Job> {
-  static tabName(): string {
-    return "Environment Variables";
-  }
-
-  protected renderer(entity: PipelineConfig | Stage | Job, templateConfig: TemplateConfig): m.Children {
-    return <EnvironmentVariablesWidget environmentVariables={entity.environmentVariables()}/>;
+export class JobEnvironmentVariablesTabContent extends EnvironmentVariablesTabContent {
+  protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): Job {
+    const stage = pipelineConfig.stages().findByName(routeParams.stage_name!)!;
+    return stage.jobs().findByName(routeParams.job_name!)!;
   }
 }

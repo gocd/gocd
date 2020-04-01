@@ -27,18 +27,20 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {Spinner} from "views/components/spinner";
 import {Tabs} from "views/components/tab";
-import {EnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/common/environment_variables_tab_content";
 import {ArtifactsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/artifacts_tab_content";
 import {CustomTabTabContent} from "views/pages/clicky_pipeline_config/tabs/job/custom_tab_tab_content";
+import {JobEnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/job/job_environment_variable_tab_content";
 import {JobSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/job_settings_tab_content";
 import {TasksTabContent} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
 import {GeneralOptionsTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/general_options_tab";
 import {MaterialsTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/materials_tab_content";
 import {ParametersTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/parameters_tab_content";
+import {PipelineEnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/pipeline_environment_variable_tab_content";
 import {ProjectManagementTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/project_management_tab_content";
 import {StagesTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/stages_tab_content";
 import {JobsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/jobs_tab_content";
 import {PermissionsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/permissions_tab_content";
+import {StageEnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/stage_environment_variable_tab_content";
 import {StageSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/stage_settings_tab_content";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {NavigationWidget} from "views/pages/clicky_pipeline_config/widgets/navigation_widget";
@@ -75,8 +77,6 @@ export class PipelineConfigPage<T> extends Page<null, T> {
   private templateConfig?: TemplateConfig;
   private pipelineConfig?: PipelineConfig;
   private originalJSON: any;
-
-  private tabFor: Stream<TabLevel> = Stream();
 
   private readonly tab: Stream<TabContent<SupportedTypes>>             = Stream();
   private readonly cachedTabs: Map<string, TabContent<SupportedTypes>> = new Map();
@@ -240,7 +240,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
   }
 
   private currentSelectionTabs() {
-    return this.getAllTabsInformation().get(this.tabFor())!;
+    return this.getAllTabsInformation().get(this.getTabFor())!;
   }
 
   private getIndexOfCurrentSelection(): number {
@@ -301,13 +301,22 @@ export class PipelineConfigPage<T> extends Page<null, T> {
       return this.tab(tab);
     }
 
-    const tabFor: TabLevel = _.includes(Array.from(tabList.get("pipeline")!.keys()), tabName) ? "pipeline"
-      : _.includes(Array.from(tabList.get("stage")!.keys()), tabName) ? "stage" : "job";
-
-    tab = new (tabList.get(tabFor)!.get(tabName)!)();
-    this.tabFor(tabFor);
+    tab = new (tabList.get(this.getTabFor())!.get(tabName)!)();
     this.cachedTabs.set(tabName, tab);
     this.tab(tab);
+  }
+
+  private getTabFor(): TabLevel {
+    const params = PipelineConfigPage.routeInfo().params;
+    if (!params.stage_name) {
+      return "pipeline";
+    }
+
+    if (params.job_name) {
+      return "job";
+    }
+
+    return "stage";
   }
 
   private getAllTabsInformation() {
@@ -320,14 +329,14 @@ export class PipelineConfigPage<T> extends Page<null, T> {
       ProjectManagementTabContent,
       MaterialsTabContent,
       StagesTabContent,
-      EnvironmentVariablesTabContent,
+      PipelineEnvironmentVariablesTabContent,
       ParametersTabContent
     ].forEach(t => pipelineTabList.set(_.snakeCase(t.tabName()), t));
 
     [
       StageSettingsTabContent,
       JobsTabContent,
-      EnvironmentVariablesTabContent,
+      StageEnvironmentVariablesTabContent,
       PermissionsTabContent
     ].forEach(t => stageTabList.set(_.snakeCase(t.tabName()), t));
 
@@ -335,7 +344,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
       JobSettingsTabContent,
       TasksTabContent,
       ArtifactsTabContent,
-      EnvironmentVariablesTabContent,
+      JobEnvironmentVariablesTabContent,
       CustomTabTabContent
     ].forEach(t => jobTabList.set(_.snakeCase(t.tabName()), t));
 

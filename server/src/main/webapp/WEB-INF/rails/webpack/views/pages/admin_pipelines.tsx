@@ -15,7 +15,7 @@
  */
 
 import {pipelineEditPath} from "gen/ts-routes";
-import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -32,7 +32,6 @@ import * as Buttons from "views/components/buttons";
 import {ButtonIcon} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
-import {Modal, ModalState} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Attrs, PipelineGroupsWidget, PipelinesScrollOptions} from "views/pages/admin_pipelines/admin_pipelines_widget";
 import {
@@ -197,25 +196,14 @@ export class AdminPipelinesPage extends Page<null, State> {
     };
 
     vnode.state.doClonePipeline = (shallowPipeline) => {
-      const copyOfPipelineConfigFromServer = Stream<any>(shallowPipeline);
-      const etag                           = Stream<string>();
-
       const cloneOperation = (newPipelineName: string) => {
         const newPipeline = shallowPipeline.clone();
         newPipeline.name(newPipelineName);
         vnode.state.doEditPipeline(newPipeline);
       };
 
-      const modal      = new ClonePipelineConfigModal(copyOfPipelineConfigFromServer, cloneOperation);
-      modal.modalState = ModalState.LOADING;
-      modal.render();
-
-      this.fetchPipelineConfigFromServer(shallowPipeline.name(),
-                                         copyOfPipelineConfigFromServer,
-                                         etag,
-                                         onOperationError,
-                                         modal);
-
+      new ClonePipelineConfigModal(shallowPipeline, cloneOperation)
+        .render();
     };
 
     vnode.state.doDownloadPipeline = (pipeline) => {
@@ -304,37 +292,5 @@ export class AdminPipelinesPage extends Page<null, State> {
                          data-test-id="create-new-pipeline-group">Create new pipeline group</Buttons.Secondary>
     ];
     return <HeaderPanel title={this.pageName()} buttons={headerButtons}/>;
-  }
-
-  private fetchPipelineConfigFromServer(pipelineName: string,
-                                        copyOfPipelineConfigFromServer: Stream<any>,
-                                        etag: Stream<string>,
-                                        onOperationError: (errorResponse: ErrorResponse) => void,
-                                        modal: Modal) {
-
-    ApiRequestBuilder
-      .GET(SparkRoutes.adminPipelineConfigPath(pipelineName), ApiVersion.latest)
-      .then((result) => {
-        return result
-          .map((body) => {
-            return {
-              etag:   result.getEtag(),
-              object: JSON.parse(body)
-            } as ObjectWithEtag<any>;
-          })
-          .do(
-            (successResponse) => {
-              copyOfPipelineConfigFromServer(successResponse.body.object);
-              etag(successResponse.body.etag);
-            },
-            (errorResponse) => {
-              onOperationError(errorResponse);
-              modal.close();
-            }
-          );
-      })
-      .finally(() => {
-        modal.modalState = ModalState.OK;
-      });
   }
 }

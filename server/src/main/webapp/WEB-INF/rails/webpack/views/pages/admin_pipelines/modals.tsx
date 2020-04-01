@@ -194,95 +194,85 @@ export class CreatePipelineGroupModal extends Modal {
   }
 }
 
-export class ClonePipelineConfigModal extends Modal {
-  errorMessage?: string;
-  private readonly sourcePipeline: Stream<Pipeline>;
+export class ClonePipelineConfigModal extends BasePipelineModal {
   private readonly newPipelineName: ModelWithNameIdentifierValidator;
   private readonly newPipelineGroupName: ModelWithNameIdentifierValidator;
   private readonly successCallback: (newPipelineName: string) => void;
   private apiService: ApiService;
 
-  constructor(sourcePipeline: Stream<Pipeline>,
+  constructor(sourcePipeline: Pipeline,
               successCallback: (newPipelineName: string) => void,
               apiService?: ApiService) {
-    super();
-    this.sourcePipeline       = sourcePipeline;
+    super(new PipelineConfig(sourcePipeline.name()));
     this.successCallback      = successCallback;
     this.apiService           = apiService ? apiService : new ClonePipelineGroupService();
     this.newPipelineName      = new ModelWithNameIdentifierValidator();
     this.newPipelineGroupName = new ModelWithNameIdentifierValidator();
   }
 
-  body() {
-    if (this.isLoading()) {
-      return;
-    }
-    const errorMsg = _.isEmpty(this.errorMessage)
-      ? undefined
-      : <FlashMessage type={MessageType.alert} message={this.errorMessage}/>;
-    return [
-      errorMsg,
-
-      <FormBody>
-        <Form last={true} compactForm={true}>
-          <TextField
-            property={this.newPipelineName.name}
-            errorText={this.newPipelineName.errors().errorsForDisplay("name")}
-            onchange={() => this.newPipelineName.validate("name")}
-            required={true}
-            label="New pipeline name"/>
-          <TextField
-            property={this.newPipelineGroupName.name}
-            errorText={this.newPipelineGroupName.errors().errorsForDisplay("name")}
-            onchange={() => this.newPipelineGroupName.validate("name")}
-            required={true}
-            label="Pipeline group name"
-            helpText={"A new pipeline group will be created, if it does not already exist."}/>
-        </Form>
-      </FormBody>
-    ];
-  }
-
   title(): string {
-    const name = this.sourcePipeline().name;
-    return `Clone pipeline - ${typeof name === 'function' ? name() : name}`;
+    return `Clone pipeline - ${this.originalPipeline().name()}`;
   }
 
   buttons(): m.ChildArray {
-    const disabled =
-            (_.isEmpty(this.newPipelineName.name()) || this.newPipelineName.errors().hasErrors())
-            || (_.isEmpty(this.newPipelineGroupName.name()) || this.newPipelineGroupName.errors().hasErrors());
-    return [<Buttons.Primary
-      data-test-id="button-clone"
-      disabled={disabled}
-      onclick={this.save.bind(this)}>Clone</Buttons.Primary>];
+    const disabled = this.isLoading() ||
+                     (_.isEmpty(this.newPipelineName.name()) || this.newPipelineName.errors().hasErrors())
+                     || (_.isEmpty(this.newPipelineGroupName.name()) || this.newPipelineGroupName.errors().hasErrors());
+    return [
+      <Buttons.Primary
+        data-test-id="button-clone"
+        disabled={disabled}
+        ajaxOperationMonitor={this.ajaxOperationMonitor}
+        ajaxOperation={this.save.bind(this)}>Clone</Buttons.Primary>,
+      <Buttons.Cancel data-test-id="button-cancel" onclick={() => this.close()}
+                      ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Buttons.Cancel>
+    ];
+  }
+
+  protected modalBody(): m.Children {
+    return <FormBody>
+      <Form last={true} compactForm={true}>
+        <TextField
+          property={this.newPipelineName.name}
+          errorText={this.newPipelineName.errors().errorsForDisplay("name")}
+          onchange={() => this.newPipelineName.validate("name")}
+          required={true}
+          label="New pipeline name"/>
+        <TextField
+          property={this.newPipelineGroupName.name}
+          errorText={this.newPipelineGroupName.errors().errorsForDisplay("name")}
+          onchange={() => this.newPipelineGroupName.validate("name")}
+          required={true}
+          label="Pipeline group name"
+          helpText={"A new pipeline group will be created, if it does not already exist."}/>
+      </Form>
+    </FormBody>;
   }
 
   private save() {
     // deep copy the pipeline, and change the name/group name
-    const pipelineToSave = _.cloneDeep(this.sourcePipeline()) as any;
-    pipelineToSave.name  = this.newPipelineName.name();
-    pipelineToSave.group = this.newPipelineGroupName.name();
+    const pipelineToSave = _.cloneDeep(this.originalPipeline());
+    pipelineToSave.name(this.newPipelineName.name());
+    pipelineToSave.group(this.newPipelineGroupName.name());
 
     const data = {
       grp_name:         this.newPipelineGroupName.name(),
       pipeline_to_save: pipelineToSave
     };
 
-    this.apiService.performOperation(
+    return this.apiService.performOperation(
       () => {
         this.successCallback(this.newPipelineName.name());
         this.close();
       },
       (errorResponse) => {
-        this.errorMessage = errorResponse.message;
+        this.errorMessage(errorResponse.message);
         if (errorResponse.body) {
-          this.errorMessage = JSON.parse(errorResponse.body).message;
+          this.errorMessage(JSON.parse(errorResponse.body).message);
         }
       },
       data);
   }
-
 }
 
 export class DownloadPipelineModal extends Modal {

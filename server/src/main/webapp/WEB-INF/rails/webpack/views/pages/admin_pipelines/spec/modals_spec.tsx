@@ -16,7 +16,6 @@
 
 import {ApiResult, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
-import Stream from "mithril/stream";
 import {Pipeline, PipelineGroups} from "models/internal_pipeline_structure/pipeline_structure";
 import data from "models/new-environments/spec/test_data";
 import {Origin, OriginType} from "models/origin";
@@ -67,6 +66,17 @@ describe("ClonePipelineConfigModal", () => {
     ModalManager.closeAll();
   });
 
+  function spyForPipelineGet(pipelineName: string, modal: ClonePipelineConfigModal) {
+    spyOn(PipelineConfig, "get").and.callFake(() => {
+      return new Promise<ApiResult<string>>((resolve) => {
+        const pipelineConfig = new PipelineConfig(pipelineName);
+        pipelineConfig.origin(new Origin(OriginType.GoCD));
+        modal.modalState = ModalState.OK;
+        resolve(ApiResult.success(JSON.stringify(pipelineConfig.toPutApiPayload()), 200, new Map()));
+      });
+    });
+  }
+
   it("should render modal", () => {
     const dummyService = new class implements ApiService {
       performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void): Promise<void> {
@@ -74,13 +84,14 @@ describe("ClonePipelineConfigModal", () => {
         return Promise.resolve();
       }
     }();
-    const modal        = new ClonePipelineConfigModal(Stream(new Pipeline("blah")), successCallback, dummyService);
+    const modal        = new ClonePipelineConfigModal(new Pipeline("blah"), successCallback, dummyService);
+    spyForPipelineGet("blah", modal);
     modal.render();
     m.redraw.sync();
     const modalTestHelper = new TestHelper().forModal();
 
     expect(modal).toContainTitle(`Clone pipeline - blah`);
-    expect(modal).toContainButtons(["Clone"]);
+    expect(modal).toContainButtons(["Cancel", "Clone"]);
 
     modalTestHelper.oninput(modalTestHelper.byTestId("form-field-input-new-pipeline-name"), "new-pipeline-name");
     modalTestHelper.oninput(modalTestHelper.byTestId("form-field-input-pipeline-group-name"), "new-pipeline-group");
@@ -95,7 +106,8 @@ describe("ClonePipelineConfigModal", () => {
         return Promise.reject();
       }
     }();
-    const modal        = new ClonePipelineConfigModal(Stream(new Pipeline("blah")), successCallback, dummyService);
+    const modal        = new ClonePipelineConfigModal(new Pipeline("blah"), successCallback, dummyService);
+    spyForPipelineGet("blah", modal);
     modal.render();
     m.redraw.sync();
     const modalTestHelper = new TestHelper().forModal();

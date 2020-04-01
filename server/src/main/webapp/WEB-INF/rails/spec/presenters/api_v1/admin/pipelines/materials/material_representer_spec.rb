@@ -225,7 +225,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
           shallow_clone: false
         },
         errors: {
-          name: ["You have defined multiple materials called '!nV@l!d'. Material names are case-insensitive and must be unique. Note that for dependency materials the default materialName is the name of the upstream pipeline. You can override this by setting the materialName explicitly for the upstream pipeline.", "Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
+          name: ["You have defined multiple materials called '!nV@l!d'. Material names are case-insensitive and must be unique. Note that for dependency materials the default materialName is the name of the upstream pipeline. You can override this by setting the materialName explicitly for the upstream pipeline.", "Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
           destination: ["Destination directory is required when specifying multiple scm materials"],
           url: ["URL cannot be blank"]
         }
@@ -287,7 +287,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
           username: ""
         },
         errors: {
-          name: ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
+          name: ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
           url: ["URL cannot be blank"]
         }
       }
@@ -372,7 +372,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
           auto_update: true
         },
         errors: {
-          name: ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
+          name: ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
           destination: ["Dest folder '/dest/' is not valid. It must be a sub-directory of the working folder."],
           url: ["URL cannot be blank"]
         }

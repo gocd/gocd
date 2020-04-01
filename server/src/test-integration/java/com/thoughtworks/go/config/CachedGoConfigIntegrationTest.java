@@ -988,7 +988,7 @@ public class CachedGoConfigIntegrationTest {
         goPartialConfig.onSuccessPartialConfig(repoConfig1, invalidPartialInRepo1Revision2);
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size()).isEqualTo(1);
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage()).isEqualTo("Invalid Merged Configuration");
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription()).isEqualTo("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;; \n- For Config Repo: url1 at repo1_r2");
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription()).isEqualTo("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;; \n- For Config Repo: url1 at repo1_r2");
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty()).isTrue();
 
         int countBeforeDeletion = cachedGoConfig.currentConfig().getConfigRepos().size();

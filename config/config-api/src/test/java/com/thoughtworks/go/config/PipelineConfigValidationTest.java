@@ -175,7 +175,7 @@ public class PipelineConfigValidationTest {
         config.addPipeline("group", pipelineConfig);
         pipelineConfig.validateTemplate(new PipelineTemplateConfig());
         assertThat(pipelineConfig.errors().isEmpty(), is(false));
-        assertThat(pipelineConfig.errors().on(PipelineConfig.TEMPLATE_NAME), is("Invalid template name '.Name'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.TEMPLATE_NAME), is("Invalid template name '.Name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test
@@ -183,7 +183,7 @@ public class PipelineConfigValidationTest {
         PipelineConfig config = new PipelineConfig(new CaseInsensitiveString(".name"), new MaterialConfigs());
         config.validate(null);
         assertThat(config.errors().isEmpty(), is(false));
-        assertThat(config.errors().on(PipelineConfig.NAME), is("Invalid pipeline name '.name'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(config.errors().on(PipelineConfig.NAME), is("Invalid pipeline name '.name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test

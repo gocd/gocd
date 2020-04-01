@@ -961,7 +961,7 @@ public class MagicalGoConfigXmlWriterTest {
             fail("should not have allowed two repositories with same id");
         } catch (GoConfigInvalidException e) {
             assertThat(e.getMessage(),
-                    is("Invalid PackageRepository name 'name with space'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+                    is("Invalid PackageRepository name 'name with space'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
         }
     }
 
@@ -1029,7 +1029,7 @@ public class MagicalGoConfigXmlWriterTest {
             fail("should not have allowed two repositories with same id");
         } catch (GoConfigInvalidException e) {
             assertThat(e.getMessage(),
-                    is("Invalid Package name 'name with space'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+                    is("Invalid Package name 'name with space'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
         }
     }
 

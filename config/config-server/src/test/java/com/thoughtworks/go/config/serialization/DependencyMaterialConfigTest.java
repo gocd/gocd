@@ -110,7 +110,7 @@ class DependencyMaterialConfigTest {
     void shouldAddErrorForInvalidMaterialName() {
         DependencyMaterialConfig materialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("wrong name"), new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
         materialConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), pipelineConfig));
-        assertThat(materialConfig.errors().on(AbstractMaterialConfig.MATERIAL_NAME)).isEqualTo("Invalid material name 'wrong name'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(materialConfig.errors().on(AbstractMaterialConfig.MATERIAL_NAME)).isEqualTo("Invalid material name 'wrong name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test

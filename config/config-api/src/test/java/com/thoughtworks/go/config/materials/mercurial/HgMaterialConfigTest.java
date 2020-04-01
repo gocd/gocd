@@ -219,7 +219,7 @@ class HgMaterialConfigTest {
 
             hgMaterialConfig.setName(new CaseInsensitiveString(".bad-name-with-dot"));
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
-            assertThat(hgMaterialConfig.errors().on(MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+            assertThat(hgMaterialConfig.errors().on(MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
         }
 
         @Test

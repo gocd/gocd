@@ -32,7 +32,7 @@ public class ParamConfigTest {
         assertThat(createAndValidate("name").errors().isEmpty(), is(true));
         ConfigErrors errors = createAndValidate(".name").errors();
         assertThat(errors.isEmpty(), is(false));
-        assertThat(errors.on(ParamConfig.NAME), is("Invalid parameter name '.name'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(errors.on(ParamConfig.NAME), is("Invalid parameter name '.name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test

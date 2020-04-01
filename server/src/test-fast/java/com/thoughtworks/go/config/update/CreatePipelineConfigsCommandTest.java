@@ -103,7 +103,7 @@ public class CreatePipelineConfigsCommandTest {
         CreatePipelineConfigsCommand command = new CreatePipelineConfigsCommand(newPipelineConfigs, user, new HttpLocalizedOperationResult(), securityService);
         assertFalse(command.isValid(cruiseConfig));
 
-        assertThat(newPipelineConfigs.errors().on("group"), is("Invalid group name '@group'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(newPipelineConfigs.errors().on("group"), is("Invalid group name '@group'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test

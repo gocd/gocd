@@ -45,7 +45,7 @@ public abstract class AbstractRuleAwarePluginProfileTest {
         RuleAwarePluginProfile profile = newPluginProfile("!123", "docker");
         profile.validate(getValidationContext(profile));
         assertThat(profile.errors().size()).isEqualTo(1);
-        assertThat(profile.errors().on("id")).isEqualTo("Invalid id '!123'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        assertThat(profile.errors().on("id")).isEqualTo("Invalid id '!123'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test

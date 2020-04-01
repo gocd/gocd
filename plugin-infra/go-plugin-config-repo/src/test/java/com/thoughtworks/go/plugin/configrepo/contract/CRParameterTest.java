@@ -62,7 +62,7 @@ public class CRParameterTest extends AbstractCRTest<CRParameter> {
         ErrorCollection errorCollection = new ErrorCollection();
         crParameter.getErrors(errorCollection, "TEST");
 
-        MatcherAssert.assertThat(errorCollection.getErrorsAsText(), contains("Invalid parameter name 'null'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        MatcherAssert.assertThat(errorCollection.getErrorsAsText(), contains("Invalid parameter name 'null'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test
@@ -71,6 +71,6 @@ public class CRParameterTest extends AbstractCRTest<CRParameter> {
         ErrorCollection errorCollection = new ErrorCollection();
         crParameter.getErrors(errorCollection, "TEST");
 
-        MatcherAssert.assertThat(errorCollection.getErrorsAsText(), contains("Invalid parameter name '#$$%@'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        MatcherAssert.assertThat(errorCollection.getErrorsAsText(), contains("Invalid parameter name '#$$%@'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 }

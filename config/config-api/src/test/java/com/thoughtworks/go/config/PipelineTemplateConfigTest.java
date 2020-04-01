@@ -125,7 +125,7 @@ public class PipelineTemplateConfigTest {
         config.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
         assertThat(config.errors().isEmpty(), is(false));
         assertThat(config.errors().on(PipelineTemplateConfig.NAME),
-                is("Invalid template name '.Abc'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+                is("Invalid template name '.Abc'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test

@@ -119,7 +119,7 @@ public class RoleConfigCommandTest {
         assertFalse(command.isValid(cruiseConfig));
         assertThat(pluginRoleConfig.errors().size(), is(2));
         assertThat(pluginRoleConfig.errors().get("name").get(0), is("Invalid role name name 'null'. This must be " +
-                "alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+                "alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
         assertThat(pluginRoleConfig.errors().get("authConfigId").get(0), is("No such security auth configuration present for id: `ldap`"));
     }
 

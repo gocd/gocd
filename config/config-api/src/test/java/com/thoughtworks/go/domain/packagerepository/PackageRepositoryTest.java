@@ -302,7 +302,7 @@ public class PackageRepositoryTest extends PackageMaterialTestBase {
         packageRepository.validate(new ConfigSaveValidationContext(null));
         assertThat(packageRepository.errors().isEmpty(), is(false));
         assertThat(packageRepository.errors().getAllOn(PackageRepository.NAME).get(0),
-                is("Invalid PackageRepository name 'some name'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+                is("Invalid PackageRepository name 'some name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test

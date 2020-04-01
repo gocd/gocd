@@ -140,7 +140,7 @@ public class UpdatePackageRepositoryCommandTest {
         command.update(cruiseConfig);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(newPackageRepo.errors().firstError(), is("Invalid PackageRepository name '~!@#$%^&*('. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(newPackageRepo.errors().firstError(), is("Invalid PackageRepository name '~!@#$%^&*('. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test

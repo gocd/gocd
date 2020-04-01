@@ -78,7 +78,7 @@ public class GoConfigParallelGraphWalkerTest {
         ConfigErrors templateErrors = rawCruiseConfig.getTemplateByName(new CaseInsensitiveString("invalid template name")).errors();
         assertThat(templateErrors.getAll().size(), is(1));
         assertThat(templateErrors.getAll().get(0),
-                is("Invalid template name 'invalid template name'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+                is("Invalid template name 'invalid template name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test

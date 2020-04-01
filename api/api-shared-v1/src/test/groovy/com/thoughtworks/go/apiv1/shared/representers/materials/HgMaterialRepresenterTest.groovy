@@ -73,7 +73,7 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
         auto_update  : true
       ],
       errors    : [
-        name       : ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
+        name       : ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
         destination: ["Dest folder '/dest/' is not valid. It must be a sub-directory of the working folder."],
         url        : ["URL cannot be blank"]
       ]

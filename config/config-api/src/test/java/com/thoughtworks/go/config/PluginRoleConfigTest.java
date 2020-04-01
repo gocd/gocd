@@ -193,7 +193,7 @@ public class PluginRoleConfigTest {
         assertTrue(role.hasErrors());
         assertThat(role.errors().size(), is(1));
         assertThat(role.errors().get("name").get(0), is("Invalid role name name ''. This must be alphanumeric and can" +
-                " contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+                " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     private void validateNullRoleName(Validator v) {
@@ -208,7 +208,7 @@ public class PluginRoleConfigTest {
         assertTrue(role.hasErrors());
         assertThat(role.errors().size(), is(1));
         assertThat(role.errors().get("name").get(0), is("Invalid role name name 'null'. This must be alphanumeric and can" +
-                " contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+                " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     public void validatePresenceAuthConfigId(Validator v) {
@@ -221,7 +221,7 @@ public class PluginRoleConfigTest {
         assertThat(role.errors().size(), is(1));
         assertThat(role.errors().get("authConfigId").size(), is(1));
         assertThat(role.errors().get("authConfigId").get(0), is("Invalid plugin role authConfigId name ''. This must be alphanumeric and can" +
-                " contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+                " contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     public void validatePresenceOfAuthConfigIdInSecurityConfig(Validator v) throws Exception {

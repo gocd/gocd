@@ -79,7 +79,7 @@ class SvnMaterialRepresenterTest implements MaterialRepresenterTrait<SvnMaterial
         username       : ""
       ],
       errors     : [
-        name: ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
+        name: ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
         url : ["URL cannot be blank"]
       ]
     ]

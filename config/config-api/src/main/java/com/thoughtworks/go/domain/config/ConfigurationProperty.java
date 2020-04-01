@@ -38,7 +38,6 @@ public class ConfigurationProperty implements Serializable, Validatable {
     public static final String CONFIGURATION_VALUE = "configurationValue";
     public static final String ENCRYPTED_VALUE = "encryptedValue";
     public static final String IS_CHANGED = "isChanged";
-    public static final String IS_SECURE = "isSecure";
 
     @Expose
     @SerializedName("configKey")

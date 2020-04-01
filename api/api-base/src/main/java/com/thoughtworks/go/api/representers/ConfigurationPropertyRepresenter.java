@@ -78,7 +78,7 @@ public class ConfigurationPropertyRepresenter {
     }
 
     /**
-     * Like {@link #fromJSONArray(JsonReader, String)}, but honors the `is_secure` flag
+     * Like {@link #fromJSONArray(JsonReader, String)}, but honors the `secure` flag
      *
      * @param jsonReader the reader for JSON input
      * @param arrayKey   the JSON key holding the configuration properties block
@@ -98,13 +98,13 @@ public class ConfigurationPropertyRepresenter {
     }
 
     /**
-     * Like {@link #fromJSON(JsonReader)}, but handles an additional `is_secure` flag.
+     * Like {@link #fromJSON(JsonReader)}, but handles an additional `secure` flag.
      * <p>
      * Behavior:
      * <p>
-     * 1. if `encrypted_value` is provided, it behaves like {@link #fromJSON(JsonReader)} and ignores `is_secure`
-     * 2. only if `value` and `is_secure` are present, conditionally encrypts `value` => `encrypted_value` depending
-     * on the `is_secure` flag: `true` causes encryption, `false` leaves as plaintext.
+     * 1. if `encrypted_value` is provided, it behaves like {@link #fromJSON(JsonReader)} and ignores `secure`
+     * 2. only if `value` and `secure` are present, conditionally encrypts `value` => `encrypted_value` depending
+     * on the `secure` flag: `true` causes encryption, `false` leaves as plaintext.
      *
      * @param jsonReader a reader for the serialized JSON input
      * @return a {@link ConfigurationProperty}
@@ -114,7 +114,7 @@ public class ConfigurationPropertyRepresenter {
             final String key = jsonReader.getString("key");
             final String value = jsonReader.optString("value").orElse(null);
             final String encryptedValue = jsonReader.optString("encrypted_value").orElse(null);
-            final Boolean isSecure = jsonReader.optBoolean("is_secure").orElse(null);
+            final Boolean isSecure = jsonReader.optBoolean("secure").orElse(null);
 
             final ConfigurationProperty property = new ConfigurationProperty().deserialize(key, value, encryptedValue);
 

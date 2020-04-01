@@ -81,15 +81,15 @@ class ConfigurationPropertyRepresenterTest {
     @Test
     void 'fromJSONHandlingEncryption() deserializes to encrypted property if the secure flag is set'() {
       String plainText = 'password'
-      JsonReader jsonReader = GsonTransformer.instance.jsonReaderFrom([key: 'user', value: plainText, is_secure: true])
+      JsonReader jsonReader = GsonTransformer.instance.jsonReaderFrom([key: 'user', value: plainText, secure: true])
       ConfigurationProperty property = ConfigurationPropertyRepresenter.fromJSONHandlingEncryption(jsonReader)
       assertThat(property).isEqualTo(ConfigurationPropertyMother.create("user", true, plainText))
     }
 
     @Test
-    void 'fromJSONHandlingEncryption() ignores is_secure flag if encrypted_value is set'() {
+    void 'fromJSONHandlingEncryption() ignores secure flag if encrypted_value is set'() {
       String encryptedValue = new GoCipher().encrypt('password')
-      JsonReader jsonReader = GsonTransformer.instance.jsonReaderFrom([key: 'user', encrypted_value: encryptedValue, is_secure: false])
+      JsonReader jsonReader = GsonTransformer.instance.jsonReaderFrom([key: 'user', encrypted_value: encryptedValue, secure: false])
       ConfigurationProperty property = ConfigurationPropertyRepresenter.fromJSONHandlingEncryption(jsonReader)
       assertThat(property).isEqualTo(ConfigurationPropertyMother.create("user", true, 'password'))
     }

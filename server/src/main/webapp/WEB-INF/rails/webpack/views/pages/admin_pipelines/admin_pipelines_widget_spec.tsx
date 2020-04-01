@@ -91,7 +91,7 @@ describe("PipelineGroupsWidget", () => {
   });
 
   it("should perform pipeline interactions for pipelines defined in config", () => {
-    const pipelineInXml = new PipelineWithOrigin("in-config", undefined, new Origin(OriginType.GoCD), [], null , []);
+    const pipelineInXml = new PipelineWithOrigin("in-config", undefined, new Origin(OriginType.GoCD), [], null, []);
 
     attrs.pipelineGroups().push(new PipelineGroup("foo", new Pipelines(pipelineInXml)));
 
@@ -221,6 +221,45 @@ describe("PipelineGroupsWidget", () => {
 
       expect(deletePipelineElement).toBeDisabled();
       expect(deletePipelineElement).toHaveAttr('title', "Cannot delete pipeline 'some-pipeline' as pipeline(s) 'pipeline1,pipeline2' depends on it.");
+    });
+
+    it('should render disabled msg for move if pipeline is defined remotely', () => {
+      pipelineJSON.origin.type = OriginType.ConfigRepo;
+      pipelineJSON.origin.id   = 'config-repo-id';
+      attrs.pipelineGroups().push(new PipelineGroup("foo", new Pipelines(PipelineWithOrigin.fromJSON(pipelineJSON))));
+      helper.mount(() => {
+        return <PipelineGroupsWidget {...attrs}/>;
+      });
+
+      const movePipelineElement = helper.byTestId(`move-pipeline-${pipelineJSON.name}`);
+
+      expect(movePipelineElement).toBeDisabled();
+      expect(movePipelineElement).toHaveAttr('title', "Cannot move pipeline 'some-pipeline' as it is defined in configuration repository 'config-repo-id'.");
+    });
+
+    it('should render disabled msg for move if there is only one pipeline grp', () => {
+      attrs.pipelineGroups().push(new PipelineGroup("foo", new Pipelines(PipelineWithOrigin.fromJSON(pipelineJSON))));
+      helper.mount(() => {
+        return <PipelineGroupsWidget {...attrs}/>;
+      });
+
+      const movePipelineElement = helper.byTestId(`move-pipeline-${pipelineJSON.name}`);
+
+      expect(movePipelineElement).toBeDisabled();
+      expect(movePipelineElement).toHaveAttr('title', "Cannot move pipeline 'some-pipeline' as there are no other group(s).");
+    });
+
+    it('should be able to move a pipeline', () => {
+      attrs.pipelineGroups().push(new PipelineGroup("foo", new Pipelines(PipelineWithOrigin.fromJSON(pipelineJSON))));
+      attrs.pipelineGroups().push(new PipelineGroup("bar", new Pipelines()));
+      helper.mount(() => {
+        return <PipelineGroupsWidget {...attrs}/>;
+      });
+
+      const movePipelineElement = helper.byTestId(`move-pipeline-${pipelineJSON.name}`);
+
+      expect(movePipelineElement).not.toBeDisabled();
+      expect(movePipelineElement).toHaveAttr('title', "Move pipeline 'some-pipeline'");
     });
   });
 });

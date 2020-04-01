@@ -262,7 +262,7 @@ describe("PipelineConfig model", () => {
 });
 
 function stubPipelineCreateSuccess(config: PipelineConfig) {
-  jasmine.Ajax.stubRequest(SparkRoutes.pipelineConfigCreatePath(), undefined, "POST").andReturn({
+  jasmine.Ajax.stubRequest(SparkRoutes.adminPipelineConfigPath(), undefined, "POST").andReturn({
                                                                                                   responseText: JSON.stringify(
                                                                                                     config.toApiPayload()),
                                                                                                   status: 200,

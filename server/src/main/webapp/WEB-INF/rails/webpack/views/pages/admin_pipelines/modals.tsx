@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+import {ApiRequestBuilder, ApiVersion, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
+import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Pipeline} from "models/environments/types";
-import {PipelineGroup, PipelineGroups, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
+import {Pipeline, PipelineGroup, PipelineGroups, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
+import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {ModelWithNameIdentifierValidator} from "models/shared/name_validation";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
@@ -26,28 +28,94 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormBody} from "views/components/forms/form";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";
-import {Modal} from "views/components/modal";
+import {Modal, ModalState, Size} from "views/components/modal";
+import {OperationState} from "../page_operations";
 
-export class MoveConfirmModal extends Modal {
-  private readonly pipeline: PipelineWithOrigin;
+abstract class BasePipelineModal extends Modal {
+  protected originalPipeline: Stream<PipelineConfig>;
+  protected etag: Stream<string>                  = Stream("");
+  protected readonly errorMessage: Stream<string> = Stream();
+  protected readonly isStale                      = Stream(true);
+  protected ajaxOperationMonitor                  = Stream<OperationState>(OperationState.UNKNOWN);
+
+  constructor(originalPipeline: PipelineConfig) {
+    super();
+    this.originalPipeline = Stream(originalPipeline);
+  }
+
+  render(): void {
+    super.render();
+
+    if (this.isStale()) {
+      this.modalState = ModalState.LOADING;
+      PipelineConfig.get(this.originalPipeline().name())
+                    .then((result) => {
+                      this.modalState = ModalState.OK;
+                      result.do(
+                        (successResponse) => {
+                          this.etag(result.getEtag()!);
+                          const json = JSON.parse(successResponse.body);
+                          this.originalPipeline(PipelineConfig.fromJSON(json));
+                          this.isStale(false);
+                        },
+                        (errorResponse) => {
+                          const parsed = JSON.parse(errorResponse.body!);
+                          this.errorMessage(parsed.message);
+                        });
+                    });
+    }
+  }
+
+  body(): m.Children {
+    const flashMessage = this.errorMessage()
+      ? <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
+      : null;
+    return [
+      flashMessage,
+      this.modalBody()
+    ];
+  }
+
+  protected abstract modalBody(): m.Children;
+}
+
+export class MoveConfirmModal extends BasePipelineModal {
   private pipelineGroups: PipelineGroups;
   private readonly sourceGroup: PipelineGroup;
-  private readonly callback: (targetGroup: string) => void;
+  private readonly successCallback: (msg: m.Children) => void;
   private readonly selection: Stream<string>;
+  private apiService: ApiService;
 
   constructor(allPipelineGroups: PipelineGroups,
               sourceGroup: PipelineGroup,
               pipeline: PipelineWithOrigin,
-              callback: (targetGroup: string) => void) {
-    super();
-    this.pipelineGroups = allPipelineGroups;
-    this.sourceGroup    = sourceGroup;
-    this.pipeline       = pipeline;
-    this.callback       = callback;
-    this.selection      = Stream<string>();
+              successCallback: (msg: m.Children) => void,
+              apiService?: ApiService) {
+    super(new PipelineConfig(pipeline.name()));
+    this.pipelineGroups  = allPipelineGroups;
+    this.sourceGroup     = sourceGroup;
+    this.successCallback = successCallback;
+    this.apiService      = apiService ? apiService : new MovePipelineService();
+    this.selection       = Stream<string>();
   }
 
-  body() {
+  title() {
+    return `Move pipeline ${this.originalPipeline().name()}`;
+  }
+
+  buttons() {
+    return [
+      <Buttons.Primary data-test-id="button-move"
+                       disabled={this.isLoading() || _.isEmpty(this.selection())}
+                       ajaxOperationMonitor={this.ajaxOperationMonitor}
+                       ajaxOperation={this.performOperation.bind(this)}>Move</Buttons.Primary>,
+
+      <Buttons.Cancel data-test-id="button-cancel" onclick={() => this.close()}
+                      ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Buttons.Cancel>
+    ];
+  }
+
+  protected modalBody(): m.Children {
     const items = _(this.pipelineGroups)
       .filter((eachGroup) => eachGroup.name() !== this.sourceGroup.name())
       .sortBy((eachGroup) => eachGroup.name().toLowerCase())
@@ -58,26 +126,36 @@ export class MoveConfirmModal extends Modal {
       <div>
         <SelectField dataTestId="move-pipeline-group-selection"
                      property={this.selection}
-                     label={<span>Select the pipeline group where the pipeline <em>{this.pipeline.name()}</em> should be moved to:</span>}>
+                     label={<span>Select the pipeline group where the pipeline <em>{this.originalPipeline().name()}</em> should be moved to:</span>}>
           <SelectFieldOptions items={items} selected={this.selection()}/>
         </SelectField>
       </div>
     );
   }
 
-  title() {
-    return `Move pipeline ${this.pipeline.name()}`;
-  }
-
-  buttons() {
-    return [<Buttons.Primary data-test-id="button-move"
-                             disabled={_.isEmpty(this.selection())}
-                             onclick={this.doMove.bind(this)}>Move</Buttons.Primary>];
-  }
-
-  private doMove() {
-    this.callback(this.selection());
-    this.close();
+  protected performOperation(): Promise<any> {
+    const pipelineToSave = _.cloneDeep(this.originalPipeline());
+    pipelineToSave.group(this.selection());
+    const data = {
+      name:             this.originalPipeline().name(),
+      pipeline_to_save: pipelineToSave.toPutApiPayload(),
+      etag:             this.etag()
+    };
+    return this.apiService.performOperation(
+      () => {
+        const msg = <span>
+                  The pipeline <em>{this.originalPipeline().name()}</em> was moved from <em>{this.sourceGroup.name()}</em> to <em>{this.selection()}</em>
+                </span>;
+        this.successCallback(msg);
+        this.close();
+      },
+      (errorResponse) => {
+        this.errorMessage(errorResponse.message);
+        if (errorResponse.body) {
+          this.errorMessage(JSON.parse(errorResponse.body).message);
+        }
+      },
+      data);
   }
 }
 
@@ -116,69 +194,85 @@ export class CreatePipelineGroupModal extends Modal {
   }
 }
 
-export class ClonePipelineConfigModal extends Modal {
-  errorMessage?: string;
-  private readonly sourcePipeline: Pipeline;
+export class ClonePipelineConfigModal extends BasePipelineModal {
   private readonly newPipelineName: ModelWithNameIdentifierValidator;
   private readonly newPipelineGroupName: ModelWithNameIdentifierValidator;
-  private readonly callback: (newPipelineName: string, newPipelineGroup: string) => void;
+  private readonly successCallback: (newPipelineName: string) => void;
+  private apiService: ApiService;
 
   constructor(sourcePipeline: Pipeline,
-              callback: (newPipelineName: string, newPipelineGroup: string) => void) {
-    super();
-    this.sourcePipeline       = sourcePipeline;
-    this.callback             = callback;
+              successCallback: (newPipelineName: string) => void,
+              apiService?: ApiService) {
+    super(new PipelineConfig(sourcePipeline.name()));
+    this.successCallback      = successCallback;
+    this.apiService           = apiService ? apiService : new ClonePipelineGroupService();
     this.newPipelineName      = new ModelWithNameIdentifierValidator();
     this.newPipelineGroupName = new ModelWithNameIdentifierValidator();
   }
 
-  body() {
-    if (this.isLoading()) {
-      return;
-    }
-    if (!_.isEmpty(this.errorMessage)) {
-      return <FlashMessage type={MessageType.alert} message={this.errorMessage}/>;
-    }
-    return (
-      <FormBody>
-        <Form last={true} compactForm={true}>
-          <TextField
-            property={this.newPipelineName.name}
-            errorText={this.newPipelineName.errors().errorsForDisplay("name")}
-            onchange={() => this.newPipelineName.validate("name")}
-            required={true}
-            label="New pipeline name"/>
-          <TextField
-            property={this.newPipelineGroupName.name}
-            errorText={this.newPipelineGroupName.errors().errorsForDisplay("name")}
-            onchange={() => this.newPipelineGroupName.validate("name")}
-            required={true}
-            label="Pipeline group name"
-            helpText={"A new pipeline group will be created, if it does not already exist."}/>
-        </Form>
-      </FormBody>
-    );
-  }
-
   title(): string {
-    return `Clone pipeline - ${this.sourcePipeline.name()}`;
+    return `Clone pipeline - ${this.originalPipeline().name()}`;
   }
 
   buttons(): m.ChildArray {
-    const disabled =
-            (_.isEmpty(this.newPipelineName.name()) || this.newPipelineName.errors().hasErrors())
-            || (_.isEmpty(this.newPipelineGroupName.name()) || this.newPipelineGroupName.errors().hasErrors());
-    return [<Buttons.Primary
-      data-test-id="button-clone"
-      disabled={disabled}
-      onclick={this.save.bind(this)}>Clone</Buttons.Primary>];
+    const disabled = this.isLoading() ||
+                     (_.isEmpty(this.newPipelineName.name()) || this.newPipelineName.errors().hasErrors())
+                     || (_.isEmpty(this.newPipelineGroupName.name()) || this.newPipelineGroupName.errors().hasErrors());
+    return [
+      <Buttons.Primary
+        data-test-id="button-clone"
+        disabled={disabled}
+        ajaxOperationMonitor={this.ajaxOperationMonitor}
+        ajaxOperation={this.save.bind(this)}>Clone</Buttons.Primary>,
+      <Buttons.Cancel data-test-id="button-cancel" onclick={() => this.close()}
+                      ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Buttons.Cancel>
+    ];
+  }
+
+  protected modalBody(): m.Children {
+    return <FormBody>
+      <Form last={true} compactForm={true}>
+        <TextField
+          property={this.newPipelineName.name}
+          errorText={this.newPipelineName.errors().errorsForDisplay("name")}
+          onchange={() => this.newPipelineName.validate("name")}
+          required={true}
+          label="New pipeline name"/>
+        <TextField
+          property={this.newPipelineGroupName.name}
+          errorText={this.newPipelineGroupName.errors().errorsForDisplay("name")}
+          onchange={() => this.newPipelineGroupName.validate("name")}
+          required={true}
+          label="Pipeline group name"
+          helpText={"A new pipeline group will be created, if it does not already exist."}/>
+      </Form>
+    </FormBody>;
   }
 
   private save() {
-    this.callback(this.newPipelineName.name(), this.newPipelineGroupName.name());
-    this.close();
-  }
+    // deep copy the pipeline, and change the name/group name
+    const pipelineToSave = _.cloneDeep(this.originalPipeline());
+    pipelineToSave.name(this.newPipelineName.name());
+    pipelineToSave.group(this.newPipelineGroupName.name());
 
+    const data = {
+      grp_name:         this.newPipelineGroupName.name(),
+      pipeline_to_save: pipelineToSave
+    };
+
+    return this.apiService.performOperation(
+      () => {
+        this.successCallback(this.newPipelineName.name());
+        this.close();
+      },
+      (errorResponse) => {
+        this.errorMessage(errorResponse.message);
+        if (errorResponse.body) {
+          this.errorMessage(JSON.parse(errorResponse.body).message);
+        }
+      },
+      data);
+  }
 }
 
 export class DownloadPipelineModal extends Modal {
@@ -229,8 +323,8 @@ export class ExtractTemplateModal extends Modal {
   constructor(sourcePipelineName: string, callback: (templateName: string) => void) {
     super();
     this.sourcePipelineName = sourcePipelineName;
-    this.callback       = callback;
-    this.templateName   = new ModelWithNameIdentifierValidator();
+    this.callback           = callback;
+    this.templateName       = new ModelWithNameIdentifierValidator();
   }
 
   body() {
@@ -265,4 +359,118 @@ export class ExtractTemplateModal extends Modal {
     this.close();
   }
 
+}
+
+export class DeletePipelineGroupModal extends Modal {
+  private pipelineGrpName: string;
+  private successCallback: (msg: m.Children) => void;
+  private readonly message: m.Children;
+  private operationState: Stream<OperationState> = Stream<OperationState>(OperationState.UNKNOWN);
+  private errorMessage?: string;
+  private apiService: ApiService;
+
+  constructor(pipelineGrpName: string, successCallback: (msg: m.Children) => void, apiService?: ApiService) {
+    super(Size.small);
+    this.pipelineGrpName = pipelineGrpName;
+    this.successCallback = successCallback;
+    this.apiService      = apiService ? apiService : new DeletePipelineGroupService(pipelineGrpName);
+    this.message         = <span>Are you sure you want to delete the pipeline group <em>{pipelineGrpName}</em>?</span>;
+  }
+
+  body(): m.Children {
+    if (this.errorMessage !== undefined) {
+      return <FlashMessage type={MessageType.alert} message={this.errorMessage}/>;
+    }
+    return <div>{this.message}</div>;
+  }
+
+  title(): string {
+    return "Are you sure?";
+  }
+
+  buttons(): m.ChildArray {
+    if (this.errorMessage !== undefined) {
+      return [
+        <Buttons.Primary ajaxOperationMonitor={this.operationState} data-test-id='button-no-delete'
+                         onclick={this.close.bind(this)}>OK</Buttons.Primary>
+      ];
+    }
+    return [
+      <Buttons.Danger data-test-id='button-delete'
+                      ajaxOperationMonitor={this.operationState}
+                      ajaxOperation={this.delete.bind(this)}>Yes Delete</Buttons.Danger>,
+      <Buttons.Cancel ajaxOperationMonitor={this.operationState}
+                      data-test-id='button-no-delete' onclick={this.close.bind(this)}
+      >No</Buttons.Cancel>
+    ];
+  }
+
+  private delete() {
+    return this.apiService.performOperation(
+      () => {
+        this.successCallback(
+          <span>The pipeline group <em>{this.pipelineGrpName}</em> was deleted successfully!</span>
+        );
+        this.close();
+      },
+      (errorResponse: ErrorResponse) => {
+        if (errorResponse.body) {
+          this.errorMessage = JSON.parse(errorResponse.body).message;
+        }
+      }
+    );
+  }
+}
+
+export interface ApiService {
+  performOperation(onSuccess: (data: SuccessResponse<string>) => void,
+                   onError: (message: ErrorResponse) => void,
+                   data?: { [key: string]: any }): Promise<void>;
+}
+
+class DeletePipelineGroupService implements ApiService {
+  private pipelineGrpName: string;
+
+  constructor(pipelineGrpName: string) {
+    this.pipelineGrpName = pipelineGrpName;
+  }
+
+  performOperation(onSuccess: (data: SuccessResponse<string>) => void,
+                   onError: (message: ErrorResponse) => void): Promise<void> {
+    return ApiRequestBuilder.DELETE(SparkRoutes.pipelineGroupsPath(this.pipelineGrpName), ApiVersion.latest)
+                            .then((result) => result.do(onSuccess, onError));
+
+  }
+}
+
+class ClonePipelineGroupService implements ApiService {
+  performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void, data?: { [key: string]: any }): Promise<void> {
+    return ApiRequestBuilder.POST(SparkRoutes.adminPipelineConfigPath(),
+                                  ApiVersion.latest,
+                                  {
+                                    payload: {
+                                      group:    data!.grp_name,
+                                      pipeline: data!.pipeline_to_save
+                                    },
+                                    headers: {
+                                      "X-pause-pipeline": "true",
+                                      "X-pause-cause":    "Under construction"
+                                    }
+                                  })
+                            .then((result) => result.do(onSuccess, onError));
+  }
+
+}
+
+class MovePipelineService implements ApiService {
+  performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void, data?: { [p: string]: any }): Promise<void> {
+    return ApiRequestBuilder
+      .PUT(SparkRoutes.adminPipelineConfigPath(data!.name),
+           ApiVersion.latest,
+           {
+             payload: data!.pipeline_to_save,
+             etag:    data!.etag
+           })
+      .then((apiResult) => apiResult.do(onSuccess, onError));
+  }
 }

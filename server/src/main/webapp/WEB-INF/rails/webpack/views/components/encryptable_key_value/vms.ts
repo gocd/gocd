@@ -41,9 +41,15 @@ interface SerializedServerEntry {
 
 export class EntriesVM {
   readonly entries: EntryVM[];
+  private readonly namespace: string;
 
-  constructor(configurations?: EncryptableEntry[]) {
-    this.entries = configurations ? _.map(configurations, (conf) => new EntryVM(conf)) : [];
+  constructor(configurations?: EncryptableEntry[], namespace="") {
+    this.namespace = namespace;
+    this.entries = configurations ? _.map(filteredByNamespace(configurations, namespace), (conf) => new EntryVM(conf, namespace)) : [];
+  }
+
+  appendBlank() {
+    this.entries.push(new EntryVM(void 0, this.namespace));
   }
 
   excise(el: EntryVM) {
@@ -59,17 +65,34 @@ export class EntriesVM {
 
 export class EntryVM {
   readonly key: Accessor<string> = Stream("");
+  readonly name: Accessor<string>;
   readonly value: Accessor<string> = Stream("");
   readonly secretValue: Accessor<EncryptedValue> = Stream(plain(""));
 
   private readonly original?: EncryptableEntry;
   private encrypted: boolean = false;
 
-  constructor(original?: EncryptableEntry) {
+  constructor(original?: EncryptableEntry, namespace="") {
     if (original) {
       this.original = original;
       this.reset();
     }
+
+    const ns = new RegExp(`^${_.escapeRegExp(namespace + ".")}`);
+    const key = this.key;
+
+    // tslint:disable-next-line only-arrow-functions
+    this.name = function(v?: string): string {
+      if (arguments.length) {
+        if ("" !== v && !!namespace) {
+          key(namespace + "." + v);
+        } else {
+          key(v);
+        }
+      }
+
+      return !!namespace ? key().replace(ns, "") : key();
+    };
   }
 
   valueAlreadyEncrypted(): boolean {
@@ -161,6 +184,11 @@ export class EntryVM {
   private clearAllValues() {
     this.clearAndSetValue("");
   }
+}
+
+function filteredByNamespace(arr: EncryptableEntry[], namespace="") {
+  const prefix = (namespace || "") + ".";
+  return namespace ? _.filter(arr, (r) => r.key.startsWith(prefix)) : arr;
 }
 
 function ciphered(val: string) {

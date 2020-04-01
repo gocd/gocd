@@ -50,15 +50,15 @@ export class KeyValEditor extends RestyleComponent<Styles, CollectionAttrs> {
     </table>;
   }
 
-  entries(vnode: m.Vnode<CollectionAttrs, State>): EntryVM[] {
-    const entries = vnode.attrs.model.entries;
+  entries(vnode: m.Vnode<CollectionAttrs>): EntryVM[] {
+    const model = vnode.attrs.model;
 
     // always guarantee at least one entry, even if it's blank.
-    if (!entries.length) {
-      entries.push(new EntryVM());
+    if (!model.entries.length) {
+      model.appendBlank();
     }
 
-    return entries;
+    return model.entries;
   }
 
   headers(vnode: m.Vnode<CollectionAttrs>) {
@@ -78,7 +78,7 @@ export class KeyValEditor extends RestyleComponent<Styles, CollectionAttrs> {
   }
 
   append(vnode: m.Vnode<CollectionAttrs>) {
-    this.entries(vnode).push(new EntryVM());
+    vnode.attrs.model.appendBlank();
   }
 }
 
@@ -89,7 +89,7 @@ class KeyValEntryEditor extends RestyleComponent<Styles, Attrs> {
     const entry = vnode.attrs.model;
     return <tr>
       <td><Switch property={entry.isSecure.bind(entry)}/></td>
-      <td><TextField placeholder="Name" property={entry.key}/></td>
+      <td><TextField placeholder="Name" property={entry.name}/></td>
       <td>{this.valueField(entry)}</td>
       <td><Delete onclick={vnode.attrs.destroy}/></td>
     </tr>;

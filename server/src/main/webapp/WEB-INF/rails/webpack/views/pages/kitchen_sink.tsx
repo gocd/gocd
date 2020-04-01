@@ -378,6 +378,7 @@ export class KitchenSink extends MithrilComponent<null, any> {
         <hr/>
 
         {propertiesEditor(vnode.state.props, "Config Properties Editor")}
+        {propertiesEditor(vnode.state.propsNS, ["Also supports namespacing properties. Using prefix: ", <code>any.prefix</code>], "This ignores properties that do not start with the supplied prefix. It also transparently prefixes all keys behind the scenes.")}
       </div>
     );
   }
@@ -608,6 +609,14 @@ function setupPropertiesEditorData(state: any) {
     { key: "a secret!", value: "AES:I_love_secrets_but_I_can't_keep_them!", encrypted: true },
     { key: "", value: "", encrypted: false }
   ]);
+
+  state.propsNS = new EntriesVM([
+    { key: "any.prefix.when.a.problem.comes.along", value: "you must whip it.", encrypted: false },
+    { key: "any.prefix.The key name really doesn't matter?", value: "maybe.", encrypted: false },
+    { key: "this.should.not.show", value: "I get filtered out.", encrypted: false },
+    { key: "any.prefix.relax.dont.do.it", value: "AES:when_you_to_go_to_it", encrypted: true },
+    { key: "", value: "", encrypted: false }
+  ], "any.prefix");
 }
 
 function propertiesEditor(model: EntriesVM, title: m.Children, desc="") {

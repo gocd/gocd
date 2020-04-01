@@ -33,42 +33,43 @@ export interface Attrs extends DataTestIdAttr {
 
 export class SwitchBtn extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    const isSmall  = vnode.attrs.small;
+    const { disabled, field, inProgress, onclick, small } = vnode.attrs;
     const switchId = `switch-${uuid4()}`;
-    let label      = null;
-    if (vnode.attrs.label) {
-      label = <label for={switchId} class={classnames({[styles.disabled]: vnode.attrs.disabled}, styles.switchLabel)}
-                     data-test-id="switch-label">
-        {vnode.attrs.label}
-      </label>;
-    }
 
     const dataTestId = vnode.attrs.dataTestId? vnode.attrs.dataTestId: "switch-checkbox";
-    return (
-      <div>
-        <div class={classnames({[styles.switchSmall]: isSmall}, styles.switchBtn)} data-test-id="switch-wrapper">
-          {label}
-          <input id={switchId} type="checkbox"
-                 {...vnode.attrs}
-                 checked={vnode.attrs.field()}
-                 onclick={(e: MouseEvent) => {
-                   if (vnode.attrs.onclick) {
-                     vnode.attrs.onclick(e);
-                   }
+    return <div>
+      <div class={classnames({[styles.switchSmall]: small}, styles.switchBtn)} data-test-id="switch-wrapper">
+        {this.label(vnode.attrs, switchId)}
+        <input id={switchId} type="checkbox"
+                {...vnode.attrs}
+                checked={field()}
+                onclick={(e: MouseEvent) => {
+                  if (onclick) {
+                    onclick(e);
+                  }
 
-                   const target = e.target as HTMLInputElement;
-                   vnode.attrs.field(target.checked);
-                 }}
-                 class={styles.switchInput}
-                 data-test-id={dataTestId}/>
-          <label for={switchId} class={classnames({
-                                                    [styles.inProgress]: vnode.attrs.field() && vnode.attrs.inProgress,
-                                                    [styles.isSuccess]: vnode.attrs.field() && !vnode.attrs.inProgress,
-                                                    [styles.disabled]: vnode.attrs.disabled
-                                                  }, styles.switchPaddle)} data-test-id="switch-paddle"/>
-        </div>
-        {[<HelpText {...vnode.attrs} helpTextId={"switch-btn-help-text"}/>]}
-        {[<ErrorText {...vnode.attrs} errorId={`switch-btn-error-text`}/>]}
-      </div>);
+                  const target = e.target as HTMLInputElement;
+                  field(target.checked);
+                }}
+                class={styles.switchInput}
+                data-test-id={dataTestId}/>
+        <label for={switchId} class={classnames({
+                                                  [styles.inProgress]: field() && inProgress,
+                                                  [styles.isSuccess]: field() && !inProgress,
+                                                  [styles.disabled]: disabled
+                                                }, styles.switchPaddle)} data-test-id="switch-paddle"/>
+      </div>
+      <HelpText {...vnode.attrs} helpTextId={"switch-btn-help-text"}/>
+      <ErrorText {...vnode.attrs} errorId={`switch-btn-error-text`}/>
+    </div>;
+  }
+
+  private label({ disabled, label }: Attrs, switchId: string) {
+    if (label) {
+      const classes = classnames({[styles.disabled]: disabled}, styles.switchLabel);
+      return <label for={switchId} class={classes} data-test-id="switch-label">
+        {label}
+      </label>;
+    }
   }
 }

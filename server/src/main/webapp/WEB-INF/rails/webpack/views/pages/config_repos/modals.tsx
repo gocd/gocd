@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import {docsUrl} from "gen/gocd_version";
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
@@ -52,63 +53,61 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
     const errorMessage = vnode.attrs.error ? <div class={styles.errorWrapper}>{vnode.attrs.error}</div> : undefined;
     const infoMsg = <span>Configure rules to allow which environment/pipeline group/pipeline the config repository can refer to. By default, the config repository cannot refer to an entity unless explicitly allowed. <Link
       href={docsUrl("advanced_usage/pipelines_as_code.html")} externalLinkIcon={true}>Learn More</Link></span>;
-    return (
-      [
-        (errorMessage),
-        (<FormHeader>
-          <Form>
-            <TextField label="Config repository name"
-                       readonly={!vnode.attrs.isNew}
-                       property={vnode.attrs.repo.id}
-                       errorText={vnode.attrs.repo.errors().errorsForDisplay("id")}
+
+    return [
+      errorMessage,
+      <FormHeader>
+        <Form>
+          <TextField label="Config repository name"
+                     readonly={!vnode.attrs.isNew}
+                     property={vnode.attrs.repo.id}
+                     errorText={vnode.attrs.repo.errors().errorsForDisplay("id")}
+                     css={styles}
+                     required={true}/>
+          <SelectField label="Plugin ID"
+                       property={vnode.attrs.repo.pluginId}
+                       required={true}
                        css={styles}
-                       required={true}/>
-            <SelectField label="Plugin ID"
-                         property={vnode.attrs.repo.pluginId}
-                         required={true}
-                         css={styles}
-                         errorText={vnode.attrs.repo.errors().errorsForDisplay("pluginId")}>
-              <SelectFieldOptions selected={vnode.attrs.repo.pluginId()}
-                                  items={pluginList}/>
-            </SelectField>
-          </Form>
-          <Form>
-            <SelectField label={"Material type"}
-                         css={styles}
-                         property={vnode.attrs.repo.material()!.typeProxy.bind(vnode.attrs.repo.material()!)}
-                         required={true}
-                         errorText={vnode.attrs.repo.errors().errorsForDisplay("material")}>
-              <SelectFieldOptions selected={vnode.attrs.repo.material()!.type()}
-                                  items={this.materialSelectOptions()}/>
-            </SelectField>
-          </Form>
-        </FormHeader>),
-        (<div>
-            <div class={styles.materialConfigWrapper}>
-              <FormBody>
-                <Form last={true}>
-                  {vnode.children}
-                </Form>
-              </FormBody>
-              <TestConnection material={vnode.attrs.repo.material()!}/>
-            </div>
-            <div class={styles.pluginFilePatternConfigWrapper}>
-              <FormBody>
-                <Form>
-                  {MaterialEditWidget.pluginConfigView(vnode)}
-                </Form>
-              </FormBody>
-            </div>
-          </div>
-        ),
-        <div>
-          <ConfigureRulesWidget infoMsg={infoMsg}
-                                rules={vnode.attrs.repo.rules}
-                                types={[RulesType.PIPELINE, RulesType.PIPELINE_GROUP, RulesType.ENVIRONMENT]}
-                                resourceAutocompleteHelper={vnode.attrs.resourceAutocompleteHelper}/>
+                       errorText={vnode.attrs.repo.errors().errorsForDisplay("pluginId")}>
+            <SelectFieldOptions selected={vnode.attrs.repo.pluginId()}
+                                items={pluginList}/>
+          </SelectField>
+        </Form>
+        <Form>
+          <SelectField label={"Material type"}
+                       css={styles}
+                       property={vnode.attrs.repo.material()!.typeProxy.bind(vnode.attrs.repo.material()!)}
+                       required={true}
+                       errorText={vnode.attrs.repo.errors().errorsForDisplay("material")}>
+            <SelectFieldOptions selected={vnode.attrs.repo.material()!.type()}
+                                items={this.materialSelectOptions()}/>
+          </SelectField>
+        </Form>
+      </FormHeader>,
+      <div>
+        <div class={styles.materialConfigWrapper}>
+          <FormBody>
+            <Form last={true}>
+              {vnode.children}
+            </Form>
+          </FormBody>
+          <TestConnection material={vnode.attrs.repo.material()!}/>
         </div>
-      ]
-    );
+        <div class={styles.pluginFilePatternConfigWrapper}>
+          <FormBody>
+            <Form>
+              {MaterialEditWidget.pluginConfigView(vnode)}
+            </Form>
+          </FormBody>
+        </div>
+      </div>,
+      <div>
+        <ConfigureRulesWidget infoMsg={infoMsg}
+                              rules={vnode.attrs.repo.rules}
+                              types={[RulesType.PIPELINE, RulesType.PIPELINE_GROUP, RulesType.ENVIRONMENT]}
+                              resourceAutocompleteHelper={vnode.attrs.resourceAutocompleteHelper}/>
+      </div>
+    ];
   }
 
   private static pluginConfigView(vnode: m.Vnode<EditableMaterial>): m.Children {
@@ -149,29 +148,27 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
     view(vnode: m.Vnode<EditableMaterial>) {
       const materialAttributes = vnode.attrs.repo.material()!.attributes() as GitMaterialAttributes;
 
-      return (
-        <MaterialEditWidget {...vnode.attrs}>
-          <div>
-            <TextField label={humanizedMaterialAttributeName("url")}
-                       property={materialAttributes.url}
-                       required={true}
-                       css={styles}
-                       errorText={materialAttributes.errors().errorsForDisplay("url")}/>
-            <TextField label={humanizedMaterialAttributeName("username")}
-                       css={styles}
-                       property={materialAttributes.username}/>
-          </div>
-          <div>
-            <TextField label={humanizedMaterialAttributeName("branch")}
-                       placeholder="master"
-                       css={styles}
-                       property={materialAttributes.branch}/>
-            <PasswordField label={humanizedMaterialAttributeName("password")}
-                           css={styles}
-                           property={materialAttributes.password}/>
-          </div>
-        </MaterialEditWidget>
-      );
+      return <MaterialEditWidget {...vnode.attrs}>
+        <div>
+          <TextField label={humanizedMaterialAttributeName("url")}
+                     property={materialAttributes.url}
+                     required={true}
+                     css={styles}
+                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+          <TextField label={humanizedMaterialAttributeName("username")}
+                     css={styles}
+                     property={materialAttributes.username}/>
+        </div>
+        <div>
+          <TextField label={humanizedMaterialAttributeName("branch")}
+                     placeholder="master"
+                     css={styles}
+                     property={materialAttributes.branch}/>
+          <PasswordField label={humanizedMaterialAttributeName("password")}
+                         css={styles}
+                         property={materialAttributes.password}/>
+        </div>
+      </MaterialEditWidget>;
     }
   } as MithrilViewComponent<EditableMaterial>,
 
@@ -179,29 +176,27 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
     view(vnode: m.Vnode<EditableMaterial>) {
       const materialAttributes = vnode.attrs.repo.material()!.attributes() as SvnMaterialAttributes;
 
-      return (
-        <MaterialEditWidget {...vnode.attrs}>
-          <div>
-            <TextField label={humanizedMaterialAttributeName("url")}
-                       property={materialAttributes.url}
-                       required={true}
-                       css={styles}
-                       errorText={materialAttributes.errors().errorsForDisplay("url")}/>
-            <TextField label={humanizedMaterialAttributeName("username")}
-                       css={styles}
-                       property={materialAttributes.username}/>
-          </div>
-          <div class={styles.adjustHeight}>
-            <CheckboxField label={humanizedMaterialAttributeName("checkExternals")}
-                           css={styles}
-                           property={materialAttributes.checkExternals}/>
+      return <MaterialEditWidget {...vnode.attrs}>
+        <div>
+          <TextField label={humanizedMaterialAttributeName("url")}
+                     property={materialAttributes.url}
+                     required={true}
+                     css={styles}
+                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+          <TextField label={humanizedMaterialAttributeName("username")}
+                     css={styles}
+                     property={materialAttributes.username}/>
+        </div>
+        <div class={styles.adjustHeight}>
+          <CheckboxField label={humanizedMaterialAttributeName("checkExternals")}
+                         css={styles}
+                         property={materialAttributes.checkExternals}/>
 
-            <PasswordField label={humanizedMaterialAttributeName("password")}
-                           css={styles}
-                           property={materialAttributes.password}/>
-          </div>
-        </MaterialEditWidget>
-      );
+          <PasswordField label={humanizedMaterialAttributeName("password")}
+                         css={styles}
+                         property={materialAttributes.password}/>
+        </div>
+      </MaterialEditWidget>;
     }
   } as MithrilViewComponent<EditableMaterial>,
 
@@ -209,61 +204,57 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
     view(vnode: m.Vnode<EditableMaterial>) {
       const materialAttributes = vnode.attrs.repo.material()!.attributes() as HgMaterialAttributes;
 
-      return (
-        <MaterialEditWidget {...vnode.attrs}>
-          <div>
-            <TextField label={humanizedMaterialAttributeName("url")}
-                       property={materialAttributes.url}
-                       required={true}
-                       css={styles}
-                       errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+      return <MaterialEditWidget {...vnode.attrs}>
+        <div>
+          <TextField label={humanizedMaterialAttributeName("url")}
+                     property={materialAttributes.url}
+                     required={true}
+                     css={styles}
+                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
 
-            <TextField label={humanizedMaterialAttributeName("username")}
-                       css={styles}
-                       property={materialAttributes.username}/>
-          </div>
-          <div>
-            <TextField label={humanizedMaterialAttributeName("branch")}
-                       placeholder="default"
-                       css={styles}
-                       property={materialAttributes.branch}/>
+          <TextField label={humanizedMaterialAttributeName("username")}
+                     css={styles}
+                     property={materialAttributes.username}/>
+        </div>
+        <div>
+          <TextField label={humanizedMaterialAttributeName("branch")}
+                     placeholder="default"
+                     css={styles}
+                     property={materialAttributes.branch}/>
 
-            <PasswordField label={humanizedMaterialAttributeName("password")}
-                           css={styles}
-                           property={materialAttributes.password}/>
-          </div>
-        </MaterialEditWidget>
-      );
+          <PasswordField label={humanizedMaterialAttributeName("password")}
+                         css={styles}
+                         property={materialAttributes.password}/>
+        </div>
+      </MaterialEditWidget>;
     }
   } as MithrilViewComponent<EditableMaterial>,
 
   p4: {
     view(vnode: m.Vnode<EditableMaterial>) {
       const materialAttributes = vnode.attrs.repo.material()!.attributes() as P4MaterialAttributes;
-      return (
-        <MaterialEditWidget {...vnode.attrs}>
-          <TextField label={humanizedMaterialAttributeName("port")}
-                     property={materialAttributes.port}
-                     required={true}
-                     css={materialStyles}
-                     errorText={materialAttributes.errors().errorsForDisplay("port")}/>
+      return <MaterialEditWidget {...vnode.attrs}>
+        <TextField label={humanizedMaterialAttributeName("port")}
+                   property={materialAttributes.port}
+                   required={true}
+                   css={materialStyles}
+                   errorText={materialAttributes.errors().errorsForDisplay("port")}/>
 
-          <CheckboxField label={humanizedMaterialAttributeName("useTickets")}
-                         property={materialAttributes.useTickets}/>
+        <CheckboxField label={humanizedMaterialAttributeName("useTickets")}
+                       property={materialAttributes.useTickets}/>
 
-          <TextAreaField label={humanizedMaterialAttributeName("view")}
-                         property={materialAttributes.view}
-                         required={true}
-                         errorText={materialAttributes.errors().errorsForDisplay("view")}/>
+        <TextAreaField label={humanizedMaterialAttributeName("view")}
+                       property={materialAttributes.view}
+                       required={true}
+                       errorText={materialAttributes.errors().errorsForDisplay("view")}/>
 
-          <TextField label={humanizedMaterialAttributeName("username")}
-                     css={materialStyles}
-                     property={materialAttributes.username}/>
+        <TextField label={humanizedMaterialAttributeName("username")}
+                   css={materialStyles}
+                   property={materialAttributes.username}/>
 
-          <PasswordField label={humanizedMaterialAttributeName("password")}
-                         property={materialAttributes.password}/>
-        </MaterialEditWidget>
-      );
+        <PasswordField label={humanizedMaterialAttributeName("password")}
+                       property={materialAttributes.password}/>
+      </MaterialEditWidget>;
     }
   } as MithrilViewComponent<EditableMaterial>,
 
@@ -271,35 +262,32 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
     view(vnode: m.Vnode<EditableMaterial>) {
       const materialAttributes = vnode.attrs.repo.material()!.attributes() as TfsMaterialAttributes;
 
-      return (
-        <MaterialEditWidget {...vnode.attrs}>
+      return <MaterialEditWidget {...vnode.attrs}>
+        <TextField label={humanizedMaterialAttributeName("url")}
+                   property={materialAttributes.url}
+                   css={materialStyles}
+                   required={true}
+                   errorText={materialAttributes.errors().errorsForDisplay("url")}/>
 
-          <TextField label={humanizedMaterialAttributeName("url")}
-                     property={materialAttributes.url}
-                     css={materialStyles}
-                     required={true}
-                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+        <TextField label={humanizedMaterialAttributeName("projectPath")}
+                   property={materialAttributes.projectPath}
+                   required={true}
+                   errorText={materialAttributes.errors().errorsForDisplay("projectPath")}/>
 
-          <TextField label={humanizedMaterialAttributeName("projectPath")}
-                     property={materialAttributes.projectPath}
-                     required={true}
-                     errorText={materialAttributes.errors().errorsForDisplay("projectPath")}/>
+        <TextField label={humanizedMaterialAttributeName("domain")}
+                   property={materialAttributes.domain}/>
 
-          <TextField label={humanizedMaterialAttributeName("domain")}
-                     property={materialAttributes.domain}/>
+        <TextField label={humanizedMaterialAttributeName("username")}
+                   property={materialAttributes.username}
+                   required={true}
+                   css={materialStyles}
+                   errorText={materialAttributes.errors().errorsForDisplay("username")}/>
 
-          <TextField label={humanizedMaterialAttributeName("username")}
-                     property={materialAttributes.username}
-                     required={true}
-                     css={materialStyles}
-                     errorText={materialAttributes.errors().errorsForDisplay("username")}/>
-
-          <PasswordField label={humanizedMaterialAttributeName("password")}
-                         property={materialAttributes.password}
-                         required={true}
-                         errorText={materialAttributes.errors().errorsForDisplay("password")}/>
-        </MaterialEditWidget>
-      );
+        <PasswordField label={humanizedMaterialAttributeName("password")}
+                       property={materialAttributes.password}
+                       required={true}
+                       errorText={materialAttributes.errors().errorsForDisplay("password")}/>
+      </MaterialEditWidget>;
     }
   } as MithrilViewComponent<EditableMaterial>
 };

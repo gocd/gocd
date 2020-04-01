@@ -19,10 +19,7 @@ import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.server.service.AgentService;
-import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
@@ -73,10 +70,12 @@ public class AgentRegistrationController {
     private final InputStreamSrc agentJarSrc;
     private final InputStreamSrc agentLauncherSrc;
     private final InputStreamSrc tfsImplSrc;
+    private final EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
     private final InputStreamSrc agentPluginsZipSrc;
 
     @Autowired
-    public AgentRegistrationController(AgentService agentService, GoConfigService goConfigService, SystemEnvironment systemEnvironment, PluginsZip pluginsZip) throws IOException {
+    public AgentRegistrationController(AgentService agentService, GoConfigService goConfigService, SystemEnvironment systemEnvironment,
+                                       PluginsZip pluginsZip, EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService) throws IOException {
         this.agentService = agentService;
         this.goConfigService = goConfigService;
         this.systemEnvironment = systemEnvironment;
@@ -85,6 +84,7 @@ public class AgentRegistrationController {
         this.agentLauncherSrc = JarDetector.create(systemEnvironment, "agent-launcher.jar");
         this.agentPluginsZipSrc = JarDetector.createFromFile(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH));
         this.tfsImplSrc = JarDetector.create(systemEnvironment, "tfs-impl-14.jar");
+        this.ephemeralAutoRegisterKeyService = ephemeralAutoRegisterKeyService;
     }
 
     private Mac hmac() {
@@ -220,6 +220,7 @@ public class AgentRegistrationController {
         LOG.debug("Processing registration request from agent [{}/{}]", hostname, ipAddress);
         boolean keyEntry;
         String preferredHostname = hostname;
+        boolean isElasticAgent = elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId);
 
         try {
             if (!encodeBase64String(hmac().doFinal(uuid.getBytes())).equals(token)) {
@@ -229,12 +230,15 @@ public class AgentRegistrationController {
                 return new ResponseEntity<>(message, FORBIDDEN);
             }
 
-            if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
+            boolean shouldAutoRegister = shouldAutoRegister(agentAutoRegisterKey, isElasticAgent);
+
+            if (shouldAutoRegister) {
                 preferredHostname = getPreferredHostname(agentAutoRegisterHostname, hostname);
             } else {
                 if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
                     String message = String.format("Elastic agent registration requires an auto-register agent key to be" +
-                            " setup on the server. Agent-id: [%s], Plugin-id: [%s]", elasticAgentId, elasticPluginId);
+                            " setup on the server. The agentAutoRegisterKey: [%s] is either not provided or expired. Agent-id: [%s], Plugin-id: [%s]"
+                            , agentAutoRegisterKey, elasticAgentId, elasticPluginId);
                     LOG.error("Rejecting request for registration. Error: HttpCode=[{}] Message=[{}] UUID=[{}] Hostname=[{}]" +
                             "ElasticAgentID=[{}] PluginID=[{}]", UNPROCESSABLE_ENTITY, message, uuid, hostname, elasticAgentId, elasticPluginId);
                     return new ResponseEntity<>(message, UNPROCESSABLE_ENTITY);
@@ -262,7 +266,7 @@ public class AgentRegistrationController {
                 return new ResponseEntity<>(message, UNPROCESSABLE_ENTITY);
             }
 
-            if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey) && !agentService.isRegistered(uuid)) {
+            if (shouldAutoRegister && !agentService.isRegistered(uuid)) {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
                 agent.setEnvironments(agentAutoRegisterEnvs);
                 agent.setResources(agentAutoRegisterResources);
@@ -292,6 +296,14 @@ public class AgentRegistrationController {
                     hostname, elasticAgentId, elasticPluginId, e);
             return new ResponseEntity<>(String.format("Error occurred during agent registration process: %s", getErrorMessage(e)), UNPROCESSABLE_ENTITY);
         }
+    }
+
+    private boolean shouldAutoRegister(String agentAutoRegisterKey, boolean isElasticAgent) {
+        if (isElasticAgent) {
+            return ephemeralAutoRegisterKeyService.validateAndRevoke(agentAutoRegisterKey);
+        }
+
+        return goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey);
     }
 
     private boolean elasticAgentIdAlreadyRegistered(String elasticAgentId, String elasticPluginId) {

@@ -23,10 +23,7 @@ import com.thoughtworks.go.domain.JarDetector;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.server.service.AgentService;
-import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -72,19 +69,21 @@ public class AgentRegistrationControllerTest {
     private SystemEnvironment systemEnvironment;
     private PluginsZip pluginsZip;
     private File pluginZipFile;
+    private EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
 
     @Before
     public void setUp() throws Exception {
         agentService = mock(AgentService.class);
         systemEnvironment = mock(SystemEnvironment.class);
         goConfigService = mock(GoConfigService.class);
+        ephemeralAutoRegisterKeyService = mock(EphemeralAutoRegisterKeyService.class);
         pluginZipFile = temporaryFolder.newFile("plugins.zip");
         FileUtils.writeStringToFile(pluginZipFile, "content", UTF_8);
         when(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH)).thenReturn(pluginZipFile.getAbsolutePath());
         when(systemEnvironment.getSslServerPort()).thenReturn(8443);
         when(systemEnvironment.get(AGENT_EXTRA_PROPERTIES)).thenReturn("");
         pluginsZip = mock(PluginsZip.class);
-        controller = new AgentRegistrationController(agentService, goConfigService, systemEnvironment, pluginsZip);
+        controller = new AgentRegistrationController(agentService, goConfigService, systemEnvironment, pluginsZip, ephemeralAutoRegisterKeyService);
         controller.populateAgentChecksum();
         controller.populateLauncherChecksum();
         controller.populateTFSSDKChecksum();
@@ -362,14 +361,15 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void shouldAutoRegisterElasticAgent() {
+    public void shouldAutoRegisterElasticAgentIfEphemeralAutoRegisterKeyIsValid() {
         String uuid = "elastic-uuid";
-        final ServerConfig serverConfig = mockedServerConfig("token-generation-key", "someKey");
+        final ServerConfig serverConfig = mockedServerConfig("token-generation-key", "auto_register_key");
         final String token = token(uuid, serverConfig.getTokenGenerationKey());
 
         when(agentService.isRegistered(uuid)).thenReturn(false);
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(agentService.createAgentUsername(uuid, request.getRemoteAddr(), "host")).thenReturn(new Username("some-agent-login-name"));
+        when(ephemeralAutoRegisterKeyService.validateAndRevoke("someKey")).thenReturn(true);
 
         String elasticAgentId = "elastic-agent-id";
         String elasticPluginId = "elastic-plugin-id";
@@ -381,6 +381,26 @@ public class AgentRegistrationControllerTest {
         verify(agentService, times(2)).isRegistered(uuid);
         verify(agentService).register(any(Agent.class));
         verify(agentService).requestRegistration(ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId));
+    }
+
+    @Test
+    public void shouldNotRelyOnAutoRegisterKeyForRegisteringElasticAgents() {
+        String uuid = "elastic-uuid";
+        String autoRegisterKey = "auto_register_key";
+
+        final ServerConfig serverConfig = mockedServerConfig("token-generation-key", autoRegisterKey);
+        final String token = token(uuid, serverConfig.getTokenGenerationKey());
+
+        when(agentService.isRegistered(uuid)).thenReturn(false);
+        when(goConfigService.serverConfig()).thenReturn(serverConfig);
+        when(agentService.createAgentUsername(uuid, request.getRemoteAddr(), "host")).thenReturn(new Username("some-agent-login-name"));
+        when(ephemeralAutoRegisterKeyService.validateAndRevoke(any())).thenReturn(false);
+
+        controller.agentRequest("host", uuid, "location", "233232", "osx", autoRegisterKey,
+                "", "e1", "", "elastic-agent-id",
+                "elastic-plugin-id", token, request);
+
+        verify(agentService, never()).register(any(Agent.class));
     }
 
     private String token(String uuid, String tokenGenerationKey) {

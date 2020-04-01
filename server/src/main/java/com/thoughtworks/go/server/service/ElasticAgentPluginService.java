@@ -74,6 +74,7 @@ public class ElasticAgentPluginService {
     private final ConcurrentHashMap<Long, Long> jobCreationTimeMap = new ConcurrentHashMap<>();
     private final ScheduleService scheduleService;
     private ConsoleService consoleService;
+    private EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
     private JobInstanceSqlMapDao jobInstanceSqlMapDao = null;
 
     @Value("${go.elasticplugin.heartbeat.interval}")
@@ -94,11 +95,11 @@ public class ElasticAgentPluginService {
             CreateAgentQueueHandler createAgentQueue, ServerPingQueueHandler serverPingQueue,
             GoConfigService goConfigService, TimeProvider timeProvider, ClusterProfilesService clusterProfilesService,
             ServerHealthService serverHealthService, JobInstanceSqlMapDao jobInstanceSqlMapDao, ScheduleService scheduleService,
-            ConsoleService consoleService) {
+            ConsoleService consoleService, EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService) {
 
         this(pluginManager, elasticAgentPluginRegistry, agentService, environmentConfigService, createAgentQueue,
                 serverPingQueue, goConfigService, timeProvider, serverHealthService, ElasticAgentMetadataStore.instance(),
-                clusterProfilesService, jobInstanceSqlMapDao, scheduleService, consoleService);
+                clusterProfilesService, jobInstanceSqlMapDao, scheduleService, consoleService, ephemeralAutoRegisterKeyService);
     }
 
     ElasticAgentPluginService(
@@ -107,7 +108,8 @@ public class ElasticAgentPluginService {
             CreateAgentQueueHandler createAgentQueue, ServerPingQueueHandler serverPingQueue,
             GoConfigService goConfigService, TimeProvider timeProvider, ServerHealthService serverHealthService,
             ElasticAgentMetadataStore elasticAgentMetadataStore, ClusterProfilesService clusterProfilesService,
-            JobInstanceSqlMapDao jobInstanceSqlMapDao, ScheduleService scheduleService, ConsoleService consoleService) {
+            JobInstanceSqlMapDao jobInstanceSqlMapDao, ScheduleService scheduleService, ConsoleService consoleService,
+            EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService) {
         this.pluginManager = pluginManager;
         this.elasticAgentPluginRegistry = elasticAgentPluginRegistry;
         this.agentService = agentService;
@@ -122,6 +124,7 @@ public class ElasticAgentPluginService {
         this.jobInstanceSqlMapDao = jobInstanceSqlMapDao;
         this.scheduleService = scheduleService;
         this.consoleService = consoleService;
+        this.ephemeralAutoRegisterKeyService = ephemeralAutoRegisterKeyService;
     }
 
     public void heartbeat() {
@@ -156,6 +159,12 @@ public class ElasticAgentPluginService {
     // for test only
     public void setCreateAgentQueue(CreateAgentQueueHandler createAgentQueue) {
         this.createAgentQueue = createAgentQueue;
+    }
+
+    @Deprecated
+    // for test only
+    protected void setEphemeralAutoRegisterKeyService(EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService) {
+        this.ephemeralAutoRegisterKeyService = ephemeralAutoRegisterKeyService;
     }
 
     private HealthStateScope scope(String pluginId) {
@@ -201,7 +210,7 @@ public class ElasticAgentPluginService {
                 scheduleService.cancelJob(plan.getIdentifier());
             } else if (elasticAgentPluginRegistry.has(clusterProfile.getPluginId())) {
                 String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
-                createAgentQueue.post(new CreateAgentMessage(goConfigService.serverConfig().getAgentAutoRegisterKey(), environment, elasticProfile, clusterProfile, plan.getIdentifier()), messageTimeToLive);
+                createAgentQueue.post(new CreateAgentMessage(ephemeralAutoRegisterKeyService.autoRegisterKey(), environment, elasticProfile, clusterProfile, plan.getIdentifier()), messageTimeToLive);
                 serverHealthService.removeByScope(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()));
             } else {
                 String jobConfigIdentifier = plan.getIdentifier().jobConfigIdentifier().toString();

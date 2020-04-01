@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
+import {ApiResult, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Pipeline, PipelineGroups} from "models/internal_pipeline_structure/pipeline_structure";
 import data from "models/new-environments/spec/test_data";
+import {Origin, OriginType} from "models/origin";
+import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {ModalState} from "views/components/modal";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {
   ApiService,
@@ -109,35 +112,71 @@ describe("ClonePipelineConfigModal", () => {
 });
 
 describe("MoveConfirmModal", () => {
-  let modal: MoveConfirmModal;
-  let callback: (targetGroup: string) => void;
-  let modalTestHelper: TestHelper;
-
-  const pipelineGroupsJSON = data.pipeline_groups_json();
-  const pipelineGroups     = PipelineGroups.fromJSON(pipelineGroupsJSON.groups);
-
-  beforeEach(() => {
-    callback = jasmine.createSpy("callback");
-    modal    = new MoveConfirmModal(pipelineGroups, pipelineGroups[0], pipelineGroups[0].pipelines()[0], callback);
-    modal.render();
-    m.redraw.sync();
-    modalTestHelper = new TestHelper().forModal();
-  });
+  const callback: (msg: m.Children) => void = jasmine.createSpy("callback");
+  const pipelineGroupsJSON                  = data.pipeline_groups_json();
+  const pipelineGroups                      = PipelineGroups.fromJSON(pipelineGroupsJSON.groups);
 
   afterEach(() => {
     ModalManager.closeAll();
   });
 
+  function spyForPipelineGet(modal: MoveConfirmModal) {
+    spyOn(PipelineConfig, "get").and.callFake(() => {
+      return new Promise<ApiResult<string>>((resolve) => {
+        const pipelineConfig = new PipelineConfig(pipelineGroups[0].pipelines()[0].name());
+        pipelineConfig.origin(new Origin(OriginType.GoCD));
+        modal.modalState = ModalState.OK;
+        resolve(ApiResult.success(JSON.stringify(pipelineConfig.toPutApiPayload()), 200, new Map()));
+      });
+    });
+  }
+
   it("should render modal", () => {
+    const dummyService = new class implements ApiService {
+      performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void): Promise<void> {
+        onSuccess({body: "some msg"});
+        return Promise.resolve();
+      }
+    }();
+    const modal        = new MoveConfirmModal(pipelineGroups, pipelineGroups[0], pipelineGroups[0].pipelines()[0], callback, dummyService);
+    spyForPipelineGet(modal);
+    modal.render();
+    m.redraw.sync();
+    const modalTestHelper = new TestHelper().forModal();
     expect(modal).toContainTitle(`Move pipeline ${pipelineGroups[0].pipelines()[0].name()}`);
-    expect(modal).toContainButtons(["Move"]);
+    expect(modal).toContainButtons(["Cancel", "Move"]);
 
     const targetPipelineGroup = pipelineGroupsJSON.groups[1].name;
 
     expect(modalTestHelper.textAll("option")).toEqual([targetPipelineGroup]);
     modalTestHelper.onchange(modalTestHelper.byTestId("move-pipeline-group-selection"), targetPipelineGroup);
-    modalTestHelper.clickButtonOnActiveModal(`[data-test-id="button-move"]`);
-    expect(callback).toHaveBeenCalledWith(targetPipelineGroup);
+    modalTestHelper.clickButtonOnActiveModal(`button[data-test-id="button-move"]`);
+    expect(callback).toHaveBeenCalled();
+  });
+
+  it("should render error if move operation fails", () => {
+    const dummyService = new class implements ApiService {
+      performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void): Promise<void> {
+        onError({message: "some msg", body: '{"message": "some major error"}'});
+        return Promise.resolve();
+      }
+    }();
+    const modal        = new MoveConfirmModal(pipelineGroups, pipelineGroups[0], pipelineGroups[0].pipelines()[0], callback, dummyService);
+    spyForPipelineGet(modal);
+    modal.render();
+    m.redraw.sync();
+    const modalTestHelper = new TestHelper().forModal();
+    expect(modal).toContainTitle(`Move pipeline ${pipelineGroups[0].pipelines()[0].name()}`);
+    expect(modal).toContainButtons(["Cancel", "Move"]);
+
+    const targetPipelineGroup = pipelineGroupsJSON.groups[1].name;
+
+    expect(modalTestHelper.textAll("option")).toEqual([targetPipelineGroup]);
+    modalTestHelper.onchange(modalTestHelper.byTestId("move-pipeline-group-selection"), targetPipelineGroup);
+    modalTestHelper.clickButtonOnActiveModal(`button[data-test-id="button-move"]`);
+
+    expect(modalTestHelper.byTestId('flash-message-alert')).toBeInDOM();
+    expect(modal).toContainError("some major error");
   });
 });
 

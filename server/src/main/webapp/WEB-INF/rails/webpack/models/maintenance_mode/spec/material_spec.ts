@@ -20,7 +20,8 @@ import {
   MaterialJSON,
   P4MaterialAttributesJSON,
   ScmAttributesJSON,
-  ScmMaterialAttributes, TfsMaterialAttributesJSON
+  ScmMaterialAttributes,
+  TfsMaterialAttributesJSON
 } from "models/maintenance_mode/material";
 
 describe("Material specs", () => {
@@ -148,6 +149,16 @@ describe("Material specs", () => {
       expect(material.attributes().errors().count()).toBe(1);
       expect(material.attributes().errors().keys()).toEqual(["password"]);
     });
+  });
+
+  it('should convert filter into json correctly', () => {
+    const filter = new Filter([]);
+
+    expect(filter.toJSON()).toBeNull();
+
+    filter.ignore(['abc', 'xyz']);
+
+    expect(filter.toJSON()).toEqual({ignore: ['abc', 'xyz']});
   });
 });
 

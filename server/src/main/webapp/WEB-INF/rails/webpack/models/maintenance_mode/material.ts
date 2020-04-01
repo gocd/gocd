@@ -97,6 +97,15 @@ export class Filter {
     const filterPattern = (filter && filter.ignore) ? filter.ignore : [];
     return new Filter(filterPattern);
   }
+
+  toJSON() {
+    if (_.isEmpty(this.ignore())) {
+      return null;
+    }
+    return {
+      ignore: this.ignore()
+    };
+  }
 }
 
 export abstract class MaterialAttributes extends ValidatableMixin {

@@ -40,8 +40,11 @@ export class SparkRoutes {
     }
   }
 
-  static adminPipelineConfigPath(pipelineName: string): string {
-    return `/go/api/admin/pipelines/${pipelineName}`;
+  static adminPipelineConfigPath(pipelineName?: string): string {
+    if (pipelineName) {
+      return `/go/api/admin/pipelines/${pipelineName}`;
+    }
+    return `/go/api/admin/pipelines`;
   }
 
   static adminExtractTemplateFromPipelineConfigPath(pipelineName: string): string {
@@ -59,14 +62,6 @@ export class SparkRoutes {
 
   static createPipelineAsCodePath(): string {
     return `/go/admin/pipelines/as-code`;
-  }
-
-  static pipelineConfigCreatePath(): string {
-    return `/go/api/admin/pipelines`;
-  }
-
-  static getOrUpdatePipelineConfigPath(pipelineName: string): string {
-    return `/go/api/admin/pipelines/${pipelineName}`;
   }
 
   static pipelinePausePath(pipelineName: string): string {

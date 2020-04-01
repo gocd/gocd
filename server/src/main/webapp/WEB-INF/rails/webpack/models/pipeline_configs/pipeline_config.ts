@@ -191,7 +191,7 @@ export class PipelineConfig extends ValidatableMixin {
   }
 
   static get(pipelineName: string) {
-    return ApiRequestBuilder.GET(SparkRoutes.getOrUpdatePipelineConfigPath(pipelineName), ApiVersion.latest);
+    return ApiRequestBuilder.GET(SparkRoutes.adminPipelineConfigPath(pipelineName), ApiVersion.latest);
   }
 
   static fromJSON(json: PipelineConfigJSON) {
@@ -227,14 +227,14 @@ export class PipelineConfig extends ValidatableMixin {
   }
 
   create(pause: boolean) {
-    return ApiRequestBuilder.POST(SparkRoutes.pipelineConfigCreatePath(), ApiVersion.latest, {
+    return ApiRequestBuilder.POST(SparkRoutes.adminPipelineConfigPath(), ApiVersion.latest, {
       payload: this.toApiPayload(),
       headers: {"X-pause-pipeline": pause.toString(), "X-pause-cause": "Under construction"}
     });
   }
 
   update(etag: string) {
-    return ApiRequestBuilder.PUT(SparkRoutes.getOrUpdatePipelineConfigPath(this.name()), ApiVersion.latest, {
+    return ApiRequestBuilder.PUT(SparkRoutes.adminPipelineConfigPath(this.name()), ApiVersion.latest, {
       payload: this.toPutApiPayload(), etag
     });
   }

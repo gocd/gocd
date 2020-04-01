@@ -17,7 +17,6 @@
 import {pipelineEditPath} from "gen/ts-routes";
 import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineGroupCRUD} from "models/admin_pipelines/pipeline_groups_crud";
@@ -126,52 +125,11 @@ export class AdminPipelinesPage extends Page<null, State> {
     };
 
     vnode.state.doMovePipeline = (sourceGroup, pipeline) => {
-      const copyOfPipelineConfigFromServer = Stream<any>();
-      const etag                           = Stream<string>();
-
-      const moveOperation = (targetGroup: string) => {
-        // deep copy the pipeline, and change the name/group name
-        const pipelineToSave = _.cloneDeep(copyOfPipelineConfigFromServer());
-        pipelineToSave.group = targetGroup;
-
-        ApiRequestBuilder
-          .PUT(SparkRoutes.adminPipelineConfigPath(pipeline.name()),
-               ApiVersion.latest,
-               {
-                 payload: pipelineToSave,
-                 etag:    etag()
-               })
-          .then((apiResult) => {
-            apiResult.do(
-              () => {
-                const msg = (
-                  <span>
-                    The pipeline <em>{pipeline.name()}</em> was moved from <em>{sourceGroup.name()}</em> to <em>{targetGroup}</em>
-                  </span>
-                );
-                vnode.state.onSuccessfulSave(msg);
-              },
-              onOperationError
-            );
-
-          })
-          .finally(() => {
-            modal.close();
-          });
-
-      };
-      const modal         = new MoveConfirmModal(vnode.state.pipelineGroups(),
-                                                 sourceGroup,
-                                                 pipeline,
-                                                 moveOperation);
-      modal.modalState    = ModalState.LOADING;
-      modal.render();
-
-      this.fetchPipelineConfigFromServer(pipeline.name(),
-                                         copyOfPipelineConfigFromServer,
-                                         etag,
-                                         onOperationError,
-                                         modal);
+      new MoveConfirmModal(vnode.state.pipelineGroups(),
+                           sourceGroup,
+                           pipeline,
+                           vnode.state.onSuccessfulSave)
+        .render();
     };
 
     vnode.state.onError = (msg: m.Children) => {

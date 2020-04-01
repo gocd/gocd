@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import styles from "./index.scss";
-
-const classnames = bind(styles);
 
 export interface Attrs {
   onclick?: (e: MouseEvent) => void;
@@ -47,7 +45,7 @@ class Icon extends MithrilViewComponent<Attrs> {
         <i title={title}
            data-test-id={vnode.attrs["data-test-id"] ? vnode.attrs["data-test-id"] : `${this.title}-icon`}
            data-test-disabled-element={vnode.attrs.disabled}
-           class={classnames({enabled: !vnode.attrs.disabled}, this.name, {disabled: vnode.attrs.disabled})}
+           class={classnames({[styles.enabled]: !vnode.attrs.disabled}, this.name, {[styles.disabled]: vnode.attrs.disabled})}
            aria-describedby={vnode.attrs.describedBy}
            {...vnode.attrs}
            onclick={vnode.attrs.disabled ? undefined : vnode.attrs.onclick}/>
@@ -58,7 +56,7 @@ class Icon extends MithrilViewComponent<Attrs> {
       <button title={title}
               data-test-id={`${this.title}-icon`}
               data-test-disabled-element={vnode.attrs.disabled}
-              class={(classnames(styles.btnIcon, {disabled: vnode.attrs.disabled}))}
+              class={(classnames(styles.btnIcon, {[styles.disabled]: vnode.attrs.disabled}))}
               {...vnode.attrs}>
           {vnode.children}
         <i class={this.name}/>

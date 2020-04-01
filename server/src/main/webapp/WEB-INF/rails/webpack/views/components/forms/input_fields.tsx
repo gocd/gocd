@@ -474,7 +474,7 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
   protected defaultAttributes(attrs: BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr): any {
     return _.assign(super.defaultAttributes(attrs), textInputFieldDefaultAttrs, {
       readonly: !attrs.property()!.isEditing()
-    });
+    }, _.isEmpty(attrs.placeholder) ? {} : { placeholder: attrs.placeholder });
   }
 
   protected bindingAttributes(attrs: BaseAttrs<EncryptedValue>,

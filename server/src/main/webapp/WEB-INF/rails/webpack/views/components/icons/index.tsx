@@ -60,6 +60,7 @@ class Icon extends MithrilViewComponent<Attrs> {
               data-test-disabled-element={vnode.attrs.disabled}
               class={(classnames(styles.btnIcon, {disabled: vnode.attrs.disabled}))}
               {...vnode.attrs}>
+          {vnode.children}
         <i class={this.name}/>
       </button>
     );

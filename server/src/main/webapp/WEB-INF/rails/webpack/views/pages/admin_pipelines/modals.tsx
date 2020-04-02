@@ -255,10 +255,7 @@ export class ClonePipelineConfigModal extends BasePipelineModal {
     pipelineToSave.name(this.newPipelineName.name());
     pipelineToSave.group(this.newPipelineGroupName.name());
 
-    const data = {
-      grp_name:         this.newPipelineGroupName.name(),
-      pipeline_to_save: pipelineToSave
-    };
+    const data = pipelineToSave.toApiPayload();
 
     return this.apiService.performOperation(
       () => {
@@ -448,10 +445,7 @@ class ClonePipelineGroupService implements ApiService {
     return ApiRequestBuilder.POST(SparkRoutes.adminPipelineConfigPath(),
                                   ApiVersion.latest,
                                   {
-                                    payload: {
-                                      group:    data!.grp_name,
-                                      pipeline: data!.pipeline_to_save
-                                    },
+                                    payload: data,
                                     headers: {
                                       "X-pause-pipeline": "true",
                                       "X-pause-cause":    "Under construction"

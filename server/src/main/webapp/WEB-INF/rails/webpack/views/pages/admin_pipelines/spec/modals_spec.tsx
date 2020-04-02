@@ -79,8 +79,10 @@ describe("ClonePipelineConfigModal", () => {
 
   it("should render modal", () => {
     const dummyService = new class implements ApiService {
-      performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void): Promise<void> {
+      performOperation(onSuccess: (data: SuccessResponse<string>) => void, onError: (message: ErrorResponse) => void, data?: { [key: string]: any }): Promise<void> {
         onSuccess({body: "some msg"});
+        expect(Object.keys(data!)).toEqual(['group', 'pipeline']);
+        expect(data!.group).toEqual('new-pipeline-group');
         return Promise.resolve();
       }
     }();

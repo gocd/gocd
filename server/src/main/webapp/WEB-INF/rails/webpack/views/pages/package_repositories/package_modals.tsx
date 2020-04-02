@@ -49,6 +49,13 @@ abstract class PackageModal extends EntityModal<Package> {
     this.packageRepositories = packageRepositories;
   }
 
+  operationError(errorResponse: any, statusCode: number) {
+    this.errorMessage(errorResponse.message);
+    if (errorResponse.data) {
+      this.entity(this.parseJsonToEntity(errorResponse.data));
+    }
+  }
+
   protected modalBody(): m.Children {
     return <PackageModalBody pluginInfos={this.pluginInfos} packageRepositories={this.packageRepositories}
                              package={this.entity()}

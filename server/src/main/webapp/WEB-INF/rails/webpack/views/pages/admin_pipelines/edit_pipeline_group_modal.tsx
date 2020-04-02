@@ -236,8 +236,10 @@ export class EditPipelineGroupModal extends Modal {
                          }, (errorResponse) => {
                            if (errorResponse.body) {
                              const pipelineGrpJson = JSON.parse(errorResponse.body);
-                             const pipelineGroup   = PipelineGroup.fromJSON(pipelineGrpJson.data);
-                             this.pipelineGroupViewModel(new PipelineGroupViewModel(pipelineGroup));
+                             if (pipelineGrpJson.data) {
+                               const pipelineGroup = PipelineGroup.fromJSON(pipelineGrpJson.data);
+                               this.pipelineGroupViewModel(new PipelineGroupViewModel(pipelineGroup));
+                             }
                              this.flashMessage.setMessage(MessageType.alert, pipelineGrpJson.message);
                            } else {
                              this.flashMessage.setMessage(MessageType.alert, errorResponse.message);

@@ -46,6 +46,13 @@ abstract class PluggableScmModal extends EntityModal<Scm> {
     this.originalEntityName = entity.name();
   }
 
+  operationError(errorResponse: any, statusCode: number) {
+    this.errorMessage(errorResponse.message);
+    if (errorResponse.body) {
+      this.errorMessage(JSON.parse(errorResponse.body).message);
+    }
+  }
+
   protected modalBody(): m.Children {
     return <PluggableScmModalBody pluginInfos={this.pluginInfos}
                                   scm={this.entity()}

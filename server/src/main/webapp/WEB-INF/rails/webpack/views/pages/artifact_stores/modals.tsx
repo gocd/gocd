@@ -44,6 +44,13 @@ abstract class ArtifactStoreModal extends EntityModal<ArtifactStore> {
     entity(new ArtifactStore(entity().id(), pluginInfo!.id, new Configurations([])));
   }
 
+  operationError(errorResponse: any, statusCode: number) {
+    this.errorMessage(errorResponse.message);
+    if (errorResponse.body) {
+      this.errorMessage(JSON.parse(errorResponse.body).message);
+    }
+  }
+
   protected performFetch(entity: ArtifactStore): Promise<any> {
     return ArtifactStoresCRUD.get(this.originalEntityId);
   }
@@ -147,8 +154,12 @@ export class DeleteArtifactStoreModal extends ArtifactStoreModal {
   }
 
   operationError(errorResponse: any, statusCode: number) {
-    const json = JSON.parse(errorResponse.body);
-    this.setMessage(MessageType.alert, json.message);
+    let message = errorResponse.message;
+    if (errorResponse.body) {
+      const json = JSON.parse(errorResponse.body);
+      message    = json.message;
+    }
+    this.setMessage(MessageType.alert, message);
     this.close();
   }
 

@@ -200,7 +200,6 @@ export class PackageRepositoriesPage extends Page<null, State> {
 
       const pluginId          = vnode.state.pluginInfos()[0].id;
       const packageRepository = PackageRepository.default();
-      //todo: decide whether or not this is correct
       packageRepository.repoId(uuidv4());
       packageRepository.pluginMetadata().id(pluginId);
       new CreatePackageRepositoryModal(packageRepository, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
@@ -236,7 +235,6 @@ export class PackageRepositoriesPage extends Page<null, State> {
 
       const pkg = Package.default();
       pkg.packageRepo().id(packageRepo.repoId());
-      //todo: decide whether or not this is correct
       pkg.id(uuidv4());
       new CreatePackageModal(pkg, vnode.state.packageRepositories(), vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
         .render();

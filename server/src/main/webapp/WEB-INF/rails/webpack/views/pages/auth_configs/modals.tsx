@@ -73,6 +73,13 @@ abstract class AuthConfigModal extends EntityModal<AuthConfig> {
     ];
   }
 
+  operationError(errorResponse: any, statusCode: number) {
+    this.errorMessage(errorResponse.message);
+    if (errorResponse.body) {
+      this.errorMessage(JSON.parse(errorResponse.body).message);
+    }
+  }
+
   protected performFetch(entity: AuthConfig): Promise<any> {
     return AuthConfigsCRUD.get(this.originalEntityId);
   }

@@ -91,7 +91,7 @@ export class CreatePluggableScmModal extends PluggableScmModal {
   }
 
   title(): string {
-    return "Create a package repository";
+    return "Create a scm";
   }
 
   protected operationPromise(): Promise<any> {

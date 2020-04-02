@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
-import {StageSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/stage_settings_tab_content";
+import {
+  StageSettingsTabContent,
+  StageSettingsWidget
+} from "views/pages/clicky_pipeline_config/tabs/stage/stage_settings_tab_content";
 import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -100,6 +104,44 @@ describe("StageSettingsTab", () => {
     helper.clickByTestId("clean-working-directory-checkbox");
 
     expect(stage.cleanWorkingDirectory()).toBeTrue();
+  });
+
+  describe("Stage Settings For Add a New Stage", () => {
+    const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "Job1"));
+
+    beforeEach(() => {
+      helper.mount(() => {
+        return <StageSettingsWidget stage={stage} isForAddStagePopup={true}/>;
+      });
+    });
+
+    it("should render stage name", () => {
+      expect(helper.byTestId("stage-name-input")).toBeInDOM();
+      expect(helper.byTestId("stage-name-input")).toHaveValue("Test");
+    });
+
+    it("should allow to change approval type", () => {
+      expect(stage.approval().typeAsString()).toEqual("manual");
+      expect(helper.byTestId("approval-checkbox")).toBeInDOM();
+    });
+
+    it("should render allow only in success", () => {
+      expect(stage.approval().allowOnlyOnSuccess()).toBeFalse();
+      expect(helper.byTestId("allow-only-on-success-checkbox")).toBeInDOM();
+    });
+
+    it("should not render fetch material", () => {
+      expect(helper.byTestId("fetch-materials-checkbox")).not.toBeInDOM();
+    });
+
+    it("should not render never cleanup artifacts directory", () => {
+      expect(helper.byTestId("never-cleanup-artifacts-checkbox")).not.toBeInDOM();
+    });
+
+    it("should not render clean working directory", () => {
+      expect(helper.byTestId("clean-working-directory-checkbox")).not.toBeInDOM();
+    });
+
   });
 
   function mount(stage: Stage) {

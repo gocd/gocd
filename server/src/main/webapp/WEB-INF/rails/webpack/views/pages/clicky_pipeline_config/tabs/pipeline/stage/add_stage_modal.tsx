@@ -18,57 +18,36 @@ import {ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Job} from "models/pipeline_configs/job";
-import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {Stage} from "models/pipeline_configs/stage";
-import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
-import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
+import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {Modal} from "views/components/modal";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
-import {JobSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/job_settings_tab_content";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
 import {TasksWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
 import styles from "views/pages/clicky_pipeline_config/tabs/stage/jobs_tab_content.scss";
-import {OperationState} from "views/pages/page_operations";
+import {StageSettingsWidget} from "views/pages/clicky_pipeline_config/tabs/stage/stage_settings_tab_content";
 
-export class AddJobModal extends Modal {
-  private readonly stage: Stage;
-  private readonly templateConfig: TemplateConfig;
-  private readonly jobSettingsTabContent: JobSettingsTabContent;
-  private readonly pipelineConfig: PipelineConfig;
-  private readonly routeParams: PipelineConfigRouteParams;
-  private readonly pipelineConfigSave: () => Promise<any>;
-  private readonly ajaxOperationMonitor: Stream<OperationState>;
+export class AddStageModal extends Modal {
+  private stages: NameableSet<Stage>;
+  private pipelineConfigSave: () => Promise<any>;
+
   private readonly selectedTaskTypeToAdd: Stream<string>;
   private readonly allTaskTypes: string[];
+
+  private stageToCreate: Stage;
+  private jobToCreate: Job;
   private taskModal: AbstractTaskModal | undefined;
 
-  private readonly jobToCreate: Job;
-
-  constructor(stage: Stage, templateConfig: TemplateConfig, pipelineConfig: PipelineConfig,
-              routeParams: PipelineConfigRouteParams, ajaxOperationMonitor: Stream<OperationState>,
-              pipelineConfigSave: () => Promise<any>, pipelineConfigReset: () => void) {
+  constructor(stages: NameableSet<Stage>, pipelineConfigSave: () => Promise<any>) {
     super();
 
-    const self = this;
+    this.stages             = stages;
+    this.pipelineConfigSave = pipelineConfigSave;
 
-    this.jobToCreate = new Job();
-
-    this.stage                = stage;
-    this.templateConfig       = templateConfig;
-    this.pipelineConfig       = pipelineConfig;
-    this.routeParams          = routeParams;
-    this.ajaxOperationMonitor = ajaxOperationMonitor;
-    this.pipelineConfigSave   = pipelineConfigSave;
-
-    this.jobSettingsTabContent = new JobSettingsTabContent();
-
-    // @ts-ignore
-    // override selectedEntity method to return the newly created job as the bounded job.
-    this.jobSettingsTabContent.selectedEntity = (p: PipelineConfig, r: PipelineConfigRouteParams): Job => {
-      return self.jobToCreate;
-    };
+    this.stageToCreate = new Stage();
+    this.jobToCreate   = new Job();
 
     this.allTaskTypes          = ["Ant", "NAnt", "Rake", "Custom Command"];
     this.selectedTaskTypeToAdd = Stream(this.allTaskTypes[0]);
@@ -77,18 +56,18 @@ export class AddJobModal extends Modal {
   }
 
   body(): m.Children {
-    return <div data-test-id="add-job-modal">
-      {this.jobSettingsTabContent.content(this.pipelineConfig,
-                                          this.templateConfig,
-                                          this.routeParams,
-                                          this.ajaxOperationMonitor,
-                                          this.noOperation.bind(this),
-                                          this.noOperation.bind(this))}
-      <h3 data-test-id="initial-task-header">Initial Task</h3>
-      <div data-test-id="initial-task-help-text" class={styles.jobHelpText}>
-        This job requires at least one task. You can add more tasks once this job has been created
+    return <div data-test-id="add-stage-modal">
+      <StageSettingsWidget stage={this.stageToCreate} isForAddStagePopup={true}/>
+      <h3 data-test-id="initial-job-and-task-header">Initial Job and Task</h3>
+      <div data-test-id="initial-job-and-task-header-help-text" className={styles.jobHelpText}>
+        You can add more jobs and tasks to this stage once the stage has been created.
       </div>
+      <TextField required={true}
+                 errorText={this.jobToCreate.errors().errorsForDisplay("name")}
+                 label="Job Name"
+                 property={this.jobToCreate.name}/>
       <SelectField property={this.selectedTaskTypeToAdd}
+                   label={"Task Type"}
                    onchange={this.updateTaskModal.bind(this)}>
         <SelectFieldOptions selected={this.selectedTaskTypeToAdd()}
                             items={this.allTaskTypes}/>
@@ -98,7 +77,7 @@ export class AddJobModal extends Modal {
   }
 
   title(): string {
-    return "Add new Job";
+    return "Add new Stage";
   }
 
   buttons(): m.ChildArray {
@@ -129,24 +108,25 @@ export class AddJobModal extends Modal {
   }
 
   private onSave() {
-    this.jobToCreate.tasks().push(this.taskModal!.getTask());
-    this.stage.jobs().add(this.jobToCreate);
+    this.jobToCreate.tasks([this.taskModal!.getTask()]);
+    this.stageToCreate.jobs(new NameableSet([this.jobToCreate]));
+    this.stages.add(this.stageToCreate);
 
     this.performPipelineSave();
   }
 
   private onClose() {
-    this.stage.jobs().delete(this.jobToCreate);
+    this.stages.delete(this.stageToCreate);
     this.close();
   }
 
   private onTaskSaveFailure(errorResponse?: ErrorResponse) {
     if (errorResponse) {
       const parsed = JSON.parse(errorResponse.body!);
-      this.jobToCreate.consumeErrorsResponse(parsed.data);
+      this.stageToCreate.consumeErrorsResponse(parsed.data);
     }
 
-    this.stage.jobs().delete(this.jobToCreate);
+    this.stages.delete(this.stageToCreate);
     m.redraw.sync();
   }
 

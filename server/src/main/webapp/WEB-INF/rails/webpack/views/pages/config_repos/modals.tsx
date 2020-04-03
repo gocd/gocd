@@ -114,14 +114,14 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
     let pluginConfig = null;
     if (ConfigRepo.JSON_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
       pluginConfig = [
-        <TextField property={vnode.attrs.repo.__jsonPluginPipelinesPattern}
+        <TextField property={vnode.attrs.repo.jsonPipelinesPattern}
                    css={styles}
                    label="GoCD pipeline files pattern"/>,
-        <TextField property={vnode.attrs.repo.__jsonPluginEnvPattern}
+        <TextField property={vnode.attrs.repo.jsonEnvPattern}
                    label="GoCD environment files pattern"/>
       ];
     } else if (ConfigRepo.YAML_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
-      pluginConfig = (<TextField property={vnode.attrs.repo.__yamlPluginPattern} css={styles} label="GoCD YAML files pattern"/>);
+      pluginConfig = (<TextField property={vnode.attrs.repo.yamlPattern} css={styles} label="GoCD YAML files pattern"/>);
     }
     return pluginConfig;
   }

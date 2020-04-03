@@ -16,9 +16,8 @@
 
 import _ from "lodash";
 import Stream from "mithril/stream";
+import {Accessor} from "models/base/accessor";
 import {EncryptedValue} from "../forms/encrypted_value";
-
-type Accessor<T> = (val?: T) => T;
 
 // Compatible with Configuration instances
 interface EncryptableEntry {

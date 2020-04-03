@@ -18,6 +18,7 @@ import {RestyleViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {Accessor} from "models/base/accessor";
 import {Rule, Rules} from "models/rules/rules";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -45,7 +46,7 @@ export let RuleActions = {
 export type RuleInfos = RuleInfo[];
 
 interface Attrs {
-  rules: Stream<Rules>;
+  rules: Accessor<Rules>;
   resourceAutocompleteHelper: Map<string, string[]>;
   infoMsg?: m.Children;
   actions?: RuleInfos;
@@ -145,7 +146,7 @@ export class ConfigureRulesWidget extends RestyleViewComponent<Styles, Attrs> {
     return defaultHeaders;
   }
 
-  private rearrangeRules(rules: Stream<Rules>, oldIndex: number, newIndex: number) {
+  private rearrangeRules(rules: Accessor<Rules>, oldIndex: number, newIndex: number) {
     const originalRules = rules();
     originalRules.splice(newIndex, 0, originalRules.splice(oldIndex, 1)[0]);
     rules(originalRules);
@@ -153,7 +154,7 @@ export class ConfigureRulesWidget extends RestyleViewComponent<Styles, Attrs> {
   }
 
   private getTableData(vnode: m.Vnode<Attrs>, showActionColumn: boolean): m.Child[][] {
-    const removeRuleCallback = (ruleToBeRemoved: Stream<Rule>) => {
+    const removeRuleCallback = (ruleToBeRemoved: Accessor<Rule>) => {
       const index = vnode.attrs.rules().findIndex((r) => r === ruleToBeRemoved);
       if (index !== -1) {
         vnode.attrs.rules().splice(index, 1);

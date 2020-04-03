@@ -16,13 +16,13 @@
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import {JsonUtils} from "helpers/json_utils";
 import {SparkRoutes} from "helpers/spark_routes";
+import {serialize} from "models/base/accessor";
 import {ConfigRepoJSON, ConfigReposJSON} from "models/config_repos/serialization";
 import {ConfigRepo, ConfigRepos} from "models/config_repos/types";
 
 export function configRepoToSnakeCaseJSON(o: ConfigRepo) {
-  const configurations = o.createConfigurationsFromText();
-  const json           = JsonUtils.toSnakeCasedObject(o);
-  json.configuration   = configurations.map((config) => config.toJSON());
+  const json         = JsonUtils.toSnakeCasedObject(o);
+  json.configuration = o.configuration().map(serialize);
   return json;
 }
 

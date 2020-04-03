@@ -231,6 +231,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Long> HSTS_HEADER_MAX_AGE = new GoLongSystemProperty("gocd.hsts.header.max.age", ONE_YEAR);
     public static GoSystemProperty<Boolean> HSTS_HEADER_INCLUDE_SUBDOMAINS = new GoBooleanSystemProperty("gocd.hsts.header.include.subdomains", false);
     public static GoSystemProperty<Boolean> HSTS_HEADER_PRELOAD = new GoBooleanSystemProperty("gocd.hsts.header.preload", false);
+    public static GoSystemProperty<Long> EPHEMERAL_AUTO_REGISTER_KEY_EXPIRY = new GoLongSystemProperty("gocd.ephemeral.auto.register.key.expiry.millis", 30 * 60 *1000L);
 
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
@@ -922,6 +923,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public Optional<String> wrapperConfigDirPath() {
         return Optional.ofNullable(System.getenv("WRAPPER_CONF_DIR"));
+    }
+
+    public long getEphemeralAutoRegisterKeyExpiryInMillis() {
+        return EPHEMERAL_AUTO_REGISTER_KEY_EXPIRY.getValue();
     }
 
 

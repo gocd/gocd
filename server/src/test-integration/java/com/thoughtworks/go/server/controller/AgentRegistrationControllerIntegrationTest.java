@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.EphemeralAutoRegisterKeyService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import org.junit.jupiter.api.AfterEach;
@@ -66,6 +67,8 @@ public class AgentRegistrationControllerIntegrationTest {
     private AgentService agentService;
     @Autowired
     private UuidGenerator uuidGenerator;
+    @Autowired
+    EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
 
     static final Cloner CLONER = new Cloner();
     private Properties original;
@@ -96,7 +99,7 @@ public class AgentRegistrationControllerIntegrationTest {
 
     @Test
     public void shouldRegisterElasticAgent() {
-        String autoRegisterKey = goConfigService.serverConfig().getAgentAutoRegisterKey();
+        String autoRegisterKey = ephemeralAutoRegisterKeyService.autoRegisterKey();
         String uuid = UUID.randomUUID().toString();
         String elasticAgentId = UUID.randomUUID().toString();
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -123,7 +126,6 @@ public class AgentRegistrationControllerIntegrationTest {
 
     @Test
     public void shouldNotRegisterElasticAgentWithDuplicateElasticAgentID() {
-        String autoRegisterKey = goConfigService.serverConfig().getAgentAutoRegisterKey();
         String uuid = UUID.randomUUID().toString();
         String elasticAgentId = UUID.randomUUID().toString();
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -133,7 +135,7 @@ public class AgentRegistrationControllerIntegrationTest {
                 "sandbox",
                 "100",
                 "Alpine Linux v3.5",
-                autoRegisterKey,
+                ephemeralAutoRegisterKeyService.autoRegisterKey(),
                 "",
                 "",
                 "hostname",
@@ -149,7 +151,7 @@ public class AgentRegistrationControllerIntegrationTest {
                 "sandbox",
                 "100",
                 "Alpine Linux v3.5",
-                autoRegisterKey,
+                ephemeralAutoRegisterKeyService.autoRegisterKey(),
                 "",
                 "",
                 "hostname",

@@ -53,6 +53,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -69,6 +70,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -122,6 +124,8 @@ public class ScheduleServiceIntegrationTest {
     private AgentService agentService;
     @Autowired
     private ElasticAgentPluginService elasticAgentPluginService;
+    @Mock
+    private EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
 
     private PipelineConfig mingleConfig;
     @Autowired
@@ -147,6 +151,7 @@ public class ScheduleServiceIntegrationTest {
 
     @Before
     public void setup() throws Exception {
+        initMocks(this);
         configHelper = new GoConfigFileHelper();
         dbHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
@@ -477,12 +482,15 @@ public class ScheduleServiceIntegrationTest {
         String pluginId = "ecs";
         ClusterProfile clusterProfile = new ClusterProfile("cluster_profile", pluginId);
         ElasticProfile elasticAgentProfile = new ElasticProfile("elastic_agent_profile", "cluster_profile");
+        String ephemeralAutoRegisterKey = "auto_registry_key";
 
         //Mock elastic agent extension
         ElasticAgentPluginRegistry elasticAgentPluginRegistry = mock(ElasticAgentPluginRegistry.class);
         when(elasticAgentPluginRegistry.shouldAssignWork(any(), any(), any(), any(), any(), any())).thenReturn(true);
         when(elasticAgentPluginRegistry.has(any())).thenReturn(true);
+        when(ephemeralAutoRegisterKeyService.autoRegisterKey()).thenReturn(ephemeralAutoRegisterKey);
         elasticAgentPluginService.setElasticAgentPluginRegistry(elasticAgentPluginRegistry);
+        elasticAgentPluginService.setEphemeralAutoRegisterKeyService(ephemeralAutoRegisterKeyService);
 
         //Mock CreateAgentQueueHandler to verify create agent call was sent to the plugin
         CreateAgentQueueHandler createAgentQueueHandler = mock(CreateAgentQueueHandler.class);
@@ -558,7 +566,7 @@ public class ScheduleServiceIntegrationTest {
         elasticAgentPluginService.createAgentsFor(Collections.emptyList(), Collections.singletonList(jobInstanceDao.loadPlan(newlyScheduledBuildId)));
 
         //verify create agent request was sent to the plugin
-        CreateAgentMessage message = new CreateAgentMessage(configHelper.getCachedGoConfig().loadForEditing().server().getAgentAutoRegisterKey(), null, elasticAgentProfile, clusterProfile, jobPlanOfRescheduledInstance.getIdentifier());
+        CreateAgentMessage message = new CreateAgentMessage(ephemeralAutoRegisterKey, null, elasticAgentProfile, clusterProfile, jobPlanOfRescheduledInstance.getIdentifier());
         verify(createAgentQueueHandler, times(1)).post(message, 110000L);
     }
 

@@ -49,7 +49,7 @@ const GroupHeading = {
               aria-label={vm.label()}>{vm.name || "Pipelines not in any Environment"}</f.link>
       {vm.name && <f.link class="edit_config dashboard-group_edit-config" disabled={!vm.canAdminister} href={paths.edit}
                           tooltipText={vm.tooltipForEdit()} title={vm.titleForEdit()} aria-label={vm.ariaLabelForEdit()}/>}
-      {vnode.attrs.testDrive ? [<BehaviorPrompt
+      {vnode.attrs.showPrompt ? [<BehaviorPrompt
         promptText="Create your first pipeline"
         key="addPipeline"
         query={m.parseQueryString(window.location.search).new_pipeline_name}
@@ -107,10 +107,13 @@ const Group = {
 export const DashboardGroupsWidget = {
   view(vnode) {
     const sharedArgs = _.assign({}, vnode.attrs);
+    const { groups, testDrive } = sharedArgs;
     delete sharedArgs.groups;
+    delete sharedArgs.testDrive;
 
-    return _.map(vnode.attrs.groups, (group) => <Group vm={group}
+    return _.map(groups, (group, i) => <Group vm={group}
                                                        invalidateEtag={vnode.attrs.invalidateEtag}
+                                                       showPrompt={testDrive && 0 === i}
                                                        {...sharedArgs} />);
   }
 };

@@ -32,6 +32,7 @@ export const radioLabel: string;
 export const searchBoxInput: string;
 export const searchBoxWrapper: string;
 export const searchButton: string;
+export const spaceBetween: string;
 export const summary: string;
 export const textArea: string;
 export const textareaFixed: string;

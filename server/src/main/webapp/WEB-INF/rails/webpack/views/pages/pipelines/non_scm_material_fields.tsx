@@ -31,9 +31,8 @@ import {
   PluggableScmMaterialAttributes
 } from "models/materials/types";
 import {PackageRepositories, PackageRepository} from "models/package_repositories/package_repositories";
-import {SCMExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {PackageRepoExtensionType, SCMExtensionType} from "models/shared/plugin_infos_new/extension_type";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
@@ -220,7 +219,7 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
           </td>
         </tr>
         <tr>
-          <td>{this.showSelectedPkgRepoConfig(vnode)}</td>
+          <td className={styles.spaceBetween}>{this.showSelectedPkgRepoConfig(vnode)}</td>
           <td>{this.showSelectedPkgConfig(vnode)}</td>
         </tr>
       </table>
@@ -229,6 +228,16 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
 
   private setErrorMessageIfApplicable(vnode: m.Vnode<PackageAttrs, PackageState>, packageRepos: Array<Option | string>) {
     this.errorMessage = undefined;
+    if (vnode.attrs.pluginInfos.length === 0) {
+      this.errorMessage        = <FlashMessage type={MessageType.alert}>
+        There are no Package repository plugins installed. Please see
+        <Link href={new PackageRepoExtensionType().linkForDocs()} target="_blank" externalLinkIcon={true}> this page</Link> for
+        a list of supported plugins.
+      </FlashMessage>;
+      this.disablePkgRepoField = true;
+      this.disablePkgField     = true;
+    }
+
     if (packageRepos.length === 1) {
       this.errorMessage        = <FlashMessage type={MessageType.alert}>
         No package repositories defined. Go to <Link href={SparkRoutes.packageRepositoriesSPA()}>Package
@@ -236,6 +245,7 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
       </FlashMessage>;
       this.disablePkgRepoField = true;
     }
+
     if (vnode.state.pkgRepoId().length > 0 && vnode.state.pkgs().length === 1) {
       this.errorMessage    = <FlashMessage type={MessageType.alert}>
         No packages defined for the selected package repository. Go to <Link
@@ -359,7 +369,7 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
           </td>
         </tr>
         <tr>
-          <td>{this.showSelectedPluginConfig(vnode)}</td>
+          <td className={styles.spaceBetween}>{this.showSelectedPluginConfig(vnode)}</td>
           <td>{this.showSelectedScmConfig(vnode)}</td>
         </tr>
       </table>

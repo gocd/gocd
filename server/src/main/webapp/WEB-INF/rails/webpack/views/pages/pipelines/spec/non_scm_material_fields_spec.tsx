@@ -171,6 +171,7 @@ describe('PackageFieldsSpec', () => {
     expect(errorElement.textContent).toBe('No package repositories defined. Go to Package Repositories to define one.');
     expect(helper.q('a', errorElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA());
     expect(helper.byTestId('selected-pkg-repo-details')).not.toBeInDOM();
+    expect(helper.byTestId('selected-pkg-details')).not.toBeInDOM();
   });
 
   it('should show an error text if no packages are defined for a given package repo', () => {
@@ -181,6 +182,7 @@ describe('PackageFieldsSpec', () => {
     helper.onchange(helper.byTestId('form-field-input-package-repository'), 'pkg-repo-id');
 
     expect(helper.byTestId('selected-pkg-repo-details')).toBeInDOM();
+    expect(helper.byTestId('selected-pkg-details')).not.toBeInDOM();
     assertLabelledInputsDisabledOrNot(helper, {
       "package-repository": false,
       "package":            true
@@ -202,6 +204,24 @@ describe('PackageFieldsSpec', () => {
     helper.onchange(helper.byTestId('form-field-input-package'), 'pkg-id');
 
     expect(helper.byTestId('selected-pkg-details')).toBeInDOM();
+  });
+
+  it('should show an error text if no plugins are defined', () => {
+    pluginInfos = new PluginInfos();
+    helper.mount(() => <PackageFields material={material} packageRepositories={packageRepositories}
+                                      pluginInfos={pluginInfos}/>);
+
+    assertLabelledInputsDisabledOrNot(helper, {
+      "package-repository": true,
+      "package":            true
+    });
+
+    const errorElement = helper.byTestId('flash-message-alert');
+    expect(errorElement).toBeInDOM();
+    expect(errorElement.textContent).toBe('There are no Package repository plugins installed. Please see this page for a list of supported plugins.');
+    expect(helper.q('a', errorElement)).toHaveAttr('href', 'https://www.gocd.org/plugins/#package-repo');
+    expect(helper.byTestId('selected-pkg-repo-details')).not.toBeInDOM();
+    expect(helper.byTestId('selected-pkg-details')).not.toBeInDOM();
   });
 });
 

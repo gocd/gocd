@@ -27,7 +27,7 @@ import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {Secondary} from "views/components/buttons";
-import {MessageType} from "views/components/flash_message";
+import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {Delete} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
@@ -44,12 +44,14 @@ import {RakeTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/r
 import styles from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab.scss";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {OperationState} from "views/pages/page_operations";
+import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 
 export interface Attrs {
   tasks: Stream<Task[]>;
   isEditable: boolean;
   pluginInfos: Stream<PluginInfos>;
   autoSuggestions: Stream<any>;
+  flashMessage: FlashMessageModelWithTimeout;
   pipelineConfigSave: () => Promise<any>;
   pipelineConfigReset: () => any;
 }
@@ -182,7 +184,9 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   }
 
   private getTableData(vnode: m.Vnode<Attrs, State>) {
-    return vnode.attrs.tasks().map((task: Task, index: number) => {
+    const tasks = vnode.attrs.tasks();
+
+    return tasks.map((task: Task, index: number) => {
       const cells: m.Child[] = [
         <Link onclick={() => {
           vnode.state.modal = TasksWidget.getTaskModal(TasksWidget.getTaskTypes().get(task.type)!,
@@ -203,12 +207,40 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
         task.attributes().onCancel()?.type || "No"
       ];
 
+      let deleteDisabledMessage: string | undefined;
+      if (tasks.length === 1) {
+        deleteDisabledMessage = "Can not delete the only task from the job.";
+      }
+
       if (vnode.attrs.isEditable) {
         cells.push(<Delete iconOnly={true}
-                           onclick={() => vnode.attrs.tasks().splice(index, 1)}/>);
+                           disabled={!!deleteDisabledMessage}
+                           title={deleteDisabledMessage}
+                           data-test-id={`task-${index}-delete-icon`}
+                           onclick={this.deleteTask.bind(this, vnode, task, index)}/>);
       }
+
       return cells;
     });
+  }
+
+  private deleteTask(vnode: m.Vnode<Attrs, State>, taskToDelete: Task, taskIndex: number) {
+    new ConfirmationDialog(
+      "Delete Task",
+      <div>Do you want to delete the task at index '<em>{taskIndex + 1}</em>'?</div>,
+      this.onDelete.bind(this, vnode, taskToDelete, taskIndex)
+    ).render();
+  }
+
+  private onDelete(vnode: m.Vnode<Attrs, State>, taskToDelete: Task, taskIndex: number) {
+    vnode.attrs.tasks().splice(taskIndex, 1);
+    return vnode.attrs.pipelineConfigSave().then(() => {
+      vnode.attrs.flashMessage.setMessage(MessageType.success, `Task deleted successfully.`);
+    }).catch((errorResponse: ErrorResponse) => {
+      vnode.attrs.tasks().splice(taskIndex, 0, taskToDelete);
+      const msg = errorResponse.body ? JSON.parse(errorResponse.body).message : errorResponse.message;
+      vnode.attrs.flashMessage.setMessage(MessageType.alert, msg);
+    }).finally(m.redraw.sync);
   }
 }
 
@@ -229,23 +261,25 @@ export class TasksTabContent extends TabContent<Job> {
           templateConfig: TemplateConfig,
           routeParams: PipelineConfigRouteParams,
           ajaxOperationMonitor: Stream<OperationState>,
+          flashMessage: FlashMessageModelWithTimeout,
           save: () => Promise<any>,
           reset: () => any): m.Children {
     if (!this.autoSuggestions()) {
       this.fetchUpstreamPipelines(pipelineConfig.name(), routeParams.stage_name!);
     }
 
-    return super.content(pipelineConfig, templateConfig, routeParams, ajaxOperationMonitor, save, reset);
+    return super.content(pipelineConfig, templateConfig, routeParams, ajaxOperationMonitor, flashMessage, save, reset);
   }
 
   shouldShowSaveAndResetButtons(): boolean {
     return false;
   }
 
-  protected renderer(entity: Job, template: TemplateConfig, save: () => Promise<any>, reset: () => any): m.Children {
+  protected renderer(entity: Job, template: TemplateConfig, flashMessage: FlashMessageModelWithTimeout, save: () => Promise<any>, reset: () => any): m.Children {
     return <TasksWidget pluginInfos={this.pluginInfos}
                         autoSuggestions={this.autoSuggestions}
                         pipelineConfigSave={save}
+                        flashMessage={flashMessage}
                         pipelineConfigReset={reset}
                         tasks={entity.tasks}
                         isEditable={true}/>;

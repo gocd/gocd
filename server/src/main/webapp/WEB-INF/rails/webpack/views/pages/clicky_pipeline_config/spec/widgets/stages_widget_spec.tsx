@@ -16,14 +16,16 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
+import {DependentPipeline} from "models/internal_pipeline_structure/pipeline_structure";
 import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {StagesWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stages_tab_content";
 import {TestHelper} from "views/pages/spec/test_helper";
 
-describe("StagesWidget", () => {
+describe("Stages Widget", () => {
   const helper = new TestHelper();
 
   afterEach(helper.unmount.bind(helper));
@@ -63,12 +65,58 @@ describe("StagesWidget", () => {
     expect(helper.byTestId("stagetwo-delete-icon")).toBeInDOM();
   });
 
+  it("should disable delete stage when there is only one stage", () => {
+    const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
+    pipelineConfig.stages().delete(pipelineConfig.firstStage());
+
+    mount(pipelineConfig.stages, pipelineConfig.isUsingTemplate());
+
+    expect(helper.byTestId("stagetwo-delete-icon")).toBeInDOM();
+    const expectedMsg = "Can not delete the only stage from the pipeline.";
+    expect(helper.byTestId("stagetwo-delete-icon").title).toEqual(expectedMsg);
+    expect(helper.byTestId("stagetwo-delete-icon")).toBeDisabled();
+  });
+
+  it("should not disable delete stages when there are more than one stage", () => {
+    const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
+
+    mount(pipelineConfig.stages, pipelineConfig.isUsingTemplate());
+
+    expect(helper.byTestId("stageone-delete-icon")).toBeInDOM();
+    expect(helper.byTestId("stagetwo-delete-icon")).not.toBeDisabled();
+
+    expect(helper.byTestId("stagetwo-delete-icon")).toBeInDOM();
+    expect(helper.byTestId("stagetwo-delete-icon")).not.toBeDisabled();
+  });
+
+  it("should disable delete stage when it has dependent pipelines", () => {
+    const pipelineConfig     = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
+    const dependentPipelines = [
+      {
+        dependent_pipeline_name: "downstream",
+        depends_on_stage: "StageTwo"
+      }
+    ] as DependentPipeline[];
+    mount(pipelineConfig.stages, pipelineConfig.isUsingTemplate(), true, dependentPipelines);
+
+    expect(helper.byTestId("stagetwo-delete-icon")).toBeInDOM();
+    const expectedMsg = "Can not delete stage 'StageTwo' as pipeline(s) 'downstream' depends on it.";
+    expect(helper.byTestId("stagetwo-delete-icon").title).toEqual(expectedMsg);
+    expect(helper.byTestId("stagetwo-delete-icon")).toBeDisabled();
+  });
+
   it("should delete stage on click of delete icon", () => {
     const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
     mount(pipelineConfig.stages, pipelineConfig.isUsingTemplate());
     expect(pipelineConfig.stages()).toHaveLength(2);
 
     helper.clickByTestId("stageone-delete-icon");
+
+    const body = document.body;
+    expect(helper.byTestId("modal-title", body)).toContainText("Delete Stage");
+    expect(helper.byTestId("modal-body", body)).toContainText("Do you want to delete the stage 'StageOne'?");
+
+    helper.clickByTestId("primary-action-button", body);
 
     expect(pipelineConfig.stages()).toHaveLength(1);
   });
@@ -113,9 +161,16 @@ describe("StagesWidget", () => {
     });
   });
 
-  function mount(stages: Stream<NameableSet<Stage>>, isUsingTemplate = Stream<boolean>(false), isEditable = true) {
+  function mount(stages: Stream<NameableSet<Stage>>,
+                 isUsingTemplate                         = Stream<boolean>(false),
+                 isEditable                              = true,
+                 dependentPipelines: DependentPipeline[] = []) {
+
+    const onSave = jasmine.createSpy().and.returnValue(Promise.resolve());
     helper.mount(() => <StagesWidget stages={stages}
-                                     pipelineConfigSave={jasmine.createSpy()}
+                                     pipelineConfigSave={onSave}
+                                     dependentPipelines={Stream(dependentPipelines)}
+                                     flashMessage={new FlashMessageModelWithTimeout()}
                                      isUsingTemplate={isUsingTemplate}
                                      isEditable={isEditable}/>);
   }

@@ -85,6 +85,10 @@ export class PipelineConfigPage<T> extends Page<null, T> {
     super();
   }
 
+  static routeInfo(): RouteInfo<PipelineConfigRouteParams> {
+    return {route: m.route.get(), params: m.route.param()};
+  }
+
   oninit(vnode: m.Vnode<null, T>) {
     this.initializeTab();
     super.oninit(vnode);
@@ -190,6 +194,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
                                                   this.templateConfig!,
                                                   PipelineConfigPage.routeInfo().params,
                                                   this.ajaxOperationMonitor,
+                                                  this.flashMessage,
                                                   this.save.bind(this),
                                                   this.reset.bind(this));
                       }
@@ -226,10 +231,6 @@ export class PipelineConfigPage<T> extends Page<null, T> {
 
   protected getMeta(): PageMeta {
     return super.getMeta() as PageMeta;
-  }
-
-  private static routeInfo(): RouteInfo<PipelineConfigRouteParams> {
-    return {route: m.route.get(), params: m.route.param()};
   }
 
   private static routeForTabName(route: string, tabName: string): string {

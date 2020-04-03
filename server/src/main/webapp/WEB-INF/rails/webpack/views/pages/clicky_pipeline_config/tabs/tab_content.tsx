@@ -18,6 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {PageLoadError} from "views/components/page_load_error";
 import {Spinner} from "views/components/spinner";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
@@ -33,6 +34,7 @@ export abstract class TabContent<T> {
                  templateConfig: TemplateConfig,
                  routeParams: PipelineConfigRouteParams,
                  ajaxOperationMonitor: Stream<OperationState>,
+                 flashMessage: FlashMessageModelWithTimeout,
                  pipelineConfigSave: () => Promise<any>,
                  pipelineConfigReset: () => void): m.Children {
     switch (this.pageState) {
@@ -46,7 +48,7 @@ export abstract class TabContent<T> {
 
         return <div class={saveInProgress ? styles.blur : ""}>
           {saveInProgress ? <Spinner/> : undefined}
-          {this.renderer(entity, templateConfig, pipelineConfigSave, pipelineConfigReset)}
+          {this.renderer(entity, templateConfig, flashMessage, pipelineConfigSave, pipelineConfigReset)}
         </div>;
     }
   }
@@ -67,7 +69,11 @@ export abstract class TabContent<T> {
     return true;
   }
 
-  protected abstract renderer(entity: T, templateConfig: TemplateConfig, pipelineConfigSave: () => any, pipelineConfigReset: () => any): m.Children;
+  protected abstract renderer(entity: T,
+                              templateConfig: TemplateConfig,
+                              flashMessage: FlashMessageModelWithTimeout,
+                              pipelineConfigSave: () => any,
+                              pipelineConfigReset: () => any): m.Children;
 
   protected abstract selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): T;
 }

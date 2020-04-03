@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {ErrorResponse} from "helpers/api_request_builder";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -24,12 +25,14 @@ import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import s from "underscore.string";
 import {Secondary} from "views/components/buttons";
+import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
 import {Delete} from "views/components/icons";
 import {Table} from "views/components/table";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {AddJobModal} from "views/pages/clicky_pipeline_config/tabs/stage/jobs/add_job_modal";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {OperationState} from "views/pages/page_operations";
+import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 import styles from "./jobs_tab_content.scss";
 
 export class JobsTabContent extends TabContent<Stage> {
@@ -49,26 +52,29 @@ export class JobsTabContent extends TabContent<Stage> {
           templateConfig: TemplateConfig,
           routeParams: PipelineConfigRouteParams,
           ajaxOperationMonitor: Stream<OperationState>,
+          flashMessage: FlashMessageModelWithTimeout,
           save: () => Promise<any>,
           reset: () => void): m.Children {
     this.pipelineConfig       = pipelineConfig;
     this.routeParams          = routeParams;
     this.ajaxOperationMonitor = ajaxOperationMonitor;
 
-    return super.content(pipelineConfig, templateConfig, routeParams, ajaxOperationMonitor, save, reset);
+    return super.content(pipelineConfig, templateConfig, routeParams, ajaxOperationMonitor, flashMessage, save, reset);
   }
 
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): Stage {
     return pipelineConfig.stages().findByName(routeParams.stage_name!)!;
   }
 
-  protected renderer(stage: Stage, templateConfig: TemplateConfig, save: () => Promise<any>, reset: () => void) {
+  protected renderer(stage: Stage, templateConfig: TemplateConfig,
+                     flashMessage: FlashMessageModelWithTimeout, save: () => Promise<any>, reset: () => void) {
     return [
       <JobsWidget jobs={stage.jobs}
                   stage={stage}
                   templateConfig={templateConfig}
                   pipelineConfig={this.pipelineConfig!}
                   routeParams={this.routeParams!}
+                  flashMessage={flashMessage}
                   ajaxOperationMonitor={this.ajaxOperationMonitor!}
                   pipelineConfigSave={save}
                   pipelineConfigReset={reset}
@@ -85,6 +91,7 @@ export interface Attrs {
   pipelineConfig: PipelineConfig;
   routeParams: PipelineConfigRouteParams;
   ajaxOperationMonitor: Stream<OperationState>;
+  flashMessage: FlashMessageModelWithTimeout;
   pipelineConfigSave: () => Promise<any>;
   pipelineConfigReset: () => void;
 }
@@ -100,6 +107,7 @@ export class JobsWidget extends MithrilComponent<Attrs, State> {
                                                  vnode.attrs.pipelineConfig,
                                                  vnode.attrs.routeParams,
                                                  vnode.attrs.ajaxOperationMonitor,
+                                                 vnode.attrs.flashMessage,
                                                  vnode.attrs.pipelineConfigSave,
                                                  vnode.attrs.pipelineConfigReset);
   }
@@ -112,7 +120,7 @@ export class JobsWidget extends MithrilComponent<Attrs, State> {
       </div>
 
       <Table headers={JobsWidget.getTableHeaders(vnode.attrs.isEditable)}
-             data={JobsWidget.getTableData(vnode.attrs.jobs(), vnode.attrs.isEditable)}
+             data={this.getTableData(vnode)}
              draggable={false}
              dragHandler={JobsWidget.reArrange.bind(this, vnode.attrs.jobs)}/>
       <Secondary disabled={!vnode.attrs.isEditable}
@@ -129,22 +137,52 @@ export class JobsWidget extends MithrilComponent<Attrs, State> {
     return headers;
   }
 
-  private static getTableData(jobs: NameableSet<Job>, isEditable: boolean): m.Child[][] {
-    return Array.from(jobs.values()).map((job: Job) => {
+  private static reArrange(jobs: Stream<NameableSet<Job>>, oldIndex: number, newIndex: number) {
+    const array = Array.from(jobs().values());
+    array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
+    jobs(new NameableSet(array));
+  }
+
+  private getTableData(vnode: m.Vnode<Attrs, State>): m.Child[][] {
+    const jobs       = Array.from(vnode.attrs.jobs().values());
+    const isEditable = vnode.attrs.isEditable;
+
+    return jobs.map((job: Job) => {
       const runOnAllInstance    = job.runInstanceCount() === "all" ? "Yes" : "No";
       const runMultipleInstance = (typeof job.runInstanceCount() === "number") ? "Yes" : "No";
       const cells: m.Child[]    = [job.name(), job.resources(), runOnAllInstance, runMultipleInstance];
       if (isEditable) {
-        cells.push(<Delete iconOnly={true} onclick={() => jobs.delete(job)}
+        let deleteDisabledMessage: string | undefined;
+        if (Array.from(jobs.values()).length === 1) {
+          deleteDisabledMessage = "Can not delete the only job from the stage.";
+        }
+
+        cells.push(<Delete iconOnly={true}
+                           onclick={this.deleteJob.bind(this, vnode, job)}
+                           disabled={!!deleteDisabledMessage}
+                           title={deleteDisabledMessage}
                            data-test-id={`${s.slugify(job.name())}-delete-icon`}/>);
       }
       return cells;
     });
   }
 
-  private static reArrange(jobs: Stream<NameableSet<Job>>, oldIndex: number, newIndex: number) {
-    const array = Array.from(jobs().values());
-    array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
-    jobs(new NameableSet(array));
+  private deleteJob(vnode: m.Vnode<Attrs, State>, jobToDelete: Job) {
+    new ConfirmationDialog(
+      "Delete Job",
+      <div>Do you want to delete the job '<em>{jobToDelete.name()}</em>'?</div>,
+      this.onDelete.bind(this, vnode, jobToDelete)
+    ).render();
+  }
+
+  private onDelete(vnode: m.Vnode<Attrs, State>, jobToDelete: Job) {
+    vnode.attrs.jobs().delete(jobToDelete);
+    return vnode.attrs.pipelineConfigSave().then(() => {
+      vnode.attrs.flashMessage.setMessage(MessageType.success, `Job '${jobToDelete.name()}' deleted successfully.`);
+    }).catch((errorResponse: ErrorResponse) => {
+      vnode.attrs.jobs().add(jobToDelete);
+      const msg = errorResponse.body ? JSON.parse(errorResponse.body).message : errorResponse.message;
+      vnode.attrs.flashMessage.setMessage(MessageType.alert, msg);
+    }).finally(m.redraw.sync);
   }
 }

@@ -20,6 +20,7 @@ import {Job} from "models/pipeline_configs/job";
 import {JobTestData} from "models/pipeline_configs/spec/test_data";
 import {ExecTask, ExecTaskAttributes} from "models/pipeline_configs/task";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {TasksWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -38,18 +39,57 @@ describe("Tasks Tab Content", () => {
     expect(helper.qa("th", helper.byTestId("table-header-row"))[5]).toContainText("Remove");
   });
 
-  it("should remove task", () => {
+  it("should render delete task icon", () => {
+    const job = Job.fromJSON(JobTestData.with("test"));
+    job.tasks().push(new ExecTask("ls", []));
+    job.tasks().push(new ExecTask("ls", ["-a", "-l", "-h"]));
+    mount(job);
+
+    expect(helper.byTestId("task-0-delete-icon")).toBeInDOM();
+    expect(helper.byTestId("task-1-delete-icon")).toBeInDOM();
+  });
+
+  it("should disable delete task when there is only one task", () => {
     const job = Job.fromJSON(JobTestData.with("test"));
     job.tasks().push(new ExecTask("ls", ["-a", "-l", "-h"]));
     mount(job);
 
-    helper.qa("td", helper.byTestId("table-row"));
+    expect(helper.byTestId("task-0-delete-icon")).toBeInDOM();
+    const expectedMsg = "Can not delete the only task from the job.";
+    expect(helper.byTestId("task-0-delete-icon").title).toEqual(expectedMsg);
+    expect(helper.byTestId("task-0-delete-icon")).toBeDisabled();
+  });
 
-    expect(helper.allByTestId("table-row")).toHaveLength(1);
+  it("should not disable delete task when there are more than one tasks", () => {
+    const job = Job.fromJSON(JobTestData.with("test"));
+    job.tasks().push(new ExecTask("ls", []));
+    job.tasks().push(new ExecTask("ls", ["-a", "-l", "-h"]));
+    mount(job);
 
-    helper.click(`[data-test-id="Delete-icon"]`);
+    expect(helper.byTestId("task-0-delete-icon")).toBeInDOM();
+    expect(helper.byTestId("task-0-delete-icon")).not.toBeDisabled();
 
-    expect(helper.allByTestId("table-row")).toHaveLength(0);
+    expect(helper.byTestId("task-1-delete-icon")).toBeInDOM();
+    expect(helper.byTestId("task-1-delete-icon")).not.toBeDisabled();
+  });
+
+  it("should delete task on click of delete icon", () => {
+    const job = Job.fromJSON(JobTestData.with("test"));
+    job.tasks().push(new ExecTask("pwd", []));
+    job.tasks().push(new ExecTask("ls", ["-a", "-l", "-h"]));
+    mount(job);
+
+    expect(job.tasks()).toHaveLength(2);
+
+    helper.clickByTestId("task-0-delete-icon");
+
+    const body = document.body;
+    expect(helper.byTestId("modal-title", body)).toContainText("Delete Task");
+    expect(helper.byTestId("modal-body", body)).toContainText("Do you want to delete the task at index '1'?");
+
+    helper.clickByTestId("primary-action-button", body);
+
+    expect(job.tasks()).toHaveLength(1);
   });
 
   describe("Exec Task", () => {
@@ -108,8 +148,9 @@ describe("Tasks Tab Content", () => {
     helper.mount(() => {
       return <TasksWidget tasks={job.tasks}
                           isEditable={true}
-                          pipelineConfigSave={jasmine.createSpy()}
-                          pipelineConfigReset={jasmine.createSpy()}
+                          flashMessage={new FlashMessageModelWithTimeout()}
+                          pipelineConfigSave={jasmine.createSpy().and.returnValue(Promise.resolve())}
+                          pipelineConfigReset={jasmine.createSpy().and.returnValue(Promise.resolve())}
                           autoSuggestions={Stream({})}
                           pluginInfos={Stream(new PluginInfos())}/>;
     });

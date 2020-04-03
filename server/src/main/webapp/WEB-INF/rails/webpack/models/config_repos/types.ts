@@ -13,27 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import _ from "lodash";
 import Stream from "mithril/stream";
 import {ConfigRepoJSON, ConfigReposJSON, MaterialModificationJSON, ParseInfoJSON,} from "models/config_repos/serialization";
 import {Material, Materials} from "models/materials/types";
 import {Errors} from "models/mixins/errors";
-import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Rules} from "models/rules/rules";
 import {Configuration} from "models/shared/configuration";
 import {PlainTextValue} from "models/shared/config_value";
 import {AutoSuggestions} from "../roles/auto_suggestion";
 
-//tslint:disable-next-line
-export interface ConfigRepo extends ValidatableMixin {
-}
-
-//tslint:disable-next-line
-export interface LastParse extends ValidatableMixin {
-}
-
-export class ConfigRepo implements ValidatableMixin {
+export class ConfigRepo extends ValidatableMixin {
   static readonly PIPELINE_PATTERN             = "pipeline_pattern";
   static readonly ENVIRONMENT_PATTERN          = "environment_pattern";
   static readonly FILE_PATTERN                 = "file_pattern";
@@ -60,6 +52,8 @@ export class ConfigRepo implements ValidatableMixin {
               lastParse?: ParseInfo | null,
               materialUpdateInProgress?: boolean,
               rules?: Rules) {
+    super();
+
     this.id                       = Stream(id);
     this.pluginId                 = Stream(pluginId);
     this.material                 = Stream(material);
@@ -76,7 +70,7 @@ export class ConfigRepo implements ValidatableMixin {
       this.__yamlPluginPattern          = Stream(ConfigRepo.findConfigurationValue(configuration,
                                                                                    ConfigRepo.FILE_PATTERN));
     }
-    ValidatableMixin.call(this);
+
     this.validatePresenceOf("id", {message: "Please provide a name for this repository"});
     this.validateIdFormat("id", {message: "Only letters, numbers, hyphens, underscores, and periods. Must not start with a period. Max 255 chars."});
     this.validatePresenceOf("pluginId");
@@ -140,8 +134,6 @@ export class ConfigRepo implements ValidatableMixin {
     ].some((value) => value ? value.toLowerCase().includes(textToMatch.toLowerCase()) : false);
   }
 }
-
-applyMixins(ConfigRepo, ValidatableMixin);
 
 export class ConfigRepos {
   configRepos: ConfigRepo[];

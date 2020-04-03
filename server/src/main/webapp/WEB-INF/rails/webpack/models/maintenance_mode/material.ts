@@ -19,7 +19,6 @@ import _ from "lodash";
 import Stream from "mithril/stream";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {ErrorMessages} from "models/mixins/error_messages";
-import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 
@@ -118,7 +117,6 @@ export abstract class MaterialAttributes extends ValidatableMixin {
     super();
     this.name       = Stream(name);
     this.autoUpdate = Stream(autoUpdate);
-    ValidatableMixin.call(this);
     this.errors(new Errors(errors));
   }
 
@@ -170,12 +168,9 @@ export abstract class ScmMaterialAttributes extends MaterialAttributes {
     this.destination  = Stream(destination);
     this.filter       = Stream(filter);
     this.invertFilter = Stream(invertFilter);
-    ValidatableMixin.call(this);
     this.validatePresenceOf("url");
   }
 }
-
-applyMixins(ScmMaterialAttributes, ValidatableMixin);
 
 export class GitMaterialAttributes extends ScmMaterialAttributes {
   branch: Stream<string>;
@@ -205,8 +200,6 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
     );
   }
 }
-
-applyMixins(GitMaterialAttributes, ValidatableMixin);
 
 export class SvnMaterialAttributes extends ScmMaterialAttributes {
   checkExternals: Stream<boolean>;
@@ -246,8 +239,6 @@ export class SvnMaterialAttributes extends ScmMaterialAttributes {
   }
 }
 
-applyMixins(SvnMaterialAttributes, ValidatableMixin);
-
 export class HgMaterialAttributes extends ScmMaterialAttributes {
   constructor(url: string,
               autoUpdate: boolean,
@@ -272,8 +263,6 @@ export class HgMaterialAttributes extends ScmMaterialAttributes {
   }
 }
 
-applyMixins(HgMaterialAttributes, ValidatableMixin);
-
 export class DependencyMaterialAttributes extends MaterialAttributes {
   constructor(name: string,
               autoUpdate: boolean,
@@ -289,8 +278,6 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
     );
   }
 }
-
-applyMixins(DependencyMaterialAttributes, ValidatableMixin);
 
 export class P4MaterialAttributes extends ScmMaterialAttributes {
   port: Stream<string>;
@@ -341,8 +328,6 @@ export class P4MaterialAttributes extends ScmMaterialAttributes {
   }
 }
 
-applyMixins(P4MaterialAttributes, ValidatableMixin);
-
 export class TfsMaterialAttributes extends ScmMaterialAttributes {
   domain: Stream<string>;
   projectPath: Stream<string>;
@@ -388,8 +373,6 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
     );
   }
 }
-
-applyMixins(TfsMaterialAttributes, ValidatableMixin);
 
 export class Material {
   type: Stream<string>;

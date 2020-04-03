@@ -38,7 +38,7 @@ export class AuthorizedUsersAndRoles extends ValidatableMixin {
 
   constructor(users: Array<Stream<string>>, roles: Array<Stream<string>>, errors: Errors = new Errors()) {
     super();
-    ValidatableMixin.call(this);
+
     this._users      = users;
     this._roles      = roles;
     this.isInherited = Stream(this.isEmpty());
@@ -136,7 +136,6 @@ export class PermissionForEntity extends ValidatableMixin {
     this.admin   = Stream(admin);
 
     this.setPermissions();
-    ValidatableMixin.call(this);
 
     this.validateWith(new PermissionValidator({condition: () => !_.isEmpty(this.name())}), "name");
   }
@@ -157,7 +156,6 @@ export class PermissionsForUsersAndRoles extends ValidatableMixin {
 
   constructor(authorization: Authorization) {
     super();
-    ValidatableMixin.call(this);
 
     this.initializeAuthorizedUsers(authorization);
     this.initializeAuthorizedRoles(authorization);

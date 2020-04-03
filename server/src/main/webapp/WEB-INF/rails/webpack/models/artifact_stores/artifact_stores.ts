@@ -17,7 +17,6 @@
 import _ from "lodash";
 import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
-import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Configurations, PropertyJSON} from "models/shared/configuration";
 
@@ -64,7 +63,7 @@ export class ArtifactStore extends ValidatableMixin {
               properties: Configurations,
               errors: Errors = new Errors()) {
     super();
-    ValidatableMixin.call(this);
+
     this.id         = Stream(id);
     this.pluginId   = Stream(pluginId);
     this.properties = Stream(properties);
@@ -93,5 +92,3 @@ export class ArtifactStore extends ValidatableMixin {
     };
   }
 }
-
-applyMixins(ArtifactStore, ValidatableMixin);

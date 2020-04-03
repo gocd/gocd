@@ -18,7 +18,6 @@ import Stream from "mithril/stream";
 import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
 import {ElasticAgentProfilesCRUD} from "models/elastic_profiles/elastic_agent_profiles_crud";
 import {Errors} from "models/mixins/errors";
-import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Configurations, PropertyJSON} from "models/shared/configuration";
 
@@ -156,11 +155,7 @@ export interface ClusterProfileJSON {
   errors?: { [key: string]: string[] };
 }
 
-//tslint:disable-next-line
-export interface ElasticAgentProfile extends ValidatableMixin {
-}
-
-export class ElasticAgentProfile implements ValidatableMixin {
+export class ElasticAgentProfile extends ValidatableMixin {
   id: Stream<string | undefined>;
   pluginId: Stream<string | undefined>;
   clusterProfileId: Stream<string | undefined>;
@@ -172,13 +167,14 @@ export class ElasticAgentProfile implements ValidatableMixin {
               clusterProfileId?: string,
               canAdminister?: boolean,
               properties?: Configurations) {
+    super();
+
     this.id               = Stream(id);
     this.pluginId         = Stream(pluginId);
     this.clusterProfileId = Stream(clusterProfileId);
     this.canAdminister    = Stream(canAdminister || false);
     this.properties       = Stream(properties);
 
-    ValidatableMixin.call(this);
     this.validatePresenceOf("clusterProfileId");
     this.validatePresenceOf("pluginId");
     this.validatePresenceOf("id");
@@ -221,25 +217,20 @@ export class ElasticAgentProfile implements ValidatableMixin {
   }
 }
 
-applyMixins(ElasticAgentProfile, ValidatableMixin);
-
-//tslint:disable-next-line
-export interface ClusterProfile extends ValidatableMixin {
-}
-
-export class ClusterProfile implements ValidatableMixin {
+export class ClusterProfile extends ValidatableMixin {
   id: Stream<string | undefined>;
   pluginId: Stream<string | undefined>;
   canAdminister: Stream<boolean>;
   properties: Stream<Configurations | undefined>;
 
   constructor(id?: string, pluginId?: string, canAdminister?: boolean, properties?: Configurations) {
+    super();
+
     this.id            = Stream(id);
     this.pluginId      = Stream(pluginId);
     this.canAdminister = Stream(canAdminister || false);
     this.properties    = Stream(properties);
 
-    ValidatableMixin.call(this);
     this.validatePresenceOf("pluginId");
     this.validatePresenceOf("id");
     this.validateFormatOf("id",
@@ -278,5 +269,3 @@ export class ClusterProfile implements ValidatableMixin {
     return ClusterProfilesCRUD.get(this.id()!);
   }
 }
-
-applyMixins(ClusterProfile, ValidatableMixin);

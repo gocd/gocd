@@ -252,7 +252,7 @@ export class MailServer extends ValidatableMixin {
               adminEmail?: string,
               errors: Errors = new Errors()) {
     super();
-    ValidatableMixin.call(this);
+
     this.hostname    = Stream(hostname);
     this.port        = Stream(port);
     this.username    = Stream(username);
@@ -305,5 +305,4 @@ export class MailServer extends ValidatableMixin {
   clone() {
     return MailServer.fromJSON(this.toJSON());
   }
-
 }

@@ -15,7 +15,6 @@
  */
 
 import Stream from "mithril/stream";
-import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Errors} from "../mixins/errors";
 import {Configurations} from "../shared/configuration";
@@ -27,7 +26,7 @@ export class PackageRepositorySummary extends ValidatableMixin {
 
   constructor(id?: string, name?: string) {
     super();
-    ValidatableMixin.call(this);
+
     this.id   = Stream(id || "");
     this.name = Stream(name || "");
 
@@ -48,8 +47,6 @@ export class PackageRepositorySummary extends ValidatableMixin {
   }
 }
 
-applyMixins(PackageRepositorySummary, ValidatableMixin);
-
 export class Package extends ValidatableMixin {
   id: Stream<string>;
   name: Stream<string>;
@@ -59,7 +56,7 @@ export class Package extends ValidatableMixin {
 
   constructor(id: string, name: string, autoUpdate: boolean, configuration: Configurations, packageRepo: PackageRepositorySummary, errors: Errors = new Errors()) {
     super();
-    ValidatableMixin.call(this);
+
     this.id            = Stream(id);
     this.name          = Stream(name);
     this.autoUpdate    = Stream(autoUpdate);
@@ -97,8 +94,6 @@ export class Package extends ValidatableMixin {
   }
 }
 
-applyMixins(Package, ValidatableMixin);
-
 export class Packages extends Array<Package> {
   constructor(...pkg: Package[]) {
     super(...pkg);
@@ -116,7 +111,7 @@ class PluginMetadata extends ValidatableMixin {
 
   constructor(id: string, version: string) {
     super();
-    ValidatableMixin.call(this);
+
     this.id      = Stream(id);
     this.version = Stream(version);
 
@@ -132,8 +127,6 @@ class PluginMetadata extends ValidatableMixin {
   }
 }
 
-applyMixins(PluginMetadata, ValidatableMixin);
-
 export class PackageRepository extends ValidatableMixin {
   repoId: Stream<string>;
   name: Stream<string>;
@@ -143,7 +136,7 @@ export class PackageRepository extends ValidatableMixin {
 
   constructor(repoId: string, name: string, pluginMetadata: PluginMetadata, configuration: Configurations, packages: Packages, errors: Errors = new Errors()) {
     super();
-    ValidatableMixin.call(this);
+
     this.repoId         = Stream(repoId);
     this.name           = Stream(name);
     this.pluginMetadata = Stream(pluginMetadata);
@@ -195,8 +188,6 @@ export class PackageRepository extends ValidatableMixin {
     return searchableStrings.some((value) => value ? value.toLowerCase().includes(textToMatch.toLowerCase()) : false);
   }
 }
-
-applyMixins(PackageRepository, ValidatableMixin);
 
 export class PackageRepositories extends Array<PackageRepository> {
   constructor(...pkgRepo: PackageRepository[]) {

@@ -16,7 +16,6 @@
 
 import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
-import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
 interface BackupConfigJSON {
@@ -25,11 +24,6 @@ interface BackupConfigJSON {
   emailOnSuccess: boolean;
   emailOnFailure: boolean;
   errors?: { [key: string]: string[] };
-}
-
-// tslint:disable-next-line:no-empty-interface
-export interface BackupConfig extends ValidatableMixin {
-
 }
 
 export class BackupConfig extends ValidatableMixin {
@@ -44,7 +38,7 @@ export class BackupConfig extends ValidatableMixin {
               emailOnFailure: boolean = false,
               errors: Errors          = new Errors()) {
     super();
-    ValidatableMixin.call(this);
+
     this.schedule         = Stream(schedule);
     this.postBackupScript = Stream(postBackupScript);
     this.emailOnSuccess   = Stream(emailOnSuccess);
@@ -60,7 +54,4 @@ export class BackupConfig extends ValidatableMixin {
                             data.emailOnFailure,
                             errors);
   }
-
 }
-
-applyMixins(BackupConfig, ValidatableMixin);

@@ -39,38 +39,6 @@ const mapTypeToDisplayType: { [key: string]: string; } = {
   plugin:     "Plugin"
 };
 
-//tslint:disable-next-line
-export interface Material extends ValidatableMixin {
-}
-
-//tslint:disable-next-line
-export interface MaterialAttributes extends ValidatableMixin {
-}
-
-//tslint:disable-next-line
-export interface GitMaterialAttributes extends ValidatableMixin {
-}
-
-//tslint:disable-next-line
-export interface SvnMaterialAttributes extends ValidatableMixin {
-}
-
-//tslint:disable-next-line
-export interface HgMaterialAttributes extends ValidatableMixin {
-}
-
-//tslint:disable-next-line
-export interface P4MaterialAttributes extends ValidatableMixin {
-}
-
-//tslint:disable-next-line
-export interface TfsMaterialAttributes extends ValidatableMixin {
-}
-
-//tslint:disable-next-line
-export interface DependencyMaterialAttributes extends ValidatableMixin {
-}
-
 export class Materials {
   static fromJSON(material: MaterialJSON): Material {
     return new Material(material.type, MaterialAttributes.deserialize(material));

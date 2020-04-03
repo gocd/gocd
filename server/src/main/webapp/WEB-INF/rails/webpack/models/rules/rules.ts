@@ -16,7 +16,6 @@
 
 import Stream from "mithril/stream";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
-import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
 export interface RuleJSON {
@@ -35,7 +34,6 @@ export class Rule extends ValidatableMixin {
 
   constructor(directive: string, action: string, type: string, resource: string, errors: Errors = new Errors()) {
     super();
-    ValidatableMixin.call(this);
     this.directive = Stream(directive);
     this.action    = Stream(action);
     this.type      = Stream(type);
@@ -52,8 +50,6 @@ export class Rule extends ValidatableMixin {
     return new Rule(ruleJSON.directive, ruleJSON.action, ruleJSON.type, ruleJSON.resource, errors);
   }
 }
-
-applyMixins(Rule, ValidatableMixin);
 
 export class Rules extends Array<Stream<Rule>> {
   constructor(...rules: Array<Stream<Rule>>) {

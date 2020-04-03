@@ -40,7 +40,6 @@ export class EnvironmentVariable extends ValidatableMixin {
     this.name           = Stream(name);
     this.value          = Stream(value);
     this.encryptedValue = Stream(new EncryptedValue(!_.isEmpty(encryptedValue) ? {cipherText: encryptedValue} : {clearText: value}));
-    ValidatableMixin.call(this);
 
     this.validatePresenceOf("name", {condition: () => !_.isEmpty(this.value()) || !_.isEmpty(this.encryptedValue())});
   }

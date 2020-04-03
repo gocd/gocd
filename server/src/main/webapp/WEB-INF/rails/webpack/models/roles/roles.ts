@@ -16,7 +16,6 @@
 
 import Stream from "mithril/stream";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
-import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Configurations, PropertyJSON} from "models/shared/configuration";
 import {AutoSuggestionJSON, AutoSuggestions} from "./auto_suggestion";
@@ -80,7 +79,7 @@ export class Directive extends ValidatableMixin {
 
   constructor(permission: string, action: string, type: string, resource: string, errors: Errors = new Errors()) {
     super();
-    ValidatableMixin.call(this);
+
     this.permission = Stream(permission);
     this.action     = Stream(action);
     this.type       = Stream(type);
@@ -106,8 +105,6 @@ export class Directive extends ValidatableMixin {
     };
   }
 }
-
-applyMixins(Directive, ValidatableMixin);
 
 export class Policy extends Array<Stream<Directive>> {
   constructor(...rules: Array<Stream<Directive>>) {
@@ -201,7 +198,6 @@ export abstract class Role<T> extends ValidatableMixin {
 
   protected constructor(name: string, type: RoleType, attributes: T, policy: Policy, errors: Errors = new Errors()) {
     super();
-    ValidatableMixin.call(this);
 
     this.type       = Stream(type);
     this.name       = Stream(name);
@@ -248,8 +244,6 @@ export abstract class Role<T> extends ValidatableMixin {
     };
   }
 }
-
-applyMixins(Role, ValidatableMixin);
 
 export class GoCDRole extends Role<GoCDAttributes> {
 

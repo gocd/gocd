@@ -16,7 +16,6 @@
 import _ from "lodash";
 import Stream from "mithril/stream";
 import {ErrorMessages} from "models/mixins/error_messages";
-import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin, Validator, ValidatorOptions} from "models/mixins/new_validatable_mixin";
 import s from "underscore.string";
 
@@ -83,21 +82,15 @@ describe("Validatable", () => {
   describe("validatePresenceOf", () => {
 
     it("should validate the presence of a given field", () => {
-      //tslint:disable-next-line
-      interface Material extends ValidatableMixin {
-      }
-
-      class Material implements ValidatableMixin {
+      class Material extends ValidatableMixin {
         readonly name: Stream<string>;
 
         constructor(name: string) {
+          super();
           this.name = Stream(name);
-          ValidatableMixin.call(this);
           this.validatePresenceOf("name");
         }
       }
-
-      applyMixins(Material, ValidatableMixin);
 
       const material = new Material("");
 
@@ -108,23 +101,17 @@ describe("Validatable", () => {
     });
 
     it("should be conditional", () => {
-      //tslint:disable-next-line
-      interface EnvVariable extends ValidatableMixin {
-      }
-
-      class EnvVariable implements ValidatableMixin {
+      class EnvVariable extends ValidatableMixin {
         name: Stream<string>;
         value: Stream<string>;
 
         constructor() {
-          ValidatableMixin.call(this);
+          super();
           this.name  = Stream("");
           this.value = Stream("");
           this.validatePresenceOf("value", {condition: () => !s.isBlank(this.name())});
         }
       }
-
-      applyMixins(EnvVariable, ValidatableMixin);
 
       const variable = new EnvVariable();
       variable.validate();
@@ -133,17 +120,12 @@ describe("Validatable", () => {
   });
 
   describe("validateUniquenessOf", () => {
-
-    //tslint:disable-next-line
-    interface Variable extends ValidatableMixin {
-    }
-
-    class Variable implements ValidatableMixin {
+    class Variable extends ValidatableMixin {
       key: Stream<string>;
       parent: Stream<Variables>;
 
       constructor(key: string) {
-        ValidatableMixin.call(this);
+        super();
         this.key    = Stream(key);
         this.parent = Stream();
         this.validateUniquenessOf("key", () => this.parent().variables()
@@ -158,8 +140,6 @@ describe("Validatable", () => {
         this.variables = Stream(variables);
       }
     }
-
-    applyMixins(Variable, ValidatableMixin);
 
     it("should validate uniqueness of a given field", () => {
       const var1      = new Variable("name");
@@ -200,21 +180,15 @@ describe("Validatable", () => {
   });
 
   describe("validateUrlPattern", () => {
-    //tslint:disable-next-line
-    interface Material extends ValidatableMixin {
-    }
-
-    class Material implements ValidatableMixin {
+    class Material extends ValidatableMixin {
       url: Stream<string>;
 
       constructor(url: string) {
-        ValidatableMixin.call(this);
+        super();
         this.url = Stream(url);
         this.validateUrlPattern("url");
       }
     }
-
-    applyMixins(Material, ValidatableMixin);
 
     it("should validate url pattern", () => {
       const material = new Material("ftp://some.com");
@@ -235,22 +209,15 @@ describe("Validatable", () => {
   });
 
   describe("validateFormatOf", () => {
-
-    //tslint:disable-next-line
-    interface Material extends ValidatableMixin {
-    }
-
-    class Material implements ValidatableMixin {
+    class Material extends ValidatableMixin {
       url: Stream<string>;
 
       constructor(url: string) {
-        ValidatableMixin.call(this);
+        super();
         this.url = Stream(url);
         this.validateFormatOf("url", new RegExp("^http(s)?:\\/\\/.+"), {message: "Url format is invalid"});
       }
     }
-
-    applyMixins(Material, ValidatableMixin);
 
     it("should validate the format of field", () => {
       const material = new Material("ftp://some.com");
@@ -273,21 +240,15 @@ describe("Validatable", () => {
   describe("validateIdFormat", () => {
 
     it("should validate Id format", () => {
-      //tslint:disable-next-line
-      interface Material extends ValidatableMixin {
-      }
-
-      class Material implements ValidatableMixin {
+      class Material extends ValidatableMixin {
         id: Stream<string>;
 
         constructor(id: string) {
-          ValidatableMixin.call(this);
+          super();
           this.id = Stream(id);
           this.validateIdFormat("id");
         }
       }
-
-      applyMixins(Material, ValidatableMixin);
 
       const badStrings = ["shaky salamander", ".hello", _.repeat("a", 256)];
       badStrings.forEach((badString) => {
@@ -301,21 +262,16 @@ describe("Validatable", () => {
     });
 
     it("should validate Id format using provided message", () => {
-      //tslint:disable-next-line
-      interface Material extends ValidatableMixin {
-      }
-
-      class Material implements ValidatableMixin {
+      class Material extends ValidatableMixin {
         id: Stream<string>;
 
         constructor(id: string) {
-          ValidatableMixin.call(this);
+          super();
           this.id = Stream(id);
           this.validateIdFormat("id", {message: "Id is invalid"});
         }
       }
 
-      applyMixins(Material, ValidatableMixin);
       const material = new Material("shaky salamander");
 
       material.validate();
@@ -350,24 +306,18 @@ describe("Validatable", () => {
       }
     }
 
-    //tslint:disable-next-line
-    interface Material extends ValidatableMixin {
-    }
-
-    class Material implements ValidatableMixin {
+    class Material extends ValidatableMixin {
       url: Stream<string>;
       name: Stream<string>;
 
       constructor(url: string, name: string) {
-        ValidatableMixin.call(this);
+        super();
         this.url  = Stream(url);
         this.name = Stream(name);
         this.validateWith<CustomUrlValidator>(new CustomUrlValidator(), "url");
         this.validateWith<NameValidator>(new NameValidator(), "name");
       }
     }
-
-    applyMixins(Material, ValidatableMixin);
 
     it("should validate with custom validator", () => {
       const material = new Material("", "");
@@ -381,37 +331,25 @@ describe("Validatable", () => {
   });
 
   describe("validateAssociated", () => {
-    //tslint:disable-next-line
-    interface Material extends ValidatableMixin {
-    }
-
-    class Material implements ValidatableMixin {
+    class Material extends ValidatableMixin {
       url: Stream<string>;
 
       constructor(url: string) {
-        ValidatableMixin.call(this);
+        super();
         this.url = Stream(url);
         this.validatePresenceOf("url");
       }
     }
 
-    applyMixins(Material, ValidatableMixin);
-
-    //tslint:disable-next-line
-    interface Pipeline extends ValidatableMixin {
-    }
-
-    class Pipeline implements ValidatableMixin {
+    class Pipeline extends ValidatableMixin {
       material: Stream<Material>;
 
       constructor(material: Material) {
-        ValidatableMixin.call(this);
+        super();
         this.material = Stream(material);
         this.validateAssociated("material");
       }
     }
-
-    applyMixins(Pipeline, ValidatableMixin);
 
     it("should validate associated attributes", () => {
       const pipeline = new Pipeline(new Material(""));
@@ -426,24 +364,18 @@ describe("Validatable", () => {
   });
 
   describe("validate", () => {
-    //tslint:disable-next-line
-    interface Material extends ValidatableMixin {
-    }
-
-    class Material implements ValidatableMixin {
+    class Material extends ValidatableMixin {
       username: Stream<string>;
       password: Stream<string>;
 
       constructor(username: string, password: string) {
-        ValidatableMixin.call(this);
+        super();
         this.username = Stream("");
         this.password = Stream("");
         this.validatePresenceOf("username");
         this.validatePresenceOf("password");
       }
     }
-
-    applyMixins(Material, ValidatableMixin);
 
     it("should validate the model", () => {
       const material = new Material("", "");
@@ -498,17 +430,13 @@ describe("Validatable", () => {
   });
 
   describe("isValid", () => {
-    //tslint:disable-next-line
-    interface Variable extends ValidatableMixin {
-    }
-
-    class Variable implements ValidatableMixin {
+    class Variable extends ValidatableMixin {
       key: Stream<string>;
       parent: Stream<Variables>;
       name: Stream<string>;
 
       constructor(key: string) {
-        ValidatableMixin.call(this);
+        super();
         this.key    = Stream(key);
         this.name   = Stream("");
         this.parent = Stream();
@@ -525,8 +453,6 @@ describe("Validatable", () => {
       }
     }
 
-    applyMixins(Variable, ValidatableMixin);
-
     it("should validate the model", () => {
       const var1      = new Variable("foo");
       const var2      = new Variable("foo");
@@ -542,56 +468,38 @@ describe("Validatable", () => {
     });
 
     it("should be invalid if associated attributes are invalid", () => {
-      //tslint:disable-next-line
-      interface Material extends ValidatableMixin {
-      }
-
-      class Material implements ValidatableMixin {
+      class Material extends ValidatableMixin {
         url: Stream<string>;
 
         constructor(url: string) {
-          ValidatableMixin.call(this);
+          super();
           this.url = Stream(url);
           this.validatePresenceOf("url");
         }
       }
 
-      applyMixins(Material, ValidatableMixin);
-
-      //tslint:disable-next-line
-      interface Task extends ValidatableMixin {
-      }
-
-      class Task implements ValidatableMixin {
+      class Task extends ValidatableMixin {
         command: Stream<string>;
 
         constructor(command: string) {
-          ValidatableMixin.call(this);
+          super();
           this.command = Stream(command);
           this.validatePresenceOf("command");
         }
       }
 
-      applyMixins(Task, ValidatableMixin);
-
-      //tslint:disable-next-line
-      interface Pipeline extends ValidatableMixin {
-      }
-
-      class Pipeline implements ValidatableMixin {
+      class Pipeline extends ValidatableMixin {
         material: Stream<Material>;
         task: Stream<Task>;
 
         constructor(material: Material, task: Task) {
-          ValidatableMixin.call(this);
+          super();
           this.material = Stream(material);
           this.task     = Stream(task);
           this.validateAssociated("material");
           this.validateAssociated("task");
         }
       }
-
-      applyMixins(Pipeline, ValidatableMixin);
 
       const pipeline = new Pipeline(new Material(""), new Task("some command"));
       expect(pipeline.isValid()).toBe(false);
@@ -602,22 +510,15 @@ describe("Validatable", () => {
   });
 
   describe("validateMaxLength", () => {
-
-    //tslint:disable-next-line
-    interface Variable extends ValidatableMixin {
-    }
-
-    class Variable implements ValidatableMixin {
+    class Variable extends ValidatableMixin {
       key: Stream<string>;
 
       constructor(key: string) {
-        ValidatableMixin.call(this);
+        super();
         this.key = Stream(key);
         this.validateMaxLength("key", 10);
       }
     }
-
-    applyMixins(Variable, ValidatableMixin);
 
     it("should validate max length of a given field", () => {
       const var1 = new Variable("strGreaterThanTenChars");

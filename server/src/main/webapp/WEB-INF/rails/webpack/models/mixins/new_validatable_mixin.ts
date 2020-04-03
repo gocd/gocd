@@ -17,6 +17,7 @@ import _ from "lodash";
 import {Errors} from "models/mixins/errors";
 import {BaseErrorsConsumer, ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ErrorMessages} from "models/mixins/error_messages";
+import {applyMixins} from "models/mixins/mixins";
 import s from "underscore.string";
 
 export interface ValidatorOptions {
@@ -325,4 +326,6 @@ export class ValidatableMixin extends BaseErrorsConsumer implements Validatable,
   }
 }
 
-ValidatableMixin.prototype.errors = BaseErrorsConsumer.prototype.errors;
+// Without this, classes that do mix in rather than extend this class will not
+// get the ErrorsConsumer methods, and typescript won't catch it.
+applyMixins(ValidatableMixin, BaseErrorsConsumer);

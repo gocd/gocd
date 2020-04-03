@@ -74,7 +74,7 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
               pipelines: Pipelines,
               environmentVariables: EnvironmentVariablesWithOrigin) {
     super();
-    ValidatableMixin.call(this);
+
     this.name                 = Stream(name);
     this.canAdminister        = Stream(canAdminister);
     this.origins              = Stream(origins);

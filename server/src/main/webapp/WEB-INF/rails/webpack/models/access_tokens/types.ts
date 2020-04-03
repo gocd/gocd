@@ -111,7 +111,7 @@ export class AccessToken extends ValidatableMixin {
                       token: string  = "",
                       errors: Errors = new Errors()) {
     super();
-    ValidatableMixin.call(this);
+
     this.id                        = Stream(id);
     this.description               = Stream(description);
     this.username                  = Stream(username);

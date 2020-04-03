@@ -16,7 +16,6 @@
 
 import Stream from "mithril/stream";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
-import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Configurations, PropertyJSON} from "models/shared/configuration";
 
@@ -57,7 +56,7 @@ export class PluginMetadata extends ValidatableMixin {
 
   constructor(id: string, version: string) {
     super();
-    ValidatableMixin.call(this);
+
     this.id      = Stream(id);
     this.version = Stream(version);
 
@@ -69,8 +68,6 @@ export class PluginMetadata extends ValidatableMixin {
   }
 }
 
-applyMixins(PluginMetadata, ValidatableMixin);
-
 export class Scm extends ValidatableMixin {
   id: Stream<string>;
   name: Stream<string>;
@@ -80,7 +77,7 @@ export class Scm extends ValidatableMixin {
 
   constructor(id: string, name: string, autoUpdate: boolean, pluginMetadata: PluginMetadata, configuration: Configurations) {
     super();
-    ValidatableMixin.call(this);
+
     this.id             = Stream(id);
     this.name           = Stream(name);
     this.autoUpdate     = Stream(autoUpdate);
@@ -115,8 +112,6 @@ export class Scm extends ValidatableMixin {
     };
   }
 }
-
-applyMixins(Scm, ValidatableMixin);
 
 export class Scms extends Array<Scm> {
   constructor(...vals: Scm[]) {

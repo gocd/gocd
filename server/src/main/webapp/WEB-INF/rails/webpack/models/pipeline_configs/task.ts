@@ -38,11 +38,8 @@ export type RunIfCondition = "passed" | "failed" | "any";
 export interface Task extends ValidatableMixin {
   type: TaskType;
   attributes: Stream<TaskAttributes>;
-
   description(pluginInfos: PluginInfos): string;
-
   hasErrors(): boolean;
-
   toJSON(): any;
 }
 

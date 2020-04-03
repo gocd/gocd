@@ -16,7 +16,6 @@
 
 import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
-import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Configurations, PropertyJSON} from "models/shared/configuration";
 
@@ -48,7 +47,7 @@ export class AuthConfig extends ValidatableMixin {
               properties?: Configurations,
               errors: Errors = new Errors()) {
     super();
-    ValidatableMixin.call(this);
+
     this.id                         = Stream(id);
     this.pluginId                   = Stream(pluginId);
     this.allowOnlyKnownUsersToLogin = Stream(allowOnlyKnownUsersToLogin || false);
@@ -78,8 +77,6 @@ export class AuthConfig extends ValidatableMixin {
     };
   }
 }
-
-applyMixins(AuthConfig, ValidatableMixin);
 
 export class AuthConfigs extends Array<AuthConfig> {
   constructor(...authConfigs: AuthConfig[]) {

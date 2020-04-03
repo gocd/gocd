@@ -356,12 +356,23 @@ export abstract class ConfigRepoModal extends Modal {
 
   protected handleAutoUpdateError() {
     const errors = this.getRepo().material()!.attributes()!.errors();
-    if (errors.hasErrors("auto_update")) {
-      this.error = errors.errorsForDisplay("auto_update");
+    if (errors.hasErrors("autoUpdate")) {
+      this.error = errors.errorsForDisplay("autoUpdate");
     }
   }
 
   protected abstract getRepo(): ConfigRepo;
+
+  protected handleError(result: ApiResult<ObjectWithEtag<ConfigRepo>>, errorResponse: ErrorResponse) {
+    if (result.getStatusCode() === 422 && errorResponse.body) {
+      const json = JSON.parse(errorResponse.body);
+      this.getRepo().consumeErrorsResponse(json.data);
+      this.handleAutoUpdateError();
+    } else {
+      this.onError(JSON.parse(errorResponse.body!).message);
+      this.close();
+    }
+  }
 }
 
 export class NewConfigRepoModal extends ConfigRepoModal {
@@ -404,17 +415,6 @@ export class NewConfigRepoModal extends ConfigRepoModal {
   private onSuccess() {
     this.onSuccessfulSave(<span>The config repository <em>{this.repo().id()}</em> was created successfully!</span>);
     this.close();
-  }
-
-  private handleError(result: ApiResult<ObjectWithEtag<ConfigRepo>>, errorResponse: ErrorResponse) {
-    if (result.getStatusCode() === 422 && errorResponse.body) {
-      const json = JSON.parse(errorResponse.body);
-      this.repo(ConfigRepo.fromJSON(json.data));
-      this.handleAutoUpdateError();
-    } else {
-      this.onError(JSON.parse(errorResponse.body!).message);
-      this.close();
-    }
   }
 }
 
@@ -460,17 +460,5 @@ export class EditConfigRepoModal extends ConfigRepoModal {
   private onSuccess() {
     this.close();
     this.onSuccessfulSave(<span>The config repository <em>{this.getRepo().id()}</em> was updated successfully!</span>);
-  }
-
-  private handleError(result: ApiResult<ObjectWithEtag<ConfigRepo>>, errorResponse: ErrorResponse) {
-    if (result.getStatusCode() === 422 && errorResponse.body) {
-      const json = JSON.parse(errorResponse.body);
-      const etag = this.repoWithEtag().etag;
-      this.repoWithEtag({etag, object: ConfigRepo.fromJSON(json.data)});
-      this.handleAutoUpdateError();
-    } else {
-      this.onError(JSON.parse(errorResponse.body!).message);
-      this.close();
-    }
   }
 }

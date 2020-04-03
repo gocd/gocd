@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {ApiResult, ObjectWithEtag} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
@@ -25,6 +26,7 @@ import {configRepoPluginInfo, createConfigRepoParsedWithError} from "views/pages
 import {TestHelper} from "views/pages/spec/test_helper";
 
 class TestConfigRepoModal extends ConfigRepoModal {
+  readonly repo: ConfigRepo;
 
   constructor(onSuccessfulSave: (msg: m.Children) => any,
               onError: (msg: m.Children) => any,
@@ -33,10 +35,24 @@ class TestConfigRepoModal extends ConfigRepoModal {
               isNew: boolean = true) {
     super(onSuccessfulSave, onError, pluginInfos, resourceAutocompleteHelper);
     this.isNew = isNew;
+
+    const configRepo = new ConfigRepo(undefined,
+                                      this.pluginInfos()[0].id,
+                                      new Material("git", new GitMaterialAttributes()));
+    const parsedRepo = createConfigRepoParsedWithError();
+    parsedRepo.rules().push(Stream(new Rule("allow", "refer", "pipeline", "common*")));
+    this.repo = this.isNew ? configRepo : parsedRepo;
   }
 
   setErrorMessageForTest(errorMsg: string): void {
     this.error = errorMsg;
+  }
+
+  simulateValidationFailedResponse(errorBody: any) {
+    const resp = ApiResult.error(JSON.stringify(errorBody), "validation failed", 422, new Map()).
+      map((x) => null as unknown as ObjectWithEtag<ConfigRepo>);
+
+    this.handleError(resp, (resp as any).errorResponse);
   }
 
   performSave(): Promise<any> {
@@ -48,12 +64,7 @@ class TestConfigRepoModal extends ConfigRepoModal {
   }
 
   protected getRepo(): ConfigRepo {
-    const configRepo = new ConfigRepo(undefined,
-                                      this.pluginInfos()[0].id,
-                                      new Material("git", new GitMaterialAttributes()));
-    const parsedRepo = createConfigRepoParsedWithError();
-    parsedRepo.rules().push(Stream(new Rule("allow", "refer", "pipeline", "common*")));
-    return this.isNew ? configRepo : parsedRepo;
+    return this.repo;
   }
 
 }
@@ -68,7 +79,7 @@ describe("ConfigRepoModal", () => {
 
   it("should render modal title and fields", () => {
     const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos);
-    helper.mount(modal.body.bind(modal));
+    helper.mount(() => m(modal));
 
     expect(modal.title()).toEqual("Modal Title for Config Repo");
     expect(helper.byTestId("form-field-label-plugin-id")).toBeInDOM();
@@ -84,16 +95,83 @@ describe("ConfigRepoModal", () => {
   it("should display error message", () => {
     const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos);
     modal.setErrorMessageForTest("some error message");
-    helper.mount(modal.body.bind(modal));
+    helper.mount(() => m(modal));
 
     expect(helper.byTestId("flash-message-alert")).toBeInDOM();
     expect(helper.textByTestId("flash-message-alert")).toContain("some error message");
   });
 
+  it("renders inline errors from the server", () => {
+    const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos);
+    helper.mount(() => m(modal));
+
+    modal.simulateValidationFailedResponse({
+      message: "Dude, I'm dead.",
+      data: {
+        errors: {
+          id: ["I've been through the desert on a repo with no name ~ ~"]
+        },
+        id: "",
+        plugin_id: "json.config.plugin",
+        material : {
+          type: "git",
+          attributes: {
+            name: null,
+            auto_update: true,
+            url: "",
+            branch: "master",
+            errors: {
+              url: ["You fool! How could you forget the URL?"]
+            }
+          }
+        },
+        configuration: [ ],
+        rules: [ ]
+      }
+    });
+
+    helper.redraw();
+
+    expect(helper.text(`[data-test-id="form-field-input-config-repository-name"] + span`)).toBe("I've been through the desert on a repo with no name ~ ~.");
+    expect(helper.text(`[data-test-id="form-field-input-url"] + span`)).toBe("You fool! How could you forget the URL?.");
+  });
+
+  it("renders the material auto update mismatch error", () => {
+    const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos);
+    helper.mount(() => m(modal));
+
+    modal.simulateValidationFailedResponse({
+      message: "Dude, I'm dead.",
+      data: {
+        id: "",
+        plugin_id: "json.config.plugin",
+        material : {
+          type: "git",
+          attributes: {
+            name: null,
+            auto_update: true,
+            url: "",
+            branch: "master",
+            errors: {
+              auto_update: ["Now you've done it"]
+            }
+          }
+        },
+        configuration: [ ],
+        rules: [ ]
+      }
+    });
+
+    helper.redraw();
+
+    expect(helper.byTestId("flash-message-alert")).toBeInDOM();
+    expect(helper.textByTestId("flash-message-alert")).toContain("Now you've done it");
+  });
+
   describe("CreateModal", () => {
     it("should not disable id while creating secret config", () => {
       const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos);
-      helper.mount(modal.body.bind(modal));
+      helper.mount(() => m(modal));
 
       expect(helper.byTestId("form-field-input-config-repository-name")).toBeInDOM();
       expect(helper.byTestId("form-field-input-config-repository-name")).not.toBeDisabled();
@@ -101,7 +179,7 @@ describe("ConfigRepoModal", () => {
 
     it('should not add any default rule', () => {
       const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos);
-      helper.mount(modal.body.bind(modal));
+      helper.mount(() => m(modal));
 
       expect(helper.byTestId('rules-widget')).toBeInDOM();
       expect(helper.byTestId('rules-table')).not.toBeInDOM();
@@ -112,14 +190,14 @@ describe("ConfigRepoModal", () => {
   describe("EditModal", () => {
     it("should disable id while editing secret config", () => {
       const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos, new Map(), false);
-      helper.mount(modal.body.bind(modal));
+      helper.mount(() => m(modal));
 
       expect(helper.byTestId("form-field-input-config-repository-name")).toBeDisabled();
     });
 
     it('should render any rules configures', () => {
       const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos, new Map(), false);
-      helper.mount(modal.body.bind(modal));
+      helper.mount(() => m(modal));
 
       expect(helper.byTestId('rules-table')).toBeInDOM();
       expect(helper.qa('tr', helper.byTestId('rules-table')).length).toBe(2);

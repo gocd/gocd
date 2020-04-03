@@ -27,6 +27,7 @@ import {Configurations} from "models/shared/configuration";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {ArtifactPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {ArtifactsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/artifacts_tab_content";
 import {OperationState} from "views/pages/page_operations";
@@ -280,6 +281,7 @@ describe("Artifacts Tab", () => {
                                    templateConfig,
                                    routeParams,
                                    Stream<OperationState>(OperationState.UNKNOWN),
+                                   new FlashMessageModelWithTimeout(),
                                    jasmine.createSpy(),
                                    jasmine.createSpy()));
   }

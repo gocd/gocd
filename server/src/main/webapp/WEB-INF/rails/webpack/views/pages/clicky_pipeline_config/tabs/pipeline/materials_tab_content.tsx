@@ -27,6 +27,7 @@ import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {MaterialsWidget} from "./materials_widget";
@@ -60,7 +61,7 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
     return pipelineConfig;
   }
 
-  protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig, pipelineConfigSave: () => Promise<any>, pipelineConfigReset: () => any) {
+  protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig, flashMessage: FlashMessageModelWithTimeout, pipelineConfigSave: () => Promise<any>, pipelineConfigReset: () => any) {
     const onMaterialAdd = (material: Material): Promise<any> => {
       if (material.isValid()) {
         entity.materials().push(material);

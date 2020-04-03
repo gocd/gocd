@@ -23,6 +23,7 @@ import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {Modal} from "views/components/modal";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
@@ -40,6 +41,7 @@ export class AddJobModal extends Modal {
   private readonly routeParams: PipelineConfigRouteParams;
   private readonly pipelineConfigSave: () => Promise<any>;
   private readonly ajaxOperationMonitor: Stream<OperationState>;
+  private readonly flashMessage: FlashMessageModelWithTimeout;
   private readonly selectedTaskTypeToAdd: Stream<string>;
   private readonly allTaskTypes: string[];
   private taskModal: AbstractTaskModal | undefined;
@@ -48,6 +50,7 @@ export class AddJobModal extends Modal {
 
   constructor(stage: Stage, templateConfig: TemplateConfig, pipelineConfig: PipelineConfig,
               routeParams: PipelineConfigRouteParams, ajaxOperationMonitor: Stream<OperationState>,
+              flashMessage: FlashMessageModelWithTimeout,
               pipelineConfigSave: () => Promise<any>, pipelineConfigReset: () => void) {
     super();
 
@@ -60,6 +63,7 @@ export class AddJobModal extends Modal {
     this.pipelineConfig       = pipelineConfig;
     this.routeParams          = routeParams;
     this.ajaxOperationMonitor = ajaxOperationMonitor;
+    this.flashMessage         = flashMessage;
     this.pipelineConfigSave   = pipelineConfigSave;
 
     this.jobSettingsTabContent = new JobSettingsTabContent();
@@ -82,6 +86,7 @@ export class AddJobModal extends Modal {
                                           this.templateConfig,
                                           this.routeParams,
                                           this.ajaxOperationMonitor,
+                                          this.flashMessage,
                                           this.noOperation.bind(this),
                                           this.noOperation.bind(this))}
       <h3 data-test-id="initial-task-header">Initial Task</h3>

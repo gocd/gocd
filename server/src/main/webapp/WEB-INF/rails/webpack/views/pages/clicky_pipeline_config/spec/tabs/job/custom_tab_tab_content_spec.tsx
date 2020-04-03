@@ -23,6 +23,7 @@ import {JobTestData, PipelineConfigTestData} from "models/pipeline_configs/spec/
 import {Stage} from "models/pipeline_configs/stage";
 import {Tab} from "models/pipeline_configs/tab";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {CustomTabTabContent} from "views/pages/clicky_pipeline_config/tabs/job/custom_tab_tab_content";
 import {OperationState} from "views/pages/page_operations";
@@ -146,6 +147,7 @@ describe("Custom Tab Tab Content", () => {
                                                          templateConfig,
                                                          routeParams,
                                                          Stream<OperationState>(OperationState.UNKNOWN),
+                                                         new FlashMessageModelWithTimeout(),
                                                          jasmine.createSpy(),
                                                          jasmine.createSpy()));
   }

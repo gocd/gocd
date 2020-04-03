@@ -14,23 +14,38 @@
  * limitations under the License.
  */
 
+import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {
+  DependentPipeline,
+  PipelineStructureWithAdditionalInfo
+} from "models/internal_pipeline_structure/pipeline_structure";
+import {PipelineStructureCRUD} from "models/internal_pipeline_structure/pipeline_structure_crud";
 import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import s from "underscore.string";
 import {Secondary} from "views/components/buttons";
+import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
 import {Delete} from "views/components/icons";
 import {Table} from "views/components/table";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {PipelineConfigPage, PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {AddStageModal} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/add_stage_modal";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {TemplateEditor} from "views/pages/pipelines/template_editor";
+import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 
 export class StagesTabContent extends TabContent<PipelineConfig> {
+  private dependentPipelines: Stream<DependentPipeline[]> = Stream([] as DependentPipeline[]);
+
+  constructor() {
+    super();
+    this.fetchStageDependencyInformation(PipelineConfigPage.routeInfo().params.pipeline_name);
+  }
+
   static tabName(): string {
     return "Stages";
   }
@@ -43,15 +58,34 @@ export class StagesTabContent extends TabContent<PipelineConfig> {
     return pipelineConfig;
   }
 
-  protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig, save: () => any, reset: () => any) {
+  protected renderer(entity: PipelineConfig,
+                     templateConfig: TemplateConfig,
+                     flashMessage: FlashMessageModelWithTimeout,
+                     save: () => any,
+                     reset: () => any) {
     return [
       <TemplateEditor pipelineConfig={entity} isUsingTemplate={entity.isUsingTemplate()}
                       paramList={entity.parameters}/>,
       <StagesWidget stages={entity.stages}
+                    dependentPipelines={this.dependentPipelines}
                     isUsingTemplate={entity.isUsingTemplate()}
+                    flashMessage={flashMessage}
                     pipelineConfigSave={save}
                     isEditable={!entity.origin().isDefinedInConfigRepo()}/>
     ];
+  }
+
+  private fetchStageDependencyInformation(pipelineName: string) {
+    this.pageLoading();
+    PipelineStructureCRUD.allPipelines("administer", "view")
+                         .then((pipelineGroups: ApiResult<PipelineStructureWithAdditionalInfo>) => {
+                           pipelineGroups.do((successResponse) => {
+                             const pipeline          = successResponse.body.pipelineStructure.findPipeline(pipelineName)!;
+                             this.dependentPipelines = pipeline.dependantPipelines;
+                             this.pageLoaded();
+                           });
+
+                         }, this.pageLoadFailure.bind(this));
   }
 }
 
@@ -59,7 +93,9 @@ export interface Attrs {
   stages: Stream<NameableSet<Stage>>;
   isUsingTemplate: Stream<boolean>;
   isEditable: boolean;
+  flashMessage: FlashMessageModelWithTimeout;
   pipelineConfigSave: () => any;
+  dependentPipelines: Stream<DependentPipeline[]>;
 }
 
 export interface State {
@@ -78,7 +114,7 @@ export class StagesWidget extends MithrilComponent<Attrs, State> {
 
     return <div data-test-id={"stages-container"}>
       <Table headers={StagesWidget.getTableHeaders(vnode.attrs.isEditable)}
-             data={StagesWidget.getTableData(vnode.attrs.stages(), vnode.attrs.isEditable)}
+             data={this.getTableData(vnode)}
              draggable={vnode.attrs.isEditable}
              dragHandler={StagesWidget.reArrange.bind(this, vnode.attrs.stages)}/>
       <Secondary disabled={!vnode.attrs.isEditable}
@@ -95,20 +131,62 @@ export class StagesWidget extends MithrilComponent<Attrs, State> {
     return headers;
   }
 
-  private static getTableData(stages: NameableSet<Stage>, isEditable: boolean): m.Child[][] {
-    return Array.from(stages.values()).map((stage: Stage) => {
+  private static reArrange(stages: Stream<NameableSet<Stage>>, oldIndex: number, newIndex: number) {
+    const array = Array.from(stages().values());
+    array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
+    stages(new NameableSet(array));
+  }
+
+  private getTableData(vnode: m.Vnode<Attrs, State>): m.Child[][] {
+    const stages     = Array.from(vnode.attrs.stages().values());
+    const isEditable = vnode.attrs.isEditable;
+
+    return stages.map((stage: Stage) => {
+      let deleteDisabledMessage: string | undefined;
+
+      if (Array.from(stages.values()).length === 1) {
+        deleteDisabledMessage = "Can not delete the only stage from the pipeline.";
+      }
+
+      const stageDependentPipelines = vnode.attrs.dependentPipelines().reduce((dependent, ele) => {
+        if (ele.depends_on_stage === stage.name()) {
+          dependent.push(ele.dependent_pipeline_name);
+        }
+        return dependent;
+      }, [] as string[]);
+
+      if (stageDependentPipelines.length > 0) {
+        deleteDisabledMessage = `Can not delete stage '${stage.name()}' as pipeline(s) '${stageDependentPipelines}' depends on it.`;
+      }
+
       const cells: m.Child[] = [stage.name(), stage.approval().typeAsString(), stage.jobs().length];
       if (isEditable) {
-        cells.push(<Delete iconOnly={true} onclick={() => stages.delete(stage)}
+        cells.push(<Delete iconOnly={true}
+                           title={deleteDisabledMessage}
+                           onclick={this.deleteStage.bind(this, vnode, stage)}
+                           disabled={!!deleteDisabledMessage}
                            data-test-id={`${s.slugify(stage.name())}-delete-icon`}/>);
       }
       return cells;
     });
   }
 
-  private static reArrange(stages: Stream<NameableSet<Stage>>, oldIndex: number, newIndex: number) {
-    const array = Array.from(stages().values());
-    array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
-    stages(new NameableSet(array));
+  private deleteStage(vnode: m.Vnode<Attrs, State>, stageToDelete: Stage) {
+    new ConfirmationDialog(
+      "Delete Stage",
+      <div>Do you want to delete the stage '<em>{stageToDelete.name()}</em>'?</div>,
+      this.onDelete.bind(this, vnode, stageToDelete)
+    ).render();
+  }
+
+  private onDelete(vnode: m.Vnode<Attrs, State>, stageToDelete: Stage) {
+    vnode.attrs.stages().delete(stageToDelete);
+    return vnode.attrs.pipelineConfigSave().then(() => {
+      vnode.attrs.flashMessage.setMessage(MessageType.success, `Stage '${stageToDelete.name()}' deleted successfully.`);
+    }).catch((errorResponse: ErrorResponse) => {
+      vnode.attrs.stages().add(stageToDelete);
+      const msg = errorResponse.body ? JSON.parse(errorResponse.body).message : errorResponse.message;
+      vnode.attrs.flashMessage.setMessage(MessageType.alert, msg);
+    }).finally(m.redraw.sync);
   }
 }

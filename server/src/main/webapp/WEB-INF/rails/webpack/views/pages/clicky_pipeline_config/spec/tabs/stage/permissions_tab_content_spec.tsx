@@ -19,6 +19,7 @@ import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {
   PermissionsTabContent,
@@ -302,6 +303,7 @@ describe("Permissions Tab Content", () => {
                                                            templateConfig,
                                                            routeParams,
                                                            Stream<OperationState>(OperationState.UNKNOWN),
+                                                           new FlashMessageModelWithTimeout(),
                                                            jasmine.createSpy(),
                                                            jasmine.createSpy()));
   }

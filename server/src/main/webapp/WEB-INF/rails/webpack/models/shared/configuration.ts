@@ -16,11 +16,17 @@
 import _ from "lodash";
 import {ConfigValue, EncryptedValue, PlainTextValue} from "models/shared/config_value";
 
+export interface PropertyErrors {
+  configuration_key?: string[];
+  configuration_value?: string[];
+  encrypted_value?: string[];
+}
+
 export interface PropertyJSON {
   key: string;
   value?: string | null | undefined;
   encrypted_value?: string | null | undefined;
-  errors?: { [key: string]: string[] };
+  errors?: PropertyErrors;
 }
 
 export class Configurations {
@@ -90,9 +96,9 @@ export class Configuration {
   }
 
   static fromJSON(config: PropertyJSON): Configuration {
-    let errors;
+    let errors: string[] | undefined;
     if (config.errors) {
-      errors = config.errors[config.key];
+      errors = _.reduce(config.errors, (all, msgs) => all.concat(msgs || []), [] as string[]);
     }
 
     let value;
@@ -113,6 +119,10 @@ export class Configuration {
       return;
     }
     this._value = new PlainTextValue(val);
+  }
+
+  get encrypted(): boolean {
+    return this.isEncrypted();
   }
 
   public displayValue(): string {

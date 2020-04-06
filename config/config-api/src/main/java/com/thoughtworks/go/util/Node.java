@@ -18,6 +18,7 @@ package com.thoughtworks.go.util;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 
@@ -66,6 +67,10 @@ public class Node {
 
     public boolean hasDependency(final CaseInsensitiveString pipelineName) {
         return dependencies.stream().filter(item -> item.getPipelineName().equals(pipelineName)).findFirst().isPresent();
+    }
+
+    public Optional<DependencyNode> getDependency(final CaseInsensitiveString pipelineName) {
+        return dependencies.stream().filter(item -> item.getPipelineName().equals(pipelineName)).findFirst();
     }
 
     public static class DependencyNode {

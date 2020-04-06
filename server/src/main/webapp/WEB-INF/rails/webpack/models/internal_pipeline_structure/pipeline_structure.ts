@@ -22,12 +22,17 @@ interface Nameable {
   name: string;
 }
 
+export interface DependentPipeline {
+  dependent_pipeline_name: string;
+  depends_on_stage: string;
+}
+
 export interface PipelineJSON extends Nameable {
   origin: OriginJSON;
   stages: StageJSON[];
   template_name?: string;
   environment: string | null;
-  dependant_pipelines: string[];
+  dependant_pipelines: DependentPipeline[];
 }
 
 export interface PipelineGroupJSON extends Nameable {
@@ -73,9 +78,14 @@ export class PipelineWithOrigin extends Pipeline {
   readonly templateName: Stream<string | undefined>;
   readonly stages: Stream<Stages>;
   readonly environment: Stream<string | null>;
-  readonly dependantPipelines: Stream<string[]>;
+  readonly dependantPipelines: Stream<DependentPipeline[]>;
 
-  constructor(name: string, templateName: string | undefined, origin: Origin, stages: Stages, environment: string | null, dependantPipelines: string[]) {
+  constructor(name: string,
+              templateName: string | undefined,
+              origin: Origin,
+              stages: Stages,
+              environment: string | null,
+              dependantPipelines: DependentPipeline[]) {
     super(name);
     this.origin             = Stream(origin);
     this.templateName       = Stream(templateName);
@@ -98,7 +108,12 @@ export class PipelineWithOrigin extends Pipeline {
   }
 
   clone() {
-    return new PipelineWithOrigin(this.name(), this.templateName(), this.origin(), this.stages().map((s) => s.clone()), this.environment(), this.dependantPipelines());
+    return new PipelineWithOrigin(this.name(),
+                                  this.templateName(),
+                                  this.origin(),
+                                  this.stages().map((s) => s.clone()),
+                                  this.environment(),
+                                  this.dependantPipelines());
   }
 
   isDefinedRemotely() {
@@ -333,6 +348,7 @@ export class PipelineStructureWithAdditionalInfo {
   }
 
   static fromJSON(data: PipelineStructureWithAdditionalInfoJSON): PipelineStructureWithAdditionalInfo {
-    return new PipelineStructureWithAdditionalInfo(PipelineStructure.fromJSON(data), AdditionalInfo.fromJSON(data.additional_info));
+    return new PipelineStructureWithAdditionalInfo(PipelineStructure.fromJSON(data),
+                                                   AdditionalInfo.fromJSON(data.additional_info));
   }
 }

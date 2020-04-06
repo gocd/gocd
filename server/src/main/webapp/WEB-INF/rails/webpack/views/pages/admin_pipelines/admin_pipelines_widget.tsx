@@ -84,7 +84,8 @@ class PipelineWidget extends MithrilViewComponent<PipelineWidgetAttrs> {
         return `Cannot delete pipeline '${pipeline.name()}' as it is present in environment '${pipeline.environment()}'.`;
       }
       if (pipeline.dependantPipelines() !== undefined && pipeline.dependantPipelines()!.length > 0) {
-        return `Cannot delete pipeline '${pipeline.name()}' as pipeline(s) '${pipeline.dependantPipelines()}' depends on it.`;
+        const dependentPipelineNames = pipeline.dependantPipelines().map(d => d.dependent_pipeline_name);
+        return `Cannot delete pipeline '${pipeline.name()}' as pipeline(s) '${dependentPipelineNames}' depends on it.`;
       }
     }
 

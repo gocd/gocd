@@ -14,7 +14,17 @@
  * limitations under the License.
  */
 
-import {PipelineGroup, PipelineGroupJSON, PipelineJSON, Pipelines, PipelineStructure, PipelineStructureJSON, PipelineStructureWithAdditionalInfo, PipelineStructureWithAdditionalInfoJSON, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
+import {
+  PipelineGroup,
+  PipelineGroupJSON,
+  PipelineJSON,
+  Pipelines,
+  PipelineStructure,
+  PipelineStructureJSON,
+  PipelineStructureWithAdditionalInfo,
+  PipelineStructureWithAdditionalInfoJSON,
+  PipelineWithOrigin
+} from "models/internal_pipeline_structure/pipeline_structure";
 import {Origin, OriginType} from "models/origin";
 
 describe("Pipeline Structure", () => {
@@ -41,28 +51,28 @@ describe("Pipeline Structure", () => {
   });
 
   const pipelineStructureJSON = {
-    groups:    [
+    groups: [
       {
-        name:      "group1",
+        name: "group1",
         pipelines: [
           {
-            name:                "pipeline-using-template-defined-in-xml",
-            origin:              {
+            name: "pipeline-using-template-defined-in-xml",
+            origin: {
               type: "gocd"
             },
-            environment:         null,
+            environment: null,
             dependant_pipelines: [],
-            stages:              []
+            stages: []
           },
           {
-            name:                "pipeline-using-template-defined-in-config-repo",
-            origin:              {
+            name: "pipeline-using-template-defined-in-config-repo",
+            origin: {
               type: "config_repo",
-              id:   "config-repo-1"
+              id: "config-repo-1"
             },
-            environment:         null,
+            environment: null,
             dependant_pipelines: [],
-            stages:              []
+            stages: []
           }
         ]
       }
@@ -72,18 +82,18 @@ describe("Pipeline Structure", () => {
 });
 
 const pipelineGroupJSON: PipelineGroupJSON = {
-  name:      "group-1",
+  name: "group-1",
   pipelines: [{
-    name:                "some-pipeline",
-    origin:              {type: OriginType.GoCD},
-    stages:              [],
-    environment:         null,
+    name: "some-pipeline",
+    origin: {type: OriginType.GoCD},
+    stages: [],
+    environment: null,
     dependant_pipelines: [],
   }]
 };
 
-describe('PipelineGroups', () => {
-  describe('containsRemotelyDefinedPipelines', () => {
+describe("PipelineGroups", () => {
+  describe("containsRemotelyDefinedPipelines", () => {
     it("should return true if the pipelines defined remotely", () => {
       const pipelineGroup = PipelineGroup.fromJSON(pipelineGroupJSON);
       expect(pipelineGroup.containsRemotelyDefinedPipelines()).toBe(false);
@@ -91,7 +101,12 @@ describe('PipelineGroups', () => {
 
     it("should return false if the any of pipelines defined remotely", () => {
       const pipelineGroup      = PipelineGroup.fromJSON(pipelineGroupJSON);
-      const pipelineWithOrigin = new PipelineWithOrigin("config-repo-pipeline", undefined, Origin.fromJSON({type: OriginType.ConfigRepo}), [], null, []);
+      const pipelineWithOrigin = new PipelineWithOrigin("config-repo-pipeline",
+                                                        undefined,
+                                                        Origin.fromJSON({type: OriginType.ConfigRepo}),
+                                                        [],
+                                                        null,
+                                                        []);
       pipelineGroup.pipelines().push(pipelineWithOrigin);
       expect(pipelineGroup.containsRemotelyDefinedPipelines()).toBe(true);
     });
@@ -103,26 +118,26 @@ describe('PipelineGroups', () => {
     });
   });
 
-  describe('canBeDeleted', () => {
+  describe("canBeDeleted", () => {
     let pipelineJSON: PipelineJSON;
 
     beforeEach(() => {
       pipelineJSON = {
-        name:                "some-pipeline",
-        origin:              {type: OriginType.GoCD},
-        stages:              [],
-        environment:         null,
+        name: "some-pipeline",
+        origin: {type: OriginType.GoCD},
+        stages: [],
+        environment: null,
         dependant_pipelines: []
       };
     });
 
-    it('should return true if not defined remotely, not in env and has no dependent pipelines', () => {
+    it("should return true if not defined remotely, not in env and has no dependent pipelines", () => {
       const pipelineWithOrigin = PipelineWithOrigin.fromJSON(pipelineJSON);
 
       expect(pipelineWithOrigin.canBeDeleted()).toBeTrue();
     });
 
-    it('should return false if defined remotely', () => {
+    it("should return false if defined remotely", () => {
       pipelineJSON.origin.type = OriginType.ConfigRepo;
       pipelineJSON.origin.id   = "config-repo-id";
       const pipelineWithOrigin = PipelineWithOrigin.fromJSON(pipelineJSON);
@@ -130,30 +145,34 @@ describe('PipelineGroups', () => {
       expect(pipelineWithOrigin.canBeDeleted()).toBeFalse();
     });
 
-    it('should return false if part of environment', () => {
+    it("should return false if part of environment", () => {
       pipelineJSON.environment = "test-env";
       const pipelineWithOrigin = PipelineWithOrigin.fromJSON(pipelineJSON);
 
       expect(pipelineWithOrigin.canBeDeleted()).toBeFalse();
     });
 
-    it('should return false if has dependant pipelines', () => {
-      pipelineJSON.dependant_pipelines = ['test-pipeline1'];
-      const pipelineWithOrigin         = PipelineWithOrigin.fromJSON(pipelineJSON);
+    it("should return false if has dependant pipelines", () => {
+      pipelineJSON.dependant_pipelines = [{
+        dependent_pipeline_name: "test-pipeline1",
+        depends_on_stage: "stage1"
+      }];
+
+      const pipelineWithOrigin = PipelineWithOrigin.fromJSON(pipelineJSON);
 
       expect(pipelineWithOrigin.canBeDeleted()).toBeFalse();
     });
   });
 });
 
-describe('PipelineStructureWithAdditionalInfo', () => {
-  it('should serialize from json', () => {
+describe("PipelineStructureWithAdditionalInfo", () => {
+  it("should serialize from json", () => {
     const json = {
-      groups:          [],
-      templates:       [],
+      groups: [],
+      templates: [],
       additional_info: {
-        users: ['user1', 'user2'],
-        roles: ['role1', 'role2']
+        users: ["user1", "user2"],
+        roles: ["role1", "role2"]
       }
     } as PipelineStructureWithAdditionalInfoJSON;
 

@@ -23,12 +23,7 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.util.Node;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
+import java.util.*;
 
 public class InternalPipelineStructuresRepresenter {
     public static void toJSON(OutputWriter outputWriter, PipelineStructureViewModel pipelineStructureViewModel) {
@@ -69,11 +64,15 @@ public class InternalPipelineStructuresRepresenter {
     }
 
     private static void renderDependantPipelines(OutputWriter pipelineWriter, PipelineConfig pipelineConfig, Hashtable<CaseInsensitiveString, Node> pipelineDependencyTable) {
-        List<String> dependantPipelines = pipelineDependencyTable.entrySet().stream()
-                .filter((entry) -> entry.getValue().hasDependency(pipelineConfig.name()))
-                .map((entry) -> entry.getKey().toString())
-                .collect(toList());
-        pipelineWriter.addChildList("dependant_pipelines", dependantPipelines);
+        pipelineWriter.addChildList("dependant_pipelines", outputListWriter -> {
+            pipelineDependencyTable.entrySet().forEach((entry) -> {
+                Optional<Node.DependencyNode> dependency = entry.getValue().getDependency(pipelineConfig.name());
+                dependency.ifPresent(dependencyNode -> outputListWriter.addChild(childWriter -> {
+                    childWriter.add("dependent_pipeline_name", entry.getKey().toString());
+                    childWriter.add("depends_on_stage", dependencyNode.getStageName());
+                }));
+            });
+        });
     }
 
     private static void renderEnvironment(OutputWriter pipelineWriter, PipelineConfig pipelineConfig, EnvironmentsConfig environments) {

@@ -99,7 +99,12 @@ class InternalPipelineStructuresRepresenterTest {
                           type: 'gocd',
                         ],
                         environment        : null,
-                        dependant_pipelines: ['my-pipeline-1'],
+                        dependant_pipelines: [
+                          [
+                            "dependent_pipeline_name": "my-pipeline-1",
+                            "depends_on_stage"       : "my-stage"
+                          ]
+                        ],
                         stages             : [
                           [
                             name: 'my-stage',

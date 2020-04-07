@@ -56,9 +56,6 @@ interface HeaderAttrs {
 interface State {
   currentSortedColumnIndex: Stream<number>;
   dragging: number;
-  dragStart: (e: DragEvent) => void;
-  dragOver: (e: DragEvent) => void;
-  dragEnd: () => void;
   dragged: number;
 }
 
@@ -116,39 +113,39 @@ export class Table extends MithrilComponent<Attrs, State> {
     if (!vnode.attrs.draggable) {
       return;
     }
+  }
 
-    vnode.state.dragStart = (e: DragEvent) => {
-      vnode.state.dragged           = Number((e.currentTarget as HTMLElement).dataset.id);
-      vnode.state.dragging          = vnode.state.dragged;
-      e.dataTransfer!.effectAllowed = "move";
-      e.dataTransfer!.setData("text/html", "");
-    };
+  dragStart = (vnode: m.Vnode<Attrs, State>, e: DragEvent) => {
+    vnode.state.dragged           = Number((e.currentTarget as HTMLElement).dataset.id);
+    vnode.state.dragging          = vnode.state.dragged;
+    e.dataTransfer!.effectAllowed = "move";
+    e.dataTransfer!.setData("text/html", "");
+  }
 
-    vnode.state.dragOver = (e: DragEvent) => {
-      e.preventDefault();
+  dragOver = (vnode: m.Vnode<Attrs, State>, e: DragEvent) => {
+    e.preventDefault();
 
-      const toBeReplaced                 = e.currentTarget as HTMLElement;
-      const updatedPositionWhileDragging = vnode.state.dragging;
-      const newPosition                  = Number(toBeReplaced.dataset.id);
+    const toBeReplaced                 = e.currentTarget as HTMLElement;
+    const updatedPositionWhileDragging = vnode.state.dragging;
+    const newPosition                  = Number(toBeReplaced.dataset.id);
 
-      if (updatedPositionWhileDragging === newPosition) {
-        return;
-      }
+    if (updatedPositionWhileDragging === newPosition) {
+      return;
+    }
 
-      // deleting the dragged element from the old position
-      const draggedElement = vnode.attrs.data.splice(updatedPositionWhileDragging, 1)[0];
-      // moving the element to new position
-      vnode.attrs.data.splice(newPosition, 0, draggedElement);
-      vnode.state.dragging = newPosition;
-      if (vnode.attrs.dragHandler) {
-        vnode.attrs.dragHandler(updatedPositionWhileDragging, newPosition);
-      }
-    };
+    // deleting the dragged element from the old position
+    const draggedElement = vnode.attrs.data.splice(updatedPositionWhileDragging, 1)[0];
+    // moving the element to new position
+    vnode.attrs.data.splice(newPosition, 0, draggedElement);
+    vnode.state.dragging = newPosition;
+    if (vnode.attrs.dragHandler) {
+      vnode.attrs.dragHandler(updatedPositionWhileDragging, newPosition);
+    }
+  }
 
-    vnode.state.dragEnd = () => {
-      vnode.state.dragging = -1;
-      m.redraw();
-    };
+  dragEnd = (vnode: m.Vnode<Attrs, State>) => {
+    vnode.state.dragging = -1;
+    m.redraw();
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
@@ -193,9 +190,9 @@ export class Table extends MithrilComponent<Attrs, State> {
                 data-id={index}
                 class={dragging}
                 draggable={true}
-                ondragstart={vnode.state.dragStart.bind(this)}
-                ondragover={vnode.state.dragOver.bind(this)}
-                ondragend={vnode.state.dragEnd.bind(this)}
+                ondragstart={this.dragStart.bind(this, vnode)}
+                ondragover={this.dragOver.bind(this, vnode)}
+                ondragend={this.dragEnd.bind(this, vnode)}
                 data-test-id="table-row">
               <td
                 data-id={index}

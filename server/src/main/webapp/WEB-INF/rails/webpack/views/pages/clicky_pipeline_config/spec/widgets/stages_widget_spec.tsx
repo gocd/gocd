@@ -166,9 +166,11 @@ describe("Stages Widget", () => {
                  isEditable                              = true,
                  dependentPipelines: DependentPipeline[] = []) {
 
-    const onSave = jasmine.createSpy().and.returnValue(Promise.resolve());
+    const onSave  = jasmine.createSpy().and.returnValue(Promise.resolve());
+    const onReset = jasmine.createSpy().and.returnValue(Promise.resolve());
     helper.mount(() => <StagesWidget stages={stages}
                                      pipelineConfigSave={onSave}
+                                     pipelineConfigReset={onReset}
                                      dependentPipelines={Stream(dependentPipelines)}
                                      flashMessage={new FlashMessageModelWithTimeout()}
                                      isUsingTemplate={isUsingTemplate}

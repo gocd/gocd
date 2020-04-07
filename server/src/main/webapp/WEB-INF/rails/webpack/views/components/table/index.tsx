@@ -43,6 +43,7 @@ interface Attrs {
   sortHandler?: TableSortHandler;
   draggable?: boolean;
   dragHandler?: (oldIndex: number, newIndex: number) => void;
+  dragEnd?: () => any;
 }
 
 interface HeaderAttrs {
@@ -145,6 +146,9 @@ export class Table extends MithrilComponent<Attrs, State> {
 
   dragEnd = (vnode: m.Vnode<Attrs, State>) => {
     vnode.state.dragging = -1;
+    if (vnode.attrs.dragEnd) {
+      vnode.attrs.dragEnd();
+    }
     m.redraw();
   }
 

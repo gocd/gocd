@@ -21,6 +21,7 @@ import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ToggleRegisterLatest;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv4.configrepos.representers.ConfigRepoConfigRepresenterV4;
@@ -54,6 +55,7 @@ import static com.thoughtworks.go.util.CachedDigestUtils.sha256Hex;
 import static java.util.stream.Collectors.toCollection;
 import static spark.Spark.*;
 
+@ToggleRegisterLatest(controllerPath = Routes.ConfigRepos.BASE, apiVersion = ApiVersion.v4, as = "config_repo_v4")
 @Component
 public class ConfigReposControllerV4 extends ApiController implements SparkSpringController, CrudController<ConfigRepoConfig> {
     private final ApiAuthenticationHelper authHelper;

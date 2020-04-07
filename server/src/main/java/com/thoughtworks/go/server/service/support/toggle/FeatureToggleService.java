@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggle;
 import com.thoughtworks.go.server.domain.support.toggle.FeatureToggles;
-import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +29,8 @@ import java.util.Collection;
 
 @Service
 public class FeatureToggleService {
-    private static final String USER_TOGGLES_CACHE_KEY = "FeatureToggleService_USER_TOGGLES";
+    private static final String KNOWN_TOGGLES = "FeatureToggleService_KNOWN_TOGGLES";
+    private static final String USER_DEF_TOGGLES = "FeatureToggleService_USER_DEF_TOGGLES";
     private FeatureToggleRepository repository;
     private GoCache goCache;
     private final Multimap<String, FeatureToggleListener> listeners = HashMultimap.create();
@@ -42,25 +42,56 @@ public class FeatureToggleService {
     }
 
     public boolean isToggleOn(String key) {
-        FeatureToggle toggle = allToggles().find(key);
+        // handle any key, really.
+        FeatureToggle toggle = userToggles().find(key);
+        if (toggle != null) {
+            return toggle.isOn();
+        }
+
+        toggle = allToggles().find(key);
         return toggle != null && toggle.isOn();
     }
 
+    /**
+     * All user toggles, not just the ones we know about in available.toggles. Need this to support route toggling
+     * where the toggle keys may be dynamically generated.
+     *
+     * @return all user toggles.
+     */
+    public FeatureToggles userToggles() {
+        FeatureToggles userToggles = (FeatureToggles) goCache.get(USER_DEF_TOGGLES);
+        if (userToggles != null) {
+            return userToggles;
+        }
+
+        synchronized (USER_DEF_TOGGLES) {
+            userToggles = (FeatureToggles) goCache.get(USER_DEF_TOGGLES);
+            if (userToggles != null) {
+                return userToggles;
+            }
+
+            userToggles = repository.userToggles();
+            goCache.put(USER_DEF_TOGGLES, userToggles);
+
+            return userToggles;
+        }
+    }
+
     public FeatureToggles allToggles() {
-        FeatureToggles allToggles = (FeatureToggles) goCache.get(USER_TOGGLES_CACHE_KEY);
+        FeatureToggles allToggles = (FeatureToggles) goCache.get(KNOWN_TOGGLES);
         if (allToggles != null) {
             return allToggles;
         }
-        synchronized (USER_TOGGLES_CACHE_KEY) {
-            allToggles = (FeatureToggles) goCache.get(USER_TOGGLES_CACHE_KEY);
+        synchronized (KNOWN_TOGGLES) {
+            allToggles = (FeatureToggles) goCache.get(KNOWN_TOGGLES);
             if (allToggles != null) {
                 return allToggles;
             }
 
             FeatureToggles availableToggles = repository.availableToggles();
-            FeatureToggles userToggles = repository.userToggles();
+            FeatureToggles userToggles = userToggles();
             allToggles = availableToggles.overrideWithTogglesIn(userToggles);
-            goCache.put(USER_TOGGLES_CACHE_KEY, allToggles);
+            goCache.put(KNOWN_TOGGLES, allToggles);
 
             return allToggles;
         }
@@ -71,9 +102,9 @@ public class FeatureToggleService {
             throw new RecordNotFoundException(MessageFormat.format("Feature toggle: ''{0}'' is not valid.", key));
         }
 
-        synchronized (USER_TOGGLES_CACHE_KEY) {
+        synchronized (KNOWN_TOGGLES) {
             repository.changeValueOfToggle(key, newValue);
-            goCache.remove(USER_TOGGLES_CACHE_KEY);
+            goCache.remove(KNOWN_TOGGLES);
 
             if (listeners.containsKey(key)) {
                 Collection<FeatureToggleListener> featureToggleListeners = listeners.get(key);

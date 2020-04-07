@@ -64,7 +64,6 @@ export class Package extends ValidatableMixin {
     this.packageRepo   = Stream(packageRepo);
     this.errors(errors);
 
-    this.validatePresenceOf("id");
     this.validatePresenceOf("name");
     this.validateFormatOf("name",
                           new RegExp("^[-a-zA-Z0-9_][-a-zA-Z0-9_.]*$"),
@@ -144,7 +143,6 @@ export class PackageRepository extends ValidatableMixin {
     this.packages       = Stream(packages);
     this.errors((errors));
 
-    this.validatePresenceOf("repoId");
     this.validatePresenceOf("name");
     this.validateFormatOf("name",
                           new RegExp("^[-a-zA-Z0-9_][-a-zA-Z0-9_.]*$"),

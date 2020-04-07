@@ -32,18 +32,6 @@ describe('PackageRepositoriesModelSpec', () => {
       expect(pkg.packageRepo().errors().keys()).toEqual(["id"]);
     });
 
-    it("should validate presence of id", () => {
-      const packageJSON = getPackage();
-      delete packageJSON.id;
-      const pkg = Package.fromJSON(packageJSON);
-
-      const isValid = pkg.isValid();
-
-      expect(isValid).toBe(false);
-      expect(pkg.errors().count()).toEqual(1);
-      expect(pkg.errors().keys()).toEqual(["id"]);
-    });
-
     it("should validate presence of name", () => {
       const packageJSON = getPackage();
       delete packageJSON.name;
@@ -92,18 +80,6 @@ describe('PackageRepositoriesModelSpec', () => {
     expect(isValid).toBe(false);
     expect(packageRepository.pluginMetadata().errors().count()).toEqual(1);
     expect(packageRepository.pluginMetadata().errors().keys()).toEqual(["id"]);
-  });
-
-  it("should validate presence of repoId", () => {
-    const packageRepositoryJSON = getPackageRepository();
-    delete packageRepositoryJSON.repo_id;
-    const packageRepository = PackageRepository.fromJSON(packageRepositoryJSON);
-
-    const isValid = packageRepository.isValid();
-
-    expect(isValid).toBe(false);
-    expect(packageRepository.errors().count()).toEqual(1);
-    expect(packageRepository.errors().keys()).toEqual(["repoId"]);
   });
 
   it("should validate presence of name", () => {

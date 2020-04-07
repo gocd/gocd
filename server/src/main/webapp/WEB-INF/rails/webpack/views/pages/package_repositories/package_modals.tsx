@@ -15,14 +15,13 @@
  */
 
 import {ErrorResponse} from "helpers/api_request_builder";
-import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PackagesCRUD} from "models/package_repositories/packages_crud";
 import {Package, PackageRepositories, PackageRepository, PackageUsages} from "models/package_repositories/package_repositories";
 import {PackageJSON} from "models/package_repositories/package_repositories_json";
+import {Configurations} from "models/shared/configuration";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
-import {v4 as uuidv4} from 'uuid';
 import {Link} from "views/components/link";
 import {Modal, Size} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
@@ -47,6 +46,7 @@ abstract class PackageModal extends EntityModal<Package> {
     this.originalEntityId    = entity.id();
     this.originalEntityName  = entity.name();
     this.packageRepositories = packageRepositories;
+    this.needsFoundationStyles(false);
   }
 
   operationError(errorResponse: any, statusCode: number) {
@@ -76,13 +76,14 @@ abstract class PackageModal extends EntityModal<Package> {
   }
 
   private onPackageRepoChange(newPackageRepo?: PackageRepository) {
+    const packageRepo = this.entity().packageRepo();
     if (!newPackageRepo) {
-      return this.entity().packageRepo().id();
+      return packageRepo.id();
     }
 
-    if (newPackageRepo.repoId() !== this.entity().packageRepo().id()) {
-      const pluginInfo = _.find(this.pluginInfos, (pluginInfo: PluginInfo) => pluginInfo.id === newPackageRepo.pluginMetadata().id()) as PluginInfo;
-      this.onPluginChange(this.entity, pluginInfo);
+    if (newPackageRepo.repoId() !== packageRepo.id()) {
+      packageRepo.id(newPackageRepo.repoId());
+      this.entity(new Package(this.entity().id(), this.entity().name(), this.entity().autoUpdate(), new Configurations([]), packageRepo));
     }
 
     return newPackageRepo.repoId();
@@ -154,22 +155,18 @@ export class ClonePackageModal extends PackageModal {
   }
 
   fetchCompleted() {
-    this.entity().id(uuidv4());
+    this.entity().id("");
     this.entity().name("");
   }
 }
 
 export class DeletePackageModal extends DeleteConfirmModal {
   private readonly onSuccessfulSave: (msg: m.Children) => any;
-  private readonly onOperationError: (errorResponse: ErrorResponse) => any;
 
-  constructor(pkg: Package,
-              onSuccessfulSave: (msg: m.Children) => any,
-              onOperationError: (errorResponse: ErrorResponse) => any) {
+  constructor(pkg: Package, onSuccessfulSave: (msg: m.Children) => any) {
     super(DeletePackageModal.deleteConfirmationMessage(pkg),
           () => this.delete(pkg), "Are you sure?");
     this.onSuccessfulSave = onSuccessfulSave;
-    this.onOperationError = onOperationError;
   }
 
   private static deleteConfirmationMessage(pkg: Package) {
@@ -183,13 +180,20 @@ export class DeletePackageModal extends DeleteConfirmModal {
       .delete(obj.id())
       .then((result) => {
         result.do(
-          () => this.onSuccessfulSave(
-            <span>The package <em>{obj.name()}</em> was deleted successfully!</span>
-          ),
-          this.onOperationError
+          () => {
+            this.onSuccessfulSave(
+              <span>The package <em>{obj.name()}</em> was deleted successfully!</span>
+            );
+            this.close();
+          },
+          (errorResponse: ErrorResponse) => {
+            this.errorMessage = errorResponse.message;
+            if (errorResponse.body) {
+              this.errorMessage = JSON.parse(errorResponse.body).message;
+            }
+          }
         );
-      })
-      .finally(this.close.bind(this));
+      });
   }
 }
 

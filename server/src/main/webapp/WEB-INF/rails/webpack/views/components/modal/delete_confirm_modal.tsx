@@ -16,13 +16,15 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import * as Buttons from "views/components/buttons";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Modal, Size} from "views/components/modal";
-import {OperationState} from "../../pages/page_operations";
+import {OperationState} from "views/pages/page_operations";
 
 export class DeleteConfirmModal extends Modal {
   private readonly message: m.Children;
   private readonly modalTitle: string;
   private readonly ondelete: () => Promise<any>;
+  protected errorMessage?: string;
   private operationState: Stream<OperationState> = Stream<OperationState>(OperationState.UNKNOWN);
 
   constructor(message: m.Children, ondelete: () => Promise<any>, title = "Are you sure?") {
@@ -33,6 +35,9 @@ export class DeleteConfirmModal extends Modal {
   }
 
   body(): m.Children {
+    if (this.errorMessage !== undefined) {
+      return <FlashMessage type={MessageType.alert} message={this.errorMessage}/>;
+    }
     return <div>{this.message}</div>;
   }
 
@@ -41,6 +46,12 @@ export class DeleteConfirmModal extends Modal {
   }
 
   buttons(): m.ChildArray {
+    if (this.errorMessage !== undefined) {
+      return [
+        <Buttons.Primary ajaxOperationMonitor={this.operationState} data-test-id='button-no-delete'
+                         onclick={this.close.bind(this)}>OK</Buttons.Primary>
+      ];
+    }
     return [
       <Buttons.Danger data-test-id='button-delete'
                       ajaxOperationMonitor={this.operationState}

@@ -18,35 +18,49 @@ package com.thoughtworks.go.api.spring;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.spark.RerouteLatestApis;
 import com.thoughtworks.go.spark.spring.RouteEntry;
 import com.thoughtworks.go.spark.spring.RouteInformationProvider;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import spark.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import static com.thoughtworks.go.api.ApiVersion.LATEST_VERSION_MIMETYPE;
 
 @Component
-public class RerouteLatestApisImpl implements RerouteLatestApis {
+public class RerouteLatestApisImpl implements RerouteLatestApis, ApplicationContextAware {
     private final RouteInformationProvider routeInformationProvider;
+    private final FeatureToggleService features;
+    private ApplicationContext applicationContext;
+    private RouteToggles routeToggles;
 
     @Autowired
-    public RerouteLatestApisImpl(RouteInformationProvider routeInformationProvider) {
+    public RerouteLatestApisImpl(RouteInformationProvider routeInformationProvider, FeatureToggleService features) {
         this.routeInformationProvider = routeInformationProvider;
+        this.features = features;
     }
 
-    // ignore some "special" paths
-    private boolean shouldIgnore(String acceptHeader) {
-        return acceptHeader.equals("*/*");
+    // ignore special paths and those that are toggled off
+    private boolean shouldIgnore(RouteEntry entry) {
+        if (routeToggles.matches(entry)) {
+            return !routeToggles.isToggledOn(entry);
+        }
+
+        return entry.getAcceptedType().equals("*/*");
     }
 
-    // ignore some "special" paths
+    // ignore feed API paths
     private boolean ignoreFeedApis(String path) {
         return StringUtils.startsWithIgnoreCase(path, "/api/feed/");
     }
@@ -56,8 +70,10 @@ public class RerouteLatestApisImpl implements RerouteLatestApis {
         List<RouteEntry> routes = routeInformationProvider.getRoutes();
         Multimap<String, ApiVersion> pathToVersionsMap = LinkedHashMultimap.create();
 
+        routeToggles = resolveRouteToggles();
+
         routes.forEach(entry -> {
-            if (shouldIgnore(entry.getAcceptedType()) || ignoreFeedApis(entry.getPath())) {
+            if (shouldIgnore(entry) || ignoreFeedApis(entry.getPath())) {
                 return;
             }
 
@@ -65,10 +81,8 @@ public class RerouteLatestApisImpl implements RerouteLatestApis {
             pathToVersionsMap.put(entry.getPath(), version);
         });
 
-
         routes.forEach(routeEntry -> {
-
-            if (shouldIgnore(routeEntry.getAcceptedType()) || ignoreFeedApis(routeEntry.getPath())) {
+            if (shouldIgnore(routeEntry) || ignoreFeedApis(routeEntry.getPath())) {
                 return;
             }
 
@@ -96,5 +110,21 @@ public class RerouteLatestApisImpl implements RerouteLatestApis {
 
         });
         routeInformationProvider.cacheRouteInformation();
+    }
+
+    private RouteToggles resolveRouteToggles() {
+        return new RouteToggles(applicationContext.getBeansWithAnnotation(ToggleRegisterLatest.class).values().stream().
+                reduce(new ArrayList<>(), (BiFunction<List<RouteToggle>, Object, List<RouteToggle>>) (all, o) -> {
+                    for (ToggleRegisterLatest meta : o.getClass().getAnnotationsByType(ToggleRegisterLatest.class)) {
+                        all.add(new RouteToggle(meta.controllerPath(), meta.apiVersion(), meta.as(), meta.includeDescendants()));
+                    }
+                    return all;
+                }, (l, r) -> r) /* ignored, not parallel */,
+                features);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }

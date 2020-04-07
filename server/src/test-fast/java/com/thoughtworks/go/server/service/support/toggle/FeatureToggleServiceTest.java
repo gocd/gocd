@@ -26,11 +26,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class FeatureToggleServiceTest {
@@ -88,6 +85,23 @@ public class FeatureToggleServiceTest {
         FeatureToggleService service = new FeatureToggleService(repository, goCache);
 
         assertThat(service.isToggleOn("NON_EXISTENT_KEY"), is(false));
+    }
+
+    @Test
+    public void honorTogglesDefinedInInUserTogglesEvenIfNotEnumeratedInAvailableToggles() throws Exception {
+        FeatureToggles existingToggles = new FeatureToggles(
+                new FeatureToggle("key1", "description1", true),
+                new FeatureToggle("key2", "description2", false)
+        );
+
+        when(repository.availableToggles()).thenReturn(existingToggles);
+        when(repository.userToggles()).thenReturn(new FeatureToggles(
+                new FeatureToggle("key3", "whatever", true)
+        ));
+
+        FeatureToggleService service = new FeatureToggleService(repository, goCache);
+
+        assertTrue(service.isToggleOn("key3"));
     }
 
     @Test

@@ -185,8 +185,7 @@ export class StagesWidget extends MithrilComponent<Attrs, State> {
       vnode.attrs.flashMessage.setMessage(MessageType.success, `Stage '${stageToDelete.name()}' deleted successfully.`);
     }).catch((errorResponse: ErrorResponse) => {
       vnode.attrs.stages().add(stageToDelete);
-      const msg = errorResponse.body ? JSON.parse(errorResponse.body).message : errorResponse.message;
-      vnode.attrs.flashMessage.setMessage(MessageType.alert, msg);
+      vnode.attrs.flashMessage.consumeErrorResponse(errorResponse);
     }).finally(m.redraw.sync);
   }
 }

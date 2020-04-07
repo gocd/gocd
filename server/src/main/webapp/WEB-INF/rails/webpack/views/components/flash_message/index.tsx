@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import classnames from "classnames";
+import {ErrorResponse} from "helpers/api_request_builder";
 import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -155,6 +157,19 @@ export class FlashMessageModelWithTimeout extends FlashMessageModel implements F
 
   alert(message: m.Children, onTimeout?: callback) {
     this.setMessage(MessageType.alert, message, onTimeout);
+  }
+
+  consumeErrorResponse(errorResponse: ErrorResponse) {
+    const parsed            = errorResponse.body ? JSON.parse(errorResponse.body!) : {};
+    let message: m.Children = parsed.message ? parsed.message : errorResponse.message;
+
+    if (parsed.data && parsed.data.errors) {
+      message = (<div>{message}
+        <ul>{_.flatten(Object.values(parsed.data.errors)).map(e => <li>{e}</li>)}</ul>
+      </div>);
+    }
+
+    this.setMessage(MessageType.alert, message);
   }
 
   setMessage(type: MessageType, message: m.Children, timeoutCallback?: callback) {

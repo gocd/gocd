@@ -33,6 +33,7 @@ import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_
 import {Delete} from "views/components/icons";
 import {Table} from "views/components/table";
 import {PipelineConfigPage, PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
 import {AddStageModal} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/add_stage_modal";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {TemplateEditor} from "views/pages/pipelines/template_editor";
@@ -71,6 +72,7 @@ export class StagesTabContent extends TabContent<PipelineConfig> {
                     isUsingTemplate={entity.isUsingTemplate()}
                     flashMessage={flashMessage}
                     pipelineConfigSave={save}
+                    pipelineConfigReset={reset}
                     isEditable={!entity.origin().isDefinedInConfigRepo()}/>
     ];
   }
@@ -95,15 +97,22 @@ export interface Attrs {
   isEditable: boolean;
   flashMessage: FlashMessageModelWithTimeout;
   pipelineConfigSave: () => any;
+  pipelineConfigReset: () => any;
   dependentPipelines: Stream<DependentPipeline[]>;
 }
 
 export interface State {
+  entityReOrderHandler: EntityReOrderHandler;
   getModal: () => AddStageModal;
 }
 
 export class StagesWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
+    vnode.state.entityReOrderHandler = new EntityReOrderHandler("stage",
+                                                                vnode.attrs.flashMessage,
+                                                                vnode.attrs.pipelineConfigSave,
+                                                                vnode.attrs.pipelineConfigReset);
+
     vnode.state.getModal = () => new AddStageModal(vnode.attrs.stages(), vnode.attrs.pipelineConfigSave);
   }
 
@@ -113,9 +122,11 @@ export class StagesWidget extends MithrilComponent<Attrs, State> {
     }
 
     return <div data-test-id={"stages-container"}>
+      {vnode.state.entityReOrderHandler.getReOrderConfirmationView()}
       <Table headers={StagesWidget.getTableHeaders(vnode.attrs.isEditable)}
              data={this.getTableData(vnode)}
              draggable={vnode.attrs.isEditable}
+             dragEnd={vnode.state.entityReOrderHandler.onReOder.bind(vnode.state.entityReOrderHandler)}
              dragHandler={StagesWidget.reArrange.bind(this, vnode.attrs.stages)}/>
       <Secondary disabled={!vnode.attrs.isEditable}
                  dataTestId={"add-stage-button"}

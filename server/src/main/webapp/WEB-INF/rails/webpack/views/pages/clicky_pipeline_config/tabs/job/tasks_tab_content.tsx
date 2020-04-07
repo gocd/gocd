@@ -34,6 +34,7 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import {Table} from "views/components/table";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
 import {AntTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/ant";
 import {ExecTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/exec";
@@ -60,6 +61,7 @@ export interface State {
   allTaskTypes: string[];
   selectedTaskTypeToAdd: Stream<string>;
   modal: AbstractTaskModal;
+  entityReOrderHandler: EntityReOrderHandler;
 }
 
 export class TasksWidget extends MithrilComponent<Attrs, State> {
@@ -103,6 +105,10 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
     vnode.state.allTaskTypes          = Array.from(TasksWidget.getTaskTypes().values());
     vnode.state.selectedTaskTypeToAdd = Stream(vnode.state.allTaskTypes[0]);
+    vnode.state.entityReOrderHandler = new EntityReOrderHandler("task",
+                                                                vnode.attrs.flashMessage,
+                                                                vnode.attrs.pipelineConfigSave,
+                                                                vnode.attrs.pipelineConfigReset);
   }
 
   onTaskSave(vnode: m.Vnode<Attrs, State>) {
@@ -120,9 +126,11 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
 
   view(vnode: m.Vnode<Attrs, State>) {
     return <div data-test-id={"tasks-container"}>
+      {vnode.state.entityReOrderHandler.getReOrderConfirmationView()}
       <Table headers={TasksWidget.getTableHeaders(vnode.attrs.isEditable)}
              draggable={vnode.attrs.isEditable}
              dragHandler={TasksWidget.reArrange.bind(this, vnode.attrs.tasks)}
+             dragEnd={vnode.state.entityReOrderHandler.onReOder.bind(vnode.state.entityReOrderHandler)}
              data={this.getTableData(vnode)}/>
       <div className={styles.addTaskWrapper}>
         <SelectField property={vnode.state.selectedTaskTypeToAdd}>

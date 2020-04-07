@@ -181,8 +181,7 @@ export class JobsWidget extends MithrilComponent<Attrs, State> {
       vnode.attrs.flashMessage.setMessage(MessageType.success, `Job '${jobToDelete.name()}' deleted successfully.`);
     }).catch((errorResponse: ErrorResponse) => {
       vnode.attrs.jobs().add(jobToDelete);
-      const msg = errorResponse.body ? JSON.parse(errorResponse.body).message : errorResponse.message;
-      vnode.attrs.flashMessage.setMessage(MessageType.alert, msg);
+      vnode.attrs.flashMessage.consumeErrorResponse(errorResponse);
     }).finally(m.redraw.sync);
   }
 }

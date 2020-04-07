@@ -34,17 +34,20 @@ interface Attrs extends EditOperation<PackageRepository>, CloneOperation<Package
 }
 
 export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
-    const header = <KeyValuePair inline={true}
-                                 data={PackageRepositoryWidget.headerMap(vnode.attrs.packageRepository)}/>;
 
-    const packageRepository = vnode.attrs.packageRepository;
+  public static getPkgRepoDetails(packageRepository: PackageRepository) {
     const pkgRepoProperties = packageRepository.configuration() ? packageRepository.configuration()!.asMap() : [];
-    const pkgRepoDetails    = new Map([
-                                        ["Name", packageRepository.name()],
-                                        ["Plugin Id", packageRepository.pluginMetadata().id()],
-                                        ...Array.from(pkgRepoProperties)
-                                      ]);
+    return new Map([
+                     ["Repo Id", packageRepository.repoId()],
+                     ["Plugin Id", packageRepository.pluginMetadata().id()],
+                     ...Array.from(pkgRepoProperties)
+                   ]);
+  }
+
+  view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
+    const header            = <KeyValuePair inline={true} data={PackageRepositoryWidget.headerMap(vnode.attrs.packageRepository)}/>;
+    const packageRepository = vnode.attrs.packageRepository;
+    const pkgRepoDetails    = PackageRepositoryWidget.getPkgRepoDetails(packageRepository);
     const disabled          = vnode.attrs.disableActions;
     const actionButtons     = [
       <Secondary onclick={vnode.attrs.packageOperations.onAdd.bind(vnode.attrs, packageRepository)}

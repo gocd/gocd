@@ -35,24 +35,10 @@ interface State {
 export class PluginView extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
     vnode.state.values = new Map<string, Stream<any>>();
-
-    (vnode.attrs.pluginSettings.configurations() as PackageSettingsConfiguration[]).map((config) => {
-      let found = vnode.attrs.configurations.findConfiguration(config.key);
-      if (!found) {
-        vnode.attrs.configurations.setConfiguration(config.key, "");
-        found = vnode.attrs.configurations.findConfiguration(config.key)!;
-      }
-
-      const value = config.metadata.secure
-        ? Stream(new EncryptedValue(found!.isEncrypted() ? {cipherText: found!.getValue()} : {clearText: found!.getValue()}))
-        : Stream(found!.getValue());
-
-      vnode.state.values.set(config.key, value);
-    });
   }
 
   view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
-
+    this.initializeConfigurations(vnode);
     const elements = (vnode.attrs.pluginSettings.configurations() as PackageSettingsConfiguration[]).map((config) => {
       const found = vnode.attrs.configurations.findConfiguration(config.key)!;
 
@@ -76,6 +62,23 @@ export class PluginView extends MithrilComponent<Attrs, State> {
     return <div data-test-id="plugin-view">
       {elements}
     </div>;
+  }
+
+  private initializeConfigurations(vnode: m.Vnode<Attrs, State>) {
+    (vnode.attrs.pluginSettings.configurations() as PackageSettingsConfiguration[]).forEach((config) => {
+      let found = vnode.attrs.configurations.findConfiguration(config.key);
+      if (!found) {
+        vnode.attrs.configurations.setConfiguration(config.key, "");
+        found = vnode.attrs.configurations.findConfiguration(config.key)!;
+      }
+      if (!vnode.state.values.has(config.key)) {
+        const value = config.metadata.secure
+          ? Stream(new EncryptedValue(found.isEncrypted() ? {cipherText: found.getValue()} : {clearText: found.getValue()}))
+          : Stream(found.getValue());
+
+        vnode.state.values.set(config.key, value);
+      }
+    });
   }
 
   private getMapper(vnode: m.Vnode<Attrs>, config: any) {

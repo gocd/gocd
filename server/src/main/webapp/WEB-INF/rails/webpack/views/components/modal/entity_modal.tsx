@@ -37,7 +37,8 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
   protected readonly isStale                      = Stream(true);
   protected readonly etag: Stream<string>         = Stream();
-  protected ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
+  protected ajaxOperationMonitor                  = Stream<OperationState>(OperationState.UNKNOWN);
+  protected needsFoundationStyles                 = Stream(true);
 
   constructor(entity: T,
               pluginInfos: PluginInfos,
@@ -73,7 +74,10 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
       </div> : null;
     return [
       flashMessage,
-      <div className={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
+      <div className={foundationClassNames({
+                                             [foundationStyles.foundationGridHax]: this.needsFoundationStyles(),
+                                             [foundationStyles.foundationFormHax]: this.needsFoundationStyles()
+                                           })}>
         {this.modalBody()}
       </div>
     ];

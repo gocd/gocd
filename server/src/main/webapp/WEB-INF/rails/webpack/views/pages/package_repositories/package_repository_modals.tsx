@@ -21,8 +21,8 @@ import Stream from "mithril/stream";
 import {PackageRepository} from "models/package_repositories/package_repositories";
 import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
 import {PackageRepositoryJSON} from "models/package_repositories/package_repositories_json";
+import {Configurations} from "models/shared/configuration";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
-import {v4 as uuidv4} from 'uuid';
 import {Size} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {EntityModal} from "views/components/modal/entity_modal";
@@ -42,6 +42,7 @@ abstract class PackageRepositoryModal extends EntityModal<PackageRepository> {
     this.disableId          = disableId;
     this.originalEntityId   = entity.repoId();
     this.originalEntityName = entity.name();
+    this.needsFoundationStyles(false);
   }
 
   operationError(errorResponse: any, statusCode: number) {
@@ -60,8 +61,10 @@ abstract class PackageRepositoryModal extends EntityModal<PackageRepository> {
 
   protected onPluginChange(entity: Stream<PackageRepository>, pluginInfo: PluginInfo): void {
     const pluginMetadata = entity().pluginMetadata();
-    pluginMetadata.id(pluginInfo.id);
-    entity(new PackageRepository(entity().repoId(), entity().name(), pluginMetadata, entity().configuration(), entity().packages()));
+    if (pluginMetadata.id() !== pluginInfo.id) {
+      pluginMetadata.id(pluginInfo.id);
+      entity(new PackageRepository(entity().repoId(), entity().name(), pluginMetadata, new Configurations([]), entity().packages()));
+    }
   }
 
   protected parseJsonToEntity(json: object): PackageRepository {
@@ -144,22 +147,18 @@ export class ClonePackageRepositoryModal extends PackageRepositoryModal {
   }
 
   fetchCompleted() {
-    this.entity().repoId(uuidv4());
+    this.entity().repoId("");
     this.entity().name("");
   }
 }
 
 export class DeletePackageRepositoryModal extends DeleteConfirmModal {
   private readonly onSuccessfulSave: (msg: m.Children) => any;
-  private readonly onOperationError: (errorResponse: ErrorResponse) => any;
 
-  constructor(pkgRepo: PackageRepository,
-              onSuccessfulSave: (msg: m.Children) => any,
-              onOperationError: (errorResponse: ErrorResponse) => any) {
+  constructor(pkgRepo: PackageRepository, onSuccessfulSave: (msg: m.Children) => any) {
     super(DeletePackageRepositoryModal.deleteConfirmationMessage(pkgRepo),
           () => this.delete(pkgRepo), "Are you sure?");
     this.onSuccessfulSave = onSuccessfulSave;
-    this.onOperationError = onOperationError;
   }
 
   private static deleteConfirmationMessage(pkgRepo: PackageRepository) {
@@ -173,12 +172,19 @@ export class DeletePackageRepositoryModal extends DeleteConfirmModal {
       .delete(obj.repoId())
       .then((result) => {
         result.do(
-          () => this.onSuccessfulSave(
-            <span>The package repository <em>{obj.name()}</em> was deleted successfully!</span>
-          ),
-          this.onOperationError
+          () => {
+            this.onSuccessfulSave(
+              <span>The package repository <em>{obj.name()}</em> was deleted successfully!</span>
+            );
+            this.close();
+          },
+          (errorResponse: ErrorResponse) => {
+            this.errorMessage = errorResponse.message;
+            if (errorResponse.body) {
+              this.errorMessage = JSON.parse(errorResponse.body).message;
+            }
+          }
         );
-      })
-      .finally(this.close.bind(this));
+      });
   }
 }

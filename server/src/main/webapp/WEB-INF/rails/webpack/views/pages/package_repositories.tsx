@@ -23,7 +23,6 @@ import {Package, PackageRepositories, PackageRepository, PackageRepositorySummar
 import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
 import {ExtensionTypeString, PackageRepoExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
-import {v4 as uuidv4} from 'uuid';
 import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
@@ -200,7 +199,6 @@ export class PackageRepositoriesPage extends Page<null, State> {
 
       const pluginId          = vnode.state.pluginInfos()[0].id;
       const packageRepository = PackageRepository.default();
-      packageRepository.repoId(uuidv4());
       packageRepository.pluginMetadata().id(pluginId);
       new CreatePackageRepositoryModal(packageRepository, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
         .render();
@@ -222,7 +220,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
     vnode.state.packageRepoOperations.onDelete = (pkgRepo: PackageRepository, e: MouseEvent) => {
       e.stopPropagation();
 
-      new DeletePackageRepositoryModal(pkgRepo, vnode.state.onSuccessfulSave, this.onOperationError(vnode))
+      new DeletePackageRepositoryModal(pkgRepo, vnode.state.onSuccessfulSave)
         .render();
     };
   }
@@ -235,7 +233,6 @@ export class PackageRepositoriesPage extends Page<null, State> {
 
       const pkg = Package.default();
       pkg.packageRepo().id(packageRepo.repoId());
-      pkg.id(uuidv4());
       new CreatePackageModal(pkg, vnode.state.packageRepositories(), vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
         .render();
     };
@@ -257,7 +254,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
     vnode.state.packageOperations.onDelete = (pkg: Package, e: MouseEvent) => {
       e.stopPropagation();
 
-      new DeletePackageModal(pkg, vnode.state.onSuccessfulSave, this.onOperationError(vnode))
+      new DeletePackageModal(pkg, vnode.state.onSuccessfulSave)
         .render();
     };
 

@@ -29,36 +29,41 @@ interface Attrs extends EditOperation<Package>, CloneOperation<Package>, DeleteO
 }
 
 export class PackageWidget extends MithrilViewComponent<Attrs> {
+
+  public static getPkgDetails(pkg: Package) {
+    const pkgProperties = pkg.configuration() ? pkg.configuration()!.asMap() : [];
+    return new Map([
+                     ["Id", pkg.id()],
+                     ["Name", pkg.name()],
+                     ["Auto Update", pkg.autoUpdate() + ""],
+                     ...Array.from(pkgProperties)
+                   ]);
+  }
+
   view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
-    const pkgName       = vnode.attrs.package.name();
-    const title         = <span data-test-id="package-id">{pkgName}</span>;
-    const pkgProperties = vnode.attrs.package.configuration() ? vnode.attrs.package.configuration()!.asMap() : [];
-    const pkgDetails    = new Map([
-                                    ["Id", vnode.attrs.package.id()],
-                                    ["Name", pkgName],
-                                    ["Auto Update", vnode.attrs.package.autoUpdate() + ""],
-                                    ...Array.from(pkgProperties)
-                                  ]);
-    const disabled      = vnode.attrs.disableActions;
+    const pkg        = vnode.attrs.package;
+    const title      = <span data-test-id="package-id">{pkg.name()}</span>;
+    const pkgDetails = PackageWidget.getPkgDetails(pkg);
+    const disabled   = vnode.attrs.disableActions;
 
     const actionButtons = [
       <IconGroup>
         <Edit data-test-id="package-edit"
               disabled={disabled}
-              title={PackageWidget.getMsgForOperation(disabled, pkgName, "edit")}
-              onclick={vnode.attrs.onEdit.bind(vnode.attrs, vnode.attrs.package)}/>
+              title={PackageWidget.getMsgForOperation(disabled, pkg.name(), "edit")}
+              onclick={vnode.attrs.onEdit.bind(vnode.attrs, pkg)}/>
         <Clone data-test-id="package-clone"
                disabled={disabled}
-               title={PackageWidget.getMsgForOperation(disabled, pkgName, "clone")}
-               onclick={vnode.attrs.onClone.bind(vnode.attrs, vnode.attrs.package)}/>
+               title={PackageWidget.getMsgForOperation(disabled, pkg.name(), "clone")}
+               onclick={vnode.attrs.onClone.bind(vnode.attrs, pkg)}/>
         <Delete data-test-id="package-delete"
-                title={PackageWidget.getMsgForOperation(disabled, pkgName, "delete")}
-                onclick={vnode.attrs.onDelete.bind(vnode.attrs, vnode.attrs.package)}/>
+                title={PackageWidget.getMsgForOperation(disabled, pkg.name(), "delete")}
+                onclick={vnode.attrs.onDelete.bind(vnode.attrs, pkg)}/>
         <Usage data-test-id="package-usages"
-               title={PackageWidget.getMsgForOperation(disabled, pkgName, "show usages for")}
-               onclick={vnode.attrs.showUsages.bind(vnode.attrs, vnode.attrs.package)}/>
+               title={PackageWidget.getMsgForOperation(disabled, pkg.name(), "show usages for")}
+               onclick={vnode.attrs.showUsages.bind(vnode.attrs, pkg)}/>
       </IconGroup>];
-    return <CollapsiblePanel key={vnode.attrs.package.id()} dataTestId={"package-panel"} actions={actionButtons}
+    return <CollapsiblePanel key={pkg.id()} dataTestId={"package-panel"} actions={actionButtons}
                              header={<KeyValueTitle image={null} title={title}/>}>
       <KeyValuePair data={pkgDetails}/>
     </CollapsiblePanel>;

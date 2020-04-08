@@ -32,14 +32,17 @@ abstract class PackageRepositoryModal extends EntityModal<PackageRepository> {
   protected readonly originalEntityId: string;
   protected readonly originalEntityName: string;
   private disableId: boolean;
+  private disablePluginField: boolean;
 
   constructor(entity: PackageRepository,
               pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any,
-              disableId: boolean = false,
-              size: Size         = Size.large) {
+              disableId: boolean          = false,
+              disablePluginField: boolean = true,
+              size: Size                  = Size.large) {
     super(entity, pluginInfos, onSuccessfulSave, size);
     this.disableId          = disableId;
+    this.disablePluginField = disablePluginField;
     this.originalEntityId   = entity.repoId();
     this.originalEntityName = entity.name();
     this.needsFoundationStyles(false);
@@ -53,9 +56,8 @@ abstract class PackageRepositoryModal extends EntityModal<PackageRepository> {
   }
 
   protected modalBody(): m.Children {
-    return <PackageRepositoryModalBody pluginInfos={this.pluginInfos}
-                                       packageRepo={this.entity()}
-                                       disableId={this.disableId}
+    return <PackageRepositoryModalBody pluginInfos={this.pluginInfos} packageRepo={this.entity()}
+                                       disableId={this.disableId} disablePluginField={this.disablePluginField}
                                        pluginIdProxy={this.pluginIdProxy.bind(this)}/>;
   }
 
@@ -94,7 +96,7 @@ export class CreatePackageRepositoryModal extends PackageRepositoryModal {
   constructor(entity: PackageRepository,
               pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any) {
-    super(entity, pluginInfos, onSuccessfulSave);
+    super(entity, pluginInfos, onSuccessfulSave, false, false);
     this.isStale(false);
   }
 
@@ -131,7 +133,7 @@ export class EditPackageRepositoryModal extends PackageRepositoryModal {
 
 export class ClonePackageRepositoryModal extends PackageRepositoryModal {
   constructor(entity: PackageRepository, pluginInfos: PluginInfos, onSuccessfulSave: (msg: m.Children) => any) {
-    super(entity, pluginInfos, onSuccessfulSave, false);
+    super(entity, pluginInfos, onSuccessfulSave);
   }
 
   title(): string {

@@ -149,7 +149,6 @@ export class PackageRepository extends ValidatableMixin {
                           {message: "Invalid Id. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period)."});
     this.validateMaxLength("name", 255, {message: "The maximum allowed length is 255 characters."});
     this.validateAssociated("pluginMetadata");
-    this.validateEach("packages");
   }
 
   static fromJSON(data: PackageRepositoryJSON): PackageRepository {

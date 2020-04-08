@@ -28,6 +28,7 @@ interface Attrs {
   pluginInfos: PluginInfos;
   packageRepo: PackageRepository;
   disableId: boolean;
+  disablePluginField: boolean;
   pluginIdProxy: (newPluginId?: string) => any;
 }
 
@@ -53,7 +54,7 @@ export class PackageRepositoryModalBody extends MithrilViewComponent<Attrs> {
 
           <SelectField label="Plugin"
                        property={vnode.attrs.pluginIdProxy.bind(this)}
-                       required={true}
+                       required={true} readonly={vnode.attrs.disablePluginField}
                        errorText={vnode.attrs.packageRepo.errors().errorsForDisplay("pluginId")}>
             <SelectFieldOptions selected={vnode.attrs.packageRepo.pluginMetadata().id()}
                                 items={pluginList}/>

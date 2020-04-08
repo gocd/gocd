@@ -33,16 +33,19 @@ abstract class PackageModal extends EntityModal<Package> {
   protected readonly originalEntityId: string;
   protected readonly originalEntityName: string;
   private readonly disableId: boolean;
+  private readonly disablePackageRepo: boolean;
   private readonly packageRepositories: PackageRepositories;
 
   constructor(entity: Package,
               packageRepositories: PackageRepositories,
               pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any,
-              disableId: boolean = false,
-              size: Size         = Size.large) {
+              disableId: boolean          = false,
+              disablePackageRepo: boolean = true,
+              size: Size                  = Size.large) {
     super(entity, pluginInfos, onSuccessfulSave, size);
     this.disableId           = disableId;
+    this.disablePackageRepo  = disablePackageRepo;
     this.originalEntityId    = entity.id();
     this.originalEntityName  = entity.name();
     this.packageRepositories = packageRepositories;
@@ -59,7 +62,7 @@ abstract class PackageModal extends EntityModal<Package> {
   protected modalBody(): m.Children {
     return <PackageModalBody pluginInfos={this.pluginInfos} packageRepositories={this.packageRepositories}
                              package={this.entity()}
-                             disableId={this.disableId}
+                             disableId={this.disableId} disablePackageRepo={this.disablePackageRepo}
                              onPackageRepoChange={this.onPackageRepoChange.bind(this)}/>;
   }
 
@@ -139,7 +142,7 @@ export class ClonePackageModal extends PackageModal {
               packageRepositories: PackageRepositories,
               pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any) {
-    super(entity, packageRepositories, pluginInfos, onSuccessfulSave, false);
+    super(entity, packageRepositories, pluginInfos, onSuccessfulSave, false, false);
   }
 
   title(): string {

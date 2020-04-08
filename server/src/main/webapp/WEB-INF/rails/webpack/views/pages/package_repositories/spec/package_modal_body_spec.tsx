@@ -28,20 +28,20 @@ describe('PackageModalBodySpec', () => {
   let packageRepos: PackageRepositories;
   let pkg: Package;
   let disabled: boolean;
+  let disablePackageRepo: boolean;
 
   afterEach((done) => helper.unmount(done));
   beforeEach(() => {
-    pluginInfos  = new PluginInfos(PluginInfo.fromJSON(pluginInfoWithPackageRepositoryExtension()));
-    pkg          = Package.fromJSON(getPackage());
-    packageRepos = new PackageRepositories(PackageRepository.fromJSON(getPackageRepository()));
-    disabled     = false;
+    pluginInfos        = new PluginInfos(PluginInfo.fromJSON(pluginInfoWithPackageRepositoryExtension()));
+    pkg                = Package.fromJSON(getPackage());
+    packageRepos       = new PackageRepositories(PackageRepository.fromJSON(getPackageRepository()));
+    disabled           = false;
+    disablePackageRepo = false;
   });
 
   function mount() {
-    helper.mount(() => <PackageModalBody pluginInfos={pluginInfos}
-                                         packageRepositories={packageRepos}
-                                         package={pkg}
-                                         disableId={disabled}
+    helper.mount(() => <PackageModalBody pluginInfos={pluginInfos} packageRepositories={packageRepos}
+                                         package={pkg} disableId={disabled} disablePackageRepo={disablePackageRepo}
                                          onPackageRepoChange={onPackageRepoChange}/>);
   }
 
@@ -64,6 +64,7 @@ describe('PackageModalBodySpec', () => {
     expect(helper.byTestId("form-field-input-name")).toHaveValue(pkg.name());
 
     expect(helper.byTestId('form-field-input-package-repository')).toBeInDOM();
+    expect(helper.byTestId('form-field-input-package-repository')).not.toBeDisabled();
     expect(helper.byTestId("form-field-input-package-repository").children[0].textContent).toBe(pkg.packageRepo().name());
   });
 
@@ -71,7 +72,7 @@ describe('PackageModalBodySpec', () => {
     const pkgRepo = PackageRepository.default();
     pkgRepo.repoId('new-repo-id');
     pkgRepo.name('new-repo-name');
-
+    pkgRepo.pluginMetadata().id("npm");
     packageRepos.push(pkgRepo);
     mount();
 
@@ -87,5 +88,13 @@ describe('PackageModalBodySpec', () => {
     expect(helper.byTestId('flash-message-info')).not.toBeInDOM();
     expect(helper.byTestId('form-field-input-id')).toBeDisabled();
     expect(helper.byTestId('form-field-input-name')).toBeDisabled();
+  });
+
+  it('should render the package repo as readonly', () => {
+    disablePackageRepo = true;
+    mount();
+
+    expect(helper.byTestId('form-field-input-package-repository')).toBeInDOM();
+    expect(helper.byTestId('form-field-input-package-repository')).toBeDisabled();
   });
 });

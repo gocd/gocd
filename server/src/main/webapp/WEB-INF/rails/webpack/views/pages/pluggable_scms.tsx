@@ -82,7 +82,7 @@ export class PluggableScmsPage extends Page<null, State> {
     vnode.state.onDelete = (scm: Scm, e: MouseEvent) => {
       e.stopPropagation();
 
-      new DeletePluggableScmModal(scm, vnode.state.onSuccessfulSave, onOperationError).render();
+      new DeletePluggableScmModal(scm, vnode.state.onSuccessfulSave).render();
     };
 
     vnode.state.showUsages = (scm: Scm, e: MouseEvent) => {

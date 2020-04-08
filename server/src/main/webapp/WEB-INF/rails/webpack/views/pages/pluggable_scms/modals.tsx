@@ -162,15 +162,12 @@ export class ClonePluggableScmModal extends PluggableScmModal {
 
 export class DeletePluggableScmModal extends DeleteConfirmModal {
   private readonly onSuccessfulSave: (msg: m.Children) => any;
-  private readonly onOperationError: (errorResponse: ErrorResponse) => any;
 
   constructor(pkgRepo: Scm,
-              onSuccessfulSave: (msg: m.Children) => any,
-              onOperationError: (errorResponse: ErrorResponse) => any) {
+              onSuccessfulSave: (msg: m.Children) => any) {
     super(DeletePluggableScmModal.deleteConfirmationMessage(pkgRepo),
           () => this.delete(pkgRepo), "Are you sure?");
     this.onSuccessfulSave = onSuccessfulSave;
-    this.onOperationError = onOperationError;
   }
 
   private static deleteConfirmationMessage(scm: Scm) {
@@ -184,12 +181,19 @@ export class DeletePluggableScmModal extends DeleteConfirmModal {
       .delete(obj.name())
       .then((result) => {
         result.do(
-          () => this.onSuccessfulSave(
-            <span>The scm <em>{obj.name()}</em> was deleted successfully!</span>
-          ),
-          this.onOperationError
+          () => {
+            this.onSuccessfulSave(
+              <span>The scm <em>{obj.name()}</em> was deleted successfully!</span>
+            );
+            this.close();
+          },
+          (errorResponse: ErrorResponse) => {
+            this.errorMessage = errorResponse.message;
+            if (errorResponse.body) {
+              this.errorMessage = JSON.parse(errorResponse.body).message;
+            }
+          }
         );
-      })
-      .finally(this.close.bind(this));
+      });
   }
 }

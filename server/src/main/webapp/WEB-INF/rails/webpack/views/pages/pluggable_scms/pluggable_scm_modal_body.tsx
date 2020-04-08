@@ -32,6 +32,7 @@ interface Attrs {
   pluginInfos: PluginInfos;
   scm: Scm;
   disableId: boolean;
+  disablePluginId: boolean;
   pluginIdProxy: (newPluginId?: string) => any;
   message?: FlashMessageModel;
 }
@@ -58,27 +59,18 @@ export class PluggableScmModalBody extends MithrilViewComponent<Attrs> {
                      readonly={vnode.attrs.disableId}
                      property={vnode.attrs.scm.name}
                      placeholder={"Enter the pluggable scm name"}
-                     errorText={vnode.attrs.scm.errors().errorsForDisplay("name")}
+                     errorText={vnode.attrs.scm.errors().errorsForDisplay("name") || vnode.attrs.scm.errors().errorsForDisplay("scmId")}
                      required={true}/>
 
           <SelectField label="Plugin"
                        property={vnode.attrs.pluginIdProxy.bind(this)}
-                       required={true}
+                       required={true} readonly={vnode.attrs.disablePluginId}
                        errorText={vnode.attrs.scm.errors().errorsForDisplay("pluginId")}>
             <SelectFieldOptions selected={vnode.attrs.scm.pluginMetadata().id()}
                                 items={pluginList}/>
           </SelectField>
         </Form>
       </FormHeader>
-
-      <div>
-        <TextField label="Id"
-                   readonly={vnode.attrs.disableId}
-                   property={vnode.attrs.scm.id}
-                   placeholder={"Enter a unique id for this material"}
-                   helpText={"Each material is associated with an id by which it can be referenced in the pipelines. Once defined, cannot be updated"}
-                   errorText={vnode.attrs.scm.errors().errorsForDisplay("scmId")}/>
-      </div>
 
       <div className="row collapse">
         <AngularPluginNew

@@ -32,16 +32,18 @@ describe('PluggableScmModalBodySpec', () => {
   let pluginInfos: PluginInfos;
   let scm: Scm;
   let disabled: boolean;
+  let disablePluginId: boolean;
 
   beforeEach(() => {
-    scm         = Scm.fromJSON(getPluggableScm());
-    pluginInfos = new PluginInfos(PluginInfo.fromJSON(getScmPlugin()));
-    disabled    = false;
+    scm             = Scm.fromJSON(getPluggableScm());
+    pluginInfos     = new PluginInfos(PluginInfo.fromJSON(getScmPlugin()));
+    disabled        = false;
+    disablePluginId = false;
   });
   afterEach((done) => helper.unmount(done));
 
   function mount(message?: FlashMessageModel) {
-    helper.mount(() => <PluggableScmModalBody scm={scm} pluginInfos={pluginInfos}
+    helper.mount(() => <PluggableScmModalBody scm={scm} pluginInfos={pluginInfos} disablePluginId={disablePluginId}
                                               disableId={disabled} pluginIdProxy={pluginIdProxy} message={message}/>);
   }
 
@@ -53,12 +55,9 @@ describe('PluggableScmModalBodySpec', () => {
     expect(helper.byTestId("form-field-input-name")).toHaveValue(scm.name());
 
     expect(helper.byTestId('form-field-input-plugin')).toBeInDOM();
+    expect(helper.byTestId('form-field-input-plugin')).not.toBeDisabled();
     expect(helper.byTestId("form-field-input-plugin").children.length).toBe(1);
     expect(helper.byTestId("form-field-input-plugin").children[0].textContent).toBe('SCM Plugin');
-
-    expect(helper.byTestId('form-field-input-id')).toBeInDOM();
-    expect(helper.byTestId('form-field-input-id')).not.toBeDisabled();
-    expect(helper.byTestId("form-field-input-id")).toHaveValue(scm.id());
   });
 
   it('should render the name and id as readonly', () => {
@@ -66,7 +65,6 @@ describe('PluggableScmModalBodySpec', () => {
     mount();
 
     expect(helper.byTestId('form-field-input-name')).toBeDisabled();
-    expect(helper.byTestId('form-field-input-id')).toBeDisabled();
   });
 
   it('should call the spy method on plugin change', () => {
@@ -89,6 +87,13 @@ describe('PluggableScmModalBodySpec', () => {
 
     expect(helper.byTestId('flash-message-warning')).toBeInDOM();
     expect(helper.textByTestId('flash-message-warning')).toBe('some message');
+  });
 
+  it('should render plugin as readonly', () => {
+    disablePluginId = true;
+    mount();
+
+    expect(helper.byTestId('form-field-input-plugin')).toBeInDOM();
+    expect(helper.byTestId('form-field-input-plugin')).toBeDisabled();
   });
 });

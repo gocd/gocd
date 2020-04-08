@@ -203,8 +203,7 @@ describe("Material Types", () => {
 
       expect(isValid).toBeFalse();
 
-      expect(material.errors().count()).toBe(2);
-      expect(material.errors().errorsForDisplay('id')).toBe('Id must be present.');
+      expect(material.errors().count()).toBe(1);
       expect(material.errors().errorsForDisplay('name')).toBe('Name must be present.');
 
       expect(material.pluginMetadata().errors().count()).toBe(1);

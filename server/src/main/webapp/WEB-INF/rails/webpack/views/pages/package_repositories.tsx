@@ -30,7 +30,12 @@ import {HeaderPanel} from "views/components/header_panel";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import configRepoStyles from "views/pages/config_repos/index.scss";
 import {PackageRepositoriesWidget} from "views/pages/package_repositories/package_repositories_widget";
-import {ClonePackageRepositoryModal, CreatePackageRepositoryModal, DeletePackageRepositoryModal, EditPackageRepositoryModal} from "views/pages/package_repositories/package_repository_modals";
+import {
+  ClonePackageRepositoryModal,
+  CreatePackageRepositoryModal,
+  DeletePackageRepositoryModal,
+  EditPackageRepositoryModal
+} from "views/pages/package_repositories/package_repository_modals";
 import {Page, PageState} from "views/pages/page";
 import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 import {ClonePackageModal, CreatePackageModal, DeletePackageModal, EditPackageModal, UsagePackageModal} from "./package_repositories/package_modals";
@@ -206,8 +211,8 @@ export class PackageRepositoriesPage extends Page<null, State> {
 
     vnode.state.packageRepoOperations.onEdit = (pkgRepo: PackageRepository, e: MouseEvent) => {
       e.stopPropagation();
-
-      new EditPackageRepositoryModal(pkgRepo, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
+      const copy = new PackageRepository(pkgRepo.repoId(), pkgRepo.name(), pkgRepo.pluginMetadata(), pkgRepo.configuration(), []);
+      new EditPackageRepositoryModal(copy, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
         .render();
     };
 
@@ -239,8 +244,8 @@ export class PackageRepositoriesPage extends Page<null, State> {
 
     vnode.state.packageOperations.onEdit = (pkg: Package, e: MouseEvent) => {
       e.stopPropagation();
-
-      new EditPackageModal(pkg, vnode.state.packageRepositories(), vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
+      const copy = new Package(pkg.id(), pkg.name(), pkg.autoUpdate(), pkg.configuration(), pkg.packageRepo());
+      new EditPackageModal(copy, vnode.state.packageRepositories(), vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
         .render();
     };
 

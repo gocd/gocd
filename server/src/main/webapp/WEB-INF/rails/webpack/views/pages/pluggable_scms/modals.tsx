@@ -21,7 +21,6 @@ import Stream from "mithril/stream";
 import {Scm, ScmJSON} from "models/materials/pluggable_scm";
 import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
-import {v4 as uuidv4} from 'uuid';
 import {FlashMessageModel, MessageType} from "views/components/flash_message";
 import {Warning} from "views/components/icons";
 import {Size} from "views/components/modal";
@@ -34,29 +33,34 @@ abstract class PluggableScmModal extends EntityModal<Scm> {
   protected readonly originalEntityName: string;
   protected message?: FlashMessageModel;
   private disableId: boolean;
+  private disablePluginId: boolean;
 
   constructor(entity: Scm,
               pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any,
-              disableId: boolean = false,
-              size: Size         = Size.large) {
+              disableId: boolean       = false,
+              disablePluginId: boolean = true,
+              size: Size               = Size.large) {
     super(entity, pluginInfos, onSuccessfulSave, size);
     this.disableId          = disableId;
+    this.disablePluginId    = disablePluginId;
     this.originalEntityId   = entity.id();
     this.originalEntityName = entity.name();
   }
 
   operationError(errorResponse: any, statusCode: number) {
-    this.errorMessage(errorResponse.message);
     if (errorResponse.body) {
       this.errorMessage(JSON.parse(errorResponse.body).message);
+    } else if (errorResponse.data) {
+      this.entity(Scm.fromJSON(errorResponse.data));
+    } else {
+      this.errorMessage(errorResponse.message);
     }
   }
 
   protected modalBody(): m.Children {
-    return <PluggableScmModalBody pluginInfos={this.pluginInfos}
-                                  scm={this.entity()}
-                                  disableId={this.disableId}
+    return <PluggableScmModalBody pluginInfos={this.pluginInfos} scm={this.entity()}
+                                  disableId={this.disableId} disablePluginId={this.disablePluginId}
                                   pluginIdProxy={this.pluginIdProxy.bind(this)} message={this.message}/>;
   }
 
@@ -93,7 +97,7 @@ export class CreatePluggableScmModal extends PluggableScmModal {
   constructor(entity: Scm,
               pluginInfos: PluginInfos,
               onSuccessfulSave: (msg: m.Children) => any) {
-    super(entity, pluginInfos, onSuccessfulSave);
+    super(entity, pluginInfos, onSuccessfulSave, false, false);
     this.isStale(false);
   }
 
@@ -151,7 +155,7 @@ export class ClonePluggableScmModal extends PluggableScmModal {
   }
 
   fetchCompleted() {
-    this.entity().id(uuidv4());
+    this.entity().id("");
     this.entity().name("");
   }
 }

@@ -22,7 +22,6 @@ import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
 import {Configurations} from "models/shared/configuration";
 import {ExtensionTypeString, SCMExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
-import {v4 as uuidv4} from 'uuid';
 import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
@@ -30,20 +29,8 @@ import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import {Page, PageState} from "views/pages/page";
 import {PluggableScmsWidget} from "views/pages/pluggable_scms/pluggable_scms_widget";
 import {UsagePackageModal} from "./package_repositories/package_modals";
-import {
-  AddOperation,
-  CloneOperation,
-  DeleteOperation,
-  EditOperation,
-  RequiresPluginInfos,
-  SaveOperation
-} from "./page_operations";
-import {
-  ClonePluggableScmModal,
-  CreatePluggableScmModal,
-  DeletePluggableScmModal,
-  EditPluggableScmModal
-} from "./pluggable_scms/modals";
+import {AddOperation, CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos, SaveOperation} from "./page_operations";
+import {ClonePluggableScmModal, CreatePluggableScmModal, DeletePluggableScmModal, EditPluggableScmModal} from "./pluggable_scms/modals";
 
 interface State extends RequiresPluginInfos, AddOperation<Scm>, EditOperation<Scm>, CloneOperation<Scm>, DeleteOperation<Scm>, SaveOperation {
   scms: Stream<Scms>;
@@ -73,7 +60,7 @@ export class PluggableScmsPage extends Page<null, State> {
       e.stopPropagation();
 
       const pluginId = vnode.state.pluginInfos()[0].id;
-      const scm      = new Scm(uuidv4(), "", false, new PluginMetadata(pluginId, "1"), new Configurations([]));
+      const scm      = new Scm("", "", false, new PluginMetadata(pluginId, "1"), new Configurations([]));
 
       new CreatePluggableScmModal(scm, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
         .render();

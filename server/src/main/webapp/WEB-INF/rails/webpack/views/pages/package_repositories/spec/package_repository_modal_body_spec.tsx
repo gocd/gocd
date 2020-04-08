@@ -31,18 +31,19 @@ describe('PackageRepositoryModalBodySpec', () => {
   let pluginInfos: PluginInfos;
   let packageRepo: PackageRepository;
   let disabled: boolean;
+  let disablePluginField: boolean;
 
   afterEach((done) => helper.unmount(done));
   beforeEach(() => {
-    pluginInfos = new PluginInfos(PluginInfo.fromJSON(pluginInfoWithPackageRepositoryExtension()));
-    packageRepo = PackageRepository.fromJSON(getPackageRepository());
-    disabled    = false;
+    pluginInfos        = new PluginInfos(PluginInfo.fromJSON(pluginInfoWithPackageRepositoryExtension()));
+    packageRepo        = PackageRepository.fromJSON(getPackageRepository());
+    disabled           = false;
+    disablePluginField = false;
   });
 
   function mount() {
-    helper.mount(() => <PackageRepositoryModalBody pluginInfos={pluginInfos}
-                                                   packageRepo={packageRepo}
-                                                   disableId={disabled}
+    helper.mount(() => <PackageRepositoryModalBody pluginInfos={pluginInfos} packageRepo={packageRepo}
+                                                   disableId={disabled} disablePluginField={disablePluginField}
                                                    pluginIdProxy={pluginIdProxy}/>);
   }
 
@@ -58,6 +59,7 @@ describe('PackageRepositoryModalBodySpec', () => {
     expect(helper.byTestId("form-field-input-name")).toHaveValue(packageRepo.name());
 
     expect(helper.byTestId('form-field-input-plugin')).toBeInDOM();
+    expect(helper.byTestId('form-field-input-plugin')).not.toBeDisabled();
     expect(helper.byTestId("form-field-input-plugin").children.length).toBe(1);
     expect(helper.byTestId("form-field-input-plugin").children[0].textContent).toBe('NPM plugin for package repo');
   });
@@ -82,5 +84,13 @@ describe('PackageRepositoryModalBodySpec', () => {
     helper.onchange(helper.byTestId("form-field-input-plugin"), "new-plugin-id");
 
     expect(spy).toHaveBeenCalled();
+  });
+
+  it('should render the plugin field as disabled', () => {
+    disablePluginField = true;
+    mount();
+
+    expect(helper.byTestId('form-field-input-plugin')).toBeInDOM();
+    expect(helper.byTestId('form-field-input-plugin')).toBeDisabled();
   });
 });

@@ -30,14 +30,12 @@ interface Attrs {
   packageRepositories: PackageRepositories;
   package: Package;
   disableId: boolean;
+  disablePackageRepo: boolean;
   onPackageRepoChange: (newPackageRepo?: PackageRepository) => any;
 }
 
 export class PackageModalBody extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
-    const packageRepos = _.map(vnode.attrs.packageRepositories, (pkgRepo: PackageRepository) => {
-      return {id: pkgRepo.repoId(), text: pkgRepo.name()};
-    });
     const msgForNewPkg = vnode.attrs.disableId ? "" : "The new package will be available to be used as material in all pipelines. Other admins might be able to edit this package.";
 
     const selectedPackageRepository = vnode.attrs.packageRepositories.find((repo) => {
@@ -47,6 +45,14 @@ export class PackageModalBody extends MithrilViewComponent<Attrs> {
     const pluginInfo = _.find(vnode.attrs.pluginInfos, (pluginInfo: PluginInfo) => {
       return pluginInfo.id === selectedPackageRepository.pluginMetadata().id();
     })!;
+
+    const packageRepos = vnode.attrs.packageRepositories
+                              .filter((pkgRepo) => {
+                                return pkgRepo.pluginMetadata().id() === selectedPackageRepository.pluginMetadata().id();
+                              })
+                              .map((pkgRepo: PackageRepository) => {
+                                return {id: pkgRepo.repoId(), text: pkgRepo.name()};
+                              });
 
     return <div>
       <FormHeader>
@@ -62,6 +68,7 @@ export class PackageModalBody extends MithrilViewComponent<Attrs> {
           <SelectField label="Package Repository"
                        property={this.packageRepoIdProxy.bind(this, vnode)}
                        required={true}
+                       readonly={vnode.attrs.disablePackageRepo}
                        errorText={vnode.attrs.package.packageRepo().errors().errorsForDisplay("id")}>
             <SelectFieldOptions selected={vnode.attrs.package.packageRepo().id()}
                                 items={packageRepos}/>

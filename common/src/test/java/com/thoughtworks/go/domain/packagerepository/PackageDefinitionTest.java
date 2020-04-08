@@ -36,38 +36,35 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class PackageDefinitionTest extends PackageMaterialTestBase {
-    @Before
-    public void setup() {
+class PackageDefinitionTest extends PackageMaterialTestBase {
+    @BeforeEach
+    void setup() {
         RepositoryMetadataStoreHelper.clear();
     }
 
     @Override
-    @After
+    @AfterEach
     public void teardown() {
         RepositoryMetadataStoreHelper.clear();
     }
 
     @Test
-    public void shouldCheckForEqualityOfPackageDefinition() {
+    void shouldCheckForEqualityOfPackageDefinition() {
         Configuration configuration = new Configuration();
         PackageDefinition packageDefinition = new PackageDefinition("id", "name", configuration);
-        assertThat(packageDefinition, is(new PackageDefinition("id", "name", configuration)));
+        assertThat(packageDefinition).isEqualTo(new PackageDefinition("id", "name", configuration));
     }
 
     @Test
-    public void shouldOnlyDisplayFieldsWhichAreNonSecureAndPartOfIdentityInGetConfigForDisplayWhenPluginExists() {
+    void shouldOnlyDisplayFieldsWhichAreNonSecureAndPartOfIdentityInGetConfigForDisplayWhenPluginExists() {
         String pluginId = "plugin-id";
         PackageConfigurations repositoryConfigurations = new PackageConfigurations();
         repositoryConfigurations.add(new PackageConfiguration("rk1", "rv1").with(PackageConfiguration.PART_OF_IDENTITY, true).with(PackageConfiguration.SECURE, false));
@@ -89,22 +86,22 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
         PackageDefinition packageDefinition = PackageDefinitionMother.create("p-id", "name", packageConfig, repository);
         packageDefinition.setRepository(repository);
 
-        assertThat(packageDefinition.getConfigForDisplay(), is("Repository: [rk1=rv1] - Package: [pk1=pv1, pk5=pv5]"));
+        assertThat(packageDefinition.getConfigForDisplay()).isEqualTo("Repository: [rk1=rv1] - Package: [pk1=pv1, pk5=pv5]");
     }
 
     @Test
-    public void shouldDisplayAllNonSecureFieldsInGetConfigForDisplayWhenPluginDoesNotExist() {
+    void shouldDisplayAllNonSecureFieldsInGetConfigForDisplayWhenPluginDoesNotExist() {
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", "some-plugin-which-does-not-exist", "version",
                 new Configuration(create("rk1", false, "rv1"), create("rk2", true, "rv2")));
         PackageDefinition packageDefinition = PackageDefinitionMother.create("p-id", "name", new Configuration(create("pk1", false, "pv1"), create("pk2", true, "pv2"), create("pk3", false, "pv3")),
                 repository);
         packageDefinition.setRepository(repository);
 
-        assertThat(packageDefinition.getConfigForDisplay(), is("WARNING! Plugin missing for Repository: [rk1=rv1] - Package: [pk1=pv1, pk3=pv3]"));
+        assertThat(packageDefinition.getConfigForDisplay()).isEqualTo("WARNING! Plugin missing for Repository: [rk1=rv1] - Package: [pk1=pv1, pk3=pv3]");
     }
 
     @Test
-    public void shouldConvertKeysToLowercaseInGetConfigForDisplay() throws Exception {
+    void shouldConvertKeysToLowercaseInGetConfigForDisplay() {
         RepositoryMetadataStore.getInstance().addMetadataFor("some-plugin", new PackageConfigurations());
         PackageMetadataStore.getInstance().addMetadataFor("some-plugin", new PackageConfigurations());
 
@@ -113,11 +110,11 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
                 new Configuration(create("pack_key_1", false, "pack_value_1"), create("PACK_KEY_2", false, "PACK_VALUE_2"), create("pacK_KeY3", false, "pacKValue_3")), repository);
         packageDefinition.setRepository(repository);
 
-        assertThat(packageDefinition.getConfigForDisplay(), is("Repository: [rk1=rv1] - Package: [pack_key_1=pack_value_1, pack_key_2=PACK_VALUE_2, pack_key3=pacKValue_3]"));
+        assertThat(packageDefinition.getConfigForDisplay()).isEqualTo("Repository: [rk1=rv1] - Package: [pack_key_1=pack_value_1, pack_key_2=PACK_VALUE_2, pack_key3=pacKValue_3]");
     }
 
     @Test
-    public void shouldNotDisplayEmptyValuesInGetConfigForDisplay() throws Exception {
+    void shouldNotDisplayEmptyValuesInGetConfigForDisplay() {
         RepositoryMetadataStore.getInstance().addMetadataFor("some-plugin", new PackageConfigurations());
         PackageMetadataStore.getInstance().addMetadataFor("some-plugin", new PackageConfigurations());
 
@@ -126,11 +123,11 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
                 new Configuration(create("pk1", false, ""), create("pk2", false, "pack_value_2"), create("pk3", false, null)), repository);
         packageDefinition.setRepository(repository);
 
-        assertThat(packageDefinition.getConfigForDisplay(), is("Repository: [rk1=rv1] - Package: [pk2=pack_value_2]"));
+        assertThat(packageDefinition.getConfigForDisplay()).isEqualTo("Repository: [rk1=rv1] - Package: [pk2=pack_value_2]");
     }
 
     @Test
-    public void shouldGetFingerprint() {
+    void shouldGetFingerprint() {
         String pluginId = "pluginid";
         PackageConfigurations repositoryConfigurations = new PackageConfigurations();
         repositoryConfigurations.add(new PackageConfiguration("k1", "v1").with(PackageConfiguration.PART_OF_IDENTITY, true));
@@ -145,11 +142,11 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
 
         String fingerprint = packageDefinition.getFingerprint(AbstractMaterial.FINGERPRINT_DELIMITER);
 
-        assertThat(fingerprint, is(CachedDigestUtils.sha256Hex("plugin-id=pluginid<|>k2=v2<|>k1=v1")));
+        assertThat(fingerprint).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=pluginid<|>k2=v2<|>k1=v1"));
     }
 
     @Test
-    public void shouldNotConsiderPropertiesMarkedAsNotPartOfIdentity_GetFingerprint() {
+    void shouldNotConsiderPropertiesMarkedAsNotPartOfIdentity_GetFingerprint() {
         String pluginId = "plugin-id";
         PackageConfigurations repositoryConfigurations = new PackageConfigurations();
         repositoryConfigurations.add(new PackageConfiguration("rk1", "rv1").with(PackageConfiguration.PART_OF_IDENTITY, true));
@@ -168,11 +165,11 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
 
         String fingerprint = packageDefinition.getFingerprint(AbstractMaterial.FINGERPRINT_DELIMITER);
 
-        assertThat(fingerprint, is(CachedDigestUtils.sha256Hex("plugin-id=plugin-id<|>pk2=pv2<|>rk1=rv1")));
+        assertThat(fingerprint).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=plugin-id<|>pk2=pv2<|>rk1=rv1"));
     }
 
     @Test
-    public void shouldNotConsiderAllPropertiesForFingerprintWhenMetadataIsNotAvailable() {
+    void shouldNotConsiderAllPropertiesForFingerprintWhenMetadataIsNotAvailable() {
         String pluginId = "plugin-id";
 
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", pluginId, "version",
@@ -182,11 +179,11 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
 
         String fingerprint = packageDefinition.getFingerprint(AbstractMaterial.FINGERPRINT_DELIMITER);
 
-        assertThat(fingerprint, is(CachedDigestUtils.sha256Hex("plugin-id=plugin-id<|>pk1=pv1<|>pk2=pv2<|>rk1=rv1<|>rk2=rv2")));
+        assertThat(fingerprint).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=plugin-id<|>pk1=pv1<|>pk2=pv2<|>rk1=rv1<|>rk2=rv2"));
     }
 
     @Test
-    public void shouldMakeConfigurationSecureBasedOnMetadata() throws Exception {
+    void shouldMakeConfigurationSecureBasedOnMetadata() {
         /*secure property is set based on metadata*/
         ConfigurationProperty secureProperty = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, new GoCipher());
         ConfigurationProperty nonSecureProperty = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, new GoCipher());
@@ -202,12 +199,12 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
 
         packageDefinition.applyPackagePluginMetadata("plugin-id");
 
-        assertThat(secureProperty.isSecure(), is(true));
-        assertThat(nonSecureProperty.isSecure(), is(false));
+        assertThat(secureProperty.isSecure()).isTrue();
+        assertThat(nonSecureProperty.isSecure()).isFalse();
     }
 
     @Test
-    public void shouldSetConfigAttributes() throws Exception {
+    void shouldSetConfigAttributes() throws Exception {
         PackageDefinition definition = new PackageDefinition();
         String pluginId = "plugin";
         Map config = createPackageDefinitionConfiguration("package-name", pluginId, new ConfigurationHolder("key1", "value1"), new ConfigurationHolder("key2", "value2", "encrypted-value", true, "1"),
@@ -222,33 +219,33 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
 
         String encryptedValue = new GoCipher().encrypt("value2");
 
-        assertThat(definition.getName(), is("package-name"));
-        assertThat(definition.getConfiguration().size(), is(3));
-        assertThat(definition.getConfiguration().getProperty("key1").getConfigurationValue().getValue(), is("value1"));
-        assertThat(definition.getConfiguration().getProperty("key1").getEncryptedConfigurationValue(), is(nullValue()));
-        assertThat(definition.getConfiguration().getProperty("key2").getEncryptedValue(), is(encryptedValue));
-        assertThat(definition.getConfiguration().getProperty("key2").getConfigurationValue(), is(nullValue()));
-        assertThat(definition.getConfiguration().getProperty("key3").getEncryptedValue(), is("encrypted-value"));
-        assertThat(definition.getConfiguration().getProperty("key3").getConfigurationValue(), is(nullValue()));
+        assertThat(definition.getName()).isEqualTo("package-name");
+        assertThat(definition.getConfiguration().size()).isEqualTo(3);
+        assertThat(definition.getConfiguration().getProperty("key1").getConfigurationValue().getValue()).isEqualTo("value1");
+        assertThat(definition.getConfiguration().getProperty("key1").getEncryptedConfigurationValue()).isNull();
+        assertThat(definition.getConfiguration().getProperty("key2").getEncryptedValue()).isEqualTo(encryptedValue);
+        assertThat(definition.getConfiguration().getProperty("key2").getConfigurationValue()).isNull();
+        assertThat(definition.getConfiguration().getProperty("key3").getEncryptedValue()).isEqualTo("encrypted-value");
+        assertThat(definition.getConfiguration().getProperty("key3").getConfigurationValue()).isNull();
     }
 
     @Test
-    public void shouldValidateIfNameIsMissing() {
+    void shouldValidateIfNameIsMissing() {
         PackageDefinition packageDefinition = new PackageDefinition();
         packageDefinition.validate(new ConfigSaveValidationContext(new BasicCruiseConfig(), null));
-        assertThat(packageDefinition.errors().isEmpty(), is(false));
-        assertThat(packageDefinition.errors().getAllOn("name"), is(asList("Package name is mandatory")));
+        assertThat(packageDefinition.errors().isEmpty()).isFalse();
+        assertThat(packageDefinition.errors().getAllOn("name")).isEqualTo(asList("Package name is mandatory"));
     }
 
     @Test
-    public void shouldAddErrorToGivenKey() throws Exception {
+    void shouldAddErrorToGivenKey() {
         PackageDefinition packageDefinition = new PackageDefinition();
         packageDefinition.addError("field", "error message");
-        assertThat(packageDefinition.errors().getAllOn("field").contains("error message"), is(true));
+        assertThat(packageDefinition.errors().getAllOn("field").contains("error message")).isTrue();
     }
 
     @Test
-    public void shouldClearConfigurationsWhichAreEmptyAndNoErrors() throws Exception {
+    void shouldClearConfigurationsWhichAreEmptyAndNoErrors() {
         PackageDefinition packageDefinition = new PackageDefinition();
         packageDefinition.getConfiguration().add(new ConfigurationProperty(new ConfigurationKey("name-one"), new ConfigurationValue()));
         packageDefinition.getConfiguration().add(new ConfigurationProperty(new ConfigurationKey("name-two"), new EncryptedConfigurationValue()));
@@ -260,31 +257,30 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
 
         packageDefinition.clearEmptyConfigurations();
 
-        assertThat(packageDefinition.getConfiguration().size(), is(1));
-        assertThat(packageDefinition.getConfiguration().get(0).getConfigurationKey().getName(), is("name-four"));
+        assertThat(packageDefinition.getConfiguration().size()).isEqualTo(1);
+        assertThat(packageDefinition.getConfiguration().get(0).getConfigurationKey().getName()).isEqualTo("name-four");
     }
 
     @Test
-    public void shouldValidateName() throws Exception {
+    void shouldValidateName() {
         PackageDefinition packageDefinition = new PackageDefinition();
         packageDefinition.setName("some name");
         packageDefinition.validate(new ConfigSaveValidationContext(null));
-        assertThat(packageDefinition.errors().isEmpty(), is(false));
-        assertThat(packageDefinition.errors().getAllOn(PackageDefinition.NAME).get(0),
-                is("Invalid Package name 'some name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(packageDefinition.errors().isEmpty()).isFalse();
+        assertThat(packageDefinition.errors().getAllOn(PackageDefinition.NAME).get(0)).isEqualTo("Invalid Package name 'some name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
-    public void shouldSetAutoUpdateValue() throws Exception {
+    void shouldSetAutoUpdateValue() {
         PackageDefinition aPackage = new PackageDefinition();
-        assertThat(aPackage.isAutoUpdate(), is(true));
+        assertThat(aPackage.isAutoUpdate()).isTrue();
         aPackage.setAutoUpdate(false);
-        assertThat(aPackage.isAutoUpdate(), is(false));
+        assertThat(aPackage.isAutoUpdate()).isFalse();
 
     }
 
     @Test
-    public void shouldValidateUniqueNames() {
+    void shouldValidateUniqueNames() {
         PackageDefinition packageDefinition = new PackageDefinition();
         packageDefinition.setName("PKG");
         HashMap<String, PackageDefinition> nameMap = new HashMap<>();
@@ -292,16 +288,14 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
         original.setName("pkg");
         nameMap.put("pkg", original);
         packageDefinition.validateNameUniqueness(nameMap);
-        assertThat(packageDefinition.errors().isEmpty(), is(false));
+        assertThat(packageDefinition.errors().isEmpty()).isFalse();
 
-        assertThat(
-                packageDefinition.errors().getAllOn(PackageDefinition.NAME).contains(
-                        "You have defined multiple packages called 'PKG'. Package names are case-insensitive and must be unique within a repository."),
-                is(true));
+        assertThat(packageDefinition.errors().getAllOn(PackageDefinition.NAME).contains(
+                "You have defined multiple packages called 'PKG'. Package names are case-insensitive and must be unique within a repository.")).isTrue();
     }
 
     @Test
-    public void shouldValidateUniqueKeysInConfiguration() {
+    void shouldValidateUniqueKeysInConfiguration() {
         ConfigurationProperty one = new ConfigurationProperty(new ConfigurationKey("one"), new ConfigurationValue("value1"));
         ConfigurationProperty duplicate1 = new ConfigurationProperty(new ConfigurationKey("ONE"), new ConfigurationValue("value2"));
         ConfigurationProperty duplicate2 = new ConfigurationProperty(new ConfigurationKey("ONE"), new ConfigurationValue("value3"));
@@ -311,29 +305,29 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
         packageDefinition.setName("go-server");
 
         packageDefinition.validate(null);
-        assertThat(one.errors().isEmpty(), is(false));
-        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Package 'go-server'"), is(true));
-        assertThat(duplicate1.errors().isEmpty(), is(false));
-        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Package 'go-server'"), is(true));
-        assertThat(duplicate2.errors().isEmpty(), is(false));
-        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Package 'go-server'"), is(true));
-        assertThat(two.errors().isEmpty(), is(true));
+        assertThat(one.errors().isEmpty()).isFalse();
+        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Package 'go-server'")).isTrue();
+        assertThat(duplicate1.errors().isEmpty()).isFalse();
+        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Package 'go-server'")).isTrue();
+        assertThat(duplicate2.errors().isEmpty()).isFalse();
+        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Package 'go-server'")).isTrue();
+        assertThat(two.errors().isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldGenerateIdIfNotAssigned() {
+    void shouldGenerateIdIfNotAssigned() {
         PackageDefinition packageDefinition = new PackageDefinition();
         packageDefinition.ensureIdExists();
-        assertThat(packageDefinition.getId(), is(notNullValue()));
+        assertThat(packageDefinition.getId()).isNotNull();
 
         packageDefinition = new PackageDefinition();
         packageDefinition.setId("id");
         packageDefinition.ensureIdExists();
-        assertThat(packageDefinition.getId(), is("id"));
+        assertThat(packageDefinition.getId()).isEqualTo("id");
     }
 
     @Test
-    public void shouldAddFingerprintFieldErrorWhenPackageDefinitionWithSameFingerprintExist() throws Exception {
+    void shouldAddFingerprintFieldErrorWhenPackageDefinitionWithSameFingerprintExist() {
         String expectedErrorMessage = "Cannot save package or repo, found duplicate packages. [Repo Name: 'repo-repo1', Package Name: 'pkg1'], [Repo Name: 'repo-repo1', Package Name: 'pkg3']";
         PackageRepository repository = PackageRepositoryMother.create("repo1");
         PackageDefinition definition1 = PackageDefinitionMother.create("1", "pkg1", new Configuration(new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1"))), repository);
@@ -348,14 +342,14 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
         definition2.validateFingerprintUniqueness(map);
         definition3.validateFingerprintUniqueness(map);
 
-        assertThat(definition1.errors().getAllOn(PackageDefinition.ID), is(asList(expectedErrorMessage)));
-        assertThat(definition3.errors().getAllOn(PackageDefinition.ID), is(asList(expectedErrorMessage)));
+        assertThat(definition1.errors().getAllOn(PackageDefinition.ID)).isEqualTo(asList(expectedErrorMessage));
+        assertThat(definition3.errors().getAllOn(PackageDefinition.ID)).isEqualTo(asList(expectedErrorMessage));
 
-        assertThat(definition2.errors().getAllOn(PackageDefinition.ID), is(nullValue()));
+        assertThat(definition2.errors().getAllOn(PackageDefinition.ID)).isNull();
     }
 
     @Test
-    public void shouldNotAddFingerprintFieldErrorWhenPackageDefinitionWithSameFingerprintNotFound() throws Exception {
+    void shouldNotAddFingerprintFieldErrorWhenPackageDefinitionWithSameFingerprintNotFound() {
 
         PackageRepository repository = PackageRepositoryMother.create("repo1");
         PackageDefinition packageDefinition = PackageDefinitionMother.create("1", "pkg1", new Configuration(new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1"))), repository);
@@ -364,6 +358,6 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
         map.put(packageDefinition.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER), new Packages(packageDefinition));
         packageDefinition.validateFingerprintUniqueness(map);
 
-        assertThat(packageDefinition.errors().getAllOn(PackageDefinition.ID), is(nullValue()));
+        assertThat(packageDefinition.errors().getAllOn(PackageDefinition.ID)).isNull();
     }
 }

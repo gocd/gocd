@@ -22,6 +22,7 @@ import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.ReflectionUtils;
 
@@ -49,20 +50,34 @@ public class ConfigurationPropertyTest {
         assertThat(configurationProperty).isEqualTo(new ConfigurationProperty(configurationKey, configurationValue, null, null));
     }
 
-    @Test
-    void shouldGetPropertyForFingerprint() {
-        ConfigurationValue configurationValue = new ConfigurationValue("value");
-        ConfigurationKey configurationKey = new ConfigurationKey("key");
-        ConfigurationProperty configurationProperty = new ConfigurationProperty(configurationKey, configurationValue, null, null);
-        assertThat(configurationProperty.forFingerprint()).isEqualTo("key=value");
-    }
+    @Nested
+    class forFingerprint {
+        @Test
+        void shouldGetPropertyForFingerprint() {
+            ConfigurationValue configurationValue = new ConfigurationValue("value");
+            ConfigurationKey configurationKey = new ConfigurationKey("key");
+            ConfigurationProperty configurationProperty = new ConfigurationProperty(configurationKey, configurationValue, null, null);
+            assertThat(configurationProperty.forFingerprint()).isEqualTo("key=value");
+        }
 
-    @Test
-    void shouldGetKeyValuePairForFingerPrintString() {
-        ConfigurationValue configurationValue = new ConfigurationValue("value");
-        ConfigurationKey configurationKey = new ConfigurationKey("key");
-        ConfigurationProperty configurationProperty = new ConfigurationProperty(configurationKey, configurationValue, null, null);
-        assertThat(configurationProperty.forFingerprint()).isEqualTo("key=value");
+        @Test
+        void shouldGetKeyValuePairForFingerPrintString() {
+            ConfigurationValue configurationValue = new ConfigurationValue("value");
+            ConfigurationKey configurationKey = new ConfigurationKey("key");
+            ConfigurationProperty configurationProperty = new ConfigurationProperty(configurationKey, configurationValue, null, null);
+            assertThat(configurationProperty.forFingerprint()).isEqualTo("key=value");
+        }
+
+        @Test
+        void shouldBeSameIfConfigurationPropertyValueIsNullOrEmpty() {
+            ConfigurationProperty configurationPropertyWithEmptyValue = new ConfigurationProperty(new ConfigurationKey("key1"),
+                    new ConfigurationValue(""), null, null);
+            ConfigurationProperty configurationPropertyWithNullValue = new ConfigurationProperty(new ConfigurationKey("key1"),
+                    null, null, null);
+
+            assertThat(configurationPropertyWithEmptyValue.forFingerprint()).isEqualTo("key1=");
+            assertThat(configurationPropertyWithEmptyValue.forFingerprint()).isEqualTo(configurationPropertyWithNullValue.forFingerprint());
+        }
     }
 
     @Test

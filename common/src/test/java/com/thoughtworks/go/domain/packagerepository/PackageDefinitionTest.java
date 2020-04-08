@@ -38,6 +38,7 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
@@ -126,60 +127,80 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
         assertThat(packageDefinition.getConfigForDisplay()).isEqualTo("Repository: [rk1=rv1] - Package: [pk2=pack_value_2]");
     }
 
-    @Test
-    void shouldGetFingerprint() {
-        String pluginId = "pluginid";
-        PackageConfigurations repositoryConfigurations = new PackageConfigurations();
-        repositoryConfigurations.add(new PackageConfiguration("k1", "v1").with(PackageConfiguration.PART_OF_IDENTITY, true));
-        RepositoryMetadataStore.getInstance().addMetadataFor(pluginId, repositoryConfigurations);
+    @Nested
+    class getFingerprint {
+        @Test
+        void shouldGetFingerprint() {
+            String pluginId = "pluginid";
+            PackageConfigurations repositoryConfigurations = new PackageConfigurations();
+            repositoryConfigurations.add(new PackageConfiguration("k1", "v1").with(PackageConfiguration.PART_OF_IDENTITY, true));
+            RepositoryMetadataStore.getInstance().addMetadataFor(pluginId, repositoryConfigurations);
 
-        PackageConfigurations packageConfigurations = new PackageConfigurations();
-        packageConfigurations.add(new PackageConfiguration("k2", "v2").with(PackageConfiguration.PART_OF_IDENTITY, true));
-        PackageMetadataStore.getInstance().addMetadataFor(pluginId, packageConfigurations);
+            PackageConfigurations packageConfigurations = new PackageConfigurations();
+            packageConfigurations.add(new PackageConfiguration("k2", "v2").with(PackageConfiguration.PART_OF_IDENTITY, true));
+            PackageMetadataStore.getInstance().addMetadataFor(pluginId, packageConfigurations);
 
-        PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", pluginId, "version", new Configuration(create("k1", false, "v1")));
-        PackageDefinition packageDefinition = PackageDefinitionMother.create("p-id", "name", new Configuration(create("k2", false, "v2")), repository);
+            PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", pluginId, "version", new Configuration(create("k1", false, "v1")));
+            PackageDefinition packageDefinition = PackageDefinitionMother.create("p-id", "name", new Configuration(create("k2", false, "v2")), repository);
 
-        String fingerprint = packageDefinition.getFingerprint(AbstractMaterial.FINGERPRINT_DELIMITER);
+            String fingerprint = packageDefinition.getFingerprint(AbstractMaterial.FINGERPRINT_DELIMITER);
 
-        assertThat(fingerprint).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=pluginid<|>k2=v2<|>k1=v1"));
-    }
+            assertThat(fingerprint).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=pluginid<|>k2=v2<|>k1=v1"));
+        }
 
-    @Test
-    void shouldNotConsiderPropertiesMarkedAsNotPartOfIdentity_GetFingerprint() {
-        String pluginId = "plugin-id";
-        PackageConfigurations repositoryConfigurations = new PackageConfigurations();
-        repositoryConfigurations.add(new PackageConfiguration("rk1", "rv1").with(PackageConfiguration.PART_OF_IDENTITY, true));
-        repositoryConfigurations.add(new PackageConfiguration("rk2", "rv2").with(PackageConfiguration.PART_OF_IDENTITY, false));
-        RepositoryMetadataStore.getInstance().addMetadataFor(pluginId, repositoryConfigurations);
+        @Test
+        void shouldNotConsiderPropertiesMarkedAsNotPartOfIdentity_GetFingerprint() {
+            String pluginId = "plugin-id";
+            PackageConfigurations repositoryConfigurations = new PackageConfigurations();
+            repositoryConfigurations.add(new PackageConfiguration("rk1", "rv1").with(PackageConfiguration.PART_OF_IDENTITY, true));
+            repositoryConfigurations.add(new PackageConfiguration("rk2", "rv2").with(PackageConfiguration.PART_OF_IDENTITY, false));
+            RepositoryMetadataStore.getInstance().addMetadataFor(pluginId, repositoryConfigurations);
 
-        PackageConfigurations packageConfigurations = new PackageConfigurations();
-        packageConfigurations.add(new PackageConfiguration("pk1", "pv1").with(PackageConfiguration.PART_OF_IDENTITY, false));
-        packageConfigurations.add(new PackageConfiguration("pk2", "pv2").with(PackageConfiguration.PART_OF_IDENTITY, true));
-        PackageMetadataStore.getInstance().addMetadataFor(pluginId, packageConfigurations);
+            PackageConfigurations packageConfigurations = new PackageConfigurations();
+            packageConfigurations.add(new PackageConfiguration("pk1", "pv1").with(PackageConfiguration.PART_OF_IDENTITY, false));
+            packageConfigurations.add(new PackageConfiguration("pk2", "pv2").with(PackageConfiguration.PART_OF_IDENTITY, true));
+            PackageMetadataStore.getInstance().addMetadataFor(pluginId, packageConfigurations);
 
-        PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", pluginId, "version",
-                new Configuration(create("rk1", false, "rv1"), create("rk2", false, "rv2")));
-        PackageDefinition packageDefinition = PackageDefinitionMother.create("p-id", "name",
-                new Configuration(create("pk1", false, "pv1"), create("pk2", false, "pv2")), repository);
+            PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", pluginId, "version",
+                    new Configuration(create("rk1", false, "rv1"), create("rk2", false, "rv2")));
+            PackageDefinition packageDefinition = PackageDefinitionMother.create("p-id", "name",
+                    new Configuration(create("pk1", false, "pv1"), create("pk2", false, "pv2")), repository);
 
-        String fingerprint = packageDefinition.getFingerprint(AbstractMaterial.FINGERPRINT_DELIMITER);
+            String fingerprint = packageDefinition.getFingerprint(AbstractMaterial.FINGERPRINT_DELIMITER);
 
-        assertThat(fingerprint).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=plugin-id<|>pk2=pv2<|>rk1=rv1"));
-    }
+            assertThat(fingerprint).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=plugin-id<|>pk2=pv2<|>rk1=rv1"));
+        }
 
-    @Test
-    void shouldNotConsiderAllPropertiesForFingerprintWhenMetadataIsNotAvailable() {
-        String pluginId = "plugin-id";
+        @Test
+        void shouldNotConsiderAllPropertiesForFingerprintWhenMetadataIsNotAvailable() {
+            String pluginId = "plugin-id";
 
-        PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", pluginId, "version",
-                new Configuration(create("rk1", false, "rv1"), create("rk2", false, "rv2")));
-        PackageDefinition packageDefinition = PackageDefinitionMother.create("p-id", "name",
-                new Configuration(create("pk1", false, "pv1"), create("pk2", false, "pv2")), repository);
+            PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", pluginId, "version",
+                    new Configuration(create("rk1", false, "rv1"), create("rk2", false, "rv2")));
+            PackageDefinition packageDefinition = PackageDefinitionMother.create("p-id", "name",
+                    new Configuration(create("pk1", false, "pv1"), create("pk2", false, "pv2")), repository);
 
-        String fingerprint = packageDefinition.getFingerprint(AbstractMaterial.FINGERPRINT_DELIMITER);
+            String fingerprint = packageDefinition.getFingerprint(AbstractMaterial.FINGERPRINT_DELIMITER);
 
-        assertThat(fingerprint).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=plugin-id<|>pk1=pv1<|>pk2=pv2<|>rk1=rv1<|>rk2=rv2"));
+            assertThat(fingerprint).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=plugin-id<|>pk1=pv1<|>pk2=pv2<|>rk1=rv1<|>rk2=rv2"));
+        }
+
+        @Test
+        void shouldGenerateTheSameFingerprintIfConfigurationPropertyValueWithSameKeyIsEitherNullOrEmpty() {
+            String pluginId = "plugin-id";
+
+            PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", pluginId, "version",
+                    new Configuration(create("rk1", false, "rv1")));
+            PackageDefinition withEmptyConfigurationPropertyValue = PackageDefinitionMother.create("p-id", "name",
+                    new Configuration(create("pk1", false, ""), create("pk2", false, "")), repository);
+            PackageDefinition withNullConfigrationPropertyValue = PackageDefinitionMother.create("p-id", "name",
+                    new Configuration(create("pk1", false, null), create("pk2", false, null)), repository);
+
+            String fingerprint1 = withEmptyConfigurationPropertyValue.getFingerprint(AbstractMaterial.FINGERPRINT_DELIMITER);
+            String fingerprint2 = withNullConfigrationPropertyValue.getFingerprint(AbstractMaterial.FINGERPRINT_DELIMITER);
+
+            assertThat(fingerprint1).isEqualTo(fingerprint2);
+        }
     }
 
     @Test

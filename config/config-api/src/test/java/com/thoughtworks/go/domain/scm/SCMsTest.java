@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.access.scm.SCMProperty;
 import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
@@ -133,6 +134,22 @@ public class SCMsTest {
         assertThat(scm3.errors().getAllOn(SCM.SCM_ID)).isEqualTo(asList(expectedErrorMessage));
         assertThat(scm4.errors().getAllOn(SCM.SCM_ID)).isNull();
         assertThat(scm5.errors().getAllOn(SCM.SCM_ID)).isEqualTo(asList(expectedErrorMessage));
+    }
+
+    @Nested
+    class getFingerprint {
+        @Test
+        void shouldGenerateTheSameFingerprintIfConfigurationPropertyValueWithSameKeyIsEitherNullOrEmpty() {
+            SCM withEmptyConfigurationPropertyValue = SCMMother.create("1", "scm1", "plugin-id", "1.0",
+                    new Configuration(create("k1", false, "")));
+            SCM withNullConfigrationPropertyValue = SCMMother.create("1", "scm1", "plugin-id", "1.0",
+                    new Configuration(create("k1", false, null)));
+
+            String fingerprint1 = withEmptyConfigurationPropertyValue.getFingerprint();
+            String fingerprint2 = withNullConfigrationPropertyValue.getFingerprint();
+
+            assertThat(fingerprint1).isEqualTo(fingerprint2);
+        }
     }
 
     @Test

@@ -174,11 +174,14 @@ public class FeatureToggleServiceTest {
         FeatureToggleService service = new FeatureToggleService(repository, new StubGoCache(new TestTransactionSynchronizationManager()));
         service.allToggles();
         verify(repository, times(1)).availableToggles();
+        verify(repository, times(1)).userToggles();
 
         service.changeValueOfToggle("key1", false);
         verify(repository, times(1)).availableToggles();
+        verify(repository, times(1)).userToggles();
 
         service.allToggles();
         verify(repository, times(2)).availableToggles();
+        verify(repository, times(2)).userToggles();
     }
 }

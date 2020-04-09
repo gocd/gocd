@@ -59,5 +59,13 @@
 
 .tips {
   background: $white;
-  padding: 20px;
+  padding:    20px;
+}
+
+.warning {
+  margin-right: 4px;
+
+  i {
+    color: $failed;
+  }
 }

@@ -55,10 +55,6 @@ describe('PackageModalBodySpec', () => {
   it('should render input fields for id, name and package repo', () => {
     mount();
 
-    expect(helper.byTestId('form-field-input-id')).toBeInDOM();
-    expect(helper.byTestId('form-field-input-id')).not.toBeDisabled();
-    expect(helper.byTestId("form-field-input-id")).toHaveValue(pkg.id());
-
     expect(helper.byTestId('form-field-input-name')).toBeInDOM();
     expect(helper.byTestId('form-field-input-name')).not.toBeDisabled();
     expect(helper.byTestId("form-field-input-name")).toHaveValue(pkg.name());
@@ -86,7 +82,6 @@ describe('PackageModalBodySpec', () => {
     mount();
 
     expect(helper.byTestId('flash-message-info')).not.toBeInDOM();
-    expect(helper.byTestId('form-field-input-id')).toBeDisabled();
     expect(helper.byTestId('form-field-input-name')).toBeDisabled();
   });
 

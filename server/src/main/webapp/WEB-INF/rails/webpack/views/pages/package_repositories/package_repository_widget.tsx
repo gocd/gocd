@@ -19,7 +19,7 @@ import {PackageRepository} from "models/package_repositories/package_repositorie
 import s from "underscore.string";
 import {ButtonIcon, Secondary} from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
-import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
+import {Clone, Delete, Edit, IconGroup, InfoCircle} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {PackageOperations} from "views/pages/package_repositories";
 import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
@@ -49,6 +49,10 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
     const packageRepository = vnode.attrs.packageRepository;
     const pkgRepoDetails    = PackageRepositoryWidget.getPkgRepoDetails(packageRepository);
     const disabled          = vnode.attrs.disableActions;
+    const warningIcon       = disabled
+      ? <span className={styles.warning}><InfoCircle title={`Plugin '${packageRepository.pluginMetadata().id()}' was not found!`}
+                                                     iconOnly={true}/></span>
+      : undefined;
     const actionButtons     = [
       <Secondary onclick={vnode.attrs.packageOperations.onAdd.bind(vnode.attrs, packageRepository)}
                  data-test-id={"package-create"}
@@ -74,9 +78,8 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
       </div>];
 
     return <CollapsiblePanel key={vnode.attrs.packageRepository.repoId()}
-                             nonExpandable={true}
-                             header={header}
-                             actions={actionButtons}
+                             header={header} error={disabled}
+                             actions={[warningIcon, actionButtons]}
                              dataTestId={"package-repository-panel"}>
       <ConfigurationDetailsWidget header={"Package Repository configuration"} data={pkgRepoDetails}/>
       <PackagesWidget packages={vnode.attrs.packageRepository.packages}

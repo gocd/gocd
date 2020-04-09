@@ -47,12 +47,8 @@ describe('PackageRepositoryModalBodySpec', () => {
                                                    pluginIdProxy={pluginIdProxy}/>);
   }
 
-  it('should render input fields for id, name and package repo', () => {
+  it('should render input fields for name and package repo', () => {
     mount();
-
-    expect(helper.byTestId('form-field-input-repo-id')).toBeInDOM();
-    expect(helper.byTestId('form-field-input-repo-id')).not.toBeDisabled();
-    expect(helper.byTestId("form-field-input-repo-id")).toHaveValue(packageRepo.repoId());
 
     expect(helper.byTestId('form-field-input-name')).toBeInDOM();
     expect(helper.byTestId('form-field-input-name')).not.toBeDisabled();
@@ -68,7 +64,6 @@ describe('PackageRepositoryModalBodySpec', () => {
     disabled = true;
     mount();
 
-    expect(helper.byTestId('form-field-input-repo-id')).toBeDisabled();
     expect(helper.byTestId('form-field-input-name')).toBeDisabled();
   });
 

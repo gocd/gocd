@@ -67,7 +67,7 @@ export class Package extends ValidatableMixin {
     this.validatePresenceOf("name");
     this.validateFormatOf("name",
                           new RegExp("^[-a-zA-Z0-9_][-a-zA-Z0-9_.]*$"),
-                          {message: "Invalid Id. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period)."});
+                          {message: "Invalid Name. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period)."});
     this.validateMaxLength("name", 255, {message: "The maximum allowed length is 255 characters."});
     this.validateAssociated('packageRepo');
   }
@@ -146,7 +146,7 @@ export class PackageRepository extends ValidatableMixin {
     this.validatePresenceOf("name");
     this.validateFormatOf("name",
                           new RegExp("^[-a-zA-Z0-9_][-a-zA-Z0-9_.]*$"),
-                          {message: "Invalid Id. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period)."});
+                          {message: "Invalid Name. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period)."});
     this.validateMaxLength("name", 255, {message: "The maximum allowed length is 255 characters."});
     this.validateAssociated("pluginMetadata");
   }

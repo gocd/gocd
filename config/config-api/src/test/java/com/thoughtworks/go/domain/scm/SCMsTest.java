@@ -21,78 +21,76 @@ import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMProperty;
 import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.plugin.api.config.Property.PART_OF_IDENTITY;
 import static com.thoughtworks.go.plugin.api.config.Property.REQUIRED;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class SCMsTest {
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void setup() {
         SCMMetadataStore.getInstance().clear();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() {
         SCMMetadataStore.getInstance().clear();
     }
 
     @Test
-    public void shouldCheckEqualityOfSCMs() {
+    void shouldCheckEqualityOfSCMs() {
         SCM scm = new SCM();
         SCMs scms = new SCMs(scm);
 
-        assertThat(scms, is(new SCMs(scm)));
+        assertThat(scms).isEqualTo(new SCMs(scm));
     }
 
     @Test
-    public void shouldFindSCMGivenTheSCMId() throws Exception {
+    void shouldFindSCMGivenTheSCMId() {
         SCM scm1 = SCMMother.create("id1");
         SCM scm2 = SCMMother.create("id2");
 
         SCMs scms = new SCMs(scm1, scm2);
 
-        assertThat(scms.find("id2"), is(scm2));
+        assertThat(scms.find("id2")).isEqualTo(scm2);
     }
 
     @Test
-    public void shouldReturnNullIfNoMatchingSCMFound() throws Exception {
-        assertThat(new SCMs().find("not-found"), is(nullValue()));
+    void shouldReturnNullIfNoMatchingSCMFound() {
+        assertThat(new SCMs().find("not-found")).isNull();
     }
 
     @Test
-    public void shouldRemoveSCMById() throws Exception {
+    void shouldRemoveSCMById() {
         SCM scm1 = SCMMother.create("id1");
         SCM scm2 = SCMMother.create("id2");
         SCMs scms = new SCMs(scm1, scm2);
 
         scms.removeSCM("id1");
 
-        assertThat(scms, contains(scm2));
+        assertThat(scms).containsExactly(scm2);
     }
 
     @Test
-    public void shouldThrowRuntimeExceptionWhenTryingToRemoveSCMIdWhichIsNotPresent() throws Exception {
+    void shouldThrowRuntimeExceptionWhenTryingToRemoveSCMIdWhichIsNotPresent() {
         SCMs scms = new SCMs();
         try {
             scms.removeSCM("id1");
-            fail();
+            fail("should not reach here");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is(String.format("Could not find SCM with id '%s'", "id1")));
+            assertThat(e.getMessage()).isEqualTo(String.format("Could not find SCM with id '%s'", "id1"));
         }
     }
 
     @Test
-    public void shouldValidateForCaseInsensitiveNameAndIdUniqueness() {
+    void shouldValidateForCaseInsensitiveNameAndIdUniqueness() {
         SCM duplicate1 = SCMMother.create("scm-id1");
         SCM duplicate2 = SCMMother.create("SCM-ID1");
         SCM unique = SCMMother.create("unique");
@@ -100,15 +98,15 @@ public class SCMsTest {
 
         scms.validate(null);
 
-        assertThat(duplicate1.errors().isEmpty(), is(false));
-        assertThat(duplicate1.errors().getAllOn(SCM.NAME).contains(String.format("Cannot save SCM, found multiple SCMs called '%s'. SCM names are case-insensitive and must be unique.", duplicate1.getName())), is(true));
-        assertThat(duplicate2.errors().isEmpty(), is(false));
-        assertThat(duplicate2.errors().getAllOn(SCM.NAME).contains(String.format("Cannot save SCM, found multiple SCMs called '%s'. SCM names are case-insensitive and must be unique.", duplicate2.getName())), is(true));
-        assertThat(unique.errors().getAllOn(SCM.NAME), is(nullValue()));
+        assertThat(duplicate1.errors().isEmpty()).isFalse();
+        assertThat(duplicate1.errors().getAllOn(SCM.NAME).contains(String.format("Cannot save SCM, found multiple SCMs called '%s'. SCM names are case-insensitive and must be unique.", duplicate1.getName()))).isTrue();
+        assertThat(duplicate2.errors().isEmpty()).isFalse();
+        assertThat(duplicate2.errors().getAllOn(SCM.NAME).contains(String.format("Cannot save SCM, found multiple SCMs called '%s'. SCM names are case-insensitive and must be unique.", duplicate2.getName()))).isTrue();
+        assertThat(unique.errors().getAllOn(SCM.NAME)).isNull();
     }
 
     @Test
-    public void shouldFailValidationIfMaterialWithDuplicateFingerprintIsFound() {
+    void shouldFailValidationIfMaterialWithDuplicateFingerprintIsFound() {
         String pluginId = "plugin-id";
         SCMPropertyConfiguration scmConfiguration = new SCMPropertyConfiguration();
         scmConfiguration.add(new SCMProperty("k1"));
@@ -125,21 +123,37 @@ public class SCMsTest {
 
         scms.validate(null);
 
-        assertThat(scm2.getFingerprint().equals(scm1.getFingerprint()), is(false));
-        assertThat(scm3.getFingerprint().equals(scm1.getFingerprint()), is(true));
-        assertThat(scm4.getFingerprint().equals(scm1.getFingerprint()), is(false));
-        assertThat(scm5.getFingerprint().equals(scm1.getFingerprint()), is(true));
+        assertThat(scm2.getFingerprint().equals(scm1.getFingerprint())).isFalse();
+        assertThat(scm3.getFingerprint().equals(scm1.getFingerprint())).isTrue();
+        assertThat(scm4.getFingerprint().equals(scm1.getFingerprint())).isFalse();
+        assertThat(scm5.getFingerprint().equals(scm1.getFingerprint())).isTrue();
 
         String expectedErrorMessage = "Cannot save SCM, found duplicate SCMs. scm1, scm3, scm5";
-        assertThat(scm1.errors().getAllOn(SCM.SCM_ID), is(asList(expectedErrorMessage)));
-        assertThat(scm2.errors().getAllOn(SCM.SCM_ID), is(nullValue()));
-        assertThat(scm3.errors().getAllOn(SCM.SCM_ID), is(asList(expectedErrorMessage)));
-        assertThat(scm4.errors().getAllOn(SCM.SCM_ID), is(nullValue()));
-        assertThat(scm5.errors().getAllOn(SCM.SCM_ID), is(asList(expectedErrorMessage)));
+        assertThat(scm1.errors().getAllOn(SCM.SCM_ID)).isEqualTo(asList(expectedErrorMessage));
+        assertThat(scm2.errors().getAllOn(SCM.SCM_ID)).isNull();
+        assertThat(scm3.errors().getAllOn(SCM.SCM_ID)).isEqualTo(asList(expectedErrorMessage));
+        assertThat(scm4.errors().getAllOn(SCM.SCM_ID)).isNull();
+        assertThat(scm5.errors().getAllOn(SCM.SCM_ID)).isEqualTo(asList(expectedErrorMessage));
+    }
+
+    @Nested
+    class getFingerprint {
+        @Test
+        void shouldGenerateTheSameFingerprintIfConfigurationPropertyValueWithSameKeyIsEitherNullOrEmpty() {
+            SCM withEmptyConfigurationPropertyValue = SCMMother.create("1", "scm1", "plugin-id", "1.0",
+                    new Configuration(create("k1", false, "")));
+            SCM withNullConfigrationPropertyValue = SCMMother.create("1", "scm1", "plugin-id", "1.0",
+                    new Configuration(create("k1", false, null)));
+
+            String fingerprint1 = withEmptyConfigurationPropertyValue.getFingerprint();
+            String fingerprint2 = withNullConfigrationPropertyValue.getFingerprint();
+
+            assertThat(fingerprint1).isEqualTo(fingerprint2);
+        }
     }
 
     @Test
-    public void shouldFindFunctionallyDuplicateSCMs() {
+    void shouldFindFunctionallyDuplicateSCMs() {
         Configuration config = new Configuration();
         config.addNewConfigurationWithValue("url", "url", false);
         PluginConfiguration pluginConfig = new PluginConfiguration("plugin_id", "1.0");
@@ -150,12 +164,12 @@ public class SCMsTest {
         SCM scm2 = new SCM("scmid", new PluginConfiguration(), new Configuration());
         SCM scm3 = new SCM("id", pluginConfig, config);
 
-        assertThat(scms.findDuplicate(scm2), is(scm1));
-        assertThat(scms.findDuplicate(scm3), is(scm1));
+        assertThat(scms.findDuplicate(scm2)).isEqualTo(scm1);
+        assertThat(scms.findDuplicate(scm3)).isEqualTo(scm1);
     }
 
     @Test
-    public void shouldDetermineIfAddingAnSCMWouldCreateDuplication() {
+    void shouldDetermineIfAddingAnSCMWouldCreateDuplication() {
         Configuration config = new Configuration();
         config.addNewConfigurationWithValue("url", "url", false);
         PluginConfiguration pluginConfig = new PluginConfiguration("plugin_id", "1.0");
@@ -170,9 +184,9 @@ public class SCMsTest {
         SCM scm5 = new SCM("arbitrary", new PluginConfiguration(), new Configuration());
         scm5.setName("aRandomName");
 
-        assertThat(scms.canAdd(scm2), is(false));
-        assertThat(scms.canAdd(scm3), is(false));
-        assertThat(scms.canAdd(scm4), is(false));
-        assertThat(scms.canAdd(scm5), is(true));
+        assertThat(scms.canAdd(scm2)).isFalse();
+        assertThat(scms.canAdd(scm3)).isFalse();
+        assertThat(scms.canAdd(scm4)).isFalse();
+        assertThat(scms.canAdd(scm5)).isTrue();
     }
 }

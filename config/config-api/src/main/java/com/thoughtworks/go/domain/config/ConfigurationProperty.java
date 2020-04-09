@@ -142,7 +142,13 @@ public class ConfigurationProperty implements Serializable, Validatable {
     }
 
     public String forFingerprint() {
-        return format("%s=%s", configurationKey.getName(), getValue());
+        String value = getValue();
+
+        if (isEmpty(value)) {
+            value = EMPTY;
+        }
+
+        return format("%s=%s", configurationKey.getName(), value);
     }
 
     public EncryptedConfigurationValue getEncryptedConfigurationValue() {

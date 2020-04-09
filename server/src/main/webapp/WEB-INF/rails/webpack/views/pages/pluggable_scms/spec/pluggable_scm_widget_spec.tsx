@@ -70,6 +70,7 @@ describe('PluggableScmWidgetSpec', () => {
     expect(helper.byTestId('pluggable-scm-delete')).not.toBeDisabled();
     expect(helper.byTestId('pluggable-scm-usages')).toBeInDOM();
     expect(helper.byTestId('pluggable-scm-usages')).not.toBeDisabled();
+    expect(helper.byTestId('Info Circle-icon')).not.toBeInDOM();
   });
 
   it('should give a call to the callbacks on relevant button clicks', () => {
@@ -88,13 +89,18 @@ describe('PluggableScmWidgetSpec', () => {
     expect(usagesSpy).toHaveBeenCalled();
   });
 
-  it('should disable edit and clone button', () => {
+  it('should disable edit and clone button and render a warning button', () => {
     disableActions = true;
     mount();
 
-    expect(helper.byTestId('pluggable-scm-edit')).toBeDisabled();
-    expect(helper.byTestId('pluggable-scm-clone')).toBeDisabled();
+    ['pluggable-scm-edit', 'pluggable-scm-clone'].forEach((key) => {
+      expect(helper.byTestId(key)).toBeDisabled();
+      expect(helper.byTestId(key)).toHaveAttr('title', "Plugin 'github.pr' not found!");
+    });
     expect(helper.byTestId('pluggable-scm-delete')).not.toBeDisabled();
     expect(helper.byTestId('pluggable-scm-usages')).not.toBeDisabled();
+    const warningIcon = helper.byTestId('Info Circle-icon');
+    expect(warningIcon).toBeInDOM();
+    expect(warningIcon).toHaveAttr('title', "Plugin 'github.pr' was not found!");
   });
 });

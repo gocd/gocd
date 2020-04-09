@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import "../../../../../global/common";
 
-.radio-wrapper {
-  width: 150px;
-}
+import Stream from "mithril/stream";
+import {SuggestionProvider} from "views/components/forms/autocomplete";
 
-// external fetch artifact scss
+export class PipelinesAutocompletionProvider extends SuggestionProvider {
+  private readonly suggestions: Stream<any>;
 
-.artifact-id-plugin-id-group {
-  display: flex;
+  constructor(suggestions: Stream<any>) {
+    super();
+    this.suggestions = suggestions;
+  }
 
-  span {
-    width: 310px;
+  getData(): Promise<Awesomplete.Suggestion[]> {
+    return new Promise<Awesomplete.Suggestion[]>((resolve) => {
+      resolve(Object.keys(this.suggestions()));
+    });
   }
 }

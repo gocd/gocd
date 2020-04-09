@@ -13,18 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import "../../../../../global/common";
 
-.radio-wrapper {
-  width: 150px;
-}
-
-// external fetch artifact scss
-
-.artifact-id-plugin-id-group {
-  display: flex;
-
-  span {
-    width: 310px;
-  }
+export function suggestions() {
+  return {
+    pipeline1: {
+      pipeline1_stage1: {
+        pipeline1_stage1_job1: {
+          id1: "docker-plugin",
+          id2: "rkt-plugin"
+        },
+        pipeline1_stage1_job2: {}
+      },
+      pipeline1_stage2: {
+        pipeline1_stage2_job1: {},
+        pipeline1_stage2_job2: {}
+      }
+    },
+    pipeline2: {
+      pipeline2_stage1: {
+        pipeline2_stage1_job1: {},
+        pipeline2_stage1_job2: {}
+      },
+      pipeline2_stage2: {
+        pipeline2_stage2_job1: {},
+        pipeline2_stage2_job2: {}
+      }
+    }
+  };
 }

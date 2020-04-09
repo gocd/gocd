@@ -74,7 +74,6 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
       </div>];
 
     return <CollapsiblePanel key={vnode.attrs.packageRepository.repoId()}
-                             nonExpandable={true}
                              header={header}
                              actions={actionButtons}
                              dataTestId={"package-repository-panel"}>

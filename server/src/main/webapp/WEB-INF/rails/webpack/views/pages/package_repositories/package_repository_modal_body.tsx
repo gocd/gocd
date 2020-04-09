@@ -45,12 +45,10 @@ export class PackageRepositoryModalBody extends MithrilViewComponent<Attrs> {
     return <div>
       <FormHeader>
         <Form>
-          <TextField label="Name"
-                     readonly={vnode.attrs.disableId}
-                     property={vnode.attrs.packageRepo.name}
+          <TextField label="Name" property={vnode.attrs.packageRepo.name}
+                     required={true} readonly={vnode.attrs.disableId}
                      placeholder={"Enter the package repository name"}
-                     errorText={vnode.attrs.packageRepo.errors().errorsForDisplay("name")}
-                     required={true}/>
+                     errorText={vnode.attrs.packageRepo.errors().errorsForDisplay("name") || vnode.attrs.packageRepo.errors().errorsForDisplay("repoId")}/>
 
           <SelectField label="Plugin"
                        property={vnode.attrs.pluginIdProxy.bind(this)}
@@ -61,15 +59,6 @@ export class PackageRepositoryModalBody extends MithrilViewComponent<Attrs> {
           </SelectField>
         </Form>
       </FormHeader>
-
-      <div>
-        <TextField label="Repo Id"
-                   readonly={vnode.attrs.disableId}
-                   property={vnode.attrs.packageRepo.repoId}
-                   placeholder={"Enter a unique id for this package repository"}
-                   helpText={"Each package repository is associated with an id. Once defined it cannot be updated"}
-                   errorText={vnode.attrs.packageRepo.errors().errorsForDisplay("repoId")}/>
-      </div>
 
       <PluginView pluginSettings={(selectedPluginInfo.extensions[0] as PackageRepoExtension).repositorySettings}
                   configurations={vnode.attrs.packageRepo.configuration()}/>

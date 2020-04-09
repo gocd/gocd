@@ -53,9 +53,10 @@ abstract class PackageModal extends EntityModal<Package> {
   }
 
   operationError(errorResponse: any, statusCode: number) {
-    this.errorMessage(errorResponse.message);
     if (errorResponse.data) {
       this.entity(this.parseJsonToEntity(errorResponse.data));
+    } else {
+      this.errorMessage(errorResponse.message);
     }
   }
 

@@ -49,9 +49,10 @@ abstract class PackageRepositoryModal extends EntityModal<PackageRepository> {
   }
 
   operationError(errorResponse: any, statusCode: number) {
-    this.errorMessage(errorResponse.message);
     if (errorResponse.data) {
       this.entity(this.parseJsonToEntity(errorResponse.data));
+    } else {
+      this.errorMessage(errorResponse.message);
     }
   }
 

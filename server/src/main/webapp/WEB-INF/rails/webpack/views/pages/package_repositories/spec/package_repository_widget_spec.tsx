@@ -74,6 +74,7 @@ describe('PackageRepositoryWidgetSpec', () => {
             expect(helper.byTestId(key)).not.toBeDisabled();
             expect(helper.byTestId(key)).toHaveAttr('title', buttonKeys[key]);
           });
+    expect(helper.byTestId('Info Circle-icon')).not.toBeInDOM();
   });
 
   it('should give a call to the callbacks on relevant button clicks', () => {
@@ -92,7 +93,7 @@ describe('PackageRepositoryWidgetSpec', () => {
     expect(onPkgRepoDelete).toHaveBeenCalled();
   });
 
-  it('should disabled action buttons when disabled is set to true', () => {
+  it('should disabled action buttons and render a warning button when disabled is set to true', () => {
     disableActions = true;
     mount();
 
@@ -101,5 +102,8 @@ describe('PackageRepositoryWidgetSpec', () => {
       expect(helper.byTestId(key)).toHaveAttr('title', "Plugin not found!");
     });
     expect(helper.byTestId('package-repo-delete')).not.toBeDisabled();
+    const warningIcon = helper.byTestId('Info Circle-icon');
+    expect(warningIcon).toBeInDOM();
+    expect(warningIcon).toHaveAttr('title', "Plugin 'npm' was not found!");
   });
 });

@@ -23,7 +23,6 @@ import {Job} from "models/pipeline_configs/job";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {AbstractTask, Task} from "models/pipeline_configs/task";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
-import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {Secondary} from "views/components/buttons";
@@ -105,10 +104,10 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
     vnode.state.allTaskTypes          = Array.from(TasksWidget.getTaskTypes().values());
     vnode.state.selectedTaskTypeToAdd = Stream(vnode.state.allTaskTypes[0]);
-    vnode.state.entityReOrderHandler = new EntityReOrderHandler("task",
-                                                                vnode.attrs.flashMessage,
-                                                                vnode.attrs.pipelineConfigSave,
-                                                                vnode.attrs.pipelineConfigReset);
+    vnode.state.entityReOrderHandler  = new EntityReOrderHandler("task",
+                                                                 vnode.attrs.flashMessage,
+                                                                 vnode.attrs.pipelineConfigSave,
+                                                                 vnode.attrs.pipelineConfigReset);
   }
 
   onTaskSave(vnode: m.Vnode<Attrs, State>) {
@@ -282,7 +281,11 @@ export class TasksTabContent extends TabContent<Job> {
     return false;
   }
 
-  protected renderer(entity: Job, template: TemplateConfig, flashMessage: FlashMessageModelWithTimeout, save: () => Promise<any>, reset: () => any): m.Children {
+  protected renderer(entity: Job,
+                     template: TemplateConfig,
+                     flashMessage: FlashMessageModelWithTimeout,
+                     save: () => Promise<any>,
+                     reset: () => any): m.Children {
     return <TasksWidget pluginInfos={this.pluginInfos}
                         autoSuggestions={this.autoSuggestions}
                         pipelineConfigSave={save}
@@ -297,7 +300,7 @@ export class TasksTabContent extends TabContent<Job> {
   }
 
   private fetchPluginInfos() {
-    return PluginInfoCRUD.all({type: ExtensionTypeString.TASK})
+    return PluginInfoCRUD.all({})
                          .then((pluginInfosResponse) => {
                            pluginInfosResponse.do((successResponse) => {
                              this.pluginInfos(successResponse.body);

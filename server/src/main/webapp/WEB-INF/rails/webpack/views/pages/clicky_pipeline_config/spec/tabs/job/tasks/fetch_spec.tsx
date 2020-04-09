@@ -17,7 +17,8 @@
 import Stream from "mithril/stream";
 import {FetchArtifactTask, Task} from "models/pipeline_configs/task";
 import {Configurations} from "models/shared/configuration";
-import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {ArtifactPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import {FetchArtifactTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -50,7 +51,7 @@ describe("Fetch Task Modal", () => {
 
     expect(helper.byTestId("radio-gocd")).toBeChecked();
     expect(helper.byTestId("radio-external")).not.toBeChecked();
-    expect(helper.byTestId("built-in-artifact-view")).toBeInDOM();
+    expect(helper.byTestId("built-in-fetch-artifact-view")).toBeInDOM();
     expect(helper.byTestId("external-artifact-view")).not.toBeInDOM();
   });
 
@@ -64,13 +65,17 @@ describe("Fetch Task Modal", () => {
 
     expect(helper.byTestId("radio-gocd")).not.toBeChecked();
     expect(helper.byTestId("radio-external")).toBeChecked();
-    expect(helper.byTestId("built-in-artifact-view")).not.toBeInDOM();
-    expect(helper.byTestId("external-artifact-view")).toBeInDOM();
+    expect(helper.byTestId("built-in-fetch-artifact-view")).not.toBeInDOM();
+    expect(helper.byTestId("external-fetch-artifact-view")).toBeInDOM();
   });
 
   function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true) {
     helper.mount(() => {
-      modal = new FetchArtifactTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), new PluginInfos(), Stream());
+      modal = new FetchArtifactTaskModal(task,
+                                         shouldShowOnCancel,
+                                         jasmine.createSpy(),
+                                         new PluginInfos(PluginInfo.fromJSON(ArtifactPluginInfo.docker())),
+                                         Stream());
       return modal.body();
     });
   }

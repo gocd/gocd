@@ -14,29 +14,18 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {FetchArtifactTask, FetchTaskAttributes, Task} from "models/pipeline_configs/task";
 import {Configurations} from "models/shared/configuration";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {RadioField} from "views/components/forms/input_fields";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
 import {OnCancelView} from "views/pages/clicky_pipeline_config/tabs/job/tasks/common/on_cancel_view";
-import {BuiltInArtifactView} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/built_in";
+import {BuiltInFetchArtifactView} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/built_in";
+import {ExternalFetchArtifactView} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/external";
 import styles from "./fetch.scss";
-
-interface Attrs {
-  attributes: FetchTaskAttributes;
-}
-
-export class ExternalArtifactView extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
-    return <div data-test-id="external-artifact-view">
-      external artifact view
-    </div>;
-  }
-}
 
 export class FetchArtifactTaskModal extends AbstractTaskModal {
   private readonly task: FetchArtifactTask;
@@ -65,9 +54,11 @@ export class FetchArtifactTaskModal extends AbstractTaskModal {
 
     let content: m.Children;
     if (attributes.isBuiltInArtifact()) {
-      content = <BuiltInArtifactView attributes={attributes} autoSuggestions={this.autoSuggestions}/>;
+      content = <BuiltInFetchArtifactView attributes={attributes} autoSuggestions={this.autoSuggestions}/>;
     } else {
-      content = <ExternalArtifactView attributes={attributes}/>;
+      content = <ExternalFetchArtifactView attributes={attributes}
+                                           artifactPluginInfos={this.pluginInfos.filterForExtension(ExtensionTypeString.ARTIFACT)}
+                                           autoSuggestions={this.autoSuggestions}/>;
     }
 
     return <div data-test-id="fetch-artifact-task-modal">

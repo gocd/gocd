@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2020 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +18,12 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {FetchTaskAttributes} from "models/pipeline_configs/task";
 import {Configurations} from "models/shared/configuration";
-import {BuiltInFetchArtifactView} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/built_in";
+import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {ArtifactPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
+import {ExternalFetchArtifactView} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/external";
 import {TestHelper} from "views/pages/spec/test_helper";
 
-describe("Built In Fetch Artifact Task", () => {
+describe("External Fetch Artifact Task", () => {
   const helper = new TestHelper();
   afterEach(helper.unmount.bind(helper));
 
@@ -32,17 +34,17 @@ describe("Built In Fetch Artifact Task", () => {
                                          "stage",
                                          "job",
                                          false,
-                                         "source",
-                                         "destination",
                                          undefined,
+                                         undefined,
+                                         "id1",
                                          new Configurations([]),
                                          [],
                                          undefined);
   });
 
-  it("should render built in fetch task", () => {
+  it("should render external fetch task", () => {
     mount();
-    expect(helper.byTestId("built-in-fetch-artifact-view")).toBeInDOM();
+    expect(helper.byTestId("external-fetch-artifact-view")).toBeInDOM();
   });
 
   it("should render pipeline input", () => {
@@ -109,70 +111,88 @@ describe("Built In Fetch Artifact Task", () => {
     expect(helper.byTestId("form-field-input-job")).toHaveValue("new-job");
   });
 
-  it("should render source input", () => {
+  it("should render artifact id input", () => {
     mount();
-    const sourceHelpText = "The path of the artifact directory or file of a specific job, relative to the sandbox directory. If the directory or file does not exist, the job is failed.";
+    const artifactIdHelpText = "The id of the external artifact uploaded by the upstream job.";
 
-    expect(helper.byTestId("form-field-label-source")).toContainText("Source");
-    expect(helper.byTestId("form-field-input-source")).toBeInDOM();
-    expect(helper.qa("span")).toContainText(sourceHelpText);
+    expect(helper.byTestId("form-field-label-artifact-id")).toContainText("Artifact Id");
+    expect(helper.byTestId("form-field-input-artifact-id")).toBeInDOM();
+    expect(helper.qa("span")).toContainText(artifactIdHelpText);
   });
 
-  it("should bind source input to model", () => {
+  it("should bind artifact id input to model", () => {
     mount();
 
-    expect(attributes.source()).toBe("source");
-    expect(helper.byTestId("form-field-input-source")).toHaveValue("source");
+    expect(attributes.artifactId()).toBe("id1");
+    expect(helper.byTestId("form-field-input-artifact-id")).toHaveValue("id1");
 
-    helper.oninput(`[data-test-id="form-field-input-source"]`, "new-source");
+    helper.oninput(`[data-test-id="form-field-input-artifact-id"]`, "new-id1");
 
-    expect(attributes.source()).toBe("new-source");
-    expect(helper.byTestId("form-field-input-source")).toHaveValue("new-source");
+    expect(attributes.artifactId()).toBe("new-id1");
+    expect(helper.byTestId("form-field-input-artifact-id")).toHaveValue("new-id1");
   });
 
-  it("should render is source a file checkbox", () => {
+  it("should render plugin id dropdown only when artifact id is configured", () => {
     mount();
 
-    const label = "Source is a file(Not a directory)";
-    expect(helper.byTestId("form-field-label-source-is-a-file-not-a-directory")).toContainText(label);
-    expect(helper.byTestId("form-field-input-source-is-a-file-not-a-directory")).not.toBeChecked();
+    expect(attributes.artifactId()).toBeTruthy();
+
+    expect(helper.byTestId("form-field-label-plugin-id")).toContainText("Plugin Id");
+    expect(helper.byTestId("form-field-input-plugin-id")).toBeInDOM();
   });
 
-  it("should bind is source a file checkbox to model", () => {
+  it("should not render plugin id dropdown when artifact id is not configured", () => {
+    attributes.artifactId(undefined);
     mount();
 
-    expect(attributes.isSourceAFile()).toBeFalse();
-    expect(helper.byTestId("form-field-input-source-is-a-file-not-a-directory")).not.toBeChecked();
+    expect(attributes.artifactId()).toBeFalsy();
 
-    helper.clickByTestId("form-field-input-source-is-a-file-not-a-directory");
-
-    expect(attributes.isSourceAFile()).toBeTrue();
-    expect(helper.byTestId("form-field-input-source-is-a-file-not-a-directory")).toBeChecked();
+    expect(helper.byTestId("form-field-input-plugin-id")).not.toBeInDOM();
   });
 
-  it("should render destination input", () => {
-    mount();
-    const destinationHelpText = "The path of the directory where the artifact is fetched to. The directory is overwritten if it already exists. The directory path is relative to the pipeline working directory.";
-
-    expect(helper.byTestId("form-field-label-destination")).toContainText("Destination");
-    expect(helper.byTestId("form-field-input-destination")).toBeInDOM();
-    expect(helper.qa("span")).toContainText(destinationHelpText);
-  });
-
-  it("should bind destination input to model", () => {
+  it("should auto select plugin id based on selected artifact id", () => {
     mount();
 
-    expect(attributes.destination()).toBe("destination");
-    expect(helper.byTestId("form-field-input-destination")).toHaveValue("destination");
+    expect(attributes.pipeline()).toEqual("pipeline");
+    expect(attributes.stage()).toEqual("stage");
+    expect(attributes.job()).toEqual("job");
+    expect(attributes.artifactId()).toEqual("id1");
 
-    helper.oninput(`[data-test-id="form-field-input-destination"]`, "new-destination");
-
-    expect(attributes.destination()).toBe("new-destination");
-    expect(helper.byTestId("form-field-input-destination")).toHaveValue("new-destination");
+    const pluginIdDropdown = (helper.byTestId("form-field-input-plugin-id") as HTMLInputElement);
+    expect(pluginIdDropdown.value).toEqual("cd.go.artifact.docker.registry");
+    expect(pluginIdDropdown).toBeDisabled();
   });
 
-  function mount(fetchTaskAttributes: FetchTaskAttributes = attributes) {
-    return helper.mount(() => <BuiltInFetchArtifactView autoSuggestions={Stream({})}
-                                                        attributes={fetchTaskAttributes}/>);
+  it("should show plugin select error when can not auto detect plugin", () => {
+    mount();
+
+    attributes.artifactId("some-non-existing-plugin");
+    m.redraw.sync();
+
+    const pluginAutoDetectError = "The plugin with which the artifact is associated cannot be determined because: the pipeline, stage, job or artifact id is a parameter or is non-existent. Please choose a plugin to configure the plugin properties.";
+    const pluginIdDropdown      = (helper.byTestId("form-field-input-plugin-id") as HTMLInputElement);
+    expect(pluginIdDropdown).not.toBeDisabled();
+
+    expect(helper.qa("span")).toContainText(pluginAutoDetectError);
+  });
+
+  function mount(fetchTaskAttributes: FetchTaskAttributes = attributes, pluginInfos?: PluginInfos) {
+    if (!pluginInfos) {
+      pluginInfos = new PluginInfos(PluginInfo.fromJSON(ArtifactPluginInfo.docker()));
+    }
+
+    const autoSuggestions = {
+      pipeline: {
+        stage: {
+          job: {
+            id1: "cd.go.artifact.docker.registry"
+          }
+        }
+      }
+    };
+
+    return helper.mount(() => <ExternalFetchArtifactView autoSuggestions={Stream(autoSuggestions)}
+                                                         artifactPluginInfos={pluginInfos!}
+                                                         attributes={fetchTaskAttributes}/>);
   }
 });

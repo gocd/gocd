@@ -217,7 +217,7 @@ export class UsagePackageModal extends Modal {
 
   body(): m.Children {
     if (this.usages.length <= 0) {
-      return (<i> No usages for scms '{this.profileId}' found.</i>);
+      return (<i> No usages for scm '{this.profileId}' found.</i>);
     }
 
     const data = this.usages.map((usage) => {

@@ -31,7 +31,7 @@ describe('PackageUsageModalSpec', () => {
 
     expect(modal).toContainTitle("Usages for scm-id");
     expect(modal).toContainButtons(["OK"]);
-    expect(modal).toContainBody("No usages for scms 'scm-id' found.");
+    expect(modal).toContainBody("No usages for scm 'scm-id' found.");
   });
 
   it('should render usages with link to material settings', () => {

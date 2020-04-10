@@ -24,6 +24,8 @@ export const inputMedium: string;
 export const inputSmall: string;
 export const last: string;
 export const lockOpen: string;
+export const materialSelectionContainer: string;
+export const message: string;
 export const open: string;
 export const packageFields: string;
 export const quickAddButton: string;

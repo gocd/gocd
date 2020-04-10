@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import _ from "lodash";
 import m from "mithril";
 import {Filter} from "models/maintenance_mode/material";
 import {Scms} from "models/materials/pluggable_scm";
@@ -24,15 +26,19 @@ import {
   HgMaterialAttributes,
   Material,
   P4MaterialAttributes,
-  PackageMaterialAttributes, PluggableScmMaterialAttributes,
+  PackageMaterialAttributes,
+  PluggableScmMaterialAttributes,
   SvnMaterialAttributes,
   TfsMaterialAttributes
 } from "models/materials/types";
 import {PackageRepositories} from "models/package_repositories/package_repositories";
-import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {ExtensionTypeString, PackageRepoExtensionType, SCMExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormBody} from "views/components/forms/form";
 import {Option, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
+import {Link} from "views/components/link";
+import styles from "./advanced_settings.scss";
 import {DefaultCache, DependencyFields, PackageFields, PluginFields, SuggestionCache} from "./non_scm_material_fields";
 import {GitFields, HgFields, P4Fields, SvnFields, TfsFields} from "./scm_material_fields";
 
@@ -72,10 +78,15 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     }
 
     return <FormBody>
-      <SelectField label="Material Type" property={vnode.attrs.material.type} required={true}
-                   readonly={vnode.attrs.disabled || vnode.attrs.disabledMaterialTypeSelection}>
-        <SelectFieldOptions selected={vnode.attrs.material.type()} items={supportedMaterials}/>
-      </SelectField>
+      <div className={styles.materialSelectionContainer}>
+        <SelectField label="Material Type" property={vnode.attrs.material.type} required={true}
+                     readonly={vnode.attrs.disabled || vnode.attrs.disabledMaterialTypeSelection}>
+          <SelectFieldOptions selected={vnode.attrs.material.type()} items={supportedMaterials}/>
+        </SelectField>
+        <div className={styles.message}>
+          {this.message(attrs.material, attrs.pluginInfos)}
+        </div>
+      </div>
 
       <Form last={true} compactForm={true}>
         {this.fieldsForType(attrs.material, this.cache, showLocalWorkingCopyOptions, hideTestConnection, attrs.disabled, attrs.packageRepositories, attrs.pluginInfos, attrs.pluggableScms)}
@@ -141,21 +152,53 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
         if (!(material.attributes() instanceof PackageMaterialAttributes)) {
           material.attributes(new PackageMaterialAttributes(undefined, true, ""));
         }
-        packageRepositories = packageRepositories === undefined ? new PackageRepositories() : packageRepositories;
-        pluginInfos         = pluginInfos === undefined ? new PluginInfos()
+        pluginInfos = pluginInfos === undefined ? new PluginInfos()
           : pluginInfos!.filterForExtension(ExtensionTypeString.PACKAGE_REPO);
+        if (_.isEmpty(pluginInfos)) {
+          return <FlashMessage type={MessageType.warning}>
+            There are no Package Repository plugins installed. Please see <Link href={new PackageRepoExtensionType().linkForDocs()} target="_blank"
+                                                                                externalLinkIcon={true}>this page</Link> for a list of supported
+            plugins.
+          </FlashMessage>;
+        }
+        packageRepositories = packageRepositories === undefined ? new PackageRepositories() : packageRepositories;
         return <PackageFields material={material}
                               packageRepositories={packageRepositories} pluginInfos={pluginInfos}/>;
       case "plugin":
         if (!(material.attributes() instanceof PluggableScmMaterialAttributes)) {
           material.attributes(new PluggableScmMaterialAttributes(undefined, true, "", "", new Filter([])));
         }
-        scms        = scms === undefined ? new Scms() : scms;
         pluginInfos = pluginInfos === undefined ? new PluginInfos()
           : pluginInfos!.filterForExtension(ExtensionTypeString.SCM);
+        if (_.isEmpty(pluginInfos)) {
+          return <FlashMessage type={MessageType.warning}>
+            There are no SCM plugins installed. Please see <Link href={new SCMExtensionType().linkForDocs()} target="_blank"
+                                                                 externalLinkIcon={true}>this page</Link> for a list of supported plugins.
+          </FlashMessage>;
+        }
+        scms = scms === undefined ? new Scms() : scms;
         return <PluginFields material={material} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}
-                              scms={scms} pluginInfos={pluginInfos}/>;
+                             scms={scms} pluginInfos={pluginInfos}/>;
       default:
+        break;
+    }
+  }
+
+  private message(material: Material, pluginInfos?: PluginInfos) {
+    switch (material.type()) {
+      case "package":
+        const packagePlugins = pluginInfos === undefined ? new PluginInfos()
+          : pluginInfos!.filterForExtension(ExtensionTypeString.PACKAGE_REPO);
+        if (!_.isEmpty(packagePlugins)) {
+          return <span data-test-id="package-msg"><Link href={SparkRoutes.packageRepositoriesSPA()}>Create New</Link> or select existing packages below.</span>;
+        }
+        break;
+      case "plugin":
+        const scmPlugins = pluginInfos === undefined ? new PluginInfos()
+          : pluginInfos!.filterForExtension(ExtensionTypeString.SCM);
+        if (!_.isEmpty(scmPlugins)) {
+          return <span data-test-id="plugin-msg"><Link href={SparkRoutes.pluggableScmSPA()}>Create New</Link> or select existing scms below.</span>;
+        }
         break;
     }
   }

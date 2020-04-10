@@ -15,13 +15,11 @@
  */
 
 import Awesomplete from "awesomplete";
-import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {DependencyMaterialAutocomplete, PipelineNameCache} from "models/materials/dependency_autocomplete_cache";
-import {DependencyMaterialAttributes, Material, MaterialAttributes, PackageMaterialAttributes} from "models/materials/types";
 import {Scms} from "models/materials/pluggable_scm";
 import {
   DependencyMaterialAttributes,
@@ -31,13 +29,11 @@ import {
   PluggableScmMaterialAttributes
 } from "models/materials/types";
 import {PackageRepositories, PackageRepository} from "models/package_repositories/package_repositories";
-import {PackageRepoExtensionType, SCMExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {KeyValuePair} from "views/components/key_value_pair";
-import {Link} from "views/components/link";
 import {SwitchBtn} from "views/components/switch";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
@@ -196,7 +192,7 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
     packageRepos.push(...vnode.attrs.packageRepositories.map((packageRepo) => {
       return {id: packageRepo.repoId(), text: packageRepo.name()};
     }));
-    const readonly                    = !!vnode.attrs.disabled;
+    const readonly = !!vnode.attrs.disabled;
     this.setErrorMessageIfApplicable(vnode, packageRepos);
     return <div className={styles.packageFields}>
       {this.errorMessage}
@@ -228,28 +224,15 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
 
   private setErrorMessageIfApplicable(vnode: m.Vnode<PackageAttrs, PackageState>, packageRepos: Array<Option | string>) {
     this.errorMessage = undefined;
-    if (vnode.attrs.pluginInfos.length === 0) {
-      this.errorMessage        = <FlashMessage type={MessageType.alert}>
-        There are no Package repository plugins installed. Please see
-        <Link href={new PackageRepoExtensionType().linkForDocs()} target="_blank" externalLinkIcon={true}> this page</Link> for
-        a list of supported plugins.
-      </FlashMessage>;
-      this.disablePkgRepoField = true;
-      this.disablePkgField     = true;
-    }
-
     if (packageRepos.length === 1) {
-      this.errorMessage        = <FlashMessage type={MessageType.alert}>
-        No package repositories defined. Go to <Link href={SparkRoutes.packageRepositoriesSPA()}>Package
-        Repositories</Link> to define one.
+      this.errorMessage        = <FlashMessage type={MessageType.warning}>
+        No package repositories defined.
       </FlashMessage>;
       this.disablePkgRepoField = true;
     }
-
     if (vnode.state.pkgRepoId().length > 0 && vnode.state.pkgs().length === 1) {
-      this.errorMessage    = <FlashMessage type={MessageType.alert}>
-        No packages defined for the selected package repository. Go to <Link
-        href={SparkRoutes.packageRepositoriesSPA()}>Package Repositories</Link> to define one.
+      this.errorMessage    = <FlashMessage type={MessageType.warning}>
+        No packages defined for the selected package repository.
       </FlashMessage>;
       this.disablePkgField = true;
     }
@@ -328,10 +311,9 @@ interface PluginState {
 }
 
 export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
-  readonly defaultScms                = [{id: "", text: "Select a scm"}];
-  private disablePluginField: boolean = false;
-  private disableScmField: boolean    = true;
-  private errorMessage?: m.Children   = undefined;
+  readonly defaultScms              = [{id: "", text: "Select a scm"}];
+  private disableScmField: boolean  = true;
+  private errorMessage?: m.Children = undefined;
 
   oninit(vnode: m.Vnode<PluginAttrs, PluginState>): any {
     vnode.state.pluginId              = Stream("");
@@ -356,7 +338,7 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
             <SelectField property={this.pluginIdProxy.bind(this, vnode)}
                          label="SCM Plugin"
                          errorText={attrs.errors().errorsForDisplay("pluginId")}
-                         required={true} readonly={readonly || this.disablePluginField}>
+                         required={true} readonly={readonly}>
               <SelectFieldOptions selected={vnode.state.pluginId()} items={plugins}/>
             </SelectField>
           </td>
@@ -415,28 +397,9 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
 
   private setErrorMessageIfApplicable(vnode: m.Vnode<PluginAttrs, PluginState>, plugins: Array<Option | string>) {
     this.errorMessage = undefined;
-    if (plugins.length === 1) {
-      this.errorMessage       = <FlashMessage type={MessageType.alert}>
-        There are no SCM plugins installed. Please see
-        <Link href={new SCMExtensionType().linkForDocs()} target="_blank" externalLinkIcon={true}> this page</Link> for
-        a list of supported plugins.
-      </FlashMessage>;
-      this.disablePluginField = true;
-      this.disableScmField    = true;
-    }
-
-    if (_.isEmpty(vnode.attrs.scms)) {
-      this.errorMessage       = <FlashMessage type={MessageType.alert}>
-        There are no SCMs configured. Go to <Link href={SparkRoutes.pluggableScmSPA()}>Pluggable SCM</Link> to define one.
-      </FlashMessage>;
-      this.disablePluginField = true;
-      this.disableScmField    = true;
-    }
-
     if (vnode.state.pluginId().length > 0 && vnode.state.scmsForSelectedPlugin().length === 1) {
-      this.errorMessage    = <FlashMessage type={MessageType.alert}>
-        There are no SCMs configured for the selected plugin. Go to
-        <Link href={SparkRoutes.pluggableScmSPA()}> Pluggable SCM</Link> to define one.
+      this.errorMessage    = <FlashMessage type={MessageType.warning}>
+        There are no SCMs configured for the selected plugin.
       </FlashMessage>;
       this.disableScmField = true;
     }

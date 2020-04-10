@@ -76,3 +76,12 @@
     }
   }
 }
+
+.material-selection-container {
+  display:     flex;
+  align-items: center;
+
+  .message {
+    margin-left: 10px;
+  }
+}

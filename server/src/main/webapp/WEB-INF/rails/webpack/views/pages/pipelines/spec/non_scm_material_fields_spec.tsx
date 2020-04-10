@@ -15,7 +15,6 @@
  */
 
 import {docsUrl} from "gen/gocd_version";
-import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {Filter} from "models/maintenance_mode/material";
 import {Scm, Scms} from "models/materials/pluggable_scm";
@@ -166,10 +165,9 @@ describe('PackageFieldsSpec', () => {
       "package":            true
     });
 
-    const errorElement = helper.byTestId('flash-message-alert');
+    const errorElement = helper.byTestId('flash-message-warning');
     expect(errorElement).toBeInDOM();
-    expect(errorElement.textContent).toBe('No package repositories defined. Go to Package Repositories to define one.');
-    expect(helper.q('a', errorElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA());
+    expect(errorElement.textContent).toBe('No package repositories defined.');
     expect(helper.byTestId('selected-pkg-repo-details')).not.toBeInDOM();
     expect(helper.byTestId('selected-pkg-details')).not.toBeInDOM();
   });
@@ -187,10 +185,9 @@ describe('PackageFieldsSpec', () => {
       "package-repository": false,
       "package":            true
     });
-    const errorElement = helper.byTestId('flash-message-alert');
+    const errorElement = helper.byTestId('flash-message-warning');
     expect(errorElement).toBeInDOM();
-    expect(errorElement.textContent).toBe('No packages defined for the selected package repository. Go to Package Repositories to define one.');
-    expect(helper.q('a', errorElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA());
+    expect(errorElement.textContent).toBe('No packages defined for the selected package repository.');
   });
 
   it('should show selected package details', () => {
@@ -204,24 +201,6 @@ describe('PackageFieldsSpec', () => {
     helper.onchange(helper.byTestId('form-field-input-package'), 'pkg-id');
 
     expect(helper.byTestId('selected-pkg-details')).toBeInDOM();
-  });
-
-  it('should show an error text if no plugins are defined', () => {
-    pluginInfos = new PluginInfos();
-    helper.mount(() => <PackageFields material={material} packageRepositories={packageRepositories}
-                                      pluginInfos={pluginInfos}/>);
-
-    assertLabelledInputsDisabledOrNot(helper, {
-      "package-repository": true,
-      "package":            true
-    });
-
-    const errorElement = helper.byTestId('flash-message-alert');
-    expect(errorElement).toBeInDOM();
-    expect(errorElement.textContent).toBe('There are no Package repository plugins installed. Please see this page for a list of supported plugins.');
-    expect(helper.q('a', errorElement)).toHaveAttr('href', 'https://www.gocd.org/plugins/#package-repo');
-    expect(helper.byTestId('selected-pkg-repo-details')).not.toBeInDOM();
-    expect(helper.byTestId('selected-pkg-details')).not.toBeInDOM();
   });
 });
 
@@ -339,38 +318,9 @@ describe('PluginFieldsSpec', () => {
       "scm-plugin": false,
       "scm":        true
     });
-    const errorElement = helper.byTestId('flash-message-alert');
+    const errorElement = helper.byTestId('flash-message-warning');
     expect(errorElement).toBeInDOM();
-    expect(errorElement.textContent).toBe('There are no SCMs configured for the selected plugin. Go to Pluggable SCM to define one.');
-    expect(helper.q('a', errorElement)).toHaveAttr('href', SparkRoutes.pluggableScmSPA());
-  });
-
-  it('should render error if no scm plugins are installed', () => {
-    pluginInfos = new PluginInfos();
-    helper.mount(() => <PluginFields material={material} pluginInfos={pluginInfos} scms={scms}/>);
-
-    assertLabelledInputsDisabledOrNot(helper, {
-      "scm-plugin": true,
-      "scm":        true
-    });
-    const errorElement = helper.byTestId('flash-message-alert');
-    expect(errorElement).toBeInDOM();
-    expect(errorElement.textContent).toBe('There are no SCM plugins installed. Please see this page for a list of supported plugins.');
-    expect(helper.q('a', errorElement)).toHaveAttr('href', 'https://www.gocd.org/plugins/#scm');
-  });
-
-  it('should render error if no scms are configured', () => {
-    scms = new Scms();
-    helper.mount(() => <PluginFields material={material} pluginInfos={pluginInfos} scms={scms}/>);
-
-    assertLabelledInputsDisabledOrNot(helper, {
-      "scm-plugin": true,
-      "scm":        true
-    });
-    const errorElement = helper.byTestId('flash-message-alert');
-    expect(errorElement).toBeInDOM();
-    expect(errorElement.textContent).toBe('There are no SCMs configured. Go to Pluggable SCM to define one.');
-    expect(helper.q('a', errorElement)).toHaveAttr('href', SparkRoutes.pluggableScmSPA());
+    expect(errorElement.textContent).toBe('There are no SCMs configured for the selected plugin.');
   });
 
   it('should render plugin configs if a plugin is selected', () => {

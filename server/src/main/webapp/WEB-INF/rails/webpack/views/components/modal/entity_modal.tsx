@@ -22,7 +22,7 @@ import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {ButtonGroup} from "views/components/buttons";
-import {FlashMessage, MessageType} from "views/components/flash_message";
+import {FlashMessage, FlashMessageModel} from "views/components/flash_message";
 import {Modal, ModalState, Size} from "views/components/modal/index";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 import {OperationState} from "views/pages/page_operations";
@@ -33,12 +33,12 @@ const foundationClassNames = bind(foundationStyles);
 export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected entity: Stream<T>;
   protected readonly pluginInfos: PluginInfos;
-  protected readonly errorMessage: Stream<string> = Stream();
+  protected readonly flashMessage: FlashMessageModel;
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
-  protected readonly isStale                      = Stream(true);
-  protected readonly etag: Stream<string>         = Stream();
-  protected ajaxOperationMonitor                  = Stream<OperationState>(OperationState.UNKNOWN);
-  protected needsFoundationStyles                 = Stream(true);
+  protected readonly isStale              = Stream(true);
+  protected readonly etag: Stream<string> = Stream();
+  protected ajaxOperationMonitor          = Stream<OperationState>(OperationState.UNKNOWN);
+  protected needsFoundationStyles         = Stream(true);
 
   constructor(entity: T,
               pluginInfos: PluginInfos,
@@ -48,6 +48,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
     this.entity           = Stream(entity);
     this.pluginInfos      = pluginInfos;
     this.onSuccessfulSave = onSuccessfulSave;
+    this.flashMessage     = new FlashMessageModel();
   }
 
   render(): void {
@@ -69,11 +70,15 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   }
 
   body(): m.Children {
-    const flashMessage = this.errorMessage() ?
-      <div class={styles.errorWrapper}><FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
-      </div> : null;
+    let msg: m.Children;
+    if (this.flashMessage.hasMessage()) {
+      msg = <div class={styles.errorWrapper}>
+        <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
+      </div>;
+    }
+
     return [
-      flashMessage,
+      msg,
       <div className={foundationClassNames({
                                              [foundationStyles.foundationGridHax]: this.needsFoundationStyles(),
                                              [foundationStyles.foundationFormHax]: this.needsFoundationStyles()
@@ -139,6 +144,10 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
     //implement if needed
   }
 
+  protected errorMessage(msg: string) {
+    this.flashMessage.alert(msg);
+  }
+
   private onFetchResult(result: ApiResult<ObjectWithEtag<T>>) {
     this.modalState = ModalState.OK;
     result.do(this.onSuccessfulFetch.bind(this), (e) => this.onError.bind(this, e, result.getStatusCode()));
@@ -169,7 +178,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
       if (errorResponse.data) {
         this.entity(this.parseJsonToEntity(errorResponse.data));
       } else if (errorResponse.body) {
-        this.errorMessage(JSON.parse(errorResponse.body!).message);
+        this.flashMessage.alert(JSON.parse(errorResponse.body!).message);
       }
     }
     this.operationError(errorResponse, statusCode);

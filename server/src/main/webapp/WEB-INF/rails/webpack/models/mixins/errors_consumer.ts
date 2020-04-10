@@ -16,6 +16,7 @@
 
 import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
+import {Configuration} from "models/shared/configuration";
 import s from "underscore.string";
 
 /**
@@ -146,9 +147,18 @@ function addErrorsToModel(errors: ErrorMap, model: any, path: string, unmatched:
       if (matchesField) {
         container.errors().add(fieldName, msg);
       } else {
-        unmatched.add(next(path, key), msg);
+        addToUnmatchIfNotPluginProperty(container, unmatched, path, key, msg);
       }
     }
+  }
+}
+
+//todo: Remove this special handling for Configuration class and make Configuration class an ErrorConsumer by containing Errors field.
+function addToUnmatchIfNotPluginProperty(container: any, unmatched: Errors, path: string, key: string, msg: string) {
+  if(container instanceof Configuration) {
+    container.errors!.push(msg);
+  } else {
+    unmatched.add(next(path, key), msg);
   }
 }
 
@@ -170,6 +180,7 @@ function item(model: any, i: number): any {
   if (!model) { return undefined; }
   if (model instanceof Array) { return model[i]; }
   if (model[Symbol.iterator]) { return Array.from(model)[i]; }
+  if (model.get) { return model.get(i); }
   return model;
 }
 

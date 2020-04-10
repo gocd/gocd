@@ -76,22 +76,26 @@ export class Configurations {
     return this.configurations;
   }
 
+  public get(index: number) {
+    return this.configurations[index];
+  }
+
   public asString(): string {
     const configValues = this.configurations
                              .map((config) => `${config.key}=${config.displayValue()}`)
-                             .join(',');
+                             .join(",");
     return `[${configValues}]`;
   }
 }
 
 export class Configuration {
   readonly key: string;
-  readonly errors?: string[];
+  readonly errors: string[];
   private _value: ConfigValue;
 
-  constructor(key: string, value: EncryptedValue | PlainTextValue, errors?: string[]) {
+  constructor(key: string, value: EncryptedValue | PlainTextValue, errors: string[] = []) {
     this.key    = key;
-    this._value  = value;
+    this._value = value;
     this.errors = errors;
   }
 

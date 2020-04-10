@@ -16,6 +16,8 @@
 
 import Stream from "mithril/stream";
 import {BaseErrorsConsumer, ErrorsConsumer} from "models/mixins/errors_consumer";
+import {Configuration, Configurations} from "models/shared/configuration";
+import {PlainTextValue} from "models/shared/config_value";
 
 describe("ErrorsConsumer", () => {
   describe("consumeErrorsResponse()", () => {
@@ -200,6 +202,24 @@ describe("ErrorsConsumer", () => {
       expect(unmatched.keys()).toEqual(["me.unknown"]);
       expect(unmatched.errorsForDisplay("me.unknown")).toBe("hello.");
     });
+
+    it("should bind errors onto to the configuration object", () => {
+      const model = new DummyWithConfigurations();
+
+      expect(model.config!.get(0).errors).toEqual([]);
+      model.consumeErrorsResponse({config: [{errors: {pluginKey: ["Boom!"]}}]});
+      expect(model.config!.get(0).errors).toEqual(["Boom!"]);
+    });
+
+    class DummyWithConfigurations extends BaseErrorsConsumer {
+      config: Configurations;
+
+      constructor() {
+        super();
+        const config = new Configuration("pluginKey", new PlainTextValue("pluginValue"));
+        this.config  = new Configurations([config]);
+      }
+    }
 
     class Dummy extends BaseErrorsConsumer {
       one: Stream<Sub1> = Stream();

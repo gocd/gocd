@@ -53,12 +53,18 @@ export class PackageRepositoriesCRUD {
                             .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
   }
 
+  static verifyConnection(packageRepository: PackageRepository) {
+    return ApiRequestBuilder.POST(SparkRoutes.adminInternalPackageRepositoriesVerifyConnectionPath(),
+                                  ApiVersion.v1, {payload: packageRepository})
+                            .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
+  }
+
   private static extractObjectWithEtag(result: ApiResult<string>) {
     return result.map((body) => {
       const packageRepositoryJSON = JSON.parse(body) as PackageRepositoryJSON;
       return {
         object: PackageRepository.fromJSON(packageRepositoryJSON),
-        etag:   result.getEtag()
+        etag: result.getEtag()
       } as ObjectWithEtag<PackageRepository>;
     });
   }

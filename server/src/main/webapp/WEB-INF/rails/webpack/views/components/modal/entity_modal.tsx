@@ -184,3 +184,44 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
     this.operationError(errorResponse, statusCode);
   }
 }
+
+export abstract class EntityModalWithCheckConnection<T extends ValidatableMixin> extends EntityModal<T> {
+
+  performCheckConnection() {
+    if (!this.entity().isValid()) {
+      return Promise.reject();
+    }
+    return this.verifyConnectionOperationPromise().then(this.onVerifyConnectionResult.bind(this));
+  }
+
+  getFlashMessage() {
+    return this.flashMessage;
+  }
+
+  buttons() {
+    return [
+      <ButtonGroup>
+        <Buttons.Primary data-test-id="button-check-connection"
+                         ajaxOperationMonitor={this.ajaxOperationMonitor}
+                         ajaxOperation={this.performCheckConnection.bind(this)}>Check connection</Buttons.Primary>
+        <Buttons.Primary data-test-id="button-save"
+                         disabled={this.isLoading()}
+                         ajaxOperationMonitor={this.ajaxOperationMonitor}
+                         ajaxOperation={this.performOperation.bind(this)}>Save</Buttons.Primary>
+      </ButtonGroup>
+    ];
+  }
+  protected abstract verifyConnectionOperationPromise(): Promise<any>;
+
+  private onVerifyConnectionResult(result: ApiResult<any>) {
+    return result.do(this.onVerifyConnectionSuccess.bind(this), this.onVerifyConnectionError.bind(this));
+  }
+
+  private onVerifyConnectionSuccess(successResponse: any) {
+    this.flashMessage.success(successResponse.body.message);
+  }
+
+  private onVerifyConnectionError(errorResponse: ErrorResponse) {
+    this.flashMessage.alert(errorResponse.body ? JSON.parse(errorResponse.body).message : errorResponse.message);
+  }
+}

@@ -25,10 +25,10 @@ import {Configurations} from "models/shared/configuration";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {Size} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
-import {EntityModal} from "views/components/modal/entity_modal";
+import {EntityModalWithCheckConnection} from "views/components/modal/entity_modal";
 import {PackageRepositoryModalBody} from "./package_repository_modal_body";
 
-abstract class PackageRepositoryModal extends EntityModal<PackageRepository> {
+abstract class PackageRepositoryModal extends EntityModalWithCheckConnection<PackageRepository> {
   protected readonly originalEntityId: string;
   protected readonly originalEntityName: string;
   private disableId: boolean;
@@ -89,6 +89,10 @@ abstract class PackageRepositoryModal extends EntityModal<PackageRepository> {
     }
 
     return newPluginId;
+  }
+
+  protected verifyConnectionOperationPromise(): Promise<any> {
+    return PackageRepositoriesCRUD.verifyConnection(this.entity());
   }
 }
 

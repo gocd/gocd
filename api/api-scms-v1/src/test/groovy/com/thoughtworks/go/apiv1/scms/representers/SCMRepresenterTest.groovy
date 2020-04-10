@@ -20,15 +20,26 @@ import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.domain.scm.SCM
 import com.thoughtworks.go.domain.scm.SCMMother
+import com.thoughtworks.go.plugin.access.scm.SCMConfiguration
+import com.thoughtworks.go.plugin.access.scm.SCMConfigurations
+import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore
 import com.thoughtworks.go.security.GoCipher
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.plugin.access.scm.SCMConfiguration.PART_OF_IDENTITY
+import static com.thoughtworks.go.plugin.access.scm.SCMConfiguration.SECURE
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
 class SCMRepresenterTest {
+  @AfterEach
+  void tearDown() {
+    SCMMetadataStore.getInstance().clear();
+  }
+
   @Test
   void 'should serialize to json'() {
     SCM scm = SCMMother.create("1", "foobar", "plugin1", "v1.0", new Configuration(
@@ -100,5 +111,33 @@ class SCMRepresenterTest {
       ConfigurationPropertyMother.create("key1", false, "value1"),
       ConfigurationPropertyMother.create("key2", true, "secret"),
     )))
+  }
+
+  @Test
+  void 'de-serialized object should encrypt secure values'() {
+    SCMConfigurations scmConfiguration = new SCMConfigurations();
+    scmConfiguration.add(new SCMConfiguration("key1").with(PART_OF_IDENTITY, true).with(SECURE, true));
+    SCMMetadataStore.getInstance().addMetadataFor("plugin1", scmConfiguration, null);
+
+    def scmJson = [
+      "id"             : "1",
+      "name"           : "foobar",
+      "plugin_metadata": [
+        "id"     : "plugin1",
+        "version": "v1.0"
+      ],
+      "configuration"  : [
+        [
+          "key" : "key1" ,
+          "value" : "value1"
+        ]
+      ]
+    ]
+
+    def jsonReader = GsonTransformer.instance.jsonReaderFrom(scmJson)
+    def actualScm = SCMRepresenter.fromJSON(jsonReader)
+
+    assertThat(actualScm.getId(), is("1"))
+    assertThat(actualScm.getConfiguration().get(0).isSecure()).isTrue();
   }
 }

@@ -66,7 +66,7 @@ public class SCMRepresenter {
 
         if (jsonReader.hasJsonArray("configuration")) {
             Configuration configuration = new Configuration(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "configuration"));
-            scm.setConfiguration(configuration);
+            scm.addConfigurations(configuration);
         }
 
         return scm;

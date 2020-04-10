@@ -34,6 +34,7 @@ public class FeatureToggleService {
     private FeatureToggleRepository repository;
     private GoCache goCache;
     private final Multimap<String, FeatureToggleListener> listeners = HashMultimap.create();
+    private static final Object CACHE_ACCESS_MUTEX = new Object();
 
     @Autowired
     public FeatureToggleService(FeatureToggleRepository repository, GoCache goCache) {
@@ -64,7 +65,7 @@ public class FeatureToggleService {
             return userToggles;
         }
 
-        synchronized (USER_DEF_TOGGLES) {
+        synchronized (CACHE_ACCESS_MUTEX) {
             userToggles = (FeatureToggles) goCache.get(USER_DEF_TOGGLES);
             if (userToggles != null) {
                 return userToggles;
@@ -82,7 +83,7 @@ public class FeatureToggleService {
         if (allToggles != null) {
             return allToggles;
         }
-        synchronized (KNOWN_TOGGLES) {
+        synchronized (CACHE_ACCESS_MUTEX) {
             allToggles = (FeatureToggles) goCache.get(KNOWN_TOGGLES);
             if (allToggles != null) {
                 return allToggles;
@@ -102,9 +103,10 @@ public class FeatureToggleService {
             throw new RecordNotFoundException(MessageFormat.format("Feature toggle: ''{0}'' is not valid.", key));
         }
 
-        synchronized (KNOWN_TOGGLES) {
+        synchronized (CACHE_ACCESS_MUTEX) {
             repository.changeValueOfToggle(key, newValue);
             goCache.remove(KNOWN_TOGGLES);
+            goCache.remove(USER_DEF_TOGGLES);
 
             if (listeners.containsKey(key)) {
                 Collection<FeatureToggleListener> featureToggleListeners = listeners.get(key);

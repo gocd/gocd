@@ -82,6 +82,6 @@ export class PluggableScmWidget extends MithrilViewComponent<Attrs> {
     if (disabled && (operation === "edit" || operation === "clone")) {
       return `Plugin '${scm.pluginMetadata().id()}' not found!`;
     }
-    return `${s.capitalize(operation)} scm '${scm.name}'`;
+    return `${s.capitalize(operation)} scm '${scm.name()}'`;
   }
 }

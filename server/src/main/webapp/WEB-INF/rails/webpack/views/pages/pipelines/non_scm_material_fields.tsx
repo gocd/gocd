@@ -40,7 +40,7 @@ interface Attrs {
 
 interface State {
   provider: SuggestionProvider;
-  stages: Stream<Option[]>;
+  stages(): Option[];
 }
 
 // tslint:disable-next-line
@@ -89,9 +89,7 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
     vnode.state.stages    = Stream(EMPTY);
 
     vnode.state.provider = new DependencySuggestionProvider(vnode.attrs.cache);
-    vnode.state.stages   = mat.pipeline.map<Option[]>((val: string | undefined) => {
-      return val ? EMPTY.concat(cache.stages(val)) : [];
-    });
+    vnode.state.stages   = () => mat.pipeline() ? EMPTY.concat(cache.stages(mat.pipeline()!)) : [];
   }
 
   view(vnode: m.Vnode<Attrs, State>): m.Children {

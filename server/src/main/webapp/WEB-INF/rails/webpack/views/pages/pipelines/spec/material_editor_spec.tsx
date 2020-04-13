@@ -97,4 +97,12 @@ describe("AddPipeline: Material Editor", () => {
     expect(material.attributes()!.autoUpdate()).toBeTrue();
     expect((material.attributes() as PackageMaterialAttributes)!.ref()).toBe("");
   });
+
+  it('should disable only material type selection when `disabledMaterialTypeSelection` is set to true', () => {
+    material.type("git");
+    helper.mount(() => <MaterialEditor material={material} disabledMaterialTypeSelection={true}/>);
+
+    expect(helper.byTestId('form-field-input-material-type')).toBeDisabled();
+    expect(helper.byTestId('form-field-input-repository-url')).not.toBeDisabled();
+  });
 });

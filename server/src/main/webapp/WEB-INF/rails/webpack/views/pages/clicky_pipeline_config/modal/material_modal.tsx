@@ -19,6 +19,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Material} from "models/materials/types";
 import {PackageRepositories} from "models/package_repositories/package_repositories";
+import {Materials} from "models/pipeline_configs/pipeline_config";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import s from "underscore.string";
 import {Cancel, Primary} from "views/components/buttons";
@@ -27,36 +28,39 @@ import {Modal, Size} from "views/components/modal";
 import {MaterialEditor} from "views/pages/pipelines/material_editor";
 
 export class MaterialModal extends Modal {
+  private readonly materials: Stream<Materials>;
   protected readonly entity: Stream<Material>;
   private readonly __title: string;
   private readonly errorMessage: Stream<string>;
   private readonly pluginInfos: Stream<PluginInfos>;
   private readonly packageRepositories: Stream<PackageRepositories>;
-  private readonly onSuccessfulAdd: (material: Material) => Promise<any>;
+  private readonly pipelineConfigSave: () => Promise<any>;
+  private readonly isNew: boolean;
 
-  constructor(title: string, entity: Stream<Material>,
+  constructor(title: string, entity: Stream<Material>, materials: Stream<Materials>,
               packages: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
-              onSuccessfulAdd: (material: Material) => Promise<any>) {
+              pipelineConfigSave: () => Promise<any>, isNew: boolean) {
     super(Size.large);
     this.__title             = title;
     this.entity              = entity;
+    this.materials           = materials;
     this.packageRepositories = packages;
     this.pluginInfos         = pluginInfos;
-    this.onSuccessfulAdd     = onSuccessfulAdd;
+    this.pipelineConfigSave  = pipelineConfigSave;
+    this.isNew               = isNew;
     this.errorMessage        = Stream();
   }
 
-  static forAdd(packageRepositories: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
-                onSuccessfulAdd: (material: Material) => Promise<any>) {
-    return new MaterialModal("Add material", Stream(new Material("git")), packageRepositories, pluginInfos, onSuccessfulAdd);
+  static forAdd(materials: Stream<Materials>, packageRepositories: Stream<PackageRepositories>,
+                pluginInfos: Stream<PluginInfos>, onSuccessfulAdd: () => Promise<any>) {
+    return new MaterialModal("Add material", Stream(new Material("git")), materials, packageRepositories, pluginInfos, onSuccessfulAdd, true);
   }
 
-  static forEdit(material: Material,
+  static forEdit(material: Material, materials: Stream<Materials>,
                  packageRepositories: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
-                 onSuccessfulAdd: (material: Material) => Promise<any>) {
-    const title          = `Edit material - ${s.capitalize(material.type()!)}`;
-    const copyOfMaterial = Stream(new Material(material.type(), material.attributes()));
-    return new MaterialModal(title, copyOfMaterial, packageRepositories, pluginInfos, onSuccessfulAdd);
+                 pipelineConfigSave: () => Promise<any>) {
+    const title = `Edit material - ${s.capitalize(material.type()!)}`;
+    return new MaterialModal(title, Stream(material), materials, packageRepositories, pluginInfos, pipelineConfigSave, false);
   }
 
   title(): string {
@@ -66,7 +70,7 @@ export class MaterialModal extends Modal {
   body(): m.Children {
     return <div>
       <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
-      <MaterialEditor material={this.entity()} showExtraMaterials={true}
+      <MaterialEditor material={this.entity()} showExtraMaterials={true} disabledMaterialTypeSelection={!this.isNew}
                       packageRepositories={this.packageRepositories()} pluginInfos={this.pluginInfos()}/>
     </div>;
   }
@@ -80,12 +84,18 @@ export class MaterialModal extends Modal {
 
   addOrUpdateEntity(): void {
     if (this.entity().isValid()) {
-      this.onSuccessfulAdd(this.entity())
+      if (this.isNew) {
+        this.materials().push(this.entity());
+      }
+
+      this.pipelineConfigSave()
           .then(() => this.close())
           .catch((errorResponse: ErrorResponse) => {
             const parse = JSON.parse(errorResponse.body!);
             this.entity().consumeErrorsResponse(parse.data);
             this.errorMessage(parse.message);
+
+            this.materials().delete(this.entity());
           });
     }
   }

@@ -18,7 +18,6 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Scms} from "models/materials/pluggable_scm";
 import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
-import {Material} from "models/materials/types";
 import {PackagesCRUD} from "models/package_repositories/packages_crud";
 import {PackageRepositories, Packages} from "models/package_repositories/package_repositories";
 import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
@@ -62,16 +61,9 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
   }
 
   protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig, flashMessage: FlashMessageModelWithTimeout, pipelineConfigSave: () => Promise<any>, pipelineConfigReset: () => any) {
-    const onMaterialAdd = (material: Material): Promise<any> => {
-      if (material.isValid()) {
-        entity.materials().push(material);
-        return pipelineConfigSave();
-      }
-      return Promise.reject();
-    };
-    return <MaterialsWidget materials={entity.materials} pluginInfos={this.pluginInfos}
+    return <MaterialsWidget materials={entity.materials} pluginInfos={this.pluginInfos} flashMessage={flashMessage}
                             packageRepositories={this.packageRepositories} packages={this.packages}
-                            scmMaterials={this.scmMaterials} onMaterialAdd={onMaterialAdd.bind(this)}/>;
+                            scmMaterials={this.scmMaterials} pipelineConfigSave={pipelineConfigSave}/>;
   }
 
   private fetchAllPackageReposAndPackages() {

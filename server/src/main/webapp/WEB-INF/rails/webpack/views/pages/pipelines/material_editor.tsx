@@ -16,7 +16,16 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {DependencyMaterialAttributes, GitMaterialAttributes, HgMaterialAttributes, Material, P4MaterialAttributes, PackageMaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "models/materials/types";
+import {
+  DependencyMaterialAttributes,
+  GitMaterialAttributes,
+  HgMaterialAttributes,
+  Material,
+  P4MaterialAttributes,
+  PackageMaterialAttributes,
+  SvnMaterialAttributes,
+  TfsMaterialAttributes
+} from "models/materials/types";
 import {PackageRepositories} from "models/package_repositories/package_repositories";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -32,6 +41,7 @@ interface Attrs {
   showLocalWorkingCopyOptions?: boolean;
   scmOnly?: boolean;
   disabled?: boolean;
+  disabledMaterialTypeSelection?: boolean;
   showExtraMaterials?: boolean;
   packageRepositories?: PackageRepositories;
   pluginInfos?: PluginInfos;
@@ -59,7 +69,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
 
     return <FormBody>
       <SelectField label="Material Type" property={vnode.attrs.material.type} required={true}
-                   readonly={vnode.attrs.disabled}>
+                   readonly={vnode.attrs.disabled || vnode.attrs.disabledMaterialTypeSelection}>
         <SelectFieldOptions selected={vnode.attrs.material.type()} items={supportedMaterials}/>
       </SelectField>
 
@@ -130,7 +140,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
         packageRepositories = packageRepositories === undefined ? new PackageRepositories() : packageRepositories;
         pluginInfos         = pluginInfos === undefined ? new PluginInfos()
           : pluginInfos!.filterForExtension(ExtensionTypeString.PACKAGE_REPO);
-        return <PackageFields material={material} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}
+        return <PackageFields material={material}
                               packageRepositories={packageRepositories} pluginInfos={pluginInfos}/>;
       default:
         break;

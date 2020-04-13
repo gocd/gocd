@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {ErrorResponse} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -23,11 +24,12 @@ import {PackageRepositories, Packages} from "models/package_repositories/package
 import {Materials} from "models/pipeline_configs/pipeline_config";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {Secondary} from "views/components/buttons";
-import {FlashMessage, MessageType} from "views/components/flash_message";
+import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
 import {Delete, Edit, IconGroup} from "views/components/icons";
 import {Table} from "views/components/table";
 import style from "views/pages/clicky_pipeline_config/index.scss";
 import {MaterialModal} from "views/pages/clicky_pipeline_config/modal/material_modal";
+import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 
 interface MaterialsAttrs {
   materials: Stream<Materials>;
@@ -35,19 +37,13 @@ interface MaterialsAttrs {
   packageRepositories: Stream<PackageRepositories>;
   packages: Stream<Packages>;
   scmMaterials: Stream<Scms>;
-  onMaterialAdd: (material: Material) => Promise<any>;
+  pipelineConfigSave: () => Promise<any>;
+  flashMessage: FlashMessageModelWithTimeout;
 }
 
 export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
   view(vnode: m.Vnode<MaterialsAttrs, this>): m.Children | void | null {
-    const allErrors = vnode.attrs.materials()
-                           .map((material) => material.allErrors())
-                           .filter((errors) => errors.length > 0);
-    const errorMsgs = allErrors.length === 0
-      ? undefined
-      : <FlashMessage type={MessageType.alert} message={allErrors}/>;
     return <div class={style.materialTab}>
-      {errorMsgs}
       <Table headers={["Material Name", "Type", "Url", ""]} data={this.tableData(vnode)}/>
       <Secondary dataTestId={"add-material-button"} onclick={this.addMaterial.bind(this, vnode)}>
         Add Material
@@ -57,18 +53,46 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
 
   private addMaterial(vnode: m.Vnode<MaterialsAttrs, this>, e: MouseEvent) {
     e.stopPropagation();
-    MaterialModal.forAdd(vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.onMaterialAdd).render();
+    MaterialModal.forAdd(vnode.attrs.materials, vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.pipelineConfigSave).render();
+  }
+
+  private updateMaterial(vnode: m.Vnode<MaterialsAttrs, this>, materialToUpdate: Material, e: MouseEvent) {
+    e.stopPropagation();
+    MaterialModal.forEdit(materialToUpdate, vnode.attrs.materials, vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.pipelineConfigSave).render();
+  }
+
+  private deleteMaterial(vnode: m.Vnode<MaterialsAttrs, this>, materialToRemove: Material, e: MouseEvent) {
+    e.stopPropagation();
+    const onDelete = () => {
+      vnode.attrs.materials().delete(materialToRemove);
+      return vnode.attrs.pipelineConfigSave()
+                  .then(() => vnode.attrs.flashMessage.setMessage(MessageType.success, `Material '${materialToRemove.name()}' deleted successfully.`))
+                  .catch((errorResponse: ErrorResponse) => {
+                    vnode.attrs.materials().push(materialToRemove);
+                    vnode.attrs.flashMessage.consumeErrorResponse(errorResponse);
+                  }).finally(m.redraw.sync);
+    };
+    new ConfirmationDialog(
+      "Delete Material",
+      <div>Do you want to delete the material '<em>{this.getMaterialDisplayName(materialToRemove, vnode)}</em>'?</div>,
+      onDelete
+    ).render();
   }
 
   private tableData(vnode: m.Vnode<MaterialsAttrs, this>) {
+    const deleteDisabled = vnode.attrs.materials().length === 1;
+    const deleteTitle    = deleteDisabled
+      ? "Cannot delete this material as pipeline should have at least one material"
+      : "Remove this material";
     return Array.from(vnode.attrs.materials().values()).map((material: Material) => {
       return [
         this.getMaterialDisplayName(material, vnode),
         material.typeForDisplay(),
         this.getMaterialUrlForDisplay(material, vnode),
         <IconGroup>
-          <Edit data-test-id={"edit-material-button"}/>
-          <Delete data-test-id={"delete-material-button"}/>
+          <Edit onclick={this.updateMaterial.bind(this, vnode, material)} data-test-id={"edit-material-button"}/>
+          <Delete disabled={deleteDisabled} title={deleteTitle} onclick={this.deleteMaterial.bind(this, vnode, material)}
+                  data-test-id={"delete-material-button"}/>
         </IconGroup>
       ];
     });

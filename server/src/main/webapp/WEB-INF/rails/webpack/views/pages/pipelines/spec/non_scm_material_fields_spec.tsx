@@ -121,18 +121,6 @@ describe('PackageFieldsSpec', () => {
     expect(helper.textAll("option", helper.byTestId('form-field-input-package'))).toEqual(['Select a package']);
   });
 
-  it('should render advanced options if showLocalWorkingCopyOptions is set to true', () => {
-    helper.mount(() => <PackageFields material={material} packageRepositories={packageRepositories}
-                                      pluginInfos={pluginInfos}
-                                      showLocalWorkingCopyOptions={true}/>);
-
-    assertLabelledInputsPresent(helper, {
-      "package-repository": "Package Repository*",
-      "package":            "Package*",
-      "material-name":      "Material Name"
-    });
-  });
-
   it('should update packages on selecting a package repository', () => {
     helper.mount(() => <PackageFields material={material} packageRepositories={packageRepositories}
                                       pluginInfos={pluginInfos}/>);

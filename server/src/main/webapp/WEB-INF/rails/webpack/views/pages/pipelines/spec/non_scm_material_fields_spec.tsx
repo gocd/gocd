@@ -275,18 +275,6 @@ describe('PluginFieldsSpec', () => {
     expect(helper.textAll("option", helper.byTestId('form-field-input-scm'))).toEqual(['Select a scm']);
   });
 
-  it('should render advanced options if showLocalWorkingCopyOptions is set to true', () => {
-    helper.mount(() => <PluginFields material={material} pluginInfos={pluginInfos} scms={scms}
-                                     showLocalWorkingCopyOptions={true}/>);
-
-    assertLabelledInputsPresent(helper, {
-      "scm-plugin":              "SCM Plugin*",
-      "scm":                     "SCM*",
-      "alternate-checkout-path": "Alternate Checkout Path",
-      "material-name":           "Material Name"
-    });
-  });
-
   it('should update scms list when a plugin is selected', () => {
     helper.mount(() => <PluginFields material={material} pluginInfos={pluginInfos} scms={scms}/>);
 

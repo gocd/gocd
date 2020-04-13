@@ -389,8 +389,6 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
       return <AdvancedSettings forceOpen={forceOpen}>
         <TextField label={labelForDestination} property={attrs.destination}
                    errorText={attrs.errors().errorsForDisplay("destination")}/>
-        <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE}
-                   placeholder="A human-friendly label for this material" property={attrs.name}/>
       </AdvancedSettings>;
     }
   }

@@ -22,55 +22,44 @@ $behavior-prompt-z-index: 100;
 
 .behavior-prompt {
   position: absolute;
+  display: block;
   text-align: center;
   font-family: sans-serif;
   background-color: $behavior-prompt-bg;
   color: $behavior-prompt-text-color;
   z-index: $behavior-prompt-z-index;
   padding: 10px 20px;
-  border-radius: 30px;
+  border-radius: 8px 2px 2px 8px;
 
-  .arrow-up {
-    @include icon-after($fa-var-caret-up);
-    top: -37px;
-    left: calc(50% - 15px);
-  }
-
-  .arrow-down {
-    @include icon-after($fa-var-caret-down);
-    bottom: -37px;
-    left: calc(50% - 15px);
-  }
-
-  .arrow-left {
-    @include icon-after($fa-var-caret-left);
-    left: -9px;
-    top: calc(50% - 30px);
-  }
-
-  .arrow-right {
-    @include icon-after($fa-var-caret-right);
-    right: -9px;
-    top: calc(50% - 30px);
-  }
-
-  .arrow-left, .arrow-right, .arrow-up, .arrow-down {
-    color: $behavior-prompt-bg;
-    position: absolute;
-    font-size: 42px; //Don't forget your towel, and, as always, don't panic
-
+  &.arrow-right {
     &:after {
-      margin: 0;
+      position: absolute;
+      content: "";
+
+      // Because of the 45 deg rotation, the diagnol of the
+      // square must equal the height of the parent rectangle.
+      // The part we care about is the right half, which can be
+      // thought of as 2 isoceles right triangles stacked back
+      // to back. So solve for the hypotenuse where the 2 equal
+      // sides are half the height of the parent plus a few
+      // pixels to account the shortening by border-radius.
+      // The resulting hypotenuse should be the width and height
+      // values below (except that I liberally rounded these):
+      width: 30px;
+      height: 30px;
+
+      // found empirically; too lazy to calculate. good enough.
+      right: -14.3px;
+      top: 4.5px;
+
+      background: $behavior-prompt-bg;
+      border-radius: 4px;
+      transform: rotate(45deg);
     }
   }
 
   &.small {
     height: 40px;
-    max-width: 300px;
-  }
-
-  &.medium {
-    height: 100px;
     max-width: 300px;
   }
 }

@@ -16,7 +16,7 @@
 
 import m from "mithril";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {BehaviorPrompt, Direction, STORAGE_KEY_PREFIX} from "../behavior_prompt";
+import {BehaviorPrompt, STORAGE_KEY_PREFIX} from "../behavior_prompt";
 import styles from "../behavior_prompt.scss";
 
 describe("BehaviorPrompt", () => {
@@ -34,7 +34,6 @@ describe("BehaviorPrompt", () => {
       promptText="The box! You opened it, we came!"
       key={key}
       query=""
-      direction={Direction.UP}
       position={{
         right: "-2px",
         top: "5px"
@@ -43,7 +42,7 @@ describe("BehaviorPrompt", () => {
 
     expect(helper.byTestId("behavior-prompt")).toBeVisible();
     expect(helper.byTestId("behavior-prompt")).toContainText("The box! You opened it, we came!");
-    expect(helper.byTestId("behavior-prompt-dir")).toHaveClass(styles.arrowUp);
+    expect(helper.byTestId("behavior-prompt")).toHaveClass(styles.arrowRight);
   });
 
   it("should not display the behavior prompt when query has value", () => {
@@ -51,7 +50,6 @@ describe("BehaviorPrompt", () => {
       promptText="The box! You opened it, we came!"
       key={key}
       query="true"
-      direction={Direction.LEFT}
       />);
 
     expect(helper.byTestId("behavior-prompt")).not.toExist();
@@ -64,65 +62,10 @@ describe("BehaviorPrompt", () => {
       promptText="The box! You opened it, we came!"
       key={key}
       query=""
-      direction={Direction.LEFT}
       />);
 
     expect(helper.byTestId("behavior-prompt")).not.toExist();
     expect(localStorage.getItem(storageKey)).toBe("true");
-  });
-
-  describe("Direction", () => {
-    it("should point left", () => {
-      helper.mount(() => <BehaviorPrompt
-        promptText="The box! You opened it, we came!"
-        key={key}
-        query=""
-        direction={Direction.LEFT}
-        />);
-
-      expect(helper.byTestId("behavior-prompt")).toExist();
-      expect(helper.byTestId("behavior-prompt-dir")).toExist();
-      expect(helper.byTestId("behavior-prompt-dir")).toHaveClass(styles.arrowLeft);
-    });
-
-    it("should point right", () => {
-      helper.mount(() => <BehaviorPrompt
-        promptText="The box! You opened it, we came!"
-        key={key}
-        query=""
-        direction={Direction.RIGHT}
-        />);
-
-      expect(helper.byTestId("behavior-prompt")).toExist();
-      expect(helper.byTestId("behavior-prompt-dir")).toExist();
-      expect(helper.byTestId("behavior-prompt-dir")).toHaveClass(styles.arrowRight);
-    });
-
-    it("should point up", () => {
-      helper.mount(() => <BehaviorPrompt
-        promptText="The box! You opened it, we came!"
-        key={key}
-        query=""
-        direction={Direction.UP}
-        />);
-
-      expect(helper.byTestId("behavior-prompt")).toExist();
-      expect(helper.byTestId("behavior-prompt-dir")).toExist();
-      expect(helper.byTestId("behavior-prompt-dir")).toHaveClass(styles.arrowUp);
-    });
-
-    it("should point down", () => {
-      helper.mount(() => <BehaviorPrompt
-        promptText="The box! You opened it, we came!"
-        key={key}
-        query=""
-        direction={Direction.DOWN}
-        />);
-
-      expect(helper.byTestId("behavior-prompt")).toExist();
-      expect(helper.byTestId("behavior-prompt-dir")).toExist();
-      expect(helper.byTestId("behavior-prompt-dir")).toHaveClass(styles.arrowDown);
-    });
   });
 
   describe("Position", () => {
@@ -137,7 +80,6 @@ describe("BehaviorPrompt", () => {
         promptText="The box! You opened it, we came!"
         key={key}
         query=""
-        direction={Direction.LEFT}
         position={position}
         />);
 

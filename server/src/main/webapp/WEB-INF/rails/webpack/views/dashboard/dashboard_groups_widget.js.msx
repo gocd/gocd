@@ -18,7 +18,7 @@ import Stream from "mithril/stream";
 import _ from "lodash";
 import {f} from "helpers/form_helper";
 import {PipelineWidget} from "views/dashboard/pipeline_widget";
-import {BehaviorPrompt, Direction} from "views/components/behavior_prompt/behavior_prompt";
+import {BehaviorPrompt} from "views/components/behavior_prompt/behavior_prompt";
 import * as Buttons from "views/components/buttons/index";
 
 const GroupHeading = {
@@ -53,9 +53,8 @@ const GroupHeading = {
         promptText="Create your first pipeline"
         key="addPipeline"
         query={m.parseQueryString(window.location.search).new_pipeline_name}
-        direction={Direction.RIGHT}
         position={{
-          right: "200px",
+          right: "197px",
           top: "3px"
         }}
       />]: null}
@@ -117,4 +116,3 @@ export const DashboardGroupsWidget = {
                                                        {...sharedArgs} />);
   }
 };
-

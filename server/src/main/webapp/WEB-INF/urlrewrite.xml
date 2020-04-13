@@ -31,6 +31,12 @@
   </rule>
 
   <rule>
+    <name>Packages Internal Verify Connection API</name>
+    <from>^/api/admin/internal/packages/verify_connection(/?)$</from>
+    <to last="true">/spark/api/admin/internal/packages/verify_connection</to>
+  </rule>
+
+  <rule>
     <name>Pluggable SCMs SPA</name>
     <from>^/admin/scms(/?)$</from>
     <to last="true">/spark/admin/scms</to>

@@ -784,10 +784,12 @@ public class Routes {
 
     public static class Packages {
         public static final String BASE = "/api/admin/packages";
+        public static final String INTERNAL_BASE = "/api/admin/internal/packages";
         public static final String DOC = apiDocsUrl("packages");
         public static final String PACKAGE_ID = "/:package_id";
         public static final String FIND = BASE + PACKAGE_ID;
         public static final String USAGES = PACKAGE_ID + "/usages";
+        public static final String VERIFY_CONNECTION = "/verify_connection";
 
         public static String self(String id) {
             return BASE + "/" + id;

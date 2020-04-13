@@ -21,6 +21,7 @@ import {PackageRepositories, Packages} from "models/package_repositories/package
 import {Materials, PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {MaterialsWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/materials_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -36,9 +37,9 @@ describe('MaterialsWidgetSpec', () => {
   function mount(materials: Stream<Materials> = pipelineConfig.materials, pluginInfos: PluginInfos = new PluginInfos()) {
     helper.mount(() => <MaterialsWidget materials={materials} pluginInfos={Stream(pluginInfos)}
                                         packageRepositories={Stream(new PackageRepositories())}
-                                        packages={Stream(new Packages())}
-                                        onMaterialAdd={jasmine.createSpy("onMaterialAdd")}
-                                        scmMaterials={Stream(new Scms())}/>);
+                                        packages={Stream(new Packages())} scmMaterials={Stream(new Scms())}
+                                        pipelineConfigSave={jasmine.createSpy("pipelineConfigSave")}
+                                        flashMessage={new FlashMessageModelWithTimeout()}/>);
   }
 
   describe("Add Material", () => {
@@ -65,12 +66,12 @@ describe('MaterialsWidgetSpec', () => {
     expect(helper.qa("td", dataRow)[2].textContent).toBe("test-repo");
   });
 
-  it('should render all the errors on all the materials', () => {
-    pipelineConfig.materials()[0].errors().add("name", "some error");
-    pipelineConfig.materials()[0].errors().add("type", "some error on another property");
+  it('should disable delete button if only one material is present', () => {
     mount();
 
-    expect(helper.byTestId('flash-message-alert')).toBeInDOM();
-    expect(helper.textByTestId('flash-message-alert')).toBe('some error.some error on another property.');
+    const deleteMaterialButton = helper.byTestId('delete-material-button');
+    expect(deleteMaterialButton).toBeInDOM();
+    expect(deleteMaterialButton).toBeDisabled();
+    expect(deleteMaterialButton).toHaveAttr('title', 'Cannot delete this material as pipeline should have at least one material');
   });
 });

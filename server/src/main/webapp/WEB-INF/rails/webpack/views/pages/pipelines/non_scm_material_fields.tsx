@@ -183,6 +183,7 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
         vnode.state.pkgRepoId(selectedPkgRepo.repoId());
         vnode.state.pkgs(this.mapAndConcatPackages(selectedPkgRepo));
       }
+      this.disablePkgField = false;
     }
   }
 
@@ -318,6 +319,17 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
   oninit(vnode: m.Vnode<PluginAttrs, PluginState>): any {
     vnode.state.pluginId              = Stream("");
     vnode.state.scmsForSelectedPlugin = Stream(this.defaultScms);
+
+    const attrs = vnode.attrs.material.attributes() as PluggableScmMaterialAttributes;
+    if (attrs.ref()) {
+      const selectedScm = vnode.attrs.scms.find((scm) => scm.id() === attrs.ref());
+      if (selectedScm !== undefined) {
+        const pluginId = selectedScm.pluginMetadata().id();
+        vnode.state.pluginId(pluginId);
+        vnode.state.scmsForSelectedPlugin(this.mapAndConcatScms(vnode, pluginId));
+        this.disableScmField = false;
+      }
+    }
   }
 
   view(vnode: m.Vnode<PluginAttrs, PluginState>): m.Children | void | null {
@@ -365,17 +377,20 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
     }
 
     vnode.state.pluginId(pluginId);
-    const scmsForPlugin = vnode.attrs.scms
-                               .filter((scm) => scm.pluginMetadata().id() === pluginId)
-                               .map((scm) => {
-                                 return {id: scm.id(), text: scm.name()};
-                               });
-    const scms          = this.defaultScms.concat(...scmsForPlugin);
+    const scms = this.mapAndConcatScms(vnode, pluginId);
     vnode.state.scmsForSelectedPlugin(scms);
     (vnode.attrs.material.attributes() as PluggableScmMaterialAttributes).ref("");
     this.disableScmField = false;
 
     return pluginId;
+  }
+
+  private mapAndConcatScms(vnode: m.Vnode<PluginAttrs, PluginState>, pluginId: string) {
+    return this.defaultScms.concat(...vnode.attrs.scms
+                                           .filter((scm) => scm.pluginMetadata().id() === pluginId)
+                                           .map((scm) => {
+                                             return {id: scm.id(), text: scm.name()};
+                                           }));
   }
 
   private advanced(attrs: PluggableScmMaterialAttributes, showLocalWorkingCopyOptions: boolean): m.Children {

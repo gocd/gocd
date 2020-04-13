@@ -202,6 +202,15 @@ describe('PackageFieldsSpec', () => {
 
     expect(helper.byTestId('selected-pkg-details')).toBeInDOM();
   });
+
+  it('should pre-populate package config when ref is set', () => {
+    (material.attributes() as PackageMaterialAttributes).ref(packageRepositories[0].packages()[0].id());
+    helper.mount(() => <PackageFields material={material} packageRepositories={packageRepositories}
+                                      pluginInfos={pluginInfos}/>);
+
+    expect(helper.byTestId('selected-pkg-repo-details')).toBeInDOM();
+    expect(helper.byTestId('selected-pkg-details')).toBeInDOM();
+  });
 });
 
 function assertLabelledInputsPresent(helper: TestHelper, idsToLabels: { [key: string]: string }) {
@@ -342,6 +351,14 @@ describe('PluginFieldsSpec', () => {
       "plugin-id": "Plugin Id",
       "url":       "url"
     });
+  });
+
+  it('should pre-populate configs and dropdown if ref is set', () => {
+    (material.attributes()! as PluggableScmMaterialAttributes).ref(scms[0].id());
+    helper.mount(() => <PluginFields material={material} pluginInfos={pluginInfos} scms={scms}/>);
+
+    expect(helper.byTestId('selected-plugin-details')).toBeInDOM();
+    expect(helper.byTestId('selected-scm-details')).toBeInDOM();
   });
 
   function assertConfigsPresent(helper: TestHelper, parentElementSelector: string, idsToValueMap: { [key: string]: string }) {

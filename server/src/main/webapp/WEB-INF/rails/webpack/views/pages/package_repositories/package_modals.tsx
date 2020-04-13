@@ -25,11 +25,11 @@ import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_inf
 import {Link} from "views/components/link";
 import {Modal, Size} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
-import {EntityModal} from "views/components/modal/entity_modal";
+import {EntityModalWithCheckConnection} from "views/components/modal/entity_modal";
 import {Table} from "views/components/table";
 import {PackageModalBody} from "./package_modal_body";
 
-abstract class PackageModal extends EntityModal<Package> {
+abstract class PackageModal extends EntityModalWithCheckConnection<Package> {
   protected readonly originalEntityId: string;
   protected readonly originalEntityName: string;
   private readonly disableId: boolean;
@@ -42,7 +42,7 @@ abstract class PackageModal extends EntityModal<Package> {
               onSuccessfulSave: (msg: m.Children) => any,
               disableId: boolean          = false,
               disablePackageRepo: boolean = true,
-              size: Size                  = Size.large) {
+              size: Size                  = Size.medium) {
     super(entity, pluginInfos, onSuccessfulSave, size);
     this.disableId           = disableId;
     this.disablePackageRepo  = disablePackageRepo;
@@ -73,6 +73,10 @@ abstract class PackageModal extends EntityModal<Package> {
 
   protected performFetch(entity: Package): Promise<any> {
     return PackagesCRUD.get(this.originalEntityId);
+  }
+
+  protected verifyConnectionOperationPromise(): Promise<any> {
+    return PackagesCRUD.verifyConnection(this.entity());
   }
 
   protected onPluginChange(entity: Stream<Package>, pluginInfo: PluginInfo): void {

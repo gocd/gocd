@@ -565,6 +565,10 @@ export class SparkRoutes {
     return `/go/api/admin/internal/repositories/verify_connection`;
   }
 
+  static adminInternalPackagesVerifyConnectionPath(): string {
+    return `/go/api/admin/internal/packages/verify_connection`;
+  }
+
   static pipelineStatusApiPath(pipelineName: string) {
     return `/go/api/pipelines/${pipelineName}/status`;
   }

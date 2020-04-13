@@ -60,6 +60,12 @@ export class PackagesCRUD {
                             }));
   }
 
+  static verifyConnection(packageDefinition: Package) {
+    return ApiRequestBuilder.POST(SparkRoutes.adminInternalPackagesVerifyConnectionPath(),
+                                  ApiVersion.v2, {payload: packageDefinition})
+                            .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
+  }
+
   private static extractObjectWithEtag(result: ApiResult<string>) {
     return result.map((body) => {
       const packageJSON = JSON.parse(body) as PackageJSON;

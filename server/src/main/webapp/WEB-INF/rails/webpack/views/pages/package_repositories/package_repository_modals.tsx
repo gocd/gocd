@@ -39,7 +39,7 @@ abstract class PackageRepositoryModal extends EntityModalWithCheckConnection<Pac
               onSuccessfulSave: (msg: m.Children) => any,
               disableId: boolean          = false,
               disablePluginField: boolean = true,
-              size: Size                  = Size.large) {
+              size: Size                  = Size.medium) {
     super(entity, pluginInfos, onSuccessfulSave, size);
     this.disableId          = disableId;
     this.disablePluginField = disablePluginField;

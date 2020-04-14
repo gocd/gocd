@@ -35,7 +35,7 @@ describe('PluggableScmCRUDSpec', () => {
       expect(scms).toHaveLength(1);
       expect(scms[0].id()).toBe('scm-id');
       expect(scms[0].name()).toBe('pluggable.scm.material.name');
-      expect(scms[0].pluginMetadata().id()).toBe('github.pr');
+      expect(scms[0].pluginMetadata().id()).toBe('scm-plugin-id');
       expect(scms[0].pluginMetadata().version()).toBe('1');
 
       expect(scms[0].configuration().count()).toBe(1);
@@ -60,7 +60,7 @@ describe('PluggableScmCRUDSpec', () => {
 
       expect(packageRepository.id()).toBe('scm-id');
       expect(packageRepository.name()).toBe('pluggable.scm.material.name');
-      expect(packageRepository.pluginMetadata().id()).toBe('github.pr');
+      expect(packageRepository.pluginMetadata().id()).toBe('scm-plugin-id');
       expect(packageRepository.pluginMetadata().version()).toBe('1');
 
       expect(packageRepository.configuration().count()).toBe(1);

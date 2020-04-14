@@ -82,6 +82,7 @@ export class Configurations {
 
   public asString(): string {
     const configValues = this.configurations
+                             .filter((config) => config.isEncrypted() === false && !_.isEmpty(config.displayValue()))
                              .map((config) => `${config.key}=${config.displayValue()}`)
                              .join(",");
     return `[${configValues}]`;

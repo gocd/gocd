@@ -95,12 +95,12 @@ describe('PluggableScmWidgetSpec', () => {
 
     ['pluggable-scm-edit', 'pluggable-scm-clone'].forEach((key) => {
       expect(helper.byTestId(key)).toBeDisabled();
-      expect(helper.byTestId(key)).toHaveAttr('title', "Plugin 'github.pr' not found!");
+      expect(helper.byTestId(key)).toHaveAttr('title', "Plugin 'scm-plugin-id' not found!");
     });
     expect(helper.byTestId('pluggable-scm-delete')).not.toBeDisabled();
     expect(helper.byTestId('pluggable-scm-usages')).not.toBeDisabled();
     const warningIcon = helper.byTestId('Info Circle-icon');
     expect(warningIcon).toBeInDOM();
-    expect(warningIcon).toHaveAttr('title', "Plugin 'github.pr' was not found!");
+    expect(warningIcon).toHaveAttr('title', "Plugin 'scm-plugin-id' was not found!");
   });
 });

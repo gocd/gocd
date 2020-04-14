@@ -62,6 +62,26 @@
   }
 }
 
-.form-error-text{
-  color: $form-failed-color;
+.package-fields {
+  table {
+    width:        100%;
+    table-layout: fixed;
+
+    td {
+      vertical-align: top;
+    }
+
+    .space-between {
+      padding-right: 25px;
+    }
+  }
+}
+
+.material-selection-container {
+  display:     flex;
+  align-items: center;
+
+  .message {
+    margin-left: 10px;
+  }
 }

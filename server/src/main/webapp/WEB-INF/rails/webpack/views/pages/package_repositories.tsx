@@ -64,6 +64,31 @@ interface State extends RequiresPluginInfos, SaveOperation {
 }
 
 export class PackageRepositoriesPage extends Page<null, State> {
+
+  public static getMergedList(originalPkgRepos: Stream<PackageRepositories>, pkgs: Stream<Packages>): PackageRepositories {
+    const pkgRepos = originalPkgRepos();
+
+    if (!pkgs || _.isEmpty(pkgs())) {
+      return pkgRepos;
+    }
+
+    pkgRepos.forEach((pkgRepo) => {
+      const pkgsForRepo = pkgs()
+        .filter((pkg) => pkg.packageRepo().id() === pkgRepo.repoId());
+
+      pkgRepo.packages().forEach((pkg) => {
+        const completePkg = pkgsForRepo.find((p) => p.id() === pkg.id());
+        if (completePkg !== undefined) {
+          pkg.autoUpdate(completePkg.autoUpdate());
+          pkg.configuration(completePkg.configuration());
+          pkg.packageRepo(new PackageRepositorySummary(pkgRepo.repoId(), pkgRepo.name()));
+        }
+      });
+    });
+
+    return pkgRepos;
+  }
+
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
     vnode.state.searchText          = Stream();
@@ -90,7 +115,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
       noPluginMsg = <NoPluginsOfTypeInstalled extensionType={new PackageRepoExtensionType()}/>;
     }
 
-    const mergedPackageRepos: Stream<PackageRepositories>   = Stream(this.getMergedList(vnode));
+    const mergedPackageRepos: Stream<PackageRepositories>   = Stream(PackageRepositoriesPage.getMergedList(vnode.state.packageRepositories, vnode.state.packages));
     const filteredPackageRepos: Stream<PackageRepositories> = Stream();
     if (vnode.state.searchText()) {
       const results = _.filter(mergedPackageRepos(), (vm: PackageRepository) => vm.matches(vnode.state.searchText()));
@@ -166,30 +191,6 @@ export class PackageRepositoriesPage extends Page<null, State> {
       buttons.splice(0, 0, searchBox);
     }
     return <HeaderPanel title={this.pageName()} buttons={buttons}/>;
-  }
-
-  private getMergedList(vnode: m.Vnode<null, State>): PackageRepositories {
-    const pkgRepos = vnode.state.packageRepositories();
-
-    if (!vnode.state.packages || _.isEmpty(vnode.state.packages())) {
-      return pkgRepos;
-    }
-
-    pkgRepos.forEach((pkgRepo) => {
-      const pkgsForRepo = vnode.state.packages()
-                               .filter((pkg) => pkg.packageRepo().id() === pkgRepo.repoId());
-
-      pkgRepo.packages().forEach((pkg) => {
-        const completePkg = pkgsForRepo.find((p) => p.id() === pkg.id());
-        if (completePkg !== undefined) {
-          pkg.autoUpdate(completePkg.autoUpdate());
-          pkg.configuration(completePkg.configuration());
-          pkg.packageRepo(new PackageRepositorySummary(pkgRepo.repoId(), pkgRepo.name()));
-        }
-      });
-    });
-
-    return pkgRepos;
   }
 
   private isPluginInstalled(vnode: m.Vnode<null, State>) {

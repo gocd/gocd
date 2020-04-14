@@ -22,7 +22,7 @@ export function getPluggableScm() {
     id:              "scm-id",
     name:            "pluggable.scm.material.name",
     plugin_metadata: {
-      id:      "github.pr",
+      id:      "scm-plugin-id",
       version: "1"
     },
     auto_update:     true,

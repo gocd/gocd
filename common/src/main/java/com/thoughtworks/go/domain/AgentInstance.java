@@ -52,20 +52,26 @@ public class AgentInstance implements Comparable<AgentInstance> {
     private AgentConfigStatus agentConfigStatus;
 
     private volatile Date lastHeardTime;
+    private volatile Date cancelledAt;
     private TimeProvider timeProvider;
     private SystemEnvironment systemEnvironment;
     private ConfigErrors errors = new ConfigErrors();
     private boolean forceCancel;
 
     protected AgentInstance(Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
-                            AgentStatusChangeListener agentStatusChangeListener) {
+                            AgentStatusChangeListener agentStatusChangeListener, TimeProvider timeProvider) {
         this.systemEnvironment = systemEnvironment;
         this.agentRuntimeInfo = AgentRuntimeInfo.initialState(agent);
         this.agentStatusChangeListener = agentStatusChangeListener;
         this.agentConfigStatus = Pending;
         this.agent = agent;
         this.agentType = agentType;
-        this.timeProvider = new TimeProvider();
+        this.timeProvider = timeProvider;
+    }
+
+    protected AgentInstance(Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
+                            AgentStatusChangeListener agentStatusChangeListener) {
+        this(agent, agentType, systemEnvironment, agentStatusChangeListener, new TimeProvider());
     }
 
     protected AgentInstance(Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
@@ -112,6 +118,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
         if (runtimeStatus == Idle) {
             updateRuntimeStatus(Idle);
             agentRuntimeInfo.clearBuildingInfo();
+            clearCancelledState();
         } else if (!(agentRuntimeInfo.isCancelled())) {
             updateRuntimeStatus(runtimeStatus);
         }
@@ -141,6 +148,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public void cancel() {
         updateRuntimeStatus(AgentRuntimeStatus.Cancelled);
+        cancelledAt = timeProvider.currentTime();
     }
 
     public void forceCancel() throws ForceCancelException {
@@ -327,6 +335,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return !jobPlan.requiresElasticAgent() && !isElastic() && agent.hasAllResources(jobPlan.getResources().toResourceConfigs().resourceNames());
     }
 
+    private void clearCancelledState() {
+        this.cancelledAt = null;
+        this.forceCancel = false;
+    }
+
     public String getBuildLocator() {
         return agentRuntimeInfo.getBuildingInfo().getBuildLocator();
     }
@@ -371,6 +384,10 @@ public class AgentInstance implements Comparable<AgentInstance> {
             default:
                 return false;
         }
+    }
+
+    public Date cancelledAt() {
+        return cancelledAt;
     }
 
     enum AgentType {

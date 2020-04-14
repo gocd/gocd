@@ -21,10 +21,10 @@ import com.thoughtworks.go.domain.exception.ForceCancelException;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -58,6 +58,7 @@ public class AgentInstanceTest {
     private AgentBuildingInfo defaultBuildingInfo;
     private static final String DEFAULT_IP_ADDRESS = "10.18.5.1";
     private AgentStatusChangeListener agentStatusChangeListener;
+    private TimeProvider timeProvider;
 
     @BeforeEach
     void setUp() {
@@ -65,6 +66,7 @@ public class AgentInstanceTest {
         agent = new Agent("uuid2", "CCeDev01", DEFAULT_IP_ADDRESS);
         defaultBuildingInfo = new AgentBuildingInfo("pipeline", "buildLocator");
         agentStatusChangeListener = mock(AgentStatusChangeListener.class);
+        timeProvider = mock(TimeProvider.class);
     }
 
     @AfterEach
@@ -193,6 +195,27 @@ public class AgentInstanceTest {
         cancelledAgentInstance.update(fromAgent);
 
         assertThat(cancelledAgentInstance.getStatus()).isEqualTo(AgentStatus.Idle);
+    }
+
+    @Test
+    void shouldClearAllCancelledStateIfAgentSetToIdle() throws ForceCancelException {
+        Date currentTime = mock(Date.class);
+        AgentInstance agentInstance = buildingWithTimeProvider(timeProvider);
+
+        when(timeProvider.currentTime()).thenReturn(currentTime);
+
+        agentInstance.cancel();
+        agentInstance.forceCancel();
+
+        assertThat(agentInstance.cancelledAt()).isEqualTo(currentTime);
+
+        AgentRuntimeInfo fromAgent = new AgentRuntimeInfo(agentInstance.getAgent().getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
+        fromAgent.idle();
+        agentInstance.update(fromAgent);
+
+        assertThat(agentInstance.getStatus()).isEqualTo(AgentStatus.Idle);
+        assertThat(agentInstance.cancelledAt()).isNull();
+        assertThat(agentInstance.shouldForceCancel()).isFalse();
     }
 
     @Test
@@ -822,6 +845,19 @@ public class AgentInstanceTest {
 
             assertThat(buildingAgentInstance.getStatus()).isEqualTo(AgentStatus.Cancelled);
         }
+
+        @Test
+        void shouldRecordTheTimeWhenAgentIsMovedToCancelState() {
+            Date currentTime = mock(Date.class);
+            TimeProvider timeProvider = mock(TimeProvider.class);
+            AgentInstance agentInstance = buildingWithTimeProvider(timeProvider);
+
+            when(timeProvider.currentTime()).thenReturn(currentTime);
+
+            agentInstance.cancel();
+
+            assertThat(agentInstance.cancelledAt()).isEqualTo(currentTime);
+        }
     }
 
     private List<JobPlan> jobPlans(String... resources) {
@@ -853,5 +889,16 @@ public class AgentInstanceTest {
         AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         runtimeInfo.busy(defaultBuildingInfo);
         return runtimeInfo;
+    }
+
+    public static AgentInstance buildingWithTimeProvider(TimeProvider timeProvider) {
+        Agent idleAgentConfig = new Agent("uuid2", "localhost", "10.18.5.1");
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(idleAgentConfig.getAgentIdentifier(), Building, currentWorkingDirectory(), "cookie");
+        agentRuntimeInfo.setLocation("/var/lib/foo");
+        agentRuntimeInfo.idle();
+        agentRuntimeInfo.setUsableSpace(10 * 1024l);
+        AgentInstance agentInstance = new AgentInstance(idleAgentConfig, LOCAL, new SystemEnvironment(), mock(AgentStatusChangeListener.class), timeProvider);
+        agentInstance.enable();
+        return agentInstance;
     }
 }

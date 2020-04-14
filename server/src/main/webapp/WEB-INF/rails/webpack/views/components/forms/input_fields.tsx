@@ -626,7 +626,7 @@ interface RadioData {
 export interface RadioButtonAttrs extends RestyleAttrs<Styles> {
   label?: m.Children;
   errorText?: string;
-  disabled?: boolean;
+  readonly?: boolean;
   required?: boolean;
   inline?: boolean;
   property: (newValue?: string) => string;
@@ -675,6 +675,10 @@ export class RadioField extends RestyleViewComponent<Styles, RadioButtonAttrs> {
         <li data-test-id={`input-field-for-${radioData.value}`} className={this.css.radioField}>
           <input type="radio"
                  id={radioButtonId}
+                 {...defaultAttributes(vnode.attrs,
+                                       radioButtonId,
+                                       `${radioButtonId}-help-text`,
+                                       `${radioButtonId}-error-id`)}
                  checked={radioData.value === vnode.attrs.property()}
                  data-test-id={`radio-${s.slugify(radioData.value)}`}
                  name={this.id}

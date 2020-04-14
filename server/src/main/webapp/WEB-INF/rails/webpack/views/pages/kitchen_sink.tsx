@@ -423,6 +423,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
       <RadioField label="Choose your favorite pizza topping"
                   property={radioValue}
                   required={true}
+                  readonly={true}
                   possibleValues={[
                     {label: "Thin Crust", value: "thin-crust", helpText: "Thin italian-style crust"},
                     {label: "Cheese burst", value: "cheese-burst", helpText: "Filled with cheese, good for the heart"},

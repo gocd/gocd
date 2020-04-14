@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.remote;
 
+import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
@@ -49,7 +50,9 @@ public class BuildRepositoryRemoteImpl {
         LOGGER.trace("{} ping received.", info);
         try {
             agentService.updateRuntimeInfo(info);
-            return new AgentInstruction(agentService.findAgentAndRefreshStatus(info.getUUId()).isCancelled());
+            AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(info.getUUId());
+
+            return new AgentInstruction(agentInstance.isCancelled(), agentInstance.shouldForceCancel());
         } catch (AgentWithDuplicateUUIDException agentException) {
             throw wrappedException(agentException);
         } catch (Exception e) {

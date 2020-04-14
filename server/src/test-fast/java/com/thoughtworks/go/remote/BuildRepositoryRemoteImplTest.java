@@ -17,6 +17,7 @@ package com.thoughtworks.go.remote;
 
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.exception.ForceCancelException;
 import com.thoughtworks.go.server.messaging.JobStatusMessage;
 import com.thoughtworks.go.server.messaging.JobStatusTopic;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
@@ -26,6 +27,7 @@ import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.remoting.RemoteAccessException;
 
@@ -58,14 +60,33 @@ class BuildRepositoryRemoteImplTest {
         logFixture.close();
     }
 
-    @Test
-    void shouldUpdateAgentServiceOnPing() {
-        info.setStatus(AgentStatus.Cancelled);
-        when(agentService.findAgentAndRefreshStatus(info.getUUId())).thenReturn(AgentInstance.createFromLiveAgent(info, new SystemEnvironment(), null));
-        AgentInstruction instruction = buildRepository.ping(info);
-        assertThat(instruction.shouldCancelJob()).isTrue();
-        verify(agentService).updateRuntimeInfo(info);
-        assertThat(logFixture.getRawMessages()).contains(info + " ping received.");
+    @Nested
+    class ping {
+        @Test
+        void shouldUpdateAgentServiceOnPing() {
+            info.setStatus(AgentStatus.Cancelled);
+            when(agentService.findAgentAndRefreshStatus(info.getUUId())).thenReturn(AgentInstance.createFromLiveAgent(info, new SystemEnvironment(), null));
+
+            AgentInstruction instruction = buildRepository.ping(info);
+
+            assertThat(instruction.shouldCancelJob()).isTrue();
+            verify(agentService).updateRuntimeInfo(info);
+            assertThat(logFixture.getRawMessages()).contains(info + " ping received.");
+        }
+
+        @Test
+        void shouldReturnInstructionsToAgent() throws ForceCancelException {
+            AgentInstance agentInstance = AgentInstance.createFromLiveAgent(info, new SystemEnvironment(), null);
+            agentInstance.cancel();
+            agentInstance.forceCancel();
+
+            when(agentService.findAgentAndRefreshStatus(info.getUUId())).thenReturn(agentInstance);
+
+            AgentInstruction instruction = buildRepository.ping(info);
+
+            assertThat(instruction.shouldCancelJob()).isTrue();
+            assertThat(instruction.shouldForceCancel()).isTrue();
+        }
     }
 
     @Test

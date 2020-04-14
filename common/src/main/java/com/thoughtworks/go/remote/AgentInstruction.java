@@ -19,9 +19,15 @@ import java.io.Serializable;
 
 public class AgentInstruction implements Serializable {
     private final boolean shouldCancelJob;
+    private final boolean shouldForceCancelJob;
 
     public AgentInstruction(boolean shouldCancelJob) {
+        this(shouldCancelJob, false);
+    }
+
+    public AgentInstruction(boolean shouldCancelJob, boolean shouldForceCancelJob) {
         this.shouldCancelJob = shouldCancelJob;
+        this.shouldForceCancelJob = shouldForceCancelJob;
     }
 
     @Override
@@ -47,7 +53,11 @@ public class AgentInstruction implements Serializable {
         return (shouldCancelJob ? 1 : 0);
     }
 
-    public boolean isShouldCancelJob() {
+    public boolean shouldCancelJob() {
         return shouldCancelJob;
+    }
+
+    public boolean shouldForceCancel() {
+        return shouldForceCancelJob;
     }
 }

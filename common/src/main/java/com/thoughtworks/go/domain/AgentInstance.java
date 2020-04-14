@@ -17,6 +17,7 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.ResourceConfigs;
+import com.thoughtworks.go.domain.exception.ForceCancelException;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
@@ -31,12 +32,11 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.util.Date;
 import java.util.List;
 
-import static com.thoughtworks.go.domain.AgentConfigStatus.Disabled;
-import static com.thoughtworks.go.domain.AgentConfigStatus.Enabled;
-import static com.thoughtworks.go.domain.AgentConfigStatus.Pending;
+import static com.thoughtworks.go.domain.AgentConfigStatus.*;
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.*;
 import static com.thoughtworks.go.domain.AgentStatus.fromConfig;
 import static com.thoughtworks.go.domain.AgentStatus.fromRuntime;
+import static java.lang.String.format;
 
 //TODO put the logic back to the AgentRuntimeInfo for all the sync method
 
@@ -55,6 +55,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     private TimeProvider timeProvider;
     private SystemEnvironment systemEnvironment;
     private ConfigErrors errors = new ConfigErrors();
+    private boolean forceCancel;
 
     protected AgentInstance(Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
                             AgentStatusChangeListener agentStatusChangeListener) {
@@ -140,6 +141,16 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public void cancel() {
         updateRuntimeStatus(AgentRuntimeStatus.Cancelled);
+    }
+
+    public void forceCancel() throws ForceCancelException {
+        if (!isCancelled()) {
+            throw new ForceCancelException(format("The job should be cancelled before attempting a force cancel. Current Agent " +
+                            "Build State is: '%s'",
+                    agentRuntimeInfo.getRuntimeStatus().buildState().name()));
+        }
+
+        this.forceCancel = true;
     }
 
     public void deny() {
@@ -278,6 +289,10 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public boolean isMissing() {
         return agentRuntimeInfo.getRuntimeStatus() == Missing;
+    }
+
+    public boolean shouldForceCancel() {
+        return forceCancel;
     }
 
     public AgentIdentifier getAgentIdentifier() {

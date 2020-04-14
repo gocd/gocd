@@ -17,9 +17,11 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.domain.exception.ForceCancelException;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -47,6 +49,7 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.*;
 
 public class AgentInstanceTest {
@@ -93,16 +96,6 @@ public class AgentInstanceTest {
     void shouldReturnUnknownUsableSpaceForMissingOrLostContactAgent() {
         assertThat(AgentInstanceMother.missing().freeDiskSpace().toString()).isEqualTo(DiskSpace.UNKNOWN_DISK_SPACE);
         assertThat(AgentInstanceMother.lostContact().freeDiskSpace().toString()).isEqualTo(DiskSpace.UNKNOWN_DISK_SPACE);
-    }
-
-    @Test
-    void shouldKeepStatusAsCancelled() {
-        AgentInstance buildingAgentInstance = building("buildLocator");
-        buildingAgentInstance.cancel();
-
-        buildingAgentInstance.update(buildingRuntimeInfo(buildingAgentInstance.getAgent()));
-
-        assertThat(buildingAgentInstance.getStatus()).isEqualTo(AgentStatus.Cancelled);
     }
 
     @Test
@@ -793,6 +786,41 @@ public class AgentInstanceTest {
             idle.syncAgentFrom(idleAgent);
             assertThat(idle.matches(Pending)).isFalse();
             assertThat(idle.matches(Null)).isFalse();
+        }
+    }
+
+    @Nested
+    class forceCancel {
+        @Test
+        void shouldAddAForceCancelInstructionToAgent() throws ForceCancelException {
+            AgentInstance agentInstance = cancelled();
+
+            agentInstance.forceCancel();
+
+            assertThat(agentInstance.shouldForceCancel()).isTrue();
+        }
+
+        @Test
+        void shouldErrorOutIfForceCancellingIfAgentRuntimeStatusIsNotCancelled() {
+            AgentInstance agentInstance = building();
+
+            assertThatExceptionOfType(ForceCancelException.class)
+                    .isThrownBy(() -> agentInstance.forceCancel())
+                    .withMessage("The job should be cancelled before attempting a force cancel. Current Agent Build State is: 'Building'");
+        }
+    }
+
+    @Nested
+    class cancel {
+        @Test
+        void shouldKeepStatusAsCancelled() {
+            AgentInstance buildingAgentInstance = building("buildLocator");
+
+            buildingAgentInstance.cancel();
+
+            buildingAgentInstance.update(buildingRuntimeInfo(buildingAgentInstance.getAgent()));
+
+            assertThat(buildingAgentInstance.getStatus()).isEqualTo(AgentStatus.Cancelled);
         }
     }
 

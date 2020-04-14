@@ -33,7 +33,7 @@ public class JobRunner {
     private EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
     public void handleInstruction(AgentInstruction instruction, AgentRuntimeInfo agentStatus) {
-        if (instruction.isShouldCancelJob() && !handled) {
+        if (instruction.shouldCancelJob() && !handled) {
             cancelJob(agentStatus);
         }
     }

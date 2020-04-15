@@ -33,8 +33,7 @@ import java.util.HashMap;
 
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.AUTO_UPDATE;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ScmMaterialConfigTest {
     private DummyMaterialConfig material;
@@ -48,39 +47,39 @@ class ScmMaterialConfigTest {
     void shouldSetFilterToNullWhenBlank() {
         material.setFilter(new Filter(new IgnoredFiles("*.*")));
         material.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FILTER, ""));
-        assertThat(material.filter(), is(new Filter()));
-        assertThat(material.getFilterAsString(), is(""));
+        assertThat(material.filter()).isEqualTo(new Filter());
+        assertThat(material.getFilterAsString()).isEqualTo("");
     }
 
     @Test
     void shouldReturnFilterForDisplay() {
         material.setFilter(new Filter(new IgnoredFiles("/foo/**.*"), new IgnoredFiles("/another/**.*"), new IgnoredFiles("bar")));
-        assertThat(material.getFilterAsString(), is("/foo/**.*,/another/**.*,bar"));
+        assertThat(material.getFilterAsString()).isEqualTo("/foo/**.*,/another/**.*,bar");
     }
 
     @Test
     void shouldSetFolderToNullWhenBlank() {
         material.setConfigAttributes(Collections.singletonMap(FOLDER, "foo"));
-        assertThat(material.getFolder(), is(not(nullValue())));
+        assertThat(material.getFolder()).isNotNull();
 
         material.setConfigAttributes(Collections.singletonMap(FOLDER, ""));
-        assertThat(material.getFolder(), is(nullValue()));
+        assertThat(material.getFolder()).isNull();
     }
 
     @Test
     void shouldUpdateAutoUpdateFieldFromConfigAttributes() {
         material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, "false"));
-        assertThat(material.isAutoUpdate(), is(false));
+        assertThat(material.isAutoUpdate()).isFalse();
         material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, null));
-        assertThat(material.isAutoUpdate(), is(false));
+        assertThat(material.isAutoUpdate()).isFalse();
         material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, "true"));
-        assertThat(material.isAutoUpdate(), is(true));
+        assertThat(material.isAutoUpdate()).isTrue();
         material.setConfigAttributes(new HashMap());
-        assertThat(material.isAutoUpdate(), is(false));
+        assertThat(material.isAutoUpdate()).isFalse();
         material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, null));
-        assertThat(material.isAutoUpdate(), is(false));
+        assertThat(material.isAutoUpdate()).isFalse();
         material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, "random-stuff"));
-        assertThat(material.isAutoUpdate(), is(false));
+        assertThat(material.isAutoUpdate()).isFalse();
     }
 
     @Nested
@@ -93,15 +92,15 @@ class ScmMaterialConfigTest {
         void shouldNotValidateEmptyDestinationFolder() {
             material.setConfigAttributes(Collections.singletonMap(FOLDER, ""));
             material.validate(new ConfigSaveValidationContext(null));
-            assertThat(material.errors.isEmpty(), is(true));
+            assertThat(material.errors.isEmpty()).isTrue();
         }
 
         @Test
         void shouldFailValidationIfDestinationDirectoryIsNested() {
             material.setFolder("f1");
             material.validateNotSubdirectoryOf("f1/f2");
-            assertFalse(material.errors().isEmpty());
-            assertThat(material.errors().on(FOLDER), is("Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested."));
+            assertThat(material.errors().isEmpty()).isFalse();
+            assertThat(material.errors().on(FOLDER)).isEqualTo("Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested.");
         }
 
         @Test
@@ -109,7 +108,7 @@ class ScmMaterialConfigTest {
             material.setFolder("f1/f2/f3");
             material.validateNotSubdirectoryOf("f1/f2/f");
 
-            assertNull(material.errors().getAllOn(FOLDER));
+            assertThat(material.errors().getAllOn(FOLDER)).isEmpty();
         }
 
         @Test
@@ -117,14 +116,14 @@ class ScmMaterialConfigTest {
             material.setFolder("f1/../../f3");
 
             material.validateConcreteMaterial(null);
-            assertThat(material.errors().on(FOLDER), is("Dest folder 'f1/../../f3' is not valid. It must be a sub-directory of the working folder."));
+            assertThat(material.errors().on(FOLDER)).isEqualTo("Dest folder 'f1/../../f3' is not valid. It must be a sub-directory of the working folder.");
         }
 
         @Test
         void shouldFailValidationIfDestinationDirectoryIsNestedAfterNormalization() {
             material.setFolder("f1/f2/../../f3");
             material.validateNotSubdirectoryOf("f3/f4");
-            assertThat(material.errors().on(FOLDER), is("Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested."));
+            assertThat(material.errors().on(FOLDER)).isEqualTo("Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested.");
         }
 
         @Test
@@ -138,7 +137,7 @@ class ScmMaterialConfigTest {
             material.setFolder(material1.getAbsolutePath());
             material.validateNotSubdirectoryOf(material2.toAbsolutePath().toString());
 
-            assertNull(material.errors().getAllOn(FOLDER));
+            assertThat(material.errors().getAllOn(FOLDER)).isEmpty();
         }
     }
 }

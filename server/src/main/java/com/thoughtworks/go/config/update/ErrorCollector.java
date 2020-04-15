@@ -18,12 +18,14 @@ package com.thoughtworks.go.config.update;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import com.thoughtworks.go.config.IgnoreTraversal;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.domain.ConfigErrors;
+import org.apache.commons.collections4.CollectionUtils;
 
 public class ErrorCollector {
 
@@ -59,7 +61,7 @@ public class ErrorCollector {
             } else { // basic field
                 if (subject instanceof Validatable) {
                     ConfigErrors configErrors = ((Validatable) subject).errors();
-                    if (configErrors != null && configErrors.getAllOn(fieldName) != null) {
+                    if (configErrors != null && CollectionUtils.isNotEmpty( configErrors.getAllOn(fieldName))) {
                         errorBucket.put(prefix + "[" + fieldName + "]", configErrors.getAllOn(fieldName));
                     }
                 }

@@ -15,8 +15,10 @@
  */
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {PackageRepository} from "models/package_repositories/package_repositories";
 import s from "underscore.string";
+import {Anchor, ScrollManager} from "views/components/anchor/anchor";
 import {ButtonIcon, Secondary} from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {Clone, Delete, Edit, IconGroup, InfoCircle} from "views/components/icons";
@@ -26,23 +28,36 @@ import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_o
 import {ConfigurationDetailsWidget} from "./configuration_details_widget";
 import styles from "./index.scss";
 import {PackagesWidget} from "./packages_widget";
+import {PackageRepoScrollOptions} from "./package_repositories_widget";
 
 interface Attrs extends EditOperation<PackageRepository>, CloneOperation<PackageRepository>, DeleteOperation<PackageRepository> {
   packageRepository: PackageRepository;
   packageOperations: PackageOperations;
   disableActions: boolean;
+  scrollOptions: PackageRepoScrollOptions;
+}
+
+export interface PackageRepositoryScrollOptions {
+  sm: ScrollManager;
+  shouldOpenEditView: boolean;
 }
 
 export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
+  expanded: Stream<boolean> = Stream();
 
   public static getPkgRepoDetails(packageRepository: PackageRepository) {
     const pkgRepoProperties = packageRepository.configuration() ? packageRepository.configuration()!.asMap() : [];
-    const pkgRepoDetails    = new Map([
-                                        ["Repo Id", packageRepository.repoId()],
-                                        ["Plugin Id", packageRepository.pluginMetadata().id()],
-                                        ...Array.from(pkgRepoProperties)
-                                      ]);
-    return pkgRepoDetails;
+    return new Map([
+                     ["Repo Id", packageRepository.repoId()],
+                     ["Plugin Id", packageRepository.pluginMetadata().id()],
+                     ...Array.from(pkgRepoProperties)
+                   ]);
+  }
+
+  oninit(vnode: m.Vnode<Attrs, this>): any {
+    const linked = vnode.attrs.scrollOptions.package_repo_sm.sm.getTarget() === vnode.attrs.packageRepository.name();
+
+    this.expanded(linked);
   }
 
   view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
@@ -82,15 +97,21 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
       </div>
     ];
 
-    return <CollapsiblePanel key={vnode.attrs.packageRepository.repoId()}
-                             header={header} error={disabled}
-                             actions={[warningIcon, actionButtons]}
-                             dataTestId={"package-repository-panel"}>
-      <ConfigurationDetailsWidget header={"Package Repository configuration"} data={pkgRepoDetails}/>
-      <PackagesWidget packages={vnode.attrs.packageRepository.packages}
-                      disableActions={disabled}
-                      packageOperations={vnode.attrs.packageOperations}/>
-    </CollapsiblePanel>;
+    return <Anchor id={packageRepository.name()} sm={vnode.attrs.scrollOptions.package_repo_sm.sm}
+                   onnavigate={() => this.expanded(true)}>
+      <CollapsiblePanel key={vnode.attrs.packageRepository.repoId()}
+                        header={header} error={disabled}
+                        actions={[warningIcon, actionButtons]}
+                        dataTestId={"package-repository-panel"}
+                        vm={this}>
+        <ConfigurationDetailsWidget header={"Package Repository configuration"} data={pkgRepoDetails}/>
+        <PackagesWidget packageRepoName={packageRepository.name()}
+                        packages={vnode.attrs.packageRepository.packages}
+                        disableActions={disabled}
+                        scrollOptions={vnode.attrs.scrollOptions}
+                        packageOperations={vnode.attrs.packageOperations}/>
+      </CollapsiblePanel>
+    </Anchor>;
   }
 
   private static headerMap(packageRepository: PackageRepository) {

@@ -17,7 +17,8 @@
 import m from "mithril";
 import {Package} from "models/package_repositories/package_repositories";
 import {getPackage} from "models/package_repositories/spec/test_data";
-import {TestHelper} from "views/pages/spec/test_helper";
+import {stubAllMethods, TestHelper} from "views/pages/spec/test_helper";
+import {PackageRepoScrollOptions} from "../package_repositories_widget";
 import {PackageWidget} from "../package_widget";
 
 describe('PackageWidgetSpec', () => {
@@ -28,10 +29,21 @@ describe('PackageWidgetSpec', () => {
   const onShowUsages = jasmine.createSpy("showUsages");
   let pkg: Package;
   let disableActions: boolean;
+  let scrollOptions: PackageRepoScrollOptions;
 
   beforeEach(() => {
     pkg            = Package.fromJSON(getPackage());
     disableActions = false;
+    scrollOptions  = {
+      package_repo_sm: {
+        sm:                 stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]),
+        shouldOpenEditView: false
+      },
+      package_sm:      {
+        sm:                 stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]),
+        shouldOpenEditView: false
+      }
+    };
   });
   afterEach((done) => helper.unmount(done));
 
@@ -41,7 +53,7 @@ describe('PackageWidgetSpec', () => {
                                       onEdit={onEdit}
                                       onClone={onClone}
                                       onDelete={onDelete}
-                                      showUsages={onShowUsages}/>);
+                                      showUsages={onShowUsages} scrollOptions={scrollOptions}/>);
   }
 
   it('should render package information and action buttons', () => {

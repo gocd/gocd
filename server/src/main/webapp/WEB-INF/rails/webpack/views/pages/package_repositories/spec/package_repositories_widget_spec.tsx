@@ -21,18 +21,29 @@ import {PackageRepositories} from "models/package_repositories/package_repositor
 import {getPackageRepository, pluginInfoWithPackageRepositoryExtension} from "models/package_repositories/spec/test_data";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PackageOperations, PackageRepoOperations} from "views/pages/package_repositories";
-import {TestHelper} from "views/pages/spec/test_helper";
-import {PackageRepositoriesWidget} from "../package_repositories_widget";
+import {stubAllMethods, TestHelper} from "views/pages/spec/test_helper";
+import {PackageRepoScrollOptions, PackageRepositoriesWidget} from "../package_repositories_widget";
 
 describe('PackageRepositoriesWidgetSpec', () => {
   const helper = new TestHelper();
   let pkgRepos: Stream<PackageRepositories>;
   let pluginInfos: Stream<PluginInfos>;
+  let scrollOptions: PackageRepoScrollOptions;
 
   afterEach((done) => helper.unmount(done));
   beforeEach(() => {
-    pkgRepos    = Stream(PackageRepositories.fromJSON([getPackageRepository()]));
-    pluginInfos = Stream(new PluginInfos(PluginInfo.fromJSON(pluginInfoWithPackageRepositoryExtension())));
+    pkgRepos      = Stream(PackageRepositories.fromJSON([getPackageRepository()]));
+    pluginInfos   = Stream(new PluginInfos(PluginInfo.fromJSON(pluginInfoWithPackageRepositoryExtension())));
+    scrollOptions = {
+      package_repo_sm: {
+        sm:                 stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]),
+        shouldOpenEditView: false
+      },
+      package_sm:      {
+        sm:                 stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]),
+        shouldOpenEditView: false
+      }
+    };
   });
 
   function mount() {
@@ -41,7 +52,7 @@ describe('PackageRepositoriesWidgetSpec', () => {
     helper.mount(() => <PackageRepositoriesWidget packageRepositories={pkgRepos}
                                                   pluginInfos={pluginInfos}
                                                   packageOperations={pkgOps}
-                                                  packageRepoOperations={pkgRepoOps}/>);
+                                                  packageRepoOperations={pkgRepoOps} scrollOptions={scrollOptions}/>);
   }
 
   it('should render info div if repos is empty', () => {
@@ -56,5 +67,19 @@ describe('PackageRepositoriesWidgetSpec', () => {
 
     expect(helper.q('a', helpInfo)).toHaveAttr('href', docsUrl("extension_points/package_repository_extension.html"));
 
+  });
+
+  it('should render error info if the element specified in the anchor does not exist', () => {
+    scrollOptions.package_repo_sm.sm = {
+      hasTarget:    jasmine.createSpy().and.callFake(() => true),
+      getTarget:    jasmine.createSpy().and.callFake(() => "some-repo"),
+      shouldScroll: jasmine.createSpy(),
+      setTarget:    jasmine.createSpy(),
+      scrollToEl:   jasmine.createSpy()
+    };
+    mount();
+
+    expect(helper.byTestId("anchor-package-repo-not-present")).toBeInDOM();
+    expect(helper.textByTestId("anchor-package-repo-not-present")).toBe("'some-repo' package repository has not been set up.");
   });
 });

@@ -20,20 +20,37 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PackageRepositories} from "models/package_repositories/package_repositories";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Link} from "views/components/link";
 import {PackageOperations, PackageRepoOperations} from "views/pages/package_repositories";
 import {RequiresPluginInfos} from "views/pages/page_operations";
 import styles from "./index.scss";
-import {PackageRepositoryWidget} from "./package_repository_widget";
+import {PackageRepositoryScrollOptions, PackageRepositoryWidget} from "./package_repository_widget";
+import {PackageScrollOptions} from "./package_widget";
 
 interface Attrs extends RequiresPluginInfos {
   packageRepositories: Stream<PackageRepositories>;
   packageRepoOperations: PackageRepoOperations;
   packageOperations: PackageOperations;
+  scrollOptions: PackageRepoScrollOptions;
+}
+
+export interface PackageRepoScrollOptions {
+  package_repo_sm: PackageRepositoryScrollOptions;
+  package_sm: PackageScrollOptions;
 }
 
 export class PackageRepositoriesWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
+    const pkgRepoScrollOptions = vnode.attrs.scrollOptions.package_repo_sm;
+    if (pkgRepoScrollOptions.sm.hasTarget()) {
+      const target           = pkgRepoScrollOptions.sm.getTarget();
+      const hasAnchorElement = vnode.attrs.packageRepositories().some((pkgRepo) => pkgRepo.name() === target);
+      if (!hasAnchorElement) {
+        const msg = `'${target}' package repository has not been set up.`;
+        return <FlashMessage dataTestId="anchor-package-repo-not-present" type={MessageType.alert} message={msg}/>;
+      }
+    }
     if (_.isEmpty(vnode.attrs.packageRepositories())) {
       return <div className={styles.tips} data-test-id="package-repo-info">
         <ul>
@@ -52,7 +69,8 @@ export class PackageRepositoriesWidget extends MithrilViewComponent<Attrs> {
                                         disableActions={pluginInfo === undefined}
                                         onEdit={vnode.attrs.packageRepoOperations.onEdit}
                                         onClone={vnode.attrs.packageRepoOperations.onClone}
-                                        onDelete={vnode.attrs.packageRepoOperations.onDelete}/>;
+                                        onDelete={vnode.attrs.packageRepoOperations.onDelete}
+                                        scrollOptions={vnode.attrs.scrollOptions}/>;
       })}
     </div>;
   }

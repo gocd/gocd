@@ -15,20 +15,30 @@
  */
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {Package} from "models/package_repositories/package_repositories";
 import s from "underscore.string";
+import {Anchor, ScrollManager} from "views/components/anchor/anchor";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {Clone, Delete, Edit, IconGroup, Usage} from "views/components/icons";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
 import {CloneOperation, DeleteOperation, EditOperation} from "../page_operations";
+import {PackageRepoScrollOptions} from "./package_repositories_widget";
 
 interface Attrs extends EditOperation<Package>, CloneOperation<Package>, DeleteOperation<Package> {
   package: Package;
   showUsages: (obj: Package, e: MouseEvent) => void;
   disableActions: boolean;
+  scrollOptions: PackageRepoScrollOptions;
+}
+
+export interface PackageScrollOptions {
+  sm: ScrollManager;
+  shouldOpenEditView: boolean;
 }
 
 export class PackageWidget extends MithrilViewComponent<Attrs> {
+  expanded: Stream<boolean> = Stream();
 
   public static getPkgDetails(pkg: Package) {
     const pkgProperties = pkg.configuration() ? pkg.configuration()!.asMap() : [];
@@ -38,6 +48,15 @@ export class PackageWidget extends MithrilViewComponent<Attrs> {
                      ["Auto Update", pkg.autoUpdate() + ""],
                      ...Array.from(pkgProperties)
                    ]);
+  }
+
+  oninit(vnode: m.Vnode<Attrs, this>): any {
+    const scrollOptions = vnode.attrs.scrollOptions;
+    const pkg           = vnode.attrs.package;
+    const linked        = scrollOptions.package_repo_sm.sm.getTarget() === pkg.packageRepo().name()
+                          && scrollOptions.package_sm.sm.getTarget() === pkg.name();
+
+    this.expanded(linked);
   }
 
   view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
@@ -63,10 +82,20 @@ export class PackageWidget extends MithrilViewComponent<Attrs> {
                title={PackageWidget.getMsgForOperation(disabled, pkg.name(), "show usages for")}
                onclick={vnode.attrs.showUsages.bind(vnode.attrs, pkg)}/>
       </IconGroup>];
-    return <CollapsiblePanel key={pkg.id()} dataTestId={"package-panel"} actions={actionButtons}
-                             header={<KeyValueTitle image={null} title={title}/>}>
-      <KeyValuePair data={pkgDetails}/>
-    </CollapsiblePanel>;
+    const scrollOptions = vnode.attrs.scrollOptions;
+    const onNavigate    = () => {
+      if (scrollOptions.package_repo_sm.sm.getTarget() === pkg.packageRepo().name()) {
+        this.expanded(true);
+      }
+    };
+    return <Anchor id={pkg.name()} sm={scrollOptions.package_sm.sm}
+                   onnavigate={onNavigate}>
+      <CollapsiblePanel dataTestId={"package-panel"} actions={actionButtons}
+                        header={<KeyValueTitle image={null} title={title}/>}
+                        vm={this}>
+        <KeyValuePair data={pkgDetails}/>
+      </CollapsiblePanel>
+    </Anchor>;
   }
 
   private static getMsgForOperation(disabled: boolean, pkgName: string, operation: "edit" | "clone" | "delete" | "show usages for"): string | undefined {

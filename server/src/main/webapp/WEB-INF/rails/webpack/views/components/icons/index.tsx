@@ -155,6 +155,12 @@ export class Plus extends Icon {
   }
 }
 
+export class Search extends Icon {
+  constructor() {
+    super(styles.search, "Search");
+  }
+}
+
 export class InfoCircle extends Icon {
   constructor() {
     super(styles.infoCircle, "Info Circle");

@@ -46,6 +46,7 @@ export class PipelineConfigTestData {
 
   static withTemplate() {
     return new Builder()
+      .name("pipeline-from-template")
       .template("template")
       .origin(OriginType.GoCD)
       .materials(this.git())

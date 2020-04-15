@@ -127,6 +127,10 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-plus);
 }
 
+.search {
+  @include icon-before($type: $fa-var-search);
+}
+
 .info-circle {
   @include icon-before($type: $fa-var-info-circle);
 }

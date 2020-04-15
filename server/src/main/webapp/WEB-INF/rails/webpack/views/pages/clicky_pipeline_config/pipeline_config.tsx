@@ -149,7 +149,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
 
   componentToDisplay(vnode: m.Vnode<null, T>): m.Children {
     const doesPipelineExists = !!this.pipelineConfig;
-    const doesTemplateExists = this.pipelineConfig!.isUsingTemplate()() ? !!this.templateConfig : true;
+    const doesTemplateExists = PipelineConfig.fromJSON(this.originalJSON)!.isUsingTemplate() ? !!this.templateConfig : true;
 
     if (!doesPipelineExists || !doesTemplateExists) {
       return <Spinner/>;
@@ -179,6 +179,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
         <div className={styles.mainContainer}>
           <div className={styles.navigation}>
             <NavigationWidget pipelineConfig={this.pipelineConfig!}
+                              templateConfig={this.templateConfig}
                               routeInfo={PipelineConfigPage.routeInfo()}
                               changeRoute={this.changeRoute.bind(this)}/>
           </div>

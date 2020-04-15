@@ -22,7 +22,7 @@ import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {StagesWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stages_tab_content";
+import {StagesWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/stages_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Stages Widget", () => {
@@ -162,7 +162,7 @@ describe("Stages Widget", () => {
   });
 
   function mount(stages: Stream<NameableSet<Stage>>,
-                 isUsingTemplate                         = Stream<boolean>(false),
+                 isUsingTemplate                         = false,
                  isEditable                              = true,
                  dependentPipelines: DependentPipeline[] = []) {
 

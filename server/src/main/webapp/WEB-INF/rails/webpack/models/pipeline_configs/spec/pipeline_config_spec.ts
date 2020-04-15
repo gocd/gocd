@@ -16,10 +16,11 @@
 
 import {SparkRoutes} from "helpers/spark_routes";
 import {EnvironmentVariable, EnvironmentVariables} from "models/environment_variables/types";
-import {GitMaterialAttributes, Material} from "models/materials/types";
+import {Filter} from "models/maintenance_mode/material";
+import {GitMaterialAttributes, Material, PluggableScmMaterialAttributes} from "models/materials/types";
 import {Job} from "models/pipeline_configs/job";
 import {PipelineParameter} from "models/pipeline_configs/parameter";
-import {PipelineConfig, Timer, TrackingTool} from "models/pipeline_configs/pipeline_config";
+import {Materials, PipelineConfig, Timer, TrackingTool} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 import {ExecTask} from "models/pipeline_configs/task";
 
@@ -282,3 +283,19 @@ function stubPipelineTrigger(name: string) {
                                                                                                  }
                                                                                                });
 }
+
+describe('MaterialsSpec', () => {
+  it('should return false if all scm and pluggable scm materials have non empty destination', () => {
+    const materials      = new Materials();
+    const gitAttrs       = new GitMaterialAttributes(undefined, true, "https://github.com/gocd/gocd");
+    const pluggableAttrs = new PluggableScmMaterialAttributes(undefined, false, "", "", new Filter([]));
+    materials.push(new Material("git", gitAttrs));
+    materials.push(new Material("plugin", pluggableAttrs));
+
+    expect(materials.scmMaterialsHaveDestination()).toBeFalse();
+    gitAttrs.destination("dest");
+    expect(materials.scmMaterialsHaveDestination()).toBeFalse();
+    pluggableAttrs.destination("dest1");
+    expect(materials.scmMaterialsHaveDestination()).toBeTrue();
+  });
+});

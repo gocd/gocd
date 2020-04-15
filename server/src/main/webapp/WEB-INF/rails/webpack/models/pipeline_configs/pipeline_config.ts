@@ -21,7 +21,7 @@ import _ from "lodash";
 import Stream from "mithril/stream";
 import {EnvironmentVariableJSON, EnvironmentVariables} from "models/environment_variables/types";
 import {MaterialJSON} from "models/materials/serialization";
-import {Material, MaterialAttributes} from "models/materials/types";
+import {Material, MaterialAttributes, PluggableScmMaterialAttributes, ScmMaterialAttributes} from "models/materials/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Origin, OriginJSON} from "models/origin";
 import {NameableSet} from "./nameable_set";
@@ -99,7 +99,7 @@ export class Timer extends ValidatableMixin {
     }
 
     return {
-      spec: this.spec(),
+      spec:            this.spec(),
       only_on_changes: this.onlyOnChanges()
     };
   }
@@ -143,10 +143,10 @@ export class TrackingTool extends ValidatableMixin {
     }
 
     return {
-      type: "generic",
+      type:       "generic",
       attributes: {
         url_pattern: this.urlPattern(),
-        regex: this.regex()
+        regex:       this.regex()
       }
     };
   }
@@ -280,5 +280,21 @@ export class Materials extends Array<Material> {
     if (index > -1) {
       this.splice(index, 1);
     }
+  }
+
+  scmMaterialsHaveDestination(): boolean {
+    const hasScmMaterialWithEmptyDestination          = this
+      .filter((material) => material.attributes() instanceof ScmMaterialAttributes)
+      .some((material) => {
+        const attrs = material.attributes() as ScmMaterialAttributes;
+        return _.isEmpty(attrs.destination());
+      });
+    const hasPluggableScmMaterialWithEmptyDestination = this
+      .filter((material) => material.attributes() instanceof PluggableScmMaterialAttributes)
+      .some((material) => {
+        const attrs = material.attributes() as PluggableScmMaterialAttributes;
+        return _.isEmpty(attrs.destination());
+      });
+    return !hasScmMaterialWithEmptyDestination && !hasPluggableScmMaterialWithEmptyDestination;
   }
 }

@@ -56,7 +56,8 @@ export class MaterialModal extends Modal {
 
   static forAdd(materials: Stream<Materials>, scms: Stream<Scms>, packageRepositories: Stream<PackageRepositories>,
                 pluginInfos: Stream<PluginInfos>, onSuccessfulAdd: () => Promise<any>) {
-    return new MaterialModal("Add material", Stream(new Material("git")), materials, scms, packageRepositories, pluginInfos, onSuccessfulAdd, true);
+    const materialType = materials().scmMaterialsHaveDestination() ? "git" : "dependency";
+    return new MaterialModal("Add material", Stream(new Material(materialType)), materials, scms, packageRepositories, pluginInfos, onSuccessfulAdd, true);
   }
 
   static forEdit(material: Material, materials: Stream<Materials>, scms: Stream<Scms>,
@@ -71,9 +72,18 @@ export class MaterialModal extends Modal {
   }
 
   body(): m.Children {
+    const allScmMaterialsHaveDestination = this.materials().scmMaterialsHaveDestination();
+    const maybeMsg                       = this.isNew && !allScmMaterialsHaveDestination
+      ? <FlashMessage type={MessageType.warning} dataTestId={"materials-destination-warning-message"}>
+        In order to configure multiple SCM materials for this pipeline, each of its material needs have to a 'Destination Directory' specified. Please
+        edit the existing material and specify a 'Destination Directory' in order to proceed with this operation.
+      </FlashMessage>
+      : undefined;
     return <div>
       <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
+      {maybeMsg}
       <MaterialEditor material={this.entity()} showExtraMaterials={true} disabledMaterialTypeSelection={!this.isNew}
+                      disableScmMaterials={!allScmMaterialsHaveDestination}
                       pluggableScms={this.pluggableScms()} packageRepositories={this.packageRepositories()} pluginInfos={this.pluginInfos()}/>
     </div>;
   }
@@ -98,7 +108,9 @@ export class MaterialModal extends Modal {
             this.entity().consumeErrorsResponse(parse.data);
             this.errorMessage(parse.message);
 
-            this.materials().delete(this.entity());
+            if (this.isNew) {
+              this.materials().delete(this.entity());
+            }
           });
     }
   }

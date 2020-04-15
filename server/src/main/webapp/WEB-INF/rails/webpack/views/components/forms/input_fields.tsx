@@ -115,6 +115,7 @@ interface FormResetButtonAttrs {
 export interface Option {
   id: string;
   text: string;
+  disabled?:boolean;
 }
 
 interface SelectFieldAttrs extends RestyleAttrs<Styles> {
@@ -732,16 +733,19 @@ export class SelectFieldOptions extends RestyleViewComponent<Styles, SelectField
     return _.map(vnode.attrs.items, (optionOrString: Option | string) => {
       let id: string;
       let text: string;
+      let disabled = false;
       if (typeof optionOrString === "string") {
         id   = optionOrString as string;
         text = optionOrString as string;
       } else {
-        id   = (optionOrString as Option).id;
-        text = (optionOrString as Option).text;
+        id       = (optionOrString as Option).id;
+        text     = (optionOrString as Option).text;
+        disabled = (optionOrString as Option).disabled || disabled;
       }
 
       return <option key={id}
                      value={id}
+                     disabled={disabled}
                      selected={vnode.attrs.selected === id}>{text}</option>;
     });
   }

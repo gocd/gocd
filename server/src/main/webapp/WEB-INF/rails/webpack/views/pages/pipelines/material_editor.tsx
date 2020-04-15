@@ -54,6 +54,7 @@ interface Attrs {
   packageRepositories?: PackageRepositories;
   pluginInfos?: PluginInfos;
   pluggableScms?: Scms;
+  disableScmMaterials?: boolean;
 }
 
 export class MaterialEditor extends MithrilViewComponent<Attrs> {
@@ -70,11 +71,12 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     const showLocalWorkingCopyOptions = "showLocalWorkingCopyOptions" in attrs ? !!attrs.showLocalWorkingCopyOptions : true;
     const scmOnly                     = !!attrs.scmOnly;
     const hideTestConnection          = !!attrs.hideTestConnection;
+    const disableScmMaterials         = attrs.disableScmMaterials !== undefined && attrs.disableScmMaterials === true;
 
-    const supportedMaterials: Array<Option | string> = this.supportedMaterials(scmOnly);
+    const supportedMaterials: Array<Option | string> = this.supportedMaterials(scmOnly, disableScmMaterials);
     if (!!attrs.showExtraMaterials) {
       supportedMaterials.push({id: "package", text: "Package"});
-      supportedMaterials.push({id: "plugin", text: "SCM"});
+      supportedMaterials.push({id: "plugin", text: "SCM", disabled: disableScmMaterials});
     }
 
     return <FormBody>
@@ -94,13 +96,13 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     </FormBody>;
   }
 
-  supportedMaterials(scmOnly: boolean): Option[] {
+  supportedMaterials(scmOnly: boolean, disableScmMaterials: boolean): Option[] {
     const options = [
-      {id: "git", text: "Git"},
-      {id: "hg", text: "Mercurial"},
-      {id: "svn", text: "Subversion"},
-      {id: "p4", text: "Perforce"},
-      {id: "tfs", text: "Team Foundation Server"},
+      {id: "git", text: "Git", disabled: disableScmMaterials} as Option,
+      {id: "hg", text: "Mercurial", disabled: disableScmMaterials},
+      {id: "svn", text: "Subversion", disabled: disableScmMaterials},
+      {id: "p4", text: "Perforce", disabled: disableScmMaterials},
+      {id: "tfs", text: "Team Foundation Server", disabled: disableScmMaterials},
     ];
 
     if (!scmOnly) {

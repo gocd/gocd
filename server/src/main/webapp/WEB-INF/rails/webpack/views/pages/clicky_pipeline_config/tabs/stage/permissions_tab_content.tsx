@@ -87,6 +87,9 @@ export class PermissionsTabContent extends TabContent<Stage> {
     return <div data-test-id="users-and-roles">
       <div data-test-id="users">
         <h3>Users</h3>
+        <FlashMessage message={stage.approval().authorization().errors().errorsForDisplay("users")}
+                      dataTestId="users-errors"
+                      type={MessageType.alert}/>
         {
           users.map((user, index) => this.getInputField(
             "username", user, users, index, new RolesSuggestionProvider(Stream([] as string[]), [])
@@ -97,6 +100,9 @@ export class PermissionsTabContent extends TabContent<Stage> {
 
       <div data-test-id="roles">
         <h3>Roles</h3>
+        <FlashMessage message={stage.approval().authorization().errors().errorsForDisplay("roles")}
+                      dataTestId="roles-errors"
+                      type={MessageType.alert}/>
         {
           roles.map((role, index) => this.getInputField(
             "role", role, roles, index, new RolesSuggestionProvider(this.allRoles, roles.map(s => s()))

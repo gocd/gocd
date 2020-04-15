@@ -20,6 +20,8 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Scm, Scms} from "models/materials/pluggable_scm";
+import {ScrollManager} from "views/components/anchor/anchor";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Link} from "views/components/link";
 import styles from "views/pages/package_repositories/index.scss";
 import {CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos} from "views/pages/page_operations";
@@ -28,10 +30,24 @@ import {PluggableScmWidget} from "./pluggable_scm_widget";
 interface Attrs extends RequiresPluginInfos, EditOperation<Scm>, CloneOperation<Scm>, DeleteOperation<Scm> {
   scms: Stream<Scms>;
   showUsages: (scm: Scm, e: MouseEvent) => void;
+  scrollOptions: PluggableSCMScrollOptions;
+}
+
+export interface PluggableSCMScrollOptions {
+  sm: ScrollManager;
+  shouldOpenEditView: boolean;
 }
 
 export class PluggableScmsWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
+    if (vnode.attrs.scrollOptions.sm.hasTarget()) {
+      const target           = vnode.attrs.scrollOptions.sm.getTarget();
+      const hasAnchorElement = vnode.attrs.scms().some((temp) => temp.name() === target);
+      if (!hasAnchorElement) {
+        const msg = `'${target}' SCM has not been set up.`;
+        return <FlashMessage dataTestId="anchor-scm-not-present" type={MessageType.alert} message={msg}/>;
+      }
+    }
     if (!vnode.attrs.scms || _.isEmpty(vnode.attrs.scms())) {
       return <div className={styles.tips} data-test-id="pluggable-scm-info">
         <ul>
@@ -46,6 +62,7 @@ export class PluggableScmsWidget extends MithrilViewComponent<Attrs> {
       {vnode.attrs.scms().map((scm) => {
         const pluginInfo = _.find(vnode.attrs.pluginInfos(), {id: scm.pluginMetadata().id()});
         return <PluggableScmWidget scm={scm}
+                                   sm={vnode.attrs.scrollOptions}
                                    disableActions={pluginInfo === undefined}
                                    {...vnode.attrs}/>;
       })}

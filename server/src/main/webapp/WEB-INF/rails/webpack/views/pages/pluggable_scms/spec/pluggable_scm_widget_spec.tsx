@@ -16,7 +16,7 @@
 
 import m from "mithril";
 import {Scm} from "models/materials/pluggable_scm";
-import {TestHelper} from "views/pages/spec/test_helper";
+import {stubAllMethods, TestHelper} from "views/pages/spec/test_helper";
 import {PluggableScmWidget} from "../pluggable_scm_widget";
 import {getPluggableScm} from "./test_data";
 
@@ -36,9 +36,14 @@ describe('PluggableScmWidgetSpec', () => {
   afterEach((done) => helper.unmount(done));
 
   function mount() {
+    const scrollOptions = {
+      sm:                 stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]),
+      shouldOpenEditView: false
+    };
     helper.mount(() => <PluggableScmWidget scm={scm} disableActions={disableActions}
                                            onEdit={editSpy} onClone={cloneSpy} onDelete={deleteSpy}
-                                           showUsages={usagesSpy}/>);
+                                           showUsages={usagesSpy}
+                                           scrollOptions={scrollOptions}/>);
   }
 
   it('should render scm details and action buttons', () => {

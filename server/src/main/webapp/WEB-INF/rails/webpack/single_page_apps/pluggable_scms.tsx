@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-import {SinglePageAppBase} from "helpers/spa_base";
+import {RoutedSinglePageApp} from "helpers/spa_base";
 import {PluggableScmsPage} from "views/pages/pluggable_scms";
 
-export class PluggableScmsSPA extends SinglePageAppBase {
+export class PluggableScmsSPA extends RoutedSinglePageApp {
   constructor() {
-    super(PluggableScmsPage);
+    super({
+            "/":                 PluggableScmsPage,
+            "/:name":            PluggableScmsPage,
+            "/:name/:operation": PluggableScmsPage
+          });
   }
 }
 

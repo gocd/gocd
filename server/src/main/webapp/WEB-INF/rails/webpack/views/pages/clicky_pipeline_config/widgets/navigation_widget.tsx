@@ -20,12 +20,15 @@ import {Job} from "models/pipeline_configs/job";
 import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
+import {TemplateConfig} from "models/pipeline_configs/template_config";
 import s from "underscore.string";
 import {CollapsibleTree} from "views/components/hierarchy/tree";
+import * as Icons from "views/components/icons";
 import {PipelineConfigRouteParams, RouteInfo} from "views/pages/clicky_pipeline_config/pipeline_config";
 
 export interface Attrs {
   pipelineConfig: PipelineConfig;
+  templateConfig?: TemplateConfig;
   routeInfo: RouteInfo<PipelineConfigRouteParams>;
 
   changeRoute(newRoute: string, success: () => void): void;
@@ -50,15 +53,24 @@ export class NavigationWidget extends MithrilViewComponent<Attrs> {
       && vnode.attrs.routeInfo.params.stage_name === stage
       && vnode.attrs.routeInfo.params.job_name === job;
   }
+
   view(vnode: m.Vnode<Attrs>): m.Children {
     const pipelineConfig   = vnode.attrs.pipelineConfig;
     const routeForPipeline = `${pipelineConfig.name()}/general`;
+
+    let templateOrStages: m.Children;
+    if (pipelineConfig.isUsingTemplate()) {
+      templateOrStages = this.template(vnode.attrs.templateConfig!);
+    } else {
+      templateOrStages = this.stages(pipelineConfig.stages(), pipelineConfig.name(), vnode);
+    }
+
     return <CollapsibleTree datum={pipelineConfig.name()}
                             collapsed={this.treeStage(vnode, pipelineConfig.name())}
                             selected={NavigationWidget.isPipelineRoute(vnode)}
                             onclick={this.onClick.bind(this, vnode, routeForPipeline)}
                             dataTestId={NavigationWidget.dataTestId(pipelineConfig.name())}>
-      {this.stages(pipelineConfig.stages(), pipelineConfig.name(), vnode)}
+      {templateOrStages}
     </CollapsibleTree>;
   }
 
@@ -85,12 +97,31 @@ export class NavigationWidget extends MithrilViewComponent<Attrs> {
     });
   }
 
+  template(templateConfig: TemplateConfig) {
+    const datum = (<div>
+      <a href="#">{templateConfig.name()}</a>
+      <Icons.Search iconOnly={true} onclick={this.onTemplateViewClick.bind(this, templateConfig.name())}/>
+    </div>);
+
+    return <CollapsibleTree datum={datum}
+                            onclick={this.onTemplateEditClick.bind(this, templateConfig.name())}
+                            dataTestId={NavigationWidget.dataTestId(templateConfig.name())}/>;
+  }
+
   onClick(vnode: m.Vnode<Attrs>, newRoute: string) {
     vnode.attrs.changeRoute(newRoute, () => {
       if (m.route.get() !== newRoute) {
         m.route.set(newRoute);
       }
     });
+  }
+
+  onTemplateViewClick(templateName: string) {
+    window.open(`/go/admin/templates#!${templateName}/view`);
+  }
+
+  onTemplateEditClick(templateName: string) {
+    window.open(`/go/admin/templates/${templateName}/general`);
   }
 
   treeStage(vnode: m.Vnode<Attrs>, entityName: string) {

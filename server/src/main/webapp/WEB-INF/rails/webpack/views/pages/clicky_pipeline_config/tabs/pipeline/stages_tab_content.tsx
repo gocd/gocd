@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
+import {ApiResult} from "helpers/api_request_builder";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -23,28 +23,34 @@ import {
   PipelineStructureWithAdditionalInfo
 } from "models/internal_pipeline_structure/pipeline_structure";
 import {PipelineStructureCRUD} from "models/internal_pipeline_structure/pipeline_structure_crud";
-import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
-import {Stage} from "models/pipeline_configs/stage";
+import {Template, TemplateCache} from "models/pipeline_configs/templates_cache";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
-import s from "underscore.string";
-import {Secondary} from "views/components/buttons";
-import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
-import {Delete} from "views/components/icons";
-import {Table} from "views/components/table";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {PipelineConfigPage, PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
-import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
-import {AddStageModal} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/add_stage_modal";
+import {ConfigurationTypeWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/configuration_type_widget";
+import {PipelineTemplateWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/pipeline_template_widget";
+import {StagesWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/stages_widget";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
-import {TemplateEditor} from "views/pages/pipelines/template_editor";
-import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 
 export class StagesTabContent extends TabContent<PipelineConfig> {
-  private dependentPipelines: Stream<DependentPipeline[]> = Stream([] as DependentPipeline[]);
+  private isPipelineDefinedOriginallyFromTemplate: Stream<boolean> = Stream();
+  private stageOrTemplateProperty: Stream<"template" | "stage">    = Stream();
+  private dependentPipelines: Stream<DependentPipeline[]>          = Stream([] as DependentPipeline[]);
+
+  private cache: TemplateCache          = new TemplateCache();
+  private templates: Stream<Template[]> = Stream();
 
   constructor() {
     super();
     this.fetchStageDependencyInformation(PipelineConfigPage.routeInfo().params.pipeline_name);
+
+    const self = this;
+    self.cache.prime(() => {
+      self.templates(self.cache.contents() as Template[]);
+    }, () => {
+      self.templates([] as Template[]);
+    });
   }
 
   static tabName(): string {
@@ -52,10 +58,21 @@ export class StagesTabContent extends TabContent<PipelineConfig> {
   }
 
   public shouldShowSaveAndResetButtons(): boolean {
-    return false;
+    return this.stageOrTemplateProperty() === "template" && (this.templates() && this.templates().length > 0);
   }
 
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
+    //initialize only once
+    if (this.isPipelineDefinedOriginallyFromTemplate() === undefined) {
+      this.isPipelineDefinedOriginallyFromTemplate(pipelineConfig.isUsingTemplate());
+      m.redraw();
+    }
+
+    if (!this.stageOrTemplateProperty()) {
+      this.stageOrTemplateProperty = Stream(pipelineConfig.isUsingTemplate() ? "template" : "stage");
+      m.redraw();
+    }
+
     return pipelineConfig;
   }
 
@@ -64,17 +81,15 @@ export class StagesTabContent extends TabContent<PipelineConfig> {
                      flashMessage: FlashMessageModelWithTimeout,
                      save: () => any,
                      reset: () => any) {
-    return [
-      <TemplateEditor pipelineConfig={entity} isUsingTemplate={entity.isUsingTemplate()}
-                      paramList={entity.parameters}/>,
-      <StagesWidget stages={entity.stages}
-                    dependentPipelines={this.dependentPipelines}
-                    isUsingTemplate={entity.isUsingTemplate()}
-                    flashMessage={flashMessage}
-                    pipelineConfigSave={save}
-                    pipelineConfigReset={reset}
-                    isEditable={!entity.origin().isDefinedInConfigRepo()}/>
-    ];
+
+    return <StagesOrTemplatesWidget entity={entity}
+                                    templateConfig={templateConfig}
+                                    isPipelineDefinedOriginallyFromTemplate={this.isPipelineDefinedOriginallyFromTemplate}
+                                    stageOrTemplateProperty={this.stageOrTemplateProperty}
+                                    flashMessage={flashMessage}
+                                    dependentPipelines={this.dependentPipelines}
+                                    templates={this.templates}
+                                    save={save} reset={reset}/>;
   }
 
   private fetchStageDependencyInformation(pipelineName: string) {
@@ -91,112 +106,61 @@ export class StagesTabContent extends TabContent<PipelineConfig> {
   }
 }
 
-export interface Attrs {
-  stages: Stream<NameableSet<Stage>>;
-  isUsingTemplate: Stream<boolean>;
-  isEditable: boolean;
+interface StagesOrTemplatesAttrs {
+  entity: PipelineConfig;
+  templateConfig: TemplateConfig;
   flashMessage: FlashMessageModelWithTimeout;
-  pipelineConfigSave: () => any;
-  pipelineConfigReset: () => any;
+  save: () => any;
+  reset: () => any;
   dependentPipelines: Stream<DependentPipeline[]>;
+  stageOrTemplateProperty: Stream<"template" | "stage">;
+  isPipelineDefinedOriginallyFromTemplate: Stream<boolean>;
+  templates: Stream<Template[]>;
 }
 
-export interface State {
-  entityReOrderHandler: EntityReOrderHandler;
-  getModal: () => AddStageModal;
+interface StagesOrTemplatesState {
+  isUsingTemplate: () => boolean;
+  stageOrTemplatePropertyStream: (value?: string) => string;
 }
 
-export class StagesWidget extends MithrilComponent<Attrs, State> {
-  oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.entityReOrderHandler = new EntityReOrderHandler("stage",
-                                                                vnode.attrs.flashMessage,
-                                                                vnode.attrs.pipelineConfigSave,
-                                                                vnode.attrs.pipelineConfigReset);
+export class StagesOrTemplatesWidget extends MithrilComponent<StagesOrTemplatesAttrs, StagesOrTemplatesState> {
+  oninit(vnode: m.Vnode<StagesOrTemplatesAttrs, StagesOrTemplatesState>) {
 
-    vnode.state.getModal = () => new AddStageModal(vnode.attrs.stages(), vnode.attrs.pipelineConfigSave);
+    vnode.state.stageOrTemplatePropertyStream = (value?: string) => {
+      if (value) {
+        vnode.attrs.reset();
+        vnode.attrs.stageOrTemplateProperty((value === "template") ? "template" : "stage");
+      }
+
+      return vnode.attrs.stageOrTemplateProperty();
+    };
+
+    vnode.state.isUsingTemplate = () => vnode.attrs.stageOrTemplateProperty() === "template";
   }
 
-  view(vnode: m.Vnode<Attrs, State>) {
-    if (vnode.attrs.isUsingTemplate()) {
-      return;
+  view(vnode: m.Vnode<StagesOrTemplatesAttrs, StagesOrTemplatesState>) {
+    const entity = vnode.attrs.entity;
+
+    let stagesOrTemplatesView: m.Children;
+
+    if (vnode.state.isUsingTemplate()) {
+      stagesOrTemplatesView = <PipelineTemplateWidget pipelineConfig={entity}
+                                                      templates={vnode.attrs.templates}/>;
+    } else {
+      stagesOrTemplatesView = <StagesWidget stages={entity.stages}
+                                            dependentPipelines={vnode.attrs.dependentPipelines}
+                                            isUsingTemplate={entity.isUsingTemplate()}
+                                            flashMessage={vnode.attrs.flashMessage}
+                                            pipelineConfigSave={vnode.attrs.save}
+                                            pipelineConfigReset={vnode.attrs.reset}
+                                            isEditable={!entity.origin().isDefinedInConfigRepo()}/>;
     }
 
-    return <div data-test-id={"stages-container"}>
-      {vnode.state.entityReOrderHandler.getReOrderConfirmationView()}
-      <Table headers={StagesWidget.getTableHeaders(vnode.attrs.isEditable)}
-             data={this.getTableData(vnode)}
-             draggable={vnode.attrs.isEditable}
-             dragEnd={vnode.state.entityReOrderHandler.onReOder.bind(vnode.state.entityReOrderHandler)}
-             dragHandler={StagesWidget.reArrange.bind(this, vnode.attrs.stages)}/>
-      <Secondary disabled={!vnode.attrs.isEditable}
-                 dataTestId={"add-stage-button"}
-                 onclick={() => vnode.state.getModal().render()}>Add new stage</Secondary>
-    </div>;
-  }
-
-  private static getTableHeaders(isEditable: boolean) {
-    const headers = ["Stage Name", "Trigger Type", "Jobs"];
-    if (isEditable) {
-      headers.push("Remove");
-    }
-    return headers;
-  }
-
-  private static reArrange(stages: Stream<NameableSet<Stage>>, oldIndex: number, newIndex: number) {
-    const array = Array.from(stages().values());
-    array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
-    stages(new NameableSet(array));
-  }
-
-  private getTableData(vnode: m.Vnode<Attrs, State>): m.Child[][] {
-    const stages     = Array.from(vnode.attrs.stages().values());
-    const isEditable = vnode.attrs.isEditable;
-
-    return stages.map((stage: Stage) => {
-      let deleteDisabledMessage: string | undefined;
-
-      if (Array.from(stages.values()).length === 1) {
-        deleteDisabledMessage = "Can not delete the only stage from the pipeline.";
-      }
-
-      const stageDependentPipelines = vnode.attrs.dependentPipelines().reduce((dependent, ele) => {
-        if (ele.depends_on_stage === stage.name()) {
-          dependent.push(ele.dependent_pipeline_name);
-        }
-        return dependent;
-      }, [] as string[]);
-
-      if (stageDependentPipelines.length > 0) {
-        deleteDisabledMessage = `Can not delete stage '${stage.name()}' as pipeline(s) '${stageDependentPipelines}' depends on it.`;
-      }
-
-      const cells: m.Child[] = [stage.name(), stage.approval().typeAsString(), stage.jobs().length];
-      if (isEditable) {
-        cells.push(<Delete iconOnly={true}
-                           title={deleteDisabledMessage}
-                           onclick={this.deleteStage.bind(this, vnode, stage)}
-                           disabled={!!deleteDisabledMessage}
-                           data-test-id={`${s.slugify(stage.name())}-delete-icon`}/>);
-      }
-      return cells;
-    });
-  }
-
-  private deleteStage(vnode: m.Vnode<Attrs, State>, stageToDelete: Stage) {
-    new ConfirmationDialog(
-      "Delete Stage",
-      <div>Do you want to delete the stage '<em>{stageToDelete.name()}</em>'?</div>,
-      this.onDelete.bind(this, vnode, stageToDelete)
-    ).render();
-  }
-
-  private onDelete(vnode: m.Vnode<Attrs, State>, stageToDelete: Stage) {
-    vnode.attrs.stages().delete(stageToDelete);
-    return vnode.attrs.pipelineConfigSave().then(() => {
-      vnode.attrs.flashMessage.setMessage(MessageType.success, `Stage '${stageToDelete.name()}' deleted successfully.`);
-    }).catch((errorResponse: ErrorResponse) => {
-      vnode.attrs.stages().add(stageToDelete);
-      vnode.attrs.flashMessage.consumeErrorResponse(errorResponse);
-    }).finally(m.redraw.sync);
+    return [
+      <ConfigurationTypeWidget pipelineConfig={entity}
+                               isPipelineDefinedOriginallyFromTemplate={vnode.attrs.isPipelineDefinedOriginallyFromTemplate}
+                               property={vnode.state.stageOrTemplatePropertyStream}/>,
+      stagesOrTemplatesView
+    ];
   }
 }

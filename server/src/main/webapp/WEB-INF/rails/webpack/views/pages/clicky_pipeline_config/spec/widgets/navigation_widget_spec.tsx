@@ -17,6 +17,7 @@
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
+import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {PipelineConfigRouteParams, RouteInfo} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {Attrs, NavigationWidget} from "views/pages/clicky_pipeline_config/widgets/navigation_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -41,7 +42,7 @@ describe("PipelineNavigation", () => {
 
     mount(pipelineConfig);
 
-    helper.clickByTestId("nav-test-icon");
+    helper.clickByTestId("tree-node-test");
 
     expect(helper.byTestId("tree-node-stageone")).toBeInDOM();
     expect(helper.byTestId("tree-node-stageone")).toHaveText("StageOne");
@@ -53,7 +54,7 @@ describe("PipelineNavigation", () => {
   it("should render jobs on click of stage name", () => {
     const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
     mount(pipelineConfig);
-    helper.clickByTestId("nav-test-icon");
+    helper.clickByTestId("tree-node-test");
 
     helper.clickByTestId("nav-stagetwo-icon");
 
@@ -121,15 +122,41 @@ describe("PipelineNavigation", () => {
     expect(NavigationWidget.isJobRoute(vnode, "stage", "job")).toBeTrue();
   });
 
-  function mount(pipelineConfig: PipelineConfig, routeInfo?: RouteInfo<PipelineConfigRouteParams>) {
+  it("should render template", () => {
+    const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTemplate());
+    const template       = new TemplateConfig("template1", []);
+
+    mount(pipelineConfig, template);
+
+    expect(helper.byTestId("tree-node-pipeline-from-template")).toBeInDOM();
+    expect(helper.byTestId("tree-node-pipeline-from-template")).toHaveText("pipeline-from-template");
+
+    expect(helper.byTestId("tree-node-template1")).toBeInDOM();
+    expect(helper.byTestId("tree-node-template1")).toHaveText("template1");
+  });
+
+  it("should render template name as a link with view template option", () => {
+    const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTemplate());
+    const template       = new TemplateConfig("template1", []);
+
+    mount(pipelineConfig, template);
+
+    expect(helper.q("a", helper.byTestId("tree-node-template1"))).toHaveText("template1");
+    expect(helper.byTestId("Search-icon")).toBeInDOM();
+  });
+
+  function mount(pipelineConfig: PipelineConfig,
+                 templateConfig?: TemplateConfig,
+                 routeInfo?: RouteInfo<PipelineConfigRouteParams>) {
     if (!routeInfo) {
       routeInfo = {
-        route: "up42/general",
+        route: `${pipelineConfig.name()}/general`,
         params: {pipeline_name: pipelineConfig.name(), tab_name: "general"}
       };
     }
 
     helper.mount(() => <NavigationWidget pipelineConfig={pipelineConfig}
+                                         templateConfig={templateConfig}
                                          routeInfo={routeInfo!}
                                          changeRoute={changeRoute}/>);
   }

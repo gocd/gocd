@@ -102,7 +102,7 @@ public class SCMsTest {
         assertThat(duplicate1.errors().getAllOn(SCM.NAME).contains(String.format("Cannot save SCM, found multiple SCMs called '%s'. SCM names are case-insensitive and must be unique.", duplicate1.getName()))).isTrue();
         assertThat(duplicate2.errors().isEmpty()).isFalse();
         assertThat(duplicate2.errors().getAllOn(SCM.NAME).contains(String.format("Cannot save SCM, found multiple SCMs called '%s'. SCM names are case-insensitive and must be unique.", duplicate2.getName()))).isTrue();
-        assertThat(unique.errors().getAllOn(SCM.NAME)).isNull();
+        assertThat(unique.errors().getAllOn(SCM.NAME)).isEmpty();
     }
 
     @Test
@@ -130,9 +130,9 @@ public class SCMsTest {
 
         String expectedErrorMessage = "Cannot save SCM, found duplicate SCMs. scm1, scm3, scm5";
         assertThat(scm1.errors().getAllOn(SCM.SCM_ID)).isEqualTo(asList(expectedErrorMessage));
-        assertThat(scm2.errors().getAllOn(SCM.SCM_ID)).isNull();
+        assertThat(scm2.errors().getAllOn(SCM.SCM_ID)).isEmpty();
         assertThat(scm3.errors().getAllOn(SCM.SCM_ID)).isEqualTo(asList(expectedErrorMessage));
-        assertThat(scm4.errors().getAllOn(SCM.SCM_ID)).isNull();
+        assertThat(scm4.errors().getAllOn(SCM.SCM_ID)).isEmpty();
         assertThat(scm5.errors().getAllOn(SCM.SCM_ID)).isEqualTo(asList(expectedErrorMessage));
     }
 

@@ -37,8 +37,7 @@ import java.util.Map;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -319,7 +318,7 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setFolder("f1/f2/f3");
         pluggableSCMMaterialConfig.validateNotSubdirectoryOf("f1/f2/f");
 
-        assertNull(pluggableSCMMaterialConfig.errors().getAllOn(FOLDER));
+        assertThat(pluggableSCMMaterialConfig.errors().getAllOn(FOLDER), is(empty()));
     }
 
     @Test
@@ -348,6 +347,6 @@ public class PluggableSCMMaterialConfigTest {
         pluggableSCMMaterialConfig.setFolder(material1.getAbsolutePath());
         pluggableSCMMaterialConfig.validateNotSubdirectoryOf(material2.toAbsolutePath().toString());
 
-        assertNull(pluggableSCMMaterialConfig.errors().getAllOn(FOLDER));
+        assertThat(pluggableSCMMaterialConfig.errors().getAllOn(FOLDER), is(empty()));
     }
 }

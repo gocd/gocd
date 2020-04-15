@@ -15,87 +15,85 @@
  */
 package com.thoughtworks.go.config.materials;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
+import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class AbstractMaterialConfigTest {
+class AbstractMaterialConfigTest {
     @Test
-    public void shouldRecomputePipelineUniqueFingerprint_whenAttributesChanged() {
+    void shouldRecomputePipelineUniqueFingerprint_whenAttributesChanged() {
         TestMaterialConfig testMaterialConfig = new TestMaterialConfig("foo");
 
         String pipelineUniqueFingerprint = testMaterialConfig.getPipelineUniqueFingerprint();
         testMaterialConfig.setConfigAttributes(m("bar", "baz"));
-        assertThat(testMaterialConfig.getPipelineUniqueFingerprint(), not(pipelineUniqueFingerprint));
+        assertThat(testMaterialConfig.getPipelineUniqueFingerprint()).isNotEqualTo(pipelineUniqueFingerprint);
     }
 
     @Test
-    public void shouldNotSetMaterialNameIfItIsSetToEmptyAsItsAnOptionalField() {
+    void shouldNotSetMaterialNameIfItIsSetToEmptyAsItsAnOptionalField() {
         AbstractMaterialConfig materialConfig = new TestMaterialConfig("");
         Map<String, String> map = new HashMap<>();
         map.put(AbstractMaterialConfig.MATERIAL_NAME, "");
 
         materialConfig.setConfigAttributes(map);
 
-        assertThat(materialConfig.getName(), is(nullValue()));
+        assertThat(materialConfig.getName()).isNull();
     }
 
     @Test
-    public void shouldRecomputeSqlCriteriaAndXmlAttributeMap_whenAttributesChanged() {
+    void shouldRecomputeSqlCriteriaAndXmlAttributeMap_whenAttributesChanged() {
         AbstractMaterialConfig testMaterialConfig = new TestMaterialConfig("foo");
 
         Map<String, Object> sqlCriteria = testMaterialConfig.getSqlCriteria();
         testMaterialConfig.setConfigAttributes(m("bar", "baz"));
-        assertThat(testMaterialConfig.getSqlCriteria(), not(sameInstance(sqlCriteria)));
-        assertThat(testMaterialConfig.getSqlCriteria().get("foo"), is("baz"));
+        assertThat(testMaterialConfig.getSqlCriteria()).isNotEqualTo(sqlCriteria);
+        assertThat(testMaterialConfig.getSqlCriteria().get("foo")).isEqualTo("baz");
     }
 
     @Test
-    public void shouldReturnTrueIfMaterialNameIsUsedInPipelineTemplate() {
+    void shouldReturnTrueIfMaterialNameIsUsedInPipelineTemplate() {
         AbstractMaterialConfig material = new TestMaterialConfig("");
         material.setName(new CaseInsensitiveString("funky_name"));
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${funky_name}", "", false, null, new BaseCollection<>());
-        assertThat(material.isUsedInLabelTemplate(pipelineConfig), is(true));
+        assertThat(material.isUsedInLabelTemplate(pipelineConfig)).isTrue();
     }
 
     @Test
-    public void shouldReturnTrueIfMaterialNameIsUsedInPipelineTemplate_caseInsensitive() {
+    void shouldReturnTrueIfMaterialNameIsUsedInPipelineTemplate_caseInsensitive() {
         AbstractMaterialConfig material = new TestMaterialConfig("");
         material.setName(new CaseInsensitiveString("funky_name"));
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${funky_Name}", "", false, null, new BaseCollection<>());
-        assertThat(material.isUsedInLabelTemplate(pipelineConfig), is(true));
+        assertThat(material.isUsedInLabelTemplate(pipelineConfig)).isTrue();
     }
 
     @Test
-    public void shouldReturnFalseIfMaterialNameIsNotUsedInPipelineTemplate() {
+    void shouldReturnFalseIfMaterialNameIsNotUsedInPipelineTemplate() {
         AbstractMaterialConfig material = new TestMaterialConfig("");
         material.setName(new CaseInsensitiveString("funky_name"));
-        assertThat(material.isUsedInLabelTemplate(new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${test1}-test", "", false, null, new BaseCollection<>())), is(false));
+        assertThat(material.isUsedInLabelTemplate(new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${test1}-test", "", false, null, new BaseCollection<>()))).isFalse();
     }
 
     @Test
-    public void shouldReturnFalseIfMaterialNameIsNotDefined() {
+    void shouldReturnFalseIfMaterialNameIsNotDefined() {
         AbstractMaterialConfig material = new TestMaterialConfig("test");
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${test}-test", "", false, null, new BaseCollection<>());
-        assertThat(material.isUsedInLabelTemplate(pipelineConfig), is(false));
+        assertThat(material.isUsedInLabelTemplate(pipelineConfig)).isFalse();
     }
 
     @Test
-    public void shouldNotUseNameFieldButInsteadUseTheNameMethodToCheckIfTheMaterialNameIsUsedInThePipelineLabel() throws Exception {
+    void shouldNotUseNameFieldButInsteadUseTheNameMethodToCheckIfTheMaterialNameIsUsedInThePipelineLabel() throws Exception {
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
         when(pipelineConfig.getLabelTemplate()).thenReturn("${COUNT}-${hg}-${dep}-${pkg}-${scm}");
         MaterialConfig hg = mock(HgMaterialConfig.class);
@@ -111,10 +109,10 @@ public class AbstractMaterialConfigTest {
         when(aPluggableSCM.getName()).thenReturn(new CaseInsensitiveString("scm"));
         when(aPluggableSCM.isUsedInLabelTemplate(pipelineConfig)).thenCallRealMethod();
 
-        assertThat(hg.isUsedInLabelTemplate(pipelineConfig), is(true));
-        assertThat(dependency.isUsedInLabelTemplate(pipelineConfig), is(true));
-        assertThat(aPackage.isUsedInLabelTemplate(pipelineConfig), is(true));
-        assertThat(aPluggableSCM.isUsedInLabelTemplate(pipelineConfig), is(true));
+        assertThat(hg.isUsedInLabelTemplate(pipelineConfig)).isTrue();
+        assertThat(dependency.isUsedInLabelTemplate(pipelineConfig)).isTrue();
+        assertThat(aPackage.isUsedInLabelTemplate(pipelineConfig)).isTrue();
+        assertThat(aPluggableSCM.isUsedInLabelTemplate(pipelineConfig)).isTrue();
 
         verify(hg).getName();
         verify(dependency).getName();
@@ -123,17 +121,17 @@ public class AbstractMaterialConfigTest {
     }
 
     @Test
-    public void shouldHandleBlankMaterialName(){
+    void shouldHandleBlankMaterialName() {
         TestMaterialConfig materialConfig = new TestMaterialConfig("");
         materialConfig.setName((CaseInsensitiveString) null);
         materialConfig.validate(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
-        assertThat(materialConfig.errors().getAllOn(AbstractMaterialConfig.MATERIAL_NAME), is(Matchers.nullValue()));
+        assertThat(materialConfig.errors().getAllOn(AbstractMaterialConfig.MATERIAL_NAME)).isEmpty();
         materialConfig.setName(new CaseInsensitiveString(null));
         materialConfig.validate(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
-        assertThat(materialConfig.errors().getAllOn(AbstractMaterialConfig.MATERIAL_NAME), is(Matchers.nullValue()));
+        assertThat(materialConfig.errors().getAllOn(AbstractMaterialConfig.MATERIAL_NAME)).isEmpty();
         materialConfig.setName(new CaseInsensitiveString(""));
         materialConfig.validate(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
-        assertThat(materialConfig.errors().getAllOn(AbstractMaterialConfig.MATERIAL_NAME), is(Matchers.nullValue()));
+        assertThat(materialConfig.errors().getAllOn(AbstractMaterialConfig.MATERIAL_NAME)).isEmpty();
     }
 
     private Map<String, String> m(String key, String value) {
@@ -146,9 +144,9 @@ public class AbstractMaterialConfigTest {
         private final String displayName;
         private String bar = "bar";
         private String quux = "quux";
-        public static int PIPELINE_UNIQUE_ATTRIBUTE_ADDED = 0;
+        static int PIPELINE_UNIQUE_ATTRIBUTE_ADDED = 0;
 
-        public TestMaterialConfig(String displayName) {
+        TestMaterialConfig(String displayName) {
             super(displayName);
 
             this.displayName = displayName;

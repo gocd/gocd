@@ -25,44 +25,41 @@ import com.thoughtworks.go.domain.config.RepositoryMetadataStoreHelper;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
-import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.plugin.api.config.Property.PART_OF_IDENTITY;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
-public class PackageRepositoriesTest {
+class PackageRepositoriesTest {
 
     @Test
-    public void shouldCheckEqualityOfPackageRepositories() {
+    void shouldCheckEqualityOfPackageRepositories() {
         PackageRepository packageRepository = new PackageRepository();
         PackageRepositories packageRepositories = new PackageRepositories(packageRepository);
-        assertThat(packageRepositories, is(new PackageRepositories(packageRepository)));
+        assertThat(packageRepositories).isEqualTo(new PackageRepositories(packageRepository));
     }
 
     @Test
-    public void shouldFindRepositoryGivenTheRepoId() throws Exception {
+    void shouldFindRepositoryGivenTheRepoId() throws Exception {
         PackageRepository packageRepository1 = PackageRepositoryMother.create("repo-id1", "repo1", "plugin-id", "1.0", null);
         PackageRepository packageRepository2 = PackageRepositoryMother.create("repo-id2", "repo2", "plugin-id", "1.0", null);
 
         PackageRepositories packageRepositories = new PackageRepositories(packageRepository1, packageRepository2);
-        assertThat(packageRepositories.find("repo-id2"), is(packageRepository2));
+        assertThat(packageRepositories.find("repo-id2")).isEqualTo(packageRepository2);
     }
 
     @Test
-    public void shouldReturnNullIfNoMatchingRepoFound() throws Exception {
+    void shouldReturnNullIfNoMatchingRepoFound() throws Exception {
         PackageRepositories packageRepositories = new PackageRepositories();
-        assertThat(packageRepositories.find("not-found"), is(nullValue()));
+        assertThat(packageRepositories.find("not-found")).isNull();
     }
 
     @Test
-    public void shouldGetPackageRepositoryForGivenPackageId() throws Exception {
+    void shouldGetPackageRepositoryForGivenPackageId() throws Exception {
         PackageRepository repo1 = PackageRepositoryMother.create("repo-id1", "repo1", "plugin-id", "1.0", null);
         PackageDefinition packageDefinitionOne = PackageDefinitionMother.create("pid1", repo1);
         PackageDefinition packageDefinitionTwo = PackageDefinitionMother.create("pid2", repo1);
@@ -76,52 +73,52 @@ public class PackageRepositoriesTest {
 
         PackageRepositories packageRepositories = new PackageRepositories(repo1, repo2);
 
-        assertThat(packageRepositories.findPackageRepositoryHaving("pid3"), is(repo2));
-        assertThat(packageRepositories.findPackageRepositoryWithPackageIdOrBomb("pid3"), is(repo2));
+        assertThat(packageRepositories.findPackageRepositoryHaving("pid3")).isEqualTo(repo2);
+        assertThat(packageRepositories.findPackageRepositoryWithPackageIdOrBomb("pid3")).isEqualTo(repo2);
     }
 
     @Test
-    public void shouldReturnNullWhenRepositoryForGivenPackageNotFound() throws Exception {
+    void shouldReturnNullWhenRepositoryForGivenPackageNotFound() throws Exception {
         PackageRepositories packageRepositories = new PackageRepositories();
-        assertThat(packageRepositories.findPackageRepositoryHaving("invalid"), is(nullValue()));
+        assertThat(packageRepositories.findPackageRepositoryHaving("invalid")).isNull();
     }
 
     @Test
-    public void shouldThrowExceptionWhenRepositoryForGivenPackageNotFound() throws Exception {
+    void shouldThrowExceptionWhenRepositoryForGivenPackageNotFound() throws Exception {
         PackageRepositories packageRepositories = new PackageRepositories();
 
         try {
             packageRepositories.findPackageRepositoryWithPackageIdOrBomb("invalid");
             fail("should have thrown exception for not finding package repository");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("Could not find repository for given package id:[invalid]"));
+            assertThat(e.getMessage()).isEqualTo("Could not find repository for given package id:[invalid]");
         }
     }
 
     @Test
-    public void shouldFindPackageRepositoryById() throws Exception {
+    void shouldFindPackageRepositoryById() throws Exception {
         PackageRepositories packageRepositories = new PackageRepositories();
         packageRepositories.add(PackageRepositoryMother.create("repo1"));
         PackageRepository repo2 = PackageRepositoryMother.create("repo2");
         packageRepositories.add(repo2);
         packageRepositories.removePackageRepository("repo1");
 
-        assertThat(packageRepositories, Matchers.contains(repo2));
+        assertThat(packageRepositories).containsExactly(repo2);
     }
 
     @Test
-    public void shouldReturnNullExceptionWhenRepoIdIsNotFound() throws Exception {
+    void shouldReturnNullExceptionWhenRepoIdIsNotFound() throws Exception {
         PackageRepositories packageRepositories = new PackageRepositories();
         try {
             packageRepositories.removePackageRepository("repo1");
-            fail();
+            fail("This should have thrown an exception");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is(String.format("Could not find repository with id '%s'", "repo1")));
+            assertThat(e.getMessage()).isEqualTo(String.format("Could not find repository with id '%s'", "repo1"));
         }
     }
 
     @Test
-    public void shouldValidateForCaseInsensitiveNameAndIdUniqueness() {
+    void shouldValidateForCaseInsensitiveNameAndIdUniqueness() {
         PackageRepository repo1 = PackageRepositoryMother.create("repo1");
         PackageRepository duplicate = PackageRepositoryMother.create("REPO1");
         PackageRepository unique = PackageRepositoryMother.create("unique");
@@ -131,16 +128,16 @@ public class PackageRepositoriesTest {
         packageRepositories.add(unique);
 
         packageRepositories.validate(null);
-        assertThat(repo1.errors().isEmpty(), is(false));
+        assertThat(repo1.errors().isEmpty()).isFalse();
         String nameError = String.format("You have defined multiple repositories called '%s'. Repository names are case-insensitive and must be unique.", duplicate.getName());
-        assertThat(repo1.errors().getAllOn(PackageRepository.NAME).contains(nameError), is(true));
-        assertThat(duplicate.errors().isEmpty(), is(false));
-        assertThat(duplicate.errors().getAllOn(PackageRepository.NAME).contains(nameError), is(true));
-        assertThat(unique.errors().isEmpty(), is(true));
+        assertThat(repo1.errors().getAllOn(PackageRepository.NAME).contains(nameError)).isTrue();
+        assertThat(duplicate.errors().isEmpty()).isFalse();
+        assertThat(duplicate.errors().getAllOn(PackageRepository.NAME).contains(nameError)).isTrue();
+        assertThat(unique.errors().isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldFailValidationIfMaterialWithDuplicateFingerprintIsFound() {
+    void shouldFailValidationIfMaterialWithDuplicateFingerprintIsFound() {
 
         com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration = new com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration();
         packageConfiguration.add(new PackageMaterialProperty("k1"));
@@ -162,20 +159,20 @@ public class PackageRepositoriesTest {
 
         packageRepositories.validate(null);
 
-        assertThat(definition1.errors().getAllOn(PackageDefinition.ID), is(asList(expectedErrorMessage)));
-        assertThat(definition3.errors().getAllOn(PackageDefinition.ID), is(asList(expectedErrorMessage)));
-        assertThat(definition3.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER).equals(definition1.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER)), is(true));
-        assertThat(definition5.errors().getAllOn(PackageDefinition.ID), is(asList(expectedErrorMessage)));
-        assertThat(definition5.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER).equals(definition1.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER)), is(true));
+        assertThat(definition1.errors().getAllOn(PackageDefinition.ID)).isEqualTo(asList(expectedErrorMessage));
+        assertThat(definition3.errors().getAllOn(PackageDefinition.ID)).isEqualTo(asList(expectedErrorMessage));
+        assertThat(definition3.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER).equals(definition1.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER))).isTrue();
+        assertThat(definition5.errors().getAllOn(PackageDefinition.ID)).isEqualTo(asList(expectedErrorMessage));
+        assertThat(definition5.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER).equals(definition1.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER))).isTrue();
 
-        assertThat(definition2.errors().getAllOn(PackageDefinition.ID), is(nullValue()));
-        assertThat(definition2.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER).equals(definition1.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER)), is(false));
-        assertThat(definition4.errors().getAllOn(PackageDefinition.ID), is(nullValue()));
-        assertThat(definition4.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER).equals(definition1.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER)), is(false));
+        assertThat(definition2.errors().getAllOn(PackageDefinition.ID)).isEmpty();
+        assertThat(definition2.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER).equals(definition1.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER))).isFalse();
+        assertThat(definition4.errors().getAllOn(PackageDefinition.ID)).isEmpty();
+        assertThat(definition4.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER).equals(definition1.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER))).isFalse();
     }
 
     @Test
-    public void shouldGetPackageDefinitionForGivenPackageId() throws Exception {
+    void shouldGetPackageDefinitionForGivenPackageId() throws Exception {
         PackageRepository repo1 = PackageRepositoryMother.create("repo-id1", "repo1", "plugin-id", "1.0", null);
         PackageDefinition packageDefinitionOne = PackageDefinitionMother.create("pid1", repo1);
         PackageDefinition packageDefinitionTwo = PackageDefinitionMother.create("pid2", repo1);
@@ -188,17 +185,17 @@ public class PackageRepositoriesTest {
 
 
         PackageRepositories packageRepositories = new PackageRepositories(repo1, repo2);
-        assertThat(packageRepositories.findPackageDefinitionWith("pid3"), is(packageDefinitionThree));
-        assertThat(packageRepositories.findPackageDefinitionWith("pid5"), is(nullValue()));
+        assertThat(packageRepositories.findPackageDefinitionWith("pid3")).isEqualTo(packageDefinitionThree);
+        assertThat(packageRepositories.findPackageDefinitionWith("pid5")).isNull();
     }
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void setup() throws Exception {
         RepositoryMetadataStoreHelper.clear();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         RepositoryMetadataStoreHelper.clear();
     }
 }

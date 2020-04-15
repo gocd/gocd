@@ -366,7 +366,7 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
         assertThat(definition1.errors().getAllOn(PackageDefinition.ID)).isEqualTo(asList(expectedErrorMessage));
         assertThat(definition3.errors().getAllOn(PackageDefinition.ID)).isEqualTo(asList(expectedErrorMessage));
 
-        assertThat(definition2.errors().getAllOn(PackageDefinition.ID)).isNull();
+        assertThat(definition2.errors().getAllOn(PackageDefinition.ID)).isEmpty();
     }
 
     @Test
@@ -379,6 +379,6 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
         map.put(packageDefinition.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER), new Packages(packageDefinition));
         packageDefinition.validateFingerprintUniqueness(map);
 
-        assertThat(packageDefinition.errors().getAllOn(PackageDefinition.ID)).isNull();
+        assertThat(packageDefinition.errors().getAllOn(PackageDefinition.ID)).isEmpty();
     }
 }

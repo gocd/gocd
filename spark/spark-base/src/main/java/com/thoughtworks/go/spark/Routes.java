@@ -218,6 +218,9 @@ public class Routes {
 
         public static final String SPA_BASE = "/admin/scms";
 
+        public static final String INTERNAL_BASE = "/api/admin/internal/scms";
+        public static final String VERIFY_CONNECTION = "/verify_connection";
+
         public static String find() {
             return BASE + ID;
         }

@@ -132,9 +132,6 @@ class ApprovalRepresenterTest {
       authorization        : [
         roles : ["role1"],
         users : ["user1"],
-        errors: [
-          name: ["error"]
-        ]
       ],
       errors               : [
         type: ["You have defined approval type as 'junk'. Approval can only be of the type 'manual' or 'success'."]

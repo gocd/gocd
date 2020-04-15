@@ -17,6 +17,8 @@ package com.thoughtworks.go.domain;
 
 import org.junit.Test;
 
+import java.util.Collections;
+
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -52,5 +54,10 @@ public class ConfigErrorsTest {
         configErrors.add("field", "error");
         configErrors.add("field", "error");
         assertThat(configErrors.getAllOn("field"), is(asList("error")));
+    }
+
+    @Test
+    public void shouldReturnEmptyListWhenNoGetAllErrorsOnExists() {
+        assertThat(new ConfigErrors().getAllOn("field"), is(Collections.emptyList()));
     }
 }

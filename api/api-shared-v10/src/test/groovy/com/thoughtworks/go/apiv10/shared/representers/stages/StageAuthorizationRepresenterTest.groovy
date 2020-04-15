@@ -39,6 +39,23 @@ class StageAuthorizationRepresenterTest {
     assertEquals(getAdminsConfig(), stageAuthorization)
   }
 
+  @Test
+  void 'should render error'() {
+    AuthConfig config = getAdminsConfig()
+    config.addError("error", "validation failed")
+    config.getRoles().get(0).addError("name", "role does not exists")
+    config.getUsers().get(0).addError("name", "user does not exists")
+
+    def actualJson = toObjectString({ StageAuthorizationRepresenter.toJSON(it, config) })
+    def expectedJson = [
+      errors: [users: ["user does not exists"], roles: ["role does not exists"]],
+      roles : ['admin_role'],
+      users : ['admin_user']
+    ]
+
+    assertThatJson(actualJson).isEqualTo(expectedJson)
+  }
+
   static def getAdminsConfig() {
     return new AdminsConfig(new AdminRole(new CaseInsensitiveString("admin_role")), new AdminUser(new CaseInsensitiveString("admin_user")))
   }

@@ -16,21 +16,34 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {Scm} from "models/materials/pluggable_scm";
 import s from "underscore.string";
+import {Anchor} from "views/components/anchor/anchor";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {Clone, Delete, Edit, IconGroup, InfoCircle, Usage} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {CloneOperation, DeleteOperation, EditOperation} from "../page_operations";
 import styles from "./index.scss";
+import {PluggableSCMScrollOptions} from "./pluggable_scms_widget";
 
 interface Attrs extends EditOperation<Scm>, CloneOperation<Scm>, DeleteOperation<Scm> {
   scm: Scm;
   disableActions: boolean;
   showUsages: (scm: Scm, e: MouseEvent) => void;
+  scrollOptions: PluggableSCMScrollOptions;
 }
 
 export class PluggableScmWidget extends MithrilViewComponent<Attrs> {
+  expanded: Stream<boolean> = Stream();
+
+  oninit(vnode: m.Vnode<Attrs, this>): any {
+    const {scrollOptions, scm} = vnode.attrs;
+    const linked               = scrollOptions.sm.getTarget() === scm.name();
+
+    this.expanded(linked);
+  }
+
   view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
     const header = <KeyValuePair inline={true}
                                  data={PluggableScmWidget.headerMap(vnode.attrs.scm)}/>;
@@ -64,11 +77,23 @@ export class PluggableScmWidget extends MithrilViewComponent<Attrs> {
              onclick={vnode.attrs.showUsages.bind(this, scm)}/>
     </IconGroup>;
 
-    return <CollapsiblePanel key={vnode.attrs.scm.id()} error={disabled}
-                             header={header} actions={[warningIcon, actionButtons]}
-                             dataTestId={"pluggable-scm-panel"}>
-      <KeyValuePair data-test-id={"pluggable-scm-details"} data={scmRepoDetails}/>
-    </CollapsiblePanel>;
+    const onNavigate = () => {
+      if (vnode.attrs.scrollOptions.sm.getTarget() === scm.name() && vnode.attrs.scrollOptions.shouldOpenEditView) {
+        vnode.attrs.onEdit(scm, new MouseEvent("click"));
+      }
+      this.expanded(true);
+    };
+
+    return <Anchor id={scm.name()}
+                   sm={vnode.attrs.scrollOptions.sm}
+                   onnavigate={onNavigate}>
+      <CollapsiblePanel error={disabled}
+                        header={header} actions={[warningIcon, actionButtons]}
+                        dataTestId={"pluggable-scm-panel"}
+                        vm={this}>
+        <KeyValuePair data-test-id={"pluggable-scm-details"} data={scmRepoDetails}/>
+      </CollapsiblePanel>
+    </Anchor>;
   }
 
   private static headerMap(scm: Scm) {

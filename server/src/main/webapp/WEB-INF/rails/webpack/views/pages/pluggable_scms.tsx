@@ -22,15 +22,18 @@ import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
 import {Configurations} from "models/shared/configuration";
 import {ExtensionTypeString, SCMExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
+import {AnchorVM, ScrollManager} from "views/components/anchor/anchor";
 import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import {Page, PageState} from "views/pages/page";
-import {PluggableScmsWidget} from "views/pages/pluggable_scms/pluggable_scms_widget";
+import {PluggableSCMScrollOptions, PluggableScmsWidget} from "views/pages/pluggable_scms/pluggable_scms_widget";
 import {UsagePackageModal} from "./package_repositories/package_modals";
 import {AddOperation, CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos, SaveOperation} from "./page_operations";
 import {ClonePluggableScmModal, CreatePluggableScmModal, DeletePluggableScmModal, EditPluggableScmModal} from "./pluggable_scms/modals";
+
+const sm: ScrollManager = new AnchorVM();
 
 interface State extends RequiresPluginInfos, AddOperation<Scm>, EditOperation<Scm>, CloneOperation<Scm>, DeleteOperation<Scm>, SaveOperation {
   scms: Stream<Scms>;
@@ -38,6 +41,8 @@ interface State extends RequiresPluginInfos, AddOperation<Scm>, EditOperation<Sc
 }
 
 export class PluggableScmsPage extends Page<null, State> {
+  private operation: string = "";
+
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
     vnode.state.scms        = Stream();
@@ -99,6 +104,11 @@ export class PluggableScmsPage extends Page<null, State> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    this.parseScmsLink(sm);
+    const scrollOptions: PluggableSCMScrollOptions = {
+      sm,
+      shouldOpenEditView: this.operation === "edit"
+    };
     let noPluginMsg;
     if (!this.isPluginInstalled(vnode)) {
       noPluginMsg = <NoPluginsOfTypeInstalled extensionType={new SCMExtensionType()}/>;
@@ -106,7 +116,7 @@ export class PluggableScmsPage extends Page<null, State> {
     return <div>
       {noPluginMsg}
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-      <PluggableScmsWidget {...vnode.state}/>
+      <PluggableScmsWidget {...vnode.state} scrollOptions={scrollOptions}/>
     </div>;
   }
 
@@ -147,5 +157,10 @@ export class PluggableScmsPage extends Page<null, State> {
 
   private isPluginInstalled(vnode: m.Vnode<null, State>) {
     return vnode.state.pluginInfos().length !== 0;
+  }
+
+  private parseScmsLink(sm: ScrollManager) {
+    sm.setTarget(m.route.param().name || "");
+    this.operation = (m.route.param().operation || "").toLowerCase();
   }
 }

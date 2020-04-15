@@ -19,7 +19,8 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {Scm, Scms} from "models/materials/pluggable_scm";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
-import {TestHelper} from "views/pages/spec/test_helper";
+import {ScrollManager} from "views/components/anchor/anchor";
+import {stubAllMethods, TestHelper} from "views/pages/spec/test_helper";
 import {PluggableScmsWidget} from "../pluggable_scms_widget";
 import {getPluggableScm, getScmPlugin} from "./test_data";
 
@@ -34,12 +35,17 @@ describe('PluggableScmsWidgetSpec', () => {
   });
   afterEach((done) => helper.unmount(done));
 
-  function mount() {
+  function mount(sm: ScrollManager = stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"])) {
+    const scrollOptions = {
+      sm,
+      shouldOpenEditView: false
+    };
     helper.mount(() => <PluggableScmsWidget scms={Stream(scms)} pluginInfos={Stream(pluginInfos)}
                                             onEdit={jasmine.createSpy("onEdit")}
                                             onClone={jasmine.createSpy("onClone")}
                                             onDelete={jasmine.createSpy("onDelete")}
-                                            showUsages={jasmine.createSpy("showUsages")}/>);
+                                            showUsages={jasmine.createSpy("showUsages")}
+                                            scrollOptions={scrollOptions}/>);
   }
 
   it('should render info div if repos is empty', () => {
@@ -60,5 +66,20 @@ describe('PluggableScmsWidgetSpec', () => {
 
     expect(helper.byTestId('pluggable-scm-info')).not.toBeInDOM();
     expect(helper.byTestId('scms-widget')).toBeInDOM();
+  });
+
+  it('should render error info if the element specified in the anchor does not exist', () => {
+    let scrollManager: ScrollManager;
+    scrollManager = {
+      hasTarget:    jasmine.createSpy().and.callFake(() => true),
+      getTarget:    jasmine.createSpy().and.callFake(() => "test"),
+      shouldScroll: jasmine.createSpy(),
+      setTarget:    jasmine.createSpy(),
+      scrollToEl:   jasmine.createSpy()
+    };
+    mount(scrollManager);
+
+    expect(helper.byTestId("anchor-scm-not-present")).toBeInDOM();
+    expect(helper.textByTestId("anchor-scm-not-present")).toBe("'test' SCM has not been set up.");
   });
 });

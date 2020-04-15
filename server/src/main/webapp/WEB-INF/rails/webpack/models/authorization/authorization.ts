@@ -73,8 +73,8 @@ export class AuthorizedUsersAndRoles extends ValidatableMixin {
     }
 
     return {
-      users: this.users(),
-      roles: this.roles()
+      users: this.users().filter(user => !_.isEmpty(user)),
+      roles: this.roles().filter(role => !_.isEmpty(role)),
     };
   }
 }

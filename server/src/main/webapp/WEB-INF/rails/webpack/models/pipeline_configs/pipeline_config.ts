@@ -283,18 +283,17 @@ export class Materials extends Array<Material> {
   }
 
   scmMaterialsHaveDestination(): boolean {
-    const hasScmMaterialWithEmptyDestination          = this
-      .filter((material) => material.attributes() instanceof ScmMaterialAttributes)
+    return !this
       .some((material) => {
-        const attrs = material.attributes() as ScmMaterialAttributes;
-        return _.isEmpty(attrs.destination());
+        if (material.attributes() instanceof ScmMaterialAttributes) {
+          const attrs = material.attributes() as ScmMaterialAttributes;
+          return _.isEmpty(attrs.destination());
+        } else if (material.attributes() instanceof PluggableScmMaterialAttributes) {
+          const attrs = material.attributes() as PluggableScmMaterialAttributes;
+          return _.isEmpty(attrs.destination());
+        } else {
+          return false;
+        }
       });
-    const hasPluggableScmMaterialWithEmptyDestination = this
-      .filter((material) => material.attributes() instanceof PluggableScmMaterialAttributes)
-      .some((material) => {
-        const attrs = material.attributes() as PluggableScmMaterialAttributes;
-        return _.isEmpty(attrs.destination());
-      });
-    return !hasScmMaterialWithEmptyDestination && !hasPluggableScmMaterialWithEmptyDestination;
   }
 }

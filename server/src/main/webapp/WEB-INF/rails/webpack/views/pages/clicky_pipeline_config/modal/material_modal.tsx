@@ -73,12 +73,13 @@ export class MaterialModal extends Modal {
 
   body(): m.Children {
     const allScmMaterialsHaveDestination = this.materials().scmMaterialsHaveDestination();
-    const maybeMsg                       = this.isNew && !allScmMaterialsHaveDestination
-      ? <FlashMessage type={MessageType.warning} dataTestId={"materials-destination-warning-message"}>
-        In order to configure multiple SCM materials for this pipeline, each of its material needs have to a 'Destination Directory' specified. Please
-        edit the existing material and specify a 'Destination Directory' in order to proceed with this operation.
-      </FlashMessage>
-      : undefined;
+    let maybeMsg;
+    if (this.isNew && !allScmMaterialsHaveDestination) {
+      maybeMsg = <FlashMessage type={MessageType.warning} dataTestId={"materials-destination-warning-message"}>
+        In order to configure multiple SCM materials for this pipeline, each of its material needs have to a 'Destination Directory' specified.
+        Please edit the existing material and specify a 'Destination Directory' in order to proceed with this operation.
+      </FlashMessage>;
+    }
     return <div>
       <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
       {maybeMsg}

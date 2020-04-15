@@ -16,22 +16,31 @@
 package com.thoughtworks.go.apiv10.admin.shared.representers.stages;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.AdminRole;
 import com.thoughtworks.go.config.AdminUser;
 import com.thoughtworks.go.config.AuthConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class StageAuthorizationRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, AuthConfig authConfig) {
-        if (!authConfig.errors().isEmpty()) {
+        ArrayList<String> usersErrors = new ArrayList<>();
+        authConfig.getUsers().forEach(r -> usersErrors.addAll(r.errors().getAllOn("name")));
+        ArrayList<String> rolesErrors = new ArrayList<>();
+        authConfig.getRoles().forEach(r -> rolesErrors.addAll(r.errors().getAllOn("name")));
+
+        if (!usersErrors.isEmpty() || !rolesErrors.isEmpty()) {
             jsonWriter.addChild("errors", errorWriter -> {
-                new ErrorGetter(new HashMap<>()).toJSON(errorWriter, authConfig);
+                if (!usersErrors.isEmpty()) {
+                    errorWriter.addChildList("users", usersErrors);
+                }
+                if (!rolesErrors.isEmpty()) {
+                    errorWriter.addChildList("roles", rolesErrors);
+                }
             });
         }
 

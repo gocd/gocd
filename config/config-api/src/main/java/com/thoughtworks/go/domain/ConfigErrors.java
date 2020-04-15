@@ -49,7 +49,8 @@ public class ConfigErrors extends HashMap<String, List<String>> implements Seria
     }
 
     public List<String> getAllOn(String fieldName) {
-        return get(fieldName);
+        List<String> list = get(fieldName);
+        return (list == null) ? new ArrayList<>() : list;
     }
 
     /**

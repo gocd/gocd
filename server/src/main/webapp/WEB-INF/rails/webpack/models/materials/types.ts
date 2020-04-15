@@ -224,7 +224,11 @@ export abstract class MaterialAttributes extends ValidatableMixin {
         return _.assign({}, serialized, {encrypted_password: password().value()});
       }
     }
-
+    const destination = _.get(serialized, "destination");
+    if (_.isEmpty(destination())) {
+      // @ts-ignore
+      delete serialized.destination; // collapse empty string as undefined to avoid blowing up
+    }
     return serialized;
   }
 }

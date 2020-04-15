@@ -148,4 +148,25 @@ describe("AddPipeline: Material Editor", () => {
     expect(helper.byTestId('form-field-input-material-type')).toBeDisabled();
     expect(helper.byTestId('form-field-input-repository-url')).not.toBeDisabled();
   });
+
+  it('should disable only scm material type options when `disableScmMaterials` is set to true', () => {
+    helper.mount(() => <MaterialEditor material={material} showExtraMaterials={true} disableScmMaterials={true}/>);
+
+    const materialTypeSelection = helper.byTestId('form-field-input-material-type');
+    expect(materialTypeSelection).not.toBeDisabled();
+
+    const disabled: string[] = [];
+    const enabled: string[]  = [];
+    helper.qa('option', materialTypeSelection)
+          .forEach((option) => {
+            if (option.hasAttribute('disabled')) {
+              disabled.push(option.textContent!);
+            } else {
+              enabled.push(option.textContent!);
+            }
+          });
+
+    expect(enabled).toEqual(["Another Pipeline", "Package"]);
+    expect(disabled).toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server", "SCM"]);
+  });
 });

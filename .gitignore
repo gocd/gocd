@@ -529,3 +529,7 @@ api/api-scms-v3/out/
 api/api-scms-v3/target/
 api/api-scms-v3/logs/
 api/api-scms-v3/config/
+api/api-internal-scms-v1/out/
+api/api-internal-scms-v1/target/
+api/api-internal-scms-v1/logs/
+api/api-internal-scms-v1/config/

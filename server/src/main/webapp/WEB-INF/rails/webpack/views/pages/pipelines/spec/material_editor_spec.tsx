@@ -155,18 +155,13 @@ describe("AddPipeline: Material Editor", () => {
     const materialTypeSelection = helper.byTestId('form-field-input-material-type');
     expect(materialTypeSelection).not.toBeDisabled();
 
-    const disabled: string[] = [];
-    const enabled: string[]  = [];
-    helper.qa('option', materialTypeSelection)
-          .forEach((option) => {
-            if (option.hasAttribute('disabled')) {
-              disabled.push(option.textContent!);
-            } else {
-              enabled.push(option.textContent!);
-            }
-          });
-
-    expect(enabled).toEqual(["Another Pipeline", "Package"]);
-    expect(disabled).toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server", "SCM"]);
+    ["dependency", "package"]
+      .forEach((type) => {
+        expect(helper.q(`option[value='${type}']`, materialTypeSelection)).not.toHaveAttr('disabled');
+      });
+    ["git", "hg", "svn", "p4", "tfs", "plugin"]
+      .forEach((type) => {
+        expect(helper.q(`option[value='${type}']`, materialTypeSelection)).toHaveAttr('disabled');
+      });
   });
 });

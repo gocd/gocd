@@ -210,4 +210,22 @@ describe("Material Types", () => {
       expect(material.pluginMetadata().errors().errorsForDisplay('id')).toBe('Id must be present.');
     });
   });
+
+  describe('Serialization', () => {
+    it('should serialize dependency materials', () => {
+      const dependencyAttrs = new DependencyMaterialAttributes("name", false, "pipeline", "stage", false);
+
+      expect(Object.keys(dependencyAttrs.toJSON())).not.toContain('destination');
+    });
+
+    it('should serialize git materials', () => {
+      const gitAttrs = new GitMaterialAttributes("name", false, "some-url");
+
+      expect(Object.keys(gitAttrs.toJSON())).not.toContain('destination');
+
+      gitAttrs.destination("some-dest");
+      expect(Object.keys(gitAttrs.toJSON())).toContain('destination');
+    });
+  });
+
 });

@@ -58,6 +58,7 @@ export class CustomTabTabContent extends TabContent<Job> {
     const tab = new Tab("", "");
     return tabs.push(tab);
   }
+
   private getAddTabBtn(tabs: Tabs) {
     return (<Secondary small={true} onclick={this.addEmptyTab.bind(null, tabs)}>+ Add</Secondary>);
   }
@@ -80,8 +81,13 @@ export class CustomTabTabContent extends TabContent<Job> {
 
     const tabsView = tabs.map((tab) => {
       return (<div class={styles.tabContainer} data-test-id="tab">
-        <TextField dataTestId={`tab-name-${tab.name()}`} placeholder="name" property={tab.name}/>
-        <TextField dataTestId={`tab-path-${tab.path()}`} placeholder="path" property={tab.path}/>
+        <TextField dataTestId={`tab-name-${tab.name()}`}
+                   errorText={tab.errors().errorsForDisplay("name")}
+                   placeholder="name" property={tab.name}/>
+        <TextField dataTestId={`tab-path-${tab.path()}`}
+                   errorText={tab.errors().errorsForDisplay("path")}
+                   placeholder="path"
+                   property={tab.path}/>
         <Icons.Close data-test-id={`remove-tab-${tab.name()}`}
                      iconOnly={true}
                      onclick={() => this.removeEntity(tab, tabs)}/>

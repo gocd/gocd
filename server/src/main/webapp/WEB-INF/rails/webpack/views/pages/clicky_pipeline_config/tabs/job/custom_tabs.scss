@@ -20,8 +20,12 @@
 }
 
 .tab-container {
-  display:     flex;
-  line-height: 35px;
+  display: flex;
+  width:   550px;
+}
+
+.tab-container + div {
+  margin-right: 50px;
 }
 
 .tabs-header {

@@ -38,6 +38,7 @@ import {ParametersTabContent} from "views/pages/clicky_pipeline_config/tabs/pipe
 import {PipelineEnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/pipeline_environment_variable_tab_content";
 import {ProjectManagementTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/project_management_tab_content";
 import {StagesTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/stages_tab_content";
+import {PipelineConfigSPARouteHelper} from "views/pages/clicky_pipeline_config/tabs/route_helper";
 import {JobsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/jobs_tab_content";
 import {PermissionsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/permissions_tab_content";
 import {StageEnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/stage_environment_variable_tab_content";
@@ -115,10 +116,11 @@ export class PipelineConfigPage<T> extends Page<null, T> {
       this.flashMessage.setMessage(MessageType.alert, msg);
       return Promise.reject();
     }
-
+    const possibleRenames = PipelineConfigSPARouteHelper.getPossibleRenames(this.pipelineConfig!);
     return this.pipelineConfig!.update(this.etag()).then((result) => {
       return result.do((successResponse) => {
         this.flashMessage.setMessage(MessageType.success, "Saved Successfully!");
+        PipelineConfigSPARouteHelper.updateRouteIfEntityRenamed(possibleRenames);
         this.onSuccess(result, successResponse);
       }, this.onFailure.bind(this));
     });
@@ -279,7 +281,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
 
   private onFailure(errorResponse: ErrorResponse) {
     const parsed = JSON.parse(errorResponse.body!);
-    this.flashMessage.setMessage(MessageType.alert, parsed.message);
+    this.flashMessage.consumeErrorResponse(errorResponse);
 
     try {
       if (parsed.data) {

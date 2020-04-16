@@ -41,13 +41,13 @@ export interface StageJSON {
 export type ApprovalType = "success" | "manual";
 
 class Approval extends ValidatableMixin {
-  readonly type                   = Stream<ApprovalType>("success");
+  readonly type = Stream<ApprovalType>("success");
 
   readonly state: (value?: boolean) => boolean;
   readonly allowOnlyOnSuccess = Stream<boolean>();
   //authorization must be present for server side validations
   //even though it's not editable from the create pipeline page
-  readonly authorization = Stream<AuthorizedUsersAndRoles>(new AuthorizedUsersAndRoles([], []));
+  readonly authorization          = Stream<AuthorizedUsersAndRoles>(new AuthorizedUsersAndRoles([], []));
   private readonly __typeAsStream = Stream<boolean>(true);
 
   constructor() {
@@ -93,6 +93,7 @@ class Approval extends ValidatableMixin {
   toJSON() {
     return {
       type: this.typeAsString(),
+      allow_only_on_success: this.allowOnlyOnSuccess(),
       authorization: JsonUtils.toSnakeCasedObject(this.authorization)
     };
   }

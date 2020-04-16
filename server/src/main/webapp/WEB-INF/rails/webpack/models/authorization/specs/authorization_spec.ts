@@ -209,7 +209,21 @@ describe("AuthorizedUsersAndRoles", () => {
 
     const expectedJSON = {users: ["foo_user"], roles: ["foo_role"]};
     expect(actualJSON).toEqual(expectedJSON);
+  });
 
+  it("should not serialize empty values to JSON", () => {
+    const usersAndRoles = new AuthorizedUsersAndRoles(
+      [
+        Stream("foo_user"), Stream("")
+      ],
+      [
+        Stream("foo_role"), Stream("")
+      ]);
+
+    const actualJSON = usersAndRoles.toJSON();
+
+    const expectedJSON = {users: ["foo_user"], roles: ["foo_role"]};
+    expect(actualJSON).toEqual(expectedJSON);
   });
 
   describe("isEmpty", () => {

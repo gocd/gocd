@@ -62,6 +62,13 @@ describe("Stage model", () => {
     expect(stage.toApiPayload().approval.type).toBe("success");
   });
 
+  it("should serialize allow_only_on_success as part of api payload", () => {
+    const stage = new Stage("foo", [validJob()]);
+    stage.approval().allowOnlyOnSuccess(false);
+
+    expect(stage.toApiPayload().approval.allow_only_on_success).toBe(false);
+  });
+
   it("adopts errors in server response", () => {
     const stage = new Stage("meow", [
       new Job("scooby", [new ExecTask("whoami", [])], new EnvironmentVariables(new EnvironmentVariable("FOO", "OOF"))),

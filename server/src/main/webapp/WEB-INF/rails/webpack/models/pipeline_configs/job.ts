@@ -122,6 +122,10 @@ export class Job extends ValidatableMixin {
   }
 
   toApiPayload() {
+    if (this.tabs()) {
+      this.tabs(this.tabs().filter(t => !_.isEmpty(t.name()) || !_.isEmpty(t.path())));
+    }
+
     const json = JsonUtils.toSnakeCasedObject(this);
 
     json.resources = (json.resources || "")

@@ -294,6 +294,26 @@ describe("Permissions Tab Content", () => {
     });
   });
 
+  it("should render errors related to users", () => {
+    const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
+    stage.approval().authorization().isInherited(false);
+    stage.approval().authorization()._users.push(Stream("user1"));
+    stage.approval().authorization().errors().add("users", "user 'user1' does not exists");
+    mount(stage);
+
+    expect(helper.byTestId("users-errors")).toContainText("user 'user1' does not exists");
+  });
+
+  it("should render errors related to roles", () => {
+    const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
+    stage.approval().authorization().isInherited(false);
+    stage.approval().authorization()._roles.push(Stream("role1"));
+    stage.approval().authorization().errors().add("roles", "role 'role1' does not exists");
+    mount(stage);
+
+    expect(helper.byTestId("roles-errors")).toContainText("role 'role1' does not exists");
+  });
+
   function mount(stage: Stage) {
     const pipelineConfig = new PipelineConfig();
     pipelineConfig.stages().add(stage);

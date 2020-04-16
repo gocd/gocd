@@ -279,7 +279,7 @@ export class PipelineConfigPage<T> extends Page<null, T> {
 
   private onFailure(errorResponse: ErrorResponse) {
     const parsed = JSON.parse(errorResponse.body!);
-    this.flashMessage.setMessage(MessageType.alert, parsed.message);
+    this.flashMessage.consumeErrorResponse(errorResponse);
 
     try {
       if (parsed.data) {

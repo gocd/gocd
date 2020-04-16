@@ -39,7 +39,7 @@ abstract class PluggableScmModal extends EntityModal<Scm> {
   private readonly disableId: boolean;
   private readonly disablePluginId: boolean;
 
-  private testConnectionButtonText: string = "Test Connection";
+  private testConnectionButtonText: string = "Check Connection";
   private testConnectionButtonIcon: string | undefined;
 
   constructor(entity: Scm,

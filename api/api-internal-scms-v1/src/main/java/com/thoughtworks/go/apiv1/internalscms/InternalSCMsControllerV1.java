@@ -26,6 +26,7 @@ import com.thoughtworks.go.apiv1.internalscms.representers.VerifyConnectionResul
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.server.service.materials.PluggableScmService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,8 +69,9 @@ public class InternalSCMsControllerV1 extends ApiController implements SparkSpri
 
     public String verifyConnection(Request request, Response response) throws IOException {
         SCM scm = buildEntityFromRequestBody(request);
-        Result checkConnectionResult = pluggableScmService.checkConnection(scm);
+        HttpLocalizedOperationResult checkConnectionResult = pluggableScmService.checkConnection(scm);
 
+        response.status(checkConnectionResult.httpCode());
         return writerForTopLevelObject(request, response, writer -> VerifyConnectionResultRepresenter.toJSON(writer, scm, checkConnectionResult));
     }
 

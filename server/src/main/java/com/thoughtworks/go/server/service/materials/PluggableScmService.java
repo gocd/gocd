@@ -31,6 +31,7 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
+import static java.lang.String.format;
 
 @Service
 public class PluggableScmService {
@@ -81,7 +83,7 @@ public class PluggableScmService {
 
     public boolean isValid(final SCM scmConfig) {
         if (!scmConfig.doesPluginExist()) {
-            throw new RuntimeException(String.format("Plugin with id '%s' is not found.", scmConfig.getPluginConfiguration().getId()));
+            throw new RuntimeException(format("Plugin with id '%s' is not found.", scmConfig.getPluginConfiguration().getId()));
         }
 
         ValidationResult validationResult = scmExtension.isSCMConfigurationValid(scmConfig.getPluginConfiguration().getId(), getScmPropertyConfiguration(scmConfig));
@@ -117,10 +119,22 @@ public class PluggableScmService {
         return null;
     }
 
-    public Result checkConnection(final SCM scmConfig) {
+    public HttpLocalizedOperationResult checkConnection(final SCM scmConfig) {
         final String pluginId = scmConfig.getPluginConfiguration().getId();
         final SCMPropertyConfiguration configuration = getScmPropertyConfiguration(scmConfig);
-        return scmExtension.checkConnectionToSCM(pluginId, configuration);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        Result checkConnectionResult = scmExtension.checkConnectionToSCM(pluginId, configuration);
+        String messages = checkConnectionResult.getMessagesForDisplay();
+
+        if (!checkConnectionResult.isSuccessful()) {
+            result.unprocessableEntity(format("Check connection failed. Reason(s): %s", messages));
+            return result;
+        }
+
+        result.setMessage("Connection OK. " + messages);
+
+        return result;
     }
 
     public void createPluggableScmMaterial(final Username currentUser, final SCM globalScmConfig, final LocalizedOperationResult result) {

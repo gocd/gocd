@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.domain.scm.SCM
 import com.thoughtworks.go.domain.scm.SCMMother
 import com.thoughtworks.go.plugin.api.response.Result
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
@@ -31,21 +32,18 @@ class VerifyConnectionResultRepresenterTest {
     @Test
     void 'should return verify connection result with success status and messages'() {
         SCM scm = SCMMother.create("1", "foobar", "plugin1", "v1.0", new Configuration(
-                ConfigurationPropertyMother.create("key1", false, "value1")
+          ConfigurationPropertyMother.create("key1", false, "value1")
         ))
-        Result result = new Result();
-        result.withSuccessMessages("message 1", "message 2")
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        result.setMessage("Connection ok.")
 
         def actualJson = toObjectString({ VerifyConnectionResultRepresenter.toJSON(it, scm, result) })
 
         def expectedJson = [
-        "status"  : "success",
-                "messages": [
-        "message 1",
-                "message 2"
-      ],
-        "scm"     : toObject({ SCMRepresenter.toJSON(it, scm) })
-    ]
+          "status" : "success",
+          "message": "Connection ok.",
+          "scm"    : toObject({ SCMRepresenter.toJSON(it, scm) })
+        ]
 
         assertThatJson(actualJson).isEqualTo(expectedJson)
     }
@@ -53,21 +51,18 @@ class VerifyConnectionResultRepresenterTest {
     @Test
     void 'should return verify connection result with failure status and messages'() {
         SCM scm = SCMMother.create("1", "foobar", "plugin1", "v1.0", new Configuration(
-                ConfigurationPropertyMother.create("key1", false, "value1")
+          ConfigurationPropertyMother.create("key1", false, "value1")
         ))
-        Result result = new Result();
-        result.withErrorMessages("message 1", "message 2")
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        result.unprocessableEntity("Verify Connection failed.")
 
         def actualJson = toObjectString({ VerifyConnectionResultRepresenter.toJSON(it, scm, result) })
 
         def expectedJson = [
-        "status"  : "failure",
-                "messages": [
-        "message 1",
-                "message 2"
-      ],
-        "scm"     : toObject({ SCMRepresenter.toJSON(it, scm) })
-    ]
+          "status" : "failure",
+          "message": "Verify Connection failed.",
+          "scm"    : toObject({ SCMRepresenter.toJSON(it, scm) })
+        ]
 
         assertThatJson(actualJson).isEqualTo(expectedJson)
     }

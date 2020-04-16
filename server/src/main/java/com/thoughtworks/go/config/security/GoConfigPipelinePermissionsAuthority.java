@@ -19,22 +19,28 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.security.users.Everyone;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
+
 /* Understands which users can view, operate and administer which pipelines and pipeline groups. */
 @Service
 public class GoConfigPipelinePermissionsAuthority {
     private GoConfigService goConfigService;
+    private SystemEnvironment systemEnvironment;
 
     @Autowired
-    public GoConfigPipelinePermissionsAuthority(GoConfigService goConfigService) {
+    public GoConfigPipelinePermissionsAuthority(GoConfigService goConfigService, SystemEnvironment systemEnvironment) {
         this.goConfigService = goConfigService;
+        this.systemEnvironment = systemEnvironment;
     }
 
     public Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions() {
@@ -73,7 +79,9 @@ public class GoConfigPipelinePermissionsAuthority {
         GroupSecurity policy = security.forGroup(group);
 
         if (!group.hasAuthorizationDefined()) {
-            return new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, policy.effectiveAdmins(), Everyone.INSTANCE);
+            boolean everyoneIsAllowedToViewGroupsWithNoAuth = systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP);
+            Users viewersAndOperators = everyoneIsAllowedToViewGroupsWithNoAuth ? Everyone.INSTANCE : policy.effectiveAdmins();
+            return new Permissions(viewersAndOperators, viewersAndOperators, policy.effectiveAdmins(), viewersAndOperators);
         }
 
         return new Permissions(

@@ -557,6 +557,10 @@ export class SparkRoutes {
     return '/go/api/admin/scms';
   }
 
+  static pluggableScmCheckConnectionPath() {
+    return '/go/api/admin/internal/scms/verify_connection';
+  }
+
   static packageRepositoriesSPA() {
     return '/go/admin/package_repositories';
   }

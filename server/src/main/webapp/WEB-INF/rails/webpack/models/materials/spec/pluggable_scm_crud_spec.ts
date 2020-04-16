@@ -120,6 +120,32 @@ describe('PluggableScmCRUDSpec', () => {
     expect(request.requestHeaders["X-GoCD-Confirm"]).toEqual("true");
   });
 
+  it("should verify connection for a scm", (done) => {
+    const url = SparkRoutes.pluggableScmCheckConnectionPath();
+    jasmine.Ajax.stubRequest(url).andReturn(scmCheckConnectionResponse());
+
+    const scmJSON    = getPluggableScm();
+    const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
+      const responseJSON = response.unwrap() as SuccessResponse<any>;
+      const parsed       = responseJSON.body;
+
+      expect(parsed.status).toBe('success');
+      expect(parsed.messages).toEqual(['message 1','message 2']);
+      expect(parsed.scm).toEqual(scmJSON);
+      done();
+    });
+
+    const scm = Scm.fromJSON(scmJSON);
+    PluggableScmCRUD.checkConnection(scm).then(onResponse);
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(url);
+    expect(request.method).toEqual("POST");
+    expect(request.data()).toEqual(toJSON(scm.toJSON()));
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
+    expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
+  });
+
   function toJSON(object: any) {
     return JSON.parse(JSON.stringify(object));
   }
@@ -133,7 +159,7 @@ describe('PluggableScmCRUDSpec', () => {
     return {
       status:          200,
       responseHeaders: {
-        "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8",
+        "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
       },
       responseText:    JSON.stringify(scms)
     };
@@ -143,7 +169,7 @@ describe('PluggableScmCRUDSpec', () => {
     return {
       status:          200,
       responseHeaders: {
-        "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8",
+        "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
         "ETag":         "some-etag"
       },
       responseText:    JSON.stringify(getPluggableScm())
@@ -154,9 +180,25 @@ describe('PluggableScmCRUDSpec', () => {
     return {
       status:          200,
       responseHeaders: {
-        "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8"
+        "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8"
       },
       responseText:    JSON.stringify({message: "The scm was successfully deleted."})
+    };
+  }
+
+  function scmCheckConnectionResponse() {
+    const response = {
+      status:   "success",
+      messages: ["message 1", "message 2"],
+      scm:      getPluggableScm()
+    };
+    return {
+      status:          200,
+      responseHeaders: {
+        "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+        "ETag":         "some-etag"
+      },
+      responseText:    JSON.stringify(response)
     };
   }
 });

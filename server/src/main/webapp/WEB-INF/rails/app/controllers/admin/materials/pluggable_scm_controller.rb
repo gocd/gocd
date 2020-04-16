@@ -101,7 +101,7 @@ module Admin::Materials
       scm.setConfigAttributes(params[:material])
 
       result = pluggable_scm_service.checkConnection(scm)
-      render json: { status: result.isSuccessful() ? 'success' : 'failure', messages: result.getMessages() }
+      render json: { status: result.isSuccessful() ? 'success' : 'failure', message: result.message() }
     end
 
     def pipelines_used_in

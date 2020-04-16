@@ -255,14 +255,14 @@ describe Admin::Materials::PluggableScmController do
       before :each do
         result = double('Result')
         allow(result).to receive(:isSuccessful).and_return(true)
-        allow(result).to receive(:getMessages).and_return(['message 1', 'message 2'])
+        allow(result).to receive(:message).and_return("Connection ok.")
         expect(@pluggable_scm_service).to receive(:checkConnection).with(anything()) {result}
       end
 
       it "should check connection for pluggable SCM" do
         post :check_connection, params: {:plugin_id => 'plugin-id', :material => create_payload}
 
-        expect(response.body).to eq("{\"status\":\"success\",\"messages\":[\"message 1\",\"message 2\"]}")
+        expect(response.body).to eq("{\"status\":\"success\",\"message\":\"Connection ok.\"}")
       end
     end
 

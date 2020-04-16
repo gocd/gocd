@@ -27,9 +27,9 @@ PluggableSCMCheckConnection = function (url) {
                 data: formData,
                 success: function (data) {
                     if (data.status == "failure") {
-                        connection_message_element.removeClass("ok_message").addClass("error_message").text(data.messages);
+                        connection_message_element.removeClass("ok_message").addClass("error_message").text(data.message);
                     } else {
-                        connection_message_element.addClass("ok_message").removeClass("error_message").text(data.messages);
+                        connection_message_element.addClass("ok_message").removeClass("error_message").text(data.message);
                     }
                 },
                 error: function (data) {

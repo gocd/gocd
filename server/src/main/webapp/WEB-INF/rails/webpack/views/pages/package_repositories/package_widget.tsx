@@ -54,7 +54,7 @@ export class PackageWidget extends MithrilViewComponent<Attrs> {
     const scrollOptions = vnode.attrs.scrollOptions;
     const pkg           = vnode.attrs.package;
     const linked        = scrollOptions.package_repo_sm.sm.getTarget() === pkg.packageRepo().name()
-                          && scrollOptions.package_sm.sm.getTarget() === pkg.name();
+                          && scrollOptions.package_sm.sm.getTarget() === pkg.key();
 
     this.expanded(linked);
   }
@@ -86,9 +86,12 @@ export class PackageWidget extends MithrilViewComponent<Attrs> {
     const onNavigate    = () => {
       if (scrollOptions.package_repo_sm.sm.getTarget() === pkg.packageRepo().name()) {
         this.expanded(true);
+        if (scrollOptions.package_sm.sm.getTarget() === pkg.key() && scrollOptions.package_sm.shouldOpenEditView) {
+          vnode.attrs.onEdit(pkg, new MouseEvent("click"));
+        }
       }
     };
-    return <Anchor id={pkg.name()} sm={scrollOptions.package_sm.sm}
+    return <Anchor id={pkg.key()} sm={scrollOptions.package_sm.sm}
                    onnavigate={onNavigate}>
       <CollapsiblePanel dataTestId={"package-panel"} actions={actionButtons}
                         header={<KeyValueTitle image={null} title={title}/>}

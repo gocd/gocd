@@ -37,8 +37,9 @@ describe('PackageRepositoryWidgetSpec', () => {
     disableActions    = false;
     scrollOptions     = {
       package_repo_sm: {
-        sm:                 stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]),
-        shouldOpenEditView: false
+        sm:                          stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]),
+        shouldOpenEditView:          false,
+        shouldOpenCreatePackageView: false
       },
       package_sm:      {
         sm:                 stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]),

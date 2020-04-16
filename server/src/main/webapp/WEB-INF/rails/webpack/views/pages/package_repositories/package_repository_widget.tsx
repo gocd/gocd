@@ -40,6 +40,7 @@ interface Attrs extends EditOperation<PackageRepository>, CloneOperation<Package
 export interface PackageRepositoryScrollOptions {
   sm: ScrollManager;
   shouldOpenEditView: boolean;
+  shouldOpenCreatePackageView: boolean;
 }
 
 export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
@@ -97,8 +98,19 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
       </div>
     ];
 
+    const onNavigate = () => {
+      const scrollOptions = vnode.attrs.scrollOptions.package_repo_sm;
+      this.expanded(true);
+      if (scrollOptions.sm.getTarget() === packageRepository.name()) {
+        if (scrollOptions.shouldOpenEditView) {
+          vnode.attrs.onEdit(packageRepository, new MouseEvent("click"));
+        } else if (scrollOptions.shouldOpenCreatePackageView) {
+          vnode.attrs.packageOperations.onAdd(packageRepository, new MouseEvent("click"));
+        }
+      }
+    };
     return <Anchor id={packageRepository.name()} sm={vnode.attrs.scrollOptions.package_repo_sm.sm}
-                   onnavigate={() => this.expanded(true)}>
+                   onnavigate={onNavigate}>
       <CollapsiblePanel key={vnode.attrs.packageRepository.repoId()}
                         header={header} error={disabled}
                         actions={[warningIcon, actionButtons]}

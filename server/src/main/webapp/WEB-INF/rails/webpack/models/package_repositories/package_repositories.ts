@@ -18,7 +18,14 @@ import Stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Errors} from "../mixins/errors";
 import {Configurations} from "../shared/configuration";
-import {PackageJSON, PackageRepositoryJSON, PackageRepositorySummaryJSON, PackageUsageJSON, PackageUsagesJSON, PluginMetadataJSON} from "./package_repositories_json";
+import {
+  PackageJSON,
+  PackageRepositoryJSON,
+  PackageRepositorySummaryJSON,
+  PackageUsageJSON,
+  PackageUsagesJSON,
+  PluginMetadataJSON
+} from "./package_repositories_json";
 
 export class PackageRepositorySummary extends ValidatableMixin {
   id: Stream<string>;
@@ -90,6 +97,10 @@ export class Package extends ValidatableMixin {
       package_repo:  this.packageRepo.toJSON(),
       configuration: this.configuration().toJSON()
     };
+  }
+
+  key() {
+    return `${this.packageRepo().name()}_${this.name()}`;
   }
 }
 

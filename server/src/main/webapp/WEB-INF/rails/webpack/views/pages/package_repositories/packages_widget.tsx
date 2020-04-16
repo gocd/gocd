@@ -37,11 +37,14 @@ export class PackagesWidget extends MithrilViewComponent<Attrs> {
     const pkgRepoManager = vnode.attrs.scrollOptions.package_repo_sm.sm;
     const pkgManager     = vnode.attrs.scrollOptions.package_sm.sm;
     if (pkgRepoManager.getTarget() === vnode.attrs.packageRepoName && pkgManager.hasTarget()) {
-      const target           = pkgManager.getTarget();
-      const hasAnchorElement = vnode.attrs.packages().some((pkg) => pkg.name() === target);
-      if (!hasAnchorElement) {
-        const msg = `'${target}' package has not been set up.`;
-        return <FlashMessage dataTestId="anchor-package-not-present" type={MessageType.alert} message={msg}/>;
+      const target        = pkgManager.getTarget();
+      const anchorPkgName = target.split('_')[1];
+      if (!_.isEmpty(anchorPkgName)) {
+        const hasAnchorElement = vnode.attrs.packages().some((pkg) => pkg.key() === target);
+        if (!hasAnchorElement) {
+          const msg = `'${anchorPkgName}' package has not been set up.`;
+          return <FlashMessage dataTestId="anchor-package-not-present" type={MessageType.alert} message={msg}/>;
+        }
       }
     }
     if (_.isEmpty(vnode.attrs.packages())) {

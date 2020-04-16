@@ -34,8 +34,9 @@ describe('PackagesWidgetSpec', () => {
     packages      = Stream(new Packages());
     scrollOptions = {
       package_repo_sm: {
-        sm:                 stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]),
-        shouldOpenEditView: false
+        sm:                          stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]),
+        shouldOpenEditView:          false,
+        shouldOpenCreatePackageView: false
       },
       package_sm:      {
         sm:                 stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]),
@@ -88,7 +89,7 @@ describe('PackagesWidgetSpec', () => {
     };
     scrollOptions.package_sm.sm      = {
       hasTarget:    jasmine.createSpy().and.callFake(() => true),
-      getTarget:    jasmine.createSpy().and.callFake(() => "non-pkg"),
+      getTarget:    jasmine.createSpy().and.callFake(() => `${pkg.packageRepo().name()}_non-pkg`),
       shouldScroll: jasmine.createSpy(),
       setTarget:    jasmine.createSpy(),
       scrollToEl:   jasmine.createSpy()
@@ -97,5 +98,28 @@ describe('PackagesWidgetSpec', () => {
 
     expect(helper.byTestId("anchor-package-not-present")).toBeInDOM();
     expect(helper.textByTestId("anchor-package-not-present")).toBe("'non-pkg' package has not been set up.");
+  });
+
+  it('should not render error if package name is not set in the anchor', () => {
+    const pkg = Package.fromJSON(getPackage());
+    packages().push(pkg);
+    scrollOptions.package_repo_sm.sm = {
+      hasTarget:    jasmine.createSpy().and.callFake(() => true),
+      getTarget:    jasmine.createSpy().and.callFake(() => pkg.packageRepo().name()),
+      shouldScroll: jasmine.createSpy(),
+      setTarget:    jasmine.createSpy(),
+      scrollToEl:   jasmine.createSpy()
+    };
+    scrollOptions.package_sm.sm      = {
+      hasTarget:    jasmine.createSpy().and.callFake(() => true),
+      getTarget:    jasmine.createSpy().and.callFake(() => `${pkg.packageRepo().name()}_`),
+      shouldScroll: jasmine.createSpy(),
+      setTarget:    jasmine.createSpy(),
+      scrollToEl:   jasmine.createSpy()
+    };
+    mount();
+
+    expect(helper.byTestId("anchor-package-not-present")).not.toBeInDOM();
+    expect(helper.byTestId("packages-widget")).toBeInDOM();
   });
 });

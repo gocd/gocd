@@ -21,19 +21,26 @@ import Stream from "mithril/stream";
 import {Scm, ScmJSON} from "models/materials/pluggable_scm";
 import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import * as Buttons from "views/components/buttons";
+import {ButtonGroup} from "views/components/buttons";
 import {FlashMessageModel, MessageType} from "views/components/flash_message";
 import {Warning} from "views/components/icons";
+import testConnectionStyles from "views/components/materials/test_connection.scss";
 import {Size} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {EntityModal} from "views/components/modal/entity_modal";
+import styles from "./index.scss";
 import {PluggableScmModalBody} from "./pluggable_scm_modal_body";
 
 abstract class PluggableScmModal extends EntityModal<Scm> {
   protected readonly originalEntityId: string;
   protected readonly originalEntityName: string;
-  protected message?: FlashMessageModel;
-  private disableId: boolean;
-  private disablePluginId: boolean;
+  protected message: FlashMessageModel = new FlashMessageModel();
+  private readonly disableId: boolean;
+  private readonly disablePluginId: boolean;
+
+  private testConnectionButtonText: string = "Test Connection";
+  private testConnectionButtonIcon: string | undefined;
 
   constructor(entity: Scm,
               pluginInfos: PluginInfos,
@@ -56,6 +63,28 @@ abstract class PluggableScmModal extends EntityModal<Scm> {
     } else {
       this.errorMessage(errorResponse.message);
     }
+  }
+
+  buttons(): any[] {
+    return [
+      <ButtonGroup>
+        <Buttons.Primary data-test-id="button-check-connection"
+                         ajaxOperationMonitor={this.ajaxOperationMonitor}
+                         ajaxOperation={this.performCheckConnection.bind(this)}>
+          <span className={this.testConnectionButtonIcon} data-test-id="test-connection-icon"/>
+          {this.testConnectionButtonText}
+        </Buttons.Primary>
+        <Buttons.Primary data-test-id="button-save"
+                         disabled={this.isLoading()}
+                         ajaxOperationMonitor={this.ajaxOperationMonitor}
+                         ajaxOperation={this.performOperation.bind(this)}>Save</Buttons.Primary>
+      </ButtonGroup>,
+
+      <div className={styles.alignLeft}>
+        <Buttons.Cancel data-test-id="button-cancel" onclick={(e: MouseEvent) => this.close()}
+                        ajaxOperationMonitor={this.ajaxOperationMonitor}>Cancel</Buttons.Cancel>
+      </div>
+    ];
   }
 
   protected modalBody(): m.Children {
@@ -89,6 +118,52 @@ abstract class PluggableScmModal extends EntityModal<Scm> {
     }
 
     return newPluginId;
+  }
+
+  protected performCheckConnection(): Promise<any> {
+    if (!this.entity().isValid()) {
+      return Promise.reject();
+    }
+
+    this.testConnectionInProgress();
+
+    return PluggableScmCRUD.checkConnection(this.entity())
+                           .then((success) => {
+                             success.do((successResponse) => {
+                               this.entity(Scm.fromJSON(successResponse.body.scm));
+                               if (successResponse.body.status === "success") {
+                                 this.testConnectionSuccessful();
+                               } else {
+                                 this.testConnectionFailed(successResponse.body.messages);
+                               }
+                             }, (errorResponse) => {
+                               this.testConnectionButtonIcon = testConnectionStyles.testConnectionFailure;
+                               this.message.setMessage(MessageType.alert, errorResponse.message);
+                               if (errorResponse.body) {
+                                 this.message.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+                               }
+                             });
+                           })
+                           .finally(() => this.testConnectionButtonText = "Test Connection");
+  }
+
+  private testConnectionInProgress() {
+    this.testConnectionButtonIcon = undefined;
+    this.testConnectionButtonText = "Testing Connection...";
+  }
+
+  private testConnectionSuccessful() {
+    this.testConnectionButtonIcon = testConnectionStyles.testConnectionSuccess;
+    this.message.setMessage(MessageType.success, "Connection Ok!");
+  }
+
+  private testConnectionFailed(messages: string[]) {
+    this.testConnectionButtonIcon = testConnectionStyles.testConnectionFailure;
+    const response                = <div>Check connection failed with the following errors: <br/>
+      {messages.map((msg: string) => {
+        return <span>&emsp; - {msg}</span>;
+      })}</div>;
+    this.message.setMessage(MessageType.alert, response);
   }
 }
 

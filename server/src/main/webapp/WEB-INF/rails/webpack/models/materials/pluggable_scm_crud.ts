@@ -60,6 +60,12 @@ export class PluggableScmCRUD {
                             }));
   }
 
+  static checkConnection(scm: Scm) {
+    return ApiRequestBuilder.POST(SparkRoutes.pluggableScmCheckConnectionPath(), this.API_VERSION_HEADER,
+                                  {payload: scm})
+                            .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
+  }
+
   private static extractObjectWithEtag(result: ApiResult<string>) {
     return result.map((body) => {
       const scmJSON = JSON.parse(body) as ScmJSON;

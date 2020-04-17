@@ -52,6 +52,7 @@ interface Attrs {
 
 interface State {
   provider: SuggestionProvider;
+
   stages(): Option[];
 }
 
@@ -180,10 +181,11 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
         return selectedPkg !== undefined;
       });
       if (selectedPkgRepo !== undefined) {
+        this.resetErrorAndWarningFields(vnode);
         vnode.state.pkgRepoId(selectedPkgRepo.repoId());
         vnode.state.pkgs(this.mapAndConcatPackages(selectedPkgRepo));
+        this.setErrorIfPluginNotPresent(vnode, selectedPkgRepo);
       }
-      this.disablePkgField = false;
     }
   }
 
@@ -340,7 +342,7 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
     }));
     const readonly                    = !!vnode.attrs.disabled;
     const showLocalWorkingCopyOptions = !!vnode.attrs.showLocalWorkingCopyOptions;
-    this.setErrorMessageIfApplicable(vnode, plugins);
+    this.setErrorMessageIfApplicable(vnode);
 
     return <div className={styles.packageFields}>
       {this.errorMessage}
@@ -408,7 +410,7 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
     }
   }
 
-  private setErrorMessageIfApplicable(vnode: m.Vnode<PluginAttrs, PluginState>, plugins: Array<Option | string>) {
+  private setErrorMessageIfApplicable(vnode: m.Vnode<PluginAttrs, PluginState>) {
     this.errorMessage = undefined;
     if (vnode.state.pluginId().length > 0 && vnode.state.scmsForSelectedPlugin().length === 1) {
       this.errorMessage    = <FlashMessage type={MessageType.warning}>

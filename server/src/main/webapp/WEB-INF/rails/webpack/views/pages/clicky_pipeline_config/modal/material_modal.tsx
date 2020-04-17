@@ -43,15 +43,16 @@ export class MaterialModal extends Modal {
               packages: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
               pipelineConfigSave: () => Promise<any>, isNew: boolean) {
     super(Size.large);
-    this.__title             = title;
-    this.entity              = entity;
-    this.pluggableScms       = scms;
-    this.materials           = materials;
-    this.packageRepositories = packages;
-    this.pluginInfos         = pluginInfos;
-    this.pipelineConfigSave  = pipelineConfigSave;
-    this.isNew               = isNew;
-    this.errorMessage        = Stream();
+    this.__title                  = title;
+    this.entity                   = entity;
+    this.pluggableScms            = scms;
+    this.materials                = materials;
+    this.packageRepositories      = packages;
+    this.pluginInfos              = pluginInfos;
+    this.pipelineConfigSave       = pipelineConfigSave;
+    this.isNew                    = isNew;
+    this.errorMessage             = Stream();
+    this.closeModalOnOverlayClick = false;
   }
 
   static forAdd(materials: Stream<Materials>, scms: Stream<Scms>, packageRepositories: Stream<PackageRepositories>,

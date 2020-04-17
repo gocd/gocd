@@ -15,6 +15,7 @@
  */
 
 import {docsUrl} from "gen/gocd_version";
+import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {Filter} from "models/maintenance_mode/material";
 import {Scm, Scms} from "models/materials/pluggable_scm";
@@ -122,6 +123,12 @@ describe('PackageFieldsSpec', () => {
     });
     expect(helper.textAll("option", helper.byTestId('form-field-input-package-repository'))).toEqual(['Select a package repository', 'pkg-repo-name']);
     expect(helper.textAll("option", helper.byTestId('form-field-input-package'))).toEqual(['Select a package']);
+
+    expect(helper.byTestId('package-msg')).not.toBeInDOM();
+    const msgElement = helper.byTestId('package-repo-msg');
+    expect(msgElement).toBeInDOM();
+    expect(msgElement.textContent).toBe('Create New or select existing.');
+    expect(helper.q('a', msgElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA());
   });
 
   it('should update packages on selecting a package repository', () => {
@@ -140,6 +147,11 @@ describe('PackageFieldsSpec', () => {
     });
     expect(helper.textAll("option", helper.byTestId('form-field-input-package'))).toEqual(['Select a package', 'pkg-name']);
     expect(helper.byTestId('selected-pkg-repo-details')).toBeInDOM();
+
+    const msgElement = helper.byTestId('package-msg');
+    expect(msgElement).toBeInDOM();
+    expect(msgElement.textContent).toBe('Create New or select existing.');
+    expect(helper.q('a', msgElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA() + "#!pkg-repo-name/create-package");
   });
 
   it('should render plugin not found error message', () => {
@@ -210,6 +222,16 @@ describe('PackageFieldsSpec', () => {
 
     expect(helper.byTestId('selected-pkg-repo-details')).toBeInDOM();
     expect(helper.byTestId('selected-pkg-details')).toBeInDOM();
+
+    const pkgRepoMsgElement = helper.byTestId('package-repo-msg');
+    expect(pkgRepoMsgElement).toBeInDOM();
+    expect(pkgRepoMsgElement.textContent).toBe('Create New or select existing.');
+    expect(helper.q('a', pkgRepoMsgElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA());
+
+    const pkgMsgElement = helper.byTestId('package-msg');
+    expect(pkgMsgElement).toBeInDOM();
+    expect(pkgMsgElement.textContent).toBe('Create New or select existing.');
+    expect(helper.q('a', pkgMsgElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA() + "#!pkg-repo-name/create-package");
   });
 
   it('should pre-populate package config when ref is set with error if plugin is not found', () => {

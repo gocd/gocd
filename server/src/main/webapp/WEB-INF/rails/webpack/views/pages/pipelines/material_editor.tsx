@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -38,7 +37,6 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormBody} from "views/components/forms/form";
 import {Option, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";
-import styles from "./advanced_settings.scss";
 import {DefaultCache, DependencyFields, PackageFields, PluginFields, SuggestionCache} from "./non_scm_material_fields";
 import {GitFields, HgFields, P4Fields, SvnFields, TfsFields} from "./scm_material_fields";
 
@@ -80,15 +78,10 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     }
 
     return <FormBody>
-      <div className={styles.materialSelectionContainer}>
-        <SelectField label="Material Type" property={vnode.attrs.material.type} required={true}
-                     readonly={vnode.attrs.disabled || vnode.attrs.disabledMaterialTypeSelection}>
-          <SelectFieldOptions selected={vnode.attrs.material.type()} items={supportedMaterials}/>
-        </SelectField>
-        <div className={styles.message}>
-          {this.message(attrs.material, attrs.pluginInfos)}
-        </div>
-      </div>
+      <SelectField label="Material Type" property={vnode.attrs.material.type} required={true}
+                   readonly={vnode.attrs.disabled || vnode.attrs.disabledMaterialTypeSelection}>
+        <SelectFieldOptions selected={vnode.attrs.material.type()} items={supportedMaterials}/>
+      </SelectField>
 
       <Form last={true} compactForm={true}>
         {this.fieldsForType(attrs.material, this.cache, showLocalWorkingCopyOptions, hideTestConnection, attrs.disabled, attrs.packageRepositories, attrs.pluginInfos, attrs.pluggableScms)}
@@ -182,18 +175,6 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
         return <PluginFields material={material} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}
                              scms={scms} pluginInfos={pluginInfos}/>;
       default:
-        break;
-    }
-  }
-
-  private message(material: Material, pluginInfos?: PluginInfos) {
-    switch (material.type()) {
-      case "package":
-        const packagePlugins = pluginInfos === undefined ? new PluginInfos()
-          : pluginInfos!.filterForExtension(ExtensionTypeString.PACKAGE_REPO);
-        if (!_.isEmpty(packagePlugins)) {
-          return <span data-test-id="package-msg"><Link href={SparkRoutes.packageRepositoriesSPA()}>Create New</Link> or select existing packages below.</span>;
-        }
         break;
     }
   }

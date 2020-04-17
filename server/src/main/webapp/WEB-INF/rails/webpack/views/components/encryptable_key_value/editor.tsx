@@ -14,14 +14,24 @@
  * limitations under the License.
  */
 
+import {override} from "helpers/css_proxies";
 import {RestyleAttrs, RestyleComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
+import {ButtonIcon, Secondary} from "views/components/buttons";
 import {PasswordField, Switch, TextField} from "views/components/forms/input_fields";
-import {Delete, Plus} from "views/components/icons";
+import {Delete} from "views/components/icons";
 import {EntriesVM, EntryVM} from "./vms";
 
-type Styles = any;
+// styles
+import defaultFormsCss from "views/components/forms/forms.scss";
+import defaultStyles from "./editor.scss";
+
+type Styles = typeof defaultStyles;
+
+const formsCss = override(defaultFormsCss, {
+  formGroup: [defaultFormsCss.formGroup, defaultStyles.fieldGroup].join(" ") // remove bottom margin from form fields!
+});
 
 interface CollectionAttrs extends RestyleAttrs<Styles> {
   headers?: m.Children;
@@ -35,18 +45,24 @@ interface Attrs extends RestyleAttrs<Styles> {
 }
 
 export class KeyValEditor extends RestyleComponent<Styles, CollectionAttrs> {
-  css: Styles = {};
+  css: Styles = defaultStyles;
 
   view(vnode: m.Vnode<CollectionAttrs>) {
     const model = vnode.attrs.model;
 
-    return <table onchange={vnode.attrs.onchange}>
+    return <table onchange={vnode.attrs.onchange} class={this.css.allKeyVals}>
       {this.headers(vnode)}
       <tbody>
-        {_.map(this.entries(vnode), (entry) => <KeyValEntryEditor model={entry} destroy={() => model.excise(entry)}/>)}
+        {_.map(this.entries(vnode), (entry) => <KeyValEntryEditor model={entry} destroy={() => model.excise(entry)} css={this.css}/>)}
       </tbody>
       <tfoot>
-        <tr><td colspan="4"><Plus onclick={() => this.append(vnode)} title="Add another property">Add another</Plus></td></tr>
+        <tr>
+          <td class={this.css.addMore} colspan="4">
+            <Secondary icon={ButtonIcon.ADD} onclick={() => this.append(vnode)} title="Add another property">
+              Add
+            </Secondary>
+          </td>
+        </tr>
       </tfoot>
     </table>;
   }
@@ -69,9 +85,9 @@ export class KeyValEditor extends RestyleComponent<Styles, CollectionAttrs> {
       return <thead>{headers}</thead>;
     }
 
-    return <thead>
+    return <thead class={this.css.defaultHeaders}>
       <tr>
-        <th>Encrypt</th>
+        <th>Encrypt?</th>
         <th>Name</th>
         <th colspan="2">Value</th>
       </tr>
@@ -84,13 +100,13 @@ export class KeyValEditor extends RestyleComponent<Styles, CollectionAttrs> {
 }
 
 class KeyValEntryEditor extends RestyleComponent<Styles, Attrs> {
-  css: Styles = {};
+  css: Styles = defaultStyles;
 
   view(vnode: m.Vnode<Attrs>) {
     const entry = vnode.attrs.model;
     return <tr>
-      <td><Switch property={entry.isSecure.bind(entry)}/></td>
-      <td><TextField placeholder="Name" property={entry.name} errorText={entry.nameErrors()}/></td>
+      <td><Switch css={formsCss} property={entry.isSecure.bind(entry)}/></td>
+      <td><TextField css={formsCss} placeholder="Name" property={entry.name} errorText={entry.nameErrors()}/></td>
       <td>{this.valueField(entry)}</td>
       <td><Delete onclick={vnode.attrs.destroy}/></td>
     </tr>;
@@ -98,9 +114,9 @@ class KeyValEntryEditor extends RestyleComponent<Styles, Attrs> {
 
   valueField(entry: EntryVM) {
     if (entry.isSecure()) {
-      return <PasswordField placeholder="Secret Value" property={entry.secretValue} errorText={entry.valueErrors()}/>;
+      return <PasswordField css={formsCss} placeholder="Secret Value" property={entry.secretValue} errorText={entry.valueErrors()}/>;
     }
 
-    return <TextField placeholder="Value" property={entry.value} errorText={entry.valueErrors()}/>;
+    return <TextField css={formsCss} placeholder="Value" property={entry.value} errorText={entry.valueErrors()}/>;
   }
 }

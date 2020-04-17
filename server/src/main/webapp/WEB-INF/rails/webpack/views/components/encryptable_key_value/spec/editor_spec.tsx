@@ -36,7 +36,7 @@ describe("<KeyValEditor/>", () => {
     helper.mount(() => <KeyValEditor model={vm}/>);
 
     expect(helper.qa("th").length).toBe(3);
-    expect(helper.textAll("th")).toEqual(["Encrypt", "Name", "Value"]);
+    expect(helper.textAll("th")).toEqual(["Encrypt?", "Name", "Value"]);
 
     expect(helper.byTestId("switch-checkbox")).toBeInDOM();
     assertExistsWithValue(NAME_FIELD, "a");
@@ -50,7 +50,7 @@ describe("<KeyValEditor/>", () => {
     helper.mount(() => <KeyValEditor model={vm}/>);
 
     expect(helper.qa("th").length).toBe(3);
-    expect(helper.textAll("th")).toEqual(["Encrypt", "Name", "Value"]);
+    expect(helper.textAll("th")).toEqual(["Encrypt?", "Name", "Value"]);
 
     expect(helper.byTestId("switch-checkbox")).toBeInDOM();
     assertExistsWithValue(NAME_FIELD, "a");
@@ -76,7 +76,7 @@ describe("<KeyValEditor/>", () => {
 
     // still one set of headers
     expect(helper.qa("th").length).toBe(3);
-    expect(helper.textAll("th")).toEqual(["Encrypt", "Name", "Value"]);
+    expect(helper.textAll("th")).toEqual(["Encrypt?", "Name", "Value"]);
 
     // each row has the following
     expect(helper.allByTestId("switch-checkbox").length).toBe(3);

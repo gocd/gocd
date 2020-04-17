@@ -109,7 +109,7 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
         </div>
       </div>,
       <div class={styles.configProperties}>
-        <h2>Template Variables</h2>
+        <h2>User-defined Properties/Variables</h2>
         {repo.errors().hasErrors("configuration") ? <FlashMessage type={MessageType.alert} message={repo.errors().errorsForDisplay("configuration")}/> : null}
         <KeyValEditor model={userProps} onchange={() => repo.userProps(userProps.toJSON())}/>
       </div>,

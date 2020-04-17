@@ -15,6 +15,7 @@
  */
 
 import {ApiResult, ObjectWithEtag} from "helpers/api_request_builder";
+import {asSelector} from "helpers/css_proxies";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
@@ -24,6 +25,9 @@ import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {ConfigRepoModal} from "views/pages/config_repos/modals";
 import {configRepoPluginInfo, createConfigRepoParsedWithError} from "views/pages/config_repos/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
+import styles from "../index.scss";
+
+const sel = asSelector(styles);
 
 class TestConfigRepoModal extends ConfigRepoModal {
   readonly repo: ConfigRepo;
@@ -41,7 +45,7 @@ class TestConfigRepoModal extends ConfigRepoModal {
                                       new Material("git", new GitMaterialAttributes()));
     const parsedRepo = createConfigRepoParsedWithError();
     parsedRepo.rules().push(Stream(new Rule("allow", "refer", "pipeline", "common*")));
-    this.repo = this.isNew ? configRepo : parsedRepo;
+    this.repo = this.initProperties(this.isNew ? configRepo : parsedRepo);
   }
 
   setErrorMessageForTest(errorMsg: string): void {
@@ -63,10 +67,13 @@ class TestConfigRepoModal extends ConfigRepoModal {
     return "Modal Title for Config Repo";
   }
 
+  reinit() {
+    this.initProperties(this.repo);
+  }
+
   protected getRepo(): ConfigRepo {
     return this.repo;
   }
-
 }
 
 describe("ConfigRepoModal", () => {
@@ -166,6 +173,31 @@ describe("ConfigRepoModal", () => {
 
     expect(helper.byTestId("flash-message-alert")).toBeInDOM();
     expect(helper.textByTestId("flash-message-alert")).toContain("Now you've done it");
+  });
+
+  it("renders configuration property errors", () => {
+    const modal = new TestConfigRepoModal(onSuccessfulSave, onError, pluginInfos);
+
+    // cheating; easier than pretending to click and type, must use reinit() after setting
+    modal.repo.userProps([
+      { key: "userdef.doppelganger", value: "data" },
+      { key: "userdef.doppelganger", value: "lore" },
+    ]);
+
+    modal.reinit();
+
+    spyOn(modal, "performSave");
+
+    helper.mount(() => m(modal));
+
+    modal.save();
+
+    helper.redraw();
+
+    expect(modal.performSave).not.toHaveBeenCalled();
+    expect(helper.byTestId("flash-message-alert")).toBeInDOM();
+    expect(helper.textByTestId("flash-message-alert")).toContain("One or more properties is invalid");
+    expect(helper.textAll(`${sel.configProperties} input[type="text"] + span`)).toEqual(["Names must be unique.", "Names must be unique."]);
   });
 
   describe("CreateModal", () => {

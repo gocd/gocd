@@ -192,6 +192,20 @@ describe("<KeyValEditor/>", () => {
     expect(helper.valueAll(VALUE_FIELD)).toEqual([""]);
     expect(vm.toJSON()).toEqual([]);
   });
+
+  it("fires onchange if any child fields fire the change event", () => {
+    const handler = jasmine.createSpy("onchange");
+    const vm = new EntriesVM([plain("a", "b")]);
+    helper.mount(() => <KeyValEditor model={vm} onchange={handler}/>);
+
+    expect(handler).not.toHaveBeenCalled();
+
+    helper.onchange(NAME_FIELD, "foo");
+    expect(handler).toHaveBeenCalledTimes(1);
+
+    helper.onchange(VALUE_FIELD, "foo");
+    expect(handler).toHaveBeenCalledTimes(2);
+  });
 });
 
 function assertExistsWithValue(selector: string, value: string) {

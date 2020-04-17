@@ -16,7 +16,10 @@
 
 import _ from "lodash";
 import {Accessor, basicAccessor, serialize, serializing} from "models/base/accessor";
+import {ErrorIndex, PropertyErrors} from "models/shared/configuration";
+import {Validatable, Validator, ValidatorOptions} from "./new_validatable_mixin";
 
+/** Represents a property datum from client to server. */
 export interface PropertyLike {
   key: string;
   value?: string;
@@ -28,9 +31,35 @@ export const USER_NS        = "userdef";
 
 export const USER_NS_PREFIX = `${USER_NS}.`;
 
+type accessorKeys = keyof Omit<ConfigurationProperties, "propertyErrors">;
+
+export class PropertyNamesValidator extends Validator {
+  constructor(options?: ValidatorOptions) {
+    super(options);
+  }
+
+  protected doValidate(entity: ConfigurationProperties & Validatable, attr: accessorKeys) {
+    const uniqueness = new Map<string, ErrorIndex[]>();
+
+    entity.propertyErrors(_.map(entity[attr](), (p) => {
+      const err: ErrorIndex = { key: p.key };
+      handleUnique(uniqueness, err);
+      if (_.isEmpty(err.key)) {
+        addError(err, "configuration_key", "Name is required");
+      }
+      return err;
+    }));
+
+    if (_.some(entity.propertyErrors(), (err) => !_.isEmpty(err.errors))) {
+      entity.errors().add(attr, this.options.message || "One or more properties is invalid");
+    }
+  }
+}
+
 export class ConfigurationProperties {
-  knownProps = basicAccessor<PropertyLike[]>([]);
-  userProps = basicAccessor<PropertyLike[]>([]);
+  readonly knownProps = basicAccessor<PropertyLike[]>([]);
+  readonly userProps = basicAccessor<PropertyLike[]>([]);
+  readonly propertyErrors = basicAccessor<ErrorIndex[]>([]);
 
   private readonly allowUserDef: boolean;
 
@@ -102,4 +131,23 @@ export function mergeProps(left: PropertyLike[], right: PropertyLike[]) {
   }
 
   return right.concat(more);
+}
+
+function addError(v: ErrorIndex, key: keyof PropertyErrors, msg: string) {
+  v.errors = v.errors || {};
+  v.errors[key] = v.errors[key] || [];
+  if (v.errors[key]!.indexOf(msg) < 0) {
+    v.errors[key]!.push(msg);
+  }
+  v.errors[key]!.sort();
+}
+
+function handleUnique(uniqueness: Map<string, ErrorIndex[]>, err: ErrorIndex) {
+  if (uniqueness.has(err.key)) {
+    const existing = uniqueness.get(err.key)!;
+    existing.push(err);
+    existing.forEach((v) => addError(v, "configuration_key", "Names must be unique"));
+  } else {
+    uniqueness.set(err.key, [err]);
+  }
 }

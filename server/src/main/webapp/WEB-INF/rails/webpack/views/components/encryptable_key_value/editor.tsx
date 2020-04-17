@@ -26,6 +26,7 @@ type Styles = any;
 interface CollectionAttrs extends RestyleAttrs<Styles> {
   headers?: m.Children;
   model: EntriesVM;
+  onchange?: EventListener;
 }
 
 interface Attrs extends RestyleAttrs<Styles> {
@@ -39,7 +40,7 @@ export class KeyValEditor extends RestyleComponent<Styles, CollectionAttrs> {
   view(vnode: m.Vnode<CollectionAttrs>) {
     const model = vnode.attrs.model;
 
-    return <table>
+    return <table onchange={vnode.attrs.onchange}>
       {this.headers(vnode)}
       <tbody>
         {_.map(this.entries(vnode), (entry) => <KeyValEntryEditor model={entry} destroy={() => model.excise(entry)}/>)}
@@ -89,7 +90,7 @@ class KeyValEntryEditor extends RestyleComponent<Styles, Attrs> {
     const entry = vnode.attrs.model;
     return <tr>
       <td><Switch property={entry.isSecure.bind(entry)}/></td>
-      <td><TextField placeholder="Name" property={entry.name}/></td>
+      <td><TextField placeholder="Name" property={entry.name} errorText={entry.nameErrors()}/></td>
       <td>{this.valueField(entry)}</td>
       <td><Delete onclick={vnode.attrs.destroy}/></td>
     </tr>;
@@ -97,9 +98,9 @@ class KeyValEntryEditor extends RestyleComponent<Styles, Attrs> {
 
   valueField(entry: EntryVM) {
     if (entry.isSecure()) {
-      return <PasswordField placeholder="Secret Value" property={entry.secretValue}/>;
+      return <PasswordField placeholder="Secret Value" property={entry.secretValue} errorText={entry.valueErrors()}/>;
     }
 
-    return <TextField placeholder="Value" property={entry.value}/>;
+    return <TextField placeholder="Value" property={entry.value} errorText={entry.valueErrors()}/>;
   }
 }

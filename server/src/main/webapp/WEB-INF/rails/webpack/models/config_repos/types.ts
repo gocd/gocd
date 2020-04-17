@@ -19,7 +19,7 @@ import Stream from "mithril/stream";
 import {Accessor} from "models/base/accessor";
 import {ConfigRepoJSON, ConfigReposJSON, MaterialModificationJSON, ParseInfoJSON,} from "models/config_repos/serialization";
 import {Material, Materials} from "models/materials/types";
-import {ConfigurationProperties, PropertyLike} from "models/mixins/configuration_properties";
+import {ConfigurationProperties, PropertyLike, PropertyNamesValidator} from "models/mixins/configuration_properties";
 import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
@@ -83,6 +83,7 @@ export class ConfigRepo extends ValidatableMixin implements ConfigurationPropert
     this.validatePresenceOf("pluginId");
     this.validateAssociated("material");
     this.validateEach("rules");
+    this.validateWith(new PropertyNamesValidator(), "configuration");
   }
 
   static findConfigurationValue(configuration: PropertyLike[], key: string) {

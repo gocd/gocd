@@ -4,6 +4,7 @@ export const comment: string;
 export const commitInfo: string;
 export const committer: string;
 export const committerInfo: string;
+export const configProperties: string;
 export const configRepoProperties: string;
 export const configRepoSuccessState: string;
 export const configRepoUpdateInProgress: string;

@@ -15,6 +15,7 @@
  */
 
 import _ from "lodash";
+import {PropertyErrors} from "models/shared/configuration";
 import {EncryptedValue} from "../../forms/encrypted_value";
 import {EntriesVM, EntryVM} from "../vms";
 
@@ -79,6 +80,82 @@ describe("EntriesVM", () => {
     expect(vm.toJSON()).toEqual([
       { key: "a", value: "1" },
       { key: "b", value: "2" },
+    ]);
+  });
+
+  it("bindErrors() binds to the correct keys and ignores irrelevant entries", () => {
+    const vm = new EntriesVM([plain("ns.a", "1")], "ns");
+    vm.appendBlank();
+    vm.appendBlank();
+    vm.appendBlank();
+    vm.entries.push(new EntryVM(plain("", "1"), "ns"));
+    vm.entries.push(new EntryVM(plain("ns.b", "1"), "ns"));
+    vm.appendBlank();
+    vm.appendBlank();
+    vm.entries.push(new EntryVM(plain("ns.c", "1"), "ns"));
+    vm.appendBlank();
+    vm.entries.push(new EntryVM(encr("ns.d", "1"), "ns"));
+    vm.entries.push(new EntryVM(plain("ns.b", "1"), "ns"));
+    vm.appendBlank();
+    vm.appendBlank();
+    vm.entries.push(new EntryVM(encr("ns.c", "1"), "ns"));
+    vm.appendBlank();
+
+    vm.bindErrors([
+      { key: "ignore.me", value: "a", errors: { configuration_value: ["pay no mind to this error"] } },
+      { key: "also me", value: "a" },
+      { key: "ns.a", value: "1" },
+      { key: "", value: "1", errors: { configuration_value: ["I've got nothing, ahem, *key* to add here :)"] } },
+      { key: "ns.b", value: "1", errors: { configuration_key: ["The key 'ns.b' says: I'm a dupe"] } },
+      { key: "ns.c", value: "1", errors: { configuration_key: ["The key 'ns.c' says: I'm a dupe"] } },
+      { key: "dot dot dot", value: "a", errors: { configuration_value: ["..."] } },
+      { key: "ns.d", value: "1" },
+      { key: "brown chicken", value: "brown cow" },
+      { key: "ns.b", value: "1", errors: { configuration_key: ["The key 'ns.b' says: I'm a dupe"] } },
+      { key: "ns.c", value: "1", errors: { configuration_key: ["The key 'ns.c' says: I'm a dupe"] } },
+      { key: "nothing more to say", value: "👍" },
+    ]);
+
+    interface Result {
+      key: string;
+      errors?: string[];
+    }
+
+    function collectErrors(errors?: PropertyErrors) {
+      if (!errors) { return; }
+      return _.reduce(errors, (all, msgs) => all?.concat(msgs || []), [] as string[]);
+    }
+
+    const results = _.reduce(
+      vm.entries,
+      (memo, en) => memo.concat([{ key: en.key(), errors: collectErrors(en.errors) }]),
+      [] as Result[]
+    );
+
+    // bindErrors() should:
+    //   - skip over blanks
+    //   - ignore keys that are not in the namespace, if one is set
+    //     - except for empty keys; this are always visited, provided a value is present
+    //     - believe it or not, empty string is considered a valid key
+    //   - assign errors to the right view model entry; also handles duplicate keys
+    //   - assume relative order of user-defined properties returned by server is preserved
+    expect(results).toEqual([
+      { key: "ns.a", errors: undefined },
+      { key: "", errors: undefined },
+      { key: "", errors: undefined },
+      { key: "", errors: undefined },
+      { key: "", errors: ["I've got nothing, ahem, *key* to add here :)"] },
+      { key: "ns.b", errors: ["The key 'ns.b' says: I'm a dupe"] },
+      { key: "", errors: undefined },
+      { key: "", errors: undefined },
+      { key: "ns.c", errors: ["The key 'ns.c' says: I'm a dupe"] },
+      { key: "", errors: undefined },
+      { key: "ns.d", errors: undefined },
+      { key: "ns.b", errors: ["The key 'ns.b' says: I'm a dupe"] },
+      { key: "", errors: undefined },
+      { key: "", errors: undefined },
+      { key: "ns.c", errors: ["The key 'ns.c' says: I'm a dupe"] },
+      { key: "", errors: undefined },
     ]);
   });
 
@@ -306,6 +383,39 @@ describe("EntryVM", () => {
       expect(vm.toJSON()).toEqual({ key: "Au revoir", value: "le monde!" });
   });
 
+  it("nameErrors() only returns errors that relate to the key", () => {
+    const vm = new EntryVM(plain("hello", "world"));
+
+    expect(vm.nameErrors()).toBeUndefined();
+
+    vm.errors = { configuration_value: ["foo"] };
+    expect(vm.nameErrors()).toBeUndefined();
+
+    vm.errors = { encrypted_value: ["foo"] };
+    expect(vm.nameErrors()).toBeUndefined();
+
+    vm.errors = { configuration_key: ["foo", "bar", "baz"] };
+    expect(vm.nameErrors()).toBe("foo. bar. baz.");
+  });
+
+  it("valueErrors() only returns errors that relate to the value or encrypted_value", () => {
+    const vm = new EntryVM(plain("hello", "world"));
+
+    expect(vm.valueErrors()).toBeUndefined();
+
+    vm.errors = { configuration_key: ["foo"] };
+    expect(vm.valueErrors()).toBeUndefined();
+
+    vm.errors = { encrypted_value: ["foo", "bar"] };
+    expect(vm.valueErrors()).toBe("foo. bar.");
+
+    vm.errors = { configuration_value: ["baz", "quu"] };
+    expect(vm.valueErrors()).toBe("baz. quu.");
+
+    vm.errors = { configuration_value: ["foo", "bar"], encrypted_value: ["baz", "quu"] };
+    expect(vm.valueErrors()).toBe("foo. bar. baz. quu.");
+  });
+
   describe("with a namespace", () => {
     it("name() sets and gets while transparently handling a prefix", () => {
       const vm = new EntryVM(undefined, "ns");
@@ -326,6 +436,34 @@ describe("EntryVM", () => {
       vm.name("");
       expect(vm.name()).toBe("");
       expect(vm.key()).toBe("");
+    });
+
+    it("nameErrors() will strip the namespace from error messages", () => {
+      const vm = new EntryVM(plain("ns.hello", "world"), "ns");
+
+      vm.errors = { configuration_key: ["the key 'ns.hello' is wordly", "does this for each message: ns.hello"] };
+      expect(vm.nameErrors()).toBe("the key 'hello' is wordly. does this for each message: hello.");
+    });
+
+    it("nameErrors() will strip the namespace only for the first occurrence in a single message", () => {
+      const vm = new EntryVM(plain("ns.hello", "world"), "ns");
+
+      vm.errors = { configuration_key: ["'ns.hello' is a property of the repo with id: 'ns.hello'", "ns.hello from the repo named ns.hello"] };
+      expect(vm.nameErrors()).toBe("'hello' is a property of the repo with id: 'ns.hello'. hello from the repo named ns.hello.");
+    });
+
+    it("valueErrors() will strip the namespace from error messages", () => {
+      const vm = new EntryVM(plain("ns.hello", "world"), "ns");
+
+      vm.errors = { configuration_value: ["the key 'ns.hello' is wordly", "does this for each message: ns.hello"] };
+      expect(vm.valueErrors()).toBe("the key 'hello' is wordly. does this for each message: hello.");
+    });
+
+    it("valueErrors() will strip the namespace only for the first occurrence in a single message", () => {
+      const vm = new EntryVM(plain("ns.hello", "world"), "ns");
+
+      vm.errors = { configuration_value: ["'ns.hello' is a property of the repo with id: 'ns.hello'", "ns.hello from the repo named ns.hello"] };
+      expect(vm.valueErrors()).toBe("'hello' is a property of the repo with id: 'ns.hello'. hello from the repo named ns.hello.");
     });
   });
 });

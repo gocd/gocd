@@ -128,6 +128,54 @@ describe("ConfigReposWidget", () => {
       expect(keyValuePair[1]).toContainText("json.config.plugin");
     });
 
+    it("renders user-defined properties section", () => {
+      const repo = ConfigRepo.fromJSON({
+        material: {
+          type: "git",
+          attributes: {
+            url: "https://example.com/git/my-repo",
+            name: "",
+            auto_update: true,
+            branch: "master",
+            destination: ""
+          }
+        },
+        can_administer: false,
+        configuration: [
+          { key: "userdef.I yam what I yam", value: "And that's all that I yam" },
+          { key: "chipmunks", value: "Alvin, Simon, Theodore" },
+          { key: "userdef.a cow says", encrypted_value: "moo" },
+        ],
+        parse_info: {},
+        id: "my-repo",
+        plugin_id: "json.config.plugin",
+        material_update_in_progress: false,
+        rules: []
+      });
+
+      models([vm(repo)]);
+      helper.redraw();
+
+      const panel = helper.byTestId("config-repo-user-properties-panel");
+
+      expect(panel).toBeInDOM();
+
+      expect(helper.text(panel)).not.toMatch("chipmunks");
+      expect(helper.text(panel)).not.toMatch("Alvin");
+
+      expect(helper.byTestId("key-value-key-i-yam-what-i-yam", panel)).toBeInDOM();
+      expect(helper.textByTestId("key-value-key-i-yam-what-i-yam", panel)).toBe("I yam what I yam");
+      expect(helper.textByTestId("key-value-value-i-yam-what-i-yam", panel)).toBe("And that's all that I yam");
+
+      expect(helper.byTestId("key-value-key-a-cow-says", panel)).toBeInDOM();
+      expect(helper.textByTestId("key-value-key-a-cow-says", panel)).toBe("a cow says");
+      expect(helper.textByTestId("key-value-value-a-cow-says", panel)).toBe("********************************");
+      expect(helper.byTestId("Lock-icon", helper.byTestId("key-value-value-a-cow-says", panel))).toBeInDOM();
+
+      expect(helper.byTestId("key-value-key-i-yam-what-i-yam", panel)).toBeInDOM();
+      expect(helper.textByTestId("key-value-key-i-yam-what-i-yam", panel)).toBe("I yam what I yam");
+    });
+
     it("should ONLY render latest modification wheb good === latest", () => {
       models([vm(createConfigRepoParsed())]);
       helper.redraw();

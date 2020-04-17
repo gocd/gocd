@@ -333,22 +333,6 @@ describe('PluginFieldsSpec', () => {
     expect(errorElement.textContent).toBe('There are no SCMs configured for the selected plugin.');
   });
 
-  it('should render plugin configs if a plugin is selected', () => {
-    helper.mount(() => <PluginFields material={material} pluginInfos={pluginInfos} scms={scms}/>);
-
-    expect(helper.byTestId('selected-plugin-details')).not.toBeInDOM();
-
-    helper.onchange(helper.byTestId('form-field-input-scm-plugin'), 'scm-plugin-id');
-
-    expect(helper.byTestId('selected-plugin-details')).toBeInDOM();
-
-    assertConfigsPresent(helper, 'selected-plugin-details', {
-      id:          "Id",
-      name:        "Name",
-      description: "Description"
-    });
-  });
-
   it('should render scm configs if selected', () => {
     helper.mount(() => <PluginFields material={material} pluginInfos={pluginInfos} scms={scms}/>);
 
@@ -366,11 +350,10 @@ describe('PluginFieldsSpec', () => {
     });
   });
 
-  it('should pre-populate configs and dropdown if ref is set', () => {
+  it('should pre-populate configs if ref is set', () => {
     (material.attributes()! as PluggableScmMaterialAttributes).ref(scms[0].id());
     helper.mount(() => <PluginFields material={material} pluginInfos={pluginInfos} scms={scms}/>);
 
-    expect(helper.byTestId('selected-plugin-details')).toBeInDOM();
     expect(helper.byTestId('selected-scm-details')).toBeInDOM();
   });
 

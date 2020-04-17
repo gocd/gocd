@@ -15,6 +15,7 @@
  */
 
 import Awesomplete from "awesomplete";
+import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -34,6 +35,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {KeyValuePair} from "views/components/key_value_pair";
+import {Link} from "views/components/link";
 import {SwitchBtn} from "views/components/switch";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
@@ -344,33 +346,36 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
     const showLocalWorkingCopyOptions = !!vnode.attrs.showLocalWorkingCopyOptions;
     this.setErrorMessageIfApplicable(vnode);
 
-    return <div className={styles.packageFields}>
-      {this.errorMessage}
-      <table>
-        <tr>
-          <td>
-            <SelectField property={this.pluginIdProxy.bind(this, vnode)}
-                         label="SCM Plugin"
-                         errorText={attrs.errors().errorsForDisplay("pluginId")}
-                         required={true} readonly={readonly}>
-              <SelectFieldOptions selected={vnode.state.pluginId()} items={plugins}/>
-            </SelectField>
-          </td>
-          <td>
-            <SelectField property={attrs.ref} label="SCM" required={true}
-                         errorText={attrs.errors().errorsForDisplay("ref")}
-                         readonly={readonly || this.disableScmField}>
-              <SelectFieldOptions selected={attrs.ref()} items={vnode.state.scmsForSelectedPlugin()}/>
-            </SelectField>
-          </td>
-        </tr>
-        <tr>
-          <td className={styles.spaceBetween}>{this.showSelectedPluginConfig(vnode)}</td>
-          <td>{this.showSelectedScmConfig(vnode)}</td>
-        </tr>
-      </table>
-      {this.advanced(attrs, showLocalWorkingCopyOptions)}
-    </div>;
+    let message;
+    if (!_.isEmpty(vnode.attrs.pluginInfos)) {
+      message = <span data-test-id="plugin-msg"><Link href={SparkRoutes.pluggableScmSPA()}>Create New</Link> or select existing scms below.</span>;
+    }
+
+    return [
+      this.errorMessage,
+
+      <SelectField property={this.pluginIdProxy.bind(this, vnode)}
+                   label="SCM Plugin"
+                   errorText={attrs.errors().errorsForDisplay("pluginId")}
+                   required={true} readonly={readonly}>
+        <SelectFieldOptions selected={vnode.state.pluginId()} items={plugins}/>
+      </SelectField>,
+
+      <div className={styles.scmSelectionContainer}>
+        <SelectField property={attrs.ref} label="SCM" required={true}
+                     errorText={attrs.errors().errorsForDisplay("ref")}
+                     readonly={readonly || this.disableScmField}>
+          <SelectFieldOptions selected={attrs.ref()} items={vnode.state.scmsForSelectedPlugin()}/>
+        </SelectField>
+        <div className={styles.message}>
+          {message}
+        </div>
+      </div>,
+
+      this.showSelectedScmConfig(vnode),
+
+      this.advanced(attrs, showLocalWorkingCopyOptions)
+    ];
   }
 
   private pluginIdProxy(vnode: m.Vnode<PluginAttrs, PluginState>, pluginId?: string): any {
@@ -420,29 +425,17 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
     }
   }
 
-  private showSelectedPluginConfig(vnode: m.Vnode<PluginAttrs, PluginState>) {
-    const selectedPlugin = vnode.attrs.pluginInfos.findByPluginId(vnode.state.pluginId());
-    if (selectedPlugin !== undefined) {
-      const data = new Map<string, string | m.Children>([
-                                                          ["Id", selectedPlugin.id],
-                                                          ["Name", selectedPlugin.about.name],
-                                                          ["Description", selectedPlugin.about.description],
-                                                        ]);
-      return <KeyValuePair data-test-id={"selected-plugin-details"} data={data}/>;
-    }
-  }
-
   private showSelectedScmConfig(vnode: m.Vnode<PluginAttrs, PluginState>) {
     const attrs       = vnode.attrs.material.attributes() as PluggableScmMaterialAttributes;
     const selectedScm = vnode.attrs.scms.find((scm) => scm.id() === attrs.ref());
     if (selectedScm !== undefined) {
-      const scmRepoDetails = new Map([
-                                       ["Id", selectedScm.id()],
+      const scmRepoDetails = new Map([["Id", selectedScm.id()],
                                        ["Name", selectedScm.name()],
                                        ["Plugin Id", selectedScm.pluginMetadata().id()],
-                                       ...Array.from(selectedScm.configuration().asMap())
-                                     ]);
-      return <KeyValuePair data-test-id={"selected-scm-details"} data={scmRepoDetails}/>;
+                                       ...Array.from(selectedScm.configuration().asMap())]);
+      return <div className={styles.configValues}>
+        <KeyValuePair data-test-id={"selected-scm-details"} data={scmRepoDetails}/>
+      </div>;
     }
   }
 }

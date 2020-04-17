@@ -85,3 +85,17 @@
     margin-left: 10px;
   }
 }
+
+.scm-selection-container {
+  display:     flex;
+  align-items: center;
+
+  .message {
+    margin-left: 10px;
+    margin-top:  10px;
+  }
+}
+
+.config-values {
+  margin-left: 10px;
+}

@@ -75,8 +75,8 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
 
     const supportedMaterials: Array<Option | string> = this.supportedMaterials(scmOnly, disableScmMaterials);
     if (!!attrs.showExtraMaterials) {
-      supportedMaterials.push({id: "package", text: "Package"});
-      supportedMaterials.push({id: "plugin", text: "SCM", disabled: disableScmMaterials});
+      supportedMaterials.push({id: "package", text: "Package Materials"});
+      supportedMaterials.push({id: "plugin", text: "Plugin Materials", disabled: disableScmMaterials});
     }
 
     return <FormBody>
@@ -193,13 +193,6 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
           : pluginInfos!.filterForExtension(ExtensionTypeString.PACKAGE_REPO);
         if (!_.isEmpty(packagePlugins)) {
           return <span data-test-id="package-msg"><Link href={SparkRoutes.packageRepositoriesSPA()}>Create New</Link> or select existing packages below.</span>;
-        }
-        break;
-      case "plugin":
-        const scmPlugins = pluginInfos === undefined ? new PluginInfos()
-          : pluginInfos!.filterForExtension(ExtensionTypeString.SCM);
-        if (!_.isEmpty(scmPlugins)) {
-          return <span data-test-id="plugin-msg"><Link href={SparkRoutes.pluggableScmSPA()}>Create New</Link> or select existing scms below.</span>;
         }
         break;
     }

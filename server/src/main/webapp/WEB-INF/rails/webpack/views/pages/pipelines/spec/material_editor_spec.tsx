@@ -99,7 +99,7 @@ describe("AddPipeline: Material Editor", () => {
                                        packageRepositories={new PackageRepositories()}/>);
 
     expect(helper.q("label").textContent).toBe("Material Type*");
-    expect(helper.textAll("option")).toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server", "Another Pipeline", "Package", "SCM"]);
+    expect(helper.textAll("option")).toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server", "Another Pipeline", "Package Materials", "Plugin Materials"]);
 
     expect(helper.q('span[data-test-id="package-msg"]')).not.toBeInDOM();
     helper.onchange("select", "package");
@@ -121,7 +121,7 @@ describe("AddPipeline: Material Editor", () => {
                                        packageRepositories={new PackageRepositories()}/>);
 
     expect(helper.q("label").textContent).toBe("Material Type*");
-    expect(helper.textAll("option")).toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server", "Another Pipeline", "Package", "SCM"]);
+    expect(helper.textAll("option")).toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server", "Another Pipeline", "Package Materials", "Plugin Materials"]);
 
     expect(helper.q('span[data-test-id="plugin-msg"]')).not.toBeInDOM();
     helper.onchange("select", "plugin");

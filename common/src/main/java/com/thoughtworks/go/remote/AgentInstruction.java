@@ -13,51 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.remote;
 
-import java.io.Serializable;
+public enum AgentInstruction {
+    NONE, CANCEL, FORCE_CANCEL;
 
-public class AgentInstruction implements Serializable {
-    private final boolean shouldCancelJob;
-    private final boolean shouldForceCancelJob;
-
-    public AgentInstruction(boolean shouldCancelJob) {
-        this(shouldCancelJob, false);
-    }
-
-    public AgentInstruction(boolean shouldCancelJob, boolean shouldForceCancelJob) {
-        this.shouldCancelJob = shouldCancelJob;
-        this.shouldForceCancelJob = shouldForceCancelJob;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        AgentInstruction that = (AgentInstruction) o;
-
-        if (shouldCancelJob != that.shouldCancelJob) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return (shouldCancelJob ? 1 : 0);
-    }
-
-    public boolean shouldCancelJob() {
-        return shouldCancelJob;
+    public boolean shouldCancel() {
+        return this.equals(CANCEL);
     }
 
     public boolean shouldForceCancel() {
-        return shouldForceCancelJob;
+        return this.equals(FORCE_CANCEL);
     }
 }

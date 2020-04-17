@@ -33,7 +33,7 @@ public class JobRunner {
     private EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
     public void handleInstruction(AgentInstruction instruction, AgentRuntimeInfo agentStatus) {
-        if (instruction.shouldCancelJob() && !handled) {
+        if (instruction.shouldCancel() && !handled) {
             cancelJob(agentStatus);
         }
     }
@@ -73,7 +73,6 @@ public class JobRunner {
     void setWork(Work work) {
         this.work = work;
     }
-
     @Override
     public String toString() {
         return "JobRunner{" +

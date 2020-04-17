@@ -44,6 +44,7 @@ import static com.thoughtworks.go.domain.AgentInstance.createFromLiveAgent;
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.Building;
 import static com.thoughtworks.go.helper.AgentInstanceMother.building;
 import static com.thoughtworks.go.helper.AgentInstanceMother.cancelled;
+import static com.thoughtworks.go.remote.AgentInstruction.*;
 import static com.thoughtworks.go.util.CommaSeparatedString.commaSeparatedStrToList;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.util.Arrays.asList;
@@ -857,6 +858,35 @@ public class AgentInstanceTest {
             agentInstance.cancel();
 
             assertThat(agentInstance.cancelledAt()).isEqualTo(currentTime);
+        }
+    }
+
+    @Nested
+    class agentInstruction {
+        @Test
+        void shouldBeToDoNothingIfJobNotCancelled() {
+            AgentInstance agentInstance = building("buildLocator");
+
+            assertThat(agentInstance.agentInstruction()).isEqualTo(NONE);
+        }
+
+        @Test
+        void shouldBeToCancelIfJobCancelled() {
+            AgentInstance agentInstance = building();
+
+            agentInstance.cancel();
+
+            assertThat(agentInstance.agentInstruction()).isEqualTo(CANCEL);
+        }
+
+        @Test
+        void shouldBeToForceCancelIfJobMarkedAForceCancel() throws ForceCancelException {
+            AgentInstance agentInstance = building();
+
+            agentInstance.cancel();
+            agentInstance.forceCancel();
+
+            assertThat(agentInstance.agentInstruction()).isEqualTo(FORCE_CANCEL);
         }
     }
 

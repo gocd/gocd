@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.domain.exception.ForceCancelException;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
@@ -36,6 +37,7 @@ import static com.thoughtworks.go.domain.AgentConfigStatus.*;
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.*;
 import static com.thoughtworks.go.domain.AgentStatus.fromConfig;
 import static com.thoughtworks.go.domain.AgentStatus.fromRuntime;
+import static com.thoughtworks.go.remote.AgentInstruction.*;
 import static java.lang.String.format;
 
 //TODO put the logic back to the AgentRuntimeInfo for all the sync method
@@ -389,6 +391,19 @@ public class AgentInstance implements Comparable<AgentInstance> {
     public Date cancelledAt() {
         return cancelledAt;
     }
+
+    public AgentInstruction agentInstruction() {
+        if (isCancelled() && shouldForceCancel()) {
+            return FORCE_CANCEL;
+        }
+
+        if(isCancelled()) {
+            return CANCEL;
+        }
+
+        return NONE;
+    }
+
 
     enum AgentType {
         LOCAL, REMOTE

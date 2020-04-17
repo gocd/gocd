@@ -52,7 +52,7 @@ public class BuildRepositoryRemoteImpl {
             agentService.updateRuntimeInfo(info);
             AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(info.getUUId());
 
-            return new AgentInstruction(agentInstance.isCancelled(), agentInstance.shouldForceCancel());
+            return agentInstance.agentInstruction();
         } catch (AgentWithDuplicateUUIDException agentException) {
             throw wrappedException(agentException);
         } catch (Exception e) {

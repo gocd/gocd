@@ -69,7 +69,7 @@ class BuildRepositoryRemoteImplTest {
 
             AgentInstruction instruction = buildRepository.ping(info);
 
-            assertThat(instruction.shouldCancelJob()).isTrue();
+            assertThat(instruction.shouldCancel()).isTrue();
             verify(agentService).updateRuntimeInfo(info);
             assertThat(logFixture.getRawMessages()).contains(info + " ping received.");
         }
@@ -84,7 +84,7 @@ class BuildRepositoryRemoteImplTest {
 
             AgentInstruction instruction = buildRepository.ping(info);
 
-            assertThat(instruction.shouldCancelJob()).isTrue();
+            assertThat(instruction.shouldCancel()).isFalse();
             assertThat(instruction.shouldForceCancel()).isTrue();
         }
     }

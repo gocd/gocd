@@ -31,6 +31,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -164,17 +165,33 @@ public class PluggableScmServiceTest {
     }
 
     @Test
-    public void shouldCheckConnectionToSCM() {
+    public void shouldCallPluginToCheckConnectionForTheGivenSCMConfiguration() {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
         SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
-        Result expectedResult = new Result();
-        expectedResult.withSuccessMessages(Arrays.asList("message"));
-        when(scmExtension.checkConnectionToSCM(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(expectedResult);
+        Result resultFromPlugin = new Result();
+        resultFromPlugin.withSuccessMessages(Arrays.asList("message"));
 
-        Result gotResult = pluggableScmService.checkConnection(modifiedSCM);
+        when(scmExtension.checkConnectionToSCM(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(resultFromPlugin);
 
-        verify(scmExtension).checkConnectionToSCM(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class));
-        assertSame(expectedResult, gotResult);
+        HttpLocalizedOperationResult result = pluggableScmService.checkConnection(modifiedSCM);
+
+        assertTrue(result.isSuccessful());
+        assertThat(result.message(), is("Connection OK. message"));
+    }
+
+    @Test
+    public void checkConnectionResultShouldFailForFailureResponseFromPlugin() {
+        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
+        SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
+        Result resultFromPlugin = new Result();
+        resultFromPlugin.withErrorMessages("connection failed");
+
+        when(scmExtension.checkConnectionToSCM(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(resultFromPlugin);
+
+        HttpLocalizedOperationResult result = pluggableScmService.checkConnection(modifiedSCM);
+
+        assertThat(result.httpCode(), is(422));
+        assertThat(result.message(), is("Check connection failed. Reason(s): connection failed"));
     }
 
     @Test

@@ -91,7 +91,7 @@ describe("pluggable_scm_check_connection", function () {
             assertEquals('Checking connection...', waiting_message_element.text());
             assertEquals("Waiting message should not have success or error classes", false, waiting_message_element.hasClass("error_message"));
             assertEquals("Waiting message should not have success or error classes", false, waiting_message_element.hasClass("ok_message"));
-            options.success({status:"success", messages:["Connection OK"]});
+            options.success({status:"success", message: "Connection OK"});
         };
 
         jQuery("#check_connection_pluggable_scm").click();
@@ -107,7 +107,7 @@ describe("pluggable_scm_check_connection", function () {
         var post_url = "admin/pipelines/pipeline_name/materials/pluggable_scm/check_connection/plugin_id";
         new PluggableSCMCheckConnection(post_url).bind("#material_form", "#check_connection_pluggable_scm", "#pluggable_scm_check_connection_message");
         jQuery.ajax = function (options) {
-            options.success({status:"failure", messages:["Connection NOT OK"]});
+            options.success({status:"failure", message:"Connection NOT OK"});
         };
 
         jQuery("#check_connection_pluggable_scm").click();

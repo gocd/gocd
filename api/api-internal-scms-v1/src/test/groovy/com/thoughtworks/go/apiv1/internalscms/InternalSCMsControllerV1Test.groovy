@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.scm.SCMMother
 import com.thoughtworks.go.plugin.api.response.Result
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.materials.PluggableScmService
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -81,7 +82,8 @@ class InternalSCMsControllerV1Test implements SecurityServiceTrait, ControllerTr
       SCM scm = SCMMother.create("", "foobar", "plugin1", "v1.0", new Configuration(
         ConfigurationPropertyMother.create("key1", false, "value1")
       ))
-      Result result = new Result().withSuccessMessages("message 1", "message 2")
+      HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+      result.setMessage("Connection ok.")
 
       when(pluggableScmService.checkConnection(any(SCM))).thenReturn(result)
 
@@ -91,6 +93,25 @@ class InternalSCMsControllerV1Test implements SecurityServiceTrait, ControllerTr
 
       assertThatResponse()
         .isOk()
+        .hasBodyWithJsonObject(VerifyConnectionResultRepresenter.class, scm, result)
+    }
+
+    @Test
+    void 'should return 422 if check connection fails'() {
+      SCM scm = SCMMother.create("", "foobar", "plugin1", "v1.0", new Configuration(
+        ConfigurationPropertyMother.create("key1", false, "value1")
+      ))
+      HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+      result.unprocessableEntity("Verify Connection failed.")
+
+      when(pluggableScmService.checkConnection(any(SCM))).thenReturn(result)
+
+      def postJson = toObjectString({ SCMRepresenter.toJSON(it, scm) })
+
+      postWithApiHeader("/api/admin/internal/scms/verify_connection", postJson)
+
+      assertThatResponse()
+        .isUnprocessableEntity()
         .hasBodyWithJsonObject(VerifyConnectionResultRepresenter.class, scm, result)
     }
   }

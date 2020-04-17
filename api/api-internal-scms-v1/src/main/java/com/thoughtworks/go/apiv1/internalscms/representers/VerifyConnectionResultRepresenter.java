@@ -19,12 +19,13 @@ package com.thoughtworks.go.apiv1.internalscms.representers;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.plugin.api.response.Result;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
 public class VerifyConnectionResultRepresenter {
-    public static void toJSON(OutputWriter outputWriter, SCM scm, Result checkConnectionResult) {
+    public static void toJSON(OutputWriter outputWriter, SCM scm, HttpLocalizedOperationResult checkConnectionResult) {
         outputWriter
                 .add("status", checkConnectionResult.isSuccessful() ? "success" : "failure")
-                .addChildList("messages", checkConnectionResult.getMessages())
+                .add("message", checkConnectionResult.message())
                 .addChild("scm", writer -> SCMRepresenter.toJSON(writer, scm));
     }
 }

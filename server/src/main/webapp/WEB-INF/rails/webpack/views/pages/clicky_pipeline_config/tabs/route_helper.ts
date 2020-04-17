@@ -16,7 +16,7 @@
 
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
-import {PipelineConfigRouteParams, RouteInfo} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {PipelineConfigRouteParams, RouteInfo} from "views/pages/clicky_pipeline_config/tab_handler";
 
 export interface OldNewName {
   old: string;

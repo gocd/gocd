@@ -21,7 +21,7 @@ import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {TextField} from "views/components/forms/input_fields";
 import {SwitchBtn} from "views/components/switch";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";;
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {StageEditor} from "views/pages/clicky_pipeline_config/widgets/stage_editor_widget";
 import styles from "./stage_settings.scss";

@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {AngleDoubleRight} from "views/components/icons";
 import {Link} from "views/components/link";
-import {PipelineConfigRouteParams, RouteInfo} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {PipelineConfigRouteParams, RouteInfo} from "views/pages/clicky_pipeline_config/tab_handler";
 import style from "../index.scss";
 
 interface Attrs {

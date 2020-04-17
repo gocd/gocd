@@ -26,7 +26,7 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {Modal} from "views/components/modal";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";;
 import {JobSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/job_settings_tab_content";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
 import {TasksWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";

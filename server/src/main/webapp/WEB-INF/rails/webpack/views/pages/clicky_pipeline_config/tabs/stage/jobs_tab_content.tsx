@@ -28,7 +28,7 @@ import {Secondary} from "views/components/buttons";
 import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
 import {Delete} from "views/components/icons";
 import {Table} from "views/components/table";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";;
 import {AddJobModal} from "views/pages/clicky_pipeline_config/tabs/stage/jobs/add_job_modal";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {OperationState} from "views/pages/page_operations";

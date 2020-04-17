@@ -24,10 +24,11 @@ import {TemplateConfig} from "models/pipeline_configs/template_config";
 import s from "underscore.string";
 import {CollapsibleTree} from "views/components/hierarchy/tree";
 import * as Icons from "views/components/icons";
-import {PipelineConfigRouteParams, RouteInfo} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {PipelineConfigRouteParams, RouteInfo} from "views/pages/clicky_pipeline_config/tab_handler";
 
 export interface Attrs {
-  pipelineConfig: PipelineConfig;
+  isTemplateConfig: boolean;
+  config: PipelineConfig | TemplateConfig;
   templateConfig?: TemplateConfig;
   routeInfo: RouteInfo<PipelineConfigRouteParams>;
 
@@ -55,21 +56,21 @@ export class NavigationWidget extends MithrilViewComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>): m.Children {
-    const pipelineConfig   = vnode.attrs.pipelineConfig;
-    const routeForPipeline = `${pipelineConfig.name()}/general`;
+    const config           = vnode.attrs.config;
+    const routeForPipeline = `${config.name()}/general`;
 
     let templateOrStages: m.Children;
-    if (pipelineConfig.isUsingTemplate()) {
+    if (!vnode.attrs.isTemplateConfig  && (config as PipelineConfig).isUsingTemplate()) {
       templateOrStages = this.template(vnode.attrs.templateConfig!);
     } else {
-      templateOrStages = this.stages(pipelineConfig.stages(), pipelineConfig.name(), vnode);
+      templateOrStages = this.stages(config.stages(), config.name(), vnode);
     }
 
-    return <CollapsibleTree datum={pipelineConfig.name()}
-                            collapsed={this.treeStage(vnode, pipelineConfig.name())}
+    return <CollapsibleTree datum={config.name()}
+                            collapsed={this.treeStage(vnode, config.name())}
                             selected={NavigationWidget.isPipelineRoute(vnode)}
                             onclick={this.onClick.bind(this, vnode, routeForPipeline)}
-                            dataTestId={NavigationWidget.dataTestId(pipelineConfig.name())}>
+                            dataTestId={NavigationWidget.dataTestId(config.name())}>
       {templateOrStages}
     </CollapsibleTree>;
   }

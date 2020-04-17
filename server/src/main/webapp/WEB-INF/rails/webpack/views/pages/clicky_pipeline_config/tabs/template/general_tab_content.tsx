@@ -13,30 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import m from "mithril";
-import Stream from "mithril/stream";
-import {PipelineParameter} from "models/pipeline_configs/parameter";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";;
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
-import {PipelineParametersEditor} from "views/pages/pipelines/parameters_editor";
-import styles from "./parameters.scss";
 
-export class ParametersTabContent extends TabContent<PipelineConfig> {
-  readonly paramList = Stream([] as PipelineParameter[]);
-
+export class GeneralOptionsTabContent extends TabContent<TemplateConfig> {
   static tabName(): string {
-    return "Parameters";
+    return "General";
   }
 
-  protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
+  protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams) {
     return pipelineConfig;
   }
 
-  protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig) {
-    return (<div class={styles.mainContainer}>
-      <PipelineParametersEditor paramList={this.paramList} parameters={entity.parameters}/>
-    </div>);
+  //todo: Implement me Ganeshpl
+  protected renderer(entity: TemplateConfig,
+                     templateConfig: TemplateConfig,
+                     flashMessage: FlashMessageModelWithTimeout,
+                     pipelineConfigSave: () => any,
+                     pipelineConfigReset: () => any): m.Children {
+    return <div>
+      this will render templates
+    </div>;
   }
 }

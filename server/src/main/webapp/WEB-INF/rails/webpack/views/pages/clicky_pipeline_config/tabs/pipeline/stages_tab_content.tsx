@@ -24,13 +24,14 @@ import {
 } from "models/internal_pipeline_structure/pipeline_structure";
 import {PipelineStructureCRUD} from "models/internal_pipeline_structure/pipeline_structure_crud";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
-import {Template, TemplateCache} from "models/pipeline_configs/templates_cache";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import {Template, TemplateCache} from "models/pipeline_configs/templates_cache";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {PipelineConfigPage, PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";;
 import {ConfigurationTypeWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/configuration_type_widget";
 import {PipelineTemplateWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/pipeline_template_widget";
 import {StagesWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/stages_widget";
+import {PipelineConfigSPARouteHelper} from "views/pages/clicky_pipeline_config/tabs/route_helper";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 
 export class StagesTabContent extends TabContent<PipelineConfig> {
@@ -43,7 +44,7 @@ export class StagesTabContent extends TabContent<PipelineConfig> {
 
   constructor() {
     super();
-    this.fetchStageDependencyInformation(PipelineConfigPage.routeInfo().params.pipeline_name);
+    this.fetchStageDependencyInformation(PipelineConfigSPARouteHelper.routeInfo().params.pipeline_name);
 
     const self = this;
     self.cache.prime(() => {

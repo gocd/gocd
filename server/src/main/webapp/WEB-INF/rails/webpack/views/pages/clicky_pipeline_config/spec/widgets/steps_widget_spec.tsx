@@ -15,7 +15,7 @@
  */
 
 import m from "mithril";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";;
 import {StepsWidget} from "views/pages/clicky_pipeline_config/widgets/steps_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 

@@ -15,7 +15,7 @@
  */
 
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";;
 import {EnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/common/environment_variables_tab_content";
 
 export class PipelineEnvironmentVariablesTabContent extends EnvironmentVariablesTabContent {

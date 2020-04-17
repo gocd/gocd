@@ -20,7 +20,7 @@ import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {Form} from "views/components/forms/form";
 import {CheckboxField, RadioField, TextField} from "views/components/forms/input_fields";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 
 export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {

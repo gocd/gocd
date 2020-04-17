@@ -15,8 +15,10 @@
  */
 
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
+import {JsonUtils} from "helpers/json_utils";
 import {SparkRoutes} from "helpers/spark_routes";
 import Stream from "mithril/stream";
+import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {ParameterJSON, PipelineParameter} from "models/pipeline_configs/parameter";
 import {Stage, StageJSON} from "models/pipeline_configs/stage";
@@ -27,21 +29,22 @@ export interface TemplateConfigJSON {
   stages: StageJSON[];
 }
 
-export class TemplateConfig {
+export class TemplateConfig extends ValidatableMixin {
   name: Stream<string>;
   parameters: Stream<PipelineParameter[]>;
   readonly stages = Stream<NameableSet<Stage>>();
 
   constructor(name: string, parameters: PipelineParameter[]) {
+    super();
     this.name       = Stream(name);
     this.parameters = Stream(parameters);
   }
 
   static getTemplate(name: string, onSuccess: (result: TemplateConfig) => void) {
-    ApiRequestBuilder.GET(SparkRoutes.templatesPath(name), ApiVersion.v7)
-                     .then((res) => {
-                       res.map((body) => onSuccess(TemplateConfig.fromJSON(JSON.parse(body))));
-                     });
+    return ApiRequestBuilder.GET(SparkRoutes.templatesPath(name), ApiVersion.v7)
+                            .then((res) => {
+                              res.map((body) => onSuccess(TemplateConfig.fromJSON(JSON.parse(body))));
+                            });
   }
 
   static fromJSON(json: TemplateConfigJSON) {
@@ -53,5 +56,10 @@ export class TemplateConfig {
 
   firstStage() {
     return this.stages().values().next().value;
+  }
+
+  //todo: Fixme Ganeshpl
+  toApiPayload(): any {
+    return JsonUtils.toSnakeCasedObject(this);
   }
 }

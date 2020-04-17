@@ -33,7 +33,7 @@ import {SelectField, SelectFieldOptions, TextField} from "views/components/forms
 import * as Icons from "views/components/icons";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";;
 import styles from "views/pages/clicky_pipeline_config/tabs/job/artifacts.scss";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";

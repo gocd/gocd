@@ -823,6 +823,7 @@ public class Routes {
 
     public class AdminTemplates {
         public static final String SPA_BASE = "/admin/templates";
+        public static final String NAME = "/:template_name";
     }
 
     public static class AgentJobHistory {

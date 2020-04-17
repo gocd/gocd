@@ -18,7 +18,7 @@ import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
-import {PipelineConfigRouteParams, RouteInfo} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {PipelineConfigRouteParams, RouteInfo} from "views/pages/clicky_pipeline_config/tab_handler";
 import {Attrs, NavigationWidget} from "views/pages/clicky_pipeline_config/widgets/navigation_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 

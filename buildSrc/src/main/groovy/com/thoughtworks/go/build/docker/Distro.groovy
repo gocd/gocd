@@ -95,15 +95,15 @@ enum Distro implements DistroBehavior {
   centos{
     @Override
     List<String> getInstallPrerequisitesCommands(DistroVersion distroVersion) {
-      String git = "6" == distroVersion.version ? 'rh-git29' : 'rh-git218'
+      String git = gitPackage(distroVersion)
 
       def commands = ['yum update -y']
 
-      if (distroVersion.version == "6" || distroVersion.version == "7") {
+      if (version6Or7(distroVersion)) {
         commands.add('yum install --assumeyes centos-release-scl')
       }
 
-      commands.add("yum install --assumeyes ${gitPackage(distroVersion)} mercurial subversion openssh-clients bash unzip curl procps ${version6Or7(distroVersion) ? 'sysvinit-tools coreutils' : 'procps-ng coreutils-single'}")
+      commands.add("yum install --assumeyes ${git} mercurial subversion openssh-clients bash unzip curl procps ${version6Or7(distroVersion) ? 'sysvinit-tools coreutils' : 'procps-ng coreutils-single'}")
 
       if (version6Or7(distroVersion)) {
         commands.add("cp /opt/rh/${git}/enable /etc/profile.d/${git}.sh")
@@ -118,11 +118,9 @@ enum Distro implements DistroBehavior {
       distroVersion.version == "6" || distroVersion.version == "7"
     }
 
-    def gitPackage(DistroVersion distroVersion) {
-      if (distroVersion.version == "6") {
-        return "rh-git29"
-      } else if (distroVersion.version == "7") {
-        return "rh-git218"
+    String gitPackage(DistroVersion distroVersion) {
+      if (version6Or7(distroVersion)) {
+        return "sclo-git212"
       } else if (distroVersion.version == "8") {
         return "git"
       }
@@ -134,7 +132,7 @@ enum Distro implements DistroBehavior {
       def vars = super.getEnvironmentVariables(distroVersion)
 
       if (version6Or7(distroVersion)) {
-        String git = "6" == distroVersion.version ? 'rh-git29' : 'rh-git218'
+        String git = gitPackage(distroVersion)
         return vars + [
           BASH_ENV: "/opt/rh/${git}/enable",
           ENV     : "/opt/rh/${git}/enable"

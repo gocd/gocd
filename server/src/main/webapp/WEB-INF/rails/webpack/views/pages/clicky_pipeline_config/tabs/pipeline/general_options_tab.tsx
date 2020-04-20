@@ -34,6 +34,7 @@ export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {
       return <CheckboxField label="Automatic pipeline scheduling"
                             errorText={entity.errors().errorsForDisplay("")}
                             dataTestId={"automatic-pipeline-scheduling"}
+                            readonly={entity.isDefinedInConfigRepo()}
                             helpText="If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual."
                             property={stage.approval().typeAsStream()}/>;
     }
@@ -49,6 +50,7 @@ export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {
                    helpText={"Customize the label for this pipeline."}
                    docLink={"configuration/pipeline_labeling.html"}
                    placeholder={"${COUNT}"}
+                   readonly={entity.isDefinedInConfigRepo()}
                    dataTestId={"label-template"}/>
         {this.getPipelineSchedulingCheckBox(entity, templateConfig)}
       </Form>
@@ -58,11 +60,12 @@ export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {
         <TextField property={entity.timer().spec}
                    label={"Cron Timer Specification"}
                    errorText={entity.timer().errors().errorsForDisplay("spec")}
+                   readonly={entity.isDefinedInConfigRepo()}
                    dataTestId={"cron-timer"}
                    helpText={"A cron-like schedule to build the pipeline. For example to run a pipeline once every night at 10 pm on weekdays, use '0 0 22 ? * MON-FRI'."}
                    docLink={"configuration/admin_timer.html"}/>
         <CheckboxField label="Run only on new material"
-                       readonly={!entity.timer().spec()}
+                       readonly={!entity.timer().spec() || entity.isDefinedInConfigRepo()}
                        dataTestId={"run-only-on-new-material"}
                        helpText="Run only if the pipeline hasn't previously run with the latest material(s). This option is typically useful when automatic pipeline scheduling is turned off. For this pipeline to schedule conditionally, please ensure at least one of its materials has polling enabled."
                        property={entity.timer().onlyOnChanges}/>
@@ -71,6 +74,7 @@ export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {
       <h3>Pipeline locking behavior</h3>
       <Form compactForm={true}>
         <RadioField property={entity.lockBehavior}
+                    readonly={entity.isDefinedInConfigRepo()}
                     possibleValues={[
                       {
                         label: "Run single instance of pipeline at a time",

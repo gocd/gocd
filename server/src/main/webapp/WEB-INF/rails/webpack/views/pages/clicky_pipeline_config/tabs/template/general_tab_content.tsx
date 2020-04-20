@@ -15,9 +15,10 @@
  */
 
 import m from "mithril";
-import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
+import {Form} from "views/components/forms/form";
+import {TextField} from "views/components/forms/input_fields";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 
@@ -26,18 +27,24 @@ export class GeneralOptionsTabContent extends TabContent<TemplateConfig> {
     return "General";
   }
 
-  protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams) {
-    return pipelineConfig;
+  protected selectedEntity(templateConfig: TemplateConfig, routeParams: PipelineConfigRouteParams) {
+    return templateConfig;
   }
 
-  //todo: Implement me Ganeshpl
   protected renderer(entity: TemplateConfig,
                      templateConfig: TemplateConfig,
                      flashMessage: FlashMessageModelWithTimeout,
                      pipelineConfigSave: () => any,
                      pipelineConfigReset: () => any): m.Children {
-    return <div>
-      this will render templates
+    return <div data-test-id="template-general-tab">
+      <h3>Basic settings</h3>
+      <Form compactForm={true}>
+        <TextField property={entity.name}
+                   label={"Template Name"}
+                   readonly={true}
+                   errorText={entity.errors().errorsForDisplay("name")}
+                   dataTestId={"template-name"}/>
+      </Form>
     </div>;
   }
 }

@@ -155,7 +155,8 @@ describe("PipelineNavigation", () => {
       };
     }
 
-    helper.mount(() => <NavigationWidget pipelineConfig={pipelineConfig}
+    helper.mount(() => <NavigationWidget config={pipelineConfig}
+                                         isTemplateConfig={false}
                                          templateConfig={templateConfig}
                                          routeInfo={routeInfo!}
                                          changeRoute={changeRoute}/>);

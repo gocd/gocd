@@ -22,15 +22,16 @@ import {Scms} from "models/materials/pluggable_scm";
 import {Material, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
 import {PackageRepositories, Packages} from "models/package_repositories/package_repositories";
 import {Materials} from "models/pipeline_configs/pipeline_config";
-import {ScmExtension} from "models/shared/plugin_infos_new/extensions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {ScmExtension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {Secondary} from "views/components/buttons";
 import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
-import {Delete, Edit, IconGroup} from "views/components/icons";
+import {Delete} from "views/components/icons";
 import {Table} from "views/components/table";
 import style from "views/pages/clicky_pipeline_config/index.scss";
 import {MaterialModal} from "views/pages/clicky_pipeline_config/modal/material_modal";
+import {PipelineConfigPage} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 
 interface MaterialsAttrs {
@@ -89,14 +90,17 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
     return Array.from(vnode.attrs.materials().values()).map((material: Material) => {
       const {name, type, urlOrDescription} = this.getMaterialDisplayInfo(material, vnode);
       return [
-        name,
+        <a href={`#!${PipelineConfigPage.pipelineName()}/materials`}
+           class={style.nameLink}
+           data-test-id={"edit-material-button"}
+           onclick={this.updateMaterial.bind(this, vnode, material)}>{name}</a>,
         type,
         urlOrDescription,
-        <IconGroup>
-          <Edit onclick={this.updateMaterial.bind(this, vnode, material)} data-test-id={"edit-material-button"}/>
-          <Delete disabled={deleteDisabled} title={deleteTitle} onclick={this.deleteMaterial.bind(this, vnode, material)}
-                  data-test-id={"delete-material-button"}/>
-        </IconGroup>
+        <Delete disabled={deleteDisabled}
+                iconOnly={true}
+                title={deleteTitle}
+                onclick={this.deleteMaterial.bind(this, vnode, material)}
+                data-test-id={"delete-material-button"}/>
       ];
     });
   }

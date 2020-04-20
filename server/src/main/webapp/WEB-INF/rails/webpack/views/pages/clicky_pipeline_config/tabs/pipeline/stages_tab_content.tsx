@@ -24,15 +24,15 @@ import {
 } from "models/internal_pipeline_structure/pipeline_structure";
 import {PipelineStructureCRUD} from "models/internal_pipeline_structure/pipeline_structure_crud";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
-import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {Template, TemplateCache} from "models/pipeline_configs/templates_cache";
+import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {ConfigurationTypeWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/configuration_type_widget";
 import {PipelineTemplateWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/pipeline_template_widget";
 import {StagesWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/stages_widget";
 import {PipelineConfigSPARouteHelper} from "views/pages/clicky_pipeline_config/tabs/route_helper";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 
 export class StagesTabContent extends TabContent<PipelineConfig | TemplateConfig> {
   private isPipelineDefinedOriginallyFromTemplate: Stream<boolean> = Stream();
@@ -151,7 +151,7 @@ export class StagesOrTemplatesWidget extends MithrilComponent<StagesOrTemplatesA
   }
 
   view(vnode: m.Vnode<StagesOrTemplatesAttrs, StagesOrTemplatesState>) {
-    let entity = vnode.attrs.entity;
+    const entity = vnode.attrs.entity;
 
     if (vnode.attrs.isTemplateView) {
       return <StagesWidget stages={entity.stages}

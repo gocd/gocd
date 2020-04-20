@@ -58,7 +58,6 @@ export class TemplateConfig extends ValidatableMixin {
     return this.stages().values().next().value;
   }
 
-  //todo: Fixme Ganeshpl
   toApiPayload(): any {
     return JsonUtils.toSnakeCasedObject(this);
   }

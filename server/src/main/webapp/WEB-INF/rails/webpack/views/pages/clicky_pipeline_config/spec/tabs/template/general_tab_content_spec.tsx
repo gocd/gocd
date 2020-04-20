@@ -17,8 +17,8 @@
 import Stream from "mithril/stream";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {GeneralOptionsTabContent} from "views/pages/clicky_pipeline_config/tabs/template/general_tab_content";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 

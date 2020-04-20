@@ -58,6 +58,8 @@ export abstract class TabHandler<T> extends Page<null, T> {
   protected readonly cachedTabs: Map<string, TabContent<SupportedTypes>> = new Map();
   protected originalJSON: any;
 
+  protected entity?: PipelineConfig | TemplateConfig;
+
   oninit(vnode: m.Vnode<null, T>) {
     this.initializeTab();
     super.oninit(vnode);
@@ -75,8 +77,6 @@ export abstract class TabHandler<T> extends Page<null, T> {
     this.initializeTab();
   }
 
-  protected entity?: PipelineConfig | TemplateConfig;
-
   abstract pageName(): string;
 
   abstract fetchData(vnode: m.Vnode<null, T>): Promise<any>;
@@ -86,46 +86,6 @@ export abstract class TabHandler<T> extends Page<null, T> {
   abstract setEntity(entity: PipelineConfig | TemplateConfig): void;
 
   abstract getAllTabsInformation(): Map<string, Map<string, new() => TabContent<SupportedTypes>>>;
-
-  protected currentSelectionTabs() {
-    return this.getAllTabsInformation().get(this.getTabFor())!;
-  }
-
-  private initializeTab() {
-    const routeInfo = PipelineConfigSPARouteHelper.routeInfo();
-    const tabList   = this.getAllTabsInformation();
-
-    const tabName = routeInfo.params.tab_name;
-    let tab       = this.cachedTabs.get(tabName);
-
-    if (tab) {
-      return this.tab(tab);
-    }
-
-    tab = new (tabList.get(this.getTabFor())!.get(tabName)!)();
-    this.cachedTabs.set(tabName, tab);
-    this.tab(tab);
-  }
-
-  private getTabFor(): TabLevel {
-    const params = PipelineConfigSPARouteHelper.routeInfo().params;
-    if (!params.stage_name) {
-      return "pipeline";
-    }
-
-    if (params.job_name) {
-      return "job";
-    }
-
-    return "stage";
-  }
-
-  protected routeForTabName(route: string, tabName: string): string {
-    const parts = route.split("/");
-    parts.pop();
-    parts.push(_.snakeCase(tabName));
-    return parts.join("/");
-  }
 
   changeRoute(newRoute: string, success: () => void): void {
     if (this.hasEntityConfigChanged()) {
@@ -141,53 +101,13 @@ export abstract class TabHandler<T> extends Page<null, T> {
     }
   }
 
-  protected abstract hasEntityConfigChanged(): boolean;
-
   abstract save(): Promise<any>;
 
   abstract reset(): any;
 
   abstract onSuccess(result: ApiResult<any>, successResponse: SuccessResponse<string>): Promise<any>;
 
-  protected onFailure(errorResponse: ErrorResponse) {
-    const parsed = JSON.parse(errorResponse.body!);
-    this.flashMessage.consumeErrorResponse(errorResponse);
-
-    try {
-      if (parsed.data) {
-        this.getEntity().consumeErrorsResponse(parsed.data);
-      }
-    } catch (e) {
-      this.pageState = PageState.FAILED;
-    }
-
-    return Promise.reject(errorResponse);
-  }
-
   abstract shouldShowSpinner(): boolean;
-
-  protected getSaveAndResetButtons(): m.Children {
-    let saveAndResetButtons: m.Children;
-    if (this.tab().shouldShowSaveAndResetButtons()) {
-      saveAndResetButtons = (
-        <div className={styles.buttonContainer}>
-          <Reset data-test-id={"cancel"}
-                 ajaxOperationMonitor={this.ajaxOperationMonitor}
-                 onclick={this.reset.bind(this)}>
-            RESET
-          </Reset>
-          <Primary data-test-id={"save"}
-                   ajaxOperationMonitor={this.ajaxOperationMonitor}
-                   ajaxOperation={this.save.bind(this)}>
-            SAVE
-          </Primary>
-        </div>
-      );
-    }
-
-    return saveAndResetButtons;
-  }
-
 
   componentToDisplay(vnode: m.Vnode<null, T>): m.Children {
     if (this.shouldShowSpinner()) {
@@ -231,6 +151,87 @@ export abstract class TabHandler<T> extends Page<null, T> {
     ];
   }
 
+  abstract getAssociatedTemplateWithPipeline(): TemplateConfig | undefined;
+
+  protected currentSelectionTabs() {
+    return this.getAllTabsInformation().get(this.getTabFor())!;
+  }
+
+  protected routeForTabName(route: string, tabName: string): string {
+    const parts = route.split("/");
+    parts.pop();
+    parts.push(_.snakeCase(tabName));
+    return parts.join("/");
+  }
+
+  protected abstract hasEntityConfigChanged(): boolean;
+
+  protected onFailure(errorResponse: ErrorResponse) {
+    const parsed = JSON.parse(errorResponse.body!);
+    this.flashMessage.consumeErrorResponse(errorResponse);
+
+    try {
+      if (parsed.data) {
+        this.getEntity().consumeErrorsResponse(parsed.data);
+      }
+    } catch (e) {
+      this.pageState = PageState.FAILED;
+    }
+
+    return Promise.reject(errorResponse);
+  }
+
+  protected getSaveAndResetButtons(): m.Children {
+    let saveAndResetButtons: m.Children;
+    if (this.tab().shouldShowSaveAndResetButtons()) {
+      saveAndResetButtons = (
+        <div className={styles.buttonContainer}>
+          <Reset data-test-id={"cancel"}
+                 ajaxOperationMonitor={this.ajaxOperationMonitor}
+                 onclick={this.reset.bind(this)}>
+            RESET
+          </Reset>
+          <Primary data-test-id={"save"}
+                   ajaxOperationMonitor={this.ajaxOperationMonitor}
+                   ajaxOperation={this.save.bind(this)}>
+            SAVE
+          </Primary>
+        </div>
+      );
+    }
+
+    return saveAndResetButtons;
+  }
+
+  private initializeTab() {
+    const routeInfo = PipelineConfigSPARouteHelper.routeInfo();
+    const tabList   = this.getAllTabsInformation();
+
+    const tabName = routeInfo.params.tab_name;
+    let tab       = this.cachedTabs.get(tabName);
+
+    if (tab) {
+      return this.tab(tab);
+    }
+
+    tab = new (tabList.get(this.getTabFor())!.get(tabName)!)();
+    this.cachedTabs.set(tabName, tab);
+    this.tab(tab);
+  }
+
+  private getTabFor(): TabLevel {
+    const params = PipelineConfigSPARouteHelper.routeInfo().params;
+    if (!params.stage_name) {
+      return "pipeline";
+    }
+
+    if (params.job_name) {
+      return "job";
+    }
+
+    return "stage";
+  }
+
   private getIndexOfCurrentSelection(): number {
     return Array.from(this.currentSelectionTabs().keys()).indexOf(m.route.param().tab_name);
   }
@@ -250,6 +251,4 @@ export abstract class TabHandler<T> extends Page<null, T> {
   private isPipelineConfigPage() {
     return !!(super.getMeta() ? super.getMeta() : {}).pipelineName;
   }
-
-  abstract getAssociatedTemplateWithPipeline(): TemplateConfig | undefined;
 }

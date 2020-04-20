@@ -21,7 +21,6 @@ import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
-import {SupportedTypes, TabHandler, TabLevel} from "views/pages/clicky_pipeline_config/tab_handler";
 import {ArtifactsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/artifacts_tab_content";
 import {CustomTabTabContent} from "views/pages/clicky_pipeline_config/tabs/job/custom_tab_tab_content";
 import {JobEnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/job/job_environment_variable_tab_content";
@@ -39,6 +38,7 @@ import {PermissionsTabContent} from "views/pages/clicky_pipeline_config/tabs/sta
 import {StageEnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/stage_environment_variable_tab_content";
 import {StageSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/stage_settings_tab_content";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {SupportedTypes, TabHandler, TabLevel} from "views/pages/clicky_pipeline_config/tab_handler";
 import {PageState} from "views/pages/page";
 import {PipelinePauseHeader} from "views/pages/pipeline_activity/common/pipeline_pause_header";
 
@@ -103,20 +103,6 @@ export class PipelineConfigPage<T> extends TabHandler<T> {
                          });
   }
 
-  protected headerPanel(vnode: m.Vnode<null, T>): any {
-    const title = <PipelinePauseHeader pipelineName={PipelineConfigSPARouteHelper.routeInfo().params.pipeline_name}
-                                       flashMessage={this.flashMessage}
-                                       shouldShowPauseUnpause={true}
-                                       shouldShowPipelineSettings={false}/>;
-
-    return <HeaderPanel title={title} sectionName={this.pageName()}/>;
-  }
-
-  protected hasEntityConfigChanged() {
-    const newPayload = this.getEntity().toApiPayload();
-    return !_.isEqual(newPayload, PipelineConfig.fromJSON(this.originalJSON).toApiPayload());
-  }
-
   onSuccess(result: ApiResult<any>, successResponse: SuccessResponse<string>): Promise<any> {
     this.etag(result.getEtag()!);
 
@@ -168,5 +154,19 @@ export class PipelineConfigPage<T> extends TabHandler<T> {
     tabList.set("job" as TabLevel, jobTabList);
 
     return tabList;
+  }
+
+  protected headerPanel(vnode: m.Vnode<null, T>): any {
+    const title = <PipelinePauseHeader pipelineName={PipelineConfigSPARouteHelper.routeInfo().params.pipeline_name}
+                                       flashMessage={this.flashMessage}
+                                       shouldShowPauseUnpause={true}
+                                       shouldShowPipelineSettings={false}/>;
+
+    return <HeaderPanel title={title} sectionName={this.pageName()}/>;
+  }
+
+  protected hasEntityConfigChanged() {
+    const newPayload = this.getEntity().toApiPayload();
+    return !_.isEqual(newPayload, PipelineConfig.fromJSON(this.originalJSON).toApiPayload());
   }
 }

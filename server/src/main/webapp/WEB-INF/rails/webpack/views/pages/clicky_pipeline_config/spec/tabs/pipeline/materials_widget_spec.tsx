@@ -29,7 +29,7 @@ import {MaterialsWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/
 import {getPluggableScm, getScmPlugin} from "views/pages/pluggable_scms/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
 
-describe('MaterialsWidgetSpec', () => {
+describe("MaterialsWidgetSpec", () => {
   const helper = new TestHelper();
   let pipelineConfig: PipelineConfig;
   let pluginInfos: PluginInfos;

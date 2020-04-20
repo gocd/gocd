@@ -26,8 +26,6 @@ import {PageState} from "views/pages/page";
 import {OperationState} from "views/pages/page_operations";
 import styles from "./tab_content.scss";
 
-;
-
 export abstract class TabContent<T> {
   private pageState = PageState.OK;
 

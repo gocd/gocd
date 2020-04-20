@@ -21,7 +21,7 @@ import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {PageLoadError} from "views/components/page_load_error";
 import {Spinner} from "views/components/spinner";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {PageState} from "views/pages/page";
 import {OperationState} from "views/pages/page_operations";
 import styles from "./tab_content.scss";
@@ -30,7 +30,7 @@ export abstract class TabContent<T> {
   private pageState = PageState.OK;
 
   //render only selected tab
-  public content(pipelineConfig: PipelineConfig,
+  public content(pipelineConfig: PipelineConfig | TemplateConfig,
                  templateConfig: TemplateConfig,
                  routeParams: PipelineConfigRouteParams,
                  ajaxOperationMonitor: Stream<OperationState>,
@@ -69,11 +69,25 @@ export abstract class TabContent<T> {
     return true;
   }
 
+  public isPipelineConfigView() {
+    const meta = document.body.getAttribute("data-meta");
+
+    if (meta && JSON.parse(meta!)) {
+      return !!JSON.parse(meta!)!.pipelineName;
+    }
+
+    return false;
+  }
+
+  public isTemplateView() {
+    return !this.isPipelineConfigView();
+  }
+
   protected abstract renderer(entity: T,
                               templateConfig: TemplateConfig,
                               flashMessage: FlashMessageModelWithTimeout,
                               pipelineConfigSave: () => any,
                               pipelineConfigReset: () => any): m.Children;
 
-  protected abstract selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): T;
+  protected abstract selectedEntity(pipelineConfig: PipelineConfig | TemplateConfig, routeParams: PipelineConfigRouteParams): T;
 }

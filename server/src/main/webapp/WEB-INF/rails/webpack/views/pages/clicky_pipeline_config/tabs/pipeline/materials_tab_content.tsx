@@ -27,8 +27,8 @@ import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {PackageRepositoriesPage} from "views/pages/package_repositories";
 import {MaterialsWidget} from "./materials_widget";
 

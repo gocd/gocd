@@ -26,8 +26,8 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {RadioField} from "views/components/forms/input_fields";
 import * as Icons from "views/components/icons/index";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import styles from "./permissions.scss";
 
 export class PermissionsTabContent extends TabContent<Stage> {

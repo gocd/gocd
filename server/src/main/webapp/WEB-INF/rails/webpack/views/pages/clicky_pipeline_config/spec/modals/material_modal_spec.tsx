@@ -25,7 +25,7 @@ import {ModalManager} from "views/components/modal/modal_manager";
 import {MaterialModal} from "views/pages/clicky_pipeline_config/modal/material_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
 
-describe('MaterialModalSpec', () => {
+describe("MaterialModalSpec", () => {
   let material: Material;
   let materials: Materials;
   let scms: Scms;

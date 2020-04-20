@@ -26,8 +26,8 @@ import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {JobTimeoutManagementCRUD} from "models/server-configuration/server_configuartion_crud";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {NumberField, RadioField, TextField} from "views/components/forms/input_fields";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import styles from "./job_settings.scss";
 
 export interface Attrs {

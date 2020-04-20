@@ -21,8 +21,8 @@ import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {Form} from "views/components/forms/form";
 import {TextField} from "views/components/forms/input_fields";
 import {Help} from "views/components/tooltip";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 
 export class ProjectManagementTabContent extends TabContent<PipelineConfig> {
   static tabName(): string {

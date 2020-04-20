@@ -23,6 +23,11 @@
 -->
 
 <urlrewrite>
+  <rule>
+    <name>Template Config SPA</name>
+    <from>^/admin/templates/([^/]+)/edit(/?)$</from>
+    <to last="true">/spark/admin/templates/${escape:$1}/edit</to>
+  </rule>
 
   <rule>
     <name>Package Repositories Internal Verify Connection API</name>

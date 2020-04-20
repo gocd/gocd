@@ -33,9 +33,9 @@ import {SelectField, SelectFieldOptions, TextField} from "views/components/forms
 import * as Icons from "views/components/icons";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import styles from "views/pages/clicky_pipeline_config/tabs/job/artifacts.scss";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 
 const AngularPluginNew     = require("views/shared/angular_plugin_new").AngularPluginNew;

@@ -26,8 +26,8 @@ import {HelpText, TextField} from "views/components/forms/input_fields";
 import * as Icons from "views/components/icons";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import styles from "./custom_tabs.scss";
 
 export class CustomTabTabContent extends TabContent<Job> {

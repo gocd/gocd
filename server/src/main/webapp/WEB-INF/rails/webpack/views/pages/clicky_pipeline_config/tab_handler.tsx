@@ -23,7 +23,7 @@ import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {Primary, Reset} from "views/components/buttons";
-import {FlashMessage} from "views/components/flash_message";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Spinner} from "views/components/spinner";
 import {Tabs} from "views/components/tab";
 import styles from "views/pages/clicky_pipeline_config/index.scss";
@@ -116,9 +116,22 @@ export abstract class TabHandler<T> extends Page<null, T> {
       return <Spinner/>;
     }
 
+    let configRepoPipelineMessage: m.Children;
+    if (this.isPipelineConfigPage()) {
+      const entity = (this.getEntity() as PipelineConfig);
+      if (entity.origin().isDefinedInConfigRepo()) {
+        const message = <div>
+          Can not edit pipeline '{entity.name()}' as it is defined in <a href={`/go/admin/config_repos#!${entity.origin().id()}`} target="_blank">{entity.origin().id()}</a> Config Repository!
+        </div>;
+
+        configRepoPipelineMessage = <FlashMessage message={message} type={MessageType.warning}/>;
+      }
+    }
+
     return [
       <div key={m.route.param().tab_name}>
         <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/>
+        {configRepoPipelineMessage}
         <div className={styles.mainContainer}>
           <div className={styles.navigation}>
             <NavigationWidget config={this.getOriginalEntity()}

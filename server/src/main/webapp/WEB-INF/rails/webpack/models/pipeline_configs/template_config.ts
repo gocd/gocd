@@ -62,4 +62,10 @@ export class TemplateConfig extends ValidatableMixin {
   toApiPayload(): any {
     return JsonUtils.toSnakeCasedObject(this);
   }
+
+  update(etag: string) {
+    return ApiRequestBuilder.PUT(SparkRoutes.templatesPath(this.name()), ApiVersion.latest, {
+      payload: this.toApiPayload(), etag
+    });
+  }
 }

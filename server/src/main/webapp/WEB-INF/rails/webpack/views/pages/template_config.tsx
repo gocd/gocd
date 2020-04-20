@@ -3,6 +3,7 @@ import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import {MessageType} from "views/components/flash_message";
 import {SupportedTypes, TabHandler, TabLevel} from "views/pages/clicky_pipeline_config/tab_handler";
 import {ArtifactsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/artifacts_tab_content";
 import {CustomTabTabContent} from "views/pages/clicky_pipeline_config/tabs/job/custom_tab_tab_content";
@@ -105,7 +106,23 @@ export class TemplateConfigPage<T> extends TabHandler<T> {
 
   //todo: implement me ganeshpl
   save(): Promise<any> {
-    return Promise.resolve();
+    this.flashMessage.clear();
+    const isValid = this.getEntity().isValid();
+
+    if (!isValid) {
+      const msg = "Validation Failed! Please fix the below errors before submitting.";
+      this.flashMessage.setMessage(MessageType.alert, msg);
+      return Promise.reject();
+    }
+
+    const possibleRenames = PipelineConfigSPARouteHelper.getPossibleRenames(this.getEntity());
+    return this.getEntity().update(this.etag()).then((result) => {
+      return result.do((successResponse) => {
+        this.flashMessage.setMessage(MessageType.success, "Saved Successfully!");
+        PipelineConfigSPARouteHelper.updateRouteIfEntityRenamed(possibleRenames);
+        this.onSuccess(result, successResponse);
+      }, this.onFailure.bind(this));
+    });
   }
 
 }

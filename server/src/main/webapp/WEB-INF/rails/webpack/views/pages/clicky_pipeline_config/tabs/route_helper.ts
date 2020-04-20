@@ -16,6 +16,7 @@
 
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {PipelineConfigRouteParams, RouteInfo} from "views/pages/clicky_pipeline_config/tab_handler";
 
 export interface OldNewName {
@@ -33,7 +34,7 @@ export class PipelineConfigSPARouteHelper {
     return {route: m.route.get(), params: m.route.param()};
   }
 
-  static getPossibleRenames(pipelineConfig: PipelineConfig) {
+  static getPossibleRenames(pipelineConfig: PipelineConfig | TemplateConfig) {
     const entityNames: PipelineEntityRename = {};
 
     const routeInfo = PipelineConfigSPARouteHelper.routeInfo();

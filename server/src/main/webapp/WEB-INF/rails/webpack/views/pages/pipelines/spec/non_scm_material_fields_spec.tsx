@@ -15,6 +15,7 @@
  */
 
 import {docsUrl} from "gen/gocd_version";
+import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {Filter} from "models/maintenance_mode/material";
 import {Scm, Scms} from "models/materials/pluggable_scm";
@@ -122,6 +123,12 @@ describe('PackageFieldsSpec', () => {
     });
     expect(helper.textAll("option", helper.byTestId('form-field-input-package-repository'))).toEqual(['Select a package repository', 'pkg-repo-name']);
     expect(helper.textAll("option", helper.byTestId('form-field-input-package'))).toEqual(['Select a package']);
+
+    expect(helper.byTestId('package-msg')).not.toBeInDOM();
+    const msgElement = helper.byTestId('package-repo-msg');
+    expect(msgElement).toBeInDOM();
+    expect(msgElement.textContent).toBe('Create New or select existing.');
+    expect(helper.q('a', msgElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA());
   });
 
   it('should update packages on selecting a package repository', () => {
@@ -140,6 +147,11 @@ describe('PackageFieldsSpec', () => {
     });
     expect(helper.textAll("option", helper.byTestId('form-field-input-package'))).toEqual(['Select a package', 'pkg-name']);
     expect(helper.byTestId('selected-pkg-repo-details')).toBeInDOM();
+
+    const msgElement = helper.byTestId('package-msg');
+    expect(msgElement).toBeInDOM();
+    expect(msgElement.textContent).toBe('Create New or select existing.');
+    expect(helper.q('a', msgElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA() + "#!pkg-repo-name/create-package");
   });
 
   it('should render plugin not found error message', () => {
@@ -210,6 +222,16 @@ describe('PackageFieldsSpec', () => {
 
     expect(helper.byTestId('selected-pkg-repo-details')).toBeInDOM();
     expect(helper.byTestId('selected-pkg-details')).toBeInDOM();
+
+    const pkgRepoMsgElement = helper.byTestId('package-repo-msg');
+    expect(pkgRepoMsgElement).toBeInDOM();
+    expect(pkgRepoMsgElement.textContent).toBe('Create New or select existing.');
+    expect(helper.q('a', pkgRepoMsgElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA());
+
+    const pkgMsgElement = helper.byTestId('package-msg');
+    expect(pkgMsgElement).toBeInDOM();
+    expect(pkgMsgElement.textContent).toBe('Create New or select existing.');
+    expect(helper.q('a', pkgMsgElement)).toHaveAttr('href', SparkRoutes.packageRepositoriesSPA() + "#!pkg-repo-name/create-package");
   });
 
   it('should pre-populate package config when ref is set with error if plugin is not found', () => {
@@ -333,22 +355,6 @@ describe('PluginFieldsSpec', () => {
     expect(errorElement.textContent).toBe('There are no SCMs configured for the selected plugin.');
   });
 
-  it('should render plugin configs if a plugin is selected', () => {
-    helper.mount(() => <PluginFields material={material} pluginInfos={pluginInfos} scms={scms}/>);
-
-    expect(helper.byTestId('selected-plugin-details')).not.toBeInDOM();
-
-    helper.onchange(helper.byTestId('form-field-input-scm-plugin'), 'scm-plugin-id');
-
-    expect(helper.byTestId('selected-plugin-details')).toBeInDOM();
-
-    assertConfigsPresent(helper, 'selected-plugin-details', {
-      id:          "Id",
-      name:        "Name",
-      description: "Description"
-    });
-  });
-
   it('should render scm configs if selected', () => {
     helper.mount(() => <PluginFields material={material} pluginInfos={pluginInfos} scms={scms}/>);
 
@@ -359,18 +365,14 @@ describe('PluginFieldsSpec', () => {
 
     expect(helper.byTestId('selected-scm-details')).toBeInDOM();
     assertConfigsPresent(helper, 'selected-scm-details', {
-      "id":        "Id",
-      "name":      "Name",
-      "plugin-id": "Plugin Id",
-      "url":       "url"
+      url: "url"
     });
   });
 
-  it('should pre-populate configs and dropdown if ref is set', () => {
+  it('should pre-populate configs if ref is set', () => {
     (material.attributes()! as PluggableScmMaterialAttributes).ref(scms[0].id());
     helper.mount(() => <PluginFields material={material} pluginInfos={pluginInfos} scms={scms}/>);
 
-    expect(helper.byTestId('selected-plugin-details')).toBeInDOM();
     expect(helper.byTestId('selected-scm-details')).toBeInDOM();
   });
 

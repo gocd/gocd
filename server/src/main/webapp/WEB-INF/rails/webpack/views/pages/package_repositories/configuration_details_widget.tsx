@@ -32,6 +32,7 @@ const flag: (val?: boolean) => Stream<boolean> = Stream;
 interface Attrs {
   header: m.Children;
   data: Map<string, m.Children>;
+  dataTestId?: string;
 }
 
 export class ConfigurationDetailsWidget extends MithrilComponent<Attrs, State> {
@@ -45,8 +46,12 @@ export class ConfigurationDetailsWidget extends MithrilComponent<Attrs, State> {
       vnode.state.packageRepoDetailsExpanded(!vnode.state.packageRepoDetailsExpanded());
     };
 
+    const dataTestId = vnode.attrs.dataTestId
+      ? vnode.attrs.dataTestId
+      : "configuration-details-widget";
+
     return (
-      <div data-test-id="configuration-details-widget" className={styles.configurationDetailsContainer}>
+      <div data-test-id={dataTestId} className={styles.configurationDetailsContainer}>
         <h5
           class={classnames(styles.configurationDetailsHeader, {[styles.expanded]: vnode.state.packageRepoDetailsExpanded()})}
           onclick={toggleDetails.bind(this)}

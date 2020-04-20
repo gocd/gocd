@@ -18,15 +18,17 @@ import {RoutedSinglePageApp} from "helpers/spa_base";
 import m from "mithril";
 import {TemplateConfigPage} from "views/pages/template_config";
 
+interface TemplateMeta {
+  templateName: string;
+}
+
 class RedirectToGeneralTab extends TemplateConfigPage<any> {
   oninit(vnode: m.Vnode<any, any>) {
-    //todo: Fixme Ganeshpl Get the template name from meta
-    const templateName = "asdfc";
+    const templateName = this.getMeta().templateName;
     m.route.set(templateName + "/general");
   }
 
-  //todo: fixme, i-am-unused, get template name from me
-  protected getMeta(): any {
+  protected getMeta(): TemplateMeta {
     const meta = document.body.getAttribute("data-meta");
     return meta ? JSON.parse(meta) : {};
   }

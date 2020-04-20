@@ -52,10 +52,17 @@ public class TemplateConfigController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        Map<String, String> object = new HashMap<>() {{
+        Map<String, Object> object = new HashMap<>() {{
             put("viewTitle", "Templates");
+            put("meta", meta(request.params("template_name")));
         }};
 
         return new ModelAndView(object, null);
+    }
+
+    private Map<String, String> meta(String templateName) {
+        final Map<String, String> meta = new HashMap<>();
+        meta.put("templateName", templateName);
+        return meta;
     }
 }

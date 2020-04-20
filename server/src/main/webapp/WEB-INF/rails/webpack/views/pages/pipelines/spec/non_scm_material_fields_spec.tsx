@@ -365,10 +365,7 @@ describe('PluginFieldsSpec', () => {
 
     expect(helper.byTestId('selected-scm-details')).toBeInDOM();
     assertConfigsPresent(helper, 'selected-scm-details', {
-      "id":        "Id",
-      "name":      "Name",
-      "plugin-id": "Plugin Id",
-      "url":       "url"
+      url: "url"
     });
   });
 

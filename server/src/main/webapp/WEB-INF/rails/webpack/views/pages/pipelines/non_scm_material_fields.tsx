@@ -34,14 +34,11 @@ import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_inf
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
-import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import {SwitchBtn} from "views/components/switch";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
 import {ConfigurationDetailsWidget} from "views/pages/package_repositories/configuration_details_widget";
-import {PackageRepositoryWidget} from "views/pages/package_repositories/package_repository_widget";
-import {PackageWidget} from "views/pages/package_repositories/package_widget";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import styles from "./advanced_settings.scss";
 import {DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
@@ -208,7 +205,7 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
       message = <span data-test-id="package-repo-msg"><Link href={SparkRoutes.packageRepositoriesSPA()}>Create New</Link> or select existing.</span>;
     }
 
-    const pkgMessage = vnode.state.pkgRepoId()
+    const pkgMessage = vnode.state.pkgRepoId() && !this.disablePkgField
       ? <span data-test-id="package-msg"><Link href={this.pkgCreatePath}>Create New</Link> or select existing.</span>
       : undefined;
     return [
@@ -307,7 +304,7 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
     if (selectedPkgRepo !== undefined) {
       return <ConfigurationDetailsWidget header={"Package Repository Configuration"}
                                          dataTestId={"selected-pkg-repo-details"}
-                                         data={PackageRepositoryWidget.getPkgRepoDetails(selectedPkgRepo)}/>;
+                                         data={selectedPkgRepo.configuration().asMap()}/>;
     }
   }
 
@@ -317,9 +314,14 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
       const attrs       = vnode.attrs.material.attributes() as PluggableScmMaterialAttributes;
       const selectedPkg = selectedPkgRepo.packages().find((pkg) => pkg.id() === attrs.ref());
       if (selectedPkg !== undefined) {
+        const pkgProperties = selectedPkg.configuration() ? selectedPkg.configuration()!.asMap() : [];
+        const pkgDetails    = new Map([
+                                        ["Auto Update", selectedPkg.autoUpdate() + ""],
+                                        ...Array.from(pkgProperties)
+                                      ]);
         return <ConfigurationDetailsWidget header={"Package Configuration"}
                                            dataTestId={"selected-pkg-details"}
-                                           data={PackageWidget.getPkgDetails(selectedPkg)}/>;
+                                           data={pkgDetails}/>;
       }
     }
   }
@@ -452,13 +454,9 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
     const attrs       = vnode.attrs.material.attributes() as PluggableScmMaterialAttributes;
     const selectedScm = vnode.attrs.scms.find((scm) => scm.id() === attrs.ref());
     if (selectedScm !== undefined) {
-      const scmRepoDetails = new Map([["Id", selectedScm.id()],
-                                       ["Name", selectedScm.name()],
-                                       ["Plugin Id", selectedScm.pluginMetadata().id()],
-                                       ...Array.from(selectedScm.configuration().asMap())]);
-      return <div className={styles.configValues}>
-        <KeyValuePair data-test-id={"selected-scm-details"} data={scmRepoDetails}/>
-      </div>;
+      const scmRepoDetails = selectedScm.configuration().asMap();
+      return <ConfigurationDetailsWidget header={"SCM Configuration"} dataTestId={"selected-scm-details"}
+                                         data={scmRepoDetails}/>;
     }
   }
 }

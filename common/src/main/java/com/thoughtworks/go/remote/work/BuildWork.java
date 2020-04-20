@@ -217,6 +217,7 @@ public class BuildWork implements Work {
 
     @Override
     public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
+
         agentruntimeInfo.cancel();
         builders.cancel(environmentVariableContext, consoleLogCharset);
     }

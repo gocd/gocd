@@ -27,14 +27,14 @@ import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {Template, TemplateCache} from "models/pipeline_configs/templates_cache";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";;
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {ConfigurationTypeWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/configuration_type_widget";
 import {PipelineTemplateWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/pipeline_template_widget";
 import {StagesWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/stages_widget";
 import {PipelineConfigSPARouteHelper} from "views/pages/clicky_pipeline_config/tabs/route_helper";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 
-export class StagesTabContent extends TabContent<PipelineConfig> {
+export class StagesTabContent extends TabContent<PipelineConfig | TemplateConfig> {
   private isPipelineDefinedOriginallyFromTemplate: Stream<boolean> = Stream();
   private stageOrTemplateProperty: Stream<"template" | "stage">    = Stream();
   private dependentPipelines: Stream<DependentPipeline[]>          = Stream([] as DependentPipeline[]);
@@ -44,14 +44,10 @@ export class StagesTabContent extends TabContent<PipelineConfig> {
 
   constructor() {
     super();
-    this.fetchStageDependencyInformation(PipelineConfigSPARouteHelper.routeInfo().params.pipeline_name);
 
-    const self = this;
-    self.cache.prime(() => {
-      self.templates(self.cache.contents() as Template[]);
-    }, () => {
-      self.templates([] as Template[]);
-    });
+    if (!this.isTemplateView()) {
+      this.initializePipelineRelatedInformation();
+    }
   }
 
   static tabName(): string {
@@ -62,28 +58,31 @@ export class StagesTabContent extends TabContent<PipelineConfig> {
     return this.stageOrTemplateProperty() === "template" && (this.templates() && this.templates().length > 0);
   }
 
-  protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
+  protected selectedEntity(pipelineConfig: PipelineConfig | TemplateConfig, routeParams: PipelineConfigRouteParams) {
     //initialize only once
     if (this.isPipelineDefinedOriginallyFromTemplate() === undefined) {
-      this.isPipelineDefinedOriginallyFromTemplate(pipelineConfig.isUsingTemplate());
+      const val = this.isTemplateView() ? false : (pipelineConfig as PipelineConfig).isUsingTemplate();
+      this.isPipelineDefinedOriginallyFromTemplate(val);
       m.redraw();
     }
 
     if (!this.stageOrTemplateProperty()) {
-      this.stageOrTemplateProperty = Stream(pipelineConfig.isUsingTemplate() ? "template" : "stage");
+      const val                    = this.isTemplateView() ? false : (pipelineConfig as PipelineConfig).isUsingTemplate();
+      this.stageOrTemplateProperty = Stream(val ? "template" : "stage");
       m.redraw();
     }
 
     return pipelineConfig;
   }
 
-  protected renderer(entity: PipelineConfig,
+  protected renderer(entity: PipelineConfig | TemplateConfig,
                      templateConfig: TemplateConfig,
                      flashMessage: FlashMessageModelWithTimeout,
                      save: () => any,
                      reset: () => any) {
 
     return <StagesOrTemplatesWidget entity={entity}
+                                    isTemplateView={this.isTemplateView()}
                                     templateConfig={templateConfig}
                                     isPipelineDefinedOriginallyFromTemplate={this.isPipelineDefinedOriginallyFromTemplate}
                                     stageOrTemplateProperty={this.stageOrTemplateProperty}
@@ -91,6 +90,17 @@ export class StagesTabContent extends TabContent<PipelineConfig> {
                                     dependentPipelines={this.dependentPipelines}
                                     templates={this.templates}
                                     save={save} reset={reset}/>;
+  }
+
+  private initializePipelineRelatedInformation() {
+    this.fetchStageDependencyInformation(PipelineConfigSPARouteHelper.routeInfo().params.pipeline_name);
+
+    const self = this;
+    self.cache.prime(() => {
+      self.templates(self.cache.contents() as Template[]);
+    }, () => {
+      self.templates([] as Template[]);
+    });
   }
 
   private fetchStageDependencyInformation(pipelineName: string) {
@@ -108,7 +118,7 @@ export class StagesTabContent extends TabContent<PipelineConfig> {
 }
 
 interface StagesOrTemplatesAttrs {
-  entity: PipelineConfig;
+  entity: PipelineConfig | TemplateConfig;
   templateConfig: TemplateConfig;
   flashMessage: FlashMessageModelWithTimeout;
   save: () => any;
@@ -117,6 +127,7 @@ interface StagesOrTemplatesAttrs {
   stageOrTemplateProperty: Stream<"template" | "stage">;
   isPipelineDefinedOriginallyFromTemplate: Stream<boolean>;
   templates: Stream<Template[]>;
+  isTemplateView: boolean;
 }
 
 interface StagesOrTemplatesState {
@@ -140,21 +151,30 @@ export class StagesOrTemplatesWidget extends MithrilComponent<StagesOrTemplatesA
   }
 
   view(vnode: m.Vnode<StagesOrTemplatesAttrs, StagesOrTemplatesState>) {
-    const entity = vnode.attrs.entity;
+    let entity = vnode.attrs.entity;
+
+    if (vnode.attrs.isTemplateView) {
+      return <StagesWidget stages={entity.stages}
+                           dependentPipelines={vnode.attrs.dependentPipelines}
+                           isUsingTemplate={false}
+                           flashMessage={vnode.attrs.flashMessage}
+                           pipelineConfigSave={vnode.attrs.save}
+                           pipelineConfigReset={vnode.attrs.reset}
+                           isEditable={true}/>;
+    }
 
     let stagesOrTemplatesView: m.Children;
-
     if (vnode.state.isUsingTemplate()) {
-      stagesOrTemplatesView = <PipelineTemplateWidget pipelineConfig={entity}
+      stagesOrTemplatesView = <PipelineTemplateWidget pipelineConfig={entity as PipelineConfig}
                                                       templates={vnode.attrs.templates}/>;
     } else {
       stagesOrTemplatesView = <StagesWidget stages={entity.stages}
                                             dependentPipelines={vnode.attrs.dependentPipelines}
-                                            isUsingTemplate={entity.isUsingTemplate()}
+                                            isUsingTemplate={(entity as PipelineConfig).isUsingTemplate()}
                                             flashMessage={vnode.attrs.flashMessage}
                                             pipelineConfigSave={vnode.attrs.save}
                                             pipelineConfigReset={vnode.attrs.reset}
-                                            isEditable={!entity.origin().isDefinedInConfigRepo()}/>;
+                                            isEditable={!(entity as PipelineConfig).origin().isDefinedInConfigRepo()}/>;
     }
 
     return [

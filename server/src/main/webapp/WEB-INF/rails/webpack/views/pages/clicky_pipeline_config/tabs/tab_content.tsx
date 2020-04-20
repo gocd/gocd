@@ -21,10 +21,12 @@ import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {PageLoadError} from "views/components/page_load_error";
 import {Spinner} from "views/components/spinner";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";;
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {PageState} from "views/pages/page";
 import {OperationState} from "views/pages/page_operations";
 import styles from "./tab_content.scss";
+
+;
 
 export abstract class TabContent<T> {
   private pageState = PageState.OK;
@@ -66,6 +68,16 @@ export abstract class TabContent<T> {
   }
 
   public shouldShowSaveAndResetButtons(): boolean {
+    return true;
+  }
+
+  public isTemplateView() {
+    const meta = document.body.getAttribute("data-meta");
+
+    if (meta && JSON.parse(meta!)) {
+      return !JSON.parse(meta!)!.pipelineName;
+    }
+
     return true;
   }
 

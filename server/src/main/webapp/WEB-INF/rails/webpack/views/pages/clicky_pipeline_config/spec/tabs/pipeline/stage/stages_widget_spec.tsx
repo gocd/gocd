@@ -56,6 +56,22 @@ describe("Stages Widget", () => {
     expect(helper.qa("td", allRows[1])[3]).toHaveText("3");
   });
 
+  it("should render each stage as a link to the stage settings page", () => {
+    const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
+    mount(pipelineConfig.stages, pipelineConfig.isUsingTemplate());
+
+    const stagesContainer = helper.byTestId("stages-container");
+    expect(stagesContainer).toBeInDOM();
+
+    const allRows = helper.allByTestId("table-row", stagesContainer);
+
+    const expectedHref = "StageOne/stage_settings";
+    const stageName    = (helper.q("td a", allRows[0]) as HTMLAnchorElement);
+
+    expect(stageName).toHaveText("StageOne");
+    expect(stageName.href).toContain(expectedHref);
+  });
+
   it("should render delete stage icon", () => {
     const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
 

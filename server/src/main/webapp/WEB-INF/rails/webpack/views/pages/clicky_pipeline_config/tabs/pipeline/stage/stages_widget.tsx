@@ -26,6 +26,8 @@ import {Secondary} from "views/components/buttons";
 import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
 import {Delete} from "views/components/icons";
 import {Table} from "views/components/table";
+import style from "views/pages/clicky_pipeline_config/index.scss";
+import {PipelineConfigPage} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
 import {AddStageModal} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/add_stage_modal";
 import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
@@ -109,7 +111,12 @@ export class StagesWidget extends MithrilComponent<Attrs, State> {
         deleteDisabledMessage = `Can not delete stage '${stage.name()}' as pipeline(s) '${stageDependentPipelines}' depends on it.`;
       }
 
-      const cells: m.Child[] = [stage.name(), stage.approval().typeAsString(), stage.jobs().length];
+      const cells: m.Child[] = [
+        <a href={`#!${PipelineConfigPage.pipelineName()}/${stage.name()}/stage_settings`}
+           class={style.nameLink}>{stage.name()}</a>,
+        stage.approval().typeAsString(),
+        stage.jobs().length
+      ];
       if (isEditable) {
         cells.push(<Delete iconOnly={true}
                            title={deleteDisabledMessage}

@@ -20,8 +20,8 @@ import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {JobsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/jobs_tab_content";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
+import {JobsTabContent} from "views/pages/clicky_pipeline_config/tabs/stage/jobs_tab_content";
 import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -45,6 +45,20 @@ describe("Jobs Tab Content", () => {
     expect(jobRow.item(1)).toContainText("");
     expect(jobRow.item(2)).toContainText("No");
     expect(jobRow.item(3)).toContainText("No");
+  });
+
+  it("should render each job as a link to the job tasks", () => {
+    const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "job1"));
+    mount(stage);
+
+    const stagesContainer = helper.byTestId("stages-container");
+    expect(stagesContainer).toBeInDOM();
+
+    const expectedHref = "Test/job1/tasks";
+    const jobName      = (helper.q("td a", helper.byTestId("table-body")) as HTMLAnchorElement);
+
+    expect(jobName).toHaveText("job1");
+    expect(jobName.href).toContain(expectedHref);
   });
 
   it("should render multiple jobs", () => {

@@ -28,9 +28,10 @@ import {Secondary} from "views/components/buttons";
 import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
 import {Delete} from "views/components/icons";
 import {Table} from "views/components/table";
+import style from "views/pages/clicky_pipeline_config/index.scss";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {AddJobModal} from "views/pages/clicky_pipeline_config/tabs/stage/jobs/add_job_modal";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {OperationState} from "views/pages/page_operations";
 import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 import styles from "./jobs_tab_content.scss";
@@ -150,7 +151,14 @@ export class JobsWidget extends MithrilComponent<Attrs, State> {
     return jobs.map((job: Job) => {
       const runOnAllInstance    = job.runInstanceCount() === "all" ? "Yes" : "No";
       const runMultipleInstance = (typeof job.runInstanceCount() === "number") ? "Yes" : "No";
-      const cells: m.Child[]    = [job.name(), job.resources(), runOnAllInstance, runMultipleInstance];
+      const cells: m.Child[]    = [
+        <a href={`#!${vnode.attrs.pipelineConfig.name()}/${vnode.attrs.stage.name()}/${job.name()}/tasks`}
+           className={style.nameLink}>{job.name()}</a>,
+        job.resources(),
+        runOnAllInstance,
+        runMultipleInstance
+      ];
+
       if (isEditable) {
         let deleteDisabledMessage: string | undefined;
         if (Array.from(jobs.values()).length === 1) {

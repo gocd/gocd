@@ -20,8 +20,8 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {FetchTaskAttributes} from "models/pipeline_configs/task";
-import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {ArtifactExtension} from "models/shared/plugin_infos_new/extensions";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField} from "views/components/forms/autocomplete";
@@ -63,7 +63,7 @@ export class ExternalFetchArtifactView extends MithrilComponent<Attrs, State> {
 
     if (vnode.attrs.artifactPluginInfos.length === 0) {
       const msg = "Can not define external fetch artifact task as No Artifact Plugins are installed.";
-      return <FlashMessage type={MessageType.info} message={msg}/>
+      return <FlashMessage type={MessageType.info} message={msg}/>;
     }
 
     return (<div data-test-id="external-fetch-artifact-view">

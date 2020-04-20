@@ -47,6 +47,13 @@ describe("External Fetch Artifact Task", () => {
     expect(helper.byTestId("external-fetch-artifact-view")).toBeInDOM();
   });
 
+  it("should render no artifact plugins available message", () => {
+    mount(attributes, new PluginInfos());
+
+    const expectedMsg = "Can not define external fetch artifact task as No Artifact Plugins are installed.";
+    expect(helper.byTestId("flash-message-info")).toContainText(expectedMsg);
+  });
+
   it("should render pipeline input", () => {
     mount();
 

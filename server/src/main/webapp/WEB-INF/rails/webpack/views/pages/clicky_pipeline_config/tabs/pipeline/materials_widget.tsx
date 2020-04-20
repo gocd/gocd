@@ -16,13 +16,14 @@
 
 import {ErrorResponse} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Scms} from "models/materials/pluggable_scm";
 import {Material, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
 import {PackageRepositories, Packages} from "models/package_repositories/package_repositories";
 import {Materials} from "models/pipeline_configs/pipeline_config";
+import {ScmExtension} from "models/shared/plugin_infos_new/extensions";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {Secondary} from "views/components/buttons";
 import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
@@ -45,7 +46,7 @@ interface MaterialsAttrs {
 export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
   view(vnode: m.Vnode<MaterialsAttrs, this>): m.Children | void | null {
     return <div class={style.materialTab}>
-      <Table headers={["Material Name", "Type", "Url", ""]} data={this.tableData(vnode)}/>
+      <Table headers={["Material Name", "Type", "Url/Description", ""]} data={this.tableData(vnode)}/>
       <Secondary dataTestId={"add-material-button"} onclick={this.addMaterial.bind(this, vnode)}>
         Add Material
       </Secondary>
@@ -75,7 +76,7 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
     };
     new ConfirmationDialog(
       "Delete Material",
-      <div>Do you want to delete the material '<em>{this.getMaterialDisplayName(materialToRemove, vnode)}</em>'?</div>,
+      <div>Do you want to delete the material '<em>{this.getMaterialDisplayInfo(materialToRemove, vnode).name}</em>'?</div>,
       onDelete
     ).render();
   }
@@ -86,10 +87,11 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
       ? "Cannot delete this material as pipeline should have at least one material"
       : "Remove this material";
     return Array.from(vnode.attrs.materials().values()).map((material: Material) => {
+      const {name, type, urlOrDescription} = this.getMaterialDisplayInfo(material, vnode);
       return [
-        this.getMaterialDisplayName(material, vnode),
-        material.typeForDisplay(),
-        this.getMaterialUrlForDisplay(material, vnode),
+        name,
+        type,
+        urlOrDescription,
         <IconGroup>
           <Edit onclick={this.updateMaterial.bind(this, vnode, material)} data-test-id={"edit-material-button"}/>
           <Delete disabled={deleteDisabled} title={deleteTitle} onclick={this.deleteMaterial.bind(this, vnode, material)}
@@ -99,33 +101,56 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
     });
   }
 
-  private getMaterialUrlForDisplay(material: Material, vnode: m.Vnode<MaterialsAttrs, this>) {
-    const url = material.materialUrl();
-    if (url.length === 0 && material.type() === "package" && !_.isEmpty(vnode.attrs.packages())) {
-      const attrs   = material.attributes() as PackageMaterialAttributes;
-      const pkgInfo = vnode.attrs.packages().find((pkg) => pkg.id() === attrs.ref());
-      return pkgInfo === undefined ? "" : `Repository: ${pkgInfo.packageRepo().name()} - Package: ${pkgInfo.name()} ${pkgInfo.configuration().asString()}`;
-    }
-    if (url.length === 0 && material.type() === "plugin" && !_.isEmpty(vnode.attrs.scmMaterials())) {
-      const attrs       = material.attributes() as PluggableScmMaterialAttributes;
-      const scmMaterial = vnode.attrs.scmMaterials().find((pkg) => pkg.id() === attrs.ref());
-      return scmMaterial === undefined ? "" : `${scmMaterial.name()}: ${scmMaterial.configuration().asString()}`;
-    }
-    return url;
-  }
+  private getMaterialDisplayInfo(material: Material, vnode: m.Vnode<MaterialsAttrs, this>) {
+    let typeForDisplay = material.typeForDisplay();
+    let materialName;
+    let urlOrDescription;
+    switch (material.type()) {
+      case "git":
+      case "svn":
+      case "hg":
+      case "p4":
+      case "tfs":
+      case "dependency":
+        materialName     = material.displayName();
+        urlOrDescription = material.materialUrl();
+        break;
+      case "package":
+        const pkgAttrs   = material.attributes() as PackageMaterialAttributes;
+        const pkgInfo    = vnode.attrs.packages().find((pkg) => pkg.id() === pkgAttrs.ref())!;
+        const pkgRepo    = vnode.attrs.packageRepositories().find((pkgRepo) => pkgRepo.repoId() === pkgInfo.packageRepo().id())!;
+        const pkgPlugin  = vnode.attrs.pluginInfos().findByPluginId(pkgRepo.pluginMetadata().id());
+        const pluginName = pkgPlugin === undefined
+          ? <span className={style.missingPlugin}>Plugin '{pkgRepo.pluginMetadata().id()}' Missing!!!</span>
+          : pkgPlugin.about.name;
+        materialName     = `${pkgInfo.packageRepo().name()}_${pkgInfo.name()}`;
+        urlOrDescription = <span>
+          Plugin: {pluginName}<br/>
+          Repository: {pkgInfo.packageRepo().name()} {pkgRepo.configuration().asString()}<br/>
+          Package: {pkgInfo.name()} {pkgInfo.configuration().asString()}
+          </span>;
+        break;
+      case "plugin":
+        const pluginAttrs = material.attributes() as PluggableScmMaterialAttributes;
+        const scmMaterial = vnode.attrs.scmMaterials().find((pkg) => pkg.id() === pluginAttrs.ref())!;
+        const scmPlugin   = vnode.attrs.pluginInfos().findByPluginId(scmMaterial.pluginMetadata().id());
 
-  private getMaterialDisplayName(material: Material, vnode: m.Vnode<MaterialsAttrs, this>) {
-    const displayName = material.displayName();
-    if (displayName.length === 0 && material.type() === "package" && !_.isEmpty(vnode.attrs.packages())) {
-      const attrs   = material.attributes() as PackageMaterialAttributes;
-      const pkgInfo = vnode.attrs.packages().find((pkg) => pkg.id() === attrs.ref());
-      return pkgInfo === undefined ? "" : `${pkgInfo.packageRepo().name()}_${pkgInfo.name()}`;
+        materialName = scmMaterial.name();
+        if (scmPlugin === undefined) {
+          urlOrDescription = <span>
+            <span className={style.missingPlugin}>Plugin '{scmMaterial.pluginMetadata().id()}' Missing!!!</span><br/>
+            {scmMaterial.configuration().asString()}
+            </span>;
+        } else {
+          typeForDisplay   = (scmPlugin.extensionOfType(ExtensionTypeString.SCM) as ScmExtension).displayName;
+          urlOrDescription = scmMaterial.configuration().asString();
+        }
+        break;
     }
-    if (displayName.length === 0 && material.type() === "plugin" && !_.isEmpty(vnode.attrs.scmMaterials())) {
-      const attrs       = material.attributes() as PluggableScmMaterialAttributes;
-      const scmMaterial = vnode.attrs.scmMaterials().find((pkg) => pkg.id() === attrs.ref());
-      return scmMaterial === undefined ? "" : scmMaterial.name();
-    }
-    return displayName;
+    return {
+      name: materialName,
+      type: typeForDisplay,
+      urlOrDescription
+    };
   }
 }

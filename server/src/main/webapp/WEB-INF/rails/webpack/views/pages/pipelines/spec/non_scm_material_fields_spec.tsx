@@ -211,6 +211,19 @@ describe('PackageFieldsSpec', () => {
     expect(helper.byTestId('selected-pkg-repo-details')).toBeInDOM();
     expect(helper.byTestId('selected-pkg-details')).toBeInDOM();
   });
+
+  it('should pre-populate package config when ref is set with error if plugin is not found', () => {
+    (material.attributes() as PackageMaterialAttributes).ref(packageRepositories[0].packages()[0].id());
+    pluginInfos = new PluginInfos();
+    helper.mount(() => <PackageFields material={material} packageRepositories={packageRepositories}
+                                      pluginInfos={pluginInfos}/>);
+
+    expect(helper.byTestId('selected-pkg-repo-details')).toBeInDOM();
+    expect(helper.byTestId('selected-pkg-details')).toBeInDOM();
+    const errorElement = helper.q('span[class*="forms__form-error-text"]');
+    expect(errorElement).toBeInDOM();
+    expect(errorElement.textContent).toBe("Associated plugin 'npm' not found. Please contact the system administrator to install the plugin.");
+  });
 });
 
 function assertLabelledInputsPresent(helper: TestHelper, idsToLabels: { [key: string]: string }) {

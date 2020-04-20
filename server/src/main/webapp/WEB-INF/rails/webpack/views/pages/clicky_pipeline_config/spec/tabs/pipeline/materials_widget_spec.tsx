@@ -84,7 +84,7 @@ describe("MaterialsWidgetSpec", () => {
     const deleteMaterialButton = helper.byTestId('delete-material-button');
     expect(deleteMaterialButton).toBeInDOM();
     expect(deleteMaterialButton).toBeDisabled();
-    expect(deleteMaterialButton).toHaveAttr('title', 'Cannot delete this material as pipeline should have at least one material');
+    expect(deleteMaterialButton).toHaveAttr('title', 'Cannot delete the only material in a pipeline');
   });
 
   describe('PackageMaterials', () => {

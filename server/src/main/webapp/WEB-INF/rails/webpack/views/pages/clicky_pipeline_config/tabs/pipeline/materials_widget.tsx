@@ -85,7 +85,7 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
   private tableData(vnode: m.Vnode<MaterialsAttrs, this>) {
     const deleteDisabled = vnode.attrs.materials().length === 1;
     const deleteTitle    = deleteDisabled
-      ? "Cannot delete this material as pipeline should have at least one material"
+      ? "Cannot delete the only material in a pipeline"
       : "Remove this material";
     return Array.from(vnode.attrs.materials().values()).map((material: Material) => {
       const {name, type, urlOrDescription} = this.getMaterialDisplayInfo(material, vnode);

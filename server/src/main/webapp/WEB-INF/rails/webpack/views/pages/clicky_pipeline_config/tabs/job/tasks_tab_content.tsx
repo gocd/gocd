@@ -32,7 +32,7 @@ import {Delete} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import {Table} from "views/components/table";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";;
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
 import {AntTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/ant";
@@ -271,7 +271,11 @@ export class TasksTabContent extends TabContent<Job> {
           save: () => Promise<any>,
           reset: () => any): m.Children {
     if (!this.autoSuggestions()) {
-      this.fetchUpstreamPipelines(pipelineConfig.name(), routeParams.stage_name!);
+      if (this.isPipelineConfigView()) {
+        this.fetchUpstreamPipelines(pipelineConfig.name(), routeParams.stage_name!);
+      } else {
+        this.autoSuggestions({});
+      }
     }
 
     return super.content(pipelineConfig, templateConfig, routeParams, ajaxOperationMonitor, flashMessage, save, reset);

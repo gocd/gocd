@@ -71,14 +71,18 @@ export abstract class TabContent<T> {
     return true;
   }
 
-  public isTemplateView() {
+  public isPipelineConfigView() {
     const meta = document.body.getAttribute("data-meta");
 
     if (meta && JSON.parse(meta!)) {
-      return !JSON.parse(meta!)!.pipelineName;
+      return !!JSON.parse(meta!)!.pipelineName;
     }
 
-    return true;
+    return false;
+  }
+
+  public isTemplateView() {
+    return !this.isPipelineConfigView();
   }
 
   protected abstract renderer(entity: T,

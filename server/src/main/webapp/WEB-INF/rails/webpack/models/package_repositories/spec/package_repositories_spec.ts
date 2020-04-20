@@ -68,6 +68,12 @@ describe('PackageRepositoriesModelSpec', () => {
       expect(pkg.errors().count()).toEqual(1);
       expect(pkg.errors().keys()).toEqual(["name"]);
     });
+
+    it('should return key as concat of package repo name and pkg name', () => {
+      const pkg = Package.fromJSON(getPackage());
+
+      expect(pkg.key()).toBe('pkg-repo-name_pkg-name');
+    });
   });
 
   it("should validate presence of plugin id", () => {

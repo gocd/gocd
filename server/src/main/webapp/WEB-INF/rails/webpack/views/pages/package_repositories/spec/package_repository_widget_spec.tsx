@@ -18,7 +18,8 @@ import m from "mithril";
 import {PackageRepository} from "models/package_repositories/package_repositories";
 import {getPackageRepository} from "models/package_repositories/spec/test_data";
 import {PackageOperations} from "views/pages/package_repositories";
-import {TestHelper} from "views/pages/spec/test_helper";
+import {stubAllMethods, TestHelper} from "views/pages/spec/test_helper";
+import {PackageRepoScrollOptions} from "../package_repositories_widget";
 import {PackageRepositoryWidget} from "../package_repository_widget";
 
 describe('PackageRepositoryWidgetSpec', () => {
@@ -29,10 +30,22 @@ describe('PackageRepositoryWidgetSpec', () => {
   const onPkgRepoDelete = jasmine.createSpy("onDelete");
   let packageRepository: PackageRepository;
   let disableActions: boolean;
+  let scrollOptions: PackageRepoScrollOptions;
 
   beforeEach(() => {
     packageRepository = PackageRepository.fromJSON(getPackageRepository());
     disableActions    = false;
+    scrollOptions     = {
+      package_repo_sm: {
+        sm:                          stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]),
+        shouldOpenEditView:          false,
+        shouldOpenCreatePackageView: false
+      },
+      package_sm:      {
+        sm:                 stubAllMethods(["shouldScroll", "getTarget", "setTarget", "scrollToEl", "hasTarget"]),
+        shouldOpenEditView: false
+      }
+    };
   });
   afterEach((done) => helper.unmount(done));
 
@@ -46,7 +59,7 @@ describe('PackageRepositoryWidgetSpec', () => {
                                                 disableActions={disableActions}
                                                 packageOperations={pkgOperations}
                                                 onEdit={onPkgRepoEdit} onClone={onPkgRepoClone}
-                                                onDelete={onPkgRepoDelete}/>);
+                                                onDelete={onPkgRepoDelete} scrollOptions={scrollOptions}/>);
   }
 
   it('should render basic package repo details and action buttons', () => {

@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-import {SinglePageAppBase} from "helpers/spa_base";
+import {RoutedSinglePageApp} from "helpers/spa_base";
 import {PackageRepositoriesPage} from "views/pages/package_repositories";
 
-export class PackageRepositoriesSPA extends SinglePageAppBase {
+export class PackageRepositoriesSPA extends RoutedSinglePageApp {
   constructor() {
-    super(PackageRepositoriesPage);
+    super({
+            "/":                                                     PackageRepositoriesPage,
+            "/:repo_name":                                           PackageRepositoriesPage,
+            "/:repo_name/:repo_operation":                           PackageRepositoriesPage,
+            "/:repo_name/packages/:package_name":                    PackageRepositoriesPage,
+            "/:repo_name/packages/:package_name/:package_operation": PackageRepositoriesPage
+          });
   }
 }
 

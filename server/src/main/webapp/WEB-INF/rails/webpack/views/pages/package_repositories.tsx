@@ -23,13 +23,14 @@ import {Package, PackageRepositories, PackageRepository, PackageRepositorySummar
 import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
 import {ExtensionTypeString, PackageRepoExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
+import {AnchorVM, ScrollManager} from "views/components/anchor/anchor";
 import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import configRepoStyles from "views/pages/config_repos/index.scss";
-import {PackageRepositoriesWidget} from "views/pages/package_repositories/package_repositories_widget";
+import {PackageRepoScrollOptions, PackageRepositoriesWidget} from "views/pages/package_repositories/package_repositories_widget";
 import {
   ClonePackageRepositoryModal,
   CreatePackageRepositoryModal,
@@ -39,6 +40,9 @@ import {
 import {Page, PageState} from "views/pages/page";
 import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 import {ClonePackageModal, CreatePackageModal, DeletePackageModal, EditPackageModal, UsagePackageModal} from "./package_repositories/package_modals";
+
+const pkgRepoAnchorVm: ScrollManager = new AnchorVM();
+const pkgAnchorVM: ScrollManager     = new AnchorVM();
 
 export class PackageRepoOperations {
   onAdd: (e: MouseEvent) => void                            = () => _.noop;
@@ -64,7 +68,6 @@ interface State extends RequiresPluginInfos, SaveOperation {
 }
 
 export class PackageRepositoriesPage extends Page<null, State> {
-
   public static getMergedList(originalPkgRepos: Stream<PackageRepositories>, pkgs: Stream<Packages>): PackageRepositories {
     const pkgRepos = originalPkgRepos();
 
@@ -110,6 +113,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    const scrollOptions = this.parsePackageRepoLink(pkgRepoAnchorVm, pkgAnchorVM);
     let noPluginMsg;
     if (!this.isPluginInstalled(vnode)) {
       noPluginMsg = <NoPluginsOfTypeInstalled extensionType={new PackageRepoExtensionType()}/>;
@@ -138,7 +142,8 @@ export class PackageRepositoriesPage extends Page<null, State> {
       <PackageRepositoriesWidget packageRepositories={filteredPackageRepos}
                                  pluginInfos={vnode.state.pluginInfos}
                                  packageRepoOperations={vnode.state.packageRepoOperations}
-                                 packageOperations={vnode.state.packageOperations}/>
+                                 packageOperations={vnode.state.packageOperations}
+                                 scrollOptions={scrollOptions}/>
     </div>;
   }
 
@@ -285,4 +290,25 @@ export class PackageRepositoriesPage extends Page<null, State> {
     };
   }
 
+  private parsePackageRepoLink(pkgRepoAnchorVm: ScrollManager, pkgAnchorVM: ScrollManager): PackageRepoScrollOptions {
+    const repo_name = m.route.param().repo_name || "";
+    pkgRepoAnchorVm.setTarget(repo_name);
+    const repo_operation = (m.route.param().repo_operation || "").toLowerCase();
+
+    const pkg_name = m.route.param().package_name || "";
+    pkgAnchorVM.setTarget(`${repo_name}_${pkg_name}`);
+    const pkg_operation = (m.route.param().package_operation || "").toLowerCase();
+
+    return {
+      package_repo_sm: {
+        sm:                          pkgRepoAnchorVm,
+        shouldOpenEditView:          repo_operation === "edit",
+        shouldOpenCreatePackageView: repo_operation === "create-package"
+      },
+      package_sm:      {
+        sm:                 pkgAnchorVM,
+        shouldOpenEditView: pkg_operation === "edit"
+      }
+    };
+  }
 }

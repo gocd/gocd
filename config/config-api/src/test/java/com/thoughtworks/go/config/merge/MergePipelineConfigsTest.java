@@ -198,12 +198,15 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
     }
 
     @Test
-    public void shouldReturnTrueForOperatePermissionIfAuthorizationIsNotDefined_When2ConfigParts() {
+    public void shouldUseDefaultPermissionsForOperatePermissionIfAuthorizationIsNotDefined_When2ConfigParts() {
         BasicPipelineConfigs filePart = new BasicPipelineConfigs();
         filePart.setOrigin(new FileConfigOrigin());
 
         assertThat(new MergePipelineConfigs(filePart, new BasicPipelineConfigs())
-                .hasOperatePermission(new CaseInsensitiveString("anyone"), null), is(true));
+                .hasOperatePermission(new CaseInsensitiveString("anyone"), null, true), is(true));
+
+        assertThat(new MergePipelineConfigs(filePart, new BasicPipelineConfigs())
+                .hasOperatePermission(new CaseInsensitiveString("anyone"), null, false), is(false));
     }
 
     @Test

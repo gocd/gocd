@@ -246,8 +246,8 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     @Override
-    public boolean hasOperatePermission(final CaseInsensitiveString username, UserRoleMatcher userRoleMatcher) {
-        return !hasAuthorizationDefined() || authorization.hasOperatePermission(username, userRoleMatcher);
+    public boolean hasOperatePermission(final CaseInsensitiveString username, UserRoleMatcher userRoleMatcher, boolean everyoneIsAllowedToOperateIfNoAuthIsDefined) {
+        return (!hasAuthorizationDefined() && everyoneIsAllowedToOperateIfNoAuthIsDefined) || authorization.hasOperatePermission(username, userRoleMatcher);
     }
 
     @Override

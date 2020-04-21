@@ -82,7 +82,7 @@ public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Va
 
     boolean hasOperationPermissionDefined();
 
-    boolean hasOperatePermission(CaseInsensitiveString username, UserRoleMatcher userRoleMatcher);
+    boolean hasOperatePermission(CaseInsensitiveString username, UserRoleMatcher userRoleMatcher, boolean everyoneIsAllowedToOperateIfNoAuthIsDefined);
 
     boolean hasAuthorizationDefined();
 

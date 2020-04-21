@@ -99,7 +99,7 @@ public class SecurityService {
         }
 
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
-        return isUserAdminOfGroup(username, group) || group.hasOperatePermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()));
+        return isUserAdminOfGroup(username, group) || group.hasOperatePermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()), true);
     }
 
     public boolean hasOperatePermissionForStage(String pipelineName, String stageName, String username) {

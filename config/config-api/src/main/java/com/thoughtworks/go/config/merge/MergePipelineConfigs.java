@@ -625,8 +625,8 @@ public class MergePipelineConfigs implements PipelineConfigs {
     }
 
     @Override
-    public boolean hasOperatePermission(CaseInsensitiveString username, UserRoleMatcher userRoleMatcher) {
-        return this.getAuthorizationPart().hasOperatePermission(username, userRoleMatcher);
+    public boolean hasOperatePermission(CaseInsensitiveString username, UserRoleMatcher userRoleMatcher, boolean everyoneIsAllowedToOperateIfNoAuthIsDefined) {
+        return this.getAuthorizationPart().hasOperatePermission(username, userRoleMatcher, everyoneIsAllowedToOperateIfNoAuthIsDefined);
     }
 
     @Override

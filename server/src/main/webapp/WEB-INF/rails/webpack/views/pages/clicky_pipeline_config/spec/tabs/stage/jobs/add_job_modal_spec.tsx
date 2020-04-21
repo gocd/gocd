@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
+import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {AddJobModal} from "views/pages/clicky_pipeline_config/tabs/stage/jobs/add_job_modal";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
+import {AddJobModal} from "views/pages/clicky_pipeline_config/tabs/stage/jobs/add_job_modal";
 import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -90,8 +91,47 @@ describe("Add Job Modal", () => {
     expect(helper.byTestId("exec-task-modal")).toBeInDOM();
   });
 
+
+  it("should show error message when conflicting job name is specified", function () {
+    const conflictingJobName = "JobOne";
+
+    const jobNameInput = helper.byTestId("form-field-input-job-name");
+    expect(jobNameInput).toBeInDOM();
+    helper.oninput(jobNameInput, conflictingJobName);
+    modal.onbeforeupdate({} as m.VnodeDOM<any, any>);
+
+    m.redraw.sync();
+
+    const expectedErrorMsg = "Another job with the same name already exists!";
+    expect(helper.q(`#${jobNameInput.id}-error-text`)).toBeInDOM();
+    expect(helper.q(`#${jobNameInput.id}-error-text`)).toContainText(expectedErrorMsg);
+  });
+
+  it("should remove conflicting name message when conflicting job name is fixed", function () {
+    const uniqueJobName      = "my-new-job-name";
+    const conflictingJobName = "JobOne";
+
+    expect(helper.byTestId("form-field-input-job-name")).toBeInDOM();
+
+    helper.oninput(helper.byTestId("form-field-input-job-name"), conflictingJobName);
+    modal.onbeforeupdate({} as m.VnodeDOM<any, any>);
+
+    m.redraw.sync();
+
+    const expectedErrorMsg = "Another job with the same name already exists!";
+    expect(helper.q(`#${helper.byTestId("form-field-input-job-name").id}-error-text`)).toBeInDOM();
+    expect(helper.q(`#${helper.byTestId("form-field-input-job-name").id}-error-text`)).toContainText(expectedErrorMsg);
+
+    helper.oninput(helper.byTestId("form-field-input-job-name"), uniqueJobName);
+    modal.onbeforeupdate({} as m.VnodeDOM<any, any>);
+
+    m.redraw.sync();
+
+    expect(helper.q(`#${helper.byTestId("form-field-input-job-name").id}-error-text`)).not.toBeInDOM();
+  });
+
   function mount() {
-    const stage          = Stage.fromJSON(PipelineConfigTestData.stage("stage1"));
+    const stage          = Stage.fromJSON(PipelineConfigTestData.stage("stage1", "JobOne"));
     const routeParams    = {stage_name: stage.name()} as PipelineConfigRouteParams;
     const templateConfig = new TemplateConfig("foo", []);
 

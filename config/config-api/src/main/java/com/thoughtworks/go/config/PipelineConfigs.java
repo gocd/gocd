@@ -76,7 +76,7 @@ public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Va
 
     void setAuthorization(Authorization authorization);
 
-    boolean hasViewPermission(CaseInsensitiveString username, UserRoleMatcher userRoleMatcher);
+    boolean hasViewPermission(CaseInsensitiveString username, UserRoleMatcher userRoleMatcher, boolean everyoneIsAllowedToViewIfNoAuthIsDefined);
 
     boolean hasViewPermissionDefined();
 

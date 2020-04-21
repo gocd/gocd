@@ -59,30 +59,30 @@ public abstract class PipelineConfigsTestBase {
     }
 
     @Test
-    public void shouldReturnTrueIfAuthorizationIsNotDefined() {
-        assertThat(createEmpty().hasViewPermission(new CaseInsensitiveString("anyone"), null), is(true));
+    public void shouldUseDefaultViewPermissionsForViewersOfAGroupIfAuthorizationIsNotDefined() {
+        assertThat(createEmpty().hasViewPermission(new CaseInsensitiveString("anyone"), null, true), is(true));
+        assertThat(createEmpty().hasViewPermission(new CaseInsensitiveString("anyone"), null, false), is(false));
     }
-
 
     @Test
     public void shouldReturnFalseIfViewPermissionIsNotDefined() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null), is(false));
+        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null, true), is(false));
     }
 
     @Test
     public void shouldReturnFalseIfUserDoesNotHaveViewPermission() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasViewPermission(new CaseInsensitiveString("anyone"), null), is(false));
+        assertThat(group.hasViewPermission(new CaseInsensitiveString("anyone"), null, true), is(false));
     }
 
     @Test
     public void shouldReturnTrueIfUserHasViewPermission() {
         PipelineConfigs group = createWithPipeline(PipelineConfigMother.pipelineConfig("pipeline1"));
         group.getAuthorization().getViewConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null), is(true));
+        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null, true), is(true));
     }
 
     @Test

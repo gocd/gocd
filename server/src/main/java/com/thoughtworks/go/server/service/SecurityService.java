@@ -55,7 +55,7 @@ public class SecurityService {
         }
 
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(pipelineGroupName);
-        return isUserAdminOfGroup(username, group) || group.hasViewPermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()));
+        return isUserAdminOfGroup(username, group) || group.hasViewPermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()), true);
     }
 
     private boolean isUserAdminOfGroup(final CaseInsensitiveString userName, PipelineConfigs group) {

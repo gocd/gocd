@@ -19,11 +19,13 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
 import com.thoughtworks.go.helper.ConfigFileFixture;
+import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -151,6 +153,39 @@ public class SecurityServiceIntegrationTest {
     }
 
     @Test
+    public void userShouldNotHaveOperatePermissionToStageInGroupWithNoAuth_WhenDefaultPermissionIsToDeny_WhenStageOperatePermissionsAreNotDefined() {
+        withDefaultGroupPermission(false, (o) -> {
+            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER), is(false));
+            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR), is(false));
+        });
+    }
+
+    @Test
+    public void userShouldHaveOperatePermissionToStageInGroupWithNoAuth_WhenDefaultPermissionIsToAllow_WhenStageOperatePermissionsAreNotDefined() {
+        withDefaultGroupPermission(true, (o) -> {
+            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER), is(true));
+            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR), is(true));
+        });
+    }
+
+    @Test
+    public void operatePermissionOfStageIsNotInfluencedByDefaultPermissions_ForGroupsWithNoAuthDefined_ButWithStageOperatePermissionsDefined() {
+        withDefaultGroupPermission(true, (o) -> {
+            configHelper.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR);
+
+            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER), is(false));
+            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR), is(true));
+        });
+
+        withDefaultGroupPermission(false, (o) -> {
+            configHelper.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR);
+
+            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, VIEWER), is(false));
+            assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR), is(true));
+        });
+    }
+
+    @Test
     public void shouldGiveTheGroupsModifiableByAdmin() {
         configHelper.addAdmins("admin");
         configHelper.addPipelineWithGroup("newGroup", "newPipeline", "newStage", "newJob");
@@ -235,16 +270,6 @@ public class SecurityServiceIntegrationTest {
         configHelper.turnOffSecurity();
         configHelper.setViewPermissionForGroup(GROUP_NAME, VIEWER);
         assertThat(securityService.hasViewPermissionForGroup(HACKER, GROUP_NAME), is(true));
-    }
-
-    @Test
-    public void shouldNotCheckViewPermissionForNonEnterpriseEdition() {
-        assertThat(securityService.hasViewPermissionForGroup(HACKER, GROUP_NAME), is(true));
-    }
-
-    @Test
-    public void shouldNotCheckOperationPermissionForNonEnterpriseEdition() {
-        assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(HACKER), GROUP_NAME), is(true));
     }
 
     @Test

@@ -139,16 +139,6 @@ public class StageApprovalAuthorizationTest {
     }
 
     @Test
-    public void shouldAuthorizeAnyUserIfNoAuthorizationDefinedForAutoApproval() throws Exception {
-        CONFIG_HELPER.addSecurityWithAdminConfig();
-        StageConfig stage = StageConfigMother.custom("ft", Approval.automaticApproval());
-        PipelineConfig pipeline = CONFIG_HELPER.addStageToPipeline(PIPELINE_NAME, stage);
-
-        assertThat("Cruise should not have permission on ft stage unless configured with permission",
-                securityService.hasOperatePermissionForStage(CaseInsensitiveString.str(pipeline.name()), CaseInsensitiveString.str(stage.name()), "cruise"), is(true));
-    }
-
-    @Test
     public void shouldAuthorizeUserCruiseIfUserIsAuthorisedToOperateAutoStage() throws Exception {
         CONFIG_HELPER.addSecurityWithAdminConfig();
         CONFIG_HELPER.setOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "cruise");
@@ -157,5 +147,4 @@ public class StageApprovalAuthorizationTest {
         assertThat(securityService.hasOperatePermissionForStage(CaseInsensitiveString.str(pipeline.name()), CaseInsensitiveString.str(stage.name()), "cruise"), is(true));
         assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "anyone"), is(false));
     }
-
 }

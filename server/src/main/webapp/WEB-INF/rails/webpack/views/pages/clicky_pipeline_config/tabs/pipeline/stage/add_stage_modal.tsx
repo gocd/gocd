@@ -40,6 +40,8 @@ export class AddStageModal extends Modal {
   private jobToCreate: Job;
   private taskModal: AbstractTaskModal | undefined;
 
+  private readonly existingStageNames: string[];
+
   constructor(stages: NameableSet<Stage>, pipelineConfigSave: () => Promise<any>) {
     super();
 
@@ -52,26 +54,13 @@ export class AddStageModal extends Modal {
     this.allTaskTypes          = ["Ant", "NAnt", "Rake", "Custom Command"];
     this.selectedTaskTypeToAdd = Stream(this.allTaskTypes[0]);
 
+    this.existingStageNames = Array.from(this.stages.keys()).map(s => s.name());
+
     this.updateTaskModal();
   }
 
   onbeforeupdate(vnode: m.VnodeDOM<any, this>): any {
     this.validateStageNameUniqueness();
-  }
-
-  private hasErrors() {
-    return this.stageToCreate.errors().count() > 0;
-  }
-
-  private validateStageNameUniqueness() {
-    const hasErrorsOnName = this.stageToCreate.errors().hasErrors("name");
-    const duplicateStage  = this.stages.findByName(this.stageToCreate.name());
-    if (!hasErrorsOnName && duplicateStage) {
-      const errorMsg = `Another stage with the same name already exists!`;
-      this.stageToCreate.errors().add("name", errorMsg);
-    } else if (!duplicateStage) {
-      this.stageToCreate.errors().clear("name");
-    }
   }
 
   body(): m.Children {
@@ -111,6 +100,23 @@ export class AddStageModal extends Modal {
         Cancel
       </Buttons.Cancel>
     ];
+  }
+
+  private hasErrors() {
+    return this.stageToCreate.errors().count() > 0;
+  }
+
+  private validateStageNameUniqueness() {
+    const hasErrorsOnName = this.stageToCreate.errors().hasErrors("name");
+    const duplicateStage  = this.existingStageNames.find(s => {
+      return this.stageToCreate.name().toLowerCase() === s.toLowerCase();
+    });
+    if (!hasErrorsOnName && duplicateStage) {
+      const errorMsg = `Another stage with the same name already exists!`;
+      this.stageToCreate.errors().add("name", errorMsg);
+    } else if (!duplicateStage) {
+      this.stageToCreate.errors().clear("name");
+    }
   }
 
   private updateTaskModal() {

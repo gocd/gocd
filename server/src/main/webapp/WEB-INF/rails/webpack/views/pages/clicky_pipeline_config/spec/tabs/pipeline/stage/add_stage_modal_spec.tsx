@@ -91,7 +91,7 @@ describe("Add Stage Modal", () => {
     expect(helper.byTestId("exec-task-modal")).toBeInDOM();
   });
 
-  it("should show error message when conflicting stage name is specified", function () {
+  it("should show error message when conflicting stage name is specified", () => {
     const conflictingStageName = "StageOne";
 
     const stageNameInput = helper.byTestId("stage-name-input");
@@ -106,7 +106,7 @@ describe("Add Stage Modal", () => {
     expect(helper.q(`#${stageNameInput.id}-error-text`)).toContainText(expectedErrorMsg);
   });
 
-  it("should remove conflicting name message when conflicting stage name is fixed", function () {
+  it("should remove conflicting name message when conflicting stage name is fixed", () => {
     const uniqueStageName      = "my-new-stage-name";
     const conflictingStageName = "StageOne";
 

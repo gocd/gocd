@@ -47,6 +47,7 @@ export class RakeTaskModal extends AbstractTaskModal {
                  errorText={attributes.errors().errorsForDisplay("buildFile")}
                  property={attributes.buildFile}/>
       <TextField helpText="Rake target(s) to run."
+                 placeholder="target"
                  label="Target"
                  errorText={attributes.errors().errorsForDisplay("target")}
                  property={attributes.target}/>

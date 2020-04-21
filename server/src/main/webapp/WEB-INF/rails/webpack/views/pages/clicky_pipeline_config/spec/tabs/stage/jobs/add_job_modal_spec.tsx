@@ -21,8 +21,8 @@ import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {AddJobModal} from "views/pages/clicky_pipeline_config/tabs/stage/jobs/add_job_modal";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -91,8 +91,7 @@ describe("Add Job Modal", () => {
     expect(helper.byTestId("exec-task-modal")).toBeInDOM();
   });
 
-
-  it("should show error message when conflicting job name is specified", function () {
+  it("should show error message when conflicting job name is specified", () => {
     const conflictingJobName = "JobOne";
 
     const jobNameInput = helper.byTestId("form-field-input-job-name");
@@ -107,7 +106,7 @@ describe("Add Job Modal", () => {
     expect(helper.q(`#${jobNameInput.id}-error-text`)).toContainText(expectedErrorMsg);
   });
 
-  it("should remove conflicting name message when conflicting job name is fixed", function () {
+  it("should remove conflicting name message when conflicting job name is fixed", () => {
     const uniqueJobName      = "my-new-job-name";
     const conflictingJobName = "JobOne";
 

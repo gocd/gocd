@@ -57,6 +57,10 @@ export class PipelineConfigPage<T> extends TabHandler<T> {
     return this.entity! as PipelineConfig;
   }
 
+  getOriginalEntity(): PipelineConfig {
+    return PipelineConfig.fromJSON(this.originalJSON)! as PipelineConfig;
+  }
+
   setEntity(entity: PipelineConfig) {
     this.entity = entity;
   }

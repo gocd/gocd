@@ -83,6 +83,8 @@ export abstract class TabHandler<T> extends Page<null, T> {
 
   abstract getEntity(): PipelineConfig | TemplateConfig;
 
+  abstract getOriginalEntity(): PipelineConfig | TemplateConfig;
+
   abstract setEntity(entity: PipelineConfig | TemplateConfig): void;
 
   abstract getAllTabsInformation(): Map<string, Map<string, new() => TabContent<SupportedTypes>>>;
@@ -119,7 +121,7 @@ export abstract class TabHandler<T> extends Page<null, T> {
         <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/>
         <div className={styles.mainContainer}>
           <div className={styles.navigation}>
-            <NavigationWidget config={this.getEntity()}
+            <NavigationWidget config={this.getOriginalEntity()}
                               isTemplateConfig={!this.isPipelineConfigPage()}
                               templateConfig={this.getAssociatedTemplateWithPipeline()}
                               routeInfo={PipelineConfigSPARouteHelper.routeInfo()}

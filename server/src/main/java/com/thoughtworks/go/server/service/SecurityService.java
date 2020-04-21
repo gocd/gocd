@@ -19,19 +19,24 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.policy.SupportedAction;
 import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
+
 @Service
 public class SecurityService {
+    private final SystemEnvironment systemEnvironment;
     private GoConfigService goConfigService;
 
     @Autowired
-    public SecurityService(GoConfigService goConfigService) {
+    public SecurityService(GoConfigService goConfigService, SystemEnvironment systemEnvironment) {
         this.goConfigService = goConfigService;
+        this.systemEnvironment = systemEnvironment;
     }
 
     public boolean hasViewPermissionForPipeline(Username username, String pipelineName) {
@@ -55,7 +60,8 @@ public class SecurityService {
         }
 
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(pipelineGroupName);
-        return isUserAdminOfGroup(username, group) || group.hasViewPermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()), true);
+        boolean everyoneIsAllowedToViewIfNoAuthIsDefined = systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP);
+        return isUserAdminOfGroup(username, group) || group.hasViewPermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()), everyoneIsAllowedToViewIfNoAuthIsDefined);
     }
 
     private boolean isUserAdminOfGroup(final CaseInsensitiveString userName, PipelineConfigs group) {

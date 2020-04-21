@@ -22,6 +22,7 @@ import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,10 +33,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
+import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
@@ -56,6 +59,7 @@ public class SecurityServiceIntegrationTest {
 
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private SecurityService securityService;
+    @Autowired private SystemEnvironment systemEnvironment;
     @Autowired private DatabaseAccessHelper dbHelper;
     private GoConfigFileHelper configHelper;
 
@@ -79,6 +83,20 @@ public class SecurityServiceIntegrationTest {
     public void shouldReturnTrueIfUserHasViewPermission() {
         configHelper.setViewPermissionForGroup(GROUP_NAME, VIEWER);
         assertThat(securityService.hasViewPermissionForGroup(VIEWER, GROUP_NAME), is(true));
+    }
+
+    @Test
+    public void userShouldNotHaveViewPermissionToGroupWithNoAuth_WhenDefaultPermissionIsToDeny() {
+        withDefaultGroupPermission(false, (o) -> {
+            assertThat(securityService.hasViewPermissionForGroup(VIEWER, GROUP_NAME), is(false));
+        });
+    }
+
+    @Test
+    public void userShouldHaveViewPermissionToGroupWithNoAuth_WhenDefaultPermissionIsToAllow() {
+        withDefaultGroupPermission(true, (o) -> {
+            assertThat(securityService.hasViewPermissionForGroup(VIEWER, GROUP_NAME), is(true));
+        });
     }
 
     @Test
@@ -336,6 +354,16 @@ public class SecurityServiceIntegrationTest {
         boolean isAuthorized = securityService.isAuthorizedToEditTemplate(templateName, new Username(new CaseInsensitiveString(templateAdminNotForThisTemplate)));
 
         assertThat(isAuthorized, is(false));
+    }
+
+    private void withDefaultGroupPermission(boolean defaultAllow, Consumer<Object> body) {
+        boolean previousValue = systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP);
+        try {
+            systemEnvironment.set(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP, defaultAllow);
+            body.accept(null);
+        } finally {
+            systemEnvironment.set(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP, previousValue);
+        }
     }
 
     private static final String CONFIG_WITH_2_GROUPS = "<cruise schemaVersion='16'>\n"

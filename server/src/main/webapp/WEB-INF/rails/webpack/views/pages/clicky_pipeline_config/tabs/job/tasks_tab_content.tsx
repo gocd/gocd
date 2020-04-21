@@ -32,6 +32,7 @@ import {Delete} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import {Table} from "views/components/table";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
 import {AntTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/ant";
@@ -42,7 +43,6 @@ import {PluggableTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/ta
 import {RakeTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/rake";
 import styles from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab.scss";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {OperationState} from "views/pages/page_operations";
 import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 
@@ -77,7 +77,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
 
   static getTaskModal(type: string,
                       task: Task | undefined,
-                      onSave: (t: Task) => void,
+                      onSave: (t: Task) => Promise<any>,
                       showOnCancel: boolean,
                       pluginInfos: PluginInfos,
                       pipelineConfigSave: () => Promise<any>,
@@ -110,9 +110,9 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
                                                                  vnode.attrs.pipelineConfigReset);
   }
 
-  onTaskSave(vnode: m.Vnode<Attrs, State>) {
+  onTaskSave(vnode: m.Vnode<Attrs, State>): Promise<any> {
     vnode.attrs.tasks().push(vnode.state.modal.getTask());
-    this.performPipelineSave(vnode);
+    return this.performPipelineSave(vnode);
   }
 
   onTaskUpdate(vnode: m.Vnode<Attrs, State>, index: number, updated: Task) {
@@ -120,7 +120,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
     tasks[index] = updated;
     vnode.attrs.tasks(tasks);
 
-    this.performPipelineSave(vnode);
+    return this.performPipelineSave(vnode);
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
@@ -183,11 +183,11 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   }
 
   private performPipelineSave(vnode: m.Vnode<Attrs, State>) {
-    vnode.attrs.pipelineConfigSave()
-         .then(vnode.state.modal.close.bind(vnode.state.modal))
-         .catch((errorResponse?: ErrorResponse) => {
-           this.onTaskSaveFailure(vnode, errorResponse);
-         });
+    return vnode.attrs.pipelineConfigSave()
+                .then(vnode.state.modal.close.bind(vnode.state.modal))
+                .catch((errorResponse?: ErrorResponse) => {
+                  this.onTaskSaveFailure(vnode, errorResponse);
+                });
   }
 
   private getTableData(vnode: m.Vnode<Attrs, State>) {

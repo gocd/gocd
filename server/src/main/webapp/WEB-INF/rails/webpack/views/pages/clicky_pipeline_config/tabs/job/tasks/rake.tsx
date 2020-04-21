@@ -27,7 +27,7 @@ export class RakeTaskModal extends AbstractTaskModal {
 
   private readonly pluginInfos: PluginInfos;
 
-  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => void, pluginInfos: PluginInfos) {
+  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos) {
     super(onAdd);
     this.showOnCancel = showOnCancel;
     this.task         = task ? task : new RakeTask(undefined, undefined, undefined, [], undefined);

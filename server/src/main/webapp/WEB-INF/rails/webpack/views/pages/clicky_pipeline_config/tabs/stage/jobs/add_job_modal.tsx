@@ -164,7 +164,7 @@ export class AddJobModal extends Modal {
     this.jobToCreate.tasks().push(this.taskModal!.getTask());
     this.stage.jobs().add(this.jobToCreate);
 
-    this.performPipelineSave();
+    return this.performPipelineSave();
   }
 
   private onClose() {
@@ -183,11 +183,11 @@ export class AddJobModal extends Modal {
   }
 
   private performPipelineSave() {
-    this.pipelineConfigSave()
-        .then(this.close.bind(this))
-        .catch((errorResponse?: ErrorResponse) => {
-          this.modalState = ModalState.OK;
-          this.onTaskSaveFailure(errorResponse);
-        });
+    return this.pipelineConfigSave()
+               .then(this.close.bind(this))
+               .catch((errorResponse?: ErrorResponse) => {
+                 this.modalState = ModalState.OK;
+                 this.onTaskSaveFailure(errorResponse);
+               });
   }
 }

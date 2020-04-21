@@ -139,7 +139,7 @@ export class AddStageModal extends Modal {
     this.stageToCreate.jobs(new NameableSet([this.jobToCreate]));
     this.stages.add(this.stageToCreate);
 
-    this.performPipelineSave();
+    return this.performPipelineSave();
   }
 
   private onClose() {
@@ -158,7 +158,7 @@ export class AddStageModal extends Modal {
   }
 
   private performPipelineSave() {
-    this.pipelineConfigSave()
+    return this.pipelineConfigSave()
         .then(this.close.bind(this))
         .catch((errorResponse?: ErrorResponse) => {
           this.modalState = ModalState.OK;

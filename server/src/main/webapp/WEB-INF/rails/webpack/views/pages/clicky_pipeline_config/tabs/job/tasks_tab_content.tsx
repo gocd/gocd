@@ -32,7 +32,6 @@ import {Delete} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import {Table} from "views/components/table";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
 import {AntTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/ant";
@@ -43,6 +42,7 @@ import {PluggableTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/ta
 import {RakeTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/rake";
 import styles from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab.scss";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {OperationState} from "views/pages/page_operations";
 import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 
@@ -112,7 +112,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
 
   onTaskSave(vnode: m.Vnode<Attrs, State>): Promise<any> {
     vnode.attrs.tasks().push(vnode.state.modal.getTask());
-    return this.performPipelineSave(vnode);
+    return this.performPipelineSave(vnode, true);
   }
 
   onTaskUpdate(vnode: m.Vnode<Attrs, State>, index: number, updated: Task) {
@@ -120,7 +120,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
     tasks[index] = updated;
     vnode.attrs.tasks(tasks);
 
-    return this.performPipelineSave(vnode);
+    return this.performPipelineSave(vnode, false);
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
@@ -171,22 +171,26 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
     return headers;
   }
 
-  private onTaskSaveFailure(vnode: m.Vnode<Attrs, State>, errorResponse?: ErrorResponse) {
+  private onTaskSaveFailure(vnode: m.Vnode<Attrs, State>,
+                            shouldRemoveTaskOnFailure: boolean,
+                            errorResponse?: ErrorResponse) {
     if (errorResponse) {
       const parsed = JSON.parse(errorResponse.body!);
       vnode.state.modal.getTask()!.consumeErrorsResponse(parsed.data);
       vnode.state.modal.flashMessage.setMessage(MessageType.alert, parsed.message);
-      vnode.attrs.tasks().pop();
+      if (shouldRemoveTaskOnFailure) {
+        vnode.attrs.tasks().pop();
+      }
     }
 
     m.redraw.sync();
   }
 
-  private performPipelineSave(vnode: m.Vnode<Attrs, State>) {
+  private performPipelineSave(vnode: m.Vnode<Attrs, State>, shouldRemoveTaskOnFailure: boolean) {
     return vnode.attrs.pipelineConfigSave()
                 .then(vnode.state.modal.close.bind(vnode.state.modal))
                 .catch((errorResponse?: ErrorResponse) => {
-                  this.onTaskSaveFailure(vnode, errorResponse);
+                  this.onTaskSaveFailure(vnode, shouldRemoveTaskOnFailure, errorResponse);
                 });
   }
 

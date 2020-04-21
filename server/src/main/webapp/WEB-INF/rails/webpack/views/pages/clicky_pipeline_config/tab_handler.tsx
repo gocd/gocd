@@ -196,9 +196,11 @@ export abstract class TabHandler<T> extends Page<null, T> {
     return Promise.reject(errorResponse);
   }
 
+  abstract shouldShowSaveAndResetButtons(entity: PipelineConfig | TemplateConfig): boolean;
+
   protected getSaveAndResetButtons(): m.Children {
     let saveAndResetButtons: m.Children;
-    if (this.tab().shouldShowSaveAndResetButtons()) {
+    if (this.shouldShowSaveAndResetButtons(this.getEntity()) && this.tab().shouldShowSaveAndResetButtons()) {
       saveAndResetButtons = (
         <div className={styles.buttonContainer}>
           <Reset data-test-id={"cancel"}

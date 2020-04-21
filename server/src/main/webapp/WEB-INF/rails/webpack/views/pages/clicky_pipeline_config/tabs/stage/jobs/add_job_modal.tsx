@@ -25,12 +25,12 @@ import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
-import {Modal} from "views/components/modal";
+import {Modal, ModalState} from "views/components/modal";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {JobSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/job_settings_tab_content";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
 import {TasksWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
 import styles from "views/pages/clicky_pipeline_config/tabs/stage/jobs_tab_content.scss";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {OperationState} from "views/pages/page_operations";
 
 export class AddJobModal extends Modal {
@@ -160,6 +160,7 @@ export class AddJobModal extends Modal {
   }
 
   private onSave() {
+    this.modalState = ModalState.LOADING;
     this.jobToCreate.tasks().push(this.taskModal!.getTask());
     this.stage.jobs().add(this.jobToCreate);
 
@@ -185,6 +186,7 @@ export class AddJobModal extends Modal {
     this.pipelineConfigSave()
         .then(this.close.bind(this))
         .catch((errorResponse?: ErrorResponse) => {
+          this.modalState = ModalState.OK;
           this.onTaskSaveFailure(errorResponse);
         });
   }

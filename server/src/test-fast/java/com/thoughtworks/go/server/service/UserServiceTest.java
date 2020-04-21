@@ -36,6 +36,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
 import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -49,6 +50,7 @@ import java.util.Set;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static com.thoughtworks.go.helper.SecurityConfigMother.securityConfigWithRole;
+import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
@@ -60,6 +62,7 @@ public class UserServiceTest {
     private UserService userService;
     private TestTransactionTemplate transactionTemplate;
     private TestTransactionSynchronizationManager transactionSynchronizationManager;
+    private SystemEnvironment systemEnvironment;
 
     @BeforeEach
     void setUp() {
@@ -68,7 +71,8 @@ public class UserServiceTest {
         securityService = mock(SecurityService.class);
         transactionSynchronizationManager = new TestTransactionSynchronizationManager();
         transactionTemplate = new TestTransactionTemplate(transactionSynchronizationManager);
-        userService = new UserService(userDao, securityService, goConfigService, transactionTemplate);
+        systemEnvironment = mock(SystemEnvironment.class);
+        userService = new UserService(userDao, securityService, goConfigService, transactionTemplate, systemEnvironment);
     }
 
     @Test
@@ -343,7 +347,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void shouldGetAllUsernamesIfNoSecurityHasBeenDefinedOnTheGroup() {
+    void shouldGetAllUsernamesAsOperatorsOfStage_IfNoSecurityHasBeenDefinedOnTheGroup_AndDefaultPermissionForGroupsWithNoAuthIsToAllowAll() {
         CruiseConfig config = new BasicCruiseConfig();
         SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
         securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
@@ -355,13 +359,42 @@ public class UserServiceTest {
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline", stage);
         config.addPipeline("defaultGroup", pipeline);
 
+        when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
         when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(new User("user_one"), new User("user_two"))));
+        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("user_one")))).thenReturn(true);
+        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("user_two")))).thenReturn(false);
+
         Set<String> users = userService.usersThatCanOperateOnStage(config, pipeline);
 
         assertThat(config.findGroup("defaultGroup").hasAuthorizationDefined()).isFalse();
         assertThat(users.size()).isEqualTo(2);
         assertThat(users).contains("user_one");
         assertThat(users).contains("user_two");
+    }
+
+    @Test
+    void shouldGetOnlySystemAdminsAsOperatorsOfStageIfNoSecurityHasBeenDefinedOnTheGroup_AndDefaultPermissionForGroupsWithNoAuthIsToDeny() {
+        CruiseConfig config = new BasicCruiseConfig();
+        SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
+        securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
+        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user3");
+        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user2");
+        config.setServerConfig(new ServerConfig(null, securityConfig));
+
+        StageConfig stage = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job")));
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline", stage);
+        config.addPipeline("defaultGroup", pipeline);
+
+        when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(false);
+        when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(new User("user_one"), new User("user_two"))));
+        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("user_one")))).thenReturn(true);
+        when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("user_two")))).thenReturn(false);
+
+        Set<String> users = userService.usersThatCanOperateOnStage(config, pipeline);
+
+        assertThat(config.findGroup("defaultGroup").hasAuthorizationDefined()).isFalse();
+        assertThat(users.size()).isEqualTo(1);
+        assertThat(users).contains("user_one");
     }
 
     @Test
@@ -433,7 +466,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void shouldGetAllRolesFromConfigWhenGroupDoesNotHaveAnyPermissionsDefined() {
+    void shouldGetAllRolesFromConfigAsOperators_WhenGroupDoesNotHaveAnyPermissionsDefined_AndDefaultPermissionForGroupsWithNoAuthIsToAllowAll() {
         CruiseConfig config = new BasicCruiseConfig();
         SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
         securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
@@ -445,6 +478,7 @@ public class UserServiceTest {
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline", stage);
         config.addPipeline("defaultGroup", pipeline);
 
+        when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
         Set<String> roles = userService.rolesThatCanOperateOnStage(config, pipeline);
 
         assertThat(config.findGroup("defaultGroup").hasAuthorizationDefined()).isFalse();
@@ -452,6 +486,26 @@ public class UserServiceTest {
         assertThat(roles).contains("role1");
         assertThat(roles).contains("role2");
         assertThat(roles).contains("role3");
+    }
+
+    @Test
+    void shouldGetNoRolesFromConfigAsOperators_WhenGroupDoesNotHaveAnyPermissionsDefined_AndDefaultPermissionForGroupsWithNoAuthIsToDeny() {
+        CruiseConfig config = new BasicCruiseConfig();
+        SecurityConfig securityConfig = securityConfigWithRole("role1", "user1", "user2");
+        securityConfigWithRole(securityConfig, "role2", "user1", "user2", "user3");
+        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user3");
+        securityConfigWithRole(securityConfig, "role3", "user4", "user5", "user2");
+        config.setServerConfig(new ServerConfig(null, securityConfig));
+
+        StageConfig stage = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job")));
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline", stage);
+        config.addPipeline("defaultGroup", pipeline);
+
+        when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(false);
+        Set<String> roles = userService.rolesThatCanOperateOnStage(config, pipeline);
+
+        assertThat(config.findGroup("defaultGroup").hasAuthorizationDefined()).isFalse();
+        assertThat(roles.size()).isEqualTo(0);
     }
 
     @Test

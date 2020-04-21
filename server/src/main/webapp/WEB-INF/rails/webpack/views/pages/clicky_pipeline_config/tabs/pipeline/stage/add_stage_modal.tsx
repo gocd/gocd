@@ -41,6 +41,7 @@ export class AddStageModal extends Modal {
   private taskModal: AbstractTaskModal | undefined;
 
   private readonly existingStageNames: string[];
+  private readonly errorMsg = `Another stage with the same name already exists!`;
 
   constructor(stages: NameableSet<Stage>, pipelineConfigSave: () => Promise<any>) {
     super();
@@ -91,7 +92,7 @@ export class AddStageModal extends Modal {
   buttons(): m.ChildArray {
     return [
       <Buttons.Primary data-test-id="save-job"
-                       disabled={this.hasErrors()}
+                       disabled={this.hasDuplicateNameError()}
                        onclick={this.onSave.bind(this)}>
         Save
       </Buttons.Primary>,
@@ -102,20 +103,19 @@ export class AddStageModal extends Modal {
     ];
   }
 
-  private hasErrors() {
-    return this.stageToCreate.errors().count() > 0;
+  private hasDuplicateNameError() {
+    return this.stageToCreate.errors().hasError("name", this.errorMsg);
   }
 
   private validateStageNameUniqueness() {
-    const hasErrorsOnName = this.stageToCreate.errors().hasErrors("name");
-    const duplicateStage  = this.existingStageNames.find(s => {
+    const duplicateStage = this.existingStageNames.find(s => {
       return this.stageToCreate.name().toLowerCase() === s.toLowerCase();
     });
-    if (!hasErrorsOnName && duplicateStage) {
-      const errorMsg = `Another stage with the same name already exists!`;
-      this.stageToCreate.errors().add("name", errorMsg);
+
+    if (duplicateStage) {
+      this.stageToCreate.errors().addIfDoesNotExists("name", this.errorMsg);
     } else if (!duplicateStage) {
-      this.stageToCreate.errors().clear("name");
+      this.stageToCreate.errors().clearError("name", this.errorMsg);
     }
   }
 

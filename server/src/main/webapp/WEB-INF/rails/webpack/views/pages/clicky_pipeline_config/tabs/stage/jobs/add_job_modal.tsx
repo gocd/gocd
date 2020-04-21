@@ -50,6 +50,8 @@ export class AddJobModal extends Modal {
 
   private readonly existingJobNames: string[];
 
+  private readonly errorMsg = `Another job with the same name already exists!`;
+
   constructor(stage: Stage, templateConfig: TemplateConfig, pipelineConfig: PipelineConfig,
               routeParams: PipelineConfigRouteParams, ajaxOperationMonitor: Stream<OperationState>,
               flashMessage: FlashMessageModelWithTimeout,
@@ -117,7 +119,7 @@ export class AddJobModal extends Modal {
   buttons(): m.ChildArray {
     return [
       <Buttons.Primary data-test-id="save-job"
-                       disabled={this.hasErrors()}
+                       disabled={this.hasDuplicateNameError()}
                        onclick={this.onSave.bind(this)}>
         Save
       </Buttons.Primary>,
@@ -128,20 +130,18 @@ export class AddJobModal extends Modal {
     ];
   }
 
-  private hasErrors() {
-    return this.jobToCreate.errors().count() > 0;
+  private hasDuplicateNameError() {
+    return this.jobToCreate.errors().hasError("name", this.errorMsg);
   }
 
   private validateJobNameUniqueness() {
-    const hasErrorsOnName = this.jobToCreate.errors().hasErrors("name");
-    const duplicateJob    = this.existingJobNames.find(j => {
+    const duplicateJob = this.existingJobNames.find(j => {
       return this.jobToCreate.name().toLowerCase() === j.toLowerCase();
     });
-    if (!hasErrorsOnName && duplicateJob) {
-      const errorMsg = `Another job with the same name already exists!`;
-      this.jobToCreate.errors().add("name", errorMsg);
+    if (duplicateJob) {
+      this.jobToCreate.errors().addIfDoesNotExists("name", this.errorMsg);
     } else if (!duplicateJob) {
-      this.jobToCreate.errors().clear("name");
+      this.jobToCreate.errors().clearError("name", this.errorMsg);
     }
   }
 

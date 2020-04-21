@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import _ from "lodash";
-
 import {mixins as s} from "helpers/string-plus";
+import _ from "lodash";
 import {EventAware} from "models/mixins/event_aware";
 
 export interface ErrorsJSON {
@@ -42,9 +41,21 @@ export class Errors {
     this.notify("error:change");
   }
 
+  addIfDoesNotExists(attrName: string, message: string) {
+    if (!this.hasError(attrName, message)) {
+      this.add(attrName, message);
+    }
+  }
+
   clear(attrName?: string) {
     "undefined" !== typeof attrName ? delete this._errors[attrName] : this._errors = {};
     this.notify("error:change");
+  }
+
+  clearError(attrName: string, message: string) {
+    const errors = this._errors[attrName];
+    _.remove(errors, (err) => err === message);
+    this._errors[attrName] = errors;
   }
 
   errors(attrName?: string) {
@@ -53,6 +64,11 @@ export class Errors {
 
   hasErrors(attrName?: string) {
     return attrName ? !_.isEmpty(this._errors[attrName]) : !this._isEmpty();
+  }
+
+  hasError(attrName: string, message: string) {
+    const errors = this._errors[attrName] || [];
+    return !!_.find(errors, (err) => err === message);
   }
 
   errorsForDisplay(attrName: string) {

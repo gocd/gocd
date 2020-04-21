@@ -137,6 +137,20 @@ public class SecurityServiceIntegrationTest {
     }
 
     @Test
+    public void userShouldNotHaveOperatePermissionToGroupWithNoAuth_WhenDefaultPermissionIsToDeny() {
+        withDefaultGroupPermission(false, (o) -> {
+            assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(OPERATOR), GROUP_NAME), is(false));
+        });
+    }
+
+    @Test
+    public void userShouldHaveOperatePermissionToGroupWithNoAuth_WhenDefaultPermissionIsToAllow() {
+        withDefaultGroupPermission(true, (o) -> {
+            assertThat(securityService.hasOperatePermissionForGroup(new CaseInsensitiveString(OPERATOR), GROUP_NAME), is(true));
+        });
+    }
+
+    @Test
     public void shouldGiveTheGroupsModifiableByAdmin() {
         configHelper.addAdmins("admin");
         configHelper.addPipelineWithGroup("newGroup", "newPipeline", "newStage", "newJob");
@@ -282,8 +296,6 @@ public class SecurityServiceIntegrationTest {
         configHelper.addAuthorizedUserForStage(PIPELINE_NAME, STAGE_NAME, OPERATOR);
         assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, ADMIN), is(true));
     }
-
-
 
     @Test public void shouldReturnAllPipelinesThatUserHasViewPermissionsFor() throws Exception {
         configHelper.onTearDown();

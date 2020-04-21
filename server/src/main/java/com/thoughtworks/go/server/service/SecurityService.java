@@ -105,7 +105,8 @@ public class SecurityService {
         }
 
         PipelineConfigs group = cruiseConfig.getGroups().findGroup(groupName);
-        return isUserAdminOfGroup(username, group) || group.hasOperatePermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()), true);
+        boolean everyoneIsAllowedToOperateIfNoAuthIsDefined = systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP);
+        return isUserAdminOfGroup(username, group) || group.hasOperatePermission(username, new UserRoleMatcherImpl(cruiseConfig.server().security()), everyoneIsAllowedToOperateIfNoAuthIsDefined);
     }
 
     public boolean hasOperatePermissionForStage(String pipelineName, String stageName, String username) {

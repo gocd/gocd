@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {AddStageModal} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/add_stage_modal";
@@ -90,8 +91,46 @@ describe("Add Stage Modal", () => {
     expect(helper.byTestId("exec-task-modal")).toBeInDOM();
   });
 
+  it("should show error message when conflicting stage name is specified", function () {
+    const conflictingStageName = "StageOne";
+
+    const stageNameInput = helper.byTestId("stage-name-input");
+    expect(stageNameInput).toBeInDOM();
+    helper.oninput(stageNameInput, conflictingStageName);
+    modal.onbeforeupdate({} as m.VnodeDOM<any, any>);
+
+    m.redraw.sync();
+
+    const expectedErrorMsg = "Another stage with the same name already exists!";
+    expect(helper.q(`#${stageNameInput.id}-error-text`)).toBeInDOM();
+    expect(helper.q(`#${stageNameInput.id}-error-text`)).toContainText(expectedErrorMsg);
+  });
+
+  it("should remove conflicting name message when conflicting stage name is fixed", function () {
+    const uniqueStageName      = "my-new-stage-name";
+    const conflictingStageName = "StageOne";
+
+    expect(helper.byTestId("stage-name-input")).toBeInDOM();
+
+    helper.oninput(helper.byTestId("stage-name-input"), conflictingStageName);
+    modal.onbeforeupdate({} as m.VnodeDOM<any, any>);
+
+    m.redraw.sync();
+
+    const expectedErrorMsg = "Another stage with the same name already exists!";
+    expect(helper.q(`#${helper.byTestId("stage-name-input").id}-error-text`)).toBeInDOM();
+    expect(helper.q(`#${helper.byTestId("stage-name-input").id}-error-text`)).toContainText(expectedErrorMsg);
+
+    helper.oninput(helper.byTestId("stage-name-input"), uniqueStageName);
+    modal.onbeforeupdate({} as m.VnodeDOM<any, any>);
+
+    m.redraw.sync();
+
+    expect(helper.q(`#${helper.byTestId("stage-name-input").id}-error-text`)).not.toBeInDOM();
+  });
+
   function mount() {
-    const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withGitMaterial());
+    const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
 
     modal = new AddStageModal(pipelineConfig.stages(), jasmine.createSpy());
     helper.mount(() => modal.body());

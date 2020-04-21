@@ -55,6 +55,25 @@ export class AddStageModal extends Modal {
     this.updateTaskModal();
   }
 
+  onbeforeupdate(vnode: m.VnodeDOM<any, this>): any {
+    this.validateStageNameUniqueness();
+  }
+
+  private hasErrors() {
+    return this.stageToCreate.errors().count() > 0;
+  }
+
+  private validateStageNameUniqueness() {
+    const hasErrorsOnName = this.stageToCreate.errors().hasErrors("name");
+    const duplicateStage  = this.stages.findByName(this.stageToCreate.name());
+    if (!hasErrorsOnName && duplicateStage) {
+      const errorMsg = `Another stage with the same name already exists!`;
+      this.stageToCreate.errors().add("name", errorMsg);
+    } else if (!duplicateStage) {
+      this.stageToCreate.errors().clear("name");
+    }
+  }
+
   body(): m.Children {
     return <div data-test-id="add-stage-modal">
       <StageSettingsWidget stage={this.stageToCreate} isForAddStagePopup={true}/>
@@ -83,6 +102,7 @@ export class AddStageModal extends Modal {
   buttons(): m.ChildArray {
     return [
       <Buttons.Primary data-test-id="save-job"
+                       disabled={this.hasErrors()}
                        onclick={this.onSave.bind(this)}>
         Save
       </Buttons.Primary>,

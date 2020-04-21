@@ -23,7 +23,7 @@ import {Stage} from "models/pipeline_configs/stage";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
-import {Modal} from "views/components/modal";
+import {Modal, ModalState} from "views/components/modal";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
 import {TasksWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
 import styles from "views/pages/clicky_pipeline_config/tabs/stage/jobs_tab_content.scss";
@@ -134,6 +134,7 @@ export class AddStageModal extends Modal {
   }
 
   private onSave() {
+    this.modalState = ModalState.LOADING;
     this.jobToCreate.tasks([this.taskModal!.getTask()]);
     this.stageToCreate.jobs(new NameableSet([this.jobToCreate]));
     this.stages.add(this.stageToCreate);
@@ -160,6 +161,7 @@ export class AddStageModal extends Modal {
     this.pipelineConfigSave()
         .then(this.close.bind(this))
         .catch((errorResponse?: ErrorResponse) => {
+          this.modalState = ModalState.OK;
           this.onTaskSaveFailure(errorResponse);
         });
   }

@@ -23,14 +23,19 @@ import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 import {Template} from "models/pipeline_configs/templates_cache";
+import {Primary, Reset} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Option, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import * as Icons from "views/components/icons/index";
+import pipelineConfigStyles from "views/pages/clicky_pipeline_config/index.scss";
+import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 import styles from "../stages.scss";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;
   templates: Stream<Template[]>;
+  pipelineConfigSave: () => Promise<any>;
+  pipelineConfigReset: () => Promise<any>;
 }
 
 export class PipelineTemplateWidget extends MithrilComponent<Attrs> {
@@ -45,18 +50,21 @@ export class PipelineTemplateWidget extends MithrilComponent<Attrs> {
       </FlashMessage>);
     }
 
-    return <div class={styles.templateWrapper}>
-      {this.templateOptions(vnode)}
-      <div class={classnames(styles.templateLink, {[styles.disabled]: disableLinks})}
-           onclick={this.openViewTemplatePage.bind(this, vnode)}
-           data-test-id="view-template">
-        <Icons.View disabled={disableLinks} iconOnly={true}/> View
+    return <div>
+      <div class={styles.templateWrapper}>
+        {this.templateOptions(vnode)}
+        <div class={classnames(styles.templateLink, {[styles.disabled]: disableLinks})}
+             onclick={this.openViewTemplatePage.bind(this, vnode)}
+             data-test-id="view-template">
+          <Icons.View disabled={disableLinks} iconOnly={true}/> View
+        </div>
+        <div class={classnames(styles.templateLink, {[styles.disabled]: disableLinks})}
+             onclick={this.openEditTemplatePage.bind(this, vnode)}
+             data-test-id="edit-template">
+          <Icons.Edit disabled={disableLinks} iconOnly={true}/> Edit
+        </div>
       </div>
-      <div class={classnames(styles.templateLink, {[styles.disabled]: disableLinks})}
-           onclick={this.openEditTemplatePage.bind(this, vnode)}
-           data-test-id="edit-template">
-        <Icons.Edit disabled={disableLinks} iconOnly={true}/> Edit
-      </div>
+      {this.buttons(vnode)}
     </div>;
   }
 
@@ -85,6 +93,25 @@ export class PipelineTemplateWidget extends MithrilComponent<Attrs> {
     if (template) {
       window.open(`/go/admin/templates#!${template}/view`);
     }
+  }
+
+  private renderConfirmation(vnode: m.Vnode<Attrs>) {
+    const body = <p>Switching to a template will cause all of the currently defined stages in this pipeline to be lost. Are you sure you want to continue?
+    </p>;
+    new ConfirmationDialog("Confirm Save", body, vnode.attrs.pipelineConfigSave).render();
+  }
+
+  private buttons(vnode: m.Vnode<Attrs>): m.Children {
+    return <div className={pipelineConfigStyles.buttonContainer}>
+      <Reset data-test-id={"cancel"}
+             onclick={vnode.attrs.pipelineConfigReset}>
+        RESET
+      </Reset>
+      <Primary data-test-id={"save"}
+               onclick={this.renderConfirmation.bind(this, vnode)}>
+        SAVE
+      </Primary>
+    </div>;
   }
 
   private openEditTemplatePage(vnode: m.Vnode<Attrs>) {

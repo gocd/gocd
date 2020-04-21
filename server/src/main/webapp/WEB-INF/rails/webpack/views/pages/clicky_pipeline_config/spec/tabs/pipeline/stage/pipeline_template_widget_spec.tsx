@@ -80,10 +80,35 @@ describe("Pipeline Template Widget", () => {
     expect(helper.byTestId("edit-template")).not.toBeInDOM();
   });
 
+  it("should render save and reset buttons", () => {
+    mount(["template1"]);
+
+    expect(helper.byTestId("cancel")).toBeInDOM();
+    expect(helper.byTestId("save")).toBeInDOM();
+  });
+
+  it("should render save confirmation popup on hitting save", () => {
+    mount(["template1"]);
+
+    expect(helper.byTestId("save")).toBeInDOM();
+
+    helper.clickByTestId("save");
+
+    const title = "Confirm Save";
+    const body  = "Switching to a template will cause all of the currently defined stages in this pipeline to be lost. Are you sure you want to continue?";
+    expect(helper.byTestId("modal-title", document.body)).toContainText(title);
+    expect(helper.byTestId("modal-body", document.body)).toContainText(body);
+
+    helper.clickByTestId("cancel-action-button", document.body);
+  });
+
   function mount(templateNames: string[] = []) {
     helper.mount(() => {
       const templates = templateNames.map(n => ({name: n, parameters: []} as Template));
-      return <PipelineTemplateWidget pipelineConfig={pipelineConfig} templates={Stream(templates)}/>;
+      return <PipelineTemplateWidget pipelineConfig={pipelineConfig}
+                                     pipelineConfigSave={jasmine.createSpy().and.returnValue(Promise.resolve())}
+                                     pipelineConfigReset={jasmine.createSpy().and.returnValue(Promise.resolve())}
+                                     templates={Stream(templates)}/>;
     });
   }
 

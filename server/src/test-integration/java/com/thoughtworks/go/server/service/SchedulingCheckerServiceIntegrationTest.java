@@ -133,7 +133,10 @@ public class SchedulingCheckerServiceIntegrationTest {
 
     @Test
     public void shouldPassCheckingWhenUserHasPermissionForManualTrigger() throws Exception {
-        pipelineFixture.createdPipelineWithAllStagesPassed();
+        Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
+
+        configFileHelper.addAuthorizedUserForStage(pipeline.getName(), pipelineFixture.devStage, APPROVED_USER);
+
         assertTrue(schedulingChecker.canManuallyTrigger(pipelineFixture.pipelineConfig(), APPROVED_USER,
                 new ServerHealthStateOperationResult()));
     }
@@ -151,12 +154,13 @@ public class SchedulingCheckerServiceIntegrationTest {
 
     @Test
     public void shouldFailCheckIfTheStageHasAllowOnlyOnSuccessSetAndPreviousStageFailed() {
-        configFileHelper.configureStageAsManualApproval(pipelineFixture.pipelineName, pipelineFixture.stageName(2), true);
+        configFileHelper.configureStageAsManualApproval(pipelineFixture.pipelineName, pipelineFixture.ftStage, true);
+        configFileHelper.addAuthorizedUserForStage(pipelineFixture.pipelineName, pipelineFixture.ftStage, APPROVED_USER);
         configFileHelper.lockPipeline(pipelineFixture.pipelineName);
         Pipeline pipeline = pipelineFixture.schedulePipeline();
         firstStageFailedAndSecondStageNotStarted(pipeline);
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.stageName(2), APPROVED_USER, result);
+        schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.ftStage, APPROVED_USER, result);
         ServerHealthState serverHealthState = result.getServerHealthState();
         assertThat(serverHealthState.isSuccess(), is(false));
         assertThat(serverHealthState.getDescription(), is("Cannot schedule ft as the previous stage dev has Failed!"));
@@ -170,7 +174,7 @@ public class SchedulingCheckerServiceIntegrationTest {
         Pipeline pipeline = pipelineFixture.schedulePipeline();
         firstStageFailedAndSecondStageNotStarted(pipeline);
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.stageName(2), APPROVED_USER, result);
+        schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.ftStage, APPROVED_USER, result);
         ServerHealthState serverHealthState = result.getServerHealthState();
         assertThat(serverHealthState.isSuccess(), is(true));
     }
@@ -179,9 +183,10 @@ public class SchedulingCheckerServiceIntegrationTest {
     public void shouldPassCheckingWhenPipelineNotYetScheduledButInScheduleQueueBecauseOfAutoBuild() throws Exception {
         String pipelineName = "blahPipeline";
         configFileHelper.addPipelineWithGroup("group2", pipelineName, "stage", "job");
+        configFileHelper.addAuthorizedUserForStage(pipelineName, "stage", APPROVED_USER);
 
         pipelineScheduleQueue.schedule(new CaseInsensitiveString(pipelineName), BuildCause.createWithEmptyModifications());
-        assertThat(schedulingChecker.canManuallyTrigger(pipelineName, new Username(new CaseInsensitiveString("blahUser"))), is(true));
+        assertThat(schedulingChecker.canManuallyTrigger(pipelineName, new Username(APPROVED_USER)), is(true));
     }
 
     @Test
@@ -277,7 +282,10 @@ public class SchedulingCheckerServiceIntegrationTest {
         configFileHelper.lockPipeline(pipeline.getName());
         pipelineService.save(pipeline);//to ensure locking happens(fixture uses the dao to directly save it to the db, hence lock is not taken)
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        schedulingChecker.canScheduleStage(completed.getIdentifier(), pipelineFixture.stageName(1), APPROVED_USER, result);
+
+        configFileHelper.addAuthorizedUserForStage(pipeline.getName(), pipelineFixture.devStage, APPROVED_USER);
+        schedulingChecker.canScheduleStage(completed.getIdentifier(), pipelineFixture.devStage, APPROVED_USER, result);
+
         assertThat(result.getServerHealthState().isSuccess(), is(false));
         assertThat(result.getServerHealthState().getDescription(), containsString("is locked"));
         assertThat(result.getServerHealthState().getDescription(), containsString(pipeline.getName()));
@@ -289,7 +297,7 @@ public class SchedulingCheckerServiceIntegrationTest {
         Pipeline pipeline = pipelineFixture.schedulePipeline();
         firstStagePassedAndSecondStageNotStarted(pipeline);
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.stageName(2), APPROVED_USER, result);
+        schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.ftStage, APPROVED_USER, result);
         assertThat(result.getServerHealthState().isSuccess(), is(true));
     }
 
@@ -308,6 +316,7 @@ public class SchedulingCheckerServiceIntegrationTest {
     public void shouldNotPassCheckingWhenTargetStageIsActiveInAnyPipelineForRerun() throws Exception {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         pipelineFixture.createPipelineWithFirstStageScheduled();
+        configFileHelper.addAuthorizedUserForStage(pipeline.getName(), pipelineFixture.devStage, APPROVED_USER);
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         assertThat(schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.devStage, APPROVED_USER, result), is(false));
@@ -332,6 +341,8 @@ public class SchedulingCheckerServiceIntegrationTest {
     public void shouldNotPassCheckingIfPipelineIsPausedForRerun() throws Exception {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         Username userName = new Username(new CaseInsensitiveString("A humble developer"));
+
+        configFileHelper.setOperatePermissionForGroup(pipelineFixture.groupName, userName.getUsername().toString(), APPROVED_USER);
         pipelinePauseService.pause(pipeline.getName(), "Upgrade scheduled", userName);
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
@@ -343,6 +354,8 @@ public class SchedulingCheckerServiceIntegrationTest {
     public void shouldNotPassCheckingIfPipelineIsPausedForManualTrigger() throws Exception {
         Pipeline pipeline = pipelineFixture.createdPipelineWithAllStagesPassed();
         Username userName = new Username(new CaseInsensitiveString("A humble developer"));
+
+        configFileHelper.setOperatePermissionForGroup(pipelineFixture.groupName, userName.getUsername().toString(), APPROVED_USER);
         pipelinePauseService.pause(pipeline.getName(), "Upgrade scheduled", userName);
 
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
@@ -365,13 +378,13 @@ public class SchedulingCheckerServiceIntegrationTest {
     public void shouldNotPassCheckingIfDiskSpaceIsFullForRerun() throws Exception {
         String limit = diskSpaceSimulator.simulateDiskFull();
 
-        String s = pipelineFixture.pipelineName;
+        String pipelineName = pipelineFixture.pipelineName;
         String label = "LATEST";
         String stageName = CaseInsensitiveString.str(pipelineFixture.devStage().name());
-        String username = APPROVED_USER;
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
 
-        assertThat(schedulingChecker.canScheduleStage(new PipelineIdentifier(s, 1, label), stageName, username, result), is(false));
+        configFileHelper.addAuthorizedUserForStage(pipelineName, stageName, APPROVED_USER);
+        assertThat(schedulingChecker.canScheduleStage(new PipelineIdentifier(pipelineName, 1, label), stageName, APPROVED_USER, result), is(false));
         assertThat(result.getServerHealthState().getDescription(),
                 containsString(String.format("GoCD has less than %sb of disk space", limit)));
     }

@@ -18,13 +18,13 @@ import m from "mithril";
 import {Task} from "models/pipeline_configs/task";
 import {Cancel, Primary} from "views/components/buttons";
 import {FlashMessage, FlashMessageModel} from "views/components/flash_message";
-import {Modal, Size} from "views/components/modal";
+import {Modal, ModalState, Size} from "views/components/modal";
 
 export abstract class AbstractTaskModal extends Modal {
   readonly flashMessage: FlashMessageModel;
-  private onAdd: (t: Task) => void;
+  private onAdd: (t: Task) => Promise<any>;
 
-  constructor(onAdd: (t: Task) => void) {
+  constructor(onAdd: (t: Task) => Promise<any>) {
     super(Size.medium);
     this.onAdd        = onAdd;
     this.flashMessage = new FlashMessageModel();
@@ -44,6 +44,7 @@ export abstract class AbstractTaskModal extends Modal {
   }
 
   addTaskAndSave() {
-    this.onAdd(this.getTask());
+    this.modalState = ModalState.LOADING;
+    this.onAdd(this.getTask()).finally(() => this.modalState = ModalState.OK);
   }
 }

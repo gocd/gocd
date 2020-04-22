@@ -77,7 +77,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
 
   static getTaskModal(type: string,
                       task: Task | undefined,
-                      onSave: (t: Task) => void,
+                      onSave: (t: Task) => Promise<any>,
                       showOnCancel: boolean,
                       pluginInfos: PluginInfos,
                       pipelineConfigSave: () => Promise<any>,
@@ -110,9 +110,9 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
                                                                  vnode.attrs.pipelineConfigReset);
   }
 
-  onTaskSave(vnode: m.Vnode<Attrs, State>) {
+  onTaskSave(vnode: m.Vnode<Attrs, State>): Promise<any> {
     vnode.attrs.tasks().push(vnode.state.modal.getTask());
-    this.performPipelineSave(vnode);
+    return this.performPipelineSave(vnode, true);
   }
 
   onTaskUpdate(vnode: m.Vnode<Attrs, State>, index: number, updated: Task) {
@@ -120,7 +120,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
     tasks[index] = updated;
     vnode.attrs.tasks(tasks);
 
-    this.performPipelineSave(vnode);
+    return this.performPipelineSave(vnode, false);
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
@@ -171,23 +171,27 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
     return headers;
   }
 
-  private onTaskSaveFailure(vnode: m.Vnode<Attrs, State>, errorResponse?: ErrorResponse) {
+  private onTaskSaveFailure(vnode: m.Vnode<Attrs, State>,
+                            shouldRemoveTaskOnFailure: boolean,
+                            errorResponse?: ErrorResponse) {
     if (errorResponse) {
       const parsed = JSON.parse(errorResponse.body!);
       vnode.state.modal.getTask()!.consumeErrorsResponse(parsed.data);
       vnode.state.modal.flashMessage.setMessage(MessageType.alert, parsed.message);
-      vnode.attrs.tasks().pop();
+      if (shouldRemoveTaskOnFailure) {
+        vnode.attrs.tasks().pop();
+      }
     }
 
     m.redraw.sync();
   }
 
-  private performPipelineSave(vnode: m.Vnode<Attrs, State>) {
-    vnode.attrs.pipelineConfigSave()
-         .then(vnode.state.modal.close.bind(vnode.state.modal))
-         .catch((errorResponse?: ErrorResponse) => {
-           this.onTaskSaveFailure(vnode, errorResponse);
-         });
+  private performPipelineSave(vnode: m.Vnode<Attrs, State>, shouldRemoveTaskOnFailure: boolean) {
+    return vnode.attrs.pipelineConfigSave()
+                .then(vnode.state.modal.close.bind(vnode.state.modal))
+                .catch((errorResponse?: ErrorResponse) => {
+                  this.onTaskSaveFailure(vnode, shouldRemoveTaskOnFailure, errorResponse);
+                });
   }
 
   private getTableData(vnode: m.Vnode<Attrs, State>) {

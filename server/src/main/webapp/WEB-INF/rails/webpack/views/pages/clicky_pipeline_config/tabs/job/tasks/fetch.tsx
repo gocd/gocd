@@ -35,7 +35,7 @@ export class FetchArtifactTaskModal extends AbstractTaskModal {
 
   constructor(task: Task | undefined,
               showOnCancel: boolean,
-              onAdd: (t: Task) => void,
+              onAdd: (t: Task) => Promise<any>,
               pluginInfos: PluginInfos,
               autoSuggestions: Stream<any>) {
     super(onAdd);

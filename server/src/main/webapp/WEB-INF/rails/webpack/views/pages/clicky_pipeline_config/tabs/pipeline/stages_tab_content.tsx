@@ -55,7 +55,7 @@ export class StagesTabContent extends TabContent<PipelineConfig | TemplateConfig
   }
 
   public shouldShowSaveAndResetButtons(): boolean {
-    return this.stageOrTemplateProperty() === "template" && (this.templates() && this.templates().length > 0);
+    return false;
   }
 
   protected selectedEntity(pipelineConfig: PipelineConfig | TemplateConfig, routeParams: PipelineConfigRouteParams) {
@@ -166,6 +166,8 @@ export class StagesOrTemplatesWidget extends MithrilComponent<StagesOrTemplatesA
     let stagesOrTemplatesView: m.Children;
     if (vnode.state.isUsingTemplate()) {
       stagesOrTemplatesView = <PipelineTemplateWidget pipelineConfig={entity as PipelineConfig}
+                                                      pipelineConfigSave={vnode.attrs.save}
+                                                      pipelineConfigReset={vnode.attrs.reset}
                                                       templates={vnode.attrs.templates}/>;
     } else {
       stagesOrTemplatesView = <StagesWidget stages={entity.stages}

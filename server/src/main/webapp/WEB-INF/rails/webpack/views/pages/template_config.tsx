@@ -28,6 +28,10 @@ export class TemplateConfigPage<T> extends TabHandler<T> {
     return this.entity! as TemplateConfig;
   }
 
+  getOriginalEntity(): TemplateConfig {
+    return TemplateConfig.fromJSON(this.originalJSON)! as TemplateConfig;
+  }
+
   setEntity(entity: TemplateConfig) {
     this.entity = entity;
   }

@@ -23,6 +23,7 @@ import {FetchTaskAttributes} from "models/pipeline_configs/task";
 import {ArtifactExtension} from "models/shared/plugin_infos_new/extensions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField} from "views/components/forms/autocomplete";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {ArtifactIdAutocompletionProvider} from "views/pages/clicky_pipeline_config/tabs/job/tasks/fetch/artifact_id_autocompletion_provider";
@@ -59,6 +60,11 @@ export class ExternalFetchArtifactView extends MithrilComponent<Attrs, State> {
 
   view(vnode: m.Vnode<Attrs, State>) {
     const onJobSuggestionChange = vnode.state.artifactIdSuggestions.update.bind(vnode.state.artifactIdSuggestions);
+
+    if (vnode.attrs.artifactPluginInfos.length === 0) {
+      const msg = "Can not define external fetch artifact task as No Artifact Plugins are installed.";
+      return <FlashMessage type={MessageType.info} message={msg}/>;
+    }
 
     return (<div data-test-id="external-fetch-artifact-view">
       <UpstreamJobToFetchArtifactFromWidget{...vnode.attrs} onJobSuggestionChange={onJobSuggestionChange}/>

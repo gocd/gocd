@@ -47,6 +47,20 @@ describe("Jobs Tab Content", () => {
     expect(jobRow.item(3)).toContainText("No");
   });
 
+  it("should render each job as a link to the job tasks", () => {
+    const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "job1"));
+    mount(stage);
+
+    const stagesContainer = helper.byTestId("stages-container");
+    expect(stagesContainer).toBeInDOM();
+
+    const expectedHref = "Test/job1/tasks";
+    const jobName      = (helper.q("td a", helper.byTestId("table-body")) as HTMLAnchorElement);
+
+    expect(jobName).toHaveText("job1");
+    expect(jobName.href).toContain(expectedHref);
+  });
+
   it("should render multiple jobs", () => {
     const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "job1", "job2"));
     mount(stage);

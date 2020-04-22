@@ -26,7 +26,7 @@ export class AntTaskModal extends AbstractTaskModal {
   private readonly showOnCancel: boolean;
   private readonly pluginInfos: PluginInfos;
 
-  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => void, pluginInfos: PluginInfos) {
+  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos) {
     super(onAdd);
     this.showOnCancel = showOnCancel;
     this.pluginInfos  = pluginInfos;

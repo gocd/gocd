@@ -23,7 +23,7 @@ import {Stage} from "models/pipeline_configs/stage";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
-import {Modal} from "views/components/modal";
+import {Modal, ModalState} from "views/components/modal";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
 import {TasksWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
 import styles from "views/pages/clicky_pipeline_config/tabs/stage/jobs_tab_content.scss";
@@ -40,6 +40,9 @@ export class AddStageModal extends Modal {
   private jobToCreate: Job;
   private taskModal: AbstractTaskModal | undefined;
 
+  private readonly existingStageNames: string[];
+  private readonly errorMsg = `Another stage with the same name already exists!`;
+
   constructor(stages: NameableSet<Stage>, pipelineConfigSave: () => Promise<any>) {
     super();
 
@@ -52,7 +55,13 @@ export class AddStageModal extends Modal {
     this.allTaskTypes          = ["Ant", "NAnt", "Rake", "Custom Command"];
     this.selectedTaskTypeToAdd = Stream(this.allTaskTypes[0]);
 
+    this.existingStageNames = Array.from(this.stages.keys()).map(s => s.name());
+
     this.updateTaskModal();
+  }
+
+  onbeforeupdate(vnode: m.VnodeDOM<any, this>): any {
+    this.validateStageNameUniqueness();
   }
 
   body(): m.Children {
@@ -83,6 +92,7 @@ export class AddStageModal extends Modal {
   buttons(): m.ChildArray {
     return [
       <Buttons.Primary data-test-id="save-job"
+                       disabled={this.hasDuplicateNameError()}
                        onclick={this.onSave.bind(this)}>
         Save
       </Buttons.Primary>,
@@ -91,6 +101,22 @@ export class AddStageModal extends Modal {
         Cancel
       </Buttons.Cancel>
     ];
+  }
+
+  private hasDuplicateNameError() {
+    return this.stageToCreate.errors().hasError("name", this.errorMsg);
+  }
+
+  private validateStageNameUniqueness() {
+    const duplicateStage = this.existingStageNames.find(s => {
+      return this.stageToCreate.name().toLowerCase() === s.toLowerCase();
+    });
+
+    if (duplicateStage) {
+      this.stageToCreate.errors().addIfDoesNotExists("name", this.errorMsg);
+    } else if (!duplicateStage) {
+      this.stageToCreate.errors().clearError("name", this.errorMsg);
+    }
   }
 
   private updateTaskModal() {
@@ -108,11 +134,12 @@ export class AddStageModal extends Modal {
   }
 
   private onSave() {
+    this.modalState = ModalState.LOADING;
     this.jobToCreate.tasks([this.taskModal!.getTask()]);
     this.stageToCreate.jobs(new NameableSet([this.jobToCreate]));
     this.stages.add(this.stageToCreate);
 
-    this.performPipelineSave();
+    return this.performPipelineSave();
   }
 
   private onClose() {
@@ -131,9 +158,10 @@ export class AddStageModal extends Modal {
   }
 
   private performPipelineSave() {
-    this.pipelineConfigSave()
+    return this.pipelineConfigSave()
         .then(this.close.bind(this))
         .catch((errorResponse?: ErrorResponse) => {
+          this.modalState = ModalState.OK;
           this.onTaskSaveFailure(errorResponse);
         });
   }

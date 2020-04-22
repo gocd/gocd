@@ -45,12 +45,20 @@ import {PipelinePauseHeader} from "views/pages/pipeline_activity/common/pipeline
 export class PipelineConfigPage<T> extends TabHandler<T> {
   private templateConfig?: TemplateConfig;
 
+  public static pipelineName() {
+    return (PipelineConfigSPARouteHelper.routeInfo().params || {}).pipeline_name;
+  }
+
   oninit(vnode: m.Vnode<null, T>) {
     super.oninit(vnode);
   }
 
   getEntity(): PipelineConfig {
     return this.entity! as PipelineConfig;
+  }
+
+  getOriginalEntity(): PipelineConfig {
+    return PipelineConfig.fromJSON(this.originalJSON)! as PipelineConfig;
   }
 
   setEntity(entity: PipelineConfig) {

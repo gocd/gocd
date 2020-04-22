@@ -27,10 +27,11 @@ import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {Secondary} from "views/components/buttons";
 import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
-import {Delete, Edit, IconGroup} from "views/components/icons";
+import {Delete} from "views/components/icons";
 import {Table} from "views/components/table";
 import style from "views/pages/clicky_pipeline_config/index.scss";
 import {MaterialModal} from "views/pages/clicky_pipeline_config/modal/material_modal";
+import {PipelineConfigPage} from "views/pages/clicky_pipeline_config/pipeline_config";
 import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 
 interface MaterialsAttrs {
@@ -84,19 +85,22 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
   private tableData(vnode: m.Vnode<MaterialsAttrs, this>) {
     const deleteDisabled = vnode.attrs.materials().length === 1;
     const deleteTitle    = deleteDisabled
-      ? "Cannot delete this material as pipeline should have at least one material"
+      ? "Cannot delete the only material in a pipeline"
       : "Remove this material";
     return Array.from(vnode.attrs.materials().values()).map((material: Material) => {
       const {name, type, urlOrDescription} = this.getMaterialDisplayInfo(material, vnode);
       return [
-        name,
+        <a href={`#!${PipelineConfigPage.pipelineName()}/materials`}
+           class={style.nameLink}
+           data-test-id={"edit-material-button"}
+           onclick={this.updateMaterial.bind(this, vnode, material)}>{name}</a>,
         type,
         urlOrDescription,
-        <IconGroup>
-          <Edit onclick={this.updateMaterial.bind(this, vnode, material)} data-test-id={"edit-material-button"}/>
-          <Delete disabled={deleteDisabled} title={deleteTitle} onclick={this.deleteMaterial.bind(this, vnode, material)}
-                  data-test-id={"delete-material-button"}/>
-        </IconGroup>
+        <Delete disabled={deleteDisabled}
+                iconOnly={true}
+                title={deleteTitle}
+                onclick={this.deleteMaterial.bind(this, vnode, material)}
+                data-test-id={"delete-material-button"}/>
       ];
     });
   }

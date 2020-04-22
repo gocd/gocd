@@ -28,7 +28,7 @@ export class ExecTaskModal extends AbstractTaskModal {
   private readonly showOnCancel: boolean;
   private readonly pluginInfos: PluginInfos;
 
-  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => void, pluginInfos: PluginInfos) {
+  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos) {
     super(onAdd);
     this.task = task ? task : new ExecTask("", [], undefined, [], undefined);
     this.args = Stream((this.task.attributes() as ExecTaskAttributes).arguments().join("\n"));

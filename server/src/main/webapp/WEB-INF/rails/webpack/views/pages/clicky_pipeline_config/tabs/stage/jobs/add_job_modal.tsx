@@ -25,7 +25,7 @@ import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
-import {Modal} from "views/components/modal";
+import {Modal, ModalState} from "views/components/modal";
 import {JobSettingsTabContent} from "views/pages/clicky_pipeline_config/tabs/job/job_settings_tab_content";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
 import {TasksWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
@@ -47,6 +47,10 @@ export class AddJobModal extends Modal {
   private taskModal: AbstractTaskModal | undefined;
 
   private readonly jobToCreate: Job;
+
+  private readonly existingJobNames: string[];
+
+  private readonly errorMsg = `Another job with the same name already exists!`;
 
   constructor(stage: Stage, templateConfig: TemplateConfig, pipelineConfig: PipelineConfig,
               routeParams: PipelineConfigRouteParams, ajaxOperationMonitor: Stream<OperationState>,
@@ -77,6 +81,8 @@ export class AddJobModal extends Modal {
     this.allTaskTypes          = ["Ant", "NAnt", "Rake", "Custom Command"];
     this.selectedTaskTypeToAdd = Stream(this.allTaskTypes[0]);
 
+    this.existingJobNames = Array.from(this.stage.jobs().keys()).map(j => j.name());
+
     this.updateTaskModal();
   }
 
@@ -106,9 +112,14 @@ export class AddJobModal extends Modal {
     return "Add new Job";
   }
 
+  onbeforeupdate(vnode: m.VnodeDOM<any, this>): any {
+    this.validateJobNameUniqueness();
+  }
+
   buttons(): m.ChildArray {
     return [
       <Buttons.Primary data-test-id="save-job"
+                       disabled={this.hasDuplicateNameError()}
                        onclick={this.onSave.bind(this)}>
         Save
       </Buttons.Primary>,
@@ -117,6 +128,21 @@ export class AddJobModal extends Modal {
         Cancel
       </Buttons.Cancel>
     ];
+  }
+
+  private hasDuplicateNameError() {
+    return this.jobToCreate.errors().hasError("name", this.errorMsg);
+  }
+
+  private validateJobNameUniqueness() {
+    const duplicateJob = this.existingJobNames.find(j => {
+      return this.jobToCreate.name().toLowerCase() === j.toLowerCase();
+    });
+    if (duplicateJob) {
+      this.jobToCreate.errors().addIfDoesNotExists("name", this.errorMsg);
+    } else if (!duplicateJob) {
+      this.jobToCreate.errors().clearError("name", this.errorMsg);
+    }
   }
 
   private updateTaskModal() {
@@ -134,10 +160,11 @@ export class AddJobModal extends Modal {
   }
 
   private onSave() {
+    this.modalState = ModalState.LOADING;
     this.jobToCreate.tasks().push(this.taskModal!.getTask());
     this.stage.jobs().add(this.jobToCreate);
 
-    this.performPipelineSave();
+    return this.performPipelineSave();
   }
 
   private onClose() {
@@ -156,10 +183,11 @@ export class AddJobModal extends Modal {
   }
 
   private performPipelineSave() {
-    this.pipelineConfigSave()
-        .then(this.close.bind(this))
-        .catch((errorResponse?: ErrorResponse) => {
-          this.onTaskSaveFailure(errorResponse);
-        });
+    return this.pipelineConfigSave()
+               .then(this.close.bind(this))
+               .catch((errorResponse?: ErrorResponse) => {
+                 this.modalState = ModalState.OK;
+                 this.onTaskSaveFailure(errorResponse);
+               });
   }
 }

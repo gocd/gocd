@@ -164,7 +164,10 @@ class StagesController < ApplicationController
     respond_to do |format|
       format.html { render action: 'stage', status: status }
       format.json { render action: 'stage', status: status }
-      format.xml { redirect_to stage_path(:id => @stage.getId()) }
+      format.xml {
+        redirect_to spark_url_for({:request => request},
+                                  "/api/feed/pipelines/#{@stage.getPipelineName()}/#{@stage.getPipelineCounter()}/#{@stage.getName()}/#{@stage.getStageCounter()}")
+      }
     end
   end
 

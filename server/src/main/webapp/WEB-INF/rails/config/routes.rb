@@ -202,9 +202,6 @@ Rails.application.routes.draw do
       post 'webhooks/hosted_bitbucket/notify' => 'web_hooks/hosted_bit_bucket#notify'
 
       defaults :format => 'xml' do
-        # stage api's
-        get 'stages/:id.xml' => 'stages#index', as: :stage
-
         #job api's
         get 'jobs/scheduled.xml' => 'jobs#scheduled'
       end

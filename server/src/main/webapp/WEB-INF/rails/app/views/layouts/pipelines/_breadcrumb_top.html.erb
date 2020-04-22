@@ -8,11 +8,9 @@
     <div id="pause_info_and_controls" class="admin_pause_info_and_controls clear_float">
       <%= render :partial => "shared/pause_info_and_control.html", :locals => {:scope => {:pause_info => @pause_info, :pipeline_name => @pipeline.name()}} %>
     </div>
-    <% if @should_show_new_spa_link %>
-      <a class="link_as_button primary quick_edit_button" href="/go/admin/pipelines/<%= @pipeline.name() %>/edit">
-        Quick Edit
-      </a>
-    <% end %>
+    <a class="link_as_button primary quick_edit_button" href="/go/admin/pipelines/<%= @pipeline.name() %>/edit">
+      Quick Edit
+    </a>
   </div>
 </div>
 <% if @is_config_repo_pipeline %>

@@ -21,7 +21,6 @@ class Admin::TemplatesController < AdminController
   before_action :check_admin_or_template_admin_and_403, only: [:edit]
   before_action :load_cruise_config, :only => [:edit, :edit_permissions]
   before_action :autocomplete_for_permissions, :only => [:edit_permissions]
-  before_action :load_new_spa_toggle_value
 
   layout "admin", :except => [:create]
 
@@ -77,9 +76,5 @@ class Admin::TemplatesController < AdminController
   def autocomplete_for_permissions
     @autocomplete_users = user_service.allUsernames().to_json
     @autocomplete_roles = user_service.allRoleNames().to_json
-  end
-
-  def load_new_spa_toggle_value
-    @should_show_new_spa_link = feature_toggle_service.isToggleOn(Toggles.NEW_PIPELINE_CONFIG_SPA)
   end
 end

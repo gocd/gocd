@@ -110,9 +110,6 @@ api/api-base/config/
 api/api-base/logs/
 api/api-base/out/
 api/api-base/target/
-api/api-stage-operations-v1/build/
-api/api-stage-operations-v1/config/
-api/api-stage-operations-v1/out/
 api/api-build_cause-v1/config/
 api/api-build_cause-v1/logs/
 api/api-build_cause-v1/out/

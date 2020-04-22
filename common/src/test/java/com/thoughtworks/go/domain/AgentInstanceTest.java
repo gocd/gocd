@@ -890,6 +890,30 @@ public class AgentInstanceTest {
         }
     }
 
+    @Nested
+    class isStuckInCancel {
+        @Test
+        void shouldBeTrueIfIsInCancelledStateForMoreThan10Mins() {
+            Date currentTime = new Date();
+            Date after10Mins = new Date(currentTime.getTime() + 600001);
+            TimeProvider timeProvider = mock(TimeProvider.class);
+            AgentInstance agentInstance = buildingWithTimeProvider(timeProvider);
+
+            when(timeProvider.currentTime()).thenReturn(currentTime, after10Mins);
+
+            agentInstance.cancel();
+
+            assertThat(agentInstance.isStuckInCancel()).isTrue();
+        }
+
+        @Test
+        void shouldNotBeTrueForAgentsWhichAreNotCancelled() {
+            AgentInstance agentInstance = buildingWithTimeProvider(timeProvider);
+
+            assertThat(agentInstance.isStuckInCancel()).isFalse();
+        }
+    }
+
     private List<JobPlan> jobPlans(String... resources) {
         ArrayList<JobPlan> plans = new ArrayList<>();
         int count = 1;

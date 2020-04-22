@@ -38,7 +38,6 @@ import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.utils.Timeout;
@@ -48,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 
@@ -55,11 +55,17 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static com.thoughtworks.go.domain.AgentConfigStatus.Pending;
 import static com.thoughtworks.go.domain.AgentInstance.createFromAgent;
+import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
+import static com.thoughtworks.go.serverhealth.ServerHealthState.warning;
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static com.thoughtworks.go.util.CommaSeparatedString.remove;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.TriState.TRUE;
 import static java.lang.String.format;
+import static java.time.Duration.between;
+import static java.time.LocalDateTime.now;
+import static java.time.LocalDateTime.ofInstant;
+import static java.time.ZoneId.systemDefault;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -296,6 +302,19 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
      */
     public void refresh() {
         agentInstances.refresh();
+        addWarningForAgentsStuckInCancel();
+    }
+
+    private void addWarningForAgentsStuckInCancel() {
+        agentInstances.agentsStuckInCancel().stream().forEach(agentInstance -> {
+            serverHealthService.update(warning(format("Agent `%s` is stuck in cancel.", agentInstance.getHostname()),
+                    format("Looks like agent is stuck in cancelling a job, the job was cancelled: %s (mins) back.", cancelledForMins(agentInstance.cancelledAt())),
+                    HealthStateType.general(GLOBAL), Timeout.THIRTY_SECONDS));
+        });
+    }
+
+    private long cancelledForMins(Date cancelledAt) {
+        return between(now(), ofInstant(Instant.ofEpochMilli(cancelledAt.getTime()), systemDefault())).toMinutes();
     }
 
     public void building(String uuid, AgentBuildingInfo agentBuildingInfo) {
@@ -498,7 +517,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         if (agentRuntimeInfo.hasDuplicateCookie(agentDao.cookieFor(agentRuntimeInfo.getIdentifier()))) {
             LOGGER.warn("Found agent [{}] with duplicate uuid. Please check the agent installation.", agentRuntimeInfo.agentInfoDebugString());
             serverHealthService.update(
-                    ServerHealthState.warning(format("[%s] has duplicate unique identifier which conflicts with [%s]", agentRuntimeInfo.agentInfoForDisplay(), findAgentAndRefreshStatus(agentRuntimeInfo.getUUId()).agentInfoForDisplay()),
+                    warning(format("[%s] has duplicate unique identifier which conflicts with [%s]", agentRuntimeInfo.agentInfoForDisplay(), findAgentAndRefreshStatus(agentRuntimeInfo.getUUId()).agentInfoForDisplay()),
                             "Please check the agent installation. Click <a href='" + docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more info.",
                             HealthStateType.duplicateAgent(HealthStateScope.forAgent(agentRuntimeInfo.getCookie())), Timeout.THIRTY_SECONDS));
             throw new AgentWithDuplicateUUIDException(format("Agent [%s] has invalid cookie", agentRuntimeInfo.agentInfoDebugString()));

@@ -30,6 +30,7 @@ import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 
@@ -88,6 +89,10 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public String getUuid() {
         return getAgent().getUuid();
+    }
+
+    public Date getCancelledAt() {
+        return cancelledAt;
     }
 
     @Override
@@ -390,6 +395,15 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public Date cancelledAt() {
         return cancelledAt;
+    }
+
+    public boolean isStuckInCancel() {
+        int TEN_MINUTES = 600000;
+        if (isCancelled() && cancelledAt != null) {
+            return (timeProvider.currentTime().getTime() - cancelledAt.getTime()) > TEN_MINUTES;
+        }
+
+        return false;
     }
 
     public AgentInstruction agentInstruction() {

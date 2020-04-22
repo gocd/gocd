@@ -101,7 +101,7 @@ export class PackageRepositoryWidget extends MithrilViewComponent<Attrs> {
     const onNavigate = () => {
       const scrollOptions = vnode.attrs.scrollOptions.package_repo_sm;
       this.expanded(true);
-      if (scrollOptions.sm.getTarget() === packageRepository.name()) {
+      if (scrollOptions.sm.getTarget() === packageRepository.name() && !disabled) {
         if (scrollOptions.shouldOpenEditView) {
           vnode.attrs.onEdit(packageRepository, new MouseEvent("click"));
         } else if (scrollOptions.shouldOpenCreatePackageView) {

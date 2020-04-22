@@ -100,7 +100,7 @@ export class Package extends ValidatableMixin {
   }
 
   key() {
-    return `${this.packageRepo().name()}_${this.name()}`;
+    return `${this.packageRepo().name()}:${this.name()}`;
   }
 }
 

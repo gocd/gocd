@@ -38,7 +38,7 @@ export class PackagesWidget extends MithrilViewComponent<Attrs> {
     const pkgManager     = vnode.attrs.scrollOptions.package_sm.sm;
     if (pkgRepoManager.getTarget() === vnode.attrs.packageRepoName && pkgManager.hasTarget()) {
       const target        = pkgManager.getTarget();
-      const anchorPkgName = target.split('_')[1];
+      const anchorPkgName = target.split(':')[1];
       if (!_.isEmpty(anchorPkgName)) {
         const hasAnchorElement = vnode.attrs.packages().some((pkg) => pkg.key() === target);
         if (!hasAnchorElement) {

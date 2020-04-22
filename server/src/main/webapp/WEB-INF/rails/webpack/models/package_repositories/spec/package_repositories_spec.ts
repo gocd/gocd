@@ -72,7 +72,7 @@ describe('PackageRepositoriesModelSpec', () => {
     it('should return key as concat of package repo name and pkg name', () => {
       const pkg = Package.fromJSON(getPackage());
 
-      expect(pkg.key()).toBe('pkg-repo-name_pkg-name');
+      expect(pkg.key()).toBe('pkg-repo-name:pkg-name');
     });
   });
 

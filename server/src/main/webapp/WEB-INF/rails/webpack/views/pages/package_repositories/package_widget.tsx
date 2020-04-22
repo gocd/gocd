@@ -86,7 +86,7 @@ export class PackageWidget extends MithrilViewComponent<Attrs> {
     const onNavigate    = () => {
       if (scrollOptions.package_repo_sm.sm.getTarget() === pkg.packageRepo().name()) {
         this.expanded(true);
-        if (scrollOptions.package_sm.sm.getTarget() === pkg.key() && scrollOptions.package_sm.shouldOpenEditView) {
+        if (scrollOptions.package_sm.sm.getTarget() === pkg.key() && scrollOptions.package_sm.shouldOpenEditView && !disabled) {
           vnode.attrs.onEdit(pkg, new MouseEvent("click"));
         }
       }

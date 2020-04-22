@@ -1,5 +1,5 @@
 #
-# Copyright 2019 ThoughtWorks, Inc.
+# Copyright 2020 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,48 +20,8 @@ class Api::JobsController < Api::ApiController
   include DeprecatedApiHelper
   include ApplicationHelper
 
-  def render_not_found()
-    render :plain => "Not Found!", :status => 404
-  end
-
-  def index
-    add_deprecation_headers(request, response, "unversioned", "/go/api/feed/pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/:job_name.xml",
-                            nil, "20.1.0", "20.4.0", "Job Feed")
-
-    return render_not_found unless number?(params[:id])
-    job_id = Integer(params[:id])
-    begin
-      @doc = xml_api_service.write(JobXmlViewModel.new(job_instance_service.buildById(job_id)), "#{request.protocol}#{request.host_with_port}/go")
-    rescue Exception => e
-      logger.error(e)
-      return render_not_found
-    end
-  end
-
   def scheduled
     scheduled_waiting_jobs = job_instance_service.waitingJobPlans()
     @doc = xml_api_service.write(JobPlanXmlViewModel.new(scheduled_waiting_jobs), "#{request.protocol}#{request.host_with_port}/go")
-  end
-
-  def history
-    add_deprecation_headers(request, response, "unversioned", nil, "v1", "20.1.0", "20.4.0", "Job History")
-
-    pipeline_name = params[:pipeline_name]
-    stage_name = params[:stage_name]
-    job_name = params[:job_name]
-    offset = params[:offset].to_i
-    page_size = 10
-    job_instance_count = job_instance_service.getJobHistoryCount(pipeline_name, stage_name, job_name)
-    result = HttpOperationResult.new
-
-    pagination = Pagination.pageStartingAt(offset, job_instance_count, page_size)
-    job_history = job_instance_service.findJobHistoryPage(pipeline_name, stage_name, job_name, pagination, CaseInsensitiveString.str(current_user.getUsername()), result)
-
-    if result.canContinue()
-      job_history_api_model = JobHistoryAPIModel.new(pagination, job_history)
-      render json: job_history_api_model
-    else
-      render_error_response(result.detailedMessage(), result.httpCode(), true)
-    end
   end
 end

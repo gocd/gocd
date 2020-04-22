@@ -4,10 +4,8 @@
       <li><%= link_to 'Templates', spark_url_for({url_builder: controller}, SparkRoutes::AdminTemplates::SPA_BASE) -%></li>
       <li class='last'><h1 class='wrapped_word'><%= @pipeline.name() -%> </h1></li>
     </ul>
-    <% if @should_show_new_spa_link %>
-      <a class="link_as_button primary quick_edit_button" href="/go/admin/templates/<%= @pipeline.name() %>/edit">
-        Quick Edit
-      </a>
-    <% end %>
+    <a class="link_as_button primary quick_edit_button" href="/go/admin/templates/<%= @pipeline.name() %>/edit">
+      Quick Edit
+    </a>
   </div>
 </div>

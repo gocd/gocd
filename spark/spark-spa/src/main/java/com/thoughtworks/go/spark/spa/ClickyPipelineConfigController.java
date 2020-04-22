@@ -56,9 +56,6 @@ public class ClickyPipelineConfigController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        if (!featureToggleService.isToggleOn(Toggles.NEW_PIPELINE_CONFIG_SPA)) {
-            throw authenticationHelper.renderNotFoundResponse("The page you are looking for is not found.");
-        }
         String pipelineName = request.params("pipeline_name");
         Map<Object, Object> object = new HashMap<>() {{
             put("viewTitle", "Pipeline");

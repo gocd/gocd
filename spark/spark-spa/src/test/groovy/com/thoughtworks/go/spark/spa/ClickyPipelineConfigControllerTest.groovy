@@ -74,7 +74,6 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
 
   @Test
   void "should add pipeline name in page meta"() {
-    when(featureToggleService.isToggleOn(Toggles.NEW_PIPELINE_CONFIG_SPA)).thenReturn(true)
     def pipelineName = "up42"
     def request = mock(Request)
     when(request.params("pipeline_name")).thenReturn(pipelineName)
@@ -84,15 +83,5 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
 
     assertThat(model.get("meta") as Map<String, Object>)
       .containsEntry("pipelineName", pipelineName)
-  }
-
-  @Test
-  void 'should return 404 when toggle is off'() {
-    when(featureToggleService.isToggleOn(Toggles.NEW_PIPELINE_CONFIG_SPA)).thenReturn(false)
-    def request = mock(Request)
-
-    assertThatCode({ controller.index(request, null) })
-      .isInstanceOf(HaltException)
-      .satisfies({ HaltException ex -> assertThat(ex.statusCode()).isEqualTo(404) })
   }
 }

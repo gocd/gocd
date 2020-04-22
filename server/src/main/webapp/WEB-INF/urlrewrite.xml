@@ -998,6 +998,12 @@
   </rule>
 
   <rule>
+    <name>Redirect to Pipeline Config SPA</name>
+    <from>/admin/(pipelines|templates)/([^/]+)/(.*?)?$</from>
+    <run class="com.thoughtworks.go.server.RedirectToPipelineConfigSPAToggle" method="redirect"/>
+  </rule>
+
+  <rule>
     <name>Rails UI</name>
     <note>
       Prepends 'rails/' to Rails urls, so that the request does not go through Java at all

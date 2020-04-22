@@ -53,7 +53,7 @@
     },
     {
       "key": "new_pipeline_config_spa",
-      "description": "When enabled, provides an option on the pipeline config rails page to use the quick edit SPA.",
+      "description": "When enabled, redirects to pipeline config spa.",
       "value": false
     }
   ]

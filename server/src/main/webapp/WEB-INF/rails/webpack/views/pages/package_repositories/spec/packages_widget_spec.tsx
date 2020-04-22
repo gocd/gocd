@@ -89,7 +89,7 @@ describe('PackagesWidgetSpec', () => {
     };
     scrollOptions.package_sm.sm      = {
       hasTarget:    jasmine.createSpy().and.callFake(() => true),
-      getTarget:    jasmine.createSpy().and.callFake(() => `${pkg.packageRepo().name()}_non-pkg`),
+      getTarget:    jasmine.createSpy().and.callFake(() => `${pkg.packageRepo().name()}:non-pkg`),
       shouldScroll: jasmine.createSpy(),
       setTarget:    jasmine.createSpy(),
       scrollToEl:   jasmine.createSpy()
@@ -112,7 +112,7 @@ describe('PackagesWidgetSpec', () => {
     };
     scrollOptions.package_sm.sm      = {
       hasTarget:    jasmine.createSpy().and.callFake(() => true),
-      getTarget:    jasmine.createSpy().and.callFake(() => `${pkg.packageRepo().name()}_`),
+      getTarget:    jasmine.createSpy().and.callFake(() => `${pkg.packageRepo().name()}:`),
       shouldScroll: jasmine.createSpy(),
       setTarget:    jasmine.createSpy(),
       scrollToEl:   jasmine.createSpy()

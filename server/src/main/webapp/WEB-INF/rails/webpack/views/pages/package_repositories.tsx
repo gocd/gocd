@@ -296,7 +296,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
     const repo_operation = (m.route.param().repo_operation || "").toLowerCase();
 
     const pkg_name = m.route.param().package_name || "";
-    pkgAnchorVM.setTarget(`${repo_name}_${pkg_name}`);
+    pkgAnchorVM.setTarget(`${repo_name}:${pkg_name}`);
     const pkg_operation = (m.route.param().package_operation || "").toLowerCase();
 
     return {

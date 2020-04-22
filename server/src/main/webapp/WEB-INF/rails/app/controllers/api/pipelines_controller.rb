@@ -57,22 +57,6 @@ class Api::PipelinesController < Api::ApiController
     end
   end
 
-  def status
-    add_deprecation_headers(request, response, "unversioned", nil,
-                            "v1", "20.1.0", "20.4.0", "Pipeline Status")
-
-    pipeline_name = params[:pipeline_name]
-    result = HttpOperationResult.new
-
-    pipeline_status = pipeline_history_service.getPipelineStatus(pipeline_name, CaseInsensitiveString.str(current_user.getUsername()), result)
-
-    if result.canContinue()
-      render json: PipelineStatusAPIModel.new(pipeline_status)
-    else
-      render_error_response(result.detailedMessage(), result.httpCode(), true)
-    end
-  end
-
   def pipeline_instance
     add_deprecation_headers(request, response, "unversioned", "/go/api/feed/pipelines/#{params[:name]}/#{params[:id]}.xml", nil,
                             "20.1.0", "20.4.0", "Pipeline Feed")

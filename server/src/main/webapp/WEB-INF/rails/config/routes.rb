@@ -160,9 +160,6 @@ Rails.application.routes.draw do
   {'application/vnd.go.cd.v1+json' => :apiv1, 'application/vnd.go.cd+json' => :latest}.each do |header, as|
     scope :api, as: as, format: false do
       api_version(:module => 'ApiV1', header: {name: 'Accept', value: header}) do
-
-        resources :notification_filters, only: [:index, :create, :destroy]
-
         namespace :admin do
           namespace :templates do
             get ':template_name/authorization' => 'authorization#show', constraints: {template_name: TEMPLATE_NAME_FORMAT}

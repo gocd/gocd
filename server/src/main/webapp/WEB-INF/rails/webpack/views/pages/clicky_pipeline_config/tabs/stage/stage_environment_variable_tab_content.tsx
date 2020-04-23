@@ -20,7 +20,7 @@ import {EnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 
 export class StageEnvironmentVariablesTabContent extends EnvironmentVariablesTabContent {
-  protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): Stage {
+  protected getSelectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): Stage {
     return pipelineConfig.stages().findByName(routeParams.stage_name!)!;
   }
 }

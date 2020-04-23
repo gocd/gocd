@@ -33,6 +33,8 @@ export class EnvironmentVariable extends ValidatableMixin {
   name: Stream<string>;
   value: Stream<string | undefined>;
   encryptedValue: Stream<EncryptedValue>;
+  isEditable: Stream<boolean>                   = Stream<boolean>(true);
+  nonEditableReason: Stream<string | undefined> = Stream();
 
   constructor(name: string, value?: string, secure?: boolean, encryptedValue?: string) {
     super();
@@ -49,11 +51,11 @@ export class EnvironmentVariable extends ValidatableMixin {
   }
 
   editable() {
-    return true;
+    return this.isEditable();
   }
 
   reasonForNonEditable() {
-    throw Error("Environment variable is editable");
+    return this.nonEditableReason();
   }
 
   toJSON(): EnvironmentVariableJSON {

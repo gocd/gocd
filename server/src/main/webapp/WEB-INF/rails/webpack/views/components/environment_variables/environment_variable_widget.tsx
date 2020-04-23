@@ -35,7 +35,7 @@ export class EnvironmentVariableWidget extends MithrilViewComponent<EnvironmentV
       removeHtml = <Close title={"remove"} iconOnly={true}
                           onclick={vnode.attrs.onRemove.bind(this, vnode.attrs.environmentVariable)}
                           data-test-id="remove-env-var-btn"/>;
-    } else {
+    } else if(vnode.attrs.environmentVariable.reasonForNonEditable()) {
       removeHtml = <div data-test-id="info-tooltip-wrapper" className={styles.infoTooltipWrapper}>
         <i data-test-id={"info-icon"} className={styles.infoIcon}/>
         <div data-test-id="info-tooltip-content" className={styles.infoTooltipContent}>
@@ -43,6 +43,7 @@ export class EnvironmentVariableWidget extends MithrilViewComponent<EnvironmentV
         </div>
       </div>;
     }
+
     const dataTestId = vnode.attrs.environmentVariable.secure() ? 'secure-env-var-name' : 'env-var-name';
     return <div class={styles.environmentVariableWrapper} data-test-id="environment-variable-wrapper">
       <div class={styles.name}>

@@ -205,13 +205,21 @@ describe("Environment Variable Model", () => {
     });
   });
 
-  describe("reasonForNonEditable()", () => {
-    it("should throw error if env var is editable", () => {
-      expect(() => {
-        EnvironmentVariable.fromJSON(plainTextEnvVar1).reasonForNonEditable();
-      }).toThrowError("Environment variable is editable");
+  describe("Editable", () => {
+    it("should set all environment variables editable by default", () => {
+      const envVar = EnvironmentVariable.fromJSON(plainTextEnvVar1);
+
+      expect(envVar.editable()).toBeTrue();
+      expect(envVar.reasonForNonEditable()).toBeFalsy();
     });
 
+    it("should make environment variable non editable", () => {
+      const envVar = EnvironmentVariable.fromJSON(plainTextEnvVar1);
+
+      expect(envVar.editable()).toBeTrue();
+      envVar.isEditable(false);
+      expect(envVar.editable()).toBeFalse();
+    });
   });
 });
 

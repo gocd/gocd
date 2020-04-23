@@ -13,13 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import "../../../../global/common";
 
-import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
-import {EnvironmentVariablesTabContent} from "views/pages/clicky_pipeline_config/tabs/common/environment_variables_tab_content";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
-
-export class PipelineEnvironmentVariablesTabContent extends EnvironmentVariablesTabContent {
-  protected getSelectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
-    return pipelineConfig;
+.config-repo-environment-variables {
+  button {
+    display: none;
   }
 }

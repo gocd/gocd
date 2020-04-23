@@ -168,6 +168,8 @@ export abstract class TabHandler<T> extends Page<null, T> {
 
   abstract getAssociatedTemplateWithPipeline(): TemplateConfig | undefined;
 
+  abstract shouldShowSaveAndResetButtons(entity: PipelineConfig | TemplateConfig): boolean;
+
   protected currentSelectionTabs() {
     return this.getAllTabsInformation().get(this.getTabFor())!;
   }
@@ -195,8 +197,6 @@ export abstract class TabHandler<T> extends Page<null, T> {
 
     return Promise.reject(errorResponse);
   }
-
-  abstract shouldShowSaveAndResetButtons(entity: PipelineConfig | TemplateConfig): boolean;
 
   protected getSaveAndResetButtons(): m.Children {
     let saveAndResetButtons: m.Children;

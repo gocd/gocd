@@ -21,8 +21,8 @@ import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {GeneralOptionsTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/general_options_tab";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -131,7 +131,7 @@ describe("GeneralOptionsTag", () => {
     expect(runMultipleInstance).not.toBeChecked();
   });
 
-  describe("Read Only", function () {
+  describe("Read Only", () => {
     beforeEach(() => {
       const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
       pipelineConfig.origin(new Origin(OriginType.ConfigRepo, "repo1"));

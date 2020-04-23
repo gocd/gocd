@@ -21,8 +21,8 @@ import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {EnvironmentVariablesWidget} from "views/components/environment_variables";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import styles from "./environment_variables.scss";
 
 export abstract class EnvironmentVariablesTabContent extends TabContent<PipelineConfig | Stage | Job> {
@@ -55,4 +55,3 @@ export abstract class EnvironmentVariablesTabContent extends TabContent<Pipeline
   protected abstract getSelectedEntity(pipelineConfig: PipelineConfig | TemplateConfig,
                                        routeParams: PipelineConfigRouteParams): PipelineConfig | Stage | Job;
 }
-

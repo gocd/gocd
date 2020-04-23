@@ -194,11 +194,7 @@ class StagesController < ApplicationController
   end
 
   def feed_api_url
-    if feature_toggle_service.isToggleOn(Toggles.NEW_FEED_API)
       @feed_api_url = spark_url_for({:request => request}, "/api/feed/pipelines/#{params[:pipeline_name]}/stages.xml")
-    else
-      @feed_api_url = api_pipeline_stage_feed_path(:name => params[:pipeline_name])
-    end
   end
 
   def can_view_settings?

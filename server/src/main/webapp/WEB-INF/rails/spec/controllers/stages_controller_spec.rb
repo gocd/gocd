@@ -199,7 +199,8 @@ describe StagesController do
       expect(@pipieline_lock_service).to receive(:lockedPipeline).with("pipeline").and_return(@pipeline_identifier)
       get :overview, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", :format => 'xml'}
 
-      expect(response).to redirect_to "/api/stages/#{@stage_summary_model.getId()}.xml"
+      redirect_url = "/go/api/feed/pipelines/#{@stage_summary_model.getPipelineName()}/#{@stage_summary_model.getPipelineCounter()}/#{@stage_summary_model.getName()}/#{@stage_summary_model.getStageCounter()}"
+      expect(response).to redirect_to redirect_url
     end
 
     it "should resolve piplines/stage-locator to the stage action" do

@@ -160,9 +160,6 @@ Rails.application.routes.draw do
   {'application/vnd.go.cd.v1+json' => :apiv1, 'application/vnd.go.cd+json' => :latest}.each do |header, as|
     scope :api, as: as, format: false do
       api_version(:module => 'ApiV1', header: {name: 'Accept', value: header}) do
-
-        resources :notification_filters, only: [:index, :create, :destroy]
-
         namespace :admin do
           namespace :templates do
             get ':template_name/authorization' => 'authorization#show', constraints: {template_name: TEMPLATE_NAME_FORMAT}
@@ -193,14 +190,6 @@ Rails.application.routes.draw do
 
   namespace :api, as: "" do
     defaults :no_layout => true do
-      get 'jobs/:pipeline_name/:stage_name/:job_name/history/(:offset)' => 'jobs#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT}, defaults: {:offset => '0'}, as: :job_history_api
-
-      # instance
-      get 'pipelines/:pipeline_name/instance/:pipeline_counter' => 'pipelines#instance_by_counter', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, pipeline_counter: PIPELINE_COUNTER_FORMAT}, as: :pipeline_instance_by_counter_api
-
-      # status
-      get 'pipelines/:pipeline_name/status' => 'pipelines#status', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pipeline_status_api
-
       scope 'internal' do
         get 'config/revisions/(:offset)' => 'configuration#config_revisions', defaults: {:offset => '0'}, as: :config_revisions_list_api
         get 'config/diff/:from_revision/:to_revision' => 'configuration#config_diff', as: :config_diff_api
@@ -213,17 +202,8 @@ Rails.application.routes.draw do
       post 'webhooks/hosted_bitbucket/notify' => 'web_hooks/hosted_bit_bucket#notify'
 
       defaults :format => 'xml' do
-        # stage api's
-        get 'stages/:id.xml' => 'stages#index', as: :stage
-
-        # pipeline api's
-        get 'pipelines/:name/stages.xml' => 'pipelines#stage_feed', constraints: {name: PIPELINE_NAME_FORMAT}, as: :api_pipeline_stage_feed
-        get 'pipelines/:name/:id.xml' => 'pipelines#pipeline_instance', constraints: {name: PIPELINE_NAME_FORMAT}, as: :api_pipeline_instance
-        get 'pipelines.xml' => 'pipelines#pipelines', as: :api_pipelines
-
         #job api's
         get 'jobs/scheduled.xml' => 'jobs#scheduled'
-        get 'jobs/:id.xml' => 'jobs#index'
       end
     end
   end

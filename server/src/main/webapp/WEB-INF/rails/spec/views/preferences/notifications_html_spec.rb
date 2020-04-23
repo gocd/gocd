@@ -17,10 +17,10 @@
 require 'rails_helper'
 
 describe "preferences/notifications.html.erb" do
-
   before :each do
     assign(:user, com.thoughtworks.go.server.domain.Username.new("foo"))
     assign(:view_title, "Preferences")
+    view.extend(SparkUrlAware)
   end
 
   it 'should have a view title' do

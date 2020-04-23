@@ -21,7 +21,7 @@
 
   <div id="notification-prefs" class="notification-content"
        data-user-url="/go/api/current_user"
-       data-filters-url="<%= apiv1_notification_filters_path(current_user.username.to_s) %>"
+       data-filters-url="<%= spark_url_for({url_builder: controller}, SparkRoutes::NotificationFilterAPI::API_BASE) %>"
        data-pipelines="<%= @pipelines.to_json %>"
        data-smtp-configured="<%= go_config_service.isSmtpEnabled %>">
   </div>

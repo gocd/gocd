@@ -15,6 +15,7 @@
  */
 import m from "mithril";
 import Stream from "mithril/stream";
+import {Origin, OriginType} from "models/origin";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
@@ -107,12 +108,44 @@ describe("StageSettingsTab", () => {
     expect(stage.cleanWorkingDirectory()).toBeTrue();
   });
 
+  describe("Read Only", () => {
+    beforeEach(() => {
+      const stage          = Stage.fromJSON(PipelineConfigTestData.stage("Test", "Job1"));
+      const pipelineOrigin = new Origin(OriginType.ConfigRepo, "repo1");
+      mount(stage, pipelineOrigin);
+    });
+
+    it("should render disabled stage name", () => {
+      expect(helper.byTestId("stage-name-input")).toBeDisabled();
+    });
+
+    it("should render disabled approval checkbox", () => {
+      expect(helper.byTestId("approval-checkbox")).toBeDisabled();
+    });
+
+    it("should render disabled allow only on success checkbox", () => {
+      expect(helper.byTestId("allow-only-on-success-checkbox")).toBeDisabled();
+    });
+
+    it("should render disabled fetch materials checkbox", () => {
+      expect(helper.byTestId("fetch-materials-checkbox")).toBeDisabled();
+    });
+
+    it("should render disabled never cleanup artifacts checkbox", () => {
+      expect(helper.byTestId("never-cleanup-artifacts-checkbox")).toBeDisabled();
+    });
+
+    it("should render disabled clean working directory checkbox", () => {
+      expect(helper.byTestId("clean-working-directory-checkbox")).toBeDisabled();
+    });
+  });
+
   describe("Stage Settings For Add a New Stage", () => {
     const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "Job1"));
 
     beforeEach(() => {
       helper.mount(() => {
-        return <StageSettingsWidget stage={stage} isForAddStagePopup={true}/>;
+        return <StageSettingsWidget stage={stage} readonly={false} isForAddStagePopup={true}/>;
       });
     });
 
@@ -145,8 +178,10 @@ describe("StageSettingsTab", () => {
 
   });
 
-  function mount(stage: Stage) {
+  function mount(stage: Stage, pipelineOrigin: Origin = new Origin(OriginType.GoCD)) {
+    document.body.setAttribute("data-meta", JSON.stringify({pipelineName: "pipeline1"}));
     const pipelineConfig = new PipelineConfig();
+    pipelineConfig.origin(pipelineOrigin);
     pipelineConfig.stages().add(stage);
     const routeParams    = {stage_name: stage.name()} as PipelineConfigRouteParams;
     const templateConfig = new TemplateConfig("foo", []);

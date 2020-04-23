@@ -32,7 +32,8 @@ export class StageSettingsTabContent extends TabContent<Stage> {
   }
 
   protected renderer(stage: Stage, templateConfig: TemplateConfig) {
-    return <StageSettingsWidget stage={stage}/>;
+    return <StageSettingsWidget stage={stage}
+                                readonly={this.isEntityDefinedInConfigRepository()}/>;
   }
 
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): Stage {
@@ -42,6 +43,7 @@ export class StageSettingsTabContent extends TabContent<Stage> {
 
 interface Attrs {
   stage: Stage;
+  readonly: boolean;
   //to reuse this view while creating a new stage. Based on this field, the view will not render less-important fields in create new stage view.
   isForAddStagePopup?: boolean;
 }
@@ -57,6 +59,7 @@ export class StageSettingsWidget extends MithrilViewComponent<Attrs> {
           <SwitchBtn label="Fetch materials"
                      helpText="Perform material updates or checkouts."
                      dataTestId="fetch-materials-checkbox"
+                     disabled={vnode.attrs.readonly}
                      small={true}
                      field={stage.fetchMaterials}/>
         </div>
@@ -65,6 +68,7 @@ export class StageSettingsWidget extends MithrilViewComponent<Attrs> {
                      helpText="Never cleanup artifacts for this stage, if purging artifacts is configured at the Server Level."
                      dataTestId="never-cleanup-artifacts-checkbox"
                      small={true}
+                     disabled={vnode.attrs.readonly}
                      field={stage.neverCleanupArtifacts}/>
         </div>
         <div className={styles.switchWrapper}>
@@ -72,6 +76,7 @@ export class StageSettingsWidget extends MithrilViewComponent<Attrs> {
                      helpText="Remove all files/directories in the working directory on the agent."
                      dataTestId="clean-working-directory-checkbox"
                      small={true}
+                     disabled={vnode.attrs.readonly}
                      field={stage.cleanWorkingDirectory}/>
         </div>
       </div>;
@@ -80,6 +85,7 @@ export class StageSettingsWidget extends MithrilViewComponent<Attrs> {
     return <div data-test-id="stage-settings">
       <TextField label="Stage name"
                  required={true}
+                 readonly={vnode.attrs.readonly}
                  dataTestId="stage-name-input"
                  errorText={stage.errors().errorsForDisplay("name")}
                  property={stage.name}/>
@@ -87,6 +93,7 @@ export class StageSettingsWidget extends MithrilViewComponent<Attrs> {
         <SwitchBtn label="Trigger completion of previous stage:"
                    helpText={StageEditor.APPROVAL_TYPE_HELP}
                    field={stage.approval().typeAsStream()}
+                   disabled={vnode.attrs.readonly}
                    small={true}
                    dataTestId="approval-checkbox"
                    onclick={StageSettingsWidget.approvalChange.bind(this, stage)}/>
@@ -95,6 +102,7 @@ export class StageSettingsWidget extends MithrilViewComponent<Attrs> {
         <SwitchBtn label="Allow only on success"
                    helpText={StageEditor.ALLOW_ONLY_ON_SUCCESS_HELP}
                    small={true}
+                   disabled={vnode.attrs.readonly}
                    dataTestId="allow-only-on-success-checkbox"
                    field={stage.approval().allowOnlyOnSuccess}/>
       </div>

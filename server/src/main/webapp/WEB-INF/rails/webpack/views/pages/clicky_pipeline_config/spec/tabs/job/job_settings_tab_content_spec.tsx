@@ -256,7 +256,46 @@ describe("Job Settings Tab Content", () => {
       expect(helper.allByTestId("radio-number")[1]).toBeChecked();
     });
 
-    function mount(job: Job) {
+    describe("Read Only", () => {
+      beforeEach(() => {
+        const job = Job.fromJSON(JobTestData.with("test"));
+        mount(job, true);
+      });
+
+      it("should render disabled job name", () => {
+        expect(helper.byTestId("form-field-input-job-name")).toBeDisabled();
+      });
+
+      it("should render disabled job resources", () => {
+        expect(helper.byTestId("form-field-input-resources")).toBeDisabled();
+      });
+
+      it("should render disabled job elastic agent id", () => {
+        expect(helper.byTestId("form-field-input-elastic-agent-profile-id")).toBeDisabled();
+      });
+
+      it("should render disabled job timeout", () => {
+        expect(helper.byTestId("radio-number")).toBeDisabled();
+        expect(helper.byTestId("radio-default")).toBeDisabled();
+        expect(helper.byTestId("radio-never")).toBeDisabled();
+      });
+
+      it("should render disabled job timeout input", () => {
+        expect(helper.q(`input[type="number"]`, helper.byTestId("input-field-for-number"))).toBeDisabled();
+      });
+
+      it("should render disabled run on instance", () => {
+        expect(helper.byTestId("radio-number")).toBeDisabled();
+        expect(helper.byTestId("radio-all")).toBeDisabled();
+        expect(helper.byTestId("radio-one")).toBeDisabled();
+      });
+
+      it("should render disabled run on instance count", () => {
+        expect(helper.q(`input[type="number"]`, helper.allByTestId("input-field-for-number")[1])).toBeDisabled();
+      });
+    });
+
+    function mount(job: Job, readonly: boolean = false) {
       const pipelineConfig = new PipelineConfig();
 
       const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
@@ -266,6 +305,7 @@ describe("Job Settings Tab Content", () => {
       const templateConfig = new TemplateConfig("foo", []);
       helper.mount(() => {
         return <JobSettingsTabContentWidget entity={job}
+                                            readonly={readonly}
                                             resources={Stream()}
                                             resourcesSuggestions={new ResourcesSuggestionsProvider(Stream(),
                                                                                                    Stream([] as string[]))}

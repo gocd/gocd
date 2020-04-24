@@ -1165,10 +1165,10 @@
   resolved "https://registry.yarnpkg.com/@types/url-parse/-/url-parse-1.4.3.tgz#fba49d90f834951cb000a674efee3d6f20968329"
   integrity sha512-4kHAkbV/OfW2kb5BLVUuUMoumB3CP8rHqlw48aHvFy5tf9ER0AfOonBlX29l/DD68G70DmyhRlSYfQPSYpC5Vw==
 
-"@types/uuid@^7.0.2":
-  version "7.0.2"
-  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-7.0.2.tgz#d680a9c596ef84abf5c4c07a32ffd66d582526f8"
-  integrity sha512-8Ly3zIPTnT0/8RCU6Kg/G3uTICf9sRwYOpUzSIM3503tLIKcnJPRuinHhXngJUy2MntrEf6dlpOHXJju90Qh5w==
+"@types/uuid@^7.0.3":
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-7.0.3.tgz#45cd03e98e758f8581c79c535afbd4fc27ba7ac8"
+  integrity sha512-PUdqTZVrNYTNcIhLHkiaYzoOIaUi5LFg/XLerAdgvwQrUCx+oSbtoBze1AMyvYbcwzUSNC+Isl58SM4Sm/6COw==
 
 "@types/webpack-sources@*":
   version "0.1.5"

@@ -84,7 +84,7 @@
     "@types/shell-quote": "^1.6.1",
     "@types/underscore.string": "^0.0.38",
     "@types/url-parse": "^1.4.3",
-    "@types/uuid": "^7.0.2",
+    "@types/uuid": "^7.0.3",
     "@types/webpack": "^4.41.12",
     "add-matchers": "^0.6.2",
     "babel-eslint": "^10.1.0",

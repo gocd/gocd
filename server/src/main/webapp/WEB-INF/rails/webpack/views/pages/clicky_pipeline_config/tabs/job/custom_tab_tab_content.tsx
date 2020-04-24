@@ -26,8 +26,8 @@ import {HelpText, TextField} from "views/components/forms/input_fields";
 import * as Icons from "views/components/icons";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
-import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
+import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import styles from "./custom_tabs.scss";
 
 export class CustomTabTabContent extends TabContent<Job> {
@@ -37,16 +37,17 @@ export class CustomTabTabContent extends TabContent<Job> {
   }
 
   protected renderer(entity: Job, templateConfig: TemplateConfig): m.Children {
-    const msg     = "Custom Tabs lets you add new tabs within the Job Details page.";
-    const docLink = <HelpText helpText=" "
-                              docLink="faq/dev_see_artifact_as_tab.html"
-                              helpTextId={`custom-tab-doc-link`}/>;
+    const readonly = this.isEntityDefinedInConfigRepository();
+    const msg      = "Custom Tabs lets you add new tabs within the Job Details page.";
+    const docLink  = <HelpText helpText=" "
+                               docLink="faq/dev_see_artifact_as_tab.html"
+                               helpTextId={`custom-tab-doc-link`}/>;
 
     const flashMsg = <FlashMessage type={MessageType.info}>{msg} {docLink}</FlashMessage>;
     return (<div class={styles.mainContainer} data-test-id="custom-tabs">
       {flashMsg}
-      {this.getTabView(entity.tabs())}
-      {this.getAddTabBtn(entity.tabs())}
+      {this.getTabView(entity.tabs(), readonly)}
+      {this.getAddTabBtn(entity.tabs(), readonly)}
     </div>);
   }
 
@@ -59,11 +60,19 @@ export class CustomTabTabContent extends TabContent<Job> {
     return tabs.push(tab);
   }
 
-  private getAddTabBtn(tabs: Tabs) {
-    return (<Secondary small={true} dataTestId={"add-custom-tab-button"} onclick={this.addEmptyTab.bind(null, tabs)}>+ Add</Secondary>);
+  private getAddTabBtn(tabs: Tabs, readonly: boolean) {
+    if (readonly) {
+      return;
+    }
+
+  return (<Secondary small={true}
+                     dataTestId={"add-custom-tab-button"}
+                     onclick={this.addEmptyTab.bind(null, tabs)}>
+    + Add
+  </Secondary>);
   }
 
-  private getTabView(tabs: Tabs) {
+  private getTabView(tabs: Tabs, readonly: boolean) {
     const tabsHeader = (<div class={styles.tabsHeader} data-test-id="tabs-header">
       <span data-test-id="name-header">
         Tab Name: <Tooltip.Info size={TooltipSize.small}
@@ -79,18 +88,26 @@ export class CustomTabTabContent extends TabContent<Job> {
       this.addEmptyTab(tabs);
     }
 
+
     const tabsView = tabs.map((tab, index) => {
+      let removeTab: m.Children;
+      if (!readonly) {
+        removeTab = <Icons.Close data-test-id={`remove-tab-${tab.name()}`}
+                                 iconOnly={true}
+                                 onclick={() => this.removeEntity(tab, tabs)}/>;
+      }
+
       return (<div class={styles.tabContainer} data-test-id={`tab-${index}`}>
         <TextField dataTestId={`tab-name-${tab.name()}`}
+                   readonly={readonly}
                    errorText={tab.errors().errorsForDisplay("name")}
                    placeholder="name" property={tab.name}/>
         <TextField dataTestId={`tab-path-${tab.path()}`}
+                   readonly={readonly}
                    errorText={tab.errors().errorsForDisplay("path")}
                    placeholder="path"
                    property={tab.path}/>
-        <Icons.Close data-test-id={`remove-tab-${tab.name()}`}
-                     iconOnly={true}
-                     onclick={() => this.removeEntity(tab, tabs)}/>
+        {removeTab}
       </div>);
     });
 

@@ -565,6 +565,7 @@ public class Routes {
         public static final String BASE = "/api/agents";
         public static final String UUID = "/:uuid";
         public static final String DOC = apiDocsUrl("#agents");
+        public static final String KILL_RUNNING_TASKS = "/:uuid/kill_running_tasks";
 
         public static String find() {
             return BASE + UUID;
@@ -911,4 +912,5 @@ public class Routes {
     public class InternalDependencyPipelines {
         public static final String BASE = "/api/internal/pipelines/:pipeline_name/:stage_name/upstream";
     }
+	public class AgentsOperations {public static final String BASE = "/admin/api/agents-operations";}
 }

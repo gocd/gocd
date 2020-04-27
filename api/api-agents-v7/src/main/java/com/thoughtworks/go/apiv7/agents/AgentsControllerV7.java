@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv6.agents;
+package com.thoughtworks.go.apiv7.agents;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -25,10 +25,10 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
-import com.thoughtworks.go.apiv6.agents.model.AgentBulkUpdateRequest;
-import com.thoughtworks.go.apiv6.agents.model.AgentUpdateRequest;
-import com.thoughtworks.go.apiv6.agents.representers.AgentBulkUpdateRequestRepresenter;
-import com.thoughtworks.go.apiv6.agents.representers.AgentsRepresenter;
+import com.thoughtworks.go.apiv7.agents.model.AgentBulkUpdateRequest;
+import com.thoughtworks.go.apiv7.agents.model.AgentUpdateRequest;
+import com.thoughtworks.go.apiv7.agents.representers.AgentBulkUpdateRequestRepresenter;
+import com.thoughtworks.go.apiv7.agents.representers.AgentsRepresenter;
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentsConfig;
@@ -36,12 +36,12 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.NullAgentInstance;
+import com.thoughtworks.go.domain.exception.ForceCancelException;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.TriState;
@@ -59,8 +59,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.apiv6.agents.representers.AgentRepresenter.toJSON;
-import static com.thoughtworks.go.apiv6.agents.representers.AgentUpdateRequestRepresenter.fromJSON;
+import static com.thoughtworks.go.apiv7.agents.representers.AgentRepresenter.toJSON;
+import static com.thoughtworks.go.apiv7.agents.representers.AgentUpdateRequestRepresenter.fromJSON;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
@@ -75,9 +75,8 @@ import static spark.Spark.*;
 
 @SuppressWarnings("ALL")
 @Component
-@DeprecatedAPI(deprecatedApiVersion = ApiVersion.v6, successorApiVersion = ApiVersion.v7, deprecatedIn = "20.4.0", removalIn = "20.7.0", entityName = "Agents")
-public class AgentsControllerV6 extends ApiController implements SparkSpringController, CrudController<AgentInstance> {
-    private static final Logger LOG = LoggerFactory.getLogger(AgentsControllerV6.class);
+public class AgentsControllerV7 extends ApiController implements SparkSpringController, CrudController<AgentInstance> {
+    private static final Logger LOG = LoggerFactory.getLogger(AgentsControllerV7.class);
 
     private final AgentService agentService;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
@@ -85,9 +84,9 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
     private final EnvironmentConfigService environmentConfigService;
 
     @Autowired
-    public AgentsControllerV6(AgentService agentService, ApiAuthenticationHelper apiAuthenticationHelper,
+    public AgentsControllerV7(AgentService agentService, ApiAuthenticationHelper apiAuthenticationHelper,
                               SecurityService securityService, EnvironmentConfigService environmentConfigService) {
-        super(ApiVersion.v6);
+        super(ApiVersion.v7);
         this.agentService = agentService;
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.securityService = securityService;
@@ -107,12 +106,16 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
             before("", mimeType, this::checkSecurityOr403);
             before("/*", mimeType, this::checkSecurityOr403);
 
+            before(Routes.AgentsAPI.KILL_RUNNING_TASKS, mimeType, this::verifyContentType);
+            before(Routes.AgentsAPI.KILL_RUNNING_TASKS, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+
             get("", mimeType, this::index);
             get(Routes.AgentsAPI.UUID, mimeType, this::show);
             patch(Routes.AgentsAPI.UUID, mimeType, this::update);
             patch("", mimeType, this::bulkUpdate);
             delete(Routes.AgentsAPI.UUID, mimeType, this::deleteAgent);
             delete("", mimeType, this::bulkDeleteAgents);
+            post(Routes.AgentsAPI.KILL_RUNNING_TASKS, mimeType, this::killRunningTasks);
         });
     }
 
@@ -179,6 +182,18 @@ public class AgentsControllerV6 extends ApiController implements SparkSpringCont
 
         return renderHTTPOperationResult(result, request, response);
     }
+
+    public String killRunningTasks(Request request, Response response) {
+        try {
+            agentService.killAllRunningTasksOnAgent(request.params("uuid"));
+        } catch (ForceCancelException e) {
+            return renderMessage(response, 409, e.getMessage());
+        }
+
+        response.status(202);
+        return NOTHING;
+    }
+
 
     private EnvironmentsConfig createEnvironmentsConfigFrom(String commaSeparatedEnvs) {
         if (commaSeparatedEnvs == null) {

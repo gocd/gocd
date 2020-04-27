@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.NullAgent;
 import com.thoughtworks.go.domain.NullAgentInstance;
+import com.thoughtworks.go.domain.exception.ForceCancelException;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.listener.AgentChangeListener;
@@ -77,6 +78,7 @@ import static org.assertj.core.api.Fail.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
@@ -1517,6 +1519,27 @@ class AgentServiceTest {
             ServerHealthState serverHealthState = argument.getValue();
             assertThat(serverHealthState.getMessage(), is("Agent `test_agent` is stuck in cancel."));
             assertThat(serverHealthState.getLogLevel(), is(HealthStateLevel.WARNING));
+        }
+    }
+
+    @Nested
+    class killAllRunningTasksOnAgent {
+        @Test
+        void shouldInstructAgentToKillAllRunningTasks() throws ForceCancelException {
+            AgentInstance agentInstance = mock(AgentInstance.class);
+
+            when(agentInstances.findAgent("agent_uuid")).thenReturn(agentInstance);
+
+            agentService.killAllRunningTasksOnAgent("agent_uuid");
+
+            verify(agentInstance).forceCancel();
+        }
+
+        @Test
+        void shouldErrorOutIfAgentForAGivenUUIDDoesNotExist() {
+            when(agentInstances.findAgent("agent_uuid")).thenReturn(new NullAgentInstance("agent_uuid"));
+
+            assertThrows(RecordNotFoundException.class, () -> agentService.killAllRunningTasksOnAgent("agent_uuid"));
         }
     }
 }

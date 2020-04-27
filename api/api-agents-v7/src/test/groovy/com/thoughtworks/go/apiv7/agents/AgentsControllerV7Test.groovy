@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv6.agents
+package com.thoughtworks.go.apiv7.agents
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
@@ -27,12 +27,12 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.RepoConfigOrigin
 import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.domain.NullAgentInstance
+import com.thoughtworks.go.domain.exception.ForceCancelException
 import com.thoughtworks.go.server.domain.AgentInstances
 import com.thoughtworks.go.server.service.AgentService
 import com.thoughtworks.go.server.service.EnvironmentConfigService
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.DeprecatedApiTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.util.TriState
@@ -45,6 +45,7 @@ import org.mockito.invocation.InvocationOnMock
 import java.util.stream.Stream
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
+import static com.thoughtworks.go.api.util.HaltApiMessages.confirmHeaderMissing
 import static com.thoughtworks.go.helper.AgentInstanceMother.*
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.remote
@@ -55,7 +56,7 @@ import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
-class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<AgentsControllerV6>, DeprecatedApiTrait {
+class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<AgentsControllerV7> {
   @Mock
   private AgentService agentService
 
@@ -68,8 +69,8 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
   }
 
   @Override
-  AgentsControllerV6 createControllerInstance() {
-    return new AgentsControllerV6(agentService, new ApiAuthenticationHelper(securityService, goConfigService), securityService, environmentConfigService)
+  AgentsControllerV7 createControllerInstance() {
+    return new AgentsControllerV7(agentService, new ApiAuthenticationHelper(securityService, goConfigService), securityService, environmentConfigService)
   }
 
   @Nested
@@ -1279,6 +1280,81 @@ class AgentsControllerV6Test implements SecurityServiceTrait, ControllerTrait<Ag
           .isInternalServerError()
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Shoot! This is unexpected. Something went wrong while deleting agent(s)! More details : Error deleting agents")
+      }
+    }
+  }
+
+  @Nested
+  class killRunningTasks {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return 'killRunningTasks'
+      }
+
+      @Override
+      void makeHttpCall() {
+        postWithApiHeader(controller.controllerPath('agent_uuid', 'kill_running_tasks'), ['X-GoCD-Confirm': 'true'])
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      @Test
+      void 'should accept instruction to kill all running tasks on agent'() {
+        enableSecurity()
+        loginAsAdmin()
+
+        postWithApiHeader(controller.controllerPath('agent_uuid', 'kill_running_tasks'), ['x-gocd-confirm': 'true'], null)
+
+        verify(agentService).killAllRunningTasksOnAgent('agent_uuid')
+        assertThatResponse()
+          .isAccepted()
+          .hasContentType(controller.mimeType)
+      }
+
+      @Test
+      void 'should return 404 if agent does not exist'() {
+        enableSecurity()
+        loginAsAdmin()
+
+        when(agentService.killAllRunningTasksOnAgent("agent_uuid")).thenThrow(new RecordNotFoundException("Agent does not exist."))
+
+        postWithApiHeader(controller.controllerPath('agent_uuid', 'kill_running_tasks'), ['x-gocd-confirm': 'true'], null)
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage("Agent does not exist.")
+      }
+
+      @Test
+      void 'should return 409 if agent cannot be instructed to kill tasks'() {
+        enableSecurity()
+        loginAsAdmin()
+
+        when(agentService.killAllRunningTasksOnAgent("agent_uuid")).thenThrow(new ForceCancelException("Agent is idle."))
+
+        postWithApiHeader(controller.controllerPath('agent_uuid', 'kill_running_tasks'), ['x-gocd-confirm': 'true'], null)
+
+        assertThatResponse()
+          .isConflict()
+          .hasJsonMessage("Agent is idle.")
+      }
+
+      @Nested
+      class CORS {
+        @Test
+        void 'bails if confirm header is missing'() {
+          enableSecurity()
+          loginAsAdmin()
+          postWithApiHeader(controller.controllerPath('agent_uuid', 'kill_running_tasks'), null)
+          assertThatResponse()
+            .isBadRequest()
+            .hasContentType(controller.mimeType)
+            .hasJsonMessage(confirmHeaderMissing())
+        }
       }
     }
   }

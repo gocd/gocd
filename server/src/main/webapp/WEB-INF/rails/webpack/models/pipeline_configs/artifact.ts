@@ -15,6 +15,8 @@
  */
 
 import Stream = require("mithril/stream");
+import {Errors, ErrorsJSON} from "models/mixins/errors";
+import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Configurations, PropertyJSON} from "models/shared/configuration";
 
 export enum ArtifactType {
@@ -23,6 +25,7 @@ export enum ArtifactType {
 
 export interface ArtifactJSON {
   type: ArtifactType;
+  errors?: ErrorsJSON;
 
   // for `test` or `build` type
   source?: string;
@@ -45,25 +48,32 @@ export class Artifacts extends Array<Artifact> {
   }
 }
 
-export abstract class Artifact {
+export abstract class Artifact extends ValidatableMixin {
   readonly type = Stream<ArtifactType>();
 
   protected constructor(type: ArtifactType) {
+    super();
     this.type(type);
   }
 
   static fromJSON(json: ArtifactJSON) {
+    let artifact;
     switch (json.type) {
       case ArtifactType.build:
-        return new GoCDArtifact(json.type, json.source!, json.destination!);
+        artifact = new GoCDArtifact(json.type, json.source!, json.destination!);
+        break;
       case ArtifactType.test:
-        return new GoCDArtifact(json.type, json.source!, json.destination!);
+        artifact = new GoCDArtifact(json.type, json.source!, json.destination!);
+        break;
       case ArtifactType.external:
         const configurations = json.configuration ? Configurations.fromJSON(json.configuration) : new Configurations([]);
-        return new ExternalArtifact(json.artifact_id!, json.store_id!, configurations);
+        artifact             = new ExternalArtifact(json.artifact_id!, json.store_id!, configurations);
+        break;
       default:
         throw Error("Invalid artifact type");
     }
+    artifact.errors(new Errors(json.errors));
+    return artifact;
   }
 }
 

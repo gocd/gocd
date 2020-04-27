@@ -46,7 +46,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
     const numberFieldForTimeout = <div class={styles.numberFieldWrapper}>
       <NumberField property={entity.jobTimeoutType() !== "number" ? Stream() : (entity.timeout as any)}
                    errorText={entity.errors().errorsForDisplay("timeout")}
-                   readonly={entity.jobTimeoutType() !== "number"}/>
+                   readonly={entity.jobTimeoutType() !== "number"} dataTestId={"number-field-for-job-timeout"}/>
     </div>;
 
     const jobTimeoutInNumber: m.Child = <div class={styles.cancelAfterInactivityWrapper}>
@@ -56,7 +56,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
     const numberFieldForRunInstance = <div class={styles.numberFieldWrapper}>
       <NumberField property={entity.runType() !== "number" ? Stream() : (entity.runInstanceCount as any)}
                    errorText={entity.errors().errorsForDisplay("runInstanceCount")}
-                   readonly={entity.runType() !== "number"}/>
+                   readonly={entity.runType() !== "number"} dataTestId={"number-field-for-run-instance"}/>
     </div>;
 
     const runInstanceInNumber: m.Child = <div class={styles.cancelAfterInactivityWrapper}>
@@ -90,6 +90,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
                          property={entity.elasticProfileId}/>
       <h3>Job Timeout</h3>
       <RadioField onchange={(val) => this.toggleJobTimeout((val as "never" | "default" | "number"), entity)}
+                  dataTestId={"job-timout"}
                   property={entity.jobTimeoutType}
                   possibleValues={[
                     {
@@ -112,6 +113,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
       <h3>Run Type</h3>
       <RadioField property={entity.runType}
                   onchange={(val) => this.toggleRunInstance((val as "one" | "all" | "number"), entity)}
+                  dataTestId={"run-type"}
                   possibleValues={[
                     {
                       label: "Run on one instance",

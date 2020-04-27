@@ -43,11 +43,12 @@ export class EnvironmentVariableWidget extends MithrilViewComponent<EnvironmentV
         </div>
       </div>;
     }
+    const dataTestId = vnode.attrs.environmentVariable.secure() ? 'secure-env-var-name' : 'env-var-name';
     return <div class={styles.environmentVariableWrapper} data-test-id="environment-variable-wrapper">
       <div class={styles.name}>
         <TextField property={vnode.attrs.environmentVariable.name}
                    readonly={!vnode.attrs.environmentVariable.editable()}
-                   dataTestId="env-var-name"
+                   dataTestId={dataTestId}
                    errorText={vnode.attrs.environmentVariable.errors().errorsForDisplay("name")}/>
       </div>
       {this.getValueField(vnode)}
@@ -62,7 +63,7 @@ export class EnvironmentVariableWidget extends MithrilViewComponent<EnvironmentV
     if (environmentVariable.secure()) {
       return <PasswordField property={environmentVariable.encryptedValue}
                             readonly={!environmentVariable.editable()}
-                            dataTestId={"env-var-value"}
+                            dataTestId={"secure-env-var-value"}
                             errorText={environmentVariable.errors().errorsForDisplay("value")}/>;
     }
 

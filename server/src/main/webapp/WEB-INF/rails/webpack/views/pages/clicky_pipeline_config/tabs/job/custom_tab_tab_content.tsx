@@ -60,7 +60,7 @@ export class CustomTabTabContent extends TabContent<Job> {
   }
 
   private getAddTabBtn(tabs: Tabs) {
-    return (<Secondary small={true} onclick={this.addEmptyTab.bind(null, tabs)}>+ Add</Secondary>);
+    return (<Secondary small={true} dataTestId={"add-custom-tab-button"} onclick={this.addEmptyTab.bind(null, tabs)}>+ Add</Secondary>);
   }
 
   private getTabView(tabs: Tabs) {
@@ -79,8 +79,8 @@ export class CustomTabTabContent extends TabContent<Job> {
       this.addEmptyTab(tabs);
     }
 
-    const tabsView = tabs.map((tab) => {
-      return (<div class={styles.tabContainer} data-test-id="tab">
+    const tabsView = tabs.map((tab, index) => {
+      return (<div class={styles.tabContainer} data-test-id={`tab-${index}`}>
         <TextField dataTestId={`tab-name-${tab.name()}`}
                    errorText={tab.errors().errorsForDisplay("name")}
                    placeholder="name" property={tab.name}/>

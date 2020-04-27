@@ -109,9 +109,11 @@ export class ArtifactsTabContent extends TabContent<Job> {
         </div>
         <TextField dataTestId={`artifact-source-${artifact.source() || ""}`}
                    placeholder="source"
+                   errorText={artifact.errors().errorsForDisplay('source')}
                    property={artifact.source}/>
         <TextField dataTestId={`artifact-destination-${artifact.destination() || ""}`}
                    placeholder="destination"
+                   errorText={artifact.errors().errorsForDisplay('destination')}
                    property={artifact.destination}/>
         <Icons.Close data-test-id={`remove-artifact`}
                      iconOnly={true}
@@ -160,8 +162,10 @@ export class ArtifactsTabContent extends TabContent<Job> {
         </div>
         <TextField dataTestId={`artifact-id-${artifact.artifactId() || ""}`}
                    placeholder="id"
+                   errorText={artifact.errors().errorsForDisplay('id')}
                    property={artifact.artifactId}/>
-        <SelectField property={artifact.storeId}>
+        <SelectField property={artifact.storeId} dataTestId={"artifact-store-id"}
+                     errorText={artifact.errors().errorsForDisplay('storeId')}>
           <SelectFieldOptions selected={artifact.storeId()}
                               items={this.artifactStores().map(s => s.id())}/>
         </SelectField>
@@ -192,7 +196,7 @@ export class ArtifactsTabContent extends TabContent<Job> {
           <SelectFieldOptions selected={this.addArtifactType()}
                               items={[ArtifactType.build, ArtifactType.test, ArtifactType.external]}/>
         </SelectField>
-        <Secondary small={true}
+        <Secondary small={true} dataTestId={"add-artifact-button"}
                    disabled={!!noArtifactStoreError}
                    onclick={this.addArtifact.bind(this, artifacts)}>
           Add Artifact

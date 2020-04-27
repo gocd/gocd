@@ -144,10 +144,29 @@ describe("Tasks Tab Content", () => {
     });
   });
 
-  function mount(job: Job) {
+  describe("Read Only", () => {
+    beforeEach(() => {
+      const job = Job.fromJSON(JobTestData.with("test"));
+      job.tasks().push(new ExecTask("ls", []));
+      job.tasks().push(new ExecTask("ls", ["-a", "-l", "-h"]));
+
+      mount(job, false);
+    });
+
+    it("should not render task delete icon", () => {
+      expect(helper.byTestId("task-0-delete-icon")).not.toBeInDOM();
+      expect(helper.byTestId("task-1-delete-icon")).not.toBeInDOM();
+    });
+
+    it("should not render add task", () => {
+      expect(helper.byTestId("add-task-button")).not.toBeInDOM();
+    });
+  });
+
+  function mount(job: Job, isEditable: boolean = true) {
     helper.mount(() => {
       return <TasksWidget tasks={job.tasks}
-                          isEditable={true}
+                          isEditable={isEditable}
                           flashMessage={new FlashMessageModelWithTimeout()}
                           pipelineConfigSave={jasmine.createSpy().and.returnValue(Promise.resolve())}
                           pipelineConfigReset={jasmine.createSpy().and.returnValue(Promise.resolve())}

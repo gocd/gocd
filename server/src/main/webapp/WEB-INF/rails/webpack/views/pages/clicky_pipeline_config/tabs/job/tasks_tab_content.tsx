@@ -32,6 +32,7 @@ import {Delete} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import {Table} from "views/components/table";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
 import {AntTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/ant";
@@ -42,7 +43,6 @@ import {PluggableTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/ta
 import {RakeTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/rake";
 import styles from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab.scss";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {OperationState} from "views/pages/page_operations";
 import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 
@@ -124,14 +124,9 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
-    return <div data-test-id={"tasks-container"}>
-      {vnode.state.entityReOrderHandler.getReOrderConfirmationView()}
-      <Table headers={TasksWidget.getTableHeaders(vnode.attrs.isEditable)}
-             draggable={vnode.attrs.isEditable}
-             dragHandler={TasksWidget.reArrange.bind(this, vnode.attrs.tasks)}
-             dragEnd={vnode.state.entityReOrderHandler.onReOder.bind(vnode.state.entityReOrderHandler)}
-             data={this.getTableData(vnode)}/>
-      <div className={styles.addTaskWrapper}>
+    let addTaskView: m.Children;
+    if (vnode.attrs.isEditable) {
+      addTaskView = (<div className={styles.addTaskWrapper}>
         <SelectField property={vnode.state.selectedTaskTypeToAdd}>
           <SelectFieldOptions selected={vnode.state.selectedTaskTypeToAdd()}
                               items={vnode.state.allTaskTypes}/>
@@ -151,7 +146,17 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
                    }}>
           Add Task
         </Secondary>
-      </div>
+      </div>);
+    }
+
+    return <div data-test-id={"tasks-container"}>
+      {vnode.state.entityReOrderHandler.getReOrderConfirmationView()}
+      <Table headers={TasksWidget.getTableHeaders(vnode.attrs.isEditable)}
+             draggable={vnode.attrs.isEditable}
+             dragHandler={TasksWidget.reArrange.bind(this, vnode.attrs.tasks)}
+             dragEnd={vnode.state.entityReOrderHandler.onReOder.bind(vnode.state.entityReOrderHandler)}
+             data={this.getTableData(vnode)}/>
+      {addTaskView}
     </div>;
   }
 
@@ -300,7 +305,7 @@ export class TasksTabContent extends TabContent<Job> {
                         flashMessage={flashMessage}
                         pipelineConfigReset={reset}
                         tasks={entity.tasks}
-                        isEditable={true}/>;
+                        isEditable={!this.isEntityDefinedInConfigRepository()}/>;
   }
 
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): Job {

@@ -28,7 +28,7 @@ export class NantTaskModal extends AbstractTaskModal {
   private readonly readonly: boolean;
 
   constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos, readonly: boolean) {
-    super(onAdd);
+    super(onAdd, readonly);
     this.showOnCancel = showOnCancel;
     this.readonly     = readonly;
     this.task         = task ? task : new NantTask(undefined, undefined, undefined, undefined, [], undefined);

@@ -76,7 +76,7 @@ export abstract class AbstractTask extends ValidatableMixin implements Task {
       case "exec":
         return ExecTask.from(json.attributes as ExecTaskAttributesJSON);
       case "rake":
-        return RakeTask.from(json.attributes as ExecTaskAttributesJSON);
+        return RakeTask.from(json.attributes as RakeTaskAttributesJSON);
       default:
         throw new Error(`Invalid task type ${json.type}.`);
     }

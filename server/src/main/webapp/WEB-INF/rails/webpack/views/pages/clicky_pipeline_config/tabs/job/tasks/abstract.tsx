@@ -22,11 +22,13 @@ import {Modal, ModalState, Size} from "views/components/modal";
 
 export abstract class AbstractTaskModal extends Modal {
   readonly flashMessage: FlashMessageModel;
+  private readonlyAttr: boolean;
   private onAdd: (t: Task) => Promise<any>;
 
-  constructor(onAdd: (t: Task) => Promise<any>) {
+  constructor(onAdd: (t: Task) => Promise<any>, readonly: boolean) {
     super(Size.medium);
     this.onAdd        = onAdd;
+    this.readonlyAttr     = readonly;
     this.flashMessage = new FlashMessageModel();
   }
 
@@ -37,6 +39,10 @@ export abstract class AbstractTaskModal extends Modal {
   }
 
   buttons(): m.ChildArray {
+    if (this.readonlyAttr) {
+      return [];
+    }
+
     return [
       <Primary data-test-id="save-pipeline-group" onclick={this.addTaskAndSave.bind(this)}>Save</Primary>,
       <Cancel data-test-id="cancel-button" onclick={this.close.bind(this)}>Cancel</Cancel>

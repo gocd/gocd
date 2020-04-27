@@ -40,7 +40,7 @@ export class FetchArtifactTaskModal extends AbstractTaskModal {
               pluginInfos: PluginInfos,
               readonly: boolean,
               autoSuggestions: Stream<any>) {
-    super(onAdd);
+    super(onAdd, readonly);
     this.showOnCancel    = showOnCancel;
     this.pluginInfos     = pluginInfos;
     this.autoSuggestions = autoSuggestions;

@@ -100,7 +100,7 @@ export class PermissionsTabContent extends TabContent<Stage> {
                                                         readOnly
           ))
         }
-        {this.addEntityButton(users, readOnly)}
+        {this.addEntityButton(users, readOnly, "add-user-permission-button")}
       </div>
 
       <div data-test-id="roles">
@@ -118,7 +118,7 @@ export class PermissionsTabContent extends TabContent<Stage> {
           ))
         }
 
-        {this.addEntityButton(roles, readOnly)}
+        {this.addEntityButton(roles, readOnly, "add-role-permission-button")}
       </div>
     </div>;
   }
@@ -148,12 +148,12 @@ export class PermissionsTabContent extends TabContent<Stage> {
     _.pullAt(collection, [index]);
   }
 
-  private addEntityButton(collection: Array<Stream<string>>, readOnly: boolean) {
+  private addEntityButton(collection: Array<Stream<string>>, readOnly: boolean, dataTestId: string) {
     if (readOnly) {
       return;
     }
 
-    return (<Secondary small={true} onclick={() => collection.push(Stream())}>+ Add</Secondary>);
+    return (<Secondary small={true} dataTestId={dataTestId} onclick={() => collection.push(Stream())}>+ Add</Secondary>);
   }
 
   private fetchAllRoles() {

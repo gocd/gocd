@@ -298,7 +298,7 @@ describe("Artifacts Tab", () => {
 
     it("should render readonly external artifact", () => {
       expect(helper.byTestId("artifact-id-id")).toBeDisabled();
-      expect(helper.byTestId("form-field-input-")).toBeDisabled();
+      expect(helper.byTestId("artifact-store-id")).toBeDisabled();
     });
 
     it("should not render remove external artifact", () => {

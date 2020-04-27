@@ -265,12 +265,12 @@ export class ErrorText extends RestyleViewComponent<Styles, ErrorTextComponentAt
   }
 }
 
-class FormResetButton extends RestyleViewComponent<Styles, FormResetButtonAttrs & RestyleAttrs<Styles>> {
+class FormResetButton extends RestyleViewComponent<Styles, FormResetButtonAttrs & ReadonlyAttr & RestyleAttrs<Styles>> {
   css = defaultStyles;
 
-  view(vnode: m.Vnode<FormResetButtonAttrs>): any {
+  view(vnode: m.Vnode<FormResetButtonAttrs & ReadonlyAttr>): any {
     return <div class={this.css.formInputReset}>
-      <Buttons.Reset small={true} onclick={vnode.attrs.onclick}>{vnode.children}</Buttons.Reset>
+      <Buttons.Reset disabled={vnode.attrs.readonly} small={true} onclick={vnode.attrs.onclick}>{vnode.children}</Buttons.Reset>
     </div>;
   }
 }
@@ -503,10 +503,12 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
   private static resetOrOverride(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>) {
     if (vnode.attrs.property()!.isEditing()) {
       return <FormResetButton css={vnode.attrs.css}
+                              readonly={vnode.attrs.readonly}
                               data-test-id="reset-input"
                               onclick={vnode.attrs.property()!.resetToOriginal.bind(vnode.attrs.property())}>Reset</FormResetButton>;
     } else {
       return <FormResetButton css={vnode.attrs.css}
+                              readonly={vnode.attrs.readonly}
                               data-test-id="change-input"
                               onclick={vnode.attrs.property()!.edit.bind(vnode.attrs.property())}>Change</FormResetButton>;
     }

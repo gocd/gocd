@@ -84,7 +84,7 @@ export class PipelineCreatePage extends Page<{}, State> {
       <FillableSection>
         <UserInputPane heading="Part 1: Material">
           <MaterialEditor material={material} showExtraMaterials={true} pluggableScms={vnode.state.scmMaterials()}
-                          packageRepositories={mergedPkgRepos} pluginInfos={vnode.state.pluginInfos()}/>
+                          readonly={false} packageRepositories={mergedPkgRepos} pluginInfos={vnode.state.pluginInfos()}/>
         </UserInputPane>
         <ConceptDiagram image={materialImg}>
           A <strong>material</strong> triggers your pipeline to run. Typically this is a <strong>source repository</strong> or an <strong>upStream

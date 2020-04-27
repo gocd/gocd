@@ -63,9 +63,14 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
 
   protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig, flashMessage: FlashMessageModelWithTimeout, pipelineConfigSave: () => Promise<any>, pipelineConfigReset: () => any) {
     const mergedPkgRepos = PackageRepositoriesPage.getMergedList(this.packageRepositories, this.packages);
-    return <MaterialsWidget materials={entity.materials} pluginInfos={this.pluginInfos} flashMessage={flashMessage}
-                            packageRepositories={Stream(mergedPkgRepos)} packages={this.packages}
-                            scmMaterials={this.scmMaterials} pipelineConfigSave={pipelineConfigSave}/>;
+    return <MaterialsWidget materials={entity.materials}
+                            readonly={this.isEntityDefinedInConfigRepository()}
+                            pluginInfos={this.pluginInfos}
+                            flashMessage={flashMessage}
+                            packageRepositories={Stream(mergedPkgRepos)}
+                            packages={this.packages}
+                            scmMaterials={this.scmMaterials}
+                            pipelineConfigSave={pipelineConfigSave}/>;
   }
 
   private fetchAllPackageReposAndPackages() {

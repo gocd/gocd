@@ -31,7 +31,11 @@ import {
   TfsMaterialAttributes
 } from "models/materials/types";
 import {PackageRepositories} from "models/package_repositories/package_repositories";
-import {ExtensionTypeString, PackageRepoExtensionType, SCMExtensionType} from "models/shared/plugin_infos_new/extension_type";
+import {
+  ExtensionTypeString,
+  PackageRepoExtensionType,
+  SCMExtensionType
+} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormBody} from "views/components/forms/form";
@@ -53,6 +57,7 @@ interface Attrs {
   pluginInfos?: PluginInfos;
   pluggableScms?: Scms;
   disableScmMaterials?: boolean;
+  readonly?: boolean;
 }
 
 export class MaterialEditor extends MithrilViewComponent<Attrs> {
@@ -68,7 +73,8 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     const attrs                       = vnode.attrs;
     const showLocalWorkingCopyOptions = "showLocalWorkingCopyOptions" in attrs ? !!attrs.showLocalWorkingCopyOptions : true;
     const scmOnly                     = !!attrs.scmOnly;
-    const hideTestConnection          = !!attrs.hideTestConnection;
+    const readonly                    = attrs.readonly;
+    const hideTestConnection          = readonly || !!attrs.hideTestConnection;
     const disableScmMaterials         = attrs.disableScmMaterials !== undefined && attrs.disableScmMaterials === true;
 
     const supportedMaterials: Array<Option | string> = this.supportedMaterials(scmOnly, disableScmMaterials);
@@ -79,12 +85,12 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
 
     return <FormBody>
       <SelectField label="Material Type" property={vnode.attrs.material.type} required={true}
-                   readonly={vnode.attrs.disabled || vnode.attrs.disabledMaterialTypeSelection}>
+                   readonly={readonly || vnode.attrs.disabled || vnode.attrs.disabledMaterialTypeSelection}>
         <SelectFieldOptions selected={vnode.attrs.material.type()} items={supportedMaterials}/>
       </SelectField>
 
       <Form last={true} compactForm={true}>
-        {this.fieldsForType(attrs.material, this.cache, showLocalWorkingCopyOptions, hideTestConnection, attrs.disabled, attrs.packageRepositories, attrs.pluginInfos, attrs.pluggableScms)}
+        {this.fieldsForType(attrs.readonly!, attrs.material, this.cache, showLocalWorkingCopyOptions, hideTestConnection, attrs.disabled, attrs.packageRepositories, attrs.pluginInfos, attrs.pluggableScms)}
       </Form>
     </FormBody>;
   }
@@ -105,43 +111,43 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     return options;
   }
 
-  fieldsForType(material: Material, cacheable: SuggestionCache, showLocalWorkingCopyOptions: boolean, hideTestConnection: boolean, disabled?: boolean, packageRepositories?: PackageRepositories, pluginInfos?: PluginInfos, scms?: Scms): m.Children {
+  fieldsForType(readonly: boolean, material: Material, cacheable: SuggestionCache, showLocalWorkingCopyOptions: boolean, hideTestConnection: boolean, disabled?: boolean, packageRepositories?: PackageRepositories, pluginInfos?: PluginInfos, scms?: Scms): m.Children {
     switch (material.type()) {
       case "git":
         if (!(material.attributes() instanceof GitMaterialAttributes)) {
           material.attributes(new GitMaterialAttributes(undefined, true));
         }
-        return <GitFields material={material} hideTestConnection={hideTestConnection}
+        return <GitFields material={material} hideTestConnection={hideTestConnection} readonly={readonly}
                           showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "hg":
         if (!(material.attributes() instanceof HgMaterialAttributes)) {
           material.attributes(new HgMaterialAttributes(undefined, true));
         }
-        return <HgFields material={material} hideTestConnection={hideTestConnection}
+        return <HgFields material={material} hideTestConnection={hideTestConnection} readonly={readonly}
                          showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "svn":
         if (!(material.attributes() instanceof SvnMaterialAttributes)) {
           material.attributes(new SvnMaterialAttributes(undefined, true));
         }
-        return <SvnFields material={material} hideTestConnection={hideTestConnection}
+        return <SvnFields material={material} hideTestConnection={hideTestConnection} readonly={readonly}
                           showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "p4":
         if (!(material.attributes() instanceof P4MaterialAttributes)) {
           material.attributes(new P4MaterialAttributes(undefined, true));
         }
-        return <P4Fields material={material} hideTestConnection={hideTestConnection}
+        return <P4Fields material={material} hideTestConnection={hideTestConnection} readonly={readonly}
                          showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "tfs":
         if (!(material.attributes() instanceof TfsMaterialAttributes)) {
           material.attributes(new TfsMaterialAttributes(undefined, true));
         }
-        return <TfsFields material={material} hideTestConnection={hideTestConnection}
+        return <TfsFields material={material} hideTestConnection={hideTestConnection} readonly={readonly}
                           showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "dependency":
         if (!(material.attributes() instanceof DependencyMaterialAttributes)) {
           material.attributes(new DependencyMaterialAttributes());
         }
-        return <DependencyFields material={material} cache={cacheable}
+        return <DependencyFields material={material} cache={cacheable} readonly={readonly}
                                  showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}/>;
       case "package":
         if (!(material.attributes() instanceof PackageMaterialAttributes)) {
@@ -157,7 +163,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
           </FlashMessage>;
         }
         packageRepositories = packageRepositories === undefined ? new PackageRepositories() : packageRepositories;
-        return <PackageFields material={material}
+        return <PackageFields material={material} readonly={readonly}
                               packageRepositories={packageRepositories} pluginInfos={pluginInfos}/>;
       case "plugin":
         if (!(material.attributes() instanceof PluggableScmMaterialAttributes)) {
@@ -173,7 +179,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
         }
         scms = scms === undefined ? new Scms() : scms;
         return <PluginFields material={material} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}
-                             scms={scms} pluginInfos={pluginInfos}/>;
+                             readonly={readonly} scms={scms} pluginInfos={pluginInfos}/>;
       default:
         break;
     }

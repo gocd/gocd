@@ -19,8 +19,17 @@ import Stream from "mithril/stream";
 import {Filter} from "models/maintenance_mode/material";
 import {Scm, Scms} from "models/materials/pluggable_scm";
 import {Material, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
-import {Package, PackageRepositories, PackageRepository, Packages} from "models/package_repositories/package_repositories";
-import {getPackage, getPackageRepository, pluginInfoWithPackageRepositoryExtension} from "models/package_repositories/spec/test_data";
+import {
+  Package,
+  PackageRepositories,
+  PackageRepository,
+  Packages
+} from "models/package_repositories/package_repositories";
+import {
+  getPackage,
+  getPackageRepository,
+  pluginInfoWithPackageRepositoryExtension
+} from "models/package_repositories/spec/test_data";
 import {Materials, PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -46,8 +55,9 @@ describe("MaterialsWidgetSpec", () => {
   });
   afterEach((done) => helper.unmount(done));
 
-  function mount(materials: Stream<Materials> = pipelineConfig.materials) {
-    helper.mount(() => <MaterialsWidget materials={materials} pluginInfos={Stream(pluginInfos)}
+  function mount(materials: Stream<Materials> = pipelineConfig.materials, readonly: boolean = false) {
+    helper.mount(() => <MaterialsWidget materials={materials} readonly={readonly}
+                                        pluginInfos={Stream(pluginInfos)}
                                         packageRepositories={Stream(pkgRepos)}
                                         packages={Stream(pkgs)} scmMaterials={Stream(scms)}
                                         pipelineConfigSave={jasmine.createSpy("pipelineConfigSave")}
@@ -160,6 +170,20 @@ describe("MaterialsWidgetSpec", () => {
       expect(helper.qa("td", dataRow)[0].textContent).toBe(scm.name());
       expect(helper.qa("td", dataRow)[1].textContent).toBe("Plugin");
       expect(helper.qa("td", dataRow)[2].textContent).toBe("Plugin 'scm-plugin-id' Missing!!![url=https://github.com/sample/example.git]");
+    });
+  });
+
+  describe("Read Only", () => {
+    beforeEach(() => {
+      mount(undefined, true);
+    });
+
+    it("should not render add material", () => {
+      expect(helper.byTestId("add-material-button")).not.toBeInDOM();
+    });
+
+    it("should not render delete material button", () => {
+      expect(helper.byTestId("delete-material-button")).not.toBeInDOM();
     });
   });
 });

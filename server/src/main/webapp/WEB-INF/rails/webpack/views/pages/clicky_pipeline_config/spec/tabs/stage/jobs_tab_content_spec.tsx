@@ -15,6 +15,7 @@
  */
 
 import Stream from "mithril/stream";
+import {Origin, OriginType} from "models/origin";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
@@ -108,8 +109,25 @@ describe("Jobs Tab Content", () => {
     expect(jobs.length).toBe(1);
   });
 
-  function mount(stage: Stage) {
+  describe("Read Only", () => {
+    beforeEach(() => {
+      const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "job1", "job2"));
+      mount(stage, new Origin(OriginType.ConfigRepo, "repo1"));
+    });
+
+    it("should not render add job", () => {
+      expect(helper.byTestId("add-jobs-button")).not.toBeInDOM();
+    });
+
+    it("should not render delete job", () => {
+      expect(helper.byTestId("job1-delete-icon")).not.toBeInDOM();
+    });
+  });
+
+  function mount(stage: Stage, pipelineOrigin: Origin = new Origin(OriginType.GoCD)) {
+    document.body.setAttribute("data-meta", JSON.stringify({pipelineName: "pipeline1"}));
     const pipelineConfig = new PipelineConfig();
+    pipelineConfig.origin(pipelineOrigin);
     pipelineConfig.stages().add(stage);
     const routeParams    = {stage_name: stage.name()} as PipelineConfigRouteParams;
     const templateConfig = new TemplateConfig("foo", []);

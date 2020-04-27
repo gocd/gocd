@@ -79,7 +79,7 @@ export class JobsTabContent extends TabContent<Stage> {
                   ajaxOperationMonitor={this.ajaxOperationMonitor!}
                   pipelineConfigSave={save}
                   pipelineConfigReset={reset}
-                  isEditable={true}/>
+                  isEditable={!this.isEntityDefinedInConfigRepository()}/>
     ];
   }
 }
@@ -114,6 +114,14 @@ export class JobsWidget extends MithrilComponent<Attrs, State> {
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
+    let addJobBtn: m.Children;
+
+    if (vnode.attrs.isEditable) {
+      addJobBtn = <Secondary disabled={!vnode.attrs.isEditable}
+                             dataTestId={"add-jobs-button"}
+                             onclick={() => vnode.state.getModal().render()}>Add new job</Secondary>;
+    }
+
     return <div data-test-id={"stages-container"}>
       <div class={styles.jobHelpText}>
         Manage jobs for this stage. All these jobs will be run in parallel (given sufficient matching agents), so they
@@ -124,9 +132,7 @@ export class JobsWidget extends MithrilComponent<Attrs, State> {
              data={this.getTableData(vnode)}
              draggable={false}
              dragHandler={JobsWidget.reArrange.bind(this, vnode.attrs.jobs)}/>
-      <Secondary disabled={!vnode.attrs.isEditable}
-                 dataTestId={"add-jobs-button"}
-                 onclick={() => vnode.state.getModal().render()}>Add new job</Secondary>
+      {addJobBtn}
     </div>;
   }
 
@@ -171,6 +177,7 @@ export class JobsWidget extends MithrilComponent<Attrs, State> {
                            title={deleteDisabledMessage}
                            data-test-id={`${s.slugify(job.name())}-delete-icon`}/>);
       }
+
       return cells;
     });
   }

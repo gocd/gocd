@@ -33,6 +33,7 @@ import css from "./parameters_editor.scss";
 interface Attrs {
   parameters: Stream<PipelineParameter[]>;
   paramList: Stream<PipelineParameter[]>;
+  readonly: boolean;
 }
 
 export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
@@ -47,28 +48,55 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>) {
+    let addParameterBtn: m.Children;
+
+    if (!vnode.attrs.readonly) {
+      addParameterBtn = <Secondary small={true}
+                                   dataTestId={"add-param"}
+                                   icon={ButtonIcon.ADD}
+                                   onclick={this.add.bind(this, vnode.attrs.paramList)}>
+        Add
+      </Secondary>;
+    }
+
     return (
       <FormBody>
         <Form last={true} compactForm={true}>
           <div class={css.parameters}>
             <label>
               Parameters
-              <Tooltip.Help size={TooltipSize.medium} content={<span>Parameters help reduce repetition within your configurations and combined with templates allow you to setup complex configurations. <a href="https://docs.gocd.org/current/configuration/admin_use_parameters_in_configuration.html">Read more</a></span>} />
+              <Tooltip.Help size={TooltipSize.medium}
+                            content={<span>Parameters help reduce repetition within your configurations and combined with templates allow you to setup complex configurations. <a
+                              href="https://docs.gocd.org/current/configuration/admin_use_parameters_in_configuration.html">Read more</a></span>}/>
             </label>
             <Table headers={["name", "value", ""]} data={
               _.map(vnode.attrs.paramList(), (param, i) => {
-                return [
-                  <IdentifierInputField dataTestId={`form-field-input-param-name-${i}`} property={param.name} errorText={param.errors().errorsForDisplay("name")} onchange={this.update.bind(this, vnode.attrs.parameters, vnode.attrs.paramList)} />,
-                  <TextField dataTestId={`form-field-input-param-value-${i}`} property={param.value} onchange={this.update.bind(this, vnode.attrs.parameters, vnode.attrs.paramList)} />,
-                  <Buttons.Cancel onclick={this.remove.bind(this, vnode.attrs.parameters, vnode.attrs.paramList, param)} small={true} icon={Buttons.ButtonIcon.REMOVE} />
+                const elements = [
+                  <IdentifierInputField dataTestId={`form-field-input-param-name-${i}`}
+                                        property={param.name}
+                                        readonly={vnode.attrs.readonly}
+                                        errorText={param.errors().errorsForDisplay("name")}
+                                        onchange={this.update.bind(this,
+                                                                   vnode.attrs.parameters,
+                                                                   vnode.attrs.paramList)}/>,
+                  <TextField dataTestId={`form-field-input-param-value-${i}`}
+                             property={param.value}
+                             readonly={vnode.attrs.readonly}
+                             onchange={this.update.bind(this, vnode.attrs.parameters, vnode.attrs.paramList)}/>
                 ];
+
+                if (!vnode.attrs.readonly) {
+                  elements.push(<Buttons.Cancel small={true} icon={Buttons.ButtonIcon.REMOVE}
+                                                onclick={this.remove.bind(this,
+                                                                          vnode.attrs.parameters,
+                                                                          vnode.attrs.paramList,
+                                                                          param)}/>);
+                }
+
+                return elements;
               })
-            } />
-            <Secondary small={true}
-                       icon={ButtonIcon.ADD}
-                       onclick={this.add.bind(this, vnode.attrs.paramList)}>
-              Add
-            </Secondary>
+            }/>
+            {addParameterBtn}
           </div>
         </Form>
       </FormBody>
@@ -76,7 +104,9 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
   }
 
   update(params: Stream<PipelineParameter[]>, paramsList: Stream<PipelineParameter[]>, event?: Event) {
-    if (event) {event.stopPropagation(); }
+    if (event) {
+      event.stopPropagation();
+    }
     params(paramsList().filter((p) => !p.isEmpty()));
     this.notifyChange();
   }
@@ -86,8 +116,13 @@ export class PipelineParametersEditor extends MithrilViewComponent<Attrs> {
     paramsList().push(new PipelineParameter("", ""));
   }
 
-  remove(params: Stream<PipelineParameter[]>, paramsList: Stream<PipelineParameter[]>, paramToDelete: PipelineParameter, event?: Event) {
-    if (event) {event.stopPropagation(); }
+  remove(params: Stream<PipelineParameter[]>,
+         paramsList: Stream<PipelineParameter[]>,
+         paramToDelete: PipelineParameter,
+         event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
 
     paramsList(paramsList().filter((p) => p !== paramToDelete));
 

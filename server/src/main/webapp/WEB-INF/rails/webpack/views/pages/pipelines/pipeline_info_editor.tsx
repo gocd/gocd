@@ -65,7 +65,7 @@ export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
           isUsingTemplate={vnode.attrs.isUsingTemplate}
           paramList={this.paramList}
         />
-        <PipelineParametersEditor parameters={vnode.attrs.pipelineConfig.parameters} paramList={this.paramList}/>
+        <PipelineParametersEditor readonly={false} parameters={vnode.attrs.pipelineConfig.parameters} paramList={this.paramList}/>
       </AdvancedSettings>
       </Form>
     </FormBody>;

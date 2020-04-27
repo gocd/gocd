@@ -32,6 +32,7 @@ import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_mod
 import styles from "../stages.scss";
 
 interface Attrs {
+  readonly: boolean;
   pipelineConfig: PipelineConfig;
   templates: Stream<Template[]>;
   pipelineConfigSave: () => Promise<any>;
@@ -77,6 +78,7 @@ export class PipelineTemplateWidget extends MithrilComponent<Attrs> {
 
     return <SelectField label="Template"
                         property={config.template}
+                        readonly={attrs.readonly}
                         errorText={config.errors().errorsForDisplay("template")}
                         onchange={this.clearStages.bind(this, attrs)}
                         required={true}>
@@ -96,12 +98,17 @@ export class PipelineTemplateWidget extends MithrilComponent<Attrs> {
   }
 
   private renderConfirmation(vnode: m.Vnode<Attrs>) {
-    const body = <p>Switching to a template will cause all of the currently defined stages in this pipeline to be lost. Are you sure you want to continue?
+    const body = <p>Switching to a template will cause all of the currently defined stages in this pipeline to be lost.
+      Are you sure you want to continue?
     </p>;
     new ConfirmationDialog("Confirm Save", body, vnode.attrs.pipelineConfigSave).render();
   }
 
   private buttons(vnode: m.Vnode<Attrs>): m.Children {
+    if (vnode.attrs.readonly) {
+      return;
+    }
+
     return <div className={pipelineConfigStyles.buttonContainer}>
       <Reset data-test-id={"cancel"}
              onclick={vnode.attrs.pipelineConfigReset}>

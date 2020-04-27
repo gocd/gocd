@@ -229,6 +229,10 @@ export class PipelineConfig extends ValidatableMixin {
   }
 
   isDefinedInConfigRepo() {
+    if (!this.origin()) {
+      return false;
+    }
+
     return this.origin().isDefinedInConfigRepo();
   }
 

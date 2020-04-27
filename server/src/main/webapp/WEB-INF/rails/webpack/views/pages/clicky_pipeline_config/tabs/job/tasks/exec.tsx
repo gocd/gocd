@@ -48,12 +48,14 @@ export class ExecTaskModal extends AbstractTaskModal {
       <h3>Basic Settings</h3>
       <TextField helpText="The command or script to be executed, relative to the working directory"
                  errorText={attributes.errors().errorsForDisplay("command")}
+                 readonly={this.readonly}
                  required={true}
                  label="Command"
                  placeholder="ls"
                  property={attributes.command}/>
       <TextAreaField helpText="Enter each argument on a new line"
                      errorText={attributes.errors().errorsForDisplay("args")}
+                     readonly={this.readonly}
                      rows={5}
                      size={Size.MATCH_PARENT}
                      resizable={true}
@@ -61,9 +63,11 @@ export class ExecTaskModal extends AbstractTaskModal {
                      property={this.args}/>
       <TextField helpText="The directory in which the script or command is to be executed. This is always relative to the directory where the agent checks out materials."
                  label="Working Directory"
+                 readonly={this.readonly}
                  errorText={attributes.errors().errorsForDisplay("workingDirectory")}
                  property={attributes.workingDirectory}/>
       <OnCancelView showOnCancel={this.showOnCancel}
+                    readonly={this.readonly}
                     onCancel={attributes.onCancel}
                     pluginInfos={this.pluginInfos}
                     runIf={attributes.runIf}/>

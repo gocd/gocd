@@ -138,6 +138,24 @@ describe("Exec Task Modal", () => {
     expect(helper.byTestId("on-cancel-view")).toBeFalsy();
   });
 
+  describe("Read Only", () => {
+    beforeEach(() => {
+      mount(undefined, false, true);
+    });
+
+    it("should render read only command", () => {
+      expect(helper.byTestId("form-field-input-command")).toBeDisabled();
+    });
+
+    it("should render read only arguments", () => {
+      expect(helper.byTestId("form-field-input-arguments")).toBeDisabled();
+    });
+
+    it("should render read only working directory", () => {
+      expect(helper.byTestId("form-field-input-working-directory")).toBeDisabled();
+    });
+  });
+
   function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true, readonly: boolean = false) {
     helper.mount(() => {
       modal = new ExecTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), new PluginInfos(), readonly);

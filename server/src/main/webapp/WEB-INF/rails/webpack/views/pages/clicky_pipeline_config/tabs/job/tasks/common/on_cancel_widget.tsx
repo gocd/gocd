@@ -31,6 +31,7 @@ export interface State {
 export interface Attrs {
   onCancel: Stream<Task | undefined>;
   pluginInfos: PluginInfos;
+  readonly: boolean;
 }
 
 export class OnCancelTaskWidget extends MithrilComponent<Attrs, State> {
@@ -48,6 +49,7 @@ export class OnCancelTaskWidget extends MithrilComponent<Attrs, State> {
     if (vnode.state.onCancelCheckbox()) {
       onCancelView = <div data-test-id="on-cancel-body">
         <SelectField property={vnode.state.selectedTaskTypeToAdd}
+                     readonly={vnode.attrs.readonly}
                      onchange={this.updateOnCancelTask.bind(this, vnode)}>
           <SelectFieldOptions selected={vnode.state.selectedTaskTypeToAdd()}
                               items={vnode.state.allTaskTypes}/>
@@ -58,6 +60,7 @@ export class OnCancelTaskWidget extends MithrilComponent<Attrs, State> {
 
     return <div data-test-id="on-cancel-view">
       <CheckboxField label="On Cancel Task"
+                     readonly={vnode.attrs.readonly}
                      onchange={this.updateOnCancelTask.bind(this, vnode)}
                      property={vnode.state.onCancelCheckbox}/>
       {onCancelView}
@@ -87,7 +90,7 @@ export class OnCancelTaskWidget extends MithrilComponent<Attrs, State> {
                                     vnode.attrs.pluginInfos,
                                     this.noOperation.bind(this),
                                     this.noOperation.bind(this),
-                                    false,
+                                    vnode.attrs.readonly,
                                     Stream({}));
   }
 }

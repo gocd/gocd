@@ -23,6 +23,7 @@ import {OnCancelTaskWidget} from "views/pages/clicky_pipeline_config/tabs/job/ta
 import {RunIfConditionWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks/common/run_if_widget";
 
 interface Attrs {
+  readonly: boolean;
   showOnCancel: boolean;
   runIf: Stream<RunIfCondition[]>;
   onCancel: Stream<Task | undefined>;
@@ -35,9 +36,10 @@ export class OnCancelView extends MithrilViewComponent<Attrs> {
 
     if (vnode.attrs.showOnCancel) {
       onCancelView = <div data-test-id="nant-on-cancel-view">
-        <RunIfConditionWidget runIf={vnode.attrs.runIf}/>
+        <RunIfConditionWidget runIf={vnode.attrs.runIf} readonly={vnode.attrs.readonly}/>
         <h3>Advanced Option</h3>
         <OnCancelTaskWidget onCancel={vnode.attrs.onCancel}
+                            readonly={vnode.attrs.readonly}
                             pluginInfos={vnode.attrs.pluginInfos}/>
       </div>;
     }

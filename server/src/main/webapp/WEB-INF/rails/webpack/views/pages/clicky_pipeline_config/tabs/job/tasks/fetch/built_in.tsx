@@ -24,6 +24,7 @@ import {UpstreamJobToFetchArtifactFromWidget} from "views/pages/clicky_pipeline_
 interface BuiltInArtifactViewAttrs {
   attributes: FetchTaskAttributes;
   autoSuggestions: Stream<any>;
+  readonly: boolean;
 }
 
 export class BuiltInFetchArtifactView extends MithrilViewComponent<BuiltInArtifactViewAttrs> {
@@ -38,12 +39,15 @@ export class BuiltInFetchArtifactView extends MithrilViewComponent<BuiltInArtifa
       <TextField helpText={sourceHelpText}
                  required={true}
                  label="Source"
+                 readonly={vnode.attrs.readonly}
                  errorText={attributes.errors().errorsForDisplay("source")}
                  property={attributes.source}/>
       <CheckboxField label="Source is a file(Not a directory)"
+                     readonly={vnode.attrs.readonly}
                      property={attributes.isSourceAFile}/>
       <TextField helpText={destinationHelpText}
                  label="Destination"
+                 readonly={vnode.attrs.readonly}
                  errorText={attributes.errors().errorsForDisplay("destination")}
                  property={attributes.destination}/>
     </div>;

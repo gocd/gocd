@@ -38,10 +38,12 @@ export class PluggableTaskModal extends AbstractTaskModal {
   private readonly showOnCancel: boolean;
   private readonly pluginInfos: PluginInfos;
   private readonly selectedPluginId: Stream<string>;
+  private readonly readonly: boolean;
 
-  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos) {
+  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos, readonly: boolean) {
     super(onAdd);
     this.pluginInfos  = pluginInfos;
+    this.readonly     = readonly;
     this.showOnCancel = showOnCancel;
 
     if (task) {
@@ -71,6 +73,7 @@ export class PluggableTaskModal extends AbstractTaskModal {
       {this.renderFlashMessage()}
       <SelectField property={this.selectedPluginId}
                    label="Select Task Plugin:"
+                   readonly={this.readonly}
                    onchange={this.setPluginConfigOnTask.bind(this)}
                    required={true}>
         <SelectFieldOptions selected={this.selectedPluginId()}
@@ -80,11 +83,13 @@ export class PluggableTaskModal extends AbstractTaskModal {
       <h3>Basic Settings</h3>
       <div className={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
         <AngularPluginNew pluginInfoSettings={Stream(this.findPluginSettings())}
+                          disabled={this.readonly}
                           key={this.selectedPluginId()}
                           configuration={attributes.configuration()}/>
       </div>
 
       <OnCancelView showOnCancel={this.showOnCancel}
+                    readonly={this.readonly}
                     onCancel={attributes.onCancel}
                     pluginInfos={this.pluginInfos}
                     runIf={attributes.runIf}/>

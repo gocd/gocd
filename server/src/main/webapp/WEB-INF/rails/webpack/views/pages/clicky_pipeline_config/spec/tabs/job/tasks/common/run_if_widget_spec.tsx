@@ -148,9 +148,20 @@ describe("Run If Condition Widget", () => {
     expect(runIf()).toEqual(["any"]);
   });
 
-  function mount(runIf: Stream<RunIfCondition[]>) {
+  describe("Read Only", () => {
+    it("should render readonly run if condition checkboxes", () => {
+      const runIf = Stream(["passed", "failed"] as RunIfCondition[]);
+      mount(runIf, true);
+
+      expect(helper.byTestId("form-field-input-passed")).toBeDisabled();
+      expect(helper.byTestId("form-field-input-failed")).toBeDisabled();
+      expect(helper.byTestId("form-field-input-any")).toBeDisabled();
+    });
+  });
+
+  function mount(runIf: Stream<RunIfCondition[]>, readonly: boolean = false) {
     helper.mount(() => {
-      return <RunIfConditionWidget runIf={runIf}/>;
+      return <RunIfConditionWidget runIf={runIf} readonly={readonly}/>;
     });
   }
 });

@@ -48,9 +48,31 @@ describe("On Cancel Task Widget", () => {
     expect(helper.byTestId("form-field-input-working-directory")).toHaveValue("pwd");
   });
 
-  const mount = (onCancel: Stream<Task | undefined>) => {
+  describe("Read Only", () => {
+    beforeEach(() => {
+      const task: Stream<Task> = Stream(new AntTask("build.xml", "default", "pwd", []));
+      mount(task as Stream<Task | undefined>, true);
+    });
+
+    it("should render disabled any on cancel task", () => {
+      expect(helper.byTestId("form-field-input-on-cancel-task")).toBeChecked();
+      expect(helper.byTestId("form-field-input-on-cancel-task")).toBeDisabled();
+    });
+
+    it("should render disabled task type checkbox", () => {
+      expect(helper.byTestId("form-field-input-")).toBeDisabled();
+    });
+
+    it("should render disabled on cancel task", () => {
+      expect(helper.byTestId("form-field-input-build-file")).toBeDisabled();
+      expect(helper.byTestId("form-field-input-target")).toBeDisabled();
+      expect(helper.byTestId("form-field-input-working-directory")).toBeDisabled();
+    });
+  });
+
+  const mount = (onCancel: Stream<Task | undefined>, readonly: boolean = false) => {
     helper.mount(() => {
-      return <OnCancelTaskWidget onCancel={onCancel} pluginInfos={new PluginInfos()}/>;
+      return <OnCancelTaskWidget onCancel={onCancel} pluginInfos={new PluginInfos()} readonly={readonly}/>;
     });
   };
 });

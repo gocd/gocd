@@ -76,10 +76,25 @@ describe("Pluggable Task Modal", () => {
     expect(helper.byTestId("on-cancel-view")).toBeFalsy();
   });
 
+  describe("Read Only", () => {
+    beforeEach(() => {
+      mount(undefined, true, new PluginInfos(PluginInfo.fromJSON(TaskPluginInfo.scriptExecutor())), true);
+    });
+
+    it("should render read only plugin dropdown", () => {
+      expect(helper.byTestId("form-field-input-select-task-plugin")).toBeDisabled();
+    });
+  });
+
   function mount(task?: Task | undefined,
                  shouldShowOnCancel: boolean = true,
-                 pluginInfos: PluginInfos    = new PluginInfos()) {
+                 pluginInfos: PluginInfos    = new PluginInfos(),
+                 readonly: boolean           = false) {
 
-    helper.mount(() => new PluggableTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), pluginInfos).body());
+    helper.mount(() => new PluggableTaskModal(task,
+                                              shouldShowOnCancel,
+                                              jasmine.createSpy(),
+                                              pluginInfos,
+                                              readonly).body());
   }
 });

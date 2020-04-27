@@ -183,7 +183,35 @@ describe("External Fetch Artifact Task", () => {
     expect(helper.qa("span")).toContainText(pluginAutoDetectError);
   });
 
-  function mount(fetchTaskAttributes: FetchTaskAttributes = attributes, pluginInfos?: PluginInfos) {
+  describe("Read Only", () => {
+    beforeEach(() => {
+      mount(undefined, undefined, true);
+    });
+
+    it("should render disabled pipeline input", () => {
+      expect(helper.byTestId("form-field-input-pipeline")).toBeDisabled();
+    });
+
+    it("should render disabled stage input", () => {
+      expect(helper.byTestId("form-field-input-stage")).toBeDisabled();
+    });
+
+    it("should render disabled job input", () => {
+      expect(helper.byTestId("form-field-input-job")).toBeDisabled();
+    });
+
+    it("should render disabled artifact id", () => {
+      expect(helper.byTestId("form-field-input-artifact-id")).toBeDisabled();
+    });
+
+    it("should render disabled plugin id", () => {
+      expect(helper.byTestId("form-field-input-plugin-id")).toBeDisabled();
+    });
+  });
+
+  function mount(fetchTaskAttributes: FetchTaskAttributes = attributes,
+                 pluginInfos?: PluginInfos,
+                 readonly: boolean                        = false) {
     if (!pluginInfos) {
       pluginInfos = new PluginInfos(PluginInfo.fromJSON(ArtifactPluginInfo.docker()));
     }
@@ -200,6 +228,7 @@ describe("External Fetch Artifact Task", () => {
 
     return helper.mount(() => <ExternalFetchArtifactView autoSuggestions={Stream(autoSuggestions)}
                                                          artifactPluginInfos={pluginInfos!}
+                                                         readonly={readonly}
                                                          attributes={fetchTaskAttributes}/>);
   }
 });

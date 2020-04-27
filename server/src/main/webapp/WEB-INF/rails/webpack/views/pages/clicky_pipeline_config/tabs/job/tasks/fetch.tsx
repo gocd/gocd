@@ -32,16 +32,19 @@ export class FetchArtifactTaskModal extends AbstractTaskModal {
   private readonly showOnCancel: boolean;
   private readonly pluginInfos: PluginInfos;
   private autoSuggestions: Stream<any>;
+  private readonly readonly: boolean;
 
   constructor(task: Task | undefined,
               showOnCancel: boolean,
               onAdd: (t: Task) => Promise<any>,
               pluginInfos: PluginInfos,
+              readonly: boolean,
               autoSuggestions: Stream<any>) {
     super(onAdd);
     this.showOnCancel    = showOnCancel;
     this.pluginInfos     = pluginInfos;
     this.autoSuggestions = autoSuggestions;
+    this.readonly        = readonly;
 
     this.task = task ? task : new FetchArtifactTask(
       "gocd", undefined, "", "", false,
@@ -54,9 +57,12 @@ export class FetchArtifactTaskModal extends AbstractTaskModal {
 
     let content: m.Children;
     if (attributes.isBuiltInArtifact()) {
-      content = <BuiltInFetchArtifactView attributes={attributes} autoSuggestions={this.autoSuggestions}/>;
+      content = <BuiltInFetchArtifactView attributes={attributes}
+                                          readonly={this.readonly}
+                                          autoSuggestions={this.autoSuggestions}/>;
     } else {
       content = <ExternalFetchArtifactView attributes={attributes}
+                                           readonly={this.readonly}
                                            artifactPluginInfos={this.pluginInfos.filterForExtension(ExtensionTypeString.ARTIFACT)}
                                            autoSuggestions={this.autoSuggestions}/>;
     }
@@ -65,6 +71,7 @@ export class FetchArtifactTaskModal extends AbstractTaskModal {
       {this.renderFlashMessage()}
       <div class={styles.radioWrapper}>
         <RadioField label="Type of Fetch Artifact"
+                    readonly={this.readonly}
                     inline={true}
                     property={attributes.artifactOrigin}
                     required={true}
@@ -76,6 +83,7 @@ export class FetchArtifactTaskModal extends AbstractTaskModal {
       </div>
       {content}
       <OnCancelView showOnCancel={this.showOnCancel}
+                    readonly={this.readonly}
                     onCancel={attributes.onCancel}
                     pluginInfos={this.pluginInfos}
                     runIf={attributes.runIf}/>

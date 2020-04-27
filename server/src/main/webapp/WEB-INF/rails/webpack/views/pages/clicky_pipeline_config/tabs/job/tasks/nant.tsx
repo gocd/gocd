@@ -25,10 +25,12 @@ export class NantTaskModal extends AbstractTaskModal {
   private readonly showOnCancel: boolean;
   private readonly task: Task;
   private readonly pluginInfos: PluginInfos;
+  private readonly readonly: boolean;
 
-  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos) {
+  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos, readonly: boolean) {
     super(onAdd);
     this.showOnCancel = showOnCancel;
+    this.readonly     = readonly;
     this.task         = task ? task : new NantTask(undefined, undefined, undefined, undefined, [], undefined);
     this.pluginInfos  = pluginInfos;
   }
@@ -41,25 +43,30 @@ export class NantTaskModal extends AbstractTaskModal {
       <h3>Basic Settings</h3>
       <TextField helpText="Relative path to a NAnt build file. If not specified, the path defaults to 'default.build'."
                  label="Build File"
+                 readonly={this.readonly}
                  placeholder="default.build"
                  errorText={attributes.errors().errorsForDisplay("buildFile")}
                  property={attributes.buildFile}/>
       <TextField helpText="NAnt target(s) to run. If not specified, defaults to the default target of the build file."
                  label="Target"
+                 readonly={this.readonly}
                  placeholder="default"
                  errorText={attributes.errors().errorsForDisplay("target")}
                  property={attributes.target}/>
       <TextField helpText="The directory from where nant is invoked."
                  label="Working Directory"
+                 readonly={this.readonly}
                  errorText={attributes.errors().errorsForDisplay("workingDirectory")}
                  property={attributes.workingDirectory}/>
       <TextField helpText="Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path."
                  label="NAnt Path"
+                 readonly={this.readonly}
                  errorText={attributes.errors().errorsForDisplay("nantPath")}
                  property={attributes.nantPath}/>
 
       <OnCancelView showOnCancel={this.showOnCancel}
                     onCancel={attributes.onCancel}
+                    readonly={this.readonly}
                     pluginInfos={this.pluginInfos}
                     runIf={attributes.runIf}/>
     </div>;

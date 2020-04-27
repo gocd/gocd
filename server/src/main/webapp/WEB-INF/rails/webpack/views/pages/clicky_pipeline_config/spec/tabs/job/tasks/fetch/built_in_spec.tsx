@@ -171,8 +171,39 @@ describe("Built In Fetch Artifact Task", () => {
     expect(helper.byTestId("form-field-input-destination")).toHaveValue("new-destination");
   });
 
-  function mount(fetchTaskAttributes: FetchTaskAttributes = attributes) {
+  describe("Read Only", () => {
+    beforeEach(() => {
+      mount(undefined, true);
+    });
+
+    it("should render disabled pipeline input", () => {
+      expect(helper.byTestId("form-field-input-pipeline")).toBeDisabled();
+    });
+
+    it("should render disabled stage input", () => {
+      expect(helper.byTestId("form-field-input-stage")).toBeDisabled();
+    });
+
+    it("should render disabled job input", () => {
+      expect(helper.byTestId("form-field-input-job")).toBeDisabled();
+    });
+
+    it("should render disabled source input", () => {
+      expect(helper.byTestId("form-field-input-source")).toBeDisabled();
+    });
+
+    it("should render disabled destination input", () => {
+      expect(helper.byTestId("form-field-input-destination")).toBeDisabled();
+    });
+
+    it("should render disabled is source a file checkbox", () => {
+      expect(helper.byTestId("form-field-input-source-is-a-file-not-a-directory")).toBeDisabled();
+    });
+  });
+
+  function mount(fetchTaskAttributes: FetchTaskAttributes = attributes, readonly: boolean = false) {
     return helper.mount(() => <BuiltInFetchArtifactView autoSuggestions={Stream({})}
+                                                        readonly={readonly}
                                                         attributes={fetchTaskAttributes}/>);
   }
 });

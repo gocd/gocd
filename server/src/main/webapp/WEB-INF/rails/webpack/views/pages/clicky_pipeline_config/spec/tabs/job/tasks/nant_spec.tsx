@@ -157,9 +157,31 @@ describe("Nant Task Modal", () => {
     expect(helper.byTestId("on-cancel-view")).toBeFalsy();
   });
 
-  function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true) {
+  describe("Read Only", () => {
+    beforeEach(() => {
+      mount(undefined, false, true);
+    });
+
+    it("should render readonly build file", () => {
+      expect(helper.byTestId("form-field-input-build-file")).toBeDisabled();
+    });
+
+    it("should render readonly target", () => {
+      expect(helper.byTestId("form-field-input-target")).toBeDisabled();
+    });
+
+    it("should render readonly working directory", () => {
+      expect(helper.byTestId("form-field-input-working-directory")).toBeDisabled();
+    });
+
+    it("should render readonly nant path", () => {
+      expect(helper.byTestId("form-field-input-nant-path")).toBeDisabled();
+    });
+  });
+
+  function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true, readonly: boolean = false) {
     helper.mount(() => {
-      return new NantTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), new PluginInfos()).body();
+      return new NantTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), new PluginInfos(), readonly).body();
     });
   }
 });

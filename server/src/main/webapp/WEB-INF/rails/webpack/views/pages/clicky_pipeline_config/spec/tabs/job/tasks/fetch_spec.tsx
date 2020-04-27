@@ -69,12 +69,24 @@ describe("Fetch Task Modal", () => {
     expect(helper.byTestId("external-fetch-artifact-view")).toBeInDOM();
   });
 
-  function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true) {
+  describe("Read Only", () => {
+    beforeEach(() => {
+      mount(undefined, false, true);
+    });
+
+    it("should render disabled gocd or plugin fetch artifact task selection", () => {
+      expect(helper.byTestId("radio-gocd")).toBeDisabled();
+      expect(helper.byTestId("radio-external")).toBeDisabled();
+    });
+  });
+
+  function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true, readonly: boolean = false) {
     helper.mount(() => {
       modal = new FetchArtifactTaskModal(task,
                                          shouldShowOnCancel,
                                          jasmine.createSpy(),
                                          new PluginInfos(PluginInfo.fromJSON(ArtifactPluginInfo.docker())),
+                                         readonly,
                                          Stream());
       return modal.body();
     });

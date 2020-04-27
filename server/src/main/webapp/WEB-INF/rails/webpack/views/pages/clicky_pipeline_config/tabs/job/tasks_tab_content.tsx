@@ -82,20 +82,21 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
                       pluginInfos: PluginInfos,
                       pipelineConfigSave: () => Promise<any>,
                       pipelineConfigReset: () => any,
+                      readonly: boolean = false,
                       autoSuggestions?: Stream<any>) {
     switch (type) {
       case "Ant":
-        return new AntTaskModal(task, showOnCancel, onSave, pluginInfos);
+        return new AntTaskModal(task, showOnCancel, onSave, pluginInfos, readonly);
       case "NAnt":
-        return new NantTaskModal(task, showOnCancel, onSave, pluginInfos);
+        return new NantTaskModal(task, showOnCancel, onSave, pluginInfos, readonly);
       case "Rake":
-        return new RakeTaskModal(task, showOnCancel, onSave, pluginInfos);
+        return new RakeTaskModal(task, showOnCancel, onSave, pluginInfos, readonly);
       case "Custom Command":
-        return new ExecTaskModal(task, showOnCancel, onSave, pluginInfos);
+        return new ExecTaskModal(task, showOnCancel, onSave, pluginInfos, readonly);
       case "Plugin Task":
-        return new PluggableTaskModal(task, showOnCancel, onSave, pluginInfos);
+        return new PluggableTaskModal(task, showOnCancel, onSave, pluginInfos, readonly);
       case "Fetch Artifact":
-        return new FetchArtifactTaskModal(task, showOnCancel, onSave, pluginInfos, autoSuggestions!);
+        return new FetchArtifactTaskModal(task, showOnCancel, onSave, pluginInfos, readonly, autoSuggestions!);
       default:
         throw new Error("Unsupported Task Type!");
     }
@@ -124,14 +125,9 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
-    return <div data-test-id={"tasks-container"}>
-      {vnode.state.entityReOrderHandler.getReOrderConfirmationView()}
-      <Table headers={TasksWidget.getTableHeaders(vnode.attrs.isEditable)}
-             draggable={vnode.attrs.isEditable}
-             dragHandler={TasksWidget.reArrange.bind(this, vnode.attrs.tasks)}
-             dragEnd={vnode.state.entityReOrderHandler.onReOder.bind(vnode.state.entityReOrderHandler)}
-             data={this.getTableData(vnode)}/>
-      <div className={styles.addTaskWrapper}>
+    let addTaskView: m.Children;
+    if (vnode.attrs.isEditable) {
+      addTaskView = (<div className={styles.addTaskWrapper}>
         <SelectField property={vnode.state.selectedTaskTypeToAdd}>
           <SelectFieldOptions selected={vnode.state.selectedTaskTypeToAdd()}
                               items={vnode.state.allTaskTypes}/>
@@ -145,13 +141,24 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
                                                                   vnode.attrs.pluginInfos(),
                                                                   vnode.attrs.pipelineConfigSave,
                                                                   vnode.attrs.pipelineConfigReset,
+                                                                  !vnode.attrs.isEditable,
                                                                   vnode.attrs.autoSuggestions)!;
 
                      vnode.state.modal.render();
                    }}>
           Add Task
         </Secondary>
-      </div>
+      </div>);
+    }
+
+    return <div data-test-id={"tasks-container"}>
+      {vnode.state.entityReOrderHandler.getReOrderConfirmationView()}
+      <Table headers={TasksWidget.getTableHeaders(vnode.attrs.isEditable)}
+             draggable={vnode.attrs.isEditable}
+             dragHandler={TasksWidget.reArrange.bind(this, vnode.attrs.tasks)}
+             dragEnd={vnode.state.entityReOrderHandler.onReOder.bind(vnode.state.entityReOrderHandler)}
+             data={this.getTableData(vnode)}/>
+      {addTaskView}
     </div>;
   }
 
@@ -207,6 +214,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
                                                        vnode.attrs.pluginInfos(),
                                                        vnode.attrs.pipelineConfigSave,
                                                        vnode.attrs.pipelineConfigReset,
+                                                       !vnode.attrs.isEditable,
                                                        vnode.attrs.autoSuggestions)!;
 
           vnode.state.modal.render();
@@ -300,7 +308,7 @@ export class TasksTabContent extends TabContent<Job> {
                         flashMessage={flashMessage}
                         pipelineConfigReset={reset}
                         tasks={entity.tasks}
-                        isEditable={true}/>;
+                        isEditable={!this.isEntityDefinedInConfigRepository()}/>;
   }
 
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): Job {

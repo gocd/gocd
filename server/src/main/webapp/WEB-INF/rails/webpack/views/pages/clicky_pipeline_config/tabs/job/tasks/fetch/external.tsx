@@ -39,6 +39,7 @@ export interface Attrs {
   attributes: FetchTaskAttributes;
   autoSuggestions: Stream<any>;
   artifactPluginInfos: PluginInfos;
+  readonly: boolean;
 }
 
 export interface State {
@@ -67,7 +68,7 @@ export class ExternalFetchArtifactView extends MithrilComponent<Attrs, State> {
     }
 
     return (<div data-test-id="external-fetch-artifact-view">
-      <UpstreamJobToFetchArtifactFromWidget{...vnode.attrs} onJobSuggestionChange={onJobSuggestionChange}/>
+      <UpstreamJobToFetchArtifactFromWidget {...vnode.attrs} onJobSuggestionChange={onJobSuggestionChange}/>
       {this.getExternalFetchArtifactView(vnode)}
     </div>);
   }
@@ -99,7 +100,7 @@ export class ExternalFetchArtifactView extends MithrilComponent<Attrs, State> {
       optionalPluginIdDropdown = (<SelectField property={vnode.state.pluginId}
                                                label="Plugin Id"
                                                errorText={couldNotAutoSelectPluginError}
-                                               readonly={!!pluginIdDeterminedFrom}>
+                                               readonly={vnode.attrs.readonly || !!pluginIdDeterminedFrom}>
         <SelectFieldOptions selected={vnode.state.pluginId()}
                             items={allArtifactPluginIds}/>
       </SelectField>);
@@ -108,6 +109,8 @@ export class ExternalFetchArtifactView extends MithrilComponent<Attrs, State> {
     return (<div data-test-id="plugin-configuration">
       <div class={styles.artifactIdPluginIdGroup}>
         <AutocompleteField helpText={artifactIdHelpText}
+                           readonly={vnode.attrs.readonly}
+                           autoEvaluate={!vnode.attrs.readonly}
                            required={true}
                            errorText={attributes.errors().errorsForDisplay("artifactId")}
                            provider={vnode.state.artifactIdSuggestions}
@@ -119,6 +122,7 @@ export class ExternalFetchArtifactView extends MithrilComponent<Attrs, State> {
                                               foundationStyles.foundationFormHax)}`}>
         <AngularPluginNew pluginInfoSettings={Stream(artifactExtension.fetchArtifactSettings)}
                           key={vnode.state.pluginId()}
+                          disabled={vnode.attrs.readonly}
                           configuration={vnode.attrs.attributes.configuration()}/>
       </div>
     </div>);

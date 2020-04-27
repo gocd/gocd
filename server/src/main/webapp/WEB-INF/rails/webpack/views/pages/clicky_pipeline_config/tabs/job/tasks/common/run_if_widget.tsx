@@ -23,6 +23,7 @@ import styles from "./run_if.scss";
 
 interface Attrs {
   runIf: Stream<RunIfCondition[]>;
+  readonly: boolean;
 }
 
 interface State {
@@ -74,14 +75,15 @@ export class RunIfConditionWidget extends MithrilComponent<Attrs, State> {
         <h4>Run If Conditions:</h4>
         <div class={styles.runIfCheckboxWrapper}>
           <CheckboxField label="Passed"
-                         readonly={vnode.state.any()}
+                         readonly={vnode.attrs.readonly || vnode.state.any()}
                          onchange={vnode.state.onchange}
                          property={vnode.state.passed}/>
           <CheckboxField label="Failed"
-                         readonly={vnode.state.any()}
+                         readonly={vnode.attrs.readonly || vnode.state.any()}
                          onchange={vnode.state.onchange}
                          property={vnode.state.failed}/>
           <CheckboxField label="Any"
+                         readonly={vnode.attrs.readonly}
                          onchange={() => {
                            vnode.state.clearPassedAndFailed();
                            vnode.state.onchange();

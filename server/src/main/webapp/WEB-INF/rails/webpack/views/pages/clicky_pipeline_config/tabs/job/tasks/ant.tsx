@@ -25,11 +25,13 @@ export class AntTaskModal extends AbstractTaskModal {
   private readonly task: AntTask;
   private readonly showOnCancel: boolean;
   private readonly pluginInfos: PluginInfos;
+  private readonly readonly: boolean;
 
-  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos) {
+  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos, readonly: boolean) {
     super(onAdd);
     this.showOnCancel = showOnCancel;
     this.pluginInfos  = pluginInfos;
+    this.readonly     = readonly;
     this.task         = task ? task : new AntTask(undefined, undefined, undefined, [], undefined);
   }
 
@@ -40,20 +42,24 @@ export class AntTaskModal extends AbstractTaskModal {
       {this.renderFlashMessage()}
       <h3>Basic Settings</h3>
       <TextField helpText="Path to Ant build file. If not specified, the path defaults to 'build.xml'."
+                 readonly={this.readonly}
                  label="Build File"
                  placeholder="build.xml"
                  errorText={attributes.errors().errorsForDisplay("buildFile")}
                  property={attributes.buildFile}/>
       <TextField helpText="Ant target(s) to run. If not specified, the target defaults to 'default'."
+                 readonly={this.readonly}
                  label="Target"
                  placeholder="default"
                  errorText={attributes.errors().errorsForDisplay("target")}
                  property={attributes.target}/>
       <TextField helpText="The directory from where ant is invoked."
+                 readonly={this.readonly}
                  label="Working Directory"
                  errorText={attributes.errors().errorsForDisplay("workingDirectory")}
                  property={attributes.workingDirectory}/>
       <OnCancelView showOnCancel={this.showOnCancel}
+                    readonly={this.readonly}
                     onCancel={attributes.onCancel}
                     pluginInfos={this.pluginInfos}
                     runIf={attributes.runIf}/>

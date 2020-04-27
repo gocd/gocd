@@ -23,6 +23,7 @@ import styles from "../stages.scss";
 interface ConfigurationTypeAttrs {
   property: (value?: string) => string;
   isPipelineDefinedOriginallyFromTemplate: Stream<boolean>;
+  readonly: boolean;
 }
 
 export class ConfigurationTypeWidget extends MithrilComponent<ConfigurationTypeAttrs> {
@@ -30,7 +31,7 @@ export class ConfigurationTypeWidget extends MithrilComponent<ConfigurationTypeA
     return <div class={styles.configurationTypeContainer} data-test-id="configuration-type">
       <RadioField label="Configuration Type"
                   property={vnode.attrs.property}
-                  readonly={vnode.attrs.isPipelineDefinedOriginallyFromTemplate()}
+                  readonly={vnode.attrs.readonly || vnode.attrs.isPipelineDefinedOriginallyFromTemplate()}
                   inline={true}
                   possibleValues={[
                     {label: "Use Template", value: "template"},

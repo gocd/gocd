@@ -82,6 +82,7 @@ export class StagesTabContent extends TabContent<PipelineConfig | TemplateConfig
                      reset: () => any) {
 
     return <StagesOrTemplatesWidget entity={entity}
+                                    readonly={this.isEntityDefinedInConfigRepository()}
                                     isTemplateView={this.isTemplateView()}
                                     templateConfig={templateConfig}
                                     isPipelineDefinedOriginallyFromTemplate={this.isPipelineDefinedOriginallyFromTemplate}
@@ -118,6 +119,7 @@ export class StagesTabContent extends TabContent<PipelineConfig | TemplateConfig
 }
 
 interface StagesOrTemplatesAttrs {
+  readonly: boolean;
   entity: PipelineConfig | TemplateConfig;
   templateConfig: TemplateConfig;
   flashMessage: FlashMessageModelWithTimeout;
@@ -160,12 +162,13 @@ export class StagesOrTemplatesWidget extends MithrilComponent<StagesOrTemplatesA
                            flashMessage={vnode.attrs.flashMessage}
                            pipelineConfigSave={vnode.attrs.save}
                            pipelineConfigReset={vnode.attrs.reset}
-                           isEditable={true}/>;
+                           isEditable={!vnode.attrs.readonly}/>;
     }
 
     let stagesOrTemplatesView: m.Children;
     if (vnode.state.isUsingTemplate()) {
       stagesOrTemplatesView = <PipelineTemplateWidget pipelineConfig={entity as PipelineConfig}
+                                                      readonly={vnode.attrs.readonly}
                                                       pipelineConfigSave={vnode.attrs.save}
                                                       pipelineConfigReset={vnode.attrs.reset}
                                                       templates={vnode.attrs.templates}/>;
@@ -176,11 +179,12 @@ export class StagesOrTemplatesWidget extends MithrilComponent<StagesOrTemplatesA
                                             flashMessage={vnode.attrs.flashMessage}
                                             pipelineConfigSave={vnode.attrs.save}
                                             pipelineConfigReset={vnode.attrs.reset}
-                                            isEditable={!(entity as PipelineConfig).origin().isDefinedInConfigRepo()}/>;
+                                            isEditable={!vnode.attrs.readonly}/>;
     }
 
     return [
       <ConfigurationTypeWidget pipelineConfig={entity}
+                               readonly={vnode.attrs.readonly}
                                isPipelineDefinedOriginallyFromTemplate={vnode.attrs.isPipelineDefinedOriginallyFromTemplate}
                                property={vnode.state.stageOrTemplatePropertyStream}/>,
       stagesOrTemplatesView

@@ -62,6 +62,12 @@ export class StagesWidget extends MithrilComponent<Attrs, State> {
       return;
     }
 
+    let addStageBtn: m.Children;
+    if (vnode.attrs.isEditable) {
+      addStageBtn = <Secondary dataTestId={"add-stage-button"}
+                               onclick={() => vnode.state.getModal().render()}>Add new stage</Secondary>;
+    }
+
     return <div data-test-id={"stages-container"}>
       {vnode.state.entityReOrderHandler.getReOrderConfirmationView()}
       <Table headers={StagesWidget.getTableHeaders(vnode.attrs.isEditable)}
@@ -69,9 +75,7 @@ export class StagesWidget extends MithrilComponent<Attrs, State> {
              draggable={vnode.attrs.isEditable}
              dragEnd={vnode.state.entityReOrderHandler.onReOder.bind(vnode.state.entityReOrderHandler)}
              dragHandler={StagesWidget.reArrange.bind(this, vnode.attrs.stages)}/>
-      <Secondary disabled={!vnode.attrs.isEditable}
-                 dataTestId={"add-stage-button"}
-                 onclick={() => vnode.state.getModal().render()}>Add new stage</Secondary>
+      {addStageBtn}
     </div>;
   }
 

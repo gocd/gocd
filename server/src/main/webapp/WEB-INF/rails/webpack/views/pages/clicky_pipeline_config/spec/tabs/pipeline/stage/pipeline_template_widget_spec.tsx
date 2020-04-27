@@ -102,10 +102,26 @@ describe("Pipeline Template Widget", () => {
     helper.clickByTestId("cancel-action-button", document.body);
   });
 
-  function mount(templateNames: string[] = []) {
+  describe("Read Only", () => {
+    beforeEach(() => {
+      mount(["template1"], true);
+    });
+
+    it("should render disabled template dropdown", () => {
+      expect(helper.byTestId("form-field-input-template")).toBeDisabled();
+    });
+
+    it("should not render save and reset buttons", () => {
+      expect(helper.byTestId("cancel")).not.toBeInDOM();
+      expect(helper.byTestId("save")).not.toBeInDOM();
+    });
+  });
+
+  function mount(templateNames: string[] = [], readonly: boolean = false) {
     helper.mount(() => {
       const templates = templateNames.map(n => ({name: n, parameters: []} as Template));
       return <PipelineTemplateWidget pipelineConfig={pipelineConfig}
+                                     readonly={readonly}
                                      pipelineConfigSave={jasmine.createSpy().and.returnValue(Promise.resolve())}
                                      pipelineConfigReset={jasmine.createSpy().and.returnValue(Promise.resolve())}
                                      templates={Stream(templates)}/>;

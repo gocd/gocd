@@ -36,7 +36,9 @@ export class ParametersTabContent extends TabContent<PipelineConfig> {
 
   protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig) {
     return (<div class={styles.mainContainer}>
-      <PipelineParametersEditor paramList={this.paramList} parameters={entity.parameters}/>
+      <PipelineParametersEditor paramList={this.paramList}
+                                readonly={this.isEntityDefinedInConfigRepository()}
+                                parameters={entity.parameters}/>
     </div>);
   }
 }

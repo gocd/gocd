@@ -34,7 +34,7 @@ describe("ParametersEditor", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("should update the model when a parameter is updated", () => {
-    helper.mount(() => <PipelineParametersEditor parameters={config.parameters} paramList={paramList} />);
+    helper.mount(() => <PipelineParametersEditor readonly={false} parameters={config.parameters} paramList={paramList} />);
     expect(config.parameters()).toEqual([]);
 
     helper.oninput(helper.byTestId("form-field-input-param-name-0"), "my-param");
@@ -51,7 +51,7 @@ describe("ParametersEditor", () => {
     ]);
 
     const [param1, , param3] = config.parameters();
-    helper.mount(() => <PipelineParametersEditor parameters={config.parameters} paramList={paramList}/>);
+    helper.mount(() => <PipelineParametersEditor readonly={false} parameters={config.parameters} paramList={paramList}/>);
 
     helper.click(helper.qa("table button").item(1));
 
@@ -60,7 +60,7 @@ describe("ParametersEditor", () => {
 
   it("should at least have an empty param", () => {
     //empty inputs on load
-    helper.mount(() => <PipelineParametersEditor parameters={config.parameters} paramList={paramList} />);
+    helper.mount(() => <PipelineParametersEditor readonly={false} parameters={config.parameters} paramList={paramList} />);
     expect(helper.qa("table input[type=\"text\"]").length).toBe(2);
     expect((helper.byTestId("form-field-input-param-name-0") as HTMLInputElement).value).toBe("");
     expect((helper.byTestId("form-field-input-param-value-0") as HTMLInputElement).value).toBe("");
@@ -75,6 +75,26 @@ describe("ParametersEditor", () => {
     expect(helper.qa("table input[type=\"text\"]").length).toBe(2);
     expect((helper.byTestId("form-field-input-param-name-0") as HTMLInputElement).value).toBe("");
     expect((helper.byTestId("form-field-input-param-value-0") as HTMLInputElement).value).toBe("");
+  });
+
+  describe("Read Only", () => {
+    beforeEach(() => {
+      config.parameters([new PipelineParameter("my-param", "lalala")]);
+      helper.mount(() => <PipelineParametersEditor readonly={true} parameters={config.parameters} paramList={paramList}/>);
+    });
+
+    it("should render disabled params", () => {
+      expect(helper.byTestId("form-field-input-param-name-0")).toBeDisabled();
+      expect(helper.byTestId("form-field-input-param-value-0")).toBeDisabled();
+    });
+
+    it("should not render delete param", () => {
+      expect(helper.q("table button")).not.toBeInDOM();
+    });
+
+    it("should not render add param", () => {
+      expect(helper.byTestId("add-param")).not.toBeInDOM();
+    });
   });
 });
 

@@ -68,9 +68,21 @@ describe("Pipeline Template Configuration Type Widget", () => {
     expect(helper.byTestId("radio-stage")).toBeDisabled();
   });
 
-  function mount(propertyVal: string = "stage", fromTemplate: boolean = false) {
+  describe("Read Only", () => {
+    beforeEach(() => {
+      mount("template", false, true);
+    });
+
+    it("should render disabled configuration radio boxes", () => {
+      expect(helper.byTestId("radio-template")).toBeDisabled();
+      expect(helper.byTestId("radio-stage")).toBeDisabled();
+    });
+  });
+
+  function mount(propertyVal: string = "stage", fromTemplate: boolean = false, readonly: boolean = false) {
     helper.mount(() => {
       return <ConfigurationTypeWidget property={Stream<string>(propertyVal)}
+                                      readonly={readonly}
                                       isPipelineDefinedOriginallyFromTemplate={Stream<boolean>(fromTemplate)}/>;
     });
   }

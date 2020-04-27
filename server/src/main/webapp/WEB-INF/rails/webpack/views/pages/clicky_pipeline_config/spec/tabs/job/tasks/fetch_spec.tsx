@@ -75,9 +75,8 @@ describe("Fetch Task Modal", () => {
     });
 
     it("should render disabled gocd or plugin fetch artifact task selection", () => {
-      mount();
-      expect(helper.byTestId("input-field-for-gocd")).toBeDisabled();
-      expect(helper.byTestId("input-field-for-external")).toBeDisabled();
+      expect(helper.byTestId("radio-gocd")).toBeDisabled();
+      expect(helper.byTestId("radio-external")).toBeDisabled();
     });
   });
 

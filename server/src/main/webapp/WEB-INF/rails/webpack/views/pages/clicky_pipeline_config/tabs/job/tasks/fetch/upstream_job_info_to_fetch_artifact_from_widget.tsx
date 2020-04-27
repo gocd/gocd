@@ -64,6 +64,7 @@ export class UpstreamJobToFetchArtifactFromWidget extends MithrilComponent<Attrs
     return <div>
       <AutocompleteField helpText={pipelineHelpText}
                          required={false}
+                         autoEvaluate={!vnode.attrs.readonly}
                          readonly={vnode.attrs.readonly}
                          errorText={attributes.errors().errorsForDisplay("pipeline")}
                          provider={vnode.state.pipelineSuggestions}
@@ -71,6 +72,7 @@ export class UpstreamJobToFetchArtifactFromWidget extends MithrilComponent<Attrs
                          label="Pipeline"
                          property={attributes.pipeline}/>
       <AutocompleteField helpText={stageHelpText}
+                         autoEvaluate={!vnode.attrs.readonly}
                          readonly={vnode.attrs.readonly}
                          errorText={attributes.errors().errorsForDisplay("stage")}
                          provider={vnode.state.stageSuggestions}
@@ -79,6 +81,7 @@ export class UpstreamJobToFetchArtifactFromWidget extends MithrilComponent<Attrs
                          label="Stage"
                          property={attributes.stage}/>
       <AutocompleteField helpText={jobHelpText}
+                         autoEvaluate={!vnode.attrs.readonly}
                          readonly={vnode.attrs.readonly}
                          errorText={attributes.errors().errorsForDisplay("job")}
                          provider={vnode.state.jobSuggestions}

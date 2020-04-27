@@ -21,8 +21,8 @@ import {PluginConfiguration} from "models/admin_templates/templates";
 
 import {PluggableTask, PluggableTaskAttributes, Task} from "models/pipeline_configs/task";
 import {Configurations} from "models/shared/configuration";
-import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {TaskExtension} from "models/shared/plugin_infos_new/extensions";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";

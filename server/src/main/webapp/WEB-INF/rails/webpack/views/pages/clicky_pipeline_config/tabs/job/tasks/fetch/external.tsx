@@ -20,8 +20,8 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {FetchTaskAttributes} from "models/pipeline_configs/task";
-import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {ArtifactExtension} from "models/shared/plugin_infos_new/extensions";
+import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField} from "views/components/forms/autocomplete";
@@ -110,6 +110,7 @@ export class ExternalFetchArtifactView extends MithrilComponent<Attrs, State> {
       <div class={styles.artifactIdPluginIdGroup}>
         <AutocompleteField helpText={artifactIdHelpText}
                            readonly={vnode.attrs.readonly}
+                           autoEvaluate={!vnode.attrs.readonly}
                            required={true}
                            errorText={attributes.errors().errorsForDisplay("artifactId")}
                            provider={vnode.state.artifactIdSuggestions}

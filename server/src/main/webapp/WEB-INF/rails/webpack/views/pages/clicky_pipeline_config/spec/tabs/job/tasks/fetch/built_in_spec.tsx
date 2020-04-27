@@ -197,7 +197,7 @@ describe("Built In Fetch Artifact Task", () => {
     });
 
     it("should render disabled is source a file checkbox", () => {
-      expect(helper.byTestId("form-field-label-source-is-a-file-not-a-directory")).toBeDisabled();
+      expect(helper.byTestId("form-field-input-source-is-a-file-not-a-directory")).toBeDisabled();
     });
   });
 

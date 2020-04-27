@@ -151,7 +151,7 @@ describe("Run If Condition Widget", () => {
   describe("Read Only", () => {
     it("should render readonly run if condition checkboxes", () => {
       const runIf = Stream(["passed", "failed"] as RunIfCondition[]);
-      mount(runIf);
+      mount(runIf, true);
 
       expect(helper.byTestId("form-field-input-passed")).toBeDisabled();
       expect(helper.byTestId("form-field-input-failed")).toBeDisabled();

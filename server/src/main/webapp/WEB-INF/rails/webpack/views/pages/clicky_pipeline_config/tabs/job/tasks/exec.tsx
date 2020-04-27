@@ -27,14 +27,17 @@ export class ExecTaskModal extends AbstractTaskModal {
   private readonly args: Stream<string>;
   private readonly showOnCancel: boolean;
   private readonly pluginInfos: PluginInfos;
+  private readonly readonly: boolean;
 
-  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos) {
+
+  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos, readonly: boolean) {
     super(onAdd);
     this.task = task ? task : new ExecTask("", [], undefined, [], undefined);
     this.args = Stream((this.task.attributes() as ExecTaskAttributes).arguments().join("\n"));
 
     this.pluginInfos  = pluginInfos;
     this.showOnCancel = showOnCancel;
+    this.readonly     = readonly;
   }
 
   body(): m.Children {

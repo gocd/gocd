@@ -87,6 +87,7 @@ export class OnCancelTaskWidget extends MithrilComponent<Attrs, State> {
                                     vnode.attrs.pluginInfos,
                                     this.noOperation.bind(this),
                                     this.noOperation.bind(this),
+                                    false,
                                     Stream({}));
   }
 }

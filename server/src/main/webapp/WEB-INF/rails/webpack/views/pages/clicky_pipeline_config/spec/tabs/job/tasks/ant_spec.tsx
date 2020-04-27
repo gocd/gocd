@@ -131,9 +131,9 @@ describe("Ant Task Modal", () => {
     expect(helper.byTestId("on-cancel-view")).toBeFalsy();
   });
 
-  function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true) {
+  function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true, readonly: boolean = false) {
     helper.mount(() => {
-      return new AntTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), new PluginInfos()).body();
+      return new AntTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), new PluginInfos(), readonly).body();
     });
   }
 });

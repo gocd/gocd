@@ -21,8 +21,8 @@ import {PluginConfiguration} from "models/admin_templates/templates";
 
 import {PluggableTask, PluggableTaskAttributes, Task} from "models/pipeline_configs/task";
 import {Configurations} from "models/shared/configuration";
-import {TaskExtension} from "models/shared/plugin_infos_new/extensions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {TaskExtension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
@@ -38,10 +38,12 @@ export class PluggableTaskModal extends AbstractTaskModal {
   private readonly showOnCancel: boolean;
   private readonly pluginInfos: PluginInfos;
   private readonly selectedPluginId: Stream<string>;
+  private readonly readonly: boolean;
 
-  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos) {
+  constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos, readonly: boolean) {
     super(onAdd);
     this.pluginInfos  = pluginInfos;
+    this.readonly     = readonly;
     this.showOnCancel = showOnCancel;
 
     if (task) {

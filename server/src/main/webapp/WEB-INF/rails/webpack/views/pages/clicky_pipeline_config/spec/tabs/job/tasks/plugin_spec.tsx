@@ -78,8 +78,9 @@ describe("Pluggable Task Modal", () => {
 
   function mount(task?: Task | undefined,
                  shouldShowOnCancel: boolean = true,
-                 pluginInfos: PluginInfos    = new PluginInfos()) {
+                 pluginInfos: PluginInfos    = new PluginInfos(),
+                 readonly: boolean           = false) {
 
-    helper.mount(() => new PluggableTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), pluginInfos).body());
+    helper.mount(() => new PluggableTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), pluginInfos, readonly).body());
   }
 });

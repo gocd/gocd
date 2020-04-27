@@ -138,9 +138,9 @@ describe("Exec Task Modal", () => {
     expect(helper.byTestId("on-cancel-view")).toBeFalsy();
   });
 
-  function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true) {
+  function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true, readonly: boolean = false) {
     helper.mount(() => {
-      modal = new ExecTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), new PluginInfos());
+      modal = new ExecTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), new PluginInfos(), readonly);
       return modal.body();
     });
   }

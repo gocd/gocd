@@ -32,16 +32,19 @@ export class FetchArtifactTaskModal extends AbstractTaskModal {
   private readonly showOnCancel: boolean;
   private readonly pluginInfos: PluginInfos;
   private autoSuggestions: Stream<any>;
+  private readonly readonly: boolean;
 
   constructor(task: Task | undefined,
               showOnCancel: boolean,
               onAdd: (t: Task) => Promise<any>,
               pluginInfos: PluginInfos,
+              readonly: boolean,
               autoSuggestions: Stream<any>) {
     super(onAdd);
     this.showOnCancel    = showOnCancel;
     this.pluginInfos     = pluginInfos;
     this.autoSuggestions = autoSuggestions;
+    this.readonly        = readonly;
 
     this.task = task ? task : new FetchArtifactTask(
       "gocd", undefined, "", "", false,

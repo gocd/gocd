@@ -69,12 +69,13 @@ describe("Fetch Task Modal", () => {
     expect(helper.byTestId("external-fetch-artifact-view")).toBeInDOM();
   });
 
-  function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true) {
+  function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true, readonly: boolean = false) {
     helper.mount(() => {
       modal = new FetchArtifactTaskModal(task,
                                          shouldShowOnCancel,
                                          jasmine.createSpy(),
                                          new PluginInfos(PluginInfo.fromJSON(ArtifactPluginInfo.docker())),
+                                         readonly,
                                          Stream());
       return modal.body();
     });

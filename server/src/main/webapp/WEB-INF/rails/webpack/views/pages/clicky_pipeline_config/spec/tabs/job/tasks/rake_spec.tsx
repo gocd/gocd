@@ -131,9 +131,9 @@ describe("Rake Task Modal", () => {
     expect(helper.byTestId("on-cancel-view")).toBeFalsy();
   });
 
-  function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true) {
+  function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true, readonly: boolean = false) {
     helper.mount(() => {
-      return new RakeTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), new PluginInfos()).body();
+      return new RakeTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), new PluginInfos(), readonly).body();
     });
   }
 });

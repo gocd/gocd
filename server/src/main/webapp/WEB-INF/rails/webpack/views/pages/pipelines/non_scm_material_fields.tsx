@@ -48,6 +48,7 @@ interface Attrs {
   cache: SuggestionCache;
   showLocalWorkingCopyOptions: boolean;
   disabled?: boolean;
+  readonly?: boolean;
 }
 
 interface State {
@@ -121,18 +122,21 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
 
     return [
       <AutocompleteField label="Upstream Pipeline" property={mat.pipeline} errorText={this.errs(mat, "pipeline")}
-                         required={true} maxItems={25} provider={vnode.state.provider}/>,
-      <SelectField label="Upstream Stage" property={mat.stage} errorText={this.errs(mat, "stage")} required={true}>
+                         readonly={vnode.attrs.readonly} autoEvaluate={!vnode.attrs.readonly}
+                         aut required={true} maxItems={25} provider={vnode.state.provider}/>,
+      <SelectField label="Upstream Stage" readonly={vnode.attrs.readonly}
+                   property={mat.stage} errorText={this.errs(mat, "stage")} required={true}>
         <SelectFieldOptions selected={mat.stage()} items={vnode.state.stages()}/>
       </SelectField>,
-      this.advanced(mat, vnode.attrs.showLocalWorkingCopyOptions),
+      this.advanced(mat, vnode.attrs),
     ];
   }
 
-  advanced(mat: DependencyMaterialAttributes, showLocalWorkingCopyOptions: boolean): m.Children {
+  advanced(mat: DependencyMaterialAttributes, attrs: Attrs): m.Children {
+    const showLocalWorkingCopyOptions: boolean = attrs.showLocalWorkingCopyOptions;
     if (showLocalWorkingCopyOptions) {
       return <AdvancedSettings forceOpen={mat.errors().hasErrors("name")}>
-        <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE}
+        <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} readonly={attrs.readonly}
                    placeholder="A human-friendly label for this material" property={mat.name}/>
 
         <SwitchBtn label="Do not schedule the pipeline when this material is updated"
@@ -141,6 +145,7 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
                    dataTestId="material-ignore-for-scheduling"
                    small={true}
                    css={styles}
+                   disabled={attrs.readonly}
                    field={mat.ignoreForScheduling}
                    errorText={this.errs(mat, "ignoreForScheduling")}/>
       </AdvancedSettings>;
@@ -157,6 +162,7 @@ interface PackageAttrs {
   packageRepositories: PackageRepositories;
   pluginInfos: PluginInfos;
   disabled?: boolean;
+  readonly?: boolean;
 }
 
 interface PackageState {
@@ -197,7 +203,7 @@ export class PackageFields extends MithrilComponent<PackageAttrs, PackageState> 
     packageRepos.push(...vnode.attrs.packageRepositories.map((packageRepo) => {
       return {id: packageRepo.repoId(), text: packageRepo.name()};
     }));
-    const readonly = !!vnode.attrs.disabled;
+    const readonly = !!vnode.attrs.disabled || vnode.attrs.readonly;
     this.setErrorMessageIfApplicable(vnode, packageRepos);
 
     let message;
@@ -333,6 +339,7 @@ interface PluginAttrs {
   pluginInfos: PluginInfos;
   showLocalWorkingCopyOptions?: boolean;
   disabled?: boolean;
+  readonly?: boolean;
 }
 
 interface PluginState {
@@ -367,8 +374,7 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
     plugins.push(..._.map(vnode.attrs.pluginInfos, (pluginInfo: PluginInfo) => {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
     }));
-    const readonly                    = !!vnode.attrs.disabled;
-    const showLocalWorkingCopyOptions = !!vnode.attrs.showLocalWorkingCopyOptions;
+    const readonly                    = !!vnode.attrs.disabled || vnode.attrs.readonly;
     this.setErrorMessageIfApplicable(vnode);
 
     let message;
@@ -378,7 +384,6 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
 
     return [
       this.errorMessage,
-
       <SelectField property={this.pluginIdProxy.bind(this, vnode)}
                    label="SCM Plugin"
                    errorText={attrs.errors().errorsForDisplay("pluginId")}
@@ -399,7 +404,7 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
 
       this.showSelectedScmConfig(vnode),
 
-      this.advanced(attrs, showLocalWorkingCopyOptions)
+      this.advanced(attrs, vnode.attrs)
     ];
   }
 
@@ -425,7 +430,8 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
                                            }));
   }
 
-  private advanced(attrs: PluggableScmMaterialAttributes, showLocalWorkingCopyOptions: boolean): m.Children {
+  private advanced(attrs: PluggableScmMaterialAttributes, vnodeAttrs: PluginAttrs): m.Children {
+    const showLocalWorkingCopyOptions = !!vnodeAttrs.showLocalWorkingCopyOptions;
     if (showLocalWorkingCopyOptions) {
       const labelForDestination = [
         "Alternate Checkout Path",
@@ -434,7 +440,7 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
       ];
       const forceOpen           = attrs.errors().hasErrors("name") || attrs.errors().hasErrors("destination");
       return <AdvancedSettings forceOpen={forceOpen}>
-        <TextField label={labelForDestination} property={attrs.destination}
+        <TextField label={labelForDestination} property={attrs.destination} readonly={vnodeAttrs.readonly}
                    errorText={attrs.errors().errorsForDisplay("destination")}/>
       </AdvancedSettings>;
     }

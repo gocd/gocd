@@ -16,7 +16,16 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {GitMaterialAttributes, HgMaterialAttributes, Material, MaterialAttributes, P4MaterialAttributes, ScmMaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "models/materials/types";
+import {
+  GitMaterialAttributes,
+  HgMaterialAttributes,
+  Material,
+  MaterialAttributes,
+  P4MaterialAttributes,
+  ScmMaterialAttributes,
+  SvnMaterialAttributes,
+  TfsMaterialAttributes
+} from "models/materials/types";
 import {CheckboxField, FormField, PasswordField, TextField} from "views/components/forms/input_fields";
 import {TestConnection} from "views/components/materials/test_connection";
 import {SwitchBtn} from "views/components/switch";
@@ -31,6 +40,7 @@ interface Attrs {
   hideTestConnection?: boolean;
   showLocalWorkingCopyOptions: boolean;
   disabled?: boolean;
+  readonly?: boolean;
 }
 
 function markAllDisabled(vnodes: m.ChildArray) {
@@ -39,8 +49,10 @@ function markAllDisabled(vnodes: m.ChildArray) {
       if (vnode instanceof Array) {
         markAllDisabled(vnode);
       } else {
-        if (FormField.isPrototypeOf(vnode.tag)) {
+        //@ts-ignore
+        if (FormField.isPrototypeOf(vnode.tag) || vnode.tag.name === "SwitchBtn") {
           (vnode.attrs as any).readonly = true;
+          (vnode.attrs as any).disabled = true;
         } else {
           if (vnode.children instanceof Array) {
             markAllDisabled(vnode.children);
@@ -71,6 +83,10 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
     }
 
     fields.push(this.advancedOptions(mattrs, vnode.attrs.showLocalWorkingCopyOptions));
+
+    if (vnode.attrs.readonly) {
+      return markAllDisabled(fields);
+    }
 
     return fields;
   }

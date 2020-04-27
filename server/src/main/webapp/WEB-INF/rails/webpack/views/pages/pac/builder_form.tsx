@@ -82,7 +82,7 @@ export class BuilderForm extends MithrilComponent<Attrs> {
 
       <UserInputPane css={uipCss} onchange={vnode.attrs.onMaterialChange}>
         <h3 class={defaultStyles.builderSectionHeading}>Material</h3>
-        <MaterialEditor material={material}/>
+        <MaterialEditor material={material} readonly={false}/>
       </UserInputPane>
 
       <UserInputPane css={uipCss}>

@@ -38,10 +38,11 @@ export class MaterialModal extends Modal {
   private readonly pluggableScms: Stream<Scms>;
   private readonly pipelineConfigSave: () => Promise<any>;
   private readonly isNew: boolean;
+  private readonly readonly: boolean;
 
   constructor(title: string, entity: Stream<Material>, materials: Stream<Materials>, scms: Stream<Scms>,
               packages: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
-              pipelineConfigSave: () => Promise<any>, isNew: boolean) {
+              pipelineConfigSave: () => Promise<any>, isNew: boolean, readonly: boolean) {
     super(Size.large);
     this.__title                  = title;
     this.entity                   = entity;
@@ -53,19 +54,20 @@ export class MaterialModal extends Modal {
     this.isNew                    = isNew;
     this.errorMessage             = Stream();
     this.closeModalOnOverlayClick = false;
+    this.readonly                 = readonly;
   }
 
   static forAdd(materials: Stream<Materials>, scms: Stream<Scms>, packageRepositories: Stream<PackageRepositories>,
                 pluginInfos: Stream<PluginInfos>, onSuccessfulAdd: () => Promise<any>) {
     const materialType = materials().scmMaterialsHaveDestination() ? "git" : "dependency";
-    return new MaterialModal("Add material", Stream(new Material(materialType)), materials, scms, packageRepositories, pluginInfos, onSuccessfulAdd, true);
+    return new MaterialModal("Add material", Stream(new Material(materialType)), materials, scms, packageRepositories, pluginInfos, onSuccessfulAdd, true, false);
   }
 
   static forEdit(material: Material, materials: Stream<Materials>, scms: Stream<Scms>,
                  packageRepositories: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
-                 pipelineConfigSave: () => Promise<any>) {
+                 pipelineConfigSave: () => Promise<any>, readonly: boolean) {
     const title = `Edit material - ${s.capitalize(material.type()!)}`;
-    return new MaterialModal(title, Stream(material), materials, scms, packageRepositories, pluginInfos, pipelineConfigSave, false);
+    return new MaterialModal(title, Stream(material), materials, scms, packageRepositories, pluginInfos, pipelineConfigSave, false, readonly);
   }
 
   title(): string {
@@ -85,7 +87,7 @@ export class MaterialModal extends Modal {
       <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
       {maybeMsg}
       <MaterialEditor material={this.entity()} showExtraMaterials={true} disabledMaterialTypeSelection={!this.isNew}
-                      disableScmMaterials={!allScmMaterialsHaveDestination}
+                      disableScmMaterials={!allScmMaterialsHaveDestination} readonly={this.readonly}
                       pluggableScms={this.pluggableScms()} packageRepositories={this.packageRepositories()} pluginInfos={this.pluginInfos()}/>
     </div>;
   }

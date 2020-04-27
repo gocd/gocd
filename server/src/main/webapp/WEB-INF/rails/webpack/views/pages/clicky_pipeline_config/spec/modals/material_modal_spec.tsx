@@ -42,7 +42,7 @@ describe("MaterialModalSpec", () => {
   afterEach(() => ModalManager.closeAll());
 
   it('should render material editor', () => {
-    const modal = new MaterialModal("Some modal title", Stream(material), Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), true);
+    const modal = new MaterialModal( "Some modal title", Stream(material), Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), true, false);
     modal.render();
     m.redraw.sync();
     const helper = new TestHelper().forModal();
@@ -55,7 +55,7 @@ describe("MaterialModalSpec", () => {
 
   it('should render material destination blank warning message', () => {
     materials.push(new Material("git", new GitMaterialAttributes()));
-    const modal = new MaterialModal("Some modal title", Stream(material), Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), true);
+    const modal = new MaterialModal( "Some modal title", Stream(material), Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), true, false);
     modal.render();
     m.redraw.sync();
     const helper = new TestHelper().forModal();

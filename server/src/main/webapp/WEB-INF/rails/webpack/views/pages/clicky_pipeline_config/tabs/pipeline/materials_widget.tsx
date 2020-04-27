@@ -35,6 +35,7 @@ import {PipelineConfigPage} from "views/pages/clicky_pipeline_config/pipeline_co
 import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 
 interface MaterialsAttrs {
+  readonly: boolean;
   materials: Stream<Materials>;
   pluginInfos: Stream<PluginInfos>;
   packageRepositories: Stream<PackageRepositories>;
@@ -46,11 +47,20 @@ interface MaterialsAttrs {
 
 export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
   view(vnode: m.Vnode<MaterialsAttrs, this>): m.Children | void | null {
-    return <div class={style.materialTab}>
-      <Table headers={["Material Name", "Type", "Url/Description", ""]} data={this.tableData(vnode)}/>
-      <Secondary dataTestId={"add-material-button"} onclick={this.addMaterial.bind(this, vnode)}>
+    let addMaterialBtn: m.Children;
+    if (!vnode.attrs.readonly) {
+      addMaterialBtn = (<Secondary dataTestId={"add-material-button"} onclick={this.addMaterial.bind(this, vnode)}>
         Add Material
-      </Secondary>
+      </Secondary>);
+    }
+    const headers = ["Material Name", "Type", "Url/Description"];
+    if (!vnode.attrs.readonly) {
+      headers.push("");
+    }
+
+    return <div class={style.materialTab}>
+      <Table headers={headers} data={this.tableData(vnode)}/>
+      {addMaterialBtn}
     </div>;
   }
 
@@ -61,7 +71,13 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
 
   private updateMaterial(vnode: m.Vnode<MaterialsAttrs, this>, materialToUpdate: Material, e: MouseEvent) {
     e.stopPropagation();
-    MaterialModal.forEdit(materialToUpdate, vnode.attrs.materials, vnode.attrs.scmMaterials, vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.pipelineConfigSave).render();
+    MaterialModal.forEdit(materialToUpdate,
+                          vnode.attrs.materials,
+                          vnode.attrs.scmMaterials,
+                          vnode.attrs.packageRepositories,
+                          vnode.attrs.pluginInfos,
+                          vnode.attrs.pipelineConfigSave,
+                          vnode.attrs.readonly).render();
   }
 
   private deleteMaterial(vnode: m.Vnode<MaterialsAttrs, this>, materialToRemove: Material, e: MouseEvent) {
@@ -89,19 +105,24 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
       : "Remove this material";
     return Array.from(vnode.attrs.materials().values()).map((material: Material) => {
       const {name, type, urlOrDescription} = this.getMaterialDisplayInfo(material, vnode);
-      return [
+      const elements                          = [
         <a href={`#!${PipelineConfigPage.pipelineName()}/materials`}
            class={style.nameLink}
            data-test-id={"edit-material-button"}
            onclick={this.updateMaterial.bind(this, vnode, material)}>{name}</a>,
         type,
-        urlOrDescription,
-        <Delete disabled={deleteDisabled}
-                iconOnly={true}
-                title={deleteTitle}
-                onclick={this.deleteMaterial.bind(this, vnode, material)}
-                data-test-id={"delete-material-button"}/>
+        urlOrDescription
       ];
+
+      if (!vnode.attrs.readonly) {
+        elements.push(<Delete disabled={deleteDisabled}
+                              iconOnly={true}
+                              title={deleteTitle}
+                              onclick={this.deleteMaterial.bind(this, vnode, material)}
+                              data-test-id={"delete-material-button"}/>);
+      }
+
+      return elements;
     });
   }
 

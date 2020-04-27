@@ -245,7 +245,7 @@ describe("Artifacts Tab", () => {
     expect(helper.byTestId("artifact-type")).toHaveText("External Artifact");
 
     expect(helper.byTestId("artifact-id-id")).toHaveValue("id");
-    expect(helper.byTestId("form-field-input-")).toHaveValue("storeid");
+    expect(helper.byTestId("artifact-store-id")).toHaveValue("storeid");
   });
 
   it("should remove external artifact", () => {

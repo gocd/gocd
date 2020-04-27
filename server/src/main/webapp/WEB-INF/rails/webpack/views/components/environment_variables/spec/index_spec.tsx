@@ -89,8 +89,8 @@ describe("Environment Variables Widget", () => {
 
     it("should have secure environment variable fields", () => {
       const wrapper = helper.allByTestId("environment-variable-wrapper")[2];
-      expect(helper.byTestId("env-var-name", wrapper)).toHaveValue(secureEnvVar.name());
-      expect(helper.byTestId("env-var-value", wrapper)).toBeInDOM();
+      expect(helper.byTestId("secure-env-var-name", wrapper)).toHaveValue(secureEnvVar.name());
+      expect(helper.byTestId("secure-env-var-value", wrapper)).toBeInDOM();
       expect(helper.byTestId("remove-env-var-btn", wrapper)).toBeInDOM();
     });
   });

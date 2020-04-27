@@ -136,7 +136,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
           <SelectFieldOptions selected={vnode.state.selectedTaskTypeToAdd()}
                               items={vnode.state.allTaskTypes}/>
         </SelectField>
-        <Secondary small={true}
+        <Secondary small={true} dataTestId={"add-task-button"}
                    onclick={() => {
                      vnode.state.modal = TasksWidget.getTaskModal(vnode.state.selectedTaskTypeToAdd(),
                                                                   undefined,

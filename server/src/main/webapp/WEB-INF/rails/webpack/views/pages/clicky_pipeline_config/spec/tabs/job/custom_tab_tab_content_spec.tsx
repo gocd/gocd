@@ -62,7 +62,7 @@ describe("Custom Tab Tab Content", () => {
     const job = Job.fromJSON(JobTestData.with("test"));
     mount(job);
 
-    expect(helper.byTestId("tab")).toBeInDOM();
+    expect(helper.byTestId("tab-0")).toBeInDOM();
   });
 
   it("should render custom tabs", () => {
@@ -70,11 +70,11 @@ describe("Custom Tab Tab Content", () => {
     job.tabs().push(new Tab("tab1", "/dev/random"), new Tab("tab2", "/dev/random2"));
     mount(job);
 
-    expect(helper.allByTestId("tab")).toHaveLength(2);
-
+    expect(helper.byTestId("tab-0")).toBeInDOM();
     expect(helper.byTestId("tab-name-tab1")).toHaveValue("tab1");
     expect(helper.byTestId("tab-path-/dev/random")).toHaveValue("/dev/random");
 
+    expect(helper.byTestId("tab-1")).toBeInDOM();
     expect(helper.byTestId("tab-name-tab2")).toHaveValue("tab2");
     expect(helper.byTestId("tab-path-/dev/random2")).toHaveValue("/dev/random2");
   });
@@ -84,9 +84,10 @@ describe("Custom Tab Tab Content", () => {
     job.tabs().push(new Tab("tab1", "/dev/random"));
     mount(job);
 
-    expect(helper.allByTestId("tab")).toHaveLength(1);
+    expect(helper.byTestId("tab-0")).toBeInDOM();
+    expect(helper.byTestId("tab-1")).not.toBeInDOM();
 
-    helper.click("button", helper.byTestId("custom-tabs"));
+    helper.clickByTestId("add-custom-tab-button");
 
     helper.oninput(`[data-test-id="tab-name-"]`, "tab2");
     helper.oninput(`[data-test-id="tab-path-"]`, "path2");
@@ -97,7 +98,7 @@ describe("Custom Tab Tab Content", () => {
     expect(job.tabs()[1].name()).toEqual("tab2");
     expect(job.tabs()[1].path()).toEqual("path2");
 
-    expect(helper.allByTestId("tab")).toHaveLength(2);
+    expect(helper.byTestId("tab-1")).toBeInDOM();
 
     expect(helper.byTestId("tab-name-tab1")).toHaveValue("tab1");
     expect(helper.byTestId("tab-path-/dev/random")).toHaveValue("/dev/random");

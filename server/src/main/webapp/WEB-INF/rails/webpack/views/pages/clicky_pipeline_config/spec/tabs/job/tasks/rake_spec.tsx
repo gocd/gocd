@@ -131,6 +131,24 @@ describe("Rake Task Modal", () => {
     expect(helper.byTestId("on-cancel-view")).toBeFalsy();
   });
 
+  describe("Read Only", () => {
+    beforeEach(() => {
+      mount(undefined, false, true);
+    });
+
+    it("should render read only build file", () => {
+      expect(helper.byTestId("form-field-input-build-file")).toBeDisabled();
+    });
+
+    it("should render read only target", () => {
+      expect(helper.byTestId("form-field-input-target")).toBeDisabled();
+    });
+
+    it("should render read only working directory", () => {
+      expect(helper.byTestId("form-field-input-working-directory")).toBeDisabled();
+    });
+  });
+
   function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true, readonly: boolean = false) {
     helper.mount(() => {
       return new RakeTaskModal(task, shouldShowOnCancel, jasmine.createSpy(), new PluginInfos(), readonly).body();

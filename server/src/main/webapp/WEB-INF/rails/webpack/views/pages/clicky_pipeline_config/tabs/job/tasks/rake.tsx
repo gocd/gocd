@@ -45,21 +45,25 @@ export class RakeTaskModal extends AbstractTaskModal {
       <h3>Basic Settings</h3>
       <TextField helpText="Path to Rake file. If not specified, the path defaults to 'rakefile'."
                  label="Build File"
+                 readonly={this.readonly}
                  placeholder="rakefile"
                  errorText={attributes.errors().errorsForDisplay("buildFile")}
                  property={attributes.buildFile}/>
       <TextField helpText="Rake target(s) to run."
                  placeholder="target"
                  label="Target"
+                 readonly={this.readonly}
                  errorText={attributes.errors().errorsForDisplay("target")}
                  property={attributes.target}/>
       <TextField helpText="The directory from where rake is invoked."
                  label="Working Directory"
+                 readonly={this.readonly}
                  errorText={attributes.errors().errorsForDisplay("workingDirectory")}
                  property={attributes.workingDirectory}/>
 
       <OnCancelView showOnCancel={this.showOnCancel}
                     onCancel={attributes.onCancel}
+                    readonly={this.readonly}
                     pluginInfos={this.pluginInfos}
                     runIf={attributes.runIf}/>
     </div>;

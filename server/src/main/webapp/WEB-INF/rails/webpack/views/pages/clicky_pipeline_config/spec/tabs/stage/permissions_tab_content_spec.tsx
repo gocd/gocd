@@ -15,6 +15,7 @@
  */
 
 import Stream from "mithril/stream";
+import {Origin, OriginType} from "models/origin";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
@@ -314,8 +315,50 @@ describe("Permissions Tab Content", () => {
     expect(helper.byTestId("roles-errors")).toContainText("role 'role1' does not exists");
   });
 
-  function mount(stage: Stage) {
+  describe("Read Only", () => {
+    beforeEach(() => {
+      const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "Job1"));
+      stage.approval().authorization().isInherited(false);
+      stage.approval().authorization()._users.push(Stream("user1"));
+      stage.approval().authorization()._roles.push(Stream("role1"));
+      const pipelineOrigin = new Origin(OriginType.ConfigRepo, "repo1");
+      mount(stage, pipelineOrigin);
+    });
+
+    it("should render disabled switch for inherit or specify locally", () => {
+      expect(helper.byTestId("radio-inherit")).toBeDisabled();
+      expect(helper.byTestId("radio-local")).toBeDisabled();
+    });
+
+    it("should render disabled input for user", () => {
+      expect(helper.q("input", helper.byTestId("users"))).toBeDisabled();
+    });
+
+    it("should render disabled input for role", () => {
+      expect(helper.q("input", helper.byTestId("roles"))).toBeDisabled();
+    });
+
+    it("should not render remove user", () => {
+      expect(helper.q("i", helper.byTestId("input-field-for-user1"))).not.toBeInDOM();
+    });
+
+    it("should not render remove role", () => {
+      expect(helper.q("i", helper.byTestId("input-field-for-role1"))).not.toBeInDOM();
+    });
+
+    it("should not render add user button", () => {
+      expect(helper.q("button", helper.byTestId("users"))).not.toBeInDOM();
+    });
+
+    it("should not render add role button", () => {
+      expect(helper.q("button", helper.byTestId("roles"))).not.toBeInDOM();
+    });
+  });
+
+  function mount(stage: Stage, pipelineOrigin: Origin = new Origin(OriginType.GoCD)) {
+    document.body.setAttribute("data-meta", JSON.stringify({pipelineName: "pipeline1"}));
     const pipelineConfig = new PipelineConfig();
+    pipelineConfig.origin(pipelineOrigin);
     pipelineConfig.stages().add(stage);
     const routeParams    = {stage_name: stage.name()} as PipelineConfigRouteParams;
     const templateConfig = new TemplateConfig("foo", []);

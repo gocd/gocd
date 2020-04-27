@@ -103,7 +103,10 @@ export class TemplateConfigPage<T> extends TabHandler<T> {
     return Promise.resolve(successResponse);
   }
 
-  //todo: implement me ganeshpl
+  shouldShowSaveAndResetButtons(entity: TemplateConfig): boolean {
+    return true;
+  }
+
   save(): Promise<any> {
     this.flashMessage.clear();
     const isValid = this.getEntity().isValid();

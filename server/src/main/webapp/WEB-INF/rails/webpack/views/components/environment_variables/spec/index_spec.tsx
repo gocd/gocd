@@ -30,28 +30,36 @@ class NonEditableEnvironmentVariable extends EnvironmentVariable {
 }
 
 describe("Environment Variables Widget", () => {
-  const helper               = new TestHelper();
-  const plainTextEnvVar      = new EnvironmentVariable("env1", "plain-text-variables-value");
-  const secureEnvVar         = new EnvironmentVariable("env1", undefined, true, "encrypted-value");
-  const dummyVariable        = new NonEditableEnvironmentVariable("dummy");
-  const environmentVariables = new EnvironmentVariables(plainTextEnvVar, secureEnvVar, dummyVariable);
+  const helper = new TestHelper();
+
+  let environmentVariables: EnvironmentVariables,
+      plainTextEnvVar: EnvironmentVariable,
+      secureEnvVar: EnvironmentVariable,
+      dummyVariable: EnvironmentVariable;
 
   beforeEach(() => {
-    helper.mount(() => <EnvironmentVariablesWidget environmentVariables={environmentVariables}/>);
+    plainTextEnvVar = new EnvironmentVariable("env1", "plain-text-variables-value");
+    secureEnvVar    = new EnvironmentVariable("env1", undefined, true, "encrypted-value");
+    dummyVariable   = new NonEditableEnvironmentVariable("dummy");
+
+    environmentVariables = new EnvironmentVariables(plainTextEnvVar, secureEnvVar, dummyVariable);
   });
 
   afterEach(helper.unmount.bind(helper));
 
   describe("Plain Text Variables", () => {
     it("should have a title", () => {
+      mount(environmentVariables);
       expect(helper.byTestId("plain-text-variables-title")).toBeInDOM();
     });
 
     it("should have an add button", () => {
+      mount(environmentVariables);
       expect(helper.byTestId("add-plain-text-variables-btn")).toBeInDOM();
     });
 
     it("should have plain text environment variable fields", () => {
+      mount(environmentVariables);
       const wrapper = helper.allByTestId("environment-variable-wrapper")[0];
       expect(helper.byTestId("env-var-name", wrapper)).toHaveValue(plainTextEnvVar.name());
       expect(helper.byTestId("env-var-value", wrapper)).toHaveValue(plainTextEnvVar.value()!);
@@ -59,15 +67,17 @@ describe("Environment Variables Widget", () => {
     });
 
     it("should have readonly fields if environment variable is non-editable", () => {
+      mount(environmentVariables);
       const wrapper = helper.allByTestId("environment-variable-wrapper")[1];
       expect(helper.byTestId("env-var-name", wrapper)).toHaveAttr("readonly");
       expect(helper.byTestId("env-var-value", wrapper)).toHaveAttr("readonly");
       expect(helper.byTestId("remove-env-var-btn", wrapper)).not.toBeInDOM();
       expect(helper.byTestId("info-tooltip-wrapper", wrapper)).toBeInDOM();
-      expect(helper.byTestId("info-tooltip-wrapper", wrapper)).toHaveText(dummyVariable.reasonForNonEditable());
+      expect(helper.byTestId("info-tooltip-wrapper", wrapper)).toHaveText(dummyVariable.reasonForNonEditable()!);
     });
 
     it("should display error if any", () => {
+      mount(environmentVariables);
       plainTextEnvVar.errors().add("name", "some error");
       plainTextEnvVar.errors().add("value", "some error in value");
 
@@ -76,22 +86,43 @@ describe("Environment Variables Widget", () => {
       expect(helper.byTestId("env-var-name", wrapper).parentElement).toHaveText("some error.");
       expect(helper.byTestId("env-var-value", wrapper).parentElement).toHaveText("some error in value.");
     });
+
+    it("should display no environment variables are configured message", () => {
+      mount(new EnvironmentVariables());
+
+      const expectedMsg = "No Plain Text Variables are configured.";
+      expect(helper.byTestId("plain-text-variables-msg")).toContainText(expectedMsg);
+    });
   });
 
   describe("Secure Variables", () => {
     it("should have a title", () => {
+      mount(environmentVariables);
       expect(helper.byTestId("secure-variables-title")).toBeInDOM();
     });
 
     it("should have an add button", () => {
+      mount(environmentVariables);
       expect(helper.byTestId("add-secure-variables-btn")).toBeInDOM();
     });
 
     it("should have secure environment variable fields", () => {
+      mount(environmentVariables);
       const wrapper = helper.allByTestId("environment-variable-wrapper")[2];
       expect(helper.byTestId("secure-env-var-name", wrapper)).toHaveValue(secureEnvVar.name());
       expect(helper.byTestId("secure-env-var-value", wrapper)).toBeInDOM();
       expect(helper.byTestId("remove-env-var-btn", wrapper)).toBeInDOM();
     });
+
+    it("should display no environment variables are configured message", () => {
+      mount(new EnvironmentVariables());
+
+      const expectedMsg = "No Secure Variables are configured.";
+      expect(helper.byTestId("secure-variables-msg")).toContainText(expectedMsg);
+    });
   });
+
+  function mount(envVars: EnvironmentVariables) {
+    helper.mount(() => <EnvironmentVariablesWidget environmentVariables={envVars}/>);
+  }
 });

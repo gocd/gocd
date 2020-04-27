@@ -21,7 +21,12 @@ import _ from "lodash";
 import Stream from "mithril/stream";
 import {EnvironmentVariableJSON, EnvironmentVariables} from "models/environment_variables/types";
 import {MaterialJSON} from "models/materials/serialization";
-import {Material, MaterialAttributes, PluggableScmMaterialAttributes, ScmMaterialAttributes} from "models/materials/types";
+import {
+  Material,
+  MaterialAttributes,
+  PluggableScmMaterialAttributes,
+  ScmMaterialAttributes
+} from "models/materials/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Origin, OriginJSON} from "models/origin";
 import {NameableSet} from "./nameable_set";
@@ -99,7 +104,7 @@ export class Timer extends ValidatableMixin {
     }
 
     return {
-      spec:            this.spec(),
+      spec: this.spec(),
       only_on_changes: this.onlyOnChanges()
     };
   }
@@ -143,10 +148,10 @@ export class TrackingTool extends ValidatableMixin {
     }
 
     return {
-      type:       "generic",
+      type: "generic",
       attributes: {
         url_pattern: this.urlPattern(),
-        regex:       this.regex()
+        regex: this.regex()
       }
     };
   }
@@ -221,6 +226,10 @@ export class PipelineConfig extends ValidatableMixin {
   withGroup(group: string) {
     this.group(group);
     return this;
+  }
+
+  isDefinedInConfigRepo() {
+    return this.origin().isDefinedInConfigRepo();
   }
 
   create(pause: boolean) {

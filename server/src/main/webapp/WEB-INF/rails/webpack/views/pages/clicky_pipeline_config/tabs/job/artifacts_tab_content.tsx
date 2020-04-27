@@ -57,14 +57,16 @@ export class ArtifactsTabContent extends TabContent<Job> {
   }
 
   protected renderer(entity: Job, templateConfig: TemplateConfig): m.Children {
+    const readonly = this.isEntityDefinedInConfigRepository();
+
     let artifacts = entity.artifacts().map((artifact, index) => {
       switch (artifact.type()) {
         case ArtifactType.build:
-          return this.getBuiltInArtifactView(artifact as GoCDArtifact, this.removalFn(entity.artifacts(), index));
+          return this.getBuiltInArtifactView(artifact as GoCDArtifact, this.removalFn(entity.artifacts(), index), readonly);
         case ArtifactType.test:
-          return this.getBuiltInArtifactView(artifact as GoCDArtifact, this.removalFn(entity.artifacts(), index));
+          return this.getBuiltInArtifactView(artifact as GoCDArtifact, this.removalFn(entity.artifacts(), index), readonly);
         case ArtifactType.external:
-          return this.getExternalArtifactView(artifact as ExternalArtifact, this.removalFn(entity.artifacts(), index));
+          return this.getExternalArtifactView(artifact as ExternalArtifact, this.removalFn(entity.artifacts(), index), readonly);
       }
     });
 
@@ -75,7 +77,7 @@ export class ArtifactsTabContent extends TabContent<Job> {
 
     return <div data-test-id="artifacts">
       {artifacts}
-      {this.addArtifactView(entity.artifacts())}
+      {this.addArtifactView(entity.artifacts(), readonly)}
     </div>;
   }
 
@@ -100,7 +102,15 @@ export class ArtifactsTabContent extends TabContent<Job> {
     </div>;
   }
 
-  private getBuiltInArtifactView(artifact: GoCDArtifact, removeEntityFn: () => void) {
+  private getBuiltInArtifactView(artifact: GoCDArtifact, removeEntityFn: () => void, readonly: boolean) {
+    let removeArtifact: m.Children;
+
+    if (!readonly) {
+      removeArtifact = <Icons.Close data-test-id={`remove-${artifact.type()}-artifact`}
+                                    iconOnly={true}
+                                    onclick={() => removeEntityFn()}/>;
+    }
+
     return <div class={styles.artifactContainer} data-test-id={`${artifact.type()}-artifact-view`}>
       {this.getBuiltInArtifactHeaders()}
       <div class={styles.builtInArtifactContainer}>
@@ -108,16 +118,16 @@ export class ArtifactsTabContent extends TabContent<Job> {
           {artifact.type()[0].toUpperCase() + artifact.type().slice(1)} Artifact
         </div>
         <TextField dataTestId={`artifact-source-${artifact.source() || ""}`}
+                   readonly={readonly}
                    placeholder="source"
                    errorText={artifact.errors().errorsForDisplay('source')}
                    property={artifact.source}/>
         <TextField dataTestId={`artifact-destination-${artifact.destination() || ""}`}
+                   readonly={readonly}
                    placeholder="destination"
                    errorText={artifact.errors().errorsForDisplay('destination')}
                    property={artifact.destination}/>
-        <Icons.Close data-test-id={`remove-artifact`}
-                     iconOnly={true}
-                     onclick={() => removeEntityFn()}/>
+        {removeArtifact}
       </div>
     </div>;
   }
@@ -139,7 +149,7 @@ export class ArtifactsTabContent extends TabContent<Job> {
     </div>;
   }
 
-  private getExternalArtifactView(artifact: ExternalArtifact, removeEntityFn: () => void) {
+  private getExternalArtifactView(artifact: ExternalArtifact, removeEntityFn: () => void, readonly: boolean) {
     let pluginConfigurations: m.Child;
     if (!!artifact.storeId()) {
       const found      = this.artifactStores().find(store => store.id() === artifact.storeId())!;
@@ -150,8 +160,17 @@ export class ArtifactsTabContent extends TabContent<Job> {
                                                                      foundationStyles.foundationFormHax)}
                                                                      ${styles.pluginView}`}>
         <AngularPluginNew pluginInfoSettings={Stream(artifactExtension.artifactConfigSettings)}
+                          disabled={readonly}
                           configuration={artifact.configuration()}/>
       </div>);
+    }
+
+    let removeArtifact: m.Children;
+
+    if (!readonly) {
+      removeArtifact = <Icons.Close data-test-id={`remove-${artifact.type()}-artifact`}
+                                    iconOnly={true}
+                                    onclick={() => removeEntityFn()}/>;
     }
 
     return <div class={styles.artifactContainer} data-test-id={`${artifact.type()}-artifact-view`}>
@@ -163,25 +182,30 @@ export class ArtifactsTabContent extends TabContent<Job> {
         <TextField dataTestId={`artifact-id-${artifact.artifactId() || ""}`}
                    placeholder="id"
                    errorText={artifact.errors().errorsForDisplay('id')}
+                   readonly={readonly}
                    property={artifact.artifactId}/>
-        <SelectField property={artifact.storeId} dataTestId={"artifact-store-id"}
-                     errorText={artifact.errors().errorsForDisplay('storeId')}>
+        <SelectField readonly={readonly}
+                     errorText={artifact.errors().errorsForDisplay('storeId')}
+                     dataTestId={"artifact-store-id"}
+                     property={artifact.storeId}>
           <SelectFieldOptions selected={artifact.storeId()}
                               items={this.artifactStores().map(s => s.id())}/>
         </SelectField>
-        <Icons.Close data-test-id={`remove-artifact`}
-                     iconOnly={true}
-                     onclick={() => removeEntityFn()}/>
+        {removeArtifact}
       </div>
       {pluginConfigurations}
     </div>;
   }
 
-  private removalFn(collection: Artifacts, index: number) {
+private removalFn(collection: Artifacts, index: number) {
     return () => collection.splice(index, 1);
   }
 
-  private addArtifactView(artifacts: Artifacts) {
+  private addArtifactView(artifacts: Artifacts, readonly: boolean) {
+    if (readonly) {
+      return;
+    }
+
     let noArtifactStoreError: m.Child;
 
     if (this.addArtifactType() === ArtifactType.external && this.artifactStores().length === 0) {

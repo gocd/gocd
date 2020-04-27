@@ -15,19 +15,43 @@
  */
 
 import m from "mithril";
+import Stream from "mithril/stream";
 import {Job} from "models/pipeline_configs/job";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {EnvironmentVariablesWidget} from "views/components/environment_variables";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
+import styles from "./environment_variables.scss";
 
 export abstract class EnvironmentVariablesTabContent extends TabContent<PipelineConfig | Stage | Job> {
+  private isDefinedInConfigRepository: Stream<boolean> = Stream<boolean>(false);
+
   static tabName(): string {
     return "Environment Variables";
   }
 
   protected renderer(entity: PipelineConfig | Stage | Job, templateConfig: TemplateConfig): m.Children {
-    return <EnvironmentVariablesWidget environmentVariables={entity.environmentVariables()}/>;
+    const variables = entity.environmentVariables();
+    const readOnly  = this.isDefinedInConfigRepository();
+
+    if (readOnly) {
+      variables.forEach(env => {env.isEditable(false);});
+    }
+
+    return <div data-test-id={`${readOnly ? "readonly-" : ""}environment-variables`}
+                class={styles.configRepoEnvironmentVariables}>
+      <EnvironmentVariablesWidget environmentVariables={variables}/>
+    </div>;
   }
+
+  protected selectedEntity(entity: PipelineConfig | TemplateConfig,
+                           routeParams: PipelineConfigRouteParams): PipelineConfig | Stage | Job {
+    this.isDefinedInConfigRepository(this.isPipelineConfigView() && (entity as PipelineConfig).isDefinedInConfigRepo());
+    return this.getSelectedEntity(entity, routeParams);
+  }
+
+  protected abstract getSelectedEntity(pipelineConfig: PipelineConfig | TemplateConfig,
+                                       routeParams: PipelineConfigRouteParams): PipelineConfig | Stage | Job;
 }

@@ -32,6 +32,7 @@ import styles from "./job_settings.scss";
 
 export interface Attrs {
   entity: Job;
+  readonly: boolean;
   resources: Stream<string[]>;
   defaultJobTimeout: Stream<number>;
   templateConfig: TemplateConfig;
@@ -46,7 +47,8 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
     const numberFieldForTimeout = <div class={styles.numberFieldWrapper}>
       <NumberField property={entity.jobTimeoutType() !== "number" ? Stream() : (entity.timeout as any)}
                    errorText={entity.errors().errorsForDisplay("timeout")}
-                   readonly={entity.jobTimeoutType() !== "number"} dataTestId={"number-field-for-job-timeout"}/>
+                   readonly={vnode.attrs.readonly || entity.jobTimeoutType() !== "number"}
+                   dataTestId={"number-field-for-job-timeout"}/>
     </div>;
 
     const jobTimeoutInNumber: m.Child = <div class={styles.cancelAfterInactivityWrapper}>
@@ -56,7 +58,8 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
     const numberFieldForRunInstance = <div class={styles.numberFieldWrapper}>
       <NumberField property={entity.runType() !== "number" ? Stream() : (entity.runInstanceCount as any)}
                    errorText={entity.errors().errorsForDisplay("runInstanceCount")}
-                   readonly={entity.runType() !== "number"} dataTestId={"number-field-for-run-instance"}/>
+                   readonly={vnode.attrs.readonly || entity.runType() !== "number"}
+                   dataTestId={"number-field-for-run-instance"}/>
     </div>;
 
     const runInstanceInNumber: m.Child = <div class={styles.cancelAfterInactivityWrapper}>
@@ -68,6 +71,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
     return <div data-test-id="job-settings-tab">
       <h3>Basic Settings</h3>
       <TextField required={true}
+                 readonly={vnode.attrs.readonly}
                  errorText={entity.errors().errorsForDisplay("name")}
                  label="Job Name"
                  property={entity.name}/>
@@ -79,18 +83,19 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
                          filter={vnode.attrs.resourcesSuggestions.filter.bind(vnode.attrs.resourcesSuggestions)}
                          onchange={vnode.attrs.resourcesSuggestions.update.bind(vnode.attrs.resourcesSuggestions)}
                          helpText="The agent resources that the current job requires to run. Specify multiple resources as a comma separated list"
-                         readonly={!!entity.elasticProfileId()}
+                         readonly={vnode.attrs.readonly || !!entity.elasticProfileId()}
                          property={entity.resources}/>
       <AutocompleteField label="Elastic Agent Profile Id"
                          autoEvaluate={false}
                          errorText={entity.errors().errorsForDisplay("elasticProfileId")}
                          provider={vnode.attrs.elasticAgentsSuggestions}
-                         readonly={!!entity.resources()}
+                         readonly={vnode.attrs.readonly || !!entity.resources()}
                          helpText="The Elastic Agent Profile that the current job requires to run"
                          property={entity.elasticProfileId}/>
       <h3>Job Timeout</h3>
       <RadioField onchange={(val) => this.toggleJobTimeout((val as "never" | "default" | "number"), entity)}
                   dataTestId={"job-timout"}
+                  readonly={vnode.attrs.readonly}
                   property={entity.jobTimeoutType}
                   possibleValues={[
                     {
@@ -112,6 +117,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
       </RadioField>
       <h3>Run Type</h3>
       <RadioField property={entity.runType}
+                  readonly={vnode.attrs.readonly}
                   onchange={(val) => this.toggleRunInstance((val as "one" | "all" | "number"), entity)}
                   dataTestId={"run-type"}
                   possibleValues={[
@@ -169,6 +175,7 @@ export class JobSettingsTabContent extends TabContent<Job> {
     const elasticAgentsSuggestionsProvider = new ElasticAgenrSuggestionsProvider(this.elasticAgentIds);
 
     return <JobSettingsTabContentWidget entity={entity}
+                                        readonly={this.isEntityDefinedInConfigRepository()}
                                         resourcesSuggestions={resourcesSuggestionsProvider}
                                         elasticAgentsSuggestions={elasticAgentsSuggestionsProvider}
                                         defaultJobTimeout={this.defaultJobTimeout}

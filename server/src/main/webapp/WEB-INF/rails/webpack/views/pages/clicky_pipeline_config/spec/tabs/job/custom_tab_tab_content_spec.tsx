@@ -16,6 +16,7 @@
 
 import _ from "lodash";
 import Stream from "mithril/stream";
+import {Origin, OriginType} from "models/origin";
 import {Job} from "models/pipeline_configs/job";
 import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
@@ -131,8 +132,32 @@ describe("Custom Tab Tab Content", () => {
     expect(helper.byTestId("tab-path-/dev/random2")).toHaveValue("/dev/random2");
   });
 
-  function mount(job: Job) {
+  describe("Read Only", () => {
+    beforeEach(() => {
+      const job = Job.fromJSON(JobTestData.with("test"));
+      job.tabs().push(new Tab("tab1", "/dev/random"));
+      mount(job, new Origin(OriginType.ConfigRepo, "repo1"));
+    });
+
+    it("should render readonly custom tab", () => {
+      expect(helper.byTestId("tab-name-tab1")).toBeDisabled();
+      expect(helper.byTestId("tab-path-/dev/random")).toBeDisabled();
+    });
+
+    it("should not render remove tab", () => {
+      expect(helper.byTestId("remove-tab-tab1")).not.toBeInDOM();
+    });
+
+    it("should not render add tab", () => {
+      expect(helper.q("button", helper.byTestId("custom-tabs"))).not.toBeInDOM();
+    });
+  });
+
+  function mount(job: Job, origin: Origin = new Origin(OriginType.GoCD)) {
+    document.body.setAttribute("data-meta", JSON.stringify({pipelineName: "pipeline1"}));
+
     const pipelineConfig = new PipelineConfig();
+    pipelineConfig.origin(origin);
 
     const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
     stage.jobs(new NameableSet([job]));

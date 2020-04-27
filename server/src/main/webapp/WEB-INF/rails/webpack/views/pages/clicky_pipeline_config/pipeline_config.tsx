@@ -164,6 +164,10 @@ export class PipelineConfigPage<T> extends TabHandler<T> {
     return tabList;
   }
 
+  shouldShowSaveAndResetButtons(entity: PipelineConfig): boolean {
+    return !entity.isDefinedInConfigRepo();
+  }
+
   protected headerPanel(vnode: m.Vnode<null, T>): any {
     const title = <PipelinePauseHeader pipelineName={PipelineConfigSPARouteHelper.routeInfo().params.pipeline_name}
                                        flashMessage={this.flashMessage}

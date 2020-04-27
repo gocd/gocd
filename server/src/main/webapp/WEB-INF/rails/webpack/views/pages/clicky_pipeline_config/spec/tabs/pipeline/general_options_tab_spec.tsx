@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import Stream from "mithril/stream";
+import {Origin, OriginType} from "models/origin";
 import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
@@ -128,6 +129,36 @@ describe("GeneralOptionsTag", () => {
     expect(unlockWhenFinished).not.toBeChecked();
     expect(lockOnFailure).toBeChecked();
     expect(runMultipleInstance).not.toBeChecked();
+  });
+
+  describe("Read Only", () => {
+    beforeEach(() => {
+      const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
+      pipelineConfig.origin(new Origin(OriginType.ConfigRepo, "repo1"));
+      mount(pipelineConfig);
+    });
+
+    it("should render disabled label template", () => {
+      expect(helper.byTestId("label-template")).toBeDisabled();
+    });
+
+    it("should render disabled automatic pipeline scheduling", () => {
+      expect(helper.byTestId("automatic-pipeline-scheduling")).toBeDisabled();
+    });
+
+    it("should render disabled cron timer specification", () => {
+      expect(helper.byTestId("cron-timer")).toBeDisabled();
+    });
+
+    it("should render disabled run only on new material", () => {
+      expect(helper.byTestId("run-only-on-new-material")).toBeDisabled();
+    });
+
+    it("should render disabled pipeline locking", () => {
+      expect(helper.byTestId("radio-unlockwhenfinished")).toBeDisabled();
+      expect(helper.byTestId("radio-lockonfailure")).toBeDisabled();
+      expect(helper.byTestId("radio-none")).toBeDisabled();
+    });
   });
 
   function mount(pipelineConfig: PipelineConfig, templateConfig = new TemplateConfig("foo", [])) {

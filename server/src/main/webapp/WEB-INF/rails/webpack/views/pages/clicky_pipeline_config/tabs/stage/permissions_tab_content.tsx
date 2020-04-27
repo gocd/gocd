@@ -52,6 +52,7 @@ export class PermissionsTabContent extends TabContent<Stage> {
         entity.approval().authorization().isInherited((value !== "local"));
       }}
                   property={this.selectedPermission}
+                  readonly={this.isEntityDefinedInConfigRepository()}
                   inline={true}
                   possibleValues={[
                     {
@@ -66,7 +67,7 @@ export class PermissionsTabContent extends TabContent<Stage> {
                     }
                   ]}>
       </RadioField>
-      {this.localPermissionsView(entity)}
+      {this.localPermissionsView(entity, this.isEntityDefinedInConfigRepository())}
     </div>;
   }
 
@@ -76,7 +77,7 @@ export class PermissionsTabContent extends TabContent<Stage> {
     return stage;
   }
 
-  private localPermissionsView(stage: Stage) {
+  private localPermissionsView(stage: Stage, readOnly: boolean) {
     if (stage.approval().authorization().isInherited()) {
       return;
     }
@@ -91,11 +92,15 @@ export class PermissionsTabContent extends TabContent<Stage> {
                       dataTestId="users-errors"
                       type={MessageType.alert}/>
         {
-          users.map((user, index) => this.getInputField(
-            "username", user, users, index, new RolesSuggestionProvider(Stream([] as string[]), [])
+          users.map((user, index) => this.getInputField("username",
+                                                        user,
+                                                        users,
+                                                        index,
+                                                        new RolesSuggestionProvider(Stream([] as string[]), []),
+                                                        readOnly
           ))
         }
-        {this.addEntityButton(users)}
+        {this.addEntityButton(users, readOnly)}
       </div>
 
       <div data-test-id="roles">
@@ -104,12 +109,16 @@ export class PermissionsTabContent extends TabContent<Stage> {
                       dataTestId="roles-errors"
                       type={MessageType.alert}/>
         {
-          roles.map((role, index) => this.getInputField(
-            "role", role, roles, index, new RolesSuggestionProvider(this.allRoles, roles.map(s => s()))
+          roles.map((role, index) => this.getInputField("role",
+                                                        role,
+                                                        roles,
+                                                        index,
+                                                        new RolesSuggestionProvider(this.allRoles, roles.map(s => s())),
+                                                        readOnly
           ))
         }
 
-        {this.addEntityButton(roles)}
+        {this.addEntityButton(roles, readOnly)}
       </div>
     </div>;
   }
@@ -118,13 +127,20 @@ export class PermissionsTabContent extends TabContent<Stage> {
                         entity: Stream<string>,
                         collection: Array<Stream<string>>,
                         index: number,
-                        provider: SuggestionProvider) {
+                        provider: SuggestionProvider,
+                        readOnly: boolean) {
+    let removeEntity: m.Children;
+    if (!readOnly) {
+      removeEntity = <Icons.Close iconOnly={true} onclick={() => this.removeEntity(index, collection)}/>;
+    }
+
     return <div class={styles.inputFieldContainer}
                 data-test-id={`input-field-for-${entity()}`}>
       <AutocompleteField placeholder={placeholder}
                          provider={provider}
+                         readonly={readOnly}
                          property={entity}/>
-      <Icons.Close iconOnly={true} onclick={() => this.removeEntity(index, collection)}/>
+      {removeEntity}
     </div>;
   }
 
@@ -132,7 +148,11 @@ export class PermissionsTabContent extends TabContent<Stage> {
     _.pullAt(collection, [index]);
   }
 
-  private addEntityButton(collection: Array<Stream<string>>) {
+  private addEntityButton(collection: Array<Stream<string>>, readOnly: boolean) {
+    if (readOnly) {
+      return;
+    }
+
     return (<Secondary small={true} onclick={() => collection.push(Stream())}>+ Add</Secondary>);
   }
 

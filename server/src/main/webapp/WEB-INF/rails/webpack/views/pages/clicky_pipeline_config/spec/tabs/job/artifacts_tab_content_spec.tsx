@@ -16,6 +16,7 @@
 
 import Stream from "mithril/stream";
 import {ArtifactStore, ArtifactStores} from "models/artifact_stores/artifact_stores";
+import {Origin, OriginType} from "models/origin";
 import {ArtifactType, ExternalArtifact, GoCDArtifact} from "models/pipeline_configs/artifact";
 import {Job} from "models/pipeline_configs/job";
 import {NameableSet} from "models/pipeline_configs/nameable_set";
@@ -118,13 +119,13 @@ describe("Artifacts Tab", () => {
     expect(helper.allByTestId("build-artifact-view")).toHaveLength(1);
     expect(helper.allByTestId("test-artifact-view")).toHaveLength(1);
 
-    helper.click(`[data-test-id="remove-artifact"]`);
+    helper.click(`[data-test-id="remove-build-artifact"]`);
 
     expect(job.artifacts()).toHaveLength(1);
     expect(helper.allByTestId("build-artifact-view")).toHaveLength(0);
     expect(helper.allByTestId("test-artifact-view")).toHaveLength(1);
 
-    helper.click(`[data-test-id="remove-artifact"]`);
+    helper.click(`[data-test-id="remove-test-artifact"]`);
 
     expect(job.artifacts()).toHaveLength(0);
     expect(helper.allByTestId("build-artifact-view")).toHaveLength(0);
@@ -259,13 +260,60 @@ describe("Artifacts Tab", () => {
 
     expect(helper.allByTestId("external-artifact-view")).toHaveLength(1);
 
-    helper.click(`[data-test-id="remove-artifact"]`);
+    helper.click(`[data-test-id="remove-external-artifact"]`);
 
     expect(helper.allByTestId("external-artifact-view")).toHaveLength(0);
   });
 
-  function mount(job: Job) {
+  describe("Read Only", () => {
+    beforeEach(() => {
+      const pluginInfo = PluginInfo.fromJSON(ArtifactPluginInfo.docker());
+      tab.pluginInfos(new PluginInfos(pluginInfo));
+      tab.artifactStores(new ArtifactStores(new ArtifactStore("storeid", pluginInfo.id, new Configurations([]))));
+
+      const job = Job.fromJSON(JobTestData.with("test"));
+      job.artifacts().push(new GoCDArtifact(ArtifactType.build, "source", "destination"));
+      job.artifacts().push(new GoCDArtifact(ArtifactType.test, "testsource", "testdestination"));
+      job.artifacts().push(new ExternalArtifact("id", "storeid"));
+      mount(job, new Origin(OriginType.ConfigRepo, "repo1"));
+    });
+
+    it("should render readonly build artifact", () => {
+      expect(helper.byTestId("artifact-source-source")).toBeDisabled();
+      expect(helper.byTestId("artifact-destination-destination")).toBeDisabled();
+    });
+
+    it("should not render remove build artifact", () => {
+      expect(helper.byTestId("remove-build-artifact")).not.toBeInDOM();
+    });
+
+    it("should render readonly test artifact", () => {
+      expect(helper.byTestId("artifact-source-testsource")).toBeDisabled();
+      expect(helper.byTestId("artifact-destination-testdestination")).toBeDisabled();
+    });
+
+    it("should not render remove test artifact", () => {
+      expect(helper.byTestId("remove-test-artifact")).not.toBeInDOM();
+    });
+
+    it("should render readonly external artifact", () => {
+      expect(helper.byTestId("artifact-id-id")).toBeDisabled();
+      expect(helper.byTestId("artifact-store-id")).toBeDisabled();
+    });
+
+    it("should not render remove external artifact", () => {
+      expect(helper.byTestId("remove-extrenal-artifact")).not.toBeInDOM();
+    });
+
+    it("should not render add artifacts", () => {
+      expect(helper.byTestId("add-artifact-wrapper")).not.toBeInDOM();
+    });
+  });
+
+  function mount(job: Job, origin: Origin = new Origin(OriginType.GoCD)) {
+    document.body.setAttribute("data-meta", JSON.stringify({pipelineName: "pipeline1"}));
     const pipelineConfig = new PipelineConfig();
+    pipelineConfig.origin(origin);
 
     const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
     stage.jobs(new NameableSet([job]));

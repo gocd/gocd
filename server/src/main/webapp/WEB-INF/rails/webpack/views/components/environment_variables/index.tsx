@@ -18,7 +18,9 @@ import m from "mithril";
 import {EnvironmentVariable, EnvironmentVariables} from "models/environment_variables/types";
 import s from "underscore.string";
 import {ButtonIcon, Secondary} from "views/components/buttons";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {EnvironmentVariableWidget} from "./environment_variable_widget";
+import styles from "./index.scss";
 
 export interface GroupedEnvironmentVariablesAttrs {
   title: string;
@@ -28,13 +30,20 @@ export interface GroupedEnvironmentVariablesAttrs {
 }
 
 export class GroupedEnvironmentVariables extends MithrilComponent<GroupedEnvironmentVariablesAttrs> {
-  renderEnvironmentVariableWidget(vnode: m.Vnode<GroupedEnvironmentVariablesAttrs>, environmentVariable: EnvironmentVariable) {
+  renderEnvironmentVariableWidget(vnode: m.Vnode<GroupedEnvironmentVariablesAttrs>,
+                                  environmentVariable: EnvironmentVariable) {
     return <EnvironmentVariableWidget environmentVariable={environmentVariable} onRemove={vnode.attrs.onRemove}/>;
   }
 
   view(vnode: m.Vnode<GroupedEnvironmentVariablesAttrs>): m.Children {
-    return <div>
+    let noEnvironmentVariablesConfiguredMessage: m.Children;
+    if (vnode.attrs.environmentVariables.length === 0) {
+      noEnvironmentVariablesConfiguredMessage = `No ${vnode.attrs.title} are configured.`;
+    }
+
+    return <div class={styles.groupContainer}>
       <h4 data-test-id={`${s.slugify(vnode.attrs.title)}-title`}>{vnode.attrs.title}</h4>
+      <FlashMessage dataTestId={`${s.slugify(vnode.attrs.title)}-msg`} type={MessageType.info} message={noEnvironmentVariablesConfiguredMessage}/>
       {vnode.attrs.environmentVariables.map((envVar) => this.renderEnvironmentVariableWidget(vnode, envVar))}
       <Secondary small={true} icon={ButtonIcon.ADD} data-test-id={`add-${s.slugify(vnode.attrs.title)}-btn`}
                  onclick={vnode.attrs.onAdd.bind(this)}>
@@ -63,11 +72,13 @@ export class EnvironmentVariablesWidget extends MithrilComponent<EnvironmentVari
       <GroupedEnvironmentVariables environmentVariables={vnode.attrs.environmentVariables.plainTextVariables()}
                                    title="Plain Text Variables"
                                    onAdd={EnvironmentVariablesWidget.onAdd.bind(this, false, vnode)}
-                                   onRemove={(envVar: EnvironmentVariable) => EnvironmentVariablesWidget.onRemove(envVar, vnode)}/>
+                                   onRemove={(envVar: EnvironmentVariable) => EnvironmentVariablesWidget.onRemove(envVar,
+                                                                                                                  vnode)}/>
       <GroupedEnvironmentVariables environmentVariables={vnode.attrs.environmentVariables.secureVariables()}
                                    title="Secure Variables"
                                    onAdd={EnvironmentVariablesWidget.onAdd.bind(this, true, vnode)}
-                                   onRemove={(envVar: EnvironmentVariable) => EnvironmentVariablesWidget.onRemove(envVar, vnode)}/>
+                                   onRemove={(envVar: EnvironmentVariable) => EnvironmentVariablesWidget.onRemove(envVar,
+                                                                                                                  vnode)}/>
     </div>;
   }
 }

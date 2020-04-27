@@ -15,6 +15,7 @@
  */
 
 import Stream from "mithril/stream";
+import {Origin, OriginType} from "models/origin";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
@@ -53,6 +54,22 @@ describe("ProjectManagementTab", () => {
 
     expect(helper.byTestId("project-management-uri")).toHaveValue("https://github.com/gocd/gocd/issues/${ID}");
     expect(pipelineConfig.trackingTool().urlPattern()).toEqual("https://github.com/gocd/gocd/issues/${ID}");
+  });
+
+  describe("Read Only", () => {
+    beforeEach(() => {
+      const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
+      pipelineConfig.origin(new Origin(OriginType.ConfigRepo, "repo1"));
+      mount(pipelineConfig);
+    });
+
+    it("should render disabled pattern", () => {
+      expect(helper.byTestId("project-management-pattern")).toBeDisabled();
+    });
+
+    it("should render disabled uri", () => {
+      expect(helper.byTestId("project-management-uri")).toBeDisabled();
+    });
   });
 
   function mount(pipelineConfig: PipelineConfig, templateConfig = new TemplateConfig("foo", [])) {

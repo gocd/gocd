@@ -27,6 +27,7 @@ import {OperationState} from "views/pages/page_operations";
 import styles from "./tab_content.scss";
 
 export abstract class TabContent<T> {
+  private entity: PipelineConfig | TemplateConfig | undefined;
   private pageState = PageState.OK;
 
   //render only selected tab
@@ -37,6 +38,7 @@ export abstract class TabContent<T> {
                  flashMessage: FlashMessageModelWithTimeout,
                  pipelineConfigSave: () => Promise<any>,
                  pipelineConfigReset: () => void): m.Children {
+    this.entity = pipelineConfig;
     switch (this.pageState) {
       case PageState.FAILED:
         return <PageLoadError message={`There was a problem fetching current tab`}/>;
@@ -65,6 +67,10 @@ export abstract class TabContent<T> {
     this.pageState = PageState.OK;
   }
 
+  public isEntityDefinedInConfigRepository(): boolean {
+    return this.isPipelineConfigView() && !!this.entity && (this.entity as PipelineConfig).isDefinedInConfigRepo();
+  }
+
   public shouldShowSaveAndResetButtons(): boolean {
     return true;
   }
@@ -89,5 +95,6 @@ export abstract class TabContent<T> {
                               pipelineConfigSave: () => any,
                               pipelineConfigReset: () => any): m.Children;
 
-  protected abstract selectedEntity(pipelineConfig: PipelineConfig | TemplateConfig, routeParams: PipelineConfigRouteParams): T;
+  protected abstract selectedEntity(pipelineConfig: PipelineConfig | TemplateConfig,
+                                    routeParams: PipelineConfigRouteParams): T;
 }

@@ -66,7 +66,7 @@ export class AddStageModal extends Modal {
 
   body(): m.Children {
     return <div data-test-id="add-stage-modal">
-      <StageSettingsWidget stage={this.stageToCreate} isForAddStagePopup={true}/>
+      <StageSettingsWidget readonly={false} stage={this.stageToCreate} isForAddStagePopup={true}/>
       <h3 data-test-id="initial-job-and-task-header">Initial Job and Task</h3>
       <div data-test-id="initial-job-and-task-header-help-text" className={styles.jobHelpText}>
         You can add more jobs and tasks to this stage once the stage has been created.

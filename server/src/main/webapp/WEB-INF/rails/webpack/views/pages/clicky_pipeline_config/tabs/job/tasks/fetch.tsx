@@ -57,9 +57,12 @@ export class FetchArtifactTaskModal extends AbstractTaskModal {
 
     let content: m.Children;
     if (attributes.isBuiltInArtifact()) {
-      content = <BuiltInFetchArtifactView attributes={attributes} autoSuggestions={this.autoSuggestions}/>;
+      content = <BuiltInFetchArtifactView attributes={attributes}
+                                          readonly={this.readonly}
+                                          autoSuggestions={this.autoSuggestions}/>;
     } else {
       content = <ExternalFetchArtifactView attributes={attributes}
+                                           readonly={this.readonly}
                                            artifactPluginInfos={this.pluginInfos.filterForExtension(ExtensionTypeString.ARTIFACT)}
                                            autoSuggestions={this.autoSuggestions}/>;
     }
@@ -68,6 +71,7 @@ export class FetchArtifactTaskModal extends AbstractTaskModal {
       {this.renderFlashMessage()}
       <div class={styles.radioWrapper}>
         <RadioField label="Type of Fetch Artifact"
+                    readonly={this.readonly}
                     inline={true}
                     property={attributes.artifactOrigin}
                     required={true}
@@ -79,6 +83,7 @@ export class FetchArtifactTaskModal extends AbstractTaskModal {
       </div>
       {content}
       <OnCancelView showOnCancel={this.showOnCancel}
+                    readonly={this.readonly}
                     onCancel={attributes.onCancel}
                     pluginInfos={this.pluginInfos}
                     runIf={attributes.runIf}/>

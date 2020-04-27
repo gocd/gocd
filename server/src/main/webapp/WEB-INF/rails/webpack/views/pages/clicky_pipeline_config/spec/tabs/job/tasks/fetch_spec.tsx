@@ -69,6 +69,18 @@ describe("Fetch Task Modal", () => {
     expect(helper.byTestId("external-fetch-artifact-view")).toBeInDOM();
   });
 
+  describe("Read Only", () => {
+    beforeEach(() => {
+      mount(undefined, false, true);
+    });
+
+    it("should render disabled gocd or plugin fetch artifact task selection", () => {
+      mount();
+      expect(helper.byTestId("input-field-for-gocd")).toBeDisabled();
+      expect(helper.byTestId("input-field-for-external")).toBeDisabled();
+    });
+  });
+
   function mount(task?: Task | undefined, shouldShowOnCancel: boolean = true, readonly: boolean = false) {
     helper.mount(() => {
       modal = new FetchArtifactTaskModal(task,

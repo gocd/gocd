@@ -27,6 +27,7 @@ export interface Attrs {
   attributes: FetchTaskAttributes;
   autoSuggestions: Stream<any>;
   onJobSuggestionChange?: () => any;
+  readonly: boolean;
 }
 
 export interface State {
@@ -63,12 +64,14 @@ export class UpstreamJobToFetchArtifactFromWidget extends MithrilComponent<Attrs
     return <div>
       <AutocompleteField helpText={pipelineHelpText}
                          required={false}
+                         readonly={vnode.attrs.readonly}
                          errorText={attributes.errors().errorsForDisplay("pipeline")}
                          provider={vnode.state.pipelineSuggestions}
                          onchange={vnode.state.stageSuggestions.update.bind(vnode.state.stageSuggestions)}
                          label="Pipeline"
                          property={attributes.pipeline}/>
       <AutocompleteField helpText={stageHelpText}
+                         readonly={vnode.attrs.readonly}
                          errorText={attributes.errors().errorsForDisplay("stage")}
                          provider={vnode.state.stageSuggestions}
                          onchange={vnode.state.jobSuggestions.update.bind(vnode.state.jobSuggestions)}
@@ -76,6 +79,7 @@ export class UpstreamJobToFetchArtifactFromWidget extends MithrilComponent<Attrs
                          label="Stage"
                          property={attributes.stage}/>
       <AutocompleteField helpText={jobHelpText}
+                         readonly={vnode.attrs.readonly}
                          errorText={attributes.errors().errorsForDisplay("job")}
                          provider={vnode.state.jobSuggestions}
                          onchange={onJobSuggestionChange}

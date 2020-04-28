@@ -99,3 +99,19 @@
 .name-link {
   text-decoration: none;
 }
+
+.icon-check {
+  @include icon-before($type: $fa-var-check, $color: $go-green);
+
+  &:before {
+    margin-left: -10px;
+  }
+}
+
+.icon-error {
+  @include icon-before($type: $fa-var-exclamation-circle, $color: $go-danger);
+
+  &:before {
+    margin-left: -10px;
+  }
+}

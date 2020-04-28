@@ -199,6 +199,13 @@ export abstract class TabHandler<T> extends Page<null, T> {
   }
 
   protected getSaveAndResetButtons(): m.Children {
+    let saveSuccessOrFailureIdentifier;
+    if (this.flashMessage.hasMessage()) {
+      saveSuccessOrFailureIdentifier = this.flashMessage.type === MessageType.success
+        ? <span className={styles.iconCheck} data-test-id="update-successful"/>
+        : <span className={styles.iconError} data-test-id="update-failure"/>;
+    }
+
     let saveAndResetButtons: m.Children;
     if (this.shouldShowSaveAndResetButtons(this.getEntity()) && this.tab().shouldShowSaveAndResetButtons()) {
       saveAndResetButtons = (
@@ -211,6 +218,7 @@ export abstract class TabHandler<T> extends Page<null, T> {
           <Primary data-test-id={"save"}
                    ajaxOperationMonitor={this.ajaxOperationMonitor}
                    ajaxOperation={this.save.bind(this)}>
+            {saveSuccessOrFailureIdentifier}
             SAVE
           </Primary>
         </div>

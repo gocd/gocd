@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
+import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {PipelineGroup} from "models/admin_pipelines/admin_pipelines";
+import {PipelineGroupCRUD} from "models/admin_pipelines/pipeline_groups_crud";
+import {Authorization} from "models/authorization/authorization";
+import {Errors} from "models/mixins/errors";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
@@ -24,35 +29,57 @@ import {RolesCRUD} from "models/roles/roles_crud";
 import {Secondary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
-import {RadioField} from "views/components/forms/input_fields";
+import {RadioField, TextField} from "views/components/forms/input_fields";
 import * as Icons from "views/components/icons/index";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import styles from "./permissions.scss";
 
-export class PermissionsTabContent extends TabContent<Stage> {
-  private allRoles: Stream<string[]>         = Stream([] as string[]);
-  private selectedPermission: Stream<string> = Stream();
+interface Attrs {
+  entity: Stage;
+  groupPermissions: Stream<PipelineGroup>;
+  isEntityDefinedInConfigRepository: boolean;
+  selectedPermission: Stream<string>;
+  allRoles: Stream<string[]>;
+}
 
-  constructor() {
-    super();
-    this.fetchAllRoles();
+export class PermissionsWidget extends MithrilViewComponent<Attrs> {
+  oninit(vnode: m.Vnode<Attrs>) {
+    const isInherited = vnode.attrs.entity.approval().authorization().isInherited();
+    vnode.attrs.selectedPermission(isInherited ? "inherit" : "local");
   }
 
-  static tabName(): string {
-    return "Permissions";
-  }
+  view(vnode: m.Vnode<Attrs>) {
+    const entity: Stage                           = vnode.attrs.entity;
+    const groupPermissions: Stream<PipelineGroup> = vnode.attrs.groupPermissions;
 
-  protected renderer(entity: Stage, templateConfig: TemplateConfig): m.Children {
+    let permissionsView: m.Children;
+    if (entity.approval().authorization().isInherited()) {
+      if (groupPermissions().authorization().isConfigured()) {
+        let users       = _.uniq(groupPermissions().authorization().admin()._users.concat(groupPermissions().authorization().operate()._users));
+        let roles       = groupPermissions().authorization().admin()._roles.concat(groupPermissions().authorization().operate()._roles);
+        users           = _.uniqBy(users, (ele: Stream<string>) => ele());
+        roles           = _.uniqBy(roles, (ele: Stream<string>) => ele());
+        const errors    = new Errors();
+        permissionsView = this.localPermissionsView(users, roles, errors, true, vnode);
+      } else {
+        const msg       = "There is no authorization configured for this stage nor its pipeline group. Only GoCD administrators can operate this stage.";
+        permissionsView = <FlashMessage message={msg} type={MessageType.info}/>;
+      }
+    } else {
+      const users     = entity.approval().authorization()._users;
+      const roles     = entity.approval().authorization()._roles;
+      const errors    = entity.approval().authorization().errors();
+      permissionsView = this.localPermissionsView(users, roles, errors, vnode.attrs.isEntityDefinedInConfigRepository, vnode);
+    }
+
+    const globalMsg = "All system administrators and pipeline group administrators can operate on this stage (this cannot be overridden).";
     return <div class={styles.mainContainer} data-test-id="permissions-tab">
-      <FlashMessage type={MessageType.info}
-                    message={"All system administrators and pipeline group administrators can operate on this stage (this cannot be overridden)."}/>
+      <FlashMessage type={MessageType.info} message={globalMsg}/>
       <h3 data-test-id="permissions-heading">Permissions for this stage:</h3>
-      <RadioField onchange={(value) => {
-        entity.approval().authorization().isInherited((value !== "local"));
-      }}
-                  property={this.selectedPermission}
-                  readonly={this.isEntityDefinedInConfigRepository()}
+      <RadioField onchange={(value) => {entity.approval().authorization().isInherited((value !== "local"));}}
+                  property={vnode.attrs.selectedPermission}
+                  readonly={vnode.attrs.isEntityDefinedInConfigRepository}
                   inline={true}
                   possibleValues={[
                     {
@@ -67,8 +94,77 @@ export class PermissionsTabContent extends TabContent<Stage> {
                     }
                   ]}>
       </RadioField>
-      {this.localPermissionsView(entity, this.isEntityDefinedInConfigRepository())}
+      {permissionsView}
     </div>;
+  }
+
+  private localPermissionsView(users: Array<Stream<string>>, roles: Array<Stream<string>>, errors: Errors, readOnly: boolean, vnode: m.Vnode<Attrs>) {
+    return <div data-test-id="users-and-roles">
+      <div data-test-id="users">
+        <h3>Users</h3>
+        <FlashMessage message={errors.errorsForDisplay("users")} dataTestId="users-errors" type={MessageType.alert}/>
+        {users.map((user, index) => this.getInputField("username", user, users, index, new RolesSuggestionProvider(Stream([] as string[]), []), readOnly))}
+        {this.addEntityButton(users, readOnly, "add-user-permission-button")}
+      </div>
+
+      <div data-test-id="roles">
+        <h3>Roles</h3>
+        <FlashMessage message={errors.errorsForDisplay("roles")} dataTestId="roles-errors" type={MessageType.alert}/>
+        {roles.map((role, index) => this.getInputField("role",role,roles,index,new RolesSuggestionProvider(vnode.attrs.allRoles,roles.map(s => s())),readOnly))}
+        {this.addEntityButton(roles, readOnly, "add-role-permission-button")}
+      </div>
+    </div>;
+  }
+
+  private addEntityButton(collection: Array<Stream<string>>, readOnly: boolean, dataTestId: string) {
+    if (readOnly) {
+      return;
+    }
+    return (<Secondary small={true} dataTestId={dataTestId} onclick={() => collection.push(Stream())}>+ Add</Secondary>);
+  }
+
+  private getInputField(placeholder: string, entity: Stream<string>, collection: Array<Stream<string>>, index: number, provider: SuggestionProvider, readOnly: boolean) {
+    let removeEntity: m.Children;
+    let inputBox: m.Children;
+
+    if (!readOnly) {
+      removeEntity = <Icons.Close iconOnly={true} onclick={() => this.removeEntity(index, collection)}/>;
+      inputBox     = <AutocompleteField placeholder={placeholder} provider={provider} property={entity}/>;
+    } else {
+      inputBox = <TextField readonly={readOnly} placeholder={placeholder} provider={provider} property={entity}/>;
+    }
+
+    return <div class={styles.inputFieldContainer} data-test-id={`input-field-for-${entity()}`}>
+      {inputBox}{removeEntity}
+    </div>;
+  }
+
+  private removeEntity(index: number, collection: Array<Stream<string>>) {
+    _.pullAt(collection, [index]);
+  }
+}
+
+export class PermissionsTabContent extends TabContent<Stage> {
+  private groupPermissions: Stream<PipelineGroup> = Stream(new PipelineGroup("", new Authorization()));
+  private allRoles: Stream<string[]>              = Stream([] as string[]);
+  private selectedPermission: Stream<string>      = Stream();
+
+  constructor() {
+    super();
+    this.fetchAllRoles();
+    this.fetchGroupPermissions();
+  }
+
+  static tabName(): string {
+    return "Permissions";
+  }
+
+  protected renderer(entity: Stage, templateConfig: TemplateConfig): m.Children {
+    return <PermissionsWidget groupPermissions={this.groupPermissions}
+                              allRoles={this.allRoles}
+                              isEntityDefinedInConfigRepository={this.isEntityDefinedInConfigRepository()}
+                              entity={entity}
+                              selectedPermission={this.selectedPermission}/>;
   }
 
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): Stage {
@@ -77,89 +173,30 @@ export class PermissionsTabContent extends TabContent<Stage> {
     return stage;
   }
 
-  private localPermissionsView(stage: Stage, readOnly: boolean) {
-    if (stage.approval().authorization().isInherited()) {
-      return;
-    }
-
-    const users = stage.approval().authorization()._users;
-    const roles = stage.approval().authorization()._roles;
-
-    return <div data-test-id="users-and-roles">
-      <div data-test-id="users">
-        <h3>Users</h3>
-        <FlashMessage message={stage.approval().authorization().errors().errorsForDisplay("users")}
-                      dataTestId="users-errors"
-                      type={MessageType.alert}/>
-        {
-          users.map((user, index) => this.getInputField("username",
-                                                        user,
-                                                        users,
-                                                        index,
-                                                        new RolesSuggestionProvider(Stream([] as string[]), []),
-                                                        readOnly
-          ))
-        }
-        {this.addEntityButton(users, readOnly, "add-user-permission-button")}
-      </div>
-
-      <div data-test-id="roles">
-        <h3>Roles</h3>
-        <FlashMessage message={stage.approval().authorization().errors().errorsForDisplay("roles")}
-                      dataTestId="roles-errors"
-                      type={MessageType.alert}/>
-        {
-          roles.map((role, index) => this.getInputField("role",
-                                                        role,
-                                                        roles,
-                                                        index,
-                                                        new RolesSuggestionProvider(this.allRoles, roles.map(s => s())),
-                                                        readOnly
-          ))
-        }
-
-        {this.addEntityButton(roles, readOnly, "add-role-permission-button")}
-      </div>
-    </div>;
-  }
-
-  private getInputField(placeholder: string,
-                        entity: Stream<string>,
-                        collection: Array<Stream<string>>,
-                        index: number,
-                        provider: SuggestionProvider,
-                        readOnly: boolean) {
-    let removeEntity: m.Children;
-    if (!readOnly) {
-      removeEntity = <Icons.Close iconOnly={true} onclick={() => this.removeEntity(index, collection)}/>;
-    }
-
-    return <div class={styles.inputFieldContainer}
-                data-test-id={`input-field-for-${entity()}`}>
-      <AutocompleteField placeholder={placeholder}
-                         provider={provider}
-                         readonly={readOnly}
-                         property={entity}/>
-      {removeEntity}
-    </div>;
-  }
-
-  private removeEntity(index: number, collection: Array<Stream<string>>) {
-    _.pullAt(collection, [index]);
-  }
-
-  private addEntityButton(collection: Array<Stream<string>>, readOnly: boolean, dataTestId: string) {
-    if (readOnly) {
-      return;
-    }
-
-    return (<Secondary small={true} dataTestId={dataTestId} onclick={() => collection.push(Stream())}>+ Add</Secondary>);
-  }
-
   private fetchAllRoles() {
     RolesCRUD.all().then((rolesResult) => {
       rolesResult.do((successResponse) => {
         this.allRoles(successResponse.body.map(r => r.name()));
+      });
+    });
+  }
+
+  private getMeta(): any {
+    const meta = document.body.getAttribute("data-meta");
+    return meta ? JSON.parse(meta) : {};
+  }
+
+  private fetchGroupPermissions() {
+    const self      = this;
+    const groupName = this.getMeta().pipelineGroupName;
+
+    if (!groupName) {
+      return;
+    }
+
+    PipelineGroupCRUD.get(groupName).then((result) => {
+      result.do((successResponse) => {
+        self.groupPermissions(successResponse.body.object);
       });
     });
   }

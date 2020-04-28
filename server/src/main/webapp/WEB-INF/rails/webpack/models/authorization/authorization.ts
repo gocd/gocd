@@ -112,6 +112,10 @@ export class Authorization {
 
     return json;
   }
+
+  isConfigured() {
+    return !this.view().isEmpty() || !this.operate().isEmpty() || !this.admin().isEmpty();
+  }
 }
 
 class PermissionValidator extends Validator {

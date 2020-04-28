@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
+import m from "mithril";
 import Stream from "mithril/stream";
-import {Origin, OriginType} from "models/origin";
-import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {PipelineGroup} from "models/admin_pipelines/admin_pipelines";
+import {Authorization, AuthorizedUsersAndRoles} from "models/authorization/authorization";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
-import {TemplateConfig} from "models/pipeline_configs/template_config";
-import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {
-  PermissionsTabContent,
+  PermissionsWidget,
   RolesSuggestionProvider
 } from "views/pages/clicky_pipeline_config/tabs/stage/permissions_tab_content";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
-import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Permissions Tab Content", () => {
@@ -118,6 +115,55 @@ describe("Permissions Tab Content", () => {
     expect(helper.byTestId("radio-local")).toBeChecked();
 
     expect(helper.byTestId("users-and-roles")).toBeInDOM();
+  });
+
+  it("should show no group permissions configured message no pipeline group permissions are defined", () => {
+    const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
+    stage.approval().authorization().isInherited(true);
+    mount(stage);
+
+    expect(stage.approval().authorization().isInherited()).toBeTrue();
+    expect(helper.byTestId("radio-inherit")).toBeChecked();
+    expect(helper.byTestId("radio-local")).not.toBeChecked();
+
+    const msg = "There is no authorization configured for this stage nor its pipeline group. Only GoCD administrators can operate this stage.";
+    expect(helper.qa(`[data-test-id="flash-message-info"]`)).toContainText(msg);
+  });
+
+  it("should render inherited group permissions", () => {
+    const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
+    stage.approval().authorization().isInherited(true);
+    const admin         = new AuthorizedUsersAndRoles([Stream("admin")], [Stream("admin-role")]);
+    const operate       = new AuthorizedUsersAndRoles([Stream("operate")], [Stream("operate-role")]);
+    const pipelineGroup = new PipelineGroup("group1", new Authorization(undefined, admin, operate));
+    mount(stage, false, pipelineGroup);
+
+    expect(helper.q("input", helper.byTestId("input-field-for-admin"))).toHaveValue("admin");
+    expect(helper.q("input", helper.byTestId("input-field-for-operate"))).toHaveValue("operate");
+
+    expect(helper.q("input", helper.byTestId("input-field-for-admin-role"))).toHaveValue("admin-role");
+    expect(helper.q("input", helper.byTestId("input-field-for-operate-role"))).toHaveValue("operate-role");
+  });
+
+  it("should not allow users to modify inherited group permissions", () => {
+    const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
+    stage.approval().authorization().isInherited(true);
+    const admin         = new AuthorizedUsersAndRoles([Stream("admin")], [Stream("admin-role")]);
+    const operate       = new AuthorizedUsersAndRoles([Stream("operate")], [Stream("operate-role")]);
+    const pipelineGroup = new PipelineGroup("group1", new Authorization(undefined, admin, operate));
+    mount(stage, false, pipelineGroup);
+
+    expect(helper.q("input", helper.byTestId("input-field-for-admin"))).toBeDisabled();
+    expect(helper.q("input", helper.byTestId("input-field-for-operate"))).toBeDisabled();
+
+    expect(helper.q("input", helper.byTestId("input-field-for-admin-role"))).toBeDisabled();
+    expect(helper.q("input", helper.byTestId("input-field-for-operate-role"))).toBeDisabled();
+
+    expect(helper.q("i", helper.byTestId("input-field-for-admin"))).not.toBeInDOM();
+    expect(helper.q("i", helper.byTestId("input-field-for-operate"))).not.toBeInDOM();
+
+    expect(helper.q("i", helper.byTestId("input-field-for-admin-role"))).not.toBeInDOM();
+    expect(helper.q("i", helper.byTestId("input-field-for-operate-role"))).not.toBeInDOM();
   });
 
   it("should render users in an input field", () => {
@@ -321,8 +367,7 @@ describe("Permissions Tab Content", () => {
       stage.approval().authorization().isInherited(false);
       stage.approval().authorization()._users.push(Stream("user1"));
       stage.approval().authorization()._roles.push(Stream("role1"));
-      const pipelineOrigin = new Origin(OriginType.ConfigRepo, "repo1");
-      mount(stage, pipelineOrigin);
+      mount(stage, true);
     });
 
     it("should render disabled switch for inherit or specify locally", () => {
@@ -355,19 +400,16 @@ describe("Permissions Tab Content", () => {
     });
   });
 
-  function mount(stage: Stage, pipelineOrigin: Origin = new Origin(OriginType.GoCD)) {
-    document.body.setAttribute("data-meta", JSON.stringify({pipelineName: "pipeline1"}));
-    const pipelineConfig = new PipelineConfig();
-    pipelineConfig.origin(pipelineOrigin);
-    pipelineConfig.stages().add(stage);
-    const routeParams    = {stage_name: stage.name()} as PipelineConfigRouteParams;
-    const templateConfig = new TemplateConfig("foo", []);
-    helper.mount(() => new PermissionsTabContent().content(pipelineConfig,
-                                                           templateConfig,
-                                                           routeParams,
-                                                           Stream<OperationState>(OperationState.UNKNOWN),
-                                                           new FlashMessageModelWithTimeout(),
-                                                           jasmine.createSpy(),
-                                                           jasmine.createSpy()));
+  function mount(stage: Stage, isEntityDefinedInConfigRepository: boolean = false,
+                 pipelineGroup: PipelineGroup                             = new PipelineGroup("",
+                                                                                              new Authorization())) {
+    const isInherited        = stage.approval().authorization().isInherited();
+    const selectedPermission = Stream(isInherited ? "inherit" : "local");
+
+    helper.mount(() => <PermissionsWidget entity={stage}
+                                          groupPermissions={Stream(pipelineGroup)}
+                                          isEntityDefinedInConfigRepository={isEntityDefinedInConfigRepository}
+                                          selectedPermission={selectedPermission}
+                                          allRoles={Stream<string[]>([])}/>);
   }
 });

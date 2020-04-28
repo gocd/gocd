@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.spark.spa
 
+import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService
+import com.thoughtworks.go.server.service.GoConfigService
 import com.thoughtworks.go.server.service.SecurityAuthConfigService
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
-import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -28,13 +28,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import spark.HaltException
 import spark.ModelAndView
 import spark.Request
 import spark.Response
 
 import static org.assertj.core.api.Assertions.assertThat
-import static org.assertj.core.api.Assertions.assertThatCode
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
@@ -46,8 +44,6 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
   private SecurityAuthConfigService securityAuthConfigService
   @Mock
   private Response response
-  @Mock
-  private FeatureToggleService featureToggleService
 
   @BeforeEach
   void setUp() {
@@ -56,7 +52,7 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
 
   @Override
   ClickyPipelineConfigController createControllerInstance() {
-    return new ClickyPipelineConfigController(new SPAAuthenticationHelper(securityService, goConfigService), featureToggleService, templateEngine)
+    return new ClickyPipelineConfigController(new SPAAuthenticationHelper(securityService, goConfigService), goConfigService, templateEngine)
   }
 
   @Nested
@@ -83,5 +79,20 @@ class ClickyPipelineConfigControllerTest implements ControllerTrait<ClickyPipeli
 
     assertThat(model.get("meta") as Map<String, Object>)
       .containsEntry("pipelineName", pipelineName)
+  }
+
+  @Test
+  void "should add pipeline group name in page meta"() {
+    def pipelineName = "up42"
+    def groupName = "first"
+    def request = mock(Request)
+    when(request.params("pipeline_name")).thenReturn(pipelineName)
+    when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn(groupName)
+
+    ModelAndView modalAndView = controller.index(request, response)
+    Map<Object, Object> model = modalAndView.getModel() as Map<Object, Object>
+
+    assertThat(model.get("meta") as Map<String, Object>).containsEntry("pipelineName", pipelineName)
+    assertThat(model.get("meta") as Map<String, Object>).containsEntry("pipelineGroupName", groupName)
   }
 }

@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.spark.spa;
 
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -33,12 +33,12 @@ import static spark.Spark.*;
 
 public class ClickyPipelineConfigController implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
-    private final FeatureToggleService featureToggleService;
+    private GoConfigService goConfigService;
     private final TemplateEngine engine;
 
-    public ClickyPipelineConfigController(SPAAuthenticationHelper authenticationHelper, FeatureToggleService featureToggleService, TemplateEngine engine) {
+    public ClickyPipelineConfigController(SPAAuthenticationHelper authenticationHelper, GoConfigService goConfigService, TemplateEngine engine) {
         this.authenticationHelper = authenticationHelper;
-        this.featureToggleService = featureToggleService;
+        this.goConfigService = goConfigService;
         this.engine = engine;
     }
 
@@ -67,6 +67,7 @@ public class ClickyPipelineConfigController implements SparkController {
     private Map<String, Object> meta(String pipelineName) {
         final Map<String, Object> meta = new HashMap<>();
         meta.put("pipelineName", pipelineName);
+        meta.put("pipelineGroupName", this.goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
         return meta;
     }
 }

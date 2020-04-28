@@ -65,7 +65,7 @@ public class SpaControllers implements SparkSpringController {
 		sparkControllers.add(new TemplateConfigController(authenticationHelper, templateEngineFactory.create(TemplateConfigController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new PluggableScmsController(authenticationHelper, templateEngineFactory.create(PluggableScmsController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new PackageRepositoriesController(authenticationHelper, templateEngineFactory.create(PackageRepositoriesController.class, () -> COMPONENT_LAYOUT_PATH)));
-        sparkControllers.add(new ClickyPipelineConfigController(authenticationHelper, featureToggleService, templateEngineFactory.create(ClickyPipelineConfigController.class, () -> COMPONENT_LAYOUT_PATH)));
+        sparkControllers.add(new ClickyPipelineConfigController(authenticationHelper, goConfigService, templateEngineFactory.create(ClickyPipelineConfigController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new StatusReportsController(authenticationHelper, templateEngineFactory.create(
                 StatusReportsController.class, railsCompatibleTemplate), elasticAgentPluginService, jobInstanceService));
         sparkControllers.add(new CompareController(authenticationHelper, templateEngineFactory.create(CompareController.class, () -> COMPONENT_LAYOUT_PATH), pipelineService));

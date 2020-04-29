@@ -18,8 +18,8 @@ import Stream from "mithril/stream";
 import {PipelineParameter} from "models/pipeline_configs/parameter";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {PipelineParametersEditor} from "views/pages/pipelines/parameters_editor";
 import styles from "./parameters.scss";
 
@@ -28,6 +28,10 @@ export class ParametersTabContent extends TabContent<PipelineConfig> {
 
   static tabName(): string {
     return "Parameters";
+  }
+
+  onSuccessfulPipelineConfigSave() {
+    this.paramList().forEach(p => p.clearErrors());
   }
 
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
@@ -40,9 +44,5 @@ export class ParametersTabContent extends TabContent<PipelineConfig> {
                                 readonly={this.isEntityDefinedInConfigRepository()}
                                 parameters={entity.parameters}/>
     </div>);
-  }
-
-  onSuccessfulPipelineConfigSave() {
-    this.paramList().forEach(p => p.clearErrors());
   }
 }

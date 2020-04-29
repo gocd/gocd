@@ -23,7 +23,7 @@ import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {Primary, Reset} from "views/components/buttons";
-import {FlashMessage, MessageType} from "views/components/flash_message";
+import {FlashMessage, FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
 import {Spinner} from "views/components/spinner";
 import {Tabs} from "views/components/tab";
 import styles from "views/pages/clicky_pipeline_config/index.scss";
@@ -51,7 +51,13 @@ export interface PipelineConfigRouteParams {
 
 export type TabLevel = "pipeline" | "stage" | "job";
 
+// flashMessage needs to be of type FlashMessageModelWithTimeout because of Page defining that field.
+// And interval can not be set to Infinity as when Infinity is specified to settimeout function, the settimeout evaluates the function immediately
+// Hence, set interval to a really long number, one day.
+const interval = 1000 * 60 * 60 * 24;
+
 export abstract class TabHandler<T> extends Page<null, T> {
+  protected flashMessage                                                  = new FlashMessageModelWithTimeout(interval);
   protected ajaxOperationMonitor                                         = Stream<OperationState>(OperationState.UNKNOWN);
   protected etag: Stream<string>                                         = Stream();
   protected readonly tab: Stream<TabContent<SupportedTypes>>             = Stream();
@@ -128,9 +134,16 @@ export abstract class TabHandler<T> extends Page<null, T> {
       }
     }
 
+    let flashMessage;
+    if (this.flashMessage.hasMessage()) {
+      flashMessage = <FlashMessage message={this.flashMessage.message}
+                                   type={this.flashMessage.type}
+                                   dismissible={true} onDismiss={this.flashMessage.clear.bind(this.flashMessage)}/>;
+    }
+
     return [
       <div key={m.route.param().tab_name}>
-        <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/>
+        {flashMessage}
         {configRepoPipelineMessage}
         <div className={styles.mainContainer}>
           <div className={styles.navigation}>

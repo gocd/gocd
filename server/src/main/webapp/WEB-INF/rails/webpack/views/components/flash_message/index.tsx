@@ -36,6 +36,7 @@ export interface Attrs {
   type: MessageType;
   message?: m.Children;
   dismissible?: boolean;
+  onDismiss?: () => any;
   dataTestId?: string;
 }
 
@@ -48,6 +49,9 @@ export class FlashMessage extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
     vnode.state.onDismiss = () => {
       vnode.state.isDismissed = true;
+      if (vnode.attrs.onDismiss) {
+        vnode.attrs.onDismiss();
+      }
     };
   }
 

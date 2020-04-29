@@ -163,6 +163,10 @@ public class AgentInstance implements Comparable<AgentInstance> {
                     "to kill running tasks. Current Agent state is: '%s'", agentRuntimeInfo.getRuntimeStatus().buildState().name()));
         }
 
+        if(killRunningTasks) {
+            throw new InvalidAgentInstructionException("There is a pending request to kill running task.");
+        }
+
         this.killRunningTasks = true;
     }
 

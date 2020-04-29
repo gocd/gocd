@@ -832,6 +832,17 @@ public class AgentInstanceTest {
                     .isThrownBy(() -> agentInstance.killRunningTasks())
                     .withMessage("The agent should be in cancelled state before attempting to kill running tasks. Current Agent state is: 'Building'");
         }
+
+        @Test
+        void shouldErrorOutIfMakingMultipleRequestsToKillRunningTasks() throws InvalidAgentInstructionException {
+            AgentInstance agentInstance = cancelled();
+
+            agentInstance.killRunningTasks();
+
+            assertThatExceptionOfType(InvalidAgentInstructionException.class)
+                    .isThrownBy(() -> agentInstance.killRunningTasks())
+                    .withMessage("There is a pending request to kill running task.");
+        }
     }
 
     @Nested

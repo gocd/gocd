@@ -173,6 +173,24 @@ export class Material extends ValidatableMixin {
     errors.push(...this.attributes()!.errors().allErrorsForDisplay());
     return errors;
   }
+
+  clone() {
+    if (this.attributes() === undefined) {
+      return new Material(this.type());
+    } else {
+      const attrs = this.attributes()!.clone();
+      return new Material(this.type(), attrs);
+    }
+  }
+
+  resetPasswordIfAny() {
+    const serialized                       = _.assign({}, this.attributes());
+    const password: Stream<EncryptedValue> = _.get(serialized, "password");
+
+    if (password && (password().isPlain() || password().isDirty())) {
+      password().resetToOriginal();
+    }
+  }
 }
 
 export abstract class MaterialAttributes extends ValidatableMixin {
@@ -232,6 +250,8 @@ export abstract class MaterialAttributes extends ValidatableMixin {
     }
     return serialized;
   }
+
+  abstract clone(): MaterialAttributes;
 }
 
 export abstract class ScmMaterialAttributes extends MaterialAttributes {
@@ -305,6 +325,12 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
+
+  clone(): MaterialAttributes {
+    const gitAttrs = new GitMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.branch(), this.username());
+    gitAttrs.password(this.password());
+    return gitAttrs;
+  }
 }
 
 export class SvnMaterialAttributes extends ScmMaterialAttributes {
@@ -341,6 +367,12 @@ export class SvnMaterialAttributes extends ScmMaterialAttributes {
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
+
+  clone(): MaterialAttributes {
+    const svnAttrs = new SvnMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.checkExternals(), this.username());
+    svnAttrs.password(this.password());
+    return svnAttrs;
+  }
 }
 
 export class HgMaterialAttributes extends ScmMaterialAttributes {
@@ -375,6 +407,13 @@ export class HgMaterialAttributes extends ScmMaterialAttributes {
     }
     attrs.errors(new Errors(json.errors));
     return attrs;
+  }
+
+  clone(): MaterialAttributes {
+    const hgAttrs = new HgMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.username());
+    hgAttrs.password(this.password());
+    hgAttrs.branch(this.branch());
+    return hgAttrs;
   }
 }
 
@@ -417,6 +456,12 @@ export class P4MaterialAttributes extends ScmMaterialAttributes {
     }
     attrs.errors(new Errors(json.errors));
     return attrs;
+  }
+
+  clone(): MaterialAttributes {
+    const p4Attrs = new P4MaterialAttributes(this.name(), this.autoUpdate(), this.port(), this.useTickets(), this.view(), this.username());
+    p4Attrs.password(this.password());
+    return p4Attrs;
   }
 }
 
@@ -461,6 +506,12 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
+
+  clone(): MaterialAttributes {
+    const gitAttrs = new TfsMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.domain(), this.projectPath(), this.username());
+    gitAttrs.password(this.password());
+    return gitAttrs;
+  }
 }
 
 export class DependencyMaterialAttributes extends MaterialAttributes {
@@ -489,6 +540,10 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
+
+  clone(): MaterialAttributes {
+    return new DependencyMaterialAttributes(this.name(), this.autoUpdate(), this.pipeline(), this.stage(), this.ignoreForScheduling());
+  }
 }
 
 export class PackageMaterialAttributes extends MaterialAttributes {
@@ -504,6 +559,10 @@ export class PackageMaterialAttributes extends MaterialAttributes {
     attrs.errors(new Errors(data.errors));
     return attrs;
   }
+
+  clone(): MaterialAttributes {
+    return new PackageMaterialAttributes(this.name(), this.autoUpdate(), this.ref());
+  }
 }
 
 export class PluggableScmMaterialAttributes extends MaterialAttributes {
@@ -511,7 +570,7 @@ export class PluggableScmMaterialAttributes extends MaterialAttributes {
   filter: Stream<Filter>;
   destination: Stream<string>;
 
-  constructor(name: string | undefined, autoUpdate: boolean, ref: string, destination: string, filter: Filter) {
+  constructor(name: string | undefined, autoUpdate: boolean | undefined, ref: string, destination: string, filter: Filter) {
     super(name, autoUpdate);
     this.ref         = Stream(ref);
     this.filter      = Stream(filter);
@@ -522,5 +581,9 @@ export class PluggableScmMaterialAttributes extends MaterialAttributes {
     const attrs = new PluggableScmMaterialAttributes(data.name, data.auto_update, data.ref, data.destination, Filter.fromJSON(data.filter));
     attrs.errors(new Errors(data.errors));
     return attrs;
+  }
+
+  clone(): MaterialAttributes {
+    return new PluggableScmMaterialAttributes(this.name(), this.autoUpdate(), this.ref(), this.destination(), this.filter());
   }
 }

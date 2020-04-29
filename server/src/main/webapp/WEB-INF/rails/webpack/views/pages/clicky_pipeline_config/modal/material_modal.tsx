@@ -30,22 +30,25 @@ import {MaterialEditor} from "views/pages/pipelines/material_editor";
 
 export class MaterialModal extends Modal {
   private readonly materials: Stream<Materials>;
+  protected readonly originalEntity: Stream<Material>;
   protected readonly entity: Stream<Material>;
   private readonly __title: string;
-  private readonly errorMessage: Stream<string>;
+  private readonly errorMessage: Stream<m.Children>;
   private readonly pluginInfos: Stream<PluginInfos>;
   private readonly packageRepositories: Stream<PackageRepositories>;
   private readonly pluggableScms: Stream<Scms>;
   private readonly pipelineConfigSave: () => Promise<any>;
   private readonly isNew: boolean;
   private readonly readonly: boolean;
+  private readonly parentPipelineName: string;
 
-  constructor(title: string, entity: Stream<Material>, materials: Stream<Materials>, scms: Stream<Scms>,
+  constructor(title: string, entity: Stream<Material>, parentPipelineName: string, materials: Stream<Materials>, scms: Stream<Scms>,
               packages: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
               pipelineConfigSave: () => Promise<any>, isNew: boolean, readonly: boolean) {
     super(Size.large);
     this.__title                  = title;
-    this.entity                   = entity;
+    this.originalEntity           = entity;
+    this.entity                   = Stream(entity().clone());
     this.pluggableScms            = scms;
     this.materials                = materials;
     this.packageRepositories      = packages;
@@ -55,19 +58,20 @@ export class MaterialModal extends Modal {
     this.errorMessage             = Stream();
     this.closeModalOnOverlayClick = false;
     this.readonly                 = readonly;
+    this.parentPipelineName       = parentPipelineName;
   }
 
-  static forAdd(materials: Stream<Materials>, scms: Stream<Scms>, packageRepositories: Stream<PackageRepositories>,
+  static forAdd(parentPipelineName: string, materials: Stream<Materials>, scms: Stream<Scms>, packageRepositories: Stream<PackageRepositories>,
                 pluginInfos: Stream<PluginInfos>, onSuccessfulAdd: () => Promise<any>) {
     const materialType = materials().scmMaterialsHaveDestination() ? "git" : "dependency";
-    return new MaterialModal("Add material", Stream(new Material(materialType)), materials, scms, packageRepositories, pluginInfos, onSuccessfulAdd, true, false);
+    return new MaterialModal("Add material", Stream(new Material(materialType)), parentPipelineName, materials, scms, packageRepositories, pluginInfos, onSuccessfulAdd, true, false);
   }
 
-  static forEdit(material: Material, materials: Stream<Materials>, scms: Stream<Scms>,
+  static forEdit(material: Material, parentPipelineName: string, materials: Stream<Materials>, scms: Stream<Scms>,
                  packageRepositories: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
                  pipelineConfigSave: () => Promise<any>, readonly: boolean) {
     const title = `Edit material - ${s.capitalize(material.type()!)}`;
-    return new MaterialModal(title, Stream(material), materials, scms, packageRepositories, pluginInfos, pipelineConfigSave, false, readonly);
+    return new MaterialModal(title, Stream(material), parentPipelineName, materials, scms, packageRepositories, pluginInfos, pipelineConfigSave, false, readonly);
   }
 
   title(): string {
@@ -79,15 +83,15 @@ export class MaterialModal extends Modal {
     let maybeMsg;
     if (this.isNew && !allScmMaterialsHaveDestination) {
       maybeMsg = <FlashMessage type={MessageType.warning} dataTestId={"materials-destination-warning-message"}>
-        In order to configure multiple SCM materials for this pipeline, each of its material needs have to a 'Destination Directory' specified.
-        Please edit the existing material and specify a 'Destination Directory' in order to proceed with this operation.
+        In order to configure multiple SCM materials for this pipeline, each of its material needs have to a 'Alternate Checkout Path' specified.
+        Please edit the existing material and specify a 'Alternate Checkout Path' in order to proceed with this operation.
       </FlashMessage>;
     }
     return <div>
       <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
       {maybeMsg}
       <MaterialEditor material={this.entity()} showExtraMaterials={true} disabledMaterialTypeSelection={!this.isNew}
-                      disableScmMaterials={!allScmMaterialsHaveDestination} readonly={this.readonly}
+                      disableScmMaterials={!allScmMaterialsHaveDestination} readonly={this.readonly} parentPipelineName={this.parentPipelineName}
                       pluggableScms={this.pluggableScms()} packageRepositories={this.packageRepositories()} pluginInfos={this.pluginInfos()}/>
     </div>;
   }
@@ -103,19 +107,27 @@ export class MaterialModal extends Modal {
     if (this.entity().isValid()) {
       if (this.isNew) {
         this.materials().push(this.entity());
+      } else {
+        //remove the original one and save the updated one
+        this.materials().splice(this.materials().indexOf(this.originalEntity()), 1, this.entity());
       }
 
       this.pipelineConfigSave()
           .then(() => this.close())
           .catch((errorResponse: ErrorResponse) => {
-            const parse = JSON.parse(errorResponse.body!);
-            this.entity().consumeErrorsResponse(parse.data);
-            this.errorMessage(parse.message);
+            const parse            = JSON.parse(errorResponse.body!);
+            const unconsumedErrors = this.entity().consumeErrorsResponse(parse.data);
+            this.errorMessage(<span>{parse.message}<br/> {unconsumedErrors.allErrorsForDisplay()}</span>);
 
             if (this.isNew) {
               this.materials().delete(this.entity());
             }
           });
     }
+  }
+
+  close() {
+    this.entity().resetPasswordIfAny();
+    super.close();
   }
 }

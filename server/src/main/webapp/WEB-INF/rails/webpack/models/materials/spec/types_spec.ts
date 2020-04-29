@@ -228,4 +228,39 @@ describe("Material Types", () => {
     });
   });
 
+  it('should reset password if it is present and has been updated', () => {
+    const material = new Material("git", new GitMaterialAttributes("name", true, "some-url", "master", "username", "password"));
+    const attrs    = (material.attributes() as GitMaterialAttributes);
+    attrs.password().edit();
+
+    expect(attrs.password().value()).toBe('');
+
+    material.resetPasswordIfAny();
+
+    expect(attrs.password().value()).toBe('password');
+  });
+
+  describe('Clone', () => {
+    it('should clone only the type is attrs are not present', () => {
+      const material = new Material("git");
+      const clone    = material.clone();
+
+      expect(clone.type()).toBe(material.type());
+      expect(clone.attributes()).toBeUndefined();
+    });
+
+    it('should clone the attrs as well', () => {
+      const material = new Material("git", new GitMaterialAttributes("name", true, "some-url", "master", "username", "password"));
+      const clone    = material.clone();
+
+      expect(clone.type()).toBe(material.type());
+      expect(clone.attributes()!.name()).toEqual(material.attributes()!.name());
+      expect(clone.attributes()!.autoUpdate()).toEqual(material.attributes()!.autoUpdate());
+      expect((clone.attributes()! as GitMaterialAttributes).url()).toEqual((material.attributes()! as GitMaterialAttributes).url());
+      expect((clone.attributes()! as GitMaterialAttributes).branch()).toEqual((material.attributes()! as GitMaterialAttributes).branch());
+      expect((clone.attributes()! as GitMaterialAttributes).username()).toEqual((material.attributes()! as GitMaterialAttributes).username());
+      expect((clone.attributes()! as GitMaterialAttributes).password().valueForDisplay()).toEqual((material.attributes()! as GitMaterialAttributes).password().valueForDisplay());
+    });
+  });
+
 });

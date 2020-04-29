@@ -43,6 +43,7 @@ interface MaterialsAttrs {
   scmMaterials: Stream<Scms>;
   pipelineConfigSave: () => Promise<any>;
   flashMessage: FlashMessageModelWithTimeout;
+  parentPipelineName: string;
 }
 
 export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
@@ -66,12 +67,13 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
 
   private addMaterial(vnode: m.Vnode<MaterialsAttrs, this>, e: MouseEvent) {
     e.stopPropagation();
-    MaterialModal.forAdd(vnode.attrs.materials, vnode.attrs.scmMaterials, vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.pipelineConfigSave).render();
+    MaterialModal.forAdd(vnode.attrs.parentPipelineName, vnode.attrs.materials, vnode.attrs.scmMaterials, vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.pipelineConfigSave).render();
   }
 
   private updateMaterial(vnode: m.Vnode<MaterialsAttrs, this>, materialToUpdate: Material, e: MouseEvent) {
     e.stopPropagation();
     MaterialModal.forEdit(materialToUpdate,
+                          vnode.attrs.parentPipelineName,
                           vnode.attrs.materials,
                           vnode.attrs.scmMaterials,
                           vnode.attrs.packageRepositories,
@@ -82,18 +84,18 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
 
   private deleteMaterial(vnode: m.Vnode<MaterialsAttrs, this>, materialToRemove: Material, e: MouseEvent) {
     e.stopPropagation();
-    const onDelete = () => {
+    const materialName = this.getMaterialDisplayInfo(materialToRemove, vnode).name;
+    const onDelete     = () => {
       vnode.attrs.materials().delete(materialToRemove);
       return vnode.attrs.pipelineConfigSave()
-                  .then(() => vnode.attrs.flashMessage.setMessage(MessageType.success, `Material '${materialToRemove.name()}' deleted successfully.`))
+                  .then(() => vnode.attrs.flashMessage.setMessage(MessageType.success, `Material '${materialName}' deleted successfully.`))
                   .catch((errorResponse: ErrorResponse) => {
                     vnode.attrs.materials().push(materialToRemove);
-                    vnode.attrs.flashMessage.consumeErrorResponse(errorResponse);
                   }).finally(m.redraw.sync);
     };
     new ConfirmationDialog(
       "Delete Material",
-      <div>Do you want to delete the material '<em>{this.getMaterialDisplayInfo(materialToRemove, vnode).name}</em>'?</div>,
+      <div>Do you want to delete the material '<em>{materialName}</em>'?</div>,
       onDelete
     ).render();
   }
@@ -105,7 +107,7 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
       : "Remove this material";
     return Array.from(vnode.attrs.materials().values()).map((material: Material) => {
       const {name, type, urlOrDescription} = this.getMaterialDisplayInfo(material, vnode);
-      const elements                          = [
+      const elements                       = [
         <a href={`#!${PipelineConfigPage.pipelineName()}/materials`}
            class={style.nameLink}
            data-test-id={"edit-material-button"}

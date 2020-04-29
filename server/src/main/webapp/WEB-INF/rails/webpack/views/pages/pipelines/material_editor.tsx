@@ -31,11 +31,7 @@ import {
   TfsMaterialAttributes
 } from "models/materials/types";
 import {PackageRepositories} from "models/package_repositories/package_repositories";
-import {
-  ExtensionTypeString,
-  PackageRepoExtensionType,
-  SCMExtensionType
-} from "models/shared/plugin_infos_new/extension_type";
+import {ExtensionTypeString, PackageRepoExtensionType, SCMExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormBody} from "views/components/forms/form";
@@ -58,6 +54,7 @@ interface Attrs {
   pluggableScms?: Scms;
   disableScmMaterials?: boolean;
   readonly?: boolean;
+  parentPipelineName?: string;
 }
 
 export class MaterialEditor extends MithrilViewComponent<Attrs> {
@@ -90,7 +87,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
       </SelectField>
 
       <Form last={true} compactForm={true}>
-        {this.fieldsForType(attrs.readonly!, attrs.material, this.cache, showLocalWorkingCopyOptions, hideTestConnection, attrs.disabled, attrs.packageRepositories, attrs.pluginInfos, attrs.pluggableScms)}
+        {this.fieldsForType(attrs.readonly!, attrs.material, this.cache, showLocalWorkingCopyOptions, hideTestConnection, attrs.disabled, attrs.packageRepositories, attrs.pluginInfos, attrs.pluggableScms, attrs.parentPipelineName)}
       </Form>
     </FormBody>;
   }
@@ -111,7 +108,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     return options;
   }
 
-  fieldsForType(readonly: boolean, material: Material, cacheable: SuggestionCache, showLocalWorkingCopyOptions: boolean, hideTestConnection: boolean, disabled?: boolean, packageRepositories?: PackageRepositories, pluginInfos?: PluginInfos, scms?: Scms): m.Children {
+  fieldsForType(readonly: boolean, material: Material, cacheable: SuggestionCache, showLocalWorkingCopyOptions: boolean, hideTestConnection: boolean, disabled?: boolean, packageRepositories?: PackageRepositories, pluginInfos?: PluginInfos, scms?: Scms, parentPipelineName?: string): m.Children {
     switch (material.type()) {
       case "git":
         if (!(material.attributes() instanceof GitMaterialAttributes)) {
@@ -147,7 +144,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
         if (!(material.attributes() instanceof DependencyMaterialAttributes)) {
           material.attributes(new DependencyMaterialAttributes());
         }
-        return <DependencyFields material={material} cache={cacheable} readonly={readonly}
+        return <DependencyFields material={material} cache={cacheable} readonly={readonly} parentPipelineName={parentPipelineName}
                                  showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}/>;
       case "package":
         if (!(material.attributes() instanceof PackageMaterialAttributes)) {

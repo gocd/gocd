@@ -123,7 +123,7 @@ export class PipelineConfigPage<T> extends TabHandler<T> {
         this.pageState      = PageState.OK;
       });
     }
-
+    super.onSuccessfulPipelineSaveCallback();
     return Promise.resolve(successResponse);
   }
 

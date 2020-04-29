@@ -119,11 +119,11 @@ export class NavigationWidget extends MithrilViewComponent<Attrs> {
   }
 
   onTemplateViewClick(templateName: string) {
-    window.open(`/go/admin/templates#!${templateName}/view`);
+    window.location.href = `/go/admin/templates#!${templateName}/view`;
   }
 
   onTemplateEditClick(templateName: string) {
-    window.open(`/go/admin/templates/${templateName}/general`);
+    window.location.href = `/go/admin/templates/${templateName}/general`;
   }
 
   treeStage(vnode: m.Vnode<Attrs>, entityName: string) {

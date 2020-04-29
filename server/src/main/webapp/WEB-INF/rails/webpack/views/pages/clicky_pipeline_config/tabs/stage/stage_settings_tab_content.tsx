@@ -23,7 +23,6 @@ import {TextField} from "views/components/forms/input_fields";
 import {SwitchBtn} from "views/components/switch";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
-import {StageEditor} from "views/pages/clicky_pipeline_config/widgets/stage_editor_widget";
 import styles from "./stage_settings.scss";
 
 export class StageSettingsTabContent extends TabContent<Stage> {
@@ -49,6 +48,10 @@ interface Attrs {
 }
 
 export class StageSettingsWidget extends MithrilViewComponent<Attrs> {
+  static readonly APPROVAL_TYPE_HELP = "If turned on, then this stage will automatically schedule once the preceding stage completes successfully. Otherwise, users have to manually trigger this stage. For the first stage in a pipeline, turning this on is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.";
+
+  static readonly ALLOW_ONLY_ON_SUCCESS_HELP = "Only allow stage to be scheduled if the previous stage run is successful.";
+
   view(vnode: m.Vnode<Attrs>) {
     const stage = vnode.attrs.stage;
 
@@ -72,7 +75,7 @@ export class StageSettingsWidget extends MithrilViewComponent<Attrs> {
                      field={stage.neverCleanupArtifacts}/>
         </div>
         <div className={styles.switchWrapper}>
-          <SwitchBtn label="Never cleanup artifacts"
+          <SwitchBtn label="Clean Working Directory"
                      helpText="Remove all files/directories in the working directory on the agent."
                      dataTestId="clean-working-directory-checkbox"
                      small={true}
@@ -90,8 +93,8 @@ export class StageSettingsWidget extends MithrilViewComponent<Attrs> {
                  errorText={stage.errors().errorsForDisplay("name")}
                  property={stage.name}/>
       <div class={styles.switchWrapper}>
-        <SwitchBtn label="Trigger completion of previous stage:"
-                   helpText={StageEditor.APPROVAL_TYPE_HELP}
+        <SwitchBtn label="Trigger on completion of previous stage"
+                   helpText={StageSettingsWidget.APPROVAL_TYPE_HELP}
                    field={stage.approval().typeAsStream()}
                    disabled={vnode.attrs.readonly}
                    small={true}
@@ -99,8 +102,8 @@ export class StageSettingsWidget extends MithrilViewComponent<Attrs> {
                    onclick={StageSettingsWidget.approvalChange.bind(this, stage)}/>
       </div>
       <div class={styles.switchWrapper}>
-        <SwitchBtn label="Allow only on success"
-                   helpText={StageEditor.ALLOW_ONLY_ON_SUCCESS_HELP}
+        <SwitchBtn label="Allow only on success of previous stage"
+                   helpText={StageSettingsWidget.ALLOW_ONLY_ON_SUCCESS_HELP}
                    small={true}
                    disabled={vnode.attrs.readonly}
                    dataTestId="allow-only-on-success-checkbox"

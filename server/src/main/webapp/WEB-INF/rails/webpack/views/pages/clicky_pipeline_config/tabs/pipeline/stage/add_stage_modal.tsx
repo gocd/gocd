@@ -53,7 +53,7 @@ export class AddStageModal extends Modal {
     this.jobToCreate   = new Job();
 
     this.allTaskTypes          = ["Ant", "NAnt", "Rake", "Custom Command"];
-    this.selectedTaskTypeToAdd = Stream(this.allTaskTypes[0]);
+    this.selectedTaskTypeToAdd = Stream(this.allTaskTypes[3]);
 
     this.existingStageNames = Array.from(this.stages.keys()).map(s => s.name());
 
@@ -86,7 +86,7 @@ export class AddStageModal extends Modal {
   }
 
   title(): string {
-    return "Add new Stage";
+    return "Add new stage";
   }
 
   buttons(): m.ChildArray {

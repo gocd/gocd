@@ -102,6 +102,7 @@ export abstract class TabHandler<T> extends Page<null, T> {
                              "There are unsaved changes on your form. 'Proceed' will discard these changes",
                              () => {
                                this.reset();
+                               this.flashMessage.clear();
                                return Promise.resolve(success());
                              }
       ).render();

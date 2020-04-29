@@ -15,7 +15,14 @@
  */
 
 import m from "mithril";
-import {GitMaterialAttributes, HgMaterialAttributes, Material, P4MaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes,} from "models/materials/types";
+import {
+  GitMaterialAttributes,
+  HgMaterialAttributes,
+  Material,
+  P4MaterialAttributes,
+  SvnMaterialAttributes,
+  TfsMaterialAttributes,
+} from "models/materials/types";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {GitFields, HgFields, P4Fields, SvnFields, TfsFields} from "../scm_material_fields";
 
@@ -35,6 +42,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "password":                "Password",
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
+      "blacklist":               "Blacklist",
     });
     assertAutoUpdateSwitchPresent();
 
@@ -52,6 +60,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "password":                "Password",
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
+      "blacklist":               "Blacklist"
     });
     assertAutoUpdateSwitchPresent();
 
@@ -69,6 +78,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "password":                "Password",
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
+      "blacklist":               "Blacklist"
     });
     assertAutoUpdateSwitchPresent();
 
@@ -87,6 +97,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "password":                  "Password",
       "alternate-checkout-path":   "Alternate Checkout Path",
       "material-name":             "Material Name",
+      "blacklist":                 "Blacklist"
     });
     assertAutoUpdateSwitchPresent();
 
@@ -105,6 +116,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "password":                "Password*",
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
+      "blacklist":               "Blacklist"
     });
     assertAutoUpdateSwitchPresent();
 
@@ -122,6 +134,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "password":                "Password",
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
+      "blacklist":               "Blacklist"
     });
     assertAutoUpdateSwitchPresent();
 
@@ -149,6 +162,7 @@ describe("AddPipeline: SCM Material Fields", () => {
     assertLabelledInputsAbsent(
       "alternate-checkout-path",
       "material-name",
+      "blacklist"
     );
     assertAutoUpdateSwitchAbsent();
 

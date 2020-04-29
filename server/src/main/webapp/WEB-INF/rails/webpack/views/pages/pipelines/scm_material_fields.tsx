@@ -16,6 +16,7 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
+import {Filter} from "models/maintenance_mode/material";
 import {
   GitMaterialAttributes,
   HgMaterialAttributes,
@@ -29,11 +30,11 @@ import {
 import {CheckboxField, FormField, PasswordField, TextField} from "views/components/forms/input_fields";
 import {TestConnection} from "views/components/materials/test_connection";
 import {SwitchBtn} from "views/components/switch";
-import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
+import * as Tooltip from "views/components/tooltip";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import styles from "./advanced_settings.scss";
-import {DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
+import {BLACKLIST_HELP_MESSAGE, DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
 interface Attrs {
   material: Material;
@@ -114,14 +115,24 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
                    small={true}
                    css={styles}
                    field={mattrs.autoUpdate}
-                   errorText={this.errs(mattrs, "autoUpdate")}/>
+                   errorText={this.errs(mattrs, "autoUpdate")}/>,
+
+        <TextField label="Blacklist" helpText={BLACKLIST_HELP_MESSAGE}
+                   property={this.filter.bind(this, mattrs)}
+                   errorText={this.errs(mattrs, "filter")}/>,
+
+        <CheckboxField property={mattrs.invertFilter} dataTestId={"invert-filter"}
+                       label="Invert the file filter, e.g. a Blacklist becomes a Whitelist instead."
+                       errorText={this.errs(mattrs, "invertFilter")}/>
       ];
       settings                  = settings.concat(commonSettings);
     }
 
     const shouldForceOpen = mattrs.errors().hasErrors("name") ||
                             mattrs.errors().hasErrors("destination") ||
-                            mattrs.errors().hasErrors("autoUpdate");
+                            mattrs.errors().hasErrors("autoUpdate") ||
+                            mattrs.errors().hasErrors("filter")||
+                            mattrs.errors().hasErrors("invertFilter");
     return <AdvancedSettings forceOpen={shouldForceOpen}>
       {settings}
     </AdvancedSettings>;
@@ -130,6 +141,18 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
   abstract requiredFields(attrs: MaterialAttributes): m.ChildArray;
 
   abstract extraFields(attrs: MaterialAttributes): m.ChildArray;
+
+  protected filter(attrs: ScmMaterialAttributes, newValue?: string): string | undefined {
+    if (attrs.filter() === undefined) {
+      attrs.filter(new Filter([]));
+    }
+    const filter = attrs.filter()!;
+    if (!newValue) {
+      return filter.ignore().join(',');
+    }
+    filter.ignore(newValue.split(','));
+    return "";
+  }
 }
 
 export class GitFields extends ScmFields {

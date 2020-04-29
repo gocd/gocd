@@ -20,7 +20,6 @@ import m from "mithril";
 import {PipelineGroup} from "models/admin_pipelines/admin_pipelines";
 import {PipelineGroupCRUD} from "models/admin_pipelines/pipeline_groups_crud";
 import {pipelineGroupJSON} from "models/admin_pipelines/specs/admin_pipelines_spec";
-import {Authorization} from "models/authorization/authorization";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {EditPipelineGroupModal} from "../edit_pipeline_group_modal";
@@ -322,7 +321,7 @@ describe('EditPipelineGroupModal', () => {
       resolve(ApiResult.success("", 200, new Map()).map<ObjectWithEtag<PipelineGroup>>(
         () => {
           return {
-            object: new PipelineGroup("grp", new Authorization()),
+            object: PipelineGroup.fromJSON(pipelineGroupJSON()),
             etag:   "some-etag"
           } as ObjectWithEtag<PipelineGroup>;
         }

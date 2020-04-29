@@ -37,6 +37,8 @@ export interface UsernamePasswordJSON {
 
 export interface ScmAttributesJSON extends BaseAttributesJSON, UsernamePasswordJSON {
   destination?: string;
+  filter?: FilterJSON;
+  invert_filter?: boolean;
 }
 
 export interface GitMaterialAttributesJSON extends ScmAttributesJSON {

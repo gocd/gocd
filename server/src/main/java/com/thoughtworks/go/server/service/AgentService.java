@@ -24,7 +24,7 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.NullAgentInstance;
-import com.thoughtworks.go.domain.exception.ForceCancelException;
+import com.thoughtworks.go.domain.exception.InvalidAgentInstructionException;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -314,13 +314,13 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         });
     }
 
-    public void killAllRunningTasksOnAgent(String uuid) throws ForceCancelException {
+    public void killAllRunningTasksOnAgent(String uuid) throws InvalidAgentInstructionException {
         AgentInstance agentInstance = agentInstances.findAgent(uuid);
         if (agentInstance.isNullAgent()) {
             throw new RecordNotFoundException(format("Agent with uuid: '%s' not found", uuid));
         }
 
-        agentInstance.forceCancel();
+        agentInstance.killRunningTasks();
     }
 
     private long cancelledForMins(Date cancelledAt) {

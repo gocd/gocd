@@ -27,7 +27,7 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.NullAgent;
 import com.thoughtworks.go.domain.NullAgentInstance;
-import com.thoughtworks.go.domain.exception.ForceCancelException;
+import com.thoughtworks.go.domain.exception.InvalidAgentInstructionException;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.listener.AgentChangeListener;
@@ -1525,14 +1525,14 @@ class AgentServiceTest {
     @Nested
     class killAllRunningTasksOnAgent {
         @Test
-        void shouldInstructAgentToKillAllRunningTasks() throws ForceCancelException {
+        void shouldInstructAgentToKillAllRunningTasks() throws InvalidAgentInstructionException {
             AgentInstance agentInstance = mock(AgentInstance.class);
 
             when(agentInstances.findAgent("agent_uuid")).thenReturn(agentInstance);
 
             agentService.killAllRunningTasksOnAgent("agent_uuid");
 
-            verify(agentInstance).forceCancel();
+            verify(agentInstance).killRunningTasks();
         }
 
         @Test

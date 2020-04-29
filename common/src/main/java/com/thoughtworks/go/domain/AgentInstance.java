@@ -17,7 +17,7 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.ResourceConfigs;
-import com.thoughtworks.go.domain.exception.ForceCancelException;
+import com.thoughtworks.go.domain.exception.InvalidAgentInstructionException;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
@@ -30,7 +30,6 @@ import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 
@@ -59,7 +58,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     private TimeProvider timeProvider;
     private SystemEnvironment systemEnvironment;
     private ConfigErrors errors = new ConfigErrors();
-    private boolean forceCancel;
+    private boolean killRunningTasks;
 
     protected AgentInstance(Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
                             AgentStatusChangeListener agentStatusChangeListener, TimeProvider timeProvider) {
@@ -158,14 +157,13 @@ public class AgentInstance implements Comparable<AgentInstance> {
         cancelledAt = timeProvider.currentTime();
     }
 
-    public void forceCancel() throws ForceCancelException {
+    public void killRunningTasks() throws InvalidAgentInstructionException {
         if (!isCancelled()) {
-            throw new ForceCancelException(format("The job should be cancelled before attempting a force cancel. Current Agent " +
-                            "Build State is: '%s'",
-                    agentRuntimeInfo.getRuntimeStatus().buildState().name()));
+            throw new InvalidAgentInstructionException(format("The agent should be in cancelled state before attempting " +
+                    "to kill running tasks. Current Agent state is: '%s'", agentRuntimeInfo.getRuntimeStatus().buildState().name()));
         }
 
-        this.forceCancel = true;
+        this.killRunningTasks = true;
     }
 
     public void deny() {
@@ -306,8 +304,8 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return agentRuntimeInfo.getRuntimeStatus() == Missing;
     }
 
-    public boolean shouldForceCancel() {
-        return forceCancel;
+    public boolean shouldKillRunningTasks() {
+        return killRunningTasks;
     }
 
     public AgentIdentifier getAgentIdentifier() {
@@ -344,7 +342,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     private void clearCancelledState() {
         this.cancelledAt = null;
-        this.forceCancel = false;
+        this.killRunningTasks = false;
     }
 
     public String getBuildLocator() {
@@ -407,8 +405,8 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public AgentInstruction agentInstruction() {
-        if (isCancelled() && shouldForceCancel()) {
-            return FORCE_CANCEL;
+        if (isCancelled() && shouldKillRunningTasks()) {
+            return KILL_RUNNING_TASKS;
         }
 
         if(isCancelled()) {

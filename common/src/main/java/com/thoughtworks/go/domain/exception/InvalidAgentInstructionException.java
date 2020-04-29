@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.domain.exception;
 
-public class ForceCancelException extends Exception {
-    public ForceCancelException(String message) {
+public class InvalidAgentInstructionException extends Exception {
+    public InvalidAgentInstructionException(String message) {
         super(message);
     }
 }

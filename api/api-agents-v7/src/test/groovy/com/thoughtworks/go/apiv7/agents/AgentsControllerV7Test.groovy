@@ -27,7 +27,7 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.RepoConfigOrigin
 import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.domain.NullAgentInstance
-import com.thoughtworks.go.domain.exception.ForceCancelException
+import com.thoughtworks.go.domain.exception.InvalidAgentInstructionException
 import com.thoughtworks.go.server.domain.AgentInstances
 import com.thoughtworks.go.server.service.AgentService
 import com.thoughtworks.go.server.service.EnvironmentConfigService
@@ -1334,7 +1334,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
         enableSecurity()
         loginAsAdmin()
 
-        when(agentService.killAllRunningTasksOnAgent("agent_uuid")).thenThrow(new ForceCancelException("Agent is idle."))
+        when(agentService.killAllRunningTasksOnAgent("agent_uuid")).thenThrow(new InvalidAgentInstructionException("Agent is idle."))
 
         postWithApiHeader(controller.controllerPath('agent_uuid', 'kill_running_tasks'), ['x-gocd-confirm': 'true'], null)
 

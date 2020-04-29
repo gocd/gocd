@@ -17,7 +17,7 @@ package com.thoughtworks.go.remote;
 
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.exception.ForceCancelException;
+import com.thoughtworks.go.domain.exception.InvalidAgentInstructionException;
 import com.thoughtworks.go.server.messaging.JobStatusMessage;
 import com.thoughtworks.go.server.messaging.JobStatusTopic;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
@@ -75,17 +75,17 @@ class BuildRepositoryRemoteImplTest {
         }
 
         @Test
-        void shouldReturnInstructionsToAgent() throws ForceCancelException {
+        void shouldReturnInstructionsToAgent() throws InvalidAgentInstructionException {
             AgentInstance agentInstance = AgentInstance.createFromLiveAgent(info, new SystemEnvironment(), null);
             agentInstance.cancel();
-            agentInstance.forceCancel();
+            agentInstance.killRunningTasks();
 
             when(agentService.findAgentAndRefreshStatus(info.getUUId())).thenReturn(agentInstance);
 
             AgentInstruction instruction = buildRepository.ping(info);
 
             assertThat(instruction.shouldCancel()).isFalse();
-            assertThat(instruction.shouldForceCancel()).isTrue();
+            assertThat(instruction.shouldKillRunningTasks()).isTrue();
         }
     }
 

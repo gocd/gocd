@@ -23,7 +23,6 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.work.FakeWork;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -110,12 +109,12 @@ public class JobRunnerTest {
         }
 
         @Test
-        void shouldForceCancelOncePerJob() {
+        void shouldKillRunningTasksOncePerJob() {
             runner.setWork(work);
-            runner.handleInstruction(FORCE_CANCEL, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
+            runner.handleInstruction(KILL_RUNNING_TASKS, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
             verify(work, times(1)).cancel(any(), any());
 
-            runner.handleInstruction(FORCE_CANCEL, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
+            runner.handleInstruction(KILL_RUNNING_TASKS, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
             verify(work, times(1)).cancel(any(), any());
         }
 

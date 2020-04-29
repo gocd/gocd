@@ -28,17 +28,17 @@ class AgentInstructionTest {
         void shouldBeTrueForCancelInstruction() {
             assertThat(AgentInstruction.NONE.shouldCancel()).isFalse();
             assertThat(AgentInstruction.CANCEL.shouldCancel()).isTrue();
-            assertThat(AgentInstruction.FORCE_CANCEL.shouldCancel()).isFalse();
+            assertThat(AgentInstruction.KILL_RUNNING_TASKS.shouldCancel()).isFalse();
         }
     }
 
     @Nested
-    class shouldForceCancel {
+    class shouldKillRunningTasks {
         @Test
-        void shouldBeTrueForCancelInstruction() {
-            assertThat(AgentInstruction.NONE.shouldForceCancel()).isFalse();
-            assertThat(AgentInstruction.CANCEL.shouldForceCancel()).isFalse();
-            assertThat(AgentInstruction.FORCE_CANCEL.shouldForceCancel()).isTrue();
+        void shouldBeTrueForKillRunningTasksInstruction() {
+            assertThat(AgentInstruction.NONE.shouldKillRunningTasks()).isFalse();
+            assertThat(AgentInstruction.CANCEL.shouldKillRunningTasks()).isFalse();
+            assertThat(AgentInstruction.KILL_RUNNING_TASKS.shouldKillRunningTasks()).isTrue();
         }
     }
 }

@@ -36,7 +36,7 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.NullAgentInstance;
-import com.thoughtworks.go.domain.exception.ForceCancelException;
+import com.thoughtworks.go.domain.exception.InvalidAgentInstructionException;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -186,7 +186,7 @@ public class AgentsControllerV7 extends ApiController implements SparkSpringCont
     public String killRunningTasks(Request request, Response response) {
         try {
             agentService.killAllRunningTasksOnAgent(request.params("uuid"));
-        } catch (ForceCancelException e) {
+        } catch (InvalidAgentInstructionException e) {
             return renderMessage(response, 409, e.getMessage());
         }
 

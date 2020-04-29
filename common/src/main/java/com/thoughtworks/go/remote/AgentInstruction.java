@@ -17,13 +17,13 @@
 package com.thoughtworks.go.remote;
 
 public enum AgentInstruction {
-    NONE, CANCEL, FORCE_CANCEL;
+    NONE, CANCEL, KILL_RUNNING_TASKS;
 
     public boolean shouldCancel() {
         return this.equals(CANCEL);
     }
 
-    public boolean shouldForceCancel() {
-        return this.equals(FORCE_CANCEL);
+    public boolean shouldKillRunningTasks() {
+        return this.equals(KILL_RUNNING_TASKS);
     }
 }

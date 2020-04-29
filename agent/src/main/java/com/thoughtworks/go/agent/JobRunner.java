@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 public class JobRunner {
     private volatile boolean cancelHandled = false;
-    private volatile boolean forceCancelHandled = false;
+    private volatile boolean killRunningTasksHandled = false;
     private volatile boolean isJobCancelled = false;
     private volatile boolean running = false;
     private CountDownLatch doneSignal = new CountDownLatch(1);
@@ -41,8 +41,8 @@ public class JobRunner {
             cancelJob(agentStatus);
         }
 
-        if (shouldForceCancel(instruction)) {
-            forceCancelJob(agentStatus);
+        if (shouldKillRunningTasks(instruction)) {
+            killRunningTasks(agentStatus);
         }
     }
 
@@ -78,7 +78,7 @@ public class JobRunner {
     public String toString() {
         return "JobRunner{" +
                 "cancelHandled=" + cancelHandled +
-                ", forceCancelHandled=" + forceCancelHandled +
+                ", killRunningTasksHandled=" + killRunningTasksHandled +
                 ", isJobCancelled=" + isJobCancelled +
                 ", running=" + running +
                 ", doneSignal=" + doneSignal +
@@ -87,8 +87,8 @@ public class JobRunner {
                 '}';
     }
 
-    private boolean shouldForceCancel(AgentInstruction instruction) {
-        return instruction.shouldForceCancel() && !forceCancelHandled;
+    private boolean shouldKillRunningTasks(AgentInstruction instruction) {
+        return instruction.shouldKillRunningTasks() && !killRunningTasksHandled;
     }
 
     private boolean shouldCancelJob(AgentInstruction instruction) {
@@ -105,12 +105,12 @@ public class JobRunner {
         cancelHandled = true;
     }
 
-    private void forceCancelJob(AgentRuntimeInfo agentRuntimeInfo) {
+    private void killRunningTasks(AgentRuntimeInfo agentRuntimeInfo) {
         isJobCancelled = true;
         if (work != null) {
             work.cancel(environmentVariableContext, agentRuntimeInfo);
         }
 
-        forceCancelHandled = true;
+        killRunningTasksHandled = true;
     }
 }

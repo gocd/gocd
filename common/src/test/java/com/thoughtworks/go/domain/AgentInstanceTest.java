@@ -17,7 +17,7 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
-import com.thoughtworks.go.domain.exception.ForceCancelException;
+import com.thoughtworks.go.domain.exception.InvalidAgentInstructionException;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -199,14 +199,14 @@ public class AgentInstanceTest {
     }
 
     @Test
-    void shouldClearAllCancelledStateIfAgentSetToIdle() throws ForceCancelException {
+    void shouldClearAllCancelledStateIfAgentSetToIdle() throws InvalidAgentInstructionException {
         Date currentTime = mock(Date.class);
         AgentInstance agentInstance = buildingWithTimeProvider(timeProvider);
 
         when(timeProvider.currentTime()).thenReturn(currentTime);
 
         agentInstance.cancel();
-        agentInstance.forceCancel();
+        agentInstance.killRunningTasks();
 
         assertThat(agentInstance.cancelledAt()).isEqualTo(currentTime);
 
@@ -216,7 +216,7 @@ public class AgentInstanceTest {
 
         assertThat(agentInstance.getStatus()).isEqualTo(AgentStatus.Idle);
         assertThat(agentInstance.cancelledAt()).isNull();
-        assertThat(agentInstance.shouldForceCancel()).isFalse();
+        assertThat(agentInstance.shouldKillRunningTasks()).isFalse();
     }
 
     @Test
@@ -814,23 +814,23 @@ public class AgentInstanceTest {
     }
 
     @Nested
-    class forceCancel {
+    class killRunningTasks {
         @Test
-        void shouldAddAForceCancelInstructionToAgent() throws ForceCancelException {
+        void shouldAddAKillRunningTasksInstructionToAgent() throws InvalidAgentInstructionException {
             AgentInstance agentInstance = cancelled();
 
-            agentInstance.forceCancel();
+            agentInstance.killRunningTasks();
 
-            assertThat(agentInstance.shouldForceCancel()).isTrue();
+            assertThat(agentInstance.shouldKillRunningTasks()).isTrue();
         }
 
         @Test
-        void shouldErrorOutIfForceCancellingIfAgentRuntimeStatusIsNotCancelled() {
+        void shouldErrorOutIfAddingKillRunningTasksInstructionIfAgentRuntimeStatusIsNotCancelled() {
             AgentInstance agentInstance = building();
 
-            assertThatExceptionOfType(ForceCancelException.class)
-                    .isThrownBy(() -> agentInstance.forceCancel())
-                    .withMessage("The job should be cancelled before attempting a force cancel. Current Agent Build State is: 'Building'");
+            assertThatExceptionOfType(InvalidAgentInstructionException.class)
+                    .isThrownBy(() -> agentInstance.killRunningTasks())
+                    .withMessage("The agent should be in cancelled state before attempting to kill running tasks. Current Agent state is: 'Building'");
         }
     }
 
@@ -880,13 +880,13 @@ public class AgentInstanceTest {
         }
 
         @Test
-        void shouldBeToForceCancelIfJobMarkedAForceCancel() throws ForceCancelException {
+        void shouldBeToKillRunningTasks() throws InvalidAgentInstructionException {
             AgentInstance agentInstance = building();
 
             agentInstance.cancel();
-            agentInstance.forceCancel();
+            agentInstance.killRunningTasks();
 
-            assertThat(agentInstance.agentInstruction()).isEqualTo(FORCE_CANCEL);
+            assertThat(agentInstance.agentInstruction()).isEqualTo(KILL_RUNNING_TASKS);
         }
     }
 

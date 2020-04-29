@@ -77,23 +77,25 @@ export class PermissionsWidget extends MithrilViewComponent<Attrs> {
     return <div class={styles.mainContainer} data-test-id="permissions-tab">
       <FlashMessage type={MessageType.info} message={globalMsg}/>
       <h3 data-test-id="permissions-heading">Permissions for this stage:</h3>
-      <RadioField onchange={(value) => {entity.approval().authorization().isInherited((value !== "local"));}}
-                  property={vnode.attrs.selectedPermission}
-                  readonly={vnode.attrs.isEntityDefinedInConfigRepository}
-                  inline={true}
-                  possibleValues={[
-                    {
-                      label: "Inherit from the Pipeline Group",
-                      value: "inherit",
-                      helpText: "Inherit authorization from the pipeline group."
-                    },
-                    {
-                      label: "Specify locally",
-                      value: "local",
-                      helpText: "Define specific permissions locally. This will override pipeline group authorization."
-                    }
-                  ]}>
-      </RadioField>
+      <div class={styles.radioWrapper}>
+        <RadioField onchange={(value) => {entity.approval().authorization().isInherited((value !== "local"));}}
+                    property={vnode.attrs.selectedPermission}
+                    readonly={vnode.attrs.isEntityDefinedInConfigRepository}
+                    inline={true}
+                    possibleValues={[
+                      {
+                        label: "Inherit from the Pipeline Group",
+                        value: "inherit",
+                        helpText: "Inherit authorization from the pipeline group."
+                      },
+                      {
+                        label: "Specify locally",
+                        value: "local",
+                        helpText: "Define specific permissions locally. This will override pipeline group authorization."
+                      }
+                    ]}>
+        </RadioField>
+      </div>
       {permissionsView}
     </div>;
   }

@@ -79,7 +79,7 @@ export class AddJobModal extends Modal {
     };
 
     this.allTaskTypes          = ["Ant", "NAnt", "Rake", "Custom Command"];
-    this.selectedTaskTypeToAdd = Stream(this.allTaskTypes[0]);
+    this.selectedTaskTypeToAdd = Stream(this.allTaskTypes[3]);
 
     this.existingJobNames = Array.from(this.stage.jobs().keys()).map(j => j.name());
 

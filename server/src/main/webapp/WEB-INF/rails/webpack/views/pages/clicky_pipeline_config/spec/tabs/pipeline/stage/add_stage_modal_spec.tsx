@@ -28,7 +28,7 @@ describe("Add Stage Modal", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("should render modal title", () => {
-    expect(modal.title()).toBe("Add new Stage");
+    expect(modal.title()).toBe("Add new stage");
   });
 
   it("should render stage settings tab for defining a new stage", () => {
@@ -63,12 +63,20 @@ describe("Add Stage Modal", () => {
     expect(options[3]).toHaveValue("Custom Command");
   });
 
-  it("should render ant task view by default", () => {
+  it("should render exec task view by default", () => {
+    expect(helper.byTestId("exec-task-modal")).toBeInDOM();
+  });
+
+  it("should render ant task view", () => {
+    expect(helper.byTestId("exec-task-modal")).toBeInDOM();
+
+    helper.onchange("select", "Ant");
+
     expect(helper.byTestId("ant-task-modal")).toBeInDOM();
   });
 
   it("should render nant task view", () => {
-    expect(helper.byTestId("ant-task-modal")).toBeInDOM();
+    expect(helper.byTestId("exec-task-modal")).toBeInDOM();
 
     helper.onchange("select", "NAnt");
 
@@ -76,19 +84,11 @@ describe("Add Stage Modal", () => {
   });
 
   it("should render rake task view", () => {
-    expect(helper.byTestId("ant-task-modal")).toBeInDOM();
+    expect(helper.byTestId("exec-task-modal")).toBeInDOM();
 
     helper.onchange("select", "Rake");
 
     expect(helper.byTestId("rake-task-modal")).toBeInDOM();
-  });
-
-  it("should render custom task view", () => {
-    expect(helper.byTestId("ant-task-modal")).toBeInDOM();
-
-    helper.onchange("select", "Custom Command");
-
-    expect(helper.byTestId("exec-task-modal")).toBeInDOM();
   });
 
   it("should show error message when conflicting stage name is specified", () => {

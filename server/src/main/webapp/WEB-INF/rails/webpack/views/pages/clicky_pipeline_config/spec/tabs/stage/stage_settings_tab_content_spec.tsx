@@ -58,6 +58,14 @@ describe("StageSettingsTab", () => {
     const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "Job1"));
     mount(stage);
 
+    const labelElement    = helper.allByTestId("switch-label")[0];
+    const helpTextElement = helper.qa("#switch-btn-help-text")[0];
+    const label           = "Trigger on completion of previous stage";
+    const helpText        = StageSettingsWidget.APPROVAL_TYPE_HELP;
+
+    expect(labelElement).toContainText(label);
+    expect(helpTextElement).toContainText(helpText);
+
     expect(stage.approval().typeAsString()).toEqual("manual");
 
     helper.clickByTestId("approval-checkbox");
@@ -68,6 +76,15 @@ describe("StageSettingsTab", () => {
   it("should render allow only in success", () => {
     const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "Job1"));
     mount(stage);
+
+    const labelElement    = helper.allByTestId("switch-label")[1];
+    const helpTextElement = helper.qa("#switch-btn-help-text")[1];
+    const label           = "Allow only on success of previous stage";
+    const helpText        = StageSettingsWidget.ALLOW_ONLY_ON_SUCCESS_HELP;
+
+    expect(labelElement).toContainText(label);
+    expect(helpTextElement).toContainText(helpText);
+
     expect(stage.approval().allowOnlyOnSuccess()).toBeFalse();
 
     helper.clickByTestId("allow-only-on-success-checkbox");
@@ -78,6 +95,14 @@ describe("StageSettingsTab", () => {
   it("should render fetch material", () => {
     const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "Job1"));
     mount(stage);
+
+    const labelElement    = helper.allByTestId("switch-label")[2];
+    const helpTextElement = helper.qa("#switch-btn-help-text")[2];
+    const label           = "Fetch materials";
+    const helpText        = "Perform material updates or checkouts.";
+
+    expect(labelElement).toContainText(label);
+    expect(helpTextElement).toContainText(helpText);
 
     expect(stage.fetchMaterials()).toBeFalsy();
 
@@ -90,6 +115,14 @@ describe("StageSettingsTab", () => {
     const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "Job1"));
     mount(stage);
 
+    const labelElement    = helper.allByTestId("switch-label")[3];
+    const helpTextElement = helper.qa("#switch-btn-help-text")[3];
+    const label           = "Never cleanup artifacts";
+    const helpText        = "Never cleanup artifacts for this stage, if purging artifacts is configured at the Server Level.";
+
+    expect(labelElement).toContainText(label);
+    expect(helpTextElement).toContainText(helpText);
+
     expect(stage.neverCleanupArtifacts()).toBeFalsy();
 
     helper.clickByTestId("never-cleanup-artifacts-checkbox");
@@ -100,6 +133,14 @@ describe("StageSettingsTab", () => {
   it("should render clean working directory", () => {
     const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "Job1"));
     mount(stage);
+
+    const labelElement    = helper.allByTestId("switch-label")[4];
+    const helpTextElement = helper.qa("#switch-btn-help-text")[4];
+    const label           = "Clean Working Directory";
+    const helpText        = "Remove all files/directories in the working directory on the agent.";
+
+    expect(labelElement).toContainText(label);
+    expect(helpTextElement).toContainText(helpText);
 
     expect(stage.cleanWorkingDirectory()).toBeFalsy();
 

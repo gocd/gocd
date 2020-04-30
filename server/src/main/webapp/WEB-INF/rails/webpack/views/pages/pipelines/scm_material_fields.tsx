@@ -119,7 +119,7 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
                    errorText={this.errs(mattrs, "autoUpdate")}/>,
 
         <TextField label="Blacklist" helpText={BLACKLIST_HELP_MESSAGE}
-                   property={this.filter.bind(this, mattrs)}
+                   property={this.filterProxy.bind(this, mattrs)}
                    errorText={this.errs(mattrs, "filter")}/>,
 
         <CheckboxField property={mattrs.invertFilter} dataTestId={"invert-filter"}
@@ -143,16 +143,15 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
 
   abstract extraFields(attrs: MaterialAttributes): m.ChildArray;
 
-  protected filter(attrs: ScmMaterialAttributes, newValue?: string): string | undefined {
+  protected filterProxy(attrs: ScmMaterialAttributes, newValue?: string): string | undefined {
     if (attrs.filter() === undefined) {
       attrs.filter(new Filter([]));
     }
     const filter = attrs.filter()!;
-    if (!newValue) {
-      return filter.ignore().join(',');
+    if (newValue) {
+      filter.ignore(newValue.split(',').map((val) => val.trim()).filter((val) => val.length > 0));
     }
-    filter.ignore(newValue.split(','));
-    return "";
+    return filter.ignore().join(',');
   }
 }
 

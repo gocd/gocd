@@ -81,19 +81,12 @@ export class MaterialModal extends Modal {
 
   body(): m.Children {
     const allScmMaterialsHaveDestination = this.materials().scmMaterialsHaveDestination();
-    let maybeMsg;
-    if (this.isNew && !allScmMaterialsHaveDestination) {
-      maybeMsg = <FlashMessage type={MessageType.warning} dataTestId={"materials-destination-warning-message"}>
-        In order to configure multiple SCM materials for this pipeline, each of its material needs have to a 'Alternate Checkout Path' specified.
-        Please edit the existing material and specify a 'Alternate Checkout Path' in order to proceed with this operation.
-      </FlashMessage>;
-    }
     return <div>
       <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
-      {maybeMsg}
       <div className={styles.materialInputWrapper}>
-        <MaterialEditor material={this.entity()} showExtraMaterials={true} disabledMaterialTypeSelection={!this.isNew}
-                        disableScmMaterials={!allScmMaterialsHaveDestination} readonly={this.readonly} parentPipelineName={this.parentPipelineName}
+        <MaterialEditor material={this.entity()} showExtraMaterials={true}
+                        disableScmMaterials={this.isNew && !allScmMaterialsHaveDestination} readonly={this.readonly}
+                        parentPipelineName={this.parentPipelineName} disabledMaterialTypeSelection={!this.isNew}
                         pluggableScms={this.pluggableScms()} packageRepositories={this.packageRepositories()} pluginInfos={this.pluginInfos()}/>
       </div>
     </div>;

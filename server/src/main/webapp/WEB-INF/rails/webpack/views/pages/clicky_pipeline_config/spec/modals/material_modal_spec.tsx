@@ -17,7 +17,7 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Scms} from "models/materials/pluggable_scm";
-import {GitMaterialAttributes, Material} from "models/materials/types";
+import {Material} from "models/materials/types";
 import {PackageRepositories} from "models/package_repositories/package_repositories";
 import {Materials} from "models/pipeline_configs/pipeline_config";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -51,16 +51,5 @@ describe("MaterialModalSpec", () => {
     expect(modal).toContainButtons(["Cancel", "Save"]);
     expect(helper.byTestId('form-field-input-material-type')).toBeInDOM();
     expect(helper.byTestId('materials-destination-warning-message')).not.toBeInDOM();
-  });
-
-  it('should render material destination blank warning message', () => {
-    materials.push(new Material("git", new GitMaterialAttributes()));
-    const modal = new MaterialModal("Some modal title", Stream(material), "test", Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), true, false);
-    modal.render();
-    m.redraw.sync();
-    const helper = new TestHelper().forModal();
-
-    expect(helper.byTestId('materials-destination-warning-message')).toBeInDOM();
-    expect(helper.byTestId('materials-destination-warning-message').textContent).toBe("In order to configure multiple SCM materials for this pipeline, each of its material needs have to a 'Alternate Checkout Path' specified. Please edit the existing material and specify a 'Alternate Checkout Path' in order to proceed with this operation.");
   });
 });

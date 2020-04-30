@@ -74,67 +74,84 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     const hideTestConnection          = readonly || !!attrs.hideTestConnection;
     const disableScmMaterials         = attrs.disableScmMaterials !== undefined && attrs.disableScmMaterials === true;
 
-    const supportedMaterials: Array<Option | string> = this.supportedMaterials(scmOnly, disableScmMaterials);
-    if (!!attrs.showExtraMaterials) {
-      supportedMaterials.push({id: "package", text: "Package Materials"});
-      supportedMaterials.push({id: "plugin", text: "Plugin Materials", disabled: disableScmMaterials});
-    }
-
     return <FormBody>
       <SelectField label="Material Type" property={vnode.attrs.material.type} required={true}
                    readonly={readonly || vnode.attrs.disabled || vnode.attrs.disabledMaterialTypeSelection}>
-        <SelectFieldOptions selected={vnode.attrs.material.type()} items={supportedMaterials}/>
+        <SelectFieldOptions selected={vnode.attrs.material.type()} items={this.supportedMaterials(scmOnly, !!attrs.showExtraMaterials)}/>
       </SelectField>
 
       <Form last={true} compactForm={true}>
-        {this.fieldsForType(attrs.readonly!, attrs.material, this.cache, showLocalWorkingCopyOptions, hideTestConnection, attrs.disabled, attrs.packageRepositories, attrs.pluginInfos, attrs.pluggableScms, attrs.parentPipelineName)}
+        {this.fieldsForType(attrs.readonly!, attrs.material, this.cache, showLocalWorkingCopyOptions, hideTestConnection, disableScmMaterials, attrs.disabled, attrs.packageRepositories, attrs.pluginInfos, attrs.pluggableScms, attrs.parentPipelineName)}
       </Form>
     </FormBody>;
   }
 
-  supportedMaterials(scmOnly: boolean, disableScmMaterials: boolean): Option[] {
+  supportedMaterials(scmOnly: boolean, showExtraMaterials: boolean): Option[] {
     const options = [
-      {id: "git", text: "Git", disabled: disableScmMaterials} as Option,
-      {id: "hg", text: "Mercurial", disabled: disableScmMaterials},
-      {id: "svn", text: "Subversion", disabled: disableScmMaterials},
-      {id: "p4", text: "Perforce", disabled: disableScmMaterials},
-      {id: "tfs", text: "Team Foundation Server", disabled: disableScmMaterials},
+      {id: "git", text: "Git"},
+      {id: "hg", text: "Mercurial"},
+      {id: "svn", text: "Subversion"},
+      {id: "p4", text: "Perforce"},
+      {id: "tfs", text: "Team Foundation Server"},
     ];
 
     if (!scmOnly) {
       options.push({id: "dependency", text: "Another Pipeline"});
     }
+    if (showExtraMaterials) {
+      options.push({id: "package", text: "Package Materials"});
+      options.push({id: "plugin", text: "Plugin Materials"});
+    }
 
     return options;
   }
 
-  fieldsForType(readonly: boolean, material: Material, cacheable: SuggestionCache, showLocalWorkingCopyOptions: boolean, hideTestConnection: boolean, disabled?: boolean, packageRepositories?: PackageRepositories, pluginInfos?: PluginInfos, scms?: Scms, parentPipelineName?: string): m.Children {
+  fieldsForType(readonly: boolean, material: Material, cacheable: SuggestionCache, showLocalWorkingCopyOptions: boolean, hideTestConnection: boolean, disableScmMaterials: boolean, disabled?: boolean, packageRepositories?: PackageRepositories, pluginInfos?: PluginInfos, scms?: Scms, parentPipelineName?: string): m.Children {
+    const warningMsg = <FlashMessage type={MessageType.warning} dataTestId={"materials-destination-warning-message"}>
+      In order to configure multiple SCM materials for this pipeline, each of its material needs have to a 'Alternate Checkout Path' specified.
+      Please edit the existing material and specify a 'Alternate Checkout Path' in order to proceed with this operation.
+    </FlashMessage>;
     switch (material.type()) {
       case "git":
+        if (disableScmMaterials) {
+          return warningMsg;
+        }
         if (!(material.attributes() instanceof GitMaterialAttributes)) {
           material.attributes(new GitMaterialAttributes(undefined, true));
         }
         return <GitFields material={material} hideTestConnection={hideTestConnection} readonly={readonly} parentPipelineName={parentPipelineName}
                           showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "hg":
+        if (disableScmMaterials) {
+          return warningMsg;
+        }
         if (!(material.attributes() instanceof HgMaterialAttributes)) {
           material.attributes(new HgMaterialAttributes(undefined, true));
         }
         return <HgFields material={material} hideTestConnection={hideTestConnection} readonly={readonly} parentPipelineName={parentPipelineName}
                          showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "svn":
+        if (disableScmMaterials) {
+          return warningMsg;
+        }
         if (!(material.attributes() instanceof SvnMaterialAttributes)) {
           material.attributes(new SvnMaterialAttributes(undefined, true));
         }
         return <SvnFields material={material} hideTestConnection={hideTestConnection} readonly={readonly} parentPipelineName={parentPipelineName}
                           showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "p4":
+        if (disableScmMaterials) {
+          return warningMsg;
+        }
         if (!(material.attributes() instanceof P4MaterialAttributes)) {
           material.attributes(new P4MaterialAttributes(undefined, true));
         }
         return <P4Fields material={material} hideTestConnection={hideTestConnection} readonly={readonly} parentPipelineName={parentPipelineName}
                          showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "tfs":
+        if (disableScmMaterials) {
+          return warningMsg;
+        }
         if (!(material.attributes() instanceof TfsMaterialAttributes)) {
           material.attributes(new TfsMaterialAttributes(undefined, true));
         }
@@ -163,9 +180,6 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
         return <PackageFields material={material} readonly={readonly}
                               packageRepositories={packageRepositories} pluginInfos={pluginInfos}/>;
       case "plugin":
-        if (!(material.attributes() instanceof PluggableScmMaterialAttributes)) {
-          material.attributes(new PluggableScmMaterialAttributes(undefined, true, "", "", new Filter([])));
-        }
         pluginInfos = pluginInfos === undefined ? new PluginInfos()
           : pluginInfos!.filterForExtension(ExtensionTypeString.SCM);
         if (_.isEmpty(pluginInfos)) {
@@ -173,6 +187,12 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
             There are no SCM plugins installed. Please see <Link href={new SCMExtensionType().linkForDocs()} target="_blank"
                                                                  externalLinkIcon={true}>this page</Link> for a list of supported plugins.
           </FlashMessage>;
+        }
+        if (disableScmMaterials) {
+          return warningMsg;
+        }
+        if (!(material.attributes() instanceof PluggableScmMaterialAttributes)) {
+          material.attributes(new PluggableScmMaterialAttributes(undefined, true, "", "", new Filter([])));
         }
         scms = scms === undefined ? new Scms() : scms;
         return <PluginFields material={material} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions}

@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,9 +32,11 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
+import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
 import static java.util.Collections.emptySet;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -44,11 +47,13 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     private GoConfigPipelinePermissionsAuthority service;
     private CruiseConfig config;
     private PluginRoleUsersStore pluginRoleUsersStore;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws Exception {
         configService = mock(GoConfigService.class);
-        service = new GoConfigPipelinePermissionsAuthority(configService);
+        systemEnvironment = mock(SystemEnvironment.class);
+        service = new GoConfigPipelinePermissionsAuthority(configService, systemEnvironment);
 
         configMother = new GoConfigMother();
         config = GoConfigMother.defaultCruiseConfig();
@@ -114,7 +119,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminsAndNoGroupLevelAuthorization_shouldConsiderAllNonAdminUsersAsViewersOperatorsOfPipelines() {
+    public void withSuperAdminsAndNoGroupLevelAuthorization_withDefaultPermissionsSetToAllow_shouldConsiderAllNonAdminUsersAsViewersOperatorsOfPipelines() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
 
         GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
@@ -134,7 +139,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminsThroughRolesAndNoGroupLevelAuthorization_shouldConsiderAllNonAdminUsersAsViewersOperatorsOfPipelines() {
+    public void withSuperAdminsThroughRolesAndNoGroupLevelAuthorization_withDefaultPermissionsSetToAllow_shouldConsiderAllNonAdminUsersAsViewersOperatorsOfPipelines() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
 
         configMother.addRole(config, configMother.createRole("superadminrole1", "superadmin1", "superadmin2"));
@@ -150,7 +155,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminsThroughPluginRolesAndNoGroupAuthorization_shouldConsiderAllNonAdminUsersAsViewersOperatorsOfPipelines() {
+    public void withSuperAdminsThroughPluginRolesAndNoGroupAuthorization_withDefaultPermissionsSetToAllow_shouldConsiderAllNonAdminUsersAsViewersOperatorsOfPipelines() {
         PluginRoleConfig admin = new PluginRoleConfig("go_admins", "ldap");
         pluginRoleUsersStore.assignRole("admin_user", admin);
 
@@ -166,6 +171,60 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         assertEveryoneIsAPartOf(pipelinePermissions.viewers());
         assertEveryoneIsAPartOf(pipelinePermissions.operators());
         assertEveryoneIsAPartOf(pipelinePermissions.pipelineOperators());
+        assertAdmins(permissions, "pipeline1", Collections.singleton(admin));
+    }
+
+    @Test
+    public void withSuperAdminsAndNoGroupLevelAuthorization_withDefaultPermissionsSetToDeny_shouldConsiderOnlyAdminUsersAsViewersOperatorsOfPipelines() {
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
+
+        PipelineConfigs group = config.findGroup("group1");
+        assertThat(group.getAuthorization(), is(new Authorization()));
+        assertFalse(config.server().security().adminsConfig().isEmpty());
+
+        Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissionsWhenDefaultGroupPermissionIsToDeny();
+
+        assertPipelinesInMap(permissions, "pipeline1");
+        assertViewers(permissions, "pipeline1", Collections.emptySet(), "superadmin1");
+        assertOperators(permissions, "pipeline1", Collections.emptySet(), "superadmin1");
+        assertPipelineOperators(permissions, "pipeline1", Collections.emptySet(), "superadmin1");
+        assertAdmins(permissions, "pipeline1", Collections.emptySet(), "superadmin1");
+    }
+
+    @Test
+    public void withSuperAdminsThroughRolesAndNoGroupLevelAuthorization_withDefaultPermissionsSetToDeny_shouldConsiderOnlyAdminUsersAsViewersOperatorsOfPipelines() {
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+
+        configMother.addRole(config, configMother.createRole("superadminrole1", "superadmin1", "superadmin2"));
+        configMother.addRoleAsSuperAdmin(config, "superadminrole1");
+
+        Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissionsWhenDefaultGroupPermissionIsToDeny();
+
+        assertPipelinesInMap(permissions, "pipeline1");
+        assertViewers(permissions, "pipeline1", Collections.emptySet(), "superadmin1", "superadmin2");
+        assertOperators(permissions, "pipeline1", Collections.emptySet(), "superadmin1", "superadmin2");
+        assertPipelineOperators(permissions, "pipeline1", Collections.emptySet(), "superadmin1", "superadmin2");
+        assertAdmins(permissions, "pipeline1", Collections.emptySet(), "superadmin1", "superadmin2");
+    }
+
+    @Test
+    public void withSuperAdminsThroughPluginRolesAndNoGroupAuthorization_withDefaultPermissionsSetToDeny_shouldConsiderOnlyAdminUsersAsViewersOperatorsOfPipelines() {
+        PluginRoleConfig admin = new PluginRoleConfig("go_admins", "ldap");
+        pluginRoleUsersStore.assignRole("admin_user", admin);
+
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+
+        configMother.addRole(config, admin);
+        configMother.addRoleAsSuperAdmin(config, "go_admins");
+
+        Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissionsWhenDefaultGroupPermissionIsToDeny();
+
+        assertPipelinesInMap(permissions, "pipeline1");
+        assertViewers(permissions, "pipeline1", Collections.singleton(admin));
+        assertOperators(permissions, "pipeline1", Collections.singleton(admin));
+        assertPipelineOperators(permissions, "pipeline1", Collections.singleton(admin));
         assertAdmins(permissions, "pipeline1", Collections.singleton(admin));
     }
 
@@ -726,6 +785,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         when(configService.security()).thenReturn(config.server().security());
         when(configService.findGroupByPipeline(p1Config.name())).thenReturn(config.findGroup("group1"));
         when(configService.findGroupByPipeline(p2Config.name())).thenReturn(config.findGroup("group2"));
+        when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
 
         Permissions p1Permissions = service.permissionsForPipeline(p1Config.name());
         assertThat(p1Permissions.viewers(), is(new AllowedUsers(s("superadmin1", "viewer1"), emptySet())));
@@ -740,9 +800,18 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         assertThat(p2Permission.pipelineOperators(), is(new AllowedUsers(s("superadmin1", "groupadmin1"), emptySet())));
     }
 
+    private Map<CaseInsensitiveString, Permissions> getPipelinesAndTheirPermissionsWhenDefaultGroupPermissionIsToDeny() {
+        return getPipelinesAndTheirPermissions(false);
+    }
+
     private Map<CaseInsensitiveString, Permissions> getPipelinesAndTheirPermissions() {
+        return getPipelinesAndTheirPermissions(true);
+    }
+
+    private Map<CaseInsensitiveString, Permissions> getPipelinesAndTheirPermissions(boolean defaultPermissionForGroupsWithNoAuth) {
         when(configService.security()).thenReturn(config.server().security());
         when(configService.groups()).thenReturn(config.getGroups());
+        when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(defaultPermissionForGroupsWithNoAuth);
 
         return service.pipelinesAndTheirPermissions();
     }

@@ -742,13 +742,20 @@ public class GoConfigFileHelper {
     }
 
     public void addAuthorizedUserForStage(String pipelineName, String stageName, String... users) {
-        configureStageAsManualApproval(pipelineName, stageName);
+        CaseInsensitiveString pipeline = new CaseInsensitiveString(pipelineName);
+        CaseInsensitiveString stage = new CaseInsensitiveString(stageName);
+
+        if (!currentConfig().stageConfigByName(pipeline, stage).getApproval().isManual()) {
+            configureStageAsManualApproval(pipelineName, stageName);
+        }
+
         CruiseConfig cruiseConfig = loadForEdit();
-        StageConfig stageConfig = cruiseConfig.stageConfigByName(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
+        StageConfig stageConfig = cruiseConfig.stageConfigByName(pipeline, stage);
         Approval approval = stageConfig.getApproval();
         for (String user : users) {
             approval.getAuthConfig().add(new AdminUser(new CaseInsensitiveString(user)));
         }
+
         writeConfigFile(cruiseConfig);
     }
 

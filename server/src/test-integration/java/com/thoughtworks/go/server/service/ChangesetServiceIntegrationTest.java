@@ -593,6 +593,8 @@ public class ChangesetServiceIntegrationTest {
         DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial("upstream", "stage");
         PipelineConfig downstream = configHelper.addPipeline("downstream", "stage", dependencyMaterial.config(), "job");
 
+        configHelper.setViewPermissionForGroup(BasicPipelineConfigs.DEFAULT_GROUP, CaseInsensitiveString.str(user.getUsername()));
+
         //Schedule grandfather
         List<MaterialRevision> revisionsForGrandfather1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForGrandfather1, svn);

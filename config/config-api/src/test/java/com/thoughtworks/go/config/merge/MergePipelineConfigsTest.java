@@ -163,12 +163,13 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
     }
 
     @Test
-    public void shouldReturnTrueIfAuthorizationIsNotDefined_When2ConfigParts() {
+    public void shouldUseDefaultPermissionsForViewPermissionIfAuthorizationIsNotDefined_When2ConfigParts() {
         BasicPipelineConfigs filePart = new BasicPipelineConfigs();
         filePart.setOrigin(new FileConfigOrigin());
 
         MergePipelineConfigs merge = new MergePipelineConfigs(new BasicPipelineConfigs(), filePart);
-        assertThat(merge.hasViewPermission(new CaseInsensitiveString("anyone"), null), is(true));
+        assertThat(merge.hasViewPermission(new CaseInsensitiveString("anyone"), null, true), is(true));
+        assertThat(merge.hasViewPermission(new CaseInsensitiveString("anyone"), null, false), is(false));
     }
 
     @Test
@@ -194,16 +195,19 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1")),
                 new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline2")), filePart);
         group.getAuthorization().getOperationConfig().add(new AdminUser(new CaseInsensitiveString("jez")));
-        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null), is(false));
+        assertThat(group.hasViewPermission(new CaseInsensitiveString("jez"), null, true), is(false));
     }
 
     @Test
-    public void shouldReturnTrueForOperatePermissionIfAuthorizationIsNotDefined_When2ConfigParts() {
+    public void shouldUseDefaultPermissionsForOperatePermissionIfAuthorizationIsNotDefined_When2ConfigParts() {
         BasicPipelineConfigs filePart = new BasicPipelineConfigs();
         filePart.setOrigin(new FileConfigOrigin());
 
         assertThat(new MergePipelineConfigs(filePart, new BasicPipelineConfigs())
-                .hasOperatePermission(new CaseInsensitiveString("anyone"), null), is(true));
+                .hasOperatePermission(new CaseInsensitiveString("anyone"), null, true), is(true));
+
+        assertThat(new MergePipelineConfigs(filePart, new BasicPipelineConfigs())
+                .hasOperatePermission(new CaseInsensitiveString("anyone"), null, false), is(false));
     }
 
     @Test

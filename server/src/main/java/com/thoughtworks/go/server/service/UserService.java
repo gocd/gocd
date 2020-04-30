@@ -33,6 +33,7 @@ import com.thoughtworks.go.server.service.result.BulkUpdateUsersOperationResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.util.comparator.AlphaAsciiCollectionComparator;
 import org.apache.commons.collections4.CollectionUtils;
@@ -45,9 +46,11 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
+import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.join;
 
@@ -58,6 +61,7 @@ public class UserService {
     private final SecurityService securityService;
     private final GoConfigService goConfigService;
     private final TransactionTemplate transactionTemplate;
+    private SystemEnvironment systemEnvironment;
 
     private final Object disableUserMutex = new Object();
     private final Object enableUserMutex = new Object();
@@ -66,11 +70,13 @@ public class UserService {
     public UserService(UserDao userDao,
                        SecurityService securityService,
                        GoConfigService goConfigService,
-                       TransactionTemplate transactionTemplate) {
+                       TransactionTemplate transactionTemplate,
+                       SystemEnvironment systemEnvironment) {
         this.userDao = userDao;
         this.securityService = securityService;
         this.goConfigService = goConfigService;
         this.transactionTemplate = transactionTemplate;
+        this.systemEnvironment = systemEnvironment;
     }
 
     public void disable(final List<String> usersToBeDisabled, LocalizedOperationResult result) {
@@ -195,13 +201,12 @@ public class UserService {
         }
     }
 
+    private Set<String> allAdmins() {
+        return allUsersForDisplay().stream().filter(userModel -> userModel.isAdmin()).map(userModel -> userModel.getUser().getName()).collect(Collectors.toSet());
+    }
+
     public Set<String> allUsernames() {
-        List<UserModel> userModels = allUsersForDisplay();
-        Set<String> users = new HashSet<>();
-        for (UserModel model : userModels) {
-            users.add(model.getUser().getName());
-        }
-        return users;
+        return allUsersForDisplay().stream().map(userModel -> userModel.getUser().getName()).collect(Collectors.toSet());
     }
 
     public Collection<String> allRoleNames(CruiseConfig cruiseConfig) {
@@ -234,7 +239,9 @@ public class UserService {
                 }
             }
         } else {
-            users.addAll(allUsernames());
+            boolean everyoneIsAllowedToOperateGroupsWithNoAuth = systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP);
+            Set<String> operatorsWhenNoAuthIsDefined = everyoneIsAllowedToOperateGroupsWithNoAuth ? allUsernames() : allAdmins();
+            users.addAll(operatorsWhenNoAuthIsDefined);
         }
         return users;
     }
@@ -247,7 +254,9 @@ public class UserService {
                 roles.addAll(group.getOperateRoleNames());
             }
         } else {
-            roles.addAll(allRoleNames(cruiseConfig));
+            boolean everyoneIsAllowedToOperateGroupsWithNoAuth = systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP);
+            Collection<String> operatorRolesWhenNoAuthIsDefined = everyoneIsAllowedToOperateGroupsWithNoAuth ? allRoleNames(cruiseConfig) : Collections.emptyList();
+            roles.addAll(operatorRolesWhenNoAuthIsDefined);
         }
         return roles;
     }

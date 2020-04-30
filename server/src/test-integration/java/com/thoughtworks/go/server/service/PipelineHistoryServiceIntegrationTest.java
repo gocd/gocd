@@ -37,7 +37,6 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
@@ -60,7 +59,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -69,7 +67,7 @@ import java.util.stream.IntStream;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -88,11 +86,8 @@ public class PipelineHistoryServiceIntegrationTest {
     @Autowired private MaterialRepository materialRepository;
     @Autowired private GoConfigService goConfigService;
     @Autowired private TriggerMonitor triggerMonitor;
-    @Autowired private PipelineRepository pipelineRepository;
-    @Autowired private PipelineTimeline pipelineTimeline;
     @Autowired private GoCache goCache;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private PipelinePauseService pipelinePauseService;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
@@ -287,6 +282,8 @@ public class PipelineHistoryServiceIntegrationTest {
     public void shouldCreateEmptyPipelineIfThePipelineHasNeverBeenRun() throws Exception {
         SvnMaterialConfig svnMaterial = svn("https://some-url", "new-user", "new-pass", false);
         configHelper.addPipeline("new-pipeline", "new-stage", svnMaterial, "first-job");
+        configHelper.addAuthorizedUserForPipelineGroup("username", BasicPipelineConfigs.DEFAULT_GROUP);
+
         PipelineInstanceModels instanceModels = pipelineHistoryService.loadWithEmptyAsDefault("new-pipeline", Pagination.ONE_ITEM, "username");
         PipelineInstanceModel instanceModel = instanceModels.get(0);
         assertThat(instanceModel.getMaterials(), is(new MaterialConfigs(svnMaterial)));
@@ -308,7 +305,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUnderstandIfMaterialHasNoNewModifications() throws Exception {
+    public void shouldUnderstandIfMaterialHasNoNewModifications() {
         Pipeline pipeline = pipelineOne.createPipelineWithFirstStageScheduled();
         Material material = pipeline.getMaterialRevisions().getMaterialRevision(0).getMaterial();
         configHelper.setViewPermissionForGroup("group1", "username");
@@ -318,7 +315,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnNullForLatestWhenPipelineNotViewable() throws Exception {
+    public void shouldReturnNullForLatestWhenPipelineNotViewable() {
         configHelper.addPipelineWithGroup("admin_only", "admin_pipeline", "stage", "deploy");
         configHelper.addRole(new RoleConfig(new CaseInsensitiveString("deployers"), new RoleUser(new CaseInsensitiveString("root"))));
         configHelper.blockPipelineGroupExceptFor("admin_only", "deployers");
@@ -452,6 +449,7 @@ public class PipelineHistoryServiceIntegrationTest {
     public void shouldHaveAPipelineInstanceForAPipelineThatIsPreparingToSchedule() {
 
         configHelper.addPipeline("pipeline-name", "stage-1");
+        configHelper.addAuthorizedUserForPipelineGroup("admin", BasicPipelineConfigs.DEFAULT_GROUP);
 
         triggerMonitor.markPipelineAsAlreadyTriggered(new CaseInsensitiveString("pipeline-name"));
 
@@ -471,17 +469,20 @@ public class PipelineHistoryServiceIntegrationTest {
         dbHelper.cancelStage(instance1.getStages().get(0));
         Pipeline instance2 = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
         dbHelper.passStage(instance2.getStages().get(0));
+        configHelper.addAuthorizedUserForPipelineGroup("user1", "pipeline-group");
 
         HttpOperationResult operationResult = new HttpOperationResult();
-        assertPipeline(pipelineHistoryService.findPipelineInstance("mingle", 1, new Username(new CaseInsensitiveString("doesnotmatter")), operationResult), instance1, operationResult);
-        assertPipeline(pipelineHistoryService.findPipelineInstance("mingle", 2, new Username(new CaseInsensitiveString("doesnotmatter")), operationResult), instance2, operationResult);
+        assertPipeline(pipelineHistoryService.findPipelineInstance("mingle", 1, new Username(new CaseInsensitiveString("user1")), operationResult), instance1, operationResult);
+        assertPipeline(pipelineHistoryService.findPipelineInstance("mingle", 2, new Username(new CaseInsensitiveString("user1")), operationResult), instance2, operationResult);
     }
 
     @Test
     public void shouldNotThrowUpWhenPipelineCounterIs0AndShouldReturnAnEmptyPIM() {
         PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfig("mingle", "stage", "job");
         goConfigService.addPipeline(mingleConfig, "pipeline-group");
-        PipelineInstanceModel pim = pipelineHistoryService.findPipelineInstance("mingle", 0, new Username(new CaseInsensitiveString("doesnotmatter")), new HttpOperationResult());
+        configHelper.addAuthorizedUserForPipelineGroup("user1", "pipeline-group");
+
+        PipelineInstanceModel pim = pipelineHistoryService.findPipelineInstance("mingle", 0, new Username(new CaseInsensitiveString("user1")), new HttpOperationResult());
         assertThat(pim, instanceOf(EmptyPipelineInstanceModel.class));
     }
 
@@ -532,6 +533,7 @@ public class PipelineHistoryServiceIntegrationTest {
         final int limit = 10;
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
         goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         pipelineConfig.setLabelTemplate("${COUNT}-blah-1");
         Pipeline instance1 = dbHelper.schedulePipeline(pipelineConfig, new TimeProvider());
@@ -561,6 +563,7 @@ public class PipelineHistoryServiceIntegrationTest {
         final int limit = 10;
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
         goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         pipelineConfig.setLabelTemplate("${COUNT}-blah-1");
         Pipeline instance1 = dbHelper.schedulePipeline(pipelineConfig, new TimeProvider());
@@ -590,6 +593,7 @@ public class PipelineHistoryServiceIntegrationTest {
         final int limit = 10;
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
         goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         pipelineConfig.setLabelTemplate("${COUNT}-blah-1");
         Pipeline instance1 = dbHelper.schedulePipeline(pipelineConfig, new TimeProvider());
@@ -633,6 +637,7 @@ public class PipelineHistoryServiceIntegrationTest {
         final int limit = 3;
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
         goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         pipelineConfig.setLabelTemplate("${COUNT}-blah-1");
         Pipeline shouldMatch1 = dbHelper.schedulePipeline(pipelineConfig, ModificationsMother.buildCauseForOneModifiedFile(pipelineConfig, "abc1234", "hello world  -THIS SHOULD MATCH", "dev"),
@@ -663,6 +668,7 @@ public class PipelineHistoryServiceIntegrationTest {
         final int limit = 3;
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
         goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         pipelineConfig.setLabelTemplate("${COUNT}-ABC");
         Pipeline shouldMatch1 = dbHelper.schedulePipeline(pipelineConfig, ModificationsMother.buildCauseForOneModifiedFile(pipelineConfig, "revision", "comment", "committer"), new TimeProvider());
@@ -685,6 +691,7 @@ public class PipelineHistoryServiceIntegrationTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipeline_name");
         pipelineConfig.add(StageConfigMother.custom("stage-1", "job-1", "job-2", "job-3", "job-4"));
         goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         pipelineConfig.setLabelTemplate("${COUNT}");
         Pipeline shouldMatch1 = dbHelper.schedulePipeline(pipelineConfig, ModificationsMother.buildCauseForOneModifiedFile(pipelineConfig, "abc-revision-should-match", "comment", "committer"),
@@ -706,6 +713,7 @@ public class PipelineHistoryServiceIntegrationTest {
         final int limit = 3;
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline_name", "stage", "job");
         goConfigService.addPipeline(pipelineConfig, "pipeline-group");
+        configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         pipelineConfig.setLabelTemplate("${COUNT}-ABC");
         BuildCause buildCause = ModificationsMother.buildCauseForOneModifiedFile(pipelineConfig, "revision", "comment", "committer");
@@ -729,6 +737,7 @@ public class PipelineHistoryServiceIntegrationTest {
         downstreamConfig.addMaterialConfig(dependencyMaterial.config());
         goConfigService.addPipeline(upstreamConfig, "pipeline-group");
         goConfigService.addPipeline(downstreamConfig, "pipeline-group");
+        configHelper.addAuthorizedUserForPipelineGroup("user", "pipeline-group");
 
         Pipeline upstreamPipeline = dbHelper.schedulePipeline(upstreamConfig, new TimeProvider());
         dbHelper.passStage(upstreamPipeline.getStages().get(0));
@@ -807,7 +816,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     private void assertPipeline(PipelineInstanceModel pipelineInstance, Pipeline instance, HttpOperationResult operationResult) {
-        assertThat(operationResult.toString(), operationResult.canContinue(), is(true));
+        assertThat(operationResult.detailedMessage(), operationResult.canContinue(), is(true));
         assertThat(pipelineInstance.getCounter(), is(instance.getCounter()));
         assertThat(pipelineInstance.getName(), is(instance.getName()));
     }

@@ -25,7 +25,7 @@
             <div class="form_item">
                 <div class="inherited_permissions<%= " hidden" if stage_has_auth_defined %>">
                     <% unless @pipeline_group && @pipeline_group.hasOperationPermissionDefined() %>
-                        <div class="no_permissions_message information">There are no operate permissions configured for this stage nor its pipeline group. All Go users can operate on this stage.</div>
+                        <div class="no_permissions_message information">There is no authorization configured for this stage nor its pipeline group. Only GoCD administrators can operate this stage.</div>
                     <% else %>
                         <%= render :partial => "users_and_roles_from_group.html", :locals => {:scope => {:pipeline_group => @pipeline_group, :form => f}} %>
                     <% end %>

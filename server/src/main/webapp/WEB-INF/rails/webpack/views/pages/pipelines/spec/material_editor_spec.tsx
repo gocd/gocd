@@ -136,19 +136,24 @@ describe("AddPipeline: Material Editor", () => {
     expect(helper.byTestId('form-field-input-repository-url')).not.toBeDisabled();
   });
 
-  it('should disable only scm material type options when `disableScmMaterials` is set to true', () => {
-    helper.mount(() => <MaterialEditor material={material} showExtraMaterials={true} disableScmMaterials={true}/>);
+  it('should show material destination blank warning message when `disableScmMaterials` is set to true', () => {
+    const pluginInfos = new PluginInfos(PluginInfo.fromJSON(getScmPlugin()));
+    helper.mount(() => <MaterialEditor material={material} showExtraMaterials={true} disableScmMaterials={true} pluginInfos={pluginInfos}/>);
 
     const materialTypeSelection = helper.byTestId('form-field-input-material-type');
     expect(materialTypeSelection).not.toBeDisabled();
 
     ["dependency", "package"]
       .forEach((type) => {
-        expect(helper.q(`option[value='${type}']`, materialTypeSelection)).not.toHaveAttr('disabled');
+        helper.onchange("select", type);
+        expect(helper.byTestId('materials-destination-warning-message')).not.toBeInDOM();
       });
     ["git", "hg", "svn", "p4", "tfs", "plugin"]
       .forEach((type) => {
-        expect(helper.q(`option[value='${type}']`, materialTypeSelection)).toHaveAttr('disabled');
+        helper.onchange("select", type);
+
+        expect(helper.byTestId('materials-destination-warning-message')).toBeInDOM();
+        expect(helper.byTestId('materials-destination-warning-message').textContent).toBe("In order to configure multiple SCM materials for this pipeline, each of its material needs have to a 'Alternate Checkout Path' specified. Please edit the existing material and specify a 'Alternate Checkout Path' in order to proceed with this operation.");
       });
   });
 });

@@ -173,6 +173,24 @@ export class Material extends ValidatableMixin {
     errors.push(...this.attributes()!.errors().allErrorsForDisplay());
     return errors;
   }
+
+  clone() {
+    if (this.attributes() === undefined) {
+      return new Material(this.type());
+    } else {
+      const attrs = this.attributes()!.clone();
+      return new Material(this.type(), attrs);
+    }
+  }
+
+  resetPasswordIfAny() {
+    const serialized                       = _.assign({}, this.attributes());
+    const password: Stream<EncryptedValue> = _.get(serialized, "password");
+
+    if (password && (password().isPlain() || password().isDirty())) {
+      password().resetToOriginal();
+    }
+  }
 }
 
 export abstract class MaterialAttributes extends ValidatableMixin {
@@ -232,6 +250,8 @@ export abstract class MaterialAttributes extends ValidatableMixin {
     }
     return serialized;
   }
+
+  abstract clone(): MaterialAttributes;
 }
 
 export abstract class ScmMaterialAttributes extends MaterialAttributes {
@@ -240,15 +260,19 @@ export abstract class ScmMaterialAttributes extends MaterialAttributes {
   destination: Stream<string>       = Stream();
   username: Stream<string | undefined>;
   password: Stream<EncryptedValue>;
+  filter: Stream<Filter | undefined>;
+  invertFilter: Stream<boolean | undefined>;
 
-  constructor(name?: string, autoUpdate?: boolean, username?: string, password?: string, encryptedPassword?: string) {
+  constructor(name?: string, autoUpdate?: boolean, username?: string, password?: string, encryptedPassword?: string, filter?: Filter, invertFilter?: boolean) {
     super(name, autoUpdate);
     this.validateFormatOf("destination",
                           ScmMaterialAttributes.DESTINATION_REGEX,
                           {message: "Must be a relative path within the pipeline's working directory"});
 
-    this.username = Stream(username);
-    this.password = Stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
+    this.username     = Stream(username);
+    this.password     = Stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
+    this.filter       = Stream(filter);
+    this.invertFilter = Stream(invertFilter);
   }
 }
 
@@ -303,7 +327,21 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
       attrs.destination(json.destination);
     }
     attrs.errors(new Errors(json.errors));
+    if (json.filter !== undefined) {
+      attrs.filter(Filter.fromJSON(json.filter));
+    }
+    attrs.invertFilter(json.invert_filter);
     return attrs;
+  }
+
+  clone(): MaterialAttributes {
+    const gitAttrs = new GitMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.branch(), this.username());
+    gitAttrs.password(this.password());
+    if (this.filter() !== undefined) {
+      gitAttrs.filter(new Filter(this.filter()!.ignore()));
+    }
+    gitAttrs.invertFilter(this.invertFilter());
+    return gitAttrs;
   }
 }
 
@@ -339,7 +377,21 @@ export class SvnMaterialAttributes extends ScmMaterialAttributes {
       attrs.destination(json.destination);
     }
     attrs.errors(new Errors(json.errors));
+    if (json.filter !== undefined) {
+      attrs.filter(Filter.fromJSON(json.filter));
+    }
+    attrs.invertFilter(json.invert_filter);
     return attrs;
+  }
+
+  clone(): MaterialAttributes {
+    const svnAttrs = new SvnMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.checkExternals(), this.username());
+    svnAttrs.password(this.password());
+    if (this.filter() !== undefined) {
+      svnAttrs.filter(new Filter(this.filter()!.ignore()));
+    }
+    svnAttrs.invertFilter(this.invertFilter());
+    return svnAttrs;
   }
 }
 
@@ -374,7 +426,22 @@ export class HgMaterialAttributes extends ScmMaterialAttributes {
       attrs.destination(json.destination);
     }
     attrs.errors(new Errors(json.errors));
+    if (json.filter !== undefined) {
+      attrs.filter(Filter.fromJSON(json.filter));
+    }
+    attrs.invertFilter(json.invert_filter);
     return attrs;
+  }
+
+  clone(): MaterialAttributes {
+    const hgAttrs = new HgMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.username());
+    hgAttrs.password(this.password());
+    hgAttrs.branch(this.branch());
+    if (this.filter() !== undefined) {
+      hgAttrs.filter(new Filter(this.filter()!.ignore()));
+    }
+    hgAttrs.invertFilter(this.invertFilter());
+    return hgAttrs;
   }
 }
 
@@ -416,7 +483,21 @@ export class P4MaterialAttributes extends ScmMaterialAttributes {
       attrs.destination(json.destination);
     }
     attrs.errors(new Errors(json.errors));
+    if (json.filter !== undefined) {
+      attrs.filter(Filter.fromJSON(json.filter));
+    }
+    attrs.invertFilter(json.invert_filter);
     return attrs;
+  }
+
+  clone(): MaterialAttributes {
+    const p4Attrs = new P4MaterialAttributes(this.name(), this.autoUpdate(), this.port(), this.useTickets(), this.view(), this.username());
+    p4Attrs.password(this.password());
+    if (this.filter() !== undefined) {
+      p4Attrs.filter(new Filter(this.filter()!.ignore()));
+    }
+    p4Attrs.invertFilter(this.invertFilter());
+    return p4Attrs;
   }
 }
 
@@ -459,7 +540,21 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
       attrs.destination(json.destination);
     }
     attrs.errors(new Errors(json.errors));
+    if (json.filter !== undefined) {
+      attrs.filter(Filter.fromJSON(json.filter));
+    }
+    attrs.invertFilter(json.invert_filter);
     return attrs;
+  }
+
+  clone(): MaterialAttributes {
+    const tfsAttrs = new TfsMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.domain(), this.projectPath(), this.username());
+    tfsAttrs.password(this.password());
+    if (this.filter() !== undefined) {
+      tfsAttrs.filter(new Filter(this.filter()!.ignore()));
+    }
+    tfsAttrs.invertFilter(this.invertFilter());
+    return tfsAttrs;
   }
 }
 
@@ -489,6 +584,10 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
+
+  clone(): MaterialAttributes {
+    return new DependencyMaterialAttributes(this.name(), this.autoUpdate(), this.pipeline(), this.stage(), this.ignoreForScheduling());
+  }
 }
 
 export class PackageMaterialAttributes extends MaterialAttributes {
@@ -504,6 +603,10 @@ export class PackageMaterialAttributes extends MaterialAttributes {
     attrs.errors(new Errors(data.errors));
     return attrs;
   }
+
+  clone(): MaterialAttributes {
+    return new PackageMaterialAttributes(this.name(), this.autoUpdate(), this.ref());
+  }
 }
 
 export class PluggableScmMaterialAttributes extends MaterialAttributes {
@@ -511,7 +614,7 @@ export class PluggableScmMaterialAttributes extends MaterialAttributes {
   filter: Stream<Filter>;
   destination: Stream<string>;
 
-  constructor(name: string | undefined, autoUpdate: boolean, ref: string, destination: string, filter: Filter) {
+  constructor(name: string | undefined, autoUpdate: boolean | undefined, ref: string, destination: string, filter: Filter) {
     super(name, autoUpdate);
     this.ref         = Stream(ref);
     this.filter      = Stream(filter);
@@ -522,5 +625,9 @@ export class PluggableScmMaterialAttributes extends MaterialAttributes {
     const attrs = new PluggableScmMaterialAttributes(data.name, data.auto_update, data.ref, data.destination, Filter.fromJSON(data.filter));
     attrs.errors(new Errors(data.errors));
     return attrs;
+  }
+
+  clone(): MaterialAttributes {
+    return new PluggableScmMaterialAttributes(this.name(), this.autoUpdate(), this.ref(), this.destination(), this.filter());
   }
 }

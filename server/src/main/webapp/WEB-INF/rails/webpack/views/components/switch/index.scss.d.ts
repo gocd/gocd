@@ -7,3 +7,4 @@ export const switchInput: string;
 export const switchLabel: string;
 export const switchPaddle: string;
 export const switchSmall: string;
+export const switchWrapper: string;

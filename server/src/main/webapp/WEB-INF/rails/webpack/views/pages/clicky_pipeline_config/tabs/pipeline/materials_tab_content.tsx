@@ -64,6 +64,7 @@ export class MaterialsTabContent extends TabContent<PipelineConfig> {
   protected renderer(entity: PipelineConfig, templateConfig: TemplateConfig, flashMessage: FlashMessageModelWithTimeout, pipelineConfigSave: () => Promise<any>, pipelineConfigReset: () => any) {
     const mergedPkgRepos = PackageRepositoriesPage.getMergedList(this.packageRepositories, this.packages);
     return <MaterialsWidget materials={entity.materials}
+                            parentPipelineName={entity.name()}
                             readonly={this.isEntityDefinedInConfigRepository()}
                             pluginInfos={this.pluginInfos}
                             flashMessage={flashMessage}

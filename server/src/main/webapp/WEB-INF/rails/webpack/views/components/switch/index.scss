@@ -29,6 +29,10 @@ $switch-small-paddle-size: 0.75rem;
 $switch-small-space-between: 0.1255rem;
 $switch-small-translate-x: 1rem;
 
+.switch-wrapper {
+  margin-bottom: 10px;
+}
+
 .switch-btn {
   display:     flex;
   outline:     0;
@@ -42,8 +46,8 @@ $switch-small-translate-x: 1rem;
   display:      flex;
   align-self:   center;
   margin-right: 5px;
-  font-weight: normal;
-  cursor: pointer;
+  font-weight:  normal;
+  cursor:       pointer;
 }
 
 .switch-paddle {

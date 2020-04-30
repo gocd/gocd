@@ -19,17 +19,8 @@ import Stream from "mithril/stream";
 import {Filter} from "models/maintenance_mode/material";
 import {Scm, Scms} from "models/materials/pluggable_scm";
 import {Material, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
-import {
-  Package,
-  PackageRepositories,
-  PackageRepository,
-  Packages
-} from "models/package_repositories/package_repositories";
-import {
-  getPackage,
-  getPackageRepository,
-  pluginInfoWithPackageRepositoryExtension
-} from "models/package_repositories/spec/test_data";
+import {Package, PackageRepositories, PackageRepository, Packages} from "models/package_repositories/package_repositories";
+import {getPackage, getPackageRepository, pluginInfoWithPackageRepositoryExtension} from "models/package_repositories/spec/test_data";
 import {Materials, PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -59,7 +50,7 @@ describe("MaterialsWidgetSpec", () => {
     helper.mount(() => <MaterialsWidget materials={materials} readonly={readonly}
                                         pluginInfos={Stream(pluginInfos)}
                                         packageRepositories={Stream(pkgRepos)}
-                                        packages={Stream(pkgs)} scmMaterials={Stream(scms)}
+                                        packages={Stream(pkgs)} scmMaterials={Stream(scms)} parentPipelineName={pipelineConfig.name()}
                                         pipelineConfigSave={jasmine.createSpy("pipelineConfigSave")}
                                         flashMessage={new FlashMessageModelWithTimeout()}/>);
   }

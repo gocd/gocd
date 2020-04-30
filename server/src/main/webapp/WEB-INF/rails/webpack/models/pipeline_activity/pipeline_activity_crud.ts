@@ -20,7 +20,7 @@ import {PipelineActivity, Stage} from "models/pipeline_activity/pipeline_activit
 import {ResultAwarePage} from "views/pages/page_operations";
 
 export class PipelineActivityService {
-  private static API_VERSION_HEADER = ApiVersion.v1;
+  private static API_VERSION_HEADER = ApiVersion.latest;
 
   activities(pipelineName: string, start: number, filter: string, page: ResultAwarePage<PipelineActivity>): void {
     let params: { [key: string]: string | number } = {pipelineName, start};

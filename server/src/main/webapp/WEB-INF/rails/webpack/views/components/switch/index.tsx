@@ -37,7 +37,7 @@ export class SwitchBtn extends MithrilViewComponent<Attrs> {
     const switchId = `switch-${uuid4()}`;
 
     const dataTestId = vnode.attrs.dataTestId? vnode.attrs.dataTestId: "switch-checkbox";
-    return <div>
+    return <div class={styles.switchWrapper}>
       <div class={classnames({[styles.switchSmall]: small}, styles.switchBtn)} data-test-id="switch-wrapper">
         {this.label(vnode.attrs, switchId)}
         <input id={switchId} type="checkbox"

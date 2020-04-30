@@ -49,6 +49,7 @@ interface Attrs {
   showLocalWorkingCopyOptions: boolean;
   disabled?: boolean;
   readonly?: boolean;
+  parentPipelineName?: string;
 }
 
 interface State {
@@ -69,23 +70,36 @@ export class DefaultCache extends DependencyMaterialAutocomplete<Awesomplete.Sug
 
 class DependencySuggestionProvider extends SuggestionProvider {
   private cache: SuggestionCache;
+  private parentPipelineName?: string;
 
-  constructor(cache: SuggestionCache) {
+  constructor(cache: SuggestionCache, parentPipelineName?: string) {
     super();
-    this.cache = cache;
+    this.cache              = cache;
+    this.parentPipelineName = parentPipelineName;
   }
 
   getData(): Promise<Awesomplete.Suggestion[]> {
     const self = this;
+
+    const removeParentPipeline = (pipelines: Awesomplete.Suggestion[]) => {
+      if (this.parentPipelineName !== undefined) {
+        const indexOf = pipelines.indexOf(this.parentPipelineName);
+        if (indexOf >= 0) {
+          pipelines.splice(indexOf, 1);
+        }
+      }
+      return pipelines;
+    };
+
     return new Promise<Awesomplete.Suggestion[]>((resolve, reject) => {
       if (!self.cache.ready()) {
         self.cache.prime(() => {
-          resolve(self.cache.pipelines());
+          resolve(removeParentPipeline(self.cache.pipelines()));
         }, () => {
           reject(self.cache.failureReason());
         });
       } else {
-        resolve(self.cache.pipelines());
+        resolve(removeParentPipeline(self.cache.pipelines()));
       }
     });
   }
@@ -102,7 +116,7 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
     const EMPTY: Option[] = [{id: "", text: "-"}];
     vnode.state.stages    = Stream(EMPTY);
 
-    vnode.state.provider = new DependencySuggestionProvider(vnode.attrs.cache);
+    vnode.state.provider = new DependencySuggestionProvider(vnode.attrs.cache, vnode.attrs.parentPipelineName);
     vnode.state.stages   = () => mat.pipeline() ? EMPTY.concat(cache.stages(mat.pipeline()!)) : [];
   }
 
@@ -374,7 +388,7 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
     plugins.push(..._.map(vnode.attrs.pluginInfos, (pluginInfo: PluginInfo) => {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
     }));
-    const readonly                    = !!vnode.attrs.disabled || vnode.attrs.readonly;
+    const readonly = !!vnode.attrs.disabled || vnode.attrs.readonly;
     this.setErrorMessageIfApplicable(vnode);
 
     let message;

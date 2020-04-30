@@ -96,7 +96,7 @@ describe("PipelineActivityPage", () => {
       expect(request.url).toEqual(SparkRoutes.pipelineTriggerPath(activity.pipelineName()));
       expect(request.method).toEqual("POST");
       expect(request.data()).toEqual({});
-      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
     });
   });
 
@@ -126,7 +126,7 @@ describe("PipelineActivityPage", () => {
         .toEqual(SparkRoutes.runStage(activity.pipelineName(), manualStage.pipelineCounter(), manualStage.stageName()));
       expect(request.method).toEqual("POST");
       expect(request.data()).toEqual({});
-      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
     });
   });
 

@@ -42,7 +42,7 @@ describe("MaterialModalSpec", () => {
   afterEach(() => ModalManager.closeAll());
 
   it('should render material editor', () => {
-    const modal = new MaterialModal( "Some modal title", Stream(material), Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), true, false);
+    const modal = new MaterialModal("Some modal title", Stream(material), "test", Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), true, false);
     modal.render();
     m.redraw.sync();
     const helper = new TestHelper().forModal();
@@ -55,12 +55,12 @@ describe("MaterialModalSpec", () => {
 
   it('should render material destination blank warning message', () => {
     materials.push(new Material("git", new GitMaterialAttributes()));
-    const modal = new MaterialModal( "Some modal title", Stream(material), Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), true, false);
+    const modal = new MaterialModal("Some modal title", Stream(material), "test", Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), true, false);
     modal.render();
     m.redraw.sync();
     const helper = new TestHelper().forModal();
 
     expect(helper.byTestId('materials-destination-warning-message')).toBeInDOM();
-    expect(helper.byTestId('materials-destination-warning-message').textContent).toBe("In order to configure multiple SCM materials for this pipeline, each of its material needs have to a 'Destination Directory' specified. Please edit the existing material and specify a 'Destination Directory' in order to proceed with this operation.");
+    expect(helper.byTestId('materials-destination-warning-message').textContent).toBe("In order to configure multiple SCM materials for this pipeline, each of its material needs have to a 'Alternate Checkout Path' specified. Please edit the existing material and specify a 'Alternate Checkout Path' in order to proceed with this operation.");
   });
 });

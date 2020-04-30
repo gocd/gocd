@@ -35,10 +35,10 @@ export class StepsWidget extends MithrilViewComponent<Attrs> {
     if (params.job_name) {
       return [
         <Link dataTestId={"step-pipeline-name"}
-              onclick={() => m.route.set(`${params.pipeline_name}/${params.tab_name}`)}>{params.pipeline_name}</Link>,
+              onclick={() => m.route.set(`${params.pipeline_name}/general`)}>{params.pipeline_name}</Link>,
         <AngleDoubleRight iconOnly={true}/>,
         <Link dataTestId={"step-stage-name"}
-              onclick={() => m.route.set(`${params.pipeline_name}/${params.stage_name}/${params.tab_name}`)}>{params.stage_name}</Link>,
+              onclick={() => m.route.set(`${params.pipeline_name}/${params.stage_name}/stage_settings`)}>{params.stage_name}</Link>,
         <AngleDoubleRight iconOnly={true}/>,
         <label data-test-id={"step-job-name"}>{params.job_name}</label>
       ];
@@ -47,7 +47,7 @@ export class StepsWidget extends MithrilViewComponent<Attrs> {
     if (params.stage_name) {
       return [
         <Link dataTestId={"step-pipeline-name"}
-              onclick={() => m.route.set(`${params.pipeline_name}/${params.tab_name}`)}>{params.pipeline_name}</Link>,
+              onclick={() => m.route.set(`${params.pipeline_name}/general`)}>{params.pipeline_name}</Link>,
         <AngleDoubleRight iconOnly={true}/>,
         <label data-test-id={"step-stage-name"}>{params.stage_name}</label>
       ];

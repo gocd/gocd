@@ -184,12 +184,6 @@ Rails.application.routes.draw do
   namespace :api, as: "" do
     defaults :no_layout => true do
 
-      # Vendor Webhooks
-      post 'webhooks/github/notify' => 'web_hooks/git_hub#notify'
-      post 'webhooks/gitlab/notify' => 'web_hooks/git_lab#notify'
-      post 'webhooks/bitbucket/notify' => 'web_hooks/bit_bucket#notify'
-      post 'webhooks/hosted_bitbucket/notify' => 'web_hooks/hosted_bit_bucket#notify'
-
       defaults :format => 'xml' do
         #job api's
         get 'jobs/scheduled.xml' => 'jobs#scheduled'

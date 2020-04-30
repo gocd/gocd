@@ -21,7 +21,6 @@ public class Toggles {
     public static String TEST_DRIVE = "test_drive";
     public static String NEW_PIPELINE_DROPDOWN = "new_pipeline_dropdown";
     public static String FAST_PIPELINE_SAVE = "fast_pipeline_save";
-    public static String RAILS_WEBHOOK_API = "rails_webhook_api";
     public static String SHOW_OLD_PKG_REPOS_SPA = "show_old_pkg_repos_spa";
     public static String SHOW_OLD_COMPARISON_SPA = "show_old_comparison_spa";
     public static String NEW_PIPELINE_CONFIG_SPA = "new_pipeline_config_spa";

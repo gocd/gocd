@@ -27,6 +27,7 @@ import {Cancel, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Modal, Size} from "views/components/modal";
 import {MaterialEditor} from "views/pages/pipelines/material_editor";
+import styles from "./material_modal.scss";
 
 export class MaterialModal extends Modal {
   private readonly materials: Stream<Materials>;
@@ -90,9 +91,11 @@ export class MaterialModal extends Modal {
     return <div>
       <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
       {maybeMsg}
-      <MaterialEditor material={this.entity()} showExtraMaterials={true} disabledMaterialTypeSelection={!this.isNew}
-                      disableScmMaterials={!allScmMaterialsHaveDestination} readonly={this.readonly} parentPipelineName={this.parentPipelineName}
-                      pluggableScms={this.pluggableScms()} packageRepositories={this.packageRepositories()} pluginInfos={this.pluginInfos()}/>
+      <div className={styles.materialInputWrapper}>
+        <MaterialEditor material={this.entity()} showExtraMaterials={true} disabledMaterialTypeSelection={!this.isNew}
+                        disableScmMaterials={!allScmMaterialsHaveDestination} readonly={this.readonly} parentPipelineName={this.parentPipelineName}
+                        pluggableScms={this.pluggableScms()} packageRepositories={this.packageRepositories()} pluginInfos={this.pluginInfos()}/>
+      </div>
     </div>;
   }
 

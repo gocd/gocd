@@ -134,8 +134,11 @@ export class Material extends ValidatableMixin {
     );
   }
 
-  checkConnection(pipelineGroup?: string) {
+  checkConnection(pipelineName?: string, pipelineGroup?: string) {
     const payload = this.toApiPayload();
+    if (pipelineName) {
+      payload.pipeline_name = pipelineName;
+    }
     if (pipelineGroup) {
       payload.pipeline_group = pipelineGroup;
     }

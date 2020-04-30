@@ -30,8 +30,8 @@ import {
 import {CheckboxField, FormField, PasswordField, TextField} from "views/components/forms/input_fields";
 import {TestConnection} from "views/components/materials/test_connection";
 import {SwitchBtn} from "views/components/switch";
-import {TooltipSize} from "views/components/tooltip";
 import * as Tooltip from "views/components/tooltip";
+import {TooltipSize} from "views/components/tooltip";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import styles from "./advanced_settings.scss";
 import {BLACKLIST_HELP_MESSAGE, DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
@@ -42,6 +42,7 @@ interface Attrs {
   showLocalWorkingCopyOptions: boolean;
   disabled?: boolean;
   readonly?: boolean;
+  parentPipelineName?: string;
 }
 
 function markAllDisabled(vnodes: m.ChildArray) {
@@ -80,7 +81,7 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
     const fields: m.Children = [this.requiredFields(mattrs)];
 
     if (!vnode.attrs.hideTestConnection) {
-      fields.push(<TestConnection material={vnode.attrs.material}/>);
+      fields.push(<TestConnection material={vnode.attrs.material} pipeline={vnode.attrs.parentPipelineName}/>);
     }
 
     fields.push(this.advancedOptions(mattrs, vnode.attrs.showLocalWorkingCopyOptions));
@@ -131,7 +132,7 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
     const shouldForceOpen = mattrs.errors().hasErrors("name") ||
                             mattrs.errors().hasErrors("destination") ||
                             mattrs.errors().hasErrors("autoUpdate") ||
-                            mattrs.errors().hasErrors("filter")||
+                            mattrs.errors().hasErrors("filter") ||
                             mattrs.errors().hasErrors("invertFilter");
     return <AdvancedSettings forceOpen={shouldForceOpen}>
       {settings}

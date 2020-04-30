@@ -163,7 +163,7 @@ class JobConfigTest {
 
         ConfigErrors configErrors1 = jobConfig1.errors();
         assertThat(configErrors1.isEmpty()).isFalse();
-        assertThat(configErrors1.on(JobConfig.RUN_TYPE)).isEqualTo("'Run Instance Count' cannot be a negative number as it represents number of instances Go needs to spawn during runtime.");
+        assertThat(configErrors1.on(JobConfig.RUN_TYPE)).isEqualTo("'Run Instance Count' cannot be a negative number as it represents number of instances GoCD needs to spawn during runtime.");
 
         JobConfig jobConfig2 = new JobConfig(new CaseInsensitiveString("test"));
         ReflectionUtil.setField(jobConfig2, "runInstanceCount", "abcd");
@@ -172,7 +172,7 @@ class JobConfigTest {
 
         ConfigErrors configErrors2 = jobConfig2.errors();
         assertThat(configErrors2.isEmpty()).isFalse();
-        assertThat(configErrors2.on(JobConfig.RUN_TYPE)).isEqualTo("'Run Instance Count' should be a valid positive integer as it represents number of instances Go needs to spawn during runtime.");
+        assertThat(configErrors2.on(JobConfig.RUN_TYPE)).isEqualTo("'Run Instance Count' should be a valid positive integer as it represents number of instances GoCD needs to spawn during runtime.");
     }
 
     @Test

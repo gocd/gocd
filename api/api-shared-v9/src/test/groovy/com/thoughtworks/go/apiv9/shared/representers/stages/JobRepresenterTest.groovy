@@ -450,7 +450,7 @@ class JobRepresenterTest {
         ]],
       errors:
       [
-        run_instance_count: ["'Run Instance Count' cannot be a negative number as it represents number of instances Go needs to spawn during runtime."],
+        run_instance_count: ["'Run Instance Count' cannot be a negative number as it represents number of instances GoCD needs to spawn during runtime."],
         name: ["Name is a required field"]
       ]
     ]

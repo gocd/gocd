@@ -49,7 +49,7 @@ describe("Artifacts Tab", () => {
     mount(job);
 
     expect(job.artifacts()).toHaveLength(0);
-    const expectedMsg = "No Artifacts Configured. Click Add to configure artifacts.";
+    const expectedMsg = "No artifacts configured. Click 'Add Artifact' to configure artifacts.";
     expect(helper.byTestId("flash-message-info")).toContainText(expectedMsg);
   });
 
@@ -189,7 +189,7 @@ describe("Artifacts Tab", () => {
 
     helper.redraw();
 
-    const expectedMsg = "Can not define external artifact! No Artifact store configured.";
+    const expectedMsg = "No artifact store is configured. Go to artifact store page to configure artifact store.";
     expect(helper.byTestId("flash-message-alert")).toContainText(expectedMsg);
 
     expect(helper.q("button")).toBeDisabled();

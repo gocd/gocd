@@ -23,8 +23,8 @@ import {Artifact, Artifacts, ArtifactType, ExternalArtifact, GoCDArtifact} from 
 import {Job} from "models/pipeline_configs/job";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
-import {ArtifactExtension} from "models/shared/plugin_infos_new/extensions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {ArtifactExtension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {Secondary} from "views/components/buttons";
@@ -33,9 +33,9 @@ import {SelectField, SelectFieldOptions, TextField} from "views/components/forms
 import * as Icons from "views/components/icons";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import styles from "views/pages/clicky_pipeline_config/tabs/job/artifacts.scss";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 
 const AngularPluginNew     = require("views/shared/angular_plugin_new").AngularPluginNew;
@@ -72,7 +72,7 @@ export class ArtifactsTabContent extends TabContent<Job> {
 
     if (entity.artifacts().length === 0) {
       artifacts = [<FlashMessage type={MessageType.info}
-                                 message={"No Artifacts Configured. Click Add to configure artifacts."}/>];
+                                 message={"No artifacts configured. Click 'Add Artifact' to configure artifacts."}/>];
     }
 
     return <div data-test-id="artifacts">
@@ -209,8 +209,10 @@ private removalFn(collection: Artifacts, index: number) {
     let noArtifactStoreError: m.Child;
 
     if (this.addArtifactType() === ArtifactType.external && this.artifactStores().length === 0) {
-      noArtifactStoreError = <FlashMessage type={MessageType.alert}
-                                           message={"Can not define external artifact! No Artifact store configured."}/>;
+      const msg = <div data-test-id="no-artifact-store-configured-msg">
+        No artifact store is configured. Go to <a href="/go/admin/artifact_stores" title="Artifact Stores">artifact store page</a> to configure artifact store.
+      </div>;
+      noArtifactStoreError = <FlashMessage type={MessageType.alert} message={msg}/>;
     }
 
     return (<div data-test-id="add-artifact-wrapper">

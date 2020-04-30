@@ -82,7 +82,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
                          replace={vnode.attrs.resourcesSuggestions.replace.bind(vnode.attrs.resourcesSuggestions)}
                          filter={vnode.attrs.resourcesSuggestions.filter.bind(vnode.attrs.resourcesSuggestions)}
                          onchange={vnode.attrs.resourcesSuggestions.update.bind(vnode.attrs.resourcesSuggestions)}
-                         helpText="The agent resources that the current job requires to run. Specify multiple resources as a comma separated list"
+                         helpText="The agent resources that the current job requires to run. Specify multiple resources as a comma separated list."
                          readonly={vnode.attrs.readonly || !!entity.elasticProfileId()}
                          property={entity.resources}/>
       <AutocompleteField label="Elastic Agent Profile Id"

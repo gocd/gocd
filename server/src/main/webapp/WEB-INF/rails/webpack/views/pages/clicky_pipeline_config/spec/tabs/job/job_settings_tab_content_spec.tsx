@@ -55,8 +55,7 @@ describe("Job Settings Tab Content", () => {
       expect(job.resources()).toBe("");
       expect(helper.byTestId("form-field-input-resources")).toHaveValue("");
       expect(helper.byTestId("job-settings-tab"))
-        .toContainText(
-          "The agent resources that the current job requires to run. Specify multiple resources as a comma separated list");
+        .toContainText("The agent resources that the current job requires to run. Specify multiple resources as a comma separated list.");
 
       const newResources = "windows,jdk11";
       helper.oninput(`[data-test-id="form-field-input-resources"]`, newResources);

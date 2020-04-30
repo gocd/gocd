@@ -27,11 +27,6 @@
       "value": true
     },
     {
-      "key": "use_rails_based_material_test_connection_api",
-      "description": "Use the rails based material test connection API. Default: false",
-      "value": false
-    },
-    {
       "key": "rails_webhook_api",
       "description": "Use rails webhook APIs. Default: false",
       "value": false

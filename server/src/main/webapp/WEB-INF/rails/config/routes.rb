@@ -162,10 +162,6 @@ Rails.application.routes.draw do
             get ':template_name/authorization' => 'authorization#show', constraints: {template_name: TEMPLATE_NAME_FORMAT}
             put ':template_name/authorization' => 'authorization#update', constraints: {template_name: TEMPLATE_NAME_FORMAT}
           end
-
-          namespace :internal do
-            post :material_test, controller: :material_test, action: :test, as: :material_test
-          end
         end
 
         get 'version_infos/stale', controller: :version_infos, action: :stale, as: :stale_version_info

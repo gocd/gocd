@@ -127,8 +127,7 @@
   <rule>
     <name>Material Test API</name>
     <from>^/api/admin/internal/material_test(/?)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="testConnectionAPI"/>
-    <to last="true">/%{attribute:sparkOrRails}/api/admin/internal/material_test</to>
+    <to last="true">/spark/api/admin/internal/material_test</to>
   </rule>
 
   <rule>

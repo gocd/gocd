@@ -284,7 +284,7 @@ export class ShowTemplateModal extends Modal {
     if (data.size === 0) {
       return (
         <FlashMessage
-          message="There are no operate permissions configured for this stage nor its pipeline group. All Go users can operate on this stage."
+          message="There is no authorization configured for this stage nor its pipeline group. Only GoCD administrators can operate this stage."
           type={MessageType.info}/>
       );
     } else {

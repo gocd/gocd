@@ -82,7 +82,7 @@ describe "admin/stages/permissions.html.erb" do
       end
       form.all(".form_item").tap do |form_items| #check that there is a message
         form_items[1].find(".inherited_permissions") do |inherited_permissions|
-          expect(inherited_permissions).to have_selector(".no_permissions_message", :text => "There are no operate permissions configured for this stage nor its pipeline group. All Go users can operate on this stage.")
+          expect(inherited_permissions).to have_selector(".no_permissions_message", :text => "There is no authorization configured for this stage nor its pipeline group. Only GoCD administrators can operate this stage.")
         end
         expect(form_items[1]).to have_selector(".stage_permissions.hidden")
       end

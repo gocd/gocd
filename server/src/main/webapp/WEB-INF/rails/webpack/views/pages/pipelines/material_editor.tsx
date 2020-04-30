@@ -114,31 +114,31 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
         if (!(material.attributes() instanceof GitMaterialAttributes)) {
           material.attributes(new GitMaterialAttributes(undefined, true));
         }
-        return <GitFields material={material} hideTestConnection={hideTestConnection} readonly={readonly}
+        return <GitFields material={material} hideTestConnection={hideTestConnection} readonly={readonly} parentPipelineName={parentPipelineName}
                           showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "hg":
         if (!(material.attributes() instanceof HgMaterialAttributes)) {
           material.attributes(new HgMaterialAttributes(undefined, true));
         }
-        return <HgFields material={material} hideTestConnection={hideTestConnection} readonly={readonly}
+        return <HgFields material={material} hideTestConnection={hideTestConnection} readonly={readonly} parentPipelineName={parentPipelineName}
                          showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "svn":
         if (!(material.attributes() instanceof SvnMaterialAttributes)) {
           material.attributes(new SvnMaterialAttributes(undefined, true));
         }
-        return <SvnFields material={material} hideTestConnection={hideTestConnection} readonly={readonly}
+        return <SvnFields material={material} hideTestConnection={hideTestConnection} readonly={readonly} parentPipelineName={parentPipelineName}
                           showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "p4":
         if (!(material.attributes() instanceof P4MaterialAttributes)) {
           material.attributes(new P4MaterialAttributes(undefined, true));
         }
-        return <P4Fields material={material} hideTestConnection={hideTestConnection} readonly={readonly}
+        return <P4Fields material={material} hideTestConnection={hideTestConnection} readonly={readonly} parentPipelineName={parentPipelineName}
                          showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "tfs":
         if (!(material.attributes() instanceof TfsMaterialAttributes)) {
           material.attributes(new TfsMaterialAttributes(undefined, true));
         }
-        return <TfsFields material={material} hideTestConnection={hideTestConnection} readonly={readonly}
+        return <TfsFields material={material} hideTestConnection={hideTestConnection} readonly={readonly} parentPipelineName={parentPipelineName}
                           showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "dependency":
         if (!(material.attributes() instanceof DependencyMaterialAttributes)) {

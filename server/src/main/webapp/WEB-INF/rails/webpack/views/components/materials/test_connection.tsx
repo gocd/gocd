@@ -25,6 +25,7 @@ import styles from "./test_connection.scss";
 interface Attrs {
   material: Material;
   group?: string;
+  pipeline?: string;
 
   // extra handlers will be fired in addition to defaults
   success?: (...args: any[]) => any;
@@ -36,7 +37,7 @@ export class TestConnection extends MithrilViewComponent<Attrs> {
   private testConnectionMessage: m.Child | undefined;
   private testConnectionButtonIcon: string | undefined;
   private testConnectionButtonText: string = "Test Connection";
-  private busy = false;
+  private busy                             = false;
 
   private success?: (...args: any[]) => any;
   private failure?: ((err: ErrorResponse) => any);
@@ -49,7 +50,7 @@ export class TestConnection extends MithrilViewComponent<Attrs> {
 
     return <div class={styles.testConnectionButtonWrapper}>
       <Buttons.Secondary data-test-id="test-connection-button"
-                         onclick={() => this.testConnection(vnode.attrs.material, vnode.attrs.group)} disabled={this.busy}>
+                         onclick={() => this.testConnection(vnode.attrs.material, vnode.attrs.pipeline, vnode.attrs.group)} disabled={this.busy}>
         <span class={this.testConnectionButtonIcon} data-test-id="test-connection-icon"/>
         {this.testConnectionButtonText}
       </Buttons.Secondary>
@@ -57,12 +58,12 @@ export class TestConnection extends MithrilViewComponent<Attrs> {
     </div>;
   }
 
-  private testConnection(material: Material, pipelineGroup?: string) {
+  private testConnection(material: Material, pipelineName?: string, pipelineGroup?: string) {
     if (this.busy) { return; }
 
     this.testConnectionInProgress();
 
-    material.checkConnection(pipelineGroup).then((result: ApiResult<any>) => {
+    material.checkConnection(pipelineName, pipelineGroup).then((result: ApiResult<any>) => {
       result.do(() => {
         this.testConnectionSuccessful();
         if (!!this.success) {
@@ -96,11 +97,11 @@ export class TestConnection extends MithrilViewComponent<Attrs> {
     this.testConnectionButtonIcon = styles.testConnectionInProgress;
     this.testConnectionButtonText = "Testing Connection...";
     this.testConnectionMessage    = undefined;
-    this.busy = true;
+    this.busy                     = true;
   }
 
   private testConnectionComplete() {
     this.testConnectionButtonText = "Test Connection";
-    this.busy = false;
+    this.busy                     = false;
   }
 }

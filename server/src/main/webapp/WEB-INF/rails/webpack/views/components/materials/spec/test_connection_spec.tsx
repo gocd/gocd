@@ -22,10 +22,10 @@ import {TestConnection} from "../test_connection";
 import styles from "../test_connection.scss";
 
 describe("Materials: TestConnection", () => {
-  const helper = new TestHelper();
+  const helper              = new TestHelper();
   const TEST_CONNECTION_URL = SparkRoutes.materialConnectionCheck();
-  const invalidMaterial = new Material("git", new GitMaterialAttributes());
-  const validMaterial = new Material("git", new GitMaterialAttributes("SomeRepo", false, "https://github.com/gocd/gocd", "master"));
+  const invalidMaterial     = new Material("git", new GitMaterialAttributes());
+  const validMaterial       = new Material("git", new GitMaterialAttributes("SomeRepo", false, "https://github.com/gocd/gocd", "master"));
 
   afterEach(helper.unmount.bind(helper));
 
@@ -34,14 +34,14 @@ describe("Materials: TestConnection", () => {
       const response = {message: "Connection OK."};
 
       jasmine.Ajax.stubRequest(TEST_CONNECTION_URL, payload(validMaterial), "POST")
-        .andReturn({
-          responseText: JSON.stringify(response),
-          status: 200,
-          responseHeaders: {
-            "Content-Type": "application/vnd.go.cd.v1+json",
-            "ETag": "ETag"
-          }
-        });
+             .andReturn({
+                          responseText:    JSON.stringify(response),
+                          status:          200,
+                          responseHeaders: {
+                            "Content-Type": "application/vnd.go.cd.v1+json",
+                            "ETag":         "ETag"
+                          }
+                        });
 
       helper.mount(() => <TestConnection material={validMaterial} complete={() => {
         expect(helper.byTestId("test-connection-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
@@ -66,14 +66,14 @@ describe("Materials: TestConnection", () => {
       const response = {message: "Error while parsing material URL"};
 
       jasmine.Ajax.stubRequest(TEST_CONNECTION_URL, payload(invalidMaterial), "POST")
-        .andReturn({
-          responseText: JSON.stringify(response),
-          status: 422,
-          responseHeaders: {
-            "Content-Type": "application/vnd.go.cd.v1+json",
-            "ETag": "ETag"
-          }
-        });
+             .andReturn({
+                          responseText:    JSON.stringify(response),
+                          status:          422,
+                          responseHeaders: {
+                            "Content-Type": "application/vnd.go.cd.v1+json",
+                            "ETag":         "ETag"
+                          }
+                        });
 
       helper.mount(() => <TestConnection material={invalidMaterial} complete={() => {
         expect(helper.byTestId("test-connection-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
@@ -90,6 +90,64 @@ describe("Materials: TestConnection", () => {
       expect(helper.byTestId('test-connection-button')).toBeVisible();
       helper.clickByTestId("test-connection-button");
       expect(jasmine.Ajax.requests.count()).toEqual(1);
+    });
+  });
+
+  it('should send pipeline name in the payload when defined', (done) => {
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest(TEST_CONNECTION_URL)
+             .andReturn({
+                          responseText:    JSON.stringify({message: "Connection OK."}),
+                          status:          200,
+                          responseHeaders: {
+                            "Content-Type": "application/vnd.go.cd.v1+json",
+                            "ETag":         "ETag"
+                          }
+                        });
+
+      helper.mount(() => <TestConnection material={validMaterial} pipeline={"pipeline"} complete={() => {
+        setTimeout(() => { // make this async so as to allow mithril to update the dom
+          done();
+        }, 0);
+      }}/>);
+
+      expect(helper.byTestId('test-connection-button')).toBeVisible();
+      helper.clickByTestId("test-connection-button");
+      expect(jasmine.Ajax.requests.count()).toEqual(1);
+
+      const request = jasmine.Ajax.requests.mostRecent();
+      expect(request.url).toEqual(TEST_CONNECTION_URL);
+      const data = request.data();
+      expect(Object.keys(data)).toEqual(['attributes', 'type', 'pipeline_name']);
+    });
+  });
+
+  it('should send pipeline group name in the payload when defined', (done) => {
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest(TEST_CONNECTION_URL)
+             .andReturn({
+                          responseText:    JSON.stringify({message: "Connection OK."}),
+                          status:          200,
+                          responseHeaders: {
+                            "Content-Type": "application/vnd.go.cd.v1+json",
+                            "ETag":         "ETag"
+                          }
+                        });
+
+      helper.mount(() => <TestConnection material={validMaterial} group={"group"} complete={() => {
+        setTimeout(() => { // make this async so as to allow mithril to update the dom
+          done();
+        }, 0);
+      }}/>);
+
+      expect(helper.byTestId('test-connection-button')).toBeVisible();
+      helper.clickByTestId("test-connection-button");
+      expect(jasmine.Ajax.requests.count()).toEqual(1);
+
+      const request = jasmine.Ajax.requests.mostRecent();
+      expect(request.url).toEqual(TEST_CONNECTION_URL);
+      const data = request.data();
+      expect(Object.keys(data)).toEqual(['attributes', 'type', 'pipeline_group']);
     });
   });
 

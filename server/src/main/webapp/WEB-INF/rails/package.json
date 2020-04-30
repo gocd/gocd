@@ -46,7 +46,7 @@
     "shellwords-ts": "^3.0.0",
     "underscore.string": "^3.3.5",
     "url-parse": "^1.4.7",
-    "uuid": "^7.0.3"
+    "uuid": "^8.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",

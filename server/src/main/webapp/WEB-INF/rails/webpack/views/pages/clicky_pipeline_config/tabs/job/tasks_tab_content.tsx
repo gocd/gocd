@@ -105,7 +105,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
     vnode.state.allTaskTypes          = Array.from(TasksWidget.getTaskTypes().values());
     vnode.state.selectedTaskTypeToAdd = Stream(vnode.state.allTaskTypes[3]);
-    vnode.state.entityReOrderHandler  = new EntityReOrderHandler("task",
+    vnode.state.entityReOrderHandler  = new EntityReOrderHandler("Task",
                                                                  vnode.attrs.flashMessage,
                                                                  vnode.attrs.pipelineConfigSave,
                                                                  vnode.attrs.pipelineConfigReset);

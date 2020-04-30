@@ -49,7 +49,7 @@ export interface State {
 
 export class StagesWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.entityReOrderHandler = new EntityReOrderHandler("stage",
+    vnode.state.entityReOrderHandler = new EntityReOrderHandler("Stage",
                                                                 vnode.attrs.flashMessage,
                                                                 vnode.attrs.pipelineConfigSave,
                                                                 vnode.attrs.pipelineConfigReset);

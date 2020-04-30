@@ -298,6 +298,15 @@ export class ExecTaskAttributes extends AbstractTaskAttributes {
     this.workingDirectory(workingDir);
   }
 
+  argsStream(input?: string) {
+    if (input !== undefined) {
+      const args = input.split("\n").map((a) => a.trim());
+      this.arguments(args);
+    }
+
+    return this.arguments().join("\n");
+  };
+
   properties(): Map<string, any> {
     const map: Map<string, any> = new Map();
     map.set("Command", this.command());

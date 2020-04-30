@@ -43,7 +43,7 @@ export class OnCancelTaskWidget extends MithrilComponent<Attrs, State> {
     if (vnode.attrs.onCancel()) {
       vnode.state.selectedTaskTypeToAdd = Stream(TasksWidget.getTaskTypes().get(vnode.attrs.onCancel()!.type)!);
     } else {
-      vnode.state.selectedTaskTypeToAdd = Stream(vnode.state.allTaskTypes[0]);
+      vnode.state.selectedTaskTypeToAdd = Stream(vnode.state.allTaskTypes[3]);
     }
   }
 

@@ -16,6 +16,7 @@
 
 import {ApiResult} from "helpers/api_request_builder";
 import {MithrilComponent} from "jsx/mithril-component";
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {
@@ -27,17 +28,22 @@ import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Template, TemplateCache} from "models/pipeline_configs/templates_cache";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
+import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
 import {ConfigurationTypeWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/configuration_type_widget";
 import {PipelineTemplateWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/pipeline_template_widget";
 import {StagesWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/stages_widget";
 import {PipelineConfigSPARouteHelper} from "views/pages/clicky_pipeline_config/tabs/route_helper";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
+import {OperationState} from "views/pages/page_operations";
 
 export class StagesTabContent extends TabContent<PipelineConfig | TemplateConfig> {
   private isPipelineDefinedOriginallyFromTemplate: Stream<boolean> = Stream();
   private stageOrTemplateProperty: Stream<"template" | "stage">    = Stream();
   private dependentPipelines: Stream<DependentPipeline[]>          = Stream([] as DependentPipeline[]);
+
+  private originalStages: string[] | undefined;
+  private entityReOrderHandler: EntityReOrderHandler | undefined;
 
   private cache: TemplateCache          = new TemplateCache();
   private templates: Stream<Template[]> = Stream();
@@ -56,6 +62,33 @@ export class StagesTabContent extends TabContent<PipelineConfig | TemplateConfig
 
   public shouldShowSaveAndResetButtons(): boolean {
     return false;
+  }
+
+  content(pipelineConfig: PipelineConfig | TemplateConfig,
+          templateConfig: TemplateConfig,
+          routeParams: PipelineConfigRouteParams,
+          ajaxOperationMonitor: Stream<OperationState>,
+          flashMessage: FlashMessageModelWithTimeout,
+          pipelineConfigSave: () => Promise<any>,
+          pipelineConfigReset: () => void): m.Children {
+
+    if (!this.originalStages) {
+      this.originalStages = pipelineConfig.stages().names();
+    }
+
+    if (!this.entityReOrderHandler) {
+      this.entityReOrderHandler = new EntityReOrderHandler("Task", flashMessage,
+                                                           pipelineConfigSave, pipelineConfigReset,
+                                                           this.hasOrderChanged.bind(this, pipelineConfig));
+    }
+
+    return super.content(pipelineConfig, templateConfig, routeParams, ajaxOperationMonitor,
+                         flashMessage, pipelineConfigSave, pipelineConfigReset);
+  }
+
+  onSuccessfulPipelineConfigSave() {
+    this.entityReOrderHandler = undefined;
+    this.originalStages       = undefined;
   }
 
   protected selectedEntity(pipelineConfig: PipelineConfig | TemplateConfig, routeParams: PipelineConfigRouteParams) {
@@ -84,6 +117,7 @@ export class StagesTabContent extends TabContent<PipelineConfig | TemplateConfig
     return <StagesOrTemplatesWidget entity={entity}
                                     readonly={this.isEntityDefinedInConfigRepository()}
                                     isTemplateView={this.isTemplateView()}
+                                    entityReOrderHandler={this.entityReOrderHandler!}
                                     templateConfig={templateConfig}
                                     isPipelineDefinedOriginallyFromTemplate={this.isPipelineDefinedOriginallyFromTemplate}
                                     stageOrTemplateProperty={this.stageOrTemplateProperty}
@@ -91,6 +125,10 @@ export class StagesTabContent extends TabContent<PipelineConfig | TemplateConfig
                                     dependentPipelines={this.dependentPipelines}
                                     templates={this.templates}
                                     save={save} reset={reset}/>;
+  }
+
+  private hasOrderChanged(entity: PipelineConfig | TemplateConfig) {
+    return !_.isEqual(this.originalStages, entity.stages().names());
   }
 
   private initializePipelineRelatedInformation() {
@@ -125,6 +163,7 @@ interface StagesOrTemplatesAttrs {
   flashMessage: FlashMessageModelWithTimeout;
   save: () => any;
   reset: () => any;
+  entityReOrderHandler: EntityReOrderHandler;
   dependentPipelines: Stream<DependentPipeline[]>;
   stageOrTemplateProperty: Stream<"template" | "stage">;
   isPipelineDefinedOriginallyFromTemplate: Stream<boolean>;
@@ -158,6 +197,7 @@ export class StagesOrTemplatesWidget extends MithrilComponent<StagesOrTemplatesA
     if (vnode.attrs.isTemplateView) {
       return <StagesWidget stages={entity.stages}
                            dependentPipelines={vnode.attrs.dependentPipelines}
+                           entityReOrderHandler={vnode.attrs.entityReOrderHandler}
                            isUsingTemplate={false}
                            flashMessage={vnode.attrs.flashMessage}
                            pipelineConfigSave={vnode.attrs.save}
@@ -175,6 +215,7 @@ export class StagesOrTemplatesWidget extends MithrilComponent<StagesOrTemplatesA
     } else {
       stagesOrTemplatesView = <StagesWidget stages={entity.stages}
                                             dependentPipelines={vnode.attrs.dependentPipelines}
+                                            entityReOrderHandler={vnode.attrs.entityReOrderHandler}
                                             isUsingTemplate={(entity as PipelineConfig).isUsingTemplate()}
                                             flashMessage={vnode.attrs.flashMessage}
                                             pipelineConfigSave={vnode.attrs.save}

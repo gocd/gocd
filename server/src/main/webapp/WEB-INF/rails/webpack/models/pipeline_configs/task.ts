@@ -305,7 +305,7 @@ export class ExecTaskAttributes extends AbstractTaskAttributes {
     }
 
     return this.arguments().join("\n");
-  };
+  }
 
   properties(): Map<string, any> {
     const map: Map<string, any> = new Map();

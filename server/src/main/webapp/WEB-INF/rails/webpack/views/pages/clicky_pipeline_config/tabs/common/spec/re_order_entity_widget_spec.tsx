@@ -25,13 +25,15 @@ describe("ReOrder Entity", () => {
   let flashMessage: FlashMessageModelWithTimeout;
   let onPipelineConfigSave: () => any;
   let onPipelineConfigReset: () => any;
+  let hasOrderChanged: () => boolean;
 
   beforeEach(() => {
     flashMessage          = new FlashMessageModelWithTimeout();
     onPipelineConfigSave  = jasmine.createSpy().and.returnValue(Promise.resolve());
     onPipelineConfigReset = jasmine.createSpy().and.returnValue(Promise.resolve());
+    hasOrderChanged       = jasmine.createSpy().and.returnValue(true);
 
-    reorderHandler = new EntityReOrderHandler("stage", flashMessage, onPipelineConfigSave, onPipelineConfigReset);
+    reorderHandler = new EntityReOrderHandler("stage", flashMessage, onPipelineConfigSave, onPipelineConfigReset, hasOrderChanged);
 
     helper.mount(() => reorderHandler.getReOrderConfirmationView());
   });

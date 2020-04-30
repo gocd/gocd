@@ -22,6 +22,7 @@ import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
+import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
 import {StagesWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/stages_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -182,13 +183,17 @@ describe("Stages Widget", () => {
                  isEditable                              = true,
                  dependentPipelines: DependentPipeline[] = []) {
 
-    const onSave  = jasmine.createSpy().and.returnValue(Promise.resolve());
-    const onReset = jasmine.createSpy().and.returnValue(Promise.resolve());
+    const onSave               = jasmine.createSpy().and.returnValue(Promise.resolve());
+    const onReset              = jasmine.createSpy().and.returnValue(Promise.resolve());
+    const flashMessage         = new FlashMessageModelWithTimeout();
+    const entityReOrderHandler = new EntityReOrderHandler("", flashMessage, onSave, onReset, () => false);
+
     helper.mount(() => <StagesWidget stages={stages}
+                                     entityReOrderHandler={entityReOrderHandler}
                                      pipelineConfigSave={onSave}
                                      pipelineConfigReset={onReset}
                                      dependentPipelines={Stream(dependentPipelines)}
-                                     flashMessage={new FlashMessageModelWithTimeout()}
+                                     flashMessage={flashMessage}
                                      isUsingTemplate={isUsingTemplate}
                                      isEditable={isEditable}/>);
   }

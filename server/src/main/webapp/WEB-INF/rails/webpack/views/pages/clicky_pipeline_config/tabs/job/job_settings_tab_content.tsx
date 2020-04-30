@@ -124,7 +124,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
                     {
                       label: "Run on one instance",
                       value: "one",
-                      helpText: "Job will run on only agent that match its resources (if any) and are in the same environment as this job’s pipeline."
+                      helpText: "Job will run on the first available agent which matches its resources (if any) and are in the same environment as this job’s pipeline."
                     },
                     {
                       label: "Run on all agents",

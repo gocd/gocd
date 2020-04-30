@@ -188,14 +188,12 @@ describe("Job Settings Tab Content", () => {
       expect(helper.byTestId("radio-one")).toBeInDOM();
       expect(helper.q("label", helper.byTestId("input-field-for-one")).innerText).toEqual("Run on one instance");
       expect(helper.q("span", helper.byTestId("input-field-for-one")).innerText)
-        .toEqual(
-          "Job will run on only agent that match its resources (if any) and are in the same environment as this job’s pipeline.");
+        .toEqual("Job will run on the first available agent which matches its resources (if any) and are in the same environment as this job’s pipeline.");
 
       expect(helper.byTestId("radio-all")).toBeInDOM();
       expect(helper.q("label", helper.byTestId("input-field-for-all")).innerText).toEqual("Run on all agents");
       expect(helper.q("span", helper.byTestId("input-field-for-all")).innerText)
-        .toEqual(
-          "Job will run on all agents that match its resources (if any) and are in the same environment as this job’s pipeline. This option is particularly useful when deploying to multiple servers.");
+        .toEqual("Job will run on all agents that match its resources (if any) and are in the same environment as this job’s pipeline. This option is particularly useful when deploying to multiple servers.");
 
       expect(helper.byTestId("radio-number")).toBeInDOM();
       expect(helper.q("span", helper.allByTestId("input-field-for-number")[1]).innerText)

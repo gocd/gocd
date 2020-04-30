@@ -106,7 +106,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
                     {
                       label: "Use Default",
                       value: "default",
-                      helpText: `Use the default job timeout specified globally.(${timeout})`
+                      helpText: `Use the default job timeout specified globally: (${timeout})`
                     },
                     {
                       label: jobTimeoutInNumber,

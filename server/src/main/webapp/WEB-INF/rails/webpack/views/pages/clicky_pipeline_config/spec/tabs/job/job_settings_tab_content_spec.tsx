@@ -119,7 +119,7 @@ describe("Job Settings Tab Content", () => {
       expect(helper.byTestId("radio-default")).toBeInDOM();
       expect(helper.q("label", helper.byTestId("input-field-for-default")).innerText).toEqual("Use Default");
       expect(helper.q("span", helper.byTestId("input-field-for-default")).innerText)
-        .toEqual("Use the default job timeout specified globally.(5 minute(s))");
+        .toEqual("Use the default job timeout specified globally: (5 minute(s))");
 
       expect(helper.byTestId("radio-number")).toBeInDOM();
       expect(helper.q("span", helper.byTestId("input-field-for-number")).innerText)

@@ -38,6 +38,7 @@ export class TemplateConfigPage<T> extends TabHandler<T> {
 
   reset() {
     this.setEntity(TemplateConfig.fromJSON(this.originalJSON));
+    this.flashMessage.clear();
   }
 
   //this method is only required for pipeline config.

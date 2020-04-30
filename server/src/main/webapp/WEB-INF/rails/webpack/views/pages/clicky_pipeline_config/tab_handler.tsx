@@ -231,7 +231,10 @@ export abstract class TabHandler<T> extends Page<null, T> {
         <div className={styles.buttonContainer}>
           <Reset data-test-id={"cancel"}
                  ajaxOperationMonitor={this.ajaxOperationMonitor}
-                 onclick={this.reset.bind(this)}>
+                 onclick={() => {
+                   this.reset.call(this);
+                   this.flashMessage.clear();
+                 }}>
             RESET
           </Reset>
           <Primary data-test-id={"save"}

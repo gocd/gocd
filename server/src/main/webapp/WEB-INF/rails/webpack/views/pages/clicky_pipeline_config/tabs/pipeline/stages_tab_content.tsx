@@ -77,7 +77,7 @@ export class StagesTabContent extends TabContent<PipelineConfig | TemplateConfig
     }
 
     if (!this.entityReOrderHandler) {
-      this.entityReOrderHandler = new EntityReOrderHandler("Task", flashMessage,
+      this.entityReOrderHandler = new EntityReOrderHandler("Stage", flashMessage,
                                                            pipelineConfigSave, pipelineConfigReset,
                                                            this.hasOrderChanged.bind(this, pipelineConfig));
     }

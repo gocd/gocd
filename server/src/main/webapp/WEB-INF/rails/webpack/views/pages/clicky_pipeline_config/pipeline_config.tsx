@@ -67,7 +67,6 @@ export class PipelineConfigPage<T> extends TabHandler<T> {
 
   reset() {
     this.setEntity(PipelineConfig.fromJSON(this.originalJSON));
-    this.flashMessage.clear();
   }
 
   getAssociatedTemplateWithPipeline(): TemplateConfig | undefined {

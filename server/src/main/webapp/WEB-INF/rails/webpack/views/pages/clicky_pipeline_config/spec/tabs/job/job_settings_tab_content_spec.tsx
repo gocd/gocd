@@ -73,7 +73,7 @@ describe("Job Settings Tab Content", () => {
       expect(helper.byTestId("form-field-input-elastic-agent-profile-id")).toHaveValue("");
 
       expect(helper.byTestId("job-settings-tab"))
-        .toContainText("The Elastic Agent Profile that the current job requires to run");
+        .toContainText("The Elastic Agent Profile that the current job requires to run. Visit Elastic Agent Configurations page to manage elastic agent profiles.");
 
       const newElasticAgentProfileId = "profile1";
       helper.oninput(`[data-test-id="form-field-input-elastic-agent-profile-id"]`, newElasticAgentProfileId);

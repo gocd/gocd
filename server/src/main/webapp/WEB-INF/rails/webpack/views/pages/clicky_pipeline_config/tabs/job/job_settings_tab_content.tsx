@@ -90,7 +90,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
                          errorText={entity.errors().errorsForDisplay("elasticProfileId")}
                          provider={vnode.attrs.elasticAgentsSuggestions}
                          readonly={vnode.attrs.readonly || !!entity.resources()}
-                         helpText="The Elastic Agent Profile that the current job requires to run"
+                         helpText={<div>The Elastic Agent Profile that the current job requires to run. Visit <a href="/go/admin/elastic_agent_configurations" title="Elastic Agents Configurations">Elastic Agent Configurations</a> page to manage elastic agent profiles.</div>}
                          property={entity.elasticProfileId}/>
       <h3>Job Timeout</h3>
       <RadioField onchange={(val) => this.toggleJobTimeout((val as "never" | "default" | "number"), entity)}

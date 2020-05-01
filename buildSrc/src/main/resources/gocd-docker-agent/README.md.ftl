@@ -1,6 +1,6 @@
 # GoCD Agent Docker image
 
-[GoCD agent](https://www.gocd.io) docker image based on ${distro} ${distroVersion.version}.
+[GoCD agent](https://www.gocd.org) docker image based on ${distro} ${distroVersion.version}.
 
 <#if distroVersion.aboutToEol>
 # This image is deprecated

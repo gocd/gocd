@@ -65,7 +65,7 @@
     "@babel/preset-env": "^7.9.6",
     "@babel/preset-react": "^7.9.4",
     "@types/awesomplete": "^1.1.10",
-    "@types/chart.js": "^2.9.19",
+    "@types/chart.js": "^2.9.20",
     "@types/classnames": "^2.2.10",
     "@types/filesize": "^5.0.0",
     "@types/fork-ts-checker-webpack-plugin": "^0.4.5",

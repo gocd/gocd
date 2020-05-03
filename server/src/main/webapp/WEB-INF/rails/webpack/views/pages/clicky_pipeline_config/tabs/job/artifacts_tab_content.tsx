@@ -72,7 +72,7 @@ export class ArtifactsTabContent extends TabContent<Job> {
 
     if (entity.artifacts().length === 0) {
       artifacts = [<FlashMessage type={MessageType.info}
-                                 message={"No Artifacts Configured. Click Add to configure artifacts."}/>];
+                                 message={"No artifacts configured. Click 'Add Artifact' to configure artifacts."}/>];
     }
 
     return <div data-test-id="artifacts">
@@ -89,11 +89,11 @@ export class ArtifactsTabContent extends TabContent<Job> {
     return <div class={styles.builtInArtifactHeader} data-test-id="tabs-header">
       <span data-test-id="type-header">
         Type: <Tooltip.Info size={TooltipSize.small}
-                            content={"There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact."}/>
+                            content={"There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, GoCD will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact."}/>
       </span>
       <span data-test-id="source-header">
         Source: <Tooltip.Info size={TooltipSize.small}
-                              content={"The file or folders to publish to the server. Go will only upload files that are in the working directory of the job. You can use wildcards to specify the files and folders to upload (** means any path, * means any file or folder name)."}/>
+                              content={"The file or folders to publish to the server. GoCD will only upload files that are in the working directory of the job. You can use wildcards to specify the files and folders to upload (** means any path, * means any file or folder name)."}/>
       </span>
       <span data-test-id="destination-header">
         Destination: <Tooltip.Info size={TooltipSize.small}
@@ -115,7 +115,7 @@ export class ArtifactsTabContent extends TabContent<Job> {
       {this.getBuiltInArtifactHeaders()}
       <div class={styles.builtInArtifactContainer}>
         <div class={styles.artifactType} data-test-id="artifact-type">
-          {artifact.type()[0].toUpperCase() + artifact.type().slice(1)} Artifact
+          {this.capitalizeInitial(artifact.type())} Artifact
         </div>
         <TextField dataTestId={`artifact-source-${artifact.source() || ""}`}
                    readonly={readonly}
@@ -136,7 +136,7 @@ export class ArtifactsTabContent extends TabContent<Job> {
     return <div class={styles.builtInArtifactHeader} data-test-id="tabs-header">
       <span data-test-id="type-header">
         Type: <Tooltip.Info size={TooltipSize.small}
-                            content={"There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact."}/>
+                            content={"There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, GoCD will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact."}/>
       </span>
       <span class={styles.idHeader} data-test-id="id-header">
         Id: <Tooltip.Info size={TooltipSize.small}
@@ -177,7 +177,7 @@ export class ArtifactsTabContent extends TabContent<Job> {
       {this.getExternalArtifactHeaders()}
       <div className={styles.builtInArtifactContainer}>
         <div className={styles.artifactType} data-test-id="artifact-type">
-          {artifact.type()[0].toUpperCase() + artifact.type().slice(1)} Artifact
+          {this.capitalizeInitial(artifact.type())} Artifact
         </div>
         <TextField dataTestId={`artifact-id-${artifact.artifactId() || ""}`}
                    placeholder="id"
@@ -197,7 +197,11 @@ export class ArtifactsTabContent extends TabContent<Job> {
     </div>;
   }
 
-private removalFn(collection: Artifacts, index: number) {
+  private capitalizeInitial(word: string) {
+    return word[0].toUpperCase() + word.slice(1);
+  }
+
+  private removalFn(collection: Artifacts, index: number) {
     return () => collection.splice(index, 1);
   }
 
@@ -209,8 +213,10 @@ private removalFn(collection: Artifacts, index: number) {
     let noArtifactStoreError: m.Child;
 
     if (this.addArtifactType() === ArtifactType.external && this.artifactStores().length === 0) {
-      noArtifactStoreError = <FlashMessage type={MessageType.alert}
-                                           message={"Can not define external artifact! No Artifact store configured."}/>;
+      const msg = <div data-test-id="no-artifact-store-configured-msg">
+        No artifact store is configured. GoCD to <a href="/go/admin/artifact_stores" title="Artifact Stores">artifact store page</a> to configure artifact store.
+      </div>;
+      noArtifactStoreError = <FlashMessage type={MessageType.alert} message={msg}/>;
     }
 
     return (<div data-test-id="add-artifact-wrapper">
@@ -218,7 +224,10 @@ private removalFn(collection: Artifacts, index: number) {
       <div class={styles.addArtifactWrapper}>
         <SelectField property={this.addArtifactType}>
           <SelectFieldOptions selected={this.addArtifactType()}
-                              items={[ArtifactType.build, ArtifactType.test, ArtifactType.external]}/>
+                              items={[ArtifactType.build, ArtifactType.test, ArtifactType.external].map(opt => { return {
+                                id: opt,
+                                text: this.capitalizeInitial(opt)
+                              };})}/>
         </SelectField>
         <Secondary small={true} dataTestId={"add-artifact-button"}
                    disabled={!!noArtifactStoreError}

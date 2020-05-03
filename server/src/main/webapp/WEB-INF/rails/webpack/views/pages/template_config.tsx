@@ -99,7 +99,7 @@ export class TemplateConfigPage<T> extends TabHandler<T> {
 
     this.originalJSON = JSON.parse(successResponse.body);
     this.setEntity(TemplateConfig.fromJSON(this.originalJSON));
-
+    super.onSuccessfulPipelineSaveCallback();
     return Promise.resolve(successResponse);
   }
 

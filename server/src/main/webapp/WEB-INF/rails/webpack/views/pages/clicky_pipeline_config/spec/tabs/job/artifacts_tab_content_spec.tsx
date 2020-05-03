@@ -49,7 +49,7 @@ describe("Artifacts Tab", () => {
     mount(job);
 
     expect(job.artifacts()).toHaveLength(0);
-    const expectedMsg = "No Artifacts Configured. Click Add to configure artifacts.";
+    const expectedMsg = "No artifacts configured. Click 'Add Artifact' to configure artifacts.";
     expect(helper.byTestId("flash-message-info")).toContainText(expectedMsg);
   });
 
@@ -58,8 +58,8 @@ describe("Artifacts Tab", () => {
     job.artifacts().push(new GoCDArtifact(ArtifactType.build, "source", "destination"));
     mount(job);
 
-    const typeDescription        = "There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact.";
-    const sourceDescription      = "The file or folders to publish to the server. Go will only upload files that are in the working directory of the job. You can use wildcards to specify the files and folders to upload (** means any path, * means any file or folder name).";
+    const typeDescription        = "There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, GoCD will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact.";
+    const sourceDescription      = "The file or folders to publish to the server. GoCD will only upload files that are in the working directory of the job. You can use wildcards to specify the files and folders to upload (** means any path, * means any file or folder name).";
     const destinationDescription = "The destination is relative to the artifacts folder of the current instance on the server side. If it is not specified, the artifact will be stored in the root of the artifacts directory";
 
     expect(helper.byTestId("type-header")).toContainText("Type");
@@ -85,8 +85,8 @@ describe("Artifacts Tab", () => {
     job.artifacts().push(new GoCDArtifact(ArtifactType.test, "source", "destination"));
     mount(job);
 
-    const typeDescription        = "There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact.";
-    const sourceDescription      = "The file or folders to publish to the server. Go will only upload files that are in the working directory of the job. You can use wildcards to specify the files and folders to upload (** means any path, * means any file or folder name).";
+    const typeDescription        = "There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, GoCD will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact.";
+    const sourceDescription      = "The file or folders to publish to the server. GoCD will only upload files that are in the working directory of the job. You can use wildcards to specify the files and folders to upload (** means any path, * means any file or folder name).";
     const destinationDescription = "The destination is relative to the artifacts folder of the current instance on the server side. If it is not specified, the artifact will be stored in the root of the artifacts directory";
 
     expect(helper.byTestId("type-header")).toContainText("Type");
@@ -189,7 +189,7 @@ describe("Artifacts Tab", () => {
 
     helper.redraw();
 
-    const expectedMsg = "Can not define external artifact! No Artifact store configured.";
+    const expectedMsg = "No artifact store is configured. GoCD to artifact store page to configure artifact store.";
     expect(helper.byTestId("flash-message-alert")).toContainText(expectedMsg);
 
     expect(helper.q("button")).toBeDisabled();
@@ -227,7 +227,7 @@ describe("Artifacts Tab", () => {
     job.artifacts().push(new ExternalArtifact("id", "storeid"));
     mount(job);
 
-    const typeDescription    = "There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact.";
+    const typeDescription    = "There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, GoCD will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact.";
     const idDescription      = "This id is used to identify the artifact that is pushed to an external store. The id is used later in a downstream pipeline to fetch the artifact from the external store.";
     const storeIdDescription = "This is a reference to the global artifact store defined in the config. At the time of publishing the artifact to an external store, the plugin makes use of the global properties associated with this store id.";
 

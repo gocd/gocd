@@ -21,6 +21,7 @@ import {JobTestData} from "models/pipeline_configs/spec/test_data";
 import {ExecTask, ExecTaskAttributes} from "models/pipeline_configs/task";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
+import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
 import {TasksWidget} from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab_content";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -165,11 +166,21 @@ describe("Tasks Tab Content", () => {
 
   function mount(job: Job, isEditable: boolean = true) {
     helper.mount(() => {
+      const flashMessage         = new FlashMessageModelWithTimeout();
+      const pipelineConfigSave   = jasmine.createSpy().and.returnValue(Promise.resolve());
+      const pipelineConfigReset  = jasmine.createSpy().and.returnValue(Promise.resolve());
+      const entityReOrderHandler = new EntityReOrderHandler("",
+                                                            flashMessage,
+                                                            pipelineConfigSave,
+                                                            pipelineConfigReset,
+                                                            () => false);
+
       return <TasksWidget tasks={job.tasks}
                           isEditable={isEditable}
-                          flashMessage={new FlashMessageModelWithTimeout()}
-                          pipelineConfigSave={jasmine.createSpy().and.returnValue(Promise.resolve())}
-                          pipelineConfigReset={jasmine.createSpy().and.returnValue(Promise.resolve())}
+                          entityReOrderHandler={entityReOrderHandler}
+                          flashMessage={flashMessage}
+                          pipelineConfigSave={pipelineConfigSave}
+                          pipelineConfigReset={pipelineConfigReset}
                           autoSuggestions={Stream({})}
                           pluginInfos={Stream(new PluginInfos())}/>;
     });

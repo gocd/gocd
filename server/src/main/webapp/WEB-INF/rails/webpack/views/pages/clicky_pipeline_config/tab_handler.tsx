@@ -62,6 +62,7 @@ export abstract class TabHandler<T> extends Page<null, T> {
   protected etag: Stream<string>                                         = Stream();
   protected readonly tab: Stream<TabContent<SupportedTypes>>             = Stream();
   protected readonly cachedTabs: Map<string, TabContent<SupportedTypes>> = new Map();
+  protected readonly onSuccessfulPipelineSave: Map<string, (() => any)>  = new Map();
   protected originalJSON: any;
 
   protected entity?: PipelineConfig | TemplateConfig;
@@ -101,6 +102,7 @@ export abstract class TabHandler<T> extends Page<null, T> {
                              "There are unsaved changes on your form. 'Proceed' will discard these changes",
                              () => {
                                this.reset();
+                               this.flashMessage.clear();
                                return Promise.resolve(success());
                              }
       ).render();
@@ -116,6 +118,10 @@ export abstract class TabHandler<T> extends Page<null, T> {
   abstract onSuccess(result: ApiResult<any>, successResponse: SuccessResponse<string>): Promise<any>;
 
   abstract shouldShowSpinner(): boolean;
+
+  onSuccessfulPipelineSaveCallback() {
+    Array.from(this.onSuccessfulPipelineSave.values()).forEach(fn => fn());
+  }
 
   componentToDisplay(vnode: m.Vnode<null, T>): m.Children {
     if (this.shouldShowSpinner()) {
@@ -225,7 +231,10 @@ export abstract class TabHandler<T> extends Page<null, T> {
         <div className={styles.buttonContainer}>
           <Reset data-test-id={"cancel"}
                  ajaxOperationMonitor={this.ajaxOperationMonitor}
-                 onclick={this.reset.bind(this)}>
+                 onclick={() => {
+                   this.reset.call(this);
+                   this.flashMessage.clear();
+                 }}>
             RESET
           </Reset>
           <Primary data-test-id={"save"}
@@ -253,6 +262,7 @@ export abstract class TabHandler<T> extends Page<null, T> {
     }
 
     tab = new (tabList.get(this.getTabFor())!.get(tabName)!)();
+    this.onSuccessfulPipelineSave.set(tabName, tab.onSuccessfulPipelineConfigSave.bind(tab));
     this.cachedTabs.set(tabName, tab);
     this.tab(tab);
   }

@@ -101,7 +101,8 @@ export class NavigationWidget extends MithrilViewComponent<Attrs> {
   template(templateConfig: TemplateConfig) {
     const datum = (<div>
       <a href="#">{templateConfig.name()}</a>
-      <Icons.Search iconOnly={true} onclick={this.onTemplateViewClick.bind(this, templateConfig.name())}/>
+      <Icons.Search iconOnly={true} title={"view template configuration"}
+                    onclick={this.onTemplateViewClick.bind(this, templateConfig.name())}/>
     </div>);
 
     return <CollapsibleTree datum={datum}
@@ -118,11 +119,11 @@ export class NavigationWidget extends MithrilViewComponent<Attrs> {
   }
 
   onTemplateViewClick(templateName: string) {
-    window.open(`/go/admin/templates#!${templateName}/view`);
+    window.location.href = `/go/admin/templates#!${templateName}/view`;
   }
 
   onTemplateEditClick(templateName: string) {
-    window.open(`/go/admin/templates/${templateName}/general`);
+    window.location.href = `/go/admin/templates/${templateName}/general`;
   }
 
   treeStage(vnode: m.Vnode<Attrs>, entityName: string) {

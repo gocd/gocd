@@ -36,12 +36,13 @@ export abstract class EnvironmentVariablesTabContent extends TabContent<Pipeline
     const variables = entity.environmentVariables();
     const readOnly  = this.isDefinedInConfigRepository();
 
+    let readOnlyClass = '';
     if (readOnly) {
       variables.forEach(env => {env.isEditable(false);});
+      readOnlyClass = styles.configRepoEnvironmentVariables;
     }
 
-    return <div data-test-id={`${readOnly ? "readonly-" : ""}environment-variables`}
-                class={styles.configRepoEnvironmentVariables}>
+    return <div data-test-id={`${readOnly ? "readonly-" : ""}environment-variables`} class={readOnlyClass}>
       <EnvironmentVariablesWidget environmentVariables={variables}/>
     </div>;
   }

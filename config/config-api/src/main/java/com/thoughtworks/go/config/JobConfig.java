@@ -380,10 +380,10 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
             try {
                 int runInstanceCountForValidation = Integer.parseInt(this.runInstanceCount);
                 if (runInstanceCountForValidation < 0) {
-                    errors().add(RUN_TYPE, "'Run Instance Count' cannot be a negative number as it represents number of instances Go needs to spawn during runtime.");
+                    errors().add(RUN_TYPE, "'Run Instance Count' cannot be a negative number as it represents number of instances GoCD needs to spawn during runtime.");
                 }
             } catch (NumberFormatException e) {
-                errors().add(RUN_TYPE, "'Run Instance Count' should be a valid positive integer as it represents number of instances Go needs to spawn during runtime.");
+                errors().add(RUN_TYPE, "'Run Instance Count' should be a valid positive integer as it represents number of instances GoCD needs to spawn during runtime.");
             }
         }
         if (isRunOnAllAgents() && isRunMultipleInstanceType()) {

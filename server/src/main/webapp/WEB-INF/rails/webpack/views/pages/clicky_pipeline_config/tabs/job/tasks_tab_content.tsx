@@ -17,6 +17,7 @@
 import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilComponent} from "jsx/mithril-component";
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Job} from "models/pipeline_configs/job";
@@ -54,13 +55,13 @@ export interface Attrs {
   flashMessage: FlashMessageModelWithTimeout;
   pipelineConfigSave: () => Promise<any>;
   pipelineConfigReset: () => any;
+  entityReOrderHandler: EntityReOrderHandler;
 }
 
 export interface State {
   allTaskTypes: string[];
   selectedTaskTypeToAdd: Stream<string>;
   modal: AbstractTaskModal;
-  entityReOrderHandler: EntityReOrderHandler;
 }
 
 export class TasksWidget extends MithrilComponent<Attrs, State> {
@@ -104,11 +105,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
 
   oninit(vnode: m.Vnode<Attrs, State>) {
     vnode.state.allTaskTypes          = Array.from(TasksWidget.getTaskTypes().values());
-    vnode.state.selectedTaskTypeToAdd = Stream(vnode.state.allTaskTypes[0]);
-    vnode.state.entityReOrderHandler  = new EntityReOrderHandler("task",
-                                                                 vnode.attrs.flashMessage,
-                                                                 vnode.attrs.pipelineConfigSave,
-                                                                 vnode.attrs.pipelineConfigReset);
+    vnode.state.selectedTaskTypeToAdd = Stream(vnode.state.allTaskTypes[3]);
   }
 
   onTaskSave(vnode: m.Vnode<Attrs, State>): Promise<any> {
@@ -152,11 +149,11 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
     }
 
     return <div data-test-id={"tasks-container"}>
-      {vnode.state.entityReOrderHandler.getReOrderConfirmationView()}
+      {vnode.attrs.entityReOrderHandler.getReOrderConfirmationView()}
       <Table headers={TasksWidget.getTableHeaders(vnode.attrs.isEditable)}
              draggable={vnode.attrs.isEditable}
              dragHandler={TasksWidget.reArrange.bind(this, vnode.attrs.tasks)}
-             dragEnd={vnode.state.entityReOrderHandler.onReOder.bind(vnode.state.entityReOrderHandler)}
+             dragEnd={vnode.attrs.entityReOrderHandler.onReOder.bind(vnode.attrs.entityReOrderHandler)}
              data={this.getTableData(vnode)}/>
       {addTaskView}
     </div>;
@@ -264,7 +261,9 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
 
 export class TasksTabContent extends TabContent<Job> {
   private readonly pluginInfos: Stream<PluginInfos> = Stream();
+  private originalTasks: string[] | undefined;
   private autoSuggestions: Stream<any>              = Stream();
+  private entityReOrderHandler: EntityReOrderHandler | undefined;
 
   constructor() {
     super();
@@ -282,6 +281,18 @@ export class TasksTabContent extends TabContent<Job> {
           flashMessage: FlashMessageModelWithTimeout,
           save: () => Promise<any>,
           reset: () => any): m.Children {
+
+    const selectedJob = this.selectedEntity(pipelineConfig, routeParams);
+
+    if (!this.entityReOrderHandler) {
+      this.entityReOrderHandler = new EntityReOrderHandler("Task", flashMessage, save,
+                                                           reset, this.hasOrderChanged.bind(this, selectedJob));
+    }
+
+    if (!this.originalTasks) {
+      this.originalTasks = selectedJob.tasks().map(t => t.toJSON());
+    }
+
     if (!this.autoSuggestions()) {
       if (this.isPipelineConfigView()) {
         this.fetchUpstreamPipelines(pipelineConfig.name(), routeParams.stage_name!);
@@ -297,6 +308,11 @@ export class TasksTabContent extends TabContent<Job> {
     return false;
   }
 
+  onSuccessfulPipelineConfigSave() {
+    this.entityReOrderHandler = undefined;
+    this.originalTasks        = undefined;
+  }
+
   protected renderer(entity: Job,
                      template: TemplateConfig,
                      flashMessage: FlashMessageModelWithTimeout,
@@ -308,11 +324,16 @@ export class TasksTabContent extends TabContent<Job> {
                         flashMessage={flashMessage}
                         pipelineConfigReset={reset}
                         tasks={entity.tasks}
+                        entityReOrderHandler={this.entityReOrderHandler!}
                         isEditable={!this.isEntityDefinedInConfigRepository()}/>;
   }
 
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): Job {
     return pipelineConfig.stages().findByName(routeParams.stage_name!)!.jobs().findByName(routeParams.job_name!)!;
+  }
+
+  private hasOrderChanged(job: Job) {
+    return !_.isEqual(this.originalTasks, job.tasks().map(t => t.toJSON()));
   }
 
   private fetchPluginInfos() {

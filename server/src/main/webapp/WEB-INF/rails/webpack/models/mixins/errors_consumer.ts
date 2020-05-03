@@ -144,7 +144,7 @@ function addErrorsToModel(errors: ErrorMap, model: any, path: string, unmatched:
     const container = resolveErrorsHolder(model, fieldName); // may differ for each error key
     const matchesField = isAwareOfField(container, fieldName);
     for (const msg of errors[key]) {
-      if (matchesField) {
+      if (matchesField && !container.errors().hasError(fieldName, msg)) {
         container.errors().add(fieldName, msg);
       } else {
         addToUnmatchIfNotPluginProperty(container, unmatched, path, key, msg);

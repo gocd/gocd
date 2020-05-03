@@ -30,6 +30,10 @@ export class ParametersTabContent extends TabContent<PipelineConfig> {
     return "Parameters";
   }
 
+  onSuccessfulPipelineConfigSave() {
+    this.paramList().forEach(p => p.clearErrors());
+  }
+
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
     return pipelineConfig;
   }

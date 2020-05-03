@@ -27,13 +27,15 @@ export class EntityReOrderHandler {
   private readonly flashMessage: FlashMessageModelWithTimeout;
   private readonly pipelineConfigSave: () => any;
   private readonly pipelineConfigReset: () => any;
+  private readonly hasOrderChanged: () => boolean;
 
   constructor(entityName: string, flashMessage: FlashMessageModelWithTimeout,
-              pipelineConfigSave: () => any, pipelineConfigReset: () => any) {
+              pipelineConfigSave: () => any, pipelineConfigReset: () => any, hasOrderChanged: () => boolean) {
     this.entityName               = entityName;
     this.flashMessage             = flashMessage;
     this.pipelineConfigSave       = pipelineConfigSave;
     this.pipelineConfigReset      = pipelineConfigReset;
+    this.hasOrderChanged          = hasOrderChanged;
     this.shouldShowReorderMessage = Stream();
   }
 
@@ -52,7 +54,9 @@ export class EntityReOrderHandler {
   }
 
   onReOder() {
-    this.shouldShowReorderMessage(true);
+    if (this.hasOrderChanged()) {
+      this.shouldShowReorderMessage(true);
+    }
   }
 
   private onRevert() {

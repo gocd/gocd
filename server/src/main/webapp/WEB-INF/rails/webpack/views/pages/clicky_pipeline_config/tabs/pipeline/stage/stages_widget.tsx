@@ -36,6 +36,7 @@ export interface Attrs {
   stages: Stream<NameableSet<Stage>>;
   isUsingTemplate: boolean;
   isEditable: boolean;
+  entityReOrderHandler: EntityReOrderHandler;
   flashMessage: FlashMessageModelWithTimeout;
   pipelineConfigSave: () => any;
   pipelineConfigReset: () => any;
@@ -43,17 +44,11 @@ export interface Attrs {
 }
 
 export interface State {
-  entityReOrderHandler: EntityReOrderHandler;
   getModal: () => AddStageModal;
 }
 
 export class StagesWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.entityReOrderHandler = new EntityReOrderHandler("stage",
-                                                                vnode.attrs.flashMessage,
-                                                                vnode.attrs.pipelineConfigSave,
-                                                                vnode.attrs.pipelineConfigReset);
-
     vnode.state.getModal = () => new AddStageModal(vnode.attrs.stages(), vnode.attrs.pipelineConfigSave);
   }
 
@@ -69,11 +64,11 @@ export class StagesWidget extends MithrilComponent<Attrs, State> {
     }
 
     return <div data-test-id={"stages-container"}>
-      {vnode.state.entityReOrderHandler.getReOrderConfirmationView()}
+      {vnode.attrs.entityReOrderHandler.getReOrderConfirmationView()}
       <Table headers={StagesWidget.getTableHeaders(vnode.attrs.isEditable)}
              data={this.getTableData(vnode)}
              draggable={vnode.attrs.isEditable}
-             dragEnd={vnode.state.entityReOrderHandler.onReOder.bind(vnode.state.entityReOrderHandler)}
+             dragEnd={vnode.attrs.entityReOrderHandler.onReOder.bind(vnode.attrs.entityReOrderHandler)}
              dragHandler={StagesWidget.reArrange.bind(this, vnode.attrs.stages)}/>
       {addStageBtn}
     </div>;

@@ -15,7 +15,6 @@
  */
 
 import m from "mithril";
-import Stream from "mithril/stream";
 import {ExecTask, ExecTaskAttributes, Task} from "models/pipeline_configs/task";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {Size, TextAreaField, TextField} from "views/components/forms/input_fields";
@@ -24,16 +23,13 @@ import {OnCancelView} from "views/pages/clicky_pipeline_config/tabs/job/tasks/co
 
 export class ExecTaskModal extends AbstractTaskModal {
   private readonly task: ExecTask;
-  private readonly args: Stream<string>;
   private readonly showOnCancel: boolean;
   private readonly pluginInfos: PluginInfos;
   private readonly readonly: boolean;
 
   constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos, readonly: boolean) {
     super(onAdd, readonly);
-    this.task = task ? task : new ExecTask("", [], undefined, [], undefined);
-    this.args = Stream((this.task.attributes() as ExecTaskAttributes).arguments().join("\n"));
-
+    this.task         = task ? task : new ExecTask("", [], undefined, [], undefined);
     this.pluginInfos  = pluginInfos;
     this.showOnCancel = showOnCancel;
     this.readonly     = readonly;
@@ -59,7 +55,7 @@ export class ExecTaskModal extends AbstractTaskModal {
                      size={Size.MATCH_PARENT}
                      resizable={true}
                      label="Arguments"
-                     property={this.args}/>
+                     property={attributes.argsStream.bind(attributes)}/>
       <TextField helpText="The directory in which the script or command is to be executed. This is always relative to the directory where the agent checks out materials."
                  label="Working Directory"
                  readonly={this.readonly}
@@ -78,9 +74,6 @@ export class ExecTaskModal extends AbstractTaskModal {
   }
 
   getTask(): Task {
-    const args = this.args().split("\n").map((a) => a.trim());
-    (this.task.attributes() as ExecTaskAttributes).arguments(args);
-
     return this.task;
   }
 }

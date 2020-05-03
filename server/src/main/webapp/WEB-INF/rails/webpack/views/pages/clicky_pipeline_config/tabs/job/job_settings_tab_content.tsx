@@ -82,7 +82,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
                          replace={vnode.attrs.resourcesSuggestions.replace.bind(vnode.attrs.resourcesSuggestions)}
                          filter={vnode.attrs.resourcesSuggestions.filter.bind(vnode.attrs.resourcesSuggestions)}
                          onchange={vnode.attrs.resourcesSuggestions.update.bind(vnode.attrs.resourcesSuggestions)}
-                         helpText="The agent resources that the current job requires to run. Specify multiple resources as a comma separated list"
+                         helpText="The agent resources that the current job requires to run. Specify multiple resources as a comma separated list."
                          readonly={vnode.attrs.readonly || !!entity.elasticProfileId()}
                          property={entity.resources}/>
       <AutocompleteField label="Elastic Agent Profile Id"
@@ -90,7 +90,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
                          errorText={entity.errors().errorsForDisplay("elasticProfileId")}
                          provider={vnode.attrs.elasticAgentsSuggestions}
                          readonly={vnode.attrs.readonly || !!entity.resources()}
-                         helpText="The Elastic Agent Profile that the current job requires to run"
+                         helpText={<div>The Elastic Agent Profile that the current job requires to run. Visit <a href="/go/admin/elastic_agent_configurations" title="Elastic Agents Configurations">Elastic Agent Configurations</a> page to manage elastic agent profiles.</div>}
                          property={entity.elasticProfileId}/>
       <h3>Job Timeout</h3>
       <RadioField onchange={(val) => this.toggleJobTimeout((val as "never" | "default" | "number"), entity)}
@@ -106,7 +106,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
                     {
                       label: "Use Default",
                       value: "default",
-                      helpText: `Use the default job timeout specified globally.(${timeout})`
+                      helpText: `Use the default job timeout specified globally: (${timeout})`
                     },
                     {
                       label: jobTimeoutInNumber,
@@ -124,7 +124,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
                     {
                       label: "Run on one instance",
                       value: "one",
-                      helpText: "Job will run on only agent that match its resources (if any) and are in the same environment as this job’s pipeline."
+                      helpText: "Job will run on the first available agent which matches its resources (if any) and are in the same environment as this job’s pipeline."
                     },
                     {
                       label: "Run on all agents",

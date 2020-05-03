@@ -89,6 +89,10 @@ export abstract class TabContent<T> {
     return !this.isPipelineConfigView();
   }
 
+  public onSuccessfulPipelineConfigSave() {
+    //do nothing
+  }
+
   protected abstract renderer(entity: T,
                               templateConfig: TemplateConfig,
                               flashMessage: FlashMessageModelWithTimeout,

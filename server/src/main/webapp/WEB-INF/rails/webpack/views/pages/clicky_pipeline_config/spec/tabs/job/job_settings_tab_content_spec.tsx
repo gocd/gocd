@@ -55,8 +55,7 @@ describe("Job Settings Tab Content", () => {
       expect(job.resources()).toBe("");
       expect(helper.byTestId("form-field-input-resources")).toHaveValue("");
       expect(helper.byTestId("job-settings-tab"))
-        .toContainText(
-          "The agent resources that the current job requires to run. Specify multiple resources as a comma separated list");
+        .toContainText("The agent resources that the current job requires to run. Specify multiple resources as a comma separated list.");
 
       const newResources = "windows,jdk11";
       helper.oninput(`[data-test-id="form-field-input-resources"]`, newResources);
@@ -73,7 +72,7 @@ describe("Job Settings Tab Content", () => {
       expect(helper.byTestId("form-field-input-elastic-agent-profile-id")).toHaveValue("");
 
       expect(helper.byTestId("job-settings-tab"))
-        .toContainText("The Elastic Agent Profile that the current job requires to run");
+        .toContainText("The Elastic Agent Profile that the current job requires to run. Visit Elastic Agent Configurations page to manage elastic agent profiles.");
 
       const newElasticAgentProfileId = "profile1";
       helper.oninput(`[data-test-id="form-field-input-elastic-agent-profile-id"]`, newElasticAgentProfileId);
@@ -119,7 +118,7 @@ describe("Job Settings Tab Content", () => {
       expect(helper.byTestId("radio-default")).toBeInDOM();
       expect(helper.q("label", helper.byTestId("input-field-for-default")).innerText).toEqual("Use Default");
       expect(helper.q("span", helper.byTestId("input-field-for-default")).innerText)
-        .toEqual("Use the default job timeout specified globally.(5 minute(s))");
+        .toEqual("Use the default job timeout specified globally: (5 minute(s))");
 
       expect(helper.byTestId("radio-number")).toBeInDOM();
       expect(helper.q("span", helper.byTestId("input-field-for-number")).innerText)
@@ -188,14 +187,12 @@ describe("Job Settings Tab Content", () => {
       expect(helper.byTestId("radio-one")).toBeInDOM();
       expect(helper.q("label", helper.byTestId("input-field-for-one")).innerText).toEqual("Run on one instance");
       expect(helper.q("span", helper.byTestId("input-field-for-one")).innerText)
-        .toEqual(
-          "Job will run on only agent that match its resources (if any) and are in the same environment as this job’s pipeline.");
+        .toEqual("Job will run on the first available agent which matches its resources (if any) and are in the same environment as this job’s pipeline.");
 
       expect(helper.byTestId("radio-all")).toBeInDOM();
       expect(helper.q("label", helper.byTestId("input-field-for-all")).innerText).toEqual("Run on all agents");
       expect(helper.q("span", helper.byTestId("input-field-for-all")).innerText)
-        .toEqual(
-          "Job will run on all agents that match its resources (if any) and are in the same environment as this job’s pipeline. This option is particularly useful when deploying to multiple servers.");
+        .toEqual("Job will run on all agents that match its resources (if any) and are in the same environment as this job’s pipeline. This option is particularly useful when deploying to multiple servers.");
 
       expect(helper.byTestId("radio-number")).toBeInDOM();
       expect(helper.q("span", helper.allByTestId("input-field-for-number")[1]).innerText)

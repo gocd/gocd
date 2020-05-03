@@ -1,6 +1,6 @@
 version: 2
 mergeable:
-  - when: pull_request.*
+  - when: pull_request.*, pull_request_review.*
     validate:
       - do: milestone
         no_empty:

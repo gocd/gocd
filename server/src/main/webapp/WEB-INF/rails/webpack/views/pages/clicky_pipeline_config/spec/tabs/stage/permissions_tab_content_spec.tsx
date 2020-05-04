@@ -145,6 +145,73 @@ describe("Permissions Tab Content", () => {
     expect(helper.q("input", helper.byTestId("input-field-for-operate-role"))).toHaveValue("operate-role");
   });
 
+  it("should copy over inherited permissions when toggled to specify locally", () => {
+    const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
+    stage.approval().authorization().isInherited(true);
+    const admin         = new AuthorizedUsersAndRoles([Stream("admin")], [Stream("admin-role")]);
+    const operate       = new AuthorizedUsersAndRoles([Stream("operate")], [Stream("operate-role")]);
+    const pipelineGroup = new PipelineGroup("group1", new Authorization(undefined, admin, operate));
+    mount(stage, false, pipelineGroup);
+
+    expect(helper.byTestId("radio-inherit")).toBeChecked();
+    expect(helper.byTestId("radio-local")).not.toBeChecked();
+
+    expect(helper.q("input", helper.byTestId("input-field-for-admin"))).toHaveValue("admin");
+    expect(helper.q("input", helper.byTestId("input-field-for-operate"))).toHaveValue("operate");
+
+    expect(helper.q("input", helper.byTestId("input-field-for-admin-role"))).toHaveValue("admin-role");
+    expect(helper.q("input", helper.byTestId("input-field-for-operate-role"))).toHaveValue("operate-role");
+
+    //toggle to specify locally
+    helper.click(helper.byTestId("radio-local"));
+
+    expect(helper.byTestId("radio-inherit")).not.toBeChecked();
+    expect(helper.byTestId("radio-local")).toBeChecked();
+
+    expect(helper.q("input", helper.byTestId("input-field-for-admin"))).toHaveValue("admin");
+    expect(helper.q("input", helper.byTestId("input-field-for-operate"))).toHaveValue("operate");
+
+    expect(helper.q("input", helper.byTestId("input-field-for-admin-role"))).toHaveValue("admin-role");
+    expect(helper.q("input", helper.byTestId("input-field-for-operate-role"))).toHaveValue("operate-role");
+  });
+
+  it("should not copy over inherited permissions when toggled to specify locally and locally permissions exists", () => {
+    const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
+    stage.approval().authorization().isInherited(false);
+    stage.approval().authorization()._users.push(Stream("user1"));
+
+    const admin         = new AuthorizedUsersAndRoles([Stream("admin")], [Stream("admin-role")]);
+    const operate       = new AuthorizedUsersAndRoles([Stream("operate")], [Stream("operate-role")]);
+    const pipelineGroup = new PipelineGroup("group1", new Authorization(undefined, admin, operate));
+    mount(stage, false, pipelineGroup);
+
+    //initially permissions are defined locally
+    expect(helper.byTestId("radio-inherit")).not.toBeChecked();
+    expect(helper.byTestId("radio-local")).toBeChecked();
+
+    expect(helper.q("input", helper.byTestId("input-field-for-user1"))).toHaveValue("user1");
+
+    //toggle to inherit
+    helper.click(helper.byTestId("radio-inherit"));
+
+    expect(helper.byTestId("radio-inherit")).toBeChecked();
+    expect(helper.byTestId("radio-local")).not.toBeChecked();
+
+    expect(helper.q("input", helper.byTestId("input-field-for-admin"))).toHaveValue("admin");
+    expect(helper.q("input", helper.byTestId("input-field-for-operate"))).toHaveValue("operate");
+
+    expect(helper.q("input", helper.byTestId("input-field-for-admin-role"))).toHaveValue("admin-role");
+    expect(helper.q("input", helper.byTestId("input-field-for-operate-role"))).toHaveValue("operate-role");
+
+    //again toggle back to specify locally
+    helper.click(helper.byTestId("radio-local"));
+
+    expect(helper.byTestId("radio-inherit")).not.toBeChecked();
+    expect(helper.byTestId("radio-local")).toBeChecked();
+
+    expect(helper.q("input", helper.byTestId("input-field-for-user1"))).toHaveValue("user1");
+  });
+
   it("should not allow users to modify inherited group permissions", () => {
     const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
     stage.approval().authorization().isInherited(true);

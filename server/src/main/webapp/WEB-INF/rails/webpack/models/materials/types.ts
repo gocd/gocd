@@ -181,8 +181,7 @@ export class Material extends ValidatableMixin {
     if (this.attributes() === undefined) {
       return new Material(this.type());
     } else {
-      const attrs = this.attributes()!.clone();
-      return new Material(this.type(), attrs);
+      return new Material(this.type(), MaterialAttributes.deserialize(this.toApiPayload()));
     }
   }
 
@@ -253,8 +252,6 @@ export abstract class MaterialAttributes extends ValidatableMixin {
     }
     return serialized;
   }
-
-  abstract clone(): MaterialAttributes;
 }
 
 export abstract class ScmMaterialAttributes extends MaterialAttributes {
@@ -336,16 +333,6 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
     attrs.invertFilter(json.invert_filter);
     return attrs;
   }
-
-  clone(): MaterialAttributes {
-    const gitAttrs = new GitMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.branch(), this.username());
-    gitAttrs.password(this.password());
-    if (this.filter() !== undefined) {
-      gitAttrs.filter(new Filter(this.filter()!.ignore()));
-    }
-    gitAttrs.invertFilter(this.invertFilter());
-    return gitAttrs;
-  }
 }
 
 export class SvnMaterialAttributes extends ScmMaterialAttributes {
@@ -386,16 +373,6 @@ export class SvnMaterialAttributes extends ScmMaterialAttributes {
     attrs.invertFilter(json.invert_filter);
     return attrs;
   }
-
-  clone(): MaterialAttributes {
-    const svnAttrs = new SvnMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.checkExternals(), this.username());
-    svnAttrs.password(this.password());
-    if (this.filter() !== undefined) {
-      svnAttrs.filter(new Filter(this.filter()!.ignore()));
-    }
-    svnAttrs.invertFilter(this.invertFilter());
-    return svnAttrs;
-  }
 }
 
 export class HgMaterialAttributes extends ScmMaterialAttributes {
@@ -434,17 +411,6 @@ export class HgMaterialAttributes extends ScmMaterialAttributes {
     }
     attrs.invertFilter(json.invert_filter);
     return attrs;
-  }
-
-  clone(): MaterialAttributes {
-    const hgAttrs = new HgMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.username());
-    hgAttrs.password(this.password());
-    hgAttrs.branch(this.branch());
-    if (this.filter() !== undefined) {
-      hgAttrs.filter(new Filter(this.filter()!.ignore()));
-    }
-    hgAttrs.invertFilter(this.invertFilter());
-    return hgAttrs;
   }
 }
 
@@ -491,16 +457,6 @@ export class P4MaterialAttributes extends ScmMaterialAttributes {
     }
     attrs.invertFilter(json.invert_filter);
     return attrs;
-  }
-
-  clone(): MaterialAttributes {
-    const p4Attrs = new P4MaterialAttributes(this.name(), this.autoUpdate(), this.port(), this.useTickets(), this.view(), this.username());
-    p4Attrs.password(this.password());
-    if (this.filter() !== undefined) {
-      p4Attrs.filter(new Filter(this.filter()!.ignore()));
-    }
-    p4Attrs.invertFilter(this.invertFilter());
-    return p4Attrs;
   }
 }
 
@@ -549,16 +505,6 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
     attrs.invertFilter(json.invert_filter);
     return attrs;
   }
-
-  clone(): MaterialAttributes {
-    const tfsAttrs = new TfsMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.domain(), this.projectPath(), this.username());
-    tfsAttrs.password(this.password());
-    if (this.filter() !== undefined) {
-      tfsAttrs.filter(new Filter(this.filter()!.ignore()));
-    }
-    tfsAttrs.invertFilter(this.invertFilter());
-    return tfsAttrs;
-  }
 }
 
 export class DependencyMaterialAttributes extends MaterialAttributes {
@@ -587,10 +533,6 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
     attrs.errors(new Errors(json.errors));
     return attrs;
   }
-
-  clone(): MaterialAttributes {
-    return new DependencyMaterialAttributes(this.name(), this.autoUpdate(), this.pipeline(), this.stage(), this.ignoreForScheduling());
-  }
 }
 
 export class PackageMaterialAttributes extends MaterialAttributes {
@@ -605,10 +547,6 @@ export class PackageMaterialAttributes extends MaterialAttributes {
     const attrs = new PackageMaterialAttributes(data.name, data.auto_update, data.ref);
     attrs.errors(new Errors(data.errors));
     return attrs;
-  }
-
-  clone(): MaterialAttributes {
-    return new PackageMaterialAttributes(this.name(), this.autoUpdate(), this.ref());
   }
 }
 
@@ -628,9 +566,5 @@ export class PluggableScmMaterialAttributes extends MaterialAttributes {
     const attrs = new PluggableScmMaterialAttributes(data.name, data.auto_update, data.ref, data.destination, Filter.fromJSON(data.filter));
     attrs.errors(new Errors(data.errors));
     return attrs;
-  }
-
-  clone(): MaterialAttributes {
-    return new PluggableScmMaterialAttributes(this.name(), this.autoUpdate(), this.ref(), this.destination(), this.filter());
   }
 }

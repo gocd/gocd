@@ -190,7 +190,7 @@ describe("Artifacts Tab", () => {
     helper.redraw();
 
     const expectedMsg = "No artifact store is configured. GoCD to artifact store page to configure artifact store.";
-    expect(helper.byTestId("flash-message-alert")).toContainText(expectedMsg);
+    expect(helper.byTestId("flash-message-warning")).toContainText(expectedMsg);
 
     expect(helper.q("button")).toBeDisabled();
   });

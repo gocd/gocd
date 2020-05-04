@@ -90,7 +90,7 @@ public class ExecTaskTest {
 
         List<ConfigErrors> errors = config.validateAfterPreprocess();
         assertThat(errors.size(), is(1));
-        String message = "The path of the working directory for the custom command in job 'job' in stage 'stage' of pipeline 'pipeline' is outside the agent sandbox.";
+        String message = "The path of the working directory for the custom command in job 'job' in stage 'stage' of pipeline 'pipeline' is outside the agent sandbox. It must be relative to the directory where the agent checks out materials.";
         assertThat(errors.get(0).firstError(), is(message));
         assertThat(task.errors().on(ExecTask.WORKING_DIR), is(message));
     }
@@ -181,7 +181,7 @@ public class ExecTaskTest {
         try {
             execTask.validateTask(ConfigSaveValidationContext.forChain(cruiseConfig, template, templateStage, templateStage.getJobs().first()));
             assertThat(execTask.errors().isEmpty(), is(false));
-            assertThat(execTask.errors().on(ExecTask.WORKING_DIR), is("The path of the working directory for the custom command in job 'job' in stage 'templateStage' of template 'template_name' is outside the agent sandbox."));
+            assertThat(execTask.errors().on(ExecTask.WORKING_DIR), is("The path of the working directory for the custom command in job 'job' in stage 'templateStage' of template 'template_name' is outside the agent sandbox. It must be relative to the directory where the agent checks out materials."));
         } catch (Exception e) {
             fail("should not have failed. Exception: " + e.getMessage());
         }

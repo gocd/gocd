@@ -150,7 +150,9 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
         CaseInsensitiveString dependencyStage = null;
         for (CaseInsensitiveString parentPipelineName : parentPipelineNames) {
             if (validationContext.getPipelineConfigByName(parentPipelineName) == null) {
-                addError(FetchTask.PIPELINE_NAME, String.format("Pipeline named '%s' which is declared ancestor of '%s' through path '%s' does not exist.", parentPipelineName, currentPipeline.name(), pipelineName.getPath()));
+                String message = String.format("Pipeline named '%s' which is declared ancestor of '%s' through path '%s' does not exist.", parentPipelineName, currentPipeline.name(), pipelineName.getPath());
+                addError(FetchTask.PIPELINE_NAME, message);
+                currentPipeline.addError("base", message);
                 return;
             }
             DependencyMaterialConfig matchingDependencyMaterial = findMatchingDependencyMaterial(pipeline, parentPipelineName);
@@ -158,8 +160,9 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
                 dependencyStage = matchingDependencyMaterial.getStageName();
                 pipeline = validationContext.getPipelineConfigByName(matchingDependencyMaterial.getPipelineName());
             } else {
-                addError(FetchTask.PIPELINE_NAME,
-                        String.format("Pipeline named '%s' exists, but is not an ancestor of '%s' as declared in '%s'.", parentPipelineName, currentPipeline.name(), pipelineName.getPath()));
+                String message = String.format("Pipeline named '%s' exists, but is not an ancestor of '%s' as declared in '%s'.", parentPipelineName, currentPipeline.name(), pipelineName.getPath());
+                addError(FetchTask.PIPELINE_NAME, message);
+                currentPipeline.addError("base", message);
                 return;
             }
         }
@@ -197,8 +200,9 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
 
         PipelineConfig ancestor = validationContext.getPipelineConfigByName(pipelineName.getAncestorName());
         if (matchingMaterial == null) {
-            addError(PIPELINE_NAME, String.format("Pipeline \"%s\" tries to fetch artifact from pipeline \"%s\" which is not an upstream pipeline", currentPipeline.name(), pipelineName));
-            currentPipeline.addError("base", String.format("The pipeline contains a fetch artifact task referring to %s:%s:%s but %s:%s is not added as a material to this pipeline.", pipelineName, stage, job, pipelineName, stage));
+            String message = String.format("Pipeline \"%s\" tries to fetch artifact from pipeline \"%s\" which is not an upstream pipeline", currentPipeline.name(), pipelineName);
+            addError(PIPELINE_NAME, message);
+            currentPipeline.addError("base", message);
             return;
         }
         List<StageConfig> validStages = ancestor.validStagesForFetchArtifact(currentPipeline, validationContext.getStage().name());

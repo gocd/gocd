@@ -218,7 +218,7 @@ class FetchTaskTest {
         assertThat(task.errors().isEmpty()).isFalse();
         assertThat(task.errors().on(FetchTask.PIPELINE_NAME)).isEqualTo("Pipeline \"downstream\" tries to fetch artifact from pipeline "
                 + "\"dummy\" which is not an upstream pipeline");
-        assertThat(downstream.errors().on("base")).isEqualTo("The pipeline contains a fetch artifact task referring to dummy:stage:job but dummy:stage is not added as a material to this pipeline.");
+        assertThat(downstream.errors().on("base")).isEqualTo("Pipeline \"downstream\" tries to fetch artifact from pipeline \"dummy\" which is not an upstream pipeline");
     }
 
     @Test
@@ -259,6 +259,7 @@ class FetchTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage"))));
         assertThat(task.errors().isEmpty()).isFalse();
         assertThat(task.errors().on(FetchTask.PIPELINE_NAME)).isEqualTo("Pipeline named 'random_pipeline' exists, but is not an ancestor of 'downstream' as declared in 'random_pipeline/upstream'.");
+        assertThat(downstream.errors().on("base")).isEqualTo("Pipeline named 'random_pipeline' exists, but is not an ancestor of 'downstream' as declared in 'random_pipeline/upstream'.");
     }
 
     @Test
@@ -302,6 +303,7 @@ class FetchTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, stage, stage.getJobs().get(0)));
         assertThat(task.errors().isEmpty()).isFalse();
         assertThat(task.errors().on(FetchTask.PIPELINE_NAME)).isEqualTo("Pipeline named 'uppest_stream' exists, but is not an ancestor of 'downstream' as declared in 'upstream/uppest_stream'.");
+        assertThat(downstream.errors().on("base")).isEqualTo("Pipeline named 'uppest_stream' exists, but is not an ancestor of 'downstream' as declared in 'upstream/uppest_stream'.");
     }
 
     @Test
@@ -319,6 +321,7 @@ class FetchTaskTest {
         task.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", config, downstream, stage, stage.getJobs().get(0)));
         assertThat(task.errors().isEmpty()).isFalse();
         assertThat(task.errors().on(FetchTask.PIPELINE_NAME)).isEqualTo("Pipeline named 'uppest_stream' exists, but is not an ancestor of 'downstream' as declared in 'upstream/uppest_stream'.");
+        assertThat(downstream.errors().on("base")).isEqualTo("Pipeline named 'uppest_stream' exists, but is not an ancestor of 'downstream' as declared in 'upstream/uppest_stream'.");
     }
 
     @Test
@@ -636,6 +639,7 @@ class FetchTaskTest {
         fetchTask.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(new BasicPipelineConfigs(upstream, downstream)), downstream, downstream.getFirstStageConfig(), downstream.getFirstStageConfig().getJobs().first()));
         assertThat(fetchTask.errors().isEmpty()).isFalse();
         assertThat(fetchTask.errors().on(FetchTask.PIPELINE_NAME)).isEqualTo("Pipeline \"downstream-pipeline\" tries to fetch artifact from pipeline \"upstream-pipeline\" which is not an upstream pipeline");
+        assertThat(downstream.errors().on("base")).isEqualTo("Pipeline \"downstream-pipeline\" tries to fetch artifact from pipeline \"upstream-pipeline\" which is not an upstream pipeline");
     }
 
     @Test

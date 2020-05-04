@@ -27,7 +27,7 @@ export class EntityReOrderHandler {
   private readonly flashMessage: FlashMessageModelWithTimeout;
   private readonly pipelineConfigSave: () => any;
   private readonly pipelineConfigReset: () => any;
-  private readonly hasOrderChanged: () => boolean;
+  readonly hasOrderChanged: () => boolean;
 
   constructor(entityName: string, flashMessage: FlashMessageModelWithTimeout,
               pipelineConfigSave: () => any, pipelineConfigReset: () => any, hasOrderChanged: () => boolean) {

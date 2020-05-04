@@ -226,7 +226,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
         },
         errors: {
           name: ["You have defined multiple materials called '!nV@l!d'. Material names are case-insensitive and must be unique. Note that for dependency materials the default materialName is the name of the upstream pipeline. You can override this by setting the materialName explicitly for the upstream pipeline.", "Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
-          destination: ["Destination directory is required when specifying multiple scm materials"],
+          destination: ["Destination directory is required when a pipeline has multiple SCM materials."],
           url: ["URL cannot be blank"]
         }
       }

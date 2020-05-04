@@ -117,6 +117,8 @@ export class MaterialModal extends Modal {
 
             if (this.isNew) {
               this.materials().delete(this.entity());
+            } else {
+              this.materials().splice(this.materials().indexOf(this.entity()), 1, this.originalEntity());
             }
           });
     }

@@ -483,7 +483,6 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
     this.validatePresenceOf("url");
     this.validatePresenceOf("projectPath");
     this.validatePresenceOf("username");
-    this.validatePresenceOfPassword("password");
   }
 
   static fromJSON(json: TfsMaterialAttributesJSON) {

@@ -94,9 +94,8 @@ describe("Material Types", () => {
       const material = new Material("tfs", new TfsMaterialAttributes());
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
-      expect(material.attributes()!.errors().count()).toBe(4);
-      expect(material.attributes()!.errors().keys())
-        .toEqual(["url", "projectPath", "username", "password"]);
+      expect(material.attributes()!.errors().count()).toBe(3);
+      expect(material.attributes()!.errors().keys()).toEqual(["url", "projectPath", "username"]);
     });
 
     it("should validate name if provided", () => {

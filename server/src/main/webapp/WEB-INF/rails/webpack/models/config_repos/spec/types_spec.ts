@@ -70,9 +70,8 @@ describe("Config Repo Types", () => {
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
       expect(configRepo.material()!.errors().count()).toBe(0);
-      expect(configRepo.material()!.attributes()!.errors().count()).toBe(4);
-      expect(configRepo.material()!.attributes()!.errors().keys())
-        .toEqual(["url", "projectPath", "username", "password"]);
+      expect(configRepo.material()!.attributes()!.errors().count()).toBe(3);
+      expect(configRepo.material()!.attributes()!.errors().keys()).toEqual(["url", "projectPath", "username"]);
     });
 
     describe("Should match against search text", () => {

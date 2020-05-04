@@ -32,6 +32,14 @@ describe("Run If Condition Widget", () => {
     expect(helper.byTestId("run-if-condition")).toContainText("Run If Conditions");
   });
 
+  it("should render run if condition help text", () => {
+    const runIf = Stream(["passed"] as RunIfCondition[]);
+    mount(runIf);
+
+    const expectedHelpText = "Decide whether task should run, based on the status of the job.";
+    expect(helper.byTestId("run-if-condition-help-text")).toContainText(expectedHelpText);
+  });
+
   it("should select passed by default", () => {
     const runIf = Stream([] as RunIfCondition[]);
     mount(runIf);

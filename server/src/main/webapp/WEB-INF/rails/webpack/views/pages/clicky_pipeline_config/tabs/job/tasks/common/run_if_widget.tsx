@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {RunIfCondition} from "models/pipeline_configs/task";
 import {CheckboxField} from "views/components/forms/input_fields";
+import {Link} from "views/components/link";
 import styles from "./run_if.scss";
 
 interface Attrs {
@@ -73,6 +75,9 @@ export class RunIfConditionWidget extends MithrilComponent<Attrs, State> {
     return (
       <div data-test-id="run-if-condition">
         <h4>Run If Conditions:</h4>
+        <div data-test-id="run-if-condition-help-text" class={styles.runIfConditionHelpText}>
+          Decide whether task should run, based on the status of the job. <Link href={docsUrl("advanced_usage/dev_conditional_task_execution.html")} target="_blank" externalLinkIcon={true}>Learn More</Link>
+        </div>
         <div class={styles.runIfCheckboxWrapper}>
           <CheckboxField label="Passed"
                          readonly={vnode.attrs.readonly || vnode.state.any()}

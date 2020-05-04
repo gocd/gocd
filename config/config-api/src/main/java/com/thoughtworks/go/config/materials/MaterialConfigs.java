@@ -167,7 +167,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
             for (MaterialConfig material : allSCMMaterials) {
                 if (StringUtils.isBlank(material.getFolder())) {
                     String fieldName = material instanceof ScmMaterialConfig ? ScmMaterialConfig.FOLDER : PluggableSCMMaterialConfig.FOLDER;
-                    material.addError(fieldName, "Destination directory is required when specifying multiple scm materials");
+                    material.addError(fieldName, "Destination directory is required when a pipeline has multiple SCM materials.");
                 } else {
                     validateDestinationFolder(allSCMMaterials, material);
                 }

@@ -113,7 +113,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "project-path":            "Project Path*",
       "domain":                  "Domain",
       "username":                "Username*",
-      "password":                "Password*",
+      "password":                "Password",
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
       "blacklist":               "Blacklist"

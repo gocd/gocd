@@ -1051,7 +1051,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    <svn url=\"/hgrepo1\" />\n"
                         + "    <svn url=\"/hgrepo2\" dest=\"folder1\" />\n"
                         + "  </materials>\n";
-        String message = "Destination directory is required when specifying multiple scm materials";
+        String message = "Destination directory is required when a pipeline has multiple SCM materials.";
         MagicalGoConfigXmlLoaderFixture.assertNotValid(message, materials);
     }
 

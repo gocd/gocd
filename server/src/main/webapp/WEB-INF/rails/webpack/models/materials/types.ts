@@ -340,6 +340,7 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
   clone(): MaterialAttributes {
     const gitAttrs = new GitMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.branch(), this.username());
     gitAttrs.password(this.password());
+    gitAttrs.destination(this.destination());
     if (this.filter() !== undefined) {
       gitAttrs.filter(new Filter(this.filter()!.ignore()));
     }
@@ -390,6 +391,7 @@ export class SvnMaterialAttributes extends ScmMaterialAttributes {
   clone(): MaterialAttributes {
     const svnAttrs = new SvnMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.checkExternals(), this.username());
     svnAttrs.password(this.password());
+    svnAttrs.destination(this.destination());
     if (this.filter() !== undefined) {
       svnAttrs.filter(new Filter(this.filter()!.ignore()));
     }
@@ -439,6 +441,7 @@ export class HgMaterialAttributes extends ScmMaterialAttributes {
   clone(): MaterialAttributes {
     const hgAttrs = new HgMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.username());
     hgAttrs.password(this.password());
+    hgAttrs.destination(this.destination());
     hgAttrs.branch(this.branch());
     if (this.filter() !== undefined) {
       hgAttrs.filter(new Filter(this.filter()!.ignore()));
@@ -496,6 +499,7 @@ export class P4MaterialAttributes extends ScmMaterialAttributes {
   clone(): MaterialAttributes {
     const p4Attrs = new P4MaterialAttributes(this.name(), this.autoUpdate(), this.port(), this.useTickets(), this.view(), this.username());
     p4Attrs.password(this.password());
+    p4Attrs.destination(this.destination());
     if (this.filter() !== undefined) {
       p4Attrs.filter(new Filter(this.filter()!.ignore()));
     }
@@ -516,7 +520,8 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
               projectPath?: string,
               username?: string,
               password?: string,
-              encryptedPassword?: string) {
+              encryptedPassword?: string,
+              shouldValidatePresenceOfPassword: boolean = true) {
     super(name, autoUpdate, username, password, encryptedPassword);
     this.url         = Stream(url);
     this.domain      = Stream(domain);
@@ -525,7 +530,7 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
     this.validatePresenceOf("url");
     this.validatePresenceOf("projectPath");
     this.validatePresenceOf("username");
-    this.validatePresenceOfPassword("password");
+    this.validatePresenceOfPassword("password", {condition: Stream(shouldValidatePresenceOfPassword)});
   }
 
   static fromJSON(json: TfsMaterialAttributesJSON) {
@@ -553,6 +558,7 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
   clone(): MaterialAttributes {
     const tfsAttrs = new TfsMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.domain(), this.projectPath(), this.username());
     tfsAttrs.password(this.password());
+    tfsAttrs.destination(this.destination());
     if (this.filter() !== undefined) {
       tfsAttrs.filter(new Filter(this.filter()!.ignore()));
     }
@@ -599,6 +605,8 @@ export class PackageMaterialAttributes extends MaterialAttributes {
   constructor(name?: string, autoUpdate?: boolean, ref?: string) {
     super(name, autoUpdate);
     this.ref = Stream(ref);
+
+    this.validatePresenceOf("ref", {message: "A package reference must be present"});
   }
 
   static fromJSON(data: PackageMaterialAttributesJSON): PackageMaterialAttributes {
@@ -622,6 +630,8 @@ export class PluggableScmMaterialAttributes extends MaterialAttributes {
     this.ref         = Stream(ref);
     this.filter      = Stream(filter);
     this.destination = Stream(destination);
+
+    this.validatePresenceOf("ref", {message: "An SCM reference must be present"});
   }
 
   static fromJSON(data: PluggableScmMaterialAttributesJSON): PluggableScmMaterialAttributes {

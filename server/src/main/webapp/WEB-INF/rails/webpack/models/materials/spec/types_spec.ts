@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {Filter} from "models/maintenance_mode/material";
 import {Hg} from "models/materials/spec/material_test_data";
 import {
   DependencyMaterialAttributes,
@@ -21,6 +22,8 @@ import {
   HgMaterialAttributes,
   Material,
   P4MaterialAttributes,
+  PackageMaterialAttributes,
+  PluggableScmMaterialAttributes,
   ScmMaterialAttributes,
   SvnMaterialAttributes,
   TfsMaterialAttributes
@@ -209,6 +212,35 @@ describe("Material Types", () => {
       expect(material.pluginMetadata().errors().count()).toBe(1);
       expect(material.pluginMetadata().errors().errorsForDisplay('id')).toBe('Id must be present.');
     });
+
+    it("should should validate not validate tfs password", () => {
+      const material = new Material("tfs", new TfsMaterialAttributes("", false, undefined, undefined, undefined, undefined, undefined, undefined, false));
+      expect(material.isValid()).toBe(false);
+      expect(material.errors().count()).toBe(0);
+      expect(material.attributes()!.errors().count()).toBe(3);
+      expect(material.attributes()!.errors().keys()).toEqual(["url", "projectPath", "username"]);
+    });
+
+    it('should validate Package material attributes', () => {
+      const attrs    = new PackageMaterialAttributes();
+      const material = new Material("package", attrs);
+
+      expect(material.isValid()).toBe(false);
+      expect(material.errors().count()).toBe(0);
+      expect(material.attributes()!.errors().count()).toBe(1);
+      expect(material.attributes()!.errors().keys()).toEqual(["ref"]);
+      expect(material.attributes()!.errors().allErrorsForDisplay()).toEqual(['A package reference must be present.']);
+    });
+
+    it('should validate Plugin material attributes', () => {
+      const attrs    = new PluggableScmMaterialAttributes("", false, "", "", new Filter([]));
+      const material = new Material("plugin", attrs);
+
+      expect(material.isValid()).toBe(false);
+      expect(material.errors().count()).toBe(0);
+      expect(material.attributes()!.errors().count()).toBe(1);
+      expect(material.attributes()!.errors().keys()).toEqual(["ref"]);
+    });
   });
 
   describe('Serialization', () => {
@@ -250,7 +282,9 @@ describe("Material Types", () => {
     });
 
     it('should clone the attrs as well', () => {
-      const material = new Material("git", new GitMaterialAttributes("name", true, "some-url", "master", "username", "password"));
+      const gitAttrs = new GitMaterialAttributes("name", true, "some-url", "master", "username", "password");
+      gitAttrs.destination("some-destination");
+      const material = new Material("git", gitAttrs);
       const clone    = material.clone();
 
       expect(clone.type()).toBe(material.type());
@@ -260,6 +294,7 @@ describe("Material Types", () => {
       expect((clone.attributes()! as GitMaterialAttributes).branch()).toEqual((material.attributes()! as GitMaterialAttributes).branch());
       expect((clone.attributes()! as GitMaterialAttributes).username()).toEqual((material.attributes()! as GitMaterialAttributes).username());
       expect((clone.attributes()! as GitMaterialAttributes).password().valueForDisplay()).toEqual((material.attributes()! as GitMaterialAttributes).password().valueForDisplay());
+      expect((clone.attributes()! as GitMaterialAttributes).destination()).toEqual((material.attributes()! as GitMaterialAttributes).destination());
     });
   });
 

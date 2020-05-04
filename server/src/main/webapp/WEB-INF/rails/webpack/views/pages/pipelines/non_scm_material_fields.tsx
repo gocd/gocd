@@ -151,7 +151,8 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
     if (showLocalWorkingCopyOptions) {
       return <AdvancedSettings forceOpen={mat.errors().hasErrors("name")}>
         <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} readonly={attrs.readonly}
-                   placeholder="A human-friendly label for this material" property={mat.name}/>
+                   placeholder="A human-friendly label for this material" property={mat.name}
+                   errorText={this.errs(mat, "name")}/>
 
         <SwitchBtn label="Do not schedule the pipeline when this material is updated"
                    helpText="When set to true, the pipeline will not be automatically scheduled for changes to this material."

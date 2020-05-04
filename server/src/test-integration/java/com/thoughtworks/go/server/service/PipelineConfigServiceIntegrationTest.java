@@ -597,7 +597,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Destination directory is required when specifying multiple scm materials"));
+        assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Destination directory is required when a pipeline has multiple SCM materials."));
         assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Could not find plugin for scm-id: [scmid]."));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
         assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));

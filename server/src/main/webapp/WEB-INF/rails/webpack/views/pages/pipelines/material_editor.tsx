@@ -153,7 +153,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
           return warningMsg;
         }
         if (!(material.attributes() instanceof TfsMaterialAttributes)) {
-          material.attributes(new TfsMaterialAttributes(undefined, true));
+          material.attributes(new TfsMaterialAttributes(undefined, true, undefined, undefined, undefined, undefined, undefined, undefined, false));
         }
         return <TfsFields material={material} hideTestConnection={hideTestConnection} readonly={readonly} parentPipelineName={parentPipelineName}
                           showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;

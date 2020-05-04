@@ -355,7 +355,7 @@ public abstract class CruiseConfigTestBase {
         assertThat(allErrors.get(0).on("searchBase"), is("invalid search base"));
         assertThat(allErrors.get(1).on("base"), is("Some base errors"));
         assertThat(allErrors.get(2).on("role"), is("Roles must be proper"));
-        assertThat(allErrors.get(3).on(ScmMaterialConfig.FOLDER), is("Destination directory is required when specifying multiple scm materials"));
+        assertThat(allErrors.get(3).on(ScmMaterialConfig.FOLDER), is("Destination directory is required when a pipeline has multiple SCM materials."));
         assertThat(allErrors.get(4).on("materialName"), is("material name does not follow pattern"));
     }
 

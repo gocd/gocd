@@ -57,9 +57,17 @@ export class StagesWidget extends MithrilComponent<Attrs, State> {
       return;
     }
 
+    const readonly            = vnode.attrs.entityReOrderHandler.hasOrderChanged();
+    let disabledTitle: string = "";
+
+    if (readonly) {
+      disabledTitle = "Stages reorder is in progress. Complete stage reordering to add a new stage.";
+    }
+
     let addStageBtn: m.Children;
     if (vnode.attrs.isEditable) {
       addStageBtn = <Secondary dataTestId={"add-stage-button"}
+                               disabled={readonly} title={disabledTitle}
                                onclick={() => vnode.state.getModal().render()}>Add new stage</Secondary>;
     }
 

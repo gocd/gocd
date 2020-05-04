@@ -44,6 +44,10 @@ describe("AddPipeline: SCM Material Fields", () => {
       "material-name":           "Material Name",
       "blacklist":               "Blacklist",
     });
+    assertCheckBoxPresent([
+      {dataTestId: 'invert-filter', label: 'Invert the file filter, e.g. a Blacklist becomes a Whitelist instead.'},
+      {dataTestId: 'shallow-clone-git-material', label: 'Shallow clone (recommended for large repositories)'}
+    ]);
     assertAutoUpdateSwitchPresent();
 
     expect(helper.byTestId("test-connection-button")).toBeInDOM();
@@ -164,7 +168,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "material-name",
       "blacklist"
     );
-    assertAutoUpdateSwitchAbsent();
+    assertSwitchOrCheckboxAbsent('auto-update-material', 'invert-filter', 'shallow-clone-git-material');
 
     expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
@@ -197,7 +201,18 @@ describe("AddPipeline: SCM Material Fields", () => {
     expect(helpTextElement.textContent).toEqual("By default GoCD polls the repository for changes automatically. If set to false, then GoCD will not poll the repository for changes");
   }
 
-  function assertAutoUpdateSwitchAbsent() {
-    expect(helper.byTestId('auto-update-material')).not.toBeInDOM();
+  function assertSwitchOrCheckboxAbsent(...keys: string[]) {
+    expect(keys.length > 0).toBe(true);
+
+    for (const id of keys) {
+      expect(helper.byTestId(id)).not.toBeInDOM();
+    }
+  }
+
+  function assertCheckBoxPresent(values: Array<{ dataTestId: string, label: string }>) {
+    values.forEach((row) => {
+      expect(helper.byTestId(row.dataTestId)).toBeInDOM();
+      expect(helper.q(`input[data-test-id="${row.dataTestId}"] + label`).textContent).toBe(row.label);
+    });
   }
 });

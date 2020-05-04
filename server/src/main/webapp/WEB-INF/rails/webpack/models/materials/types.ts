@@ -303,14 +303,16 @@ class AuthNotSetInUrlAndUserPassFieldsValidator extends Validator {
 export class GitMaterialAttributes extends ScmMaterialAttributes {
   url: Stream<string | undefined>;
   branch: Stream<string | undefined>;
+  shallowClone: Stream<boolean | undefined>;
 
-  constructor(name?: string, autoUpdate?: boolean, url?: string, branch?: string,
+  constructor(name?: string, autoUpdate?: boolean, url?: string, branch?: string, shallowClone?: boolean,
               username?: string,
               password?: string,
               encryptedPassword?: string) {
     super(name, autoUpdate, username, password, encryptedPassword);
-    this.url    = Stream(url);
-    this.branch = Stream(branch);
+    this.url          = Stream(url);
+    this.branch       = Stream(branch);
+    this.shallowClone = Stream(shallowClone);
 
     this.validatePresenceOf("url");
     this.validateWith(new AuthNotSetInUrlAndUserPassFieldsValidator(), "url");
@@ -322,6 +324,7 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
       json.auto_update,
       json.url,
       json.branch,
+      json.shallow_clone,
       json.username,
       json.password,
       json.encrypted_password,
@@ -338,7 +341,7 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
   }
 
   clone(): MaterialAttributes {
-    const gitAttrs = new GitMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.branch(), this.username());
+    const gitAttrs = new GitMaterialAttributes(this.name(), this.autoUpdate(), this.url(), this.branch(), this.shallowClone(), this.username());
     gitAttrs.password(this.password());
     gitAttrs.destination(this.destination());
     if (this.filter() !== undefined) {

@@ -28,7 +28,7 @@ import {
   SvnMaterialAttributes,
   TfsMaterialAttributes
 } from "models/materials/types";
-import {Configurations} from "../../shared/configuration";
+import {Configurations} from "models/shared/configuration";
 import {PluginMetadata, Scm} from "../pluggable_scm";
 import {DependencyMaterialAttributesJSON} from "../serialization";
 
@@ -55,6 +55,27 @@ describe("Material Types", () => {
       expect(materialAttrs.pipeline()).toBe(json.pipeline);
       expect(materialAttrs.stage()).toBe(json.stage);
       expect(materialAttrs.ignoreForScheduling()).toBeFalse();
+    });
+
+    it("should deserialize git material with shallow clone", () => {
+      const gitJson               = {
+        url:           "foo/bar",
+        destination:   "bar",
+        invert_filter: false,
+        name:          "Dummy git",
+        auto_update:   true,
+        branch:        "master",
+        shallow_clone: false
+      };
+      const gitMaterialAttributes = GitMaterialAttributes.fromJSON(gitJson);
+
+      expect(gitMaterialAttributes.url()).toBe(gitJson.url);
+      expect(gitMaterialAttributes.destination()).toBe(gitJson.destination);
+      expect(gitMaterialAttributes.invertFilter()).toBe(gitJson.invert_filter);
+      expect(gitMaterialAttributes.name()).toBe(gitJson.name);
+      expect(gitMaterialAttributes.autoUpdate()).toBe(gitJson.auto_update);
+      expect(gitMaterialAttributes.branch()).toBe(gitJson.branch);
+      expect(gitMaterialAttributes.shallowClone()).toBe(gitJson.shallow_clone);
     });
   });
 
@@ -178,6 +199,7 @@ describe("Material Types", () => {
                                                               true,
                                                               "http://user:pass@host",
                                                               "master",
+                                                              false,
                                                               "user",
                                                               "pass"));
       expect(material.isValid()).toBe(false);
@@ -261,7 +283,7 @@ describe("Material Types", () => {
   });
 
   it('should reset password if it is present and has been updated', () => {
-    const material = new Material("git", new GitMaterialAttributes("name", true, "some-url", "master", "username", "password"));
+    const material = new Material("git", new GitMaterialAttributes("name", true, "some-url", "master", false, "username", "password"));
     const attrs    = (material.attributes() as GitMaterialAttributes);
     attrs.password().edit();
 
@@ -282,7 +304,7 @@ describe("Material Types", () => {
     });
 
     it('should clone the attrs as well', () => {
-      const gitAttrs = new GitMaterialAttributes("name", true, "some-url", "master", "username", "password");
+      const gitAttrs = new GitMaterialAttributes("name", true, "some-url", "master", false, "username", "password");
       gitAttrs.destination("some-destination");
       const material = new Material("git", gitAttrs);
       const clone    = material.clone();
@@ -295,6 +317,7 @@ describe("Material Types", () => {
       expect((clone.attributes()! as GitMaterialAttributes).username()).toEqual((material.attributes()! as GitMaterialAttributes).username());
       expect((clone.attributes()! as GitMaterialAttributes).password().valueForDisplay()).toEqual((material.attributes()! as GitMaterialAttributes).password().valueForDisplay());
       expect((clone.attributes()! as GitMaterialAttributes).destination()).toEqual((material.attributes()! as GitMaterialAttributes).destination());
+      expect((clone.attributes()! as GitMaterialAttributes).shallowClone()).toEqual((material.attributes()! as GitMaterialAttributes).shallowClone());
     });
   });
 

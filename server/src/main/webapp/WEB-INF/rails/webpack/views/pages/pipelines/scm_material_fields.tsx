@@ -93,50 +93,44 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
     return fields;
   }
 
-  advancedOptions(mattrs: ScmMaterialAttributes, showLocalWorkingCopyOptions: boolean): m.Children {
-    let settings = this.extraFields(mattrs);
+  shouldForceOpenForAdvancedSettings(mattrs: ScmMaterialAttributes): boolean {
+    return mattrs.errors().hasErrors("name") ||
+           mattrs.errors().hasErrors("destination") ||
+           mattrs.errors().hasErrors("autoUpdate") ||
+           mattrs.errors().hasErrors("filter") ||
+           mattrs.errors().hasErrors("invertFilter");
+  }
 
-    if (showLocalWorkingCopyOptions) {
-      const labelForDestination = [
-        "Alternate Checkout Path",
-        " ",
-        <Tooltip.Help size={TooltipSize.medium} content={DESTINATION_DIR_HELP_MESSAGE}/>
-      ];
-      const commonSettings      = [
-        <TextField label={labelForDestination} property={mattrs.destination}
-                   errorText={this.errs(mattrs, "destination")}/>,
+  localWorkingCopyOptions(mattrs: ScmMaterialAttributes): m.Children[] {
+    const labelForDestination = [
+      "Alternate Checkout Path",
+      " ",
+      <Tooltip.Help size={TooltipSize.medium} content={DESTINATION_DIR_HELP_MESSAGE}/>
+    ];
+    return [
+      <TextField label={labelForDestination} property={mattrs.destination}
+                 errorText={this.errs(mattrs, "destination")}/>,
 
-        <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE}
-                   placeholder="A human-friendly label for this material" property={mattrs.name}
-                   errorText={this.errs(mattrs, "name")}/>,
+      <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE}
+                 placeholder="A human-friendly label for this material" property={mattrs.name}
+                 errorText={this.errs(mattrs, "name")}/>,
 
-        <SwitchBtn label="Poll for new changes"
-                   helpText="By default GoCD polls the repository for changes automatically. If set to false, then GoCD will not poll the repository for changes"
-                   dataTestId="auto-update-material"
-                   small={true}
-                   css={styles}
-                   field={mattrs.autoUpdate}
-                   errorText={this.errs(mattrs, "autoUpdate")}/>,
+      <SwitchBtn label="Poll for new changes"
+                 helpText="By default GoCD polls the repository for changes automatically. If set to false, then GoCD will not poll the repository for changes"
+                 dataTestId="auto-update-material"
+                 small={true}
+                 css={styles}
+                 field={mattrs.autoUpdate}
+                 errorText={this.errs(mattrs, "autoUpdate")}/>,
 
-        <TextField label="Blacklist" helpText={BLACKLIST_HELP_MESSAGE}
-                   property={this.filterProxy.bind(this, mattrs)}
-                   errorText={this.errs(mattrs, "filter")}/>,
+      <TextField label="Blacklist" helpText={BLACKLIST_HELP_MESSAGE}
+                 property={this.filterProxy.bind(this, mattrs)}
+                 errorText={this.errs(mattrs, "filter")}/>,
 
-        <CheckboxField property={mattrs.invertFilter} dataTestId={"invert-filter"}
-                       label="Invert the file filter, e.g. a Blacklist becomes a Whitelist instead."
-                       errorText={this.errs(mattrs, "invertFilter")}/>
-      ];
-      settings                  = settings.concat(commonSettings);
-    }
-
-    const shouldForceOpen = mattrs.errors().hasErrors("name") ||
-                            mattrs.errors().hasErrors("destination") ||
-                            mattrs.errors().hasErrors("autoUpdate") ||
-                            mattrs.errors().hasErrors("filter") ||
-                            mattrs.errors().hasErrors("invertFilter");
-    return <AdvancedSettings forceOpen={shouldForceOpen}>
-      {settings}
-    </AdvancedSettings>;
+      <CheckboxField property={mattrs.invertFilter} dataTestId={"invert-filter"}
+                     label="Invert the file filter, e.g. a Blacklist becomes a Whitelist instead."
+                     errorText={this.errs(mattrs, "invertFilter")}/>
+    ];
   }
 
   abstract requiredFields(attrs: MaterialAttributes): m.ChildArray;
@@ -153,6 +147,18 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
     }
     return filter.ignore().join(',');
   }
+
+  private advancedOptions(mattrs: ScmMaterialAttributes, showLocalWorkingCopyOptions: boolean): m.Children {
+    let settings = this.extraFields(mattrs);
+
+    if (showLocalWorkingCopyOptions) {
+      settings = settings.concat(this.localWorkingCopyOptions(mattrs));
+    }
+
+    return <AdvancedSettings forceOpen={this.shouldForceOpenForAdvancedSettings(mattrs)}>
+      {settings}
+    </AdvancedSettings>;
+  }
 }
 
 export class GitFields extends ScmFields {
@@ -166,8 +172,24 @@ export class GitFields extends ScmFields {
     return [
       <TextField label="Repository Branch" property={mat.branch} placeholder="master"/>,
       <TextField label="Username" property={mat.username}/>,
-      <PasswordField label="Password" property={mat.password}/>,
+      <PasswordField label="Password" property={mat.password}/>
     ];
+  }
+
+  localWorkingCopyOptions(mattrs: ScmMaterialAttributes): m.Children[] {
+    const mat             = mattrs as GitMaterialAttributes;
+    const advancedOptions = super.localWorkingCopyOptions(mattrs);
+    advancedOptions.splice(1, 0,
+      <CheckboxField label="Shallow clone (recommended for large repositories)"
+                     dataTestId="shallow-clone-git-material"
+                     property={mat.shallowClone}
+                     errorText={this.errs(mat, "shallowClone")}/>);
+    return advancedOptions;
+  }
+
+  shouldForceOpenForAdvancedSettings(mattrs: ScmMaterialAttributes): boolean {
+    return super.shouldForceOpenForAdvancedSettings(mattrs) ||
+           mattrs.errors().hasErrors("shallowClone");
   }
 }
 

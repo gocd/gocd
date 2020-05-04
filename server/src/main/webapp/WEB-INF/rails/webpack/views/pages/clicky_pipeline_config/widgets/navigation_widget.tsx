@@ -25,6 +25,7 @@ import s from "underscore.string";
 import {CollapsibleTree} from "views/components/hierarchy/tree";
 import * as Icons from "views/components/icons";
 import {PipelineConfigRouteParams, RouteInfo} from "views/pages/clicky_pipeline_config/tab_handler";
+import styles from "./navigation.scss";
 
 export interface Attrs {
   isTemplateConfig: boolean;
@@ -99,7 +100,8 @@ export class NavigationWidget extends MithrilViewComponent<Attrs> {
   }
 
   template(templateConfig: TemplateConfig) {
-    const datum = (<div>
+    const datum = (<div class={styles.templateNameWrapper}>
+      <div class={styles.templateText}>TEMPLATE: </div>
       <a href="#">{templateConfig.name()}</a>
       <Icons.Search iconOnly={true} title={"view template configuration"}
                     onclick={this.onTemplateViewClick.bind(this, templateConfig.name())}/>

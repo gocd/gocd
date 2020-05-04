@@ -228,12 +228,13 @@ export class ResourcesSuggestionsProvider extends SuggestionProvider {
   }
 
   replace(suggestion: any) {
-    let optionalComma = "";
+    let updatedValues: string[] = [];
     if (this.property().trim().length > 0) {
-      optionalComma = this.property().trim()[this.property().trim().length - 1] === "," ? "" : ",";
+      updatedValues = this.property().split(',');
+      updatedValues.pop();
     }
-
-    this.property(this.property() + optionalComma + suggestion.value);
+    updatedValues.push(suggestion.value);
+    this.property(updatedValues.join() + ",");
     m.redraw.sync();
   }
 

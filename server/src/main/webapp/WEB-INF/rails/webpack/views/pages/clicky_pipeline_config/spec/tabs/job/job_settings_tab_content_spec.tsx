@@ -334,15 +334,15 @@ describe("Job Settings Tab Content", () => {
     it("should replace the select suggestion", () => {
       expect(property()).toEqual("");
       provider.replace({value: "firefox"});
-      expect(property()).toEqual("firefox");
+      expect(property()).toEqual("firefox,");
     });
 
     it("should append the select suggestion with newly selected one", () => {
       expect(property()).toEqual("");
       provider.replace({value: "firefox"});
-      expect(property()).toEqual("firefox");
+      expect(property()).toEqual("firefox,");
       provider.replace({value: "ie11"});
-      expect(property()).toEqual("firefox,ie11");
+      expect(property()).toEqual("firefox,ie11,");
     });
 
     it("should show the suggestion when it is not specified on the property", () => {

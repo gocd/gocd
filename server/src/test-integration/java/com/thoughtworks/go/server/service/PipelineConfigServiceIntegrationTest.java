@@ -446,7 +446,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
-        assertThat(jobConfig.getTabs().first().errors().firstError(), is(String.format("Tab name '' is invalid. This must be alphanumeric and can contain underscores and periods.", pipeline.name())));
+        assertThat(jobConfig.getTabs().first().errors().firstError(), is(String.format("Tab name '' is invalid. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.", pipeline.name())));
     }
 
     @Test

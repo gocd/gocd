@@ -129,7 +129,7 @@ public class Tab implements Validatable {
     public void validateTabNamePathCorrectness() {
         Matcher matcher = TAB_NAME_PATTERN.matcher(name);
         if (!matcher.matches()) {
-            this.addError(NAME, String.format("Tab name '%s' is invalid. This must be alphanumeric and can contain underscores and periods.", name));
+            this.addError(NAME, String.format("Tab name '%s' is invalid. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.", name));
         }
         matcher = TAB_PATH_PATTERN.matcher(path);
         if (!matcher.matches()) {

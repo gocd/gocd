@@ -21,8 +21,8 @@ import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {GeneralOptionsTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/general_options_tab";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
+import {GeneralOptionsTabContent} from "views/pages/clicky_pipeline_config/tabs/pipeline/general_options_tab";
 import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -47,6 +47,8 @@ describe("GeneralOptionsTag", () => {
       const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
       mount(pipelineConfig);
 
+      expect(helper.byTestId("automatic-pipeline-scheduling")).not.toBeDisabled();
+
       expect(pipelineConfig.firstStage().approval().typeAsString()).toEqual("manual");
       expect(helper.byTestId("automatic-pipeline-scheduling")).not.toBeChecked();
 
@@ -64,13 +66,10 @@ describe("GeneralOptionsTag", () => {
       templateConfig.stages(new NameableSet([stageInTemplate]));
       mount(pipelineConfig, templateConfig);
 
+      expect(helper.byTestId("automatic-pipeline-scheduling")).toBeDisabled();
+
       expect(stageInTemplate.approval().typeAsString()).toEqual("manual");
       expect(helper.byTestId("automatic-pipeline-scheduling")).not.toBeChecked();
-
-      helper.clickByTestId("automatic-pipeline-scheduling");
-
-      expect(helper.byTestId("automatic-pipeline-scheduling")).toBeChecked();
-      expect(stageInTemplate.approval().typeAsString()).toEqual("success");
     });
   });
 

@@ -33,6 +33,7 @@ import {Delete} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import {Table} from "views/components/table";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
 import {AntTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/ant";
@@ -43,7 +44,6 @@ import {PluggableTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/ta
 import {RakeTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/rake";
 import styles from "views/pages/clicky_pipeline_config/tabs/job/tasks_tab.scss";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {OperationState} from "views/pages/page_operations";
 import {ConfirmationDialog} from "views/pages/pipeline_activity/confirmation_modal";
 
@@ -166,7 +166,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   }
 
   private static getTableHeaders(isEditable: boolean) {
-    const headers = ["Task Type", "Run If Condition", "Properties", "On Cancel"];
+    const headers = ["Task Type", "Properties", "Run If Condition", "On Cancel"];
 
     if (isEditable) {
       headers.push("Remove");
@@ -218,8 +218,8 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
         }}>
           <b>{task.description(vnode.attrs.pluginInfos())}</b>
         </Link>,
-        <i>{task.attributes().runIf().join(", ")}</i>,
         <KeyValuePair inline={true} data={task.attributes().properties()}/>,
+        <i>{task.attributes().runIf().join(", ")}</i>,
         task.attributes().onCancel()?.type || "No"
       ];
 

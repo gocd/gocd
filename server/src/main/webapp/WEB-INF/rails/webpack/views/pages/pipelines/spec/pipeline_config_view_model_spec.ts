@@ -79,7 +79,7 @@ describe("PipelineConfig View Model", () => {
       {
         payload: {
           name: "** UNNAMED PIPELINE **",
-          materials: [{attributes: {auto_update: true, password: ""}, type: "git"}],
+          materials: [{attributes: {auto_update: true, shallow_clone: false, password: ""}, type: "git"}],
           stages: [],
           parameters: []
         }

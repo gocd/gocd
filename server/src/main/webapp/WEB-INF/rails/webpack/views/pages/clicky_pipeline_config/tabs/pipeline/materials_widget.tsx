@@ -84,7 +84,7 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
 
   private deleteMaterial(vnode: m.Vnode<MaterialsAttrs, this>, materialToRemove: Material, e: MouseEvent) {
     e.stopPropagation();
-    const materialName = this.getMaterialDisplayInfo(materialToRemove, vnode)?.name;
+    const materialName = this.getMaterialDisplayInfo(materialToRemove, vnode).name;
     const onDelete     = () => {
       vnode.attrs.materials().delete(materialToRemove);
       return vnode.attrs.pipelineConfigSave()
@@ -106,7 +106,7 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
       ? "Cannot delete the only material in a pipeline"
       : "Remove this material";
     return Array.from(vnode.attrs.materials().values()).map((material: Material) => {
-      const {name, type, urlOrDescription} = this.getMaterialDisplayInfo(material, vnode)!;
+      const {name, type, urlOrDescription} = this.getMaterialDisplayInfo(material, vnode);
       const elements                       = [
         <a href={`#!${PipelineConfigPage.pipelineName()}/materials`}
            class={style.nameLink}
@@ -148,7 +148,7 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
         const pkgRepo    = vnode.attrs.packageRepositories().find((pkgRepo) => pkgRepo.repoId() === pkgInfo.packageRepo().id());
 
         if(!pkgRepo) {
-          return {};
+          break;
         }
 
         const pkgPlugin  = vnode.attrs.pluginInfos().findByPluginId(pkgRepo.pluginMetadata().id());
@@ -166,7 +166,7 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
         const pluginAttrs = material.attributes() as PluggableScmMaterialAttributes;
         const scmMaterial = vnode.attrs.scmMaterials().find((pkg) => pkg.id() === pluginAttrs.ref());
         if(!scmMaterial) {
-          return {};
+          break;
         }
         const scmPlugin   = vnode.attrs.pluginInfos().findByPluginId(scmMaterial.pluginMetadata().id());
 

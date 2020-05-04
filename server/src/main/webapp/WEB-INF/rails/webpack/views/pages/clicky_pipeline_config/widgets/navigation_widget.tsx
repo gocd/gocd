@@ -102,7 +102,7 @@ export class NavigationWidget extends MithrilViewComponent<Attrs> {
   template(templateConfig: TemplateConfig) {
     const datum = (<div class={styles.templateNameWrapper}>
       <div class={styles.templateText}>TEMPLATE: </div>
-      <a href="#">{templateConfig.name()}</a>
+      <a data-test-id="template-name" href="#">{templateConfig.name()}</a>
       <Icons.Search iconOnly={true} title={"view template configuration"}
                     onclick={this.onTemplateViewClick.bind(this, templateConfig.name())}/>
     </div>);

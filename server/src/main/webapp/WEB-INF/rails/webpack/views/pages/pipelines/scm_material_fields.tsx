@@ -163,10 +163,12 @@ export class GitFields extends ScmFields {
 
   extraFields(attrs: MaterialAttributes): m.ChildArray {
     const mat = attrs as GitMaterialAttributes;
+
     return [
       <TextField label="Repository Branch" property={mat.branch} placeholder="master"/>,
       <TextField label="Username" property={mat.username}/>,
       <PasswordField label="Password" property={mat.password}/>,
+      <CheckboxField label="Shallow clone (recommended for large repositories)" property={mat.shallowClone}/>
     ];
   }
 }

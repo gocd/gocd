@@ -44,6 +44,7 @@ export interface ScmAttributesJSON extends BaseAttributesJSON, UsernamePasswordJ
 export interface GitMaterialAttributesJSON extends ScmAttributesJSON {
   url: string;
   branch: string;
+  shallow_clone: boolean
 }
 
 export interface SvnMaterialAttributesJSON extends ScmAttributesJSON {

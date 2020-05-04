@@ -36,13 +36,14 @@ describe("AddPipeline: SCM Material Fields", () => {
     helper.mount(() => <GitFields material={material} showLocalWorkingCopyOptions={true}/>);
 
     assertLabelledInputsPresent({
-      "repository-url":          "Repository URL*",
-      "repository-branch":       "Repository Branch",
-      "username":                "Username",
-      "password":                "Password",
+      "repository-url": "Repository URL*",
+      "repository-branch": "Repository Branch",
+      "username": "Username",
+      "password": "Password",
+      "shallow-clone-recommended-for-large-repositories": "Shallow clone (recommended for large repositories)",
       "alternate-checkout-path": "Alternate Checkout Path",
-      "material-name":           "Material Name",
-      "blacklist":               "Blacklist",
+      "material-name": "Material Name",
+      "blacklist": "Blacklist"
     });
     assertAutoUpdateSwitchPresent();
 
@@ -113,7 +114,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "project-path":            "Project Path*",
       "domain":                  "Domain",
       "username":                "Username*",
-      "password":                "Password*",
+      "password":                "Password",
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
       "blacklist":               "Blacklist"

@@ -175,6 +175,7 @@ describe("Material Types", () => {
                                                               true,
                                                               "http://user:pass@host",
                                                               "master",
+                                                              false,
                                                               "user",
                                                               "pass"));
       expect(material.isValid()).toBe(false);
@@ -229,7 +230,7 @@ describe("Material Types", () => {
   });
 
   it('should reset password if it is present and has been updated', () => {
-    const material = new Material("git", new GitMaterialAttributes("name", true, "some-url", "master", "username", "password"));
+    const material = new Material("git", new GitMaterialAttributes("name", true, "some-url", "master", false, "username", "password"));
     const attrs    = (material.attributes() as GitMaterialAttributes);
     attrs.password().edit();
 
@@ -250,7 +251,7 @@ describe("Material Types", () => {
     });
 
     it('should clone the attrs as well', () => {
-      const material = new Material("git", new GitMaterialAttributes("name", true, "some-url", "master", "username", "password"));
+      const material = new Material("git", new GitMaterialAttributes("name", true, "some-url", "master", true, "username", "password"));
       const clone    = material.clone();
 
       expect(clone.type()).toBe(material.type());
@@ -258,6 +259,7 @@ describe("Material Types", () => {
       expect(clone.attributes()!.autoUpdate()).toEqual(material.attributes()!.autoUpdate());
       expect((clone.attributes()! as GitMaterialAttributes).url()).toEqual((material.attributes()! as GitMaterialAttributes).url());
       expect((clone.attributes()! as GitMaterialAttributes).branch()).toEqual((material.attributes()! as GitMaterialAttributes).branch());
+      expect((clone.attributes()! as GitMaterialAttributes).shallowClone()).toEqual((material.attributes()! as GitMaterialAttributes).shallowClone());
       expect((clone.attributes()! as GitMaterialAttributes).username()).toEqual((material.attributes()! as GitMaterialAttributes).username());
       expect((clone.attributes()! as GitMaterialAttributes).password().valueForDisplay()).toEqual((material.attributes()! as GitMaterialAttributes).password().valueForDisplay());
     });

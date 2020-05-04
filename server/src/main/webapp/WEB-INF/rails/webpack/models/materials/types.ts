@@ -31,9 +31,9 @@ import {
   SvnMaterialAttributesJSON,
   TfsMaterialAttributesJSON,
 } from "models/materials/serialization";
+import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
-import {ErrorMessages} from "models/mixins/error_messages";
 import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
 import urlParse from "url-parse";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
@@ -300,14 +300,15 @@ class AuthNotSetInUrlAndUserPassFieldsValidator extends Validator {
 export class GitMaterialAttributes extends ScmMaterialAttributes {
   url: Stream<string | undefined>;
   branch: Stream<string | undefined>;
+  shallowClone: Stream<boolean>;
 
   constructor(name?: string, autoUpdate?: boolean, url?: string, branch?: string,
-              username?: string,
-              password?: string,
+              shallowClone?: boolean, username?: string, password?: string,
               encryptedPassword?: string) {
     super(name, autoUpdate, username, password, encryptedPassword);
-    this.url    = Stream(url);
-    this.branch = Stream(branch);
+    this.url          = Stream(url);
+    this.branch       = Stream(branch);
+    this.shallowClone = Stream(shallowClone === undefined ? false : shallowClone);
 
     this.validatePresenceOf("url");
     this.validateWith(new AuthNotSetInUrlAndUserPassFieldsValidator(), "url");
@@ -319,6 +320,7 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
       json.auto_update,
       json.url,
       json.branch,
+      json.shallow_clone,
       json.username,
       json.password,
       json.encrypted_password,

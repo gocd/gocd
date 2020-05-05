@@ -187,10 +187,6 @@ Rails.application.routes.draw do
 
   namespace :api, as: "" do
     defaults :no_layout => true do
-      scope 'internal' do
-        get 'config/revisions/(:offset)' => 'configuration#config_revisions', defaults: {:offset => '0'}, as: :config_revisions_list_api
-        get 'config/diff/:from_revision/:to_revision' => 'configuration#config_diff', as: :config_diff_api
-      end
 
       # Vendor Webhooks
       post 'webhooks/github/notify' => 'web_hooks/git_hub#notify'

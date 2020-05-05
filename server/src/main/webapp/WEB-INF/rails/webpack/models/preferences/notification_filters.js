@@ -22,7 +22,7 @@ import _ from "lodash";
 import $ from "jquery";
 
 function req(method, url, data) {
-  const headers = {"Accept": mrequest.versionHeader("v1")}, timeout = mrequest.timeout, contentType = "application/json",
+  const headers = {"Accept": mrequest.versionHeader()}, timeout = mrequest.timeout, contentType = "application/json",
         dataType                                                                        = "json";
   return $.ajax(_.omitBy({method, url, timeout, headers, data, contentType, dataType}, _.isEmpty));
 }

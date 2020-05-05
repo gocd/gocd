@@ -90,7 +90,7 @@ export class JobTestData {
 
 export class TaskTestData {
   static exec(cmd: string = "ls", args: [] = []): ExecTask {
-    return new ExecTask(cmd, args, "/tmp", ["passed"]);
+    return new ExecTask(cmd, args, undefined, "/tmp", ["passed"]);
   }
 
   static ant(buildFile: string = "ant-build-file"): AntTask {

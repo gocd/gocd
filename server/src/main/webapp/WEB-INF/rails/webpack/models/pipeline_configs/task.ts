@@ -260,14 +260,15 @@ export class NantTask extends AbstractTask {
 export class ExecTask extends AbstractTask {
   readonly type: TaskType = "exec";
 
-  constructor(cmd: string, args: string[], workingDir?: string, runIf?: RunIfCondition[], onCancel?: Task) {
+  constructor(cmd: string, argArray: string[], args?: string, workingDir?: string, runIf?: RunIfCondition[], onCancel?: Task) {
     super();
-    this.attributes(new ExecTaskAttributes(cmd, args, workingDir, runIf, onCancel));
+    this.attributes(new ExecTaskAttributes(cmd, argArray, args, workingDir, runIf, onCancel));
   }
 
   static from(attributes: ExecTaskAttributesJSON) {
     return new ExecTask(attributes.command,
                         attributes.arguments || [],
+                        attributes.args,
                         attributes.working_directory,
                         attributes.run_if,
                         attributes.on_cancel ? AbstractTask.fromJSON(attributes.on_cancel) : undefined);
@@ -281,10 +282,12 @@ export class ExecTask extends AbstractTask {
 export class ExecTaskAttributes extends AbstractTaskAttributes {
   command: Stream<string>                      = Stream();
   arguments: Stream<string[]>                  = Stream();
+  args: Stream<string | undefined>             = Stream();
   workingDirectory: Stream<string | undefined> = Stream();
 
   constructor(cmd: string,
-              args: string[],
+              argumentArray: string[],
+              args?: string,
               workingDir?: string | undefined,
               runIf?: RunIfCondition[],
               onCancel?: Task) {
@@ -293,7 +296,8 @@ export class ExecTaskAttributes extends AbstractTaskAttributes {
     this.command(cmd);
     this.validatePresenceOf("command");
 
-    this.arguments(args);
+    this.arguments(argumentArray);
+    this.args(args);
 
     this.workingDirectory(workingDir);
   }
@@ -310,7 +314,11 @@ export class ExecTaskAttributes extends AbstractTaskAttributes {
   properties(): Map<string, any> {
     const map: Map<string, any> = new Map();
     map.set("Command", this.command());
-    map.set("Arguments", this.arguments().join(" "));
+    if (this.args()) {
+      map.set("Arguments", this.args());
+    } else {
+      map.set("Arguments", this.arguments().join(" "));
+    }
     map.set("Working Directory", this.workingDirectory());
 
     return map;

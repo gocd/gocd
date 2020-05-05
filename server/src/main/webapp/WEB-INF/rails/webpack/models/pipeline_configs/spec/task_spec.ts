@@ -69,6 +69,24 @@ describe("Task", () => {
       const task = new ExecTask("", []);
       expect(task.description(new PluginInfos())).toEqual("Custom Command");
     });
+
+    it("should provide properties", () => {
+      const task = new ExecTask("ls", ["-a", "-h", "-l"], undefined, "/tmp");
+      expect(task.attributes().properties()).toEqual(new Map([
+                                                               ["Command", "ls"],
+                                                               ["Arguments", "-a -h -l"],
+                                                               ["Working Directory", "/tmp"]
+                                                             ]));
+    });
+
+    it("should provide properties when argument is specified", () => {
+      const task = new ExecTask("ls", [], "-alh", "/tmp");
+      expect(task.attributes().properties()).toEqual(new Map([
+                                                               ["Command", "ls"],
+                                                               ["Arguments", "-alh"],
+                                                               ["Working Directory", "/tmp"]
+                                                             ]));
+    });
   });
 
   describe("Ant", () => {

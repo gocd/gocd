@@ -29,7 +29,7 @@ export class ExecTaskModal extends AbstractTaskModal {
 
   constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos, readonly: boolean) {
     super(onAdd, readonly);
-    this.task         = task ? task : new ExecTask("", [], undefined, [], undefined);
+    this.task         = task ? task : new ExecTask("", [], undefined,undefined, [], undefined);
     this.pluginInfos  = pluginInfos;
     this.showOnCancel = showOnCancel;
     this.readonly     = readonly;
@@ -37,6 +37,24 @@ export class ExecTaskModal extends AbstractTaskModal {
 
   body(): m.Children {
     const attributes = this.task.attributes() as ExecTaskAttributes;
+
+    let argumentView: m.Children;
+    if (attributes.args()) {
+      argumentView = <TextField helpText="command arguments"
+                                errorText={attributes.errors().errorsForDisplay("args")}
+                                readonly={this.readonly}
+                                label="Arguments"
+                                property={attributes.args}/>;
+    } else {
+      argumentView = <TextAreaField helpText="Enter each argument on a new line"
+                                    errorText={attributes.errors().errorsForDisplay("args")}
+                                    readonly={this.readonly}
+                                    rows={5}
+                                    size={Size.MATCH_PARENT}
+                                    resizable={true}
+                                    label="Arguments"
+                                    property={attributes.argsStream.bind(attributes)}/>;
+    }
 
     return <div data-test-id="exec-task-modal">
       {this.renderFlashMessage()}
@@ -48,14 +66,7 @@ export class ExecTaskModal extends AbstractTaskModal {
                  label="Command"
                  placeholder="ls"
                  property={attributes.command}/>
-      <TextAreaField helpText="Enter each argument on a new line"
-                     errorText={attributes.errors().errorsForDisplay("args")}
-                     readonly={this.readonly}
-                     rows={5}
-                     size={Size.MATCH_PARENT}
-                     resizable={true}
-                     label="Arguments"
-                     property={attributes.argsStream.bind(attributes)}/>
+      {argumentView}
       <TextField helpText="The directory in which the script or command is to be executed. This is always relative to the directory where the agent checks out materials."
                  label="Working Directory"
                  readonly={this.readonly}

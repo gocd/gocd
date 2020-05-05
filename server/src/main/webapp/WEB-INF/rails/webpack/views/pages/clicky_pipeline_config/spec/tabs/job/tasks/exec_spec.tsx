@@ -45,7 +45,7 @@ describe("Exec Task Modal", () => {
   });
 
   it("should bind command input to model", () => {
-    const execTask = new ExecTask("ls", [], "tmp", []);
+    const execTask = new ExecTask("ls", [], undefined, "tmp", []);
     mount(execTask);
 
     const attributes = execTask.attributes() as ExecTaskAttributes;
@@ -71,7 +71,7 @@ describe("Exec Task Modal", () => {
   });
 
   it("should bind arguments input to model", () => {
-    const execTask = new ExecTask("ls", ["-a", "-h"], "tmp", []);
+    const execTask = new ExecTask("ls", ["-a", "-h"], undefined,"tmp", []);
     mount(execTask);
 
     let attributes = modal.getTask().attributes() as ExecTaskAttributes;
@@ -88,6 +88,36 @@ describe("Exec Task Modal", () => {
     expect(helper.byTestId("form-field-input-arguments")).toHaveValue("-alh");
   });
 
+  it("should render single line argument input", () => {
+    const execTask = new ExecTask("ls", [], "-alh", "tmp", []);
+    mount(execTask);
+
+    const argumentsHelpText = "command arguments";
+
+    expect(helper.byTestId("form-field-label-arguments")).toContainText("Arguments");
+    expect(helper.byTestId("form-field-input-arguments")).toBeInDOM();
+    expect(helper.byTestId("form-field-input-arguments")).toBeInDOM();
+    expect(helper.qa("span")[2]).toContainText(argumentsHelpText);
+  });
+
+  it("should bind arguments input to model", () => {
+    const execTask = new ExecTask("ls", [], "-alh", "tmp", []);
+    mount(execTask);
+
+    let attributes = modal.getTask().attributes() as ExecTaskAttributes;
+
+    expect(attributes.args()).toEqual("-alh");
+
+    const input = helper.byTestId("form-field-input-arguments") as HTMLInputElement;
+    input.value = "-a";
+    simulateEvent.simulate(input, "input");
+
+    attributes = modal.getTask().attributes() as ExecTaskAttributes;
+
+    expect(attributes.args()).toEqual("-a");
+    expect(helper.byTestId("form-field-input-arguments")).toHaveValue("-a");
+  });
+
   it("should render working directory input", () => {
     mount();
 
@@ -100,7 +130,7 @@ describe("Exec Task Modal", () => {
   });
 
   it("should bind working directory input to model", () => {
-    const execTask = new ExecTask("ls", [], "tmp", []);
+    const execTask = new ExecTask("ls", [], undefined, "tmp", []);
     mount(execTask);
 
     const attributes = execTask.attributes() as ExecTaskAttributes;

@@ -46,7 +46,7 @@ export class MaterialModal extends Modal {
   constructor(title: string, entity: Stream<Material>, parentPipelineName: string, materials: Stream<Materials>, scms: Stream<Scms>,
               packages: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
               pipelineConfigSave: () => Promise<any>, isNew: boolean, readonly: boolean) {
-    super(Size.large);
+    super(Size.medium);
     this.__title                  = title;
     this.originalEntity           = entity;
     this.entity                   = Stream(entity().clone());

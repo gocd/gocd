@@ -114,6 +114,14 @@ describe("Tasks Tab Content", () => {
       expect(rows[3]).toContainText("failed");
     });
 
+    it("should render passed run if condition when none specified", () => {
+      job.tasks()[0].attributes().runIf([]);
+      helper.redraw();
+
+      const rows = helper.qa("td", helper.byTestId("table-row"));
+      expect(rows[3]).toContainText("passed");
+    });
+
     it("should render properties", () => {
       expect(helper.byTestId("key-value-key-command")).toContainText("Command");
       expect(helper.byTestId("key-value-value-command")).toContainText("ls");

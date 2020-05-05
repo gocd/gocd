@@ -37,7 +37,7 @@ export interface Attrs {
   defaultJobTimeout: Stream<number>;
   templateConfig: TemplateConfig;
   resourcesSuggestions: ResourcesSuggestionsProvider;
-  elasticAgentsSuggestions: ElasticAgenrSuggestionsProvider;
+  elasticAgentsSuggestions: ElasticAgentSuggestionsProvider;
 }
 
 export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
@@ -172,7 +172,7 @@ export class JobSettingsTabContent extends TabContent<Job> {
 
   protected renderer(entity: Job, templateConfig: TemplateConfig): m.Children {
     const resourcesSuggestionsProvider     = new ResourcesSuggestionsProvider(entity.resources, this.resources);
-    const elasticAgentsSuggestionsProvider = new ElasticAgenrSuggestionsProvider(this.elasticAgentIds);
+    const elasticAgentsSuggestionsProvider = new ElasticAgentSuggestionsProvider(this.elasticAgentIds);
 
     return <JobSettingsTabContentWidget entity={entity}
                                         readonly={this.isEntityDefinedInConfigRepository()}
@@ -228,12 +228,13 @@ export class ResourcesSuggestionsProvider extends SuggestionProvider {
   }
 
   replace(suggestion: any) {
-    let optionalComma = "";
+    let updatedValues: string[] = [];
     if (this.property().trim().length > 0) {
-      optionalComma = this.property().trim()[this.property().trim().length - 1] === "," ? "" : ",";
+      updatedValues = this.property().split(',');
+      updatedValues.pop();
     }
-
-    this.property(this.property() + optionalComma + suggestion.value);
+    updatedValues.push(suggestion.value);
+    this.property(updatedValues.join() + ",");
     m.redraw.sync();
   }
 
@@ -243,7 +244,7 @@ export class ResourcesSuggestionsProvider extends SuggestionProvider {
   }
 }
 
-export class ElasticAgenrSuggestionsProvider extends SuggestionProvider {
+export class ElasticAgentSuggestionsProvider extends SuggestionProvider {
   private allElasticAgentIds: Stream<string[]>;
 
   constructor(allElasticAgentIds: Stream<string[]>) {

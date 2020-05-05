@@ -37,7 +37,7 @@ export interface Attrs {
   defaultJobTimeout: Stream<number>;
   templateConfig: TemplateConfig;
   resourcesSuggestions: ResourcesSuggestionsProvider;
-  elasticAgentsSuggestions: ElasticAgenrSuggestionsProvider;
+  elasticAgentsSuggestions: ElasticAgentSuggestionsProvider;
 }
 
 export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
@@ -172,7 +172,7 @@ export class JobSettingsTabContent extends TabContent<Job> {
 
   protected renderer(entity: Job, templateConfig: TemplateConfig): m.Children {
     const resourcesSuggestionsProvider     = new ResourcesSuggestionsProvider(entity.resources, this.resources);
-    const elasticAgentsSuggestionsProvider = new ElasticAgenrSuggestionsProvider(this.elasticAgentIds);
+    const elasticAgentsSuggestionsProvider = new ElasticAgentSuggestionsProvider(this.elasticAgentIds);
 
     return <JobSettingsTabContentWidget entity={entity}
                                         readonly={this.isEntityDefinedInConfigRepository()}
@@ -244,7 +244,7 @@ export class ResourcesSuggestionsProvider extends SuggestionProvider {
   }
 }
 
-export class ElasticAgenrSuggestionsProvider extends SuggestionProvider {
+export class ElasticAgentSuggestionsProvider extends SuggestionProvider {
   private allElasticAgentIds: Stream<string[]>;
 
   constructor(allElasticAgentIds: Stream<string[]>) {

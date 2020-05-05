@@ -23,7 +23,7 @@ import {JobTestData, PipelineConfigTestData} from "models/pipeline_configs/spec/
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {
-  ElasticAgenrSuggestionsProvider,
+  ElasticAgentSuggestionsProvider,
   JobSettingsTabContentWidget,
   ResourcesSuggestionsProvider
 } from "views/pages/clicky_pipeline_config/tabs/job/job_settings_tab_content";
@@ -306,7 +306,7 @@ describe("Job Settings Tab Content", () => {
                                             resources={Stream()}
                                             resourcesSuggestions={new ResourcesSuggestionsProvider(Stream(),
                                                                                                    Stream([] as string[]))}
-                                            elasticAgentsSuggestions={new ElasticAgenrSuggestionsProvider(Stream([] as string[]))}
+                                            elasticAgentsSuggestions={new ElasticAgentSuggestionsProvider(Stream([] as string[]))}
                                             templateConfig={templateConfig}
                                             defaultJobTimeout={Stream(5)}/>;
       });

@@ -36,7 +36,10 @@ export const mrequest = {
       }
     });
   },
-  versionHeader(version: string) {
+  versionHeader(version?: string) {
+    if (!version) {
+      return 'application/vnd.go.cd+json';
+    }
     return `application/vnd.go.cd.${version}+json`;
   },
   xhrConfig: {

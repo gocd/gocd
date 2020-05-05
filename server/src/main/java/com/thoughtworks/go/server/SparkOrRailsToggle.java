@@ -34,4 +34,8 @@ public class SparkOrRailsToggle {
     public void comparisonSPA(HttpServletRequest request, HttpServletResponse response) {
         basedOnToggle(Toggles.SHOW_OLD_COMPARISON_SPA, request);
     }
+
+    public void templateAuthorizationAPI(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.USE_RAILS_TEMPLATE_AUTHORIZATION_API, request);
+    }
 }

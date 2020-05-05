@@ -24,6 +24,7 @@ public class Toggles {
     public static String SHOW_OLD_PKG_REPOS_SPA = "show_old_pkg_repos_spa";
     public static String SHOW_OLD_COMPARISON_SPA = "show_old_comparison_spa";
     public static String NEW_PIPELINE_CONFIG_SPA = "new_pipeline_config_spa";
+    public static String USE_RAILS_TEMPLATE_AUTHORIZATION_API = "use_rails_template_authorization_api";
 
     private static FeatureToggleService service;
 

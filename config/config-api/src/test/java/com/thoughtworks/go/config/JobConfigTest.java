@@ -173,6 +173,15 @@ class JobConfigTest {
         ConfigErrors configErrors2 = jobConfig2.errors();
         assertThat(configErrors2.isEmpty()).isFalse();
         assertThat(configErrors2.on(JobConfig.RUN_TYPE)).isEqualTo("'Run Instance Count' should be a valid positive integer as it represents number of instances GoCD needs to spawn during runtime.");
+
+        JobConfig jobConfig3 = new JobConfig(new CaseInsensitiveString("test"));
+        ReflectionUtil.setField(jobConfig3, "runInstanceCount", "0");
+
+        jobConfig3.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
+
+        ConfigErrors configErrors3 = jobConfig3.errors();
+        assertThat(configErrors3.isEmpty()).isFalse();
+        assertThat(configErrors3.on(JobConfig.RUN_TYPE)).isEqualTo("'Run Instance Count' cannot be 0 as it represents number of instances GoCD needs to spawn during runtime.");
     }
 
     @Test

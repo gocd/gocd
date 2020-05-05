@@ -360,7 +360,6 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
 
     @Override
     public void validate(ValidationContext validationContext) {
-
         if (isBlank(CaseInsensitiveString.str(jobName))) {
             errors.add(NAME, "Name is a required field");
         } else {
@@ -379,6 +378,9 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         if (runInstanceCount != null) {
             try {
                 int runInstanceCountForValidation = Integer.parseInt(this.runInstanceCount);
+                if (runInstanceCountForValidation == 0) {
+                    errors().add(RUN_TYPE, "'Run Instance Count' cannot be 0 as it represents number of instances GoCD needs to spawn during runtime.");
+                }
                 if (runInstanceCountForValidation < 0) {
                     errors().add(RUN_TYPE, "'Run Instance Count' cannot be a negative number as it represents number of instances GoCD needs to spawn during runtime.");
                 }

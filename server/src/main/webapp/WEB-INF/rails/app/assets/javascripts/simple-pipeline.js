@@ -54,7 +54,7 @@ var WizardPage = new (Class.create({
     }
 
     jQuery.ajax({
-      url:     Routes.apiv1AdminInternalMaterialTestPath(),
+      url:     '/go/api/admin/internal/material_test',
       type:    'POST',
       cache:   false,
       headers: {

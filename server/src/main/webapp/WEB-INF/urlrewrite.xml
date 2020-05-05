@@ -94,8 +94,7 @@
   <rule>
     <name>Webhook API</name>
     <from>^/api/webhooks/([^/]+)/notify(/?)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="webhooks"/>
-    <to last="true">/%{attribute:sparkOrRails}/api/webhooks/${escape:$1}/notify</to>
+    <to last="true">/spark/api/webhooks/${escape:$1}/notify</to>
   </rule>
 
   <rule>
@@ -127,8 +126,7 @@
   <rule>
     <name>Material Test API</name>
     <from>^/api/admin/internal/material_test(/?)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="testConnectionAPI"/>
-    <to last="true">/%{attribute:sparkOrRails}/api/admin/internal/material_test</to>
+    <to last="true">/spark/api/admin/internal/material_test</to>
   </rule>
 
   <rule>

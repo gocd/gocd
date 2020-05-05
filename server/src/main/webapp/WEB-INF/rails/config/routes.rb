@@ -162,10 +162,6 @@ Rails.application.routes.draw do
             get ':template_name/authorization' => 'authorization#show', constraints: {template_name: TEMPLATE_NAME_FORMAT}
             put ':template_name/authorization' => 'authorization#update', constraints: {template_name: TEMPLATE_NAME_FORMAT}
           end
-
-          namespace :internal do
-            post :material_test, controller: :material_test, action: :test, as: :material_test
-          end
         end
 
         get 'version_infos/stale', controller: :version_infos, action: :stale, as: :stale_version_info
@@ -187,12 +183,6 @@ Rails.application.routes.draw do
 
   namespace :api, as: "" do
     defaults :no_layout => true do
-
-      # Vendor Webhooks
-      post 'webhooks/github/notify' => 'web_hooks/git_hub#notify'
-      post 'webhooks/gitlab/notify' => 'web_hooks/git_lab#notify'
-      post 'webhooks/bitbucket/notify' => 'web_hooks/bit_bucket#notify'
-      post 'webhooks/hosted_bitbucket/notify' => 'web_hooks/hosted_bit_bucket#notify'
 
       defaults :format => 'xml' do
         #job api's

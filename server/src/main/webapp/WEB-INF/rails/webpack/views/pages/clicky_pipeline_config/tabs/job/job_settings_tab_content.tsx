@@ -76,8 +76,9 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
                  label="Job Name"
                  property={entity.name}/>
       <AutocompleteField label="Resources"
+                         dataTestId={"resources-input"}
                          provider={vnode.attrs.resourcesSuggestions}
-                         autoEvaluate={false}
+                         autoEvaluate={this.isResourcesInputOnFocus()}
                          errorText={entity.errors().errorsForDisplay("resources")}
                          replace={vnode.attrs.resourcesSuggestions.replace.bind(vnode.attrs.resourcesSuggestions)}
                          filter={vnode.attrs.resourcesSuggestions.filter.bind(vnode.attrs.resourcesSuggestions)}
@@ -86,7 +87,8 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
                          readonly={vnode.attrs.readonly || !!entity.elasticProfileId()}
                          property={entity.resources}/>
       <AutocompleteField label="Elastic Agent Profile Id"
-                         autoEvaluate={false}
+                         dataTestId={"elastic-agent-id-input"}
+                         autoEvaluate={this.isElasticAgentIdInputOnFocus()}
                          errorText={entity.errors().errorsForDisplay("elasticProfileId")}
                          provider={vnode.attrs.elasticAgentsSuggestions}
                          readonly={vnode.attrs.readonly || !!entity.resources()}
@@ -139,6 +141,14 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
                   ]}>
       </RadioField>
     </div>;
+  }
+
+  private isResourcesInputOnFocus(): boolean {
+    return document.activeElement?.getAttribute("data-test-id") === "resources-input";
+  }
+
+  private isElasticAgentIdInputOnFocus(): boolean {
+    return document.activeElement?.getAttribute("data-test-id") === "elastic-agent-id-input";
   }
 
   private toggleJobTimeout(timeoutType: "never" | "default" | "number", entity: Job) {

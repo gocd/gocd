@@ -53,15 +53,15 @@ describe("Job Settings Tab Content", () => {
       mount(job);
 
       expect(job.resources()).toBe("");
-      expect(helper.byTestId("form-field-input-resources")).toHaveValue("");
+      expect(helper.byTestId("resources-input")).toHaveValue("");
       expect(helper.byTestId("job-settings-tab"))
         .toContainText("The agent resources that the current job requires to run. Specify multiple resources as a comma separated list.");
 
       const newResources = "windows,jdk11";
-      helper.oninput(`[data-test-id="form-field-input-resources"]`, newResources);
+      helper.oninput(`[data-test-id="resources-input"]`, newResources);
 
       expect(job.resources()).toBe(newResources);
-      expect(helper.byTestId("form-field-input-resources")).toHaveValue(newResources);
+      expect(helper.byTestId("resources-input")).toHaveValue(newResources);
     });
 
     it("should render job elastic agent id", () => {
@@ -69,24 +69,24 @@ describe("Job Settings Tab Content", () => {
       mount(job);
 
       expect(job.elasticProfileId()).toBe(undefined!);
-      expect(helper.byTestId("form-field-input-elastic-agent-profile-id")).toHaveValue("");
+      expect(helper.byTestId("elastic-agent-id-input")).toHaveValue("");
 
       expect(helper.byTestId("job-settings-tab"))
         .toContainText("The Elastic Agent Profile that the current job requires to run. Visit Elastic Agent Configurations page to manage elastic agent profiles.");
 
       const newElasticAgentProfileId = "profile1";
-      helper.oninput(`[data-test-id="form-field-input-elastic-agent-profile-id"]`, newElasticAgentProfileId);
+      helper.oninput(`[data-test-id="elastic-agent-id-input"]`, newElasticAgentProfileId);
 
       expect(job.elasticProfileId()).toBe(newElasticAgentProfileId);
-      expect(helper.byTestId("form-field-input-elastic-agent-profile-id")).toHaveValue(newElasticAgentProfileId);
+      expect(helper.byTestId("elastic-agent-id-input")).toHaveValue(newElasticAgentProfileId);
     });
 
     it("should enable both resources and elastic agent id when none specified", () => {
       const job = Job.fromJSON(JobTestData.with("test"));
       mount(job);
 
-      expect(helper.byTestId("form-field-input-resources")).not.toBeDisabled();
-      expect(helper.byTestId("form-field-input-elastic-agent-profile-id")).not.toBeDisabled();
+      expect(helper.byTestId("resources-input")).not.toBeDisabled();
+      expect(helper.byTestId("elastic-agent-id-input")).not.toBeDisabled();
     });
 
     it("should disable elastic agent id when resources are specified", () => {
@@ -94,8 +94,8 @@ describe("Job Settings Tab Content", () => {
       job.resources("windows");
       mount(job);
 
-      expect(helper.byTestId("form-field-input-resources")).not.toBeDisabled();
-      expect(helper.byTestId("form-field-input-elastic-agent-profile-id")).toBeDisabled();
+      expect(helper.byTestId("resources-input")).not.toBeDisabled();
+      expect(helper.byTestId("elastic-agent-id-input")).toBeDisabled();
     });
 
     it("should disable resources when elastic agent id is specified", () => {
@@ -103,8 +103,8 @@ describe("Job Settings Tab Content", () => {
       job.elasticProfileId("agent1");
       mount(job);
 
-      expect(helper.byTestId("form-field-input-resources")).toBeDisabled();
-      expect(helper.byTestId("form-field-input-elastic-agent-profile-id")).not.toBeDisabled();
+      expect(helper.byTestId("resources-input")).toBeDisabled();
+      expect(helper.byTestId("elastic-agent-id-input")).not.toBeDisabled();
     });
 
     it("should render job timeout", () => {
@@ -264,11 +264,11 @@ describe("Job Settings Tab Content", () => {
       });
 
       it("should render disabled job resources", () => {
-        expect(helper.byTestId("form-field-input-resources")).toBeDisabled();
+        expect(helper.byTestId("resources-input")).toBeDisabled();
       });
 
       it("should render disabled job elastic agent id", () => {
-        expect(helper.byTestId("form-field-input-elastic-agent-profile-id")).toBeDisabled();
+        expect(helper.byTestId("elastic-agent-id-input")).toBeDisabled();
       });
 
       it("should render disabled job timeout", () => {

@@ -131,8 +131,8 @@ describe("PipelineNavigation", () => {
     expect(helper.byTestId("tree-node-pipeline-from-template")).toBeInDOM();
     expect(helper.byTestId("tree-node-pipeline-from-template")).toHaveText("pipeline-from-template");
 
-    expect(helper.byTestId("tree-node-template1")).toBeInDOM();
-    expect(helper.byTestId("tree-node-template1")).toHaveText("template1");
+    expect(helper.byTestId("template-name")).toBeInDOM();
+    expect(helper.byTestId("template-name")).toHaveText("template1");
   });
 
   it("should render template name as a link with view template option", () => {

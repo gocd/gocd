@@ -216,7 +216,7 @@ export class ArtifactsTabContent extends TabContent<Job> {
       const msg = <div data-test-id="no-artifact-store-configured-msg">
         No artifact store is configured. GoCD to <a href="/go/admin/artifact_stores" title="Artifact Stores">artifact store page</a> to configure artifact store.
       </div>;
-      noArtifactStoreError = <FlashMessage type={MessageType.alert} message={msg}/>;
+      noArtifactStoreError = <FlashMessage type={MessageType.warning} message={msg}/>;
     }
 
     return (<div data-test-id="add-artifact-wrapper">

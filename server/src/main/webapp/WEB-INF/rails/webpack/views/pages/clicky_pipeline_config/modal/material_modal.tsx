@@ -110,13 +110,17 @@ export class MaterialModal extends Modal {
 
       this.pipelineConfigSave()
           .then(() => this.close())
-          .catch((errorResponse: ErrorResponse) => {
-            const parse            = JSON.parse(errorResponse.body!);
-            const unconsumedErrors = this.entity().consumeErrorsResponse(parse.data);
-            this.errorMessage(<span>{parse.message}<br/> {unconsumedErrors.allErrorsForDisplay()}</span>);
+          .catch((errorResponse?: ErrorResponse) => {
+            if(errorResponse) {
+              const parse            = JSON.parse(errorResponse.body!);
+              const unconsumedErrors = this.entity().consumeErrorsResponse(parse.data);
+              this.errorMessage(<span>{parse.message}<br/> {unconsumedErrors.allErrorsForDisplay()}</span>);
+            }
 
             if (this.isNew) {
               this.materials().delete(this.entity());
+            } else {
+              this.materials().splice(this.materials().indexOf(this.entity()), 1, this.originalEntity());
             }
           });
     }

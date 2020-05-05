@@ -34,7 +34,7 @@ export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {
       return <CheckboxField label="Automatic pipeline scheduling"
                             errorText={entity.errors().errorsForDisplay("")}
                             dataTestId={"automatic-pipeline-scheduling"}
-                            readonly={entity.isDefinedInConfigRepo()}
+                            readonly={entity.isDefinedInConfigRepo() || entity.isUsingTemplate()}
                             helpText="If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual."
                             property={stage.approval().typeAsStream()}/>;
     }

@@ -47,6 +47,8 @@ describe("GeneralOptionsTag", () => {
       const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
       mount(pipelineConfig);
 
+      expect(helper.byTestId("automatic-pipeline-scheduling")).not.toBeDisabled();
+
       expect(pipelineConfig.firstStage().approval().typeAsString()).toEqual("manual");
       expect(helper.byTestId("automatic-pipeline-scheduling")).not.toBeChecked();
 
@@ -64,13 +66,10 @@ describe("GeneralOptionsTag", () => {
       templateConfig.stages(new NameableSet([stageInTemplate]));
       mount(pipelineConfig, templateConfig);
 
+      expect(helper.byTestId("automatic-pipeline-scheduling")).toBeDisabled();
+
       expect(stageInTemplate.approval().typeAsString()).toEqual("manual");
       expect(helper.byTestId("automatic-pipeline-scheduling")).not.toBeChecked();
-
-      helper.clickByTestId("automatic-pipeline-scheduling");
-
-      expect(helper.byTestId("automatic-pipeline-scheduling")).toBeChecked();
-      expect(stageInTemplate.approval().typeAsString()).toEqual("success");
     });
   });
 

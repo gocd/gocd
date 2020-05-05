@@ -34,8 +34,8 @@ describe("Tasks Tab Content", () => {
     mount(job);
 
     expect(helper.qa("th", helper.byTestId("table-header-row"))[1]).toContainText("Task Type");
-    expect(helper.qa("th", helper.byTestId("table-header-row"))[2]).toContainText("Run If Condition");
-    expect(helper.qa("th", helper.byTestId("table-header-row"))[3]).toContainText("Properties");
+    expect(helper.qa("th", helper.byTestId("table-header-row"))[2]).toContainText("Properties");
+    expect(helper.qa("th", helper.byTestId("table-header-row"))[3]).toContainText("Run If Condition");
     expect(helper.qa("th", helper.byTestId("table-header-row"))[4]).toContainText("On Cancel");
     expect(helper.qa("th", helper.byTestId("table-header-row"))[5]).toContainText("Remove");
   });
@@ -111,7 +111,7 @@ describe("Tasks Tab Content", () => {
       helper.redraw();
 
       const rows = helper.qa("td", helper.byTestId("table-row"));
-      expect(rows[2]).toContainText("failed");
+      expect(rows[3]).toContainText("failed");
     });
 
     it("should render properties", () => {

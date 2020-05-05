@@ -163,10 +163,12 @@ export class GitFields extends ScmFields {
 
   extraFields(attrs: MaterialAttributes): m.ChildArray {
     const mat = attrs as GitMaterialAttributes;
+
     return [
       <TextField label="Repository Branch" property={mat.branch} placeholder="master"/>,
       <TextField label="Username" property={mat.username}/>,
       <PasswordField label="Password" property={mat.password}/>,
+      <CheckboxField label="Shallow clone (recommended for large repositories)" property={mat.shallowClone}/>
     ];
   }
 }
@@ -229,7 +231,7 @@ export class TfsFields extends ScmFields {
       <TextField label="Repository URL" property={mat.url} errorText={this.errs(attrs, "url")} required={true}/>,
       <TextField label="Project Path" property={mat.projectPath} errorText={this.errs(attrs, "projectPath")} required={true}/>,
       <TextField label="Username" property={mat.username} errorText={this.errs(attrs, "username")} required={true}/>,
-      <PasswordField label="Password" property={mat.password} errorText={this.errs(attrs, "password")} required={true}/>,
+      <PasswordField label="Password" property={mat.password} errorText={this.errs(attrs, "password")} required={false}/>,
     ];
   }
 

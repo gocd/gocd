@@ -420,7 +420,7 @@ class JobRepresenterTest {
         [
           errors:
           [
-            name: ["Tab name 'coverage#1' is not unique.", "Tab name 'coverage#1' is invalid. This must be alphanumeric and can contain underscores and periods."]
+            name: ["Tab name 'coverage#1' is not unique.", "Tab name 'coverage#1' is invalid. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."]
           ],
           name: 'coverage#1',
           path: '/Jcoverage/index.html'
@@ -429,7 +429,7 @@ class JobRepresenterTest {
           errors:
           [
             name:
-            ["Tab name 'coverage#1' is not unique.", "Tab name 'coverage#1' is invalid. This must be alphanumeric and can contain underscores and periods."]
+            ["Tab name 'coverage#1' is not unique.", "Tab name 'coverage#1' is invalid. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."]
           ],
           name: 'coverage#1',
           path: '/Jcoverage/path.html'

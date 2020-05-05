@@ -145,7 +145,12 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
       case "package":
         const pkgAttrs   = material.attributes() as PackageMaterialAttributes;
         const pkgInfo    = vnode.attrs.packages().find((pkg) => pkg.id() === pkgAttrs.ref())!;
-        const pkgRepo    = vnode.attrs.packageRepositories().find((pkgRepo) => pkgRepo.repoId() === pkgInfo.packageRepo().id())!;
+        const pkgRepo    = vnode.attrs.packageRepositories().find((pkgRepo) => pkgRepo.repoId() === pkgInfo.packageRepo().id());
+
+        if(!pkgRepo) {
+          break;
+        }
+
         const pkgPlugin  = vnode.attrs.pluginInfos().findByPluginId(pkgRepo.pluginMetadata().id());
         const pluginName = pkgPlugin === undefined
           ? <span className={style.missingPlugin}>Plugin '{pkgRepo.pluginMetadata().id()}' Missing!!!</span>
@@ -159,7 +164,10 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
         break;
       case "plugin":
         const pluginAttrs = material.attributes() as PluggableScmMaterialAttributes;
-        const scmMaterial = vnode.attrs.scmMaterials().find((pkg) => pkg.id() === pluginAttrs.ref())!;
+        const scmMaterial = vnode.attrs.scmMaterials().find((pkg) => pkg.id() === pluginAttrs.ref());
+        if(!scmMaterial) {
+          break;
+        }
         const scmPlugin   = vnode.attrs.pluginInfos().findByPluginId(scmMaterial.pluginMetadata().id());
 
         materialName = scmMaterial.name();

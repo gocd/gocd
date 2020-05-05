@@ -464,12 +464,13 @@ export class TextAreaField extends FormField<string, TextAreaFieldAttrs> {
 export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr & PlaceholderAttr> {
 
   renderInputField(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>) {
+    const defaultAttributes = this.defaultAttributes(vnode.attrs);
     const input = <input type="password"
                          class={classnames(this.css.formControl, this.css.inline)}
-                         {...this.defaultAttributes(vnode.attrs)}
+                         {...defaultAttributes}
                          {...this.bindingAttributes(vnode.attrs, "oninput", "value")}/>;
 
-    return [input, PasswordField.resetOrOverride(vnode)];
+    return [input, PasswordField.resetOrOverride(vnode, () => document.getElementById((defaultAttributes.id))?.focus())];
   }
 
   protected defaultAttributes(attrs: BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr): any {
@@ -500,7 +501,7 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
 
   }
 
-  private static resetOrOverride(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>) {
+  private static resetOrOverride(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>, focus: () => any) {
     if (vnode.attrs.property()!.isEditing()) {
       return <FormResetButton css={vnode.attrs.css}
                               readonly={vnode.attrs.readonly}
@@ -510,7 +511,7 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
       return <FormResetButton css={vnode.attrs.css}
                               readonly={vnode.attrs.readonly}
                               data-test-id="change-input"
-                              onclick={vnode.attrs.property()!.edit.bind(vnode.attrs.property())}>Change</FormResetButton>;
+                              onclick={() => {vnode.attrs.property()!.edit.call(vnode.attrs.property()); focus();}}>Change</FormResetButton>;
     }
   }
 }

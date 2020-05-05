@@ -153,11 +153,11 @@ public class ExecTask extends AbstractTask implements CommandTask {
         if (workingDirectory != null && !FilenameUtil.isNormalizedPathOutsideWorkingDir(workingDirectory)) {
             if (ctx.isWithinPipelines()) {
                 errors.add(WORKING_DIR,
-                        String.format("The path of the working directory for the custom command in job '%s' in stage '%s' of pipeline '%s' is outside the agent sandbox.", ctx.getJob().name(),
+                        String.format("The path of the working directory for the custom command in job '%s' in stage '%s' of pipeline '%s' is outside the agent sandbox. It must be relative to the directory where the agent checks out materials.", ctx.getJob().name(),
                                 ctx.getStage().name(), ctx.getPipeline().name()));
             } else {
                 errors.add(WORKING_DIR,
-                        String.format("The path of the working directory for the custom command in job '%s' in stage '%s' of template '%s' is outside the agent sandbox.", ctx.getJob().name(),
+                        String.format("The path of the working directory for the custom command in job '%s' in stage '%s' of template '%s' is outside the agent sandbox. It must be relative to the directory where the agent checks out materials.", ctx.getJob().name(),
                                 ctx.getStage().name(), ctx.getTemplate().name()));
             }
         }

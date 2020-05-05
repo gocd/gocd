@@ -20,7 +20,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineGroup} from "models/admin_pipelines/admin_pipelines";
 import {PipelineGroupCRUD} from "models/admin_pipelines/pipeline_groups_crud";
-import {Authorization} from "models/authorization/authorization";
+import {Authorization, AuthorizedUsersAndRoles} from "models/authorization/authorization";
 import {Errors} from "models/mixins/errors";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
@@ -56,10 +56,8 @@ export class PermissionsWidget extends MithrilViewComponent<Attrs> {
     let permissionsView: m.Children;
     if (entity.approval().authorization().isInherited()) {
       if (groupPermissions().authorization().isConfigured()) {
-        let users       = _.uniq(groupPermissions().authorization().admin()._users.concat(groupPermissions().authorization().operate()._users));
-        let roles       = groupPermissions().authorization().admin()._roles.concat(groupPermissions().authorization().operate()._roles);
-        users           = _.uniqBy(users, (ele: Stream<string>) => ele());
-        roles           = _.uniqBy(roles, (ele: Stream<string>) => ele());
+        const users       = this.getInheritedUsers(vnode);
+        const roles       = this.getInheritedRoles(vnode);
         const errors    = new Errors();
         permissionsView = this.localPermissionsView(users, roles, errors, true, vnode);
       } else {
@@ -78,7 +76,7 @@ export class PermissionsWidget extends MithrilViewComponent<Attrs> {
       <FlashMessage type={MessageType.info} message={globalMsg}/>
       <h3 data-test-id="permissions-heading">Permissions for this stage:</h3>
       <div class={styles.radioWrapper}>
-        <RadioField onchange={(value) => {entity.approval().authorization().isInherited((value !== "local"));}}
+        <RadioField onchange={this.onPermissionsToggleChange.bind(this, vnode, entity)}
                     property={vnode.attrs.selectedPermission}
                     readonly={vnode.attrs.isEntityDefinedInConfigRepository}
                     inline={true}
@@ -98,6 +96,28 @@ export class PermissionsWidget extends MithrilViewComponent<Attrs> {
       </div>
       {permissionsView}
     </div>;
+  }
+
+  private getInheritedRoles(vnode: m.Vnode<Attrs>) {
+    const groupPermissions: Stream<PipelineGroup> = vnode.attrs.groupPermissions;
+    const roles = groupPermissions().authorization().admin()._roles.concat(groupPermissions().authorization().operate()._roles);
+    return _.uniqBy(roles, (ele: Stream<string>) => ele());
+  }
+
+  private getInheritedUsers(vnode: m.Vnode<Attrs>) {
+    const groupPermissions: Stream<PipelineGroup> = vnode.attrs.groupPermissions;
+    const users = groupPermissions().authorization().admin()._users.concat(groupPermissions().authorization().operate()._users);
+    return _.uniqBy(users, (ele: Stream<string>) => ele());
+  }
+
+  private onPermissionsToggleChange(vnode: m.Vnode<Attrs>, entity: Stage, value: string) {
+    if (value === "local" && entity.approval().authorization().isEmpty()) {
+      const auth = new AuthorizedUsersAndRoles(this.getInheritedUsers(vnode), this.getInheritedRoles(vnode));
+      entity.approval().authorization(auth);
+      this.getInheritedRoles(vnode);
+    }
+
+    entity.approval().authorization().isInherited((value !== "local"));
   }
 
   private localPermissionsView(users: Array<Stream<string>>, roles: Array<Stream<string>>, errors: Errors, readOnly: boolean, vnode: m.Vnode<Attrs>) {

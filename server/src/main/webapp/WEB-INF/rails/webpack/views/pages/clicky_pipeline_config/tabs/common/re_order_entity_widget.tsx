@@ -22,12 +22,12 @@ import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_
 import styles from "./re_order_entity.scss";
 
 export class EntityReOrderHandler {
+  readonly hasOrderChanged: () => boolean;
   private readonly shouldShowReorderMessage: Stream<boolean>;
   private readonly entityName: string;
   private readonly flashMessage: FlashMessageModelWithTimeout;
   private readonly pipelineConfigSave: () => any;
   private readonly pipelineConfigReset: () => any;
-  private readonly hasOrderChanged: () => boolean;
 
   constructor(entityName: string, flashMessage: FlashMessageModelWithTimeout,
               pipelineConfigSave: () => any, pipelineConfigReset: () => any, hasOrderChanged: () => boolean) {

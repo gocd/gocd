@@ -44,7 +44,7 @@ public class TabTest {
         Tab tab = new Tab("bar*&$", "some_path");
         tab.validateTabNamePathCorrectness();
 
-        assertThat(tab.errors().on(Tab.NAME), is("Tab name 'bar*&$' is invalid. This must be alphanumeric and can contain underscores and periods."));
+        assertThat(tab.errors().on(Tab.NAME), is("Tab name 'bar*&$' is invalid. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test
@@ -95,7 +95,7 @@ public class TabTest {
         tab.validate(null);
 
         assertThat(tab.errors().isEmpty(), is(false));
-        assertThat(tab.errors().on(Tab.NAME), is("Tab name 'foo bar' is invalid. This must be alphanumeric and can contain underscores and periods."));
+        assertThat(tab.errors().on(Tab.NAME), is("Tab name 'foo bar' is invalid. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test
@@ -109,7 +109,7 @@ public class TabTest {
     public void shouldAddErrorToTabsWithIncorrectTabNameOrPath(){
         Tab tab1 = new Tab("tab&*", "path1");
         tab1.validate(null);
-        assertThat(tab1.errors().on(Tab.NAME), is("Tab name 'tab&*' is invalid. This must be alphanumeric and can contain underscores and periods."));
+        assertThat(tab1.errors().on(Tab.NAME), is("Tab name 'tab&*' is invalid. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
         Tab tab2 = new Tab("tab1", "path 2");
         tab2.validate(null);
         assertThat(tab2.errors().on(Tab.PATH), is("Tab path 'path 2' is invalid. This must be a valid file path."));

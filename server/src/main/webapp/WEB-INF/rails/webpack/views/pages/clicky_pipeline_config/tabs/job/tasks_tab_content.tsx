@@ -122,14 +122,22 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
+    const readonly            = vnode.attrs.entityReOrderHandler.hasOrderChanged();
+    let disabledTitle: string = "";
+    if (readonly) {
+      disabledTitle = "Tasks reorder is in progress. Complete task reordering to add a new task.";
+    }
+
     let addTaskView: m.Children;
     if (vnode.attrs.isEditable) {
       addTaskView = (<div className={styles.addTaskWrapper}>
-        <SelectField property={vnode.state.selectedTaskTypeToAdd}>
+        <SelectField property={vnode.state.selectedTaskTypeToAdd}
+                     readonly={readonly}>
           <SelectFieldOptions selected={vnode.state.selectedTaskTypeToAdd()}
                               items={vnode.state.allTaskTypes}/>
         </SelectField>
         <Secondary small={true} dataTestId={"add-task-button"}
+                   disabled={readonly} title={disabledTitle}
                    onclick={() => {
                      vnode.state.modal = TasksWidget.getTaskModal(vnode.state.selectedTaskTypeToAdd(),
                                                                   undefined,
@@ -166,7 +174,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   }
 
   private static getTableHeaders(isEditable: boolean) {
-    const headers = ["Task Type", "Run If Condition", "Properties", "On Cancel"];
+    const headers = ["Task Type", "Properties", "Run If Condition", "On Cancel"];
 
     if (isEditable) {
       headers.push("Remove");
@@ -218,8 +226,8 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
         }}>
           <b>{task.description(vnode.attrs.pluginInfos())}</b>
         </Link>,
-        <i>{task.attributes().runIf().join(", ")}</i>,
         <KeyValuePair inline={true} data={task.attributes().properties()}/>,
+        <i>{task.attributes().runIf().join(", ")}</i>,
         task.attributes().onCancel()?.type || "No"
       ];
 

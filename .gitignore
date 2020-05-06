@@ -530,3 +530,7 @@ api/api-internal-scms-v1/out/
 api/api-internal-scms-v1/target/
 api/api-internal-scms-v1/logs/
 api/api-internal-scms-v1/config/
+api/api-template-authorization-v1/out/
+api/api-template-authorization-v1/target/
+api/api-template-authorization-v1/logs/
+api/api-template-authorization-v1/config/

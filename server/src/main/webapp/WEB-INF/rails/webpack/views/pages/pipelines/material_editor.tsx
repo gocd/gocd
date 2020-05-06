@@ -55,6 +55,7 @@ interface Attrs {
   disableScmMaterials?: boolean;
   readonly?: boolean;
   parentPipelineName?: string;
+  showGitMaterialShallowClone?: boolean;
 }
 
 export class MaterialEditor extends MithrilViewComponent<Attrs> {
@@ -73,6 +74,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     const readonly                    = attrs.readonly;
     const hideTestConnection          = readonly || !!attrs.hideTestConnection;
     const disableScmMaterials         = attrs.disableScmMaterials !== undefined && attrs.disableScmMaterials === true;
+    const showGitMaterialShallowClone = attrs.showGitMaterialShallowClone === undefined ? true : attrs.showGitMaterialShallowClone;
 
     return <FormBody>
       <SelectField label="Material Type" property={vnode.attrs.material.type} required={true}
@@ -81,7 +83,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
       </SelectField>
 
       <Form last={true} compactForm={true}>
-        {this.fieldsForType(attrs.readonly!, attrs.material, this.cache, showLocalWorkingCopyOptions, hideTestConnection, disableScmMaterials, attrs.disabled, attrs.packageRepositories, attrs.pluginInfos, attrs.pluggableScms, attrs.parentPipelineName)}
+        {this.fieldsForType(attrs.readonly!, attrs.material, this.cache, showLocalWorkingCopyOptions, hideTestConnection, disableScmMaterials, attrs.disabled, attrs.packageRepositories, attrs.pluginInfos, attrs.pluggableScms, attrs.parentPipelineName, showGitMaterialShallowClone)}
       </Form>
     </FormBody>;
   }
@@ -106,7 +108,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     return options;
   }
 
-  fieldsForType(readonly: boolean, material: Material, cacheable: SuggestionCache, showLocalWorkingCopyOptions: boolean, hideTestConnection: boolean, disableScmMaterials: boolean, disabled?: boolean, packageRepositories?: PackageRepositories, pluginInfos?: PluginInfos, scms?: Scms, parentPipelineName?: string): m.Children {
+  fieldsForType(readonly: boolean, material: Material, cacheable: SuggestionCache, showLocalWorkingCopyOptions: boolean, hideTestConnection: boolean, disableScmMaterials: boolean, disabled?: boolean, packageRepositories?: PackageRepositories, pluginInfos?: PluginInfos, scms?: Scms, parentPipelineName?: string, showGitMaterialShallowClone?: boolean): m.Children {
     const warningMsg = <FlashMessage type={MessageType.warning} dataTestId={"materials-destination-warning-message"}>
       In order to configure multiple SCM materials for this pipeline, each of its material needs have to a 'Alternate Checkout Path' specified.
       Please edit the existing material and specify a 'Alternate Checkout Path' in order to proceed with this operation.
@@ -120,7 +122,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
           material.attributes(new GitMaterialAttributes(undefined, true));
         }
         return <GitFields material={material} hideTestConnection={hideTestConnection} readonly={readonly} parentPipelineName={parentPipelineName}
-                          showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
+                          showGitMaterialShallowClone={showGitMaterialShallowClone} showLocalWorkingCopyOptions={showLocalWorkingCopyOptions} disabled={disabled}/>;
       case "hg":
         if (disableScmMaterials) {
           return warningMsg;

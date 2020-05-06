@@ -43,6 +43,7 @@ interface Attrs {
   disabled?: boolean;
   readonly?: boolean;
   parentPipelineName?: string;
+  showGitMaterialShallowClone?: boolean;
 }
 
 function markAllDisabled(vnodes: m.ChildArray) {
@@ -75,16 +76,16 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
     const mattrs = vnode.attrs.material.attributes() as ScmMaterialAttributes;
 
     if (vnode.attrs.disabled) {
-      return markAllDisabled(this.requiredFields(mattrs));
+      return markAllDisabled(this.requiredFields(mattrs, vnode));
     }
 
-    const fields: m.Children = [this.requiredFields(mattrs)];
+    const fields: m.Children = [this.requiredFields(mattrs, vnode)];
 
     if (!vnode.attrs.hideTestConnection) {
       fields.push(<TestConnection material={vnode.attrs.material} pipeline={vnode.attrs.parentPipelineName}/>);
     }
 
-    fields.push(this.advancedOptions(mattrs, vnode.attrs.showLocalWorkingCopyOptions));
+    fields.push(this.advancedOptions(mattrs, vnode));
 
     if (vnode.attrs.readonly) {
       return markAllDisabled(fields);
@@ -93,8 +94,9 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
     return fields;
   }
 
-  advancedOptions(mattrs: ScmMaterialAttributes, showLocalWorkingCopyOptions: boolean): m.Children {
-    let settings = this.extraFields(mattrs);
+  advancedOptions(mattrs: ScmMaterialAttributes, vnode: m.Vnode<Attrs>): m.Children {
+    const showLocalWorkingCopyOptions: boolean = vnode.attrs.showLocalWorkingCopyOptions;
+    let settings = this.extraFields(mattrs, vnode);
 
     if (showLocalWorkingCopyOptions) {
       const labelForDestination = [
@@ -139,9 +141,9 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
     </AdvancedSettings>;
   }
 
-  abstract requiredFields(attrs: MaterialAttributes): m.ChildArray;
+  abstract requiredFields(attrs: MaterialAttributes, vnode: m.Vnode<Attrs>): m.ChildArray;
 
-  abstract extraFields(attrs: MaterialAttributes): m.ChildArray;
+  abstract extraFields(attrs: MaterialAttributes, vnode: m.Vnode<Attrs>): m.ChildArray;
 
   protected filterProxy(attrs: ScmMaterialAttributes, newValue?: string): string | undefined {
     if (attrs.filter() === undefined) {
@@ -161,15 +163,20 @@ export class GitFields extends ScmFields {
     return [<TextField label="Repository URL" property={mat.url} errorText={this.errs(attrs, "url")} required={true}/>];
   }
 
-  extraFields(attrs: MaterialAttributes): m.ChildArray {
+  extraFields(attrs: MaterialAttributes, vnode: m.Vnode<Attrs>): m.ChildArray {
     const mat = attrs as GitMaterialAttributes;
 
-    return [
+    const fields = [
       <TextField label="Repository Branch" property={mat.branch} placeholder="master"/>,
       <TextField label="Username" property={mat.username}/>,
-      <PasswordField label="Password" property={mat.password}/>,
-      <CheckboxField label="Shallow clone (recommended for large repositories)" property={mat.shallowClone}/>
+      <PasswordField label="Password" property={mat.password}/>
     ];
+
+    if(vnode.attrs.showGitMaterialShallowClone === undefined || vnode.attrs.showGitMaterialShallowClone === true) {
+      fields.push(<CheckboxField label="Shallow clone (recommended for large repositories)" property={mat.shallowClone}/>);
+    }
+
+    return fields;
   }
 }
 

@@ -50,6 +50,26 @@ describe("AddPipeline: SCM Material Fields", () => {
     expect(helper.byTestId("test-connection-button")).toBeInDOM();
   });
 
+  it("GitFields structure for Config Repo", () => {
+    const material = new Material("git", new GitMaterialAttributes());
+    helper.mount(() => <GitFields showGitMaterialShallowClone={false} material={material} showLocalWorkingCopyOptions={true}/>);
+
+    assertLabelledInputsPresent({
+                                  "repository-url": "Repository URL*",
+                                  "repository-branch": "Repository Branch",
+                                  "username": "Username",
+                                  "password": "Password",
+                                  "alternate-checkout-path": "Alternate Checkout Path",
+                                  "material-name": "Material Name",
+                                  "blacklist": "Blacklist"
+                                });
+
+    assertLabelledInputsAbsent("shallow-clone-recommended-for-large-repositories");
+    assertAutoUpdateSwitchPresent();
+
+    expect(helper.byTestId("test-connection-button")).toBeInDOM();
+  });
+
   it("HgFields structure", () => {
     const material = new Material("hg", new HgMaterialAttributes());
     helper.mount(() => <HgFields material={material} showLocalWorkingCopyOptions={true}/>);

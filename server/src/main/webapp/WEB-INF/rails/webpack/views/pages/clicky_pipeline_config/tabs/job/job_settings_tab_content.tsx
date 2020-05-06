@@ -168,6 +168,8 @@ export class JobSettingsTabContent extends TabContent<Job> {
   private readonly resources: Stream<string[]>       = Stream([] as string[]);
   private readonly elasticAgentIds: Stream<string[]> = Stream([] as string[]);
   private readonly defaultJobTimeout: Stream<number> = Stream();
+  private resourcesSuggestionsProvider: ResourcesSuggestionsProvider | undefined;
+  private elasticAgentsSuggestionsProvider: ElasticAgentSuggestionsProvider | undefined;
 
   constructor() {
     super();
@@ -181,13 +183,17 @@ export class JobSettingsTabContent extends TabContent<Job> {
   }
 
   protected renderer(entity: Job, templateConfig: TemplateConfig): m.Children {
-    const resourcesSuggestionsProvider     = new ResourcesSuggestionsProvider(entity.resources, this.resources);
-    const elasticAgentsSuggestionsProvider = new ElasticAgentSuggestionsProvider(this.elasticAgentIds);
+    if (!this.resourcesSuggestionsProvider) {
+      this.resourcesSuggestionsProvider = new ResourcesSuggestionsProvider(entity.resources, this.resources);
+    }
+    if (!this.elasticAgentsSuggestionsProvider) {
+      this.elasticAgentsSuggestionsProvider = new ElasticAgentSuggestionsProvider(this.elasticAgentIds);
+    }
 
     return <JobSettingsTabContentWidget entity={entity}
                                         readonly={this.isEntityDefinedInConfigRepository()}
-                                        resourcesSuggestions={resourcesSuggestionsProvider}
-                                        elasticAgentsSuggestions={elasticAgentsSuggestionsProvider}
+                                        resourcesSuggestions={this.resourcesSuggestionsProvider}
+                                        elasticAgentsSuggestions={this.elasticAgentsSuggestionsProvider}
                                         defaultJobTimeout={this.defaultJobTimeout}
                                         resources={this.resources}
                                         templateConfig={templateConfig}/>;

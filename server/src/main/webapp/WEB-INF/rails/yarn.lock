@@ -2218,10 +2218,10 @@ chartjs-color@^2.1.0:
     chartjs-color-string "^0.6.0"
     color-convert "^1.9.3"
 
-chartjs-plugin-zoom@^0.7.5:
-  version "0.7.5"
-  resolved "https://registry.yarnpkg.com/chartjs-plugin-zoom/-/chartjs-plugin-zoom-0.7.5.tgz#83ffd143b1807604d8ecabae1091b9c5abf91b84"
-  integrity sha512-OGVQXlw5meOD7ac+CBNO7yKg4Tk06eBb5LUIgpK/qgv7SjVB/89pWMQY3pxWnzCMI8FsoV3iTKQ2ZCOvh4+q6w==
+chartjs-plugin-zoom@^0.7.6:
+  version "0.7.6"
+  resolved "https://registry.yarnpkg.com/chartjs-plugin-zoom/-/chartjs-plugin-zoom-0.7.6.tgz#cd4a0cd28ad1d3a047be928b3927a34b8bcda40d"
+  integrity sha512-3je4J1xFf0AOX1G/mSlMgsNR34qpVT3rsj8Oi+fVpPSsMlhpEAc3MRyLwulfGmz1Q4IGvdong91mNBx0uSLFig==
   dependencies:
     hammerjs "^2.0.8"
 

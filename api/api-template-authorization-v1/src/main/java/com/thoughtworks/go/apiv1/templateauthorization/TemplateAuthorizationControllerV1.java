@@ -23,6 +23,7 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.templateauthorization.representers.AuthorizationRepresenter;
 import com.thoughtworks.go.config.Authorization;
 import com.thoughtworks.go.config.CaseInsensitiveString;
@@ -103,8 +104,7 @@ public class TemplateAuthorizationControllerV1 extends ApiController implements 
 
         templateConfigService.updateTemplateAuthConfig(currentUsername(), templateConfig, authorization, result, etagFor(templateConfig));
 
-        PipelineTemplateConfig templateRequiredOnlyForSerializingAuth = new PipelineTemplateConfig(null, authorization);
-        return handleCreateOrUpdateResponse(request, response, templateRequiredOnlyForSerializingAuth, result);
+        return handleCreateOrUpdateResponse(request, response, authorization, result);
     }
 
     @Override
@@ -136,5 +136,19 @@ public class TemplateAuthorizationControllerV1 extends ApiController implements 
     @Override
     public Consumer<OutputWriter> jsonWriter(PipelineTemplateConfig templateAuthorization) {
         return outputWriter -> AuthorizationRepresenter.toJSON(outputWriter, templateAuthorization.getAuthorization());
+    }
+
+    private String handleCreateOrUpdateResponse(Request req, Response res, Authorization authorization, HttpLocalizedOperationResult result) {
+        if (result.isSuccessful()) {
+            PipelineTemplateConfig templateConfig = fetchEntityFromConfig(req.params("template_name"));
+            setEtagHeader(templateConfig, res);
+            return jsonize(req, templateConfig);
+        } else {
+            res.status(result.httpCode());
+            String errorMessage = result.message();
+
+            return null == authorization ? MessageJson.create(errorMessage)
+                    : MessageJson.create(errorMessage, jsonWriter(new PipelineTemplateConfig(null, authorization)));
+        }
     }
 }

@@ -76,9 +76,14 @@ export class StagesTabContent extends TabContent<PipelineConfig | TemplateConfig
       this.originalStages = pipelineConfig.stages().names();
     }
 
+    const onReset = () => {
+      this.entityReOrderHandler = undefined;
+      return pipelineConfigReset();
+    };
+
     if (!this.entityReOrderHandler) {
       this.entityReOrderHandler = new EntityReOrderHandler("Stage", flashMessage,
-                                                           pipelineConfigSave, pipelineConfigReset,
+                                                           pipelineConfigSave, onReset,
                                                            this.hasOrderChanged.bind(this, pipelineConfig));
     }
 

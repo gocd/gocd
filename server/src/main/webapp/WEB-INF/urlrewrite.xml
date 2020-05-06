@@ -997,6 +997,12 @@
   </rule>
 
   <rule>
+    <name>Render Template Authorization</name>
+    <from>/admin/templates/([^/]+)/permissions(/?)$</from>
+    <to last="true">/rails/admin/templates/${escape:$1}/permissions</to>
+  </rule>
+
+  <rule>
     <name>Redirect to Pipeline Config SPA</name>
     <from>/admin/(pipelines|templates)/([^/]+)/(.*?)?$</from>
     <run class="com.thoughtworks.go.server.RedirectToPipelineConfigSPAToggle" method="redirect"/>

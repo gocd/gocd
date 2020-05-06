@@ -86,7 +86,7 @@ export class Package extends ValidatableMixin {
   }
 
   static default() {
-    return new Package("", "", false, new Configurations([]), new PackageRepositorySummary());
+    return new Package("", "", true, new Configurations([]), new PackageRepositorySummary());
   }
 
   toJSON(): object {

@@ -293,9 +293,13 @@ export class TasksTabContent extends TabContent<Job> {
 
     const selectedJob = this.selectedEntity(pipelineConfig, routeParams);
 
+    const onReset = () => {
+      this.entityReOrderHandler = undefined;
+      return reset();
+    };
+
     if (!this.entityReOrderHandler) {
-      this.entityReOrderHandler = new EntityReOrderHandler("Task", flashMessage, save,
-                                                           reset, this.hasOrderChanged.bind(this, selectedJob));
+      this.entityReOrderHandler = new EntityReOrderHandler("Task", flashMessage, save, onReset, this.hasOrderChanged.bind(this, selectedJob));
     }
 
     if (!this.originalTasks) {

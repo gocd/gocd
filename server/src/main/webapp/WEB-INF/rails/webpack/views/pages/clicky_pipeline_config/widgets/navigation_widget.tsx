@@ -120,7 +120,8 @@ export class NavigationWidget extends MithrilViewComponent<Attrs> {
     });
   }
 
-  onTemplateViewClick(templateName: string) {
+  onTemplateViewClick(templateName: string, e: MouseEvent) {
+    e.stopPropagation();
     window.location.href = `/go/admin/templates#!${templateName}/view`;
   }
 

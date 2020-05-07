@@ -54,6 +54,7 @@ export class PermissionsWidget extends MithrilViewComponent<Attrs> {
     const groupPermissions: Stream<PipelineGroup> = vnode.attrs.groupPermissions;
 
     let permissionsView: m.Children;
+    let localPermissionsMsg: m.Children;
     if (entity.approval().authorization().isInherited()) {
       if (groupPermissions().authorization().isConfigured()) {
         const users       = this.getInheritedUsers(vnode);
@@ -68,7 +69,10 @@ export class PermissionsWidget extends MithrilViewComponent<Attrs> {
       const users     = entity.approval().authorization()._users;
       const roles     = entity.approval().authorization()._roles;
       const errors    = entity.approval().authorization().errors();
-      permissionsView = this.localPermissionsView(users, roles, errors, vnode.attrs.isEntityDefinedInConfigRepository, vnode);
+      const msg       = "The pipeline group that this pipeline belongs to has permissions configured. You can add only those users and roles that have permissions to operate on this pipeline group.";
+
+      localPermissionsMsg = <FlashMessage dataTestId="local-permission-msg" message={msg} type={MessageType.info}/>;
+      permissionsView     = this.localPermissionsView(users, roles, errors, vnode.attrs.isEntityDefinedInConfigRepository, vnode);
     }
 
     const globalMsg = "All system administrators and pipeline group administrators can operate on this stage (this cannot be overridden).";
@@ -94,6 +98,7 @@ export class PermissionsWidget extends MithrilViewComponent<Attrs> {
                     ]}>
         </RadioField>
       </div>
+      {localPermissionsMsg}
       {permissionsView}
     </div>;
   }

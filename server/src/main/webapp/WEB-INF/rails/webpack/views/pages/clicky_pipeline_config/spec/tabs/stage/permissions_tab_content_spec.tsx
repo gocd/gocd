@@ -428,6 +428,24 @@ describe("Permissions Tab Content", () => {
     expect(helper.byTestId("roles-errors")).toContainText("role 'role1' does not exists");
   });
 
+  it("should not render local permission definition message when permissions are inherited", () => {
+    const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
+    stage.approval().authorization().isInherited(true);
+    mount(stage);
+
+    expect(helper.byTestId("local-permission-msg")).not.toBeInDOM();
+  });
+
+  it("should render local permission definition message", () => {
+    const msg = "The pipeline group that this pipeline belongs to has permissions configured. You can add only those users and roles that have permissions to operate on this pipeline group.";
+    const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
+    stage.approval().authorization().isInherited(false);
+    stage.approval().authorization()._roles.push(Stream("role1"));
+    mount(stage);
+
+    expect(helper.byTestId("local-permission-msg")).toContainText(msg);
+  });
+
   describe("Read Only", () => {
     beforeEach(() => {
       const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test", "Job1"));

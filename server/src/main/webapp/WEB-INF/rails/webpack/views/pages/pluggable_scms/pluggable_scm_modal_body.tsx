@@ -25,6 +25,8 @@ import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_inf
 import {FlashMessage, FlashMessageModel} from "views/components/flash_message";
 import {Form, FormHeader} from "views/components/forms/form";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {SwitchBtn} from "views/components/switch";
+import styles from "./index.scss";
 
 const AngularPluginNew = require("views/shared/angular_plugin_new").AngularPluginNew;
 
@@ -71,6 +73,15 @@ export class PluggableScmModalBody extends MithrilViewComponent<Attrs> {
           </SelectField>
         </Form>
       </FormHeader>
+
+      <div className={styles.switchWrapper}>
+        <SwitchBtn label="Poll for new changes"
+                   helpText="By default, GoCD polls the repository for changes automatically. If turned off, then GoCD will not poll the repository for changes"
+                   dataTestId="auto-update-scm"
+                   small={true}
+                   field={vnode.attrs.scm.autoUpdate}
+                   errorText={vnode.attrs.scm.errors().errorsForDisplay("autoUpdate")}/>
+      </div>
 
       <div className="row collapse">
         <AngularPluginNew

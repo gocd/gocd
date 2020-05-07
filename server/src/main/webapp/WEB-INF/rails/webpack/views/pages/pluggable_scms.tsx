@@ -65,7 +65,7 @@ export class PluggableScmsPage extends Page<null, State> {
       e.stopPropagation();
 
       const pluginId = vnode.state.pluginInfos()[0].id;
-      const scm      = new Scm("", "", false, new PluginMetadata(pluginId, "1"), new Configurations([]));
+      const scm      = new Scm("", "", true, new PluginMetadata(pluginId, "1"), new Configurations([]));
 
       new CreatePluggableScmModal(scm, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
         .render();

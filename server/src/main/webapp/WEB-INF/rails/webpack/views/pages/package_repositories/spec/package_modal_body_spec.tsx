@@ -52,7 +52,7 @@ describe('PackageModalBodySpec', () => {
     expect(helper.textByTestId('flash-message-info')).toBe('The new package will be available to be used as material in all pipelines. Other admins might be able to edit this package.');
   });
 
-  it('should render input fields for id, name and package repo', () => {
+  it('should render input fields for id, name and auto update of package repo', () => {
     mount();
 
     expect(helper.byTestId('form-field-input-name')).toBeInDOM();
@@ -62,6 +62,9 @@ describe('PackageModalBodySpec', () => {
     expect(helper.byTestId('form-field-input-package-repository')).toBeInDOM();
     expect(helper.byTestId('form-field-input-package-repository')).not.toBeDisabled();
     expect(helper.byTestId("form-field-input-package-repository").children[0].textContent).toBe(pkg.packageRepo().name());
+
+    expect(helper.byTestId('auto-update-package')).toBeInDOM();
+    expect(helper.byTestId('auto-update-package')).not.toBeDisabled();
   });
 
   it('should call the spy method on package repo change', () => {

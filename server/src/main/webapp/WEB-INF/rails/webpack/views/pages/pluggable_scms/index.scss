@@ -24,3 +24,9 @@
 .align-left {
   margin-right: auto;
 }
+
+.switch-wrapper {
+  label:after {
+    margin-top: 0.15rem;
+  }
+}

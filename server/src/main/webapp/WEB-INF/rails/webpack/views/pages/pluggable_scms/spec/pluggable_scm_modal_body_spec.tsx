@@ -17,8 +17,8 @@
 import m from "mithril";
 import {Scm} from "models/materials/pluggable_scm";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {FlashMessageModel, MessageType} from "views/components/flash_message";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {FlashMessageModel, MessageType} from "../../../components/flash_message";
 import {PluggableScmModalBody} from "../pluggable_scm_modal_body";
 import {getPluggableScm, getScmPlugin} from "./test_data";
 
@@ -47,7 +47,7 @@ describe('PluggableScmModalBodySpec', () => {
                                               disableId={disabled} pluginIdProxy={pluginIdProxy} message={message}/>);
   }
 
-  it('should render input fields for name, id and plugin', () => {
+  it('should render input fields for name, plugin and auto update', () => {
     mount();
 
     expect(helper.byTestId('form-field-input-name')).toBeInDOM();
@@ -58,9 +58,12 @@ describe('PluggableScmModalBodySpec', () => {
     expect(helper.byTestId('form-field-input-plugin')).not.toBeDisabled();
     expect(helper.byTestId("form-field-input-plugin").children.length).toBe(1);
     expect(helper.byTestId("form-field-input-plugin").children[0].textContent).toBe('SCM Plugin');
+
+    expect(helper.byTestId('auto-update-scm')).toBeInDOM();
+    expect(helper.byTestId('auto-update-scm')).not.toBeDisabled();
   });
 
-  it('should render the name and id as readonly', () => {
+  it('should render the name as readonly', () => {
     disabled = true;
     mount();
 

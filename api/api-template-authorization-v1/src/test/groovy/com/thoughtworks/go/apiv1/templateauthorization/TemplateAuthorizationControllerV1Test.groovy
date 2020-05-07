@@ -176,13 +176,15 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
       void 'should update authorization for a given template'() {
         def templateName = "template-name"
         def templateConfig = createTemplate(templateName)
+        def templateConfigAfterUpdate = createTemplate(templateName)
 
         def viewConfig = new ViewConfig(new AdminRole(new CaseInsensitiveString("role_view")), new AdminUser("view"))
         def adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role_admin")), new AdminUser("admin"))
         def authorizationRequest = new Authorization(viewConfig, new OperationConfig(), adminsConfig)
+        templateConfigAfterUpdate.setAuthorization(authorizationRequest)
 
-        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('md5')
-        when(templateConfigService.loadForView(templateName, result)).thenReturn(templateConfig)
+        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('md5').thenReturn('md5_after_update')
+        when(templateConfigService.loadForView(templateName, result)).thenReturn(templateConfig).thenReturn(templateConfigAfterUpdate)
         doNothing().when(templateConfigService).updateTemplateAuthConfig(any(Username.class) as Username, eq(templateConfig),
           any(), eq(result), eq("md5"))
 
@@ -198,7 +200,7 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"md5_after_update"')
           .hasBodyWithJsonObject(AuthorizationRepresenter, authorizationRequest)
       }
 
@@ -244,7 +246,7 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
       }
 
       @Test
-      void 'should handle validation failures'() {
+      void 'should return 422 with errors serialized if validation fails'() {
         def templateName = "template-name"
         def templateConfig = createTemplate(templateName)
 
@@ -252,7 +254,7 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
         def adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role_admin")), new AdminUser("admin"))
         def authorizationRequest = new Authorization(viewConfig, null, adminsConfig)
 
-        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('md5')
+        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('md5').thenReturn('md5')
         when(templateConfigService.loadForView(templateName, result)).thenReturn(templateConfig)
         doAnswer({ InvocationOnMock invocation ->
           authorizationRequest.addError("name", "Role \"role_admin\" does not exist.")

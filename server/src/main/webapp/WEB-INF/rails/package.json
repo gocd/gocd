@@ -23,7 +23,7 @@
     "awesomplete": "^1.1.5",
     "bourbon": "^7.0.0",
     "chart.js": "^2.9.3",
-    "chartjs-plugin-zoom": "^0.7.6",
+    "chartjs-plugin-zoom": "^0.7.7",
     "classnames": "^2.2.6",
     "clipboard-polyfill": "^2.8.6",
     "core-js": "^3.6.5",

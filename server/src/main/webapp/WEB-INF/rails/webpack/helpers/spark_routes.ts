@@ -88,7 +88,7 @@ export class SparkRoutes {
     const queryString = m.buildQueryString({
                                              fingerprint,
                                              pipeline_name: pipelineName,
-                                             search_text: searchText
+                                             search_text:   searchText
                                            });
     return `/go/api/internal/material_search?${queryString}`;
   }
@@ -434,7 +434,7 @@ export class SparkRoutes {
                                            withAdditionalInfo: boolean = false) {
     const values: Params = {
       pipeline_group_authorization: groupAuthorization,
-      template_authorization: templateAuthorization,
+      template_authorization:       templateAuthorization,
     };
     if (withAdditionalInfo) {
       values.with_additional_info = true;
@@ -583,5 +583,10 @@ export class SparkRoutes {
 
   static pluggableScmSPA() {
     return '/go/admin/scms';
+  }
+
+  static templateAuthorizationPath(id: string): string {
+    return `/go/api/admin/templates/${id}/authorization`;
+
   }
 }

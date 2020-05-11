@@ -86,3 +86,41 @@
     border-radius:    $global-border-radius;
   }
 }
+
+.icon-delete {
+  @include icon-before($type: $fa-var-times);
+  border:  none;
+  display: inline;
+  cursor:  pointer;
+  width:   22px;
+  height:  22px;
+  padding: 0;
+
+  &:before {
+    margin: 0;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.switch-wrapper {
+  margin-bottom: 25px;
+}
+
+.permission-name-wrapper {
+  margin-top:    10px;
+  margin-bottom: -10px;
+}
+
+.permission-checkbox-wrapper {
+  display:    flex;
+  margin-top: 15px;
+}
+
+.cancel-button-wrapper {
+  display:       flex;
+  margin-bottom: 10px;
+  margin-top:    10px;
+}

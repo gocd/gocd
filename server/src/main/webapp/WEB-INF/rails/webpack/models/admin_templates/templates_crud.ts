@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {Template, TemplateSummary} from "models/admin_templates/templates";
+import {Template, TemplateAuthorization, TemplateAuthorizationJSON, TemplateSummary} from "models/admin_templates/templates";
 import TemplateSummaryRootObject = TemplateSummary.TemplateSummaryRootObject;
 
 export class TemplatesCRUD {
@@ -36,10 +36,25 @@ export class TemplatesCRUD {
 
   }
 
+  static getAuthorization(name: string) {
+    return ApiRequestBuilder.GET(SparkRoutes.templateAuthorizationPath(name), ApiVersion.latest)
+                            .then(this.extractObjectWithEtag);
+
+  }
+
+  static updateAuthorization(templateName: string, updatedTemplateAuthorization: TemplateAuthorization, etag: string) {
+    return ApiRequestBuilder.PUT(SparkRoutes.templateAuthorizationPath(templateName),
+                                 ApiVersion.latest,
+                                 {
+                                   payload: updatedTemplateAuthorization, etag
+                                 })
+                            .then(this.extractObjectWithEtag);
+  }
+
   static createEmptyTemplate(newName: string) {
     return ApiRequestBuilder.POST(SparkRoutes.templatesPath(), ApiVersion.latest, {
       payload: {
-        name: newName,
+        name:   newName,
         stages: [
           {
             name: "defaultStage",
@@ -47,6 +62,16 @@ export class TemplatesCRUD {
           }
         ]
       }
+    });
+  }
+
+  private static extractObjectWithEtag(result: ApiResult<string>) {
+    return result.map((body) => {
+      const json = JSON.parse(body) as TemplateAuthorizationJSON;
+      return {
+        object: TemplateAuthorization.fromJSON(json),
+        etag:   result.getEtag()
+      } as ObjectWithEtag<TemplateAuthorization>;
     });
   }
 }

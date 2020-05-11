@@ -70,7 +70,7 @@ public class SpaControllers implements SparkSpringController {
                 StatusReportsController.class, railsCompatibleTemplate), elasticAgentPluginService, jobInstanceService));
         sparkControllers.add(new CompareController(authenticationHelper, templateEngineFactory.create(CompareController.class, () -> COMPONENT_LAYOUT_PATH), pipelineService));
         sparkControllers.add(new AgentJobRunHistoryController(authenticationHelper, templateEngineFactory.create(AgentJobRunHistoryController.class, () -> COMPONENT_LAYOUT_PATH)));
-        sparkControllers.add(new AdminTemplatesController(authenticationHelper, templateEngineFactory.create(AdminTemplatesController.class, () -> COMPONENT_LAYOUT_PATH)));
+        sparkControllers.add(new AdminTemplatesController(authenticationHelper, templateEngineFactory.create(AdminTemplatesController.class, () -> COMPONENT_LAYOUT_PATH),featureToggleService));
         sparkControllers.add(new PipelineActivityController(authenticationHelper, templateEngineFactory.create(PipelineActivityController.class, () -> COMPONENT_LAYOUT_PATH), goConfigService, securityService));
         sparkControllers.add(new AdminPipelinesController(authenticationHelper, templateEngineFactory.create(AdminPipelinesController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new ServerConfigurationController(authenticationHelper, templateEngineFactory.create(ServerConfigurationController.class, () -> COMPONENT_LAYOUT_PATH)));

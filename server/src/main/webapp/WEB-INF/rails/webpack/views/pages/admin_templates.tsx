@@ -23,8 +23,8 @@ import Stream from "mithril/stream";
 import {Template, TemplateSummary} from "models/admin_templates/templates";
 import {TemplatesCRUD} from "models/admin_templates/templates_crud";
 import {headerMeta} from "models/current_user_permissions";
-import {PipelineStructure} from "models/internal_pipeline_structure/pipeline_structure";
-import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
+import {PipelineStructureWithAdditionalInfo} from "models/internal_pipeline_structure/pipeline_structure";
+import {PipelineStructureCRUD} from "models/internal_pipeline_structure/pipeline_structure_crud";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
@@ -38,11 +38,14 @@ import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {AdminTemplatesWidget, Attrs, TemplatesScrollOptions} from "views/pages/admin_templates/admin_templates_widget";
 import {CreateTemplateModal, ShowTemplateModal} from "views/pages/admin_templates/modals";
 import {Page, PageState} from "views/pages/page";
+import {EditTemplatePermissionsModal} from "./admin_templates/edit_template_permissions_modal";
 
 const sm: ScrollManager = new AnchorVM();
 
 interface State extends Attrs {
   pluginInfos: PluginInfos;
+  usersAutoCompleteHelper: Stream<string[]>;
+  rolesAutoCompleteHelper: Stream<string[]>;
 }
 
 export class AdminTemplatesPage extends Page<null, State> {
@@ -66,9 +69,11 @@ export class AdminTemplatesPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    const onOperationError = (errorResponse: ErrorResponse) => {
+    const onOperationError              = (errorResponse: ErrorResponse) => {
       vnode.state.onError(JSON.parse(errorResponse.body!).message);
     };
+    vnode.state.usersAutoCompleteHelper = Stream();
+    vnode.state.rolesAutoCompleteHelper = Stream();
 
     this.pageState = PageState.LOADING;
 
@@ -153,7 +158,19 @@ export class AdminTemplatesPage extends Page<null, State> {
     };
 
     vnode.state.editPermissions = (template) => {
-      window.location.href = SparkRoutes.editTemplatePermissions(template.name);
+      if (this.getMeta().showRailsTemplateAuthorization) {
+        window.location.href = SparkRoutes.editTemplatePermissions(template.name);
+      } else {
+        this.pageState = PageState.LOADING;
+        TemplatesCRUD.getAuthorization(template.name).then((result) => {
+          this.pageState = PageState.OK;
+          result.do(
+            (successResponse) => {
+              new EditTemplatePermissionsModal(template.name, successResponse.body.object, successResponse.body.etag, vnode.state.usersAutoCompleteHelper(), vnode.state.rolesAutoCompleteHelper(), vnode.state.onSuccessfulSave)
+                .render();
+            }, this.setErrorState);
+        });
+      }
     };
 
     vnode.state.doShowTemplate = (templateName) => {
@@ -182,13 +199,13 @@ export class AdminTemplatesPage extends Page<null, State> {
 
     return Promise.all([
                          TemplatesCRUD.all(),
-                         EnvironmentsAPIs.allPipelines("view", "administer"),
+                         PipelineStructureCRUD.allPipelines("view", "administer"),
                          PluginInfoCRUD.all({type: ExtensionTypeString.TASK}),
                        ])
                   .then((args) => {
-                    const templates: ApiResult<TemplateSummary.TemplateSummaryTemplate[]> = args[0];
-                    const pipelineStructure: ApiResult<PipelineStructure>                 = args[1];
-                    const pluginInfos: ApiResult<PluginInfos>                             = args[2];
+                    const templates: ApiResult<TemplateSummary.TemplateSummaryTemplate[]>   = args[0];
+                    const pipelineStructure: ApiResult<PipelineStructureWithAdditionalInfo> = args[1];
+                    const pluginInfos: ApiResult<PluginInfos>                               = args[2];
 
                     templates.do(
                       (successResponse) => {
@@ -202,8 +219,10 @@ export class AdminTemplatesPage extends Page<null, State> {
 
                     pipelineStructure.do(
                       (successResponse) => {
-                        vnode.state.pipelineStructure = successResponse.body;
-                        this.pageState                = PageState.OK;
+                        vnode.state.pipelineStructure = successResponse.body.pipelineStructure;
+                        vnode.state.usersAutoCompleteHelper(successResponse.body.additionalInfo.users);
+                        vnode.state.rolesAutoCompleteHelper(successResponse.body.additionalInfo.roles);
+                        this.pageState = PageState.OK;
                       }, (errorResponse) => {
                         this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
                         this.pageState = PageState.FAILED;

@@ -15,6 +15,9 @@
  */
 package com.thoughtworks.go.spark.spa;
 
+import com.google.common.collect.ImmutableMap;
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -23,7 +26,6 @@ import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static spark.Spark.*;
@@ -31,10 +33,12 @@ import static spark.Spark.*;
 public class AdminTemplatesController implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
+    private final FeatureToggleService featureToggleService;
 
-    public AdminTemplatesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public AdminTemplatesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, FeatureToggleService featureToggleService) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
+        this.featureToggleService = featureToggleService;
     }
 
     @Override
@@ -51,9 +55,13 @@ public class AdminTemplatesController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        Map<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "AdminTemplates");
-        }};
+        Map<String, Object> meta = ImmutableMap.<String, Object>builder()
+                .put("showRailsTemplateAuthorization", featureToggleService.isToggleOn(Toggles.USE_RAILS_TEMPLATE_AUTHORIZATION_PAGE))
+                .build();
+        Map<String, Object> object = ImmutableMap.<String, Object>builder()
+                .put("viewTitle", "AdminTemplates")
+                .put("meta", meta)
+                .build();
         return new ModelAndView(object, null);
     }
 }

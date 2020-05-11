@@ -21,7 +21,7 @@ import _ from "lodash";
 import m from "mithril";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import s from "underscore.string";
-import { v4 as uuid } from 'uuid';
+import {v4 as uuid} from 'uuid';
 import * as Buttons from "views/components/buttons";
 import {OnClickHandler} from "views/components/buttons";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
@@ -446,7 +446,8 @@ export class TextAreaField extends FormField<string, TextAreaFieldAttrs> {
           if (vnode.attrs.onchange) {
             vnode.attrs.onchange(e);
           }
-        }}>{vnode.attrs.property()}</textarea>
+        }}
+        value={vnode.attrs.property()}/>
     );
   }
 

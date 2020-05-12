@@ -63,7 +63,7 @@ export class ExternalFetchArtifactView extends MithrilComponent<Attrs, State> {
     const onJobSuggestionChange = vnode.state.artifactIdSuggestions.update.bind(vnode.state.artifactIdSuggestions);
 
     if (vnode.attrs.artifactPluginInfos.length === 0) {
-      const msg = "Can not define external fetch artifact task as No Artifact Plugins are installed.";
+      const msg = "Can not create/edit external fetch artifact task as No Artifact Plugins are installed.";
       return <FlashMessage type={MessageType.info} message={msg}/>;
     }
 

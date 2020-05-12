@@ -24,9 +24,9 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-
 import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExpectedException;
@@ -196,62 +196,88 @@ class UpdateTemplateConfigCommandTest {
         verify(pipelineTemplateConfig).encryptSecureProperties(eq(preprocessedConfig), any(PipelineTemplateConfig.class));
     }
 
-    @Test
-    void updateTemplateConfigShouldValidateAllExternalArtifacts() {
-        PluggableArtifactConfig s3 = new PluggableArtifactConfig("id1", "s3");
-        PluggableArtifactConfig docker = new PluggableArtifactConfig("id2", "docker");
+    @Nested
+    class isValid {
+        @Test
+        void updateTemplateConfigShouldValidateAllExternalArtifacts() {
+            PluggableArtifactConfig s3 = new PluggableArtifactConfig("id1", "id");
+            PluggableArtifactConfig docker = new PluggableArtifactConfig("id2", "id");
 
-        JobConfig job1 = JobConfigMother.jobWithNoResourceRequirement();
-        JobConfig job2 = JobConfigMother.jobWithNoResourceRequirement();
+            JobConfig job1 = JobConfigMother.jobWithNoResourceRequirement();
+            JobConfig job2 = JobConfigMother.jobWithNoResourceRequirement();
 
-        job1.artifactTypeConfigs().add(s3);
-        job2.artifactTypeConfigs().add(docker);
+            job1.artifactTypeConfigs().add(s3);
+            job2.artifactTypeConfigs().add(docker);
 
-        PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
-                new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+            PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
+                    new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(template, null,
-                securityService, result, "stale_md5", entityHashingService, externalArtifactsService);
+            UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(template, null,
+                    securityService, result, "stale_md5", entityHashingService, externalArtifactsService);
 
-        BasicCruiseConfig preprocessedConfig = GoConfigMother.defaultCruiseConfig();
-        preprocessedConfig.addTemplate(template);
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "P1");
-        preprocessedConfig.addPipelineWithoutValidation("group", pipelineConfig);
-        ArtifactStores artifactStores = mock(ArtifactStores.class);
-        preprocessedConfig.setArtifactStores(artifactStores);
-        when(artifactStores.find(anyString())).thenReturn(new ArtifactStore("id", "pluginId"));
-        new TemplateExpansionPreprocessor().process(preprocessedConfig);
+            BasicCruiseConfig preprocessedConfig = GoConfigMother.defaultCruiseConfig();
+            preprocessedConfig.addTemplate(template);
+            PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "P1");
+            preprocessedConfig.addPipelineWithoutValidation("group", pipelineConfig);
+            preprocessedConfig.setArtifactStores(new ArtifactStores(new ArtifactStore("id", "pluginId")));
 
-        command.isValid(preprocessedConfig);
+            new TemplateExpansionPreprocessor().process(preprocessedConfig);
 
-        verify(externalArtifactsService, times(2)).validateExternalArtifactConfig(any(PluggableArtifactConfig.class), eq(new ArtifactStore("id", "pluginId")), eq(true));
-    }
+            command.isValid(preprocessedConfig);
 
-    @Test
-    void updateTemplateConfigShouldValidateAllFetchExternalArtifactTasks() {
-        JobConfig job1 = JobConfigMother.jobWithNoResourceRequirement();
-        JobConfig job2 = JobConfigMother.jobWithNoResourceRequirement();
+            verify(externalArtifactsService, times(2)).validateExternalArtifactConfig(any(PluggableArtifactConfig.class),
+                    eq(new ArtifactStore("id", "pluginId")), eq(true));
+        }
 
-        FetchPluggableArtifactTask fetchS3Task = new FetchPluggableArtifactTask(new CaseInsensitiveString("p0"), new CaseInsensitiveString("s0"), new CaseInsensitiveString("j0"), "s3");
-        FetchPluggableArtifactTask fetchDockerTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("p0"), new CaseInsensitiveString("s0"), new CaseInsensitiveString("j0"), "docker");
+        @Test
+        void updateTemplateConfigShouldValidateAllFetchExternalArtifactTasks() {
+            JobConfig job1 = JobConfigMother.jobWithNoResourceRequirement();
+            JobConfig job2 = JobConfigMother.jobWithNoResourceRequirement();
 
-        job1.addTask(fetchS3Task);
-        job2.addTask(fetchDockerTask);
+            FetchPluggableArtifactTask fetchS3Task = new FetchPluggableArtifactTask(new CaseInsensitiveString("p0"), new CaseInsensitiveString("s0"), new CaseInsensitiveString("j0"), "s3");
+            FetchPluggableArtifactTask fetchDockerTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("p0"), new CaseInsensitiveString("s0"), new CaseInsensitiveString("j0"), "docker");
 
-        PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
-                new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
+            job1.addTask(fetchS3Task);
+            job2.addTask(fetchDockerTask);
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(template, null,
-                securityService, result, "stale_md5", entityHashingService, externalArtifactsService);
+            PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
+                    new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
 
-        BasicCruiseConfig preprocessedConfig = GoConfigMother.defaultCruiseConfig();
-        preprocessedConfig.addTemplate(template);
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "P1");
-        preprocessedConfig.addPipelineWithoutValidation("group", pipelineConfig);
-        new TemplateExpansionPreprocessor().process(preprocessedConfig);
+            UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(template, null,
+                    securityService, result, "stale_md5", entityHashingService, externalArtifactsService);
 
-        command.isValid(preprocessedConfig);
+            BasicCruiseConfig preprocessedConfig = GoConfigMother.defaultCruiseConfig();
+            preprocessedConfig.addTemplate(template);
+            PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "P1");
+            preprocessedConfig.addPipelineWithoutValidation("group", pipelineConfig);
+            new TemplateExpansionPreprocessor().process(preprocessedConfig);
 
-        verify(externalArtifactsService, times(2)).validateFetchExternalArtifactTask(any(FetchPluggableArtifactTask.class), any(PipelineTemplateConfig.class), eq(preprocessedConfig));
+            command.isValid(preprocessedConfig);
+
+            verify(externalArtifactsService, times(2)).validateFetchExternalArtifactTask(any(FetchPluggableArtifactTask.class), any(PipelineTemplateConfig.class), eq(preprocessedConfig));
+        }
+
+        /*  During config save if a template is used by a pipeline, the pipeline is preprocessed and parameters are resolved. If there are any errors
+            during parameter resolution, the errors are added on the pipeline and not the template, hence earlier the update used to go through.
+            This test ensures that a template is invalid if there are errors in the preprocessed config.
+        */
+        @Test
+        void shouldNotBeValidIfPreProcessedConfigHasErrors() {
+            BasicCruiseConfig preprocessedConfig = GoConfigMother.defaultCruiseConfig();
+            PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("temp1",
+                    new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs()));
+
+            preprocessedConfig.addTemplate(template);
+            preprocessedConfig.addError("name", "Error when processing params for 'a#' used in field 'name'," +
+                    " # must be followed by a parameter pattern or escaped by another #");
+
+            UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(template, null,
+                    securityService, result, "stale_md5", entityHashingService, externalArtifactsService);
+
+            assertThat(command.isValid(preprocessedConfig)).isFalse();
+            assertThat(template.errors().isEmpty()).isFalse();
+            assertThat(template.errors().on("name")).isEqualTo("Error when processing params for 'a#' used in field 'name'," +
+                    " # must be followed by a parameter pattern or escaped by another #");
+        }
     }
 }

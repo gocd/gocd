@@ -59,6 +59,12 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedTemplateConfig = findAddedTemplate(preprocessedConfig);
+
+        if (!preprocessedConfig.getAllErrors().isEmpty()) {
+            templateConfig.errors().addAll(preprocessedConfig.getAllErrors().get(0));
+            return false;
+        }
+
         validatePublishAndFetchExternalConfigs(preprocessedTemplateConfig, preprocessedConfig);
         return super.isValid(preprocessedConfig, false);
     }

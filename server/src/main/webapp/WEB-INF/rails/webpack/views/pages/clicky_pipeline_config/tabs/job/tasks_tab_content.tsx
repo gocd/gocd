@@ -112,7 +112,9 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
     const taskToBeAdded = vnode.state.modal.getTask();
     if (taskToBeAdded.isValid()) {
       vnode.attrs.tasks().push(taskToBeAdded);
-      return this.performPipelineSave(vnode, true);
+      return this.performPipelineSave(vnode, () => {
+        vnode.attrs.tasks().pop();
+      });
     }
 
     return Promise.resolve();
@@ -121,12 +123,17 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   onTaskUpdate(vnode: m.Vnode<Attrs, State>, index: number, updated: Task) {
     if (updated.isValid()) {
       const tasks  = vnode.attrs.tasks();
+      const old = tasks[index];
       tasks[index] = updated;
       vnode.attrs.tasks(tasks);
 
-      return this.performPipelineSave(vnode, false);
-
+      return this.performPipelineSave(vnode, () => {
+        const tasks  = vnode.attrs.tasks();
+        tasks[index] = old;
+        vnode.attrs.tasks(tasks);
+      });
     }
+
     return Promise.resolve();
   }
 
@@ -193,25 +200,23 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   }
 
   private onTaskSaveFailure(vnode: m.Vnode<Attrs, State>,
-                            shouldRemoveTaskOnFailure: boolean,
+                            onFailureCallback: () => any,
                             errorResponse?: ErrorResponse) {
     if (errorResponse) {
       const parsed = JSON.parse(errorResponse.body!);
       vnode.state.modal.getTask()!.consumeErrorsResponse(parsed.data);
       vnode.state.modal.flashMessage.setMessage(MessageType.alert, parsed.message);
-      if (shouldRemoveTaskOnFailure) {
-        vnode.attrs.tasks().pop();
-      }
+      onFailureCallback();
     }
 
     m.redraw.sync();
   }
 
-  private performPipelineSave(vnode: m.Vnode<Attrs, State>, shouldRemoveTaskOnFailure: boolean) {
+  private performPipelineSave(vnode: m.Vnode<Attrs, State>, onFailureCallback: () => any) {
     return vnode.attrs.pipelineConfigSave()
                 .then(vnode.state.modal.close.bind(vnode.state.modal))
                 .catch((errorResponse?: ErrorResponse) => {
-                  this.onTaskSaveFailure(vnode, shouldRemoveTaskOnFailure, errorResponse);
+                  this.onTaskSaveFailure(vnode, onFailureCallback, errorResponse);
                 });
   }
 

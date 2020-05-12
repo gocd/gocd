@@ -304,7 +304,7 @@ export class ExecTaskAttributes extends AbstractTaskAttributes {
 
   argsStream(input?: string) {
     if (input !== undefined) {
-      const args = input.split("\n").map((a) => a.trim());
+      const args = input.split("\n");
       this.arguments(args);
     }
 
@@ -325,7 +325,16 @@ export class ExecTaskAttributes extends AbstractTaskAttributes {
   }
 
   toApiPayload(): any {
-    return JsonUtils.toSnakeCasedObject(this);
+    const json = JsonUtils.toSnakeCasedObject(this);
+    if (!this.args()) {
+      delete json.args;
+    }
+
+    if (this.arguments().length === 0) {
+      delete json.arguments;
+    }
+
+    return json;
   }
 }
 

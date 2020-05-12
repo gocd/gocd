@@ -23,8 +23,8 @@ import {Artifact, Artifacts, ArtifactType, ExternalArtifact, GoCDArtifact} from 
 import {Job} from "models/pipeline_configs/job";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
-import {ArtifactExtension} from "models/shared/plugin_infos_new/extensions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {ArtifactExtension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {Secondary} from "views/components/buttons";
@@ -33,9 +33,9 @@ import {SelectField, SelectFieldOptions, TextField} from "views/components/forms
 import * as Icons from "views/components/icons";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
+import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import styles from "views/pages/clicky_pipeline_config/tabs/job/artifacts.scss";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
-import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 
 const AngularPluginNew     = require("views/shared/angular_plugin_new").AngularPluginNew;
@@ -155,14 +155,19 @@ export class ArtifactsTabContent extends TabContent<Job> {
       const found      = this.artifactStores().find(store => store.id() === artifact.storeId())!;
       const pluginInfo = this.pluginInfos().findByPluginId(found.pluginId())!;
 
-      const artifactExtension = pluginInfo.extensionOfType(ExtensionTypeString.ARTIFACT) as ArtifactExtension;
-      pluginConfigurations    = (<div class={`${foundationClassNames(foundationStyles.foundationGridHax,
-                                                                     foundationStyles.foundationFormHax)}
+      if (!pluginInfo) {
+        const msg = `Can not create/edit external artifact as the external artifact plugin '${found.pluginId()}' associated with artifact store '${found.id()}' is missing!`;
+        pluginConfigurations = <FlashMessage type={MessageType.info} message={msg}/>;
+      } else {
+        const artifactExtension = pluginInfo.extensionOfType(ExtensionTypeString.ARTIFACT) as ArtifactExtension;
+        pluginConfigurations    = (<div class={`${foundationClassNames(foundationStyles.foundationGridHax,
+                                                                       foundationStyles.foundationFormHax)}
                                                                      ${styles.pluginView}`}>
-        <AngularPluginNew pluginInfoSettings={Stream(artifactExtension.artifactConfigSettings)}
-                          disabled={readonly}
-                          configuration={artifact.configuration()}/>
-      </div>);
+          <AngularPluginNew pluginInfoSettings={Stream(artifactExtension.artifactConfigSettings)}
+                            disabled={readonly}
+                            configuration={artifact.configuration()}/>
+        </div>);
+      }
     }
 
     let removeArtifact: m.Children;

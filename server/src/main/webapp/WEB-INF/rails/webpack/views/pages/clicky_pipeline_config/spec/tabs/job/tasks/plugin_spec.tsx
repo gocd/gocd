@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {Task} from "models/pipeline_configs/task";
+import {PluggableTask, Task} from "models/pipeline_configs/task";
+import {Configurations} from "models/shared/configuration";
 import {TaskExtension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {TaskPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
@@ -29,6 +30,18 @@ describe("Pluggable Task Modal", () => {
   it("should render no task plugin installed message", () => {
     mount();
     const expectedMsg = "Can not define plugin task as no task plugins are installed!";
+    expect(helper.byTestId("flash-message-info")).toContainText(expectedMsg);
+  });
+
+  it("should render no task plugin installed message when existing plugin task is edited", () => {
+    const pluginConfiguration = {
+      id: "script-executor",
+      version: "v1.1.0"
+    };
+
+    mount(new PluggableTask(pluginConfiguration, new Configurations([]), []));
+
+    const expectedMsg = "Can not edit plugin task as the 'script-executor' plugin associated with this task is missing!";
     expect(helper.byTestId("flash-message-info")).toContainText(expectedMsg);
   });
 

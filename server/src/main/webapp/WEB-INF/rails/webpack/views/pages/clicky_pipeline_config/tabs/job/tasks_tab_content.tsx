@@ -109,16 +109,25 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   }
 
   onTaskSave(vnode: m.Vnode<Attrs, State>): Promise<any> {
-    vnode.attrs.tasks().push(vnode.state.modal.getTask());
-    return this.performPipelineSave(vnode, true);
+    const taskToBeAdded = vnode.state.modal.getTask();
+    if (taskToBeAdded.isValid()) {
+      vnode.attrs.tasks().push(taskToBeAdded);
+      return this.performPipelineSave(vnode, true);
+    }
+
+    return Promise.resolve();
   }
 
   onTaskUpdate(vnode: m.Vnode<Attrs, State>, index: number, updated: Task) {
-    const tasks  = vnode.attrs.tasks();
-    tasks[index] = updated;
-    vnode.attrs.tasks(tasks);
+    if (updated.isValid()) {
+      const tasks  = vnode.attrs.tasks();
+      tasks[index] = updated;
+      vnode.attrs.tasks(tasks);
 
-    return this.performPipelineSave(vnode, false);
+      return this.performPipelineSave(vnode, false);
+
+    }
+    return Promise.resolve();
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
@@ -210,7 +219,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
     const tasks = vnode.attrs.tasks();
 
     return tasks.map((task: Task, index: number) => {
-      const runIf = task.attributes().runIf().length === 0 ? ["passed"] : task.attributes().runIf();
+      const runIf            = task.attributes().runIf().length === 0 ? ["passed"] : task.attributes().runIf();
       const cells: m.Child[] = [
         <Link onclick={() => {
           vnode.state.modal = TasksWidget.getTaskModal(TasksWidget.getTaskTypes().get(task.type)!,
@@ -269,7 +278,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
 }
 
 export class TasksTabContent extends TabContent<Job> {
-  private readonly pluginInfos: Stream<PluginInfos> = Stream();
+  private readonly pluginInfos: Stream<PluginInfos> = Stream(new PluginInfos());
   private originalTasks: string[] | undefined;
   private autoSuggestions: Stream<any>              = Stream();
   private entityReOrderHandler: EntityReOrderHandler | undefined;

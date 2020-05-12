@@ -90,6 +90,8 @@ describe("Pipeline Template Widget", () => {
   it("should render save confirmation popup on hitting save", () => {
     mount(["template1"]);
 
+    helper.onchange('select', 'template1');
+
     expect(helper.byTestId("save")).toBeInDOM();
 
     helper.clickByTestId("save");
@@ -122,6 +124,7 @@ describe("Pipeline Template Widget", () => {
       const templates = templateNames.map(n => ({name: n, parameters: []} as Template));
       return <PipelineTemplateWidget pipelineConfig={pipelineConfig}
                                      readonly={readonly}
+                                     isPipelineDefinedOriginallyFromTemplate={Stream<boolean>(true)}
                                      pipelineConfigSave={jasmine.createSpy().and.returnValue(Promise.resolve())}
                                      pipelineConfigReset={jasmine.createSpy().and.returnValue(Promise.resolve())}
                                      templates={Stream(templates)}/>;

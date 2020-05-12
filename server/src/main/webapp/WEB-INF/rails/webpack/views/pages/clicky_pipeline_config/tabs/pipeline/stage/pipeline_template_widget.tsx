@@ -37,6 +37,7 @@ interface Attrs {
   templates: Stream<Template[]>;
   pipelineConfigSave: () => Promise<any>;
   pipelineConfigReset: () => Promise<any>;
+  isPipelineDefinedOriginallyFromTemplate: Stream<boolean>;
 }
 
 export class PipelineTemplateWidget extends MithrilComponent<Attrs> {
@@ -101,7 +102,10 @@ export class PipelineTemplateWidget extends MithrilComponent<Attrs> {
     const body = <p>Switching to a template will cause all of the currently defined stages in this pipeline to be lost.
       Are you sure you want to continue?
     </p>;
-    new ConfirmationDialog("Confirm Save", body, vnode.attrs.pipelineConfigSave).render();
+    new ConfirmationDialog("Confirm Save", body, () => {
+      vnode.attrs.isPipelineDefinedOriginallyFromTemplate(true);
+      return vnode.attrs.pipelineConfigSave();
+    }).render();
   }
 
   private buttons(vnode: m.Vnode<Attrs>): m.Children {
@@ -115,6 +119,7 @@ export class PipelineTemplateWidget extends MithrilComponent<Attrs> {
         RESET
       </Reset>
       <Primary data-test-id={"save"}
+               disabled={!vnode.attrs.pipelineConfig.isUsingTemplate()}
                onclick={this.renderConfirmation.bind(this, vnode)}>
         SAVE
       </Primary>

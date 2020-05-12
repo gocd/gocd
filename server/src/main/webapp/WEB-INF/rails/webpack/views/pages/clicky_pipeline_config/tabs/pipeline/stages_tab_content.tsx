@@ -213,6 +213,7 @@ export class StagesOrTemplatesWidget extends MithrilComponent<StagesOrTemplatesA
     let stagesOrTemplatesView: m.Children;
     if (vnode.state.isUsingTemplate()) {
       stagesOrTemplatesView = <PipelineTemplateWidget pipelineConfig={entity as PipelineConfig}
+                                                      isPipelineDefinedOriginallyFromTemplate={vnode.attrs.isPipelineDefinedOriginallyFromTemplate}
                                                       readonly={vnode.attrs.readonly}
                                                       pipelineConfigSave={vnode.attrs.save}
                                                       pipelineConfigReset={vnode.attrs.reset}

@@ -17,6 +17,8 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import * as simulateEvent from "simulate-event";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
+import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
 import {ConfigurationTypeWidget} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/configuration_type_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -81,7 +83,13 @@ describe("Pipeline Template Configuration Type Widget", () => {
 
   function mount(propertyVal: string = "stage", fromTemplate: boolean = false, readonly: boolean = false) {
     helper.mount(() => {
+      const onSave               = jasmine.createSpy().and.returnValue(Promise.resolve());
+      const onReset              = jasmine.createSpy().and.returnValue(Promise.resolve());
+      const flashMessage         = new FlashMessageModelWithTimeout();
+      const entityReOrderHandler = new EntityReOrderHandler("", flashMessage, onSave, onReset, () => false);
+
       return <ConfigurationTypeWidget property={Stream<string>(propertyVal)}
+                                      entityReOrderHandler={entityReOrderHandler}
                                       readonly={readonly}
                                       isPipelineDefinedOriginallyFromTemplate={Stream<boolean>(fromTemplate)}/>;
     });

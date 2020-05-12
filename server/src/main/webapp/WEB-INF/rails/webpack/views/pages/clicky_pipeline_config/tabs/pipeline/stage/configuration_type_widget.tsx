@@ -18,20 +18,24 @@ import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {RadioField} from "views/components/forms/input_fields";
+import {EntityReOrderHandler} from "views/pages/clicky_pipeline_config/tabs/common/re_order_entity_widget";
 import styles from "../stages.scss";
 
 interface ConfigurationTypeAttrs {
   property: (value?: string) => string;
   isPipelineDefinedOriginallyFromTemplate: Stream<boolean>;
+  entityReOrderHandler: EntityReOrderHandler;
   readonly: boolean;
 }
 
 export class ConfigurationTypeWidget extends MithrilComponent<ConfigurationTypeAttrs> {
   view(vnode: m.Vnode<ConfigurationTypeAttrs>) {
+    const readonly = vnode.attrs.entityReOrderHandler.hasOrderChanged() || vnode.attrs.readonly || vnode.attrs.isPipelineDefinedOriginallyFromTemplate();
+
     return <div class={styles.configurationTypeContainer} data-test-id="configuration-type">
       <RadioField label="Configuration Type"
                   property={vnode.attrs.property}
-                  readonly={vnode.attrs.readonly || vnode.attrs.isPipelineDefinedOriginallyFromTemplate()}
+                  readonly={readonly}
                   inline={true}
                   possibleValues={[
                     {label: "Use Template", value: "template"},

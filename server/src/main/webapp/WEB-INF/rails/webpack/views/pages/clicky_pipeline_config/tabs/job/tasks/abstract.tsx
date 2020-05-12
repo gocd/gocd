@@ -15,6 +15,7 @@
  */
 
 import m from "mithril";
+import Stream from "mithril/stream";
 import {Task} from "models/pipeline_configs/task";
 import {Cancel, Primary} from "views/components/buttons";
 import {FlashMessage, FlashMessageModel} from "views/components/flash_message";
@@ -22,14 +23,16 @@ import {Modal, ModalState, Size} from "views/components/modal";
 
 export abstract class AbstractTaskModal extends Modal {
   readonly flashMessage: FlashMessageModel;
+  public disableSave: Stream<boolean>;
   private readonlyAttr: boolean;
   private onAdd: (t: Task) => Promise<any>;
 
-  constructor(onAdd: (t: Task) => Promise<any>, readonly: boolean) {
+  constructor(onAdd: (t: Task) => Promise<any>, readonly: boolean, disableSave: Stream<boolean> = Stream<boolean>(false)) {
     super(Size.medium);
     this.onAdd        = onAdd;
     this.readonlyAttr     = readonly;
     this.flashMessage = new FlashMessageModel();
+    this.disableSave = disableSave;
   }
 
   abstract getTask(): Task;
@@ -44,7 +47,7 @@ export abstract class AbstractTaskModal extends Modal {
     }
 
     return [
-      <Primary data-test-id="save-pipeline-group" onclick={this.addTaskAndSave.bind(this)}>Save</Primary>,
+      <Primary data-test-id="save-pipeline-group" disabled={this.disableSave()} onclick={this.addTaskAndSave.bind(this)}>Save</Primary>,
       <Cancel data-test-id="cancel-button" onclick={this.close.bind(this)}>Cancel</Cancel>
     ];
   }

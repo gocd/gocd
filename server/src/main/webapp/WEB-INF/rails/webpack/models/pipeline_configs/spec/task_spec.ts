@@ -65,6 +65,17 @@ describe("Task", () => {
                                                            });
     });
 
+    it("serializes when args is specified", () => {
+      expect(new ExecTask("ls", [], "-al").toJSON()).toEqual({
+                                                             type: "exec",
+                                                             attributes: {
+                                                               command: "ls",
+                                                               args: "-al",
+                                                               run_if: []
+                                                             }
+                                                           });
+    });
+
     it("should provide description", () => {
       const task = new ExecTask("", []);
       expect(task.description(new PluginInfos())).toEqual("Custom Command");

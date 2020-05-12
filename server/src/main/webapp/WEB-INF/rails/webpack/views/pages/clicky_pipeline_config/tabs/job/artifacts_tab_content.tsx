@@ -155,14 +155,19 @@ export class ArtifactsTabContent extends TabContent<Job> {
       const found      = this.artifactStores().find(store => store.id() === artifact.storeId())!;
       const pluginInfo = this.pluginInfos().findByPluginId(found.pluginId())!;
 
-      const artifactExtension = pluginInfo.extensionOfType(ExtensionTypeString.ARTIFACT) as ArtifactExtension;
-      pluginConfigurations    = (<div class={`${foundationClassNames(foundationStyles.foundationGridHax,
-                                                                     foundationStyles.foundationFormHax)}
+      if (!pluginInfo) {
+        const msg = `Can not create/edit external artifact as the external artifact plugin '${found.pluginId()}' associated with artifact store '${found.id()}' is missing!`;
+        pluginConfigurations = <FlashMessage type={MessageType.info} message={msg}/>;
+      } else {
+        const artifactExtension = pluginInfo.extensionOfType(ExtensionTypeString.ARTIFACT) as ArtifactExtension;
+        pluginConfigurations    = (<div class={`${foundationClassNames(foundationStyles.foundationGridHax,
+                                                                       foundationStyles.foundationFormHax)}
                                                                      ${styles.pluginView}`}>
-        <AngularPluginNew pluginInfoSettings={Stream(artifactExtension.artifactConfigSettings)}
-                          disabled={readonly}
-                          configuration={artifact.configuration()}/>
-      </div>);
+          <AngularPluginNew pluginInfoSettings={Stream(artifactExtension.artifactConfigSettings)}
+                            disabled={readonly}
+                            configuration={artifact.configuration()}/>
+        </div>);
+      }
     }
 
     let removeArtifact: m.Children;

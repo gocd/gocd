@@ -94,7 +94,7 @@ export abstract class AbstractTask extends ValidatableMixin implements Task {
 
   toJSON(): any {
     return {
-      type: this.type,
+      type:       this.type,
       attributes: this.attributes().toApiPayload()
     };
   }
@@ -304,7 +304,7 @@ export class ExecTaskAttributes extends AbstractTaskAttributes {
 
   argsStream(input?: string) {
     if (input !== undefined) {
-      const args = input.split("\n").map((a) => a.trim());
+      const args = input.split("\n");
       this.arguments(args);
     }
 
@@ -325,7 +325,16 @@ export class ExecTaskAttributes extends AbstractTaskAttributes {
   }
 
   toApiPayload(): any {
-    return JsonUtils.toSnakeCasedObject(this);
+    const json = JsonUtils.toSnakeCasedObject(this);
+    if (!this.args()) {
+      delete json.args;
+    }
+
+    if (this.args() && this.arguments().length === 0) {
+      delete json.arguments;
+    }
+
+    return json;
   }
 }
 
@@ -459,7 +468,10 @@ export class PluggableTask extends AbstractTask {
 
   description(pluginInfos: PluginInfos): string {
     const pluginId = (this.attributes() as PluggableTaskAttributes).pluginConfiguration().id;
-    return pluginInfos.findByPluginId(pluginId)!.about.name;
+    const plugin   = pluginInfos.findByPluginId(pluginId);
+    //when plugin infos are not available due to missing plugin, use pluginId.
+    //plugin id at least will give more information about the missing plugin.
+    return plugin ? plugin.about.name : pluginId;
   }
 }
 

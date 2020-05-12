@@ -39,6 +39,7 @@ export class PluggableTaskModal extends AbstractTaskModal {
   private readonly pluginInfos: PluginInfos;
   private readonly selectedPluginId: Stream<string>;
   private readonly readonly: boolean;
+  private readonly isNewTaskDefinition: boolean = true;
 
   constructor(task: Task | undefined, showOnCancel: boolean, onAdd: (t: Task) => Promise<any>, pluginInfos: PluginInfos, readonly: boolean) {
     super(onAdd, readonly);
@@ -48,6 +49,7 @@ export class PluggableTaskModal extends AbstractTaskModal {
 
     if (task) {
       this.task = task;
+      this.isNewTaskDefinition = false;
     } else {
       const configurations = this.allTaskPluginConfiguration();
       const config         = (configurations.length > 0) ? configurations[0] : {} as PluginConfiguration;
@@ -63,9 +65,17 @@ export class PluggableTaskModal extends AbstractTaskModal {
 
   body(): m.Children {
     if (this.allTaskPluginConfiguration().length === 0) {
-      return <FlashMessage type={MessageType.info}
-                           message={"Can not define plugin task as no task plugins are installed!"}/>;
+      this.disableSave(true);
 
+      let msg;
+      if (this.isNewTaskDefinition) {
+        msg = "Can not define plugin task as no task plugins are installed!";
+      } else {
+        const attrs = this.task.attributes() as PluggableTaskAttributes;
+        msg         = `Can not edit plugin task as the '${attrs.pluginConfiguration().id}' plugin associated with this task is missing!`;
+      }
+
+      return <FlashMessage type={MessageType.info} message={msg}/>;
     }
 
     const attributes = this.task.attributes() as PluggableTaskAttributes;

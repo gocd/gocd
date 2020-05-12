@@ -218,6 +218,21 @@ describe("Artifacts Tab", () => {
     expect(job.artifacts()).toHaveLength(1);
   });
 
+  it("should show missing plugin error while adding external artifact", () => {
+    const pluginInfo = PluginInfo.fromJSON(ArtifactPluginInfo.docker());
+    tab.pluginInfos(new PluginInfos());
+    tab.artifactStores(new ArtifactStores(new ArtifactStore("storeid", pluginInfo.id, new Configurations([]))));
+
+    const job = Job.fromJSON(JobTestData.with("test"));
+    job.artifacts().push(new ExternalArtifact("id", "storeid"));
+    mount(job);
+
+    expect(helper.allByTestId("external-artifact-view")).toHaveLength(1);
+    const msg = "Can not create/edit external artifact as the external artifact plugin 'cd.go.artifact.docker.registry' associated with artifact store 'storeid' is missing!";
+
+    expect(helper.byTestId("flash-message-info")).toContainText(msg);
+  });
+
   it("should render external artifact", () => {
     const pluginInfo = PluginInfo.fromJSON(ArtifactPluginInfo.docker());
     tab.pluginInfos(new PluginInfos(pluginInfo));

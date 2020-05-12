@@ -230,6 +230,7 @@ export class StagesOrTemplatesWidget extends MithrilComponent<StagesOrTemplatesA
 
     return [
       <ConfigurationTypeWidget pipelineConfig={entity}
+                               entityReOrderHandler={vnode.attrs.entityReOrderHandler}
                                readonly={vnode.attrs.readonly}
                                isPipelineDefinedOriginallyFromTemplate={vnode.attrs.isPipelineDefinedOriginallyFromTemplate}
                                property={vnode.state.stageOrTemplatePropertyStream}/>,

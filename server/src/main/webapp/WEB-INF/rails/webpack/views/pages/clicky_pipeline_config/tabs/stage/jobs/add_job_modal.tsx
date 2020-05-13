@@ -173,8 +173,8 @@ export class AddJobModal extends Modal {
   }
 
   private onTaskSaveFailure(errorResponse?: ErrorResponse) {
-    if (errorResponse) {
-      const parsed = JSON.parse(errorResponse.body!);
+    if (errorResponse && errorResponse.body) {
+      const parsed = JSON.parse(errorResponse.body);
       this.jobToCreate.consumeErrorsResponse(parsed.data);
     }
 

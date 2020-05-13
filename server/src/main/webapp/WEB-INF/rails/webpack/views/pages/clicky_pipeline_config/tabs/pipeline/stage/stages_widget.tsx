@@ -100,7 +100,7 @@ export class StagesWidget extends MithrilComponent<Attrs, State> {
     const stages     = Array.from(vnode.attrs.stages().values());
     const isEditable = vnode.attrs.isEditable;
 
-    return stages.map((stage: Stage) => {
+    return stages.map((stage: Stage, index: number) => {
       let deleteDisabledMessage: string | undefined;
 
       if (Array.from(stages.values()).length === 1) {
@@ -127,7 +127,7 @@ export class StagesWidget extends MithrilComponent<Attrs, State> {
       if (isEditable) {
         cells.push(<Delete iconOnly={true}
                            title={deleteDisabledMessage}
-                           onclick={this.deleteStage.bind(this, vnode, stage)}
+                           onclick={this.deleteStage.bind(this, vnode, stage, index)}
                            disabled={!!deleteDisabledMessage}
                            data-test-id={`${s.slugify(stage.name())}-delete-icon`}/>);
       }
@@ -135,21 +135,23 @@ export class StagesWidget extends MithrilComponent<Attrs, State> {
     });
   }
 
-  private deleteStage(vnode: m.Vnode<Attrs, State>, stageToDelete: Stage) {
+  private deleteStage(vnode: m.Vnode<Attrs, State>, stageToDelete: Stage, index: number) {
     new ConfirmationDialog(
       "Delete Stage",
       <div>Do you want to delete the stage '<em>{stageToDelete.name()}</em>'?</div>,
-      this.onDelete.bind(this, vnode, stageToDelete)
+      this.onDelete.bind(this, vnode, stageToDelete, index)
     ).render();
   }
 
-  private onDelete(vnode: m.Vnode<Attrs, State>, stageToDelete: Stage) {
+  private onDelete(vnode: m.Vnode<Attrs, State>, stageToDelete: Stage, index: number) {
     vnode.attrs.stages().delete(stageToDelete);
     return vnode.attrs.pipelineConfigSave().then(() => {
       vnode.attrs.flashMessage.setMessage(MessageType.success, `Stage '${stageToDelete.name()}' deleted successfully.`);
-    }).catch((errorResponse: ErrorResponse) => {
-      vnode.attrs.stages().add(stageToDelete);
-      vnode.attrs.flashMessage.consumeErrorResponse(errorResponse);
+    }).catch((_errorResponse: ErrorResponse) => {
+      const newStages = Array.from(vnode.attrs.stages().values()).splice(0, index);
+      newStages.push(stageToDelete);
+      newStages.push(...Array.from(vnode.attrs.stages().values()).splice(index));
+      vnode.attrs.stages(new NameableSet(newStages));
     }).finally(m.redraw.sync);
   }
 }

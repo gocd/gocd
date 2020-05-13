@@ -15,6 +15,7 @@
  */
 
 import {ApiResult, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
+import $ from "jquery";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -66,6 +67,9 @@ export abstract class TabHandler<T> extends Page<null, T> {
   protected originalJSON: any;
 
   protected entity?: PipelineConfig | TemplateConfig;
+
+  //the server side error holder, All the pipeline config spa page save failure errors will be stored in this model on every save.
+  private allConfigErrors: Stream<string[] | undefined> = Stream();
 
   oninit(vnode: m.Vnode<null, T>) {
     this.initializeTab();
@@ -185,6 +189,11 @@ export abstract class TabHandler<T> extends Page<null, T> {
     ];
   }
 
+  getErrorsNotDisplayedOnTheView(): any {
+    const messagesOnDisplay = $("span[id$='-error-text']").map((i, el) => el.innerText);
+    return _.differenceWith(this.allConfigErrors(), messagesOnDisplay, _.isEqual);
+  }
+
   abstract getAssociatedTemplateWithPipeline(): TemplateConfig | undefined;
 
   abstract shouldShowSaveAndResetButtons(entity: PipelineConfig | TemplateConfig): boolean;
@@ -202,17 +211,25 @@ export abstract class TabHandler<T> extends Page<null, T> {
 
   protected abstract hasEntityConfigChanged(): boolean;
 
+  protected clearConfigErrors(): void {
+    this.allConfigErrors(undefined);
+  }
+
   protected onFailure(errorResponse: ErrorResponse) {
     const parsed = JSON.parse(errorResponse.body!);
-    this.flashMessage.consumeErrorResponse(errorResponse);
 
     try {
       if (parsed.data) {
-        this.getEntity().consumeErrorsResponse(parsed.data);
+        const allErrors = this.getEntity().consumeErrorsResponseForPipelineConfigSPA(parsed.data);
+        this.allConfigErrors(allErrors.allErrorsForDisplay());
       }
     } catch (e) {
       this.pageState = PageState.FAILED;
     }
+
+    //this redraw is needed to show the newly added config errors on the view.
+    m.redraw.sync();
+    this.updateFlashMessage(errorResponse);
 
     return Promise.reject(JSON.stringify(errorResponse));
   }
@@ -248,6 +265,20 @@ export abstract class TabHandler<T> extends Page<null, T> {
     }
 
     return saveAndResetButtons;
+  }
+
+  private updateFlashMessage(errorResponse: ErrorResponse) {
+    const parsed            = errorResponse.body ? JSON.parse(errorResponse.body!) : {};
+    let message: m.Children = parsed.message ? parsed.message : errorResponse.message;
+    const hiddenErrors      = this.getErrorsNotDisplayedOnTheView();
+
+    if (hiddenErrors) {
+      message = (<div>{message}
+        <ul>{_.flatten(hiddenErrors).map(e => <li>{e}</li>)}</ul>
+      </div>);
+    }
+
+    this.flashMessage.setMessage(MessageType.alert, message);
   }
 
   private initializeTab() {

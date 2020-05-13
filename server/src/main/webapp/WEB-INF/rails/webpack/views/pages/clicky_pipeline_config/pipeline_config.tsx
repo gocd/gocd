@@ -75,6 +75,7 @@ export class PipelineConfigPage<T> extends TabHandler<T> {
 
   save(): Promise<any> {
     this.flashMessage.clear();
+    this.clearConfigErrors();
     const isValid = this.getEntity().isValid();
 
     if (!isValid) {

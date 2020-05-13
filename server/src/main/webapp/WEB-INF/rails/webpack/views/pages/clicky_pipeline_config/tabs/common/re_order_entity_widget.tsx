@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {ButtonGroup, Cancel, Secondary} from "views/components/buttons";
@@ -68,8 +67,6 @@ export class EntityReOrderHandler {
   private onSave() {
     return this.pipelineConfigSave().then(() => {
       this.flashMessage.setMessage(MessageType.success, `${this.entityName}s reordered successfully.`);
-    }).catch((errorResponse: ErrorResponse) => {
-      this.flashMessage.consumeErrorResponse(errorResponse);
     }).finally(() => {
       this.pipelineConfigReset();
       this.shouldShowReorderMessage(false);

@@ -18,6 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ButtonGroup, Cancel, Secondary} from "views/components/buttons";
 import {FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
+import {OperationState} from "views/pages/page_operations";
 import styles from "./re_order_entity.scss";
 
 export class EntityReOrderHandler {
@@ -27,6 +28,8 @@ export class EntityReOrderHandler {
   private readonly flashMessage: FlashMessageModelWithTimeout;
   private readonly pipelineConfigSave: () => any;
   private readonly pipelineConfigReset: () => any;
+
+  protected ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
 
   constructor(entityName: string, flashMessage: FlashMessageModelWithTimeout,
               pipelineConfigSave: () => any, pipelineConfigReset: () => any, hasOrderChanged: () => boolean) {
@@ -46,7 +49,9 @@ export class EntityReOrderHandler {
     return (<div class={styles.container} data-test-id="reorder-confirmation">
       <span>Do you want to save the new {this.entityName} order?</span>
       <ButtonGroup>
-        <Secondary dataTestId={'save-btn'} onclick={this.onSave.bind(this)}>Save</Secondary>
+        <Secondary dataTestId={'save-btn'}
+                   ajaxOperationMonitor={this.ajaxOperationMonitor}
+                   ajaxOperation={this.onSave.bind(this)}>Save</Secondary>
         <Cancel dataTestId={'revert-btn'} onclick={this.onRevert.bind(this)}>Revert</Cancel>
       </ButtonGroup>
     </div>);

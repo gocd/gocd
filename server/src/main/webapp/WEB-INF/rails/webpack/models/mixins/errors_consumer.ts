@@ -55,12 +55,26 @@ export class BaseErrorsConsumer implements ErrorsConsumer {
   /**
    * Convenience function to consumes a server API response for errors on this model.
    *
-   * @returns the set of unbound errors (erros which could not be bound to any known fields).
+   * @returns the set of unbound errors (errors which could not be bound to any known fields).
    */
   consumeErrorsResponse(response: ResponseWithErrors, path: string = pathName(this)): Errors {
     const unmatched = new Errors();
     BaseErrorsConsumer.consume(response, this, path, unmatched);
     return unmatched;
+  }
+
+  /**
+   * Convenience function to consumes a server API response for errors on this model.
+   *
+   * This method tweaks the original consumeErrorsResponse method and returns all the errors.
+   *
+   * @returns the all errors received from the response.
+   *
+   */
+  consumeErrorsResponseForPipelineConfigSPA(response: ResponseWithErrors, path: string = pathName(this)): Errors {
+    const allErrorsHolder = new Errors();
+    consumeForPipelineConfigSPA(response, this, path, allErrorsHolder);
+    return allErrorsHolder;
   }
 }
 
@@ -119,6 +133,39 @@ function consume(response: any, model: any, path: string, unmatched: Errors): vo
       } else {
         consume(response[key], child(model, key), next(path, key), unmatched);
       }
+    }
+  }
+}
+
+function consumeForPipelineConfigSPA(response: any, model: any, path: string, allErrors: Errors): void {
+  if (!response || "object" !== typeof response) { return; }
+
+  if (response instanceof Array) { // assumes order from server is same as client-side model
+    for (let i = response.length - 1; i >= 0; i--) {
+      consumeForPipelineConfigSPA(response[i], item(model, i), sibl(path, i), allErrors);
+    }
+  } else {
+    for (const key of Object.keys(response)) {
+      if ("errors" === key) {
+        addErrorsToModelForPipelineConfigSPA(response.errors, model, path, allErrors);
+      } else {
+        consumeForPipelineConfigSPA(response[key], child(model, key), next(path, key), allErrors);
+      }
+    }
+  }
+}
+
+function addErrorsToModelForPipelineConfigSPA(errors: ErrorMap, model: any, path: string, allErrors: Errors): void {
+  for (const key of Object.keys(errors)) {
+    const fieldName = field(key);
+    const container = resolveErrorsHolder(model, fieldName); // may differ for each error key
+    const matchesField = isAwareOfField(container, fieldName);
+    for (const msg of errors[key]) {
+      if (matchesField && !container.errors().hasError(fieldName, msg)) {
+        container.errors().add(fieldName, msg);
+      }
+
+      addToUnmatchIfNotPluginProperty(container, allErrors, path, key, msg);
     }
   }
 }

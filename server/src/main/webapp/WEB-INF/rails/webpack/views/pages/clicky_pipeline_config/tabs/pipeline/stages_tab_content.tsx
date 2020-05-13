@@ -186,7 +186,6 @@ export class StagesOrTemplatesWidget extends MithrilComponent<StagesOrTemplatesA
 
     vnode.state.stageOrTemplatePropertyStream = (value?: string) => {
       if (value) {
-        vnode.attrs.reset();
         vnode.attrs.stageOrTemplateProperty((value === "template") ? "template" : "stage");
       }
 

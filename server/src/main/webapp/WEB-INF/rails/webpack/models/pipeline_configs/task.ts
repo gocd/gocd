@@ -108,6 +108,8 @@ abstract class AbstractTaskAttributes extends ValidatableMixin implements TaskAt
     super();
     this.runIf(runIf || []);
     this.onCancel(onCancel);
+
+    this.validateAssociated("onCancel");
   }
 
   abstract properties(): Map<string, string>;

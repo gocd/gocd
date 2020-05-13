@@ -528,8 +528,12 @@ export class SparkRoutes {
     }
   }
 
-  static getUpstreamPipelines(pipelineName: string, stageName: string) {
-    return `/go/api/internal/pipelines/${pipelineName}/${stageName}/upstream`;
+  static getUpstreamPipelines(pipelineName: string, stageName: string, isTemplate: boolean) {
+    let params: string = "";
+    if (isTemplate) {
+      params = `?${m.buildQueryString({template: true})}`;
+    }
+    return `/go/api/internal/pipelines/${pipelineName}/${stageName}/upstream${params}`;
   }
 
   static packageRepositoryPath(id?: string) {

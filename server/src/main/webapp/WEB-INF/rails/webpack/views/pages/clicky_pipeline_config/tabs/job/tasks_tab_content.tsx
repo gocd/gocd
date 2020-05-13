@@ -321,11 +321,7 @@ export class TasksTabContent extends TabContent<Job> {
     }
 
     if (!this.autoSuggestions()) {
-      if (this.isPipelineConfigView()) {
-        this.fetchUpstreamPipelines(pipelineConfig.name(), routeParams.stage_name!);
-      } else {
-        this.autoSuggestions({});
-      }
+      this.fetchUpstreamPipelines(pipelineConfig.name(), routeParams.stage_name!, !this.isPipelineConfigView());
     }
 
     return super.content(pipelineConfig, templateConfig, routeParams, ajaxOperationMonitor, flashMessage, save, reset);
@@ -373,8 +369,8 @@ export class TasksTabContent extends TabContent<Job> {
                          });
   }
 
-  private fetchUpstreamPipelines(pipelineName: string, stageName: string): any {
-    return ApiRequestBuilder.GET(SparkRoutes.getUpstreamPipelines(pipelineName, stageName), ApiVersion.v1)
+  private fetchUpstreamPipelines(pipelineName: string, stageName: string, isTemplate: boolean): any {
+    return ApiRequestBuilder.GET(SparkRoutes.getUpstreamPipelines(pipelineName, stageName, isTemplate), ApiVersion.v1)
                             .then((result: ApiResult<string>) => {
                               return result.map((str) => {
                                 return this.autoSuggestions(JSON.parse(str));

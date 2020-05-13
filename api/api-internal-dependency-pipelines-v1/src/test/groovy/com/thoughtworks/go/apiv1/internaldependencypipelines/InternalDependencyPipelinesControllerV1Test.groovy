@@ -19,6 +19,10 @@ package com.thoughtworks.go.apiv1.internaldependencypipelines
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.config.BasicCruiseConfig
+import com.thoughtworks.go.config.CaseInsensitiveString
+import com.thoughtworks.go.config.JobConfigs
+import com.thoughtworks.go.config.PipelineTemplateConfig
+import com.thoughtworks.go.config.StageConfig
 import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.server.service.GoConfigService
 import com.thoughtworks.go.spark.ControllerTrait
@@ -79,6 +83,24 @@ class InternalDependencyPipelinesControllerV1Test implements SecurityServiceTrai
       '    "mingle": {}' +
       '  },' +
       '  "": {' +
+      '    "mingle": {}' +
+      '  }' +
+      '}')
+  }
+
+  @Test
+  void 'should return template auto suggestions'() {
+    def config = new BasicCruiseConfig()
+    config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("template1"), new StageConfig(new CaseInsensitiveString("stage1"), new JobConfigs())))
+    config.addPipeline("first", PipelineConfigMother.pipelineConfig("pipeline1"))
+    when(goConfigService.getMergedConfigForEditing()).thenReturn(config)
+
+    getWithApiHeader(path('template1', 'stage1') + '?template=true')
+
+    assertThatResponse()
+      .isOk()
+      .hasJsonBody('{' +
+      '  "pipeline1": {' +
       '    "mingle": {}' +
       '  }' +
       '}')

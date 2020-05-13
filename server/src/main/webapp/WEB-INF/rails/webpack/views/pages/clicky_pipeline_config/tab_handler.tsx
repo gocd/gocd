@@ -214,7 +214,7 @@ export abstract class TabHandler<T> extends Page<null, T> {
       this.pageState = PageState.FAILED;
     }
 
-    return Promise.reject(errorResponse);
+    return Promise.reject(JSON.stringify(errorResponse));
   }
 
   protected getSaveAndResetButtons(): m.Children {

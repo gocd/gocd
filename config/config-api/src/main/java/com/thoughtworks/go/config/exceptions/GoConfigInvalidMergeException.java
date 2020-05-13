@@ -64,6 +64,7 @@ public class GoConfigInvalidMergeException extends GoConfigInvalidException {
             for (int i = 1; i <= ruleValidationErrors.size(); i++) {
                 b.append('\t').append(i).append(". ").append(ruleValidationErrors.get(i - 1)).append(";; \n");
             }
+            b.append("\n");
             List<String> configValidationErrors = new ArrayList<>(allErrors);
             configValidationErrors.removeAll(ruleValidationErrors);
             b.append("II. Config Validation Errors: \n");

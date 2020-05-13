@@ -51,7 +51,7 @@ public enum EntityType {
 
     private final String entityType;
     private final NameOrId nameOrId;
-    public static final String RULE_ERROR_PREFIX = "Not allowed to refer";
+    public static final String RULE_ERROR_PREFIX = "Not allowed to refer to";
 
     EntityType(String entityType, NameOrId nameOrId) {
         this.entityType = entityType;
@@ -202,6 +202,6 @@ public enum EntityType {
     }
 
     public String notAllowedToRefer(String identifier) {
-        return format("%s %s '%s' from the config repository.", RULE_ERROR_PREFIX, this.entityType, identifier);
+        return format("%s %s '%s'. Check the 'Rules' of this config repository.", RULE_ERROR_PREFIX, this.entityType, identifier);
     }
 }

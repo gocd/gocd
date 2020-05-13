@@ -55,7 +55,7 @@ public class Property {
 
     private String key;
     private String value;
-    private String defaultValue;
+    private String defaultValue = "";
 
     public Property(String key) {
         this.key = key;

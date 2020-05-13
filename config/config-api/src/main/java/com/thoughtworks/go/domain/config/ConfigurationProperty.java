@@ -181,7 +181,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
                 throw new RuntimeException(format("Could not decrypt secure configuration property value for key %s", configurationKey.getName()), e);
             }
         }
-        return configurationValue == null ? null : configurationValue.getValue();
+        return configurationValue == null ? EMPTY : configurationValue.getValue();
     }
 
     @Override

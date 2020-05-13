@@ -202,12 +202,13 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   private onTaskSaveFailure(vnode: m.Vnode<Attrs, State>,
                             onFailureCallback: () => any,
                             errorResponse?: ErrorResponse) {
-    if (errorResponse) {
-      const parsed = JSON.parse(errorResponse.body!);
+    if (errorResponse && errorResponse.body) {
+      const parsed = JSON.parse(errorResponse.body);
       vnode.state.modal.getTask()!.consumeErrorsResponse(parsed.data);
       vnode.state.modal.flashMessage.setMessage(MessageType.alert, parsed.message);
-      onFailureCallback();
     }
+
+    onFailureCallback();
 
     m.redraw.sync();
   }
@@ -277,7 +278,6 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
       vnode.attrs.flashMessage.setMessage(MessageType.success, `Task deleted successfully.`);
     }).catch((errorResponse: ErrorResponse) => {
       vnode.attrs.tasks().splice(taskIndex, 0, taskToDelete);
-      vnode.attrs.flashMessage.consumeErrorResponse(errorResponse);
     }).finally(m.redraw.sync);
   }
 }

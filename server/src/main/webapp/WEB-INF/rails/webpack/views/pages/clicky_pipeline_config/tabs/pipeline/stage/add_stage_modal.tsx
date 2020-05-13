@@ -148,8 +148,8 @@ export class AddStageModal extends Modal {
   }
 
   private onTaskSaveFailure(errorResponse?: ErrorResponse) {
-    if (errorResponse) {
-      const parsed = JSON.parse(errorResponse.body!);
+    if (errorResponse && errorResponse.body) {
+      const parsed = JSON.parse(errorResponse.body);
       this.stageToCreate.consumeErrorsResponse(parsed.data);
     }
 

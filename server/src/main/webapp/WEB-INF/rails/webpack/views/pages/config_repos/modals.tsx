@@ -52,7 +52,7 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
 
     const errorMessage = vnode.attrs.error ? <div class={styles.errorWrapper}>{vnode.attrs.error}</div> : undefined;
     const infoMsg = <span>Configure rules to allow which environment/pipeline group/pipeline the config repository can refer to. By default, the config repository cannot refer to an entity unless explicitly allowed. <Link
-      href={docsUrl("advanced_usage/pipelines_as_code.html")} externalLinkIcon={true}>Learn More</Link></span>;
+      href={docsUrl("advanced_usage/pipelines_as_code.html")} target="_blank" externalLinkIcon={true}>Learn More</Link></span>;
 
     return [
       errorMessage,

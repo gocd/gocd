@@ -83,7 +83,7 @@ class PartialConfigUpdateCommandTest {
         CruiseConfig updated = command.update(cruiseConfig);
         List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(cruiseConfig.getPartials().get(0));
         assertThat(allErrors).hasSize(1);
-        assertThat(allErrors.get(0).on("pipeline_group")).isEqualTo("Not allowed to refer pipeline group 'first' from the config repository.");
+        assertThat(allErrors.get(0).on("pipeline_group")).isEqualTo("Not allowed to refer to pipeline group 'first'. Check the 'Rules' of this config repository.");
         assertThat(updated.hasPipelineGroup("first")).isFalse();
     }
 
@@ -101,7 +101,7 @@ class PartialConfigUpdateCommandTest {
 
         List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(cruiseConfig.getPartials().get(0));
         assertThat(allErrors).hasSize(1);
-        assertThat(allErrors.get(0).on("pipeline_group")).isEqualTo("Not allowed to refer pipeline group 'first' from the config repository.");
+        assertThat(allErrors.get(0).on("pipeline_group")).isEqualTo("Not allowed to refer to pipeline group 'first'. Check the 'Rules' of this config repository.");
         assertThat(updated.hasPipelineGroup("first")).isFalse();
     }
 
@@ -120,7 +120,7 @@ class PartialConfigUpdateCommandTest {
 
         List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(cruiseConfig.getPartials().get(0));
         assertThat(allErrors).hasSize(1);
-        assertThat(allErrors.get(0).on("environment")).isEqualTo("Not allowed to refer environment 'uat' from the config repository.");
+        assertThat(allErrors.get(0).on("environment")).isEqualTo("Not allowed to refer to environment 'uat'. Check the 'Rules' of this config repository.");
         assertThat(updated.getEnvironments().hasEnvironmentNamed(uatEnv)).isFalse();
     }
 
@@ -138,7 +138,7 @@ class PartialConfigUpdateCommandTest {
 
         List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(cruiseConfig.getPartials().get(0));
         assertThat(allErrors).hasSize(1);
-        assertThat(allErrors.get(0).on("pipeline")).isEqualTo("Not allowed to refer pipeline 'deploy' from the config repository.");
+        assertThat(allErrors.get(0).on("pipeline")).isEqualTo("Not allowed to refer to pipeline 'deploy'. Check the 'Rules' of this config repository.");
         assertThat(updated.hasPipelineGroup("first")).isFalse();
     }
 

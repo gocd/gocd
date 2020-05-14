@@ -45,7 +45,7 @@ public abstract class PluginSettingsJsonMessageHandlerTestBase {
                 "}";
         PluginSettingsConfiguration configuration = messageHandler.responseMessageForPluginSettingsConfiguration(responseBody);
 
-        assertPropertyConfiguration((PluginSettingsProperty) configuration.get("key-one"), "key-one", null, true, false, "key-one", 0);
+        assertPropertyConfiguration((PluginSettingsProperty) configuration.get("key-one"), "key-one", "", true, false, "key-one", 0);
         assertPropertyConfiguration((PluginSettingsProperty) configuration.get("key-two"), "key-two", "two", true, true, "display-two", 1);
         assertPropertyConfiguration((PluginSettingsProperty) configuration.get("key-three"), "key-three", "three", false, false, "display-three", 2);
     }

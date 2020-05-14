@@ -63,7 +63,7 @@ public class JsonMessageHandler1_0Test {
                 "}";
         SCMPropertyConfiguration scmConfiguration = messageHandler.responseMessageForSCMConfiguration(responseBody);
 
-        assertPropertyConfiguration((SCMProperty) scmConfiguration.get("key-one"), "key-one", null, true, true, false, "", 0);
+        assertPropertyConfiguration((SCMProperty) scmConfiguration.get("key-one"), "key-one", "", true, true, false, "", 0);
         assertPropertyConfiguration((SCMProperty) scmConfiguration.get("key-two"), "key-two", "two", true, true, true, "display-two", 1);
         assertPropertyConfiguration((SCMProperty) scmConfiguration.get("key-three"), "key-three", "three", false, false, false, "display-three", 2);
     }

@@ -58,7 +58,7 @@ public class PluginSettingsTest {
         assertThat(settingsAsKeyValuePair.size(), is(3));
         assertThat(settingsAsKeyValuePair.get("key-1"), is("value1"));
         assertThat(settingsAsKeyValuePair.get("key-2"), is(""));
-        assertThat(settingsAsKeyValuePair.get("key-3"), is(nullValue()));
+        assertThat(settingsAsKeyValuePair.get("key-3"), is(""));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class PluginSettingsTest {
         assertThat(configuration.size(), is(3));
         assertThat(configuration.get("key-1").getValue(), is("value1"));
         assertThat(configuration.get("key-2").getValue(), is(""));
-        assertThat(configuration.get("key-3").getValue(), is(nullValue()));
+        assertThat(configuration.get("key-3").getValue(), is(""));
     }
 
     @Test

@@ -31,7 +31,7 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import {ShowRulesWidget} from "views/components/rules/show_rules_widget";
 import {RequiresPluginInfos} from "views/pages/page_operations";
-import {allAttributes, resolveHumanReadableAttributes} from "./config_repo_attribute_helper";
+import {allAttributes, resolveHumanReadableAttributes, userDefinedProperties} from "./config_repo_attribute_helper";
 import {CRResult} from "./config_repo_result";
 import {ConfigRepoVM, CRVMAware} from "./config_repo_view_model";
 import styles from "./index.scss";
@@ -216,6 +216,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
         {this.lastGoodModificationDetails(parseInfo)}
         {this.configRepoMetaConfigDetails(repo.id()!, repo.pluginId()!)}
         {this.materialConfigDetails(repo)}
+        {this.userPropertiesDetails(repo)}
         <ShowRulesWidget rules={repo.rules}/>
       </CollapsiblePanel>
     </Anchor>;
@@ -279,6 +280,13 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
     return <div data-test-id="config-repo-material-panel">
       <SectionHeader title="Material"/>
       <div class={styles.configRepoProperties}><KeyValuePair data={allAttributes(repo)}/></div>
+    </div>;
+  }
+
+  private userPropertiesDetails(repo: ConfigRepo) {
+    return <div data-test-id="config-repo-user-properties-panel">
+      <SectionHeader title="User-defined Properties"/>
+      <div class={styles.configRepoProperties}><KeyValuePair data={userDefinedProperties(repo)}/></div>
     </div>;
   }
 }

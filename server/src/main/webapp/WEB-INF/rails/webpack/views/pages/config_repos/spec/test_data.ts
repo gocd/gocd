@@ -217,6 +217,12 @@ export function configRepoPluginInfo() {
     extensions: [
       {
         type: "configrepo",
+        capabilities: {
+          supports_parse_content: true,
+          supports_pipeline_export: true,
+          supports_list_config_files: false,
+          supports_user_defined_properties: true,
+        },
         plugin_settings: {
           configurations: [
             {

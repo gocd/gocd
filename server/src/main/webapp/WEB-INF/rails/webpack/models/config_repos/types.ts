@@ -16,39 +16,45 @@
 
 import _ from "lodash";
 import Stream from "mithril/stream";
+import {Accessor} from "models/base/accessor";
 import {ConfigRepoJSON, ConfigReposJSON, MaterialModificationJSON, ParseInfoJSON,} from "models/config_repos/serialization";
 import {Material, Materials} from "models/materials/types";
+import {ConfigurationProperties, PropertyLike, PropertyNamesValidator} from "models/mixins/configuration_properties";
 import {Errors} from "models/mixins/errors";
+import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Rules} from "models/rules/rules";
 import {Configuration} from "models/shared/configuration";
-import {PlainTextValue} from "models/shared/config_value";
 import {AutoSuggestions} from "../roles/auto_suggestion";
 
-export class ConfigRepo extends ValidatableMixin {
+//tslint:disable-next-line
+export interface ConfigRepo extends ConfigurationProperties {
+}
+
+export class ConfigRepo extends ValidatableMixin implements ConfigurationProperties {
   static readonly PIPELINE_PATTERN             = "pipeline_pattern";
   static readonly ENVIRONMENT_PATTERN          = "environment_pattern";
   static readonly FILE_PATTERN                 = "file_pattern";
   static readonly JSON_PLUGIN_ID               = "json.config.plugin";
   static readonly YAML_PLUGIN_ID               = "yaml.config.plugin";
   static readonly GROOVY_PLUGIN_ID             = "cd.go.contrib.plugins.configrepo.groovy";
-  id: Stream<string | undefined>;
-  pluginId: Stream<string | undefined>;
-  material: Stream<Material | undefined>;
-  canAdminister: Stream<boolean>;
-  configuration: Stream<Configuration[] | undefined>;
-  lastParse: Stream<ParseInfo | null | undefined>;
-  __jsonPluginPipelinesPattern: Stream<string> = Stream("");
-  __jsonPluginEnvPattern: Stream<string>       = Stream("");
-  __yamlPluginPattern: Stream<string>          = Stream("");
-  materialUpdateInProgress: Stream<boolean>;
-  rules: Stream<Rules>;
+
+  id: Accessor<string | undefined>;
+  pluginId: Accessor<string | undefined>;
+  material: Accessor<Material | undefined>;
+  canAdminister: Accessor<boolean>;
+  lastParse: Accessor<ParseInfo | null | undefined>;
+  jsonPipelinesPattern: Accessor<string>;
+  jsonEnvPattern: Accessor<string>;
+  yamlPattern: Accessor<string>;
+  materialUpdateInProgress: Accessor<boolean>;
+  rules: Accessor<Rules>;
 
   constructor(id?: string,
               pluginId?: string,
               material?: Material,
               canAdminister?: boolean,
-              configuration?: Configuration[],
+              configuration?: PropertyLike[],
               lastParse?: ParseInfo | null,
               materialUpdateInProgress?: boolean,
               rules?: Rules) {
@@ -58,27 +64,29 @@ export class ConfigRepo extends ValidatableMixin {
     this.pluginId                 = Stream(pluginId);
     this.material                 = Stream(material);
     this.canAdminister            = Stream(canAdminister || false);
-    this.configuration            = Stream(configuration);
     this.lastParse                = Stream(lastParse);
     this.materialUpdateInProgress = Stream(materialUpdateInProgress || false);
     this.rules                    = Stream(rules || []);
+
+    ConfigurationProperties.call(this, true);
+
     if (configuration) {
-      this.__jsonPluginPipelinesPattern = Stream(ConfigRepo.findConfigurationValue(configuration,
-                                                                                   ConfigRepo.PIPELINE_PATTERN));
-      this.__jsonPluginEnvPattern       = Stream(ConfigRepo.findConfigurationValue(configuration,
-                                                                                   ConfigRepo.ENVIRONMENT_PATTERN));
-      this.__yamlPluginPattern          = Stream(ConfigRepo.findConfigurationValue(configuration,
-                                                                                   ConfigRepo.FILE_PATTERN));
+      this.configuration(configuration);
     }
+
+    this.jsonPipelinesPattern = this.propertyAsAccessor(ConfigRepo.PIPELINE_PATTERN);
+    this.jsonEnvPattern       = this.propertyAsAccessor(ConfigRepo.ENVIRONMENT_PATTERN);
+    this.yamlPattern          = this.propertyAsAccessor(ConfigRepo.FILE_PATTERN);
 
     this.validatePresenceOf("id", {message: "Please provide a name for this repository"});
     this.validateIdFormat("id", {message: "Only letters, numbers, hyphens, underscores, and periods. Must not start with a period. Max 255 chars."});
     this.validatePresenceOf("pluginId");
     this.validateAssociated("material");
     this.validateEach("rules");
+    this.validateWith(new PropertyNamesValidator(), "configuration");
   }
 
-  static findConfigurationValue(configuration: Configuration[], key: string) {
+  static findConfigurationValue(configuration: PropertyLike[], key: string) {
     const config = configuration.find((config) => config.key === key);
     return config && config.value ? config.value : "";
   }
@@ -99,24 +107,6 @@ export class ConfigRepo extends ValidatableMixin {
     return configRepo;
   }
 
-  createConfigurationsFromText() {
-    const configurations = [];
-    if (this.pluginId() === ConfigRepo.YAML_PLUGIN_ID && this.__yamlPluginPattern().length > 0) {
-      configurations.push(new Configuration(ConfigRepo.FILE_PATTERN, new PlainTextValue(this.__yamlPluginPattern())));
-    }
-    if (this.pluginId() === ConfigRepo.JSON_PLUGIN_ID) {
-      if (this.__jsonPluginPipelinesPattern().length > 0) {
-        configurations.push(new Configuration(ConfigRepo.PIPELINE_PATTERN,
-                                              new PlainTextValue(this.__jsonPluginPipelinesPattern())));
-      }
-      if (this.__jsonPluginEnvPattern().length > 0) {
-        configurations.push(new Configuration(ConfigRepo.ENVIRONMENT_PATTERN,
-                                              new PlainTextValue(this.__jsonPluginEnvPattern())));
-      }
-    }
-    return configurations;
-  }
-
   matches(textToMatch: string): boolean {
     if (!textToMatch) {
       return true;
@@ -134,6 +124,8 @@ export class ConfigRepo extends ValidatableMixin {
     ].some((value) => value ? value.toLowerCase().includes(textToMatch.toLowerCase()) : false);
   }
 }
+
+applyMixins(ConfigRepo, ConfigurationProperties);
 
 export class ConfigRepos {
   configRepos: ConfigRepo[];
@@ -177,7 +169,7 @@ export class MaterialModification {
 }
 
 export class ParseInfo {
-  error: Stream<string | null | undefined>;
+  error: Accessor<string | null | undefined>;
   readonly latestParsedModification: MaterialModification | null;
   readonly goodModification: MaterialModification | null;
 

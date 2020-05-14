@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class JsonMessageHandler3_0Test {
@@ -37,8 +38,8 @@ public class JsonMessageHandler3_0Test {
 
     @Test
     public void shouldReturnErrorWhenInvalidResponseJSON() {
-        assert(handler.responseMessageForConfigFiles("{\"files\": null}").hasErrors());
-        assert(handler.responseMessageForConfigFiles("{\"blah\": [\"file\"]}").hasErrors());
-        assert(handler.responseMessageForConfigFiles("{}").hasErrors());
+        assertTrue(handler.responseMessageForConfigFiles("{\"files\": null}").hasErrors());
+        assertTrue(handler.responseMessageForConfigFiles("{\"blah\": [\"file\"]}").hasErrors());
+        assertTrue(handler.responseMessageForConfigFiles("{}").hasErrors());
     }
 }

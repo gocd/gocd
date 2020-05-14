@@ -143,6 +143,21 @@ export class TestHelper {
     return result;
   }
 
+  value(selector: string | Element, context?: Element): string {
+    return (this._el(selector, context) as ElementWithValue).value;
+  }
+
+  valueAll(selector: string | NodeList | Element[], context?: Element): string[] {
+    const result: string[] = [];
+    const elements         = Array.from("string" === typeof selector ? this.qa(selector, context) : selector);
+
+    for (const el of elements) {
+      result.push(this.value(el as Element));
+    }
+
+    return result;
+  }
+
   onchange(selector: string | Element, value: string, context?: Element) {
     const input: ElementWithValue = this._el(selector, context) as ElementWithValue;
     input.value                   = value;

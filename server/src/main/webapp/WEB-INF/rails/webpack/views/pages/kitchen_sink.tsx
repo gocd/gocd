@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {MithrilComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
@@ -32,6 +32,8 @@ import {DummyDropdownButton} from "views/components/buttons/sample";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {Dropdown} from "views/components/dropdown";
 import {Ellipsize} from "views/components/ellipsize";
+import {KeyValEditor} from "views/components/encryptable_key_value/editor";
+import {EntriesVM} from "views/components/encryptable_key_value/vms";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
@@ -104,10 +106,14 @@ const pageChangeCallback = (pagination: Stream<Pagination>, newPage: number) => 
   return false;
 };
 
-export class KitchenSink extends MithrilViewComponent<null> {
+export class KitchenSink extends MithrilComponent<null, any> {
   provider: DynamicSuggestionProvider = new DynamicSuggestionProvider(type);
 
-  view(vnode: m.Vnode<null>) {
+  oninit(vnode: m.Vnode<null, any>) {
+    setupPropertiesEditorData(vnode.state);
+  }
+
+  view(vnode: m.Vnode<null, any>) {
     const model: Stream<string>     = Stream();
     const textValue: Stream<string> = Stream();
     const name: Stream<string>      = Stream();
@@ -368,6 +374,11 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <Table draggable={true} headers={["Pipeline", "Stage", "Job"]} data={pipelineData()}
                dragHandler={updateModel.bind(this)}/>
         <p>Model: {JSON.stringify(pipelines())}</p>
+
+        <hr/>
+
+        {propertiesEditor(vnode.state.props, "Config Properties Editor")}
+        {propertiesEditor(vnode.state.propsNS, ["Also supports namespacing properties. Using prefix: ", <code>any.prefix</code>], "This ignores properties that do not start with the supplied prefix. It also transparently prefixes all keys behind the scenes.")}
       </div>
     );
   }
@@ -588,4 +599,32 @@ function generateLoremIpsmeParagraphs(count: number): m.Children {
   }
 
   return paragraphs;
+}
+
+// KeyValEditor data and component
+
+function setupPropertiesEditorData(state: any) {
+  state.props = new EntriesVM([
+    { key: "a property?", value: "maybe.", encrypted: false },
+    { key: "a secret!", value: "AES:I_love_secrets_but_I_can't_keep_them!", encrypted: true },
+    { key: "", value: "", encrypted: false }
+  ]);
+
+  state.propsNS = new EntriesVM([
+    { key: "any.prefix.when.a.problem.comes.along", value: "you must whip it.", encrypted: false },
+    { key: "any.prefix.The key name really doesn't matter?", value: "maybe.", encrypted: false },
+    { key: "this.should.not.show", value: "I get filtered out.", encrypted: false },
+    { key: "any.prefix.relax.dont.do.it", value: "AES:when_you_to_go_to_it", encrypted: true },
+    { key: "", value: "", encrypted: false }
+  ], "any.prefix");
+}
+
+function propertiesEditor(model: EntriesVM, title: m.Children, desc="") {
+  return <div>
+    <h3>{title}</h3>
+    {desc ? <p>{desc}</p> : void 0}
+    <KeyValEditor model={model}/>
+    <p><strong>Serialized:</strong></p>
+    <pre>{JSON.stringify(model, null, 2)}</pre>
+  </div>;
 }

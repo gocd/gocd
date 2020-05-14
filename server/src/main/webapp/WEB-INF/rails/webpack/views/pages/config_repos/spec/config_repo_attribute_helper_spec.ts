@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import {ConfigRepo} from "models/config_repos/types";
-import {allAttributes, resolveHumanReadableAttributes} from "../config_repo_attribute_helper";
+import {allAttributes, resolveHumanReadableAttributes, userDefinedProperties} from "../config_repo_attribute_helper";
 
 describe("ConfigRepo attribute util functions", () => {
   it("resolveHumanReadableAttributes() emits a new attribute map with human-friendly keys", () => {
@@ -65,7 +66,7 @@ describe("ConfigRepo attribute util functions", () => {
     ].sort());
   });
 
-  it("allAttributes() extracts material and custom configuration attributes from a ConfigRepo", () => {
+  it("allAttributes() extracts material and non-user-defined configuration attributes from a ConfigRepo", () => {
     const repo = ConfigRepo.fromJSON({
       material: {
         type: "git",
@@ -80,10 +81,10 @@ describe("ConfigRepo attribute util functions", () => {
         }
       },
       can_administer: false,
-      configuration: [{
-        key: "file_pattern",
-        value: "*.json"
-      }],
+      configuration: [
+        { key: "file_pattern", value: "*.json" },
+        { key: "userdef.don't show me", value: "I don't matter!" },
+      ],
       parse_info: {},
       id: "my-repo",
       plugin_id: "json.config.plugin",
@@ -108,5 +109,52 @@ describe("ConfigRepo attribute util functions", () => {
       expect(map.has(k)).toBe(true, `missing key ${k}`);
       expect(map.get(k)).toBe(expectations[k], `wrong value at key ${k}`);
     }
+
+    expect(map.has("userdef.don't show me")).toBe(false);
+    expect(map.has("don't show me")).toBe(false);
+  });
+
+  it("userDefinedProperties() only gets user-defined properties and strips the namespace", () => {
+    const repo = ConfigRepo.fromJSON({
+      material: {
+        type: "git",
+        attributes: {
+          url: "https://example.com/git/my-repo",
+          name: "",
+          auto_update: true,
+          branch: "master",
+          destination: ""
+        }
+      },
+      can_administer: false,
+      configuration: [
+        { key: "file_pattern", value: "*.json" },
+        { key: "userdef.I yam what I yam", value: "And that's all that I yam" },
+        { key: "userdef.hello, my name is Inigo Montoya", value: "You killed my father, prepare to die" },
+        { key: "chipmunks", value: "Alvin, Simon, Theodore" },
+        { key: "userdef.a cow says", encrypted_value: "moo" },
+      ],
+      parse_info: {},
+      id: "my-repo",
+      plugin_id: "json.config.plugin",
+      material_update_in_progress: false,
+      rules: []
+    });
+
+    const map = userDefinedProperties(repo);
+    expect(map.has("file_pattern")).toBe(false);
+    expect(map.has("chipmunks")).toBe(false);
+
+    expect(_.every(Array.from(map.keys()), (key) => !key.startsWith("userdef."))).toBe(true);
+
+    expect(map.has("I yam what I yam")).toBe(true);
+    expect(map.get("I yam what I yam")).toBe("And that's all that I yam");
+
+    expect(map.has("hello, my name is Inigo Montoya")).toBe(true);
+    expect(map.get("hello, my name is Inigo Montoya")).toBe("You killed my father, prepare to die");
+
+    // encrypted values are displayed differently
+    expect(map.has("a cow says")).toBe(true);
+    expect(map.get("a cow says")).toContain("********************************");
   });
 });

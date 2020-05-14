@@ -15,7 +15,11 @@
  */
 
 import _ from "lodash";
+import m from "mithril";
 import {ConfigRepo, humanizedMaterialAttributeName} from "models/config_repos/types";
+import {USER_NS_PREFIX} from "models/mixins/configuration_properties";
+import {Configuration} from "models/shared/configuration";
+import {Lock} from "views/components/icons";
 
 export function resolveHumanReadableAttributes(obj: object) {
   const attrs  = new Map();
@@ -31,10 +35,21 @@ export function allAttributes(repo: ConfigRepo): Map<string, string> {
   const filteredAttributes = _.reduce(repo.material()!.attributes(),
     resolveKeyValueForAttribute,
     initial);
-  return _.reduce(repo.configuration(),
+  return _.reduce(repo.knownProps(),
     (accumulator, value) => resolveKeyValueForAttribute(accumulator, value.value, value.key),
     filteredAttributes
   );
+}
+
+export function userDefinedProperties(repo: ConfigRepo): Map<string, m.Children> {
+  return _.reduce(repo.userProps() as Configuration[], (memo, prop) => {
+    memo.set(prop.key.substring(USER_NS_PREFIX.length), displayValue(prop));
+    return memo;
+  }, new Map<string, m.Children>());
+}
+
+function displayValue(prop: Configuration): m.Children {
+  return prop.encrypted ? [m(Lock, { iconOnly: true }), " ", prop.displayValue()] : prop.displayValue();
 }
 
 function resolveKeyValueForAttribute(accumulator: Map<string, string>, value: any, key: string) {

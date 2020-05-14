@@ -19,16 +19,22 @@ import {ConfigRepoCapabilitiesJSON} from "models/shared/plugin_infos_new/seriali
 export class ConfigRepoCapabilities {
   readonly supportsPipelineExport: boolean;
   readonly supportsParseContent: boolean;
+  readonly supportsListConfigFiles: boolean;
+  readonly supportsUserDefinedProperties: boolean;
 
-  constructor(supportsPipelineExport: boolean, supportsParseContent: boolean) {
-    this.supportsPipelineExport = supportsPipelineExport;
-    this.supportsParseContent   = supportsParseContent;
+  constructor(supportsPipelineExport: boolean, supportsParseContent: boolean, supportsListConfigFiles: boolean, supportsUserDefinedProperties: boolean) {
+    this.supportsPipelineExport        = supportsPipelineExport;
+    this.supportsParseContent          = supportsParseContent;
+    this.supportsListConfigFiles       = supportsListConfigFiles;
+    this.supportsUserDefinedProperties = supportsUserDefinedProperties;
   }
 
   static fromJSON(data: ConfigRepoCapabilitiesJSON): ConfigRepoCapabilities {
     return new ConfigRepoCapabilities(
       data && data.supports_pipeline_export,
       data && data.supports_parse_content,
+      data && data.supports_list_config_files,
+      data && data.supports_user_defined_properties,
     );
   }
 }

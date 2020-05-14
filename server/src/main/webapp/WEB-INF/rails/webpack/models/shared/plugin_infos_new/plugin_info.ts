@@ -23,6 +23,7 @@ import {
   StatusJSON
 } from "models/shared/plugin_infos_new/serialization";
 import {About} from "./about";
+import {ConfigRepoCapabilities} from "./config_repo_capabilities";
 import {AuthorizationExtension, ConfigRepoExtension, Extension} from "./extensions";
 import {ExtensionType, ExtensionTypeString} from "./extension_type";
 
@@ -140,15 +141,15 @@ export class PluginInfos extends Array<PluginInfo> {
     return _.find(this, (pluginInfo) => pluginInfo.id === pluginId);
   }
 
-  getConfigRepoPluginInfosWithExportPipelineCapabilities(): PluginInfos {
-    const filterFn = (value: PluginInfo) => {
-      const configRepoExtension = value.extensionOfType(ExtensionTypeString.CONFIG_REPO) as ConfigRepoExtension;
-      return configRepoExtension && configRepoExtension.capabilities.supportsPipelineExport;
-    };
-
-    const filteredPluginInfos = _.filter(this, filterFn) as unknown as PluginInfo[];
-    return new PluginInfos(...filteredPluginInfos);
-
+  configRepoPluginsWhich(...caps: Array<keyof ConfigRepoCapabilities>): PluginInfos {
+    return new PluginInfos(..._.filter(this, (pi) => {
+      const kapable = _.get(
+        pi.extensionOfType<ConfigRepoExtension>(ExtensionTypeString.CONFIG_REPO),
+        "capabilities",
+        {} as ConfigRepoCapabilities
+      );
+      return _.every(caps, (key) => (key in kapable) && !!kapable[key]);
+    }));
   }
 
   getPluginInfosWithAuthorizeCapabilities(): PluginInfos {

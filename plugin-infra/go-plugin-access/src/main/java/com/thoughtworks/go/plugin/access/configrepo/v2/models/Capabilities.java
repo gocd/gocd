@@ -36,6 +36,6 @@ public class Capabilities {
     }
 
     public com.thoughtworks.go.plugin.domain.configrepo.Capabilities toCapabilities() {
-        return new com.thoughtworks.go.plugin.domain.configrepo.Capabilities(supportsPipelineExport, supportsParseContent);
+        return new com.thoughtworks.go.plugin.domain.configrepo.Capabilities(supportsPipelineExport, supportsParseContent, false, false);
     }
 }

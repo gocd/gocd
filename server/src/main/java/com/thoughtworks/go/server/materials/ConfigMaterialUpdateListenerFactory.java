@@ -30,7 +30,6 @@ public class ConfigMaterialUpdateListenerFactory {
     private ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue;
     private final GoRepoConfigDataSource repoConfigDataSource;
     private final MaterialRepository materialRepository;
-    private final MaterialChecker materialChecker;
     private final MaterialUpdateCompletedTopic materialUpdateCompletedTopic;
     private final MaterialService materialService;
     private final SubprocessExecutionContext subprocessExecutionContext;
@@ -41,7 +40,6 @@ public class ConfigMaterialUpdateListenerFactory {
                                                ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue,
                                                GoRepoConfigDataSource repoConfigDataSource,
                                                MaterialRepository materialRepository,
-                                               MaterialChecker materialChecker,
                                                MaterialUpdateCompletedTopic materialUpdateCompletedTopic,
                                                MaterialService materialService,
                                                SubprocessExecutionContext subprocessExecutionContext) {
@@ -49,7 +47,6 @@ public class ConfigMaterialUpdateListenerFactory {
         this.configMaterialPostUpdateQueue = configMaterialPostUpdateQueue;
         this.repoConfigDataSource = repoConfigDataSource;
         this.materialRepository = materialRepository;
-        this.materialChecker = materialChecker;
         this.materialUpdateCompletedTopic = materialUpdateCompletedTopic;
         this.materialService = materialService;
         this.subprocessExecutionContext = subprocessExecutionContext;
@@ -60,7 +57,7 @@ public class ConfigMaterialUpdateListenerFactory {
 
         range(0, numberOfConfigMaterialPostUpdateListeners).forEach(i ->
                 this.configMaterialPostUpdateQueue.addListener(new ConfigMaterialUpdateListener(repoConfigDataSource, materialRepository,
-                        materialChecker, materialUpdateCompletedTopic, materialService, subprocessExecutionContext))
+                        materialUpdateCompletedTopic, materialService, subprocessExecutionContext))
         );
     }
 }

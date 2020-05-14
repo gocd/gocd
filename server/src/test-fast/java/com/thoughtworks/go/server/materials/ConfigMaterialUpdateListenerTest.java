@@ -38,19 +38,16 @@ import static org.mockito.Mockito.*;
 public class ConfigMaterialUpdateListenerTest {
     private GoRepoConfigDataSource repoConfigDataSource;
     private MaterialRepository materialRepository;
-    private MaterialChecker materialChecker;
     private MaterialUpdateCompletedTopic topic;
     private ConfigMaterialUpdateListener configUpdater;
-    private   MaterialService materialService;
+    private MaterialService materialService;
     private Material material;
     private File folder = new File("checkoutDir");
-    private MaterialRevisions mods;
     private Modification svnModification;
 
     @Before
     public void SetUp() {
         repoConfigDataSource = mock(GoRepoConfigDataSource.class);
-        materialChecker = mock(MaterialChecker.class);
         materialRepository = mock(MaterialRepository.class);
         topic = mock(MaterialUpdateCompletedTopic.class);
         materialService = mock(MaterialService.class);
@@ -60,11 +57,11 @@ public class ConfigMaterialUpdateListenerTest {
         when(materialRepository.folderFor(material)).thenReturn(folder);
 
         svnModification = new Modification("user", "commend", "em@il", new Date(), "1");
-        mods = revisions(material, svnModification);
+        MaterialRevisions mods = revisions(material, svnModification);
 
         when(materialRepository.findLatestModification(material)).thenReturn(mods);
 
-        configUpdater = new ConfigMaterialUpdateListener(repoConfigDataSource, materialRepository, materialChecker,
+        configUpdater = new ConfigMaterialUpdateListener(repoConfigDataSource, materialRepository,
                 topic, materialService, new TestSubprocessExecutionContext());
     }
 
@@ -108,22 +105,8 @@ public class ConfigMaterialUpdateListenerTest {
     }
 
     @Test
-    public void shouldNotCallGoRepoConfigDataSourceWhenNoChanges() {
-        when(repoConfigDataSource.getRevisionAtLastAttempt(material.config())).thenReturn("1");
-        when(materialChecker.findSpecificRevision(material, "1")).thenReturn(mods.getMaterialRevision(0));
-
-        MaterialUpdateSuccessfulMessage message = new MaterialUpdateSuccessfulMessage(material, 123);
-        this.configUpdater.onMessage(message);
-
-        verify(repoConfigDataSource, times(0)).onCheckoutComplete(material.config(), folder, getModificationFor("1"));
-        // but pass message further anyway
-        verify(topic, times(1)).post(message);
-    }
-
-    @Test
     public void shouldCallGoRepoConfigDataSourceWhenNewRevision() {
         when(repoConfigDataSource.getRevisionAtLastAttempt(material.config())).thenReturn("1");
-        when(materialChecker.findSpecificRevision(material, "1")).thenReturn(mods.getMaterialRevision(0));
 
         Modification svnModification = new Modification("user", "commend", "em@il", new Date(), "2");
         MaterialRevisions mods2 = revisions(material, svnModification);
@@ -143,7 +126,6 @@ public class ConfigMaterialUpdateListenerTest {
 
         when(repoConfigDataSource.getRevisionAtLastAttempt(material.config())).thenReturn("1");
         when(repoConfigDataSource.hasConfigRepoConfigChangedSinceLastUpdate(material.config())).thenReturn(true);
-        when(materialChecker.findSpecificRevision(material, "1")).thenReturn(materialRevisions.getMaterialRevision(0));
         when(materialRepository.findLatestModification(material)).thenReturn(materialRevisions);
 
         MaterialUpdateSuccessfulMessage message = new MaterialUpdateSuccessfulMessage(material, 123);

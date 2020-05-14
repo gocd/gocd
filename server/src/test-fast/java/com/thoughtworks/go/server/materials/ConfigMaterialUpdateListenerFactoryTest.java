@@ -45,7 +45,7 @@ public class ConfigMaterialUpdateListenerFactoryTest {
         when(systemEnvironment.getNumberOfConfigMaterialPostUpdateListeners()).thenReturn(numberOfConfigMaterialPostUpdateListeners);
 
         ConfigMaterialUpdateListenerFactory factory = new ConfigMaterialUpdateListenerFactory(systemEnvironment, configMaterialPostUpdateQueue,
-                null, null, null, null, null, null);
+                null, null, null, null, null);
         factory.init();
 
         verify(configMaterialPostUpdateQueue, new Times(numberOfConfigMaterialPostUpdateListeners)).addListener(any(ConfigMaterialUpdateListener.class));

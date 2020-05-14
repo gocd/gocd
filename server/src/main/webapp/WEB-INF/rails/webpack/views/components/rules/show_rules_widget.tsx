@@ -17,12 +17,12 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
-import Stream from "mithril/stream";
+import {Accessor} from "models/base/accessor";
 import {Rules} from "models/rules/rules";
 import {Table} from "../table";
 
 interface Attrs {
-  rules: Stream<Rules>;
+  rules: Accessor<Rules>;
 }
 
 export class ShowRulesWidget extends MithrilViewComponent<Attrs> {

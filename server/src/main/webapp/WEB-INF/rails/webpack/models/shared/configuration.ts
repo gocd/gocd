@@ -22,11 +22,15 @@ export interface PropertyErrors {
   encrypted_value?: string[];
 }
 
-export interface PropertyJSON {
+export interface ErrorIndex {
   key: string;
+  errors?: PropertyErrors;
+}
+
+/** Represents a property datum from server to client. */
+export interface PropertyJSON extends ErrorIndex {
   value?: string | null | undefined;
   encrypted_value?: string | null | undefined;
-  errors?: PropertyErrors;
 }
 
 export class Configurations {

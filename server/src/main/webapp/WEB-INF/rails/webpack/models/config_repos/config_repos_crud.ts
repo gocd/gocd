@@ -16,18 +16,18 @@
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import {JsonUtils} from "helpers/json_utils";
 import {SparkRoutes} from "helpers/spark_routes";
+import {serialize} from "models/base/accessor";
 import {ConfigRepoJSON, ConfigReposJSON} from "models/config_repos/serialization";
 import {ConfigRepo, ConfigRepos} from "models/config_repos/types";
 
 export function configRepoToSnakeCaseJSON(o: ConfigRepo) {
-  const configurations = o.createConfigurationsFromText();
-  const json           = JsonUtils.toSnakeCasedObject(o);
-  json.configuration   = configurations.map((config) => config.toJSON());
+  const json         = JsonUtils.toSnakeCasedObject(o);
+  json.configuration = o.configuration().map(serialize);
   return json;
 }
 
 export class ConfigReposCRUD {
-  private static API_VERSION_HEADER = ApiVersion.v3;
+  private static API_VERSION_HEADER = ApiVersion.latest;
 
   static all(etag?: string) {
     return ApiRequestBuilder.GET(SparkRoutes.apiConfigReposInternalPath(), this.API_VERSION_HEADER, {etag})

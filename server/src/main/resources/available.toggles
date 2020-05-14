@@ -42,6 +42,10 @@
       "value": false
     },
     {
+      "key": "branch_support",
+      "value": false
+    },
+    {
       "key": "use_rails_template_authorization_api",
       "description": "Use rails templates authorization API. Default is false.",
       "value": false

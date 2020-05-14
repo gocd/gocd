@@ -24,7 +24,11 @@ import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Pipeline Template Widget", () => {
   const helper         = new TestHelper();
-  const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
+  let pipelineConfig: PipelineConfig;
+
+  beforeEach(() => {
+    pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
+  });
 
   afterEach(helper.unmount.bind(helper));
 

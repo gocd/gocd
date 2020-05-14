@@ -458,7 +458,9 @@ describe("PluginInfos New", () => {
     },
     capabilities: {
       supports_parse_content: false,
-      supports_pipeline_export: false
+      supports_pipeline_export: false,
+      supports_list_config_files: false,
+      supports_user_defined_properties: false,
     }
   };
 

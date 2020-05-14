@@ -53,7 +53,7 @@ public class ConfigRepoPluginInfoBuilderTest {
     public void shouldBuildPluginInfo() throws Exception {
         GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("plugin1").build();
         when(extension.getPluginSettingsView("plugin1")).thenReturn("some-html");
-        when(extension.getCapabilities("plugin1")).thenReturn(new Capabilities(true, true));
+        when(extension.getCapabilities("plugin1")).thenReturn(new Capabilities(true, true, true, true));
         ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(
@@ -65,7 +65,7 @@ public class ConfigRepoPluginInfoBuilderTest {
         assertThat(pluginInfo.getDescriptor(), is(descriptor));
         assertThat(pluginInfo.getExtensionName(), is("configrepo"));
         assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(pluginConfigurations, pluginView)));
-        assertThat(pluginInfo.getCapabilities(), is(new Capabilities(true, true)));
+        assertThat(pluginInfo.getCapabilities(), is(new Capabilities(true, true, true, true)));
     }
 
     @Test

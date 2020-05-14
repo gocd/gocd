@@ -281,7 +281,7 @@ export class DownloadPipelineModal extends Modal {
     super();
     this.pipeline    = pipeline;
     this.callback    = callback;
-    this.pluginInfos = pluginInfos.getConfigRepoPluginInfosWithExportPipelineCapabilities();
+    this.pluginInfos = pluginInfos.configRepoPluginsWhich("supportsPipelineExport");
   }
 
   body() {

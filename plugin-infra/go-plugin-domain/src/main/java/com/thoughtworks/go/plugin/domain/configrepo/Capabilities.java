@@ -20,14 +20,18 @@ import java.util.Objects;
 public class Capabilities {
     private boolean supportsPipelineExport;
     private boolean supportsParseContent;
+    private boolean supportsListConfigFiles;
+    private boolean supportsUserDefinedProperties;
 
     public Capabilities() {
-        this(false, false);
+        this(false, false, false, false);
     }
 
-    public Capabilities(boolean supportsPipelineExport, boolean supportsParseContent) {
+    public Capabilities(boolean supportsPipelineExport, boolean supportsParseContent, boolean supportsListConfigFiles, boolean supportsUserDefinedProperties) {
         this.supportsPipelineExport = supportsPipelineExport;
         this.supportsParseContent = supportsParseContent;
+        this.supportsListConfigFiles = supportsListConfigFiles;
+        this.supportsUserDefinedProperties = supportsUserDefinedProperties;
     }
 
     public boolean isSupportsPipelineExport() {
@@ -46,17 +50,35 @@ public class Capabilities {
         this.supportsParseContent = supportsParseContent;
     }
 
+    public boolean isSupportsListConfigFiles() {
+        return supportsListConfigFiles;
+    }
+
+    public void setSupportsListConfigFiles(boolean supportsListConfigFiles) {
+        this.supportsListConfigFiles = supportsListConfigFiles;
+    }
+
+    public boolean isSupportsUserDefinedProperties() {
+        return supportsUserDefinedProperties;
+    }
+
+    public void setSupportsUserDefinedProperties(boolean supportsUserDefinedProperties) {
+        this.supportsUserDefinedProperties = supportsUserDefinedProperties;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Capabilities that = (Capabilities) o;
         return supportsPipelineExport == that.supportsPipelineExport &&
-                supportsParseContent == that.supportsParseContent;
+                supportsParseContent == that.supportsParseContent &&
+                supportsListConfigFiles == that.supportsListConfigFiles &&
+                supportsUserDefinedProperties == that.supportsUserDefinedProperties;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(supportsPipelineExport, supportsParseContent);
+        return Objects.hash(supportsPipelineExport, supportsParseContent, supportsListConfigFiles, supportsUserDefinedProperties);
     }
 }

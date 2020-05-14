@@ -31,11 +31,19 @@ public class Capabilities {
     @SerializedName("supports_parse_content")
     private boolean supportsParseContent;
 
+    @Expose
+    @SerializedName("supports_list_config_files")
+    private boolean supportsListConfigFiles;
+
+    @Expose
+    @SerializedName("supports_user_defined_properties")
+    private boolean supportsUserDefinedProperties;
+
     public static Capabilities fromJSON(String json) {
         return GSON.fromJson(json, Capabilities.class);
     }
 
     public com.thoughtworks.go.plugin.domain.configrepo.Capabilities toCapabilities() {
-        return new com.thoughtworks.go.plugin.domain.configrepo.Capabilities(supportsPipelineExport, supportsParseContent);
+        return new com.thoughtworks.go.plugin.domain.configrepo.Capabilities(supportsPipelineExport, supportsParseContent, supportsListConfigFiles, supportsUserDefinedProperties);
     }
 }

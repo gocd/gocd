@@ -28,7 +28,10 @@ public class ConfigRepoExtensionRepresenter extends ExtensionRepresenter {
 
         extensionWriter.addChild("capabilities", capabilitiesWriter ->
                 capabilitiesWriter.add("supports_pipeline_export", configRepoPluginInfo.getCapabilities().isSupportsPipelineExport())
-                        .add("supports_parse_content", configRepoPluginInfo.getCapabilities().isSupportsParseContent()));
+                        .add("supports_parse_content", configRepoPluginInfo.getCapabilities().isSupportsParseContent())
+                        .add("supports_list_config_files", configRepoPluginInfo.getCapabilities().isSupportsListConfigFiles())
+                        .add("supports_user_defined_properties", configRepoPluginInfo.getCapabilities().isSupportsUserDefinedProperties())
+        );
 
     }
 

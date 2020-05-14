@@ -16,6 +16,7 @@
 
 import {docsUrl} from "gen/gocd_version";
 import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
+import {showIf} from "helpers/utils";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -25,7 +26,7 @@ import {ConfigRepo, humanizedMaterialAttributeName, humanizedMaterialNameForMate
 import {GitMaterialAttributes, HgMaterialAttributes, Material, P4MaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "models/materials/types";
 import {USER_NS} from "models/mixins/configuration_properties";
 import {Configuration} from "models/shared/configuration";
-import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {KeyValEditor} from "views/components/encryptable_key_value/editor";
 import {EntriesVM} from "views/components/encryptable_key_value/vms";
@@ -53,16 +54,16 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
   view(vnode: m.Vnode<EditableMaterial>) {
     const { repo, userProps, isNew, error, pluginInfos, resourceAutocompleteHelper } = vnode.attrs;
 
-    const pluginList = _.map(pluginInfos(), (pluginInfo: PluginInfo) => {
-      return {id: pluginInfo.id, text: pluginInfo.about.name};
-    });
+    const pluginList = _.map(pluginInfos(), (p) => ({ id: p.id, text: p.about.name }));
+    const allowUserProperties = !!pluginInfos().
+      configRepoPluginsWhich("supportsUserDefinedProperties").
+      findByPluginId(repo.pluginId()!);
 
-    const errorMessage = error ? <div class={styles.errorWrapper}>{error}</div> : undefined;
     const infoMsg = <span>Configure rules to allow which environment/pipeline group/pipeline the config repository can refer to. By default, the config repository cannot refer to an entity unless explicitly allowed. <Link
       href={docsUrl("advanced_usage/pipelines_as_code.html")} target="_blank" externalLinkIcon={true}>Learn More</Link></span>;
 
     return [
-      errorMessage,
+      showIf(!!error, () => <div class={styles.errorWrapper}>{error}</div>),
       <FormHeader>
         <Form>
           <TextField label="Config repository name"
@@ -108,11 +109,17 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
           </FormBody>
         </div>
       </div>,
-      <div class={styles.configProperties}>
-        <h2>User-defined Properties/Variables</h2>
-        {repo.errors().hasErrors("configuration") ? <FlashMessage type={MessageType.alert} message={repo.errors().errorsForDisplay("configuration")}/> : null}
-        <KeyValEditor model={userProps} onchange={() => repo.userProps(userProps.toJSON())}/>
-      </div>,
+      showIf(
+        allowUserProperties,
+        () => <div class={styles.configProperties}>
+          <h2>User-defined Properties/Variables</h2>
+          {showIf(
+            repo.errors().hasErrors("configuration"),
+            () => <FlashMessage type={MessageType.alert} message={repo.errors().errorsForDisplay("configuration")}/>
+          )}
+          <KeyValEditor model={userProps} onchange={() => repo.userProps(userProps.toJSON())}/>
+        </div>
+      ),
       <div>
         <ConfigureRulesWidget infoMsg={infoMsg}
                               rules={repo.rules}

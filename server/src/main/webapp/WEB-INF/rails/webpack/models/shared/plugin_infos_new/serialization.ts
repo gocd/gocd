@@ -98,6 +98,8 @@ export interface ConfigRepoExtensionJSON extends ExtensionJSONBase {
 export interface ConfigRepoCapabilitiesJSON {
   supports_pipeline_export: boolean;
   supports_parse_content: boolean;
+  supports_list_config_files: boolean;
+  supports_user_defined_properties: boolean;
 }
 
 export interface SecretConfigExtensionJSON extends ExtensionJSONBase {

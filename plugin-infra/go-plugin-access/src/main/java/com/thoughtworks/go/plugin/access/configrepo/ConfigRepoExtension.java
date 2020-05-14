@@ -54,7 +54,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
     private static final List<String> goSupportedVersions = asList("1.0", "2.0", "3.0");
 
-    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
+    private final Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public ConfigRepoExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry) {
@@ -93,7 +93,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     public Capabilities getCapabilities(String pluginId) {
         String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, CONFIG_REPO_EXTENSION, goSupportedVersions);
         if (resolvedExtensionVersion.equals("1.0")) {
-            return new Capabilities(false, false);
+            return new Capabilities(false, false, false, false);
         }
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILITIES, new DefaultPluginInteractionCallback<>() {
             @Override

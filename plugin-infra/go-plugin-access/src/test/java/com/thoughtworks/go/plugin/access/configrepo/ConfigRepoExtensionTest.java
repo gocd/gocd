@@ -59,8 +59,8 @@ public class ConfigRepoExtensionTest {
     @Mock
     ExtensionsRegistry extensionsRegistry;
     private ConfigRepoExtension extension;
-    private String responseBody = "expected-response";
-    private Map<String, String> responseHeaders = new HashMap<String, String>() {
+    private final String responseBody = "expected-response";
+    private final Map<String, String> responseHeaders = new HashMap<>() {
         {
             put("Content-Type", "text/plain");
             put("X-Export-Filename", "foo.txt");
@@ -156,7 +156,7 @@ public class ConfigRepoExtensionTest {
 
     @Test
     public void shouldRequestCapabilities() {
-        Capabilities capabilities = new Capabilities(true, true);
+        Capabilities capabilities = new Capabilities(true, true, false, false);
         when(jsonMessageHandler2.getCapabilitiesFromResponse(responseBody)).thenReturn(capabilities);
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0")))).thenReturn("2.0");
 
@@ -168,7 +168,7 @@ public class ConfigRepoExtensionTest {
 
     @Test
     public void shouldRequestCapabilitiesV1() {
-        Capabilities capabilities = new Capabilities(false, false);
+        Capabilities capabilities = new Capabilities(false, false, false, false);
 
         Capabilities res = extension.getCapabilities(PLUGIN_ID);
 

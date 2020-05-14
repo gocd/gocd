@@ -20,8 +20,7 @@ import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import org.junit.Test;
 
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 public class JsonMessageHandler2_0Test {
@@ -34,6 +33,6 @@ public class JsonMessageHandler2_0Test {
 
     @Test
     public void shouldReturnAllFalseCapabilities() {
-        assertThat(handler.getCapabilitiesFromResponse("{\"supports_pipeline_export\":\"true\",\"supports_parse_content\":\"true\"}"), is(new Capabilities(true, true)));
+        assertEquals(new Capabilities(true, true, false, false), handler.getCapabilitiesFromResponse("{\"supports_pipeline_export\":\"true\",\"supports_parse_content\":\"true\"}"));
     }
 }

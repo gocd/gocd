@@ -1050,10 +1050,10 @@
     "@types/tapable" "*"
     "@types/webpack" "*"
 
-"@types/jasmine-ajax@^3.3.0":
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/@types/jasmine-ajax/-/jasmine-ajax-3.3.0.tgz#bf5eb30319f9b35e796fb6707ca08a265e0aaa91"
-  integrity sha512-yDJXPqTsPx1sYt1Zm25KEtW0ZqunoQvWPbn3MpAmwGVrMA7ACL6H0o1V/b8l8xAZfxTl1lX/NbQjQs/b3bA0XQ==
+"@types/jasmine-ajax@^3.3.1":
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/@types/jasmine-ajax/-/jasmine-ajax-3.3.1.tgz#69bc09babecc600cd80ba7e23f61937b0eea735c"
+  integrity sha512-pU+naJ9ULvwdWB1rAzAwoKFfjSvrpI1ScKjN5WkEJgJSoUNv1KqpO6rEuX/r4s3u+E9KgntfpoQsIdFq1tLfiw==
 
 "@types/jasmine@^3.5.10":
   version "3.5.10"

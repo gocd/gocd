@@ -306,6 +306,12 @@
   </rule>
 
   <rule>
+    <name>Pipeline Groups Internal API</name>
+    <from>^/api/internal/pipeline_groups(/?)$</from>
+    <to last="true">/spark/api/internal/pipeline_groups</to>
+  </rule>
+
+  <rule>
     <name>pipeline_configs UI</name>
     <from>^/admin/pipeline_configs(/?)$</from>
     <to last="true">/spark/admin/pipeline_configs</to>

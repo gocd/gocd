@@ -757,6 +757,10 @@ public class Routes {
         public static final String BASE = "/api/internal/pipeline_structure";
     }
 
+    public class InternalPipelineGroups {
+        public static final String BASE = "/api/internal/pipeline_groups";
+    }
+
     public class NewEnvironments {
         public static final String SPA_BASE = "/admin/new-environments";
     }

@@ -526,3 +526,7 @@ api/api-plugin-infos-v7/out/
 api/api-plugin-infos-v7/target/
 api/api-plugin-infos-v7/logs/
 api/api-plugin-infos-v7/config/
+api/api-internal-pipeline-groups-v1/out/
+api/api-internal-pipeline-groups-v1/target/
+api/api-internal-pipeline-groups-v1/logs/
+api/api-internal-pipeline-groups-v1/config/

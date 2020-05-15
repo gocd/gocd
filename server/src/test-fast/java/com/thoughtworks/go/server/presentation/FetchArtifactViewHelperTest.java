@@ -32,6 +32,7 @@ import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -364,5 +365,55 @@ public class FetchArtifactViewHelperTest {
                                 m(str("t1-job-1"), m(), str("t1-job-1a"), m()),
                           str("t1-stage-2"),
                                 m(str("t1-job-2"), m())))));
+    }
+
+
+    @Test
+    public void shouldProvideNoAutoSuggestionWhenThereIsOnlyOneTemplateAndAPipelineIsUsingThatTemplate() {
+        when(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()).thenReturn(true);
+        when(systemEnvironment.get(SystemEnvironment.FETCH_ARTIFACT_AUTO_SUGGEST)).thenReturn(true);
+
+        cruiseConfig = new BasicCruiseConfig();
+
+        String templateName = "template-for-pipeline-my-pipeline";
+        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString(templateName),
+                StageConfigMother.custom("stage-1", "stage1-job-1"));
+
+        PipelineConfig pipeline = new PipelineConfig();
+        pipeline.setName("my-pipeline");
+        pipeline.setTemplateName(templateName);
+
+        cruiseConfig.addTemplate(template);
+        cruiseConfig.addPipeline("first", pipeline);
+
+        HashMap<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString(templateName), new CaseInsensitiveString("stage-1"), true).autosuggestMap();
+
+        assertTrue(jobForFetchHierarchy.isEmpty());
+    }
+
+    @Test
+    public void shouldProvideAutoSuggestionForTemplateOfPipelinesWhichAreNotUsingThatTemplate() {
+        when(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()).thenReturn(true);
+        when(systemEnvironment.get(SystemEnvironment.FETCH_ARTIFACT_AUTO_SUGGEST)).thenReturn(true);
+
+        cruiseConfig = new BasicCruiseConfig();
+
+        String templateName = "template-for-pipeline-my-pipeline";
+        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString(templateName),
+                StageConfigMother.custom("stage-1", "stage1-job-1"));
+
+        PipelineConfig pipelineUsingTemplate = new PipelineConfig();
+        pipelineUsingTemplate.setName("my-pipeline");
+        pipelineUsingTemplate.setTemplateName(templateName);
+
+        PipelineConfig normalPipeline = PipelineConfigMother.createPipelineConfig("downest", "downest_stage_1", "downest_job_1", "downest_job_1a");
+
+        cruiseConfig.addTemplate(template);
+        cruiseConfig.addPipeline("first", pipelineUsingTemplate);
+        cruiseConfig.addPipeline("first", normalPipeline);
+
+        HashMap<CaseInsensitiveString, Map> jobForFetchHierarchy = new FetchArtifactViewHelper(systemEnvironment, cruiseConfig, new CaseInsensitiveString(templateName), new CaseInsensitiveString("stage-1"), true).autosuggestMap();
+
+        assertThat(jobForFetchHierarchy, is(m(str("downest"), m(str("downest_stage_1"), m(str("downest_job_1"), m(), str("downest_job_1a"), m())))));
     }
 }

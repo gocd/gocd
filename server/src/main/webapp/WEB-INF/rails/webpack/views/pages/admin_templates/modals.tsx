@@ -218,7 +218,7 @@ export class ShowTemplateModal extends Modal {
 
     return (
       <div data-test-id={`selected-job-${stage.name}-${job.name}`} class={styles.stageOrJob}>
-        Showing job <em>{stage.name}</em> > <em>{job.name}</em>
+        Showing job <em>{stage.name}</em> &gt; <em>{job.name}</em>
         <hr/>
         <div className={styles.propertiesWrapper}>
           <KeyValuePair data={jobProperties}/>

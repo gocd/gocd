@@ -78,8 +78,8 @@ describe("NewElasticAgentsWidget", () => {
     const pluginIcon = helper.byTestId("plugin-icon");
 
     expect(pluginIcon).toBeInDOM();
-    expect(pluginIcon.getAttribute("alt")).toEqual("Plugin Icon");
-    expect(pluginIcon.getAttribute("src")).toEqual(elasticAgentPluginInfo.imageUrl);
+    expect(pluginIcon.getAttribute("alt")).toBe("Plugin Icon");
+    expect(pluginIcon.getAttribute("src")).toBe(elasticAgentPluginInfo.imageUrl!);
   });
 
   it("should not render plugin icon for elastic agent when plugin info for the specified plugin is missing", () => {

@@ -157,10 +157,8 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
 
 const NewMaterialComponent = {
   view(vnode: m.Vnode<EditableMaterial>) {
-    return (
-      <MaterialEditWidget isNew={true} {...vnode.attrs}>
-      </MaterialEditWidget>
-    );
+    const attrs = Object.assign({}, vnode.attrs, {isNew: true});
+    return <MaterialEditWidget {...attrs}/>;
   }
 } as MithrilViewComponent<EditableMaterial>;
 

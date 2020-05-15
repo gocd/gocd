@@ -161,6 +161,7 @@ export class AddJobModal extends Modal {
 
   private onSave() {
     this.modalState = ModalState.LOADING;
+    this.jobToCreate.tasks([]);
     this.jobToCreate.tasks().push(this.taskModal!.getTask());
     this.stage.jobs().add(this.jobToCreate);
 

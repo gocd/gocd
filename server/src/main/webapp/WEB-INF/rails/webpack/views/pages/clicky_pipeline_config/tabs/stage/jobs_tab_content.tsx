@@ -15,7 +15,7 @@
  */
 
 import {ErrorResponse} from "helpers/api_request_builder";
-import {MithrilComponent} from "jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Job} from "models/pipeline_configs/job";
@@ -97,29 +97,22 @@ export interface Attrs {
   pipelineConfigReset: () => void;
 }
 
-export interface State {
-  getModal: () => AddJobModal;
-}
-
-export class JobsWidget extends MithrilComponent<Attrs, State> {
-  oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.getModal = () => new AddJobModal(vnode.attrs.stage,
-                                                 vnode.attrs.templateConfig,
-                                                 vnode.attrs.pipelineConfig,
-                                                 vnode.attrs.routeParams,
-                                                 vnode.attrs.ajaxOperationMonitor,
-                                                 vnode.attrs.flashMessage,
-                                                 vnode.attrs.pipelineConfigSave,
-                                                 vnode.attrs.pipelineConfigReset);
-  }
-
-  view(vnode: m.Vnode<Attrs, State>) {
+export class JobsWidget extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
     let addJobBtn: m.Children;
 
     if (vnode.attrs.isEditable) {
       addJobBtn = <Secondary disabled={!vnode.attrs.isEditable}
                              dataTestId={"add-jobs-button"}
-                             onclick={() => vnode.state.getModal().render()}>Add new job</Secondary>;
+                             onclick={() => new AddJobModal(vnode.attrs.stage,
+                                                            vnode.attrs.templateConfig,
+                                                            vnode.attrs.pipelineConfig,
+                                                            vnode.attrs.routeParams,
+                                                            vnode.attrs.ajaxOperationMonitor,
+                                                            vnode.attrs.flashMessage,
+                                                            vnode.attrs.pipelineConfigSave,
+                                                            vnode.attrs.pipelineConfigReset).render()}>Add new
+        job</Secondary>;
     }
 
     return <div data-test-id={"stages-container"}>
@@ -150,7 +143,7 @@ export class JobsWidget extends MithrilComponent<Attrs, State> {
     jobs(new NameableSet(array));
   }
 
-  private getTableData(vnode: m.Vnode<Attrs, State>): m.Child[][] {
+  private getTableData(vnode: m.Vnode<Attrs>): m.Child[][] {
     const jobs       = Array.from(vnode.attrs.jobs().values());
     const isEditable = vnode.attrs.isEditable;
 
@@ -182,7 +175,7 @@ export class JobsWidget extends MithrilComponent<Attrs, State> {
     });
   }
 
-  private deleteJob(vnode: m.Vnode<Attrs, State>, jobToDelete: Job) {
+  private deleteJob(vnode: m.Vnode<Attrs>, jobToDelete: Job) {
     new ConfirmationDialog(
       "Delete Job",
       <div>Do you want to delete the job '<em>{jobToDelete.name()}</em>'?</div>,
@@ -190,7 +183,7 @@ export class JobsWidget extends MithrilComponent<Attrs, State> {
     ).render();
   }
 
-  private onDelete(vnode: m.Vnode<Attrs, State>, jobToDelete: Job) {
+  private onDelete(vnode: m.Vnode<Attrs>, jobToDelete: Job) {
     vnode.attrs.jobs().delete(jobToDelete);
     return vnode.attrs.pipelineConfigSave().then(() => {
       vnode.attrs.flashMessage.setMessage(MessageType.success, `Job '${jobToDelete.name()}' deleted successfully.`);

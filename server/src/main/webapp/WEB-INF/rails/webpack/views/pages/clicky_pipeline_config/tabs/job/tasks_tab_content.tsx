@@ -372,8 +372,12 @@ export class TasksTabContent extends TabContent<Job> {
   private fetchUpstreamPipelines(pipelineName: string, stageName: string, isTemplate: boolean): any {
     return ApiRequestBuilder.GET(SparkRoutes.getUpstreamPipelines(pipelineName, stageName, isTemplate), ApiVersion.v1)
                             .then((result: ApiResult<string>) => {
-                              return result.map((str) => {
-                                return this.autoSuggestions(JSON.parse(str));
+                              result.do(() => {
+                                return result.map((str) => {
+                                  return this.autoSuggestions(JSON.parse(str));
+                                });
+                              }, () => {
+                                return this.autoSuggestions({});
                               });
                             });
   }

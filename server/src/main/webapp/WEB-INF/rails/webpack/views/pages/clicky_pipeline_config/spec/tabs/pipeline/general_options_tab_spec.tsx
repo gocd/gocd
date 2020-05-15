@@ -56,6 +56,9 @@ describe("GeneralOptionsTag", () => {
 
       expect(helper.byTestId("automatic-pipeline-scheduling")).toBeChecked();
       expect(pipelineConfig.firstStage().approval().typeAsString()).toEqual("success");
+
+      const helpText = "If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual.";
+      expect(helper.qa('span')).toContainText(helpText);
     });
 
     it("should render approval from template when template is configured", () => {
@@ -70,6 +73,9 @@ describe("GeneralOptionsTag", () => {
 
       expect(stageInTemplate.approval().typeAsString()).toEqual("manual");
       expect(helper.byTestId("automatic-pipeline-scheduling")).not.toBeChecked();
+
+      const helpText = "If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual. Since this pipeline is based on 'template' template, automatic/manual behaviour of the pipeline is determined by the template's first stage.";
+      expect(helper.qa('span')).toContainText(helpText);
     });
   });
 

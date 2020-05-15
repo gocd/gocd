@@ -1032,9 +1032,9 @@
   integrity sha512-hEv8DiUfsNWW4hkbfyY7Sb3AFrdfrEYvNUFP183Vl48VdE5nVyLHgPgVIlFU19bjb2dsldpKTBADQArOfqRzTQ==
 
 "@types/lodash@^4.14.150":
-  version "4.14.150"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.150.tgz#649fe44684c3f1fcb6164d943c5a61977e8cf0bd"
-  integrity sha512-kMNLM5JBcasgYscD9x/Gvr6lTAv2NVgsKtet/hm93qMyf/D1pt+7jeEZklKJKxMVmXjxbRVQQGfqDSfipYCO6w==
+  version "4.14.151"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.151.tgz#7d58cac32bedb0ec37cb7f99094a167d6176c9d5"
+  integrity sha512-Zst90IcBX5wnwSu7CAS0vvJkTjTELY4ssKbHiTnGcJgi170uiS8yQDdc3v6S77bRqYQIN1App5a1Pc2lceE5/g==
 
 "@types/mini-css-extract-plugin@^0.9.1":
   version "0.9.1"
@@ -5191,12 +5191,11 @@ karma-firefox-launcher@^1.3.0:
   dependencies:
     is-wsl "^2.1.0"
 
-karma-html-reporter@^0.2.7:
+"karma-html-reporter@https://github.com/dtabuenc/karma-html-reporter.git#51ba3f91a6f19ef383c676431aa7f8c3fa73dab3":
   version "0.2.7"
-  resolved "https://registry.yarnpkg.com/karma-html-reporter/-/karma-html-reporter-0.2.7.tgz#fd73da9f1ac99fd5bafb309cf070942188e7ba63"
-  integrity sha1-/XPanxrJn9W6+zCc8HCUIYjnumM=
+  resolved "https://github.com/dtabuenc/karma-html-reporter.git#51ba3f91a6f19ef383c676431aa7f8c3fa73dab3"
   dependencies:
-    lodash "~2.2.0"
+    lodash "^4.17.11"
     mu2 "~0.5.19"
 
 karma-jasmine-html-reporter@^1.5.4:
@@ -5437,15 +5436,10 @@ lodash.uniq@^4.5.0:
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
   integrity sha1-0CJTc662Uq3BvILklFM5qEJ1R3M=
 
-lodash@^4.0.0, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0, lodash@~4.17.12:
+lodash@^4.0.0, lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0, lodash@~4.17.12:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
-
-lodash@~2.2.0:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-2.2.1.tgz#ca935fd14ab3c0c872abacf198b9cda501440867"
-  integrity sha1-ypNf0UqzwMhyq6zxmLnNpQFECGc=
 
 log4js@^4.0.0:
   version "4.5.1"

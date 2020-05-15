@@ -534,3 +534,7 @@ api/api-template-authorization-v1/out/
 api/api-template-authorization-v1/target/
 api/api-template-authorization-v1/logs/
 api/api-template-authorization-v1/config/
+api/api-plugin-infos-v7/out/
+api/api-plugin-infos-v7/target/
+api/api-plugin-infos-v7/logs/
+api/api-plugin-infos-v7/config/

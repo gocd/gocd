@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv6.plugininfos.representers.extensions;
+package com.thoughtworks.go.apiv7.plugininfos.representers.extensions;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
-import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
 
-public class ConfigRepoExtensionRepresenter extends ExtensionRepresenter {
+public class AnalyticsPluginInfoRepresenter extends ExtensionRepresenter {
     @Override
     public void toJSON(OutputWriter extensionWriter, PluginInfo extension) {
         super.toJSON(extensionWriter, extension);
 
-        ConfigRepoPluginInfo configRepoPluginInfo = (ConfigRepoPluginInfo) extension;
+        AnalyticsPluginInfo analyticsPluginInfo = (AnalyticsPluginInfo) extension;
 
         extensionWriter.addChild("capabilities", capabilitiesWriter ->
-                capabilitiesWriter.add("supports_pipeline_export", configRepoPluginInfo.getCapabilities().isSupportsPipelineExport())
-                        .add("supports_parse_content", configRepoPluginInfo.getCapabilities().isSupportsParseContent()));
-
+                capabilitiesWriter.addChildList("supported_analytics", supportedAnalyticsWriter ->
+                        analyticsPluginInfo.getCapabilities().getSupportedAnalytics().forEach(analytics ->
+                                supportedAnalyticsWriter.addChild(supportedAnalyticWriter -> supportedAnalyticWriter.add("type", analytics.getType())
+                                        .add("id", analytics.getId())
+                                        .add("title", analytics.getTitle())))));
     }
-
 }

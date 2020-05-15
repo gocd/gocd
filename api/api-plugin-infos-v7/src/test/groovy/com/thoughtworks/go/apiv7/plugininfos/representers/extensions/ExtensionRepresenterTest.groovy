@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv6.plugininfos.representers.extensions
+package com.thoughtworks.go.apiv7.plugininfos.representers.extensions
 
 import com.thoughtworks.go.helpers.PluginInfoMother
 import org.junit.jupiter.api.Test
@@ -21,14 +21,15 @@ import org.junit.jupiter.api.Test
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-class ConfigRepoExtensionRepresenterTest {
+class ExtensionRepresenterTest {
   @Test
-  void 'should serialize config repo extension info to JSON'() {
+  void "should serialize extension with plugin settings"() {
     def actualJson = toObjectString({
-      new ConfigRepoExtensionRepresenter().toJSON(it, PluginInfoMother.createConfigRepoPluginInfo())
+      new AnalyticsPluginInfoRepresenter().toJSON(it, PluginInfoMother.createAnalyticsPluginInfo())
     })
+
     def expectedJSON = [
-      type           : "configrepo",
+      type           : "analytics",
       plugin_settings: [
         configurations: [
           [
@@ -43,25 +44,38 @@ class ConfigRepoExtensionRepresenterTest {
         view          : [template: "Template"]
       ],
       capabilities   : [
-        supports_pipeline_export: true,
-        supports_parse_content  : true
+        supported_analytics: [
+          [
+            type : "Type 1",
+            id   : "Id 1",
+            title: "Title 1"
+          ]
+        ]
       ]
     ]
+
     assertThatJson(actualJson).isEqualTo(expectedJSON)
   }
 
   @Test
-  void 'should serialize config repo extension info without plugin settings to JSON'() {
+  void "should serialize extension without plugin settings"() {
     def actualJson = toObjectString({
-      new ConfigRepoExtensionRepresenter().toJSON(it, PluginInfoMother.createConfigRepoPluginInfoWithoutPluginSettings())
+      new AnalyticsPluginInfoRepresenter().toJSON(it, PluginInfoMother.createAnalyticsPluginInfoWithoutPluginSettings())
     })
+
     def expectedJSON = [
-      type        : "configrepo",
+      type        : "analytics",
       capabilities: [
-        supports_pipeline_export: true,
-        supports_parse_content  : true
+        supported_analytics: [
+          [
+            type : "Type 1",
+            id   : "Id 1",
+            title: "Title 1"
+          ]
+        ]
       ]
     ]
+
     assertThatJson(actualJson).isEqualTo(expectedJSON)
   }
 }

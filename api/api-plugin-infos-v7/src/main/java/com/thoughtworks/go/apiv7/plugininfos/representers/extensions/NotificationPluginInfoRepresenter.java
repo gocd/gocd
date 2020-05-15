@@ -13,18 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.plugin.domain.configrepo;
+package com.thoughtworks.go.apiv7.plugininfos.representers.extensions;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Capabilities {
-    private boolean supportsPipelineExport;
-    private boolean supportsParseContent;
-    private boolean supportsListConfigFiles;
-    private boolean supportsUserDefinedProperties;
+public class NotificationPluginInfoRepresenter extends ExtensionRepresenter {
 }

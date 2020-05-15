@@ -25,7 +25,7 @@ export interface PluginInfoQuery {
 }
 
 export class PluginInfoCRUD {
-  private static API_VERSION_HEADER = ApiVersion.v6;
+  private static API_VERSION_HEADER = ApiVersion.latest;
 
   static all(options: PluginInfoQuery): Promise<ApiResult<PluginInfos>> {
     return ApiRequestBuilder.GET(SparkRoutes.apiPluginInfoPath(options), this.API_VERSION_HEADER)

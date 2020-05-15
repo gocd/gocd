@@ -17,6 +17,9 @@
 description = 'GoCD Plugins Domain'
 
 dependencies {
+  compileOnly group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+
   compile project(':plugin-infra:go-plugin-api')
   compile group: 'commons-io', name: 'commons-io', version: project.versions.commonsIO
   compile group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3

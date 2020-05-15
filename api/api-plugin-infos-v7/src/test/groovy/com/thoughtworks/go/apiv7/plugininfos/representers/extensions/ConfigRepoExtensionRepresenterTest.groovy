@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv6.plugininfos.representers.extensions
+package com.thoughtworks.go.apiv7.plugininfos.representers.extensions
 
 import com.thoughtworks.go.helpers.PluginInfoMother
 import org.junit.jupiter.api.Test
@@ -43,8 +43,10 @@ class ConfigRepoExtensionRepresenterTest {
         view          : [template: "Template"]
       ],
       capabilities   : [
-        supports_pipeline_export: true,
-        supports_parse_content  : true
+        supports_pipeline_export        : true,
+        supports_parse_content          : true,
+        supports_list_config_files      : true,
+        supports_user_defined_properties: true,
       ]
     ]
     assertThatJson(actualJson).isEqualTo(expectedJSON)
@@ -58,8 +60,10 @@ class ConfigRepoExtensionRepresenterTest {
     def expectedJSON = [
       type        : "configrepo",
       capabilities: [
-        supports_pipeline_export: true,
-        supports_parse_content  : true
+        supports_pipeline_export        : true,
+        supports_parse_content          : true,
+        supports_list_config_files      : true,
+        supports_user_defined_properties: true,
       ]
     ]
     assertThatJson(actualJson).isEqualTo(expectedJSON)

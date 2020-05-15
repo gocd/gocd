@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.plugin.domain.configrepo;
+package com.thoughtworks.go.apiv7.plugininfos.representers.metadata;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Capabilities {
-    private boolean supportsPipelineExport;
-    private boolean supportsParseContent;
-    private boolean supportsListConfigFiles;
-    private boolean supportsUserDefinedProperties;
+public class MetadataRepresenter {
+    public void toJSON(OutputWriter metadataWriter, Metadata metadata) {
+        metadataWriter.add("secure", metadata.isSecure())
+                .add("required", metadata.isRequired());
+    }
 }

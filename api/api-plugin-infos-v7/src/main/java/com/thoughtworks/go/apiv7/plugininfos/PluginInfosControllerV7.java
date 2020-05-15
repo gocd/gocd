@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv6.plugininfos;
+package com.thoughtworks.go.apiv7.plugininfos;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.apiv6.plugininfos.representers.PluginInfoRepresenter;
-import com.thoughtworks.go.apiv6.plugininfos.representers.PluginInfosRepresenter;
+import com.thoughtworks.go.apiv7.plugininfos.representers.PluginInfoRepresenter;
+import com.thoughtworks.go.apiv7.plugininfos.representers.PluginInfosRepresenter;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
@@ -46,7 +46,7 @@ import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
 @Component
-public class PluginInfosControllerV6 extends ApiController implements SparkSpringController {
+public class PluginInfosControllerV7 extends ApiController implements SparkSpringController {
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final EntityHashingService entityHashingService;
@@ -55,8 +55,8 @@ public class PluginInfosControllerV6 extends ApiController implements SparkSprin
     private final DefaultPluginInfoFinder pluginInfoFinder;
 
     @Autowired
-    public PluginInfosControllerV6(ApiAuthenticationHelper apiAuthenticationHelper, DefaultPluginInfoFinder pluginInfoFinder, EntityHashingService entityHashingService, DefaultPluginManager defaultPluginManager, ExtensionsRegistry extensionsRegistry) {
-        super(ApiVersion.v6);
+    public PluginInfosControllerV7(ApiAuthenticationHelper apiAuthenticationHelper, DefaultPluginInfoFinder pluginInfoFinder, EntityHashingService entityHashingService, DefaultPluginManager defaultPluginManager, ExtensionsRegistry extensionsRegistry) {
+        super(ApiVersion.v7);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.pluginInfoFinder = pluginInfoFinder;
         this.entityHashingService = entityHashingService;

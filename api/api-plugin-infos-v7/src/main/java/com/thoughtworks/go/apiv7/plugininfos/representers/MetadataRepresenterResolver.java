@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv6.plugininfos.representers;
+package com.thoughtworks.go.apiv7.plugininfos.representers;
 
-import com.thoughtworks.go.apiv6.plugininfos.representers.metadata.MetadataRepresenter;
-import com.thoughtworks.go.apiv6.plugininfos.representers.metadata.MetadataWithPartOfIdentityRepresenter;
-import com.thoughtworks.go.apiv6.plugininfos.representers.metadata.PackageMaterialMetadataRepresenter;
+import com.thoughtworks.go.apiv7.plugininfos.representers.metadata.MetadataRepresenter;
+import com.thoughtworks.go.apiv7.plugininfos.representers.metadata.MetadataWithPartOfIdentityRepresenter;
+import com.thoughtworks.go.apiv7.plugininfos.representers.metadata.PackageMaterialMetadataRepresenter;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.MetadataWithPartOfIdentity;
 import com.thoughtworks.go.plugin.domain.common.PackageMaterialMetadata;

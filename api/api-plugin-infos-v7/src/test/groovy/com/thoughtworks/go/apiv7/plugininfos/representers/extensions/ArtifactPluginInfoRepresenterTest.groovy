@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv6.plugininfos.representers.extensions
+package com.thoughtworks.go.apiv7.plugininfos.representers.extensions
 
 import com.thoughtworks.go.helpers.PluginInfoMother
 import org.junit.jupiter.api.Test
@@ -21,15 +21,17 @@ import org.junit.jupiter.api.Test
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-class ConfigRepoExtensionRepresenterTest {
+class ArtifactPluginInfoRepresenterTest {
   @Test
-  void 'should serialize config repo extension info to JSON'() {
+  void 'should serialize artifact extension info to JSON'() {
+
     def actualJson = toObjectString({
-      new ConfigRepoExtensionRepresenter().toJSON(it, PluginInfoMother.createConfigRepoPluginInfo())
+      new ArtifactPluginInfoRepresenter().toJSON(it, PluginInfoMother.createArtifactExtension())
     })
+
     def expectedJSON = [
-      type           : "configrepo",
-      plugin_settings: [
+      type                    : "artifact",
+      store_config_settings   : [
         configurations: [
           [
             key     : "key1",
@@ -42,24 +44,31 @@ class ConfigRepoExtensionRepresenterTest {
         ],
         view          : [template: "Template"]
       ],
-      capabilities   : [
-        supports_pipeline_export: true,
-        supports_parse_content  : true
-      ]
-    ]
-    assertThatJson(actualJson).isEqualTo(expectedJSON)
-  }
-
-  @Test
-  void 'should serialize config repo extension info without plugin settings to JSON'() {
-    def actualJson = toObjectString({
-      new ConfigRepoExtensionRepresenter().toJSON(it, PluginInfoMother.createConfigRepoPluginInfoWithoutPluginSettings())
-    })
-    def expectedJSON = [
-      type        : "configrepo",
-      capabilities: [
-        supports_pipeline_export: true,
-        supports_parse_content  : true
+      artifact_config_settings: [
+        configurations: [
+          [
+            key     : "key1",
+            metadata: [required: true, secure: false]
+          ],
+          [
+            key     : "key2",
+            metadata: [required: true, secure: false]
+          ]
+        ],
+        view          : [template: "Template"]
+      ],
+      fetch_artifact_settings : [
+        configurations: [
+          [
+            key     : "key1",
+            metadata: [required: true, secure: false]
+          ],
+          [
+            key     : "key2",
+            metadata: [required: true, secure: false]
+          ]
+        ],
+        view          : [template: "Template"]
       ]
     ]
     assertThatJson(actualJson).isEqualTo(expectedJSON)

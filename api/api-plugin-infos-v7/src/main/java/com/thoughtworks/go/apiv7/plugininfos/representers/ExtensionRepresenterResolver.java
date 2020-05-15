@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv6.plugininfos.representers;
+package com.thoughtworks.go.apiv7.plugininfos.representers;
 
-import com.thoughtworks.go.apiv6.plugininfos.representers.extensions.*;
+import com.thoughtworks.go.apiv7.plugininfos.representers.extensions.*;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
 import java.util.HashMap;

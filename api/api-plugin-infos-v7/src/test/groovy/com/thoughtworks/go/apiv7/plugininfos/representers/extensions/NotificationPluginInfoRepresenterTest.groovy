@@ -13,55 +13,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv6.plugininfos.representers.extensions
+package com.thoughtworks.go.apiv7.plugininfos.representers.extensions
 
-import com.thoughtworks.go.helpers.PluginInfoMother
+
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helpers.PluginInfoMother.createNotificationPluginInfo
+import static com.thoughtworks.go.helpers.PluginInfoMother.createNotificationPluginInfoWithoutPluginSettings
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-class ConfigRepoExtensionRepresenterTest {
+class NotificationPluginInfoRepresenterTest {
   @Test
-  void 'should serialize config repo extension info to JSON'() {
+  void 'should serialize notification extension info to JSON'() {
+
+
     def actualJson = toObjectString({
-      new ConfigRepoExtensionRepresenter().toJSON(it, PluginInfoMother.createConfigRepoPluginInfo())
+      new NotificationPluginInfoRepresenter().toJSON(it, createNotificationPluginInfo())
     })
-    def expectedJSON = [
-      type           : "configrepo",
+
+    assertThatJson(actualJson).isEqualTo([
+      type           : "notification",
       plugin_settings: [
         configurations: [
           [
             key     : "key1",
-            metadata: [required: true, secure: false]
+            metadata: [
+              required: true,
+              secure  : false
+            ]
           ],
           [
             key     : "key2",
-            metadata: [required: true, secure: false]
+            metadata: [
+              required: true,
+              secure  : false
+            ]
           ]
         ],
         view          : [template: "Template"]
-      ],
-      capabilities   : [
-        supports_pipeline_export: true,
-        supports_parse_content  : true
       ]
-    ]
-    assertThatJson(actualJson).isEqualTo(expectedJSON)
+    ])
   }
 
   @Test
-  void 'should serialize config repo extension info without plugin settings to JSON'() {
+  void 'should serialize notification extension info without plugin settings to JSON'() {
     def actualJson = toObjectString({
-      new ConfigRepoExtensionRepresenter().toJSON(it, PluginInfoMother.createConfigRepoPluginInfoWithoutPluginSettings())
+      new NotificationPluginInfoRepresenter().toJSON(it, createNotificationPluginInfoWithoutPluginSettings())
     })
-    def expectedJSON = [
-      type        : "configrepo",
-      capabilities: [
-        supports_pipeline_export: true,
-        supports_parse_content  : true
-      ]
-    ]
-    assertThatJson(actualJson).isEqualTo(expectedJSON)
+    assertThatJson(actualJson).isEqualTo([
+      type: "notification"
+    ])
   }
 }

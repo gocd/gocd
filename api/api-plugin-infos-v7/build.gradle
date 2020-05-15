@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.plugin.domain.configrepo;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+apply plugin: 'jacoco'
+apply plugin: 'groovy'
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Capabilities {
-    private boolean supportsPipelineExport;
-    private boolean supportsParseContent;
-    private boolean supportsListConfigFiles;
-    private boolean supportsUserDefinedProperties;
+dependencies {
+  compile project(':api:api-base')
+
+  testCompile project(path: ':api:api-base', configuration: 'testOutput')
+
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
+  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
 }

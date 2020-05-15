@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv6.plugininfos.representers.extensions;
+package com.thoughtworks.go.apiv7.plugininfos.representers.extensions;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.apiv7.plugininfos.representers.PluggableInstanceSettingsRepresenter;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
-import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
+import com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo;
 
-public class ConfigRepoExtensionRepresenter extends ExtensionRepresenter {
+public class PackageMaterialExtensionRepresenter extends ExtensionRepresenter {
+
     @Override
     public void toJSON(OutputWriter extensionWriter, PluginInfo extension) {
         super.toJSON(extensionWriter, extension);
-
-        ConfigRepoPluginInfo configRepoPluginInfo = (ConfigRepoPluginInfo) extension;
-
-        extensionWriter.addChild("capabilities", capabilitiesWriter ->
-                capabilitiesWriter.add("supports_pipeline_export", configRepoPluginInfo.getCapabilities().isSupportsPipelineExport())
-                        .add("supports_parse_content", configRepoPluginInfo.getCapabilities().isSupportsParseContent()));
-
+        PackageMaterialPluginInfo packageMaterialPluginInfo = (PackageMaterialPluginInfo) extension;
+        extensionWriter.addChild("package_settings", taskSettingsWriter -> PluggableInstanceSettingsRepresenter.toJSON(taskSettingsWriter, packageMaterialPluginInfo.getPackageSettings()))
+                .addChild("repository_settings", taskSettingsWriter -> PluggableInstanceSettingsRepresenter.toJSON(taskSettingsWriter, packageMaterialPluginInfo.getRepositorySettings()));
     }
-
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv6.plugininfos.representers.extensions;
+package com.thoughtworks.go.apiv7.plugininfos.representers.extensions;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
@@ -28,7 +28,10 @@ public class ConfigRepoExtensionRepresenter extends ExtensionRepresenter {
 
         extensionWriter.addChild("capabilities", capabilitiesWriter ->
                 capabilitiesWriter.add("supports_pipeline_export", configRepoPluginInfo.getCapabilities().isSupportsPipelineExport())
-                        .add("supports_parse_content", configRepoPluginInfo.getCapabilities().isSupportsParseContent()));
+                        .add("supports_parse_content", configRepoPluginInfo.getCapabilities().isSupportsParseContent())
+                        .add("supports_list_config_files", configRepoPluginInfo.getCapabilities().isSupportsListConfigFiles())
+                        .add("supports_user_defined_properties", configRepoPluginInfo.getCapabilities().isSupportsUserDefinedProperties())
+        );
 
     }
 

@@ -13,23 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv6.plugininfos.representers.extensions;
+package com.thoughtworks.go.apiv7.plugininfos.representers.extensions;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.apiv7.plugininfos.representers.PluggableInstanceSettingsRepresenter;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
-import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
 
-public class ConfigRepoExtensionRepresenter extends ExtensionRepresenter {
-    @Override
+public class ExtensionRepresenter {
     public void toJSON(OutputWriter extensionWriter, PluginInfo extension) {
-        super.toJSON(extensionWriter, extension);
+        extensionWriter.add("type", extension.getExtensionName());
 
-        ConfigRepoPluginInfo configRepoPluginInfo = (ConfigRepoPluginInfo) extension;
-
-        extensionWriter.addChild("capabilities", capabilitiesWriter ->
-                capabilitiesWriter.add("supports_pipeline_export", configRepoPluginInfo.getCapabilities().isSupportsPipelineExport())
-                        .add("supports_parse_content", configRepoPluginInfo.getCapabilities().isSupportsParseContent()));
-
+        if (extension.getPluginSettings() != null) {
+            extensionWriter.addChild("plugin_settings", pluginSettingsWriter -> PluggableInstanceSettingsRepresenter.toJSON(pluginSettingsWriter, extension.getPluginSettings()));
+        }
     }
-
 }

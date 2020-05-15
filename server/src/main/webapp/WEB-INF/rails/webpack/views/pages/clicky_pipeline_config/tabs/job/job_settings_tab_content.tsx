@@ -90,6 +90,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
                          dataTestId={"elastic-agent-id-input"}
                          autoEvaluate={this.isElasticAgentIdInputOnFocus()}
                          errorText={entity.errors().errorsForDisplay("elasticProfileId")}
+                         onchange={vnode.attrs.elasticAgentsSuggestions.update.bind(vnode.attrs.elasticAgentsSuggestions)}
                          provider={vnode.attrs.elasticAgentsSuggestions}
                          readonly={vnode.attrs.readonly || !!entity.resources()}
                          helpText={<div>The Elastic Agent Profile that the current job requires to run. Visit <a href="/go/admin/elastic_agent_configurations" title="Elastic Agents Configurations">Elastic Agent Configurations</a> page to manage elastic agent profiles.</div>}

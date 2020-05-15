@@ -29,13 +29,18 @@ export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {
   }
 
   getPipelineSchedulingCheckBox(entity: PipelineConfig, templateConfig: TemplateConfig) {
+    let additionalHelpText: string = ";";
+    if (entity.isUsingTemplate()) {
+      additionalHelpText = ` Since this pipeline is based on '${entity.template()}' template, automatic/manual behaviour of the pipeline is determined by the template's first stage.`;
+    }
+
     const stage: Stage = entity.template() ? templateConfig.firstStage() : entity.firstStage();
     if (stage) {
       return <CheckboxField label="Automatic pipeline scheduling"
                             errorText={entity.errors().errorsForDisplay("")}
                             dataTestId={"automatic-pipeline-scheduling"}
                             readonly={entity.isDefinedInConfigRepo() || entity.isUsingTemplate()}
-                            helpText="If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual."
+                            helpText={`If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual.${additionalHelpText}`}
                             property={stage.approval().typeAsStream()}/>;
     }
   }

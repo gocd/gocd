@@ -107,7 +107,9 @@ public class FetchArtifactViewHelper {
         List<PipelineConfig> pipelineConfigs = cruiseConfig.allPipelines();
         PipelineConfig dummyPipeline = new PipelineConfig();
         for (PipelineConfig pipelineConfig : pipelineConfigs) {
-            dummyPipeline.addMaterialConfig(new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.last().name()));
+            if (pipelineConfig.last() != null) {
+                dummyPipeline.addMaterialConfig(new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.last().name()));
+            }
         }
         PipelineTemplateConfig pipelineTemplateConfig = cruiseConfig.getTemplates().templateByName(pipelineName);
         for (StageConfig stageConfig : pipelineTemplateConfig) {

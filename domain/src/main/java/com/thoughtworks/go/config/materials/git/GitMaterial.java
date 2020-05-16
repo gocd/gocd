@@ -328,34 +328,18 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         GitMaterial that = (GitMaterial) o;
-
-        if (branch != null ? !branch.equals(that.branch) : that.branch != null) {
-            return false;
-        }
-        if (submoduleFolder != null ? !submoduleFolder.equals(that.submoduleFolder) : that.submoduleFolder != null) {
-            return false;
-        }
-        return url != null ? url.equals(that.url) : that.url == null;
+        return Objects.equals(url, that.url) &&
+                Objects.equals(branch, that.branch) &&
+                Objects.equals(submoduleFolder, that.submoduleFolder);
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (url != null ? url.hashCode() : 0);
-        result = 31 * result + (branch != null ? branch.hashCode() : 0);
-        result = 31 * result + (submoduleFolder != null ? submoduleFolder.hashCode() : 0);
-        return result;
+        return Objects.hash(super.hashCode(), url, branch, submoduleFolder);
     }
 
     @Override
@@ -422,8 +406,8 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return "GitMaterial{" +
                 "url=" + url +
                 ", branch='" + branch + '\'' +
-                ", submoduleFolder='" + submoduleFolder + '\'' +
                 ", shallowClone=" + shallowClone +
+                ", submoduleFolder='" + submoduleFolder + '\'' +
                 '}';
     }
 

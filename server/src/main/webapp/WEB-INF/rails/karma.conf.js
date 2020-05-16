@@ -23,7 +23,7 @@ const childProcess        = require('child_process');
 let browsers;
 
 if (process.platform === 'darwin') {
-  browsers = ['Firefox', 'Chrome', 'Safari'];
+  browsers = ['Firefox', 'Chrome'];
 } else if (process.platform === 'win32') {
 
   // make sure to kill Edge browser before doing anything.

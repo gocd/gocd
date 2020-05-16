@@ -16,7 +16,6 @@
     "tslint:fix": "yarn run tslint:prod --fix && yarn run tslint:spec --fix"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.8.7",
     "@shopify/draggable": "^1.0.0-beta.8",
     "@types/html-minifier-terser": "^5.1.0",
     "angular": "file:node-vendor/angular",

@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.PartialConfigUpdateCommand;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -37,22 +39,24 @@ import java.util.Set;
  */
 @Component
 public class GoPartialConfig implements PartialConfigUpdateCompletedListener, ChangedRepoConfigWatchListListener {
-
     public static final String INVALID_CRUISE_CONFIG_MERGE = "Invalid Merged Configuration";
+
     private final GoConfigService goConfigService;
     private final CachedGoPartials cachedGoPartials;
     private final ServerHealthService serverHealthService;
+    private final EntityHashingService entityHashingService;
     private GoRepoConfigDataSource repoConfigDataSource;
     private GoConfigWatchList configWatchList;
 
     @Autowired
     public GoPartialConfig(GoRepoConfigDataSource repoConfigDataSource,
-                           GoConfigWatchList configWatchList, GoConfigService goConfigService, CachedGoPartials cachedGoPartials, ServerHealthService serverHealthService) {
+                           GoConfigWatchList configWatchList, GoConfigService goConfigService, CachedGoPartials cachedGoPartials, ServerHealthService serverHealthService, EntityHashingService entityHashingService) {
         this.repoConfigDataSource = repoConfigDataSource;
         this.configWatchList = configWatchList;
         this.goConfigService = goConfigService;
         this.cachedGoPartials = cachedGoPartials;
         this.serverHealthService = serverHealthService;
+        this.entityHashingService = entityHashingService;
 
         this.configWatchList.registerListener(this);
         this.repoConfigDataSource.registerListener(this);
@@ -74,10 +78,12 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
         if (this.configWatchList.hasConfigRepoWithFingerprint(fingerprint)) {
             //TODO maybe validate new part without context of other partials or main config
 
-            // put latest known
-            cachedGoPartials.addOrUpdate(fingerprint, newPart);
-            if (updateConfig(newPart, fingerprint, repoConfig)) {
-                cachedGoPartials.markAsValid(fingerprint, newPart);
+            if (isPartialConfigDifferent(newPart, fingerprint)) {
+                // put latest known
+                cachedGoPartials.addOrUpdate(fingerprint, newPart);
+                if (updateConfig(newPart, fingerprint, repoConfig)) {
+                    cachedGoPartials.markAsValid(fingerprint, newPart);
+                }
             }
         }
     }
@@ -121,5 +127,19 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
                 cachedGoPartials.removeValid(fingerprint);
             }
         }
+    }
+
+    private boolean isPartialConfigDifferent(PartialConfig newPart, String fingerprint) {
+        return partialConfigHash(newPart) != partialConfigHash(cachedGoPartials.getKnown(fingerprint));
+    }
+
+    private int partialConfigHash(PartialConfig config) {
+        if (null == config) return 0;
+
+        return Objects.hash(
+                null == config.getGroups() ? null : entityHashingService.md5ForEntity(config.getGroups()),
+                null == config.getEnvironments() ? null : entityHashingService.md5ForEntity(config.getEnvironments()),
+                null == config.getScms() ? null : entityHashingService.md5ForEntity(config.getScms())
+        );
     }
 }

@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.service.ConfigRepoService;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -74,6 +75,9 @@ public class GoRepoConfigDataSourceIntegrationTest {
     @Autowired
     private GoConfigDao goConfigDao;
 
+    @Autowired
+    private EntityHashingService entityHashingService;
+
 
     @Before
     public void setUp() throws Exception {
@@ -82,7 +86,7 @@ public class GoRepoConfigDataSourceIntegrationTest {
         configHelper.onSetUp();
 
         GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
-        repoConfigDataSource.registerListener(new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService));
+        repoConfigDataSource.registerListener(new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, entityHashingService));
 
         configHelper.addTemplate("t1", "param1", "stage");
         File templateConfigRepo = temporaryFolder.newFolder();

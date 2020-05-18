@@ -23,10 +23,13 @@ import com.thoughtworks.go.config.update.PartialConfigUpdateCommand;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.server.service.ConfigRepoService;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.io.File;
 
@@ -52,12 +55,14 @@ public class GoPartialConfigTest {
     private ServerHealthService serverHealthService;
     private PartialConfigUpdateCommand updateCommand;
     private ConfigRepoService configRepoService;
+    private EntityHashingService entityHashingService;
 
     @Before
     public void setUp() {
         configRepoService = mock(ConfigRepoService.class);
         serverHealthService = mock(ServerHealthService.class);
         configPluginService = mock(GoConfigPluginService.class);
+        entityHashingService = mock(EntityHashingService.class);
         plugin = mock(PartialConfigProvider.class);
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class))).thenReturn(plugin);
 
@@ -74,7 +79,7 @@ public class GoPartialConfigTest {
         serverHealthService = mock(ServerHealthService.class);
 
         updateCommand = null;
-        partialConfig = new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService) {
+        partialConfig = new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, entityHashingService) {
             @Override
             public PartialConfigUpdateCommand buildUpdateCommand(PartialConfig partial, String fingerprint, ConfigRepoConfig repoConfig) {
                 if (null == updateCommand) {
@@ -228,6 +233,52 @@ public class GoPartialConfigTest {
         partialConfig.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withEnvironment("env1"));
         assertThat(cruiseConfig.getPartials().size(), is(1));
         assertThat(cruiseConfig.getPartials().get(0).getEnvironments().first().name(), is(new CaseInsensitiveString("env1")));
+    }
+
+    @Test
+    public void skipsMergeWhenPartialHasNotChanged() {
+        cachedGoPartials = mock(CachedGoPartials.class);
+        // return equivalent partial to input
+        when(cachedGoPartials.getKnown(any(String.class))).thenReturn(PartialConfigMother.withEnvironment("env1"));
+
+        configWatchList = mock(GoConfigWatchList.class);
+        when(configWatchList.hasConfigRepoWithFingerprint(any(String.class))).thenReturn(true);
+
+        when(entityHashingService.md5ForEntity(any(EnvironmentsConfig.class))).thenAnswer(new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                final EnvironmentsConfig envs = (EnvironmentsConfig) invocation.getArgument(0);
+                return envs.names().get(0).toString();
+            }
+        });
+
+        partialConfig = new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, entityHashingService);
+
+        partialConfig.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withEnvironment("env1"));
+        verify(cachedGoPartials, never()).addOrUpdate(any(String.class), any(PartialConfig.class));
+    }
+
+    @Test
+    public void mergesWhenPartialHasChanged() {
+        cachedGoPartials = mock(CachedGoPartials.class);
+        when(cachedGoPartials.getKnown(any(String.class))).thenReturn(PartialConfigMother.withEnvironment("env1"));
+
+        configWatchList = mock(GoConfigWatchList.class);
+        when(configWatchList.hasConfigRepoWithFingerprint(any(String.class))).thenReturn(true);
+
+        when(entityHashingService.md5ForEntity(any(EnvironmentsConfig.class))).thenAnswer(new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                final EnvironmentsConfig envs = (EnvironmentsConfig) invocation.getArgument(0);
+                return envs.names().get(0).toString();
+            }
+        });
+
+        partialConfig = new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, entityHashingService);
+
+        final PartialConfig partial = PartialConfigMother.withEnvironment("env2");
+        partialConfig.onSuccessPartialConfig(configRepoConfig, partial);
+        verify(cachedGoPartials, times(1)).addOrUpdate(configRepoConfig.getRepo().getFingerprint(), partial);
     }
 
     private Modification getModificationFor(String revision) {

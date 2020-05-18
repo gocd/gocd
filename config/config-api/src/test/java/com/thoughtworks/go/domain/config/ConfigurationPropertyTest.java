@@ -281,9 +281,9 @@ public class ConfigurationPropertyTest {
     }
 
     @Test
-    void shouldGetNullValueForPropertyWhenValueIsNull() {
+    void shouldGetEmptyValueForPropertyWhenValueIsNull() {
         ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey("key"), null, null, cipher);
-        assertThat(configurationProperty.getValue()).isNull();
+        assertThat(configurationProperty.getValue()).isEmpty();
     }
 
     @Test

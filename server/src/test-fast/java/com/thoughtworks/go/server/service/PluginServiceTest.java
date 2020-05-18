@@ -131,7 +131,7 @@ public class PluginServiceTest {
         assertThat(pluginSettings.getSettingsAsKeyValuePair().keySet().size(), is(3));
         assertThat(pluginSettings.getSettingsAsKeyValuePair(), hasEntry("key-1", "v1"));
         assertThat(pluginSettings.getSettingsAsKeyValuePair(), hasEntry("key-2", ""));
-        assertThat(pluginSettings.getSettingsAsKeyValuePair(), hasEntry("key-3", null));
+        assertThat(pluginSettings.getSettingsAsKeyValuePair(), hasEntry("key-3", ""));
     }
 
     @Test
@@ -258,7 +258,7 @@ public class PluginServiceTest {
         assertThat(plugin.getPluginId(), is(elasticAgentPluginId));
         assertThat(plugin.getConfigurationValue("key-1"), is("v1"));
         assertThat(plugin.getConfigurationValue("key-2"), is(""));
-        assertThat(plugin.getConfigurationValue("key-3"), nullValue());
+        assertThat(plugin.getConfigurationValue("key-3"), is(""));
     }
 
     @Test
@@ -281,7 +281,7 @@ public class PluginServiceTest {
         assertThat(plugin.getPluginId(), is(elasticAgentPluginId));
         assertThat(plugin.getConfigurationValue("key-1"), is("v1"));
         assertThat(plugin.getConfigurationValue("key-2"), is(""));
-        assertThat(plugin.getConfigurationValue("key-3"), nullValue());
+        assertThat(plugin.getConfigurationValue("key-3"), is(""));
     }
 
     @Test

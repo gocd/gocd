@@ -41,7 +41,7 @@ public class PropertyTest {
         property = new Property("key").withDefault(defaultValue);
         assertThat(property.getValue(), is(defaultValue));
         property = new Property("key");
-        assertThat(property.getValue() == null, is(true));
+        assertThat(property.getValue(), is(""));
         String value = "yek";
         property = new Property("key", value, defaultValue);
         assertThat(property.getValue(), is(value));

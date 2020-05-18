@@ -5208,10 +5208,10 @@ karma-sourcemap-loader@^0.3.7:
   dependencies:
     graceful-fs "^4.1.2"
 
-karma@^5.0.5:
-  version "5.0.6"
-  resolved "https://registry.yarnpkg.com/karma/-/karma-5.0.6.tgz#477771bf215202d752ca2ac3ffb95a76c041af03"
-  integrity sha512-X8Ge+PZP3xKgNmqATg6mRU8+Sv72VzrfA9bioiY/HP2H5cg0/O4WOQztPaKDuzj0s+ayo/zl9PmyzLLiG46DWQ==
+karma@^5.0.7:
+  version "5.0.7"
+  resolved "https://registry.yarnpkg.com/karma/-/karma-5.0.7.tgz#1e5fcc5811b24816a6072f38ce52d1a0d2f34712"
+  integrity sha512-I24X7rAXZ96AeJEpaJqGcaPsTbjt1f89MudxhJVPYCLXMevZjW0By4FwnjGoEN7hV/T0A3L/iaF3ezQlts3SUw==
   dependencies:
     body-parser "^1.19.0"
     braces "^3.0.2"

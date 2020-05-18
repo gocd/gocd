@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv7.plugininfos;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ToggleRegisterLatest;
 import com.thoughtworks.go.apiv7.plugininfos.representers.PluginInfoRepresenter;
 import com.thoughtworks.go.apiv7.plugininfos.representers.PluginInfosRepresenter;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -45,6 +46,7 @@ import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage;
 import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
+@ToggleRegisterLatest(controllerPath = Routes.PluginInfoAPI.BASE, apiVersion = ApiVersion.v7, as = "branch_support")
 @Component
 public class PluginInfosControllerV7 extends ApiController implements SparkSpringController {
 

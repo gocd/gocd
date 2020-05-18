@@ -38,8 +38,8 @@
     },
     {
       "key": "new_pipeline_config_spa",
-      "description": "When enabled, redirects to pipeline config spa.",
-      "value": false
+      "description": "When enabled, redirects to pipeline config spa. Default is true.",
+      "value": true
     },
     {
       "key": "branch_support",

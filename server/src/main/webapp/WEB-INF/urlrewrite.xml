@@ -1003,6 +1003,12 @@
   </rule>
 
   <rule>
+    <name>Rails Pipeline Snippet</name>
+    <from>^/(admin/pipelines/snippet/.*)$</from>
+    <to last="true">/rails/$1</to>
+  </rule>
+
+  <rule>
     <name>Redirect to Pipeline Config SPA</name>
     <from>/admin/(pipelines|templates)/([^/]+)/(.*?)?$</from>
     <run class="com.thoughtworks.go.server.RedirectToPipelineConfigSPAToggle" method="redirect"/>

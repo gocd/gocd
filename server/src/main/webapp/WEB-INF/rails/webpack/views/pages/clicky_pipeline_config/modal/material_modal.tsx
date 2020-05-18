@@ -93,6 +93,10 @@ export class MaterialModal extends Modal {
   }
 
   buttons(): m.ChildArray {
+    if (this.readonly) {
+      return [];
+    }
+
     return [
       <Primary data-test-id="button-save" onclick={this.addOrUpdateEntity.bind(this)}>Save</Primary>,
       <Cancel data-test-id="button-cancel" onclick={this.close.bind(this)}>Cancel</Cancel>

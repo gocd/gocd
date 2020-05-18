@@ -52,4 +52,24 @@ describe("MaterialModalSpec", () => {
     expect(helper.byTestId('form-field-input-material-type')).toBeInDOM();
     expect(helper.byTestId('materials-destination-warning-message')).not.toBeInDOM();
   });
+
+  it("should show save and reset buttons", () => {
+    const modal = new MaterialModal("Some modal title", Stream(material), "test", Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), true, false);
+    modal.render();
+    m.redraw.sync();
+    const helper = new TestHelper().forModal();
+
+    expect(helper.byTestId('button-save', document.body)).toBeInDOM();
+    expect(helper.byTestId('button-cancel', document.body)).toBeInDOM();
+  });
+
+  it("should not show save and reset buttons for read only materials", () => {
+    const modal = new MaterialModal("Some modal title", Stream(material), "test", Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), true, true);
+    modal.render();
+    m.redraw.sync();
+    const helper = new TestHelper().forModal();
+
+    expect(helper.byTestId('button-save', document.body)).not.toBeInDOM();
+    expect(helper.byTestId('button-cancel', document.body)).not.toBeInDOM();
+  });
 });

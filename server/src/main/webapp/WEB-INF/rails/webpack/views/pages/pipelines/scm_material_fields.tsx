@@ -53,7 +53,7 @@ function markAllDisabled(vnodes: m.ChildArray) {
         markAllDisabled(vnode);
       } else {
         //@ts-ignore
-        if (FormField.isPrototypeOf(vnode.tag) || vnode.tag.name === "SwitchBtn") {
+        if (FormField.isPrototypeOf(vnode.tag)) {
           (vnode.attrs as any).readonly = true;
           (vnode.attrs as any).disabled = true;
         } else {
@@ -117,6 +117,7 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
                    dataTestId="auto-update-material"
                    small={true}
                    css={styles}
+                   disabled={vnode.attrs.readonly}
                    field={mattrs.autoUpdate}
                    errorText={this.errs(mattrs, "autoUpdate")}/>,
 

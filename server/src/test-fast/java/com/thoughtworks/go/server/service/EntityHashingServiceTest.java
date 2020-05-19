@@ -18,7 +18,10 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.EnvironmentConfigMother;
+import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PluginSettings;
@@ -30,7 +33,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class EntityHashingServiceTest {
@@ -141,5 +144,30 @@ public class EntityHashingServiceTest {
         artifactConfigChangeListener.onEntityConfigChange(artifactConfig);
 
         verify(goCache).remove("GO_ETAG_CACHE", (artifactConfig.getClass().getName() + ".cacheKey"));
+    }
+
+    @Test
+    public void computeHashForEntity() {
+        assertEquals(
+                "Given the same structure and origin, computeHashForEntity() should output the same hash code",
+                entityHashingService.computeHashForEntity(PartialConfigMother.withPipeline("foo")),
+                entityHashingService.computeHashForEntity(PartialConfigMother.withPipeline("foo"))
+        );
+
+        assertNotEquals(
+                "Given structurally different partials, computeHashForEntity() outputs different hash codes",
+                entityHashingService.computeHashForEntity(PartialConfigMother.withPipeline("foo")),
+                entityHashingService.computeHashForEntity(PartialConfigMother.withPipeline("bar"))
+        );
+
+        PartialConfig a = PartialConfigMother.withPipeline("foo");
+        PartialConfig b = PartialConfigMother.withPipeline("bar");
+        b.setOrigin(new RepoConfigOrigin(((RepoConfigOrigin) b.getOrigin()).getConfigRepo(), "something-else"));
+
+        assertNotEquals(
+                "Given structurally equal partials, but different origins, computeHashForEntity() outputs different hash codes",
+                entityHashingService.computeHashForEntity(a),
+                entityHashingService.computeHashForEntity(b)
+        );
     }
 }

@@ -839,7 +839,7 @@ task verifyWar(type: VerifyJarTask) {
         "go-plugin-infra-${project.version}.jar",
         "gson-${project.versions.gson}.jar",
         "guava-${project.versions.guava}.jar",
-        "checker-qual-2.10.0.jar",
+        "checker-qual-2.11.1.jar",
         "error_prone_annotations-2.3.4.jar",
         "failureaccess-1.0.1.jar",
         "j2objc-annotations-1.3.jar",

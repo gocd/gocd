@@ -90,12 +90,12 @@ class InternalCommandSnippetsControllerV1Test implements SecurityServiceTrait, C
         def prefix = "curl"
         List<CommandSnippet> snippets = new ArrayList<>()
         when(commandRepositoryService.lookupCommand(prefix)).thenReturn(snippets)
-        when(entityHashingService.md5ForEntity(new CommandSnippets(snippets))).thenReturn("md5")
+        when(entityHashingService.hashForEntity(new CommandSnippets(snippets))).thenReturn("digest")
         getWithApiHeader(controller.controllerPath([prefix: prefix]))
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasBodyWithJson(toObjectString({ CommandSnippetsRepresenter.toJSON(it, snippets, prefix) }))
       }
 
@@ -104,8 +104,8 @@ class InternalCommandSnippetsControllerV1Test implements SecurityServiceTrait, C
         def prefix = "curl"
         List<CommandSnippet> snippets = new ArrayList<>()
         when(commandRepositoryService.lookupCommand(prefix)).thenReturn(snippets)
-        when(entityHashingService.md5ForEntity(new CommandSnippets(snippets))).thenReturn("md5")
-        getWithApiHeader(controller.controllerPath([prefix: prefix]), ['if-none-match': 'md5'])
+        when(entityHashingService.hashForEntity(new CommandSnippets(snippets))).thenReturn("digest")
+        getWithApiHeader(controller.controllerPath([prefix: prefix]), ['if-none-match': 'digest'])
 
         assertThatResponse()
           .isNotModified()

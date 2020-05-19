@@ -68,7 +68,7 @@ module Admin
 
       failure_handler = action_failure_handler(@task, 'new')
       fast_save_popup(failure_handler, {:controller => '/admin/tasks', :current_tab => params[:current_tab]}) do
-        assert_load :pipeline_md5, params[:pipeline_md5]
+        assert_load :pipeline_digest, params[:pipeline_digest]
         assert_load :pipeline_group_name, params[:pipeline_group_name]
         assert_load :pipeline_name, params[:pipeline_name]
         assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
@@ -201,7 +201,7 @@ module Admin
 
       failure_handler = action_failure_handler(@task, 'edit')
       fast_save_popup(failure_handler, {:controller => '/admin/tasks', :current_tab => params[:current_tab]}) do
-        assert_load :pipeline_md5, params[:pipeline_md5]
+        assert_load :pipeline_digest, params[:pipeline_digest]
         assert_load :pipeline_group_name, params[:pipeline_group_name]
         assert_load :pipeline_name, params[:pipeline_name]
         assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()

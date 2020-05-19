@@ -145,7 +145,7 @@ public class DataSharingSettingsServiceIntegrationTest {
     public void shouldUpdateMd5SumOfDataSharingSettingsUponSave() {
         DataSharingSettings loaded = dataSharingSettingsService.get();
 
-        String originalMd5 = entityHashingService.md5ForEntity(loaded);
+        String originalMd5 = entityHashingService.hashForEntity(loaded);
         assertThat(originalMd5, is(not(nullValue())));
 
         loaded.setAllowSharing(true);
@@ -153,7 +153,7 @@ public class DataSharingSettingsServiceIntegrationTest {
         loaded.setUpdatedOn(Timestamp.from(new Date().toInstant()));
         dataSharingSettingsService.createOrUpdate(loaded);
 
-        String md5AfterUpdate = entityHashingService.md5ForEntity(dataSharingSettingsService.get());
+        String md5AfterUpdate = entityHashingService.hashForEntity(dataSharingSettingsService.get());
         assertThat(originalMd5, is(not(md5AfterUpdate)));
     }
 

@@ -43,7 +43,7 @@ describe Admin::MaterialsController do
       @pipeline_name = "pipeline-name"
       pipeline_group = BasicPipelineConfigs.new
       pipeline_group.group = "defaultGroup"
-      allow(@entity_hashing_service).to receive(:md5ForEntity).and_return('pipeline-md5')
+      allow(@entity_hashing_service).to receive(:hashForEntity).and_return('pipeline-digest')
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with(@pipeline_name).and_return(@pause_info)
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
       @cruise_config = double("Cruise Config")

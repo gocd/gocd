@@ -42,7 +42,6 @@ import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.service.lookups.CommandSnippet;
 import com.thoughtworks.go.server.service.lookups.CommandSnippets;
-import com.thoughtworks.go.util.CachedDigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -54,18 +53,23 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
 import static java.lang.String.valueOf;
 import static java.util.Objects.hash;
-import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 
 @Component
 public class EntityHashingService implements ConfigChangedListener, Initializer {
     private static final String SEP_CHAR = "/";
-    private GoConfigService goConfigService;
-    private GoCache goCache;
-    private static final String ETAG_CACHE_KEY = "GO_ETAG_CACHE".intern();
-    private ConfigCache configCache;
-    private ConfigElementImplementationRegistry registry;
+    private static final String ETAG_CACHE_KEY = "GO_ETAG_CACHE";
+
+    private final GoConfigService goConfigService;
+    private final GoCache goCache;
+    private final ConfigCache configCache;
+    private final ConfigElementImplementationRegistry registry;
+
+    private static String digestHex(String data) {
+        return sha512_256Hex(data);
+    }
 
     @Autowired
     public EntityHashingService(GoConfigService goConfigService, GoCache goCache, ConfigCache configCache, ConfigElementImplementationRegistry registry) {
@@ -107,136 +111,136 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         goCache.remove(ETAG_CACHE_KEY);
     }
 
-    public String md5ForEntity(PipelineTemplateConfig config) {
+    public String hashForEntity(PipelineTemplateConfig config) {
         String cacheKey = cacheKey(config, config.name());
-        return getDomainEntityMd5FromCache(config, cacheKey);
+        return getDomainEntityDigestFromCache(config, cacheKey);
     }
 
-    public String md5ForEntity(NotificationFilter filter) {
+    public String hashForEntity(NotificationFilter filter) {
         String cacheKey = cacheKey(filter, String.valueOf(filter.getId()));
         return getFromCache(cacheKey, () -> String.valueOf(filter.hashCode()));
     }
 
-    public String md5ForEntity(EnvironmentConfig config) {
+    public String hashForEntity(EnvironmentConfig config) {
         if (config instanceof MergeEnvironmentConfig) {
-            return md5Hex(valueOf(hash(config)));
+            return digestHex(valueOf(hash(config)));
         }
 
         String cacheKey = cacheKey(config, config.name());
-        return getDomainEntityMd5FromCache(config, cacheKey);
+        return getDomainEntityDigestFromCache(config, cacheKey);
     }
 
-    public String md5ForEntity(EnvironmentsConfig envConfigs) {
+    public String hashForEntity(EnvironmentsConfig envConfigs) {
         final String environmentConfigSegment = envConfigs
                 .stream()
-                .map(this::md5ForEntity)
+                .map(this::hashForEntity)
                 .collect(Collectors.joining(SEP_CHAR));
 
-        return CachedDigestUtils.sha256Hex(environmentConfigSegment);
+        return digestHex(environmentConfigSegment);
     }
 
-    public String md5ForEntity(PackageRepository config) {
+    public String hashForEntity(PackageRepository config) {
         String cacheKey = cacheKey(config, config.getId());
-        return getDomainEntityMd5FromCache(config, cacheKey);
+        return getDomainEntityDigestFromCache(config, cacheKey);
     }
 
-    public String md5ForEntity(PackageRepositories packageRepositories) {
-        List<String> md5s = new ArrayList<>();
+    public String hashForEntity(PackageRepositories packageRepositories) {
+        List<String> parts = new ArrayList<>();
         for (PackageRepository packageRepository : packageRepositories) {
-            md5s.add(md5ForEntity(packageRepository));
+            parts.add(hashForEntity(packageRepository));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
+        return digestHex(StringUtils.join(parts, SEP_CHAR));
     }
 
-    public String md5ForEntity(SCM config) {
+    public String hashForEntity(SCM config) {
         String cacheKey = cacheKey(config, config.getName());
-        return getDomainEntityMd5FromCache(config, cacheKey);
+        return getDomainEntityDigestFromCache(config, cacheKey);
     }
 
-    public String md5ForEntity(PipelineConfig pipelineConfig, String groupName) {
+    public String hashForEntity(PipelineConfig pipelineConfig, String groupName) {
         String cacheKey = cacheKey(pipelineConfig, pipelineConfig.name());
-        String md5 = getDomainEntityMd5FromCache(pipelineConfig, cacheKey);
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5, SEP_CHAR, groupName));
+        String parts = getDomainEntityDigestFromCache(pipelineConfig, cacheKey);
+        return digestHex(StringUtils.join(parts, SEP_CHAR, groupName));
     }
 
-    public String md5ForEntity(ConfigRepoConfig config) {
+    public String hashForEntity(ConfigRepoConfig config) {
         String cacheKey = cacheKey(config, config.getId());
-        return getDomainEntityMd5FromCache(config, cacheKey);
+        return getDomainEntityDigestFromCache(config, cacheKey);
     }
 
-    public String md5ForEntity(ElasticProfile config) {
+    public String hashForEntity(ElasticProfile config) {
         String cacheKey = cacheKey(config, config.getId());
-        return getDomainEntityMd5FromCache(config, cacheKey);
+        return getDomainEntityDigestFromCache(config, cacheKey);
     }
 
-    public String md5ForEntity(SecretConfig config) {
+    public String hashForEntity(SecretConfig config) {
         String cacheKey = cacheKey(config, config.getId());
-        return getDomainEntityMd5FromCache(config, cacheKey);
+        return getDomainEntityDigestFromCache(config, cacheKey);
     }
 
-    public String md5ForEntity(ClusterProfile profile) {
+    public String hashForEntity(ClusterProfile profile) {
         String cacheKey = cacheKey(profile, profile.getId());
-        return getDomainEntityMd5FromCache(profile, cacheKey);
+        return getDomainEntityDigestFromCache(profile, cacheKey);
     }
 
-    public String md5ForEntity(CommandSnippet commandSnippet) {
+    public String hashForEntity(CommandSnippet commandSnippet) {
         String cacheKey = cacheKey(commandSnippet, commandSnippet.getName());
-        return getDbEntityMd5FromCache(cacheKey, commandSnippet);
+        return getDbEntityDigestFromCache(cacheKey, commandSnippet);
     }
 
-    public String md5ForEntity(CommandSnippets commandSnippets) {
-        List<String> md5s = new ArrayList<>();
+    public String hashForEntity(CommandSnippets commandSnippets) {
+        List<String> parts = new ArrayList<>();
         for (CommandSnippet commandSnippet : commandSnippets.getSnippets()) {
-            md5s.add(md5ForEntity(commandSnippet));
+            parts.add(hashForEntity(commandSnippet));
         }
 
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
+        return digestHex(StringUtils.join(parts, SEP_CHAR));
     }
 
-    public String md5ForEntity(SecurityAuthConfig config) {
+    public String hashForEntity(SecurityAuthConfig config) {
         String cacheKey = cacheKey(config, config.getId());
-        return getDomainEntityMd5FromCache(config, cacheKey);
+        return getDomainEntityDigestFromCache(config, cacheKey);
     }
 
-    public String md5ForEntity(SecurityAuthConfigs authConfigs) {
-        List<String> md5s = new ArrayList<>();
+    public String hashForEntity(SecurityAuthConfigs authConfigs) {
+        List<String> parts = new ArrayList<>();
         for (SecurityAuthConfig authConfig : authConfigs) {
-            md5s.add(md5ForEntity(authConfig));
+            parts.add(hashForEntity(authConfig));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
+        return digestHex(StringUtils.join(parts, SEP_CHAR));
     }
 
-    public String md5ForEntity(Role config) {
+    public String hashForEntity(Role config) {
         String cacheKey = cacheKey(config, config.getName());
-        return getDomainEntityMd5FromCache(config, cacheKey);
+        return getDomainEntityDigestFromCache(config, cacheKey);
     }
 
-    public String md5ForEntity(AdminsConfig config) {
+    public String hashForEntity(AdminsConfig config) {
         String cacheKey = cacheKey(config, "cacheKey");
-        return getDomainEntityMd5FromCache(config, cacheKey);
+        return getDomainEntityDigestFromCache(config, cacheKey);
     }
 
-    public String md5ForEntity(PackageDefinition config) {
+    public String hashForEntity(PackageDefinition config) {
         String cacheKey = cacheKey(config, config.getId());
-        return getDomainEntityMd5FromCache(config, cacheKey);
+        return getDomainEntityDigestFromCache(config, cacheKey);
     }
 
-    public String md5ForEntity(Packages config) {
-        List<String> md5s = new ArrayList<>();
+    public String hashForEntity(Packages config) {
+        List<String> parts = new ArrayList<>();
         for (PackageDefinition packageDefinition : config) {
-            md5s.add(md5ForEntity(packageDefinition));
+            parts.add(hashForEntity(packageDefinition));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
+        return digestHex(StringUtils.join(parts, SEP_CHAR));
     }
 
-    public String md5ForEntity(PluginSettings pluginSettings) {
+    public String hashForEntity(PluginSettings pluginSettings) {
         String cacheKey = cacheKey(pluginSettings, pluginSettings.getPluginId());
         return getFromCache(cacheKey, () -> String.valueOf(pluginSettings.hashCode()));
     }
 
-    public String md5ForEntity(ArtifactStore artifactStore) {
+    public String hashForEntity(ArtifactStore artifactStore) {
         String cacheKey = cacheKey(artifactStore, artifactStore.getId());
-        return getDbEntityMd5FromCache(cacheKey, artifactStore);
+        return getDbEntityDigestFromCache(cacheKey, artifactStore);
     }
 
     private String cacheKey(Object domainObject, CaseInsensitiveString name) {
@@ -247,24 +251,25 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return getClass(domainObject) + "." + name;
     }
 
-    private String getDbEntityMd5FromCache(String cacheKey, Object dbObject) {
+    private String getDbEntityDigestFromCache(String cacheKey, Object dbObject) {
         return getFromCache(cacheKey, () -> new GsonBuilder().create().toJson(dbObject));
     }
 
-    private String getDomainEntityMd5FromCache(Object domainObject, String cacheKey) {
+    private String getDomainEntityDigestFromCache(Object domainObject, String cacheKey) {
         return getFromCache(cacheKey, () -> getDomainObjectXmlPartial(domainObject));
     }
 
     private String getFromCache(String cacheKey, Supplier<String> fingerprintSupplier) {
-        String cachedMD5 = getFromCache(cacheKey);
+        String cached = getFromCache(cacheKey);
 
-        if (cachedMD5 != null) {
-            return cachedMD5;
+        if (cached != null) {
+            return cached;
         }
-        String md5 = CachedDigestUtils.md5Hex(fingerprintSupplier.get());
-        goCache.put(ETAG_CACHE_KEY, cacheKey, md5);
 
-        return md5;
+        String digest = digestHex(fingerprintSupplier.get());
+        goCache.put(ETAG_CACHE_KEY, cacheKey, digest);
+
+        return digest;
     }
 
     public void removeFromCache(Object domainObject, CaseInsensitiveString name) {
@@ -287,80 +292,80 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(domainObject);
     }
 
-    public String md5ForEntity(RolesConfig roles) {
-        List<String> md5s = new ArrayList<>();
+    public String hashForEntity(RolesConfig roles) {
+        List<String> parts = new ArrayList<>();
         for (Role role : roles) {
-            md5s.add(md5ForEntity(role));
+            parts.add(hashForEntity(role));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
+        return digestHex(StringUtils.join(parts, SEP_CHAR));
     }
 
-    public String md5ForEntity(ParamsConfig paramConfigs) {
-        List<String> md5s = new ArrayList<>();
+    public String hashForEntity(ParamsConfig paramConfigs) {
+        List<String> parts = new ArrayList<>();
         for (ParamConfig paramConfig : paramConfigs) {
-            md5s.add(md5ForEntity(paramConfig));
+            parts.add(hashForEntity(paramConfig));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
+        return digestHex(StringUtils.join(parts, SEP_CHAR));
     }
 
-    private String md5ForEntity(ParamConfig paramConfig) {
+    private String hashForEntity(ParamConfig paramConfig) {
         String cacheKey = cacheKey(paramConfig, paramConfig.getName());
-        return getDomainEntityMd5FromCache(paramConfig, cacheKey);
+        return getDomainEntityDigestFromCache(paramConfig, cacheKey);
     }
 
-    public String md5ForEntity(UsageStatisticsReporting usageStatisticsReporting) {
+    public String hashForEntity(UsageStatisticsReporting usageStatisticsReporting) {
         String cacheKey = cacheKey(usageStatisticsReporting, usageStatisticsReporting.getServerId());
-        return getDbEntityMd5FromCache(cacheKey, usageStatisticsReporting);
+        return getDbEntityDigestFromCache(cacheKey, usageStatisticsReporting);
     }
 
-    public String md5ForEntity(DataSharingSettings dataSharingSettings) {
+    public String hashForEntity(DataSharingSettings dataSharingSettings) {
         String cacheKey = cacheKey(dataSharingSettings, "data_sharing_settings");
-        return getDbEntityMd5FromCache(cacheKey, dataSharingSettings);
+        return getDbEntityDigestFromCache(cacheKey, dataSharingSettings);
     }
 
-    public String md5ForEntity(PipelineGroups pipelineGroups) {
-        List<String> md5s = new ArrayList<>();
+    public String hashForEntity(PipelineGroups pipelineGroups) {
+        List<String> parts = new ArrayList<>();
         for (PipelineConfigs pipelineConfigs : pipelineGroups) {
-            md5s.add(md5ForEntity(pipelineConfigs));
+            parts.add(hashForEntity(pipelineConfigs));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
+        return digestHex(StringUtils.join(parts, SEP_CHAR));
     }
 
-    public String md5ForEntity(PipelineConfigs pipelineConfigs) {
+    public String hashForEntity(PipelineConfigs pipelineConfigs) {
         String cacheKey = cacheKey(pipelineConfigs, pipelineConfigs.getGroup());
-        return getDomainEntityMd5FromCache(pipelineConfigs, cacheKey);
+        return getDomainEntityDigestFromCache(pipelineConfigs, cacheKey);
     }
 
-    public String md5ForEntity(CombinedPluginInfo pluginInfo) {
+    public String hashForEntity(CombinedPluginInfo pluginInfo) {
         String cacheKey = cacheKey(pluginInfo, String.format("plugin_info_%s", pluginInfo.getDescriptor().id()));
         return getFromCache(cacheKey, () -> String.valueOf(Objects.hash(pluginInfo)));
     }
 
-    public String md5ForEntity(Collection<CombinedPluginInfo> pluginInfos) {
-        List<String> md5s = new ArrayList<>();
+    public String hashForEntity(Collection<CombinedPluginInfo> pluginInfos) {
+        List<String> parts = new ArrayList<>();
         for (CombinedPluginInfo pluginInfo : pluginInfos) {
-            md5s.add(md5ForEntity(pluginInfo));
+            parts.add(hashForEntity(pluginInfo));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
+        return digestHex(StringUtils.join(parts, SEP_CHAR));
     }
 
-    public String md5ForEntity(SecretConfigs secretConfigs) {
-        List<String> md5s = new ArrayList<>();
+    public String hashForEntity(SecretConfigs secretConfigs) {
+        List<String> parts = new ArrayList<>();
         for (SecretConfig secretConfig : secretConfigs) {
-            md5s.add(md5ForEntity(secretConfig));
+            parts.add(hashForEntity(secretConfig));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
+        return digestHex(StringUtils.join(parts, SEP_CHAR));
     }
 
-    public String md5ForEntity(SCMs scms) {
-        List<String> md5s = new ArrayList<>();
+    public String hashForEntity(SCMs scms) {
+        List<String> parts = new ArrayList<>();
         for (SCM scm : scms) {
-            md5s.add(md5ForEntity(scm));
+            parts.add(hashForEntity(scm));
         }
-        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, SEP_CHAR));
+        return digestHex(StringUtils.join(parts, SEP_CHAR));
     }
 
-    public String md5ForEntity(ArtifactConfig artifactConfig) {
+    public String hashForEntity(ArtifactConfig artifactConfig) {
         String cacheKey = cacheKey(artifactConfig, "cacheKey");
         return getFromCache(cacheKey, () -> String.valueOf(Objects.hash(artifactConfig)));
     }
@@ -377,21 +382,21 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         if (null == partial) return 0;
 
         return Objects.hash(
-                hashCollection(partial.getGroups()),
-                hashCollection(partial.getEnvironments()),
-                hashCollection(partial.getScms())
+                digestMany(partial.getGroups()),
+                digestMany(partial.getEnvironments()),
+                digestMany(partial.getScms())
         );
     }
 
     /**
-     * Computes a SHA-256 digest of a collection's contents
+     * Computes a cryptographic digest of a collection's contents
      *
      * @param entities any {@link Collection} of config entities
-     * @return a SHA-256 hex digest ({@link String})
+     * @return a cryptographic hex digest ({@link String})
      */
-    private String hashCollection(Collection<?> entities) {
-        return CachedDigestUtils.sha256Hex(entities.stream().
-                map(entity -> CachedDigestUtils.sha256Hex(getDomainObjectXmlPartial(entity))).
+    private String digestMany(Collection<?> entities) {
+        return digestHex(entities.stream().
+                map(entity -> digestHex(getDomainObjectXmlPartial(entity))).
                 collect(Collectors.joining(SEP_CHAR)));
     }
 

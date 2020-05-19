@@ -29,13 +29,13 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 public class UpdateEnvironmentCommand extends EnvironmentCommand {
 
     private final String oldEnvironmentConfigName;
-    private String md5;
+    private String digest;
     private EntityHashingService hashingService;
 
-    public UpdateEnvironmentCommand(GoConfigService goConfigService, String oldEnvironmentConfigName, EnvironmentConfig newEnvironmentConfig, Username username, String actionFailed, String md5, EntityHashingService hashingService, HttpLocalizedOperationResult result) {
+    public UpdateEnvironmentCommand(GoConfigService goConfigService, String oldEnvironmentConfigName, EnvironmentConfig newEnvironmentConfig, Username username, String actionFailed, String digest, EntityHashingService hashingService, HttpLocalizedOperationResult result) {
         super(actionFailed, newEnvironmentConfig, result, goConfigService, username);
         this.oldEnvironmentConfigName = oldEnvironmentConfigName;
-        this.md5 = md5;
+        this.digest = digest;
         this.hashingService = hashingService;
     }
 
@@ -59,7 +59,7 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand {
             config = ((MergeEnvironmentConfig) config).getFirstEditablePart();
         }
 
-        boolean freshRequest =  hashingService.md5ForEntity(config).equals(md5);
+        boolean freshRequest =  hashingService.hashForEntity(config).equals(digest);
         if (!freshRequest) {
             result.stale(EntityType.Environment.staleConfig(oldEnvironmentConfigName));
         }

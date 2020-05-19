@@ -26,12 +26,12 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 public class ElasticAgentProfileUpdateCommand extends ElasticAgentProfileCommand {
     private final EntityHashingService hashingService;
-    private final String md5;
+    private final String digest;
 
-    public ElasticAgentProfileUpdateCommand(GoConfigService goConfigService, ElasticProfile newProfile, ElasticAgentExtension extension, Username currentUser, LocalizedOperationResult result, EntityHashingService hashingService, String md5) {
+    public ElasticAgentProfileUpdateCommand(GoConfigService goConfigService, ElasticProfile newProfile, ElasticAgentExtension extension, Username currentUser, LocalizedOperationResult result, EntityHashingService hashingService, String digest) {
         super(goConfigService, newProfile, extension, currentUser, result);
         this.hashingService = hashingService;
-        this.md5 = md5;
+        this.digest = digest;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ElasticAgentProfileUpdateCommand extends ElasticAgentProfileCommand
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         ElasticProfile existingProfile = findExistingProfile(cruiseConfig);
-        boolean freshRequest = hashingService.md5ForEntity(existingProfile).equals(md5);
+        boolean freshRequest = hashingService.hashForEntity(existingProfile).equals(digest);
         if (!freshRequest) {
             result.stale(getObjectDescriptor().staleConfig(existingProfile.getId()));
         }

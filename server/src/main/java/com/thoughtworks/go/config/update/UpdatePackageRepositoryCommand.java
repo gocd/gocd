@@ -28,16 +28,16 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
     private final GoConfigService goConfigService;
     private final PackageRepository newRepo;
-    private final String md5;
+    private final String digest;
     private final EntityHashingService entityHashingService;
     private final HttpLocalizedOperationResult result;
     private String oldRepoId;
 
-    public UpdatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepositoryService packageRepositoryService, PackageRepository newRepo, Username username, String md5, EntityHashingService entityHashingService, HttpLocalizedOperationResult result, String oldRepoId) {
+    public UpdatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepositoryService packageRepositoryService, PackageRepository newRepo, Username username, String digest, EntityHashingService entityHashingService, HttpLocalizedOperationResult result, String oldRepoId) {
         super(packageRepositoryService, newRepo, result, goConfigService, username);
         this.goConfigService = goConfigService;
         this.newRepo = newRepo;
-        this.md5 = md5;
+        this.digest = digest;
         this.entityHashingService = entityHashingService;
         this.result = result;
         this.oldRepoId = oldRepoId;
@@ -67,7 +67,7 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
 
     private boolean isRequestFresh() {
         PackageRepository oldRepo = goConfigService.getPackageRepository(newRepo.getRepoId());
-        boolean freshRequest = entityHashingService.md5ForEntity(oldRepo).equals(md5);
+        boolean freshRequest = entityHashingService.hashForEntity(oldRepo).equals(digest);
         if (!freshRequest) {
             result.stale(EntityType.PackageRepository.staleConfig(newRepo.getRepoId()));
         }

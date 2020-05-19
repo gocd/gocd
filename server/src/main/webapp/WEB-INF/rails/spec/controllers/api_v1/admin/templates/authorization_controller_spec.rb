@@ -77,7 +77,7 @@ describe ApiV1::Admin::Templates::AuthorizationController do
       end
 
       it 'should render the template templates for a given template' do
-        expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).and_return('md5')
+        expect(@entity_hashing_service).to receive(:hashForEntity).with(an_instance_of(PipelineTemplateConfig)).and_return('digest')
         expect(@template_config_service).to receive(:loadForView).with('template', @result).and_return(@template)
 
         get_with_api_header :show, params:{template_name: 'template'}
@@ -144,7 +144,7 @@ describe ApiV1::Admin::Templates::AuthorizationController do
 
       it 'should deserialize template from given parameters' do
         allow(controller).to receive(:check_for_stale_request).and_return(nil)
-        allow(controller).to receive(:etag_for).and_return('md5')
+        allow(controller).to receive(:etag_for).and_return('digest')
         allow(@template_config_service).to receive(:loadForView).with(anything, anything).and_return(@template)
 
         expect(@template_config_service).to receive(:updateTemplateAuthConfig).with(anything, an_instance_of(PipelineTemplateConfig), an_instance_of(com.thoughtworks.go.config.Authorization), anything, anything)
@@ -167,11 +167,11 @@ describe ApiV1::Admin::Templates::AuthorizationController do
       end
 
       it 'should proceed with update if etag matches.' do
-        controller.request.env['HTTP_IF_MATCH'] = controller.send(:generate_strong_etag, 'md5')
+        controller.request.env['HTTP_IF_MATCH'] = controller.send(:generate_strong_etag, 'digest')
 
         allow(@template_config_service).to receive(:loadForView).with('some-template', anything).and_return(@template)
-        expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).exactly(3).times.and_return('md5')
-        expect(@template_config_service).to receive(:updateTemplateAuthConfig).with(anything, an_instance_of(PipelineTemplateConfig), an_instance_of(com.thoughtworks.go.config.Authorization), anything, "md5")
+        expect(@entity_hashing_service).to receive(:hashForEntity).with(an_instance_of(PipelineTemplateConfig)).exactly(3).times.and_return('digest')
+        expect(@template_config_service).to receive(:updateTemplateAuthConfig).with(anything, an_instance_of(PipelineTemplateConfig), an_instance_of(com.thoughtworks.go.config.Authorization), anything, "digest")
 
         put_with_api_header :update, params:{template_name: 'some-template', authorization: template_hash}
 
@@ -184,7 +184,7 @@ describe ApiV1::Admin::Templates::AuthorizationController do
 
         result = HttpLocalizedOperationResult.new
 
-        expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).and_return('md5')
+        expect(@entity_hashing_service).to receive(:hashForEntity).with(an_instance_of(PipelineTemplateConfig)).and_return('digest')
         allow(@template_config_service).to receive(:loadForView).and_return(@template)
         allow(@template_config_service).to receive(:updateTemplateAuthConfig).with(anything, an_instance_of(PipelineTemplateConfig), an_instance_of(com.thoughtworks.go.config.Authorization), result, anything)  do |user, template, auth, result|
           result.unprocessableEntity('some error')

@@ -33,17 +33,17 @@ public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
     private final EntityHashingService entityHashingService;
     private final String newGroupName;
     private final Username currentUser;
-    private final String md5;
+    private final String digest;
     private final LocalizedOperationResult result;
     public String existingGroupName;
 
     public UpdatePipelineConfigCommand(GoConfigService goConfigService, EntityHashingService entityHashingService, PipelineConfig pipelineConfig, String newGroupName,
-                                       Username currentUser, String md5, LocalizedOperationResult result, ExternalArtifactsService externalArtifactsService) {
+                                       Username currentUser, String digest, LocalizedOperationResult result, ExternalArtifactsService externalArtifactsService) {
         super(pipelineConfig, goConfigService, externalArtifactsService);
         this.entityHashingService = entityHashingService;
         this.newGroupName = newGroupName;
         this.currentUser = currentUser;
-        this.md5 = md5;
+        this.digest = digest;
         this.result = result;
     }
 
@@ -103,7 +103,7 @@ public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
     }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
-        boolean freshRequest = entityHashingService.md5ForEntity(cruiseConfig.getPipelineConfigByName(pipelineConfig.name()), getExistingPipelineGroupName()).equals(md5);
+        boolean freshRequest = entityHashingService.hashForEntity(cruiseConfig.getPipelineConfigByName(pipelineConfig.name()), getExistingPipelineGroupName()).equals(digest);
 
         if (!freshRequest) {
             result.stale(EntityType.Pipeline.staleConfig(pipelineConfig.name()));

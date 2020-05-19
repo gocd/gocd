@@ -96,23 +96,23 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
         def authorization = new Authorization(viewConfig, null, adminsConfig)
 
         templateConfig.setAuthorization(authorization)
-        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('digest')
         when(templateConfigService.loadForView(templateName, result)).thenReturn(templateConfig)
 
         getWithApiHeader(controller.controllerPath("/${templateName}/authorization"))
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasBodyWithJsonObject(AuthorizationRepresenter, templateConfig.getAuthorization())
       }
 
       @Test
       void "should return 304 if etag sent in request is fresh"() {
-        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('digest')
         when(templateConfigService.loadForView("t1", result)).thenReturn(createTemplate("t1"))
 
-        getWithApiHeader(controller.controllerPath('/t1/authorization'), ['if-none-match': '"md5"'])
+        getWithApiHeader(controller.controllerPath('/t1/authorization'), ['if-none-match': '"digest"'])
 
         assertThatResponse()
           .isNotModified()
@@ -155,7 +155,7 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
       void makeHttpCall() {
         putWithApiHeader(controller.controllerPath('/t1/authorization'), [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'cached-md5',
+          'If-Match'    : 'cached-digest',
           'content-type': 'application/json'
         ], toObjectString({ AuthorizationRepresenter.toJSON(it, authorization) }))
       }
@@ -183,14 +183,14 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
         def authorizationRequest = new Authorization(viewConfig, new OperationConfig(), adminsConfig)
         templateConfigAfterUpdate.setAuthorization(authorizationRequest)
 
-        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('md5').thenReturn('md5_after_update')
+        when(entityHashingService.hashForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('digest').thenReturn('digest_after_update')
         when(templateConfigService.loadForView(templateName, result)).thenReturn(templateConfig).thenReturn(templateConfigAfterUpdate)
         doNothing().when(templateConfigService).updateTemplateAuthConfig(any(Username.class) as Username, eq(templateConfig),
-          any(), eq(result), eq("md5"))
+          any(), eq(result), eq("digest"))
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : 'digest',
           'content-type': 'application/json'
         ]
 
@@ -200,7 +200,7 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5_after_update"')
+          .hasEtag('"digest_after_update"')
           .hasBodyWithJsonObject(AuthorizationRepresenter, authorizationRequest)
       }
 
@@ -210,11 +210,11 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
         def templateConfig = createTemplate(templateName)
 
         when(templateConfigService.loadForView(templateName, result)).thenReturn(templateConfig)
-        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig.class) as PipelineTemplateConfig)).thenReturn("another-etag")
+        when(entityHashingService.hashForEntity(any(PipelineTemplateConfig.class) as PipelineTemplateConfig)).thenReturn("another-etag")
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : 'digest',
           'content-type': 'application/json'
         ]
 
@@ -233,7 +233,7 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : 'digest',
           'content-type': 'application/json'
         ]
 
@@ -254,7 +254,7 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
         def adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role_admin")), new AdminUser("admin"))
         def authorizationRequest = new Authorization(viewConfig, null, adminsConfig)
 
-        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('md5').thenReturn('md5')
+        when(entityHashingService.hashForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('digest').thenReturn('digest')
         when(templateConfigService.loadForView(templateName, result)).thenReturn(templateConfig)
         doAnswer({ InvocationOnMock invocation ->
           authorizationRequest.addError("name", "Role \"role_admin\" does not exist.")
@@ -262,12 +262,12 @@ class TemplateAuthorizationControllerV1Test implements SecurityServiceTrait, Con
           HttpLocalizedOperationResult result = invocation.arguments[3]
           result.unprocessableEntity("Validation Errors.")
         }).when(templateConfigService).updateTemplateAuthConfig(any(Username.class) as Username, eq(templateConfig),
-          any(), eq(result), eq("md5"))
+          any(), eq(result), eq("digest"))
 
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : 'digest',
           'content-type': 'application/json'
         ]
 

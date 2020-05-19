@@ -169,8 +169,8 @@ public class PackageDefinitionService {
         update(username, packageDefinition, result, command);
     }
 
-    public void updatePackage(String oldPackageId, PackageDefinition newPackage, String md5, Username username, HttpLocalizedOperationResult result) {
-        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, oldPackageId, newPackage, username, md5, this.entityHashingService, result, this);
+    public void updatePackage(String oldPackageId, PackageDefinition newPackage, String digest, Username username, HttpLocalizedOperationResult result) {
+        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, oldPackageId, newPackage, username, digest, this.entityHashingService, result, this);
         update(username, this.find(oldPackageId), result, command);
     }
 

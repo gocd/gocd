@@ -27,12 +27,12 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 public class SecurityAuthConfigUpdateCommand extends SecurityAuthConfigCommand {
 
     private final EntityHashingService hashingService;
-    private final String md5;
+    private final String digest;
 
-    public SecurityAuthConfigUpdateCommand(GoConfigService goConfigService, SecurityAuthConfig newSecurityAuthConfig, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result, EntityHashingService hashingService, String md5) {
+    public SecurityAuthConfigUpdateCommand(GoConfigService goConfigService, SecurityAuthConfig newSecurityAuthConfig, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result, EntityHashingService hashingService, String digest) {
         super(goConfigService, newSecurityAuthConfig, extension, currentUser, result);
         this.hashingService = hashingService;
-        this.md5 = md5;
+        this.digest = digest;
     }
 
     @Override
@@ -54,7 +54,7 @@ public class SecurityAuthConfigUpdateCommand extends SecurityAuthConfigCommand {
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         SecurityAuthConfig existingProfile = findExistingProfile(cruiseConfig);
-        boolean freshRequest = hashingService.md5ForEntity(existingProfile).equals(md5);
+        boolean freshRequest = hashingService.hashForEntity(existingProfile).equals(digest);
         if (!freshRequest) {
             result.stale(getObjectDescriptor().staleConfig(existingProfile.getId()));
         }

@@ -50,8 +50,7 @@ import java.util.function.Consumer;
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEntityAlreadyExists;
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesNotMatch;
 import static com.thoughtworks.go.config.policy.SupportedEntity.CONFIG_REPO;
-
-import static com.thoughtworks.go.util.CachedDigestUtils.sha256Hex;
+import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
 import static java.util.stream.Collectors.toCollection;
 import static spark.Spark.*;
 
@@ -136,7 +135,7 @@ public class ConfigReposControllerV3 extends ApiController implements SparkSprin
     }
 
     String showRepo(Request req, Response res) {
-            ConfigRepoConfig repo = fetchEntityFromConfig(req.params(":id"));
+        ConfigRepoConfig repo = fetchEntityFromConfig(req.params(":id"));
         String etag = etagFor(repo);
 
         setEtagHeader(res, etag);
@@ -227,11 +226,11 @@ public class ConfigReposControllerV3 extends ApiController implements SparkSprin
 
     @Override
     public String etagFor(ConfigRepoConfig repo) {
-        return entityHashingService.md5ForEntity(repo);
+        return entityHashingService.hashForEntity(repo);
     }
 
     private String etagFor(PartialConfig entity) {
-        return sha256Hex(Integer.toString(entity.hashCode()));
+        return sha512_256Hex(Integer.toString(entity.hashCode()));
     }
 
     @Override

@@ -93,7 +93,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         def configs = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig('pipeline1'))
         configs.setGroup("group")
         def expectedPipelineGroups = new PipelineGroups([configs])
-        when(entityHashingService.md5ForEntity(expectedPipelineGroups)).thenReturn("some-etag")
+        when(entityHashingService.hashForEntity(expectedPipelineGroups)).thenReturn("some-etag")
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(expectedPipelineGroups)
 
         getWithApiHeader(controller.controllerPath())
@@ -111,7 +111,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         configs.setGroup("group")
         def expectedPipelineGroups = new PipelineGroups([configs])
 
-        when(entityHashingService.md5ForEntity(expectedPipelineGroups)).thenReturn("some-etag")
+        when(entityHashingService.hashForEntity(expectedPipelineGroups)).thenReturn("some-etag")
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(expectedPipelineGroups)
 
         getWithApiHeader(controller.controllerPath(), ['if-none-match': '"some-etag"'])
@@ -244,17 +244,17 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig('pipeline1'))
         group.setGroup("group")
         def pipelineGroups = new PipelineGroups([group])
-        def group_md5 = 'md5_for_group'
+        def group_digest = 'digest_for_group'
 
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(pipelineGroups)
-        when(entityHashingService.md5ForEntity(group)).thenReturn(group_md5)
+        when(entityHashingService.hashForEntity(group)).thenReturn(group_digest)
 
         getWithApiHeader(controller.controllerPath("/group"))
 
         assertThatResponse()
           .isOk()
           .hasBodyWithJsonObject(group, PipelineGroupRepresenter)
-          .hasEtag('"md5_for_group"')
+          .hasEtag('"digest_for_group"')
       }
 
       @Test
@@ -262,12 +262,12 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig('pipeline1'))
         group.setGroup("group")
         def pipelineGroups = new PipelineGroups([group])
-        def group_md5 = 'md5_for_group'
+        def group_digest = 'digest_for_group'
 
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(pipelineGroups)
-        when(entityHashingService.md5ForEntity(group)).thenReturn(group_md5)
+        when(entityHashingService.hashForEntity(group)).thenReturn(group_digest)
 
-        getWithApiHeader(controller.controllerPath('/group'), ['if-none-match': '"md5_for_group"'])
+        getWithApiHeader(controller.controllerPath('/group'), ['if-none-match': '"digest_for_group"'])
 
         assertThatResponse()
           .isNotModified()
@@ -291,16 +291,16 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig('pipeline1'))
         group.setGroup("group")
         def pipelineGroups = new PipelineGroups([group])
-        def group_md5 = 'md5_for_group'
+        def group_digest = 'digest_for_group'
 
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(pipelineGroups)
-        when(entityHashingService.md5ForEntity(group)).thenReturn(group_md5)
+        when(entityHashingService.hashForEntity(group)).thenReturn(group_digest)
 
         getWithApiHeader(controller.controllerPath('/group'), ['if-none-match': '"junk"'])
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5_for_group"')
+          .hasEtag('"digest_for_group"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(group, PipelineGroupRepresenter)
       }
@@ -322,7 +322,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig('pipeline1'))
         group.setGroup("group")
         def headers = [
-          'If-Match': 'cached-md5',
+          'If-Match': 'cached-digest',
         ]
         putWithApiHeader(controller.controllerPath('/group'), headers, toObjectString({
           PipelineGroupRepresenter.toJSON(it, group)
@@ -343,12 +343,12 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
       void "should update group for an admin"() {
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"))
         group.setGroup("group1")
-        when(entityHashingService.md5ForEntity(group)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(group)).thenReturn('digest')
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups([group]))
         when(pipelineConfigsService.updateGroup(any(), any(), any(), any())).thenReturn(group)
 
         def headers = [
-          'If-Match': 'md5',
+          'If-Match': 'digest',
         ]
 
         putWithApiHeader(controller.controllerPath("/group1"), headers, toObjectString({
@@ -399,7 +399,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         HttpLocalizedOperationResult result
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"))
         group.setGroup("group1")
-        when(entityHashingService.md5ForEntity(group)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(group)).thenReturn('digest')
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups([group]))
 
         group.addError("authorization", "Invalid authorization")
@@ -410,7 +410,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         })
 
         def headers = [
-          'If-Match': 'md5',
+          'If-Match': 'digest',
         ]
 
         putWithApiHeader(controller.controllerPath("/group1"), headers, toObjectString({

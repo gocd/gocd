@@ -110,7 +110,7 @@ public class DataSharingSettingsControllerV1 extends ApiController implements Sp
 
     @Override
     public String etagFor(DataSharingSettings entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override

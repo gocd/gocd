@@ -29,12 +29,12 @@ import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 import java.io.File;
 import java.util.*;
 
-import static com.thoughtworks.go.util.CachedDigestUtils.sha256Hex;
+import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
 
 public class ConfigRepoPlugin implements PartialConfigProvider {
-    private ConfigConverter configConverter;
-    private ConfigRepoExtension crExtension;
-    private String pluginId;
+    private final ConfigConverter configConverter;
+    private final ConfigRepoExtension crExtension;
+    private final String pluginId;
 
     public ConfigRepoPlugin(ConfigConverter configConverter, ConfigRepoExtension crExtension, String pluginId) {
         this.configConverter = configConverter;
@@ -97,6 +97,6 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
     }
 
     public String etagForExport(PipelineConfig pipelineConfig, String groupName) {
-        return sha256Hex(Integer.toString(Objects.hash(pipelineConfig, groupName, crExtension.pluginDescriptorFor(pluginId))));
+        return sha512_256Hex(Integer.toString(Objects.hash(pipelineConfig, groupName, crExtension.pluginDescriptorFor(pluginId))));
     }
 }

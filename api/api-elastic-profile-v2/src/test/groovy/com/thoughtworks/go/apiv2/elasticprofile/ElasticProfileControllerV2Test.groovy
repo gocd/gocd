@@ -146,14 +146,14 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
       void 'should return elastic profile of specified id'() {
         def dockerElasticProfile = new ElasticProfile("docker", "prod-cluster", create("docker-uri", false, "unix:///var/run/docker"))
 
-        when(entityHashingService.md5ForEntity(dockerElasticProfile)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(dockerElasticProfile)).thenReturn('digest')
         when(elasticProfileService.findProfile('docker')).thenReturn(dockerElasticProfile)
 
         getWithApiHeader(controller.controllerPath('/docker'))
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(dockerElasticProfile, ElasticProfileRepresenter)
       }
@@ -174,10 +174,10 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
       void 'should return 304 if elastic profile is not modified'() {
         def dockerElasticProfile = new ElasticProfile("docker", "prod-cluster", create("docker-uri", false, "unix:///var/run/docker"))
 
-        when(entityHashingService.md5ForEntity(dockerElasticProfile)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(dockerElasticProfile)).thenReturn('digest')
         when(elasticProfileService.findProfile('docker')).thenReturn(dockerElasticProfile)
 
-        getWithApiHeader(controller.controllerPath('/docker'), ['if-none-match': '"md5"'])
+        getWithApiHeader(controller.controllerPath('/docker'), ['if-none-match': '"digest"'])
 
         assertThatResponse()
           .isNotModified()
@@ -188,14 +188,14 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
       void 'should return 200 with elastic profile if etag does not match'() {
         def dockerElasticProfile = new ElasticProfile("docker", "prod-cluster", create("docker-uri", false, "unix:///var/run/docker"))
 
-        when(entityHashingService.md5ForEntity(dockerElasticProfile)).thenReturn('md5-new')
+        when(entityHashingService.hashForEntity(dockerElasticProfile)).thenReturn('digest-new')
         when(elasticProfileService.findProfile('docker')).thenReturn(dockerElasticProfile)
 
-        getWithApiHeader(controller.controllerPath('/docker'), ['if-none-match': '"md5"'])
+        getWithApiHeader(controller.controllerPath('/docker'), ['if-none-match': '"digest"'])
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5-new"')
+          .hasEtag('"digest-new"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(dockerElasticProfile, ElasticProfileRepresenter)
       }
@@ -240,13 +240,13 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           ]]
 
         when(clusterProfileService.findProfile("prod-cluster")).thenReturn(new ClusterProfile("prod-cluster", "cd.go.docker"))
-        when(entityHashingService.md5ForEntity(Mockito.any() as ElasticProfile)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(Mockito.any() as ElasticProfile)).thenReturn('some-digest')
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"some-md5"')
+          .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(new ElasticProfile("docker", "prod-cluster", create("DockerURI", false, "http://foo")), ElasticProfileRepresenter)
       }
@@ -263,7 +263,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
             ]
           ]]
 
-        when(entityHashingService.md5ForEntity(Mockito.any() as ElasticProfile)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(Mockito.any() as ElasticProfile)).thenReturn('some-digest')
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
 
@@ -324,7 +324,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
             ]
           ]]
 
-        when(entityHashingService.md5ForEntity(Mockito.any() as ElasticProfile)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(Mockito.any() as ElasticProfile)).thenReturn('some-digest')
         when(elasticProfileService.findProfile("docker")).thenReturn(existingElasticProfile)
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
@@ -391,15 +391,15 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           ]]
 
         when(clusterProfileService.findProfile("prod-cluster")).thenReturn(new ClusterProfile("prod-cluster", "cd.go.docker"))
-        when(entityHashingService.md5ForEntity(existingProfile)).thenReturn('some-md5')
-        when(entityHashingService.md5ForEntity(updatedProfile)).thenReturn('new-md5')
+        when(entityHashingService.hashForEntity(existingProfile)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(updatedProfile)).thenReturn('new-digest')
         when(elasticProfileService.findProfile("docker")).thenReturn(existingProfile)
 
-        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-digest'], jsonPayload)
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"new-md5"')
+          .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(updatedProfile, ElasticProfileRepresenter)
       }
@@ -418,11 +418,11 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
             ]
           ]]
 
-        when(entityHashingService.md5ForEntity(existingProfile)).thenReturn('some-md5')
-        when(entityHashingService.md5ForEntity(updatedProfile)).thenReturn('new-md5')
+        when(entityHashingService.hashForEntity(existingProfile)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(updatedProfile)).thenReturn('new-digest')
         when(elasticProfileService.findProfile("docker")).thenReturn(existingProfile)
 
-        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-digest'], jsonPayload)
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -442,10 +442,10 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
             ]
           ]]
 
-        when(entityHashingService.md5ForEntity(existingProfile)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(existingProfile)).thenReturn('some-digest')
         when(elasticProfileService.findProfile("docker")).thenReturn(existingProfile)
 
-        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'wrong-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'wrong-digest'], jsonPayload)
 
         assertThatResponse()
           .isPreconditionFailed()
@@ -456,7 +456,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
       @Test
       void 'should return 404 if the profile does not exists'() {
         when(elasticProfileService.findProfile("docker")).thenReturn(null)
-        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'wrong-md5'], [:])
+        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'wrong-digest'], [:])
 
         assertThatResponse()
           .isNotFound()
@@ -477,10 +477,10 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
             ]
           ]]
 
-        when(entityHashingService.md5ForEntity(existingProfile)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(existingProfile)).thenReturn('some-digest')
         when(elasticProfileService.findProfile("docker")).thenReturn(existingProfile)
 
-        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-digest'], jsonPayload)
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -502,7 +502,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           ]]
 
         when(clusterProfileService.findProfile("prod-cluster")).thenReturn(new ClusterProfile("prod-cluster", "cd.go.docker"))
-        when(entityHashingService.md5ForEntity(existingProfile)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(existingProfile)).thenReturn('some-digest')
         when(elasticProfileService.findProfile("docker")).thenReturn(existingProfile)
 
         when(elasticProfileService.update(Mockito.any() as Username, Mockito.any() as String, Mockito.any() as ElasticProfile, Mockito.any() as LocalizedOperationResult))
@@ -513,7 +513,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           result.unprocessableEntity("validation failed")
         })
 
-        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-digest'], jsonPayload)
 
         def expectedResponseBody = [
           message: "validation failed",

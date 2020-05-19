@@ -28,15 +28,15 @@ import java.util.stream.StreamSupport;
 public class UpdatePipelineConfigsCommand extends PipelineConfigsCommand {
     private final PipelineConfigs oldPipelineGroup;
     private final PipelineConfigs newPipelineGroup;
-    private final String md5;
+    private final String digest;
     private final EntityHashingService entityHashingService;
 
-    public UpdatePipelineConfigsCommand(PipelineConfigs oldPipelineGroup, PipelineConfigs newPipelineGroup, LocalizedOperationResult result, Username currentUser, String md5,
+    public UpdatePipelineConfigsCommand(PipelineConfigs oldPipelineGroup, PipelineConfigs newPipelineGroup, LocalizedOperationResult result, Username currentUser, String digest,
                                         EntityHashingService entityHashingService, SecurityService securityService) {
         super(result, currentUser, securityService);
         this.oldPipelineGroup = oldPipelineGroup;
         this.newPipelineGroup = newPipelineGroup;
-        this.md5 = md5;
+        this.digest = digest;
         this.entityHashingService = entityHashingService;
     }
 
@@ -80,7 +80,7 @@ public class UpdatePipelineConfigsCommand extends PipelineConfigsCommand {
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         PipelineConfigs existingPipelineConfigs = findPipelineConfigs(cruiseConfig, oldPipelineGroup.getGroup());
-        boolean freshRequest = entityHashingService.md5ForEntity(existingPipelineConfigs).equals(md5);
+        boolean freshRequest = entityHashingService.hashForEntity(existingPipelineConfigs).equals(digest);
         if (!freshRequest) {
             result.stale(EntityType.PipelineGroup.staleConfig(oldPipelineGroup.getGroup()));
         }

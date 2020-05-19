@@ -127,7 +127,7 @@ public class PipelineConfigsService {
     }
 
     public PipelineConfigs updateGroup(Username currentUsername, PipelineConfigs pipelineConfigsFromReq, PipelineConfigs pipelineConfigsFromServer, HttpLocalizedOperationResult result) {
-        UpdatePipelineConfigsCommand updatePipelineConfigsCommand = new UpdatePipelineConfigsCommand(pipelineConfigsFromServer, pipelineConfigsFromReq, result, currentUsername, entityHashingService.md5ForEntity(pipelineConfigsFromServer), entityHashingService, securityService);
+        UpdatePipelineConfigsCommand updatePipelineConfigsCommand = new UpdatePipelineConfigsCommand(pipelineConfigsFromServer, pipelineConfigsFromReq, result, currentUsername, entityHashingService.hashForEntity(pipelineConfigsFromServer), entityHashingService, securityService);
         update(currentUsername, pipelineConfigsFromReq, result, updatePipelineConfigsCommand);
         return updatePipelineConfigsCommand.getPreprocessedEntityConfig();
     }

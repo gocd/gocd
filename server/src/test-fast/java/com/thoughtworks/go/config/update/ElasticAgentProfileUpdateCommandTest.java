@@ -77,10 +77,10 @@ public class ElasticAgentProfileUpdateCommandTest {
 
         EntityHashingService entityHashingService = mock(EntityHashingService.class);
 
-        when(entityHashingService.md5ForEntity(oldProfile)).thenReturn("md5");
+        when(entityHashingService.hashForEntity(oldProfile)).thenReturn("digest");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(goConfigService, newProfile, null, currentUser, result, entityHashingService, "bad-md5");
+        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(goConfigService, newProfile, null, currentUser, result, entityHashingService, "bad-digest");
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.toString(), containsString("Someone has modified the configuration for"));

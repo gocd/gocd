@@ -56,7 +56,7 @@ module Admin
       fast_save_popup({:action => :new, :layout => false}, {:current_tab => params[:current_tab]}) do
         assert_load(:pipeline, @pipeline)
         assert_load(:stage, @stage)
-        assert_load(:pipeline_md5, params[:pipeline_md5])
+        assert_load(:pipeline_digest, params[:pipeline_digest])
         assert_load(:pipeline_group_name, params[:pipeline_group_name])
         assert_load(:pipeline_name, params[:pipeline_name])
         assert_load(:task_view_models, task_view_service.getTaskViewModelsWith(@stage.allBuildPlans().first().tasks().first())) unless @update_result.isSuccessful()
@@ -109,7 +109,7 @@ module Admin
         @should_not_render_layout = true
         assert_load(:pipeline, ConfigUpdate::LoadConfig.for(params).load_pipeline_or_template(@cruise_config))
         assert_load(:stage, @stage_to_be_updated)
-        assert_load(:pipeline_md5, params[:pipeline_md5])
+        assert_load(:pipeline_digest, params[:pipeline_digest])
         assert_load(:pipeline_group_name, params[:pipeline_group_name])
         assert_load(:pipeline_name, params[:pipeline_name])
 

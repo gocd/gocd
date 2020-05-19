@@ -10,7 +10,7 @@
                        :onsubmit => "return AjaxForm.jquery_ajax_submit(this, AjaxForm.ConfigFormEditHandler);",
                        :class => "popup_form"} do |f| %>
 
-    <%= hidden_field_tag :pipeline_md5, @pipeline_md5 %>
+    <%= hidden_field_tag :pipeline_digest, @pipeline_digest %>
     <%= hidden_field_tag :pipeline_group_name, @pipeline_group_name %>
     <%= hidden_field_tag :pipeline_name, @pipeline.name %>
 

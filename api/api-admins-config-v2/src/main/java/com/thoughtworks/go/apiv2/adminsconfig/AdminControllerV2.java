@@ -118,7 +118,7 @@ public class AdminControllerV2 extends ApiController implements SparkSpringContr
 
     @Override
     public String etagFor(AdminsConfig entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override

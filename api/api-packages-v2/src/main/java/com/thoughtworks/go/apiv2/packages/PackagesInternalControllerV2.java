@@ -88,7 +88,7 @@ public class PackagesInternalControllerV2 extends ApiController implements Spark
 
     @Override
     public String etagFor(PackageDefinition entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override

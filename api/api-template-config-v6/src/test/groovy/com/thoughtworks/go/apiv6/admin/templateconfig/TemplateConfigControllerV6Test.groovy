@@ -129,7 +129,7 @@ class TemplateConfigControllerV6Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'should render the template of specified name'() {
-        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('digest')
         when(templateConfigService.loadForView('template', result)).thenReturn(template)
 
         getWithApiHeader(controller.controllerPath("/template"))
@@ -143,10 +143,10 @@ class TemplateConfigControllerV6Test implements SecurityServiceTrait, Controller
       @Test
       void "should return 304 for show pipeline config if etag sent in request is fresh"() {
 
-        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('md5_for_template_config')
+        when(entityHashingService.hashForEntity(any(PipelineTemplateConfig) as PipelineTemplateConfig)).thenReturn('digest_for_template_config')
         when(templateConfigService.loadForView("template", result)).thenReturn(template)
 
-        getWithApiHeader(controller.controllerPath('/template'), ['if-none-match': '"md5_for_template_config"'])
+        getWithApiHeader(controller.controllerPath('/template'), ['if-none-match': '"digest_for_template_config"'])
 
         assertThatResponse()
           .isNotModified()
@@ -312,7 +312,7 @@ class TemplateConfigControllerV6Test implements SecurityServiceTrait, Controller
       void makeHttpCall() {
         putWithApiHeader(controller.controllerPath('/foo'), [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'cached-md5',
+          'If-Match'    : 'cached-digest',
           'content-type': 'application/json'
         ], toObjectString({ TemplateConfigRepresenter.toJSON(it, template) }))
       }
@@ -333,13 +333,13 @@ class TemplateConfigControllerV6Test implements SecurityServiceTrait, Controller
       @Test
       void 'should deserialize template from given parameters'() {
         when(templateConfigService.loadForView("some-template", result)).thenReturn(template)
-        when(entityHashingService.md5ForEntity(template)).thenReturn("md5")
+        when(entityHashingService.hashForEntity(template)).thenReturn("digest")
 
-        doNothing().when(templateConfigService).updateTemplateConfig(any(Username.class) as Username, any(PipelineTemplateConfig.class) as PipelineTemplateConfig, eq(result), eq("md5"))
+        doNothing().when(templateConfigService).updateTemplateConfig(any(Username.class) as Username, any(PipelineTemplateConfig.class) as PipelineTemplateConfig, eq(result), eq("digest"))
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : 'digest',
           'content-type': 'application/json'
         ]
 
@@ -356,7 +356,7 @@ class TemplateConfigControllerV6Test implements SecurityServiceTrait, Controller
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : 'digest',
           'content-type': 'application/json'
         ]
 
@@ -385,11 +385,11 @@ class TemplateConfigControllerV6Test implements SecurityServiceTrait, Controller
       void 'should fail update if etag does not match' () {
         when(templateConfigService.loadForView("some-template", result)).thenReturn(template)
 
-        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig.class) as PipelineTemplateConfig)).thenReturn("another-etag")
+        when(entityHashingService.hashForEntity(any(PipelineTemplateConfig.class) as PipelineTemplateConfig)).thenReturn("another-etag")
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : 'digest',
           'content-type': 'application/json'
         ]
 
@@ -404,16 +404,16 @@ class TemplateConfigControllerV6Test implements SecurityServiceTrait, Controller
       void 'should not update existing material if validations fail' () {
         when(templateConfigService.loadForView("some-template", result)).thenReturn(template)
 
-        when(entityHashingService.md5ForEntity(any(PipelineTemplateConfig.class) as PipelineTemplateConfig)).thenReturn("md5")
+        when(entityHashingService.hashForEntity(any(PipelineTemplateConfig.class) as PipelineTemplateConfig)).thenReturn("digest")
 
         doAnswer({ InvocationOnMock invocation ->
           result = invocation.arguments[2]
           result.unprocessableEntity("some error")
-        }).when(templateConfigService).updateTemplateConfig(any(Username.class) as Username, eq(template), eq(result), eq("md5"))
+        }).when(templateConfigService).updateTemplateConfig(any(Username.class) as Username, eq(template), eq(result), eq("digest"))
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : 'digest',
           'content-type': 'application/json'
         ]
 

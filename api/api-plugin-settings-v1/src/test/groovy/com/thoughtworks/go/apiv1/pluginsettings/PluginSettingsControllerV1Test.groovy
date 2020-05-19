@@ -92,13 +92,13 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
         def pluginSettings = pluginSettings()
 
         when(pluginService.getPluginSettings("plugin_id")).thenReturn(pluginSettings)
-        when(entityHashingService.md5ForEntity(pluginSettings)).thenReturn("md5")
+        when(entityHashingService.hashForEntity(pluginSettings)).thenReturn("digest")
 
         getWithApiHeader(controller.controllerPath('/plugin_id'))
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(pluginSettings, PluginSettingsRepresenter)
       }
@@ -119,9 +119,9 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
         def pluginSettings = pluginSettings()
 
         when(pluginService.getPluginSettings("plugin_id")).thenReturn(pluginSettings)
-        when(entityHashingService.md5ForEntity(pluginSettings)).thenReturn("md5")
+        when(entityHashingService.hashForEntity(pluginSettings)).thenReturn("digest")
 
-        getWithApiHeader(controller.controllerPath('/plugin_id'), ['if-none-match': '"md5"'])
+        getWithApiHeader(controller.controllerPath('/plugin_id'), ['if-none-match': '"digest"'])
 
         assertThatResponse()
           .isNotModified()
@@ -162,12 +162,12 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
 
         when(pluginService.isPluginLoaded(pluginSettings.pluginId)).thenReturn(true)
         when(pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginSettings.pluginId)).thenReturn(pluginInfo())
-        when(entityHashingService.md5ForEntity(pluginSettings)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(pluginSettings)).thenReturn('some-digest')
         postWithApiHeader(controller.controllerPath(), jsonPayload)
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"some-md5"')
+          .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(pluginSettings, PluginSettingsRepresenter)
       }
@@ -206,7 +206,7 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
 
         when(pluginService.isPluginLoaded(pluginSettings.pluginId)).thenReturn(true)
         when(pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginSettings.pluginId)).thenReturn(pluginInfo())
-        when(entityHashingService.md5ForEntity(pluginSettings)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(pluginSettings)).thenReturn('some-digest')
         doAnswer({ InvocationOnMock invocation ->
           def result = (HttpLocalizedOperationResult) invocation.arguments.last()
           result.unprocessableEntity("Boom!")
@@ -255,11 +255,11 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
         when(pluginService.getPluginSettings(pluginSettings.pluginId)).thenReturn(pluginSettings)
         when(pluginService.isPluginLoaded(pluginSettings.pluginId)).thenReturn(true)
         when(pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginSettings.pluginId)).thenReturn(pluginInfo())
-        when(entityHashingService.md5ForEntity(pluginSettings)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(pluginSettings)).thenReturn('some-digest')
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'some-md5',
+          'If-Match'    : 'some-digest',
           'content-type': 'application/json'
         ]
 
@@ -267,7 +267,7 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"some-md5"')
+          .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(pluginSettings, PluginSettingsRepresenter)
       }
@@ -281,7 +281,7 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'some-md5',
+          'If-Match'    : 'some-digest',
           'content-type': 'application/json'
         ]
 
@@ -300,11 +300,11 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
         when(pluginService.getPluginSettings(pluginSettings.pluginId)).thenReturn(pluginSettings)
         when(pluginService.isPluginLoaded(pluginSettings.pluginId)).thenReturn(false)
         when(pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginSettings.pluginId)).thenReturn(pluginInfo())
-        when(entityHashingService.md5ForEntity(pluginSettings)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(pluginSettings)).thenReturn('some-digest')
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'some-md5',
+          'If-Match'    : 'some-digest',
           'content-type': 'application/json'
         ]
 
@@ -323,11 +323,11 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
         when(pluginService.getPluginSettings(pluginSettings.pluginId)).thenReturn(pluginSettings)
         when(pluginService.isPluginLoaded(pluginSettings.pluginId)).thenReturn(true)
         when(pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginSettings.pluginId)).thenReturn(null)
-        when(entityHashingService.md5ForEntity(pluginSettings)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(pluginSettings)).thenReturn('some-digest')
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'some-md5',
+          'If-Match'    : 'some-digest',
           'content-type': 'application/json'
         ]
 
@@ -346,7 +346,7 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
         when(pluginService.getPluginSettings(pluginSettings.pluginId)).thenReturn(pluginSettings)
         when(pluginService.isPluginLoaded(pluginSettings.pluginId)).thenReturn(true)
         when(pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginSettings.pluginId)).thenReturn(pluginInfo())
-        when(entityHashingService.md5ForEntity(pluginSettings)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(pluginSettings)).thenReturn('some-digest')
 
         def headers = [
           'accept'      : controller.mimeType,
@@ -368,11 +368,11 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
         when(pluginService.getPluginSettings(pluginSettings.pluginId)).thenReturn(pluginSettings)
         when(pluginService.isPluginLoaded(pluginSettings.pluginId)).thenReturn(true)
         when(pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginSettings.pluginId)).thenReturn(pluginInfo())
-        when(entityHashingService.md5ForEntity(pluginSettings)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(pluginSettings)).thenReturn('some-digest')
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'some-fancy-md5',
+          'If-Match'    : 'some-fancy-digest',
           'content-type': 'application/json'
         ]
 
@@ -391,7 +391,7 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
         when(pluginService.getPluginSettings(pluginSettings.pluginId)).thenReturn(pluginSettings)
         when(pluginService.isPluginLoaded(pluginSettings.pluginId)).thenReturn(true)
         when(pluginService.pluginInfoForExtensionThatHandlesPluginSettings(pluginSettings.pluginId)).thenReturn(pluginInfo())
-        when(entityHashingService.md5ForEntity(pluginSettings)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(pluginSettings)).thenReturn('some-digest')
         doAnswer({ InvocationOnMock invocation ->
           def result = (HttpLocalizedOperationResult) invocation.arguments[2]
           result.unprocessableEntity("Boom!")
@@ -400,7 +400,7 @@ class PluginSettingsControllerV1Test implements SecurityServiceTrait, Controller
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'some-md5',
+          'If-Match'    : 'some-digest',
           'content-type': 'application/json'
         ]
 

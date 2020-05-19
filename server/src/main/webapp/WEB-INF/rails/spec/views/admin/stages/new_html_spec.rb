@@ -33,7 +33,7 @@ describe "admin/stages/new.html.erb" do
     @pipeline_group_name = 'group-1'
     @cruise_config.addPipeline(@pipeline_group_name, @pipeline_config)
 
-    @pipeline_md5 = entity_hashing_service.md5ForEntity(@pipeline_config, @pipeline_group_name)
+    @pipeline_digest = entity_hashing_service.hashForEntity(@pipeline_config, @pipeline_group_name)
 
     set(@cruise_config, "md5", "abc")
     in_params(:stage_parent => "pipelines", :pipeline_name => "foo_bar", :action => "new", :controller => "admin/stages")

@@ -72,7 +72,7 @@ public class UpdatePackageRepositoryCommandTest {
 
     @Test
     public void shouldUpdatePackageRepository() throws Exception {
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
 
         assertThat(cruiseConfig.getPackageRepositories().size(), is(1));
         assertThat(cruiseConfig.getPackageRepositories().find(repoId), is(oldPackageRepo));
@@ -88,7 +88,7 @@ public class UpdatePackageRepositoryCommandTest {
     public void shouldCopyPackagesFromOldRepositoryToTheUpdatedRepository() throws Exception {
         PackageDefinition nodePackage = new PackageDefinition("foo", "bar", new Configuration());
         oldPackageRepo.setPackages(new Packages(nodePackage));
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
 
         assertThat(cruiseConfig.getPackageRepositories().find(repoId), is(oldPackageRepo));
         assertThat(cruiseConfig.getPackageRepositories().find(repoId).getPackages().size(), is(1));
@@ -106,7 +106,7 @@ public class UpdatePackageRepositoryCommandTest {
     public void shouldNotUpdatePackageRepositoryIfTheSpecifiedPluginTypeIsInvalid() throws Exception {
         when(packageRepositoryService.validatePluginId(newPackageRepo)).thenReturn(false);
         when(packageRepositoryService.validateRepositoryConfiguration(newPackageRepo)).thenReturn(true);
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
     }
@@ -114,7 +114,7 @@ public class UpdatePackageRepositoryCommandTest {
     @Test
     public void shouldNotUpdatePackageRepositoryWhenRepositoryWithSpecifiedNameAlreadyExists() throws Exception {
         cruiseConfig.getPackageRepositories().add(newPackageRepo);
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
 
         assertFalse(command.isValid(cruiseConfig));
         assertThat(newPackageRepo.errors().firstError(), is("You have defined multiple repositories called 'npmOrg'. Repository names are case-insensitive and must be unique."));
@@ -126,7 +126,7 @@ public class UpdatePackageRepositoryCommandTest {
         Configuration configuration = new Configuration(property, property);
         newPackageRepo.setConfiguration(configuration);
 
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
         command.update(cruiseConfig);
 
         assertFalse(command.isValid(cruiseConfig));
@@ -136,7 +136,7 @@ public class UpdatePackageRepositoryCommandTest {
     @Test
     public void shouldNotUpdatePackageRepositoryWhenRepositoryHasInvalidName() throws Exception {
         newPackageRepo.setName("~!@#$%^&*(");
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
         command.update(cruiseConfig);
 
         assertFalse(command.isValid(cruiseConfig));
@@ -146,7 +146,7 @@ public class UpdatePackageRepositoryCommandTest {
     @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackageRepositories() throws Exception {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(EntityType.PackageRepository.forbiddenToEdit(newPackageRepo.getId(), currentUser.getUsername()), forbidden());
@@ -159,11 +159,11 @@ public class UpdatePackageRepositoryCommandTest {
     public void shouldNotContinueIfTheUserSubmittedStaleEtag() throws Exception {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         when(goConfigService.getPackageRepository(repoId)).thenReturn(oldPackageRepo);
-        when(entityHashingService.md5ForEntity(oldPackageRepo)).thenReturn("foobar");
+        when(entityHashingService.hashForEntity(oldPackageRepo)).thenReturn("foobar");
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         expectResult.stale(EntityType.PackageRepository.staleConfig(repoId));
 
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectResult));
@@ -173,11 +173,11 @@ public class UpdatePackageRepositoryCommandTest {
     public void shouldNotContinueIfRepoIdIsChanged() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         when(goConfigService.getPackageRepository(repoId)).thenReturn(oldPackageRepo);
-        when(entityHashingService.md5ForEntity(oldPackageRepo)).thenReturn("md5");
+        when(entityHashingService.hashForEntity(oldPackageRepo)).thenReturn("digest");
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         expectResult.unprocessableEntity("Changing the repository id is not supported by this API.");
 
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, "old-repo-id");
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, "old-repo-id");
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectResult));
@@ -187,9 +187,9 @@ public class UpdatePackageRepositoryCommandTest {
     public void shouldContinueWithConfigSaveIfUserIsAdmin() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
-        when(entityHashingService.md5ForEntity(nullable(PackageRepository.class))).thenReturn("md5");
+        when(entityHashingService.hashForEntity(nullable(PackageRepository.class))).thenReturn("digest");
 
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
 
         assertThat(command.canContinue(cruiseConfig), is(true));
     }
@@ -198,9 +198,9 @@ public class UpdatePackageRepositoryCommandTest {
     public void shouldContinueWithConfigSaveIfUserIsGroupAdmin() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(true);
-        when(entityHashingService.md5ForEntity(nullable(PackageRepository.class))).thenReturn("md5");
+        when(entityHashingService.hashForEntity(nullable(PackageRepository.class))).thenReturn("digest");
 
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "digest", entityHashingService, result, repoId);
 
         assertThat(command.canContinue(cruiseConfig), is(true));
     }

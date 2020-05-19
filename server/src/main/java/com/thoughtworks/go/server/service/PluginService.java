@@ -98,7 +98,7 @@ public class PluginService {
 
     }
 
-    public void updatePluginSettings(PluginSettings newPluginSettings, Username currentUser, LocalizedOperationResult result, String md5) {
+    public void updatePluginSettings(PluginSettings newPluginSettings, Username currentUser, LocalizedOperationResult result, String digest) {
         final String pluginId = newPluginSettings.getPluginId();
 
         final String keyToLockOn = keyToLockOn(pluginId);
@@ -109,7 +109,7 @@ public class PluginService {
                     result.notFound(EntityType.PluginSettings.notFoundMessage(pluginId), HealthStateType.notFound());
                     return;
                 }
-                if (!entityHashingService.md5ForEntity(pluginSettingsFromDB).equals(md5)) {
+                if (!entityHashingService.hashForEntity(pluginSettingsFromDB).equals(digest)) {
                     result.stale(EntityType.PluginSettings.staleConfig(pluginId));
                     return;
                 }

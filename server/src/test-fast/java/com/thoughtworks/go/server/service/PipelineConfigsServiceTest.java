@@ -304,7 +304,7 @@ public class PipelineConfigsServiceTest {
         Authorization authorization = new Authorization(new OperationConfig(new AdminUser(validUser.getUsername())));
         PipelineConfigs pipelineConfigs = new BasicPipelineConfigs("group", authorization);
 
-        when(entityHashingService.md5ForEntity(pipelineConfigs)).thenReturn("md5");
+        when(entityHashingService.hashForEntity(pipelineConfigs)).thenReturn("digest");
         service.updateGroup(validUser, pipelineConfigs, pipelineConfigs, result);
 
         ArgumentCaptor<EntityConfigUpdateCommand> commandCaptor = ArgumentCaptor.forClass(EntityConfigUpdateCommand.class);
@@ -313,7 +313,7 @@ public class PipelineConfigsServiceTest {
 
         assertThat(ReflectionUtil.getField(command, "oldPipelineGroup"), is(pipelineConfigs));
         assertThat(ReflectionUtil.getField(command, "newPipelineGroup"), is(pipelineConfigs));
-        assertThat(ReflectionUtil.getField(command, "md5"), is("md5"));
+        assertThat(ReflectionUtil.getField(command, "digest"), is("digest"));
         assertThat(ReflectionUtil.getField(command, "result"), is(result));
         assertThat(ReflectionUtil.getField(command, "currentUser"), is(validUser));
         assertThat(ReflectionUtil.getField(command, "entityHashingService"), is(entityHashingService));
@@ -321,7 +321,7 @@ public class PipelineConfigsServiceTest {
     }
 
     @Test
-    public void shouldReturnUpdatedPipelineConfigs_whenSuccessfull_updateGroupAuthorization() {
+    public void shouldReturnUpdatedPipelineConfigs_whenSuccessful_updateGroupAuthorization() {
         Authorization authorization = new Authorization(new OperationConfig(new AdminUser(validUser.getUsername())));
         PipelineConfigs pipelineConfigs = new BasicPipelineConfigs("group", authorization);
         doAnswer(invocation -> {

@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.config;
 
-import static com.thoughtworks.go.util.CachedDigestUtils.sha256Hex;
+import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
 
 public interface Cacheable {
     default String etag() {
-        return sha256Hex(Integer.toString(hashCode()));
+        return sha512_256Hex(Integer.toString(hashCode()));
     }
 }

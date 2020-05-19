@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.materials.PackageRepositoryService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -117,7 +116,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
         def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
         def packageRepository = PackageRepositoryMother.create('repo-id', 'repo-name', 'plugin-id', '1.0.0', configuration)
 
-        when(entityHashingService.md5ForEntity(packageRepository)).thenReturn('etag')
+        when(entityHashingService.hashForEntity(packageRepository)).thenReturn('etag')
         when(packageRepositoryService.getPackageRepository('repo-id')).thenReturn(packageRepository)
 
         getWithApiHeader(controller.controllerPath('repo-id'))
@@ -135,7 +134,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
         def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
         def packageRepository = PackageRepositoryMother.create('repo-id', 'repo-name', 'plugin-id', '1.0.0', configuration)
 
-        when(entityHashingService.md5ForEntity(packageRepository)).thenReturn('etag')
+        when(entityHashingService.hashForEntity(packageRepository)).thenReturn('etag')
         when(packageRepositoryService.getPackageRepository('repo-id')).thenReturn(packageRepository)
 
         getWithApiHeader(controller.controllerPath('repo-id'), ['if-none-match': 'etag'])
@@ -158,7 +157,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
         def configuration = new Configuration(ConfigurationPropertyMother.create('key', 'value'))
         def packageRepository = PackageRepositoryMother.create('repo-id', 'repo-name', 'plugin-id', '1.0.0', configuration)
 
-        when(entityHashingService.md5ForEntity(packageRepository)).thenReturn('etag')
+        when(entityHashingService.hashForEntity(packageRepository)).thenReturn('etag')
         when(packageRepositoryService.getPackageRepository('repo-id')).thenReturn(packageRepository)
 
         getWithApiHeader(controller.controllerPath('repo-id'), ['if-none-match': 'another-etag'])
@@ -203,7 +202,7 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
 
         def json = toObjectString({ PackageRepositoryRepresenter.toJSON(it, packageRepository) })
 
-        when(entityHashingService.md5ForEntity(packageRepository)).thenReturn('etag')
+        when(entityHashingService.hashForEntity(packageRepository)).thenReturn('etag')
         when(packageRepositoryService.createPackageRepository(eq(packageRepository), eq(currentUsername()), any(HttpLocalizedOperationResult.class))).then({
           InvocationOnMock invocation ->
             HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
@@ -307,8 +306,8 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
         def json = toObjectString({ PackageRepositoryRepresenter.toJSON(it, updatedPackageRepository) })
 
         when(packageRepositoryService.getPackageRepository('repo-id')).thenReturn(packageRepository)
-        when(entityHashingService.md5ForEntity(packageRepository)).thenReturn('etag')
-        when(entityHashingService.md5ForEntity(updatedPackageRepository)).thenReturn('updated-etag')
+        when(entityHashingService.hashForEntity(packageRepository)).thenReturn('etag')
+        when(entityHashingService.hashForEntity(updatedPackageRepository)).thenReturn('updated-etag')
         when(packageRepositoryService.updatePackageRepository(eq(updatedPackageRepository), eq(currentUsername()), anyString(), any(), anyString())).then({
           InvocationOnMock invocation ->
             HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments[3]
@@ -334,8 +333,8 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
         def json = toObjectString({ PackageRepositoryRepresenter.toJSON(it, updatedPackageRepository) })
 
         when(packageRepositoryService.getPackageRepository('repo-id')).thenReturn(packageRepository)
-        when(entityHashingService.md5ForEntity(packageRepository)).thenReturn('etag')
-        when(entityHashingService.md5ForEntity(updatedPackageRepository)).thenReturn('updated-etag')
+        when(entityHashingService.hashForEntity(packageRepository)).thenReturn('etag')
+        when(entityHashingService.hashForEntity(updatedPackageRepository)).thenReturn('updated-etag')
 
         putWithApiHeader(controller.controllerPath('repo-id'), ['if-match': 'invalid-etag'], json)
 
@@ -374,8 +373,8 @@ class PackageRepositoryControllerV1Test implements SecurityServiceTrait, Control
         ]
 
         when(packageRepositoryService.getPackageRepository('repo-id')).thenReturn(packageRepository)
-        when(entityHashingService.md5ForEntity(packageRepository)).thenReturn('etag')
-        when(entityHashingService.md5ForEntity(updatedPackageRepository)).thenReturn('updated-etag')
+        when(entityHashingService.hashForEntity(packageRepository)).thenReturn('etag')
+        when(entityHashingService.hashForEntity(updatedPackageRepository)).thenReturn('updated-etag')
         when(packageRepositoryService.updatePackageRepository(any(), any(), any(), any(), any())).then({
           InvocationOnMock invocation ->
             HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments[3]

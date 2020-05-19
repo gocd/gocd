@@ -34,23 +34,32 @@ import java.io.InputStream;
 public class CachedDigestUtils {
 
     private static final int STREAM_BUFFER_LENGTH = 1024;
-    private static DigestObjectPools objectPools = new DigestObjectPools();
-    private static Cache<String, String> shaDigestCache = CacheBuilder.
+    private static final DigestObjectPools objectPools = new DigestObjectPools();
+    private static final Cache<String, String> sha256DigestCache = CacheBuilder.
+            newBuilder().
+            maximumSize(1024).
+            build();
+    private static final Cache<String, String> sha512DigestCache = CacheBuilder.
             newBuilder().
             maximumSize(1024).
             build();
 
     @SneakyThrows // compute() doesn't throw checked exceptions
+    public static String sha512_256Hex(String data) {
+        return sha512DigestCache.get(data, () -> compute(data, DigestObjectPools.SHA_512_256));
+    }
+
+    @SneakyThrows // compute() doesn't throw checked exceptions
     public static String sha256Hex(String string) {
-        return shaDigestCache.get(string, () -> compute(string, DigestObjectPools.SHA_256));
+        return sha256DigestCache.get(string, () -> compute(string, DigestObjectPools.SHA_256));
     }
 
     public static String md5Hex(String string) {
-        return compute(string, DigestObjectPools.MD_5);
+        return compute(string, DigestObjectPools.MD5);
     }
 
     public static String md5Hex(final InputStream data) {
-        return objectPools.computeDigest(DigestObjectPools.MD_5, digest -> {
+        return objectPools.computeDigest(DigestObjectPools.MD5, digest -> {
             byte[] buffer = new byte[STREAM_BUFFER_LENGTH];
             int read = data.read(buffer, 0, STREAM_BUFFER_LENGTH);
 

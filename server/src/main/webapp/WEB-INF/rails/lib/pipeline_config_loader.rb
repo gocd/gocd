@@ -54,7 +54,7 @@ module PipelineConfigLoader
       end
 
       @pipeline_group_name = pipeline_for_edit.getProcessedConfig.findGroupOfPipeline(pipeline_for_edit.config).group
-      @pipeline_md5 = entity_hashing_service.md5ForEntity(pipeline_for_edit.config, @pipeline_group_name)
+      @pipeline_digest = entity_hashing_service.hashForEntity(pipeline_for_edit.config, @pipeline_group_name)
     end
     unless result.isSuccessful()
       render_localized_operation_result result

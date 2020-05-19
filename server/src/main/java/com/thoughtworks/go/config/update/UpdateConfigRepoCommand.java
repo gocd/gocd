@@ -29,17 +29,17 @@ public class UpdateConfigRepoCommand extends ConfigRepoCommand {
     private final EntityHashingService entityHashingService;
     private final String repoIdToUpdate;
     private final ConfigRepoConfig newConfigRepo;
-    private final String md5;
+    private final String digest;
     private final HttpLocalizedOperationResult result;
 
     public UpdateConfigRepoCommand(SecurityService securityService, EntityHashingService entityHashingService,
-                                   String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String md5, Username username,
+                                   String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String digest, Username username,
                                    HttpLocalizedOperationResult result, ConfigRepoExtension configRepoExtension) {
         super(securityService, newConfigRepo, username, result, configRepoExtension);
         this.entityHashingService = entityHashingService;
         this.repoIdToUpdate = repoIdToUpdate;
         this.newConfigRepo = newConfigRepo;
-        this.md5 = md5;
+        this.digest = digest;
         this.result = result;
     }
 
@@ -57,7 +57,7 @@ public class UpdateConfigRepoCommand extends ConfigRepoCommand {
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         ConfigRepoConfig configRepo = cruiseConfig.getConfigRepos().getConfigRepo(repoIdToUpdate);
 
-        boolean freshRequest = entityHashingService.md5ForEntity(configRepo).equals(md5);
+        boolean freshRequest = entityHashingService.hashForEntity(configRepo).equals(digest);
         if (!freshRequest) {
             result.stale(EntityType.ConfigRepo.staleConfig(repoIdToUpdate));
         }

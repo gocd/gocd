@@ -113,14 +113,14 @@ public class PackagesControllerV1 extends ApiController implements SparkSpringCo
         String oldPackageId = request.params("package_id");
         PackageDefinition newPackageDefinition = buildEntityFromRequestBody(request);
         PackageDefinition oldPackageDefinition = fetchEntityFromConfig(oldPackageId);
-        String md5 = entityHashingService.md5ForEntity(oldPackageDefinition);
+        String digest = entityHashingService.hashForEntity(oldPackageDefinition);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         if (isPutRequestStale(request, oldPackageDefinition)) {
             throw haltBecauseEtagDoesNotMatch("packageDefinition", oldPackageId);
         }
 
-        packageDefinitionService.updatePackage(oldPackageId, newPackageDefinition, md5, currentUsername(), result);
+        packageDefinitionService.updatePackage(oldPackageId, newPackageDefinition, digest, currentUsername(), result);
 
         setEtagHeader(newPackageDefinition, response);
         return handleCreateOrUpdateResponse(request, response, newPackageDefinition, result);
@@ -138,7 +138,7 @@ public class PackagesControllerV1 extends ApiController implements SparkSpringCo
 
     @Override
     public String etagFor(PackageDefinition entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override

@@ -1210,7 +1210,7 @@ task newApi {
 
               @Override
               public String etagFor(${entityClassName} entityFromServer) {
-                  return entityHashingService.md5ForEntity(entityFromServer);
+                  return entityHashingService.hashForEntity(entityFromServer);
               }
 
               @Override

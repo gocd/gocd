@@ -412,7 +412,7 @@ public class PluginServiceTest {
     public void updatePluginSettings_shouldCheckForStaleRequest() {
         setUpElasticPluginForTheTest(true);
         when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(getPlugin(elasticAgentPluginId));
-        when(entityHashingService.md5ForEntity(any(PluginSettings.class))).thenReturn("bar");
+        when(entityHashingService.hashForEntity(any(PluginSettings.class))).thenReturn("bar");
 
         pluginService.updatePluginSettings(pluginSettings, currentUser, result, "foo");
 
@@ -431,7 +431,7 @@ public class PluginServiceTest {
         validationResult.addError(new ValidationError("key-1", "error-message"));
         when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class))).thenReturn(validationResult);
         when(pluginSettings.hasErrors()).thenReturn(true);
-        when(entityHashingService.md5ForEntity(any(PluginSettings.class))).thenReturn("foo");
+        when(entityHashingService.hashForEntity(any(PluginSettings.class))).thenReturn("foo");
         when(result.isSuccessful()).thenReturn(false);
 
         pluginService.updatePluginSettings(pluginSettings, currentUser, result, "foo");
@@ -446,7 +446,7 @@ public class PluginServiceTest {
         final Plugin plugin = getPlugin(elasticAgentPluginId);
         setUpElasticPluginForTheTest(true);
         when(pluginDao.findPlugin(elasticAgentPluginId)).thenReturn(plugin);
-        when(entityHashingService.md5ForEntity(any(PluginSettings.class))).thenReturn("foo");
+        when(entityHashingService.hashForEntity(any(PluginSettings.class))).thenReturn("foo");
         when(pluginSettings.toPluginSettingsConfiguration()).thenReturn(mock(PluginSettingsConfiguration.class));
 
         when(elasticAgentExtension.validatePluginSettings(eq(elasticAgentPluginId), any(PluginSettingsConfiguration.class)))

@@ -30,16 +30,16 @@ public class UpdatePackageConfigCommand extends PackageConfigCommand {
     private final GoConfigService goConfigService;
     private final String oldPackageId;
     private final PackageDefinition newPackage;
-    private String md5;
+    private String digest;
     private EntityHashingService entityHashingService;
     private final HttpLocalizedOperationResult result;
 
-    public UpdatePackageConfigCommand(GoConfigService goConfigService, String oldPackageId, PackageDefinition newPackage, Username username, String md5, EntityHashingService entityHashingService, HttpLocalizedOperationResult result, PackageDefinitionService packageDefinitionService) {
+    public UpdatePackageConfigCommand(GoConfigService goConfigService, String oldPackageId, PackageDefinition newPackage, Username username, String digest, EntityHashingService entityHashingService, HttpLocalizedOperationResult result, PackageDefinitionService packageDefinitionService) {
         super(newPackage, result, packageDefinitionService, goConfigService, username);
         this.goConfigService = goConfigService;
         this.oldPackageId = oldPackageId;
         this.newPackage = newPackage;
-        this.md5 = md5;
+        this.digest = digest;
         this.entityHashingService = entityHashingService;
         this.result = result;
     }
@@ -87,7 +87,7 @@ public class UpdatePackageConfigCommand extends PackageConfigCommand {
 
     private boolean isRequestFresh() {
         PackageDefinition oldPackage = goConfigService.getConfigForEditing().getPackageRepositories().findPackageDefinitionWith(oldPackageId);
-        boolean freshRequest = entityHashingService.md5ForEntity(oldPackage).equals(md5);
+        boolean freshRequest = entityHashingService.hashForEntity(oldPackage).equals(digest);
         if (!freshRequest) {
             result.stale(EntityType.PackageDefinition.staleConfig(oldPackage.getId()));
         }

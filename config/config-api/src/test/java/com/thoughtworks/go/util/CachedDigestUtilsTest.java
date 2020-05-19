@@ -15,53 +15,62 @@
  */
 package com.thoughtworks.go.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Random;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import java.io.ByteArrayInputStream;
+import java.util.Random;
 
+import static com.thoughtworks.go.util.CachedDigestUtils.*;
+import static org.junit.Assert.assertEquals;
 
 public class CachedDigestUtilsTest {
-
     @Test
-    public void shouldComputeForAGiveStringUsing256SHA() {
+    public void shouldComputeForAGivenStringUsingSHA_512_256() {
         String fingerprint = "Some String";
-        String computeMD5 = CachedDigestUtils.sha256Hex(fingerprint);
-        assertThat(computeMD5, is(DigestUtils.sha256Hex(fingerprint)));
+        String digest = sha512_256Hex(fingerprint);
+        assertEquals(DigestUtils.sha512_256Hex(fingerprint), digest);
     }
 
     @Test
-    public void shouldComputeForAnEmptyStringUsing256SHA() {
+    public void shouldComputeForAnEmptyStringUsingSHA_512_256() {
         String fingerprint = "";
-        String computeMD5 = CachedDigestUtils.sha256Hex(fingerprint);
-        assertThat(computeMD5, is(DigestUtils.sha256Hex(fingerprint)));
+        String digest = sha512_256Hex(fingerprint);
+        assertEquals(DigestUtils.sha512_256Hex(fingerprint), digest);
     }
 
     @Test
-    public void shouldComputeForAGiveStringUsingMD5() {
+    public void shouldComputeForAGivenStringUsingSHA_256() {
         String fingerprint = "Some String";
-        String computeMD5 = CachedDigestUtils.md5Hex(fingerprint);
-        assertThat(computeMD5, is(DigestUtils.md5Hex(fingerprint)));
+        String digest = sha256Hex(fingerprint);
+        assertEquals(DigestUtils.sha256Hex(fingerprint), digest);
+    }
+
+    @Test
+    public void shouldComputeForAnEmptyStringUsingSHA_256() {
+        String fingerprint = "";
+        String digest = sha256Hex(fingerprint);
+        assertEquals(DigestUtils.sha256Hex(fingerprint), digest);
+    }
+
+    @Test
+    public void shouldComputeForAGivenStringUsingMD5() {
+        String fingerprint = "Some String";
+        String digest = md5Hex(fingerprint);
+        assertEquals(DigestUtils.md5Hex(fingerprint), digest);
     }
 
     @Test
     public void shouldComputeForAnEmptyStringUsingMD5() {
         String fingerprint = "";
-        String computeMD5 = CachedDigestUtils.md5Hex(fingerprint);
-        assertThat(computeMD5, is(DigestUtils.md5Hex(fingerprint)));
+        String digest = md5Hex(fingerprint);
+        assertEquals(DigestUtils.md5Hex(fingerprint), digest);
     }
 
     @Test
-    public void shouldComputeMD5ForAGiveString() throws IOException {
+    public void shouldComputeForAGivenStreamUsingMD5() {
         byte[] testData = new byte[1024 * 1024];
         new Random().nextBytes(testData);
-        assertThat(DigestUtils.md5Hex(testData),
-                is(CachedDigestUtils.md5Hex(new ByteArrayInputStream(testData))));
-
+        assertEquals(DigestUtils.md5Hex(testData), md5Hex(new ByteArrayInputStream(testData)));
     }
 }

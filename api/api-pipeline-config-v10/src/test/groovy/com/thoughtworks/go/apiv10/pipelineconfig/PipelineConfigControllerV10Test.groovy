@@ -125,10 +125,10 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
       void 'should show pipeline config for an admin'() {
         def pipeline = PipelineConfigMother.pipelineConfig('pipeline1')
         pipeline.setOrigin(new FileConfigOrigin())
-        def pipelineMd5 = 'md5_for_pipeline_config'
+        def pipelineDigest = 'digest_for_pipeline_config'
 
         when(pipelineConfigService.getPipelineConfig('pipeline1')).thenReturn(pipeline)
-        when(entityHashingService.md5ForEntity(pipeline, groupName)).thenReturn(pipelineMd5)
+        when(entityHashingService.hashForEntity(pipeline, groupName)).thenReturn(pipelineDigest)
 
         getWithApiHeader(controller.controllerPath("/pipeline1"))
 
@@ -137,19 +137,19 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasBodyWithJson(expectedJSON)
-          .hasHeader("Etag", '"md5_for_pipeline_config"')
+          .hasHeader("Etag", '"digest_for_pipeline_config"')
       }
 
       @Test
       void "should return 304 for show pipeline config if etag sent in request is fresh"() {
         def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
-        def pipeline_md5 = 'md5_for_pipeline_config'
+        def pipeline_digest = 'digest_for_pipeline_config'
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
-        when(entityHashingService.md5ForEntity(pipeline, groupName)).thenReturn(pipeline_md5)
+        when(entityHashingService.hashForEntity(pipeline, groupName)).thenReturn(pipeline_digest)
 
-        getWithApiHeader(controller.controllerPath('/pipeline1'), ['if-none-match': '"md5_for_pipeline_config"'])
+        getWithApiHeader(controller.controllerPath('/pipeline1'), ['if-none-match': '"digest_for_pipeline_config"'])
 
         assertThatResponse()
           .isNotModified()
@@ -172,10 +172,10 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
       void "should show pipeline config if etag sent in request is stale"() {
         def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
-        def pipeline_md5 = 'md5_for_pipeline_config'
+        def pipeline_digest = 'digest_for_pipeline_config'
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
-        when(entityHashingService.md5ForEntity(pipeline, groupName)).thenReturn(pipeline_md5)
+        when(entityHashingService.hashForEntity(pipeline, groupName)).thenReturn(pipeline_digest)
 
         getWithApiHeader(controller.controllerPath('/pipeline1'), ['if-none-match': '"junk"'])
 
@@ -183,7 +183,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5_for_pipeline_config"')
+          .hasEtag('"digest_for_pipeline_config"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJson(expectedJSON)
       }
@@ -442,7 +442,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         pipelineConfig.setOrigin(new FileConfigOrigin())
         putWithApiHeader(controller.controllerPath('/foo'), [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'cached-md5',
+          'If-Match'    : 'cached-digest',
           'content-type': 'application/json'
         ], toObjectString({ PipelineConfigRepresenter.toJSON(it, pipelineConfig, groupName) }))
       }
@@ -464,12 +464,12 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
       void "should update pipeline config for an admin"() {
         def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
         pipelineConfig.setOrigin(new FileConfigOrigin())
-        when(entityHashingService.md5ForEntity(pipelineConfig, groupName)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(pipelineConfig, groupName)).thenReturn('digest')
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : 'digest',
           'content-type': 'application/json'
         ]
 
@@ -532,7 +532,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : 'digest',
           'content-type': 'application/json'
         ]
 
@@ -549,11 +549,11 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         pipelineConfig.setOrigin(new FileConfigOrigin())
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
-        when(entityHashingService.md5ForEntity(pipelineConfig, groupName)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(pipelineConfig, groupName)).thenReturn('digest')
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : 'digest',
           'content-type': 'application/json'
         ]
 
@@ -573,19 +573,19 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
         HttpLocalizedOperationResult result
         def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
         pipelineConfig.setOrigin(new FileConfigOrigin())
-        when(entityHashingService.md5ForEntity(pipelineConfig, groupName)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(pipelineConfig, groupName)).thenReturn('digest')
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
 
         pipelineConfig.addError("labelTemplate", String.format(PipelineConfig.LABEL_TEMPLATE_ERROR_MESSAGE, 'foo bar'))
 
-        when(pipelineConfigService.updatePipelineConfig(any(), any(), anyString(), eq("md5"), any())).then({ InvocationOnMock invocation ->
+        when(pipelineConfigService.updatePipelineConfig(any(), any(), anyString(), eq("digest"), any())).then({ InvocationOnMock invocation ->
           result = invocation.getArguments()[4]
           result.unprocessableEntity("message from server")
         })
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : 'digest',
           'content-type': 'application/json'
         ]
 
@@ -606,7 +606,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : 'digest',
           'content-type': 'application/json'
         ]
 
@@ -630,14 +630,14 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
-        when(entityHashingService.md5ForEntity(pipelineConfig, groupName)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(pipelineConfig, groupName)).thenReturn('digest')
         when(pipelineConfigService.updatePipelineConfig(any(), any(), anyString(), any(), any())).then({ InvocationOnMock invocation ->
           pipelineBeingSaved = invocation.getArguments()[1]
         })
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : 'digest',
           'content-type': 'application/json'
         ]
 
@@ -660,7 +660,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
-        when(entityHashingService.md5ForEntity(pipelineConfig, groupName)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(pipelineConfig, groupName)).thenReturn('digest')
 
         when(pipelineConfigService.updatePipelineConfig(any(), any(), anyString(), any(), any())).then({ InvocationOnMock invocation ->
           pipelineBeingSaved = invocation.getArguments()[1]
@@ -668,7 +668,7 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : 'digest',
           'content-type': 'application/json'
         ]
 

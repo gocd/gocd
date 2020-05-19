@@ -38,7 +38,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.*;
 
 import static org.hamcrest.Matchers.*;
@@ -127,7 +126,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         BasicEnvironmentConfig updatedEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentBeingUpdated));
         updatedEnvConfig.addPipeline(new CaseInsensitiveString(pipelineName));
         environmentConfigService.updateEnvironment(environmentBeingUpdated, updatedEnvConfig,
-                user, entityHashingService.md5ForEntity(environmentConfigService.getEnvironmentConfig(environmentBeingUpdated)), result);
+                user, entityHashingService.hashForEntity(environmentConfigService.getEnvironmentConfig(environmentBeingUpdated)), result);
         assertThat(result.message(), is("Failed to update environment 'environment-2'. Associating pipeline(s) which is already part of environment-1 environment"));
     }
 
@@ -173,8 +172,8 @@ public class EnvironmentConfigServiceIntegrationTest {
         newUat.addPipeline(new CaseInsensitiveString("bar"));
         newUat.addEnvironmentVariable("env-three", "THREE");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String md5 = entityHashingService.md5ForEntity(uat);
-        environmentConfigService.updateEnvironment(uat.name().toString(), newUat, new Username(new CaseInsensitiveString("foo")), md5, result);
+        String digest = entityHashingService.hashForEntity(uat);
+        environmentConfigService.updateEnvironment(uat.name().toString(), newUat, new Username(new CaseInsensitiveString("foo")), digest, result);
         EnvironmentConfig updatedEnv = environmentConfigService.getEnvironmentConfig("prod");
         assertThat(updatedEnv.name(), is(new CaseInsensitiveString("prod")));
         assertThat(updatedEnv.getPipelineNames(), is(Arrays.asList(new CaseInsensitiveString("bar"))));
@@ -191,8 +190,8 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addEnvironments("foo-env");
         configHelper.addEnvironments("bar-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String md5 = entityHashingService.md5ForEntity(environmentConfigService.getEnvironmentConfig("bar-env"));
-        environmentConfigService.updateEnvironment("bar-env", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
+        String digest = entityHashingService.hashForEntity(environmentConfigService.getEnvironmentConfig("bar-env"));
+        environmentConfigService.updateEnvironment("bar-env", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), digest, result);
         assertThat(result.message(), anyOf(
                 is("Failed to update environment 'bar-env'. failed to save : Duplicate unique value [foo-env] declared for identity constraint of element \"environments\"."),
                 is("Failed to update environment 'bar-env'. failed to save : Duplicate unique value [foo-env] declared for identity constraint \"uniqueEnvironmentName\" of element \"environments\".")
@@ -204,8 +203,8 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addEnvironments("foo-env");
         configHelper.addEnvironments("bar-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String md5 = "invalid-md5";
-        environmentConfigService.updateEnvironment("bar-env", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
+        String digest = "invalid-digest";
+        environmentConfigService.updateEnvironment("bar-env", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), digest, result);
         assertThat(result.message(), is(EntityType.Environment.staleConfig("bar-env")));
     }
 
@@ -213,8 +212,8 @@ public class EnvironmentConfigServiceIntegrationTest {
     public void shouldReturnBadRequestForUpdateWhenUsingInvalidEnvName_ForNewUpdateEnvironmentMethod_ForNewUpdateEnvironmentMethod() {
         configHelper.addEnvironments("foo-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String md5 = entityHashingService.md5ForEntity(environmentConfigService.getEnvironmentConfig("foo-env"));
-        environmentConfigService.updateEnvironment("foo-env", env("foo env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
+        String digest = entityHashingService.hashForEntity(environmentConfigService.getEnvironmentConfig("foo-env"));
+        environmentConfigService.updateEnvironment("foo-env", env("foo env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), digest, result);
         assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
         assertThat(result.message(), containsString("Failed to update environment 'foo-env'."));
     }

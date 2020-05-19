@@ -118,7 +118,7 @@ public class PluginSettingsControllerV1 extends ApiController implements SparkSp
 
     @Override
     public String etagFor(PluginSettings entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override

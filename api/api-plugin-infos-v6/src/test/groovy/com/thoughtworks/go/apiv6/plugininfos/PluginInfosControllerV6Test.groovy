@@ -96,13 +96,13 @@ class PluginInfosControllerV6Test implements SecurityServiceTrait, ControllerTra
         def pluginInfo = new CombinedPluginInfo(createAuthorizationPluginInfo())
 
         when(pluginInfoFinder.pluginInfoFor('plugin_id')).thenReturn(pluginInfo)
-        when(entityHashingService.md5ForEntity(pluginInfo)).thenReturn("md5")
+        when(entityHashingService.hashForEntity(pluginInfo)).thenReturn("digest")
 
         getWithApiHeader(controller.controllerPath('/plugin_id'))
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(pluginInfo, PluginInfoRepresenter)
       }
@@ -177,9 +177,9 @@ class PluginInfosControllerV6Test implements SecurityServiceTrait, ControllerTra
         def pluginInfo = new CombinedPluginInfo(new PluginInfo(descriptor, "authorization", null, null))
 
         when(pluginInfoFinder.pluginInfoFor('plugin_id')).thenReturn(pluginInfo)
-        when(entityHashingService.md5ForEntity(pluginInfo)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(pluginInfo)).thenReturn('digest')
 
-        getWithApiHeader(controller.controllerPath('/plugin_id'), ['if-none-match': '"md5"'])
+        getWithApiHeader(controller.controllerPath('/plugin_id'), ['if-none-match': '"digest"'])
 
         assertThatResponse()
           .isNotModified()
@@ -222,13 +222,13 @@ class PluginInfosControllerV6Test implements SecurityServiceTrait, ControllerTra
       @Test
       void 'should return all plugin infos'() {
         when(pluginInfoFinder.allPluginInfos()).thenReturn(pluginInfos)
-        when(entityHashingService.md5ForEntity(pluginInfos)).thenReturn("md5")
+        when(entityHashingService.hashForEntity(pluginInfos)).thenReturn("digest")
 
         getWithApiHeader(controller.controllerPath())
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(pluginInfos, PluginInfosRepresenter)
       }
@@ -341,9 +341,9 @@ class PluginInfosControllerV6Test implements SecurityServiceTrait, ControllerTra
       @Test
       void 'should return 304 if plugin info is not modified'() {
         when(pluginInfoFinder.allPluginInfos()).thenReturn(pluginInfos)
-        when(entityHashingService.md5ForEntity(pluginInfos)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(pluginInfos)).thenReturn('digest')
 
-        getWithApiHeader(controller.controllerPath(), ['if-none-match': '"md5"'])
+        getWithApiHeader(controller.controllerPath(), ['if-none-match': '"digest"'])
 
         assertThatResponse()
           .isNotModified()

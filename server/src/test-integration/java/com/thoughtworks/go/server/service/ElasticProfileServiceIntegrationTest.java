@@ -165,7 +165,7 @@ public class ElasticProfileServiceIntegrationTest {
         ElasticProfile existing = elasticProfileService.getPluginProfiles().get(0);
 
         assertThat(existing.getConfigWithErrorsAsMap()).isEmpty();
-        elasticProfileService.update(username, entityHashingService.md5ForEntity(this.elasticProfile), newElasticProfile, result);
+        elasticProfileService.update(username, entityHashingService.hashForEntity(this.elasticProfile), newElasticProfile, result);
         ElasticProfile updated = elasticProfileService.getPluginProfiles().get(0);
         assertThat(updated.getId()).isEqualTo(elasticProfileId);
         assertThat(updated.get(0)).isEqualTo(new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1")));

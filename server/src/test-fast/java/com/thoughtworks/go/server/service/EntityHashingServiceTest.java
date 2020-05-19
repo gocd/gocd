@@ -25,13 +25,13 @@ import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PluginSettings;
-import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -58,15 +58,15 @@ public class EntityHashingServiceTest {
     @Test
     public void shouldThrowAnExceptionWhenObjectIsNull() {
         thrown.expect(NullPointerException.class);
-        entityHashingService.md5ForEntity((EnvironmentConfig) null);
+        entityHashingService.hashForEntity((EnvironmentConfig) null);
     }
 
     @Test
-    public void shouldComputeTheMD5OfAGivenXmlPartialGeneratedFromAnObject() {
+    public void shouldComputeTheDigestOfAGivenXmlPartialGeneratedFromAnObject() {
         BasicEnvironmentConfig environment = EnvironmentConfigMother.environment("P1");
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(environment);
 
-        assertThat(entityHashingService.md5ForEntity(environment), is(CachedDigestUtils.md5Hex(xml)));
+        assertThat(entityHashingService.hashForEntity(environment), is(sha512_256Hex(xml)));
     }
 
     @Test
@@ -79,12 +79,12 @@ public class EntityHashingServiceTest {
     @Test
     public void shouldUseObjectHashCodeForPluginSettings() {
         PluginSettings pluginSettings = new PluginSettings("com.foo.plugin");
-        String expectedMd5 = "8f54eed0331c2bd93ca4cf8f470f4406";
+        String expected = "be09fc88146dad0d8d80dad98cfbf038689775685ae7c43003745f054dede879";
 
-        String actualMd5 = entityHashingService.md5ForEntity(pluginSettings);
+        String actual = entityHashingService.hashForEntity(pluginSettings);
 
-        assertThat(actualMd5, is(expectedMd5));
-        verify(goCache).put("GO_ETAG_CACHE", "com.thoughtworks.go.server.domain.PluginSettings.com.foo.plugin", expectedMd5);
+        assertThat(actual, is(expected));
+        verify(goCache).put("GO_ETAG_CACHE", "com.thoughtworks.go.server.domain.PluginSettings.com.foo.plugin", expected);
     }
 
     @Test
@@ -108,7 +108,7 @@ public class EntityHashingServiceTest {
     public void entityChecksumIsIdenticalForObjectsWithCaseInsensitiveName() throws Exception {
         BasicEnvironmentConfig environment = EnvironmentConfigMother.environment("UPPER_CASE_NAME");
         when(goCache.get("GO_ETAG_CACHE", "com.thoughtworks.go.config.BasicEnvironmentConfig.upper_case_name")).thenReturn("foo");
-        String checksum = entityHashingService.md5ForEntity(environment);
+        String checksum = entityHashingService.hashForEntity(environment);
         assertThat(checksum, is("foo"));
         verify(goCache).get("GO_ETAG_CACHE", "com.thoughtworks.go.config.BasicEnvironmentConfig.upper_case_name");
         verifyNoMoreInteractions(goCache);
@@ -119,7 +119,7 @@ public class EntityHashingServiceTest {
         BasicEnvironmentConfig basicEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env"));
         MergeEnvironmentConfig mergeEnvConfig = new MergeEnvironmentConfig(basicEnvConfig);
 
-        entityHashingService.md5ForEntity(mergeEnvConfig);
+        entityHashingService.hashForEntity(mergeEnvConfig);
 
         verifyZeroInteractions(goCache);
     }
@@ -129,9 +129,9 @@ public class EntityHashingServiceTest {
         BasicEnvironmentConfig basicEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env"));
         when(goCache.get("GO_ETAG_CACHE", "com.thoughtworks.go.config.BasicEnvironmentConfig.env")).thenReturn("foo");
 
-        String md5 = entityHashingService.md5ForEntity(basicEnvConfig);
+        String digest = entityHashingService.hashForEntity(basicEnvConfig);
 
-        assertThat(md5, is("foo"));
+        assertThat(digest, is("foo"));
         verify(goCache).get("GO_ETAG_CACHE", "com.thoughtworks.go.config.BasicEnvironmentConfig.env");
         verifyNoMoreInteractions(goCache);
     }

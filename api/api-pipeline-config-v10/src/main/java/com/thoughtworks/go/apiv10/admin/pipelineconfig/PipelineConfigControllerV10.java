@@ -217,7 +217,7 @@ public class PipelineConfigControllerV10 extends ApiController implements SparkS
     @Override
     public String etagFor(PipelineConfig pipelineConfig) {
         String groupName = goConfigService.findGroupNameByPipeline(pipelineConfig.name());
-        return entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        return entityHashingService.hashForEntity(pipelineConfig, groupName);
     }
 
     @Override

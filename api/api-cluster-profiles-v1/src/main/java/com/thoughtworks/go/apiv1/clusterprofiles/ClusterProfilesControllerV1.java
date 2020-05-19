@@ -163,7 +163,7 @@ public class ClusterProfilesControllerV1 extends ApiController implements SparkS
 
     @Override
     public String etagFor(ClusterProfile entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override

@@ -219,12 +219,12 @@ describe Admin::JobsController do
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                              :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "renamed_job"},
                              :stage_parent => "pipelines"}
 
         expect(response.location).to match(/admin\/pipelines\/pipeline-name\/stages\/stage-name\/job\/renamed_job\/settings?.*?fm=(.+)/)
-        expect(assigns[:pipeline_md5]).to eq("pipeline-md5")
+        expect(assigns[:pipeline_digest]).to eq("pipeline-digest")
         expect(assigns[:pipeline_group_name]).to eq("defaultGroup")
       end
 
@@ -235,7 +235,7 @@ describe Admin::JobsController do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
 
         put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                              :current_tab => "settings", :config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"},
                              :stage_parent => "pipelines"}
 
@@ -253,7 +253,7 @@ describe Admin::JobsController do
         add_resource("job-2","anything")
 
         put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                              :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"},
                              :stage_parent => "pipelines"}
 
@@ -269,13 +269,13 @@ describe Admin::JobsController do
         add_resource("job-2","anything")
 
         put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                              :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"name" => "doesnt_matter"},
                              :stage_parent => "pipelines"}
 
         expect(controller.instance_variable_get("@cruise_config").getMd5()).to eq("1234abcd")
         expect(@go_config_service).not_to receive(:loadForEdit)
-        expect(assigns[:pipeline_md5]).to eq("pipeline-md5")
+        expect(assigns[:pipeline_digest]).to eq("pipeline-digest")
         expect(assigns[:pipeline_group_name]).to eq("defaultGroup")
       end
 
@@ -284,7 +284,7 @@ describe Admin::JobsController do
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                              :current_tab => "settings",:config_md5 => "1234abcd", "job"=>{"variables"=>[{:name=>"key", :valueForDisplay=>"value"}]}, :stage_parent => "pipelines"}
 
         variable = assigns[:job].variables().get(0)
@@ -292,7 +292,7 @@ describe Admin::JobsController do
         expect(variable.value).to eq("value")
         expect(variable.valueForDisplay).to eq("value")
         expect(response.location).to match(/admin\/pipelines\/pipeline-name\/stages\/stage-name\/job\/job-1\/settings?.*?fm=(.+)/)
-        expect(assigns[:pipeline_md5]).to eq("pipeline-md5")
+        expect(assigns[:pipeline_digest]).to eq("pipeline-digest")
         expect(assigns[:pipeline_group_name]).to eq("defaultGroup")
       end
 
@@ -301,13 +301,13 @@ describe Admin::JobsController do
        expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                              :current_tab => "tabs",:config_md5 => "1234abcd", "job"=>{"tabs"=>[{"name"=>"tab1", "path"=>"path1"}]}, :stage_parent => "pipelines"}
 
         expect(assigns[:job].getTabs().get(0).name).to eq("tab1")
         expect(assigns[:job].getTabs().get(0).path).to eq("path1")
         expect(response.location).to match(/admin\/pipelines\/pipeline-name\/stages\/stage-name\/job\/job-1\/tabs?.*?fm=(.+)/)
-       expect(assigns[:pipeline_md5]).to eq("pipeline-md5")
+       expect(assigns[:pipeline_digest]).to eq("pipeline-digest")
        expect(assigns[:pipeline_group_name]).to eq("defaultGroup")
      end
 
@@ -316,11 +316,11 @@ describe Admin::JobsController do
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                              :current_tab => "settings",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>variables"], :stage_parent => "pipelines"}
 
         expect(assigns[:job].variables().isEmpty).to eq(true)
-        expect(assigns[:pipeline_md5]).to eq("pipeline-md5")
+        expect(assigns[:pipeline_digest]).to eq("pipeline-digest")
         expect(assigns[:pipeline_group_name]).to eq("defaultGroup")
       end
 
@@ -329,11 +329,11 @@ describe Admin::JobsController do
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                              :current_tab => "resources",:config_md5 => "1234abcd", "job"=> {"resources" => "a,  b  ,c,d"}, :stage_parent => "pipelines"}
 
         expect(assigns[:job].resourceConfigs().exportToCsv()).to eq("a, b, c, d, ")
-        expect(assigns[:pipeline_md5]).to eq("pipeline-md5")
+        expect(assigns[:pipeline_digest]).to eq("pipeline-digest")
         expect(assigns[:pipeline_group_name]).to eq("defaultGroup")
       end
 
@@ -342,11 +342,11 @@ describe Admin::JobsController do
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         put :update, params:{:pipeline_name => "pipeline-name", :stage_name => "stage-name", :job_name => "job-1",
-                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                              :current_tab => "artifacts",:config_md5 => "1234abcd", "default_as_empty_list" => ["job>artifactTypeConfigs"], :stage_parent => "pipelines"}
 
         expect(assigns[:job].artifactTypeConfigs().size()).to eq(0)
-        expect(assigns[:pipeline_md5]).to eq("pipeline-md5")
+        expect(assigns[:pipeline_digest]).to eq("pipeline-digest")
         expect(assigns[:pipeline_group_name]).to eq("defaultGroup")
       end
     end
@@ -398,7 +398,7 @@ describe Admin::JobsController do
                               :job => {:name => "new_job", :tasks => {:taskOptions => "exec",
                                                                       "exec" => {:command => "ls", :workingDirectory => 'work'}}},
                               :config_md5 => "1234abcd", :stage_parent => "pipelines",
-                              :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup'}
+                              :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup'}
 
         assert_template "new"
         assert_template layout: false
@@ -420,7 +420,7 @@ describe Admin::JobsController do
                               :job => {:name => "new_job", :tasks => {:taskOptions => "exec",
                                                                       "exec" => {:command => "ls", :workingDirectory => 'work'}}},
                               :config_md5 => "1234abcd", :stage_parent => "pipelines",
-                              :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup'}
+                              :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup'}
 
         expect(assigns[:autocomplete_resources]).to eq(["anything"].to_json)
         assert_template "new"

@@ -232,7 +232,7 @@ describe Admin::StagesController do
         stage = {:name => "stage", :jobs => [{:name => "job", :tasks => {:taskOptions => "pluggableTask", "pluggableTask" => {:foo => "bar"}}}]}
         pipeline_name = "pipeline-name"
         post :create, params:{:stage_parent => "pipelines", :pipeline_name => pipeline_name, :config_md5 => "1234abcd",
-                              :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                              :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                               :stage => stage}
 
         # expect(@pipeline.last().name()).to eq(CaseInsensitiveString.new("stage"))
@@ -250,7 +250,7 @@ describe Admin::StagesController do
 
         job = {:name => "job", :tasks => {:taskOptions => "ant", "ant" => {}}}
         post :create, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd",
-                              :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                              :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                               :stage => {:name =>  "stage", :type => "cruise", :jobs => [job]}}
 
         expect(assigns[:config_file_conflict]).to eq(true)
@@ -264,7 +264,7 @@ describe Admin::StagesController do
         job = {:name => "job", :tasks => {:taskOptions => "ant", "ant" => {}}}
 
         post :create, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd",
-                              :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                              :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                               :stage => {:name =>  "stage", :type => "cruise", :jobs => [job]}}
 
         # expect(@cruise_config.getAllErrors().size).to eq(0)
@@ -284,7 +284,7 @@ describe Admin::StagesController do
         allow(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         post :create, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd",
-                              :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                              :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                               :stage => {:name =>  "stage", :type => "cruise", :jobs => [{:name => "123", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}}]}}
 
         expect(assigns[:task_view_models]).to eq(tvms)
@@ -305,7 +305,7 @@ describe Admin::StagesController do
 
 
         post :create, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd",
-                              :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                              :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                               :stage => {:name =>  "stage", :type => "cruise", :jobs => [{:name => "123", :tasks => {:taskOptions => "exec", "exec" => {:command => "ls", :workingDirectory => 'work'}}}]}}
 
         #expect(assigns[:errors].size).to eq(1) Don't know how to test this
@@ -421,11 +421,11 @@ describe Admin::StagesController do
 
         put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name",
                              :config_md5 => "1234abcd", :current_tab => "permissions",
-                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                              :stage => {:approval => {:type => "manual"},:variables =>[{:name=>"key", :valueForDisplay=>"value"}]}}
 
         expect(assigns[:stage].getApproval().getType()).to eq("manual")
-        expect(assigns[:pipeline_md5]).to eq('pipeline-md5')
+        expect(assigns[:pipeline_digest]).to eq('pipeline-digest')
         expect(assigns[:pipeline_group_name]).to eq('defaultGroup')
         expect(assigns[:pipeline_name]).to eq('pipeline-name')
         environment_variable = assigns[:stage].variables().get(0)
@@ -442,7 +442,7 @@ describe Admin::StagesController do
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name",
-                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                              :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"}}
 
         expect(response.location).to match(/\/admin\/pipelines\/pipeline-name\/stages\/new-stage-name\/permissions\?fm=#{uuid_pattern}$/)
@@ -468,7 +468,7 @@ describe Admin::StagesController do
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name",
-                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                              :config_md5 => "1234abcd", :current_tab => "settings",
 
                              :stage => { :securityMode => "define", :operateUsers => [{ :name => "user1"}, {:name => "user2"}],
@@ -478,7 +478,7 @@ describe Admin::StagesController do
         expect(assigns[:stage].getOperateUsers().get(1)).to eq(AdminUser.new(CaseInsensitiveString.new("user2")))
         expect(assigns[:stage].getOperateRoles().get(0)).to eq(AdminRole.new(CaseInsensitiveString.new("role1")))
         expect(assigns[:stage].getOperateRoles().get(1)).to eq(AdminRole.new(CaseInsensitiveString.new("role2")))
-        expect(assigns[:pipeline_md5]).to eq('pipeline-md5')
+        expect(assigns[:pipeline_digest]).to eq('pipeline-digest')
         expect(assigns[:pipeline_group_name]).to eq('defaultGroup')
         expect(assigns[:pipeline_name]).to eq('pipeline-name')
       end
@@ -489,7 +489,7 @@ describe Admin::StagesController do
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
         put :update, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :stage_name => "stage-name",
-                             :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
+                             :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
                              :config_md5 => "1234abcd", :current_tab => "permissions", :stage => {:name => "new-stage-name"}}
 
         expect(response.location).to be_nil

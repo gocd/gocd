@@ -71,9 +71,9 @@ public class AdminsConfigServiceIntegrationTest {
 
         AdminUser newAdminUser = new AdminUser(new CaseInsensitiveString("new_admin_user"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String md5ForEntity = entityHashingService.md5ForEntity(adminsConfigService.systemAdmins());
+        String hashForEntity = entityHashingService.hashForEntity(adminsConfigService.systemAdmins());
 
-        adminsConfigService.update(USERNAME, new AdminsConfig(newAdminUser), md5ForEntity, result);
+        adminsConfigService.update(USERNAME, new AdminsConfig(newAdminUser), hashForEntity, result);
 
         assertThat(result.httpCode(), is(200));
         assertThat(adminsConfigService.systemAdmins().size(), is(1));
@@ -91,9 +91,9 @@ public class AdminsConfigServiceIntegrationTest {
         assertTrue(adminsConfigService.systemAdmins().has(null, Collections.singletonList(devs)));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String md5ForEntity = entityHashingService.md5ForEntity(adminsConfigService.systemAdmins());
+        String hashForEntity = entityHashingService.hashForEntity(adminsConfigService.systemAdmins());
 
-        adminsConfigService.update(USERNAME, new AdminsConfig(new AdminRole(new CaseInsensitiveString("qas"))), md5ForEntity, result);
+        adminsConfigService.update(USERNAME, new AdminsConfig(new AdminRole(new CaseInsensitiveString("qas"))), hashForEntity, result);
 
         assertThat(result.httpCode(), is(200));
         assertThat(adminsConfigService.systemAdmins().size(), is(1));
@@ -103,10 +103,10 @@ public class AdminsConfigServiceIntegrationTest {
     @Test
     public void update_shouldEnsureOnlyValidRolesCanBeSystemAdmins() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String md5ForEntity = entityHashingService.md5ForEntity(adminsConfigService.systemAdmins());
+        String hashForEntity = entityHashingService.hashForEntity(adminsConfigService.systemAdmins());
         AdminsConfig newSystemAdmins = new AdminsConfig(new AdminRole(new CaseInsensitiveString("qas")));
 
-        adminsConfigService.update(USERNAME, newSystemAdmins, md5ForEntity, result);
+        adminsConfigService.update(USERNAME, newSystemAdmins, hashForEntity, result);
 
         assertThat(result.httpCode(), is(422));
         assertThat(result.message(), is("Validations failed for admins. Error(s): [Role \"qas\" does not exist.]. Please correct and resubmit."));

@@ -88,6 +88,6 @@ public class InternalCommandSnippetsControllerV1 extends ApiController implement
     }
 
     private String etagFor(List<CommandSnippet> commandSnippets) {
-        return entityHashingService.md5ForEntity(new CommandSnippets(commandSnippets));
+        return entityHashingService.hashForEntity(new CommandSnippets(commandSnippets));
     }
 }

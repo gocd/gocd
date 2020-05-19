@@ -87,10 +87,10 @@ public class UpdateArtifactStoreConfigCommandTest {
 
         EntityHashingService entityHashingService = mock(EntityHashingService.class);
 
-        when(entityHashingService.md5ForEntity(oldArtifactStore)).thenReturn("md5");
+        when(entityHashingService.hashForEntity(oldArtifactStore)).thenReturn("digest");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        UpdateArtifactStoreConfigCommand command = new UpdateArtifactStoreConfigCommand(goConfigService, newArtifactStore, null, currentUser, result, entityHashingService, "bad-md5");
+        UpdateArtifactStoreConfigCommand command = new UpdateArtifactStoreConfigCommand(goConfigService, newArtifactStore, null, currentUser, result, entityHashingService, "bad-digest");
 
         assertThat(command.canContinue(cruiseConfig)).isFalse();
         assertThat(result.message()).isEqualTo(EntityType.ArtifactStore.staleConfig(newArtifactStore.getId()));

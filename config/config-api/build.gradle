@@ -31,7 +31,7 @@ dependencies {
   compile group: 'org.jdom', name: 'jdom2', version: project.versions.jdom
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
   compile group: 'org.apache.felix', name: 'org.apache.felix.framework', version: project.versions.felix
-  compileOnly group: 'com.google.guava', name: 'guava', version: project.versions.guava
+  compile group: 'com.google.guava', name: 'guava', version: project.versions.guava
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle)
   compileOnly group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok

@@ -28,7 +28,6 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.io.File;
@@ -244,12 +243,9 @@ public class GoPartialConfigTest {
         configWatchList = mock(GoConfigWatchList.class);
         when(configWatchList.hasConfigRepoWithFingerprint(any(String.class))).thenReturn(true);
 
-        when(entityHashingService.md5ForEntity(any(EnvironmentsConfig.class))).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                final EnvironmentsConfig envs = (EnvironmentsConfig) invocation.getArgument(0);
-                return envs.names().get(0).toString();
-            }
+        when(entityHashingService.computeHashForEntity(any(PartialConfig.class))).thenAnswer((Answer<Integer>) invocation -> {
+            final PartialConfig partial = invocation.getArgument(0);
+            return partial.hashCode();
         });
 
         partialConfig = new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, entityHashingService);
@@ -266,12 +262,9 @@ public class GoPartialConfigTest {
         configWatchList = mock(GoConfigWatchList.class);
         when(configWatchList.hasConfigRepoWithFingerprint(any(String.class))).thenReturn(true);
 
-        when(entityHashingService.md5ForEntity(any(EnvironmentsConfig.class))).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                final EnvironmentsConfig envs = (EnvironmentsConfig) invocation.getArgument(0);
-                return envs.names().get(0).toString();
-            }
+        when(entityHashingService.computeHashForEntity(any(PartialConfig.class))).thenAnswer((Answer<Integer>) invocation -> {
+            final PartialConfig partial = invocation.getArgument(0);
+            return partial.hashCode();
         });
 
         partialConfig = new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, entityHashingService);

@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.NotificationFilter;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
@@ -80,7 +81,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         goConfigService.register(new PipelineConfigChangedListener());
         goConfigService.register(new BasicPipelineConfigsChangedListener());
         goConfigService.register(new MergePipelineConfigsChangedListener());
-        goConfigService.register(new SCMConfigChangedListner());
+        goConfigService.register(new SCMConfigChangedListener());
         goConfigService.register(new TemplateConfigChangedListner());
         goConfigService.register(new EnvironmentConfigListener());
         goConfigService.register(new PackageRepositoryChangeListener());
@@ -364,6 +365,36 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return getFromCache(cacheKey, () -> String.valueOf(Objects.hash(artifactConfig)));
     }
 
+    /**
+     * Computes an int hashCode based on a cryptographic digest of the contents. Unlike most of the methods of this
+     * service, the result is intentionally <em>not</em> cached; caching is beyond the scope of this method and should
+     * be implemented at a higher abstraction as needed.
+     *
+     * @param partial a {@link PartialConfig} to hash
+     * @return an integer hash code that can be used for comparison.
+     */
+    public int computeHashForEntity(PartialConfig partial) {
+        if (null == partial) return 0;
+
+        return Objects.hash(
+                hashCollection(partial.getGroups()),
+                hashCollection(partial.getEnvironments()),
+                hashCollection(partial.getScms())
+        );
+    }
+
+    /**
+     * Computes a SHA-256 digest of a collection's contents
+     *
+     * @param entities any {@link Collection} of config entities
+     * @return a SHA-256 hex digest ({@link String})
+     */
+    private String hashCollection(Collection<?> entities) {
+        return CachedDigestUtils.sha256Hex(entities.stream().
+                map(entity -> CachedDigestUtils.sha256Hex(getDomainObjectXmlPartial(entity))).
+                collect(Collectors.joining(SEP_CHAR)));
+    }
+
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {
         @Override
         public void onEntityConfigChange(PipelineConfig pipelineConfig) {
@@ -371,7 +402,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         }
     }
 
-    class SCMConfigChangedListner extends EntityConfigChangedListener<SCM> {
+    class SCMConfigChangedListener extends EntityConfigChangedListener<SCM> {
         @Override
         public void onEntityConfigChange(SCM scm) {
             removeFromCache(scm, scm.getName());

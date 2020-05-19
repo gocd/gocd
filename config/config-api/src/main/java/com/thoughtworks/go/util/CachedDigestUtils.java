@@ -15,12 +15,13 @@
  */
 package com.thoughtworks.go.util;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.thoughtworks.go.util.pool.DigestObjectPools;
+import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.Hex;
 
 import java.io.InputStream;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * A replacement for org.apache.commons.codec.digest.DigestUtils , with the MessageDigest Instance cached.
@@ -34,16 +35,14 @@ public class CachedDigestUtils {
 
     private static final int STREAM_BUFFER_LENGTH = 1024;
     private static DigestObjectPools objectPools = new DigestObjectPools();
-    private static ConcurrentMap<String, String> shaDigestCache = new ConcurrentHashMap<>();
+    private static Cache<String, String> shaDigestCache = CacheBuilder.
+            newBuilder().
+            maximumSize(1024).
+            build();
 
+    @SneakyThrows // compute() doesn't throw checked exceptions
     public static String sha256Hex(String string) {
-        if (shaDigestCache.containsKey(string)) {
-            return shaDigestCache.get(string);
-        }
-
-        String digest = compute(string, DigestObjectPools.SHA_256);
-        shaDigestCache.putIfAbsent(string, digest);
-        return digest;
+        return shaDigestCache.get(string, () -> compute(string, DigestObjectPools.SHA_256));
     }
 
     public static String md5Hex(String string) {

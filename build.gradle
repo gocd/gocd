@@ -191,7 +191,7 @@ rootProject.ext.versions = [
   felix                 : '5.6.10',
   freemarker            : '2.3.29',
   gson                  : '2.8.6',
-  guava                 : '28.2-jre',
+  guava                 : '29.0-jre',
   h2db                  : '1.3.168',
   hamcrest              : '2.2',
   hibernate             : '3.6.10.Final',

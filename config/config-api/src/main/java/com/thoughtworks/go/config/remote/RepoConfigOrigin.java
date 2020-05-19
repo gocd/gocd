@@ -17,6 +17,8 @@ package com.thoughtworks.go.config.remote;
 
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
+import java.util.Objects;
+
 /**
  * @understands that configuration is defined in versioned source code repository at particular revision.
  */
@@ -41,28 +43,16 @@ public class RepoConfigOrigin implements ConfigOrigin {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) o;
-
-        if (revision != null ? !revision.equals(repoConfigOrigin.revision) : repoConfigOrigin.revision != null) {
-            return false;
-        }
-        if (configRepo != null ? !configRepo.equals(repoConfigOrigin.configRepo) : repoConfigOrigin.configRepo != null) {
-            return false;
-        }
-
-        return true;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RepoConfigOrigin that = (RepoConfigOrigin) o;
+        return Objects.equals(configRepo, that.configRepo) &&
+                Objects.equals(revision, that.revision);
     }
 
     @Override
     public int hashCode() {
-        return revision != null ? revision.hashCode() : 0;
+        return Objects.hash(configRepo, revision);
     }
 
     @Override

@@ -46,8 +46,8 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
     private final CachedGoPartials cachedGoPartials;
     private final ServerHealthService serverHealthService;
     private final EntityHashingService entityHashingService;
-    private GoRepoConfigDataSource repoConfigDataSource;
-    private GoConfigWatchList configWatchList;
+    private final GoRepoConfigDataSource repoConfigDataSource;
+    private final GoConfigWatchList configWatchList;
 
     @Autowired
     public GoPartialConfig(GoRepoConfigDataSource repoConfigDataSource,
@@ -79,7 +79,7 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
         if (this.configWatchList.hasConfigRepoWithFingerprint(fingerprint)) {
             //TODO maybe validate new part without context of other partials or main config
 
-            if (isPartialDifferentFromLastKnown(newPart, fingerprint)) {
+            if (isPartialDifferentFromLastKnown(newPart, fingerprint) || repoConfigDataSource.hasConfigRepoConfigChangedSinceLastUpdate(repoConfig.getRepo())) {
                 // caches this partial as the last known merge attempt
                 cachedGoPartials.addOrUpdate(fingerprint, newPart);
 
@@ -100,20 +100,6 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
         return new PartialConfigUpdateCommand(partial, fingerprint, cachedGoPartials, configRepoConfig);
     }
 
-    private boolean updateConfig(final PartialConfig newPart, final String fingerprint, ConfigRepoConfig repoConfig) {
-        try {
-            goConfigService.updateConfig(buildUpdateCommand(newPart, fingerprint, repoConfig));
-            return true;
-        } catch (Exception e) {
-            if (repoConfig != null) {
-                String description = String.format("%s- For Config Repo: %s", e.getMessage(), newPart.getOrigin().displayName());
-                ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_MERGE, description, HealthStateType.general(HealthStateScope.forPartialConfigRepo(repoConfig)));
-                serverHealthService.update(state);
-            }
-            return false;
-        }
-    }
-
     @Override
     public void onChangedRepoConfigWatchList(ConfigReposConfig newConfigRepos) {
         // remove partial configs from map which are no longer on the list
@@ -128,6 +114,20 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
             if (!newConfigRepos.hasMaterialWithFingerprint(fingerprint)) {
                 cachedGoPartials.removeValid(fingerprint);
             }
+        }
+    }
+
+    private boolean updateConfig(final PartialConfig newPart, final String fingerprint, ConfigRepoConfig repoConfig) {
+        try {
+            goConfigService.updateConfig(buildUpdateCommand(newPart, fingerprint, repoConfig));
+            return true;
+        } catch (Exception e) {
+            if (repoConfig != null) {
+                String description = String.format("%s- For Config Repo: %s", e.getMessage(), newPart.getOrigin().displayName());
+                ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_MERGE, description, HealthStateType.general(HealthStateScope.forPartialConfigRepo(repoConfig)));
+                serverHealthService.update(state);
+            }
+            return false;
         }
     }
 

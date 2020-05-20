@@ -30,15 +30,15 @@ public abstract class SCMCommand {
         this.materialFingerprint = materialFingerprint;
     }
 
-    protected int run(CommandLine commandLine, ConsoleOutputStreamConsumer outputStreamConsumer, String... input) {
-        return commandLine.run(outputStreamConsumer, new MaterialFingerprintTag(materialFingerprint), input);
-    }
-
     public ConsoleResult runOrBomb(CommandLine commandLine, boolean failOnNonZeroReturn, String... input) {
         return commandLine.runOrBomb(failOnNonZeroReturn, new MaterialFingerprintTag(materialFingerprint), input);
     }
 
     public ConsoleResult runOrBomb(CommandLine commandLine, String... input) {
         return commandLine.runOrBomb(new MaterialFingerprintTag(materialFingerprint), input);
+    }
+
+    protected int run(CommandLine commandLine, ConsoleOutputStreamConsumer outputStreamConsumer, String... input) {
+        return commandLine.run(outputStreamConsumer, new MaterialFingerprintTag(materialFingerprint), input);
     }
 }

@@ -60,6 +60,10 @@ public class GitCommand extends SCMCommand {
         this.isSubmodule = isSubmodule;
     }
 
+    private static boolean hasOnlyOneMatchingBranch(ConsoleResult branchList) {
+        return (branchList.output().size() == 1);
+    }
+
     public int cloneWithNoCheckout(ConsoleOutputStreamConsumer outputStreamConsumer, String url) {
         CommandLine gitClone = cloneCommand().withArg("--no-checkout");
 
@@ -85,12 +89,6 @@ public class GitCommand extends SCMCommand {
         return run(gitClone, outputStreamConsumer);
     }
 
-    private CommandLine cloneCommand() {
-        return git()
-                .withArg("clone")
-                .withArg(String.format("--branch=%s", branch));
-    }
-
     public List<Modification> latestModification() {
         return gitLog("-1", "--date=iso", "--no-decorate", "--pretty=medium", "--no-color", remoteBranch());
 
@@ -98,6 +96,250 @@ public class GitCommand extends SCMCommand {
 
     public List<Modification> modificationsSince(Revision revision) {
         return gitLog("--date=iso", "--pretty=medium", "--no-decorate", "--no-color", String.format("%s..%s", revision.getRevision(), remoteBranch()));
+    }
+
+    public void resetWorkingDir(ConsoleOutputStreamConsumer outputStreamConsumer, Revision revision, boolean shallow) {
+        log(outputStreamConsumer, "Reset working directory %s", workingDir);
+        cleanAllUnversionedFiles(outputStreamConsumer);
+        removeSubmoduleSectionsFromGitConfig(outputStreamConsumer);
+        resetHard(outputStreamConsumer, revision);
+        checkoutAllModifiedFilesInSubmodules(outputStreamConsumer);
+        updateSubmoduleWithInit(outputStreamConsumer, shallow);
+        cleanAllUnversionedFiles(outputStreamConsumer);
+    }
+
+    public void resetHard(ConsoleOutputStreamConsumer outputStreamConsumer, Revision revision) {
+        log(outputStreamConsumer, "Updating working copy to revision " + revision.getRevision());
+        String[] args = new String[]{"reset", "--hard", revision.getRevision()};
+        CommandLine gitCmd = git().withArgs(args).withWorkingDir(workingDir);
+        int result = run(gitCmd, outputStreamConsumer);
+        if (result != 0) {
+            throw new RuntimeException(String.format("git reset failed for [%s]", this.workingDir));
+        }
+    }
+
+    public void fetchAndResetToHead(ConsoleOutputStreamConsumer outputStreamConsumer) {
+        fetchAndResetToHead(outputStreamConsumer, false);
+    }
+
+    public void fetchAndResetToHead(ConsoleOutputStreamConsumer outputStreamConsumer, boolean shallow) {
+        fetch(outputStreamConsumer);
+        resetWorkingDir(outputStreamConsumer, new StringRevision(remoteBranch()), shallow);
+    }
+
+    public void updateSubmoduleWithInit(ConsoleOutputStreamConsumer outputStreamConsumer, boolean shallow) {
+        if (!gitSubmoduleEnabled()) {
+            return;
+        }
+        log(outputStreamConsumer, "Updating git sub-modules");
+
+        String[] initArgs = new String[]{"submodule", "init"};
+        CommandLine initCmd = git().withArgs(initArgs).withWorkingDir(workingDir);
+        runOrBomb(initCmd);
+
+        submoduleSync();
+
+        if (shallow && version().supportsSubmoduleDepth()) {
+            tryToShallowUpdateSubmodules();
+        } else {
+            updateSubmodule();
+        }
+
+        log(outputStreamConsumer, "Cleaning unversioned files and sub-modules");
+        printSubmoduleStatus(outputStreamConsumer);
+    }
+
+    public UrlArgument workingRepositoryUrl() {
+        String[] args = new String[]{"config", "remote.origin.url"};
+        CommandLine gitConfig = git().withArgs(args).withWorkingDir(workingDir);
+
+        return new UrlArgument(runOrBomb(gitConfig).outputForDisplay().get(0));
+    }
+
+    public void checkConnection(UrlArgument repoUrl, String branch) {
+        CommandLine commandLine = git().withArgs("ls-remote").withArg(repoUrl).withArg("refs/heads/" + branch);
+        ConsoleResult result = commandLine.runOrBomb(new NamedProcessTag(repoUrl.forDisplay()));
+        if (!hasOnlyOneMatchingBranch(result)) {
+            throw new CommandLineException(String.format("The branch %s could not be found.", branch));
+        }
+    }
+
+    public GitVersion version() {
+        CommandLine gitLsRemote = git().withArgs("version");
+
+        String gitVersionString = gitLsRemote.runOrBomb(new NamedProcessTag("git version check")).outputAsString();
+        return GitVersion.parse(gitVersionString);
+    }
+
+    public void add(File fileToAdd) {
+        String[] args = new String[]{"add", fileToAdd.getName()};
+        CommandLine gitAdd = git().withArgs(args).withWorkingDir(workingDir);
+        runOrBomb(gitAdd);
+    }
+
+    public void commit(String message) {
+        String[] args = new String[]{"commit", "-m", message};
+        CommandLine gitCommit = git().withArgs(args).withWorkingDir(workingDir);
+        runOrBomb(gitCommit);
+    }
+
+    public void push() {
+        String[] args = new String[]{"push"};
+        CommandLine gitCommit = git().withArgs(args).withWorkingDir(workingDir);
+        runOrBomb(gitCommit);
+    }
+
+    public void pull() {
+        String[] args = new String[]{"pull"};
+        CommandLine gitCommit = git().withArgs(args).withWorkingDir(workingDir);
+        runOrBomb(gitCommit);
+    }
+
+    public void commitOnDate(String message, Date commitDate) {
+        HashMap<String, String> env = new HashMap<>();
+        env.put("GIT_AUTHOR_DATE", formatRFC822(commitDate));
+        CommandLine gitCmd = git().withArgs("commit", "-m", message).withEnv(env).withWorkingDir(workingDir);
+        runOrBomb(gitCmd);
+    }
+
+    public void checkoutRemoteBranchToLocal() {
+        CommandLine gitCmd = git().withArgs("checkout", "-b", branch, remoteBranch()).withWorkingDir(workingDir);
+        runOrBomb(gitCmd);
+    }
+
+    public void fetch(ConsoleOutputStreamConsumer outputStreamConsumer) {
+        log(outputStreamConsumer, "Fetching changes");
+        CommandLine gitFetch = git().withArgs("fetch", "origin", "--prune", "--recurse-submodules=no").withWorkingDir(workingDir);
+
+        int result = run(gitFetch, outputStreamConsumer);
+        if (result != 0) {
+            throw new RuntimeException(String.format("git fetch failed for [%s]", this.workingRepositoryUrl()));
+        }
+        gc(outputStreamConsumer);
+    }
+
+    // Unshallow a shallow cloned repository with "git fetch --depth n".
+    // Special depth 2147483647 (Integer.MAX_VALUE) are treated as infinite -- fully unshallow
+    // https://git-scm.com/docs/git-fetch-pack
+    public void unshallow(ConsoleOutputStreamConsumer outputStreamConsumer, Integer depth) {
+        log(outputStreamConsumer, "Unshallowing repository with depth %d", depth);
+        CommandLine gitFetch = git()
+                .withArgs("fetch", "origin")
+                .withArg(String.format("--depth=%d", depth))
+                .withWorkingDir(workingDir);
+
+        int result = run(gitFetch, outputStreamConsumer);
+        if (result != 0) {
+            throw new RuntimeException(String.format("Unshallow repository failed for [%s]", this.workingRepositoryUrl()));
+        }
+    }
+
+    public void init() {
+        CommandLine gitCmd = git().withArgs("init").withWorkingDir(workingDir);
+        runOrBomb(gitCmd);
+    }
+
+    public List<String> submoduleFolders() {
+        CommandLine gitCmd = git().withArgs("submodule", "status").withWorkingDir(workingDir);
+        ConsoleResult result = runOrBomb(gitCmd);
+        return submoduleFolders(result.output());
+    }
+
+    public ConsoleResult diffTree(String node) {
+        CommandLine gitCmd = git().withArgs("diff-tree", "--name-status", "--root", "-r", node).withWorkingDir(workingDir);
+        return runOrBomb(gitCmd);
+    }
+
+    public void submoduleAdd(String repoUrl, String submoduleNameToPutInGitSubmodules, String folder) {
+        String[] addSubmoduleWithSameNameArgs = new String[]{"submodule", "add", repoUrl, folder};
+        String[] changeSubmoduleNameInGitModules = new String[]{"config", "--file", ".gitmodules", "--rename-section", "submodule." + folder, "submodule." + submoduleNameToPutInGitSubmodules};
+        String[] addGitModules = new String[]{"add", ".gitmodules"};
+
+        runOrBomb(git().withArgs(addSubmoduleWithSameNameArgs).withWorkingDir(workingDir));
+        runOrBomb(git().withArgs(changeSubmoduleNameInGitModules).withWorkingDir(workingDir));
+        runOrBomb(git().withArgs(addGitModules).withWorkingDir(workingDir));
+    }
+
+    public void submoduleRemove(String folderName) {
+        configRemoveSection("submodule." + folderName);
+        CommandLine gitConfig = git().withArgs("config", "-f", ".gitmodules", "--remove-section", "submodule." + folderName).withWorkingDir(workingDir);
+        runOrBomb(gitConfig);
+
+        CommandLine gitAdd = git().withArgs("add", ".gitmodules").withWorkingDir(workingDir);
+        runOrBomb(gitAdd);
+
+        CommandLine gitRm = git().withArgs("rm", "--cached", folderName).withWorkingDir(workingDir);
+        runOrBomb(gitRm);
+        FileUtils.deleteQuietly(new File(workingDir, folderName));
+    }
+
+    public String currentRevision() {
+        String[] args = new String[]{"log", "-1", "--pretty=format:%H"};
+
+        CommandLine gitCmd = git().withArgs(args).withWorkingDir(workingDir);
+        return runOrBomb(gitCmd).outputAsString();
+    }
+
+    public Map<String, String> submoduleUrls() {
+        String[] args = new String[]{"config", "--get-regexp", "^submodule\\..+\\.url"};
+
+        CommandLine gitCmd = git().withArgs(args).withWorkingDir(workingDir);
+        ConsoleResult result = runOrBomb(gitCmd, false);
+        List<String> submoduleList = result.output();
+        HashMap<String, String> submoduleUrls = new HashMap<>();
+        for (String submoduleLine : submoduleList) {
+            Matcher m = GIT_SUBMODULE_URL_PATTERN.matcher(submoduleLine);
+            if (!m.find()) {
+                bomb("Unable to parse git-config output line: " + result.replaceSecretInfo(submoduleLine) + "\n"
+                        + "From output:\n"
+                        + result.replaceSecretInfo(StringUtils.join(submoduleList, "\n")));
+            }
+            submoduleUrls.put(m.group(1), m.group(2));
+        }
+        return submoduleUrls;
+    }
+
+    public String getCurrentBranch() {
+        CommandLine getCurrentBranchCommand = git().withArg("rev-parse").withArg("--abbrev-ref").withArg("HEAD").withWorkingDir(workingDir);
+        ConsoleResult consoleResult = runOrBomb(getCurrentBranchCommand);
+        return consoleResult.outputAsString();
+    }
+
+    public void changeSubmoduleUrl(String submoduleName, String newUrl) {
+        String[] args = new String[]{"config", "--file", ".gitmodules", "submodule." + submoduleName + ".url", newUrl};
+        CommandLine gitConfig = git().withArgs(args).withWorkingDir(workingDir);
+        runOrBomb(gitConfig);
+    }
+
+    public void submoduleSync() {
+        String[] syncArgs = new String[]{"submodule", "sync"};
+        CommandLine syncCmd = git().withArgs(syncArgs).withWorkingDir(workingDir);
+        runOrBomb(syncCmd);
+
+        List<String> foreachArgs = submoduleForEachRecursive(asList("git", "submodule", "sync"));
+        CommandLine foreachCmd = git().withArgs(foreachArgs).withWorkingDir(workingDir);
+        runOrBomb(foreachCmd);
+    }
+
+    public boolean isShallow() {
+        return new File(workingDir, ".git/shallow").exists();
+    }
+
+    public boolean containsRevisionInBranch(Revision revision) {
+        String[] args = {"branch", "-r", "--contains", revision.getRevision()};
+        CommandLine gitCommand = git().withArgs(args).withWorkingDir(workingDir);
+        try {
+            ConsoleResult consoleResult = runOrBomb(gitCommand);
+            return (consoleResult.outputAsString()).contains(remoteBranch());
+        } catch (CommandLineException e) {
+            return false;
+        }
+    }
+
+    private CommandLine cloneCommand() {
+        return git()
+                .withArg("clone")
+                .withArg(String.format("--branch=%s", branch));
     }
 
     private List<Modification> gitLog(String... args) {
@@ -147,16 +389,6 @@ public class GitCommand extends SCMCommand {
         return GIT_DIFF_TREE_PATTERN.matcher(resultLine);
     }
 
-    public void resetWorkingDir(ConsoleOutputStreamConsumer outputStreamConsumer, Revision revision, boolean shallow) {
-        log(outputStreamConsumer, "Reset working directory %s", workingDir);
-        cleanAllUnversionedFiles(outputStreamConsumer);
-        removeSubmoduleSectionsFromGitConfig(outputStreamConsumer);
-        resetHard(outputStreamConsumer, revision);
-        checkoutAllModifiedFilesInSubmodules(outputStreamConsumer);
-        updateSubmoduleWithInit(outputStreamConsumer, shallow);
-        cleanAllUnversionedFiles(outputStreamConsumer);
-    }
-
     private void checkoutAllModifiedFilesInSubmodules(ConsoleOutputStreamConsumer outputStreamConsumer) {
         log(outputStreamConsumer, "Removing modified files in submodules");
         List<String> submoduleForEachRecursive = submoduleForEachRecursive(asList("git", "checkout", "."));
@@ -184,50 +416,9 @@ public class GitCommand extends SCMCommand {
         run(gitCmd, outputStreamConsumer);
     }
 
-    public void resetHard(ConsoleOutputStreamConsumer outputStreamConsumer, Revision revision) {
-        log(outputStreamConsumer, "Updating working copy to revision " + revision.getRevision());
-        String[] args = new String[]{"reset", "--hard", revision.getRevision()};
-        CommandLine gitCmd = git().withArgs(args).withWorkingDir(workingDir);
-        int result = run(gitCmd, outputStreamConsumer);
-        if (result != 0) {
-            throw new RuntimeException(String.format("git reset failed for [%s]", this.workingDir));
-        }
-    }
-
     private CommandLine git() {
         CommandLine git = CommandLine.createCommandLine("git").withEncoding("UTF-8");
         return git.withNonArgSecrets(secrets);
-    }
-
-    public void fetchAndResetToHead(ConsoleOutputStreamConsumer outputStreamConsumer) {
-        fetchAndResetToHead(outputStreamConsumer, false);
-    }
-
-    public void fetchAndResetToHead(ConsoleOutputStreamConsumer outputStreamConsumer, boolean shallow) {
-        fetch(outputStreamConsumer);
-        resetWorkingDir(outputStreamConsumer, new StringRevision(remoteBranch()), shallow);
-    }
-
-    public void updateSubmoduleWithInit(ConsoleOutputStreamConsumer outputStreamConsumer, boolean shallow) {
-        if (!gitSubmoduleEnabled()) {
-            return;
-        }
-        log(outputStreamConsumer, "Updating git sub-modules");
-
-        String[] initArgs = new String[]{"submodule", "init"};
-        CommandLine initCmd = git().withArgs(initArgs).withWorkingDir(workingDir);
-        runOrBomb(initCmd);
-
-        submoduleSync();
-
-        if (shallow && version().supportsSubmoduleDepth()) {
-            tryToShallowUpdateSubmodules();
-        } else {
-            updateSubmodule();
-        }
-
-        log(outputStreamConsumer, "Cleaning unversioned files and sub-modules");
-        printSubmoduleStatus(outputStreamConsumer);
     }
 
     private void updateSubmodule() {
@@ -294,151 +485,14 @@ public class GitCommand extends SCMCommand {
         return new File(workingDir, ".gitmodules").exists();
     }
 
-    public UrlArgument workingRepositoryUrl() {
-        String[] args = new String[]{"config", "remote.origin.url"};
-        CommandLine gitConfig = git().withArgs(args).withWorkingDir(workingDir);
-
-        return new UrlArgument(runOrBomb(gitConfig).outputForDisplay().get(0));
-    }
-
-    public void checkConnection(UrlArgument repoUrl, String branch) {
-        CommandLine commandLine = git().withArgs("ls-remote").withArg(repoUrl).withArg("refs/heads/" + branch);
-        ConsoleResult result = commandLine.runOrBomb(new NamedProcessTag(repoUrl.forDisplay()));
-        if (!hasOnlyOneMatchingBranch(result)) {
-            throw new CommandLineException(String.format("The branch %s could not be found.", branch));
-        }
-    }
-
-    private static boolean hasOnlyOneMatchingBranch(ConsoleResult branchList) {
-        return (branchList.output().size() == 1);
-    }
-
-    public GitVersion version() {
-        CommandLine gitLsRemote = git().withArgs("version");
-
-        String gitVersionString = gitLsRemote.runOrBomb(new NamedProcessTag("git version check")).outputAsString();
-        return GitVersion.parse(gitVersionString);
-    }
-
-    public void add(File fileToAdd) {
-        String[] args = new String[]{"add", fileToAdd.getName()};
-        CommandLine gitAdd = git().withArgs(args).withWorkingDir(workingDir);
-        runOrBomb(gitAdd);
-    }
-
-    public void commit(String message) {
-        String[] args = new String[]{"commit", "-m", message};
-        CommandLine gitCommit = git().withArgs(args).withWorkingDir(workingDir);
-        runOrBomb(gitCommit);
-    }
-
-    public void push() {
-        String[] args = new String[]{"push"};
-        CommandLine gitCommit = git().withArgs(args).withWorkingDir(workingDir);
-        runOrBomb(gitCommit);
-    }
-
-    public void pull() {
-        String[] args = new String[]{"pull"};
-        CommandLine gitCommit = git().withArgs(args).withWorkingDir(workingDir);
-        runOrBomb(gitCommit);
-    }
-
-    public void commitOnDate(String message, Date commitDate) {
-        HashMap<String, String> env = new HashMap<>();
-        env.put("GIT_AUTHOR_DATE", formatRFC822(commitDate));
-        CommandLine gitCmd = git().withArgs("commit", "-m", message).withEnv(env).withWorkingDir(workingDir);
-        runOrBomb(gitCmd);
-    }
-
-    public void checkoutRemoteBranchToLocal() {
-        CommandLine gitCmd = git().withArgs("checkout", "-b", branch, remoteBranch()).withWorkingDir(workingDir);
-        runOrBomb(gitCmd);
-    }
-
     private String remoteBranch() {
         return "origin/" + branch;
     }
 
-    public void fetch(ConsoleOutputStreamConsumer outputStreamConsumer) {
-        log(outputStreamConsumer, "Fetching changes");
-        CommandLine gitFetch = git().withArgs("fetch", "origin", "--prune", "--recurse-submodules=no").withWorkingDir(workingDir);
-
-        int result = run(gitFetch, outputStreamConsumer);
-        if (result != 0) {
-            throw new RuntimeException(String.format("git fetch failed for [%s]", this.workingRepositoryUrl()));
-        }
-        gc(outputStreamConsumer);
-    }
-
-    // Unshallow a shallow cloned repository with "git fetch --depth n".
-    // Special depth 2147483647 (Integer.MAX_VALUE) are treated as infinite -- fully unshallow
-    // https://git-scm.com/docs/git-fetch-pack
-    public void unshallow(ConsoleOutputStreamConsumer outputStreamConsumer, Integer depth) {
-        log(outputStreamConsumer, "Unshallowing repository with depth %d", depth);
-        CommandLine gitFetch = git()
-                .withArgs("fetch", "origin")
-                .withArg(String.format("--depth=%d", depth))
-                .withWorkingDir(workingDir);
-
-        int result = run(gitFetch, outputStreamConsumer);
-        if (result != 0) {
-            throw new RuntimeException(String.format("Unshallow repository failed for [%s]", this.workingRepositoryUrl()));
-        }
-    }
-
-
-    private int gc(ConsoleOutputStreamConsumer outputStreamConsumer) {
+    private void gc(ConsoleOutputStreamConsumer outputStreamConsumer) {
         log(outputStreamConsumer, "Performing git gc");
         CommandLine gitGc = git().withArgs("gc", "--auto").withWorkingDir(workingDir);
-        return run(gitGc, outputStreamConsumer);
-    }
-
-    public void init() {
-        CommandLine gitCmd = git().withArgs("init").withWorkingDir(workingDir);
-        runOrBomb(gitCmd);
-    }
-
-    public List<String> submoduleFolders() {
-        CommandLine gitCmd = git().withArgs("submodule", "status").withWorkingDir(workingDir);
-        ConsoleResult result = runOrBomb(gitCmd);
-        return submoduleFolders(result.output());
-    }
-
-    public ConsoleResult diffTree(String node) {
-        CommandLine gitCmd = git().withArgs("diff-tree", "--name-status", "--root", "-r", node).withWorkingDir(workingDir);
-        return runOrBomb(gitCmd);
-    }
-
-    public void submoduleAdd(String repoUrl, String submoduleNameToPutInGitSubmodules, String folder) {
-        String[] addSubmoduleWithSameNameArgs = new String[]{"submodule", "add", repoUrl, folder};
-        String[] changeSubmoduleNameInGitModules = new String[]{"config", "--file", ".gitmodules", "--rename-section", "submodule." + folder, "submodule." + submoduleNameToPutInGitSubmodules};
-        String[] addGitModules = new String[]{"add", ".gitmodules"};
-        String[] changeSubmoduleNameInGitConfig = new String[]{"config", "--file", ".git/config", "--rename-section", "submodule." + folder, "submodule." + submoduleNameToPutInGitSubmodules};
-
-        runOrBomb(git().withArgs(addSubmoduleWithSameNameArgs).withWorkingDir(workingDir));
-        runOrBomb(git().withArgs(changeSubmoduleNameInGitModules).withWorkingDir(workingDir));
-        runOrBomb(git().withArgs(addGitModules).withWorkingDir(workingDir));
-    }
-
-    public void submoduleRemove(String folderName) {
-        configRemoveSection("submodule." + folderName);
-        CommandLine gitConfig = git().withArgs("config", "-f", ".gitmodules", "--remove-section", "submodule." + folderName).withWorkingDir(workingDir);
-        runOrBomb(gitConfig);
-
-        CommandLine gitAdd = git().withArgs("add", ".gitmodules").withWorkingDir(workingDir);
-        runOrBomb(gitAdd);
-
-        CommandLine gitRm = git().withArgs("rm", "--cached", folderName).withWorkingDir(workingDir);
-        runOrBomb(gitRm);
-        FileUtils.deleteQuietly(new File(workingDir, folderName));
-    }
-
-    public String currentRevision() {
-        String[] args = new String[]{"log", "-1", "--pretty=format:%H"};
-
-        CommandLine gitCmd = git().withArgs(args).withWorkingDir(workingDir);
-        return runOrBomb(gitCmd).outputAsString();
+        run(gitGc, outputStreamConsumer);
     }
 
     private List<String> submoduleFolders(List<String> submoduleLines) {
@@ -453,62 +507,6 @@ public class GitCommand extends SCMCommand {
             submoduleFolders.add(m.group(1));
         }
         return submoduleFolders;
-    }
-
-    public Map<String, String> submoduleUrls() {
-        String[] args = new String[]{"config", "--get-regexp", "^submodule\\..+\\.url"};
-
-        CommandLine gitCmd = git().withArgs(args).withWorkingDir(workingDir);
-        ConsoleResult result = runOrBomb(gitCmd, false);
-        List<String> submoduleList = result.output();
-        HashMap<String, String> submoduleUrls = new HashMap<>();
-        for (String submoduleLine : submoduleList) {
-            Matcher m = GIT_SUBMODULE_URL_PATTERN.matcher(submoduleLine);
-            if (!m.find()) {
-                bomb("Unable to parse git-config output line: " + result.replaceSecretInfo(submoduleLine) + "\n"
-                        + "From output:\n"
-                        + result.replaceSecretInfo(StringUtils.join(submoduleList, "\n")));
-            }
-            submoduleUrls.put(m.group(1), m.group(2));
-        }
-        return submoduleUrls;
-    }
-
-    public String getCurrentBranch() {
-        CommandLine getCurrentBranchCommand = git().withArg("rev-parse").withArg("--abbrev-ref").withArg("HEAD").withWorkingDir(workingDir);
-        ConsoleResult consoleResult = runOrBomb(getCurrentBranchCommand);
-        return consoleResult.outputAsString();
-    }
-
-    public void changeSubmoduleUrl(String submoduleName, String newUrl) {
-        String[] args = new String[]{"config", "--file", ".gitmodules", "submodule." + submoduleName + ".url", newUrl};
-        CommandLine gitConfig = git().withArgs(args).withWorkingDir(workingDir);
-        runOrBomb(gitConfig);
-    }
-
-    public void submoduleSync() {
-        String[] syncArgs = new String[]{"submodule", "sync"};
-        CommandLine syncCmd = git().withArgs(syncArgs).withWorkingDir(workingDir);
-        runOrBomb(syncCmd);
-
-        List<String> foreachArgs = submoduleForEachRecursive(asList("git", "submodule", "sync"));
-        CommandLine foreachCmd = git().withArgs(foreachArgs).withWorkingDir(workingDir);
-        runOrBomb(foreachCmd);
-    }
-
-    public boolean isShallow() {
-        return new File(workingDir, ".git/shallow").exists();
-    }
-
-    public boolean containsRevisionInBranch(Revision revision) {
-        String[] args = {"branch", "-r", "--contains", revision.getRevision()};
-        CommandLine gitCommand = git().withArgs(args).withWorkingDir(workingDir);
-        try {
-            ConsoleResult consoleResult = runOrBomb(gitCommand);
-            return (consoleResult.outputAsString()).contains(remoteBranch());
-        } catch (CommandLineException e) {
-            return false;
-        }
     }
 
     private void log(ConsoleOutputStreamConsumer outputStreamConsumer, String message, Object... args) {

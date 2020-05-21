@@ -34,10 +34,12 @@ import java.util.function.Function;
 public class Database {
 
     private final ConnectionManager connectionManager;
+    private SystemEnvironment systemEnvironment;
 
     @Autowired
     public Database(SystemEnvironment systemEnvironment) {
         this.connectionManager = new ConnectionManager(System.getProperties(), systemEnvironment.configDir(), decryptionFunction());
+        this.systemEnvironment = systemEnvironment;
     }
 
     private static Function<String, String> decryptionFunction() {
@@ -54,7 +56,7 @@ public class Database {
     public BasicDataSource getDataSource() throws SQLException {
         BasicDataSource dataSource = connectionManager.getDataSourceInstance();
         try (Connection connection = dataSource.getConnection()) {
-            new DbDeploySchemaVerifier().verify(connection);
+            new DbDeploySchemaVerifier().verify(connection, systemEnvironment.getConfigDir());
         }
 
         try (Connection connection = dataSource.getConnection()) {

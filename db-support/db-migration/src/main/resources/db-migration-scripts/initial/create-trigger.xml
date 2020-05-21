@@ -40,7 +40,7 @@
             CREATE TRIGGER lastTransitionedTimeUpdate
                 AFTER INSERT ON buildStateTransitions
                 FOR EACH ROW
-                CALL "com.thoughtworks.go.server.database.h2.UpdateLastTransitionedTim";
+                CALL "com.thoughtworks.go.server.database.h2.UpdateLastTransitionedTime";
             <!-- @formatter:on -->
         </sql>
         <createProcedure dbms="mysql">

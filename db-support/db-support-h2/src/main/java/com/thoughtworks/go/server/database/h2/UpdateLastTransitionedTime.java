@@ -23,7 +23,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class UpdateLastTransitionedTim implements Trigger {
+public class UpdateLastTransitionedTime implements Trigger {
 
     private static final int STATE_TRANSITION_TIMESTAMP = 2;
     private static final int STAGE_ID = 4;

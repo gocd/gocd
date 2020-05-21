@@ -52,7 +52,7 @@ import static org.junit.Assert.assertThat;
         "classpath:/testPropertyConfigurer.xml",
         "classpath:/spring-all-servlet.xml",
 })
-public class GoRepoConfigDataSourceIntegrationTest {
+public class GoConfigRepoConfigDataSourceIntegrationTest {
 
     @Autowired
     private ServerHealthService serverHealthService;
@@ -85,7 +85,7 @@ public class GoRepoConfigDataSourceIntegrationTest {
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
 
-        GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
+        GoConfigRepoConfigDataSource repoConfigDataSource = new GoConfigRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
         repoConfigDataSource.registerListener(new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, entityHashingService));
 
         configHelper.addTemplate("t1", "param1", "stage");

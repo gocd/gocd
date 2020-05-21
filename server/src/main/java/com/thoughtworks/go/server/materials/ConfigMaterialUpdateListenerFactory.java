@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.GoRepoConfigDataSource;
+import com.thoughtworks.go.config.GoConfigRepoConfigDataSource;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.MaterialService;
@@ -27,18 +27,18 @@ import static java.util.stream.IntStream.range;
 
 @Component
 public class ConfigMaterialUpdateListenerFactory {
-    private ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue;
-    private final GoRepoConfigDataSource repoConfigDataSource;
+    private final ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue;
+    private final GoConfigRepoConfigDataSource repoConfigDataSource;
     private final MaterialRepository materialRepository;
     private final MaterialUpdateCompletedTopic materialUpdateCompletedTopic;
     private final MaterialService materialService;
     private final SubprocessExecutionContext subprocessExecutionContext;
-    private SystemEnvironment systemEnvironment;
+    private final SystemEnvironment systemEnvironment;
 
     @Autowired
     public ConfigMaterialUpdateListenerFactory(SystemEnvironment systemEnvironment,
                                                ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue,
-                                               GoRepoConfigDataSource repoConfigDataSource,
+                                               GoConfigRepoConfigDataSource repoConfigDataSource,
                                                MaterialRepository materialRepository,
                                                MaterialUpdateCompletedTopic materialUpdateCompletedTopic,
                                                MaterialService materialService,

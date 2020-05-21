@@ -41,12 +41,12 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class GoRepoConfigDataSourceTest {
+public class GoConfigRepoConfigDataSourceTest {
     private GoConfigPluginService configPluginService;
     private GoConfigWatchList configWatchList;
     private PartialConfigProvider plugin;
 
-    private GoRepoConfigDataSource repoConfigDataSource;
+    private GoConfigRepoConfigDataSource repoConfigDataSource;
 
     private BasicCruiseConfig cruiseConfig;
     private ServerHealthService serverHealthService;
@@ -69,7 +69,7 @@ public class GoRepoConfigDataSourceTest {
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
         configWatchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
-        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
+        repoConfigDataSource = new GoConfigRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
 
         ScmMaterialConfig material = git("http://my.git");
         ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(material, "myplugin", "id");
@@ -177,7 +177,7 @@ public class GoRepoConfigDataSourceTest {
     }
 
     private class AssertingConfigPlugin implements PartialConfigProvider {
-        private Configuration configuration;
+        private final Configuration configuration;
 
         public AssertingConfigPlugin(Configuration configuration) {
 
@@ -338,7 +338,7 @@ public class GoRepoConfigDataSourceTest {
         GitMaterialConfig material = git("http://my.git");
         ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(material, "myplugin", "id");
         GoConfigWatchList goConfigWatchList = mock(GoConfigWatchList.class);
-        repoConfigDataSource = new GoRepoConfigDataSource(goConfigWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
+        repoConfigDataSource = new GoConfigRepoConfigDataSource(goConfigWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
 
         when(goConfigWatchList.getConfigRepoForMaterial(material)).thenReturn(configRepoConfig);
 
@@ -352,7 +352,7 @@ public class GoRepoConfigDataSourceTest {
         GitMaterialConfig material = git("http://my.git");
         ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(material, "myplugin", "id");
         GoConfigWatchList goConfigWatchList = mock(GoConfigWatchList.class);
-        repoConfigDataSource = new GoRepoConfigDataSource(goConfigWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
+        repoConfigDataSource = new GoConfigRepoConfigDataSource(goConfigWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
 
         when(goConfigWatchList.getConfigRepoForMaterial(material)).thenReturn(configRepoConfig);
         when(goConfigWatchList.hasConfigRepoWithFingerprint(material.getFingerprint())).thenReturn(true);

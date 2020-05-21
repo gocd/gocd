@@ -49,7 +49,8 @@ import static junit.framework.Assert.fail;
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -76,7 +77,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     @Autowired
     private MaterialUpdateService materialUpdateService;
     @Autowired
-    private GoRepoConfigDataSource goRepoConfigDataSource;
+    private GoConfigRepoConfigDataSource goConfigRepoConfigDataSource;
     @Autowired
     private SystemEnvironment systemEnvironment;
     @Autowired
@@ -84,7 +85,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     @Autowired
     private CachedGoConfig cachedGoConfig;
 
-    private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     public DiskSpaceSimulator diskSpaceSimulator;
 
@@ -161,7 +162,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     private void assertInProgressState() throws InterruptedException {
         HealthStateScope healthStateScope = HealthStateScope.forPartialConfigRepo(material.config().getFingerprint());
         int i = 0;
-        while (serverHealthService.filterByScope(healthStateScope).isEmpty() && goRepoConfigDataSource.getRevisionAtLastAttempt(material.config()) == null) {
+        while (serverHealthService.filterByScope(healthStateScope).isEmpty() && goConfigRepoConfigDataSource.getRevisionAtLastAttempt(material.config()) == null) {
             if (!materialUpdateService.isInProgress(material))
                 Assert.fail("should be still in progress");
 
@@ -176,10 +177,10 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         materialUpdateService.updateMaterial(material);
         waitForMaterialNotInProgress();
 
-        String revision = goRepoConfigDataSource.getRevisionAtLastAttempt(materialConfig);
+        String revision = goConfigRepoConfigDataSource.getRevisionAtLastAttempt(materialConfig);
         assertNotNull(revision);
 
-        PartialConfig partial = goRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
+        PartialConfig partial = goConfigRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
         assertThat(partial.getGroups().size(), is(0));
         assertThat(partial.getEnvironments().size(), is(0));
     }
@@ -200,16 +201,16 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
         waitForMaterialNotInProgress();
-        String revision = goRepoConfigDataSource.getRevisionAtLastAttempt(materialConfig);
+        String revision = goConfigRepoConfigDataSource.getRevisionAtLastAttempt(materialConfig);
         assertNotNull(revision);
-        PartialConfig partial = goRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
+        PartialConfig partial = goConfigRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
 
         hgRepo.commitAndPushFile("newFile.bla", "could be config file");
 
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
         waitForMaterialNotInProgress();
-        PartialConfig partial2 = goRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
+        PartialConfig partial2 = goConfigRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
         assertNotSame(partial, partial2);
         assertThat("originsShouldDiffer", partial2.getOrigin(), is(not(partial.getOrigin())));
     }
@@ -226,7 +227,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         materialUpdateService.updateMaterial(material);
         // time for messages to pass through all services
         waitForMaterialNotInProgress();
-        PartialConfig partial = goRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
+        PartialConfig partial = goConfigRepoConfigDataSource.latestPartialConfigForMaterial(materialConfig);
         assertNotNull(partial);
         assertThat(partial.getGroups().get(0).size(), is(1));
         assertThat(partial.getGroups().get(0).get(0), is(pipelineConfig));

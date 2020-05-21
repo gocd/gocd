@@ -105,7 +105,7 @@ public class CachedGoConfigIntegrationTest {
     @Autowired
     private GoConfigWatchList configWatchList;
     @Autowired
-    private GoRepoConfigDataSource repoConfigDataSource;
+    private GoConfigRepoConfigDataSource repoConfigDataSource;
     @Autowired
     private CachedGoConfig cachedGoConfig;
     private GoConfigFileHelper configHelper;

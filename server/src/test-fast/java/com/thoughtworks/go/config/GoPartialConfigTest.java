@@ -44,7 +44,7 @@ public class GoPartialConfigTest {
     private GoConfigPluginService configPluginService;
     private GoConfigWatchList configWatchList;
     private PartialConfigProvider plugin;
-    private GoRepoConfigDataSource repoConfigDataSource;
+    private GoConfigRepoConfigDataSource repoConfigDataSource;
     private BasicCruiseConfig cruiseConfig;
     private GoPartialConfig partialConfig;
     private CachedGoConfig cachedGoConfig;
@@ -73,7 +73,7 @@ public class GoPartialConfigTest {
 
         configWatchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
         goConfigService = mock(GoConfigService.class);
-        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
+        repoConfigDataSource = new GoConfigRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
         cachedGoPartials = new CachedGoPartials(serverHealthService);
         serverHealthService = mock(ServerHealthService.class);
 
@@ -251,7 +251,7 @@ public class GoPartialConfigTest {
         partialConfig = new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, entityHashingService);
 
         partialConfig.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withEnvironment("env1"));
-        verify(cachedGoPartials, never()).addOrUpdate(any(String.class), any(PartialConfig.class));
+        verify(cachedGoPartials, never()).cacheAsLastKnown(any(String.class), any(PartialConfig.class));
     }
 
     @Test
@@ -271,7 +271,7 @@ public class GoPartialConfigTest {
 
         final PartialConfig partial = PartialConfigMother.withEnvironment("env2");
         partialConfig.onSuccessPartialConfig(configRepoConfig, partial);
-        verify(cachedGoPartials, times(1)).addOrUpdate(configRepoConfig.getRepo().getFingerprint(), partial);
+        verify(cachedGoPartials, times(1)).cacheAsLastKnown(configRepoConfig.getRepo().getFingerprint(), partial);
     }
 
     private Modification getModificationFor(String revision) {

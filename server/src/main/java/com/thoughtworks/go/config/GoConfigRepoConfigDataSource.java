@@ -46,21 +46,21 @@ import static java.util.Collections.synchronizedSet;
  * Parses partial configurations and exposes latest configurations as soon as possible.
  */
 @Component
-public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GoRepoConfigDataSource.class);
+public class GoConfigRepoConfigDataSource implements ChangedRepoConfigWatchListListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigRepoConfigDataSource.class);
     private final ServerHealthService serverHealthService;
-    private GoConfigPluginService configPluginService;
-    private GoConfigWatchList configWatchList;
-    private ConfigReposMaterialParseResultManager configReposMaterialParseResultManager;
-    private GoConfigService goConfigService;
+    private final GoConfigPluginService configPluginService;
+    private final GoConfigWatchList configWatchList;
+    private final ConfigReposMaterialParseResultManager configReposMaterialParseResultManager;
+    private final GoConfigService goConfigService;
 
-    private List<PartialConfigUpdateCompletedListener> listeners = new ArrayList<>();
-    private Set<ConfigRepoConfig> modifiedConfigRepoConfigsAwaitingParse = synchronizedSet(new HashSet<>());
+    private final List<PartialConfigUpdateCompletedListener> listeners = new ArrayList<>();
+    private final Set<ConfigRepoConfig> modifiedConfigRepoConfigsAwaitingParse = synchronizedSet(new HashSet<>());
 
     @Autowired
-    public GoRepoConfigDataSource(GoConfigWatchList configWatchList, GoConfigPluginService configPluginService,
-                                  ServerHealthService healthService, ConfigRepoService configRepoService,
-                                  GoConfigService goConfigService) {
+    public GoConfigRepoConfigDataSource(GoConfigWatchList configWatchList, GoConfigPluginService configPluginService,
+                                        ServerHealthService healthService, ConfigRepoService configRepoService,
+                                        GoConfigService goConfigService) {
         this.configReposMaterialParseResultManager = new ConfigReposMaterialParseResultManager(healthService, configRepoService);
         this.configPluginService = configPluginService;
         this.serverHealthService = healthService;
@@ -138,6 +138,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
             PartialConfigProvider plugin = null;
             ConfigRepoConfig repoConfig = configWatchList.getConfigRepoForMaterial(material);
             HealthStateScope scope = HealthStateScope.forPartialConfigRepo(repoConfig);
+
             try {
                 plugin = this.configPluginService.partialConfigProviderFor(repoConfig);
             } catch (Exception ex) {
@@ -164,7 +165,8 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
 
                 newPart.setOrigins(new RepoConfigOrigin(repoConfig, modification.getRevision()));
                 this.configReposMaterialParseResultManager.parseSuccess(fingerprint, modification, newPart);
-                serverHealthService.removeByScope(scope);
+
+                // it is the responsibility of the success listeners to clear the ServerHealthState
                 notifySuccessListeners(repoConfig, newPart);
             } catch (Exception ex) {
                 this.configReposMaterialParseResultManager.parseFailed(fingerprint, modification, ex);
@@ -194,6 +196,12 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
     }
 
     private void notifySuccessListeners(ConfigRepoConfig repoConfig, PartialConfig newPart) {
+        if (this.listeners.isEmpty()) {
+            // likely to never get here, but including for logical completeness
+            serverHealthService.removeByScope(HealthStateScope.forPartialConfigRepo(repoConfig));
+            return;
+        }
+
         for (PartialConfigUpdateCompletedListener listener : this.listeners) {
             try {
                 listener.onSuccessPartialConfig(repoConfig, newPart);
@@ -212,7 +220,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
     }
 
     private class LoadContext implements PartialConfigLoadContext {
-        private ConfigRepoConfig repoConfig;
+        private final ConfigRepoConfig repoConfig;
 
         public LoadContext(ConfigRepoConfig repoConfig) {
             this.repoConfig = repoConfig;

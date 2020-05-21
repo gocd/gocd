@@ -31,7 +31,11 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.HgTestRepo;
+import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.PipelineMother;
+import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.helper.ConfigTestRepo;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -79,36 +83,57 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private ServerHealthService serverHealthService;
-    @Autowired private ScheduleHelper scheduleHelper;
-    @Autowired private PipelineDao pipelineDao;
-    @Autowired private PipelineTimeline pipelineTimeline;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private MaterialDatabaseUpdater materialDatabaseUpdater;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private MaterialUpdateService materialUpdateService;
-    @Autowired private GoRepoConfigDataSource goRepoConfigDataSource;
-    @Autowired private SystemEnvironment systemEnvironment;
-    @Autowired private MaterialConfigConverter materialConfigConverter;
-    @Autowired private ConfigCache configCache;
-    @Autowired private CachedGoConfig cachedGoConfig;
-    @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
-    @Autowired private PipelineScheduler buildCauseProducer;
-    @Autowired private BuildCauseProducerService buildCauseProducerService;
-    @Autowired private MaterialChecker materialChecker;
-    @Autowired private MaintenanceModeService maintenanceModeService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private ServerHealthService serverHealthService;
+    @Autowired
+    private ScheduleHelper scheduleHelper;
+    @Autowired
+    private PipelineDao pipelineDao;
+    @Autowired
+    private PipelineTimeline pipelineTimeline;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private MaterialDatabaseUpdater materialDatabaseUpdater;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private MaterialUpdateService materialUpdateService;
+    @Autowired
+    private GoConfigRepoConfigDataSource goConfigRepoConfigDataSource;
+    @Autowired
+    private SystemEnvironment systemEnvironment;
+    @Autowired
+    private MaterialConfigConverter materialConfigConverter;
+    @Autowired
+    private ConfigCache configCache;
+    @Autowired
+    private CachedGoConfig cachedGoConfig;
+    @Autowired
+    private PipelineScheduleQueue pipelineScheduleQueue;
+    @Autowired
+    private PipelineScheduler buildCauseProducer;
+    @Autowired
+    private BuildCauseProducerService buildCauseProducerService;
+    @Autowired
+    private MaterialChecker materialChecker;
+    @Autowired
+    private MaintenanceModeService maintenanceModeService;
 
-    @Autowired private MaterialUpdateCompletedTopic topic;
+    @Autowired
+    private MaterialUpdateCompletedTopic topic;
 
     private GoDiskSpaceMonitor goDiskSpaceMonitor;
 
-    private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
     private MagicalGoConfigXmlWriter xmlWriter;
 
-    private  ConfigTestRepo configTestRepo;
+    private ConfigTestRepo configTestRepo;
     private DiskSpaceSimulator diskSpaceSimulator;
     private HgTestRepo hgRepo;
     private HgMaterialConfig materialConfig;
@@ -147,7 +172,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
         configTestRepo = new ConfigTestRepo(hgRepo, xmlWriter);
-        this.material = (HgMaterial)materialConfigConverter.toMaterial(materialConfig);
+        this.material = (HgMaterial) materialConfigConverter.toMaterial(materialConfig);
 
         pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build", "test");
         pipelineConfig.materialConfigs().clear();
@@ -168,7 +193,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         Materials materials = materialConfigConverter.toMaterials(pipelineConfig.materialConfigs());
         MaterialRevisions peggedRevisions = new MaterialRevisions();
         firstRevisions = materialChecker.findLatestRevisions(peggedRevisions, materials);
-        assertThat(firstRevisions.isMissingModifications(),is(false));
+        assertThat(firstRevisions.isMissingModifications(), is(false));
     }
 
     @After
@@ -186,7 +211,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         int i = 0;
         while (materialUpdateService.isInProgress(material)) {
             Thread.sleep(100);
-            if(i++ > 100)
+            if (i++ > 100)
                 fail("material is hung - more than 10 seconds in progress");
         }
     }
@@ -210,21 +235,21 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
     @Test
     public void shouldSchedulePipeline() throws Exception {
-        configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file","some java code");
+        configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file", "some java code");
         materialUpdateService.updateMaterial(material);
         waitForMaterialNotInProgress();
 
-        buildCauseProducerService.autoSchedulePipeline(PIPELINE_NAME,new ServerHealthStateOperationResult(),123);
+        buildCauseProducerService.autoSchedulePipeline(PIPELINE_NAME, new ServerHealthStateOperationResult(), 123);
         assertThat(scheduleHelper.waitForAnyScheduled(5).keySet(), hasItem(new CaseInsensitiveString(PIPELINE_NAME)));
     }
 
     @Test
     public void shouldNotSchedulePipelineWhenPartIsInvalid() throws Exception {
-        configTestRepo.addCodeToRepositoryAndPush(fileName, "added broken config file","bad bad config");
+        configTestRepo.addCodeToRepositoryAndPush(fileName, "added broken config file", "bad bad config");
         materialUpdateService.updateMaterial(material);
         waitForMaterialNotInProgress();
 
-        assertThat(goRepoConfigDataSource.latestParseHasFailedForMaterial(material.config()),is(true));
+        assertThat(goConfigRepoConfigDataSource.latestParseHasFailedForMaterial(material.config()), is(true));
 
         buildCauseProducerService.autoSchedulePipeline(PIPELINE_NAME, new ServerHealthStateOperationResult(), 123);
         scheduleHelper.waitForNotScheduled(5, PIPELINE_NAME);
@@ -236,7 +261,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         materialUpdateService.updateMaterial(material);
         waitForMaterialNotInProgress();
 
-        assertThat(goRepoConfigDataSource.latestParseHasFailedForMaterial(material.config()),is(true));
+        assertThat(goConfigRepoConfigDataSource.latestParseHasFailedForMaterial(material.config()), is(true));
 
         final HashMap<String, String> revisions = new HashMap<>();
         final HashMap<String, String> environmentVariables = new HashMap<>();
@@ -253,7 +278,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         String lastValidPushedRevision = this.firstRevisions.latestRevision();
         assertThat("revisionOfPipelineConfigOriginShouldMatchLastValidPushedCommit",
-                configOriginAfterSchedule.getRevision(),is(lastValidPushedRevision));
+                configOriginAfterSchedule.getRevision(), is(lastValidPushedRevision));
         assertThat("buildCauseRevisionShouldMatchLastPushedCommit",
                 cause.getMaterialRevisions().latestRevision(), is(lastPush.get(0).getRevision()));
     }
@@ -263,12 +288,12 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         // we will use this worker to force material update without updating config
         MaterialUpdateListener byPassWorker = new MaterialUpdateListener(topic, materialDatabaseUpdater, logger, goDiskSpaceMonitor, maintenanceModeService);
         List<Modification> mod = configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file", "some java code");
-        byPassWorker.onMessage(new MaterialUpdateMessage(material,123));
+        byPassWorker.onMessage(new MaterialUpdateMessage(material, 123));
         //now db should have been updated, but config is still old
         RepoConfigOrigin configOrigin = (RepoConfigOrigin) goConfigService.pipelineConfigNamed(new CaseInsensitiveString(PIPELINE_NAME)).getOrigin();
-        assertThat(configOrigin.getRevision(),is(firstRevisions.latestRevision()));
+        assertThat(configOrigin.getRevision(), is(firstRevisions.latestRevision()));
 
-        buildCauseProducerService.autoSchedulePipeline(PIPELINE_NAME,new ServerHealthStateOperationResult(),123);
+        buildCauseProducerService.autoSchedulePipeline(PIPELINE_NAME, new ServerHealthStateOperationResult(), 123);
         scheduleHelper.waitForNotScheduled(5, PIPELINE_NAME);
     }
 
@@ -298,7 +323,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         RepoConfigOrigin configOrigin = (RepoConfigOrigin) goConfigService.pipelineConfigNamed(new CaseInsensitiveString(PIPELINE_NAME)).getOrigin();
         RepoConfigOrigin upstreamOrigin = (RepoConfigOrigin) goConfigService.pipelineConfigNamed(new CaseInsensitiveString(downstreamPipelineName)).getOrigin();
-        assertThat(configOrigin ,is(upstreamOrigin));
+        assertThat(configOrigin, is(upstreamOrigin));
 
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(downstreamPipelineName);
         scheduleHelper.waitForAnyScheduled(5);
@@ -318,10 +343,10 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         // we will use this worker to force material update without updating config
         MaterialUpdateListener byPassWorker = new MaterialUpdateListener(topic, materialDatabaseUpdater, logger, goDiskSpaceMonitor, maintenanceModeService);
         List<Modification> lastPush = configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file", "some java code");
-        byPassWorker.onMessage(new MaterialUpdateMessage(material,123));
+        byPassWorker.onMessage(new MaterialUpdateMessage(material, 123));
         //now db should have been updated, but config is still old
         RepoConfigOrigin configOrigin = (RepoConfigOrigin) goConfigService.pipelineConfigNamed(new CaseInsensitiveString(PIPELINE_NAME)).getOrigin();
-        assertThat(configOrigin.getRevision(),is(firstRevisions.latestRevision()));
+        assertThat(configOrigin.getRevision(), is(firstRevisions.latestRevision()));
 
         final HashMap<String, String> revisions = new HashMap<>();
         final HashMap<String, String> environmentVariables = new HashMap<>();
@@ -339,10 +364,9 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
 
     @Test
-    public void shouldReloadPipelineConfigurationWhenManuallyTriggered() throws Exception
-    {
+    public void shouldReloadPipelineConfigurationWhenManuallyTriggered() throws Exception {
         // we change configuration of the pipeline by pushing new stage to config repo
-        pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build", "test","newStage");
+        pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build", "test", "newStage");
         pipelineConfig.materialConfigs().clear();
         pipelineConfig.materialConfigs().add(materialConfig);
 
@@ -363,18 +387,17 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         String lastPushedRevision = mod.get(0).getRevision();
         assertThat("revisionOfPipelineConfigOriginShouldMatchLastPushedCommit",
-                configOriginAfterSchedule.getRevision(),is(lastPushedRevision));
+                configOriginAfterSchedule.getRevision(), is(lastPushedRevision));
         assertThat("buildCauseRevisionShouldMatchLastPushedCommit",
-                cause.getMaterialRevisions().latestRevision(),is(lastPushedRevision));
+                cause.getMaterialRevisions().latestRevision(), is(lastPushedRevision));
     }
 
     @Test
-    public void shouldNotScheduleWhenPipelineRemovedFromConfigRepoWhenManuallyTriggered() throws Exception
-    {
+    public void shouldNotScheduleWhenPipelineRemovedFromConfigRepoWhenManuallyTriggered() throws Exception {
         configTestRepo.addCodeToRepositoryAndPush(fileName, "removed pipeline from configuration",
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"38\">\n"
-                + "</cruise>");
+                        + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"38\">\n"
+                        + "</cruise>");
 
         final HashMap<String, String> revisions = new HashMap<>();
         final HashMap<String, String> environmentVariables = new HashMap<>();
@@ -384,13 +407,12 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         // config is correct
         cachedGoConfig.throwExceptionIfExists();
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), not(hasItem(new CaseInsensitiveString(PIPELINE_NAME))));
-        assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name()),is(false));
+        assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name()), is(false));
     }
 
 
     @Test
-    public void shouldReloadPipelineConfigurationAndUpdateNewMaterialWhenManuallyTriggered() throws Exception
-    {
+    public void shouldReloadPipelineConfigurationAndUpdateNewMaterialWhenManuallyTriggered() throws Exception {
         GitTestRepo otherGitRepo = new GitTestRepo(temporaryFolder);
 
         pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build", "test");
@@ -423,20 +445,19 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         String lastPushedRevision = mod.get(0).getRevision();
         assertThat("revisionOfPipelineConfigOriginShouldMatchLastPushedCommit",
-                configOriginAfterSchedule.getRevision(),is(lastPushedRevision));
+                configOriginAfterSchedule.getRevision(), is(lastPushedRevision));
         assertThat(pipelineConfig.materialConfigs(), hasItem(otherMaterialConfig));
         assertThat("buildCauseRevisionShouldMatchLastPushedCommit",
-                cause.getMaterialRevisions().latestRevision(),is(lastPushedRevision));
+                cause.getMaterialRevisions().latestRevision(), is(lastPushedRevision));
 
         // update of commited material happened during manual trigger
         MaterialRevisions modificationsInDb = materialRepository.findLatestModification(gitMaterial);
-        assertThat(modificationsInDb.latestRevision(),is(otherGitRepo.latestModification().get(0).getRevision()));
+        assertThat(modificationsInDb.latestRevision(), is(otherGitRepo.latestModification().get(0).getRevision()));
     }
 
 
     @Test
-    public void shouldSchedulePipelineRerunWithSpecifiedRevisions() throws Exception
-    {
+    public void shouldSchedulePipelineRerunWithSpecifiedRevisions() throws Exception {
         List<Modification> firstBuildModifications = configTestRepo.addCodeToRepositoryAndPush("a.java", "added first code file", "some java code");
         materialUpdateService.updateMaterial(material);
         waitForMaterialNotInProgress();
@@ -477,14 +498,13 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         String lastPushedRevision = secondBuildModifications.get(0).getRevision();
         assertThat("revisionOfPipelineConfigOriginShouldMatchLastPushedCommit",
-                configOriginAfterSchedule.getRevision(),is(lastPushedRevision));
+                configOriginAfterSchedule.getRevision(), is(lastPushedRevision));
         assertThat("buildCauseRevisionShouldMatchSpecifiedRevision",
-                cause.getMaterialRevisions().latestRevision(),is(explicitRevision));
+                cause.getMaterialRevisions().latestRevision(), is(explicitRevision));
     }
 
     @Test
-    public void shouldSchedulePipelineWithSameMaterialIn2DestinationsWhenManuallyTriggered_WithSpecifiedRevisions() throws Exception
-    {
+    public void shouldSchedulePipelineWithSameMaterialIn2DestinationsWhenManuallyTriggered_WithSpecifiedRevisions() throws Exception {
         pipelineConfig = PipelineConfigMother.createPipelineConfigWithStages("pipe1", "build", "test");
         pipelineConfig.materialConfigs().clear();
         materialConfig = hgRepo.createMaterialConfig("dest1");
@@ -535,10 +555,10 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
 
         String lastPushedRevision = secondBuildModifications.get(0).getRevision();
         assertThat("revisionOfPipelineConfigOriginShouldMatchLastPushedCommit",
-                configOriginAfterSchedule.getRevision(),is(lastPushedRevision));
+                configOriginAfterSchedule.getRevision(), is(lastPushedRevision));
         assertThat(pipelineConfigAfterSchedule.materialConfigs(), hasItem(otherMaterialConfig));
         assertThat("buildCauseRevisionShouldMatchSpecifiedRevision",
-                cause.getMaterialRevisions().latestRevision(),is(explicitRevision));
+                cause.getMaterialRevisions().latestRevision(), is(explicitRevision));
     }
 
 }

@@ -49,218 +49,218 @@ import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
 class ConfigReposInternalControllerV3Test implements SecurityServiceTrait, ControllerTrait<ConfigReposInternalControllerV3> {
-  private static final String TEST_PLUGIN_ID = "test.configrepo.plugin"
-  private static final String TEST_REPO_URL = "https://fakeurl.com"
-  private static final String ID_1 = "repo-01"
-  private static final String ID_2 = "repo-02"
+    private static final String TEST_PLUGIN_ID = "test.configrepo.plugin"
+    private static final String TEST_REPO_URL = "https://fakeurl.com"
+    private static final String ID_1 = "repo-01"
+    private static final String ID_2 = "repo-02"
 
-  @Mock
-  ConfigRepoService service
+    @Mock
+    ConfigRepoService service
 
-  @Mock
-  GoRepoConfigDataSource dataSource
+    @Mock
+    GoConfigRepoConfigDataSource dataSource
 
-  @Mock
-  MaterialUpdateService materialUpdateService
+    @Mock
+    MaterialUpdateService materialUpdateService
 
-  @Mock
-  MaterialConfigConverter converter
+    @Mock
+    MaterialConfigConverter converter
 
-  @Mock
-  private EnvironmentConfigService environmentConfigService
-  @Mock
-  private PipelineConfigsService pipelineConfigsService
-
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-    Policy directives = new Policy()
-    directives.add(new Allow("administer", "config_repo", "repo-*"))
-    RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
-
-    when(goConfigService.rolesForUser(any())).then({ InvocationOnMock invocation ->
-      CaseInsensitiveString username = invocation.getArguments()[0]
-      if (username == Username.ANONYMOUS.username) {
-        return []
-      }
-      return [roleConfig]
-    })
-    when(environmentConfigService.getEnvironmentNames()).thenReturn([])
-    when(pipelineConfigsService.getGroupsForUser(anyString())).thenReturn([])
-  }
-
-  @Override
-  ConfigReposInternalControllerV3 createControllerInstance() {
-    new ConfigReposInternalControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), service, dataSource, materialUpdateService, converter, environmentConfigService, pipelineConfigsService)
-  }
-
-  @Nested
-  class IndexSecurity implements SecurityTestTrait, NormalUserSecurity {
-    @Override
-    String getControllerMethodUnderTest() {
-      return "listRepos"
-    }
-
-    @Override
-    void makeHttpCall() {
-      getWithApiHeader(controller.controllerBasePath(), [:])
-    }
-  }
-
-  @Nested
-  class Index {
+    @Mock
+    private EnvironmentConfigService environmentConfigService
+    @Mock
+    private PipelineConfigsService pipelineConfigsService
 
     @BeforeEach
-    void setup() {
-      loginAsUser()
+    void setUp() {
+        initMocks(this)
+        Policy directives = new Policy()
+        directives.add(new Allow("administer", "config_repo", "repo-*"))
+        RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
+
+        when(goConfigService.rolesForUser(any())).then({ InvocationOnMock invocation ->
+            CaseInsensitiveString username = invocation.getArguments()[0]
+            if (username == Username.ANONYMOUS.username) {
+                return []
+            }
+            return [roleConfig]
+        })
+        when(environmentConfigService.getEnvironmentNames()).thenReturn([])
+        when(pipelineConfigsService.getGroupsForUser(anyString())).thenReturn([])
     }
 
-    @Test
-    void 'should list only those existing config repos, with associated parse results, for which the user has permission'() {
-      Modification modification = new Modification()
-      modification.setRevision("abc")
-
-      PartialConfig partialConfig = new PartialConfig()
-      PartialConfigParseResult result = PartialConfigParseResult.parseSuccess(modification, partialConfig);
-
-      ConfigReposConfig repos = new ConfigReposConfig(repo(ID_1), repo(ID_2), repo("test-id"))
-      when(service.getConfigRepos()).thenReturn(repos)
-      when(dataSource.getLastParseResult(repos.get(0).getRepo())).thenReturn(null)
-      when(dataSource.getLastParseResult(repos.get(1).getRepo())).thenReturn(result)
-
-      getWithApiHeader(controller.controllerBasePath())
-
-      assertThatResponse()
-        .isOk()
-        .hasJsonBody([
-        _links         : [
-          self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
-        ],
-        _embedded      : [
-          config_repos: [
-            expectedRepoJson(ID_1, null, null, false),
-            expectedRepoJson(ID_2, "abc", null, false)
-          ]
-        ],
-        auto_completion: [
-          [key: "pipeline", value: []],
-          [key: "environment", value: []],
-          [key: "pipeline_group", value: []]
-        ]
-      ])
+    @Override
+    ConfigReposInternalControllerV3 createControllerInstance() {
+        new ConfigReposInternalControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), service, dataSource, materialUpdateService, converter, environmentConfigService, pipelineConfigsService)
     }
 
-    @Test
-    void 'should return empty list if the user does not have permission to view any config repos'() {
-      ConfigReposConfig repos = new ConfigReposConfig(repo("test-id"), repo("another-id"))
-      when(service.getConfigRepos()).thenReturn(repos)
+    @Nested
+    class IndexSecurity implements SecurityTestTrait, NormalUserSecurity {
+        @Override
+        String getControllerMethodUnderTest() {
+            return "listRepos"
+        }
 
-      getWithApiHeader(controller.controllerBasePath())
-
-      def expectedJson = [
-        _links         : [
-          self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
-        ],
-        _embedded      : [
-          config_repos: []
-        ],
-        auto_completion: [
-          [key: "pipeline", value: []],
-          [key: "environment", value: []],
-          [key: "pipeline_group", value: []]
-        ]
-      ]
-      assertThatResponse()
-        .isOk()
-        .hasEtag("\"${new ConfigReposConfig().etag()}\"")
-        .hasJsonBody(expectedJson)
+        @Override
+        void makeHttpCall() {
+            getWithApiHeader(controller.controllerBasePath(), [:])
+        }
     }
 
-    @Test
-    void 'should set autocompletion values'() {
-      ConfigReposConfig repos = new ConfigReposConfig(repo("test-id"), repo("another-id"))
+    @Nested
+    class Index {
 
-      when(service.getConfigRepos()).thenReturn(repos)
-      when(environmentConfigService.getEnvironmentNames()).thenReturn(Arrays.asList("env1", "env2"))
-      when(pipelineConfigsService.getGroupsForUser(anyString())).thenReturn(Arrays.asList(new BasicPipelineConfigs("grp1", new Authorization(), PipelineConfigMother.pipelineConfig("pipeline"))))
+        @BeforeEach
+        void setup() {
+            loginAsUser()
+        }
 
-      getWithApiHeader(controller.controllerBasePath())
+        @Test
+        void 'should list only those existing config repos, with associated parse results, for which the user has permission'() {
+            Modification modification = new Modification()
+            modification.setRevision("abc")
 
-      def expectedJson = [
-        _links         : [
-          self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
-        ],
-        _embedded      : [
-          config_repos: []
-        ],
-        auto_completion: [
-          [
-            key  : "pipeline",
-            value: ["pipeline"]
-          ],
-          [
-            key  : "environment",
-            value: ["env1", "env2"]
-          ],
-          [
-            key  : "pipeline_group",
-            value: ["grp1"]
-          ]
-        ]
-      ]
+            PartialConfig partialConfig = new PartialConfig()
+            PartialConfigParseResult result = PartialConfigParseResult.parseSuccess(modification, partialConfig)
 
-      assertThatResponse()
-        .isOk()
-        .hasJsonBody(expectedJson)
+            ConfigReposConfig repos = new ConfigReposConfig(repo(ID_1), repo(ID_2), repo("test-id"))
+            when(service.getConfigRepos()).thenReturn(repos)
+            when(dataSource.getLastParseResult(repos.get(0).getRepo())).thenReturn(null)
+            when(dataSource.getLastParseResult(repos.get(1).getRepo())).thenReturn(result)
+
+            getWithApiHeader(controller.controllerBasePath())
+
+            assertThatResponse()
+                    .isOk()
+                    .hasJsonBody([
+                            _links         : [
+                                    self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
+                            ],
+                            _embedded      : [
+                                    config_repos: [
+                                            expectedRepoJson(ID_1, null, null, false),
+                                            expectedRepoJson(ID_2, "abc", null, false)
+                                    ]
+                            ],
+                            auto_completion: [
+                                    [key: "pipeline", value: []],
+                                    [key: "environment", value: []],
+                                    [key: "pipeline_group", value: []]
+                            ]
+                    ])
+        }
+
+        @Test
+        void 'should return empty list if the user does not have permission to view any config repos'() {
+            ConfigReposConfig repos = new ConfigReposConfig(repo("test-id"), repo("another-id"))
+            when(service.getConfigRepos()).thenReturn(repos)
+
+            getWithApiHeader(controller.controllerBasePath())
+
+            def expectedJson = [
+                    _links         : [
+                            self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
+                    ],
+                    _embedded      : [
+                            config_repos: []
+                    ],
+                    auto_completion: [
+                            [key: "pipeline", value: []],
+                            [key: "environment", value: []],
+                            [key: "pipeline_group", value: []]
+                    ]
+            ]
+            assertThatResponse()
+                    .isOk()
+                    .hasEtag("\"${new ConfigReposConfig().etag()}\"")
+                    .hasJsonBody(expectedJson)
+        }
+
+        @Test
+        void 'should set autocompletion values'() {
+            ConfigReposConfig repos = new ConfigReposConfig(repo("test-id"), repo("another-id"))
+
+            when(service.getConfigRepos()).thenReturn(repos)
+            when(environmentConfigService.getEnvironmentNames()).thenReturn(Arrays.asList("env1", "env2"))
+            when(pipelineConfigsService.getGroupsForUser(anyString())).thenReturn(Arrays.asList(new BasicPipelineConfigs("grp1", new Authorization(), PipelineConfigMother.pipelineConfig("pipeline"))))
+
+            getWithApiHeader(controller.controllerBasePath())
+
+            def expectedJson = [
+                    _links         : [
+                            self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
+                    ],
+                    _embedded      : [
+                            config_repos: []
+                    ],
+                    auto_completion: [
+                            [
+                                    key  : "pipeline",
+                                    value: ["pipeline"]
+                            ],
+                            [
+                                    key  : "environment",
+                                    value: ["env1", "env2"]
+                            ],
+                            [
+                                    key  : "pipeline_group",
+                                    value: ["grp1"]
+                            ]
+                    ]
+            ]
+
+            assertThatResponse()
+                    .isOk()
+                    .hasJsonBody(expectedJson)
+        }
     }
-  }
 
-  static Map expectedRepoJson(String id, String revision, String error, boolean isInProgress) {
-    return [
-      _links                     : [
-        self: [href: "http://test.host/go${Routes.ConfigRepos.id(id)}".toString()],
-        doc : [href: Routes.ConfigRepos.DOC],
-        find: [href: "http://test.host/go${Routes.ConfigRepos.find()}".toString()],
-      ],
+    static Map expectedRepoJson(String id, String revision, String error, boolean isInProgress) {
+        return [
+                _links                     : [
+                        self: [href: "http://test.host/go${Routes.ConfigRepos.id(id)}".toString()],
+                        doc : [href: Routes.ConfigRepos.DOC],
+                        find: [href: "http://test.host/go${Routes.ConfigRepos.find()}".toString()],
+                ],
 
-      id                         : id,
-      plugin_id                  : TEST_PLUGIN_ID,
-      material                   : [
-        type      : "hg",
-        attributes: [
-          name       : null,
-          url        : "${TEST_REPO_URL}/$id".toString(),
-          auto_update: true
+                id                         : id,
+                plugin_id                  : TEST_PLUGIN_ID,
+                material                   : [
+                        type      : "hg",
+                        attributes: [
+                                name       : null,
+                                url        : "${TEST_REPO_URL}/$id".toString(),
+                                auto_update: true
+                        ]
+                ],
+                configuration              : [],
+                rules                      : [],
+                material_update_in_progress: isInProgress,
+                parse_info                 : null == revision ? [:] : [
+                        error                     : error,
+                        good_modification         : [
+                                "username"     : null,
+                                "email_address": null,
+                                "revision"     : revision,
+                                "comment"      : null,
+                                "modified_time": null
+                        ],
+                        latest_parsed_modification: [
+                                "username"     : null,
+                                "email_address": null,
+                                "revision"     : revision,
+                                "comment"      : null,
+                                "modified_time": null
+                        ]
+                ]
         ]
-      ],
-      configuration              : [],
-      rules                      : [],
-      material_update_in_progress: isInProgress,
-      parse_info                 : null == revision ? [:] : [
-        error                     : error,
-        good_modification         : [
-          "username"     : null,
-          "email_address": null,
-          "revision"     : revision,
-          "comment"      : null,
-          "modified_time": null
-        ],
-        latest_parsed_modification: [
-          "username"     : null,
-          "email_address": null,
-          "revision"     : revision,
-          "comment"      : null,
-          "modified_time": null
-        ]
-      ]
-    ]
-  }
+    }
 
-  static ConfigRepoConfig repo(String id) {
-    HgMaterialConfig materialConfig = hg("${TEST_REPO_URL}/$id", "")
-    ConfigRepoConfig repo = ConfigRepoConfig.createConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
+    static ConfigRepoConfig repo(String id) {
+        HgMaterialConfig materialConfig = hg("${TEST_REPO_URL}/$id", "")
+        ConfigRepoConfig repo = ConfigRepoConfig.createConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
 
-    return repo
-  }
+        return repo
+    }
 
 }

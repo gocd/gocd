@@ -33,6 +33,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.lang.String.format;
+
 /**
  * @understands current state of configuration part.
  * <p/>
@@ -46,12 +48,14 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
     private final CachedGoPartials cachedGoPartials;
     private final ServerHealthService serverHealthService;
     private final EntityHashingService entityHashingService;
-    private final GoRepoConfigDataSource repoConfigDataSource;
+    private final GoConfigRepoConfigDataSource repoConfigDataSource;
     private final GoConfigWatchList configWatchList;
 
     @Autowired
-    public GoPartialConfig(GoRepoConfigDataSource repoConfigDataSource,
-                           GoConfigWatchList configWatchList, GoConfigService goConfigService, CachedGoPartials cachedGoPartials, ServerHealthService serverHealthService, EntityHashingService entityHashingService) {
+    public GoPartialConfig(GoConfigRepoConfigDataSource repoConfigDataSource,
+                           GoConfigWatchList configWatchList, GoConfigService goConfigService,
+                           CachedGoPartials cachedGoPartials, ServerHealthService serverHealthService,
+                           EntityHashingService entityHashingService) {
         this.repoConfigDataSource = repoConfigDataSource;
         this.configWatchList = configWatchList;
         this.goConfigService = goConfigService;
@@ -74,17 +78,15 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
     }
 
     @Override
-    public void onSuccessPartialConfig(ConfigRepoConfig repoConfig, PartialConfig newPart) {
-        String fingerprint = repoConfig.getRepo().getFingerprint();
+    public void onSuccessPartialConfig(ConfigRepoConfig repoConfig, PartialConfig incoming) {
+        final String fingerprint = repoConfig.getRepo().getFingerprint();
+
         if (this.configWatchList.hasConfigRepoWithFingerprint(fingerprint)) {
-            //TODO maybe validate new part without context of other partials or main config
+            if (shouldMergePartial(incoming, fingerprint, repoConfig)) {
+                cachedGoPartials.cacheAsLastKnown(fingerprint, incoming);
 
-            if (isPartialDifferentFromLastKnown(newPart, fingerprint) || repoConfigDataSource.hasConfigRepoConfigChangedSinceLastUpdate(repoConfig.getRepo())) {
-                // caches this partial as the last known merge attempt
-                cachedGoPartials.addOrUpdate(fingerprint, newPart);
-
-                if (updateConfig(newPart, fingerprint, repoConfig)) {
-                    cachedGoPartials.markAsValid(fingerprint, newPart);
+                if (updateConfig(incoming, fingerprint, repoConfig)) {
+                    cachedGoPartials.markAsValid(fingerprint, incoming);
                 }
             }
         }
@@ -123,12 +125,17 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
             return true;
         } catch (Exception e) {
             if (repoConfig != null) {
-                String description = String.format("%s- For Config Repo: %s", e.getMessage(), newPart.getOrigin().displayName());
+                String description = format("%s- For Config Repo: %s", e.getMessage(), newPart.getOrigin().displayName());
                 ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_MERGE, description, HealthStateType.general(HealthStateScope.forPartialConfigRepo(repoConfig)));
                 serverHealthService.update(state);
             }
             return false;
         }
+    }
+
+    private boolean shouldMergePartial(PartialConfig partial, String fingerprint, ConfigRepoConfig repoConfig) {
+        return isPartialDifferentFromLastKnown(partial, fingerprint) ||
+                repoConfigDataSource.hasConfigRepoConfigChangedSinceLastUpdate(repoConfig.getRepo());
     }
 
     /**

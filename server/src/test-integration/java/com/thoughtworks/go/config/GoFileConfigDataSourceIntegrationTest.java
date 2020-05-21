@@ -235,7 +235,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         String remotePipeline = "remote_pipeline";
         RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(this.repoConfig, "1");
         PartialConfig partialConfig = PartialConfigMother.pipelineWithDependencyMaterial(remotePipeline, upstream, repoConfigOrigin);
-        cachedGoPartials.addOrUpdate(this.repoConfig.getRepo().getFingerprint(), partialConfig);
+        cachedGoPartials.cacheAsLastKnown(this.repoConfig.getRepo().getFingerprint(), partialConfig);
         cachedGoPartials.markAllKnownAsValid();
         thrown.expect(RuntimeException.class);
         thrown.expectCause(Matchers.any(GoConfigInvalidException.class));
@@ -489,9 +489,9 @@ public class GoFileConfigDataSourceIntegrationTest {
         final String pipelineInMain = "pipeline_in_main";
         PartialConfig validPartialConfig = PartialConfigMother.withPipeline(pipelineOneFromConfigRepo, new RepoConfigOrigin(repoConfig, "1"));
         PartialConfig invalidPartialConfig = PartialConfigMother.invalidPartial(invalidPartial, new RepoConfigOrigin(repoConfig, "2"));
-        cachedGoPartials.addOrUpdate(repoConfig.getRepo().getFingerprint(), validPartialConfig);
+        cachedGoPartials.cacheAsLastKnown(repoConfig.getRepo().getFingerprint(), validPartialConfig);
         cachedGoPartials.markAllKnownAsValid();
-        cachedGoPartials.addOrUpdate(repoConfig.getRepo().getFingerprint(), invalidPartialConfig);
+        cachedGoPartials.cacheAsLastKnown(repoConfig.getRepo().getFingerprint(), invalidPartialConfig);
 
         GoFileConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(cruiseConfig -> {
             cruiseConfig.addPipeline("default", PipelineConfigMother.createPipelineConfig(pipelineInMain, "stage", "job"));
@@ -512,7 +512,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         String pipelineFromConfigRepo = "pipeline_from_config_repo";
         final String pipelineInMain = "pipeline_in_main";
         PartialConfig partialConfig = PartialConfigMother.withPipeline(pipelineFromConfigRepo, new RepoConfigOrigin(repoConfig, "r2"));
-        cachedGoPartials.addOrUpdate(repoConfig.getRepo().getFingerprint(), partialConfig);
+        cachedGoPartials.cacheAsLastKnown(repoConfig.getRepo().getFingerprint(), partialConfig);
         assertThat(cachedGoPartials.lastValidPartials().size(), is(1));
         assertThat(cachedGoPartials.lastValidPartials().get(0).getGroups().findGroup("group").hasPipeline(new CaseInsensitiveString(pipelineFromConfigRepo)), is(false));
 

@@ -148,7 +148,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
 
         for (int i = 0; i < configRepoDeletionThreadCount; i++) {
             ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(git("to-be-deleted-url" + i), "plugin", "to-be-deleted-" + i);
-            cachedGoPartials.addOrUpdate(configRepoConfig.getRepo().getFingerprint(), PartialConfigMother.withPipeline("to-be-deleted" + i, new RepoConfigOrigin(configRepoConfig, "plugin")));
+            cachedGoPartials.cacheAsLastKnown(configRepoConfig.getRepo().getFingerprint(), PartialConfigMother.withPipeline("to-be-deleted" + i, new RepoConfigOrigin(configRepoConfig, "plugin")));
             configRepos.add(configRepoConfig);
             Thread thread = configRepoDeleteThread(configRepoConfig, i);
             group4.add(thread);

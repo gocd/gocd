@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.GoRepoConfigDataSource;
+import com.thoughtworks.go.config.GoConfigRepoConfigDataSource;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -36,18 +36,18 @@ import static com.thoughtworks.go.domain.materials.Modification.modifications;
 import static org.mockito.Mockito.*;
 
 public class ConfigMaterialUpdateListenerTest {
-    private GoRepoConfigDataSource repoConfigDataSource;
+    private GoConfigRepoConfigDataSource repoConfigDataSource;
     private MaterialRepository materialRepository;
     private MaterialUpdateCompletedTopic topic;
     private ConfigMaterialUpdateListener configUpdater;
     private MaterialService materialService;
     private Material material;
-    private File folder = new File("checkoutDir");
+    private final File folder = new File("checkoutDir");
     private Modification svnModification;
 
     @Before
     public void SetUp() {
-        repoConfigDataSource = mock(GoRepoConfigDataSource.class);
+        repoConfigDataSource = mock(GoConfigRepoConfigDataSource.class);
         materialRepository = mock(MaterialRepository.class);
         topic = mock(MaterialUpdateCompletedTopic.class);
         materialService = mock(MaterialService.class);

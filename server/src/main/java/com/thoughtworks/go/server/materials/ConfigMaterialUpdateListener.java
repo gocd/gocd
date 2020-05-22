@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.GoRepoConfigDataSource;
+import com.thoughtworks.go.config.GoConfigRepoConfigDataSource;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Material;
@@ -36,13 +36,13 @@ import java.io.File;
 public class ConfigMaterialUpdateListener implements GoMessageListener<MaterialUpdateCompletedMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigMaterialUpdateListener.class);
 
-    private GoRepoConfigDataSource repoConfigDataSource;
-    private MaterialRepository materialRepository;
-    private MaterialUpdateCompletedTopic topic;
-    private MaterialService materialService;
-    private SubprocessExecutionContext subprocessExecutionContext;
+    private final GoConfigRepoConfigDataSource repoConfigDataSource;
+    private final MaterialRepository materialRepository;
+    private final MaterialUpdateCompletedTopic topic;
+    private final MaterialService materialService;
+    private final SubprocessExecutionContext subprocessExecutionContext;
 
-    public ConfigMaterialUpdateListener(GoRepoConfigDataSource repoConfigDataSource,
+    public ConfigMaterialUpdateListener(GoConfigRepoConfigDataSource repoConfigDataSource,
                                         MaterialRepository materialRepository,
                                         MaterialUpdateCompletedTopic topic,
                                         MaterialService materialService,

@@ -30,8 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class CachedGoPartials implements PartialConfigResolver {
     private final ServerHealthService serverHealthService;
-    private Map<String, PartialConfig> fingerprintToLatestValidConfigMap = new ConcurrentHashMap<>();
-    private Map<String, PartialConfig> fingerprintToLatestKnownConfigMap = new ConcurrentHashMap<>();
+    private final Map<String, PartialConfig> fingerprintToLatestValidConfigMap = new ConcurrentHashMap<>();
+    private final Map<String, PartialConfig> fingerprintToLatestKnownConfigMap = new ConcurrentHashMap<>();
 
     @Autowired
     public CachedGoPartials(ServerHealthService serverHealthService) {
@@ -76,7 +76,7 @@ public class CachedGoPartials implements PartialConfigResolver {
         }
     }
 
-    public void addOrUpdate(String fingerprint, PartialConfig newPart) {
+    public void cacheAsLastKnown(String fingerprint, PartialConfig newPart) {
         fingerprintToLatestKnownConfigMap.put(fingerprint, newPart);
     }
 

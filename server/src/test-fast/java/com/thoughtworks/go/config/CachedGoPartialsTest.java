@@ -49,8 +49,8 @@ public class CachedGoPartialsTest {
         part1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(configRepo1, "1"));
         configRepo2 = ConfigRepoConfig.createConfigRepoConfig(git("url2"), "plugin", "id2");
         part2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(configRepo2, "1"));
-        partials.addOrUpdate(configRepo1.getRepo().getFingerprint(), part1);
-        partials.addOrUpdate(configRepo2.getRepo().getFingerprint(), part2);
+        partials.cacheAsLastKnown(configRepo1.getRepo().getFingerprint(), part1);
+        partials.cacheAsLastKnown(configRepo2.getRepo().getFingerprint(), part2);
         fingerprintForRepo1 = ((RepoConfigOrigin) part1.getOrigin()).getMaterial().getFingerprint();
         fingerprintForRepo2 = ((RepoConfigOrigin) part2.getOrigin()).getMaterial().getFingerprint();
     }

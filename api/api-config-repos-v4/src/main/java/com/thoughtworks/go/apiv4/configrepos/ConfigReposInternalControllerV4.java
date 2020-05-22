@@ -19,7 +19,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv4.configrepos.representers.ConfigRepoWithResultListRepresenter;
-import com.thoughtworks.go.config.GoRepoConfigDataSource;
+import com.thoughtworks.go.config.GoConfigRepoConfigDataSource;
 import com.thoughtworks.go.config.PartialConfigParseResult;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -50,7 +50,7 @@ import static spark.Spark.*;
 public class ConfigReposInternalControllerV4 extends ApiController implements SparkSpringController {
 
     private final ConfigRepoService service;
-    private final GoRepoConfigDataSource dataSource;
+    private final GoConfigRepoConfigDataSource dataSource;
     private final ApiAuthenticationHelper authHelper;
     private final MaterialUpdateService mus;
     private final MaterialConfigConverter converter;
@@ -58,7 +58,7 @@ public class ConfigReposInternalControllerV4 extends ApiController implements Sp
     private final PipelineConfigsService pipelineConfigsService;
 
     @Autowired
-    public ConfigReposInternalControllerV4(ApiAuthenticationHelper authHelper, ConfigRepoService service, GoRepoConfigDataSource dataSource, MaterialUpdateService mus, MaterialConfigConverter converter, EnvironmentConfigService environmentConfigService, PipelineConfigsService pipelineConfigsService) {
+    public ConfigReposInternalControllerV4(ApiAuthenticationHelper authHelper, ConfigRepoService service, GoConfigRepoConfigDataSource dataSource, MaterialUpdateService mus, MaterialConfigConverter converter, EnvironmentConfigService environmentConfigService, PipelineConfigsService pipelineConfigsService) {
         super(ApiVersion.v4);
         this.service = service;
         this.dataSource = dataSource;

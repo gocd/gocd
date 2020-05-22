@@ -69,7 +69,7 @@ public class GoPartialConfigIntegrationTest {
     @Autowired
     private GoConfigDao goConfigDao;
 
-    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ConfigRepoConfig repoConfig1;
     private ConfigRepoConfig repoConfig2;
 
@@ -125,7 +125,7 @@ public class GoPartialConfigIntegrationTest {
 
     @Test
     public void shouldTryToValidateMergeAndSaveAllKnownPartialsWhenAPartialChange() {
-        cachedGoPartials.addOrUpdate(repoConfig1.getRepo().getFingerprint(), PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1234")));
+        cachedGoPartials.cacheAsLastKnown(repoConfig1.getRepo().getFingerprint(), PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1234")));
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1")), is(false));
 
         goPartialConfig.onSuccessPartialConfig(repoConfig2, PartialConfigMother.withPipeline("p2_repo2", new RepoConfigOrigin(repoConfig2, "4567")));

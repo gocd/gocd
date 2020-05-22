@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import Stream from "mithril/stream";
 import {EnvironmentVariables} from "models/environment_variables/types";
 import {PipelineGroups, Pipelines, PipelineStructureJSON} from "models/internal_pipeline_structure/pipeline_structure";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
@@ -37,11 +38,11 @@ describe("Pipelines View Model", () => {
     pipelineGroupsJSON.groups[0].pipelines.push(environmentJSON.pipelines[0]);
     pipelineGroupsJSON.groups[1].pipelines.push(environmentJSON.pipelines[1]);
 
-    pipelinesViewModel.pipelineGroups(PipelineGroups.fromJSON(pipelineGroupsJSON.groups));
+    pipelinesViewModel.updateModel(Stream(PipelineGroups.fromJSON(pipelineGroupsJSON.groups)));
   });
 
   it("should update search text", () => {
-    expect(pipelinesViewModel.searchText()).toBeUndefined();
+    expect(pipelinesViewModel.searchText()).toBe('');
 
     const searchText = "Test";
     pipelinesViewModel.searchText(searchText);
@@ -119,7 +120,7 @@ describe("Pipelines View Model", () => {
   });
 
   it("should filter pipelines defined in other environment", () => {
-    const pipeline = pipelinesViewModel.pipelineGroups()![0].pipelines()[0];
+    const pipeline = pipelinesViewModel.allPipelines()[0];
     environments.push(new EnvironmentWithOrigin("another",
                                                 true,
                                                 [],
@@ -127,6 +128,7 @@ describe("Pipelines View Model", () => {
                                                 new Pipelines(pipeline),
                                                 new EnvironmentVariables()));
 
+    pipelinesViewModel.updateModel(Stream(PipelineGroups.fromJSON(pipelineGroupsJSON.groups)));
     const pipelines = pipelinesViewModel.pipelinesDefinedInOtherEnvironment();
 
     expect(pipelines.length).toBe(1);

@@ -16,9 +16,11 @@
 
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {EnvironmentVariables} from "models/environment_variables/types";
 import {
-  PipelineGroups, Pipelines,
+  PipelineGroups,
+  Pipelines,
   PipelineStructureJSON,
   PipelineWithOrigin
 } from "models/internal_pipeline_structure/pipeline_structure";
@@ -32,6 +34,8 @@ describe("Edit Pipelines Modal", () => {
   const helper = new TestHelper();
   let modal: EditPipelinesModal;
   let pipelineGroupsJSON: PipelineStructureJSON;
+
+  let environment: EnvironmentWithOrigin, environments: Environments;
 
   beforeEach(() => {
     jasmine.Ajax.install();
@@ -51,11 +55,11 @@ describe("Edit Pipelines Modal", () => {
       PipelineWithOrigin.fromJSON(pipelineGroupsJSON.groups[1].pipelines[1])
     );
 
-    const environment  = new EnvironmentWithOrigin("UAT", true, [], [], pipelines, new EnvironmentVariables());
-    const environments = new Environments(environment, anotherEnv);
+    environment  = new EnvironmentWithOrigin("UAT", true, [], [], pipelines, new EnvironmentVariables());
+    environments = new Environments(environment, anotherEnv);
 
     modal = new EditPipelinesModal(environment, environments, jasmine.createSpy("onSuccessfulSave"));
-    modal.pipelinesVM.pipelineGroups(PipelineGroups.fromJSON(pipelineGroupsJSON.groups));
+    modal.pipelinesVM.updateModel(Stream(PipelineGroups.fromJSON(pipelineGroupsJSON.groups)));
     helper.mount(() => modal.view());
   });
 
@@ -90,8 +94,12 @@ describe("Edit Pipelines Modal", () => {
   });
 
   it("should not render config repo pipelines section when no config repo associated pipelines are available", () => {
-    modal.pipelinesVM.environment.pipelines().pop();
-    m.redraw.sync();
+    helper.unmount();
+    environment.pipelines().pop();
+
+    modal = new EditPipelinesModal(environment, environments, jasmine.createSpy("onSuccessfulSave"));
+    modal.pipelinesVM.updateModel(Stream(PipelineGroups.fromJSON(pipelineGroupsJSON.groups)));
+    helper.mount(() => modal.view());
 
     const configRepoAssociated = helper.byTestId(`pipelines-associated-with-this-environment-in-configuration-repository`);
     expect(configRepoAssociated).toBeFalsy();
@@ -110,8 +118,14 @@ describe("Edit Pipelines Modal", () => {
   });
 
   it("should not render unavailable pipelines which are associated in other environment when none present", () => {
-    modal.pipelinesVM.pipelineGroups()![0].pipelines().pop();
-    m.redraw.sync();
+    helper.unmount();
+
+    const json = pipelineGroupsJSON.groups;
+    json[0].pipelines.pop();
+
+    modal = new EditPipelinesModal(environment, environments, jasmine.createSpy("onSuccessfulSave"));
+    modal.pipelinesVM.updateModel(Stream(PipelineGroups.fromJSON(json)));
+    helper.mount(() => modal.view());
 
     const otherEnvAssociated = helper.byTestId(`unavailable-pipelines-already-associated-with-environments`);
     expect(otherEnvAssociated).toBeFalsy();
@@ -128,10 +142,18 @@ describe("Edit Pipelines Modal", () => {
   });
 
   it("should not render unavailable pipelines which are defined in config repository when none present", () => {
-    //pop twice to remove the second last item.
-    modal.pipelinesVM.pipelineGroups()![0].pipelines().pop();
-    modal.pipelinesVM.pipelineGroups()![0].pipelines().pop();
-    m.redraw.sync();
+    helper.unmount();
+
+    const json = pipelineGroupsJSON.groups;
+    json[1].pipelines.pop();
+    json[1].pipelines.pop();
+
+    json[0].pipelines.pop();
+    json[0].pipelines.pop();
+
+    modal = new EditPipelinesModal(environment, environments, jasmine.createSpy("onSuccessfulSave"));
+    modal.pipelinesVM.updateModel(Stream(PipelineGroups.fromJSON(json)));
+    helper.mount(() => modal.view());
 
     const definedInConfigRepo = helper.byTestId(`unavailable-pipelines-defined-in-config-repository`);
     expect(definedInConfigRepo).toBeFalsy();
@@ -200,8 +222,11 @@ describe("Edit Pipelines Modal", () => {
   });
 
   it("should show no pipelines text message when no pipelines are available", () => {
-    modal.pipelinesVM.pipelineGroups(new PipelineGroups());
-    m.redraw.sync();
+    helper.unmount();
+
+    modal = new EditPipelinesModal(environment, environments, jasmine.createSpy("onSuccessfulSave"));
+    modal.pipelinesVM.updateModel(Stream(PipelineGroups.fromJSON([])));
+    helper.mount(() => modal.view());
 
     const expectedMessage = "There are no pipelines available!";
     expect(helper.textByTestId("flash-message-info")).toContain(expectedMessage);

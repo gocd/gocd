@@ -102,7 +102,7 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
   }
 
   containsPipeline(name: string): boolean {
-    return this.pipelines().map((p) => p.name()).indexOf(name) !== -1;
+    return this.pipelines().containsPipeline(name);
   }
 
   containsAgent(uuid: string): boolean {
@@ -111,7 +111,7 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
 
   addPipelineIfNotPresent(pipeline: PipelineWithOrigin) {
     if (!this.containsPipeline(pipeline.name())) {
-      this.pipelines().push(pipeline);
+      this.pipelines().add(pipeline);
     }
   }
 
@@ -126,7 +126,7 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
   }
 
   removePipelineIfPresent(pipeline: PipelineWithOrigin) {
-    _.remove(this.pipelines(), (p) => p.name() === pipeline.name());
+    this.pipelines().remove(pipeline);
   }
 
   removeAgentIfPresent(agent: AgentWithOrigin) {

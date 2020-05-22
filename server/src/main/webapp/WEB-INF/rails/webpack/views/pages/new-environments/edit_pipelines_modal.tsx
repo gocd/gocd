@@ -17,7 +17,7 @@
 import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {Pipelines, PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
+import {PipelineWithOrigin} from "models/internal_pipeline_structure/pipeline_structure";
 import {Environments, EnvironmentWithOrigin} from "models/new-environments/environments";
 import {EnvironmentsAPIs} from "models/new-environments/environments_apis";
 import s from "underscore.string";
@@ -53,7 +53,7 @@ interface PipelinesVMAttrs {
 interface PipelineCheckboxListWidgetAttrs {
   readonly: boolean;
   title: string;
-  pipelines: Pipelines;
+  pipelines: PipelineWithOrigin[];
   pipelineSelectedFn: (p: PipelineWithOrigin) => (p: boolean | undefined) => boolean | undefined;
 }
 
@@ -187,11 +187,13 @@ export class EditPipelinesModal extends Modal {
                                      message={`No pipelines matching search text '${this.pipelinesVM.searchText()}' found!`}/>;
     }
 
-    return <div>
-      <FlashMessage type={MessageType.alert} message={this.pipelinesVM.errorMessage()}/>
-      <PipelineFilterWidget pipelinesVM={this.pipelinesVM}/>
-      {noPipelinesMsg ? noPipelinesMsg : this.pipelinesHtml()}
-    </div>;
+    return [
+      <div key={this.pipelinesVM.allPipelines().length}>
+        <FlashMessage type={MessageType.alert} message={this.pipelinesVM.errorMessage()}/>
+        <PipelineFilterWidget pipelinesVM={this.pipelinesVM}/>
+        {noPipelinesMsg ? noPipelinesMsg : this.pipelinesHtml()}
+      </div>
+    ];
   }
 
   buttons(): m.ChildArray {

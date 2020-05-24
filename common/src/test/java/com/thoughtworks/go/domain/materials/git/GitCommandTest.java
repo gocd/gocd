@@ -661,7 +661,7 @@ public class GitCommandTest {
     }
 
     @Test
-    @EnabledOnGitVersionsAbove("2.10.0")
+    @EnabledOnGitVersions(from = "2.10.0")
     void shouldShallowCloneSubmodulesWhenSpecified() throws Exception {
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         GitRepoContainingSubmodule repoContainingSubmodule = new GitRepoContainingSubmodule(temporaryFolder);
@@ -678,7 +678,7 @@ public class GitCommandTest {
     }
 
     @Test
-    @EnabledOnGitVersionsAbove("2.10.0")
+    @EnabledOnGitVersions(from = "2.10.0", through = "2.25.4")
     void shouldUnshallowSubmodulesIfSubmoduleUpdateFails() throws Exception {
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         GitRepoContainingSubmodule repoContainingSubmodule = new GitRepoContainingSubmodule(temporaryFolder);
@@ -699,7 +699,7 @@ public class GitCommandTest {
     void shouldCleanIgnoredFilesIfToggleIsDisabled() throws IOException {
         InMemoryStreamConsumer output = inMemoryConsumer();
         File gitIgnoreFile = new File(repoLocation, ".gitignore");
-        FileUtils.writeStringToFile(gitIgnoreFile, "*.foo", Charset.forName("UTF-8"));
+        FileUtils.writeStringToFile(gitIgnoreFile, "*.foo", UTF_8);
         gitRepo.addFileAndPush(gitIgnoreFile, "added gitignore");
         git.fetchAndResetToHead(output);
 
@@ -714,7 +714,7 @@ public class GitCommandTest {
         System.setProperty("toggle.agent.git.clean.keep.ignored.files", "Y");
         InMemoryStreamConsumer output = inMemoryConsumer();
         File gitIgnoreFile = new File(repoLocation, ".gitignore");
-        FileUtils.writeStringToFile(gitIgnoreFile, "*.foo", Charset.forName("UTF-8"));
+        FileUtils.writeStringToFile(gitIgnoreFile, "*.foo", UTF_8);
         gitRepo.addFileAndPush(gitIgnoreFile, "added gitignore");
         git.fetchAndResetToHead(output);
 

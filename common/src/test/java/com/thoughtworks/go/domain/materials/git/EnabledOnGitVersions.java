@@ -22,10 +22,22 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(EnabledOnGitVersionCondition.class)
-public @interface EnabledOnGitVersionsAbove {
+public @interface EnabledOnGitVersions {
+    /**
+     * Matches any version
+     */
+    String WILDCARD = "any";
 
-    String value(); //use the format: major.minor.rev
+    /**
+     * @return Semantic `major.minor.patch` version declaring minimum supported version
+     */
+    String from() default WILDCARD;
+
+    /**
+     * @return Semantic `major.minor.patch` version declaring maximum supported version
+     */
+    String through() default WILDCARD;
 }

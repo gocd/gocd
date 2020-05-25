@@ -64,10 +64,6 @@ def browser = { ->
     return System.getenv('BROWSER')
   }
 
-  if (OperatingSystem.current().isWindows()) {
-    return 'ie'
-  }
-
   return 'firefox'
 }
 
@@ -76,10 +72,6 @@ def browserExecutable = { String path->
   println "Browser versions"
   println(separator)
   switch(browser()) {
-    case 'ie':
-      println("             IE: ${execute(path, "reg", "query", 'HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Internet Explorer', "/v", "version")}")
-      println(" IEDriverServer: ${execute(path, "IEDriverServer", "/version").readLines().first()}")
-      return;
     case 'chrome':
       println("       chrome: ${execute(path, "google-chrome", "--version")}")
       println(" chromedriver: ${execute(path, "chromedriver", "--version").readLines().first()}")
@@ -93,8 +85,6 @@ def browserExecutable = { String path->
 
 def driverImpl = { ->
   switch(browser()) {
-    case 'ie':
-      return downloadIEDriverServer
     case 'chrome':
       return downloadChromeDriver
     default:
@@ -144,16 +134,6 @@ task downloadChromeDriver(type: DownloaderTask) { thisTask ->
       break;
   }
   url = "https://chromedriver.storage.googleapis.com/${packageVersion}/chromedriver_${osURIPart}64.zip"
-}
-
-task downloadIEDriverServer(type: DownloaderTask) { thisTask ->
-  executable = 'IEDriverServer'
-  packageName = 'iedriverserver'
-  packageVersion = project.versions.seleniumDrivers.iedriverserver
-
-  def majorVersion = packageVersion.split('\\.')[0, 1].join('.')
-
-  url = "http://selenium-release.storage.googleapis.com/${majorVersion}/IEDriverServer_x64_${packageVersion}.zip"
 }
 
 task karma(type: Exec) {

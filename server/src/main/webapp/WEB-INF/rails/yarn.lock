@@ -547,10 +547,10 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.8.3"
 
-"@babel/plugin-transform-destructuring@^7.8.8", "@babel/plugin-transform-destructuring@^7.9.5":
-  version "7.9.5"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-destructuring/-/plugin-transform-destructuring-7.9.5.tgz#72c97cf5f38604aea3abf3b935b0e17b1db76a50"
-  integrity sha512-j3OEsGel8nHL/iusv/mRd5fYZ3DrOxWC82x0ogmdN/vHfAP4MYw+AFKYanzWlktNwikKvlzUV//afBW5FTp17Q==
+"@babel/plugin-transform-destructuring@^7.10.0", "@babel/plugin-transform-destructuring@^7.9.5":
+  version "7.10.0"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-destructuring/-/plugin-transform-destructuring-7.10.0.tgz#59145194029721e49e511afb4bdd1d2f38369180"
+  integrity sha512-yKoghHpYbC0eM+6o6arPUJT9BQBvOOn8iOCEHwFvkJ5gjAxYmoUaAuLwaoA9h2YvC6dzcRI0KPQOpRXr8qQTxQ==
   dependencies:
     "@babel/helper-plugin-utils" "^7.8.3"
 

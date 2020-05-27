@@ -4910,10 +4910,10 @@ karma-jasmine-seed-reporter@^0.2.0:
   resolved "https://registry.yarnpkg.com/karma-jasmine-seed-reporter/-/karma-jasmine-seed-reporter-0.2.0.tgz#a8f7d4c66d23d756deb63cb8dac88e0e058958b9"
   integrity sha512-15d6kNFakKfqNnCNQoRzJpivwbaAjaEdOBfBf4lojLUyLDRkSKhFEujL/kPI4eqM4XtYzHGpuxh3M+MSTBQBjA==
 
-karma-jasmine@^3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/karma-jasmine/-/karma-jasmine-3.1.1.tgz#f592b253e7619a8d84559d7daf473a647498ade8"
-  integrity sha512-pxBmv5K7IkBRLsFSTOpgiK/HzicQT3mfFF+oHAC7nxMfYKhaYFgxOa5qjnHW4sL5rUnmdkSajoudOnnOdPyW4Q==
+karma-jasmine@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/karma-jasmine/-/karma-jasmine-3.2.0.tgz#61ca8e881db3a92dfe456c9a8c4bef2a8fbf0f94"
+  integrity sha512-NkMgcMVKZJ2LtxWXXWD+d6OSFf8ehjxhfgpjdx9DgjwpLDpirm66kEc7+S0i4HcTJzgNhyTWutDzzfnbvKJpNg==
   dependencies:
     jasmine-core "^3.5.0"
 

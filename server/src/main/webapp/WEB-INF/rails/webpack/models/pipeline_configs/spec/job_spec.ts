@@ -41,6 +41,14 @@ describe("Job model", () => {
     expect(job.errors().errorsForDisplay("name")).toBe("Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
   });
 
+  it("should include at least one task", () => {
+    const job = new Job("awesome-job");
+    expect(job.isValid()).toBe(false);
+    expect(job.errors().count()).toBe(1);
+    expect(job.errors().keys()).toEqual(["tasks"]);
+    expect(job.errors().errorsForDisplay("tasks")).toBe("Tasks must be present. A job must have at least one task.");
+  });
+
   it("adopts errors in server response", () => {
     const job = new Job("scooby", [
         new ExecTask("whoami", []),

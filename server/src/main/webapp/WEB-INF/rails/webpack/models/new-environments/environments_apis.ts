@@ -40,6 +40,13 @@ export class EnvironmentsAPIs {
                             });
   }
 
+  static allPipelineGroups(groupAuthorization: "view" | "operate" | "administer") {
+    return ApiRequestBuilder.GET(SparkRoutes.apiAdminInternalPipelineGroupsPath(groupAuthorization), this.LATEST_API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => {
+                              return result.map((body) => PipelineStructure.fromJSON(JSON.parse(body)));
+                            });
+  }
+
   static delete(name: string) {
     return ApiRequestBuilder.DELETE(SparkRoutes.apiAdminEnvironmentsPath(name), this.LATEST_API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));

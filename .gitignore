@@ -458,10 +458,6 @@ api/api-stage-instance-v2/out/
 api/api-stage-instance-v2/target/
 api/api-stage-instance-v2/logs/
 api/api-stage-instance-v2/config/
-api/api-template-config-v6/out/
-api/api-template-config-v6/target/
-api/api-template-config-v6/logs/
-api/api-template-config-v6/config/
 api/api-notification-filter-v2/out/
 api/api-notification-filter-v2/target/
 api/api-notification-filter-v2/logs/

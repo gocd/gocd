@@ -331,10 +331,6 @@ api/api-secret-configs-v1/config/
 api/api-secret-configs-v1/out/
 api/api-secret-configs-v1/target/
 api/api-secret-configs-v1/logs/
-api/api-config-repos-v2/out/
-api/api-config-repos-v2/target/
-api/api-config-repos-v2/logs/
-api/api-config-repos-v2/config/
 api/api-plugin-infos-v6/out/
 api/api-plugin-infos-v6/target/
 api/api-plugin-infos-v6/logs/
@@ -426,10 +422,6 @@ api/api-artifact-config-v1/out/
 api/api-artifact-config-v1/target/
 api/api-artifact-config-v1/logs/
 api/api-artifact-config-v1/config/
-api/api-compare-v1/out/
-api/api-compare-v1/target/
-api/api-compare-v1/logs/
-api/api-compare-v1/config/
 api/api-packages-v1/out/
 api/api-packages-v1/target/
 api/api-packages-v1/logs/
@@ -466,10 +458,6 @@ api/api-stage-instance-v2/out/
 api/api-stage-instance-v2/target/
 api/api-stage-instance-v2/logs/
 api/api-stage-instance-v2/config/
-api/api-template-config-v6/out/
-api/api-template-config-v6/target/
-api/api-template-config-v6/logs/
-api/api-template-config-v6/config/
 api/api-notification-filter-v2/out/
 api/api-notification-filter-v2/target/
 api/api-notification-filter-v2/logs/

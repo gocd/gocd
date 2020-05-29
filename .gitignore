@@ -331,10 +331,6 @@ api/api-secret-configs-v1/config/
 api/api-secret-configs-v1/out/
 api/api-secret-configs-v1/target/
 api/api-secret-configs-v1/logs/
-api/api-config-repos-v2/out/
-api/api-config-repos-v2/target/
-api/api-config-repos-v2/logs/
-api/api-config-repos-v2/config/
 api/api-plugin-infos-v6/out/
 api/api-plugin-infos-v6/target/
 api/api-plugin-infos-v6/logs/

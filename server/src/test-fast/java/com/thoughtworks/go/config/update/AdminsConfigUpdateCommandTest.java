@@ -82,13 +82,13 @@ public class AdminsConfigUpdateCommandTest {
     @Test
     public void shouldNotContinueIfRequestIsStale() {
         AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("user")));
-        String md5 = "md5";
+        String digest = "digest";
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
-        when(entityHashingService.md5ForEntity(cruiseConfig.server().security().adminsConfig())).thenReturn(md5);
+        when(entityHashingService.hashForEntity(cruiseConfig.server().security().adminsConfig())).thenReturn(digest);
 
-        AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, adminsConfig, currentUser, result, entityHashingService, "stale_md5");
+        AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, adminsConfig, currentUser, result, entityHashingService, "stale_digest");
 
         assertFalse(command.canContinue(cruiseConfig));
         assertThat(result.httpCode(), is(412));
@@ -97,13 +97,13 @@ public class AdminsConfigUpdateCommandTest {
     @Test
     public void canContinue_adminUserShouldBeAbleToUpdateAFreshRequest() {
         AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("user")));
-        String md5 = "md5";
+        String digest = "digest";
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
-        when(entityHashingService.md5ForEntity(cruiseConfig.server().security().adminsConfig())).thenReturn(md5);
+        when(entityHashingService.hashForEntity(cruiseConfig.server().security().adminsConfig())).thenReturn(digest);
 
-        AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, adminsConfig, currentUser, result, entityHashingService, "md5");
+        AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, adminsConfig, currentUser, result, entityHashingService, "digest");
 
         assertTrue(command.canContinue(cruiseConfig));
     }
@@ -113,7 +113,7 @@ public class AdminsConfigUpdateCommandTest {
         cruiseConfig.server().security().setAdminsConfig(adminsConfig);
         ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(cruiseConfig);
 
-        AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, null, currentUser, result, entityHashingService, "md5");
+        AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, null, currentUser, result, entityHashingService, "digest");
         command.isValid(cruiseConfig);
 
         verify(adminsConfig).validateTree(validationContext);
@@ -125,7 +125,7 @@ public class AdminsConfigUpdateCommandTest {
         AdminsConfig adminsConfigRequest = new AdminsConfig(new AdminUser(new CaseInsensitiveString("")));
         cruiseConfig.server().security().setAdminsConfig(adminsInPreprocessedConfig);
 
-        AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, adminsConfigRequest, currentUser, result, entityHashingService, "md5");
+        AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, adminsConfigRequest, currentUser, result, entityHashingService, "digest");
 
         assertFalse(command.isValid(cruiseConfig));
         TestCase.assertTrue(adminsConfigRequest.hasErrors());

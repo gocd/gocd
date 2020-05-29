@@ -114,7 +114,7 @@ public class PipelineConfigServicePerformanceTest {
                 PipelineConfig pipelineConfig = goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString(Thread.currentThread().getName()));
                 pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
                 PerfTimer updateTimer = PerfTimer.start("Saving pipelineConfig : " + pipelineConfig.name());
-                pipelineConfigService.updatePipelineConfig(user, pipelineConfig, "group", entityHashingService.md5ForEntity(pipelineConfig, "group"), result);
+                pipelineConfigService.updatePipelineConfig(user, pipelineConfig, "group", entityHashingService.hashForEntity(pipelineConfig, "group"), result);
                 updateTimer.stop();
                 results.put(Thread.currentThread().getName(), result.isSuccessful());
                 if (!result.isSuccessful()) {

@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.validation.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -38,9 +37,11 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.thoughtworks.go.config.parser.GoConfigClassLoader.classParser;
+import static com.thoughtworks.go.util.CachedDigestUtils.md5Hex;
 import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.IOUtils.toInputStream;
@@ -50,7 +51,7 @@ public class MagicalGoConfigXmlLoader {
             new ConfigRepoPartialPreprocessor(),
             new TemplateExpansionPreprocessor(),
             new ConfigParamPreprocessor());
-    public static final List<GoConfigXMLValidator> XML_VALIDATORS = Arrays.asList((GoConfigXMLValidator) new UniqueOnCancelValidator());
+    public static final List<GoConfigXMLValidator> XML_VALIDATORS = Collections.singletonList(new UniqueOnCancelValidator());
     private static final Logger LOGGER = LoggerFactory.getLogger(MagicalGoConfigXmlLoader.class);
     private static final SystemEnvironment systemEnvironment = new SystemEnvironment();
     public static final List<GoConfigValidator> VALIDATORS = Arrays.asList(
@@ -61,7 +62,7 @@ public class MagicalGoConfigXmlLoader {
     );
     private static final GoConfigCloner CLONER = new GoConfigCloner();
     private final ConfigElementImplementationRegistry registry;
-    private ConfigCache configCache;
+    private final ConfigCache configCache;
 
     public MagicalGoConfigXmlLoader(ConfigCache configCache, ConfigElementImplementationRegistry registry) {
         this.configCache = configCache;
@@ -76,9 +77,7 @@ public class MagicalGoConfigXmlLoader {
 
     public static List<ConfigErrors> validate(CruiseConfig config) {
         preprocess(config);
-        List<ConfigErrors> validationErrors = new ArrayList<>();
-        validationErrors.addAll(config.validateAfterPreprocess());
-        return validationErrors;
+        return new ArrayList<>(config.validateAfterPreprocess());
     }
 
     public static void preprocess(CruiseConfig cruiseConfig) {
@@ -109,7 +108,7 @@ public class MagicalGoConfigXmlLoader {
     }
 
     public CruiseConfig deserializeConfig(String content) throws Exception {
-        String md5 = CachedDigestUtils.md5Hex(content);
+        String md5 = md5Hex(content);
         Element element = parseInputStream(new ByteArrayInputStream(content.getBytes()));
         LOGGER.debug("[Config Save] Updating config cache with new XML");
 

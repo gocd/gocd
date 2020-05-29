@@ -104,7 +104,7 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasEtag('"55c59fefca1806d3c81364d569634e56"')
+          .hasEtag('"2ed2348f198e14381f2dd0e5a0e317f8a2287feb8807891a90ca9cd60248d45b"')
           .hasBodyWithJsonObject(securityAuthConfigs, SecurityAuthConfigsRepresenter)
       }
     }
@@ -138,14 +138,14 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
       void 'should return security auth config of specified id'() {
         def securityAuthConfig = new SecurityAuthConfig("file", "cd.go.authorization.file", create("Path", false, "/var/lib/pass.prop"))
 
-        when(entityHashingService.md5ForEntity(securityAuthConfig)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(securityAuthConfig)).thenReturn('digest')
         when(securityAuthConfigService.findProfile('file')).thenReturn(securityAuthConfig)
 
         getWithApiHeader(controller.controllerPath('/file'))
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(securityAuthConfig, SecurityAuthConfigRepresenter)
       }
@@ -164,10 +164,10 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
       void 'should return 304 if security auth config is not modified'() {
         def securityAuthConfig = new SecurityAuthConfig("file", "cd.go.authorization.file", create("Path", false, "/var/lib/pass.prop"))
 
-        when(entityHashingService.md5ForEntity(securityAuthConfig)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(securityAuthConfig)).thenReturn('digest')
         when(securityAuthConfigService.findProfile('file')).thenReturn(securityAuthConfig)
 
-        getWithApiHeader(controller.controllerPath('/file'), ['if-none-match': '"md5"'])
+        getWithApiHeader(controller.controllerPath('/file'), ['if-none-match': '"digest"'])
 
         assertThatResponse()
           .isNotModified()
@@ -178,14 +178,14 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
       void 'should return 200 with security auth config if etag does not match'() {
         def securityAuthConfig = new SecurityAuthConfig("file", "cd.go.authorization.file", create("Path", false, "/var/lib/pass.prop"))
 
-        when(entityHashingService.md5ForEntity(securityAuthConfig)).thenReturn('md5-new')
+        when(entityHashingService.hashForEntity(securityAuthConfig)).thenReturn('digest-new')
         when(securityAuthConfigService.findProfile('file')).thenReturn(securityAuthConfig)
 
-        getWithApiHeader(controller.controllerPath('/file'), ['if-none-match': '"md5"'])
+        getWithApiHeader(controller.controllerPath('/file'), ['if-none-match': '"digest"'])
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5-new"')
+          .hasEtag('"digest-new"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(securityAuthConfig, SecurityAuthConfigRepresenter)
       }
@@ -229,13 +229,13 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
             ]
           ]]
 
-        when(entityHashingService.md5ForEntity(Mockito.any() as SecurityAuthConfig)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(Mockito.any() as SecurityAuthConfig)).thenReturn('some-digest')
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"some-md5"')
+          .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(new SecurityAuthConfig("file", "cd.go.authorization.file", create("Path", false, "/var/lib/pass.prop")), SecurityAuthConfigRepresenter)
       }
@@ -289,7 +289,7 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
           properties                       : []
         ]
 
-        when(entityHashingService.md5ForEntity(Mockito.any() as SecurityAuthConfig)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(Mockito.any() as SecurityAuthConfig)).thenReturn('some-digest')
         when(securityAuthConfigService.findProfile("file")).thenReturn(existingElasticProfile)
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
@@ -353,15 +353,15 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
             ]
           ]]
 
-        when(entityHashingService.md5ForEntity(existingAuthConfig)).thenReturn('some-md5')
-        when(entityHashingService.md5ForEntity(updatedProfile)).thenReturn('new-md5')
+        when(entityHashingService.hashForEntity(existingAuthConfig)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(updatedProfile)).thenReturn('new-digest')
         when(securityAuthConfigService.findProfile("file")).thenReturn(existingAuthConfig)
 
-        putWithApiHeader(controller.controllerPath("/file"), ['if-match': 'some-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/file"), ['if-match': 'some-digest'], jsonPayload)
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"new-md5"')
+          .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(updatedProfile, SecurityAuthConfigRepresenter)
       }
@@ -379,15 +379,15 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
             ]
           ]]
 
-        when(entityHashingService.md5ForEntity(existingAuthConfig)).thenReturn('some-md5')
-        when(entityHashingService.md5ForEntity(updatedProfile)).thenReturn('new-md5')
+        when(entityHashingService.hashForEntity(existingAuthConfig)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(updatedProfile)).thenReturn('new-digest')
         when(securityAuthConfigService.findProfile("file")).thenReturn(existingAuthConfig)
 
-        putWithApiHeader(controller.controllerPath("/file"), ['if-match': 'some-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/file"), ['if-match': 'some-digest'], jsonPayload)
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"new-md5"')
+          .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(SecurityAuthConfigRepresenter, updatedProfile)
       }
@@ -405,10 +405,10 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
             ]
           ]]
 
-        when(entityHashingService.md5ForEntity(existingAuthConfig)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(existingAuthConfig)).thenReturn('some-digest')
         when(securityAuthConfigService.findProfile("file")).thenReturn(existingAuthConfig)
 
-        putWithApiHeader(controller.controllerPath("/file"), ['if-match': 'wrong-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/file"), ['if-match': 'wrong-digest'], jsonPayload)
 
         assertThatResponse()
           .isPreconditionFailed()
@@ -419,7 +419,7 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
       @Test
       void 'should return 404 if the profile does not exists'() {
         when(securityAuthConfigService.findProfile("non-existent-auth-config")).thenReturn(null)
-        putWithApiHeader(controller.controllerPath("/non-existent-auth-config"), ['if-match': 'wrong-md5'], [:])
+        putWithApiHeader(controller.controllerPath("/non-existent-auth-config"), ['if-match': 'wrong-digest'], [:])
 
         assertThatResponse()
           .isNotFound()
@@ -436,10 +436,10 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
           properties: []
         ]
 
-        when(entityHashingService.md5ForEntity(existingAuthConfig)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(existingAuthConfig)).thenReturn('some-digest')
         when(securityAuthConfigService.findProfile("file")).thenReturn(existingAuthConfig)
 
-        putWithApiHeader(controller.controllerPath("/file"), ['if-match': 'some-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/file"), ['if-match': 'some-digest'], jsonPayload)
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -457,7 +457,7 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
           properties                       : []
         ]
 
-        when(entityHashingService.md5ForEntity(existingAuthConfig)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(existingAuthConfig)).thenReturn('some-digest')
         when(securityAuthConfigService.findProfile("file")).thenReturn(existingAuthConfig)
 
         when(securityAuthConfigService.update(Mockito.any() as Username, Mockito.any() as String, Mockito.any() as SecurityAuthConfig, Mockito.any() as LocalizedOperationResult))
@@ -468,7 +468,7 @@ class SecurityAuthConfigControllerV2Test implements SecurityServiceTrait, Contro
           result.unprocessableEntity("validation failed")
         })
 
-        putWithApiHeader(controller.controllerPath("/file"), ['if-match': 'some-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/file"), ['if-match': 'some-digest'], jsonPayload)
 
         def expectedResponseBody = [
           message: "validation failed",

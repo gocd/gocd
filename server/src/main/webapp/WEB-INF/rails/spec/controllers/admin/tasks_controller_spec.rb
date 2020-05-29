@@ -108,7 +108,7 @@ describe Admin::TasksController do
       expect(@go_config_service).to receive(:isPipelineDefinedInConfigRepository).and_return(false)
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
-      allow(@entity_hashing_service).to receive(:md5ForEntity).and_return('pipeline-md5')
+      allow(@entity_hashing_service).to receive(:hashForEntity).and_return('pipeline-digest')
     end
 
     it "should load tasks" do

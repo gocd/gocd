@@ -25,7 +25,7 @@ describe Admin::TasksController, "fetch task" do
 
   before do
     @entity_hashing_service = stub_service(:entity_hashing_service)
-    allow(@entity_hashing_service).to receive(:md5ForEntity).and_return('pipeline-md5')
+    allow(@entity_hashing_service).to receive(:hashForEntity).and_return('pipeline-digest')
     @example_task = fetch_task_with_exec_on_cancel_task
     @task_type = @example_task.getTaskType()
     @updated_payload = {:pipelineName => 'other-pipeline', :stage => 'other-stage', :job => 'other-job', :src => 'new-src', :dest => 'new-dest', :isSourceAFile => '1', :hasCancelTask => "1", :onCancelConfig=> { :onCancelOption => 'exec', :execOnCancel => {:command => "echo", :args => "'failing'", :workingDirectory => "oncancel_working_dir"}}}

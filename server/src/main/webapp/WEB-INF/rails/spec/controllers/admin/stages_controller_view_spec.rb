@@ -153,8 +153,8 @@ describe Admin::StagesController, "view" do
           expect(@pipeline_config_service).to receive(:updatePipelineConfig).and_return(result)
 
           post :create, params:{:stage_parent=> "pipelines", :pipeline_name => "pipeline-name",
-                                :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup',
-                                :stage => {:name => "stage-foo", :jobs => [{:name => "another-job"}]}, :config_md5 => "some-md5"}
+                                :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup',
+                                :stage => {:name => "stage-foo", :jobs => [{:name => "another-job"}]}, :config_md5 => "some-digest"}
 
           expect(response.status).to eq(200)
           expect(response.body).to have_content("Saved successfully")

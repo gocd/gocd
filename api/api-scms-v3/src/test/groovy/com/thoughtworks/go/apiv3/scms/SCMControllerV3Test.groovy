@@ -105,7 +105,7 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
 
         SCMs scms = new SCMs(scm)
 
-        when(entityHashingService.md5ForEntity(scms)).thenReturn("some-etag")
+        when(entityHashingService.hashForEntity(scms)).thenReturn("some-etag")
         when(scmService.listAllScms()).thenReturn(scms)
 
         getWithApiHeader(controller.controllerPath())
@@ -126,7 +126,7 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
 
         SCMs scms = new SCMs(scm)
 
-        when(entityHashingService.md5ForEntity(scms)).thenReturn("some-etag")
+        when(entityHashingService.hashForEntity(scms)).thenReturn("some-etag")
         when(scmService.listAllScms()).thenReturn(scms)
 
         getWithApiHeader(controller.controllerPath(), ['if-none-match': '"some-etag"'])
@@ -169,14 +169,14 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           ConfigurationPropertyMother.create("key2", true, "secret"),
         ))
 
-        when(entityHashingService.md5ForEntity(scm)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(scm)).thenReturn('digest')
         when(scmService.findPluggableScmMaterial("foobar")).thenReturn(scm);
 
         getWithApiHeader(controller.controllerPath('/foobar'))
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(scm, SCMRepresenter)
       }
@@ -198,10 +198,10 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           ConfigurationPropertyMother.create("key2", true, "secret"),
         ))
 
-        when(entityHashingService.md5ForEntity(scm)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(scm)).thenReturn('digest')
         when(scmService.findPluggableScmMaterial("foobar")).thenReturn(scm);
 
-        getWithApiHeader(controller.controllerPath('/foobar'), ['if-none-match': '"md5"'])
+        getWithApiHeader(controller.controllerPath('/foobar'), ['if-none-match': '"digest"'])
 
         assertThatResponse()
           .isNotModified()
@@ -215,14 +215,14 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           ConfigurationPropertyMother.create("key2", true, "secret"),
         ))
 
-        when(entityHashingService.md5ForEntity(scm)).thenReturn('md5-new')
+        when(entityHashingService.hashForEntity(scm)).thenReturn('digest-new')
         when(scmService.findPluggableScmMaterial("foobar")).thenReturn(scm)
 
-        getWithApiHeader(controller.controllerPath('/foobar'), ['if-none-match': '"md5"'])
+        getWithApiHeader(controller.controllerPath('/foobar'), ['if-none-match': '"digest"'])
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5-new"')
+          .hasEtag('"digest-new"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(scm, SCMRepresenter)
       }
@@ -281,13 +281,13 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
         ))
 
         when(scmService.listAllScms()).thenReturn(new SCMs())
-        when(entityHashingService.md5ForEntity(Mockito.any() as SCM)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(Mockito.any() as SCM)).thenReturn('some-digest')
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"some-md5"')
+          .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(scm, SCMRepresenter)
       }
@@ -314,13 +314,13 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
         ]
 
         when(scmService.listAllScms()).thenReturn(new SCMs())
-        when(entityHashingService.md5ForEntity(Mockito.any() as SCM)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(Mockito.any() as SCM)).thenReturn('some-digest')
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"some-md5"')
+          .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
 
         assertThatJson(response.getContentAsString()).hasProperty("id")
@@ -352,7 +352,7 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           ConfigurationPropertyMother.create("key2", true, "secret"),
         ))
 
-        when(entityHashingService.md5ForEntity(Mockito.any() as SCM)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(Mockito.any() as SCM)).thenReturn('some-digest')
         when(scmService.findPluggableScmMaterial("foobar")).thenReturn(existingSCM)
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
@@ -508,15 +508,15 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           ]
         ]
 
-        when(entityHashingService.md5ForEntity(existingSCM)).thenReturn('some-md5')
-        when(entityHashingService.md5ForEntity(updatedSCM)).thenReturn('new-md5')
+        when(entityHashingService.hashForEntity(existingSCM)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(updatedSCM)).thenReturn('new-digest')
         when(scmService.findPluggableScmMaterial("foobar")).thenReturn(existingSCM)
 
-        putWithApiHeader(controller.controllerPath("/foobar"), ['if-match': 'some-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/foobar"), ['if-match': 'some-digest'], jsonPayload)
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"new-md5"')
+          .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(updatedSCM, SCMRepresenter)
       }
@@ -547,10 +547,10 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           ]
         ]
 
-        when(entityHashingService.md5ForEntity(existingSCM)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(existingSCM)).thenReturn('some-digest')
         when(scmService.findPluggableScmMaterial("foobar")).thenReturn(existingSCM)
 
-        putWithApiHeader(controller.controllerPath("/foobar"), ['if-match': 'wrong-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/foobar"), ['if-match': 'wrong-digest'], jsonPayload)
 
         assertThatResponse()
           .isPreconditionFailed()
@@ -561,7 +561,7 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
       @Test
       void 'should return 404 if the scm does not exist'() {
         when(scmService.findPluggableScmMaterial("foobar")).thenReturn(null)
-        putWithApiHeader(controller.controllerPath("/foobar"), ['if-match': 'wrong-md5'], [:])
+        putWithApiHeader(controller.controllerPath("/foobar"), ['if-match': 'wrong-digest'], [:])
 
         assertThatResponse()
           .isNotFound()
@@ -595,10 +595,10 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           ]
         ]
 
-        when(entityHashingService.md5ForEntity(existingSCM)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(existingSCM)).thenReturn('some-digest')
         when(scmService.findPluggableScmMaterial("foobar")).thenReturn(existingSCM)
 
-        putWithApiHeader(controller.controllerPath("/foobar"), ['if-match': 'some-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/foobar"), ['if-match': 'some-digest'], jsonPayload)
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -632,7 +632,7 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           ]
         ]
 
-        when(entityHashingService.md5ForEntity(existingSCM)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(existingSCM)).thenReturn('some-digest')
         when(scmService.findPluggableScmMaterial("foobar")).thenReturn(existingSCM)
 
         when(scmService.updatePluggableScmMaterial(
@@ -649,7 +649,7 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
               result.unprocessableEntity("validation failed")
           })
 
-        putWithApiHeader(controller.controllerPath("/foobar"), ['if-match': 'some-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/foobar"), ['if-match': 'some-digest'], jsonPayload)
 
         def expectedResponseBody = [
           message: "validation failed",
@@ -784,7 +784,7 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
 
       SCM scm = SCMMother.create("scm-id", "scm-name", "plugin1", "v1.0", new Configuration())
 
-      when(entityHashingService.md5ForEntity(scm)).thenReturn('md5')
+      when(entityHashingService.hashForEntity(scm)).thenReturn('digest')
       when(scmService.findPluggableScmMaterial("scm-name")).thenReturn(scm)
     }
 

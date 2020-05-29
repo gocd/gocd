@@ -91,7 +91,7 @@ public class SCMControllerV2 extends ApiController implements SparkSpringControl
     public String index(Request request, Response response) throws IOException {
         SCMs scms = pluggableScmService.listAllScms();
 
-        String etag = entityHashingService.md5ForEntity(scms);
+        String etag = entityHashingService.hashForEntity(scms);
         if (fresh(request, etag)) {
             return notModified(response);
         }
@@ -104,7 +104,7 @@ public class SCMControllerV2 extends ApiController implements SparkSpringControl
 
         SCM scm = fetchEntityFromConfig(materialName);
 
-        String etag = entityHashingService.md5ForEntity(scm);
+        String etag = entityHashingService.hashForEntity(scm);
         if (fresh(request, etag)) {
             return notModified(response);
         }
@@ -157,7 +157,7 @@ public class SCMControllerV2 extends ApiController implements SparkSpringControl
 
     @Override
     public String etagFor(SCM entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override

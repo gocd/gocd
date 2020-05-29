@@ -174,7 +174,7 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
 
     @Override
     public String etagFor(ElasticProfile entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override

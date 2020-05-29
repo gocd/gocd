@@ -87,7 +87,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
       @Test
       void 'should list all security auth configs'() {
         def expectedRoles = new RolesConfig([new PluginRoleConfig('foo', 'ldap')])
-        when(entityHashingService.md5ForEntity(expectedRoles)).thenReturn("some-etag")
+        when(entityHashingService.hashForEntity(expectedRoles)).thenReturn("some-etag")
         when(roleConfigService.getRoles()).thenReturn(expectedRoles)
 
         getWithApiHeader(controller.controllerPath())
@@ -104,7 +104,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
         def pluginRoleConfig = new PluginRoleConfig('foo', 'ldap')
         def gocdRoleConfig = new RoleConfig('bar')
         def expectedRoles = new RolesConfig([pluginRoleConfig, gocdRoleConfig])
-        when(entityHashingService.md5ForEntity(expectedRoles)).thenReturn("some-etag")
+        when(entityHashingService.hashForEntity(expectedRoles)).thenReturn("some-etag")
         when(roleConfigService.getRoles()).thenReturn(expectedRoles)
 
         getWithApiHeader(controller.controllerPath(type: 'plugin'))
@@ -132,7 +132,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
       void 'should render 304 if etag matches'() {
         def expectedRoles = new RolesConfig([new PluginRoleConfig('foo', 'ldap')])
 
-        when(entityHashingService.md5ForEntity(expectedRoles)).thenReturn("some-etag")
+        when(entityHashingService.hashForEntity(expectedRoles)).thenReturn("some-etag")
         when(roleConfigService.getRoles()).thenReturn(expectedRoles)
 
         getWithApiHeader(controller.controllerPath(), ['if-none-match': '"some-etag"'])
@@ -178,14 +178,14 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
       @Test
       void 'should render the security auth config of specified name'() {
         def role = new PluginRoleConfig('blackbird', 'ldap')
-        when(entityHashingService.md5ForEntity(role)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(role)).thenReturn('digest')
         when(roleConfigService.findRole('blackbird')).thenReturn(role)
 
         getWithApiHeader(controller.controllerPath('/blackbird'))
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(role, RoleRepresenter)
       }
@@ -205,9 +205,9 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
       @Test
       void 'should render 304 if etag matches'() {
         def role = new PluginRoleConfig('blackbird', 'ldap')
-        when(entityHashingService.md5ForEntity(role)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(role)).thenReturn('digest')
         when(roleConfigService.findRole('blackbird')).thenReturn(role)
-        getWithApiHeader(controller.controllerPath('/blackbird'), ['if-none-match': '"md5"'])
+        getWithApiHeader(controller.controllerPath('/blackbird'), ['if-none-match': '"digest"'])
 
         assertThatResponse()
           .isNotModified()
@@ -217,13 +217,13 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
       @Test
       void 'should render 200 if etag does not match'() {
         def role = new PluginRoleConfig('blackbird', 'ldap')
-        when(entityHashingService.md5ForEntity(role)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(role)).thenReturn('digest')
         when(roleConfigService.findRole('blackbird')).thenReturn(role)
         getWithApiHeader(controller.controllerPath('/blackbird'), ['if-none-match': '"junk"'])
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(role, RoleRepresenter)
       }
@@ -257,7 +257,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
       @Test
       void 'should deserialize auth config from given parameters'() {
         PluginRoleConfig role = new PluginRoleConfig('blackbird', 'blackbird')
-        when(entityHashingService.md5ForEntity(role)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(role)).thenReturn('some-digest')
         when(roleConfigService.findRole('blackbird')).thenReturn(null)
         doNothing().when(roleConfigService).create(any(), any(), any())
 
@@ -266,7 +266,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"some-md5"')
+          .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(role, RoleRepresenter)
       }
@@ -318,7 +318,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
       @BeforeEach
       void setUp() {
         when(roleConfigService.findRole(roleConfig.name.toString())).thenReturn(roleConfig)
-        when(entityHashingService.md5ForEntity(roleConfig)).thenReturn('cached-md5')
+        when(entityHashingService.hashForEntity(roleConfig)).thenReturn('cached-digest')
       }
 
       @Override
@@ -330,7 +330,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
       void makeHttpCall() {
         sendRequest('put', controller.controllerPath('/blackbird'), [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'cached-md5',
+          'If-Match'    : 'cached-digest',
           'content-type': 'application/json'
         ], toObjectString({ RoleRepresenter.toJSON(it, this.roleConfig) }))
       }
@@ -349,11 +349,11 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
         Role role = new PluginRoleConfig('foo', 'ldap')
 
         when(roleConfigService.findRole('foo')).thenReturn(role)
-        when(entityHashingService.md5ForEntity(role)).thenReturn("cached-md5")
+        when(entityHashingService.hashForEntity(role)).thenReturn("cached-digest")
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'cached-md5',
+          'If-Match'    : 'cached-digest',
           'content-type': 'application/json'
         ]
         def body = [
@@ -375,7 +375,7 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
         Role role = new PluginRoleConfig('blackbird', 'ldap')
 
         when(roleConfigService.findRole('blackbird')).thenReturn(role)
-        when(entityHashingService.md5ForEntity(role)).thenReturn('cached-md5')
+        when(entityHashingService.hashForEntity(role)).thenReturn('cached-digest')
 
         putWithApiHeader(controller.controllerPath('/blackbird'), ['if-match': 'some-string'], toObjectString({
           RoleRepresenter.toJSON(it, role)
@@ -392,16 +392,16 @@ class RolesControllerV3Test implements SecurityServiceTrait, ControllerTrait<Rol
         Role newRole = new PluginRoleConfig('blackbird', 'blackbird')
 
         when(roleConfigService.findRole('blackbird')).thenReturn(role)
-        when(entityHashingService.md5ForEntity(role)).thenReturn('cached-md5')
-        when(entityHashingService.md5ForEntity(newRole)).thenReturn('new-md5')
+        when(entityHashingService.hashForEntity(role)).thenReturn('cached-digest')
+        when(entityHashingService.hashForEntity(newRole)).thenReturn('new-digest')
 
-        putWithApiHeader(controller.controllerPath('/blackbird'), ['if-match': 'cached-md5'], toObjectString({
+        putWithApiHeader(controller.controllerPath('/blackbird'), ['if-match': 'cached-digest'], toObjectString({
           RoleRepresenter.toJSON(it, newRole)
         }))
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"new-md5"')
+          .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(newRole, RoleRepresenter)
       }

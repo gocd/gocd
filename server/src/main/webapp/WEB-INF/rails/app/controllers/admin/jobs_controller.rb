@@ -69,7 +69,7 @@ module Admin
         load_artifact_related_data
         load_resources_and_elastic_profile_ids_for_autocomplete
         assert_load :task_view_models, task_view_service.getTaskViewModelsWith(@job.tasks().first()) unless @update_result.isSuccessful
-        assert_load :pipeline_md5, params[:pipeline_md5]
+        assert_load :pipeline_digest, params[:pipeline_digest]
         assert_load :pipeline_group_name, params[:pipeline_group_name]
         assert_load :pipeline_name, params[:pipeline_name]
       end
@@ -125,7 +125,7 @@ module Admin
         load_pipeline_and_stage
         assert_load :job, @job
         load_artifact_related_data
-        assert_load :pipeline_md5, params[:pipeline_md5]
+        assert_load :pipeline_digest, params[:pipeline_digest]
         assert_load :pipeline_group_name, params[:pipeline_group_name]
         assert_load :pipeline_name, params[:pipeline_name]
       end

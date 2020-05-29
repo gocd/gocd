@@ -151,10 +151,10 @@ public class PluginInfosControllerV7 extends ApiController implements SparkSprin
     }
 
     private String etagFor(CombinedPluginInfo pluginInfo) {
-        return entityHashingService.md5ForEntity(pluginInfo);
+        return entityHashingService.hashForEntity(pluginInfo);
     }
 
     private String etagFor(Collection<CombinedPluginInfo> pluginInfos) {
-        return entityHashingService.md5ForEntity(pluginInfos);
+        return entityHashingService.hashForEntity(pluginInfos);
     }
 }

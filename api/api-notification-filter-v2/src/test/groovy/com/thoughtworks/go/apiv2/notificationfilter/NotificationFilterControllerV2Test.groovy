@@ -213,7 +213,7 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
       def fromPayload = new NotificationFilter("up42", "unit-test", StageEvent.Breaks, true)
       def withId = new NotificationFilter(fromPayload)
       withId.setId(100L)
-      when(entityHashingService.md5ForEntity(withId)).thenReturn("Md5")
+      when(entityHashingService.hashForEntity(withId)).thenReturn("digest")
       doAnswer({ invocation ->
         invocation.getArgument(1).setId(100)
       }).when(userService).addNotificationFilter(currentUserLoginId(), fromPayload)
@@ -223,7 +223,7 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
       verify(userService).addNotificationFilter(currentUserLoginId(), fromPayload)
       assertThatResponse()
         .isOk()
-        .hasEtag('"Md5"')
+        .hasEtag('"digest"')
         .hasBodyWithJsonObject(NotificationFilterRepresenter, withId)
     }
 
@@ -380,7 +380,7 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
       user.addNotificationFilter(notificationFilter(100, "up42", "up42_stage", StageEvent.All))
       user.addNotificationFilter(notificationFilter(101, "up43", "up43_stage", StageEvent.Breaks))
       def updatedFilterValue = notificationFilter(100, "up42", "unit-test", StageEvent.Breaks)
-      when(entityHashingService.md5ForEntity(updatedFilterValue)).thenReturn("Updated etag")
+      when(entityHashingService.hashForEntity(updatedFilterValue)).thenReturn("Updated etag")
 
       patchWithApiHeader(controller.controllerPath(100L), payload)
 

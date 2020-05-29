@@ -37,12 +37,12 @@ public class AdminsConfigUpdateCommand implements EntityConfigUpdateCommand<Admi
     protected final AdminsConfig admin;
     protected final Username currentUser;
     protected final LocalizedOperationResult result;
-    private final String md5;
+    private final String digest;
 
     public AdminsConfigUpdateCommand(GoConfigService goConfigService, AdminsConfig adminsConfig, Username currentUser,
-                                     LocalizedOperationResult result, EntityHashingService hashingService, String md5) {
+                                     LocalizedOperationResult result, EntityHashingService hashingService, String digest) {
         this.hashingService = hashingService;
-        this.md5 = md5;
+        this.digest = digest;
         this.goConfigService = goConfigService;
         this.admin = adminsConfig;
         this.currentUser = currentUser;
@@ -93,7 +93,7 @@ public class AdminsConfigUpdateCommand implements EntityConfigUpdateCommand<Admi
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         AdminsConfig existingAdminsConfig = findExistingAdmin(cruiseConfig);
 
-        boolean freshRequest = hashingService.md5ForEntity(existingAdminsConfig).equals(md5);
+        boolean freshRequest = hashingService.hashForEntity(existingAdminsConfig).equals(digest);
 
         if (!freshRequest) {
             result.stale(staleResourceConfig("System admins", existingAdminsConfig.getClass().getName()));

@@ -95,14 +95,14 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
       @Test
       void 'should render the security admins config'() {
         AdminsConfig config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
-        when(entityHashingService.md5ForEntity(config)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(config)).thenReturn('digest')
         when(adminsConfigService.systemAdmins()).thenReturn(config)
 
         getWithApiHeader(controller.controllerPath())
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(config, AdminsConfigRepresenter)
       }
@@ -110,9 +110,9 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
       @Test
       void 'should render 304 if etag matches'() {
         def config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
-        when(entityHashingService.md5ForEntity(config)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(config)).thenReturn('digest')
         when(adminsConfigService.systemAdmins()).thenReturn(config)
-        getWithApiHeader(controller.controllerPath(), ['if-none-match': '"md5"'])
+        getWithApiHeader(controller.controllerPath(), ['if-none-match': '"digest"'])
 
         assertThatResponse()
           .isNotModified()
@@ -122,13 +122,13 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
       @Test
       void 'should render 200 if etag does not match'() {
         def config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin-new")))
-        when(entityHashingService.md5ForEntity(config)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(config)).thenReturn('digest')
         when(adminsConfigService.systemAdmins()).thenReturn(config)
         getWithApiHeader(controller.controllerPath(), ['if-none-match': '"junk"'])
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(config, AdminsConfigRepresenter)
       }
@@ -145,7 +145,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
       void setUp() {
         config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
         when(adminsConfigService.systemAdmins()).thenReturn(config)
-        when(entityHashingService.md5ForEntity(config)).thenReturn('cached-md5')
+        when(entityHashingService.hashForEntity(config)).thenReturn('cached-digest')
       }
 
       @Override
@@ -157,7 +157,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
       void makeHttpCall() {
         sendRequest('put', controller.controllerPath(), [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'cached-md5',
+          'If-Match'    : 'cached-digest',
           'content-type': 'application/json'
         ], toObjectString({ AdminsConfigRepresenter.toJSON(it, this.config) }))
       }
@@ -178,13 +178,13 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
           new AdminUser(new CaseInsensitiveString("new_admin")))
 
         when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
-        when(entityHashingService.md5ForEntity(configInServer)).thenReturn("cached-md5")
+        when(entityHashingService.hashForEntity(configInServer)).thenReturn("cached-digest")
 
-        putWithApiHeader(controller.controllerPath(), ['if-match': 'cached-md5'], toObjectString({
+        putWithApiHeader(controller.controllerPath(), ['if-match': 'cached-digest'], toObjectString({
           AdminsConfigRepresenter.toJSON(it, configFromRequest)
         }))
 
-        verify(adminsConfigService).update(any(), eq(configFromRequest), eq("cached-md5"), any(HttpLocalizedOperationResult.class))
+        verify(adminsConfigService).update(any(), eq(configFromRequest), eq("cached-digest"), any(HttpLocalizedOperationResult.class))
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
@@ -199,13 +199,13 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
 
 
         when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
-        when(entityHashingService.md5ForEntity(configInServer)).thenReturn("cached-md5")
-        when(adminsConfigService.update(any(), eq(configFromRequest), eq("cached-md5"), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
+        when(entityHashingService.hashForEntity(configInServer)).thenReturn("cached-digest")
+        when(adminsConfigService.update(any(), eq(configFromRequest), eq("cached-digest"), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArguments().last()
           result.unprocessableEntity("validation failed")
         })
 
-        putWithApiHeader(controller.controllerPath(), ['if-match': 'cached-md5'], toObjectString({
+        putWithApiHeader(controller.controllerPath(), ['if-match': 'cached-digest'], toObjectString({
           AdminsConfigRepresenter.toJSON(it, configFromRequest)
         }))
 
@@ -221,7 +221,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
         AdminsConfig systemAdminsInServer = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role1")))
 
         when(adminsConfigService.systemAdmins()).thenReturn(systemAdminsInServer)
-        when(entityHashingService.md5ForEntity(systemAdminsInServer)).thenReturn('cached-md5')
+        when(entityHashingService.hashForEntity(systemAdminsInServer)).thenReturn('cached-digest')
 
         putWithApiHeader(controller.controllerPath(), ['if-match': 'some-string'], toObjectString({
           AdminsConfigRepresenter.toJSON(it, systemAdminsRequest)
@@ -245,7 +245,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
       void setUp() {
         config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
         when(adminsConfigService.systemAdmins()).thenReturn(config)
-        when(entityHashingService.md5ForEntity(config)).thenReturn('cached-md5')
+        when(entityHashingService.hashForEntity(config)).thenReturn('cached-digest')
       }
 
       @Override
@@ -273,9 +273,9 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
           new AdminRole("super"), new AdminRole("duper"))
 
         when(adminsConfigService.systemAdmins()).thenReturn(expectedConfig)
-        when(adminsConfigService.bulkUpdate(any(), eq(["jez", "tez"]), eq(["admin"]), eq(["super", "duper"]), eq(["wonky", "donkey"]), eq("cached-md5")))
+        when(adminsConfigService.bulkUpdate(any(), eq(["jez", "tez"]), eq(["admin"]), eq(["super", "duper"]), eq(["wonky", "donkey"]), eq("cached-digest")))
           .thenReturn(new BulkUpdateAdminsResult())
-        when(entityHashingService.md5ForEntity(expectedConfig)).thenReturn("cached-md5")
+        when(entityHashingService.hashForEntity(expectedConfig)).thenReturn("cached-digest")
 
         patchWithApiHeader(controller.controllerPath(), [
           operations: [
@@ -290,7 +290,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
           ]
         ])
 
-        verify(adminsConfigService).bulkUpdate(any(), eq(["jez", "tez"]), eq(["admin"]), eq(["super", "duper"]), eq(["wonky", "donkey"]), eq("cached-md5"))
+        verify(adminsConfigService).bulkUpdate(any(), eq(["jez", "tez"]), eq(["admin"]), eq(["super", "duper"]), eq(["wonky", "donkey"]), eq("cached-digest"))
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
@@ -305,8 +305,8 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
         result.nonExistentRoles = [new CaseInsensitiveString("jez"), new CaseInsensitiveString("tez")]
         result.unprocessableEntity("validation failed")
         when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
-        when(entityHashingService.md5ForEntity(configInServer)).thenReturn("cached-md5")
-        when(adminsConfigService.bulkUpdate(any(), eq(["jez", "tez"]), eq([]), eq([]), eq([]), eq("cached-md5")))
+        when(entityHashingService.hashForEntity(configInServer)).thenReturn("cached-digest")
+        when(adminsConfigService.bulkUpdate(any(), eq(["jez", "tez"]), eq([]), eq([]), eq([]), eq("cached-digest")))
           .thenReturn(result)
 
         patchWithApiHeader(controller.controllerPath(), [

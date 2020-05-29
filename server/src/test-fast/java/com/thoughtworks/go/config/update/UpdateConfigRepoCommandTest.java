@@ -43,7 +43,7 @@ public class UpdateConfigRepoCommandTest {
     private String oldConfigRepoId;
     private String newConfigRepoId;
     private HttpLocalizedOperationResult result;
-    private String md5;
+    private String digest;
 
     @Mock
     private SecurityService securityService;
@@ -64,13 +64,13 @@ public class UpdateConfigRepoCommandTest {
         oldConfigRepo = ConfigRepoConfig.createConfigRepoConfig(git("foo.git", "master"), "json-plugin", oldConfigRepoId);
         newConfigRepo = ConfigRepoConfig.createConfigRepoConfig(git("bar.git", "master"), "yaml-plugin", newConfigRepoId);
         result = new HttpLocalizedOperationResult();
-        md5 = "md5";
+        digest = "digest";
         cruiseConfig.getConfigRepos().add(oldConfigRepo);
     }
 
     @Test
     public void shouldUpdateTheSpecifiedConfigRepo() throws Exception {
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result, configRepoExtension);
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, digest, currentUser, result, configRepoExtension);
 
         assertNull(cruiseConfig.getConfigRepos().getConfigRepo(newConfigRepoId));
         command.update(cruiseConfig);
@@ -78,10 +78,10 @@ public class UpdateConfigRepoCommandTest {
     }
 
     @Test
-    public void shouldNotContinueIfMD5IsStale() throws Exception {
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result, configRepoExtension);
+    public void shouldNotContinueIfDigestIsStale() throws Exception {
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, digest, currentUser, result, configRepoExtension);
         when(securityService.isUserAdmin(currentUser)).thenReturn(true);
-        when(entityHashingService.md5ForEntity(oldConfigRepo)).thenReturn("some-hash");
+        when(entityHashingService.hashForEntity(oldConfigRepo)).thenReturn("some-hash");
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.stale(EntityType.ConfigRepo.staleConfig(oldConfigRepoId));
 
@@ -93,7 +93,7 @@ public class UpdateConfigRepoCommandTest {
     public void isValid_shouldValidateConfigRepo() {
         newConfigRepo.setRepo(git("foobar.git", "master"));
         cruiseConfig.getConfigRepos().add(newConfigRepo);
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result, configRepoExtension);
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, digest, currentUser, result, configRepoExtension);
         when(configRepoExtension.canHandlePlugin(newConfigRepo.getPluginId())).thenReturn(true);
 
         command.update(cruiseConfig);
@@ -109,7 +109,7 @@ public class UpdateConfigRepoCommandTest {
         ConfigRepoConfig configRepo = new ConfigRepoConfig();
         configRepo.setId("");
 
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, configRepo, md5, currentUser, result, configRepoExtension);
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, configRepo, digest, currentUser, result, configRepoExtension);
 
         assertFalse(command.isValid(cruiseConfig));
         assertThat(configRepo.errors().on("id"), is("Configuration repository id not specified"));

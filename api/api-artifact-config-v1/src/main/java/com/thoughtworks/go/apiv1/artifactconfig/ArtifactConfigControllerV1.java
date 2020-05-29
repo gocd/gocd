@@ -108,7 +108,7 @@ public class ArtifactConfigControllerV1 extends ApiController implements SparkSp
 
     @Override
     public String etagFor(ArtifactConfig entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override

@@ -73,7 +73,7 @@ class UpdateTemplateConfigCommandTest {
         PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
         cruiseConfig.addTemplate(pipelineTemplateConfig);
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "md5", entityHashingService, externalArtifactsService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isTrue();
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isFalse();
@@ -88,7 +88,7 @@ class UpdateTemplateConfigCommandTest {
 
         cruiseConfig.addTemplate(pipelineTemplateConfig);
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "md5", entityHashingService, externalArtifactsService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isTrue();
         command.update(cruiseConfig);
         assertThat(command.isValid(cruiseConfig)).isTrue();
@@ -106,7 +106,7 @@ class UpdateTemplateConfigCommandTest {
         JobConfig jobConfig = updatedTemplateConfig.findBy(new CaseInsensitiveString("stage")).jobConfigByConfigName(new CaseInsensitiveString("job"));
         jobConfig.setElasticProfileId("invalidElasticProfileId");
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "md5", entityHashingService, externalArtifactsService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isTrue();
         command.update(cruiseConfig);
         MagicalGoConfigXmlLoader.preprocess(cruiseConfig);
@@ -118,7 +118,7 @@ class UpdateTemplateConfigCommandTest {
 
     @Test
     void shouldThrowAnExceptionIfTemplateConfigNotFound() {
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService, externalArtifactsService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
 
         thrown.expect(RecordNotFoundException.class);
         thrown.expectMessage(EntityType.Template.notFoundMessage(pipelineTemplateConfig.name()));
@@ -130,7 +130,7 @@ class UpdateTemplateConfigCommandTest {
         PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));;
         cruiseConfig.addTemplate(pipelineTemplateConfig);
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "md5", entityHashingService, externalArtifactsService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig)).isFalse();
         assertThat(cruiseConfig.getTemplates().contains(updatedTemplateConfig)).isTrue();
@@ -142,10 +142,10 @@ class UpdateTemplateConfigCommandTest {
         CaseInsensitiveString templateName = new CaseInsensitiveString("template");
         PipelineTemplateConfig oldTemplate = new PipelineTemplateConfig(templateName, StageConfigMother.manualStage("foo"));
         cruiseConfig.addTemplate(oldTemplate);
-        when(entityHashingService.md5ForEntity(oldTemplate)).thenReturn("md5");
+        when(entityHashingService.hashForEntity(oldTemplate)).thenReturn("digest");
         when(securityService.isAuthorizedToEditTemplate(templateName, currentUser)).thenReturn(false);
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService, externalArtifactsService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
 
         assertThat(command.canContinue(cruiseConfig)).isFalse();
         assertThat(result.message()).isEqualTo(EntityType.Template.forbiddenToEdit(pipelineTemplateConfig.name(), currentUser.getUsername()));
@@ -155,9 +155,9 @@ class UpdateTemplateConfigCommandTest {
     void shouldContinueWithConfigSaveifUserIsAuthorized() {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
         when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("template"), currentUser)).thenReturn(true);
-        when(entityHashingService.md5ForEntity(pipelineTemplateConfig)).thenReturn("md5");
+        when(entityHashingService.hashForEntity(pipelineTemplateConfig)).thenReturn("digest");
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService, externalArtifactsService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
 
         assertThat(command.canContinue(cruiseConfig)).isTrue();
     }
@@ -165,9 +165,9 @@ class UpdateTemplateConfigCommandTest {
     @Test
     void shouldNotContinueWithConfigSaveIfRequestIsNotFresh() {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
-        when(entityHashingService.md5ForEntity(pipelineTemplateConfig)).thenReturn("another-md5");
+        when(entityHashingService.hashForEntity(pipelineTemplateConfig)).thenReturn("another-digest");
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService, externalArtifactsService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
 
         assertThat(command.canContinue(cruiseConfig)).isFalse();
         assertThat(result.toString()).contains("Someone has modified the configuration for");
@@ -175,7 +175,7 @@ class UpdateTemplateConfigCommandTest {
 
     @Test
     void shouldNotContinueWithConfigSaveIfObjectIsNotFound() {
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService, externalArtifactsService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);
 
         thrown.expectMessage(EntityType.Template.notFoundMessage(pipelineTemplateConfig.name()));
         command.canContinue(cruiseConfig);
@@ -185,7 +185,7 @@ class UpdateTemplateConfigCommandTest {
     void shouldEncryptSecurePropertiesOfPipelineConfig() {
         PipelineTemplateConfig pipelineTemplateConfig = mock(PipelineTemplateConfig.class);
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, null,
-                securityService, result, "stale_md5", entityHashingService, externalArtifactsService);
+                securityService, result, "stale_digest", entityHashingService, externalArtifactsService);
 
         when(pipelineTemplateConfig.name()).thenReturn(new CaseInsensitiveString("p1"));
         CruiseConfig preprocessedConfig = mock(CruiseConfig.class);
@@ -213,7 +213,7 @@ class UpdateTemplateConfigCommandTest {
                     new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
 
             UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(template, null,
-                    securityService, result, "stale_md5", entityHashingService, externalArtifactsService);
+                    securityService, result, "stale_digest", entityHashingService, externalArtifactsService);
 
             BasicCruiseConfig preprocessedConfig = GoConfigMother.defaultCruiseConfig();
             preprocessedConfig.addTemplate(template);
@@ -244,7 +244,7 @@ class UpdateTemplateConfigCommandTest {
                     new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
 
             UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(template, null,
-                    securityService, result, "stale_md5", entityHashingService, externalArtifactsService);
+                    securityService, result, "stale_digest", entityHashingService, externalArtifactsService);
 
             BasicCruiseConfig preprocessedConfig = GoConfigMother.defaultCruiseConfig();
             preprocessedConfig.addTemplate(template);
@@ -272,7 +272,7 @@ class UpdateTemplateConfigCommandTest {
                     " # must be followed by a parameter pattern or escaped by another #");
 
             UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(template, null,
-                    securityService, result, "stale_md5", entityHashingService, externalArtifactsService);
+                    securityService, result, "stale_digest", entityHashingService, externalArtifactsService);
 
             assertThat(command.isValid(preprocessedConfig)).isFalse();
             assertThat(template.errors().isEmpty()).isFalse();

@@ -139,7 +139,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
         def packageDefinition = PackageDefinitionMother.create('id', 'name', configuration, PackageRepositoryMother.create('repo-id'))
 
         when(packageDefinitionService.find('id')).thenReturn(packageDefinition)
-        when(entityHashingService.md5ForEntity(packageDefinition)).thenReturn('etag')
+        when(entityHashingService.hashForEntity(packageDefinition)).thenReturn('etag')
 
         getWithApiHeader(controller.controllerPath('id'))
 
@@ -157,7 +157,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
         def packageDefinition = PackageDefinitionMother.create('id', 'name', configuration, PackageRepositoryMother.create('repo-id'))
 
         when(packageDefinitionService.find('id')).thenReturn(packageDefinition)
-        when(entityHashingService.md5ForEntity(packageDefinition)).thenReturn('etag')
+        when(entityHashingService.hashForEntity(packageDefinition)).thenReturn('etag')
 
         getWithApiHeader(controller.controllerPath('id'), ['if-none-match': 'etag'])
 
@@ -180,7 +180,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
         def packageDefinition = PackageDefinitionMother.create('id', 'name', configuration, PackageRepositoryMother.create('repo-id'))
 
         when(packageDefinitionService.find('id')).thenReturn(packageDefinition)
-        when(entityHashingService.md5ForEntity(packageDefinition)).thenReturn('etag')
+        when(entityHashingService.hashForEntity(packageDefinition)).thenReturn('etag')
 
         getWithApiHeader(controller.controllerPath('id'), ['if-none-match': 'another-etag'])
 
@@ -224,7 +224,7 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
 
         def json = toObjectString({ PackageDefinitionRepresenter.toJSON(it, packageDefinition) })
 
-        when(entityHashingService.md5ForEntity(packageDefinition)).thenReturn('etag')
+        when(entityHashingService.hashForEntity(packageDefinition)).thenReturn('etag')
         when(packageDefinitionService.createPackage(eq(packageDefinition), eq('repo-id'), eq(currentUsername()), any(HttpLocalizedOperationResult.class))).then({
           InvocationOnMock invocation ->
             HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
@@ -325,8 +325,8 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
 
         def json = toObjectString({ PackageDefinitionRepresenter.toJSON(it, updatedPackageDefinition) })
 
-        when(entityHashingService.md5ForEntity(packageDefinition)).thenReturn('etag')
-        when(entityHashingService.md5ForEntity(updatedPackageDefinition)).thenReturn('updated-etag')
+        when(entityHashingService.hashForEntity(packageDefinition)).thenReturn('etag')
+        when(entityHashingService.hashForEntity(updatedPackageDefinition)).thenReturn('updated-etag')
         when(packageDefinitionService.find('id')).thenReturn(packageDefinition)
         when(packageDefinitionService.updatePackage(eq('id'), eq(updatedPackageDefinition), eq('etag'), eq(currentUsername()), any(HttpLocalizedOperationResult.class))).then({
           InvocationOnMock invocation ->
@@ -352,8 +352,8 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
 
         def json = toObjectString({ PackageDefinitionRepresenter.toJSON(it, updatedPackageDefinition) })
 
-        when(entityHashingService.md5ForEntity(packageDefinition)).thenReturn('etag')
-        when(entityHashingService.md5ForEntity(updatedPackageDefinition)).thenReturn('updated-etag')
+        when(entityHashingService.hashForEntity(packageDefinition)).thenReturn('etag')
+        when(entityHashingService.hashForEntity(updatedPackageDefinition)).thenReturn('updated-etag')
         when(packageDefinitionService.find('id')).thenReturn(packageDefinition)
 
         putWithApiHeader(controller.controllerPath('id'), ['if-match': 'unknown-etag'], json)
@@ -394,8 +394,8 @@ class PackagesControllerV2Test implements SecurityServiceTrait, ControllerTrait<
         def json = toObjectString({ PackageDefinitionRepresenter.toJSON(it, updatedPackageDefinition) })
 
         when(packageDefinitionService.find('id')).thenReturn(packageDefinition)
-        when(entityHashingService.md5ForEntity(packageDefinition)).thenReturn('etag')
-        when(entityHashingService.md5ForEntity(updatedPackageDefinition)).thenReturn('updated-etag')
+        when(entityHashingService.hashForEntity(packageDefinition)).thenReturn('etag')
+        when(entityHashingService.hashForEntity(updatedPackageDefinition)).thenReturn('updated-etag')
         when(packageDefinitionService.updatePackage(anyString(), any(), any(), any(), any())).then({
           InvocationOnMock invocation ->
             HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()

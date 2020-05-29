@@ -66,7 +66,7 @@ public class TemplateConfigControllerV6 extends ApiController implements SparkSp
 
     @Override
     public String etagFor(PipelineTemplateConfig pipelineTemplateConfig) {
-        return entityHashingService.md5ForEntity(pipelineTemplateConfig);
+        return entityHashingService.hashForEntity(pipelineTemplateConfig);
     }
 
     @Override

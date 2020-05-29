@@ -15,16 +15,20 @@
  */
 package com.thoughtworks.go.util.pool;
 
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class DigestObjectPools {
 
-    public static final String SHA_256 = "SHA-256";
-    public static final String MD_5 = "MD5";
-    private static ThreadLocal<MessageDigest> sha256DigestLocal = new ThreadLocal<>();
-    private static ThreadLocal<MessageDigest> md5DigestLocal = new ThreadLocal<>();
+    public static final String SHA_256 = MessageDigestAlgorithms.SHA_256;
+    public static final String MD5 = MessageDigestAlgorithms.MD5;
+    public static final String SHA_512_256 = MessageDigestAlgorithms.SHA_512_256;
+    private static final ThreadLocal<MessageDigest> sha256DigestLocal = new ThreadLocal<>();
+    private static final ThreadLocal<MessageDigest> sha512DigestLocal = new ThreadLocal<>();
+    private static final ThreadLocal<MessageDigest> md5DigestLocal = new ThreadLocal<>();
     private final CreateDigest createDigest;
 
     public DigestObjectPools() {
@@ -36,13 +40,13 @@ public class DigestObjectPools {
     }
 
     public String computeDigest(String algorithm, DigestOperation operation) {
-        if (!SHA_256.equals(algorithm) && !MD_5.equals(algorithm)) {
+        if (!SHA_512_256.equals(algorithm) && !SHA_256.equals(algorithm) && !MD5.equals(algorithm)) {
             throw new IllegalArgumentException("Algorithm not supported");
         }
         try {
             MessageDigest digest = getDigest(algorithm);
             String result = operation.perform(digest);
-            digest.reset();//test passes even without this, but can't see sun impl's source, so playing safe
+            digest.reset(); //test passes even without this, but can't see sun impl's source, so playing safe
             return result;
         } catch (Exception e) {
             throw new RuntimeException("Failed to compute the digest.", e);
@@ -60,21 +64,24 @@ public class DigestObjectPools {
     }
 
     private ThreadLocal<MessageDigest> get(String algorithm) {
-        if (SHA_256.equals(algorithm)) {
-            return sha256DigestLocal;
+        switch (algorithm) {
+            case SHA_512_256:
+                return sha512DigestLocal;
+            case SHA_256:
+                return sha256DigestLocal;
+            case MD5:
+                return md5DigestLocal;
+            default:
+                throw new IllegalArgumentException("Algorithm not supported");
         }
-        if (MD_5.equals(algorithm)) {
-            return md5DigestLocal;
-        }
-        throw new IllegalArgumentException("Algorithm not supported");
     }
 
-    public static interface DigestOperation {
-        public String perform(MessageDigest digest) throws IOException;
+    public interface DigestOperation {
+        String perform(MessageDigest digest) throws IOException;
     }
 
-    public static interface CreateDigest {
-        public MessageDigest create(String algorithm) throws NoSuchAlgorithmException;
+    public interface CreateDigest {
+        MessageDigest create(String algorithm) throws NoSuchAlgorithmException;
     }
 
     private static class SimpleCreateDigest implements CreateDigest {
@@ -90,6 +97,7 @@ public class DigestObjectPools {
      */
     void clearThreadLocals() {
         sha256DigestLocal.set(null);
+        sha512DigestLocal.set(null);
         md5DigestLocal.set(null);
     }
 }

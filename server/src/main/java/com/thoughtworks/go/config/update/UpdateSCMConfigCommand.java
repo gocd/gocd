@@ -27,12 +27,12 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 public class UpdateSCMConfigCommand extends SCMConfigCommand {
 
-    private String md5;
+    private String digest;
     private EntityHashingService entityHashingService;
 
-    public UpdateSCMConfigCommand(SCM globalScmConfig, PluggableScmService pluggableScmService, GoConfigService goConfigService, Username currentUser, LocalizedOperationResult result, String md5, EntityHashingService entityHashingService) {
+    public UpdateSCMConfigCommand(SCM globalScmConfig, PluggableScmService pluggableScmService, GoConfigService goConfigService, Username currentUser, LocalizedOperationResult result, String digest, EntityHashingService entityHashingService) {
         super(globalScmConfig, pluggableScmService, goConfigService, currentUser, result);
-        this.md5 = md5;
+        this.digest = digest;
         this.entityHashingService = entityHashingService;
     }
 
@@ -51,7 +51,7 @@ public class UpdateSCMConfigCommand extends SCMConfigCommand {
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         SCM existingSCM = findSCM(cruiseConfig);
-        boolean freshRequest =  entityHashingService.md5ForEntity(existingSCM).equals(md5);
+        boolean freshRequest =  entityHashingService.hashForEntity(existingSCM).equals(digest);
         if (!freshRequest) {
             result.stale(EntityType.SCM.staleConfig(globalScmConfig.getName()));
         }

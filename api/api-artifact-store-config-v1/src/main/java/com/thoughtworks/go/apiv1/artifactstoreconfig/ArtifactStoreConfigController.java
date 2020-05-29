@@ -62,7 +62,7 @@ public class ArtifactStoreConfigController extends ApiController implements Spar
 
     @Override
     public String etagFor(ArtifactStore entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override

@@ -142,14 +142,14 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
       @Test
       void 'should render artifact store of specified id'() {
         def artifactStore = new ArtifactStore("docker", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
-        when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(artifactStore)).thenReturn('digest')
         when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
 
         getWithApiHeader(controller.controllerPath('/test'))
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(artifactStore, ArtifactStoreRepresenter)
       }
@@ -170,10 +170,10 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
       void 'should render 304 if etag matches'() {
         def artifactStore = new ArtifactStore("docker", "cd.go.artifact.docker",
           ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
-        when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(artifactStore)).thenReturn('digest')
         when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
 
-        getWithApiHeader(controller.controllerPath('/test'), ['if-none-match': '"md5"'])
+        getWithApiHeader(controller.controllerPath('/test'), ['if-none-match': '"digest"'])
 
         assertThatResponse()
           .isNotModified()
@@ -184,14 +184,14 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
       void 'should render 200 if etag does not match'() {
         def artifactStore = new ArtifactStore("docker", "cd.go.artifact.docker",
           ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
-        when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(artifactStore)).thenReturn('digest')
         when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
 
         getWithApiHeader(controller.controllerPath('/test'), ['if-none-match': '"junk"'])
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(artifactStore, ArtifactStoreRepresenter)
       }
@@ -226,7 +226,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
       @Test
       void 'should deserialize artifact store config from given payload'() {
         def artifactStore = new ArtifactStore("test", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
-        when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(artifactStore)).thenReturn('some-digest')
 
         postWithApiHeader(controller.controllerPath(), toObjectString({
           ArtifactStoreRepresenter.toJSON(it, artifactStore)
@@ -234,7 +234,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"some-md5"')
+          .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(artifactStore, ArtifactStoreRepresenter)
       }
@@ -311,7 +311,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
         def artifactStore = new ArtifactStore("test", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
 
         when(artifactStoreService.findArtifactStore('test')).thenReturn(null)
-        when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('cached-md5')
+        when(entityHashingService.hashForEntity(artifactStore)).thenReturn('cached-digest')
 
         putWithApiHeader(controller.controllerPath('/test'), ['if-match': 'some-string'], toObjectString({
           ArtifactStoreRepresenter.toJSON(it, artifactStore)
@@ -327,7 +327,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
         def artifactStore = new ArtifactStore("test", "cd.go.artifact.docker", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
 
         when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
-        when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('cached-md5')
+        when(entityHashingService.hashForEntity(artifactStore)).thenReturn('cached-digest')
 
         putWithApiHeader(controller.controllerPath('/test'), ['if-match': 'some-string'], toObjectString({
           ArtifactStoreRepresenter.toJSON(it, artifactStore)
@@ -344,16 +344,16 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
         def newArtifactStore = new ArtifactStore("test", "cd.go.artifact.artifactory", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
 
         when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
-        when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('cached-md5')
-        when(entityHashingService.md5ForEntity(newArtifactStore)).thenReturn('new-md5')
+        when(entityHashingService.hashForEntity(artifactStore)).thenReturn('cached-digest')
+        when(entityHashingService.hashForEntity(newArtifactStore)).thenReturn('new-digest')
 
-        putWithApiHeader(controller.controllerPath('/test'), ['if-match': 'cached-md5'], toObjectString({
+        putWithApiHeader(controller.controllerPath('/test'), ['if-match': 'cached-digest'], toObjectString({
           ArtifactStoreRepresenter.toJSON(it, newArtifactStore)
         }))
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"new-md5"')
+          .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(newArtifactStore, ArtifactStoreRepresenter)
       }
@@ -364,10 +364,10 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
         def newArtifactStore = new ArtifactStore("test1", "cd.go.artifact.artifactory", ConfigurationPropertyMother.create("RegistryURL", false, "http://foo"))
 
         when(artifactStoreService.findArtifactStore('test')).thenReturn(artifactStore)
-        when(entityHashingService.md5ForEntity(artifactStore)).thenReturn('cached-md5')
-        when(entityHashingService.md5ForEntity(newArtifactStore)).thenReturn('new-md5')
+        when(entityHashingService.hashForEntity(artifactStore)).thenReturn('cached-digest')
+        when(entityHashingService.hashForEntity(newArtifactStore)).thenReturn('new-digest')
 
-        putWithApiHeader(controller.controllerPath('/test'), ['if-match': 'cached-md5'], toObjectString({
+        putWithApiHeader(controller.controllerPath('/test'), ['if-match': 'cached-digest'], toObjectString({
           ArtifactStoreRepresenter.toJSON(it, newArtifactStore)
         }))
 

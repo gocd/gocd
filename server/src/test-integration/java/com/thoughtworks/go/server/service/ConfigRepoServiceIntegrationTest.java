@@ -178,7 +178,7 @@ public class ConfigRepoServiceIntegrationTest {
         assertThat(configRepoService.getConfigRepos().size(), is(1));
         assertThat(configRepoService.getConfigRepo(repoId), is(configRepo));
 
-        configRepoService.updateConfigRepo(repoId, toUpdateWith, entityHashingService.md5ForEntity(configRepo), user, result);
+        configRepoService.updateConfigRepo(repoId, toUpdateWith, entityHashingService.hashForEntity(configRepo), user, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(true));
 

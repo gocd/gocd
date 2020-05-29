@@ -81,7 +81,7 @@ public class PackageRepositoryInternalControllerV1 extends ApiController impleme
 
     @Override
     public String etagFor(PackageRepository entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override

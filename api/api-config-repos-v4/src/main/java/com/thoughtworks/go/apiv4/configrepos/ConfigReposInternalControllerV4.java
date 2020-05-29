@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.config.policy.SupportedEntity.CONFIG_REPO;
-import static com.thoughtworks.go.util.CachedDigestUtils.sha256Hex;
+import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
 import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
@@ -116,7 +116,7 @@ public class ConfigReposInternalControllerV4 extends ApiController implements Sp
     }
 
     private String etagFor(Object entity) {
-        return sha256Hex(Integer.toString(entity.hashCode()));
+        return sha512_256Hex(Integer.toString(entity.hashCode()));
     }
 
     private List<ConfigRepoWithResult> allRepos() {

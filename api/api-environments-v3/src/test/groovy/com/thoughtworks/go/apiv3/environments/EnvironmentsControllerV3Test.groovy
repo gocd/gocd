@@ -227,14 +227,14 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
         env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
-        when(entityHashingService.md5ForEntity(env1)).thenReturn("md5-hash")
+        when(entityHashingService.hashForEntity(env1)).thenReturn("digest-hash")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
 
         getWithApiHeader(controller.controllerPath("env1"))
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5-hash"')
+          .hasEtag('"digest-hash"')
           .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
       }
 
@@ -256,10 +256,10 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
         env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
-        when(entityHashingService.md5ForEntity(env1)).thenReturn("md5-hash")
+        when(entityHashingService.hashForEntity(env1)).thenReturn("digest-hash")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
 
-        getWithApiHeader(controller.controllerPath("env1"), ['if-none-match': 'md5-hash'])
+        getWithApiHeader(controller.controllerPath("env1"), ['if-none-match': 'digest-hash'])
 
         assertThatResponse()
           .isNotModified()
@@ -274,14 +274,14 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
         env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
-        when(entityHashingService.md5ForEntity(env1)).thenReturn("md5-hash")
+        when(entityHashingService.hashForEntity(env1)).thenReturn("digest-hash")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
 
-        getWithApiHeader(controller.controllerPath("env1"), ['if-none-match': 'md5-old-hash'])
+        getWithApiHeader(controller.controllerPath("env1"), ['if-none-match': 'digest-old-hash'])
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5-hash"')
+          .hasEtag('"digest-hash"')
           .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
       }
     }
@@ -355,10 +355,10 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
         env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
-        when(entityHashingService.md5ForEntity(env1)).thenReturn("md5-hash")
+        when(entityHashingService.hashForEntity(env1)).thenReturn("digest-hash")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
 
-        getWithApiHeader(controller.controllerPath("env1"), ['if-none-match': 'md5-hash'])
+        getWithApiHeader(controller.controllerPath("env1"), ['if-none-match': 'digest-hash'])
 
         assertThatResponse()
           .isNotModified()
@@ -373,14 +373,14 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
         env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
-        when(entityHashingService.md5ForEntity(env1)).thenReturn("md5-hash")
+        when(entityHashingService.hashForEntity(env1)).thenReturn("digest-hash")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
 
-        getWithApiHeader(controller.controllerPath("env1"), ['if-none-match': 'md5-old-hash'])
+        getWithApiHeader(controller.controllerPath("env1"), ['if-none-match': 'digest-old-hash'])
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5-hash"')
+          .hasEtag('"digest-hash"')
           .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
       }
     }
@@ -419,7 +419,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         newConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
         newConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
 
-        when(entityHashingService.md5ForEntity(existingConfig)).thenReturn("ffff")
+        when(entityHashingService.hashForEntity(existingConfig)).thenReturn("ffff")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(existingConfig)
 
         def json = toObjectString({ EnvironmentRepresenter.toJSON(it, newConfig) })
@@ -441,7 +441,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         newConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
         newConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
 
-        when(entityHashingService.md5ForEntity(existingConfig)).thenReturn("ffff")
+        when(entityHashingService.hashForEntity(existingConfig)).thenReturn("ffff")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(existingConfig)
 
         def json = toObjectString({ EnvironmentRepresenter.toJSON(it, newConfig) })
@@ -463,7 +463,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
 
-        when(entityHashingService.md5ForEntity(env1)).thenReturn("wrong-md5")
+        when(entityHashingService.hashForEntity(env1)).thenReturn("wrong-digest")
 
         def json = toObjectString({ EnvironmentRepresenter.toJSON(it, env1) })
 
@@ -482,7 +482,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
         env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
-        when(entityHashingService.md5ForEntity(env1)).thenReturn("ffff")
+        when(entityHashingService.hashForEntity(env1)).thenReturn("ffff")
 
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
 
@@ -552,7 +552,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
         env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
-        when(entityHashingService.md5ForEntity(env1)).thenReturn("ffff")
+        when(entityHashingService.hashForEntity(env1)).thenReturn("ffff")
 
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
 
@@ -620,7 +620,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Test
       void 'should update attributes of environment'() {
-        when(entityHashingService.md5ForEntity(updatedConfig)).thenReturn("md5-hash")
+        when(entityHashingService.hashForEntity(updatedConfig)).thenReturn("digest-hash")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(oldConfig)
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(updatedConfig)
         when(environmentConfigService.patchEnvironment(
@@ -657,7 +657,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5-hash"')
+          .hasEtag('"digest-hash"')
           .hasBodyWithJsonObject(updatedConfig, EnvironmentRepresenter)
       }
 
@@ -678,7 +678,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
       @Test
       void 'should error out if there are errors in parsing environment variable to add in patch request'() {
-        when(entityHashingService.md5ForEntity(updatedConfig)).thenReturn("md5-hash")
+        when(entityHashingService.hashForEntity(updatedConfig)).thenReturn("digest-hash")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(oldConfig)
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(updatedConfig)
         when(environmentConfigService.patchEnvironment(
@@ -774,7 +774,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
         def json = toObjectString({ EnvironmentRepresenter.toJSON(it, env1) })
 
-        when(entityHashingService.md5ForEntity(env1)).thenReturn("md5-hash")
+        when(entityHashingService.hashForEntity(env1)).thenReturn("digest-hash")
         when(environmentConfigService.createEnvironment(eq(env1), eq(currentUsername()), any(HttpLocalizedOperationResult))).then({
           InvocationOnMock invocation ->
             HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
@@ -785,7 +785,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5-hash"')
+          .hasEtag('"digest-hash"')
           .hasJsonBody(json)
       }
 
@@ -850,7 +850,7 @@ class EnvironmentsControllerV3Test implements SecurityServiceTrait, ControllerTr
       @Test
       void 'should error out if the environment already exists'() {
         when(environmentConfigService.getMergedEnvironmentforDisplay(anyString(), any(HttpLocalizedOperationResult.class)))
-          .thenReturn(new ConfigElementForEdit<EnvironmentConfig>(new BasicEnvironmentConfig(), "md5string"))
+          .thenReturn(new ConfigElementForEdit<EnvironmentConfig>(new BasicEnvironmentConfig(), "digeststring"))
 
         postWithApiHeader(controller.controllerPath(), [name: "env1"])
 

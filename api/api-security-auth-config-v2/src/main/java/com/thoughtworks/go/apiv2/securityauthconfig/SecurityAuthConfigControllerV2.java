@@ -32,7 +32,6 @@ import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import com.thoughtworks.go.util.CachedDigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,14 +43,15 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
+import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
 import static spark.Spark.*;
 
 @Component
 public class SecurityAuthConfigControllerV2 extends ApiController implements SparkSpringController, CrudController<SecurityAuthConfig> {
 
-    private SecurityAuthConfigService securityAuthConfigService;
+    private final SecurityAuthConfigService securityAuthConfigService;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private EntityHashingService entityHashingService;
+    private final EntityHashingService entityHashingService;
 
     @Autowired
     public SecurityAuthConfigControllerV2(SecurityAuthConfigService securityAuthConfigService,
@@ -145,15 +145,13 @@ public class SecurityAuthConfigControllerV2 extends ApiController implements Spa
 
     @Override
     public String etagFor(SecurityAuthConfig entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     private String etagFor(SecurityAuthConfigs securityAuthConfigs) {
-        String md5OfAllAuthConfigs = securityAuthConfigs.stream()
+        return sha512_256Hex(securityAuthConfigs.stream()
                 .map(this::etagFor)
-                .collect(Collectors.joining("/"));
-
-        return CachedDigestUtils.md5Hex(md5OfAllAuthConfigs);
+                .collect(Collectors.joining("/")));
     }
 
     @Override

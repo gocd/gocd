@@ -168,7 +168,7 @@ public class ConfigReposControllerV2 extends ApiController implements SparkSprin
 
     @Override
     public String etagFor(ConfigRepoConfig repo) {
-        return entityHashingService.md5ForEntity(repo);
+        return entityHashingService.hashForEntity(repo);
     }
 
     @Override

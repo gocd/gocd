@@ -239,13 +239,13 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
       ConfigRepoConfig repo = repo(ID_1)
       when(service.getConfigRepo(ID_1)).thenReturn(repo)
-      when(entityHashingService.md5ForEntity(repo)).thenReturn('md5')
+      when(entityHashingService.hashForEntity(repo)).thenReturn('digest')
 
       getWithApiHeader(controller.controllerPath(ID_1))
 
       assertThatResponse().
         isOk().
-        hasHeader('ETag', '"md5"'). // test etag does not change
+        hasHeader('ETag', '"digest"'). // test etag does not change
         hasJsonBody(expectedRepoJson(ID_1))
     }
 
@@ -412,10 +412,10 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
       ConfigRepoConfig existing = ConfigRepoConfig.createConfigRepoConfig(hg("https://fakeurl.com", null), TEST_PLUGIN_ID, id)
       ConfigRepoConfig repoFromRequest = ConfigRepoConfig.createConfigRepoConfig(hg("https://newfakeurl.com", null), TEST_PLUGIN_ID, id)
       when(service.getConfigRepo(id)).thenReturn(existing)
-      when(entityHashingService.md5ForEntity(existing)).thenReturn('md5')
-      when(entityHashingService.md5ForEntity(repoFromRequest)).thenReturn('new_md5')
+      when(entityHashingService.hashForEntity(existing)).thenReturn('digest')
+      when(entityHashingService.hashForEntity(repoFromRequest)).thenReturn('new_digest')
 
-      putWithApiHeader(controller.controllerPath(id), ['If-Match': 'md5'], [
+      putWithApiHeader(controller.controllerPath(id), ['If-Match': 'digest'], [
         id           : id,
         plugin_id    : TEST_PLUGIN_ID,
         material     : [
@@ -430,11 +430,11 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
       ])
 
       verify(service, times(1)).
-        updateConfigRepo(eq(id), eq(repoFromRequest), eq('md5'), any() as Username, any() as HttpLocalizedOperationResult)
+        updateConfigRepo(eq(id), eq(repoFromRequest), eq('digest'), any() as Username, any() as HttpLocalizedOperationResult)
 
       assertThatResponse().
         isOk().
-        hasHeader('ETag', '"new_md5"'). // test etag should change
+        hasHeader('ETag', '"new_digest"'). // test etag should change
         hasJsonBody(expectedRepoJson(id, "https://newfakeurl.com"))
     }
 
@@ -456,7 +456,7 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
 
       ConfigRepoConfig existing = repo(id)
       when(service.getConfigRepo(id)).thenReturn(existing)
-      when(entityHashingService.md5ForEntity(existing)).thenReturn("unknown-etag")
+      when(entityHashingService.hashForEntity(existing)).thenReturn("unknown-etag")
 
       Map payload = [
         id           : id,
@@ -487,7 +487,7 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
     void 'should throw 403 if the user does not have permission to update config-repo'() {
       String id = "test-id"
 
-      putWithApiHeader(controller.controllerPath(id), ['If-Match': 'md5'], [
+      putWithApiHeader(controller.controllerPath(id), ['If-Match': 'digest'], [
         id           : id,
         plugin_id    : TEST_PLUGIN_ID,
         material     : [

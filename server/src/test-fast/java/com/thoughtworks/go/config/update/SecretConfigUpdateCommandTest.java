@@ -76,10 +76,10 @@ public class SecretConfigUpdateCommandTest {
 
         EntityHashingService entityHashingService = mock(EntityHashingService.class);
 
-        when(entityHashingService.md5ForEntity(oldConfig)).thenReturn("md5");
+        when(entityHashingService.hashForEntity(oldConfig)).thenReturn("digest");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        SecretConfigUpdateCommand command = new SecretConfigUpdateCommand(goConfigService, newConfig, null, currentUser, result, entityHashingService, "bad-md5");
+        SecretConfigUpdateCommand command = new SecretConfigUpdateCommand(goConfigService, newConfig, null, currentUser, result, entityHashingService, "bad-digest");
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.toString(), containsString("Someone has modified the configuration for"));

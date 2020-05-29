@@ -145,7 +145,7 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
 
     @Override
     public String etagFor(SecretConfig entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override
@@ -181,6 +181,6 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
     }
 
     private String etagFor(SecretConfigs allSecretConfigs) {
-        return entityHashingService.md5ForEntity(allSecretConfigs);
+        return entityHashingService.hashForEntity(allSecretConfigs);
     }
 }

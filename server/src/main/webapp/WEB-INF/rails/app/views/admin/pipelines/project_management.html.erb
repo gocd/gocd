@@ -6,7 +6,7 @@
 <%= form_for @pipeline, :as => :pipeline, :url => pipeline_update_path(:pipeline_name => @pipeline.name(), :current_tab => 'project_management'), :html => {:method => :put, :id => 'pipeline_edit_form'} do |f| %>
     <div class="fieldset">
         <%= md5_field %>
-        <%= hidden_field_tag :pipeline_md5, @pipeline_md5 %>
+        <%= hidden_field_tag :pipeline_digest, @pipeline_digest %>
         <%= hidden_field_tag :pipeline_group_name, @pipeline_group_name %>
         <div id="tracking_tool_container">
             <%= f.fields_for com.thoughtworks.go.config.PipelineConfig::TRACKING_TOOL, @pipeline.trackingTool do |t| %>

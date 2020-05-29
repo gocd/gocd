@@ -302,7 +302,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         PipelineConfig originalPipelineConfig = configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName));
         PipelineConfig pipelineConfig = new Cloner().deepClone(originalPipelineConfig);
-        String md5 = entityHashingService.md5ForEntity(originalPipelineConfig, fixture.groupName);
+        String md5 = entityHashingService.hashForEntity(originalPipelineConfig, fixture.groupName);
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
         pipelineConfig.remove(devStage);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -330,7 +330,7 @@ public class BuildAssignmentServiceIntegrationTest {
         PipelineConfig originalPipelineConfig = configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName));
         PipelineConfig pipelineConfig = new Cloner().deepClone(originalPipelineConfig);
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
-        String md5 = entityHashingService.md5ForEntity(originalPipelineConfig, fixture.groupName);
+        String md5 = entityHashingService.hashForEntity(originalPipelineConfig, fixture.groupName);
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
         devStage.getJobs().remove(devStage.jobConfigByConfigName(new CaseInsensitiveString(fixture.JOB_FOR_DEV_STAGE)));
         pipelineConfigService.updatePipelineConfig(loserUser, pipelineConfig, fixture.groupName, md5, new HttpLocalizedOperationResult());

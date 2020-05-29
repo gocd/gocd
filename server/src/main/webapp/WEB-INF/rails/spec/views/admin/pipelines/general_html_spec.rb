@@ -29,7 +29,7 @@ describe "admin/pipelines/general.html.erb" do
     @cruise_config.addPipeline(@pipeline_group_name, @pipeline)
 
     set(@cruise_config, "md5", "abc")
-    @pipeline_md5 = entity_hashing_service.md5ForEntity(@pipeline, @pipeline_group_name)
+    @pipeline_digest = entity_hashing_service.hashForEntity(@pipeline, @pipeline_group_name)
     in_params(:pipeline_name => "foo_bar", :action => "new", :controller => "admin/stages")
   end
 
@@ -38,7 +38,7 @@ describe "admin/pipelines/general.html.erb" do
 
     Capybara.string(response.body).find('#pipeline_edit_form').tap do |form|
       expect(form).to have_selector("input[type='hidden'][name='config_md5'][value='abc']", visible: :hidden)
-      expect(form).to have_selector("input[type='hidden'][name='pipeline_md5'][value='#{@pipeline_md5}']", visible: :hidden)
+      expect(form).to have_selector("input[type='hidden'][name='pipeline_digest'][value='#{@pipeline_digest}']", visible: :hidden)
       expect(form).to have_selector("input[type='hidden'][name='pipeline_group_name'][value='group-1']", visible: :hidden)
 
       expect(form).to have_selector("div[class='contextual_help has_go_tip_right']")

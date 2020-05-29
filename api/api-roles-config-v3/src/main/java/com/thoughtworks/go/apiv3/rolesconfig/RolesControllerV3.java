@@ -89,7 +89,7 @@ public class RolesControllerV3 extends ApiController implements SparkSpringContr
     public String index(Request req, Response res) throws IOException {
         String pluginType = req.queryParams("type");
         RolesConfig roles = roleConfigService.getRoles().ofType(pluginType);
-        String etag = entityHashingService.md5ForEntity(roles);
+        String etag = entityHashingService.hashForEntity(roles);
 
         if (fresh(req, etag)) {
             return notModified(res);
@@ -163,7 +163,7 @@ public class RolesControllerV3 extends ApiController implements SparkSpringContr
 
     @Override
     public String etagFor(Role entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override

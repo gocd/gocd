@@ -101,7 +101,7 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
         ))
 
         when(secretConfigService.getAllSecretConfigs()).thenReturn(expectedConfigs)
-        when(entityHashingService.md5ForEntity(expectedConfigs)).thenReturn("ffff")
+        when(entityHashingService.hashForEntity(expectedConfigs)).thenReturn("ffff")
 
         getWithApiHeader(controller.controllerPath())
 
@@ -120,7 +120,7 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
         ))
 
         when(secretConfigService.getAllSecretConfigs()).thenReturn(expectedConfigs)
-        when(entityHashingService.md5ForEntity(expectedConfigs)).thenReturn("ffff")
+        when(entityHashingService.hashForEntity(expectedConfigs)).thenReturn("ffff")
 
         getWithApiHeader(controller.controllerPath(), ['if-none-match': '"ffff"'])
 
@@ -176,14 +176,14 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
           ConfigurationPropertyMother.create("password", true, "Doe")
         )
 
-        when(entityHashingService.md5ForEntity(expectedConfig)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(expectedConfig)).thenReturn('digest')
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(expectedConfig))
 
         getWithApiHeader(controller.controllerPath("/ForDeploy"))
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(expectedConfig, SecretConfigRepresenter)
       }
@@ -207,10 +207,10 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
           ConfigurationPropertyMother.create("password", true, "Doe")
         )
 
-        when(entityHashingService.md5ForEntity(expectedConfig)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(expectedConfig)).thenReturn('digest')
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(expectedConfig))
 
-        getWithApiHeader(controller.controllerPath('/ForDeploy'), ['if-none-match': '"md5"'])
+        getWithApiHeader(controller.controllerPath('/ForDeploy'), ['if-none-match': '"digest"'])
 
         assertThatResponse()
           .isNotModified()
@@ -224,14 +224,14 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
           ConfigurationPropertyMother.create("password", true, "Doe")
         )
 
-        when(entityHashingService.md5ForEntity(expectedConfig)).thenReturn('md5-new')
+        when(entityHashingService.hashForEntity(expectedConfig)).thenReturn('digest-new')
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(expectedConfig))
 
-        getWithApiHeader(controller.controllerPath('/ForDeploy'), ['if-none-match': '"md5"'])
+        getWithApiHeader(controller.controllerPath('/ForDeploy'), ['if-none-match': '"digest"'])
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5-new"')
+          .hasEtag('"digest-new"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(expectedConfig, SecretConfigRepresenter)
       }
@@ -301,14 +301,14 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
 
         def secretConfig = fromJSON(GsonTransformer.instance.jsonReaderFrom(jsonPayload))
 
-        when(entityHashingService.md5ForEntity(Mockito.any() as SecretConfig)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(Mockito.any() as SecretConfig)).thenReturn('some-digest')
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs())
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"some-md5"')
+          .hasEtag('"some-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(secretConfig, SecretConfigRepresenter)
       }
@@ -320,7 +320,7 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
           ConfigurationPropertyMother.create("username", false, "Jane"),
         )
 
-        when(entityHashingService.md5ForEntity(expectedConfig)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(expectedConfig)).thenReturn('digest')
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(expectedConfig))
 
         def jsonPayload = toObjectString({ toJSON(it, expectedConfig) })
@@ -349,7 +349,7 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
           ConfigurationPropertyMother.create("username", false, "Jane"),
         )
 
-        when(entityHashingService.md5ForEntity(expectedConfig)).thenReturn('md5')
+        when(entityHashingService.hashForEntity(expectedConfig)).thenReturn('digest')
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs())
 
         def jsonPayload = toObjectString({ toJSON(it, expectedConfig) })
@@ -456,19 +456,19 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
 
         def newSecretConfig = fromJSON(GsonTransformer.instance.jsonReaderFrom(requestJson))
 
-        when(entityHashingService.md5ForEntity(secretConfig)).thenReturn('old-md5')
-        when(entityHashingService.md5ForEntity(newSecretConfig)).thenReturn('new-md5')
+        when(entityHashingService.hashForEntity(secretConfig)).thenReturn('old-digest')
+        when(entityHashingService.hashForEntity(newSecretConfig)).thenReturn('new-digest')
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(secretConfig)).thenReturn(new SecretConfigs(newSecretConfig))
-        when(secretConfigService.update(eq(currentUsername()), eq('some-md5'), eq(newSecretConfig), any(LocalizedOperationResult))).thenAnswer({
+        when(secretConfigService.update(eq(currentUsername()), eq('some-digest'), eq(newSecretConfig), any(LocalizedOperationResult))).thenAnswer({
           HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) it.getArguments().last()
           result.setMessage("SecretConfig 'secrets_id' was updated successfully.")
         })
 
-        putWithApiHeader(controller.controllerPath("/secrets_id"), ['if-match': 'old-md5'], requestJson)
+        putWithApiHeader(controller.controllerPath("/secrets_id"), ['if-match': 'old-digest'], requestJson)
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"new-md5"')
+          .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(newSecretConfig, SecretConfigRepresenter)
       }
@@ -486,12 +486,12 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
 
         def newSecretConfig = fromJSON(GsonTransformer.instance.jsonReaderFrom(requestJson))
 
-        when(entityHashingService.md5ForEntity(secretConfig)).thenReturn('changed-md5')
-        when(entityHashingService.md5ForEntity(newSecretConfig)).thenReturn('new-md5')
+        when(entityHashingService.hashForEntity(secretConfig)).thenReturn('changed-digest')
+        when(entityHashingService.hashForEntity(newSecretConfig)).thenReturn('new-digest')
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(secretConfig)).thenReturn(new SecretConfigs(newSecretConfig))
-        verify(secretConfigService, times(0)).update(eq(currentUsername()), eq('new-md5'), eq(newSecretConfig), any(LocalizedOperationResult))
+        verify(secretConfigService, times(0)).update(eq(currentUsername()), eq('new-digest'), eq(newSecretConfig), any(LocalizedOperationResult))
 
-        putWithApiHeader(controller.controllerPath("/secrets_id"), ['if-match': 'old-md5'], requestJson)
+        putWithApiHeader(controller.controllerPath("/secrets_id"), ['if-match': 'old-digest'], requestJson)
 
         assertThatResponse()
           .isPreconditionFailed()
@@ -511,12 +511,12 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
 
         def newSecretConfig = fromJSON(GsonTransformer.instance.jsonReaderFrom(requestJson))
 
-        when(entityHashingService.md5ForEntity(secretConfig)).thenReturn('old-md5')
-        when(entityHashingService.md5ForEntity(newSecretConfig)).thenReturn('new-md5')
+        when(entityHashingService.hashForEntity(secretConfig)).thenReturn('old-digest')
+        when(entityHashingService.hashForEntity(newSecretConfig)).thenReturn('new-digest')
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(secretConfig)).thenReturn(new SecretConfigs(newSecretConfig))
-        verify(secretConfigService, times(0)).update(eq(currentUsername()), eq('new-md5'), eq(newSecretConfig), any(LocalizedOperationResult))
+        verify(secretConfigService, times(0)).update(eq(currentUsername()), eq('new-digest'), eq(newSecretConfig), any(LocalizedOperationResult))
 
-        putWithApiHeader(controller.controllerPath("/secrets_id"), ['if-match': 'old-md5'], requestJson)
+        putWithApiHeader(controller.controllerPath("/secrets_id"), ['if-match': 'old-digest'], requestJson)
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -534,9 +534,9 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
         def newSecretConfig = fromJSON(GsonTransformer.instance.jsonReaderFrom(requestJson))
 
         when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs()).thenReturn(new SecretConfigs(newSecretConfig))
-        verify(secretConfigService, times(0)).update(eq(currentUsername()), eq('new-md5'), eq(newSecretConfig), any(LocalizedOperationResult))
+        verify(secretConfigService, times(0)).update(eq(currentUsername()), eq('new-digest'), eq(newSecretConfig), any(LocalizedOperationResult))
 
-        putWithApiHeader(controller.controllerPath("/secrets_id"), ['if-match': 'old-md5'], requestJson)
+        putWithApiHeader(controller.controllerPath("/secrets_id"), ['if-match': 'old-digest'], requestJson)
 
         assertThatResponse()
           .isNotFound()
@@ -549,7 +549,7 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
             new SecretConfigs(new SecretConfig("foo", "bar-plugin"))
         )
 
-        putWithApiHeader(controller.controllerPath("/foo"), ['if-match': 'md5-does-not-matter'], [:])
+        putWithApiHeader(controller.controllerPath("/foo"), ['if-match': 'digest-does-not-matter'], [:])
 
         assertThatResponse()
           .isUnprocessableEntity()

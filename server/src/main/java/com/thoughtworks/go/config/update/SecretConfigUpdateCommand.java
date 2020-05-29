@@ -53,7 +53,7 @@ public class SecretConfigUpdateCommand extends SecretConfigCommand {
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         SecretConfig existingSecretConfig = findExistingProfile(cruiseConfig);
-        boolean freshRequest = hashingService.md5ForEntity(existingSecretConfig).equals(md5);
+        boolean freshRequest = hashingService.hashForEntity(existingSecretConfig).equals(md5);
         if (!freshRequest) {
             result.stale(getObjectDescriptor().staleConfig(existingSecretConfig.getId()));
         }

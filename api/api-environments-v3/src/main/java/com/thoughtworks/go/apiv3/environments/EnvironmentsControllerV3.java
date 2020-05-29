@@ -216,7 +216,7 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
 
     @Override
     public String etagFor(EnvironmentConfig entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override
@@ -258,6 +258,6 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
     }
 
     private String calculateEtag(EnvironmentsConfig envConfigs) {
-        return entityHashingService.md5ForEntity(envConfigs);
+        return entityHashingService.hashForEntity(envConfigs);
     }
 }

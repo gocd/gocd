@@ -66,7 +66,7 @@ public class TemplateConfigControllerV7 extends ApiController implements SparkSp
 
     @Override
     public String etagFor(PipelineTemplateConfig pipelineTemplateConfig) {
-        return entityHashingService.md5ForEntity(pipelineTemplateConfig);
+        return entityHashingService.hashForEntity(pipelineTemplateConfig);
     }
 
     @Override
@@ -177,7 +177,7 @@ public class TemplateConfigControllerV7 extends ApiController implements SparkSp
     public String showParameters(Request req, Response res) throws IOException {
         PipelineTemplateConfig templateConfig = fetchEntityFromConfig(req.params("template_name"));
         ParamsConfig paramConfigs = templateConfig.referredParams();
-        String etagFromServer = entityHashingService.md5ForEntity(paramConfigs);
+        String etagFromServer = entityHashingService.hashForEntity(paramConfigs);
         if (fresh(req, etagFromServer)) {
             return notModified(res);
         } else {

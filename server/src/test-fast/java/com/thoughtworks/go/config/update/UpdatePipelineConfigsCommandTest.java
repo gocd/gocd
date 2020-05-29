@@ -71,7 +71,7 @@ public class UpdatePipelineConfigsCommandTest {
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("foo"))));
         PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group", newAuthorization);
 
-        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, new HttpLocalizedOperationResult(), user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, new HttpLocalizedOperationResult(), user, "digest", entityHashingService, securityService);
         command.update(cruiseConfig);
 
         assertThat(cruiseConfig.hasPipelineGroup(this.pipelineConfigs.getGroup()), is(true));
@@ -85,7 +85,7 @@ public class UpdatePipelineConfigsCommandTest {
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
         PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group", newAuthorization);
 
-        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, new HttpLocalizedOperationResult(), user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, new HttpLocalizedOperationResult(), user, "digest", entityHashingService, securityService);
         command.isValid(cruiseConfig);
         assertThat(authorization.getAllErrors(), is(Collections.emptyList()));
     }
@@ -95,7 +95,7 @@ public class UpdatePipelineConfigsCommandTest {
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("invalidRole"))));
         PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group", newAuthorization);
 
-        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, new HttpLocalizedOperationResult(), user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, new HttpLocalizedOperationResult(), user, "digest", entityHashingService, securityService);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
 
@@ -108,7 +108,7 @@ public class UpdatePipelineConfigsCommandTest {
         PipelineConfigs newPipelineConfig = new BasicPipelineConfigs(null, newAuthorization);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "digest", entityHashingService, securityService);
 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Group name cannot be null.");
@@ -124,7 +124,7 @@ public class UpdatePipelineConfigsCommandTest {
         PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("  ", newAuthorization);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "digest", entityHashingService, securityService);
 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Group name cannot be null.");
@@ -138,7 +138,7 @@ public class UpdatePipelineConfigsCommandTest {
         this.pipelineConfigs.setGroup(null);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "digest", entityHashingService, securityService);
 
         thrown.expect(RecordNotFoundException.class);
         command.isValid(cruiseConfig);
@@ -147,13 +147,13 @@ public class UpdatePipelineConfigsCommandTest {
     @Test
     public void commandShouldContinue_whenRequestIsFreshAndUserIsAuthorized() {
         when(securityService.isUserAdminOfGroup(user, "group")).thenReturn(true);
-        when(entityHashingService.md5ForEntity(pipelineConfigs)).thenReturn("md5");
+        when(entityHashingService.hashForEntity(pipelineConfigs)).thenReturn("digest");
 
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
         PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group", newAuthorization);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "digest", entityHashingService, securityService);
 
         assertTrue(command.canContinue(cruiseConfig));
     }
@@ -161,12 +161,12 @@ public class UpdatePipelineConfigsCommandTest {
     @Test
     public void commandShouldNotContinue_whenRequestIsNotFresh() {
         when(securityService.isUserAdminOfGroup(user, "group")).thenReturn(true);
-        when(entityHashingService.md5ForEntity(pipelineConfigs)).thenReturn("md5-old");
+        when(entityHashingService.hashForEntity(pipelineConfigs)).thenReturn("digest-old");
 
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
         PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group", newAuthorization);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "digest", entityHashingService, securityService);
 
         assertFalse(command.canContinue(cruiseConfig));
         assertThat(result.httpCode(), is(HttpStatus.SC_PRECONDITION_FAILED));
@@ -175,12 +175,12 @@ public class UpdatePipelineConfigsCommandTest {
     @Test
     public void commandShouldNotContinue_whenUserUnauthorized() {
         when(securityService.isUserAdminOfGroup(user, "group")).thenReturn(false);
-        when(entityHashingService.md5ForEntity(pipelineConfigs)).thenReturn("md5");
+        when(entityHashingService.hashForEntity(pipelineConfigs)).thenReturn("digest");
 
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
         PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group", newAuthorization);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "digest", entityHashingService, securityService);
 
         assertFalse(command.canContinue(cruiseConfig));
         assertThat(result.httpCode(), is(HttpStatus.SC_FORBIDDEN));
@@ -189,13 +189,13 @@ public class UpdatePipelineConfigsCommandTest {
     @Test
     public void commandShouldContinue_whenPipelineGroupNameIsModified() {
         when(securityService.isUserAdminOfGroup(user, "group")).thenReturn(true);
-        when(entityHashingService.md5ForEntity(pipelineConfigs)).thenReturn("md5");
+        when(entityHashingService.hashForEntity(pipelineConfigs)).thenReturn("digest");
 
         Authorization newAuthorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("validRole"))));
         PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group-2", newAuthorization);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "digest", entityHashingService, securityService);
 
         assertTrue(command.canContinue(cruiseConfig));
     }
@@ -203,7 +203,7 @@ public class UpdatePipelineConfigsCommandTest {
     @Test
     public void commandShouldNotContinue_whenPipelineGroupNameIsModifiedWhileItContainsRemotePipelines() {
         when(securityService.isUserAdminOfGroup(user, "group")).thenReturn(true);
-        when(entityHashingService.md5ForEntity(pipelineConfigs)).thenReturn("md5");
+        when(entityHashingService.hashForEntity(pipelineConfigs)).thenReturn("digest");
         PipelineConfig remotePipeline = PipelineConfigMother.pipelineConfig("remote-pipeline");
         remotePipeline.setOrigin(new RepoConfigOrigin());
         this.pipelineConfigs.add(remotePipeline);
@@ -212,7 +212,7 @@ public class UpdatePipelineConfigsCommandTest {
         PipelineConfigs newPipelineConfig = new BasicPipelineConfigs("group-2", newAuthorization);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "md5", entityHashingService, securityService);
+        UpdatePipelineConfigsCommand command = new UpdatePipelineConfigsCommand(this.pipelineConfigs, newPipelineConfig, result, user, "digest", entityHashingService, securityService);
 
         assertFalse(command.canContinue(cruiseConfig));
         assertFalse(result.isSuccessful());

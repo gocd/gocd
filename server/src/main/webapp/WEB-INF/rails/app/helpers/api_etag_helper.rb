@@ -45,6 +45,6 @@ module ApiEtagHelper
   end
 
   def etag_for(entity)
-    entity_hashing_service.md5ForEntity(entity)
+    entity_hashing_service.hashForEntity(entity)
   end
 end

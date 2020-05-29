@@ -193,7 +193,7 @@ module Admin
       fast_save_page(redirect_url, error_rendering_options_or_proc) do
         assert_load(:pipeline, @pipeline)
         assert_load(:pipeline_group_name, params[:pipeline_group_name])
-        assert_load(:pipeline_md5, params[:pipeline_md5])
+        assert_load(:pipeline_digest, params[:pipeline_digest])
         load_pause_info
       end
     end

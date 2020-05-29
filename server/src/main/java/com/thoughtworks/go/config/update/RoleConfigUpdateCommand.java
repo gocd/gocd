@@ -27,12 +27,12 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
 public class RoleConfigUpdateCommand extends RoleConfigCommand {
     private final EntityHashingService hashingService;
-    private final String md5;
+    private final String digest;
 
-    public RoleConfigUpdateCommand(GoConfigService goConfigService, Role newRole, Username currentUser, LocalizedOperationResult result, EntityHashingService hashingService, String md5) {
+    public RoleConfigUpdateCommand(GoConfigService goConfigService, Role newRole, Username currentUser, LocalizedOperationResult result, EntityHashingService hashingService, String digest) {
         super(goConfigService, newRole, currentUser, result);
         this.hashingService = hashingService;
-        this.md5 = md5;
+        this.digest = digest;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class RoleConfigUpdateCommand extends RoleConfigCommand {
             return false;
         }
 
-        boolean freshRequest = hashingService.md5ForEntity(existingRole).equals(md5);
+        boolean freshRequest = hashingService.hashForEntity(existingRole).equals(digest);
 
         if (!freshRequest) {
             result.stale(EntityType.Role.staleConfig(existingRole.getName()));

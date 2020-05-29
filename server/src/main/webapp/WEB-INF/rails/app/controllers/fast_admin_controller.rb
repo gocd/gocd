@@ -51,7 +51,7 @@ class FastAdminController < AdminController
 
   def fast_save(render_error_options_or_proc, success_message, load_data)
     @cruise_config = go_config_service.getCurrentConfig
-    @update_result = pipeline_config_service.updatePipelineConfig(current_user, @pipeline, params[:pipeline_group_name], params[:pipeline_md5])
+    @update_result = pipeline_config_service.updatePipelineConfig(current_user, @pipeline, params[:pipeline_group_name], params[:pipeline_digest])
 
     unless @update_result.isSuccessful
       @config_file_conflict = (@update_result.httpCode() == 409)

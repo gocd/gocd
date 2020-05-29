@@ -9,7 +9,7 @@
                           :onsubmit => "return AjaxForm.jquery_ajax_submit(this);",
                           :class => "popup_form"}) do |f| %>
         <%= md5_field %>
-        <%= hidden_field_tag :pipeline_md5, @pipeline_md5 %>
+        <%= hidden_field_tag :pipeline_digest, @pipeline_digest %>
         <%= hidden_field_tag :pipeline_group_name, @pipeline_group_name %>
         <%= hidden_field_tag :pipeline_name, @pipeline.name %>
         <input type="hidden" name="current_tab" value="jobs" />

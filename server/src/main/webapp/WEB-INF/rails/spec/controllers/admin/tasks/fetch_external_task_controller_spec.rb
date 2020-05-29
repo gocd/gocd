@@ -52,7 +52,7 @@ describe Admin::TasksController, "fetch task" do
     @created_task = @new_task
 
     @entity_hashing_service = stub_service(:entity_hashing_service)
-    allow(@entity_hashing_service).to receive(:md5ForEntity).and_return('pipeline-md5')
+    allow(@entity_hashing_service).to receive(:hashForEntity).and_return('pipeline-digest')
   end
 
   it_should_behave_like :task_controller

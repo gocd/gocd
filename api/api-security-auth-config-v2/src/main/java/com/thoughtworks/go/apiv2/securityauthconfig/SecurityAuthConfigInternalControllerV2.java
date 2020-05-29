@@ -84,7 +84,7 @@ public class SecurityAuthConfigInternalControllerV2 extends ApiController implem
 
     @Override
     public String etagFor(SecurityAuthConfig entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override

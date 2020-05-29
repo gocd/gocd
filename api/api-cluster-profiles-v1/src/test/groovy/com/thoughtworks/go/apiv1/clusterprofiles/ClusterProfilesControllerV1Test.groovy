@@ -130,7 +130,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
         clusterProfile = new ClusterProfile("docker", "cd.go.docker")
 
         when(clusterProfilesService.findProfile("docker")).thenReturn(clusterProfile)
-        when(entityHashingService.md5ForEntity(clusterProfile)).thenReturn("md5")
+        when(entityHashingService.hashForEntity(clusterProfile)).thenReturn("digest")
       }
 
       @Test
@@ -140,13 +140,13 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasBodyWithJsonObject(clusterProfile, ClusterProfileRepresenter.class)
       }
 
       @Test
       void 'should render not modified when ETag matches'() {
-        getWithApiHeader(controller.controllerPath("/docker"), ['if-none-match': 'md5'])
+        getWithApiHeader(controller.controllerPath("/docker"), ['if-none-match': 'digest'])
 
         assertThatResponse()
           .isNotModified()
@@ -190,7 +190,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
         loginAsAdmin()
 
         clusterProfile = new ClusterProfile("docker", "cd.go.docker")
-        when(entityHashingService.md5ForEntity(clusterProfile)).thenReturn("md5")
+        when(entityHashingService.hashForEntity(clusterProfile)).thenReturn("digest")
       }
 
       @Test
@@ -204,7 +204,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
+          .hasEtag('"digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(clusterProfile, ClusterProfileRepresenter)
       }
@@ -223,7 +223,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
             ]
           ]]
 
-        when(entityHashingService.md5ForEntity(Mockito.any() as ClusterProfile)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(Mockito.any() as ClusterProfile)).thenReturn('some-digest')
         when(clusterProfilesService.findProfile("docker")).thenReturn(existingClusterProfile)
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
@@ -353,15 +353,15 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
             ]
           ]]
 
-        when(entityHashingService.md5ForEntity(existingCluster)).thenReturn('some-md5')
-        when(entityHashingService.md5ForEntity(updatedCluster)).thenReturn('new-md5')
+        when(entityHashingService.hashForEntity(existingCluster)).thenReturn('some-digest')
+        when(entityHashingService.hashForEntity(updatedCluster)).thenReturn('new-digest')
         when(clusterProfilesService.findProfile("docker")).thenReturn(existingCluster)
 
-        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-digest'], jsonPayload)
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"new-md5"')
+          .hasEtag('"new-digest"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(updatedCluster, ClusterProfileRepresenter)
       }
@@ -380,10 +380,10 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
             ]
           ]]
 
-        when(entityHashingService.md5ForEntity(existingProfile)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(existingProfile)).thenReturn('some-digest')
         when(clusterProfilesService.findProfile("docker")).thenReturn(existingProfile)
 
-        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'wrong-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'wrong-digest'], jsonPayload)
 
         assertThatResponse()
           .isPreconditionFailed()
@@ -394,7 +394,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
       @Test
       void 'should return 404 if the profile does not exists'() {
         when(clusterProfilesService.findProfile("docker")).thenReturn(null)
-        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'wrong-md5'], [:])
+        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'wrong-digest'], [:])
 
         assertThatResponse()
           .isNotFound()
@@ -415,10 +415,10 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
             ]
           ]]
 
-        when(entityHashingService.md5ForEntity(existingCluster)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(existingCluster)).thenReturn('some-digest')
         when(clusterProfilesService.findProfile("docker")).thenReturn(existingCluster)
 
-        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-digest'], jsonPayload)
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -439,7 +439,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
             ]
           ]]
 
-        when(entityHashingService.md5ForEntity(existingCluster)).thenReturn('some-md5')
+        when(entityHashingService.hashForEntity(existingCluster)).thenReturn('some-digest')
         when(clusterProfilesService.findProfile("docker")).thenReturn(existingCluster)
 
         when(clusterProfilesService.update(Mockito.any() as ClusterProfile, Mockito.any() as Username, Mockito.any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
@@ -449,7 +449,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
           result.unprocessableEntity("validation failed")
         })
 
-        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-md5'], jsonPayload)
+        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-digest'], jsonPayload)
 
         def expectedResponseBody = [
           message: "validation failed",

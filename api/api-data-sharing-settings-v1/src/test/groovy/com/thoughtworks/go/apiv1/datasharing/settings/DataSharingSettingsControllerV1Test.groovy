@@ -88,8 +88,8 @@ class DataSharingSettingsControllerV1Test implements SecurityServiceTrait, Contr
                 def dataSharingSettings = new DataSharingSettings(false, "Bob", new Date())
 
                 when(dataSharingSettingsService.get()).thenReturn(dataSharingSettings)
-                def etag = "md5"
-                when(entityHashingService.md5ForEntity(any() as DataSharingSettings)).thenReturn(etag)
+                def etag = "digest"
+                when(entityHashingService.hashForEntity(any() as DataSharingSettings)).thenReturn(etag)
 
                 getWithApiHeader(controller.controllerPath())
 

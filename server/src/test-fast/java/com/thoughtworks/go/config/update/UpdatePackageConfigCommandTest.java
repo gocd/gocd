@@ -85,7 +85,7 @@ public class UpdatePackageConfigCommandTest {
 
     @Test
     public void shouldUpdateTheSpecifiedPackage() throws Exception {
-        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "md5", this.entityHashingService, result, packageDefinitionService);
+        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
         assertThat(cruiseConfig.getPackageRepositories().findPackageDefinitionWith(packageUuid), is(oldPackageDefinition));
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getPackageRepositories().findPackageDefinitionWith(packageUuid), is(newPackageDefinition));
@@ -93,9 +93,9 @@ public class UpdatePackageConfigCommandTest {
 
     @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackages() throws Exception {
-        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "md5", this.entityHashingService, result, packageDefinitionService);
+        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        when(entityHashingService.md5ForEntity(oldPackageDefinition)).thenReturn("md5");
+        when(entityHashingService.hashForEntity(oldPackageDefinition)).thenReturn("digest");
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(EntityType.PackageDefinition.forbiddenToEdit(newPackageDefinition.getId(), currentUser.getUsername()), forbidden());
 
@@ -109,7 +109,7 @@ public class UpdatePackageConfigCommandTest {
         UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "stale-etag", this.entityHashingService, result, packageDefinitionService);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
-        when(entityHashingService.md5ForEntity(oldPackageDefinition)).thenReturn("md5");
+        when(entityHashingService.hashForEntity(oldPackageDefinition)).thenReturn("digest");
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.stale(EntityType.PackageDefinition.staleConfig(oldPackageDefinition.getId()));
 
@@ -124,7 +124,7 @@ public class UpdatePackageConfigCommandTest {
         pkg.setRepository(repository);
         repository.addPackage(pkg);
         cruiseConfig.setPackageRepositories(new PackageRepositories(repository));
-        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, pkg, currentUser, "md5", this.entityHashingService, result, packageDefinitionService);
+        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, pkg, currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
         assertThat(pkg.errors().size(), is(1));
@@ -138,7 +138,7 @@ public class UpdatePackageConfigCommandTest {
         pkg.setRepository(repository);
         repository.addPackage(pkg);
         cruiseConfig.setPackageRepositories(new PackageRepositories(repository));
-        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, pkg, currentUser, "md5", this.entityHashingService, result, packageDefinitionService);
+        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, pkg, currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
         assertThat(pkg.errors().size(), is(1));
@@ -156,7 +156,7 @@ public class UpdatePackageConfigCommandTest {
         pkg.setRepository(repository);
         repository.addPackage(pkg);
         cruiseConfig.setPackageRepositories(new PackageRepositories(repository));
-        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, pkg, currentUser, "md5", this.entityHashingService, result, packageDefinitionService);
+        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, pkg, currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
         assertThat(pkg.getAllErrors().toString(), containsString("Duplicate key 'key' found for Package 'prettyjson'"));
@@ -169,7 +169,7 @@ public class UpdatePackageConfigCommandTest {
         pkg.setRepository(repository);
         repository.addPackage(pkg);
         cruiseConfig.setPackageRepositories(new PackageRepositories(repository));
-        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "md5", this.entityHashingService, result, packageDefinitionService);
+        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
         assertThat(newPackageDefinition.errors().size(), is(1));
@@ -183,7 +183,7 @@ public class UpdatePackageConfigCommandTest {
         pkg.setRepository(repository);
         repository.addPackage(pkg);
         cruiseConfig.setPackageRepositories(new PackageRepositories(repository));
-        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "md5", this.entityHashingService, result, packageDefinitionService);
+        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
         assertThat(newPackageDefinition.errors().size(), is(1));
@@ -195,10 +195,10 @@ public class UpdatePackageConfigCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
-        when(this.entityHashingService.md5ForEntity(any(PackageDefinition.class))).thenReturn("md5");
+        when(this.entityHashingService.hashForEntity(any(PackageDefinition.class))).thenReturn("digest");
 
         newPackageDefinition.setRepository(new PackageRepository(oldPackageDefinition.getRepository().getId(), "name", null, null));
-        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "md5", this.entityHashingService, result, packageDefinitionService);
+        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
 
         assertThat(command.canContinue(cruiseConfig), is(true));
     }
@@ -208,10 +208,10 @@ public class UpdatePackageConfigCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(true);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
-        when(this.entityHashingService.md5ForEntity(any(PackageDefinition.class))).thenReturn("md5");
+        when(this.entityHashingService.hashForEntity(any(PackageDefinition.class))).thenReturn("digest");
 
         newPackageDefinition.setRepository(new PackageRepository(oldPackageDefinition.getRepository().getId(), "name", null, null));
-        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "md5", this.entityHashingService, result, packageDefinitionService);
+        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition, currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
 
         assertThat(command.canContinue(cruiseConfig), is(true));
     }
@@ -219,12 +219,12 @@ public class UpdatePackageConfigCommandTest {
     @Test
     public void shouldNotContinueIfPackageIdIsChanged() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
-        when(entityHashingService.md5ForEntity(oldPackageDefinition)).thenReturn("md5");
+        when(entityHashingService.hashForEntity(oldPackageDefinition)).thenReturn("digest");
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         expectResult.unprocessableEntity("Changing the package id is not supported by this API.");
 
         newPackageDefinition.setRepository(new PackageRepository(oldPackageDefinition.getRepository().getId(), "name", null, null));
-        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, "old-package-id", newPackageDefinition, currentUser, "md5", this.entityHashingService, result, packageDefinitionService);
+        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, "old-package-id", newPackageDefinition, currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectResult));
@@ -236,7 +236,7 @@ public class UpdatePackageConfigCommandTest {
         cruiseConfig.setPackageRepositories(new PackageRepositories());
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         newPackageDefinition.setRepository(new PackageRepository("id", "name", null, null));
-        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, "old-package-id", newPackageDefinition, currentUser, "md5", this.entityHashingService, result, packageDefinitionService);
+        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, "old-package-id", newPackageDefinition, currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.unprocessableEntity(EntityType.PackageRepository.notFoundMessage("id"));
 

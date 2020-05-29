@@ -483,12 +483,12 @@ public class PipelineConfigServiceIntegrationTest {
         job.addTask(fetchTask);
         StageConfig stage = new StageConfig(new CaseInsensitiveString("default-stage"), new JobConfigs(job));
 
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
         pipelineConfig.add(stage);
         pipelineConfig.addParam(new ParamConfig("foo", "."));
 
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
@@ -500,10 +500,10 @@ public class PipelineConfigServiceIntegrationTest {
     public void shouldUpdatePipelineConfig() throws GitAPIException {
         GoConfigHolder goConfigHolderBeforeUpdate = goConfigDao.loadConfigHolder();
 
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
         pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
 
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(true));
         assertThat(goConfigDao.loadConfigHolder(), is(not(goConfigHolderBeforeUpdate)));
@@ -518,10 +518,10 @@ public class PipelineConfigServiceIntegrationTest {
     @Test
     public void shouldNotUpdatePipelineConfigInCaseOfValidationErrors() throws GitAPIException {
         GoConfigHolder goConfigHolder = goConfigDao.loadConfigHolder();
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
         pipelineConfig.setLabelTemplate("LABEL");
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
@@ -537,10 +537,10 @@ public class PipelineConfigServiceIntegrationTest {
         saveTemplateWithParamToConfig(templateName);
 
         GoConfigHolder goConfigHolder = goConfigDao.loadConfigHolder();
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
         pipelineConfig.clear();
         pipelineConfig.setTemplateName(templateName);
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.toString(), result.toString().contains("Parameter 'SOME_PARAM' is not defined"), is(true));
@@ -555,11 +555,11 @@ public class PipelineConfigServiceIntegrationTest {
         saveTemplateWithParamToConfig(templateName);
 
         GoConfigHolder goConfigHolder = goConfigDao.loadConfigHolder();
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
         pipelineConfig.clear();
         pipelineConfig.setTemplateName(templateName);
         pipelineConfig.addStageWithoutValidityAssertion(StageConfigMother.stageConfig("local-stage"));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(pipelineConfig.errors().on("stages"), is(String.format("Cannot add stages to pipeline '%s' which already references template '%s'", pipelineConfig.name(), templateName)));
@@ -591,10 +591,10 @@ public class PipelineConfigServiceIntegrationTest {
         String scmid = "scmid";
         saveScmMaterialToConfig(scmid);
         PluggableSCMMaterialConfig scmMaterialConfig = new PluggableSCMMaterialConfig(scmid);
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
         pipelineConfig.materialConfigs().add(scmMaterialConfig);
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Destination directory is required when a pipeline has multiple SCM materials."));
@@ -610,9 +610,9 @@ public class PipelineConfigServiceIntegrationTest {
         String packageid = "packageid";
         saveScmMaterialToConfig(packageid);
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(packageid);
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
         pipelineConfig.materialConfigs().add(packageMaterialConfig);
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name())));
@@ -701,7 +701,7 @@ public class PipelineConfigServiceIntegrationTest {
         final boolean[] listenerInvoked = {false};
         setupPipelineWithTemplate(pipelineName, templateName);
         PipelineConfig pipelineConfig1 = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig1, "group");
+        String digest = entityHashingService.hashForEntity(pipelineConfig1, "group");
         EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener = new EntityConfigChangedListener<PipelineConfig>() {
             @Override
             public void onConfigChange(CruiseConfig newCruiseConfig) {
@@ -716,7 +716,7 @@ public class PipelineConfigServiceIntegrationTest {
         goConfigService.register(pipelineConfigChangedListener);
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfigWithTemplate(pipelineName, templateName);
         pipeline.setVariables(new EnvironmentVariablesConfig());
-        pipelineConfigService.updatePipelineConfig(user, pipeline, "group", md5, new DefaultLocalizedOperationResult());
+        pipelineConfigService.updatePipelineConfig(user, pipeline, "group", digest, new DefaultLocalizedOperationResult());
         assertThat(listenerInvoked[0], is(true));
     }
 
@@ -761,11 +761,11 @@ public class PipelineConfigServiceIntegrationTest {
     @Test
     public void shouldValidateMergedConfigForConfigChanges() throws Exception {
         assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstreamPipelineName)), is(true));
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
         pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("upstream_stage_renamed"));
 
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(pipelineConfig.errors().on("base"), is(String.format("Stage with name 'stage' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r1)", pipelineConfig.name())));
@@ -782,10 +782,10 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteInvalidPipeline)), is(false));
         assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstreamPipelineName)), is(true));
 
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
         pipelineConfig.getFirstStageConfig().getJobs().first().addTask(new ExecTask("executable", new Arguments(new Argument("foo")), "working"));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.isSuccessful(), is(true));
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
@@ -803,10 +803,10 @@ public class PipelineConfigServiceIntegrationTest {
         DependencyMaterialConfig dependencyMaterialForRemotePipelineInConfigCache = goConfigService.getCurrentConfig().getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name());
         assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("stage")));
 
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
         pipelineConfig.setVariables(new EnvironmentVariablesConfig(asList(new EnvironmentVariableConfig("key", "value"))));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.isSuccessful(), is(true));
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
@@ -826,10 +826,10 @@ public class PipelineConfigServiceIntegrationTest {
         DependencyMaterialConfig dependencyMaterialForRemotePipelineInConfigCache = goConfigService.getCurrentConfig().getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name());
         assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("stage")));
 
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
         pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("new_name"));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. Error(s): [Validation failed.]. Please correct and resubmit.", pipelineConfig.name())));
@@ -863,9 +863,9 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;; \n- For Config Repo: url at repo1_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
 
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
         pipelineConfig.setVariables(new EnvironmentVariablesConfig(asList(new EnvironmentVariableConfig("key", "value"))));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.isSuccessful(), is(true));
         currentConfig = goConfigService.getCurrentConfig();
@@ -902,9 +902,9 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);; \n- For Config Repo: url at repo1_r2", pipelineConfig.name())));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
 
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
         pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("upstream_stage_renamed"));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.isSuccessful(), is(true));
         currentConfig = goConfigService.getCurrentConfig();
@@ -955,10 +955,10 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getMessage(), is("Invalid Merged Configuration"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getDescription(), is("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;; \n- For Config Repo: url2 at repo2_r2"));
 
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
         pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("upstream_stage_renamed"));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. " +
@@ -1008,10 +1008,10 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);; \n- For Config Repo: url at repo1_r2", pipelineConfig.name())));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
 
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
 
         pipelineConfig.getFirstStageConfig().setName(new CaseInsensitiveString("new_name"));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is(String.format("Validations failed for pipeline '%s'. " +
@@ -1047,9 +1047,9 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(goConfigService.getConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(false));
         assertThat(goConfigService.getMergedConfigForEditing().getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
 
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
         pipelineConfig.setVariables(new EnvironmentVariablesConfig(asList(new EnvironmentVariableConfig("key", "value"))));
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
         assertThat(result.isSuccessful(), is(true));
         assertThat(pipelineConfigService.getPipelineConfig(remoteDownstreamPipelineName), is(not(nullValue())));
@@ -1060,12 +1060,12 @@ public class PipelineConfigServiceIntegrationTest {
 
     @Test
     public void updatePipelineConfig_shouldCreateAndAddPipelineToThePipelineGroupEvenIfItDoesNotExist() {
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
         pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
 
         assertFalse(goConfigService.groups().hasGroup("updated_group"));
 
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, "updated_group", md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, "updated_group", digest, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(true));
 
@@ -1075,10 +1075,10 @@ public class PipelineConfigServiceIntegrationTest {
 
     @Test
     public void updatePipelineConfig_shouldValidateUpdatedPipelineGroupName() {
-        String md5 = entityHashingService.md5ForEntity(pipelineConfig, groupName);
+        String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
         pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
 
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, "invalid-name!@$", md5, result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, "invalid-name!@$", digest, result);
 
         assertThat(result.httpCode(), is(500));
         assertThat(result.message(), is("Save failed. failed to save : Name is invalid. \"invalid-name!@$\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*"));

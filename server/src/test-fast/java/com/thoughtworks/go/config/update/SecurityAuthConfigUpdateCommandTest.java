@@ -78,10 +78,10 @@ public class SecurityAuthConfigUpdateCommandTest {
 
         EntityHashingService entityHashingService = mock(EntityHashingService.class);
 
-        when(entityHashingService.md5ForEntity(oldAuthConfig)).thenReturn("md5");
+        when(entityHashingService.hashForEntity(oldAuthConfig)).thenReturn("digest");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        SecurityAuthConfigUpdateCommand command = new SecurityAuthConfigUpdateCommand(goConfigService, newAuthConfig, null, currentUser, result, entityHashingService, "bad-md5");
+        SecurityAuthConfigUpdateCommand command = new SecurityAuthConfigUpdateCommand(goConfigService, newAuthConfig, null, currentUser, result, entityHashingService, "bad-digest");
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.toString(), containsString("Someone has modified the configuration for"));;

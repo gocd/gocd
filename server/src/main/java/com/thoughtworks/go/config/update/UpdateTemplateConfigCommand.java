@@ -30,19 +30,19 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
     private SecurityService securityService;
-    private String md5;
+    private String digest;
     private EntityHashingService entityHashingService;
 
     public UpdateTemplateConfigCommand(PipelineTemplateConfig templateConfig,
                                        Username currentUser,
                                        SecurityService securityService,
                                        LocalizedOperationResult result,
-                                       String md5,
+                                       String digest,
                                        EntityHashingService entityHashingService,
                                        ExternalArtifactsService externalArtifactsService) {
         super(templateConfig, result, currentUser, externalArtifactsService);
         this.securityService = securityService;
-        this.md5 = md5;
+        this.digest = digest;
         this.entityHashingService = entityHashingService;
     }
 
@@ -84,7 +84,7 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         PipelineTemplateConfig pipelineTemplateConfig = findAddedTemplate(cruiseConfig);
-        boolean freshRequest = entityHashingService.md5ForEntity(pipelineTemplateConfig).equals(md5);
+        boolean freshRequest = entityHashingService.hashForEntity(pipelineTemplateConfig).equals(digest);
         if (!freshRequest) {
             result.stale(EntityType.Template.staleConfig(templateConfig.name()));
         }

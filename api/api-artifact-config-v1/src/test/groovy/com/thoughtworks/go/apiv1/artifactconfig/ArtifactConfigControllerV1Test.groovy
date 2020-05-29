@@ -38,187 +38,187 @@ import static org.mockito.MockitoAnnotations.initMocks
 
 class ArtifactConfigControllerV1Test implements SecurityServiceTrait, ControllerTrait<ArtifactConfigControllerV1> {
 
-  @Mock
-  ServerConfigService serverConfigService
+    @Mock
+    ServerConfigService serverConfigService
 
-  @Mock
-  EntityHashingService entityHashingService
+    @Mock
+    EntityHashingService entityHashingService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
+    @BeforeEach
+    void setUp() {
+        initMocks(this)
+    }
 
-  @Override
-  ArtifactConfigControllerV1 createControllerInstance() {
-    new ArtifactConfigControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, serverConfigService)
-  }
-
-  @Nested
-  class Show {
-    @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
-
-      @Override
-      String getControllerMethodUnderTest() {
-        return "show"
-      }
-
-      @Override
-      void makeHttpCall() {
-        getWithApiHeader(controller.controllerBasePath())
-      }
+    @Override
+    ArtifactConfigControllerV1 createControllerInstance() {
+        new ArtifactConfigControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, serverConfigService)
     }
 
     @Nested
-    class AsAdmin {
+    class Show {
+        @Nested
+        class Security implements SecurityTestTrait, AdminUserSecurity {
 
-      ArtifactConfig artifactConfig
+            @Override
+            String getControllerMethodUnderTest() {
+                return "show"
+            }
 
-      @BeforeEach
-      void setUp() {
-        enableSecurity()
-        loginAsAdmin()
+            @Override
+            void makeHttpCall() {
+                getWithApiHeader(controller.controllerBasePath())
+            }
+        }
 
-        artifactConfig = new ArtifactConfig()
-        def purgeSettings = new PurgeSettings()
-        purgeSettings.setPurgeStart(new PurgeStart(20.0))
-        purgeSettings.setPurgeUpto(new PurgeUpto(50.0))
-        artifactConfig.setArtifactsDir(new ArtifactDirectory("artifacts-dir"))
-        artifactConfig.setPurgeSettings(purgeSettings)
-      }
+        @Nested
+        class AsAdmin {
 
-      @Test
-      void 'should get artifact configs'() {
-        when(serverConfigService.getArtifactsConfig()).thenReturn(artifactConfig)
+            ArtifactConfig artifactConfig
 
-        getWithApiHeader(controller.controllerBasePath())
+            @BeforeEach
+            void setUp() {
+                enableSecurity()
+                loginAsAdmin()
 
-        assertThatResponse()
-          .isOk()
-          .hasBodyWithJson(toObjectString({ toJSON(it, artifactConfig) }))
+                artifactConfig = new ArtifactConfig()
+                def purgeSettings = new PurgeSettings()
+                purgeSettings.setPurgeStart(new PurgeStart(20.0))
+                purgeSettings.setPurgeUpto(new PurgeUpto(50.0))
+                artifactConfig.setArtifactsDir(new ArtifactDirectory("artifacts-dir"))
+                artifactConfig.setPurgeSettings(purgeSettings)
+            }
 
-        verify(serverConfigService, times(1)).getArtifactsConfig()
-        verifyNoMoreInteractions(serverConfigService)
+            @Test
+            void 'should get artifact configs'() {
+                when(serverConfigService.getArtifactsConfig()).thenReturn(artifactConfig)
 
-      }
+                getWithApiHeader(controller.controllerBasePath())
+
+                assertThatResponse()
+                        .isOk()
+                        .hasBodyWithJson(toObjectString({ toJSON(it, artifactConfig) }))
+
+                verify(serverConfigService, times(1)).getArtifactsConfig()
+                verifyNoMoreInteractions(serverConfigService)
+
+            }
+        }
     }
-  }
 
-  @Nested
-  class Update {
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Update {
+        @Nested
+        class Security implements SecurityTestTrait, AdminUserSecurity {
 
-      @Override
-      String getControllerMethodUnderTest() {
-        return "update"
-      }
+            @Override
+            String getControllerMethodUnderTest() {
+                return "update"
+            }
 
-      @Override
-      void makeHttpCall() {
-        putWithApiHeader(controller.controllerBasePath(), '{}')
-      }
+            @Override
+            void makeHttpCall() {
+                putWithApiHeader(controller.controllerBasePath(), '{}')
+            }
+        }
+
+        @Nested
+        class AsAdmin {
+
+            ArtifactConfig artifactConfig
+
+            @BeforeEach
+            void setUp() {
+                enableSecurity()
+                loginAsAdmin()
+
+                artifactConfig = new ArtifactConfig()
+                def purgeSettings = new PurgeSettings()
+                purgeSettings.setPurgeStart(new PurgeStart(20.0))
+                purgeSettings.setPurgeUpto(new PurgeUpto(50.0))
+                artifactConfig.setArtifactsDir(new ArtifactDirectory("artifacts-dir"))
+                artifactConfig.setPurgeSettings(purgeSettings)
+            }
+
+            @Test
+            void 'should update artifacts config if etag matches'() {
+                def updatedArtifactConfig = new ArtifactConfig()
+                updatedArtifactConfig.setArtifactsDir(new ArtifactDirectory("updated-dir"))
+                def purgeSettings = new PurgeSettings()
+                purgeSettings.setPurgeStart(new PurgeStart(10.0))
+                purgeSettings.setPurgeUpto(new PurgeUpto(20.0))
+                updatedArtifactConfig.setPurgeSettings(purgeSettings)
+
+                when(serverConfigService.getArtifactsConfig()).thenReturn(artifactConfig, updatedArtifactConfig)
+                when(entityHashingService.hashForEntity(artifactConfig)).thenReturn('some-digest')
+                when(entityHashingService.hashForEntity(updatedArtifactConfig)).thenReturn('some-another-digest')
+
+                def jsonPayload = [
+                        "artifacts_dir" : "updated-dir",
+                        "purge_settings": [
+                                "purge_start_disk_space": 10.0,
+                                "purge_upto_disk_space" : 20.0
+                        ]
+                ]
+                putWithApiHeader(controller.controllerBasePath(), ['if-match': 'some-digest'], jsonPayload)
+
+                assertThatResponse()
+                        .isOk()
+                        .hasEtag('"some-another-digest"')
+                        .hasBodyWithJson(toObjectString({ toJSON(it, updatedArtifactConfig) }))
+            }
+
+            @Test
+            void 'should not update artifacts config if etag does not matches'() {
+                def updatedArtifactConfig = new ArtifactConfig()
+                updatedArtifactConfig.setArtifactsDir(new ArtifactDirectory("updated-dir"))
+
+                when(serverConfigService.getArtifactsConfig()).thenReturn(artifactConfig)
+                when(entityHashingService.hashForEntity(artifactConfig)).thenReturn('some-digest')
+
+                def jsonPayload = [
+                        "artifacts_dir" : "updated-dir",
+                        "purge_settings": [
+                                "purge_start_disk_space": 10.0,
+                                "purge_upto_disk_space" : 20.0
+                        ]
+                ]
+                putWithApiHeader(controller.controllerBasePath(), ['if-match': 'some-another-digest'], jsonPayload)
+
+                assertThatResponse()
+                        .isPreconditionFailed()
+                        .hasContentType(controller.mimeType)
+                        .hasJsonMessage("Someone has modified the entity. Please update your copy with the changes and try again.")
+            }
+
+            @Test
+            void 'should return 422 for validation errors'() {
+                when(serverConfigService.getArtifactsConfig()).thenReturn(artifactConfig)
+                when(entityHashingService.hashForEntity(artifactConfig)).thenReturn('some-digest')
+
+                def jsonPayload = [
+                        "artifacts_dir" : "",
+                        "purge_settings": [
+                                "purge_start_disk_space": 10.0,
+                                "purge_upto_disk_space" : 20.0
+                        ]
+                ]
+
+                def cruiseConfig = mock(BasicCruiseConfig.class)
+                def e = new GoConfigInvalidException(cruiseConfig, "Validation failed")
+                ConfigErrors errors = new ConfigErrors()
+                errors.add("artifactDir", "it should not be blank.")
+                def errorMsg = "Validations failed for artifacts. Error(s): [it should not be blank.]. Please correct and resubmit."
+
+                when(cruiseConfig.getAllErrors()).thenReturn(Arrays.asList(errors))
+                doThrow(e).when(serverConfigService).updateArtifactConfig(Mockito.any() as ArtifactConfig)
+
+                putWithApiHeader(controller.controllerBasePath(), ['if-match': 'some-digest'], jsonPayload)
+
+                assertThatResponse()
+                        .isUnprocessableEntity()
+                        .hasContentType(controller.mimeType)
+                        .hasJsonMessage(errorMsg)
+            }
+        }
     }
-
-    @Nested
-    class AsAdmin {
-
-      ArtifactConfig artifactConfig
-
-      @BeforeEach
-      void setUp() {
-        enableSecurity()
-        loginAsAdmin()
-
-        artifactConfig = new ArtifactConfig()
-        def purgeSettings = new PurgeSettings()
-        purgeSettings.setPurgeStart(new PurgeStart(20.0))
-        purgeSettings.setPurgeUpto(new PurgeUpto(50.0))
-        artifactConfig.setArtifactsDir(new ArtifactDirectory("artifacts-dir"))
-        artifactConfig.setPurgeSettings(purgeSettings)
-      }
-
-      @Test
-      void 'should update artifacts config if etag matches'() {
-        def updatedArtifactConfig = new ArtifactConfig()
-        updatedArtifactConfig.setArtifactsDir(new ArtifactDirectory("updated-dir"))
-        def purgeSettings = new PurgeSettings()
-        purgeSettings.setPurgeStart(new PurgeStart(10.0))
-        purgeSettings.setPurgeUpto(new PurgeUpto(20.0))
-        updatedArtifactConfig.setPurgeSettings(purgeSettings)
-
-        when(serverConfigService.getArtifactsConfig()).thenReturn(artifactConfig, updatedArtifactConfig)
-        when(entityHashingService.md5ForEntity(artifactConfig)).thenReturn('some-md5')
-        when(entityHashingService.md5ForEntity(updatedArtifactConfig)).thenReturn('some-another-md5')
-
-        def jsonPayload = [
-          "artifacts_dir" : "updated-dir",
-          "purge_settings": [
-            "purge_start_disk_space": 10.0,
-            "purge_upto_disk_space" : 20.0
-          ]
-        ]
-        putWithApiHeader(controller.controllerBasePath(), ['if-match': 'some-md5'], jsonPayload)
-
-        assertThatResponse()
-          .isOk()
-          .hasEtag('"some-another-md5"')
-          .hasBodyWithJson(toObjectString({ toJSON(it, updatedArtifactConfig) }))
-      }
-
-      @Test
-      void 'should not update artifacts config if etag does not matches'() {
-        def updatedArtifactConfig = new ArtifactConfig()
-        updatedArtifactConfig.setArtifactsDir(new ArtifactDirectory("updated-dir"))
-
-        when(serverConfigService.getArtifactsConfig()).thenReturn(artifactConfig)
-        when(entityHashingService.md5ForEntity(artifactConfig)).thenReturn('some-md5')
-
-        def jsonPayload = [
-          "artifacts_dir" : "updated-dir",
-          "purge_settings": [
-            "purge_start_disk_space": 10.0,
-            "purge_upto_disk_space" : 20.0
-          ]
-        ]
-        putWithApiHeader(controller.controllerBasePath(), ['if-match': 'some-another-md5'], jsonPayload)
-
-        assertThatResponse()
-          .isPreconditionFailed()
-          .hasContentType(controller.mimeType)
-          .hasJsonMessage("Someone has modified the entity. Please update your copy with the changes and try again.")
-      }
-
-      @Test
-      void 'should return 422 for validation errors'() {
-        when(serverConfigService.getArtifactsConfig()).thenReturn(artifactConfig)
-        when(entityHashingService.md5ForEntity(artifactConfig)).thenReturn('some-md5')
-
-        def jsonPayload = [
-          "artifacts_dir" : "",
-          "purge_settings": [
-            "purge_start_disk_space": 10.0,
-            "purge_upto_disk_space" : 20.0
-          ]
-        ]
-
-        def cruiseConfig = mock(BasicCruiseConfig.class)
-        def e = new GoConfigInvalidException(cruiseConfig, "Validation failed")
-        ConfigErrors errors = new ConfigErrors()
-        errors.add("artifactDir", "it should not be blank.")
-        def errorMsg = "Validations failed for artifacts. Error(s): [it should not be blank.]. Please correct and resubmit."
-
-        when(cruiseConfig.getAllErrors()).thenReturn(Arrays.asList(errors))
-        doThrow(e).when(serverConfigService).updateArtifactConfig(Mockito.any() as ArtifactConfig)
-
-        putWithApiHeader(controller.controllerBasePath(), ['if-match': 'some-md5'], jsonPayload)
-
-        assertThatResponse()
-          .isUnprocessableEntity()
-          .hasContentType(controller.mimeType)
-          .hasJsonMessage(errorMsg)
-      }
-    }
-  }
 }

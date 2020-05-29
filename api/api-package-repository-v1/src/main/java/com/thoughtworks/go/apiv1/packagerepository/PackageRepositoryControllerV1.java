@@ -136,7 +136,7 @@ public class PackageRepositoryControllerV1 extends ApiController implements Spar
 
     @Override
     public String etagFor(PackageRepository entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override

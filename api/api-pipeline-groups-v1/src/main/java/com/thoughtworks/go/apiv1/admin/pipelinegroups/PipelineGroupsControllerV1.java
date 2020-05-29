@@ -23,10 +23,8 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupRepresenter;
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupsRepresenter;
-import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -39,7 +37,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
@@ -48,7 +45,6 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEntityAlreadyExists;
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesNotMatch;
@@ -98,7 +94,7 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
 
     public String index(Request req, Response res) throws IOException {
         PipelineGroups pipelineGroups = new PipelineGroups(streamAllPipelineGroups().toArray(PipelineConfigs[]::new));
-        String etag = entityHashingService.md5ForEntity(pipelineGroups);
+        String etag = entityHashingService.hashForEntity(pipelineGroups);
 
         if (fresh(req, etag)) {
             return notModified(res);
@@ -158,7 +154,7 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
 
     @Override
     public String etagFor(PipelineConfigs pipelineConfigs) {
-        return entityHashingService.md5ForEntity(pipelineConfigs);
+        return entityHashingService.hashForEntity(pipelineConfigs);
     }
 
     @Override

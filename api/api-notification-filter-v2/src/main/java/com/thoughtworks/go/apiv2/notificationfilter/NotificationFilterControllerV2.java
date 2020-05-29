@@ -146,7 +146,7 @@ public class NotificationFilterControllerV2 extends ApiController implements Spa
 
     @Override
     public String etagFor(NotificationFilter entityFromServer) {
-        return entityHashingService.md5ForEntity(entityFromServer);
+        return entityHashingService.hashForEntity(entityFromServer);
     }
 
     @Override

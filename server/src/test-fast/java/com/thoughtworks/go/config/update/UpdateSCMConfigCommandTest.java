@@ -79,7 +79,7 @@ public class UpdateSCMConfigCommandTest {
     public void shouldUpdateAnExistingSCMWithNewValues() throws Exception {
         SCM updatedScm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"),new ConfigurationValue("value1"))));
         updatedScm.setName("material");
-        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "md5", entityHashingService);
+        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "digest", entityHashingService);
         assertThat(cruiseConfig.getSCMs().contains(scm), is(true));
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getSCMs().contains(updatedScm), is(true));
@@ -88,7 +88,7 @@ public class UpdateSCMConfigCommandTest {
     @Test
     public void shouldThrowAnExceptionIfSCMIsNotFound() throws Exception {
         SCM updatedScm = new SCM("non-existent-id", new PluginConfiguration("non-existent-plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"),new ConfigurationValue("value1"))));
-        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "md5", entityHashingService);
+        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "digest", entityHashingService);
         thrown.expect(NullPointerException.class);
         thrown.expectMessage("The pluggable scm material with id 'non-existent-id' is not found.");
         command.update(cruiseConfig);
@@ -100,7 +100,7 @@ public class UpdateSCMConfigCommandTest {
         when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
 
         SCM updatedScm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"),new ConfigurationValue("value1"))));
-        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "md5", entityHashingService);
+        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "digest", entityHashingService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.message(), is(EntityType.SCM.forbiddenToEdit(scm.getId(), currentUser.getUsername())));
@@ -110,10 +110,10 @@ public class UpdateSCMConfigCommandTest {
     public void shouldContinueWithConfigSaveIfUserIsAdmin() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
-        when(entityHashingService.md5ForEntity(any(SCM.class))).thenReturn("md5");
+        when(entityHashingService.hashForEntity(any(SCM.class))).thenReturn("digest");
 
         SCM updatedScm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"),new ConfigurationValue("value1"))));
-        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "md5", entityHashingService);
+        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "digest", entityHashingService);
 
         assertThat(command.canContinue(cruiseConfig), is(true));
     }
@@ -122,10 +122,10 @@ public class UpdateSCMConfigCommandTest {
     public void shouldContinueWithConfigSaveIfUserIsGroupAdmin() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(true);
-        when(entityHashingService.md5ForEntity(any(SCM.class))).thenReturn("md5");
+        when(entityHashingService.hashForEntity(any(SCM.class))).thenReturn("digest");
 
         SCM updatedScm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"),new ConfigurationValue("value1"))));
-        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "md5", entityHashingService);
+        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "digest", entityHashingService);
 
         assertThat(command.canContinue(cruiseConfig), is(true));
     }
@@ -137,8 +137,8 @@ public class UpdateSCMConfigCommandTest {
 
         SCM updatedScm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"),new ConfigurationValue("value1"))));
         updatedScm.setName("material");
-        when(entityHashingService.md5ForEntity(cruiseConfig.getSCMs().find("id"))).thenReturn("another-md5");
-        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "md5", entityHashingService);
+        when(entityHashingService.hashForEntity(cruiseConfig.getSCMs().find("id"))).thenReturn("another-digest");
+        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "digest", entityHashingService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.toString(), containsString("Someone has modified the configuration for"));;
@@ -151,7 +151,7 @@ public class UpdateSCMConfigCommandTest {
         when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
 
         SCM updatedScm = new SCM("non-existent-id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"),new ConfigurationValue("value1"))));
-        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "md5", entityHashingService);
+        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "digest", entityHashingService);
 
         thrown.expect(NullPointerException.class);
         thrown.expectMessage("The pluggable scm material with id 'non-existent-id' is not found.");

@@ -239,7 +239,7 @@ shared_examples_for :task_controller do
         put :update, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1",
                               :task_index => "0", :config_md5 => "1234abcd", :type => @task_type, :task => @updated_payload,
                               :stage_parent => "pipelines", :current_tab => "tasks",
-                              :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup'}
+                              :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup'}
 
         expect(assigns[:on_cancel_task_vms]).to eq(on_cancel_task_vms)
 
@@ -293,7 +293,7 @@ shared_examples_for :task_controller do
         post :create, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1",
                                :type => @task_type, :config_md5 => "abcd1234", :task => @create_payload,
                                :stage_parent => "pipelines", :current_tab => "tasks",
-                               :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup'}
+                               :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup'}
 
         expect(response.status).to eq(200)
       end
@@ -310,7 +310,7 @@ shared_examples_for :task_controller do
         post :create, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1",
                                :type => @task_type, :config_md5 => "abcd1234", :task => @create_payload,
                                :stage_parent => "pipelines", :current_tab => "tasks",
-                               :pipeline_md5 => "pipeline-md5", :pipeline_group_name => 'defaultGroup'}
+                               :pipeline_digest => "pipeline-digest", :pipeline_group_name => 'defaultGroup'}
         expect(assigns[:on_cancel_task_vms]).to eq(@on_cancel_task_vms)
         expect(assigns[:config_store]).not_to eq(nil)
         expect(assigns[:config_store]).to eq(@config_store)

@@ -54,7 +54,7 @@ enum Distro implements DistroBehavior {
       return [
         '# install glibc and zlib for adoptopenjdk',
         '# See https://github.com/AdoptOpenJDK/openjdk-docker/blob/ce8b120411b131e283106ab89ea5921ebb1d1759/8/jdk/alpine/Dockerfile.hotspot.releases.slim#L24-L54',
-        '  apk add --no-cache --virtual .build-deps curl binutils',
+        '  apk add --no-cache --virtual .build-deps binutils',
         '  GLIBC_VER="2.29-r0"',
         '  ALPINE_GLIBC_REPO="https://github.com/sgerrand/alpine-pkg-glibc/releases/download"',
         '  GCC_LIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-9.1.0-2-x86_64.pkg.tar.xz"',

@@ -60,6 +60,18 @@ describe("EnvironmentsApiSpec", () => {
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
+  it("should make request to get all pipeline groups", () => {
+    jasmine.Ajax.stubRequest("/go/api/internal/pipeline_structure").andReturn(pipelines());
+
+    EnvironmentsAPIs.allPipelineGroups("view");
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual("/go/api/internal/pipeline_groups?pipeline_group_authorization=view");
+    expect(request.method).toEqual("GET");
+    expect(request.data()).toEqual(toJSON({} as PipelineGroupsJSON));
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
+  });
+
   it("should make request to delete env", () => {
     jasmine.Ajax.stubRequest("/go/api/admin/environments/env").andReturn(deleteEnvResponse("env"));
 

@@ -135,9 +135,15 @@ export class PipelineWithOrigin extends Pipeline {
 }
 
 export class Pipelines extends Array<PipelineWithOrigin> {
+  //in an ideal world this class should not be extending array and should completely rely on internal hashmap.
+  //todo: get rid array extension
+  private readonly pipelinesAsMap: Map<string, PipelineWithOrigin> = new Map();
+
   constructor(...items: PipelineWithOrigin[]) {
     super(...items);
     Object.setPrototypeOf(this, Object.create(Pipelines.prototype));
+
+    this.forEach(ele => this.pipelinesAsMap.set(ele.name(), ele));
   }
 
   static fromJSON(pipelines: PipelineJSON[] = []) {
@@ -145,7 +151,23 @@ export class Pipelines extends Array<PipelineWithOrigin> {
   }
 
   containsPipeline(name: string): boolean {
-    return this.map((p) => p.name()).indexOf(name) !== -1;
+    return !!this.pipelinesAsMap.get(name);
+  }
+
+  //todo: when two sources of data are removed, array and map (and kept only map), this method simply changes to `this.pipelinesAsMap.set`
+  add(pipeline: PipelineWithOrigin) {
+    this.push(pipeline);
+    this.pipelinesAsMap.set(pipeline.name(), pipeline);
+  }
+
+  //todo: when two sources of data are removed, array and map (and kept only map), this method simply changes to `this.pipelinesAsMap.delete`
+  remove(pipeline: PipelineWithOrigin) {
+    _.remove(this, (p) => p.name() === pipeline.name());
+    this.pipelinesAsMap.delete(pipeline.name());
+  }
+
+  findByName(name: string): PipelineWithOrigin | undefined {
+    return this.pipelinesAsMap.get(name);
   }
 
   clone() {

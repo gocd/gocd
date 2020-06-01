@@ -444,6 +444,16 @@ export class SparkRoutes {
     return `/go/api/internal/pipeline_structure?${queryString}`;
   }
 
+  static apiAdminInternalPipelineGroupsPath(groupAuthorization: "view" | "operate" | "administer") {
+    const values: Params = {
+      pipeline_group_authorization: groupAuthorization
+    };
+
+    const queryString = m.buildQueryString(values);
+
+    return `/go/api/internal/pipeline_groups?${queryString}`;
+  }
+
   static showAnalyticsPath(pluginId: string, metric: AnalyticsCapability, params: { [key: string]: string | number }) {
     return `/go/analytics/${pluginId}/${metric.type}/${metric.id}?${m.buildQueryString(params)}`;
   }

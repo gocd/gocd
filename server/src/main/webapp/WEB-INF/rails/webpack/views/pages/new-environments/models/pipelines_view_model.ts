@@ -111,6 +111,11 @@ export class PipelinesViewModel {
     this.allPipelinesFromAllGroups().forEach((pipeline) => {
       const isPipelineFromCurrentEnvironment = this.environment.pipelines().findByName(pipeline.name());
 
+      if (isPipelineFromCurrentEnvironment && isPipelineFromCurrentEnvironment.isDefinedRemotely()) {
+        //this._currentEnvConfigRepoPipelines is already populated
+        return;
+      }
+
       if(isPipelineFromCurrentEnvironment && !isPipelineFromCurrentEnvironment.isDefinedRemotely()) {
         return this._availablePipelines.push(pipeline);
       }

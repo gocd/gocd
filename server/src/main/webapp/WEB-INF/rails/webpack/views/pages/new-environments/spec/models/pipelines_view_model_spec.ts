@@ -145,4 +145,13 @@ describe("Pipelines View Model", () => {
     expect(pipelines[4].name()).toBe(pipelineGroupsJSON.groups[1].pipelines[1].name);
     expect(pipelines[5].name()).toBe(pipelineGroupsJSON.groups[1].pipelines[2].name);
   });
+
+  it('should list available pipelines', () => {
+    const pipelines = pipelinesViewModel.availablePipelines();
+
+    expect(pipelines.length).toBe(3);
+    expect(pipelines[0].name()).toBe(pipelineGroupsJSON.groups[0].pipelines[0].name);
+    expect(pipelines[1].name()).toBe(pipelineGroupsJSON.groups[0].pipelines[2].name);
+    expect(pipelines[2].name()).toBe(pipelineGroupsJSON.groups[1].pipelines[0].name);
+  });
 });

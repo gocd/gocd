@@ -97,9 +97,9 @@ public class ConsoleResult {
     }
 
     public boolean failed() {
-        // Some git commands return non-zero return value for a "successfull" command (e.g. git config --get-regexp)
+        // Some git commands return non-zero return value for a "successful" command (e.g. git config --get-regexp)
         // In such a scenario, we can't simply rely on return value to tell whether a command is successful or not
-        return failOnNonZeroReturn ? returnValue() != 0 : false;
+        return failOnNonZeroReturn && returnValue() != 0;
     }
 
     public String describe() {

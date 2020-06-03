@@ -40,6 +40,7 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.util.*;
 
+import static com.thoughtworks.go.config.materials.git.RefSpecHelper.localBranch;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfFailedToRunCommandLine;
 import static com.thoughtworks.go.util.FileUtil.createParentFolderIfNotExist;
@@ -50,20 +51,18 @@ import static org.apache.commons.lang3.StringUtils.isAllBlank;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
-    private static final Logger LOG = LoggerFactory.getLogger(GitMaterial.class);
     public static final int UNSHALLOW_TRYOUT_STEP = 100;
     public static final int DEFAULT_SHALLOW_CLONE_DEPTH = 2;
     public static final String GO_MATERIAL_BRANCH = "GO_MATERIAL_BRANCH";
-
-    private UrlArgument url;
-    private String branch = GitMaterialConfig.DEFAULT_BRANCH;
-    private boolean shallowClone = false;
-    private String submoduleFolder;
-
     //TODO: use iBatis to set the type for us, and we can get rid of this field.
     public static final String TYPE = "GitMaterial";
-    private static final String ERR_GIT_NOT_FOUND = "Failed to find 'git' on your PATH. Please ensure 'git' is executable by the Go Server and on the Go Agents where this material will be used.";
     public static final String ERR_GIT_OLD_VERSION = "Please install Git-core 1.6 or above. ";
+    private static final Logger LOG = LoggerFactory.getLogger(GitMaterial.class);
+    private static final String ERR_GIT_NOT_FOUND = "Failed to find 'git' on your PATH. Please ensure 'git' is executable by the Go Server and on the Go Agents where this material will be used.";
+    private final UrlArgument url;
+    private String refSpecOrBranch = GitMaterialConfig.DEFAULT_BRANCH;
+    private boolean shallowClone = false;
+    private String submoduleFolder;
 
     public GitMaterial(String url) {
         super(TYPE, new GoCipher());
@@ -75,20 +74,20 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
     }
 
 
-    public GitMaterial(String url, String branch) {
+    public GitMaterial(String url, String refSpecOrBranch) {
         this(url);
-        if (branch != null) {
-            this.branch = branch;
+        if (refSpecOrBranch != null) {
+            this.refSpecOrBranch = refSpecOrBranch;
         }
     }
 
-    public GitMaterial(String url, String branch, String folder) {
-        this(url, branch);
+    public GitMaterial(String url, String refSpecOrBranch, String folder) {
+        this(url, refSpecOrBranch);
         this.folder = folder;
     }
 
-    public GitMaterial(String url, String branch, String folder, Boolean shallowClone) {
-        this(url, branch, folder);
+    public GitMaterial(String url, String refSpecOrBranch, String folder, Boolean shallowClone) {
+        this(url, refSpecOrBranch, folder);
         if (shallowClone != null) {
             this.shallowClone = shallowClone;
         }
@@ -118,16 +117,16 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         gitMaterialConfig.setFolder(this.folder);
         gitMaterialConfig.setName(this.name);
         gitMaterialConfig.setShallowClone(this.shallowClone);
-        Optional.ofNullable(this.branch).ifPresent(gitMaterialConfig::setBranch);
+        Optional.ofNullable(this.refSpecOrBranch).ifPresent(gitMaterialConfig::setBranch);
         return gitMaterialConfig;
     }
 
     public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {
-        return getGit(baseDir, DEFAULT_SHALLOW_CLONE_DEPTH, execCtx).latestModification();
+        return getGit(baseDir, execCtx).latestModification();
     }
 
     public List<Modification> modificationsSince(File baseDir, Revision revision, final SubprocessExecutionContext execCtx) {
-        GitCommand gitCommand = getGit(baseDir, DEFAULT_SHALLOW_CLONE_DEPTH, execCtx);
+        GitCommand gitCommand = getGit(baseDir, execCtx);
         if (!execCtx.isGitShallowClone()) {
             fullyUnshallow(gitCommand, inMemoryConsumer());
         }
@@ -140,20 +139,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
 
     @Override
     public MaterialInstance createMaterialInstance() {
-        return new GitMaterialInstance(url.originalArgument(), userName, branch, submoduleFolder, UUID.randomUUID().toString());
-    }
-
-    @Override
-    protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
-        parameters.put("branch", branch);
-    }
-
-    @Override
-    protected void appendAttributes(Map<String, Object> parameters) {
-        parameters.put("url", url);
-        parameters.put("branch", branch);
-        parameters.put("shallowClone", shallowClone);
+        return new GitMaterialInstance(url.originalArgument(), userName, refSpecOrBranch, submoduleFolder, UUID.randomUUID().toString());
     }
 
     @Override
@@ -164,7 +150,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
             File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
             GitCommand git = git(outputStreamConsumer, workingDir, revisionContext.numberOfModifications() + 1, execCtx);
             git.fetch(outputStreamConsumer);
-            unshallowIfNeeded(git, outputStreamConsumer, revisionContext.getOldestRevision(), baseDir);
+            unshallowIfNeeded(git, outputStreamConsumer, revisionContext.getOldestRevision());
             git.resetWorkingDir(outputStreamConsumer, revision, shallowClone);
             outputStreamConsumer.stdOutput(format("[%s] Done.\n", GoConstants.PRODUCT_NAME));
         } catch (Exception e) {
@@ -173,9 +159,9 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
     }
 
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
-        GitCommand gitCommand = new GitCommand(null, null, null, false, secrets());
+        GitCommand gitCommand = new GitCommand(null, null, refSpecOrBranch, false, secrets());
         try {
-            gitCommand.checkConnection(new UrlArgument(urlForCommandLine()), branch);
+            gitCommand.checkConnection(new UrlArgument(urlForCommandLine()));
             return ValidationBean.valid();
         } catch (Exception e) {
             try {
@@ -199,10 +185,167 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         }
     }
 
-    private GitCommand getGit(File workingdir, int preferredCloneDepth, SubprocessExecutionContext executionContext) {
+    /**
+     * @deprecated Breaks encapsulation really badly. But we need it for IBatis :-(
+     */
+    @Override
+    public String getUrl() {
+        return url.originalArgument();
+    }
+
+    @Override
+    public String urlForCommandLine() {
+        try {
+            if (credentialsAreNotProvided()) {
+                return this.url.originalArgument();
+            }
+
+            return new URIBuilder(this.url.originalArgument())
+                    .setUserInfo(new UrlUserInfo(this.userName, this.passwordForCommandLine()).asString())
+                    .build().toString();
+
+        } catch (URISyntaxException e) {
+            return this.url.originalArgument();
+        }
+    }
+
+    @Override
+    public UrlArgument getUrlArgument() {
+        return url;
+    }
+
+    @Override
+    public String getLongDescription() {
+        return String.format("URL: %s, Branch: %s", url.forDisplay(), refSpecOrBranch);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        GitMaterial that = (GitMaterial) o;
+        return Objects.equals(url, that.url) &&
+                Objects.equals(refSpecOrBranch, that.refSpecOrBranch) &&
+                Objects.equals(submoduleFolder, that.submoduleFolder);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), url, refSpecOrBranch, submoduleFolder);
+    }
+
+    @Override
+    public String getTypeForDisplay() {
+        return "Git";
+    }
+
+    public String getBranch() {
+        return this.refSpecOrBranch;
+    }
+
+    public String getSubmoduleFolder() {
+        return submoduleFolder;
+    }
+
+    public void setSubmoduleFolder(String submoduleFolder) {
+        this.submoduleFolder = submoduleFolder;
+    }
+
+    @Override
+    public boolean isCheckExternals() {
+        return false;
+    }
+
+    public boolean isShallowClone() {
+        return shallowClone;
+    }
+
+    @Override
+    public String getShortRevision(String revision) {
+        if (revision == null) return null;
+        if (revision.length() < 7) return revision;
+        return revision.substring(0, 7);
+    }
+
+    @Override
+    public Map<String, Object> getAttributes(boolean addSecureFields) {
+        Map<String, Object> materialMap = new HashMap<>();
+        materialMap.put("type", "git");
+        Map<String, Object> configurationMap = new HashMap<>();
+        if (addSecureFields) {
+            configurationMap.put("url", url.forCommandLine());
+        } else {
+            configurationMap.put("url", url.forDisplay());
+        }
+        configurationMap.put("branch", refSpecOrBranch);
+        configurationMap.put("shallow-clone", shallowClone);
+        materialMap.put("git-configuration", configurationMap);
+        return materialMap;
+    }
+
+    @Override
+    public Class getInstanceType() {
+        return GitMaterialInstance.class;
+    }
+
+    @Override
+    public String toString() {
+        return "GitMaterial{" +
+                "url=" + url +
+                ", branch='" + refSpecOrBranch + '\'' +
+                ", shallowClone=" + shallowClone +
+                ", submoduleFolder='" + submoduleFolder + '\'' +
+                '}';
+    }
+
+    @Override
+    public void updateFromConfig(MaterialConfig materialConfig) {
+        super.updateFromConfig(materialConfig);
+        this.shallowClone = ((GitMaterialConfig) materialConfig).isShallowClone();
+    }
+
+    public GitMaterial withShallowClone(boolean value) {
+        GitMaterialConfig config = (GitMaterialConfig) config();
+        config.setShallowClone(value);
+        GitMaterial gitMaterial = new GitMaterial(config);
+        gitMaterial.secretParamsForPassword = this.secretParamsForPassword;
+
+        return gitMaterial;
+    }
+
+    public String effectiveLocalBranch() {
+        return localBranch(isBlank(refSpecOrBranch) ? GitMaterialConfig.DEFAULT_BRANCH : refSpecOrBranch);
+    }
+
+    @Override
+    protected void appendCriteria(Map<String, Object> parameters) {
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
+        parameters.put("branch", refSpecOrBranch);
+    }
+
+    @Override
+    protected void appendAttributes(Map<String, Object> parameters) {
+        parameters.put("url", url);
+        parameters.put("branch", refSpecOrBranch);
+        parameters.put("shallowClone", shallowClone);
+    }
+
+    @Override
+    protected String getLocation() {
+        return url.forDisplay();
+    }
+
+    @Override
+    protected void setGoMaterialVariables(EnvironmentVariableContext environmentVariableContext) {
+        super.setGoMaterialVariables(environmentVariableContext);
+        setVariableWithName(environmentVariableContext, effectiveLocalBranch(), GO_MATERIAL_BRANCH);
+    }
+
+    private GitCommand getGit(File workingdir, SubprocessExecutionContext executionContext) {
         InMemoryStreamConsumer output = inMemoryConsumer();
         try {
-            return git(output, workingdir, preferredCloneDepth, executionContext);
+            return git(output, workingdir, DEFAULT_SHALLOW_CLONE_DEPTH, executionContext);
         } catch (Exception e) {
             throw bomb(e.getMessage() + " " + output.getStdError(), e);
         }
@@ -212,8 +355,8 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         if (isSubmoduleFolder()) {
             return new GitCommand(getFingerprint(), new File(workingFolder.getPath()), GitMaterialConfig.DEFAULT_BRANCH, true, secrets());
         }
-
-        GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, getBranch(), false, secrets());
+        System.out.printf("**** [%s] WorkingDir for %s: %s\n", executionContext.isServer() ? "server" : "agent", urlForCommandLine(), workingFolder.getPath());
+        GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, refSpecOrBranch, false, secrets());
         if (!isGitRepository(workingFolder) || isRepositoryChanged(gitCommand, workingFolder)) {
             LOG.debug("Invalid git working copy or repository changed. Delete folder: {}", workingFolder);
             deleteDirectoryNoisily(workingFolder);
@@ -251,7 +394,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
     // Unshallow local repo to include a revision operating on via two step process:
     // First try to fetch forward 100 level with "git fetch -depth 100". If revision still missing,
     // unshallow the whole repo with "git fetch --2147483647".
-    private void unshallowIfNeeded(GitCommand gitCommand, ConsoleOutputStreamConsumer streamConsumer, Revision revision, File workingDir) {
+    private void unshallowIfNeeded(GitCommand gitCommand, ConsoleOutputStreamConsumer streamConsumer, Revision revision) {
         if (gitCommand.isShallow() && !gitCommand.containsRevisionInBranch(revision)) {
             gitCommand.unshallow(streamConsumer, UNSHALLOW_TRYOUT_STEP);
 
@@ -280,160 +423,27 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         LOG.trace("Current repository url of [{}]: {}", workingDirectory, currentWorkingUrl);
         LOG.trace("Target repository url: {}", url);
         return !MaterialUrl.sameUrl(url.forDisplay(), currentWorkingUrl.forDisplay())
+                || !isRemoteFetchConfigEqual(command)
                 || !isBranchEqual(command)
                 || (!shallowClone && command.isShallow());
     }
 
-    private boolean isBranchEqual(GitCommand command) {
-        return branchWithDefault().equals(command.getCurrentBranch());
-    }
-
-    /**
-     * @deprecated Breaks encapsulation really badly. But we need it for IBatis :-(
-     */
-    @Override
-    public String getUrl() {
-        return url.originalArgument();
-    }
-
-    @Override
-    public String urlForCommandLine() {
-        try {
-            if (credentialsAreNotProvided()) {
-                return this.url.originalArgument();
+    private boolean isRemoteFetchConfigEqual(GitCommand command) {
+        if (command.hasRefSpec()) {
+            try {
+                return ("+" + command.expandRefSpec()).equals(command.getConfigValue("remote.origin.fetch"));
+            } catch (Throwable ignored) {
+                return false;
             }
-
-            return new URIBuilder(this.url.originalArgument())
-                    .setUserInfo(new UrlUserInfo(this.userName, this.passwordForCommandLine()).asString())
-                    .build().toString();
-
-        } catch (URISyntaxException e) {
-            return this.url.originalArgument();
         }
+        return true;
+    }
+
+    private boolean isBranchEqual(GitCommand command) {
+        return effectiveLocalBranch().equals(command.getCurrentBranch());
     }
 
     private boolean credentialsAreNotProvided() {
         return isAllBlank(this.userName, this.getPassword());
-    }
-
-    @Override
-    public UrlArgument getUrlArgument() {
-        return url;
-    }
-
-    @Override
-    public String getLongDescription() {
-        return String.format("URL: %s, Branch: %s", url.forDisplay(), branch);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        GitMaterial that = (GitMaterial) o;
-        return Objects.equals(url, that.url) &&
-                Objects.equals(branch, that.branch) &&
-                Objects.equals(submoduleFolder, that.submoduleFolder);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), url, branch, submoduleFolder);
-    }
-
-    @Override
-    protected String getLocation() {
-        return url.forDisplay();
-    }
-
-    @Override
-    public String getTypeForDisplay() {
-        return "Git";
-    }
-
-    public String getBranch() {
-        return this.branch;
-    }
-
-    public String getSubmoduleFolder() {
-        return submoduleFolder;
-    }
-
-    public void setSubmoduleFolder(String submoduleFolder) {
-        this.submoduleFolder = submoduleFolder;
-    }
-
-    @Override
-    public boolean isCheckExternals() {
-        return false;
-    }
-
-    public boolean isShallowClone() {
-        return shallowClone;
-    }
-
-    @Override
-    public String getShortRevision(String revision) {
-        if (revision == null) return null;
-        if (revision.length() < 7) return revision;
-        return revision.substring(0, 7);
-    }
-
-    @Override
-    public Map<String, Object> getAttributes(boolean addSecureFields) {
-        Map<String, Object> materialMap = new HashMap<>();
-        materialMap.put("type", "git");
-        Map<String, Object> configurationMap = new HashMap<>();
-        if (addSecureFields) {
-            configurationMap.put("url", url.forCommandLine());
-        } else {
-            configurationMap.put("url", url.forDisplay());
-        }
-        configurationMap.put("branch", branch);
-        configurationMap.put("shallow-clone", shallowClone);
-        materialMap.put("git-configuration", configurationMap);
-        return materialMap;
-    }
-
-    @Override
-    public Class getInstanceType() {
-        return GitMaterialInstance.class;
-    }
-
-    @Override
-    public String toString() {
-        return "GitMaterial{" +
-                "url=" + url +
-                ", branch='" + branch + '\'' +
-                ", shallowClone=" + shallowClone +
-                ", submoduleFolder='" + submoduleFolder + '\'' +
-                '}';
-    }
-
-    @Override
-    public void updateFromConfig(MaterialConfig materialConfig) {
-        super.updateFromConfig(materialConfig);
-        this.shallowClone = ((GitMaterialConfig) materialConfig).isShallowClone();
-    }
-
-
-    public GitMaterial withShallowClone(boolean value) {
-        GitMaterialConfig config = (GitMaterialConfig) config();
-        config.setShallowClone(value);
-        GitMaterial gitMaterial = new GitMaterial(config);
-        gitMaterial.secretParamsForPassword = this.secretParamsForPassword;
-
-        return gitMaterial;
-    }
-
-    public String branchWithDefault() {
-        return isBlank(branch) ? GitMaterialConfig.DEFAULT_BRANCH : branch;
-    }
-
-    @Override
-    protected void setGoMaterialVariables(EnvironmentVariableContext environmentVariableContext) {
-        super.setGoMaterialVariables(environmentVariableContext);
-        setVariableWithName(environmentVariableContext, branchWithDefault(), GO_MATERIAL_BRANCH);
     }
 }

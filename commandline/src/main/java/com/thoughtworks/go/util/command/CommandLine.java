@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Commandline objects help handling command lines specifying processes to execute.
@@ -54,85 +55,16 @@ public class CommandLine {
 
     private final String executable;
     private final List<CommandArgument> arguments = new ArrayList<>();
+    private final String ERROR_STREAM_PREFIX_FOR_SCRIPTS = "";
+    private final String ERROR_STREAM_PREFIX_FOR_CMDS = "STDERR: ";
     private List<SecretString> secrets = new ArrayList<>();
-
     private File workingDir = null;
     private Map<String, String> env = new HashMap<>();
     private List<String> inputs = new ArrayList<>();
     private String encoding;
-    private final String ERROR_STREAM_PREFIX_FOR_SCRIPTS = "";
-    private final String ERROR_STREAM_PREFIX_FOR_CMDS = "STDERR: ";
 
     private CommandLine(String executable) {
         this.executable = executable;
-    }
-
-
-    private void addStringArguments(String... args) {
-        for (String arg : args) {
-            arguments.add(new StringArgument(arg));
-        }
-    }
-
-    protected File getWorkingDir() {
-        return workingDir;
-    }
-
-    public Map<String, String> env() {
-        return env;
-    }
-
-    public String describe() {
-        String description = "--- Command ---\n" + toString()
-                + "\n--- Environment ---\n" + env + "\n"
-                + "--- INPUT ----\n" + StringUtils.join(inputs, ",") + "\n";
-        for (CommandArgument argument : arguments) {
-            description = argument.replaceSecretInfo(description);
-        }
-        for (SecretString secret : secrets) {
-            description = secret.replaceSecretInfo(description);
-        }
-        return description;
-    }
-
-    /**
-     * Returns the executable and all defined arguments.
-     */
-    String[] getCommandLine() {
-        List<String> args = new ArrayList<>();
-        if (executable != null) {
-            args.add(executable);
-        }
-        for (int i = 0; i < arguments.size(); i++) {
-            CommandArgument argument = arguments.get(i);
-            args.add(argument.forCommandLine());
-        }
-        return args.toArray(new String[args.size()]);
-    }
-
-    private String[] getCommandLineForDisplay() {
-        List<String> args = new ArrayList<>();
-        if (executable != null) {
-            args.add(executable);
-        }
-        for (int i = 0; i < arguments.size(); i++) {
-            CommandArgument argument = arguments.get(i);
-            args.add(argument.forDisplay());
-        }
-        return args.toArray(new String[args.size()]);
-    }
-
-
-    @Override
-    public String toString() {
-        return toString(getCommandLineForDisplay(), true);
-    }
-
-    /**
-     * Converts the command line to a string without adding quotes to any of the arguments.
-     */
-    public String toStringForDisplay() {
-        return toString(getCommandLineForDisplay(), false);
     }
 
     public static String toString(String[] line, boolean quote) {
@@ -222,10 +154,46 @@ public class CommandLine {
         return args;
     }
 
+    public static CommandLine createCommandLine(String command) {
+        return new CommandLine(command);
+    }
+
+    public Map<String, String> env() {
+        return env;
+    }
+
+    public String describe() {
+        String description = "--- Command ---\n" + toString()
+                + "\n--- Environment ---\n" + env + "\n"
+                + "--- INPUT ----\n" + StringUtils.join(inputs, ",") + "\n";
+        for (CommandArgument argument : arguments) {
+            description = argument.replaceSecretInfo(description);
+        }
+        for (SecretString secret : secrets) {
+            description = secret.replaceSecretInfo(description);
+        }
+        return description;
+    }
+
+    @Override
+    public String toString() {
+        return toString(getCommandLineForDisplay(), true);
+    }
+
+    /**
+     * Converts the command line to a string without adding quotes to any of the arguments.
+     */
+    public String toStringForDisplay() {
+        return toString(getCommandLineForDisplay(), false);
+    }
+
     public int size() {
         return getCommandLine().length;
     }
 
+    public File getWorkingDirectory() {
+        return workingDir;
+    }
 
     /**
      * Sets execution directory.
@@ -241,31 +209,6 @@ public class CommandLine {
     }
 
     /**
-     * Sets execution directory
-     */
-    public void setWorkingDir(File workingDir) {
-        checkWorkingDir(workingDir);
-        this.workingDir = workingDir;
-    }
-
-    // throws an exception if the specified working directory is non null
-    // and not a valid working directory
-    private void checkWorkingDir(File dir) {
-        if (dir != null) {
-            if (!dir.exists()) {
-                throw new CommandLineException("Working directory \"" + dir.getAbsolutePath() + "\" does not exist!");
-            } else if (!dir.isDirectory()) {
-                throw new CommandLineException("Path \"" + dir.getAbsolutePath() + "\" does not specify a "
-                        + "directory.");
-            }
-        }
-    }
-
-    public File getWorkingDirectory() {
-        return workingDir;
-    }
-
-    /**
      * @deprecated this should not be used outside of this CommandLine(in production code), as using it directly can bypass smudging of sensitive data
      * this is used only in tests
      */
@@ -273,12 +216,6 @@ public class CommandLine {
         ProcessWrapper process = createProcess(environmentVariableContext, outputStreamConsumer, processTag, ERROR_STREAM_PREFIX_FOR_CMDS);
         process.typeInputToConsole(inputs);
         return process;
-    }
-
-
-    private ProcessWrapper createProcess(EnvironmentVariableContext environmentVariableContext, ConsoleOutputStreamConsumer consumer, ProcessTag processTag, String errorPrefix) {
-        return ProcessManager.getInstance().createProcess(getCommandLine(), toString(getCommandLineForDisplay(), true), workingDir, env, environmentVariableContext, consumer, processTag, encoding,
-                errorPrefix);
     }
 
     public void waitForSuccess(int timeout) {
@@ -319,6 +256,19 @@ public class CommandLine {
         return this;
     }
 
+    public CommandLine when(boolean condition, Consumer<CommandLine> thenDo) {
+        return this.tap((cmd) -> {
+            if (condition) {
+                thenDo.accept(cmd);
+            }
+        });
+    }
+
+    public CommandLine tap(Consumer<CommandLine> thenDo) {
+        thenDo.accept(this);
+        return this;
+    }
+
     public CommandLine argPassword(String password) {
         arguments.add(new PasswordArgument(password));
         return this;
@@ -327,10 +277,6 @@ public class CommandLine {
     public CommandLine withWorkingDir(File folder) {
         setWorkingDir(folder);
         return this;
-    }
-
-    public static CommandLine createCommandLine(String command) {
-        return new CommandLine(command);
     }
 
     public CommandLine withEnv(Map<String, String> env) {
@@ -418,13 +364,6 @@ public class CommandLine {
         return result;
     }
 
-    private ProcessWrapper startProcess(EnvironmentVariableContext environmentVariableContext, ConsoleOutputStreamConsumer consumer, ProcessTag processTag) throws IOException {
-        ProcessWrapper process = createProcess(environmentVariableContext, consumer, processTag, ERROR_STREAM_PREFIX_FOR_SCRIPTS);
-        process.closeOutputStream();
-        return process;
-    }
-
-
     public int run(ConsoleOutputStreamConsumer outputStreamConsumer, ProcessTag processTag, String... input) {
         LOG.debug("Running {}", this);
         addInput(input);
@@ -437,5 +376,74 @@ public class CommandLine {
 
     public ConsoleResult runOrBomb(ProcessTag processTag, String... input) {
         return runOrBomb(true, processTag, input);
+    }
+
+    /**
+     * Returns the executable and all defined arguments.
+     */
+    String[] getCommandLine() {
+        List<String> args = new ArrayList<>();
+        if (executable != null) {
+            args.add(executable);
+        }
+        for (int i = 0; i < arguments.size(); i++) {
+            CommandArgument argument = arguments.get(i);
+            args.add(argument.forCommandLine());
+        }
+        return args.toArray(new String[args.size()]);
+    }
+
+    protected File getWorkingDir() {
+        return workingDir;
+    }
+
+    /**
+     * Sets execution directory
+     */
+    public void setWorkingDir(File workingDir) {
+        checkWorkingDir(workingDir);
+        this.workingDir = workingDir;
+    }
+
+    private void addStringArguments(String... args) {
+        for (String arg : args) {
+            arguments.add(new StringArgument(arg));
+        }
+    }
+
+    private String[] getCommandLineForDisplay() {
+        List<String> args = new ArrayList<>();
+        if (executable != null) {
+            args.add(executable);
+        }
+        for (int i = 0; i < arguments.size(); i++) {
+            CommandArgument argument = arguments.get(i);
+            args.add(argument.forDisplay());
+        }
+        return args.toArray(new String[args.size()]);
+    }
+
+    // throws an exception if the specified working directory is non null
+    // and not a valid working directory
+    private void checkWorkingDir(File dir) {
+        if (dir != null) {
+            if (!dir.exists()) {
+                throw new CommandLineException("Working directory \"" + dir.getAbsolutePath() + "\" does not exist!");
+            } else if (!dir.isDirectory()) {
+                throw new CommandLineException("Path \"" + dir.getAbsolutePath() + "\" does not specify a "
+                        + "directory.");
+            }
+        }
+    }
+
+    private ProcessWrapper createProcess(EnvironmentVariableContext environmentVariableContext, ConsoleOutputStreamConsumer consumer, ProcessTag processTag, String errorPrefix) {
+        return ProcessManager.getInstance().createProcess(getCommandLine(), toString(getCommandLineForDisplay(), true), workingDir, env, environmentVariableContext, consumer, processTag, encoding,
+                errorPrefix);
+    }
+
+    private ProcessWrapper startProcess(EnvironmentVariableContext environmentVariableContext, ConsoleOutputStreamConsumer consumer, ProcessTag processTag) throws IOException {
+        ProcessWrapper process = createProcess(environmentVariableContext, consumer, processTag, ERROR_STREAM_PREFIX_FOR_SCRIPTS);
+        process.closeOutputStream();
+        return process;
     }
 }

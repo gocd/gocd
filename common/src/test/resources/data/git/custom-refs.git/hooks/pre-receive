@@ -1,0 +1,5 @@
+#!/bin/bash
+
+printf "This repository is a read-only test fixture; please \`git clone --mirror\` a copy during your test to make changes.\n" >&2
+exit 1
+

@@ -29,7 +29,7 @@ RUN \
 </#if>
 RUN unzip /tmp/go-server-${fullVersion}.zip -d /
 RUN mkdir -p /go-server/wrapper /go-server/bin && \
-    mv /go-server-${goVersion}/LICENSE /go-server/LICENSE
+    mv /go-server-${goVersion}/LICENSE /go-server/LICENSE && \
     mv /go-server-${goVersion}/bin/go-server /go-server/bin/go-server && \
     mv /go-server-${goVersion}/lib /go-server/lib && \
     mv /go-server-${goVersion}/logs /go-server/logs && \

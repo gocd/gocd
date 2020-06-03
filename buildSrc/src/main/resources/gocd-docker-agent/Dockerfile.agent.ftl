@@ -34,7 +34,6 @@ RUN unzip /tmp/go-agent-${fullVersion}.zip -d /
 RUN mv /go-agent-${goVersion} /go-agent && chown -R ${r"${UID}"}:0 /go-agent && chmod -R g=u /go-agent
 
 FROM ${distro.name()}:${distroVersion.releaseName}
-MAINTAINER ThoughtWorks, Inc. <support@thoughtworks.com>
 
 LABEL gocd.version="${goVersion}" \
   description="GoCD agent based on ${distro.name()} version ${distroVersion.version}" \
@@ -48,9 +47,7 @@ ADD ${fileDescriptor.url} ${filePath}
 </#list>
 
 # force encoding
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8
 <#list distro.getEnvironmentVariables(distroVersion) as key, value>
 ENV ${key}="${value}"
 </#list>

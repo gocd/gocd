@@ -28,10 +28,19 @@ RUN \
   curl --fail --location --silent --show-error "https://download.gocd.org/binaries/${fullVersion}/generic/go-server-${fullVersion}.zip" > /tmp/go-server-${fullVersion}.zip
 </#if>
 RUN unzip /tmp/go-server-${fullVersion}.zip -d /
-RUN mv /go-server-${goVersion} /go-server && chown -R ${r"${UID}"}:0 /go-server && chmod -R g=u /go-server
+RUN mkdir -p /go-server/wrapper /go-server/bin && \
+    mv /go-server-${goVersion}/LICENSE /go-server/LICENSE
+    mv /go-server-${goVersion}/bin/go-server /go-server/bin/go-server && \
+    mv /go-server-${goVersion}/lib /go-server/lib && \
+    mv /go-server-${goVersion}/logs /go-server/logs && \
+    mv /go-server-${goVersion}/run /go-server/run && \
+    mv /go-server-${goVersion}/wrapper-config /go-server/wrapper-config && \
+    mv /go-server-${goVersion}/wrapper/wrapper-linux* /go-server/wrapper/ && \
+    mv /go-server-${goVersion}/wrapper/libwrapper-linux* /go-server/wrapper/ && \
+    mv /go-server-${goVersion}/wrapper/wrapper.jar /go-server/wrapper/ && \
+    chown -R ${r"${UID}"}:0 /go-server && chmod -R g=u /go-server
 
 FROM ${distro.name()}:${distroVersion.releaseName}
-MAINTAINER ThoughtWorks, Inc. <support@thoughtworks.com>
 
 LABEL gocd.version="${goVersion}" \
   description="GoCD server based on ${distro.name()} version ${distroVersion.version}" \
@@ -48,9 +57,7 @@ ADD ${fileDescriptor.url} ${filePath}
 </#list>
 
 # force encoding
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8
 <#list distro.getEnvironmentVariables(distroVersion) as key, value>
 ENV ${key}="${value}"
 </#list>
@@ -87,8 +94,7 @@ ADD docker-entrypoint.sh /
 COPY --from=gocd-server-unzip /go-server /go-server
 # ensure that logs are printed to console output
 COPY --chown=go:root logback-include.xml /go-server/config/logback-include.xml
-COPY --chown=go:root install-gocd-plugins /usr/local/sbin/install-gocd-plugins
-COPY --chown=go:root git-clone-config /usr/local/sbin/git-clone-config
+COPY --chown=go:root install-gocd-plugins git-clone-config /usr/local/sbin/
 
 RUN chown -R go:root /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh \
     && chmod -R g=u /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh

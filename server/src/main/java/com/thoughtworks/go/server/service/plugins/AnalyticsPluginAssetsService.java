@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.access.analytics.AnalyticsMetadataLoader;
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsMetadataStore;
 import com.thoughtworks.go.plugin.access.common.PluginMetadataChangeListener;
 import com.thoughtworks.go.util.ExceptionUtils;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
@@ -35,6 +36,7 @@ import javax.servlet.ServletContext;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Base64;
@@ -50,6 +52,7 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
 
     // TODO: actually rename source file later
     private static final String DESTINATION_JS = "gocd-server-comms.js";
+    private final SystemEnvironment systemEnvironment;
 
     private AnalyticsExtension analyticsExtension;
     private ServletContext servletContext;
@@ -58,7 +61,8 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
     private AnalyticsMetadataStore metadataStore;
 
     @Autowired
-    public AnalyticsPluginAssetsService(AnalyticsExtension analyticsExtension, AnalyticsMetadataLoader metadataLoader) {
+    public AnalyticsPluginAssetsService(AnalyticsExtension analyticsExtension, AnalyticsMetadataLoader metadataLoader, SystemEnvironment systemEnvironment) {
+        this.systemEnvironment = systemEnvironment;
         this.zipUtil = new ZipUtil();
         this.analyticsExtension = analyticsExtension;
         this.pluginAssetPaths = new HashMap<>();
@@ -123,12 +127,35 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
                 zipUtil.unzip(zipInputStream, new File(pluginAssetsRoot));
 
                 Files.write(Paths.get(pluginAssetsRoot, DESTINATION_JS), pluginEndpointJsContent);
+                safeCopyExternalAssetsToPluginAssetRoot(pluginAssetsRoot);
 
                 pluginAssetPaths.put(pluginId, Paths.get(pluginStaticAssetsPathRelativeToRailsPublicFolder(pluginId), assetsHash).toString());
             }
         } catch (Exception e) {
             LOGGER.error("Failed to extract static assets from plugin: {}", pluginId, e);
             ExceptionUtils.bomb(e);
+        }
+    }
+
+    private void safeCopyExternalAssetsToPluginAssetRoot(final String pluginAssetsRoot) {
+        Path externalAssetsPath = Paths.get(systemEnvironment.get(SystemEnvironment.GO_ANALYTICS_PLUGIN_EXTERNAL_ASSETS));
+        if (externalAssetsPath == null || !Files.exists(externalAssetsPath) || !Files.isDirectory(externalAssetsPath)) {
+            LOGGER.debug("Analytics plugin external assets path ({}) does not exist or is not a directory. Not loading any assets.", externalAssetsPath);
+            return;
+        }
+
+        try {
+            Files.list(externalAssetsPath).forEach(path -> {
+                try {
+                    Files.copy(path, Paths.get(pluginAssetsRoot, path.getFileName().toString()));
+                } catch (Exception e) {
+                    LOGGER.error("Unable to copy analytics plugin external asset ({}) to plugin assets root.", path, e);
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (Exception e) {
+            LOGGER.error("Unable to list files in analytics plugin external assets location ({}).", externalAssetsPath, e);
+            throw new RuntimeException(e);
         }
     }
 

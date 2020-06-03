@@ -21,6 +21,7 @@ import com.thoughtworks.go.plugin.access.analytics.AnalyticsMetadataLoader;
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsMetadataStore;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
@@ -33,6 +34,7 @@ import org.mockito.Mock;
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,6 +60,8 @@ public class AnalyticsPluginAssetsServiceTest {
     private AnalyticsExtension extension;
     @Mock
     private AnalyticsMetadataLoader analyticsMetadataLoader;
+    @Mock
+    private SystemEnvironment systemEnvironment;
 
     private AnalyticsPluginAssetsService assetsService;
     private File railsRoot;
@@ -66,9 +70,11 @@ public class AnalyticsPluginAssetsServiceTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        assetsService = new AnalyticsPluginAssetsService(extension, analyticsMetadataLoader);
+        assetsService = new AnalyticsPluginAssetsService(extension, analyticsMetadataLoader, systemEnvironment);
         assetsService.setServletContext(servletContext);
         metadataStore = AnalyticsMetadataStore.instance();
+
+        when(systemEnvironment.get(SystemEnvironment.GO_ANALYTICS_PLUGIN_EXTERNAL_ASSETS)).thenReturn("some-nonexistent-directory");
     }
 
     @After
@@ -174,6 +180,33 @@ public class AnalyticsPluginAssetsServiceTest {
         assertTrue(actualPath.toFile().exists());
         byte[] expected = IOUtils.toByteArray(getClass().getResourceAsStream("/plugin-endpoint.js"));
         assertArrayEquals("Content of plugin-endpoint.js should be preserved", expected, Files.readAllBytes(actualPath));
+    }
+
+    @Test
+    public void onPluginMetadataLoad_shouldCopyExternalAnalyticsPluginAssetsWhenCachingPluginStaticAssets() throws Exception {
+        railsRoot = temporaryFolder.newFolder();
+
+        addAnalyticsPluginInfoToStore(PLUGIN_ID);
+        when(servletContext.getInitParameter("rails.root")).thenReturn("rails-root");
+        when(servletContext.getRealPath("rails-root")).thenReturn(railsRoot.getAbsolutePath());
+        when(extension.canHandlePlugin(PLUGIN_ID)).thenReturn(true);
+        when(extension.getStaticAssets(PLUGIN_ID)).thenReturn(testDataZipArchive());
+
+        File externalAssetsDir = temporaryFolder.newFolder();
+        when(systemEnvironment.get(SystemEnvironment.GO_ANALYTICS_PLUGIN_EXTERNAL_ASSETS)).thenReturn(externalAssetsDir.getAbsolutePath());
+        Files.write(Paths.get(externalAssetsDir.getAbsolutePath(), "a.js"), "a".getBytes(StandardCharsets.UTF_8));
+        Files.write(Paths.get(externalAssetsDir.getAbsolutePath(), "b.js"), "b".getBytes(StandardCharsets.UTF_8));
+
+
+        assetsService.onPluginMetadataCreate(PLUGIN_ID);
+
+        Path pathForAJS = Paths.get(railsRoot.getAbsolutePath(), "public", assetsService.assetPathFor(PLUGIN_ID), "a.js");
+        assertTrue(pathForAJS.toFile().exists());
+        assertEquals("a", Files.readString(pathForAJS));
+
+        Path pathForBJS = Paths.get(railsRoot.getAbsolutePath(), "public", assetsService.assetPathFor(PLUGIN_ID), "b.js");
+        assertTrue(pathForBJS.toFile().exists());
+        assertEquals("b", Files.readString(pathForBJS));
     }
 
     @Test

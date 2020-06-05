@@ -315,37 +315,46 @@
 
     <select id="getPipelinesForDashboard" resultMap="select-pipeline-history">
         <include refid="getPipelineHistory"/>
-        WHERE pipelines.id IN (
-            (<include refid="selectPipelineIdForLatestBuildingAndFailingStages"/>)
-        UNION
-            (
+        <if test="_databaseId == 'h2' or _databaseId == 'mysql'">
+            WHERE pipelines.id IN (
+              (<include refid="selectPipelineIdForLatestBuildingAndFailingStages"/>)
+              UNION
+              (
                 SELECT max(pipelines.id)
                 FROM pipelines
                 WHERE pipelines.name IN
-                    <if test="_databaseId == 'h2' or _databaseId == 'mysql'">
-                        <foreach item="item" index="index" collection="pipelineNames" open="(" close=")" separator=",">
-                            #{item}
-                        </foreach>
-                    </if>
-                    <if test="_databaseId == 'postgresql'">
-                        <foreach item="item" index="index" collection="pipelineNames" open="ANY(ARRAY[" close="]::citext[])" separator=",">
-                            #{item}
-                        </foreach>
-                    </if>
-        GROUP BY pipelines.name
-            )
-        )
-        AND pipelines.name IN
-            <if test="_databaseId == 'h2' or _databaseId == 'mysql'">
                 <foreach item="item" index="index" collection="pipelineNames" open="(" close=")" separator=",">
                     #{item}
                 </foreach>
-            </if>
-            <if test="_databaseId == 'postgresql'">
-                <foreach item="item" index="index" collection="pipelineNames" open="ANY(ARRAY[" close="]::citext[])" separator=",">
+                GROUP BY pipelines.name
+              )
+            )
+            AND pipelines.name IN
+            <foreach item="item" index="index" collection="pipelineNames" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="_databaseId == 'postgresql'">
+            WHERE pipelines.id IN (
+              (<include refid="selectPipelineIdForLatestBuildingAndFailingStages"/>)
+              UNION
+              (
+                SELECT max(pipelines.id)
+                FROM pipelines
+                WHERE pipelines.name =
+                <foreach item="item" index="index" collection="pipelineNames" open="ANY(ARRAY[" close="]::citext[])"
+                           separator=",">
                     #{item}
                 </foreach>
-            </if>
+                GROUP BY pipelines.name
+              )
+            )
+            AND pipelines.name =
+            <foreach item="item" index="index" collection="pipelineNames" open="ANY(ARRAY[" close="]::citext[])"
+                     separator=",">
+                #{item}
+            </foreach>
+        </if>
         ORDER BY pipelines.id DESC, stages.orderId ASC
     </select>
 

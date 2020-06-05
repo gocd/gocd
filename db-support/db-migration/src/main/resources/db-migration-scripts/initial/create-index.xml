@@ -399,4 +399,19 @@
                                  onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID"
                                  referencedTableName="PIPELINES" validate="true"/>
     </changeSet>
+    <changeSet author="gocd(generated)" id="102">
+        <createIndex indexName="IDX_AGENT_UUID" tableName="AGENTS">
+            <column name="UUID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="103">
+        <createIndex indexName="IDX_PIPELINELABELCOUNTS_PIPELINENAME" tableName="PIPELINELABELCOUNTS">
+            <column name="PIPELINENAME"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="104">
+        <createIndex indexName="IDX_RESOURCES_BUILDID" tableName="RESOURCES">
+            <column name="BUILDID"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

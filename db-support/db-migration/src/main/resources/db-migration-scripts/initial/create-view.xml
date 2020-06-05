@@ -18,7 +18,7 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
-    <changeSet author="gocd(generated)" id="102">
+    <changeSet author="gocd(generated)" id="105">
         <createView fullDefinition="false" remarks="" viewName="_BUILDS">SELECT
             B.ID,
             B.NAME,
@@ -47,7 +47,7 @@
             INNER JOIN PIPELINES P ON P.ID = S.PIPELINEID
         </createView>
     </changeSet>
-    <changeSet author="gocd(generated)" id="103">
+    <changeSet author="gocd(generated)" id="106">
         <createView fullDefinition="false" remarks="" viewName="_STAGES">SELECT
             S.ID,
             S.NAME,

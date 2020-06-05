@@ -785,7 +785,7 @@ task verifyWar(type: VerifyJarTask) {
         "aspectjweaver-${project.versions.aspectj}.jar",
         "base-${project.version}.jar",
         "cglib-${project.versions.cglib}.jar",
-        "checker-qual-2.10.0.jar",
+        "checker-qual-2.11.1.jar",
         "cloning-${project.versions.cloning}.jar",
         "commandline-${project.version}.jar",
         "common-${project.version}.jar",

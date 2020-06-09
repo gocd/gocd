@@ -191,6 +191,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Integer> GO_ELASTIC_PLUGIN_SERVER_PING_THREADS = new GoIntSystemProperty("go.elasticplugin.serverping.threads", 1);
     public static GoSystemProperty<Integer> GO_ENCRYPTION_API_MAX_REQUESTS = new GoIntSystemProperty("go.encryption.api.max.requests", 30);
 
+    public static GoSystemProperty<String> GO_ANALYTICS_PLUGIN_EXTERNAL_ASSETS = new GoStringSystemProperty("go.analytics.plugin.external.assets", "./analytics-assets");
     public static GoSystemProperty<Boolean> AUTO_REGISTER_LOCAL_AGENT_ENABLED = new GoBooleanSystemProperty("go.auto.register.local.agent.enabled", true);
 
     public static GoSystemProperty<Boolean> GO_SERVER_SHALLOW_CLONE = new GoBooleanSystemProperty("go.server.shallowClone", false);

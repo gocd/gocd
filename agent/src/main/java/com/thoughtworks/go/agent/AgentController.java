@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
+import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static com.thoughtworks.go.util.SystemUtil.getClientIp;
 
 public abstract class AgentController {
     private static final Logger LOG = LoggerFactory.getLogger(AgentController.class);
@@ -149,11 +151,15 @@ public abstract class AgentController {
 
     private void initRuntimeInfo() {
         agentAutoRegistrationProperties = new AgentAutoRegistrationPropertiesImpl(new File("config", "autoregister.properties"));
+        String bootstrapperVersion = System.getProperty(GoConstants.AGENT_BOOTSTRAPPER_VERSION, "UNKNOWN");
+        String agentVersion = getClass().getPackage().getImplementationVersion();
 
         if (agentAutoRegistrationProperties.isElastic()) {
-            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), agentAutoRegistrationProperties.agentAutoRegisterElasticAgentId(), agentAutoRegistrationProperties.agentAutoRegisterElasticPluginId());
+            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(),
+                    agentAutoRegistrationProperties.agentAutoRegisterElasticAgentId(), agentAutoRegistrationProperties.agentAutoRegisterElasticPluginId(),
+                    bootstrapperVersion, agentVersion);
         } else {
-            agentRuntimeInfo = AgentRuntimeInfo.fromAgent(identifier, AgentStatus.Idle.getRuntimeStatus(), currentWorkingDirectory());
+            agentRuntimeInfo = AgentRuntimeInfo.fromAgent(identifier, AgentStatus.Idle.getRuntimeStatus(), currentWorkingDirectory(), bootstrapperVersion, agentVersion);
         }
     }
 

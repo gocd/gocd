@@ -16,12 +16,16 @@
 package com.thoughtworks.go.agent.bootstrapper;
 
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
+import com.thoughtworks.go.util.GoConstants;
 import org.junit.Test;
 
 import java.net.URL;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultAgentLaunchDescriptorImplTest {
 
@@ -33,6 +37,24 @@ public class DefaultAgentLaunchDescriptorImplTest {
         DefaultAgentLaunchDescriptorImpl launchDescriptor = new DefaultAgentLaunchDescriptorImpl(bootstrapperArgs, new AgentBootstrapper());
         Map context = launchDescriptor.context();
 
-        assertEquals(context, bootstrapperArgs.toProperties());
+        assertContainsAll(bootstrapperArgs.toProperties(), context);
+    }
+
+    @Test
+    public void contextShouldContainBootstrapperVersionInformation() throws Exception {
+        AgentBootstrapper bootstrapper = mock(AgentBootstrapper.class);
+        when(bootstrapper.version()).thenReturn("1.2.3-1234");
+
+        DefaultAgentLaunchDescriptorImpl launchDescriptor = new DefaultAgentLaunchDescriptorImpl(new AgentBootstrapperArgs().setServerUrl(new URL("https://www.example.com")), bootstrapper);
+        Map context = launchDescriptor.context();
+
+        assertEquals("1.2.3-1234", context.get(GoConstants.AGENT_BOOTSTRAPPER_VERSION));
+    }
+
+    private void assertContainsAll(Map<String, String> expected, Map actual) {
+        for (Map.Entry<String, String> keyValuePair : expected.entrySet()) {
+            String key = keyValuePair.getKey();
+            assertEquals(actual.get(key), expected.get(key));
+        }
     }
 }

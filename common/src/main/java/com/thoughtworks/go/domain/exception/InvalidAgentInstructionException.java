@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.remote;
+package com.thoughtworks.go.domain.exception;
 
-public enum AgentInstruction {
-    NONE, CANCEL, KILL_RUNNING_TASKS;
-
-    public boolean shouldCancel() {
-        return this.equals(CANCEL);
-    }
-
-    public boolean shouldKillRunningTasks() {
-        return this.equals(KILL_RUNNING_TASKS);
+public class InvalidAgentInstructionException extends Exception {
+    public InvalidAgentInstructionException(String message) {
+        super(message);
     }
 }

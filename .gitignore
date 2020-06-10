@@ -530,3 +530,7 @@ api/api-internal-pipeline-groups-v1/out/
 api/api-internal-pipeline-groups-v1/target/
 api/api-internal-pipeline-groups-v1/logs/
 api/api-internal-pipeline-groups-v1/config/
+api/api-agents-v7/out/
+api/api-agents-v7/target/
+api/api-agents-v7/logs/
+api/api-agents-v7/config/

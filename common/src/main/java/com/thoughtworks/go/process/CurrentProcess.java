@@ -18,27 +18,33 @@ package com.thoughtworks.go.process;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CurrentProcess {
+public class CurrentProcess implements Serializable {
     private static final Logger LOG = LoggerFactory.getLogger(CurrentProcess.class);
 
     public void infanticide() {
-        try {
-            ProcessHandle current = ProcessHandle.current();
-            Stream<ProcessHandle> processHandleStream = current.descendants();
-            processHandleStream.forEach(processHandle -> {
-                LOG.debug("Attempting to destroy process {}", processHandle.pid());
-                if (processHandle.isAlive()) {
-                    processHandle.destroy();
-                    LOG.debug("Destroyed process {}", processHandle.pid());
-                }
-            });
-        } catch (Exception e) {
-            LOG.error("Unable to infanticide", e);
-        }
+        kill(processHandle -> {
+            LOG.debug("Attempting to destroy process {}", processHandle.pid());
+            if (processHandle.isAlive()) {
+                processHandle.destroy();
+                LOG.debug("Destroyed process {}", processHandle.pid());
+            }
+        });
+    }
+
+    public void forceKillChildren() {
+        kill(processHandle -> {
+            LOG.debug("Attempting to force destroy process {}", processHandle.pid());
+            if (processHandle.isAlive()) {
+                processHandle.destroyForcibly();
+                LOG.debug("Forcibly destroyed process {}", processHandle.pid());
+            }
+        });
     }
 
     public long currentPid() {
@@ -47,5 +53,15 @@ public class CurrentProcess {
 
     public List<ProcessHandle> immediateChildren() {
         return ProcessHandle.current().children().collect(Collectors.toList());
+    }
+
+    private void kill(Consumer<ProcessHandle> processHandle) {
+        try {
+            ProcessHandle current = ProcessHandle.current();
+            Stream<ProcessHandle> processHandleStream = current.descendants();
+            processHandleStream.forEach(processHandle);
+        } catch (Exception e) {
+            LOG.error("Unable to infanticide", e);
+        }
     }
 }

@@ -17,8 +17,10 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.ResourceConfigs;
+import com.thoughtworks.go.domain.exception.InvalidAgentInstructionException;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
@@ -31,12 +33,12 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.util.Date;
 import java.util.List;
 
-import static com.thoughtworks.go.domain.AgentConfigStatus.Disabled;
-import static com.thoughtworks.go.domain.AgentConfigStatus.Enabled;
-import static com.thoughtworks.go.domain.AgentConfigStatus.Pending;
+import static com.thoughtworks.go.domain.AgentConfigStatus.*;
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.*;
 import static com.thoughtworks.go.domain.AgentStatus.fromConfig;
 import static com.thoughtworks.go.domain.AgentStatus.fromRuntime;
+import static com.thoughtworks.go.remote.AgentInstruction.*;
+import static java.lang.String.format;
 
 //TODO put the logic back to the AgentRuntimeInfo for all the sync method
 
@@ -52,19 +54,26 @@ public class AgentInstance implements Comparable<AgentInstance> {
     private AgentConfigStatus agentConfigStatus;
 
     private volatile Date lastHeardTime;
+    private volatile Date cancelledAt;
     private TimeProvider timeProvider;
     private SystemEnvironment systemEnvironment;
     private ConfigErrors errors = new ConfigErrors();
+    private boolean killRunningTasks;
 
     protected AgentInstance(Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
-                            AgentStatusChangeListener agentStatusChangeListener) {
+                            AgentStatusChangeListener agentStatusChangeListener, TimeProvider timeProvider) {
         this.systemEnvironment = systemEnvironment;
         this.agentRuntimeInfo = AgentRuntimeInfo.initialState(agent);
         this.agentStatusChangeListener = agentStatusChangeListener;
         this.agentConfigStatus = Pending;
         this.agent = agent;
         this.agentType = agentType;
-        this.timeProvider = new TimeProvider();
+        this.timeProvider = timeProvider;
+    }
+
+    protected AgentInstance(Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
+                            AgentStatusChangeListener agentStatusChangeListener) {
+        this(agent, agentType, systemEnvironment, agentStatusChangeListener, new TimeProvider());
     }
 
     protected AgentInstance(Agent agent, AgentType agentType, SystemEnvironment systemEnvironment,
@@ -79,6 +88,10 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public String getUuid() {
         return getAgent().getUuid();
+    }
+
+    public Date getCancelledAt() {
+        return cancelledAt;
     }
 
     @Override
@@ -111,6 +124,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
         if (runtimeStatus == Idle) {
             updateRuntimeStatus(Idle);
             agentRuntimeInfo.clearBuildingInfo();
+            clearCancelledState();
         } else if (!(agentRuntimeInfo.isCancelled())) {
             updateRuntimeStatus(runtimeStatus);
         }
@@ -140,6 +154,20 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public void cancel() {
         updateRuntimeStatus(AgentRuntimeStatus.Cancelled);
+        cancelledAt = timeProvider.currentTime();
+    }
+
+    public void killRunningTasks() throws InvalidAgentInstructionException {
+        if (!isCancelled()) {
+            throw new InvalidAgentInstructionException(format("The agent should be in cancelled state before attempting " +
+                    "to kill running tasks. Current Agent state is: '%s'", agentRuntimeInfo.getRuntimeStatus().buildState().name()));
+        }
+
+        if(killRunningTasks) {
+            throw new InvalidAgentInstructionException("There is a pending request to kill running task.");
+        }
+
+        this.killRunningTasks = true;
     }
 
     public void deny() {
@@ -280,6 +308,10 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return agentRuntimeInfo.getRuntimeStatus() == Missing;
     }
 
+    public boolean shouldKillRunningTasks() {
+        return killRunningTasks;
+    }
+
     public AgentIdentifier getAgentIdentifier() {
         return getAgent().getAgentIdentifier();
     }
@@ -310,6 +342,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     private boolean isNotElasticAndResourcesMatchForNonElasticAgents(JobPlan jobPlan) {
         return !jobPlan.requiresElasticAgent() && !isElastic() && agent.hasAllResources(jobPlan.getResources().toResourceConfigs().resourceNames());
+    }
+
+    private void clearCancelledState() {
+        this.cancelledAt = null;
+        this.killRunningTasks = false;
     }
 
     public String getBuildLocator() {
@@ -357,6 +394,32 @@ public class AgentInstance implements Comparable<AgentInstance> {
                 return false;
         }
     }
+
+    public Date cancelledAt() {
+        return cancelledAt;
+    }
+
+    public boolean isStuckInCancel() {
+        int TEN_MINUTES = 600000;
+        if (isCancelled() && cancelledAt != null) {
+            return (timeProvider.currentTime().getTime() - cancelledAt.getTime()) > TEN_MINUTES;
+        }
+
+        return false;
+    }
+
+    public AgentInstruction agentInstruction() {
+        if (isCancelled() && shouldKillRunningTasks()) {
+            return KILL_RUNNING_TASKS;
+        }
+
+        if(isCancelled()) {
+            return CANCEL;
+        }
+
+        return NONE;
+    }
+
 
     enum AgentType {
         LOCAL, REMOTE

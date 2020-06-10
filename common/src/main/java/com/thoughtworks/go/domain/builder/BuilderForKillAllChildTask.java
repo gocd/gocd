@@ -24,13 +24,36 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
 public class BuilderForKillAllChildTask extends Builder {
+    private CurrentProcess currentProcess;
+    private boolean cancelAttempted = false;
+
     public BuilderForKillAllChildTask() {
-        super(new RunIfConfigs(), new NullBuilder(), "Kills child processes");
+        this(new RunIfConfigs(), new NullBuilder(), "Kills child processes", new CurrentProcess());
+    }
+
+    private BuilderForKillAllChildTask(RunIfConfigs conditions, Builder cancelBuilder, String description,
+                                       CurrentProcess currentProcess) {
+        super(conditions, cancelBuilder, description);
+        this.currentProcess = currentProcess;
+    }
+
+    protected BuilderForKillAllChildTask(CurrentProcess currentProcess) {
+        this(new RunIfConfigs(), new NullBuilder(), "Kills child processes", currentProcess);
+
     }
 
     @Override
-    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension, ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) {
-        new CurrentProcess().infanticide();
+    public void build(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext,
+                      TaskExtension taskExtension, ArtifactExtension artifactExtension,
+                      PluginRequestProcessorRegistry pluginRequestProcessorRegistry, String consoleLogCharset) {
+        if (!cancelAttempted) {
+            publisher.consumeLineWithPrefix("Attempting to kill child processes.");
+            cancelAttempted = true;
+            currentProcess.infanticide();
+        } else {
+            publisher.consumeLineWithPrefix("Attempting to force kill child processes.");
+            currentProcess.forceKillChildren();
+        }
     }
 
 }

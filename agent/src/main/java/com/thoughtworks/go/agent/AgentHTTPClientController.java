@@ -29,8 +29,8 @@ import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.monitor.PluginJarLocationMonitor;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
+import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.work.AgentWorkContext;
 import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
@@ -40,6 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import static com.thoughtworks.go.remote.AgentInstruction.NONE;
 
 @Component
 public class AgentHTTPClientController extends AgentController {
@@ -56,7 +58,7 @@ public class AgentHTTPClientController extends AgentController {
     private PackageRepositoryExtension packageRepositoryExtension;
     private SCMExtension scmExtension;
     private TaskExtension taskExtension;
-    private AgentInstruction agentInstruction = new AgentInstruction(false);
+    private AgentInstruction agentInstruction = NONE;
 
     @Autowired
     public AgentHTTPClientController(BuildRepositoryRemote server,

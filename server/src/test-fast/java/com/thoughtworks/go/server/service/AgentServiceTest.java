@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.NullAgent;
 import com.thoughtworks.go.domain.NullAgentInstance;
+import com.thoughtworks.go.domain.exception.InvalidAgentInstructionException;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.listener.AgentChangeListener;
@@ -38,6 +39,7 @@ import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.ui.AgentViewModel;
 import com.thoughtworks.go.server.ui.AgentsViewModel;
 import com.thoughtworks.go.server.util.UuidGenerator;
+import com.thoughtworks.go.serverhealth.HealthStateLevel;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.LogFixture;
@@ -76,6 +78,7 @@ import static org.assertj.core.api.Fail.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
@@ -1496,6 +1499,47 @@ class AgentServiceTest {
 
             verifyZeroInteractions(agentDao);
         }
+    }
 
+    @Nested
+    class refresh {
+        @Test
+        void shouldAddWarningIfAgentIsStuckInCancel() {
+            AgentInstance agentInstance = mock(AgentInstance.class);
+
+            when(agentInstances.agentsStuckInCancel()).thenReturn(singletonList(agentInstance));
+            when(agentInstance.cancelledAt()).thenReturn(new Date());
+            when(agentInstance.getHostname()).thenReturn("test_agent");
+
+            agentService.refresh();
+
+            ArgumentCaptor<ServerHealthState> argument = ArgumentCaptor.forClass(ServerHealthState.class);
+
+            verify(serverHealthService).update(argument.capture());
+            ServerHealthState serverHealthState = argument.getValue();
+            assertThat(serverHealthState.getMessage(), is("Agent `test_agent` is stuck in cancel."));
+            assertThat(serverHealthState.getLogLevel(), is(HealthStateLevel.WARNING));
+        }
+    }
+
+    @Nested
+    class killAllRunningTasksOnAgent {
+        @Test
+        void shouldInstructAgentToKillAllRunningTasks() throws InvalidAgentInstructionException {
+            AgentInstance agentInstance = mock(AgentInstance.class);
+
+            when(agentInstances.findAgent("agent_uuid")).thenReturn(agentInstance);
+
+            agentService.killAllRunningTasksOnAgent("agent_uuid");
+
+            verify(agentInstance).killRunningTasks();
+        }
+
+        @Test
+        void shouldErrorOutIfAgentForAGivenUUIDDoesNotExist() {
+            when(agentInstances.findAgent("agent_uuid")).thenReturn(new NullAgentInstance("agent_uuid"));
+
+            assertThrows(RecordNotFoundException.class, () -> agentService.killAllRunningTasksOnAgent("agent_uuid"));
+        }
     }
 }

@@ -137,6 +137,10 @@ public class AgentInstances implements Iterable<AgentInstance> {
         getRemovableAgents().forEach(agentInstance -> removeAgent(agentInstance.getAgent().getUuid()));
     }
 
+    public List<AgentInstance> agentsStuckInCancel() {
+        return currentInstances().stream().filter(AgentInstance::isStuckInCancel).collect(toList());
+    }
+
     public void syncAgentInstancesFrom(Agents agentsFromDB) {
         for (Agent agentFromDB : agentsFromDB) {
             String uuid = agentFromDB.getUuid();

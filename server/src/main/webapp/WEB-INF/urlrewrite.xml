@@ -671,10 +671,17 @@
   </rule>
 
   <rule>
+    <name>Agent Force Cancel API</name>
+    <from>^/api/agents/([^/]+)/force_cancel$</from>
+    <to last="true">/spark/api/agents/$1/force_cancel</to>
+  </rule>
+
+  <rule>
     <name>Spark Agents API</name>
     <from>^/api/agents/(.*)$</from>
     <to last="true">/spark/api/agents/${escape:$1}</to>
   </rule>
+
 
   <rule>
     <name>Access Tokens SPA</name>

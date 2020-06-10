@@ -423,6 +423,26 @@ class AgentInstancesTest {
         }
     }
 
+    @Nested
+    class agentsStuckInCancel {
+        @Test
+        void shouldListAgentsStuckInCancel() {
+            AgentInstance stuckInCancel = mock(AgentInstance.class);
+            AgentInstance building = mock(AgentInstance.class);
+
+            when(stuckInCancel.getAgent()).thenReturn(new Agent("id1"));
+            when(stuckInCancel.isStuckInCancel()).thenReturn(true);
+            when(building.getAgent()).thenReturn(new Agent("id2"));
+            when(building.isStuckInCancel()).thenReturn(false);
+
+            AgentInstances agentInstances = new AgentInstances(null, null, stuckInCancel, building);
+            List<AgentInstance> instances = agentInstances.agentsStuckInCancel();
+
+            assertThat(instances.size(), is(1));
+            assertThat(instances.contains(stuckInCancel), is(true));
+        }
+    }
+
     @Test
     void getAllAgentsShouldReturnAllAgentInstancesInMemoryCache() {
         AgentInstances agentInstances = createAgentInstancesWithAgentInstanceInVariousState();

@@ -17,6 +17,7 @@ package com.thoughtworks.go.remote;
 
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.exception.InvalidAgentInstructionException;
 import com.thoughtworks.go.server.messaging.JobStatusMessage;
 import com.thoughtworks.go.server.messaging.JobStatusTopic;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
@@ -24,22 +25,19 @@ import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.BuildRepositoryService;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.remoting.RemoteAccessException;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
-public class BuildRepositoryRemoteImplTest {
+class BuildRepositoryRemoteImplTest {
     private BuildRepositoryService repositoryService;
     private AgentService agentService;
     private JobStatusTopic jobStatusTopic;
@@ -47,8 +45,8 @@ public class BuildRepositoryRemoteImplTest {
     private LogFixture logFixture;
     private AgentRuntimeInfo info;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         repositoryService = mock(BuildRepositoryService.class);
         agentService = mock(AgentService.class);
         jobStatusTopic = mock(JobStatusTopic.class);
@@ -57,23 +55,42 @@ public class BuildRepositoryRemoteImplTest {
         info = new AgentRuntimeInfo(new AgentIdentifier("host", "192.168.1.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() {
         logFixture.close();
     }
 
-    @Test
-    public void shouldUpdateAgentServiceOnPing() {
-        info.setStatus(AgentStatus.Cancelled);
-        when(agentService.findAgentAndRefreshStatus(info.getUUId())).thenReturn(AgentInstance.createFromLiveAgent(info, new SystemEnvironment(), null));
-        AgentInstruction instruction = buildRepository.ping(info);
-        assertThat(instruction.isShouldCancelJob(), is(true));
-        verify(agentService).updateRuntimeInfo(info);
-        assertThat(logFixture.getRawMessages(), hasItem(info + " ping received."));
+    @Nested
+    class ping {
+        @Test
+        void shouldUpdateAgentServiceOnPing() {
+            info.setStatus(AgentStatus.Cancelled);
+            when(agentService.findAgentAndRefreshStatus(info.getUUId())).thenReturn(AgentInstance.createFromLiveAgent(info, new SystemEnvironment(), null));
+
+            AgentInstruction instruction = buildRepository.ping(info);
+
+            assertThat(instruction.shouldCancel()).isTrue();
+            verify(agentService).updateRuntimeInfo(info);
+            assertThat(logFixture.getRawMessages()).contains(info + " ping received.");
+        }
+
+        @Test
+        void shouldReturnInstructionsToAgent() throws InvalidAgentInstructionException {
+            AgentInstance agentInstance = AgentInstance.createFromLiveAgent(info, new SystemEnvironment(), null);
+            agentInstance.cancel();
+            agentInstance.killRunningTasks();
+
+            when(agentService.findAgentAndRefreshStatus(info.getUUId())).thenReturn(agentInstance);
+
+            AgentInstruction instruction = buildRepository.ping(info);
+
+            assertThat(instruction.shouldCancel()).isFalse();
+            assertThat(instruction.shouldKillRunningTasks()).isTrue();
+        }
     }
 
     @Test
-    public void shouldLogFailureToUpdateAgentServiceOnPing() {
+    void shouldLogFailureToUpdateAgentServiceOnPing() {
         RuntimeException runtimeException = new RuntimeException("holy smoke");
         doThrow(runtimeException).when(agentService).updateRuntimeInfo(info);
         try {
@@ -82,21 +99,21 @@ public class BuildRepositoryRemoteImplTest {
         } catch (Exception e) {
             assertRemoteException(e, runtimeException);
         }
-        assertThat(logFixture.getRawMessages(), hasItem("Error occurred in " + info + " ping."));
+        assertThat(logFixture.getRawMessages()).contains("Error occurred in " + info + " ping.");
     }
 
     @Test
-    public void shouldReportCurrentStatus() throws Exception {
+    void shouldReportCurrentStatus() throws Exception {
         JobIdentifier jobId = new JobIdentifier(new StageIdentifier("pipelineName", 1, "stageName", "1"), "job");
         buildRepository.reportCurrentStatus(info, jobId, JobState.Building);
         verify(agentService).updateRuntimeInfo(info);
         verify(repositoryService).updateStatusFromAgent(jobId, JobState.Building, info.getUUId());
         verify(jobStatusTopic).post(new JobStatusMessage(jobId, JobState.Building, info.getUUId()));
-        assertThat(logFixture.getRawMessages(), hasItem(String.format("[%s] is reporting status [%s] for [%s]", info.agentInfoDebugString(), JobState.Building, jobId.toFullString())));
+        assertThat(logFixture.getRawMessages()).contains(String.format("[%s] is reporting status [%s] for [%s]", info.agentInfoDebugString(), JobState.Building, jobId.toFullString()));
     }
 
     @Test
-    public void shouldLogAgentReportingStatusExceptions() throws Exception {
+    void shouldLogAgentReportingStatusExceptions() throws Exception {
         JobIdentifier jobId = new JobIdentifier(new StageIdentifier("pipelineName", 1, "stageName", "1"), "job");
         RuntimeException runtimeException = new RuntimeException("holy smoke");
         doThrow(runtimeException).when(repositoryService).updateStatusFromAgent(jobId, JobState.Building, info.getUUId());
@@ -106,20 +123,20 @@ public class BuildRepositoryRemoteImplTest {
         } catch (Exception e) {
             assertRemoteException(e, runtimeException);
         }
-        assertThat(logFixture.getRawMessages(), hasItem(String.format("Exception occurred when [%s] tries to report status [%s] for [%s]", info.agentInfoDebugString(), JobState.Building, jobId.toFullString())));
+        assertThat(logFixture.getRawMessages()).contains(String.format("Exception occurred when [%s] tries to report status [%s] for [%s]", info.agentInfoDebugString(), JobState.Building, jobId.toFullString()));
     }
 
     @Test
-    public void shouldReportResult() throws Exception {
+    void shouldReportResult() {
         JobIdentifier jobId = new JobIdentifier(new StageIdentifier("pipelineName", 1, "stageName", "1"), "job");
         buildRepository.reportCompleting(info, jobId, JobResult.Passed);
         verify(repositoryService).completing(jobId, JobResult.Passed, info.getUUId());
         verify(agentService).updateRuntimeInfo(info);
-        assertThat(logFixture.getRawMessages(), hasItem(String.format("[%s] is reporting result [%s] for [%s]", info.agentInfoDebugString(), JobResult.Passed, jobId.toFullString())));
+        assertThat(logFixture.getRawMessages()).contains(String.format("[%s] is reporting result [%s] for [%s]", info.agentInfoDebugString(), JobResult.Passed, jobId.toFullString()));
     }
 
     @Test
-    public void shouldLogReportResultException() {
+    void shouldLogReportResultException() {
         JobIdentifier jobId = new JobIdentifier(new StageIdentifier("pipelineName", 1, "stageName", "1"), "job");
         RuntimeException runtimeException = new RuntimeException("holy smoke");
         doThrow(runtimeException).when(repositoryService).completing(jobId, JobResult.Passed, info.getUUId());
@@ -129,11 +146,11 @@ public class BuildRepositoryRemoteImplTest {
         } catch (Exception e) {
             assertRemoteException(e, runtimeException);
         }
-        assertThat(logFixture.getRawMessages(), hasItem(String.format("Exception occurred when [%s] tries to report result [%s] for [%s]", info.agentInfoDebugString(), JobResult.Passed, jobId.toFullString())));
+        assertThat(logFixture.getRawMessages()).contains(String.format("Exception occurred when [%s] tries to report result [%s] for [%s]", info.agentInfoDebugString(), JobResult.Passed, jobId.toFullString()));
     }
 
     @Test
-    public void shouldReportCompletedWithResult() throws Exception {
+    void shouldReportCompletedWithResult() throws Exception {
         JobIdentifier jobId = new JobIdentifier(new StageIdentifier("pipelineName", 1, "stageName", "1"), "job");
 
         buildRepository.reportCompleted(info, jobId, JobResult.Passed);
@@ -141,11 +158,11 @@ public class BuildRepositoryRemoteImplTest {
         verify(repositoryService).completing(jobId, JobResult.Passed, info.getUUId());
         verify(agentService).updateRuntimeInfo(info);
         verify(repositoryService).updateStatusFromAgent(jobId, JobState.Completed, info.getUUId());
-        assertThat(logFixture.getRawMessages(), hasItem(String.format("[%s] is reporting status and result [%s, %s] for [%s]", info.agentInfoDebugString(), JobState.Completed, JobResult.Passed, jobId.toFullString())));
+        assertThat(logFixture.getRawMessages()).contains(String.format("[%s] is reporting status and result [%s, %s] for [%s]", info.agentInfoDebugString(), JobState.Completed, JobResult.Passed, jobId.toFullString()));
     }
 
     @Test
-    public void shouldLogReportResultExceptionDuringReportCompletedFailure() {
+    void shouldLogReportResultExceptionDuringReportCompletedFailure() {
         JobIdentifier jobId = new JobIdentifier(new StageIdentifier("pipelineName", 1, "stageName", "1"), "job");
         RuntimeException runtimeException = new RuntimeException("holy smoke");
         doThrow(runtimeException).when(repositoryService).completing(jobId, JobResult.Passed, info.getUUId());
@@ -155,12 +172,12 @@ public class BuildRepositoryRemoteImplTest {
         } catch (Exception e) {
             assertRemoteException(e, runtimeException);
         }
-        assertThat(logFixture.getRawMessages(), hasItem(String.format("Exception occurred when [%s] tries to report status and result [%s, %s] for [%s]", info.agentInfoDebugString(), JobState.Completed, JobResult.Passed,
-                jobId.toFullString())));
+        assertThat(logFixture.getRawMessages()).contains(String.format("Exception occurred when [%s] tries to report status and result [%s, %s] for [%s]", info.agentInfoDebugString(), JobState.Completed, JobResult.Passed,
+                jobId.toFullString()));
     }
 
     @Test
-    public void shouldUnderstandIfTestIsIgnored() {
+    void shouldUnderstandIfTestIsIgnored() {
         JobIdentifier jobId = new JobIdentifier(new StageIdentifier("pipelineName", 1, "stageName", "1"), "job");
         jobId.setBuildId(12l);
         buildRepository.isIgnored(jobId);
@@ -168,7 +185,7 @@ public class BuildRepositoryRemoteImplTest {
     }
 
     @Test
-    public void shouldThrowRemoteExceptionWhenIgnoreJobThrowsException() {
+    void shouldThrowRemoteExceptionWhenIgnoreJobThrowsException() {
         JobIdentifier jobId = new JobIdentifier(new StageIdentifier("pipelineName", 1, "stageName", "1"), "job");
         jobId.setBuildId(12l);
         RuntimeException runtimeException = new RuntimeException("holy smoke");
@@ -182,14 +199,14 @@ public class BuildRepositoryRemoteImplTest {
     }
 
     @Test
-    public void getCookieShouldReturnAssignedCookie() {
+    void getCookieShouldReturnAssignedCookie() {
         when(agentService.assignCookie(info.getIdentifier())).thenReturn("cookie");
-        assertThat(buildRepository.getCookie(info.getIdentifier(), "/foo/bar"), is("cookie"));
-        assertThat(logFixture.getRawMessages(), hasItem("[Agent Cookie] Agent [Agent [host, 192.168.1.1, uuid]] at location [/foo/bar] asked for a new cookie, assigned [cookie]"));
+        assertThat(buildRepository.getCookie(info.getIdentifier(), "/foo/bar")).isEqualTo("cookie");
+        assertThat(logFixture.getRawMessages()).contains("[Agent Cookie] Agent [Agent [host, 192.168.1.1, uuid]] at location [/foo/bar] asked for a new cookie, assigned [cookie]");
     }
 
     @Test
-    public void GetCookieShouldThrowExceptionWhenAssigningCookieThrowsException() {
+    void GetCookieShouldThrowExceptionWhenAssigningCookieThrowsException() {
         RuntimeException runtimeException = new RuntimeException("holy smoke");
         when(agentService.assignCookie(info.getIdentifier())).thenThrow(runtimeException);
         try {
@@ -201,8 +218,8 @@ public class BuildRepositoryRemoteImplTest {
     }
 
     private void assertRemoteException(Exception exception, RuntimeException innerException) {
-        assertThat(exception, is(Matchers.<Object>instanceOf(RemoteAccessException.class)));
-        assertThat(exception.getCause(), sameInstance(innerException));
+        assertThat(exception).isInstanceOf(RemoteAccessException.class);
+        assertThat(exception.getCause()).isSameAs(innerException);
     }
 
 }

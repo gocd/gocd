@@ -206,12 +206,12 @@ public class AgentRuntimeInfo implements Serializable {
         return this;
     }
 
-    protected AgentRuntimeInfo updateBootstrapperVersion(String agentBootstrapperVersion) {
+    public AgentRuntimeInfo updateBootstrapperVersion(String agentBootstrapperVersion) {
         this.agentBootstrapperVersion = agentBootstrapperVersion;
         return this;
     }
 
-    protected AgentRuntimeInfo updateAgentVersion(String agentVersion) {
+    public AgentRuntimeInfo updateAgentVersion(String agentVersion) {
         this.agentVersion = agentVersion;
         return this;
     }

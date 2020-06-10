@@ -774,6 +774,19 @@ public class AgentInstanceTest {
         verify(mockAgentStatusChangeListener).onAgentStatusChange(agentInstance);
     }
 
+    @Test
+    void shouldGetAgentAndBootstrapperVersions() {
+        AgentInstance agentInstance = AgentInstanceMother.idle();
+
+        AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agentInstance.getAgentIdentifier(), agentInstance.getRuntimeStatus(), "some-location", "some-cookie");
+        newRuntimeInfo.updateBootstrapperVersion("20.3.0-1234").updateAgentVersion("20.5.0-2345");
+
+        agentInstance.update(newRuntimeInfo);
+
+        assertThat(agentInstance.getAgentBootstrapperVersion()).isEqualTo("20.3.0-1234");
+        assertThat(agentInstance.getAgentVersion()).isEqualTo("20.5.0-2345");
+    }
+
     @Nested
     class Matches {
         @Test

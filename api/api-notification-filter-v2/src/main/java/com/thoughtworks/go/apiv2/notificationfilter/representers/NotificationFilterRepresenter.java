@@ -63,7 +63,7 @@ public class NotificationFilterRepresenter {
         NotificationFilter filter = new NotificationFilter(reader.getString("pipeline"),
             reader.getString("stage"),
             stageEvent,
-            reader.getBoolean("match_commits")
+            reader.getBooleanOrDefault("match_commits", false)
         );
         filter.setId(reader.optLong("id").orElse(NOT_PERSISTED));
         return filter;

@@ -87,4 +87,22 @@ class NotificationFilterRepresenterTest {
       .isInstanceOf(UnprocessableEntityException)
       .hasMessage("Invalid event 'UnknownEventName'. It has to be one of [Fails, Passes, Breaks, Fixed, Cancelled, All].")
   }
+
+  @Test
+  void 'should deserialize even if match_commits is not present'() {
+    def reader = GsonTransformer.getInstance().jsonReaderFrom([
+      "id"      : 100,
+      "pipeline": "up42",
+      "stage"   : "unit-test",
+      "event"   : "Breaks"
+    ])
+
+    def filter = NotificationFilterRepresenter.fromJSON(reader)
+
+    assertThat(filter.getId()).isEqualTo(100)
+    assertThat(filter.getPipelineName()).isEqualTo("up42")
+    assertThat(filter.getStageName()).isEqualTo("unit-test")
+    assertThat(filter.getEvent()).isEqualTo(StageEvent.Breaks)
+    assertThat(filter.isMyCheckin()).isEqualTo(false)
+  }
 }

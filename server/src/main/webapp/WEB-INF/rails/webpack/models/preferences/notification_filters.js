@@ -63,14 +63,14 @@ export function NotificationFilters(apiUrl, errors) {
   const redraw      = () => m.redraw();
 
   function fetchFilters() {
-    req("GET", apiUrl).done((data) => filters(data.filters)).fail(handleError).always(redraw);
+    req("GET", apiUrl).done((data) => filters(data._embedded.filters)).fail(handleError).always(redraw);
   }
 
   function createFilter(e) {
     e.preventDefault();
     errors(null);
 
-    req("POST", apiUrl, serialize(e.currentTarget)).done((data) => filters(data.filters)).fail(handleError).always(redraw);
+    req("POST", apiUrl, serialize(e.currentTarget)).done(fetchFilters).fail(handleError).always(redraw);
   }
 
   function deleteFilter(e) {
@@ -78,7 +78,7 @@ export function NotificationFilters(apiUrl, errors) {
     errors(null);
 
     const id = parseInt(e.currentTarget.getAttribute("data-filter-id"), 10);
-    req("DELETE", `${apiUrl}/${id}`).done((data) => filters(data.filters)).fail(handleError).always(redraw);
+    req("DELETE", `${apiUrl}/${id}`).done(fetchFilters).fail(handleError).always(redraw);
   }
 
   function reset() {

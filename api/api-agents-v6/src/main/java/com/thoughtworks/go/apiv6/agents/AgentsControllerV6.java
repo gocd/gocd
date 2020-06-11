@@ -75,7 +75,7 @@ import static spark.Spark.*;
 
 @SuppressWarnings("ALL")
 @Component
-@DeprecatedAPI(deprecatedApiVersion = ApiVersion.v6, successorApiVersion = ApiVersion.v7, deprecatedIn = "20.4.0", removalIn = "20.7.0", entityName = "Agents")
+@DeprecatedAPI(deprecatedApiVersion = ApiVersion.v6, successorApiVersion = ApiVersion.v7, deprecatedIn = "20.5.0", removalIn = "20.8.0", entityName = "Agents")
 public class AgentsControllerV6 extends ApiController implements SparkSpringController, CrudController<AgentInstance> {
     private static final Logger LOG = LoggerFactory.getLogger(AgentsControllerV6.class);
 

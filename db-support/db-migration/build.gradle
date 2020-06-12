@@ -30,7 +30,7 @@ dependencies {
     compile group: 'org.liquibase', name: 'liquibase-core', version: '3.8.7'
     compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
 
-    testCompile group: 'org.testcontainers', name: 'jdbc', version: '1.12.5'
+    testCompile group: 'org.testcontainers', name: 'jdbc', version: '1.14.3'
 
     testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
     testCompile group: 'org.assertj', name: 'assertj-db', version: '1.3.0'

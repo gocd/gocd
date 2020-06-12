@@ -27,7 +27,7 @@ dependencies {
     compile group: 'org.springframework', name: 'spring-context', version: project.versions.spring
     compile group: 'javax.annotation', name: 'javax.annotation-api', version: project.versions.javaxAnnotation
 
-    compile group: 'org.liquibase', name: 'liquibase-core', version: '3.8.7'
+    compile group: 'org.liquibase', name: 'liquibase-core', version: '3.9.0'
     compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
 
     testCompile group: 'org.testcontainers', name: 'jdbc', version: '1.12.5'

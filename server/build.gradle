@@ -170,9 +170,6 @@ project.ext.defaultJRubyEnvironment = [
 project.ext.rails = [:]
 project.ext.rails.testDataDir = project.file("${project.buildDir}/railsTests")
 project.ext.rails.testConfigDir = project.file("${project.buildDir}/railsTests/config")
-project.ext.rails.testDbDir = project.file("${project.buildDir}/railsTests/db")
-project.ext.rails.testH2DbDir = project.file("${project.rails.testDbDir}/h2db")
-project.ext.rails.testDbDeltasDir = project.file("${project.rails.testDbDir}/h2deltas")
 project.ext.rails.testPluginsDir = project.file("${project.buildDir}/railsTests/plugins")
 project.ext.rails.testBundledPluginsDir = project.file("${project.rails.testPluginsDir}/bundled")
 project.ext.rails.testExternalPluginsDir = project.file("${project.rails.testPluginsDir}/external")
@@ -182,7 +179,6 @@ project.ext.railsSystemProperties = [
   'always.reload.config.file'                    : true,
   'cruise.i18n.cache.life'                       : 0,
   'cruise.config.dir'                            : project.rails.testConfigDir,
-  'cruise.database.dir'                          : project.rails.testH2DbDir,
   'plugins.go.provided.path'                     : project.rails.testBundledPluginsDir,
   'plugins.external.provided.path'               : project.rails.testExternalPluginsDir,
   'plugins.work.path'                            : project.rails.testPluginsWorkDir,
@@ -194,7 +190,6 @@ project.ext.railsSystemProperties = [
 project.ext.railsTasksDefaultDependsOn = [
   ':server:initializeRailsGems',
   ':server:cleanDb',
-  ':server:prepareDb',
   ':server:createJRubyBinstubs',
   project.sourceSets.main.runtimeClasspath,
   project.sourceSets.test.runtimeClasspath,
@@ -227,13 +222,13 @@ project.ext.jrubyexec = { Closure<JavaExecSpec> cl ->
 def props = [
   'go.enforce.server.immutability': 'N',
   'rails.use.compressed.js'       : 'false',
-  'go.database.provider'          : 'com.thoughtworks.go.server.database.H2Database',
   'db.host'                       : 'localhost',
   'db.user'                       : 'sa',
   'db.password'                   : '',
   'db.name'                       : 'cruise',
   'db.port'                       : ''
 ]
+
 props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemProperties : [:])
 project.ext.testSystemProperties = props
 
@@ -248,15 +243,16 @@ dependencies {
   compile project(':plugin-infra:go-plugin-access')
   compile project(':common')
   compile project(':rack_hack')
-
+  compile project(':db-support:db-migration')
+  compile project(':db-support:db-support-h2')
+  compile project(':db-support:db-support-postgresql')
+  compile project(':db-support:db-support-mysql')
   copyOnly project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   copyOnlyTestData project(':test:test-agent')
 
   compile group: 'org.apache.commons', name: 'commons-dbcp2', version: project.versions.commonsDbcp
-  compile group: 'com.h2database', name: 'h2', version: project.versions.h2db
-  compile group: 'net.sf', name: 'dbdeploy', version: '2.11.1'
   compile(group: 'org.hibernate', name: 'hibernate-ehcache', version: project.versions.hibernate) {
     exclude(module: 'ehcache-core')
     exclude(module: 'commons-collections')
@@ -541,21 +537,10 @@ task generateRubygemsLicenseReport {
 
 task cleanDb(type: Delete) {
   delete "db/h2db"
-  delete "db/h2deltas"
   delete "db/config.git"
 }
 
 clean.dependsOn cleanDb
-
-task copyH2Db(type: Copy, dependsOn: [':server:cleanDb']) {
-  from('db/dbtemplate/h2db')
-  into('db/h2db')
-}
-
-task copyH2Deltas(type: Copy, dependsOn: [':server:cleanDb']) {
-  from('db/migrate/h2deltas')
-  into('db/h2deltas')
-}
 
 task cleanTestRepo(type: Delete) {
   delete 'test-repo'
@@ -590,10 +575,6 @@ task prepareTestGitRepo {
   }
 }
 
-task prepareDb {
-  dependsOn copyH2Db, copyH2Deltas
-}
-
 task copyTestDataJarsToServerDir(type: Copy) {
   from(project.configurations.copyOnlyTestData)
   into 'testdata'
@@ -609,7 +590,7 @@ task copyAgentJarsToServerDir(type: Copy) {
 task copyAgentSideJarsToServerDir(dependsOn: [copyAgentJarsToServerDir, copyTestDataJarsToServerDir])
 
 task prepareNoRails {
-  dependsOn = [cleanDb, prepareDb, ':plugin-infra:go-plugin-activator:jar', copyAgentJarsToServerDir]
+  dependsOn = [cleanDb, ':plugin-infra:go-plugin-activator:jar', copyAgentJarsToServerDir]
 }
 
 task prepare {
@@ -791,11 +772,11 @@ task verifyWar(type: VerifyJarTask) {
     "WEB-INF/lib": (
       ((project(':api').subprojects + project(':spark').subprojects).collect { eachProject -> eachProject.jar.archivePath.name })
         + [
+        "JavaEWAH-1.1.6.jar",
         "activation-1.1.jar",
         "activemq-broker-${project.versions.activeMQ}.jar",
         "activemq-client-${project.versions.activeMQ}.jar",
         "activemq-openwire-legacy-${project.versions.activeMQ}.jar",
-        "hawtbuf-1.11.jar",
         "ant-${project.versions.apacheAnt}.jar",
         "antlr-2.7.6.jar",
         "aopalliance-1.0.jar",
@@ -804,6 +785,7 @@ task verifyWar(type: VerifyJarTask) {
         "aspectjweaver-${project.versions.aspectj}.jar",
         "base-${project.version}.jar",
         "cglib-${project.versions.cglib}.jar",
+        "checker-qual-2.11.1.jar",
         "cloning-${project.versions.cloning}.jar",
         "commandline-${project.version}.jar",
         "common-${project.version}.jar",
@@ -821,20 +803,25 @@ task verifyWar(type: VerifyJarTask) {
         "commons-pool2-${project.versions.commonsPool}.jar",
         "config-api-${project.version}.jar",
         "config-server-${project.version}.jar",
-        "database-${project.version}.jar",
         "db-${project.version}.jar",
-        "dbdeploy-2.11.1.jar",
+        "db-migration-${project.version}.jar",
+        "db-support-base-${project.version}.jar",
+        "db-support-h2-${project.version}.jar",
+        "db-support-mysql-${project.version}.jar",
+        "db-support-postgresql-${project.version}.jar",
         "dom4j-1.6.1.jar",
         "domain-${project.version}.jar",
         "ehcache-${project.versions.ehcache}.jar",
+        "error_prone_annotations-2.3.4.jar",
+        "failureaccess-1.0.1.jar",
         "freemarker-${project.versions.freemarker}.jar",
         "geronimo-j2ee-management_1.1_spec-1.0.1.jar",
         "geronimo-jms_1.1_spec-1.1.1.jar",
         "go-plugin-access-${project.version}.jar",
         "go-plugin-activator-${project.version}.jar",
         "go-plugin-api-${project.version}.jar",
-        "go-plugin-config-repo-${project.version}.jar",
         "go-plugin-api-internal-${project.version}.jar",
+        "go-plugin-config-repo-${project.version}.jar",
         "go-plugin-domain-${project.version}.jar",
         "go-plugin-infra-${project.version}.jar",
         "gson-${project.versions.gson}.jar",
@@ -845,7 +832,8 @@ task verifyWar(type: VerifyJarTask) {
         "j2objc-annotations-1.3.jar",
         "jsr305-3.0.2.jar",
         "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
-        "h2-${project.versions.h2db}.jar",
+        "h2-${project.versions.h2}.jar",
+        "hawtbuf-1.11.jar",
         "hibernate-commons-annotations-3.2.0.Final.jar",
         "hibernate-core-${project.versions.hibernate}.jar",
         "hibernate-ehcache-${project.versions.hibernate}.jar",
@@ -853,14 +841,16 @@ task verifyWar(type: VerifyJarTask) {
         "httpclient-${project.versions.apacheHttpComponents}.jar",
         "httpcore-4.4.10.jar",
         "httpmime-${project.versions.apacheHttpComponents}.jar",
+        "j2objc-annotations-1.3.jar",
         "jackson-annotations-${project.versions.jackson}.jar",
         "jackson-core-${project.versions.jackson}.jar",
         "jackson-databind-${project.versions.jackson}.jar",
-        "JavaEWAH-1.1.6.jar",
         "javassist-${project.versions.javaAssist}.jar",
+        "javax.activation-api-1.2.0.jar",
         "javax.annotation-api-${project.versions.javaxAnnotation}.jar",
         "javax.inject-1.jar",
         "javax.servlet-api-3.1.0.jar",
+        "jaxb-api-2.3.1.jar",
         "jaxen-${project.versions.jaxen}.jar",
         "jcl-over-slf4j-${project.versions.slf4j}.jar",
         "jdom2-${project.versions.jdom}.jar",
@@ -869,10 +859,14 @@ task verifyWar(type: VerifyJarTask) {
         "jruby-complete-${project.versions.jruby}.jar",
         "jruby-rack-${versions.rack}.jar",
         "json-utils-${project.versions.jolt}.jar",
+        "jsr305-3.0.2.jar",
         "jta-1.1.jar",
+        "liquibase-core-3.8.7.jar",
+        "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
         "mailapi-${project.versions.mail}.jar",
         "mybatis-${project.versions.mybatis}.jar",
         "mybatis-spring-${project.versions.mybatisSpring}.jar",
+        "mysql-connector-java-${project.versions.mysql}.jar",
         "objenesis-${project.versions.objenesis}.jar",
         "org.apache.felix.framework-${project.versions.felix}.jar",
         "org.eclipse.jgit-${project.versions.jgit}.jar",
@@ -880,6 +874,8 @@ task verifyWar(type: VerifyJarTask) {
         "oro-${project.versions.oro}.jar",
         "oscache-2.4.1.jar",
         "plugin-metadata-store-${project.version}.jar",
+        "postgresql-${project.versions.postgresql}.jar",
+        "protobuf-java-3.6.1.jar",
         "quartz-${project.versions.quartz}.jar",
         "rack_hack-${project.version}.jar",
         "semantic-version-${project.versions.semanticVersion}.jar",
@@ -905,19 +901,26 @@ task verifyWar(type: VerifyJarTask) {
         "util-${project.version}.jar",
         "velocity-1.7.jar",
         "velocity-tools-view-${project.versions.velocityToolsView}.jar",
+        "zt-exec-1.11.jar",
       ])
   ]
 }
 
 task licenseReportAggregate {
   if (!project.hasProperty('fastBuild')) {
-    rootProject.subprojects.each { eachProject ->
+    rootProject.allprojects.each { eachProject ->
       eachProject.afterEvaluate {
         def reportTasks = eachProject.tasks.withType(ReportTask)
         if (!reportTasks.isEmpty()) {
           licenseReportAggregate.dependsOn reportTasks
           licenseReportAggregate.inputs.dir(eachProject.licenseReport.outputDir)
         }
+      }
+
+      def reportTasks = eachProject.tasks.withType(ReportTask)
+      if (!reportTasks.isEmpty()) {
+        licenseReportAggregate.dependsOn reportTasks
+        licenseReportAggregate.inputs.dir(eachProject.licenseReport.outputDir)
       }
     }
     dependsOn generateLicenseReport
@@ -966,19 +969,6 @@ task licenseReportAggregate {
         [
           moduleLicense   : 'BSD-3-Clause',
           moduleLicenseUrl: "https://spdx.org/licenses/BSD-3-Clause.html"
-        ]
-      ]
-    ],
-    [
-      moduleName    : 'net.sf:dbdeploy',
-      moduleVersion : '2.11.1',
-      moduleUrls    : [
-        "https://code.google.com/archive/p/dbdeploy/"
-      ],
-      moduleLicenses: [
-        [
-          moduleLicense   : 'LGPL-3.0-only',
-          moduleLicenseUrl: "https://spdx.org/licenses/LGPL-3.0-only.html"
         ]
       ]
     ],
@@ -1075,7 +1065,7 @@ task licenseReportAggregate {
 
   def getAllJarDependencies = {
     // get a list of all dependencies from each gradle module
-    def allDependenciesInReport = rootProject.subprojects.inject(new LinkedHashSet<Map<String, Object>>(), { result, eachProject ->
+    def allDependenciesInReport = rootProject.allprojects.inject(new LinkedHashSet<Map<String, Object>>(), { result, eachProject ->
       def file = eachProject.file("${eachProject.licenseReport.outputDir}/index.json")
       if (file.exists()) {
         Map<String, Object> json = new JsonSlurper().parse(file)

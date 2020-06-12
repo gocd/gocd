@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright 2020 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <!--
+      Some background about charsets in mysql:
+
+      As you can see there is a pattern to the names, and it is possible to identify up to four parts in the name
+
+          - First the character set name.
+          - Then which language it is for, for example ja for Japanese. A special “language” is binary which mean each byte is compared directly one by one.
+          - Then whether it is a UCA 9.0.0 based collation. The UCA 9.0.0 based collations have 0900 in the name.
+          - Then up to three modifiers depending on whether it is accent and/or case sensitive or insensitive.
+
+      There are a total of five accent and case modifiers:
+
+          - ai: accent insensitive, ä is equal to a.
+          - as: accent sensitive, ä is not equal to a.
+          - ci: case insensitive, a is equal to A.
+          - cs: case sensitive, a is not equal to A.
+          - ks: kana sensitive (only for Japanese)
+      -->
+    <property name="dataType.caseSensitiveChar_64" value="CHAR(64)" dbms="h2, postgresql"/>
+    <property name="dataType.caseSensitiveChar_64" value="CHAR(64) CHARSET utf8mb4 COLLATE utf8mb4_0900_as_cs"
+              dbms="mysql"/>
+    <property name="dataType.caseSensitiveString_10" value="VARCHAR(10)" dbms="h2, postgresql"/>
+    <property name="dataType.caseSensitiveString_8" value="VARCHAR(8) CHARSET utf8mb4 COLLATE utf8mb4_0900_as_cs"
+              dbms="mysql"/>
+    <property name="dataType.caseSensitiveString_8" value="VARCHAR(8)" dbms="h2, postgresql"/>
+    <property name="dataType.caseSensitiveString_10" value="VARCHAR(10) CHARSET utf8mb4 COLLATE utf8mb4_0900_as_cs"
+              dbms="mysql"/>
+    <property name="dataType.caseSensitiveString_40" value="VARCHAR(40)" dbms="h2, postgresql"/>
+    <property name="dataType.caseSensitiveString_40" value="VARCHAR(40) CHARSET utf8mb4 COLLATE utf8mb4_0900_as_cs"
+              dbms="mysql"/>
+    <property name="dataType.caseSensitiveString_50" value="VARCHAR(50)" dbms="h2, postgresql"/>
+    <property name="dataType.caseSensitiveString_50" value="VARCHAR(50) CHARSET utf8mb4 COLLATE utf8mb4_0900_as_cs"
+              dbms="mysql"/>
+    <property name="dataType.caseSensitiveString_100" value="VARCHAR(100)" dbms="h2, postgresql"/>
+    <property name="dataType.caseSensitiveString_100" value="VARCHAR(100) CHARSET utf8mb4 COLLATE utf8mb4_0900_as_cs"
+              dbms="mysql"/>
+    <property name="dataType.caseSensitiveString_255" value="VARCHAR(255)" dbms="h2, postgresql"/>
+    <property name="dataType.caseSensitiveString_255" value="VARCHAR(255) CHARSET utf8mb4 COLLATE utf8mb4_0900_as_cs"
+              dbms="mysql"/>
+    <property name="dataType.caseSensitiveString_500" value="VARCHAR(500)" dbms="h2, postgresql"/>
+    <property name="dataType.caseSensitiveString_500" value="VARCHAR(500) CHARSET utf8mb4 COLLATE utf8mb4_0900_as_cs"
+              dbms="mysql"/>
+    <property name="dataType.caseSensitiveString_512" value="VARCHAR(512)" dbms="h2, postgresql"/>
+    <property name="dataType.caseSensitiveString_512" value="VARCHAR(512) CHARSET utf8mb4 COLLATE utf8mb4_0900_as_cs"
+              dbms="mysql"/>
+    <property name="dataType.caseSensitiveString_1024" value="VARCHAR(1024)" dbms="h2, postgresql"/>
+    <property name="dataType.caseSensitiveString_1024" value="VARCHAR(1024) CHARSET utf8mb4 COLLATE utf8mb4_0900_as_cs"
+              dbms="mysql"/>
+    <property name="dataType.caseSensitiveString_2048" value="VARCHAR(2048)" dbms="h2, postgresql"/>
+    <property name="dataType.caseSensitiveString_2048" value="VARCHAR(2048) CHARSET utf8mb4 COLLATE utf8mb4_0900_as_cs"
+              dbms="mysql"/>
+    <property name="dataType.caseSensitiveString_infinite" value="VARCHAR(2147483647)" dbms="h2, postgresql"/>
+    <property name="dataType.caseSensitiveString_infinite" value="MEDIUMTEXT CHARSET utf8mb4 COLLATE utf8mb4_0900_as_cs"
+              dbms="mysql"/>
+    <property name="dataType.caseInSensitiveString_255" value="VARCHAR_IGNORECASE(255)" dbms="h2"/>
+    <property name="dataType.caseInSensitiveString_255" value="CITEXT" dbms="postgresql"/>
+    <property name="dataType.caseInSensitiveString_255" value="VARCHAR(255) CHARSET utf8mb4 COLLATE utf8mb4_0900_as_ci"
+              dbms="mysql"/>
+    <property name="dataType.integer" value="INT" dbms="h2, postgresql, mysql"/>
+    <property name="dataType.long" value="BIGINT" dbms="h2, postgresql, mysql"/>
+    <property name="dataType.double_17" value="DOUBLE(17)" dbms="h2, postgresql, mysql"/>
+    <property name="dataType.boolean" value="BOOLEAN" dbms="h2, postgresql, mysql"/>
+    <property name="dataType.timeStamp" value="TIMESTAMP" dbms="h2, postgresql"/>
+    <property name="dataType.timeStamp" value="DATETIME(6)" dbms="mysql"/>
+    <property name="dataType.caseSensitiveCharacterBlob" value="CLOB" dbms="h2, postgresql"/>
+    <property name="dataType.caseSensitiveCharacterBlob" value="TEXT" dbms="h2, postgresql"/>
+    <property name="dataType.caseSensitiveCharacterBlob" value="MEDIUMTEXT CHARSET utf8mb4 COLLATE utf8mb4_0900_as_cs"
+              dbms="mysql"/>
+
+    <property name="index.modifications.revisions.columnName" value="REVISION" dbms="h2, postgresql"/>
+    <!-- mysql does not allow indices on columns with large widths, so we add index on the first 64 chars -->
+    <property name="index.modifications.revisions.columnName" value="REVISION(64)" dbms="mysql"/>
+
+
+    <include file="initial/initialize.xml" relativeToChangelogFile="true" context="createSchema"/>
+    <include file="initial/create-schema.xml" relativeToChangelogFile="true" context="createSchema"/>
+
+    <include file="initial/create-index.xml" relativeToChangelogFile="true" context="createIndex"/>
+    <include file="initial/create-view.xml" relativeToChangelogFile="true" context="createView"/>
+    <include file="initial/create-trigger.xml" relativeToChangelogFile="true" context="createTrigger"/>
+</databaseChangeLog>

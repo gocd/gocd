@@ -78,8 +78,8 @@
     </parameterMap>
 
     <select id="latestCompletedJobs" resultMap="select-build-with-identifier">
-        SELECT *, id AS buildId
-        FROM _builds
+        SELECT b.*, id AS buildId
+        FROM _builds b
         WHERE state = 'Completed'
             AND name = #{jobConfigName}
             AND pipelineName = #{pipelineName}
@@ -99,8 +99,8 @@
     </select>
 
     <select id="findJobHistoryPage" resultMap="select-build-with-identifier">
-        SELECT *, id AS buildId
-        FROM _builds
+        SELECT b.*, id AS buildId
+        FROM _builds b
         WHERE name = #{jobConfigName}
             AND pipelineName = #{pipelineName}
             AND stageName = #{stageName}
@@ -196,8 +196,8 @@
     </select>
 
     <select id="buildById" resultMap="select-build-with-identifier">
-       SELECT *, id as buildId
-       FROM _builds
+       SELECT b.*, id as buildId
+       FROM _builds b
        WHERE id = #{value}
     </select>
 
@@ -228,7 +228,11 @@
 
     <select id="getHungJobs" resultMap="select-build-with-identifier">
         <include refid="select-builds-with-identifier"/>
-        WHERE agentUuid NOT IN (${liveAgentIdList}) AND state in ('Assigned', 'Preparing', 'Building', 'Completing')
+        WHERE agentUuid NOT IN
+        <foreach item="item" index="index" collection="liveAgentIdList" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        AND state in ('Assigned', 'Preparing', 'Building', 'Completing')
     </select>
 
     <select id="buildInstanceExists" resultType="java.lang.Boolean">
@@ -251,7 +255,15 @@
         INSERT INTO builds (name, scheduledDate, state, result, agentUuid, stageId, runOnAllAgents, runMultipleInstance, originalJobId, rerun)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         <selectKey keyProperty="id" resultType="long" order="AFTER">
-            CALL IDENTITY();
+            <if test="_databaseId == 'h2'">
+                CALL IDENTITY();
+            </if>
+            <if test="_databaseId == 'postgresql'">
+                SELECT lastval();
+            </if>
+            <if test="_databaseId == 'mysql'">
+                SELECT LAST_INSERT_ID();
+            </if>
         </selectKey>
     </insert>
 
@@ -335,7 +347,16 @@
             stages.counter AS stageCounter,
             stages.rerunOfCounter AS rerunOfCounter,
             (
-                SELECT TIMESTAMPDIFF(MILLISECOND, stateChangeTime, bst.stateChangeTime) FROM buildStateTransitions WHERE buildid = builds.id AND currentState = 'Scheduled'
+                <if test="_databaseId == 'h2'">
+                    SELECT TIMESTAMPDIFF(MILLISECOND, stateChangeTime, bst.stateChangeTime)
+                </if>
+                <if test="_databaseId == 'postgresql'">
+                    SELECT DATE_PART('epoch', bst.stateChangeTime - stateChangeTime)
+                </if>
+                <if test="_databaseId == 'mysql'">
+                    SELECT TIMESTAMPDIFF(MICROSECOND, stateChangeTime, bst.stateChangeTime)
+                </if>
+                FROM buildStateTransitions WHERE buildid = builds.id AND currentState = 'Scheduled'
             ) as duration
             FROM builds
             INNER JOIN stages on builds.stageid = stages.id

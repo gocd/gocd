@@ -15,7 +15,6 @@
  */
 
 apply plugin: 'groovy'
-apply plugin: 'jacoco'
 
 dependencies {
   compile project(':server')

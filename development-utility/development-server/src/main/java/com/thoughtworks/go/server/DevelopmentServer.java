@@ -39,7 +39,6 @@ public class DevelopmentServer {
     public static void main(String[] args) throws Exception {
         LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOGBACK_CONFIGURATION_FILE);
         logConfigurator.initialize();
-        copyDbFiles();
         copyPluginAssets();
         File webApp = new File("src/main/webapp");
         if (!webApp.exists()) {
@@ -91,13 +90,6 @@ public class DevelopmentServer {
         systemEnvironment.set(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE, true);
         systemEnvironment.setProperty("go.config.repo.gc.cron", "0 0/1 * 1/1 * ?");
         systemEnvironment.setProperty("go.config.repo.gc.check.interval", "10000");
-    }
-
-    private static void copyDbFiles() throws IOException {
-        FileUtils.copyDirectoryToDirectory(new File("db/migrate/h2deltas"), new File("db/"));
-        if (!new File("db/h2db/cruise.h2.db").exists()) {
-            FileUtils.copyDirectoryToDirectory(new File("db/dbtemplate/h2db"), new File("db/"));
-        }
     }
 
     private static void copyPluginAssets() throws IOException {

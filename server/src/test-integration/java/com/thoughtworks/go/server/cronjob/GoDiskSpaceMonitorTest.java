@@ -31,6 +31,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
+
 import static com.thoughtworks.go.util.GoConstants.MEGA_BYTE;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -83,13 +85,13 @@ public class GoDiskSpaceMonitorTest {
         full.onSetUp();
 
         Mockito.when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(SHITLOADS_OF_DISK_SPACE);
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(systemEnvironment.getDbFolder())).thenReturn(full.getLowLimit() + 1L);
+        Mockito.when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(full.getLowLimit() + 1L);
 
         goDiskSpaceMonitor.onTimer();
         assertThat(goDiskSpaceMonitor.isLowOnDisk(), is(true));
 
         Mockito.when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(SHITLOADS_OF_DISK_SPACE);
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(systemEnvironment.getDbFolder())).thenReturn(SHITLOADS_OF_DISK_SPACE);
+        Mockito.when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(SHITLOADS_OF_DISK_SPACE);
 
         goDiskSpaceMonitor.onTimer();
         assertThat(goDiskSpaceMonitor.isLowOnDisk(), is(false));
@@ -101,7 +103,7 @@ public class GoDiskSpaceMonitorTest {
         full.onSetUp();
 
         Mockito.when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(full.getLowLimit() + 1L);
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(systemEnvironment.getDbFolder())).thenReturn(SHITLOADS_OF_DISK_SPACE);
+        Mockito.when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(SHITLOADS_OF_DISK_SPACE);
 
         goDiskSpaceMonitor.onTimer();
 
@@ -109,7 +111,7 @@ public class GoDiskSpaceMonitorTest {
         assertThat(logEntry.getLogLevel(), is(HealthStateLevel.WARNING));
 
         Mockito.when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(SHITLOADS_OF_DISK_SPACE);
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(systemEnvironment.getDbFolder())).thenReturn(SHITLOADS_OF_DISK_SPACE);
+        Mockito.when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(SHITLOADS_OF_DISK_SPACE);
 
         goDiskSpaceMonitor.onTimer();
 
@@ -123,7 +125,7 @@ public class GoDiskSpaceMonitorTest {
         low.onSetUp();
 
         Mockito.when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(low.getLowLimit() + 1L);
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(systemEnvironment.getDbFolder())).thenReturn(1000 * MEGA_BYTE);
+        Mockito.when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(1000 * MEGA_BYTE);
         try {
             goDiskSpaceMonitor.onTimer();
             emailSender.assertHasMessageContaining("Low artifacts disk space warning message from Go Server");
@@ -138,7 +140,7 @@ public class GoDiskSpaceMonitorTest {
         full.onSetUp();
 
         Mockito.when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(full.getLowLimit() - 1L);
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(systemEnvironment.getDbFolder())).thenReturn(SHITLOADS_OF_DISK_SPACE);
+        Mockito.when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(SHITLOADS_OF_DISK_SPACE);
 
         goDiskSpaceMonitor.onTimer();
 
@@ -146,7 +148,7 @@ public class GoDiskSpaceMonitorTest {
         assertThat(logEntry.getLogLevel(), is(HealthStateLevel.ERROR));
 
         Mockito.when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(SHITLOADS_OF_DISK_SPACE);
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(systemEnvironment.getDbFolder())).thenReturn(SHITLOADS_OF_DISK_SPACE);
+        Mockito.when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(SHITLOADS_OF_DISK_SPACE);
 
         goDiskSpaceMonitor.onTimer();
 
@@ -160,7 +162,7 @@ public class GoDiskSpaceMonitorTest {
         ArtifactsDiskIsFull full = new ArtifactsDiskIsFull();
         full.onSetUp();
         Mockito.when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(full.getLowLimit() - 1L);
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(systemEnvironment.getDbFolder())).thenReturn(1000 * MEGA_BYTE);
+        Mockito.when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(1000 * MEGA_BYTE);
 
         try {
             goDiskSpaceMonitor.onTimer();
@@ -175,7 +177,7 @@ public class GoDiskSpaceMonitorTest {
         DatabaseDiskIsLow low = new DatabaseDiskIsLow();
         low.onSetUp();
         Mockito.when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(SHITLOADS_OF_DISK_SPACE);
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(systemEnvironment.getDbFolder())).thenReturn(low.getLowLimit() + 1L);
+        Mockito.when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(low.getLowLimit() + 1L);
 
         try {
             goDiskSpaceMonitor.onTimer();
@@ -190,7 +192,7 @@ public class GoDiskSpaceMonitorTest {
         DatabaseDiskIsFull full = new DatabaseDiskIsFull();
         full.onSetUp();
         Mockito.when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(SHITLOADS_OF_DISK_SPACE);
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(systemEnvironment.getDbFolder())).thenReturn(full.getLowLimit() - 1L);
+        Mockito.when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(full.getLowLimit() - 1L);
 
         try {
             goDiskSpaceMonitor.onTimer();
@@ -206,7 +208,7 @@ public class GoDiskSpaceMonitorTest {
         full.onSetUp();
 
         Mockito.when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(SHITLOADS_OF_DISK_SPACE);
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(systemEnvironment.getDbFolder())).thenReturn(full.getLowLimit() - 1L);
+        Mockito.when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(full.getLowLimit() - 1L);
 
         goDiskSpaceMonitor.onTimer();
 
@@ -214,7 +216,7 @@ public class GoDiskSpaceMonitorTest {
         assertThat(logEntry.getLogLevel(), is(HealthStateLevel.ERROR));
 
         Mockito.when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(SHITLOADS_OF_DISK_SPACE);
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(systemEnvironment.getDbFolder())).thenReturn(SHITLOADS_OF_DISK_SPACE);
+        Mockito.when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(SHITLOADS_OF_DISK_SPACE);
 
         goDiskSpaceMonitor.onTimer();
 
@@ -228,7 +230,7 @@ public class GoDiskSpaceMonitorTest {
         full.onSetUp();
 
         Mockito.when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(SHITLOADS_OF_DISK_SPACE);
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(systemEnvironment.getDbFolder())).thenReturn(full.getLowLimit() + 1L);
+        Mockito.when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(full.getLowLimit() + 1L);
 
         goDiskSpaceMonitor.onTimer();
 
@@ -236,7 +238,7 @@ public class GoDiskSpaceMonitorTest {
         assertThat(logEntry.getLogLevel(), is(HealthStateLevel.WARNING));
 
         Mockito.when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(SHITLOADS_OF_DISK_SPACE);
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(systemEnvironment.getDbFolder())).thenReturn(SHITLOADS_OF_DISK_SPACE);
+        Mockito.when(mockDiskSpaceChecker.getUsableSpace(new File(SystemEnvironment.DB_BASE_DIR))).thenReturn(SHITLOADS_OF_DISK_SPACE);
 
         goDiskSpaceMonitor.onTimer();
 

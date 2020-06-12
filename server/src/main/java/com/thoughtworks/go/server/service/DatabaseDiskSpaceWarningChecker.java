@@ -24,6 +24,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 import static com.thoughtworks.go.server.service.DatabaseDiskSpaceFullChecker.DATABASE_DISK_FULL_ID;
 
 public class DatabaseDiskSpaceWarningChecker extends DiskSpaceChecker {
@@ -32,7 +34,7 @@ public class DatabaseDiskSpaceWarningChecker extends DiskSpaceChecker {
 
     public DatabaseDiskSpaceWarningChecker(EmailSender sender, SystemEnvironment systemEnvironment,
                                            GoConfigService goConfigService, final SystemDiskSpaceChecker diskSpaceChecker, ServerHealthService serverHealthService) {
-        super(sender, systemEnvironment, systemEnvironment.getDbFolder(), goConfigService, DATABASE_DISK_FULL_ID, diskSpaceChecker);
+        super(sender, systemEnvironment, new File(SystemEnvironment.DB_BASE_DIR), goConfigService, DATABASE_DISK_FULL_ID, diskSpaceChecker);
         this.serverHealthService = serverHealthService;
     }
 

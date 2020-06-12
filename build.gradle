@@ -192,7 +192,7 @@ rootProject.ext.versions = [
   freemarker            : '2.3.29',
   gson                  : '2.8.6',
   guava                 : '29.0-jre',
-  h2db                  : '1.3.168',
+  h2                    : '1.4.200',
   hamcrest              : '2.2',
   hibernate             : '3.6.10.Final',
   jackson               : '2.9.9',
@@ -216,9 +216,11 @@ rootProject.ext.versions = [
   mockito               : '3.3.0',
   mybatis               : '3.4.6',
   mybatisSpring         : '1.3.2',
+  mysql                 : '8.0.19',
   nanohttpd             : '2.3.1',
   objenesis             : '2.6',
   oro                   : '2.0.8',
+  postgresql            : '42.2.10',
   quartz                : '2.3.1',
   rack                  : '1.1.21',
   semanticVersion       : '2.1.0',
@@ -268,7 +270,6 @@ dependencyCheck {
 
 allprojects {
   apply plugin: 'idea'
-  apply plugin: 'jacoco'
   group = 'com.thoughtworks.go'
   version = project.fullVersion
   buildDir = "${projectDir}/target"
@@ -277,10 +278,6 @@ allprojects {
     mavenCentral()
 
     maven { url "https://dl.bintray.com/gocd-maven-repo/generic/gocd" }
-  }
-
-  jacoco {
-    toolVersion = "0.8.2"
   }
 }
 
@@ -725,7 +722,6 @@ task sparkTest { thisTask ->
   description = "Run all api tests"
   (project(':api').subprojects + project(':spark').subprojects).each { Project subPrj ->
     thisTask.dependsOn subPrj.tasks.withType(Test)
-    thisTask.dependsOn subPrj.tasks.withType(JacocoReport)
   }
   finalizedBy 'sparkTestJunitHtmlReport'
 }
@@ -736,49 +732,6 @@ task sparkTestJunitHtmlReport(type: TestReport) {
   reportOn project(':api').subprojects*.test
   reportOn project(':spark').subprojects*.test
   destinationDir = file("${project.buildDir}/reports/tests/sparkTest")
-}
-
-task sparkTestJacocoMerge(type: JacocoMerge) { thisTask ->
-  dependsOn sparkTest
-  group LifecycleBasePlugin.VERIFICATION_GROUP
-  description = "Combine coverage reports for api modules"
-
-  // add a no-op execution data file
-  executionData file("${project.buildDir}/no-op.exec")
-
-  doFirst {
-    (project(':api').subprojects + project(':spark').subprojects).each { subproject ->
-      TaskCollection<JacocoReport> jacocoReportTasks = subproject.tasks.withType(JacocoReport)
-      jacocoReportTasks.all { eachReportTask ->
-        thisTask.executionData(eachReportTask.executionData)
-      }
-    }
-
-    executionData = files(executionData.findAll { it.exists() })
-  }
-}
-
-task sparkTestJacocoReport(type: JacocoReport, group: 'Coverage reports') { JacocoReport thisTask ->
-  description = 'Generates an aggregate report from api subprojects'
-
-  dependsOn sparkTestJacocoMerge
-
-  executionData sparkTestJacocoMerge.destinationFile
-  sourceDirectories.setFrom(files([]))
-  classDirectories.setFrom(files([]))
-
-  (project(':api').subprojects + project(':spark').subprojects).each { subproject ->
-    TaskCollection<JacocoReport> jacocoReportTasks = subproject.tasks.withType(JacocoReport)
-    jacocoReportTasks.all { eachReportTask ->
-      thisTask.sourceDirectories.from(files(subproject.sourceSets.main.allSource.srcDirs))
-      thisTask.classDirectories.from(files(subproject.sourceSets.main.output))
-    }
-  }
-
-  reports {
-    html.enabled = true
-    xml.enabled = true
-  }
 }
 
 private void forAllTask(Closure<Task> closure) {
@@ -1112,7 +1065,6 @@ task newApi {
            * limitations under the License.
            */
 
-          apply plugin: 'jacoco'
           apply plugin: 'groovy'
 
           dependencies {

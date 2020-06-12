@@ -15,7 +15,6 @@
  */
 
 
-apply plugin: 'jacoco'
 apply plugin: 'groovy'
 
 dependencies {

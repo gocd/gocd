@@ -87,7 +87,15 @@
         INSERT INTO pipelines (name, counter, buildCauseType, label, buildCauseMessage)
         VALUES (?, ?, ?, ?, ?)
         <selectKey keyProperty="id" resultType="long" order="AFTER">
-            CALL IDENTITY();
+            <if test="_databaseId == 'h2'">
+                CALL IDENTITY();
+            </if>
+            <if test="_databaseId == 'postgresql'">
+                SELECT lastval();
+            </if>
+            <if test="_databaseId == 'mysql'">
+                SELECT LAST_INSERT_ID();
+            </if>
         </selectKey>
     </insert>
 
@@ -292,41 +300,74 @@
         ORDER BY pipelines.id DESC, stages.orderId ASC
     </select>
 
+    <sql id="selectPipelineIdForLatestBuildingAndFailingStages">
+        SELECT stages.pipelineId
+        FROM stages
+        WHERE stages.state IN('Building', 'Failing') AND latestRun = true
+    </sql>
+
+    <sql id="selectMaxPipelineIdForPipelineWithName">
+        SELECT max(pipelines.id)
+        FROM pipelines
+        WHERE pipelines.name = #{pipelineName}
+        GROUP BY pipelines.name
+    </sql>
+
     <select id="getPipelinesForDashboard" resultMap="select-pipeline-history">
         <include refid="getPipelineHistory"/>
-        WHERE pipelines.id IN (
-          (
-              SELECT stages.pipelineId
-              FROM stages
-              WHERE stages.state IN('Building', 'Failing') AND latestRun = true
-          )
-        UNION
-          (
-              SELECT max(pipelines.id)
-              FROM pipelines
-              WHERE pipelines.name IN (${pipelineNames})
-              GROUP BY pipelines.name
-          )
-        )
-        AND pipelines.name IN (${pipelineNames})
+        <if test="_databaseId == 'h2' or _databaseId == 'mysql'">
+            WHERE pipelines.id IN (
+              (<include refid="selectPipelineIdForLatestBuildingAndFailingStages"/>)
+              UNION
+              (
+                SELECT max(pipelines.id)
+                FROM pipelines
+                WHERE pipelines.name IN
+                <foreach item="item" index="index" collection="pipelineNames" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+                GROUP BY pipelines.name
+              )
+            )
+            AND pipelines.name IN
+            <foreach item="item" index="index" collection="pipelineNames" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="_databaseId == 'postgresql'">
+            WHERE pipelines.id IN (
+              (<include refid="selectPipelineIdForLatestBuildingAndFailingStages"/>)
+              UNION
+              (
+                SELECT max(pipelines.id)
+                FROM pipelines
+                WHERE pipelines.name =
+                <foreach item="item" index="index" collection="pipelineNames" open="ANY(ARRAY[" close="]::citext[])"
+                           separator=",">
+                    #{item}
+                </foreach>
+                GROUP BY pipelines.name
+              )
+            )
+            AND pipelines.name =
+            <foreach item="item" index="index" collection="pipelineNames" open="ANY(ARRAY[" close="]::citext[])"
+                     separator=",">
+                #{item}
+            </foreach>
+        </if>
         ORDER BY pipelines.id DESC, stages.orderId ASC
     </select>
 
     <select id="getPipelineForDashboard" resultMap="select-pipeline-history">
         <include refid="getPipelineHistory"/>
-        WHERE pipelines.id IN (
-          (
-              SELECT stages.pipelineId
-              FROM stages
-              WHERE stages.state IN('Building', 'Failing') AND latestRun = true
-          )
+        WHERE pipelines.id
+            <if test="_databaseId == 'h2' or _databaseId == 'mysql'">IN (</if>
+            <if test="_databaseId == 'postgresql'">= ANY(ARRAY(</if>
+            (<include refid="selectPipelineIdForLatestBuildingAndFailingStages"/>)
         UNION
-          (
-              SELECT max(pipelines.id)
-              FROM pipelines
-              WHERE pipelines.name = #{pipelineName}
-          )
+            (<include refid="selectMaxPipelineIdForPipelineWithName" />)
         )
+        <if test="_databaseId == 'postgresql'">)</if>
         AND pipelines.name = #{pipelineName}
         ORDER BY pipelines.id DESC, stages.orderId ASC
     </select>

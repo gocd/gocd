@@ -35,7 +35,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private static final long ONE_YEAR = 60 * 60 * 24 * 365;
 
     public static final String CRUISE_LISTEN_HOST = "cruise.listen.host";
-    private static final String CRUISE_DATABASE_PORT = "cruise.database.port";
     public static final String CRUISE_SERVER_PORT = "cruise.server.port";
     public static final String CRUISE_SERVER_SSL_PORT = "cruise.server.ssl.port";
     static final String AGENT_CONNECTION_TIMEOUT_IN_SECONDS = "agent.connection.timeout";
@@ -44,11 +43,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
 
     public static final String CRUISE_CONFIG_REPO_DIR = "cruise.config.repo.dir";
-    private static final String DB_BASE_DIR = "db/";
-    private static final String DB_DEFAULT_PATH = DB_BASE_DIR + "h2db";
+    public static final String DB_BASE_DIR = "db/";
     private static final String CONFIG_REPO_DEFAULT_PATH = DB_BASE_DIR + "config.git";
-    public static final String CRUISE_DB_CACHE_SIZE = "cruise.db.cache.size";
-    public static final String CRUISE_DB_CACHE_SIZE_DEFAULT = String.valueOf(128 * 1024); // 128MB Cache Size by default
     public static final String ACTIVEMQ_USE_JMX = "activemq.use.jmx";
     public static final String ACTIVEMQ_QUEUE_PREFETCH = "activemq.queue.prefetch";
     private static final String ACTIVEMQ_CONNECTOR_PORT = "activemq.conn.port";
@@ -70,14 +66,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final String CONFIGURATION_NO = "N";
     public static final String RESOLVE_FANIN_REVISIONS = "resolve.fanin.revisions";
-    private String hsqlPath = null;
 
     public static final String ENABLE_CONFIG_MERGE_PROPERTY = "enable.config.merge";
     public static final GoSystemProperty<Boolean> ENABLE_CONFIG_MERGE_FEATURE = new CachedProperty<>(new GoBooleanSystemProperty(ENABLE_CONFIG_MERGE_PROPERTY, Boolean.TRUE));
-
-    private String defaultDbPort = "9153";
-    private static final String DB_UPGRADE_H2_DELTAS_FOLDER = "h2deltas";
-    private boolean debug;
 
     public static final String CRUISE_PROPERTIES = "/cruise.properties";
     private Properties properties;
@@ -111,10 +102,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static GoSystemProperty<Integer> RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT = new CachedProperty<>(new GoIntSystemProperty("resolve.fanin.max.backtrack.limit", 100));
     public static GoSystemProperty<Integer> MATERIAL_UPDATE_INACTIVE_TIMEOUT = new CachedProperty<>(new GoIntSystemProperty("material.update.inactive.timeout", 15));
-
-    public static GoSystemProperty<Integer> H2_DB_TRACE_LEVEL = new GoIntSystemProperty("h2.trace.level", 1);
-    public static GoSystemProperty<Integer> H2_DB_TRACE_FILE_SIZE_MB = new GoIntSystemProperty("h2.trace.file.size.mb", 16);
-    private static GoSystemProperty<String> CRUISE_DATABASE_DIR = new GoStringSystemProperty("cruise.database.dir", DB_DEFAULT_PATH);
 
     public static final String MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY = "material.update.idle.interval";
     private static GoSystemProperty<Long> MATERIAL_UPDATE_IDLE_INTERVAL = new GoLongSystemProperty(MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY, 60000L);
@@ -150,16 +137,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final GoSystemProperty<Integer> GO_SERVER_AUTHORIZATION_EXTENSION_CALLS_CACHE_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("go.server.authorization.extension.calls.cache.timeout.in.secs", 60 * 30);
 
-    /* DATABASE CONFIGURATION - Defaults are of H2 */
-    public static GoSystemProperty<String> GO_DATABASE_HOST = new GoStringSystemProperty("db.host", "localhost");
-    public static GoSystemProperty<String> GO_DATABASE_PORT = new GoStringSystemProperty("db.port", "");
-    public static GoSystemProperty<String> GO_DATABASE_NAME = new GoStringSystemProperty("db.name", "cruise");
-    public static GoSystemProperty<String> GO_DATABASE_USER = new GoStringSystemProperty("db.user", "sa");
-    public static GoSystemProperty<String> GO_DATABASE_PASSWORD = new GoStringSystemProperty("db.password", "");
-    public static GoIntSystemProperty GO_DATABASE_MAX_ACTIVE = new GoIntSystemProperty("db.maxActive", 32);
-    public static GoIntSystemProperty GO_DATABASE_MAX_IDLE = new GoIntSystemProperty("db.maxIdle", 32);
-    public static final String H2_DATABASE = "com.thoughtworks.go.server.database.H2Database";
-    public static GoStringSystemProperty GO_DATABASE_PROVIDER = new GoStringSystemProperty("go.database.provider", H2_DATABASE);
     public static GoSystemProperty<String> JETTY_XML_FILE_NAME = new GoStringSystemProperty("jetty.xml.file.name", JETTY_XML);
 
     public static final String JETTY9 = "com.thoughtworks.go.server.Jetty9Server";
@@ -261,17 +238,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public SystemEnvironment(Properties properties) {
         this.properties = properties;
-    }
-
-    public SystemEnvironment(String hsqlPath, String defaultDbPort) {
-        if (defaultDbPort == null) {
-            throw ExceptionUtils.bomb("Default db port cannot be null");
-        }
-        this.hsqlPath = hsqlPath;
-        this.defaultDbPort = defaultDbPort;
-        debug = getPropertyImpl("DB_DEBUG_MODE") != null
-                && !(getPropertyImpl("DB_DEBUG_MODE").equals("false"));
-
     }
 
     public <T> T get(GoSystemProperty<T> systemProperty) {
@@ -416,24 +382,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return getPropertyImpl("os.name");
     }
 
-    public int getDatabaseSeverPort() {
-        String port = getDatabasePort();
-        try {
-            return Integer.parseInt(port);
-        } catch (NumberFormatException e) {
-            LOG.info("Could not parse port={}", port);
-        }
-        return Integer.parseInt(defaultDbPort);
-    }
-
-    private String getDatabasePort() {
-        String port = getPropertyImpl(CRUISE_DATABASE_PORT);
-        if (port == null) {
-            port = defaultDbPort;
-        }
-        return port;
-    }
-
     public boolean getEnableRequestTimeLogging() {
         return Boolean.parseBoolean(getPropertyImpl("cruise.request.time.logging", "false"));
     }
@@ -454,21 +402,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return Integer.parseInt(getPropertyImpl(ACTIVEMQ_CONNECTOR_PORT, "1099"));
     }
 
-    public String getScriptPath() {
-        return new File(getDbPath(), "cruise").getAbsolutePath();
-    }
-
-    public File getDBDeltasPath() {
-        return new File(getDbFolder(), DB_UPGRADE_H2_DELTAS_FOLDER);
-    }
-
-    public File getDbPath() {
-        if (hsqlPath == null) {
-            hsqlPath = get(CRUISE_DATABASE_DIR);
-        }
-        return new File(hsqlPath);
-    }
-
     public File getConfigRepoDir() {
         return new File(properties().getProperty(CRUISE_CONFIG_REPO_DIR, CONFIG_REPO_DEFAULT_PATH));
     }
@@ -479,10 +412,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public File getAESCipherFile() {
         return new File(getConfigDir(), AES_CONFIG_CIPHER);
-    }
-
-    public File getDbFolder() {
-        return getDbPath().getParentFile();
     }
 
     public int getNumberOfMaterialCheckListener() {
@@ -515,19 +444,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public String getAgentPluginsMd5() {
         return getPropertyImpl(GoConstants.AGENT_PLUGINS_MD5, BLANK_STRING);
-    }
-
-    public boolean inDbDebugMode() {
-        return debug;
-    }
-
-    public boolean usingRemoteDb() {
-        return getPropertyImpl("DB_REMOTE") != null
-                && !(getPropertyImpl("DB_REMOTE").equals("false"));
-    }
-
-    public void setDebugMode(boolean debug) {
-        this.debug = debug;
     }
 
     public boolean isFeatureEnabled(String value) {
@@ -659,10 +575,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return getPropertyImpl(CRUISE_SERVER_WAR_PROPERTY, "cruise.war");
     }
 
-    public String getCruiseDbCacheSize() {
-        return getPropertyImpl(CRUISE_DB_CACHE_SIZE, CRUISE_DB_CACHE_SIZE_DEFAULT);
-    }
-
     public long getUnresponsiveJobWarningThreshold() {
         return Long.parseLong(getPropertyImpl(UNRESPONSIVE_JOB_WARNING_THRESHOLD, "5")) * 60 * 1000;//mins to mills
     }
@@ -694,14 +606,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public int getTfsSocketTimeout() {
         return Integer.parseInt(getPropertyImpl(TFS_SOCKET_TIMEOUT_PROPERTY, String.valueOf(TFS_SOCKET_TIMEOUT_IN_MILLISECONDS)));
-    }
-
-    public int getCruiseDbTraceLevel() {
-        return H2_DB_TRACE_LEVEL.getValue();
-    }
-
-    public int getCruiseDbTraceFileSize() {
-        return H2_DB_TRACE_FILE_SIZE_MB.getValue();
     }
 
     public Level pluginLoggingLevel(String pluginId) {
@@ -748,14 +652,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public long getMaterialUpdateIdleInterval() {
         return MATERIAL_UPDATE_IDLE_INTERVAL.getValue();
-    }
-
-    public boolean isDefaultDbProvider() {
-        return GO_DATABASE_PROVIDER.getValue().equals(H2_DATABASE);
-    }
-
-    public String getDatabaseProvider() {
-        return GO_DATABASE_PROVIDER.getValue();
     }
 
     public String landingPage() {

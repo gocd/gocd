@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
@@ -26,7 +25,6 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helpers.GraphGenerator;
-import com.thoughtworks.go.junitext.DatabaseChecker;
 import com.thoughtworks.go.junitext.GoJUnitExtSpringRunner;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -92,7 +90,6 @@ public class FanInPerformanceTest {
     }
 
     @Test(timeout = 240000)
-    @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
     public void shouldTestFanInForMesh() throws Exception {
         int numberOfNodesPerLevel = 10;
         int numberOfLevels = 10;

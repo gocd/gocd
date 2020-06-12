@@ -21,6 +21,7 @@ import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
+import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.LogFixture;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,10 +39,10 @@ import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.lang.System.getProperty;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class AgentProcessParentImplTest {
@@ -59,7 +60,7 @@ public class AgentProcessParentImplTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         cleanup();
     }
 
@@ -80,7 +81,7 @@ public class AgentProcessParentImplTest {
     }
 
     @Test
-    public void shouldStartSubprocessWithCommandLine() throws InterruptedException, IOException {
+    public void shouldStartSubprocessWithCommandLine() throws InterruptedException {
         final List<String> cmd = new ArrayList<>();
         String expectedAgentMd5 = TEST_AGENT.getMd5();
         String expectedAgentPluginsMd5 = TEST_AGENT_PLUGINS.getMd5();
@@ -94,6 +95,7 @@ public class AgentProcessParentImplTest {
                 "-Dagent.binary.md5=" + expectedAgentMd5,
                 "-Dagent.launcher.md5=bar",
                 "-Dagent.tfs.md5=" + expectedTfsMd5,
+                "-Dagent.bootstrapper.version=UNKNOWN",
                 "-jar",
                 "agent.jar",
                 "-serverUrl",
@@ -106,7 +108,37 @@ public class AgentProcessParentImplTest {
     }
 
     @Test
-    public void shouldAddAnyExtraPropertiesFoundToTheAgentInvocation() throws InterruptedException, IOException {
+    public void shouldAddBootstrapperVersionAsPropertyIfFoundInContext() throws InterruptedException {
+        final List<String> cmd = new ArrayList<>();
+        String expectedAgentMd5 = TEST_AGENT.getMd5();
+        String expectedAgentPluginsMd5 = TEST_AGENT_PLUGINS.getMd5();
+        String expectedTfsMd5 = TEST_TFS_IMPL.getMd5();
+
+        AgentProcessParentImpl bootstrapper = createBootstrapper(cmd);
+        Map context = context();
+        context.put(GoConstants.AGENT_BOOTSTRAPPER_VERSION, "20.3.0-1234");
+        int returnCode = bootstrapper.run("launcher_version", "bar", getURLGenerator(), new HashMap<>(), context);
+
+        assertThat(cmd.toArray(new String[]{}), equalTo(new String[]{
+                (getProperty("java.home") + getProperty("file.separator") + "bin" + getProperty("file.separator") + "java"),
+                "-Dagent.plugins.md5=" + expectedAgentPluginsMd5,
+                "-Dagent.binary.md5=" + expectedAgentMd5,
+                "-Dagent.launcher.md5=bar",
+                "-Dagent.tfs.md5=" + expectedTfsMd5,
+                "-Dagent.bootstrapper.version=20.3.0-1234",
+                "-jar",
+                "agent.jar",
+                "-serverUrl",
+                "http://localhost:" + server.getPort() + "/go/",
+                "-sslVerificationMode",
+                "NONE",
+                "-rootCertFile",
+                new File("/path/to/cert.pem").getAbsolutePath()
+        }));
+    }
+
+    @Test
+    public void shouldAddAnyExtraPropertiesFoundToTheAgentInvocation() throws InterruptedException {
         final List<String> cmd = new ArrayList<>();
         String expectedAgentMd5 = TEST_AGENT.getMd5();
         String expectedAgentPluginsMd5 = TEST_AGENT_PLUGINS.getMd5();
@@ -125,6 +157,7 @@ public class AgentProcessParentImplTest {
                 "-Dagent.binary.md5=" + expectedAgentMd5,
                 "-Dagent.launcher.md5=bar",
                 "-Dagent.tfs.md5=" + expectedTfsMd5,
+                "-Dagent.bootstrapper.version=UNKNOWN",
                 "-jar",
                 "agent.jar",
                 "-serverUrl",
@@ -150,7 +183,7 @@ public class AgentProcessParentImplTest {
     }
 
     @Test
-    public void shouldStartSubprocess_withOverriddenArgs() throws InterruptedException, IOException {
+    public void shouldStartSubprocess_withOverriddenArgs() throws InterruptedException {
         final List<String> cmd = new ArrayList<>();
         AgentProcessParentImpl bootstrapper = createBootstrapper(cmd);
         int returnCode = bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
@@ -169,6 +202,7 @@ public class AgentProcessParentImplTest {
                 "-Dagent.binary.md5=" + expectedAgentMd5,
                 "-Dagent.launcher.md5=bar",
                 "-Dagent.tfs.md5=" + expectedTfsMd5,
+                "-Dagent.bootstrapper.version=UNKNOWN",
                 "-jar",
                 "agent.jar",
                 "-serverUrl",
@@ -196,7 +230,7 @@ public class AgentProcessParentImplTest {
     private AgentProcessParentImpl createBootstrapper(final List<String> cmd, final Process subProcess) {
         return new AgentProcessParentImpl() {
             @Override
-            Process invoke(String[] command) throws IOException {
+            Process invoke(String[] command) {
                 cmd.addAll(Arrays.asList(command));
                 return subProcess;
             }
@@ -227,7 +261,7 @@ public class AgentProcessParentImplTest {
         when(subProcess.getInputStream()).thenReturn(new ByteArrayInputStream(stdOutMsg.getBytes()));
         when(subProcess.waitFor()).thenAnswer(new Answer<Object>() {
             @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
+            public Object answer(InvocationOnMock invocation) {
                 return 42;
             }
         });
@@ -239,13 +273,13 @@ public class AgentProcessParentImplTest {
     }
 
     @Test
-    public void shouldLogFailureToStartSubprocess() throws InterruptedException {
+    public void shouldLogFailureToStartSubprocess() {
         final List<String> cmd = new ArrayList<>();
 
         try (LogFixture logFixture = logFixtureFor(AgentProcessParentImpl.class, Level.DEBUG)) {
             AgentProcessParentImpl bootstrapper = new AgentProcessParentImpl() {
                 @Override
-                Process invoke(String[] command) throws IOException {
+                Process invoke(String[] command) {
                     cmd.addAll(Arrays.asList(command));
                     throw new RuntimeException("something failed!");
                 }

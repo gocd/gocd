@@ -235,7 +235,7 @@ class AgentServiceTest {
             @Test
             void shouldBulkEnableAgents() {
                 Username username = new Username(new CaseInsensitiveString("test"));
-                AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, AgentRuntimeStatus.Unknown, "cookie");
+                AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, AgentRuntimeStatus.Unknown, "cookie", "20.3.0-1234", "20.5.0-2345");
                 AgentInstance pending = createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
 
                 Agent agent = new Agent("UUID2", "remote-host", "50.40.30.20");

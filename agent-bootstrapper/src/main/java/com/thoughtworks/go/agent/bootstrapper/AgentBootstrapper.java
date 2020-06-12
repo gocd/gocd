@@ -141,4 +141,9 @@ public class AgentBootstrapper {
     AgentLauncherCreator getLauncherCreator() {
         return new DefaultAgentLauncherCreatorImpl();
     }
+
+    public String version() {
+        String version = getClass().getPackage().getImplementationVersion();
+        return version == null ? "UNKNOWN" : version;
+    }
 }

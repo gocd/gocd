@@ -53,8 +53,6 @@ public class AgentProcessParentImpl implements AgentProcessParent {
 
         try {
             AgentBootstrapperArgs bootstrapperArgs = AgentBootstrapperArgs.fromProperties(context);
-//            File rootCertFile = bootstrapperArgs.getRootCertFile();
-//            SslVerificationMode sslVerificationMode = SslVerificationMode.valueOf(bootstrapperArgs.getSslVerificationMode().name());
 
             ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, bootstrapperArgs);
             agentDownloader.downloadIfNecessary(DownloadableFile.AGENT);
@@ -137,6 +135,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
         commandSnippets.add(property(GoConstants.AGENT_JAR_MD5, agentMD5));
         commandSnippets.add(property(GoConstants.GIVEN_AGENT_LAUNCHER_JAR_MD5, launcherMd5));
         commandSnippets.add(property(GoConstants.TFS_IMPL_MD5, tfsImplMd5));
+        commandSnippets.add(property(GoConstants.AGENT_BOOTSTRAPPER_VERSION, (String) context.getOrDefault(GoConstants.AGENT_BOOTSTRAPPER_VERSION, "UNKNOWN")));
         commandSnippets.add("-jar");
 
         commandSnippets.add(Downloader.AGENT_BINARY);

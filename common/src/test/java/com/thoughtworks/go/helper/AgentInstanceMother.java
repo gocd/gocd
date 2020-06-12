@@ -68,7 +68,7 @@ public class AgentInstanceMother {
         return disabled;
     }
 
-    public static AgentInstance idleWith(String uuid, String hostname, String ipAddress, String location, long space, String os, List<String> resourceList) {
+    public static AgentInstance idleWith(String uuid, String hostname, String ipAddress, String location, long space, String os, List<String> resourceList, String agentBootstrapperVersion, String agentVersion) {
 
         Agent agent = new Agent(uuid, hostname, ipAddress);
         agent.setResourcesFromList(resourceList);
@@ -77,6 +77,8 @@ public class AgentInstanceMother {
         agentRuntimeInfo.idle();
         agentRuntimeInfo.setUsableSpace(space);
         agentRuntimeInfo.setOperatingSystem(os);
+        agentRuntimeInfo.updateAgentVersion(agentVersion);
+        agentRuntimeInfo.updateBootstrapperVersion(agentBootstrapperVersion);
 
         AgentInstance agentInstance = createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
         agentInstance.idle();

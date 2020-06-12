@@ -40,6 +40,8 @@ public class AgentRepresenter {
                 .add("operating_system", agentInstance.getOperatingSystem())
                 .add("agent_config_state", agentInstance.getAgentConfigStatus().toString())
                 .add("agent_state", agentInstance.getRuntimeStatus().agentState().toString())
+                .add("agent_version", agentInstance.getAgentVersion())
+                .add("agent_bootstrapper_version", agentInstance.getAgentBootstrapperVersion())
                 .addChildList("environments", envWriter -> EnvironmentsRepresenter.toJSON(envWriter, environments, agentInstance))
                 .add("build_state", agentInstance.getRuntimeStatus().buildState().toString());
 

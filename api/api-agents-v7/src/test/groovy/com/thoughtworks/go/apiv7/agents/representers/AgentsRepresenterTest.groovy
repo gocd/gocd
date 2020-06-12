@@ -99,6 +99,8 @@ class AgentsRepresenterTest {
             "free_space"        : 10240,
             "agent_config_state": "Enabled",
             "agent_state"       : "Idle",
+            "agent_version"     : "UNKNOWN",
+            "agent_bootstrapper_version" : "UNKNOWN",
             "resources"         : [],
             "environments"      : [
               [
@@ -152,6 +154,8 @@ class AgentsRepresenterTest {
             "free_space"        : "unknown",
             "agent_config_state": "Enabled",
             "agent_state"       : "Missing",
+            "agent_version"     : "UNKNOWN",
+            "agent_bootstrapper_version" : "UNKNOWN",
             "resources"         : [],
             "environments"      : [
               [
@@ -191,6 +195,8 @@ class AgentsRepresenterTest {
             "free_space"        : "unknown",
             "agent_config_state": "Enabled",
             "agent_state"       : "Building",
+            "agent_version"     : "UNKNOWN",
+            "agent_bootstrapper_version" : "UNKNOWN",
             "resources"         : [
               "java"
             ],

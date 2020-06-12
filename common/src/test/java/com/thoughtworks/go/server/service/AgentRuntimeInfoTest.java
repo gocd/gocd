@@ -29,9 +29,9 @@ import java.io.File;
 
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.Idle;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
 
 public class AgentRuntimeInfoTest {
     private File pipelinesFolder;
@@ -127,6 +127,15 @@ public class AgentRuntimeInfoTest {
     }
 
     @Test
+    public void shouldBeAbleToUpdateAgentAndAgentBootstrapperVersions() {
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), Idle, currentWorkingDirectory(), "cookie");
+
+        agentRuntimeInfo.updateAgentVersion("20.5.0-2345").updateBootstrapperVersion("20.3.0-1234");
+        assertThat(agentRuntimeInfo.getAgentVersion(), is("20.5.0-2345"));
+        assertThat(agentRuntimeInfo.getAgentBootstrapperVersion(), is("20.3.0-1234"));
+    }
+
+    @Test
     public void shouldUpdateSelfForAnIdleAgent() {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null);
         AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("go02", "10.10.10.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
@@ -134,6 +143,8 @@ public class AgentRuntimeInfoTest {
         newRuntimeInfo.setLocation("home");
         newRuntimeInfo.setUsableSpace(10L);
         newRuntimeInfo.setOperatingSystem("Linux");
+        newRuntimeInfo.updateAgentVersion("20.5.0-2345");
+        newRuntimeInfo.updateBootstrapperVersion("20.3.0-1234");
 
         agentRuntimeInfo.updateSelf(newRuntimeInfo);
 
@@ -141,6 +152,8 @@ public class AgentRuntimeInfoTest {
         assertThat(agentRuntimeInfo.getLocation(), is(newRuntimeInfo.getLocation()));
         assertThat(agentRuntimeInfo.getUsableSpace(), is(newRuntimeInfo.getUsableSpace()));
         assertThat(agentRuntimeInfo.getOperatingSystem(), is(newRuntimeInfo.getOperatingSystem()));
+        assertThat(agentRuntimeInfo.getAgentVersion(), is("20.5.0-2345"));
+        assertThat(agentRuntimeInfo.getAgentBootstrapperVersion(), is("20.3.0-1234"));
     }
 
 }

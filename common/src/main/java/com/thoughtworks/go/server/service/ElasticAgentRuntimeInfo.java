@@ -46,9 +46,14 @@ public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Seriali
     }
 
     public static ElasticAgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus,
-                                                    String workingDir, String elasticAgentId, String pluginId) {
+                                                    String workingDir, String elasticAgentId, String pluginId,
+                                                    String agentBootstrapperVersion, String agentVersion) {
         ElasticAgentRuntimeInfo runtimeInfo = new ElasticAgentRuntimeInfo(identifier, runtimeStatus, workingDir, null, elasticAgentId, pluginId);
-        return (ElasticAgentRuntimeInfo) runtimeInfo.refreshOperatingSystem().refreshUsableSpace();
+        return (ElasticAgentRuntimeInfo) runtimeInfo
+                .refreshOperatingSystem()
+                .refreshUsableSpace()
+                .updateBootstrapperVersion(agentBootstrapperVersion)
+                .updateAgentVersion(agentVersion);
     }
 
     @Override

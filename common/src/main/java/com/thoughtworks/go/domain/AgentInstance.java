@@ -532,6 +532,14 @@ public class AgentInstance implements Comparable<AgentInstance> {
         }
     }
 
+    public String getAgentVersion() {
+        return agentRuntimeInfo.getAgentVersion();
+    }
+
+    public String getAgentBootstrapperVersion() {
+        return agentRuntimeInfo.getAgentBootstrapperVersion();
+    }
+
     private void updateConfigStatus(AgentConfigStatus agentConfigStatus) {
         if (this.agentConfigStatus != agentConfigStatus) {
             this.agentConfigStatus = agentConfigStatus;

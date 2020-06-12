@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Objects;
 
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.Building;
 import static com.thoughtworks.go.domain.AgentRuntimeStatus.Cancelled;
@@ -53,6 +54,10 @@ public class AgentRuntimeInfo implements Serializable {
     @Expose
     private volatile String operatingSystemName;
     @Expose
+    private volatile String agentBootstrapperVersion = "UNKNOWN";
+    @Expose
+    private volatile String agentVersion = "UNKNOWN";
+    @Expose
     private volatile String cookie;
 
     public AgentRuntimeInfo(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String location, String cookie) {
@@ -63,8 +68,12 @@ public class AgentRuntimeInfo implements Serializable {
         this.cookie = cookie;
     }
 
-    public static AgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String currentWorkingDirectory) {
-        return new AgentRuntimeInfo(identifier, runtimeStatus, currentWorkingDirectory, null).refreshOperatingSystem().refreshUsableSpace();
+    public static AgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String currentWorkingDirectory, String agentBootstrapperVersion, String agentVersion) {
+        return new AgentRuntimeInfo(identifier, runtimeStatus, currentWorkingDirectory, null)
+                .refreshOperatingSystem()
+                .refreshUsableSpace()
+                .updateBootstrapperVersion(agentBootstrapperVersion)
+                .updateAgentVersion(agentVersion);
     }
 
     public static AgentRuntimeInfo fromServer(Agent agent, boolean registeredAlready, String location,
@@ -125,29 +134,21 @@ public class AgentRuntimeInfo implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         AgentRuntimeInfo that = (AgentRuntimeInfo) o;
-
-        if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null) return false;
-        if (runtimeStatus != that.runtimeStatus) return false;
-        if (buildingInfo != null ? !buildingInfo.equals(that.buildingInfo) : that.buildingInfo != null) return false;
-        if (location != null ? !location.equals(that.location) : that.location != null) return false;
-        if (usableSpace != null ? !usableSpace.equals(that.usableSpace) : that.usableSpace != null) return false;
-        if (operatingSystemName != null ? !operatingSystemName.equals(that.operatingSystemName) : that.operatingSystemName != null)
-            return false;
-        return cookie != null ? cookie.equals(that.cookie) : that.cookie == null;
+        return Objects.equals(identifier, that.identifier) &&
+                runtimeStatus == that.runtimeStatus &&
+                Objects.equals(buildingInfo, that.buildingInfo) &&
+                Objects.equals(location, that.location) &&
+                Objects.equals(usableSpace, that.usableSpace) &&
+                Objects.equals(operatingSystemName, that.operatingSystemName) &&
+                Objects.equals(agentBootstrapperVersion, that.agentBootstrapperVersion) &&
+                Objects.equals(agentVersion, that.agentVersion) &&
+                Objects.equals(cookie, that.cookie);
     }
 
     @Override
     public int hashCode() {
-        int result = identifier != null ? identifier.hashCode() : 0;
-        result = 31 * result + (runtimeStatus != null ? runtimeStatus.hashCode() : 0);
-        result = 31 * result + (buildingInfo != null ? buildingInfo.hashCode() : 0);
-        result = 31 * result + (location != null ? location.hashCode() : 0);
-        result = 31 * result + (usableSpace != null ? usableSpace.hashCode() : 0);
-        result = 31 * result + (operatingSystemName != null ? operatingSystemName.hashCode() : 0);
-        result = 31 * result + (cookie != null ? cookie.hashCode() : 0);
-        return result;
+        return Objects.hash(identifier, runtimeStatus, buildingInfo, location, usableSpace, operatingSystemName, agentBootstrapperVersion, agentVersion, cookie);
     }
 
     @Override
@@ -202,6 +203,16 @@ public class AgentRuntimeInfo implements Serializable {
 
     public AgentRuntimeInfo refreshUsableSpace() {
         setUsableSpace(usableSpace(location));
+        return this;
+    }
+
+    public AgentRuntimeInfo updateBootstrapperVersion(String agentBootstrapperVersion) {
+        this.agentBootstrapperVersion = agentBootstrapperVersion;
+        return this;
+    }
+
+    public AgentRuntimeInfo updateAgentVersion(String agentVersion) {
+        this.agentVersion = agentVersion;
         return this;
     }
 
@@ -280,9 +291,19 @@ public class AgentRuntimeInfo implements Serializable {
         this.location = newRuntimeInfo.getLocation();
         this.usableSpace = newRuntimeInfo.getUsableSpace();
         this.operatingSystemName = newRuntimeInfo.getOperatingSystem();
+        this.agentBootstrapperVersion = newRuntimeInfo.agentBootstrapperVersion;
+        this.agentVersion = newRuntimeInfo.agentVersion;
     }
 
     public boolean isElastic() {
         return false;
+    }
+
+    public String getAgentVersion() {
+        return this.agentVersion;
+    }
+
+    public String getAgentBootstrapperVersion() {
+        return this.agentBootstrapperVersion;
     }
 }

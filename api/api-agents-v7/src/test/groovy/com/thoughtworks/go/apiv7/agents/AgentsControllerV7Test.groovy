@@ -137,6 +137,8 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
               "free_space"        : 10240,
               "agent_config_state": "Enabled",
               "agent_state"       : "Idle",
+              "agent_version"     : "UNKNOWN",
+              "agent_bootstrapper_version" : "UNKNOWN",
               "resources"         : [],
               "environments"      : [
                 [
@@ -255,6 +257,8 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
         "free_space"        : 10240,
         "agent_config_state": "Enabled",
         "agent_state"       : "Idle",
+        "agent_version"     : "UNKNOWN",
+        "agent_bootstrapper_version" : "UNKNOWN",
         "resources"         : [],
         "environments"      : [
           [
@@ -327,7 +331,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
     @Test
     void 'should update agent information'() {
       loginAsAdmin()
-      AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
+      AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"), "20.3.0-1234", "20.5.0-2345")
       updatedAgentInstance.getAgent().setEnvironments("env1,unknown-env")
 
       def envsConfig = new EnvironmentsConfig()
@@ -375,6 +379,8 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
         "free_space"        : 10,
         "agent_config_state": "Enabled",
         "agent_state"       : "Idle",
+        "agent_version"     : "20.5.0-2345",
+        "agent_bootstrapper_version" : "20.3.0-1234",
         "resources"         : ["java", "psql"],
         "environments"      : [
           [
@@ -429,7 +435,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
     void 'should reset agents environment attribute value to null in db when environments is specified as empty string in the request payload'() {
       loginAsAdmin()
       def resources = asList("psql", "java")
-      AgentInstance agentWithoutEnvs = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", resources)
+      AgentInstance agentWithoutEnvs = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", resources, "20.3.0-1234", "20.5.0-2345")
 
       when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(emptySet())
       when(agentService.updateAgentAttributes(
@@ -471,6 +477,8 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
         "free_space"        : 10,
         "agent_config_state": "Enabled",
         "agent_state"       : "Idle",
+        "agent_version"     : "20.5.0-2345",
+        "agent_bootstrapper_version" : "20.3.0-1234",
         "resources"         : ["java", "psql"],
         "environments"      : [],
         "build_state"       : "Idle"
@@ -482,7 +490,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       loginAsAdmin()
 
       def resources = emptyList()
-      AgentInstance agentWithoutEnvsAndResources = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", resources)
+      AgentInstance agentWithoutEnvsAndResources = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", resources, "20.3.0-1234", "20.5.0-2345")
 
       def emptyEnvsConfig = new EnvironmentsConfig()
       when(environmentConfigService.getAgentEnvironments("uuid2")).thenReturn(emptySet())
@@ -527,6 +535,8 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
         "free_space"        : 10,
         "agent_config_state": "Enabled",
         "agent_state"       : "Idle",
+        "agent_version"     : "20.5.0-2345",
+        "agent_bootstrapper_version" : "20.3.0-1234",
         "resources"         : [],
         "environments"      : [],
         "build_state"       : "Idle"
@@ -627,6 +637,8 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
           "free_space"        : "unknown",
           "agent_config_state": "Enabled",
           "agent_state"       : "Missing",
+          "agent_version"     : "UNKNOWN",
+          "agent_bootstrapper_version" : "UNKNOWN",
           "resources"         : ["bar\$", "foo%"],
           "environments"      : [],
           "build_state"       : "Unknown",
@@ -646,7 +658,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       @Test
       void 'should pass empty environments string to service given empty comma separated list of environments'() {
         loginAsAdmin()
-        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
+        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"), "20.3.0-1234", "20.5.0-2345")
 
         def commaSeparatedEnvs = "             "
 
@@ -697,6 +709,8 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
           "free_space"        : 10,
           "agent_config_state": "Enabled",
           "agent_state"       : "Idle",
+          "agent_version"     : "20.5.0-2345",
+          "agent_bootstrapper_version" : "20.3.0-1234",
           "resources"         : ["java", "psql"],
           "environments"      : [],
           "build_state"       : "Idle"
@@ -706,7 +720,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       @Test
       void 'should pass null as environments string to service given null comma separated list of environments'() {
         loginAsAdmin()
-        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
+        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"), "20.3.0-1234", "20.5.0-2345")
         when(agentService.updateAgentAttributes(
           eq("uuid2"),
           eq("agent02.example.com"),
@@ -752,6 +766,8 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
           "free_space"        : 10,
           "agent_config_state": "Enabled",
           "agent_state"       : "Idle",
+          "agent_version"     : "20.5.0-2345",
+          "agent_bootstrapper_version" : "20.3.0-1234",
           "resources"         : ["java", "psql"],
           "environments"      : [],
           "build_state"       : "Idle"
@@ -761,7 +777,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       @Test
       void 'should filter out environments which are associated via config-repo'() {
         loginAsAdmin()
-        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
+        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"), "20.3.0-1234", "20.5.0-2345")
         updatedAgentInstance.getAgent().setEnvironments("env1,config-repo-env")
 
         def localEnvName = "env1"
@@ -823,6 +839,8 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
           "free_space"        : 10,
           "agent_config_state": "Enabled",
           "agent_state"       : "Idle",
+          "agent_version"     : "20.5.0-2345",
+          "agent_bootstrapper_version" : "20.3.0-1234",
           "resources"         : ["java", "psql"],
           "environments"      : [
             [
@@ -868,7 +886,7 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
       @Test
       void 'should pass in the env name even if it is not defined'() {
         loginAsAdmin()
-        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
+        AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"), "20.3.0-1234", "20.5.0-2345")
         updatedAgentInstance.getAgent().setEnvironments("env1,non-existent-env")
 
         def localEnvName = "env1"
@@ -924,6 +942,8 @@ class AgentsControllerV7Test implements SecurityServiceTrait, ControllerTrait<Ag
           "free_space"        : 10,
           "agent_config_state": "Enabled",
           "agent_state"       : "Idle",
+          "agent_version"     : "20.5.0-2345",
+          "agent_bootstrapper_version" : "20.3.0-1234",
           "resources"         : ["java", "psql"],
           "environments"      : [
             [

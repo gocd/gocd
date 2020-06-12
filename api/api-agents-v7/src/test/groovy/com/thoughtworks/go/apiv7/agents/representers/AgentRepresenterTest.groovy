@@ -52,7 +52,7 @@ class AgentRepresenterTest {
 
   @Test
   void 'renders an agent with hal representation'() {
-    AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", Arrays.asList("linux", "firefox"))
+    AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", Arrays.asList("linux", "firefox"), "20.3.0-1234", "20.5.0-2345")
     agentInstance.getAgent().setEnvironments("uat,load_test,non-existent-env")
     def envFromConfigRepo = environment("dev")
     envFromConfigRepo.setOrigins(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(null, "yaml", "foo"), "revision"))
@@ -83,6 +83,8 @@ class AgentRepresenterTest {
       "free_space"        : 10,
       "agent_config_state": "Enabled",
       "agent_state"       : "Idle",
+      "agent_version"     : "20.5.0-2345",
+      "agent_bootstrapper_version" : "20.3.0-1234",
       "resources"         : ["firefox", "linux"],
       "environments"      : [
         [
@@ -145,7 +147,7 @@ class AgentRepresenterTest {
 
   @Test
   void 'renders the elastic agent properties correctly'() {
-    AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", Arrays.asList("linux", "firefox"))
+    AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", Arrays.asList("linux", "firefox"), "20.3.0-1234", "20.5.0-2345")
     updateElasticAgentId(agentInstance, "docker-elastic-agent")
     updateElasticPluginId(agentInstance, "cd.go.docker")
 
@@ -162,7 +164,7 @@ class AgentRepresenterTest {
 
   @Test
   void 'should render environments associated through config-repo'() {
-    AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", Arrays.asList("linux", "firefox"))
+    AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", Arrays.asList("linux", "firefox"), "20.3.0-1234", "20.5.0-2345")
     agentInstance.getAgent().setEnvironments("uat")
     def envFromConfigRepo = environment("dev")
     envFromConfigRepo.setOrigins(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(null, "yaml", "foo"), "revision"))
@@ -193,6 +195,8 @@ class AgentRepresenterTest {
       "free_space"        : 10,
       "agent_config_state": "Enabled",
       "agent_state"       : "Idle",
+      "agent_version"     : "20.5.0-2345",
+      "agent_bootstrapper_version" : "20.3.0-1234",
       "resources"         : ["firefox", "linux"],
       "environments"      : [
         [

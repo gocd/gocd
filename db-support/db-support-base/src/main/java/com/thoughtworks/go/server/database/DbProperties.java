@@ -66,7 +66,15 @@ public class DbProperties {
                 connectionProperties.put(key.replace(DB_CONNECTION_PROPERTIES_PREFIX, ""), properties.getProperty(key));
             }
         }
+        if (isPostgres(this.url)) {
+            connectionProperties.put("stringtype", "unspecified");
+        }
+
         return this;
+    }
+
+    private boolean isPostgres(String url) {
+        return isNotBlank(url) && url.startsWith("jdbc:postgresql:");
     }
 
     private String findPassword(Properties properties, Function<String, String> decrypter) {

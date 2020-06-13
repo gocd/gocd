@@ -234,6 +234,7 @@ project.ext.testSystemProperties = props
 
 dependencies {
   jrubyGems group: 'rubygems', name: 'bundler', version: project.versions.bundler
+  compileOnly group: 'org.jetbrains', name: 'annotations', version: project.versions.jetBrainsAnnotations
 
   apiBase project(':api:api-base')
   api project(':api').subprojects

@@ -31,6 +31,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -172,6 +173,7 @@ public class GoFileConfigDataSource {
         }
     }
 
+    @TestOnly
     synchronized GoConfigHolder forceLoad(File configFile) throws Exception {
         LOGGER.debug("Reloading config file: {}", configFile.getAbsolutePath());
         GoConfigHolder holder;
@@ -201,6 +203,7 @@ public class GoFileConfigDataSource {
     }
 
     @Deprecated
+    @TestOnly
     public synchronized GoConfigHolder write(String configFileContent, boolean shouldMigrate) throws Exception {
         File configFile = fileLocation();
         try {

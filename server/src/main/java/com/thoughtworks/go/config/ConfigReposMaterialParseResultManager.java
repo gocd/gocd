@@ -28,10 +28,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -62,7 +59,7 @@ public class ConfigReposMaterialParseResultManager {
                 result.setException(asError(serverHealthStates.get(0)));
 
                 //clear out the good modification, in case good modification is same as of latest parsed modification
-                if (result.getLatestParsedModification().equals(result.getGoodModification())) {
+                if (Objects.equals(result.getLatestParsedModification(), result.getGoodModification())) {
                     result.setGoodModification(null);
                     result.setPartialConfig(null);
                 }

@@ -77,7 +77,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
     @Autowired
     private ServerStatusService serverStatusService;
     @Autowired
-    private GoPartialConfig goPartialConfig;
+    private PartialConfigService partialConfigService;
     @Autowired
     private CachedGoPartials cachedGoPartials;
     private GoConfigFileHelper configHelper;
@@ -235,7 +235,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         return createThread(new Runnable() {
             @Override
             public void run() {
-                goPartialConfig.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withPipeline("remote-pipeline" + counter, new RepoConfigOrigin(configRepoConfig, "1")));
+                partialConfigService.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withPipeline("remote-pipeline" + counter, new RepoConfigOrigin(configRepoConfig, "1")));
             }
         }, "config-repo-save-thread" + counter);
     }

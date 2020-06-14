@@ -32,7 +32,7 @@ public class PluginSettings implements Validatable {
     private String pluginId;
     private List<ConfigurationProperty> settingsMap = new ArrayList<>();
     private boolean hasErrors = false;
-    private ConfigErrors errors = new ConfigErrors();
+    private final ConfigErrors errors = new ConfigErrors();
 
     public PluginSettings() {
     }
@@ -41,7 +41,7 @@ public class PluginSettings implements Validatable {
         this.pluginId = pluginId;
     }
 
-    private PluginSettings(String pluginId, ArrayList<ConfigurationProperty> settingsMap) {
+    private PluginSettings(String pluginId, List<ConfigurationProperty> settingsMap) {
         this(pluginId);
         this.settingsMap = settingsMap;
     }

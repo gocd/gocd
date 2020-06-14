@@ -41,7 +41,6 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.initializers.Initializer;
-import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.security.GoAcl;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -94,7 +93,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     @Autowired
     public GoConfigService(GoConfigDao goConfigDao,
-                           PipelineRepository pipelineRepository,
                            GoConfigMigration upgrader,
                            GoCache goCache,
                            ConfigRepository configRepository,
@@ -117,7 +115,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     //for testing
     public GoConfigService(GoConfigDao goConfigDao,
-                           PipelineRepository pipelineRepository,
                            Clock clock,
                            GoConfigMigration upgrader,
                            GoCache goCache,
@@ -126,7 +123,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
                            InstanceFactory instanceFactory,
                            CachedGoPartials cachedGoPartials,
                            SystemEnvironment systemEnvironment) {
-        this(goConfigDao, pipelineRepository, upgrader, goCache, configRepository, new ConfigCache(), registry, instanceFactory, cachedGoPartials, systemEnvironment);
+        this(goConfigDao, upgrader, goCache, configRepository, new ConfigCache(), registry, instanceFactory, cachedGoPartials, systemEnvironment);
         this.clock = clock;
     }
 

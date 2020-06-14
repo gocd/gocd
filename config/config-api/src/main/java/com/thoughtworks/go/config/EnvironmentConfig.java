@@ -30,10 +30,10 @@ import java.util.Set;
  */
 public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, EnvironmentVariableScope, ConfigOriginTraceable, SecretParamAware {
 
-    static final String NAME_FIELD = "name";
-    static final String PIPELINES_FIELD = "pipelines";
-    static final String AGENTS_FIELD = "agents";
-    static final String VARIABLES_FIELD = "variables";
+    String NAME_FIELD = "name";
+    String PIPELINES_FIELD = "pipelines";
+    String AGENTS_FIELD = "agents";
+    String VARIABLES_FIELD = "variables";
 
     @Override
     void validate(ValidationContext validationContext);

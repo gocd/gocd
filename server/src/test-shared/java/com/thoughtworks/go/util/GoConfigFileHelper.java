@@ -52,6 +52,7 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.mockito.Mockito.mock;
 
 /**
  * @understands how to edit the cruise config file for testing
@@ -70,10 +71,6 @@ public class GoConfigFileHelper {
 
     public GoConfigFileHelper() {
         this(ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS);
-    }
-
-    public GoConfigFileHelper(GoPartialConfig partials) {
-        this(ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS, partials);
     }
 
     public GoConfigFileHelper(GoConfigDao goConfigDao) {
@@ -96,15 +93,20 @@ public class GoConfigFileHelper {
         }
     }
 
-    private void assignFileDao(GoConfigDao goConfigDao) {
-        this.goConfigDao = goConfigDao;
+    public GoConfigFileHelper(File configFile) {
+        assignFileDao(createTestingDao());
+        this.configFile = configFile.getAbsoluteFile();
         try {
-            Field field = GoConfigDao.class.getDeclaredField("cachedConfigService");
-            field.setAccessible(true);
-            this.cachedGoConfig = (CachedGoConfig) field.get(goConfigDao);
+            saveFullConfig(FileUtils.readFileToString(this.configFile, UTF_8), true);
+            this.originalXml = FileUtils.readFileToString(this.configFile, "UTF-8");
         } catch (Exception e) {
-            bomb(e);
+            throw bomb("Error reading config file", e);
         }
+        new SystemEnvironment().setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, this.configFile.getAbsolutePath());
+    }
+
+    public GoConfigFileHelper(String xml) {
+        this(xml, createTestingDao());
     }
 
     /**
@@ -123,7 +125,7 @@ public class GoConfigFileHelper {
             CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService);
             FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, configElementImplementationRegistry, systemEnvironment, new TimeProvider(), configRepository, cachedGoPartials);
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    configCache, configElementImplementationRegistry, serverHealthService, cachedGoPartials, null, normalFlow);
+                    configCache, configElementImplementationRegistry, cachedGoPartials, null, normalFlow, mock(PartialConfigHelper.class));
             GoConfigMigration goConfigMigration = new GoConfigMigration(new TimeProvider(), configElementImplementationRegistry);
             GoConfigMigrator goConfigMigrator = new GoConfigMigrator(goConfigMigration, new SystemEnvironment(), configCache, configElementImplementationRegistry, normalFlow, configRepository, serverHealthService);
             FileUtils.writeStringToFile(dataSource.fileLocation(), ConfigFileFixture.configWithSecurity(""), UTF_8);
@@ -136,46 +138,74 @@ public class GoConfigFileHelper {
         }
     }
 
-    /**
-     * Creates config dao that has custom remote configuration parts provided by partialConfig argument
-     */
-    public static GoConfigDao createTestingDao(GoPartialConfig partialConfig) {
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
-        try {
-            MaintenanceModeService maintenanceModeService = new MaintenanceModeService(new TimeProvider());
-            ServerHealthService serverHealthService = new ServerHealthService();
-            ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
-            configRepository.initialize();
-            ConfigCache configCache = new ConfigCache();
-            FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), systemEnvironment, new TimeProvider(), configRepository, new CachedGoPartials(serverHealthService));
-            GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    configCache, com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(),
-                    serverHealthService, new CachedGoPartials(serverHealthService), null, normalFlow);
-            ConfigElementImplementationRegistry configElementImplementationRegistry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
-            new ConfigElementImplementationRegistrar(configElementImplementationRegistry).initialize();
-            GoConfigMigration goConfigMigration = new GoConfigMigration(new TimeProvider(), configElementImplementationRegistry);
-            GoConfigMigrator goConfigMigrator = new GoConfigMigrator(goConfigMigration, new SystemEnvironment(), configCache, configElementImplementationRegistry, normalFlow, configRepository, serverHealthService);
-            goConfigMigrator.migrate();
+    public static GoConfigFileHelper usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents() {
+        return new GoConfigFileHelper(ConfigFileFixture.DEFAULT_XML_WITH_UNLIMITED_AGENTS);
+    }
 
-            CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService);
-            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials, null, maintenanceModeService);
-            cachedConfigService.loadConfigIfNull();
-            return new GoConfigDao(cachedConfigService);
-        } catch (IOException e) {
+    private static JobConfigs defaultBuildPlans(String... planNames) {
+        JobConfigs plans = new JobConfigs();
+        for (String name : planNames) {
+            plans.add(defaultBuildPlan(name));
+        }
+        return plans;
+    }
+
+    private static JobConfig defaultBuildPlan(String name) {
+        return new JobConfig(new CaseInsensitiveString(name), new ResourceConfigs(), new ArtifactTypeConfigs());
+    }
+
+    public static CruiseConfig load(String content) {
+        try {
+            return new GoConfigFileHelper(content).currentConfig();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public GoConfigFileHelper(File configFile) {
-        assignFileDao(createTestingDao());
-        this.configFile = configFile.getAbsoluteFile();
+    public static String loadAndMigrate(String originalContent) {
+        GoConfigFileHelper helper = new GoConfigFileHelper(originalContent);
         try {
-            saveFullConfig(FileUtils.readFileToString(this.configFile, UTF_8), true);
-            this.originalXml = FileUtils.readFileToString(this.configFile, "UTF-8");
-        } catch (Exception e) {
-            throw bomb("Error reading config file", e);
+            return FileUtils.readFileToString(helper.getConfigFile(), UTF_8);
+        } catch (IOException e) {
+            throw bomb(e);
         }
-        new SystemEnvironment().setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, this.configFile.getAbsolutePath());
+    }
+
+    public static EnvironmentVariablesConfig env(String name, String value) {
+        return EnvironmentVariablesConfigMother.env(name, value);
+    }
+
+    public static EnvironmentVariablesConfig env(String[] names, String[] values) {
+        return EnvironmentVariablesConfigMother.env(names, values);
+    }
+
+    public static void clearConfigVersions() throws IOException {
+        FileUtils.deleteDirectory(new SystemEnvironment().getConfigRepoDir());
+    }
+
+    public static void withServerIdImmutability(Runnable fn) {
+        try {
+            SystemEnvironment.enforceServerImmutability.set(true);
+            fn.run();
+        } finally {
+            SystemEnvironment.enforceServerImmutability.set(false);
+        }
+    }
+
+    public interface Updater<T> {
+        void update(T t);
+    }
+
+    public static class AdminUserMother {
+
+        public static Admin[] adminUsers(String... userNames) {
+            Admin[] result = new Admin[userNames.length];
+            for (int i = 0; i < userNames.length; i++) {
+                String userName = userNames[i];
+                result[i] = new AdminUser(new CaseInsensitiveString(userName));
+            }
+            return result;
+        }
     }
 
     public String getCurrentXml() throws IOException {
@@ -191,14 +221,6 @@ public class GoConfigFileHelper {
         MagicalGoConfigXmlLoader magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(new ConfigCache(), registry);
         CruiseConfig configToBeWritten = magicalGoConfigXmlLoader.deserializeConfig(configFileContent);
         cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(configToBeWritten, cachedGoConfig.loadForEditing().getMd5()));
-    }
-
-    public GoConfigFileHelper(String xml) {
-        this(xml, createTestingDao());
-    }
-
-    public GoConfigFileHelper(String xml, GoPartialConfig partials) {
-        this(xml, createTestingDao(partials));
     }
 
     public GoConfigDao getGoConfigDao() {
@@ -223,16 +245,6 @@ public class GoConfigFileHelper {
     public void usingEmptyConfigFileWithLicenseAllowsTwoAgents() {
         writeToFileAndDB(ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS);
     }
-
-    private void writeToFileAndDB(String configContent) {
-        writeXmlToConfigFile(loadAndMigrate(configContent));
-        writeConfigFile(load());
-    }
-
-    public static GoConfigFileHelper usingEmptyConfigFileWithLicenseAllowsUnlimitedAgents() {
-        return new GoConfigFileHelper(ConfigFileFixture.DEFAULT_XML_WITH_UNLIMITED_AGENTS);
-    }
-
 
     public void writeXmlToConfigFile(String xml) {
         try {
@@ -340,10 +352,6 @@ public class GoConfigFileHelper {
         writeConfigFile(config);
     }
 
-    public interface Updater<T> {
-        void update(T t);
-    }
-
     public PipelineConfig updatePipeline(CaseInsensitiveString pipelineName, Updater<PipelineConfig> updater) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfig pipelineConfig = cruiseConfig.getPipelineConfigByName(pipelineName);
@@ -388,12 +396,6 @@ public class GoConfigFileHelper {
         return addPipeline(pipelineName, stageName, svn(repository.getUrl().originalArgument(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals()), filter, buildNames);
     }
 
-    private PipelineConfig addPipeline(String pipelineName, String stageName, SvnMaterialConfig svnMaterialConfig, Filter filter,
-                                       String... buildNames) throws Exception {
-        svnMaterialConfig.setFilter(filter);
-        return addPipeline(pipelineName, stageName, svnMaterialConfig, buildNames);
-    }
-
     public PipelineConfig addPipeline(String pipelineName, String stageName, MaterialConfig materialConfig, String... buildNames) {
         CruiseConfig cruiseConfig = loadForEdit();
         PipelineConfig pipelineConfig = goConfigMother.addPipeline(cruiseConfig, pipelineName, stageName, new MaterialConfigs(materialConfig), buildNames);
@@ -408,7 +410,6 @@ public class GoConfigFileHelper {
         writeConfigFile(cruiseConfig);
         return pipelineConfig;
     }
-
 
     public PipelineConfig addPipeline(String pipelineName, String stageName, MaterialConfigs materialConfigs, String... buildNames) throws Exception {
         CruiseConfig cruiseConfig = loadForEdit();
@@ -509,18 +510,6 @@ public class GoConfigFileHelper {
         pushJobIntoStage(pipelineName, stageName, jobConfig, true);
     }
 
-    private StageConfig pushJobIntoStage(String pipelineName, String stageName, JobConfig jobConfig, boolean clearExistingJobs) {
-        CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));
-        if (clearExistingJobs) {
-            stageConfig.allBuildPlans().clear();
-        }
-        stageConfig.allBuildPlans().add(jobConfig);
-        writeConfigFile(cruiseConfig);
-        return stageConfig;
-    }
-
     public PipelineConfig addPipelineWithInvalidMaterial(String pipelineName, String stageName) {
         CruiseConfig cruiseConfig = loadForEdit();
         StageConfig stageConfig = StageConfigMother.custom(stageName, defaultBuildPlans("buildName"));
@@ -533,28 +522,6 @@ public class GoConfigFileHelper {
     public File getConfigFile() {
         return configFile;
     }
-
-
-    private MaterialConfig invalidSvnMaterialConfig() {
-        return svn("invalid://invalid url", "user", "password", false);
-    }
-
-    private MaterialConfigs invalidRepositoryMaterialConfigs() {
-        return new MaterialConfigs(invalidSvnMaterialConfig());
-    }
-
-    private static JobConfigs defaultBuildPlans(String... planNames) {
-        JobConfigs plans = new JobConfigs();
-        for (String name : planNames) {
-            plans.add(defaultBuildPlan(name));
-        }
-        return plans;
-    }
-
-    private static JobConfig defaultBuildPlan(String name) {
-        return new JobConfig(new CaseInsensitiveString(name), new ResourceConfigs(), new ArtifactTypeConfigs());
-    }
-
 
     public CruiseConfig load() {
         try {
@@ -579,7 +546,6 @@ public class GoConfigFileHelper {
     public CruiseConfig currentConfig() {
         return load();
     }
-
 
     public void addConfigRepo(ConfigRepoConfig configRepoConfig) {
         CruiseConfig cruiseConfig = loadForEdit();
@@ -645,15 +611,6 @@ public class GoConfigFileHelper {
         addAdmins("admin1");
     }
 
-    private File addPasswordFile() throws IOException {
-        passwordFile = TestFileUtil.createTempFile("password.properties");
-        passwordFile.deleteOnExit();
-        final String nonAdmin = "jez=ThmbShxAtJepX80c2JY1FzOEmUk=\n"; //in plain text: badger
-        final String admin1 = "admin1=W6ph5Mm5Pz8GgiULbPgzG37mj9g=\n"; //in plain text: password
-        FileUtils.writeStringToFile(passwordFile, nonAdmin + admin1, UTF_8);
-        return passwordFile;
-    }
-
     public void addMailHost(MailHost mailHost) {
         CruiseConfig config = loadForEdit();
         config.server().updateMailHost(mailHost);
@@ -681,24 +638,6 @@ public class GoConfigFileHelper {
 
     public PipelineConfig setMaterialConfigForPipeline(String pipelinename, MaterialConfig... materialConfigs) {
         return addMaterialConfigForPipeline(pipelinename, materialConfigs);
-    }
-
-    private PipelineConfig addMaterialConfigForPipeline(String pipelinename, MaterialConfig... materialConfigs) {
-        CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelinename));
-        pipelineConfig.setMaterialConfigs(new MaterialConfigs(materialConfigs));
-
-        writeConfigFile(cruiseConfig);
-        return pipelineConfig;
-    }
-
-    private PipelineConfig replaceMaterialConfigForPipeline(String pipelinename, MaterialConfigs materialConfigs) {
-        CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelinename));
-        pipelineConfig.setMaterialConfigs(materialConfigs);
-
-        writeConfigFile(cruiseConfig);
-        return pipelineConfig;
     }
 
     public void requireApproval(String pipelineName, String stageName) {
@@ -773,34 +712,9 @@ public class GoConfigFileHelper {
         writeConfigFile(cruiseConfig);
     }
 
-    private void updateApproval(String pipelineName, String ftStage, Approval manualApproval) {
-        CruiseConfig cruiseConfig = loadForEdit();
-        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
-        StageConfig config = pipelineConfig.findBy(new CaseInsensitiveString(ftStage));
-        config.updateApproval(manualApproval);
-        writeConfigFile(cruiseConfig);
-    }
-
     public boolean isSecurityEnabled() {
         CruiseConfig cruiseConfig = loadForEdit();
         return cruiseConfig.server().isSecurityEnabled();
-    }
-
-    public static CruiseConfig load(String content) {
-        try {
-            return new GoConfigFileHelper(content).currentConfig();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static String loadAndMigrate(String originalContent) {
-        GoConfigFileHelper helper = new GoConfigFileHelper(originalContent);
-        try {
-            return FileUtils.readFileToString(helper.getConfigFile(), UTF_8);
-        } catch (IOException e) {
-            throw bomb(e);
-        }
     }
 
     public void setAdminPermissionForGroup(String groupName, String user) {
@@ -977,14 +891,6 @@ public class GoConfigFileHelper {
         configFile.delete();
     }
 
-    public static EnvironmentVariablesConfig env(String name, String value) {
-        return EnvironmentVariablesConfigMother.env(name, value);
-    }
-
-    public static EnvironmentVariablesConfig env(String[] names, String[] values) {
-        return EnvironmentVariablesConfigMother.env(names, values);
-    }
-
     public void setBaseUrls(SiteUrl siteUrl, SecureSiteUrl secureSiteUrl) {
         CruiseConfig config = loadForEdit();
 
@@ -1071,6 +977,57 @@ public class GoConfigFileHelper {
 
     }
 
+    private void assignFileDao(GoConfigDao goConfigDao) {
+        this.goConfigDao = goConfigDao;
+        try {
+            Field field = GoConfigDao.class.getDeclaredField("cachedConfigService");
+            field.setAccessible(true);
+            this.cachedGoConfig = (CachedGoConfig) field.get(goConfigDao);
+        } catch (Exception e) {
+            bomb(e);
+        }
+    }
+
+    private void writeToFileAndDB(String configContent) {
+        writeXmlToConfigFile(loadAndMigrate(configContent));
+        writeConfigFile(load());
+    }
+
+    private PipelineConfig addPipeline(String pipelineName, String stageName, SvnMaterialConfig svnMaterialConfig, Filter filter,
+                                       String... buildNames) throws Exception {
+        svnMaterialConfig.setFilter(filter);
+        return addPipeline(pipelineName, stageName, svnMaterialConfig, buildNames);
+    }
+
+    private StageConfig pushJobIntoStage(String pipelineName, String stageName, JobConfig jobConfig, boolean clearExistingJobs) {
+        CruiseConfig cruiseConfig = loadForEdit();
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(stageName));
+        if (clearExistingJobs) {
+            stageConfig.allBuildPlans().clear();
+        }
+        stageConfig.allBuildPlans().add(jobConfig);
+        writeConfigFile(cruiseConfig);
+        return stageConfig;
+    }
+
+    private MaterialConfig invalidSvnMaterialConfig() {
+        return svn("invalid://invalid url", "user", "password", false);
+    }
+
+    private MaterialConfigs invalidRepositoryMaterialConfigs() {
+        return new MaterialConfigs(invalidSvnMaterialConfig());
+    }
+
+    private File addPasswordFile() throws IOException {
+        passwordFile = TestFileUtil.createTempFile("password.properties");
+        passwordFile.deleteOnExit();
+        final String nonAdmin = "jez=ThmbShxAtJepX80c2JY1FzOEmUk=\n"; //in plain text: badger
+        final String admin1 = "admin1=W6ph5Mm5Pz8GgiULbPgzG37mj9g=\n"; //in plain text: password
+        FileUtils.writeStringToFile(passwordFile, nonAdmin + admin1, UTF_8);
+        return passwordFile;
+    }
+
 
     /*public void addPipelineGroup(String groupName) {
         CruiseConfig config = loadForEdit();
@@ -1078,28 +1035,29 @@ public class GoConfigFileHelper {
         writeConfigFile(config);
     }*/
 
-    public static class AdminUserMother {
+    private PipelineConfig addMaterialConfigForPipeline(String pipelinename, MaterialConfig... materialConfigs) {
+        CruiseConfig cruiseConfig = loadForEdit();
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelinename));
+        pipelineConfig.setMaterialConfigs(new MaterialConfigs(materialConfigs));
 
-        public static Admin[] adminUsers(String... userNames) {
-            Admin[] result = new Admin[userNames.length];
-            for (int i = 0; i < userNames.length; i++) {
-                String userName = userNames[i];
-                result[i] = new AdminUser(new CaseInsensitiveString(userName));
-            }
-            return result;
-        }
+        writeConfigFile(cruiseConfig);
+        return pipelineConfig;
     }
 
-    public static void clearConfigVersions() throws IOException {
-        FileUtils.deleteDirectory(new SystemEnvironment().getConfigRepoDir());
+    private PipelineConfig replaceMaterialConfigForPipeline(String pipelinename, MaterialConfigs materialConfigs) {
+        CruiseConfig cruiseConfig = loadForEdit();
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelinename));
+        pipelineConfig.setMaterialConfigs(materialConfigs);
+
+        writeConfigFile(cruiseConfig);
+        return pipelineConfig;
     }
 
-    public static void withServerIdImmutability(Runnable fn) {
-        try {
-            SystemEnvironment.enforceServerImmutability.set(true);
-            fn.run();
-        } finally {
-            SystemEnvironment.enforceServerImmutability.set(false);
-        }
+    private void updateApproval(String pipelineName, String ftStage, Approval manualApproval) {
+        CruiseConfig cruiseConfig = loadForEdit();
+        PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        StageConfig config = pipelineConfig.findBy(new CaseInsensitiveString(ftStage));
+        config.updateApproval(manualApproval);
+        writeConfigFile(cruiseConfig);
     }
 }

@@ -54,7 +54,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
   GoConfigService goConfigService
 
   @Mock
-  GoPartialConfig partialConfigService
+  PartialConfigService partialConfigService
 
   @BeforeEach
   void setUp() {

@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.service.ConfigRepoService;
-import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -54,29 +53,24 @@ import static org.junit.Assert.assertThat;
 })
 public class GoConfigRepoConfigDataSourceIntegrationTest {
 
+    @Rule
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     @Autowired
     private ServerHealthService serverHealthService;
-
     @Autowired
     private GoConfigWatchList configWatchList;
-
     @Autowired
     private GoConfigPluginService configPluginService;
-
     @Autowired
     private GoConfigService goConfigService;
-
     @Autowired
     private CachedGoPartials cachedGoPartials;
-
     @Autowired
     private ConfigRepoService configRepoService;
-
     @Autowired
     private GoConfigDao goConfigDao;
-
     @Autowired
-    private EntityHashingService entityHashingService;
+    private PartialConfigHelper partials;
 
 
     @Before
@@ -86,7 +80,7 @@ public class GoConfigRepoConfigDataSourceIntegrationTest {
         configHelper.onSetUp();
 
         GoConfigRepoConfigDataSource repoConfigDataSource = new GoConfigRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
-        repoConfigDataSource.registerListener(new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, entityHashingService));
+        repoConfigDataSource.registerListener(new PartialConfigService(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, partials));
 
         configHelper.addTemplate("t1", "param1", "stage");
         File templateConfigRepo = temporaryFolder.newFolder();
@@ -106,10 +100,6 @@ public class GoConfigRepoConfigDataSourceIntegrationTest {
     public void tearDown() throws Exception {
         cachedGoPartials.clear();
     }
-
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
 
     @Test
     public void shouldLoadACRPipelineWithParams() throws Exception {

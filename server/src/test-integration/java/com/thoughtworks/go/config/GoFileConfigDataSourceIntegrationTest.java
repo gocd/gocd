@@ -81,7 +81,7 @@ public class GoFileConfigDataSourceIntegrationTest {
     @Autowired
     private GoFileConfigDataSource dataSource;
     @Autowired
-    private GoPartialConfig goPartialConfig;
+    private PartialConfigService partialConfigService;
     @Autowired
     private GoConfigDao goConfigDao;
     @Rule
@@ -123,7 +123,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         configRepo = configWatchList.getCurrentConfigRepos().get(0);
         upstreamPipeline = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("upstream"));
         partialConfig = PartialConfigMother.pipelineWithDependencyMaterial(remoteDownstream, upstreamPipeline, new RepoConfigOrigin(configRepo, "r1"));
-        goPartialConfig.onSuccessPartialConfig(configRepo, partialConfig);
+        partialConfigService.onSuccessPartialConfig(configRepo, partialConfig);
         systemEnvironment.set(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE, true);
     }
 
@@ -185,7 +185,7 @@ public class GoFileConfigDataSourceIntegrationTest {
 
         String remoteInvalidPipeline = "remote_invalid_pipeline";
         PartialConfig invalidPartial = PartialConfigMother.invalidPartial(remoteInvalidPipeline, new RepoConfigOrigin(configRepo, "r2"));
-        goPartialConfig.onSuccessPartialConfig(configRepo, invalidPartial);
+        partialConfigService.onSuccessPartialConfig(configRepo, invalidPartial);
         assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteInvalidPipeline)), is(false));
 
         final String newArtifactLocation = "some_random_change_to_config";
@@ -210,7 +210,7 @@ public class GoFileConfigDataSourceIntegrationTest {
         PipelineConfig remoteDownstreamPipeline = partialConfig.getGroups().first().getPipelines().get(0);
         DependencyMaterialConfig dependencyMaterial = remoteDownstreamPipeline.materialConfigs().findDependencyMaterial(upstreamPipeline.name());
         dependencyMaterial.setStageName(new CaseInsensitiveString("upstream_stage_renamed"));
-        goPartialConfig.onSuccessPartialConfig(configRepo, partialConfig);
+        partialConfigService.onSuccessPartialConfig(configRepo, partialConfig);
         DependencyMaterialConfig dependencyMaterialForRemotePipelineInConfigCache = goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString(remoteDownstream)).materialConfigs().findDependencyMaterial(upstreamPipeline.name());
         assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("upstream_stage_original")));
 

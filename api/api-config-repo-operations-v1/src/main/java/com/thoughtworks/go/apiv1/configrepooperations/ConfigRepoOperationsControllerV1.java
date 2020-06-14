@@ -65,10 +65,10 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
     private final GoConfigPluginService pluginService;
     private final ConfigRepoService service;
     private final GoConfigService gcs;
-    private final GoPartialConfig partialConfigService;
+    private final PartialConfigService partialConfigService;
 
     @Autowired
-    public ConfigRepoOperationsControllerV1(ApiAuthenticationHelper authenticationHelper, GoConfigPluginService pluginService, ConfigRepoService service, GoConfigService gcs, GoPartialConfig partialConfigService) {
+    public ConfigRepoOperationsControllerV1(ApiAuthenticationHelper authenticationHelper, GoConfigPluginService pluginService, ConfigRepoService service, GoConfigService gcs, PartialConfigService partialConfigService) {
         super(ApiVersion.v1);
         this.authenticationHelper = authenticationHelper;
         this.pluginService = pluginService;

@@ -15,15 +15,12 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
-import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
-import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.NotificationFilter;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
@@ -42,362 +39,29 @@ import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.service.lookups.CommandSnippet;
 import com.thoughtworks.go.server.service.lookups.CommandSnippets;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
-import static java.lang.String.valueOf;
-import static java.util.Objects.hash;
+import java.util.stream.Stream;
 
 @Component
 public class EntityHashingService implements ConfigChangedListener, Initializer {
-    private static final String SEP_CHAR = "/";
-    private static final String ETAG_CACHE_KEY = "GO_ETAG_CACHE";
+    static final String ETAG_CACHE_KEY = "GO_ETAG_CACHE";
 
     private final GoConfigService goConfigService;
     private final GoCache goCache;
-    private final ConfigCache configCache;
-    private final ConfigElementImplementationRegistry registry;
-
-    private static String digestHex(String data) {
-        return sha512_256Hex(data);
-    }
+    private final EntityHashes hashes;
 
     @Autowired
-    public EntityHashingService(GoConfigService goConfigService, GoCache goCache, ConfigCache configCache, ConfigElementImplementationRegistry registry) {
+    public EntityHashingService(GoConfigService goConfigService, GoCache goCache, EntityHashes hashes) {
         this.goConfigService = goConfigService;
         this.goCache = goCache;
-        this.configCache = configCache;
-        this.registry = registry;
-    }
-
-    @Override
-    public void initialize() {
-        goConfigService.register(this);
-        goConfigService.register(new PipelineConfigChangedListener());
-        goConfigService.register(new BasicPipelineConfigsChangedListener());
-        goConfigService.register(new MergePipelineConfigsChangedListener());
-        goConfigService.register(new SCMConfigChangedListener());
-        goConfigService.register(new TemplateConfigChangedListner());
-        goConfigService.register(new EnvironmentConfigListener());
-        goConfigService.register(new PackageRepositoryChangeListener());
-        goConfigService.register(new ElasticAgentProfileConfigListener());
-        goConfigService.register(new SecretConfigListener());
-        goConfigService.register(new PackageListener());
-        goConfigService.register(new SecurityAuthConfigListener());
-        goConfigService.register(new ConfigRepoListener());
-        goConfigService.register(new RoleConfigListener());
-        goConfigService.register(new ArtifactStoreListener());
-        goConfigService.register(new AdminsConfigListener());
-        goConfigService.register(new ClusterProfileListener());
-        goConfigService.register(new SCMChangeListener());
-        goConfigService.register(new ArtifactConfigChangeListener());
-    }
-
-    @Override
-    public void startDaemon() {
-    }
-
-    @Override
-    public void onConfigChange(CruiseConfig newCruiseConfig) {
-        goCache.remove(ETAG_CACHE_KEY);
-    }
-
-    public String hashForEntity(PipelineTemplateConfig config) {
-        String cacheKey = cacheKey(config, config.name());
-        return getDomainEntityDigestFromCache(config, cacheKey);
-    }
-
-    public String hashForEntity(NotificationFilter filter) {
-        String cacheKey = cacheKey(filter, String.valueOf(filter.getId()));
-        return getFromCache(cacheKey, () -> String.valueOf(filter.hashCode()));
-    }
-
-    public String hashForEntity(EnvironmentConfig config) {
-        if (config instanceof MergeEnvironmentConfig) {
-            return digestHex(valueOf(hash(config)));
-        }
-
-        String cacheKey = cacheKey(config, config.name());
-        return getDomainEntityDigestFromCache(config, cacheKey);
-    }
-
-    public String hashForEntity(EnvironmentsConfig envConfigs) {
-        final String environmentConfigSegment = envConfigs
-                .stream()
-                .map(this::hashForEntity)
-                .collect(Collectors.joining(SEP_CHAR));
-
-        return digestHex(environmentConfigSegment);
-    }
-
-    public String hashForEntity(PackageRepository config) {
-        String cacheKey = cacheKey(config, config.getId());
-        return getDomainEntityDigestFromCache(config, cacheKey);
-    }
-
-    public String hashForEntity(PackageRepositories packageRepositories) {
-        List<String> parts = new ArrayList<>();
-        for (PackageRepository packageRepository : packageRepositories) {
-            parts.add(hashForEntity(packageRepository));
-        }
-        return digestHex(StringUtils.join(parts, SEP_CHAR));
-    }
-
-    public String hashForEntity(SCM config) {
-        String cacheKey = cacheKey(config, config.getName());
-        return getDomainEntityDigestFromCache(config, cacheKey);
-    }
-
-    public String hashForEntity(PipelineConfig pipelineConfig, String groupName) {
-        String cacheKey = cacheKey(pipelineConfig, pipelineConfig.name());
-        String parts = getDomainEntityDigestFromCache(pipelineConfig, cacheKey);
-        return digestHex(StringUtils.join(parts, SEP_CHAR, groupName));
-    }
-
-    public String hashForEntity(ConfigRepoConfig config) {
-        String cacheKey = cacheKey(config, config.getId());
-        return getDomainEntityDigestFromCache(config, cacheKey);
-    }
-
-    public String hashForEntity(ElasticProfile config) {
-        String cacheKey = cacheKey(config, config.getId());
-        return getDomainEntityDigestFromCache(config, cacheKey);
-    }
-
-    public String hashForEntity(SecretConfig config) {
-        String cacheKey = cacheKey(config, config.getId());
-        return getDomainEntityDigestFromCache(config, cacheKey);
-    }
-
-    public String hashForEntity(ClusterProfile profile) {
-        String cacheKey = cacheKey(profile, profile.getId());
-        return getDomainEntityDigestFromCache(profile, cacheKey);
-    }
-
-    public String hashForEntity(CommandSnippet commandSnippet) {
-        String cacheKey = cacheKey(commandSnippet, commandSnippet.getName());
-        return getDbEntityDigestFromCache(cacheKey, commandSnippet);
-    }
-
-    public String hashForEntity(CommandSnippets commandSnippets) {
-        List<String> parts = new ArrayList<>();
-        for (CommandSnippet commandSnippet : commandSnippets.getSnippets()) {
-            parts.add(hashForEntity(commandSnippet));
-        }
-
-        return digestHex(StringUtils.join(parts, SEP_CHAR));
-    }
-
-    public String hashForEntity(SecurityAuthConfig config) {
-        String cacheKey = cacheKey(config, config.getId());
-        return getDomainEntityDigestFromCache(config, cacheKey);
-    }
-
-    public String hashForEntity(SecurityAuthConfigs authConfigs) {
-        List<String> parts = new ArrayList<>();
-        for (SecurityAuthConfig authConfig : authConfigs) {
-            parts.add(hashForEntity(authConfig));
-        }
-        return digestHex(StringUtils.join(parts, SEP_CHAR));
-    }
-
-    public String hashForEntity(Role config) {
-        String cacheKey = cacheKey(config, config.getName());
-        return getDomainEntityDigestFromCache(config, cacheKey);
-    }
-
-    public String hashForEntity(AdminsConfig config) {
-        String cacheKey = cacheKey(config, "cacheKey");
-        return getDomainEntityDigestFromCache(config, cacheKey);
-    }
-
-    public String hashForEntity(PackageDefinition config) {
-        String cacheKey = cacheKey(config, config.getId());
-        return getDomainEntityDigestFromCache(config, cacheKey);
-    }
-
-    public String hashForEntity(Packages config) {
-        List<String> parts = new ArrayList<>();
-        for (PackageDefinition packageDefinition : config) {
-            parts.add(hashForEntity(packageDefinition));
-        }
-        return digestHex(StringUtils.join(parts, SEP_CHAR));
-    }
-
-    public String hashForEntity(PluginSettings pluginSettings) {
-        String cacheKey = cacheKey(pluginSettings, pluginSettings.getPluginId());
-        return getFromCache(cacheKey, () -> String.valueOf(pluginSettings.hashCode()));
-    }
-
-    public String hashForEntity(ArtifactStore artifactStore) {
-        String cacheKey = cacheKey(artifactStore, artifactStore.getId());
-        return getDbEntityDigestFromCache(cacheKey, artifactStore);
-    }
-
-    private String cacheKey(Object domainObject, CaseInsensitiveString name) {
-        return cacheKey(domainObject, name.toLower());
-    }
-
-    private String cacheKey(Object domainObject, String name) {
-        return getClass(domainObject) + "." + name;
-    }
-
-    private String getDbEntityDigestFromCache(String cacheKey, Object dbObject) {
-        return getFromCache(cacheKey, () -> new GsonBuilder().create().toJson(dbObject));
-    }
-
-    private String getDomainEntityDigestFromCache(Object domainObject, String cacheKey) {
-        return getFromCache(cacheKey, () -> getDomainObjectXmlPartial(domainObject));
-    }
-
-    private String getFromCache(String cacheKey, Supplier<String> fingerprintSupplier) {
-        String cached = getFromCache(cacheKey);
-
-        if (cached != null) {
-            return cached;
-        }
-
-        String digest = digestHex(fingerprintSupplier.get());
-        goCache.put(ETAG_CACHE_KEY, cacheKey, digest);
-
-        return digest;
-    }
-
-    public void removeFromCache(Object domainObject, CaseInsensitiveString name) {
-        removeFromCache(domainObject, name.toLower());
-    }
-
-    public void removeFromCache(Object domainObject, String name) {
-        goCache.remove(ETAG_CACHE_KEY, cacheKey(domainObject, name));
-    }
-
-    private String getFromCache(String cacheKey) {
-        return (String) goCache.get(ETAG_CACHE_KEY, cacheKey);
-    }
-
-    private String getClass(Object entity) {
-        return entity.getClass().getName();
-    }
-
-    private String getDomainObjectXmlPartial(Object domainObject) {
-        return new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(domainObject);
-    }
-
-    public String hashForEntity(RolesConfig roles) {
-        List<String> parts = new ArrayList<>();
-        for (Role role : roles) {
-            parts.add(hashForEntity(role));
-        }
-        return digestHex(StringUtils.join(parts, SEP_CHAR));
-    }
-
-    public String hashForEntity(ParamsConfig paramConfigs) {
-        List<String> parts = new ArrayList<>();
-        for (ParamConfig paramConfig : paramConfigs) {
-            parts.add(hashForEntity(paramConfig));
-        }
-        return digestHex(StringUtils.join(parts, SEP_CHAR));
-    }
-
-    private String hashForEntity(ParamConfig paramConfig) {
-        String cacheKey = cacheKey(paramConfig, paramConfig.getName());
-        return getDomainEntityDigestFromCache(paramConfig, cacheKey);
-    }
-
-    public String hashForEntity(UsageStatisticsReporting usageStatisticsReporting) {
-        String cacheKey = cacheKey(usageStatisticsReporting, usageStatisticsReporting.getServerId());
-        return getDbEntityDigestFromCache(cacheKey, usageStatisticsReporting);
-    }
-
-    public String hashForEntity(DataSharingSettings dataSharingSettings) {
-        String cacheKey = cacheKey(dataSharingSettings, "data_sharing_settings");
-        return getDbEntityDigestFromCache(cacheKey, dataSharingSettings);
-    }
-
-    public String hashForEntity(PipelineGroups pipelineGroups) {
-        List<String> parts = new ArrayList<>();
-        for (PipelineConfigs pipelineConfigs : pipelineGroups) {
-            parts.add(hashForEntity(pipelineConfigs));
-        }
-        return digestHex(StringUtils.join(parts, SEP_CHAR));
-    }
-
-    public String hashForEntity(PipelineConfigs pipelineConfigs) {
-        String cacheKey = cacheKey(pipelineConfigs, pipelineConfigs.getGroup());
-        return getDomainEntityDigestFromCache(pipelineConfigs, cacheKey);
-    }
-
-    public String hashForEntity(CombinedPluginInfo pluginInfo) {
-        String cacheKey = cacheKey(pluginInfo, String.format("plugin_info_%s", pluginInfo.getDescriptor().id()));
-        return getFromCache(cacheKey, () -> String.valueOf(Objects.hash(pluginInfo)));
-    }
-
-    public String hashForEntity(Collection<CombinedPluginInfo> pluginInfos) {
-        List<String> parts = new ArrayList<>();
-        for (CombinedPluginInfo pluginInfo : pluginInfos) {
-            parts.add(hashForEntity(pluginInfo));
-        }
-        return digestHex(StringUtils.join(parts, SEP_CHAR));
-    }
-
-    public String hashForEntity(SecretConfigs secretConfigs) {
-        List<String> parts = new ArrayList<>();
-        for (SecretConfig secretConfig : secretConfigs) {
-            parts.add(hashForEntity(secretConfig));
-        }
-        return digestHex(StringUtils.join(parts, SEP_CHAR));
-    }
-
-    public String hashForEntity(SCMs scms) {
-        List<String> parts = new ArrayList<>();
-        for (SCM scm : scms) {
-            parts.add(hashForEntity(scm));
-        }
-        return digestHex(StringUtils.join(parts, SEP_CHAR));
-    }
-
-    public String hashForEntity(ArtifactConfig artifactConfig) {
-        String cacheKey = cacheKey(artifactConfig, "cacheKey");
-        return getFromCache(cacheKey, () -> String.valueOf(Objects.hash(artifactConfig)));
-    }
-
-    /**
-     * Computes an int hashCode based on a cryptographic digest of the contents. Unlike most of the methods of this
-     * service, the result is intentionally <em>not</em> cached; caching is beyond the scope of this method and should
-     * be implemented at a higher abstraction as needed.
-     *
-     * @param partial a {@link PartialConfig} to hash
-     * @return an integer hash code that can be used for comparison.
-     */
-    public int computeHashForEntity(PartialConfig partial) {
-        if (null == partial) return 0;
-
-        return Objects.hash(
-                digestMany(partial.getGroups()),
-                digestMany(partial.getEnvironments()),
-                digestMany(partial.getScms())
-        );
-    }
-
-    /**
-     * Computes a cryptographic digest of a collection's contents
-     *
-     * @param entities any {@link Collection} of config entities
-     * @return a cryptographic hex digest ({@link String})
-     */
-    private String digestMany(Collection<?> entities) {
-        return digestHex(entities.stream().
-                map(entity -> digestHex(getDomainObjectXmlPartial(entity))).
-                collect(Collectors.joining(SEP_CHAR)));
+        this.hashes = hashes;
     }
 
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {
@@ -524,5 +188,300 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         public void onEntityConfigChange(ArtifactConfig artifactConfig) {
             removeFromCache(artifactConfig, "cacheKey");
         }
+    }
+
+    @Override
+    public void initialize() {
+        goConfigService.register(this);
+        goConfigService.register(new PipelineConfigChangedListener());
+        goConfigService.register(new BasicPipelineConfigsChangedListener());
+        goConfigService.register(new MergePipelineConfigsChangedListener());
+        goConfigService.register(new SCMConfigChangedListener());
+        goConfigService.register(new TemplateConfigChangedListner());
+        goConfigService.register(new EnvironmentConfigListener());
+        goConfigService.register(new PackageRepositoryChangeListener());
+        goConfigService.register(new ElasticAgentProfileConfigListener());
+        goConfigService.register(new SecretConfigListener());
+        goConfigService.register(new PackageListener());
+        goConfigService.register(new SecurityAuthConfigListener());
+        goConfigService.register(new ConfigRepoListener());
+        goConfigService.register(new RoleConfigListener());
+        goConfigService.register(new ArtifactStoreListener());
+        goConfigService.register(new AdminsConfigListener());
+        goConfigService.register(new ClusterProfileListener());
+        goConfigService.register(new SCMChangeListener());
+        goConfigService.register(new ArtifactConfigChangeListener());
+    }
+
+    @Override
+    public void startDaemon() {
+    }
+
+    @Override
+    public void onConfigChange(CruiseConfig newCruiseConfig) {
+        goCache.remove(ETAG_CACHE_KEY);
+    }
+
+    public String hashForEntity(PipelineTemplateConfig config) {
+        String cacheKey = cacheKey(config, config.name());
+        return getConfigEntityDigestFromCache(cacheKey, config);
+    }
+
+    public String hashForEntity(NotificationFilter filter) {
+        String cacheKey = cacheKey(filter, String.valueOf(filter.getId()));
+        return getNonConfigEntityDigestFromCache(cacheKey, filter);
+    }
+
+    public String hashForEntity(EnvironmentConfig config) {
+        if (config instanceof MergeEnvironmentConfig) {
+            return hashForEntity((MergeEnvironmentConfig) config);
+        }
+
+        String cacheKey = cacheKey(config, config.name());
+        return getConfigEntityDigestFromCache(cacheKey, config);
+    }
+
+    public String hashForEntity(MergeEnvironmentConfig config) {
+        return hashForEntity((List<EnvironmentConfig>) config);
+    }
+
+    public String hashForEntity(EnvironmentsConfig config) {
+        return hashForEntity((List<EnvironmentConfig>) config);
+    }
+
+    public String hashForEntity(List<EnvironmentConfig> envs) {
+        return hashes.digestMany(Stream.concat(
+                Stream.of(envs.getClass().getSimpleName()),
+                envs.stream().map(this::hashForEntity)
+        ).toArray(String[]::new));
+    }
+
+    public String hashForEntity(PackageRepository config) {
+        String cacheKey = cacheKey(config, config.getId());
+        return getConfigEntityDigestFromCache(cacheKey, config);
+    }
+
+    public String hashForEntity(PackageRepositories packageRepositories) {
+        return compound(packageRepositories, this::hashForEntity);
+    }
+
+    public String hashForEntity(SCM config) {
+        String cacheKey = cacheKey(config, config.getName());
+        return getConfigEntityDigestFromCache(cacheKey, config);
+    }
+
+    public String hashForEntity(SCMs scms) {
+        return compound(scms, this::hashForEntity);
+    }
+
+    public String hashForEntity(ConfigRepoConfig config) {
+        String cacheKey = cacheKey(config, config.getId());
+        return getConfigEntityDigestFromCache(cacheKey, config);
+    }
+
+    public String hashForEntity(ElasticProfile config) {
+        String cacheKey = cacheKey(config, config.getId());
+        return getConfigEntityDigestFromCache(cacheKey, config);
+    }
+
+    public String hashForEntity(ClusterProfile profile) {
+        String cacheKey = cacheKey(profile, profile.getId());
+        return getConfigEntityDigestFromCache(cacheKey, profile);
+    }
+
+    public String hashForEntity(SecretConfig config) {
+        String cacheKey = cacheKey(config, config.getId());
+        return getConfigEntityDigestFromCache(cacheKey, config);
+    }
+
+    public String hashForEntity(SecretConfigs secretConfigs) {
+        return compound(secretConfigs, this::hashForEntity);
+    }
+
+    public String hashForEntity(CommandSnippet commandSnippet) {
+        String cacheKey = cacheKey(commandSnippet, commandSnippet.getName());
+        return getNonConfigEntityDigestFromCache(cacheKey, commandSnippet);
+    }
+
+    public String hashForEntity(CommandSnippets commandSnippets) {
+        return compound(commandSnippets.getSnippets(), this::hashForEntity);
+    }
+
+    public String hashForEntity(SecurityAuthConfig config) {
+        String cacheKey = cacheKey(config, config.getId());
+        return getConfigEntityDigestFromCache(cacheKey, config);
+    }
+
+    public String hashForEntity(SecurityAuthConfigs authConfigs) {
+        return compound(authConfigs, this::hashForEntity);
+    }
+
+    public String hashForEntity(Role config) {
+        String cacheKey = cacheKey(config, config.getName());
+        return getConfigEntityDigestFromCache(cacheKey, config);
+    }
+
+    public String hashForEntity(RolesConfig roles) {
+        return compound(roles, this::hashForEntity);
+    }
+
+    public String hashForEntity(AdminsConfig config) {
+        String cacheKey = cacheKey(config, "cacheKey");
+        return getConfigEntityDigestFromCache(cacheKey, config);
+    }
+
+    public String hashForEntity(PackageDefinition config) {
+        String cacheKey = cacheKey(config, config.getId());
+        return getConfigEntityDigestFromCache(cacheKey, config);
+    }
+
+    public String hashForEntity(Packages config) {
+        return compound(config, this::hashForEntity);
+    }
+
+    public String hashForEntity(PluginSettings pluginSettings) {
+        String cacheKey = cacheKey(pluginSettings, pluginSettings.getPluginId());
+        return getNonConfigEntityDigestFromCache(cacheKey, pluginSettings);
+    }
+
+    public String hashForEntity(ArtifactStore artifactStore) {
+        String cacheKey = cacheKey(artifactStore, artifactStore.getId());
+        return getNonConfigEntityDigestFromCache(cacheKey, artifactStore);
+    }
+
+    public String hashForEntity(ParamConfig paramConfig) {
+        String cacheKey = cacheKey(paramConfig, paramConfig.getName());
+        return getConfigEntityDigestFromCache(cacheKey, paramConfig);
+    }
+
+    public String hashForEntity(ParamsConfig paramConfigs) {
+        return compound(paramConfigs, this::hashForEntity);
+    }
+
+    public String hashForEntity(UsageStatisticsReporting usageStatisticsReporting) {
+        String cacheKey = cacheKey(usageStatisticsReporting, usageStatisticsReporting.getServerId());
+        return getNonConfigEntityDigestFromCache(cacheKey, usageStatisticsReporting);
+    }
+
+    public String hashForEntity(DataSharingSettings dataSharingSettings) {
+        String cacheKey = cacheKey(dataSharingSettings, "data_sharing_settings");
+        return getNonConfigEntityDigestFromCache(cacheKey, dataSharingSettings);
+    }
+
+    public String hashForEntity(PipelineConfig pipelineConfig, String groupName) {
+        return getFromCache(
+                cacheKey(pipelineConfig, pipelineConfig.name()),
+                () -> hashes.digestMany(
+                        hashes.digestDomainConfigEntity(pipelineConfig),
+                        groupName
+                )
+        );
+    }
+
+    public String hashForEntity(PipelineConfigs pipelineConfigs) {
+        String cacheKey = cacheKey(pipelineConfigs, pipelineConfigs.getGroup());
+        return getConfigEntityDigestFromCache(cacheKey, pipelineConfigs);
+    }
+
+    public String hashForEntity(PipelineGroups pipelineGroups) {
+        return compound(pipelineGroups, this::hashForEntity);
+    }
+
+    public String hashForEntity(CombinedPluginInfo pluginInfo) {
+        String cacheKey = cacheKey(pluginInfo, String.format("plugin_info_%s", pluginInfo.getDescriptor().id()));
+        return getNonConfigEntityDigestFromCache(cacheKey, pluginInfo);
+    }
+
+    public String hashForEntity(Collection<CombinedPluginInfo> pluginInfos) {
+        return compound(pluginInfos, this::hashForEntity);
+    }
+
+    public String hashForEntity(ArtifactConfig artifactConfig) {
+        String cacheKey = cacheKey(artifactConfig, "cacheKey");
+        return getFromCache(cacheKey, () -> String.valueOf(Objects.hash(artifactConfig)));
+    }
+
+    public void removeFromCache(Object domainObject, CaseInsensitiveString name) {
+        removeFromCache(domainObject, name.toLower());
+    }
+
+    public void removeFromCache(Object domainObject, String name) {
+        goCache.remove(ETAG_CACHE_KEY, cacheKey(domainObject, name));
+    }
+
+    /**
+     * Creates a compound digest over a set of entities. While similar to {@link EntityHashes#digestMany(Collection)},
+     * the advantage of abstracting over {@link EntityHashes#digestMany(String...)} is that we can specify a digest
+     * function that takes advantage of fragment caching, such as the various {@code hashForEntity(T entity)} methods
+     * in this class. Simply use the {@code this::hashForEntity} method reference as the {@code hashFn} parameter.
+     *
+     * @param entities the collection of entities for which to generate a compound digest
+     * @param hashFn   the underlying digest function for members of the collection
+     * @param <T>      a domain entity type
+     * @return a single digest representing the contents of the collection
+     */
+    private <T> String compound(Collection<T> entities, Function<T, String> hashFn) {
+        return hashes.digestMany(entities.stream().
+                map(hashFn).
+                toArray(String[]::new));
+    }
+
+    private String cacheKey(Object domainObject, CaseInsensitiveString name) {
+        return cacheKey(domainObject, name.toLower());
+    }
+
+    private String cacheKey(Object domainObject, String name) {
+        return classnameOf(domainObject) + "." + name;
+    }
+
+    /**
+     * Digests and caches an entity that is not represented in configuration, but is either hydrated from the
+     * database or is otherwise some other ad-hoc object. This delegates to {@link EntityHashes#digestDomainNonConfigEntity(Object)}
+     * which will do a full content digest.
+     * <p>
+     * It's important to note that previous implementations of non-config entity digesting sometimes relied on the
+     * output of {@link Object#hashCode()}; this will not produce unique digests because it is fairly easy to produce
+     * collisions in {@link Object#hashCode()}, particularly for string data.
+     * <p>
+     * Don't do that.
+     * <p>
+     * {@link Object#hashCode()} was never intended to be a unique representation; its intent was to optimally
+     * distribute objects in memory slots when used with hashed collections such as {@link java.util.HashMap}.
+     *
+     * @param cacheKey a {@link String} that describes a cache location unique to this entity
+     * @param entity   the non-config entity to be digested
+     * @return the content digest of the entity (possibly retrieved from a cache hit)
+     */
+    private String getNonConfigEntityDigestFromCache(String cacheKey, Object entity) {
+        return getFromCache(cacheKey, () -> hashes.digestDomainNonConfigEntity(entity));
+    }
+
+    /**
+     * Digests and caches a configuration entity This delegates to {@link EntityHashes#digestDomainConfigEntity(Object)}
+     * which will do a full content digest.
+     *
+     * @param cacheKey a {@link String} that describes a cache location unique to this entity
+     * @param entity   the config entity to be digested
+     * @return the content digest of the entity (possibly retrieved from a cache hit)
+     */
+    private String getConfigEntityDigestFromCache(String cacheKey, Object entity) {
+        return getFromCache(cacheKey, () -> hashes.digestDomainConfigEntity(entity));
+    }
+
+    private String getFromCache(String cacheKey, Supplier<String> digestSupplier) {
+        final String cached = (String) goCache.get(ETAG_CACHE_KEY, cacheKey);
+
+        if (cached != null) {
+            return cached;
+        }
+
+        final String digest = digestSupplier.get();
+        goCache.put(ETAG_CACHE_KEY, cacheKey, digest);
+
+        return digest;
+    }
+
+    private String classnameOf(Object entity) {
+        return entity.getClass().getName();
     }
 }

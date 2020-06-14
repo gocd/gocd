@@ -22,14 +22,12 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * there is a risk that dao will misbehave when config is merged with remotes
@@ -39,20 +37,17 @@ import static org.mockito.Mockito.when;
 public class GoConfigDaoMergedTest extends GoConfigDaoTestBase {
 
     public GoConfigDaoMergedTest() {
-        GoPartialConfig partials = mock(GoPartialConfig.class);
         List<PartialConfig> parts = new ArrayList<>();
         parts.add(new PartialConfig(new PipelineGroups(
                 PipelineConfigMother.createGroup("part1", PipelineConfigMother.pipelineConfig("remote-pipe")))));
         parts.get(0).setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(git("http://config-repo.git"), "someplugin", "id"), "3213455"));
 
-        when(partials.lastPartials()).thenReturn(parts);
-
-        configHelper = new GoConfigFileHelper(partials);
+        configHelper = new GoConfigFileHelper();
         goConfigDao = configHelper.getGoConfigDao();
         cachedGoConfig = configHelper.getCachedGoConfig();
     }
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         configHelper.initializeConfigFile();
     }

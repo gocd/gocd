@@ -118,7 +118,7 @@ public class CachedGoConfigIntegrationTest {
     @Autowired
     private CachedGoPartials cachedGoPartials;
     @Autowired
-    private GoPartialConfig goPartialConfig;
+    private PartialConfigService partialConfigService;
     @Autowired
     private GoFileConfigDataSource goFileConfigDataSource;
     @Autowired
@@ -887,12 +887,12 @@ public class CachedGoConfigIntegrationTest {
         String remoteDownstream = "remote-downstream";
         setupExternalConfigRepoWithDependencyMaterialOnPipelineInMainXml(upstream, remoteDownstream);
 
-        PartialConfig partialWithStageRenamed = new Cloner().deepClone(goPartialConfig.lastPartials().get(0));
+        PartialConfig partialWithStageRenamed = new Cloner().deepClone(cachedGoPartials.lastValidPartials().get(0));
         PipelineConfig pipelineInRemoteConfigRepo = partialWithStageRenamed.getGroups().get(0).getPipelines().get(0);
         pipelineInRemoteConfigRepo.materialConfigs().getDependencyMaterial().setStageName(new CaseInsensitiveString("new_name"));
         partialWithStageRenamed.setOrigin(new RepoConfigOrigin(configRepo, "r2"));
 
-        goPartialConfig.onSuccessPartialConfig(configRepo, partialWithStageRenamed);
+        partialConfigService.onSuccessPartialConfig(configRepo, partialWithStageRenamed);
         final String md5 = cachedGoConfig.currentConfig().getMd5();
 
         // some random unrelated change to force a git merge workflow
@@ -931,14 +931,14 @@ public class CachedGoConfigIntegrationTest {
         PipelineConfig upstreamPipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(upstream, git("FOO"));
         goConfigService.addPipeline(upstreamPipelineConfig, "default");
         PartialConfig partialConfig = PartialConfigMother.pipelineWithDependencyMaterial(remoteDownstreamPipelineName, upstreamPipelineConfig, new RepoConfigOrigin(configRepo, "r1"));
-        goPartialConfig.onSuccessPartialConfig(configRepo, partialConfig);
+        partialConfigService.onSuccessPartialConfig(configRepo, partialConfig);
     }
 
     @Test
     public void shouldSaveConfigChangesWhenFullConfigIsBeingSavedFromConfigXmlTabAndAllKnownConfigRepoPartialsAreInvalid() throws Exception {
         cachedGoPartials.clear();
         PartialConfig invalidPartial = PartialConfigMother.invalidPartial("invalid", new RepoConfigOrigin(configRepo, "revision1"));
-        goPartialConfig.onSuccessPartialConfig(configRepo, invalidPartial);
+        partialConfigService.onSuccessPartialConfig(configRepo, invalidPartial);
         CruiseConfig updatedConfig = new Cloner().deepClone(goConfigService.getConfigForEditing());
         updatedConfig.server().setCommandRepositoryLocation("foo");
         String updatedXml = goFileConfigDataSource.configAsXml(updatedConfig, false);
@@ -954,7 +954,7 @@ public class CachedGoConfigIntegrationTest {
         cachedGoPartials.clear();
         PartialConfig partialConfigWithInvalidEnvironment = PartialConfigMother.withEnvironment("env", new RepoConfigOrigin(configRepo, "revision1"));
 
-        goPartialConfig.onSuccessPartialConfig(configRepo, partialConfigWithInvalidEnvironment);
+        partialConfigService.onSuccessPartialConfig(configRepo, partialConfigWithInvalidEnvironment);
         ConfigSaveState state = cachedGoConfig.writeWithLock(new UpdateConfigCommand() {
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
@@ -980,12 +980,12 @@ public class CachedGoConfigIntegrationTest {
         });
         PartialConfig partialConfigInRepo1 = PartialConfigMother.withPipeline("pipeline_in_repo1", new RepoConfigOrigin(repoConfig1, "repo1_r1"));
         PartialConfig partialConfigInRepo2 = PartialConfigMother.withPipeline("pipeline_in_repo2", new RepoConfigOrigin(repoConfig2, "repo2_r1"));
-        goPartialConfig.onSuccessPartialConfig(repoConfig1, partialConfigInRepo1);
-        goPartialConfig.onSuccessPartialConfig(repoConfig2, partialConfigInRepo2);
+        partialConfigService.onSuccessPartialConfig(repoConfig1, partialConfigInRepo1);
+        partialConfigService.onSuccessPartialConfig(repoConfig2, partialConfigInRepo2);
 
         // introduce an invalid change in repo1 so that there is a server health message corresponding to it
         PartialConfig invalidPartialInRepo1Revision2 = PartialConfigMother.invalidPartial("pipeline_in_repo1", new RepoConfigOrigin(repoConfig1, "repo1_r2"));
-        goPartialConfig.onSuccessPartialConfig(repoConfig1, invalidPartialInRepo1Revision2);
+        partialConfigService.onSuccessPartialConfig(repoConfig1, invalidPartialInRepo1Revision2);
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size()).isEqualTo(1);
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage()).isEqualTo("Invalid Merged Configuration");
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription()).isEqualTo("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;; \n- For Config Repo: url1 at repo1_r2");
@@ -1061,7 +1061,7 @@ public class CachedGoConfigIntegrationTest {
     public void shouldUpdateConfigWhenPartialsAreConfigured() throws GitAPIException, IOException {
         String gitShaBeforeSave = configRepository.getCurrentRevCommit().getName();
         PartialConfig validPartial = PartialConfigMother.withPipeline("remote_pipeline", new RepoConfigOrigin(configRepo, "revision1"));
-        goPartialConfig.onSuccessPartialConfig(configRepo, validPartial);
+        partialConfigService.onSuccessPartialConfig(configRepo, validPartial);
 
         assertThat(cachedGoPartials.lastValidPartials().contains(validPartial)).isTrue();
         assertThat(cachedGoPartials.lastKnownPartials().contains(validPartial)).isTrue();
@@ -1089,7 +1089,7 @@ public class CachedGoConfigIntegrationTest {
     public void shouldUpdateConfigWithNoValidPartialsAndInvalidKnownPartials() throws GitAPIException, IOException {
         String gitShaBeforeSave = configRepository.getCurrentRevCommit().getName();
         PartialConfig invalidPartial = PartialConfigMother.invalidPartial("invalid", new RepoConfigOrigin(configRepo, "revision1"));
-        goPartialConfig.onSuccessPartialConfig(configRepo, invalidPartial);
+        partialConfigService.onSuccessPartialConfig(configRepo, invalidPartial);
 
         assertThat(cachedGoPartials.lastValidPartials().isEmpty()).isTrue();
         assertThat(cachedGoPartials.lastKnownPartials().contains(invalidPartial)).isTrue();
@@ -1118,8 +1118,8 @@ public class CachedGoConfigIntegrationTest {
         String gitShaBeforeSave = configRepository.getCurrentRevCommit().getName();
         PartialConfig validPartial = PartialConfigMother.withPipeline("remote_pipeline", new RepoConfigOrigin(configRepo, "revision1"));
         PartialConfig invalidPartial = PartialConfigMother.invalidPartial("invalid", new RepoConfigOrigin(configRepo, "revision2"));
-        goPartialConfig.onSuccessPartialConfig(configRepo, validPartial);
-        goPartialConfig.onSuccessPartialConfig(configRepo, invalidPartial);
+        partialConfigService.onSuccessPartialConfig(configRepo, validPartial);
+        partialConfigService.onSuccessPartialConfig(configRepo, invalidPartial);
 
         assertThat(cachedGoPartials.lastValidPartials().contains(validPartial)).isTrue();
         assertThat(cachedGoPartials.lastKnownPartials().contains(invalidPartial)).isTrue();
@@ -1173,7 +1173,7 @@ public class CachedGoConfigIntegrationTest {
         String gitShaBeforeSave = configRepository.getCurrentRevCommit().getName();
         PipelineConfig upstream = PipelineConfigMother.createPipelineConfig("upstream", "S", "J");
         PartialConfig partialConfig = PartialConfigMother.pipelineWithDependencyMaterial("downstream", upstream, new RepoConfigOrigin(configRepo, "r2"));
-        goPartialConfig.onSuccessPartialConfig(configRepo, partialConfig);
+        partialConfigService.onSuccessPartialConfig(configRepo, partialConfig);
 
         assertThat(cachedGoPartials.lastKnownPartials().contains(partialConfig)).isTrue();
         assertThat(cachedGoPartials.lastValidPartials().isEmpty()).isTrue();

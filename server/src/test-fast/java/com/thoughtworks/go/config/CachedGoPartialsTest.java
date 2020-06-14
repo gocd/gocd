@@ -23,12 +23,11 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CachedGoPartialsTest {
 
@@ -41,7 +40,7 @@ public class CachedGoPartialsTest {
     private ConfigRepoConfig configRepo1;
     private ConfigRepoConfig configRepo2;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         serverHealthService = new ServerHealthService();
         partials = new CachedGoPartials(serverHealthService);
@@ -58,30 +57,30 @@ public class CachedGoPartialsTest {
     @Test
     public void shouldMarkAPartialAsValid() {
         partials.markAsValid(fingerprintForRepo1, part1);
-        assertThat(partials.lastValidPartials().contains(part1), is(true));
-        assertThat(partials.lastValidPartials().contains(part2), is(false));
+        assertTrue(partials.lastValidPartials().contains(part1));
+        assertFalse(partials.lastValidPartials().contains(part2));
     }
 
     @Test
     public void shouldMarkAllKnownAsValid() {
         partials.markAllKnownAsValid();
-        assertThat(partials.lastValidPartials().contains(part1), is(true));
-        assertThat(partials.lastValidPartials().contains(part2), is(true));
+        assertTrue(partials.lastValidPartials().contains(part1));
+        assertTrue(partials.lastValidPartials().contains(part2));
     }
 
     @Test
     public void shouldRemoveValid() {
         partials.markAllKnownAsValid();
         partials.removeValid(fingerprintForRepo1);
-        assertThat(partials.lastValidPartials().contains(part1), is(false));
-        assertThat(partials.lastValidPartials().contains(part2), is(true));
+        assertFalse(partials.lastValidPartials().contains(part1));
+        assertTrue(partials.lastValidPartials().contains(part2));
     }
 
     @Test
     public void shouldRemoveKnown() {
         partials.removeKnown(fingerprintForRepo1);
-        assertThat(partials.lastKnownPartials().contains(part1), is(false));
-        assertThat(partials.lastKnownPartials().contains(part2), is(true));
+        assertFalse(partials.lastKnownPartials().contains(part1));
+        assertTrue(partials.lastKnownPartials().contains(part2));
     }
 
     @Test
@@ -89,9 +88,9 @@ public class CachedGoPartialsTest {
         serverHealthService.update(ServerHealthState.error("err_repo1", "err desc", HealthStateType.general(HealthStateScope.forPartialConfigRepo(configRepo1))));
         serverHealthService.update(ServerHealthState.error("err_repo2", "err desc", HealthStateType.general(HealthStateScope.forPartialConfigRepo(configRepo2))));
         partials.removeKnown(configRepo1.getRepo().getFingerprint());
-        assertThat(partials.lastKnownPartials().contains(part1), is(false));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepo1)).isEmpty(), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepo2)).isEmpty(), is(false));
+        assertFalse(partials.lastKnownPartials().contains(part1));
+        assertTrue(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepo1)).isEmpty());
+        assertFalse(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(configRepo2)).isEmpty());
     }
 
     @Test
@@ -99,10 +98,10 @@ public class CachedGoPartialsTest {
         serverHealthService.update(ServerHealthState.error("error-repo-1", "error-desc-1", HealthStateType.general(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1))));
         serverHealthService.update(ServerHealthState.error("error-repo-2", "error-desc-2", HealthStateType.general(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2))));
         partials.markAsValid(fingerprintForRepo1, part1);
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1)).isEmpty(), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2)).get(0).getMessage(), is("error-repo-2"));
+        assertTrue(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1)).isEmpty());
+        assertEquals("error-repo-2", serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2)).get(0).getMessage());
         partials.markAllKnownAsValid();
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1)).isEmpty(), is(true));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2)).isEmpty(), is(true));
+        assertTrue(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo1)).isEmpty());
+        assertTrue(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(fingerprintForRepo2)).isEmpty());
     }
 }

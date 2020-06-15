@@ -53,16 +53,16 @@ export class ArtifactsManagementWidget extends MithrilViewComponent<ArtifactMana
             />
             <div class={styles.purgeSettingsFields}>
               <NumberField property={purgeStartDiskSpace}
-                           label={"Trigger when disk space is"}
-                           helpText={"Auto cleanup of artifacts will start when available disk space is less than or equal to the specified limit"}
+                           label={"Start cleanup when disk space is less than (in GB)"}
+                           helpText={"Auto cleanup of artifacts will start when available disk space is less than or equal to the specified limit (in GB)"}
                            readonly={!artifactConfig.cleanupArtifact()}
                            errorText={artifactConfig.purgeSettings()
                                                     .errors()
                                                     .errorsForDisplay("purgeStartDiskSpace")}
                            dataTestId={"purge-start-disk-space"}/>
               <NumberField property={purgeUptoDiskSpace}
-                           helpText={"Auto cleanup artifacts until the specified disk space is available"}
-                           label={"Target disk space"}
+                           helpText={"Auto cleanup artifacts until the specified disk space (in GB) is available"}
+                           label={"Target disk space (in GB)"}
                            readonly={!artifactConfig.cleanupArtifact()}
                            errorText={artifactConfig.purgeSettings()
                                                     .errors()

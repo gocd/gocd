@@ -56,9 +56,9 @@ describe("ArtifactsManagementWidget", () => {
     expect(helper.byTestId("purge-upto-disk-space")).toBeInDOM();
     expect(helper.byTestId("purge-start-disk-space")).not.toBeDisabled();
     expect(helper.byTestId("purge-upto-disk-space")).not.toBeDisabled();
-    expect(helper.byTestId("form-field-label-trigger-when-disk-space-is")).toContainText("Trigger when disk space is");
+    expect(helper.q("label[data-test-id^='form-field-label-start-cleanup-when']")).toContainText("Start cleanup when disk space is less than (in GB)");
     expect(helper.byTestId("purge-start-disk-space")).toHaveValue("10");
-    expect(helper.byTestId("form-field-label-target-disk-space")).toContainText("Target disk space");
+    expect(helper.q("label[data-test-id^='form-field-label-target-disk-space']")).toContainText("Target disk space (in GB)");
     expect(helper.byTestId("purge-upto-disk-space")).toHaveValue("20");
 
   });

@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.config.rules;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.Validatable;
 
 import java.util.List;
@@ -25,6 +26,15 @@ public interface RulesAware {
     List<String> allowedTypes();
 
     Rules getRules();
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    default boolean canRefer(SupportedEntity supportedEntity, CaseInsensitiveString resource) {
+        return canRefer(supportedEntity, resource.toString());
+    }
+
+    default boolean canRefer(SupportedEntity supportedEntity, String resource) {
+        return canRefer(supportedEntity.getEntityType(), resource);
+    }
 
     default boolean canRefer(Class<? extends Validatable> entityType, String resource) {
         Rules rules = getRules();

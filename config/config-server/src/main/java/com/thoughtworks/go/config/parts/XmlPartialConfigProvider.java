@@ -20,8 +20,8 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.WildcardScanner;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import org.slf4j.Logger;
 import org.jdom2.input.JDOMParseException;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -35,7 +35,7 @@ public class XmlPartialConfigProvider implements PartialConfigProvider {
 
     private final String defaultPattern = "**/*.gocd.xml";
 
-    private MagicalGoConfigXmlLoader loader;
+    private final MagicalGoConfigXmlLoader loader;
 
     public XmlPartialConfigProvider(MagicalGoConfigXmlLoader loader) {
         this.loader = loader;
@@ -52,8 +52,6 @@ public class XmlPartialConfigProvider implements PartialConfigProvider {
         PartialConfig partialConfig = new PartialConfig();
 
         collectFragments(allFragments, partialConfig);
-
-        partialConfig.validatePart();
 
         return partialConfig;
     }

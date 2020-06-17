@@ -69,6 +69,7 @@ public class PartialConfigService implements PartialConfigUpdateCompletedListene
 
         if (this.configWatchList.hasConfigRepoWithFingerprint(fingerprint)) {
             if (shouldMergePartial(incoming, fingerprint, repoConfig)) {
+                incoming.validatePermissionsOnSubtree();
                 cachedGoPartials.cacheAsLastKnown(fingerprint, incoming);
 
                 if (updateConfig(incoming, fingerprint, repoConfig)) {
@@ -102,7 +103,7 @@ public class PartialConfigService implements PartialConfigUpdateCompletedListene
     }
 
     public PartialConfigUpdateCommand buildUpdateCommand(final PartialConfig partial, final String fingerprint, ConfigRepoConfig configRepoConfig) {
-        return new PartialConfigUpdateCommand(partial, fingerprint, cachedGoPartials, configRepoConfig);
+        return new PartialConfigUpdateCommand(partial, fingerprint, cachedGoPartials);
     }
 
     private boolean updateConfig(final PartialConfig newPart, final String fingerprint, ConfigRepoConfig repoConfig) {

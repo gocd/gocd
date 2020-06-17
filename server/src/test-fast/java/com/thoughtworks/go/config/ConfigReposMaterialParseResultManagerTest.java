@@ -42,7 +42,7 @@ import java.util.Collections;
 
 import static com.thoughtworks.go.config.ConfigReposMaterialParseResultManager.ConfigRepoReparseListener;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -74,20 +74,19 @@ class ConfigReposMaterialParseResultManagerTest {
 
         when(serverHealthService.filterByScope(scope)).thenReturn(Collections.singletonList(error));
 
-
         Modification modification = modificationFor("rev1");
         manager.parseFailed(fingerprint, modification, new Exception());
 
         PartialConfigParseResult result = manager.get(fingerprint);
 
-        assertThat(result).isNotNull();
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.getLatestParsedModification()).isNotNull();
-        assertThat(modification).isEqualTo(result.getLatestParsedModification());
+        assertNotNull(result);
+        assertFalse(result.isSuccessful());
+        assertNotNull(result.getLatestParsedModification());
+        assertEquals(result.getLatestParsedModification(), modification);
 
         manager.markFailedResultsForReparse();
-        assertThat(result.getLatestParsedModification()).isNull();
-        verify(serverHealthService, times(1)).removeByScope(scope);
+        assertNull(result.getLatestParsedModification());
+        verify(serverHealthService, never()).removeByScope(scope);
     }
 
     @Test
@@ -101,8 +100,8 @@ class ConfigReposMaterialParseResultManagerTest {
 
         PartialConfigParseResult expectedParseResult = PartialConfigParseResult.parseSuccess(modification, partialConfig);
 
-        assertThat(manager.get(fingerprint)).isEqualTo(expectedParseResult);
-        assertThat(manager.get(fingerprint).isSuccessful()).isTrue();
+        assertEquals(expectedParseResult, manager.get(fingerprint));
+        assertTrue(manager.get(fingerprint).isSuccessful());
     }
 
     @Test
@@ -118,8 +117,8 @@ class ConfigReposMaterialParseResultManagerTest {
 
         String expectedBeautifiedMessage = String.format("%s\n%s", serverHealthState.getMessage().toUpperCase(), serverHealthState.getDescription());
 
-        assertThat(manager.get(fingerprint).isSuccessful()).isFalse();
-        assertThat(manager.get(fingerprint).getLastFailure().getMessage()).isEqualTo(expectedBeautifiedMessage);
+        assertFalse(manager.get(fingerprint).isSuccessful());
+        assertEquals(expectedBeautifiedMessage, manager.get(fingerprint).getLastFailure().getMessage());
     }
 
     @Test
@@ -133,9 +132,9 @@ class ConfigReposMaterialParseResultManagerTest {
         PartialConfig partialConfig = new PartialConfig();
         manager.parseSuccess(fingerprint, modification, partialConfig);
 
-        assertThat(manager.get(fingerprint).isSuccessful()).isFalse();
-        assertThat(manager.get(fingerprint).getGoodModification()).isNull();
-        assertThat(manager.get(fingerprint).lastGoodPartialConfig()).isNull();
+        assertFalse(manager.get(fingerprint).isSuccessful());
+        assertNull(manager.get(fingerprint).getGoodModification());
+        assertNull(manager.get(fingerprint).lastGoodPartialConfig());
     }
 
     @Test
@@ -144,11 +143,10 @@ class ConfigReposMaterialParseResultManagerTest {
         when(serverHealthService.filterByScope(any())).thenReturn(Arrays.asList(serverHealthState));
         String fingerprint = "repo1";
 
-
         String expectedBeautifiedMessage = String.format("%s\n%s", serverHealthState.getMessage().toUpperCase(), serverHealthState.getDescription());
 
-        assertThat(manager.get(fingerprint).isSuccessful()).isFalse();
-        assertThat(manager.get(fingerprint).getLastFailure().getMessage()).isEqualTo(expectedBeautifiedMessage);
+        assertFalse(manager.get(fingerprint).isSuccessful());
+        assertEquals(expectedBeautifiedMessage, manager.get(fingerprint).getLastFailure().getMessage());
     }
 
     @Test
@@ -157,11 +155,10 @@ class ConfigReposMaterialParseResultManagerTest {
         when(serverHealthService.filterByScope(any())).thenReturn(Arrays.asList(serverHealthState));
         String fingerprint = "repo1";
 
-
-        assertThat(manager.get(fingerprint).isSuccessful()).isFalse();
-        assertThat(manager.get(fingerprint).getGoodModification()).isNull();
-        assertThat(manager.get(fingerprint).getLatestParsedModification()).isNull();
-        assertThat(manager.get(fingerprint).lastGoodPartialConfig()).isNull();
+        assertFalse(manager.get(fingerprint).isSuccessful());
+        assertNull(manager.get(fingerprint).getGoodModification());
+        assertNull(manager.get(fingerprint).getLatestParsedModification());
+        assertNull(manager.get(fingerprint).lastGoodPartialConfig());
     }
 
     @Test
@@ -175,22 +172,20 @@ class ConfigReposMaterialParseResultManagerTest {
 
         PartialConfigParseResult expectedParseResult = PartialConfigParseResult.parseFailed(modification, exception);
 
-        assertThat(manager.get(fingerprint)).isEqualTo(expectedParseResult);
-        assertThat(manager.get(fingerprint).isSuccessful()).isFalse();
+        assertEquals(expectedParseResult, manager.get(fingerprint));
+        assertFalse(manager.get(fingerprint).isSuccessful());
     }
 
     @Test
     void shouldReturnNullIfManagerDoesNotContainResultForProvidedConfigRepoMaterialFingerprint() {
         String fingerprint = "repo1";
 
-
-        assertThat(manager.get(fingerprint)).isNull();
+        assertNull(manager.get(fingerprint));
     }
 
     @Test
     void shouldUpdateTheResultForAConfigRepoMaterialIfResultAlreadyExists_WhenMaterialParseFails() {
         String fingerprint = "repo1";
-
 
         Modification modification = modificationFor("rev1");
         PartialConfig partialConfig = new PartialConfig();
@@ -198,27 +193,25 @@ class ConfigReposMaterialParseResultManagerTest {
 
         PartialConfigParseResult expectedParseResult = PartialConfigParseResult.parseSuccess(modification, partialConfig);
 
-        assertThat(manager.get(fingerprint)).isEqualTo(expectedParseResult);
-        assertThat(manager.get(fingerprint).isSuccessful()).isTrue();
+        assertEquals(expectedParseResult, manager.get(fingerprint));
+        assertTrue(manager.get(fingerprint).isSuccessful());
 
         Modification modification2 = modificationFor("rev2");
         Exception exception = new Exception("Boom!");
         manager.parseFailed(fingerprint, modification2, exception);
 
-
         PartialConfigParseResult parseResult = manager.get(fingerprint);
 
-        assertThat(parseResult.isSuccessful()).isFalse();
-        assertThat(parseResult.getLatestParsedModification()).isEqualTo(modification2);
-        assertThat(parseResult.getGoodModification()).isEqualTo(modification);
-        assertThat(parseResult.lastGoodPartialConfig()).isEqualTo(partialConfig);
-        assertThat(parseResult.getLastFailure()).isEqualTo(exception);
+        assertFalse(parseResult.isSuccessful());
+        assertEquals(modification2, parseResult.getLatestParsedModification());
+        assertEquals(modification, parseResult.getGoodModification());
+        assertEquals(partialConfig, parseResult.lastGoodPartialConfig());
+        assertEquals(exception, parseResult.getLastFailure());
     }
 
     @Test
     void shouldUpdateTheResultForAConfigRepoMaterialIfResultAlreadyExists_WhenMaterialParseIsFixed() {
         String fingerprint = "repo1";
-
 
         Modification modification = modificationFor("rev1");
         Exception exception = new Exception("Boom!");
@@ -226,8 +219,8 @@ class ConfigReposMaterialParseResultManagerTest {
 
         PartialConfigParseResult expectedParseResult = PartialConfigParseResult.parseFailed(modification, exception);
 
-        assertThat(manager.get(fingerprint)).isEqualTo(expectedParseResult);
-        assertThat(manager.get(fingerprint).isSuccessful()).isFalse();
+        assertEquals(expectedParseResult, manager.get(fingerprint));
+        assertFalse(manager.get(fingerprint).isSuccessful());
 
         Modification modification2 = modificationFor("rev2");
         PartialConfig partialConfig = new PartialConfig();
@@ -235,11 +228,11 @@ class ConfigReposMaterialParseResultManagerTest {
 
         PartialConfigParseResult parseResult = manager.get(fingerprint);
 
-        assertThat(parseResult.isSuccessful()).isTrue();
-        assertThat(parseResult.getLatestParsedModification()).isEqualTo(modification2);
-        assertThat(parseResult.getGoodModification()).isEqualTo(modification2);
-        assertThat(parseResult.lastGoodPartialConfig()).isEqualTo(partialConfig);
-        assertThat(parseResult.getLastFailure()).isNull();
+        assertTrue(parseResult.isSuccessful());
+        assertEquals(modification2, parseResult.getLatestParsedModification());
+        assertEquals(modification2, parseResult.getGoodModification());
+        assertEquals(partialConfig, parseResult.lastGoodPartialConfig());
+        assertNull(parseResult.getLastFailure());
     }
 
     @Test
@@ -250,7 +243,7 @@ class ConfigReposMaterialParseResultManagerTest {
 
         final ArgumentCaptor<ConfigChangedListener> listenerArgumentCaptor = ArgumentCaptor.forClass(ConfigChangedListener.class);
         verify(goConfigService).register(listenerArgumentCaptor.capture());
-        assertThat(listenerArgumentCaptor.getValue()).isInstanceOf(ConfigRepoReparseListener.class);
+        assertTrue(listenerArgumentCaptor.getValue() instanceof ConfigRepoReparseListener);
     }
 
     @Nested
@@ -261,7 +254,7 @@ class ConfigReposMaterialParseResultManagerTest {
             final ConfigReposMaterialParseResultManager manager = mock(ConfigReposMaterialParseResultManager.class);
             final ConfigRepoReparseListener configRepoReparseListener = new ConfigRepoReparseListener(manager);
 
-            assertThat(configRepoReparseListener.shouldCareAbout(mock(configClassToCareAbout))).isTrue();
+            assertTrue(configRepoReparseListener.shouldCareAbout(mock(configClassToCareAbout)));
         }
 
         @ParameterizedTest
@@ -270,7 +263,7 @@ class ConfigReposMaterialParseResultManagerTest {
             final ConfigReposMaterialParseResultManager manager = mock(ConfigReposMaterialParseResultManager.class);
             final ConfigRepoReparseListener configRepoReparseListener = new ConfigRepoReparseListener(manager);
 
-            assertThat(configRepoReparseListener.shouldCareAbout(mock(configClassToCareAbout))).isFalse();
+            assertFalse(configRepoReparseListener.shouldCareAbout(mock(configClassToCareAbout)));
         }
     }
 

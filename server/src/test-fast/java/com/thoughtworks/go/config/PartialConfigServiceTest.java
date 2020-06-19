@@ -20,6 +20,9 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.rules.Allow;
+import com.thoughtworks.go.config.rules.Rules;
+import com.thoughtworks.go.config.rules.SupportedEntity;
 import com.thoughtworks.go.config.update.PartialConfigUpdateCommand;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.service.ConfigRepoService;
@@ -32,8 +35,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static com.thoughtworks.go.helper.PartialConfigMother.withEnvironment;
-import static com.thoughtworks.go.helper.PartialConfigMother.withPipeline;
+import static com.thoughtworks.go.helper.PartialConfigMother.*;
 import static java.util.Optional.ofNullable;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -88,15 +90,6 @@ public class PartialConfigServiceTest {
     }
 
     @Test
-    void mergeAppliesUpdateToConfig() {
-        updateCommand = mock(PartialConfigUpdateCommand.class);
-        PartialConfig partial = new PartialConfig();
-
-        service.merge(partial, "finger", cruiseConfig, configRepoConfig);
-        verify(updateCommand, times(1)).update(cruiseConfig);
-    }
-
-    @Test
     void listensForConfigRepoListChanges() {
         assertTrue(repoConfigDataSource.hasListener(service));
     }
@@ -104,6 +97,15 @@ public class PartialConfigServiceTest {
     @Test
     void listensForCompletedParsing() {
         assertTrue(configWatchList.hasListener(service));
+    }
+
+    @Test
+    void mergeAppliesUpdateToConfig() {
+        updateCommand = mock(PartialConfigUpdateCommand.class);
+        PartialConfig partial = new PartialConfig();
+
+        service.merge(partial, "finger", cruiseConfig, configRepoConfig);
+        verify(updateCommand, times(1)).update(cruiseConfig);
     }
 
     @Test
@@ -131,6 +133,23 @@ public class PartialConfigServiceTest {
     }
 
     @Test
+    void mergesWhenPartialHasChanged() {
+        cachedGoPartials = mock(CachedGoPartials.class);
+        when(cachedGoPartials.getKnown(any(String.class))).thenReturn(mock(PartialConfig.class));
+
+        configWatchList = mock(GoConfigWatchList.class);
+        when(configWatchList.hasConfigRepoWithFingerprint(any(String.class))).thenReturn(true);
+
+        when(partialConfigHelper.isEquivalent(any(PartialConfig.class), any(PartialConfig.class))).thenReturn(false);
+
+        service = new PartialConfigService(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, partialConfigHelper);
+
+        final PartialConfig partial = mock(PartialConfig.class);
+        service.onSuccessPartialConfig(configRepoConfig, partial);
+        verify(cachedGoPartials).cacheAsLastKnown(configRepoConfig.getRepo().getFingerprint(), partial);
+    }
+
+    @Test
     void skipsMergeWhenPartialHasNotChanged() {
         cachedGoPartials = mock(CachedGoPartials.class);
         when(cachedGoPartials.getKnown(any(String.class))).thenReturn(mock(PartialConfig.class));
@@ -146,21 +165,80 @@ public class PartialConfigServiceTest {
         verify(cachedGoPartials, never()).cacheAsLastKnown(any(String.class), any(PartialConfig.class));
     }
 
+
     @Test
-    void mergesWhenPartialHasChanged() {
-        cachedGoPartials = mock(CachedGoPartials.class);
-        when(cachedGoPartials.getKnown(any(String.class))).thenReturn(mock(PartialConfig.class));
-
-        configWatchList = mock(GoConfigWatchList.class);
-        when(configWatchList.hasConfigRepoWithFingerprint(any(String.class))).thenReturn(true);
-
+    void clearsLastValidPartialOnFailureWhenFailsRuleValidations() {
+        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenThrow(new RuntimeException("Nope"));
         when(partialConfigHelper.isEquivalent(any(PartialConfig.class), any(PartialConfig.class))).thenReturn(false);
 
-        service = new PartialConfigService(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService, partialConfigHelper);
+        // an empty set guarantees violations
+        configRepoConfig.setRules(new Rules());
 
-        final PartialConfig partial = mock(PartialConfig.class);
-        service.onSuccessPartialConfig(configRepoConfig, partial);
-        verify(cachedGoPartials).cacheAsLastKnown(configRepoConfig.getRepo().getFingerprint(), partial);
+        final PartialConfig lastValid = withPipeline("p1", new RepoConfigOrigin(configRepoConfig, "1"));
+        final PartialConfig incoming = withPipeline("p1", new RepoConfigOrigin(configRepoConfig, "2"));
+
+        cachedGoPartials.cacheAsLastKnown(configRepoConfig.getRepo().getFingerprint(), lastValid);
+        cachedGoPartials.markAllKnownAsValid();
+
+        // baseline
+        assertEquals(1, cachedGoPartials.lastValidPartials().size());
+        assertEquals(lastValid, cachedGoPartials.lastValidPartials().get(0));
+        assertFalse(lastValid.hasErrors());
+        assertFalse(incoming.hasErrors());
+
+        service.onSuccessPartialConfig(configRepoConfig, incoming);
+
+        final String violationMessage = "Not allowed to refer to pipeline group 'group'. Check the 'Rules' of this config repository.";
+
+        assertTrue(incoming.hasErrors(), "should have rule violations");
+        assertEquals(violationMessage, incoming.errors().on("pipeline_group"));
+
+        assertTrue(lastValid.hasErrors(), "should have rule violations");
+        assertEquals(violationMessage, lastValid.errors().on("pipeline_group"));
+
+        assertTrue(cachedGoPartials.lastValidPartials().isEmpty());
+
+        verify(goConfigService).updateConfig(any(UpdateConfigCommand.class));
+    }
+
+    @Test
+    void keepsLastValidPartialOnFailureWhenRulesAllow() {
+        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenThrow(new RuntimeException("Nope"));
+        when(partialConfigHelper.isEquivalent(any(PartialConfig.class), any(PartialConfig.class))).thenReturn(false);
+
+        // an empty set guarantees violations
+        final Rules rules = new Rules();
+        rules.add(new Allow("refer", SupportedEntity.PIPELINE_GROUP.getType(), "two"));
+        configRepoConfig.setRules(rules);
+
+        final PartialConfig lastValid = withPipelineInGroup("p1", "two");
+        lastValid.setOrigins(new RepoConfigOrigin(configRepoConfig, "1"));
+
+        final PartialConfig incoming = withPipelineInGroup("p1", "one");
+        incoming.setOrigins(new RepoConfigOrigin(configRepoConfig, "2"));
+
+        cachedGoPartials.cacheAsLastKnown(configRepoConfig.getRepo().getFingerprint(), lastValid);
+        cachedGoPartials.markAllKnownAsValid();
+
+        // baseline
+        assertEquals(1, cachedGoPartials.lastValidPartials().size());
+        assertEquals(lastValid, cachedGoPartials.lastValidPartials().get(0));
+        assertFalse(lastValid.hasErrors());
+        assertFalse(incoming.hasErrors());
+
+        service.onSuccessPartialConfig(configRepoConfig, incoming);
+
+        final String violationMessage = "Not allowed to refer to pipeline group 'one'. Check the 'Rules' of this config repository.";
+
+        assertTrue(incoming.hasErrors(), "should have rule violations");
+        assertEquals(violationMessage, incoming.errors().on("pipeline_group"));
+
+        assertFalse(lastValid.hasErrors(), "should not have rule violations");
+
+        assertEquals(1, cachedGoPartials.lastValidPartials().size());
+        assertEquals(lastValid, cachedGoPartials.lastValidPartials().get(0));
+
+        verify(goConfigService).updateConfig(any(UpdateConfigCommand.class));
     }
 
     @Nested

@@ -642,8 +642,7 @@
   <rule>
     <name>Template Authorization Config API</name>
     <from>^/api/admin/templates/([^/]+)/authorization(/?)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="templateAuthorizationAPI"/>
-    <to last="true">/%{attribute:sparkOrRails}/api/admin/templates/${escape:$1}/authorization</to>
+    <to last="true">/spark/api/admin/templates/${escape:$1}/authorization</to>
   </rule>
 
   <rule>

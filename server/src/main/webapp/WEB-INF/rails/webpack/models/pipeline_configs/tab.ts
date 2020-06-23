@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import Stream = require("mithril/stream");
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
@@ -41,6 +42,8 @@ export class Tab extends ValidatableMixin {
     super();
     this.name(name);
     this.path(path);
+
+    this.validatePresenceOf("path", {condition: () => !_.isEmpty(this.name())});
   }
 
   static fromJSON(json: TabJSON) {

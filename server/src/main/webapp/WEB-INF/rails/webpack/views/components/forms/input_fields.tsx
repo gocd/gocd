@@ -366,7 +366,7 @@ export interface TextFieldAttrs extends BaseAttrs<string>, RequiredFieldAttr, Pl
   type?: string;
 }
 
-export type NumberFieldAttrs = BaseAttrs<number> & RequiredFieldAttr & PlaceholderAttr;
+export type NumberFieldAttrs = BaseAttrs<number> & RequiredFieldAttr & PlaceholderAttr & { min?: string };
 
 export class TextField extends FormField<string, RequiredFieldAttr & PlaceholderAttr> {
   renderInputField(vnode: m.Vnode<TextFieldAttrs>) {
@@ -409,7 +409,9 @@ export class NumberField extends FormField<number, RequiredFieldAttr & Placehold
     if (!_.isEmpty(attrs.placeholder)) {
       defaultAttributes.placeholder = attrs.placeholder as string;
     }
-
+    if (!_.isEmpty(attrs.min)) {
+      defaultAttributes.min = attrs.min as string;
+    }
     return _.assign(defaultAttributes, textInputFieldDefaultAttrs);
   }
 }

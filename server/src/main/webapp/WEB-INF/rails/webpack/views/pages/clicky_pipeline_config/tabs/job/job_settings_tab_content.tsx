@@ -48,7 +48,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
       <NumberField property={entity.jobTimeoutType() !== "number" ? Stream() : (entity.timeout as any)}
                    errorText={entity.errors().errorsForDisplay("timeout")}
                    readonly={vnode.attrs.readonly || entity.jobTimeoutType() !== "number"}
-                   dataTestId={"number-field-for-job-timeout"}/>
+                   dataTestId={"number-field-for-job-timeout"} min={"0"}/>
     </div>;
 
     const jobTimeoutInNumber: m.Child = <div class={styles.cancelAfterInactivityWrapper}>
@@ -59,7 +59,7 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
       <NumberField property={entity.runType() !== "number" ? Stream() : (entity.runInstanceCount as any)}
                    errorText={entity.errors().errorsForDisplay("runInstanceCount")}
                    readonly={vnode.attrs.readonly || entity.runType() !== "number"}
-                   dataTestId={"number-field-for-run-instance"}/>
+                   dataTestId={"number-field-for-run-instance"} min={"0"}/>
     </div>;
 
     const runInstanceInNumber: m.Child = <div class={styles.cancelAfterInactivityWrapper}>

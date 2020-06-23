@@ -93,4 +93,39 @@ describe("Job model", () => {
       }]
     });
   });
+
+  it('should not serialize empty elastic profile id', () => {
+    const job = validJob();
+    job.elasticProfileId("some-value");
+    expect(job.toApiPayload())
+      .toEqual({
+                 name:                  "name",
+                 elastic_profile_id:    'some-value',
+                 environment_variables: [],
+                 resources:             [],
+                 tasks:                 [{
+                   type:       "exec",
+                   attributes: {
+                     command:   "ls",
+                     arguments: ["-lA"],
+                     run_if:    []
+                   }
+                 }]
+               });
+    job.elasticProfileId("");
+    expect(job.toApiPayload())
+      .toEqual({
+                 name:                  "name",
+                 environment_variables: [],
+                 resources:             [],
+                 tasks:                 [{
+                   type:       "exec",
+                   attributes: {
+                     command:   "ls",
+                     arguments: ["-lA"],
+                     run_if:    []
+                   }
+                 }]
+               });
+  });
 });

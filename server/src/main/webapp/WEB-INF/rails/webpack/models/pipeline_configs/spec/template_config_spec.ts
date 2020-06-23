@@ -32,6 +32,26 @@ describe("TemplateConfig model", () => {
       });
     });
   });
+
+  it("should include a name", () => {
+    let pip = new TemplateConfig("name", []);
+    expect(pip.isValid()).toBe(true);
+    expect(pip.errors().count()).toBe(0);
+
+    pip = new TemplateConfig("", []);
+    expect(pip.isValid()).toBe(false);
+    expect(pip.errors().count()).toBe(1);
+  });
+
+  it("validate name format", () => {
+    const pip = new TemplateConfig("my awesome pipeline that has a terrible name", []);
+    expect(pip.isValid()).toBe(false);
+    expect(pip.errors().count()).toBe(1);
+    expect(pip.errors().keys()).toEqual(["name"]);
+    expect(pip.errors().errorsForDisplay("name"))
+      .toBe(
+        "Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+  });
 });
 
 function stubGetSuccess() {

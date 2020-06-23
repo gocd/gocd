@@ -23,8 +23,14 @@ describe('TabSpec', () => {
     expect(tab.isValid()).toBeFalse();
     expect(tab.errors().errorsForDisplay('path')).toBe('Path must be present.');
   });
+  it('should throw error when path is specified but not name', () => {
+    const tab = new Tab("", "path");
 
-  it('should not error out if name is not specified', () => {
+    expect(tab.isValid()).toBeFalse();
+    expect(tab.errors().errorsForDisplay('name')).toBe('Name must be present.');
+  });
+
+  it('should not error out if both are empty', () => {
     const tab = new Tab("", "");
 
     expect(tab.isValid()).toBeTrue();

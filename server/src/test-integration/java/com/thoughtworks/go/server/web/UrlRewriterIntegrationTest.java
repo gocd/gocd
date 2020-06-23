@@ -66,7 +66,6 @@ public class UrlRewriterIntegrationTest {
     private static HttpTestUtil httpUtil;
     private static WebApplicationContext wac;
     private static boolean useConfiguredUrls;
-    private static String originalSslPort;
 
     @DataPoint
     public static ResponseAssertion NO_REWRITE = new ResponseAssertion(HTTP_URL + "/go/quux?hello=world", HTTP_URL + "/go/quux?hello=world");
@@ -182,8 +181,6 @@ public class UrlRewriterIntegrationTest {
         });
 
         httpUtil.start();
-        originalSslPort = System.getProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT);
-        System.setProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT, String.valueOf(HTTPS));
 
         FeatureToggleService featureToggleService = mock(FeatureToggleService.class);
         when(featureToggleService.isToggleOn(anyString())).thenReturn(true);
@@ -192,11 +189,6 @@ public class UrlRewriterIntegrationTest {
 
     @AfterClass
     public static void afterClass() {
-        if (originalSslPort == null) {
-            System.getProperties().remove(SystemEnvironment.CRUISE_SERVER_SSL_PORT);
-        } else {
-            System.setProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT, originalSslPort);
-        }
         httpUtil.stop();
     }
 

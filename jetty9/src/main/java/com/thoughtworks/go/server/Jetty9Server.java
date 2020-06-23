@@ -15,10 +15,7 @@
  */
 package com.thoughtworks.go.server;
 
-import com.thoughtworks.go.CurrentGoCDVersion;
-import com.thoughtworks.go.server.config.GoSSLConfig;
 import com.thoughtworks.go.server.util.GoPlainSocketConnector;
-import com.thoughtworks.go.server.util.GoSslSocketConnector;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.deploy.App;
@@ -58,7 +55,6 @@ public class Jetty9Server extends AppServer {
     private Server server;
     private WebAppContext webAppContext;
     private static final Logger LOG = LoggerFactory.getLogger(Jetty9Server.class);
-    private GoSSLConfig goSSLConfig;
     private final DeploymentManager deploymentManager;
 
     public Jetty9Server(SystemEnvironment systemEnvironment, String password) {
@@ -69,7 +65,6 @@ public class Jetty9Server extends AppServer {
         super(systemEnvironment, password);
         systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, JETTY_XML);
         this.server = server;
-        goSSLConfig = new GoSSLConfig(systemEnvironment);
         this.deploymentManager = deploymentManager;
     }
 
@@ -77,14 +72,7 @@ public class Jetty9Server extends AppServer {
     public void configure() throws Exception {
         server.addEventListener(mbeans());
         server.addConnector(plainConnector());
-        Connector connector = sslConnector();
-        if (connector != null) {
-            LOG.warn("Future versions of GoCD server will no longer support built-in TLS. Please see " + CurrentGoCDVersion.docsUrl("/installation/configure-reverse-proxy.html") + " for information about using a reverse proxy for setting up SSL.");
-            if (Boolean.getBoolean("go.server.enable.tls")) {
-                LOG.warn("Enabling built-in TLS because of a configuration override. Please note that this configuration override will be disabled in the future.");
-                server.addConnector(connector);
-            }
-        }
+
         ContextHandlerCollection handlers = new ContextHandlerCollection();
         deploymentManager.setContexts(handlers);
 
@@ -203,15 +191,6 @@ public class Jetty9Server extends AppServer {
     private Connector plainConnector() {
         return new GoPlainSocketConnector(this, systemEnvironment).getConnector();
     }
-
-    private Connector sslConnector() {
-        if (systemEnvironment.keystore().exists() && systemEnvironment.truststore().exists()) {
-            return new GoSslSocketConnector(this, password, systemEnvironment, goSSLConfig).getConnector();
-        } else {
-            return null;
-        }
-    }
-
 
     private void performCustomConfiguration() throws Exception {
         File jettyConfig = systemEnvironment.getJettyConfigFile();

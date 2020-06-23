@@ -36,7 +36,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final String CRUISE_LISTEN_HOST = "cruise.listen.host";
     public static final String CRUISE_SERVER_PORT = "cruise.server.port";
-    public static final String CRUISE_SERVER_SSL_PORT = "cruise.server.ssl.port";
     static final String AGENT_CONNECTION_TIMEOUT_IN_SECONDS = "agent.connection.timeout";
     private static final String JETTY_XML = "jetty.xml";
     public static final String CRUISE_SERVER_WAR_PROPERTY = "cruise.server.war";
@@ -146,12 +145,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static GoSystemProperty<Boolean> FETCH_ARTIFACT_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.auto-suggest", true);
     public static GoSystemProperty<Boolean> GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.template.auto-suggest", true);
-    public static GoSystemProperty<Boolean> GO_SSL_CONFIG_CLEAR_JETTY_DEFAULT_EXCLUSIONS = new GoBooleanSystemProperty("go.ssl.config.clear.default.exclusions", false);
-    public static GoSystemProperty<String[]> GO_SSL_INCLUDE_CIPHERS = new GoStringArraySystemProperty("go.ssl.ciphers.include", null);
-    public static GoSystemProperty<String[]> GO_SSL_EXCLUDE_CIPHERS = new GoStringArraySystemProperty("go.ssl.ciphers.exclude", null);
-    public static GoSystemProperty<String[]> GO_SSL_INCLUDE_PROTOCOLS = new GoStringArraySystemProperty("go.ssl.protocols.include", null);
-    public static GoSystemProperty<String[]> GO_SSL_EXCLUDE_PROTOCOLS = new GoStringArraySystemProperty("go.ssl.protocols.exclude", null);
-    public static GoSystemProperty<Boolean> GO_SSL_RENEGOTIATION_ALLOWED = new GoBooleanSystemProperty("go.ssl.renegotiation.allowed", true);
+
     public static GoSystemProperty<Boolean> GO_CONFIG_REPO_GC_AGGRESSIVE = new GoBooleanSystemProperty("go.config.repo.gc.aggressive", true);
     public static GoSystemProperty<Long> GO_CONFIG_REPO_GC_EXPIRE = new GoLongSystemProperty("go.config.repo.gc.expire", 24L);
     public static GoSystemProperty<Long> GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD = new GoLongSystemProperty("go.config.repo.gc.warning.looseobject.threshold", 10000L);
@@ -267,14 +261,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return configDir;
     }
 
-    public File keystore() {
-        return new File(configDir(), "keystore");
-    }
-
-    public File truststore() {
-        return new File(configDir(), "truststore");
-    }
-
     public int getServerPort() {
         return Integer.parseInt(getPropertyImpl(CRUISE_SERVER_PORT, "8153"));
     }
@@ -327,13 +313,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     private String trimMegaFromSize(String sizeInMega) {
         return StringUtils.removeEndIgnoreCase(sizeInMega, "M");
-    }
-
-    public int getSslServerPort() {
-        if (cruiseSSlPort != null) {
-            return cruiseSSlPort;
-        }
-        return cruiseSSlPort = Integer.parseInt(getPropertyImpl(CRUISE_SERVER_SSL_PORT, "8154"));
     }
 
     @Override

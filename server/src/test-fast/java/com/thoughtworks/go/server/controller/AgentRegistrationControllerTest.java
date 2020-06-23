@@ -80,7 +80,6 @@ public class AgentRegistrationControllerTest {
         pluginZipFile = temporaryFolder.newFile("plugins.zip");
         FileUtils.writeStringToFile(pluginZipFile, "content", UTF_8);
         when(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH)).thenReturn(pluginZipFile.getAbsolutePath());
-        when(systemEnvironment.getSslServerPort()).thenReturn(8443);
         when(systemEnvironment.get(AGENT_EXTRA_PROPERTIES)).thenReturn("");
         pluginsZip = mock(PluginsZip.class);
         controller = new AgentRegistrationController(agentService, goConfigService, systemEnvironment, pluginsZip, ephemeralAutoRegisterKeyService);
@@ -166,7 +165,6 @@ public class AgentRegistrationControllerTest {
         }
 
         assertEquals("plugins-zip-md5", response.getHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER));
-        assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
     }
 
     @Test
@@ -185,7 +183,6 @@ public class AgentRegistrationControllerTest {
     @Test
     public void headShouldIncludeMd5ChecksumAndServerUrl_forAgent() throws Exception {
         controller.checkAgentVersion(response);
-        assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
 
         try (InputStream stream = JarDetector.create(systemEnvironment, "agent.jar").invoke()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
@@ -195,7 +192,6 @@ public class AgentRegistrationControllerTest {
     @Test
     public void headShouldIncludeMd5ChecksumAndServerUrl_forAgentLauncher() throws Exception {
         controller.checkAgentLauncherVersion(response);
-        assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
 
         try (InputStream stream = JarDetector.create(systemEnvironment, "agent-launcher.jar").invoke()) {
             assertEquals(DigestUtils.md5Hex(stream), response.getHeader("Content-MD5"));
@@ -205,7 +201,6 @@ public class AgentRegistrationControllerTest {
     @Test
     public void contentShouldIncludeMd5Checksum_forAgent() throws Exception {
         controller.downloadAgent(response);
-        assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
         assertEquals("application/octet-stream", response.getContentType());
 
         try (InputStream stream = JarDetector.create(systemEnvironment, "agent.jar").invoke()) {
@@ -244,7 +239,6 @@ public class AgentRegistrationControllerTest {
     @Test
     public void contentShouldIncludeMd5Checksum_forAgentLauncher() throws Exception {
         controller.downloadAgentLauncher(response);
-        assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
         assertEquals("application/octet-stream", response.getContentType());
 
         try (InputStream stream = JarDetector.create(systemEnvironment, "agent-launcher.jar").invoke()) {
@@ -260,7 +254,6 @@ public class AgentRegistrationControllerTest {
         when(pluginsZip.md5()).thenReturn("md5");
         controller.checkAgentPluginsZipStatus(response);
 
-        assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
         assertEquals("md5", response.getHeader("Content-MD5"));
         verify(pluginsZip).md5();
     }

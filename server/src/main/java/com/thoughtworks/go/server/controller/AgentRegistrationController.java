@@ -177,7 +177,6 @@ public class AgentRegistrationController {
     }
 
     private void setOtherHeaders(HttpServletResponse response) {
-        response.setHeader("Cruise-Server-Ssl-Port", Integer.toString(systemEnvironment.getSslServerPort()));
         response.setHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, getAgentExtraProperties());
     }
 

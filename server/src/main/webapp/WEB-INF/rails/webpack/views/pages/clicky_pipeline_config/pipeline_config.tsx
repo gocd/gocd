@@ -80,7 +80,7 @@ export class PipelineConfigPage<T> extends TabHandler<T> {
 
     if (!isValid) {
       const msg = "Validation Failed! Please fix the below errors before submitting.";
-      this.flashMessage.setMessage(MessageType.alert, msg);
+      this.flashMessage.setMessage(MessageType.alert, msg, undefined, 5000);
       return Promise.reject();
     }
 

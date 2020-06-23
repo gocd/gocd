@@ -176,16 +176,17 @@ export class FlashMessageModelWithTimeout extends FlashMessageModel implements F
     this.setMessage(MessageType.alert, message);
   }
 
-  setMessage(type: MessageType, message: m.Children, timeoutCallback?: callback) {
+  setMessage(type: MessageType, message: m.Children, timeoutCallback?: callback, interval?: number) {
     this.clear();
     super.setMessage(type, message);
+    interval = interval ? interval : this.interval;
     this.timeoutID = window.setTimeout(() => {
       this.clear();
       if (timeoutCallback) {
         timeoutCallback();
       }
       m.redraw();
-    }, this.interval);
+    }, interval);
   }
 
   private clearTimeout() {

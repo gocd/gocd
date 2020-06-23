@@ -44,6 +44,7 @@ export class Tab extends ValidatableMixin {
     this.path(path);
 
     this.validatePresenceOf("path", {condition: () => !_.isEmpty(this.name())});
+    this.validatePresenceOf("name", {condition: () => !_.isEmpty(this.path())});
   }
 
   static fromJSON(json: TabJSON) {

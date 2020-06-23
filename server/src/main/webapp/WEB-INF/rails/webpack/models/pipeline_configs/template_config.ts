@@ -38,6 +38,10 @@ export class TemplateConfig extends ValidatableMixin {
     super();
     this.name       = Stream(name);
     this.parameters = Stream(parameters);
+
+    this.validatePresenceOf("name");
+    this.validateIdFormat("name");
+    this.validateAssociated("stages");
   }
 
   static getTemplate(name: string, onSuccess: (result: TemplateConfig) => void) {

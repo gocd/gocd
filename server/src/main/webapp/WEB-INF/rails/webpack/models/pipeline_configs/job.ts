@@ -133,7 +133,9 @@ export class Job extends ValidatableMixin {
       .split(",")
       .map((r: string) => r.trim())
       .filter((r: string) => !!r);
-
+    if (_.isEmpty(json.elastic_profile_id)) {
+      delete json.elastic_profile_id;
+    }
     return json;
   }
 }

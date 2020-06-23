@@ -355,10 +355,6 @@ api/api-dashboard-v4/out/
 api/api-dashboard-v4/target/
 api/api-dashboard-v4/logs/
 api/api-dashboard-v4/config/
-api/api-scms-v1/config/
-api/api-scms-v1/logs/
-api/api-scms-v1/out/
-api/api-scms-v1/target/
 api/api-materials-v1/out/
 api/api-materials-v1/target/
 api/api-materials-v1/logs/
@@ -403,10 +399,6 @@ api/api-internal-pipeline-structure-v1/out/
 api/api-internal-pipeline-structure-v1/target/
 api/api-internal-pipeline-structure-v1/logs/
 api/api-internal-pipeline-structure-v1/config/
-api/api-scms-v2/out/
-api/api-scms-v2/target/
-api/api-scms-v2/logs/
-api/api-scms-v2/config/
 api/api-agents-v6/out/
 api/api-agents-v6/target/
 api/api-agents-v6/logs/
@@ -431,10 +423,6 @@ api/api-artifact-config-v1/out/
 api/api-artifact-config-v1/target/
 api/api-artifact-config-v1/logs/
 api/api-artifact-config-v1/config/
-api/api-packages-v1/out/
-api/api-packages-v1/target/
-api/api-packages-v1/logs/
-api/api-packages-v1/config/
 api/api-package-repository-v1/out/
 api/api-package-repository-v1/target/
 api/api-package-repository-v1/logs/

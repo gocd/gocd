@@ -157,13 +157,6 @@ Rails.application.routes.draw do
   {'application/vnd.go.cd.v1+json' => :apiv1, 'application/vnd.go.cd+json' => :latest}.each do |header, as|
     scope :api, as: as, format: false do
       api_version(:module => 'ApiV1', header: {name: 'Accept', value: header}) do
-        namespace :admin do
-          namespace :templates do
-            get ':template_name/authorization' => 'authorization#show', constraints: {template_name: TEMPLATE_NAME_FORMAT}
-            put ':template_name/authorization' => 'authorization#update', constraints: {template_name: TEMPLATE_NAME_FORMAT}
-          end
-        end
-
         get 'version_infos/stale', controller: :version_infos, action: :stale, as: :stale_version_info
         get 'version_infos/latest_version', controller: :version_infos, action: :latest_version, as: :latest_version_info
         patch 'version_infos/go_server', controller: :version_infos, action: :update_server, as: :update_server_version_info

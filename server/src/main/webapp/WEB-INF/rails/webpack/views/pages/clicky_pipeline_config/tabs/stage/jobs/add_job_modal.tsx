@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Job} from "models/pipeline_configs/job";
@@ -173,9 +172,9 @@ export class AddJobModal extends Modal {
     this.close();
   }
 
-  private onTaskSaveFailure(errorResponse?: ErrorResponse) {
-    if (errorResponse && errorResponse.body) {
-      const parsed = JSON.parse(errorResponse.body);
+  private onTaskSaveFailure(errorResponse?: string) {
+    if (errorResponse ) {
+      const parsed = JSON.parse(JSON.parse(errorResponse).body);
       this.jobToCreate.consumeErrorsResponse(parsed.data);
     }
 
@@ -186,7 +185,7 @@ export class AddJobModal extends Modal {
   private performPipelineSave() {
     return this.pipelineConfigSave()
                .then(this.close.bind(this))
-               .catch((errorResponse?: ErrorResponse) => {
+               .catch((errorResponse?: string) => {
                  this.modalState = ModalState.OK;
                  this.onTaskSaveFailure(errorResponse);
                });

@@ -547,6 +547,35 @@ describe("Validatable", () => {
 
   });
 
+  describe("validatePositiveNumber", () => {
+    class Variable extends ValidatableMixin {
+      key: Stream<string>;
+
+      constructor(key: string) {
+        super();
+        this.key = Stream(key);
+        this.validatePositiveNumber("key");
+      }
+    }
+
+    it("should validate that the field has a positive number", () => {
+      const var1 = new Variable("-33");
+
+      var1.validate();
+
+      expect(var1.errors().hasErrors()).toBe(true);
+      expect(var1.errors().errors("key")).toEqual(['Key must be a positive integer']);
+    });
+
+    it("should not give validation errors if field is a positive number", () => {
+      const var1 = new Variable("30");
+
+      var1.validate();
+
+      expect(var1.errors().hasErrors()).toBe(false);
+    });
+  });
+
   describe("Error Message", () => {
     it("duplicate", () => {
       expect(ErrorMessages.duplicate("id")).toEqual("Id is a duplicate");

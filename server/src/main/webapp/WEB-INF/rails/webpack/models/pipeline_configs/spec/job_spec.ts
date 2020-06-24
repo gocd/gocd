@@ -128,4 +128,15 @@ describe("Job model", () => {
                  }]
                });
   });
+
+  it('should validate positive number for timeout and run instance count', () => {
+    const job = validJob();
+    job.setJobTimeout(-33);
+    job.setRunInstanceCount(-33);
+
+    expect(job.isValid()).toBeFalse();
+    expect(job.errors().count()).toBe(2);
+    expect(job.errors().errorsForDisplay('timeout')).toBe('Timeout must be a positive integer.');
+    expect(job.errors().errorsForDisplay('runInstanceCount')).toBe('Run instance count must be a positive integer.');
+  });
 });

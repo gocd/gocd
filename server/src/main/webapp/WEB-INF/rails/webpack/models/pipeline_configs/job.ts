@@ -68,7 +68,9 @@ export class Job extends ValidatableMixin {
     this.validateEach("tabs");
     this.validateEach("environmentVariables");
     this.validatePresenceOf("timeout", {condition: () => this.jobTimeoutType() === "number"});
+    this.validatePositiveNumber("timeout", {condition: () => this.jobTimeoutType() === "number"});
     this.validatePresenceOf("runInstanceCount", {condition: () => this.runType() === "number"});
+    this.validatePositiveNumber("runInstanceCount", {condition: () => this.runType() === "number"});
     this.validateChildAttrIsUnique("environmentVariables",
                                    "name",
                                    {message: "Environment Variable names must be unique"});

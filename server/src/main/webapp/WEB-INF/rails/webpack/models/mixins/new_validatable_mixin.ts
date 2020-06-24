@@ -198,6 +198,19 @@ class UrlPatternValidator extends Validator {
   }
 }
 
+class PositiveNumberValidator extends Validator {
+  protected doValidate(entity: any, attr: string): void {
+    const value = +entity[attr]();
+    if (isNaN(value)) {
+      entity.errors().add(attr, this.options.message || ErrorMessages.mustBePositiveNumber(attr));
+    } else {
+      if (value < 0) {
+        entity.errors().add(attr, this.options.message || ErrorMessages.mustBePositiveNumber(attr));
+      }
+    }
+  }
+}
+
 /** Works for Set and Map instances too */
 function isEmpty<T>(i: Iterable<T>): boolean {
   if (void 0 === i) { return true; }
@@ -307,6 +320,10 @@ export class ValidatableMixin extends BaseErrorsConsumer implements Validatable,
 
   validateMaxLength(attr: string, maxAllowedLength: number, options?: ValidatorOptions) {
     this.validateWith(new MaxLengthValidator(maxAllowedLength, options), attr);
+  }
+
+  validatePositiveNumber(attr: string, options?: ValidatorOptions) {
+    this.validateWith(new PositiveNumberValidator(options), attr);
   }
 
   validateEach(attr: string) {

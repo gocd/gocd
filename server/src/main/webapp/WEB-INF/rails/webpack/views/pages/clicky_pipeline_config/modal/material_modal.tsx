@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Scms} from "models/materials/pluggable_scm";
@@ -114,9 +113,9 @@ export class MaterialModal extends Modal {
 
       this.pipelineConfigSave()
           .then(() => this.close())
-          .catch((errorResponse?: ErrorResponse) => {
-            if(errorResponse && errorResponse.body) {
-              const parse            = JSON.parse(errorResponse.body);
+          .catch((errorResponse?: string) => {
+            if(errorResponse ) {
+              const parse            = JSON.parse(JSON.parse(errorResponse).body);
               const unconsumedErrors = this.entity().consumeErrorsResponse(parse.data);
               this.errorMessage(<span>{parse.message}<br/> {unconsumedErrors.allErrorsForDisplay()}</span>);
             }

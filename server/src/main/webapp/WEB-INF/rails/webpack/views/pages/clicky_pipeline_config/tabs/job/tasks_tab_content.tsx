@@ -123,7 +123,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   onTaskUpdate(vnode: m.Vnode<Attrs, State>, index: number, updated: Task) {
     if (updated.isValid()) {
       const tasks  = vnode.attrs.tasks();
-      const old = tasks[index];
+      const old    = tasks[index];
       tasks[index] = updated;
       vnode.attrs.tasks(tasks);
 
@@ -201,11 +201,16 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
 
   private onTaskSaveFailure(vnode: m.Vnode<Attrs, State>,
                             onFailureCallback: () => any,
-                            errorResponse?: ErrorResponse) {
-    if (errorResponse && errorResponse.body) {
-      const parsed = JSON.parse(errorResponse.body);
-      vnode.state.modal.getTask()!.consumeErrorsResponse(parsed.data);
-      vnode.state.modal.flashMessage.setMessage(MessageType.alert, parsed.message);
+                            errorResponse?: string) {
+    if (errorResponse) {
+      const parsed = JSON.parse(errorResponse);
+      if (parsed.body) {
+        const errorData        = JSON.parse(parsed.body);
+        const unconsumedErrors = vnode.state.modal.getTask()!.consumeErrorsResponse(errorData.data);
+        vnode.state.modal.flashMessage.setMessage(MessageType.alert, <span>{parsed.message}<br/> {unconsumedErrors.allErrorsForDisplay()}</span>);
+      } else {
+        vnode.state.modal.flashMessage.setMessage(MessageType.alert, parsed.message);
+      }
     }
 
     onFailureCallback();
@@ -216,7 +221,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
   private performPipelineSave(vnode: m.Vnode<Attrs, State>, onFailureCallback: () => any) {
     return vnode.attrs.pipelineConfigSave()
                 .then(vnode.state.modal.close.bind(vnode.state.modal))
-                .catch((errorResponse?: ErrorResponse) => {
+                .catch((errorResponse?: string) => {
                   this.onTaskSaveFailure(vnode, onFailureCallback, errorResponse);
                 });
   }

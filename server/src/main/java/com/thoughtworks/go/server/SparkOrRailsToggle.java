@@ -30,4 +30,8 @@ public class SparkOrRailsToggle {
             request.setAttribute("sparkOrRails", "spark");
         }
     }
+
+    public void preferenceSPA(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.SHOW_OLD_PREFERENCE_SPA, request);
+    }
 }

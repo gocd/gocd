@@ -40,18 +40,6 @@ module Admin
       tab_name == "jobs"
     end
 
-    def tab_aware_stage_link(stage_parent, pipeline_name, stage_name, tab_name)
-      if (navigating_from_another_stages_page && tab_name)
-        if (navigating_from_job_listing(tab_name))
-          admin_job_listing_path(:stage_parent => stage_parent, :pipeline_name => pipeline_name, :stage_name => stage_name, :current_tab=> tab_name) # Retain job listing as current tab on stage edit
-        else
-          admin_stage_edit_path(:stage_parent => stage_parent, :pipeline_name => pipeline_name, :stage_name => stage_name, :current_tab=> tab_name) # Retain tab other than job listing as current tab on stage edit
-        end
-      else
-        admin_stage_edit_path(:stage_parent => stage_parent, :pipeline_name =>pipeline_name, :stage_name => stage_name, :current_tab=>"settings") # Default to stage settings for stage edit when from a non stage page
-      end
-    end
-
     def default_job_timeout_for_display(cruise_config)
       if (cruise_config.server().getTimeoutType() == com.thoughtworks.go.config.ServerConfig::NEVER_TIMEOUT)
         "Never"

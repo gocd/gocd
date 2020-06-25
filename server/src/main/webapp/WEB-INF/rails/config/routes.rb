@@ -46,11 +46,6 @@ Rails.application.routes.draw do
   put "admin/config_xml" => "admin/configuration#update", as: :config_update
   get "admin/config_xml/edit" => "admin/configuration#edit", as: :config_edit
 
-  get "admin/templates/:template_name/permissions" => "admin/templates#edit_permissions", constraints: {template_name: TEMPLATE_NAME_FORMAT}, as: :edit_template_permissions
-  post "admin/templates/:template_name/permissions" => "admin/templates#update_permissions", constraints: {template_name: TEMPLATE_NAME_FORMAT}, as: :update_template_permissions
-  get "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/templates#edit", constraints: {stage_parent: "templates", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general"].join("|")}/}, defaults: {stage_parent: "templates"}, as: :template_edit
-  put "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/templates#update", constraints: {stage_parent: "templates", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general"].join("|")}/}, defaults: {stage_parent: "templates"}, as: :template_update
-
   resources :analytics, only: [:index], controller: "analytics"
   get 'analytics/:plugin_id/:type/:id' => 'analytics#show', constraints: {plugin_id: PLUGIN_ID_FORMAT, id: PIPELINE_NAME_FORMAT}, as: :show_analytics
 

@@ -506,7 +506,11 @@ module ApplicationHelper
   end
 
   def edit_path_for_pipeline(pipeline_name)
-    pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general')
+    "/go/admin/pipelines/#{pipeline_name}/general"
+  end
+
+  def template_edit_path(pipeline_name)
+    "/go/admin/templates/#{pipeline_name}/general"
   end
 
   def plugin_supports_status_report?(plugin_id)

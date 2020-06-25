@@ -1,8 +1,0 @@
-<ul>
-    <% default_options = {:pipeline_name => params[:pipeline_name], :stage_name => params[:stage_name]} %>
-    <li id="stage"><%= link_to 'Stage Settings', admin_stage_edit_path(default_options.merge(:current_tab => "settings", :stage_parent => "pipelines")) %></li>
-    <li id="jobs"><%= link_to 'Jobs', admin_job_listing_path() %></li>
-    <!-- fix me, no instance variables should be used in partial, this can lead to crazy production-only bugs -jj -->
-    <li id="variables"><%= link_to 'Environment Variables', admin_stage_edit_path(default_options.merge(:current_tab => "environment_variables", :stage_parent => "pipelines")) %></li>
-    <li id="permissions"><%= link_to 'Permissions', admin_stage_edit_path(default_options.merge(:current_tab => "permissions", :stage_parent =>"pipelines")) %></li>
-</ul>

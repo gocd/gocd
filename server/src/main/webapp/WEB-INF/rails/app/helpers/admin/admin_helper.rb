@@ -76,6 +76,9 @@ module Admin
     def navigating_from_another_stages_page
       (!params[:stage_name].blank?) && params[:job_name].blank?
     end
-    
+
+    def package_repositories_new_path
+      "/go/admin/package_repositories/new"
+    end
   end
 end

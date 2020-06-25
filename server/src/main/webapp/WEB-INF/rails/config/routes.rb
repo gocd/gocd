@@ -36,6 +36,7 @@ Rails.application.routes.draw do
   get "admin/pipelines/snippet/:group_name" => "admin/pipelines_snippet#show", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipelines_snippet_show
   get "admin/pipelines/snippet/:group_name/edit" => "admin/pipelines_snippet#edit", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipelines_snippet_edit
   put "admin/pipelines/snippet/:group_name" => "admin/pipelines_snippet#update", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipelines_snippet_update
+  get "admin/config_change/between/:later_md5/and/:earlier_md5" => 'admin/stages#config_change', as: :admin_config_change
 
   ["svn", "git", "hg", "p4", "dependency", "tfs", "package"].each do |material_type|
     get "admin/pipelines/:pipeline_name/materials/#{material_type}/new" => "admin/materials/#{material_type}#new", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_new"
@@ -56,17 +57,6 @@ Rails.application.routes.draw do
   get "admin/pipelines/:pipeline_name/pause_info.json" => "admin/pipelines#pause_info", :format => "json", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pause_info_refresh
   get "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/pipelines#edit", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_edit
   put "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/pipelines#update", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_update
-
-  get "admin/:stage_parent/:pipeline_name/stages" => "admin/stages#index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, as: :admin_stage_listing
-  put "admin/:stage_parent/:pipeline_name/stages" => "admin/stages#use_template", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, as: :admin_stage_use_template
-  get "admin/:stage_parent/:pipeline_name/stages/new" => "admin/stages#new", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, as: :admin_stage_new
-  delete "admin/:stage_parent/:pipeline_name/stages/:stage_name" => "admin/stages#destroy", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, stage_name: STAGE_NAME_FORMAT}, as: :admin_stage_delete
-  post "admin/:stage_parent/:pipeline_name/stages" => "admin/stages#create", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/}, as: :admin_stage_create
-  post "admin/:stage_parent/:pipeline_name/stages/:stage_name/index/increment" => "admin/stages#increment_index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, stage_name: STAGE_NAME_FORMAT}, as: :admin_stage_increment_index
-  post "admin/:stage_parent/:pipeline_name/stages/:stage_name/index/decrement" => "admin/stages#decrement_index", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, stage_name: STAGE_NAME_FORMAT}, as: :admin_stage_decrement_index
-  get "admin/:stage_parent/:pipeline_name/stages/:stage_name/:current_tab" => "admin/stages#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, current_tab: /(settings|environment_variables|permissions)/, stage_name: STAGE_NAME_FORMAT}, as: :admin_stage_edit
-  put "admin/:stage_parent/:pipeline_name/stages/:stage_name/:current_tab" => "admin/stages#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_parent: /(pipelines|templates)/, current_tab: /(settings|environment_variables|permissions)/, stage_name: STAGE_NAME_FORMAT}, as: :admin_stage_update
-  get "admin/config_change/between/:later_md5/and/:earlier_md5" => 'admin/stages#config_change', as: :admin_config_change
 
   get "admin/commands" => "admin/commands#index", as: :admin_commands
   get "admin/commands/show" => "admin/commands#show", as: :admin_command_definition

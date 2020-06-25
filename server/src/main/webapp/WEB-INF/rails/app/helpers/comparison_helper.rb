@@ -23,6 +23,10 @@ module ComparisonHelper
     compare_pipelines_path(:pipeline_name => pipeline_name, :from_counter => from_counter, :to_counter => to_counter)
   end
 
+  def compare_pipelines_path(options = {})
+    "/go/compare/#{options[:pipeline_name]}/#{options[:from_counter]}/with/#{options[:to_counter]}"
+  end
+
   def any_match?(pattern, *values)
     regex = /#{pattern}/i
     values.compact.any? { |s| s =~ regex }

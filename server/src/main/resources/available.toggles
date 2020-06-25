@@ -17,11 +17,6 @@
       "value": false
     },
     {
-      "key": "show_old_comparison_spa",
-      "description": "Switch to the old comparison SPA. Default is false.",
-      "value": false
-    },
-    {
       "key": "branch_support",
       "value": false
     },

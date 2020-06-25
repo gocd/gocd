@@ -19,7 +19,6 @@ public class Toggles {
     public static String BROWSER_CONSOLE_LOG_WS = "browser_console_log_ws_key";
     public static String ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD = "allow_empty_pipeline_groups_dashboard";
     public static String TEST_DRIVE = "test_drive";
-    public static String SHOW_OLD_COMPARISON_SPA = "show_old_comparison_spa";
     public static String USE_RAILS_TEMPLATE_AUTHORIZATION_PAGE = "use_rails_template_authorization_page";
 
     private static FeatureToggleService service;

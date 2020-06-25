@@ -30,8 +30,4 @@ public class SparkOrRailsToggle {
             request.setAttribute("sparkOrRails", "spark");
         }
     }
-
-    public void comparisonSPA(HttpServletRequest request, HttpServletResponse response) {
-        basedOnToggle(Toggles.SHOW_OLD_COMPARISON_SPA, request);
-    }
 }

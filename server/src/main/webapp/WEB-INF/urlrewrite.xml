@@ -247,8 +247,7 @@
   <rule>
     <name>Comparison UI</name>
     <from>^/compare/([^/]+)/([^/]+)/with/([^/]+)(/?)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="comparisonSPA"/>
-    <to last="true">/%{attribute:sparkOrRails}/compare/${escape:$1}/${escape:$2}/with/${escape:$3}</to>
+    <to last="true">/spark/compare/${escape:$1}/${escape:$2}/with/${escape:$3}</to>
   </rule>
 
   <rule>

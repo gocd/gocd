@@ -51,25 +51,6 @@ Rails.application.routes.draw do
   get "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/templates#edit", constraints: {stage_parent: "templates", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general"].join("|")}/}, defaults: {stage_parent: "templates"}, as: :template_edit
   put "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/templates#update", constraints: {stage_parent: "templates", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general"].join("|")}/}, defaults: {stage_parent: "templates"}, as: :template_update
 
-  get "admin/package_definitions/:repo_id/new" => "admin/package_definitions#new", as: :package_definitions_new
-  get "admin/package_definitions/:repo_id/new_for_new_pipeline_wizard" => "admin/package_definitions#new_for_new_pipeline_wizard", as: :package_definitions_new_for_new_pipeline_wizard
-  get "admin/package_definitions/:repo_id/:package_id/pipelines_used_in" => "admin/package_definitions#pipelines_used_in", as: :pipelines_used_in
-  get "admin/package_definitions/:repo_id/:package_id" => "admin/package_definitions#show", as: :package_definitions_show
-  get "admin/package_definitions/:repo_id/:package_id/for_new_pipeline_wizard" => "admin/package_definitions#show_for_new_pipeline_wizard", as: :package_definitions_show_for_new_pipeline_wizard
-  get "admin/package_definitions/:repo_id/:package_id/with_repository_list" => "admin/package_definitions#show_with_repository_list", as: :package_definitions_show_with_repository_list
-  delete "admin/package_definitions/:repo_id/:package_id" => "admin/package_definitions#destroy", as: :package_definition_delete
-  post "admin/package_definitions/check_connection" => "admin/package_definitions#check_connection", as: :package_definition_check_connection, constraints: HeaderConstraint.new
-
-  get "admin/package_repositories/new" => "admin/package_repositories#new", as: :package_repositories_new
-  post "admin/package_repositories/check_connection" => "admin/package_repositories#check_connection", as: :package_repositories_check_connection, constraints: HeaderConstraint.new
-  get "admin/package_repositories/list" => "admin/package_repositories#list", as: :package_repositories_list
-  get "admin/package_repositories/:id/edit" => "admin/package_repositories#edit", as: :package_repositories_edit
-  post "admin/package_repositories" => "admin/package_repositories#create", as: :package_repositories_create
-  put "admin/package_repositories/:id" => "admin/package_repositories#update", as: :package_repositories_update
-  delete "admin/package_repositories/:id" => "admin/package_repositories#destroy", as: :package_repositories_delete
-  get "admin/package_repositories/:plugin/config/" => "admin/package_repositories#plugin_config", constraints: {:plugin => ALLOW_DOTS}, as: :package_repositories_plugin_config
-  get "admin/package_repositories/:id/:plugin/config/" => "admin/package_repositories#plugin_config_for_repo", constraints: {:plugin => ALLOW_DOTS}, as: :package_repositories_plugin_config_for_repo
-
   resources :analytics, only: [:index], controller: "analytics"
   get 'analytics/:plugin_id/:type/:id' => 'analytics#show', constraints: {plugin_id: PLUGIN_ID_FORMAT, id: PIPELINE_NAME_FORMAT}, as: :show_analytics
 

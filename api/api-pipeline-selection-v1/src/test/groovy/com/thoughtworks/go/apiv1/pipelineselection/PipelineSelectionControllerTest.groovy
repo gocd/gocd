@@ -23,7 +23,6 @@ import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelinesDataRes
 import com.thoughtworks.go.config.BasicPipelineConfigs
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
-import com.thoughtworks.go.config.PipelineConfigs
 import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.server.domain.user.PipelineSelections
 import com.thoughtworks.go.server.service.PipelineConfigService
@@ -57,7 +56,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         enableSecurity()
         loginAsUser()
 
-        def selections = new PipelineSelections(FiltersHelper.blacklist(["build-linux", "build-windows"]), new Date(), currentUserLoginId())
+        def selections = new PipelineSelections(FiltersHelper.excludes(["build-linux", "build-windows"]), new Date(), currentUserLoginId())
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
@@ -85,7 +84,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         disableSecurity()
         loginAsAnonymous()
 
-        def selections = new PipelineSelections(FiltersHelper.blacklist(["build-linux", "build-windows"]), new Date(), currentUserLoginId())
+        def selections = new PipelineSelections(FiltersHelper.excludes(["build-linux", "build-windows"]), new Date(), currentUserLoginId())
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
@@ -145,7 +144,7 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         disableSecurity()
         loginAsAnonymous()
 
-        def selections = new PipelineSelections(FiltersHelper.blacklist(["build-linux", "build-windows"]), new Date(), currentUserLoginId())
+        def selections = new PipelineSelections(FiltersHelper.excludes(["build-linux", "build-windows"]), new Date(), currentUserLoginId())
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
@@ -187,8 +186,8 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
           ]
         ]
 
-        def initial = new PipelineSelections(FiltersHelper.blacklist(["foo", "bar"]), new Date(), currentUserLoginId())
-        def filters = FiltersHelper.blacklist(payload.filters.get(0).pipelines)
+        def initial = new PipelineSelections(FiltersHelper.excludes(["foo", "bar"]), new Date(), currentUserLoginId())
+        def filters = FiltersHelper.excludes(payload.filters.get(0).pipelines)
         def updated = new PipelineSelections(filters, null, null)
 
         when(pipelineSelectionsService.load(null, currentUserLoginId())).thenReturn(initial, updated)
@@ -219,8 +218,8 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         long recordId = SecureRandom.longNumber()
         String cookie = String.valueOf(recordId)
 
-        def initial = new PipelineSelections(FiltersHelper.blacklist(["foo", "bar"]), new Date(), currentUserLoginId())
-        def filters = FiltersHelper.blacklist(payload.filters.get(0).pipelines)
+        def initial = new PipelineSelections(FiltersHelper.excludes(["foo", "bar"]), new Date(), currentUserLoginId())
+        def filters = FiltersHelper.excludes(payload.filters.get(0).pipelines)
         def updated = new PipelineSelections(filters, null, null)
 
         when(pipelineSelectionsService.load(cookie, currentUserLoginId())).thenReturn(initial, updated)
@@ -251,8 +250,8 @@ class PipelineSelectionControllerTest implements SecurityServiceTrait, Controlle
         long recordId = SecureRandom.longNumber()
         String cookie = String.valueOf(recordId)
 
-        def initial = new PipelineSelections(FiltersHelper.blacklist(["foo", "bar"]), new Date(), currentUserLoginId())
-        def filters = FiltersHelper.blacklist(payload.filters.get(0).pipelines)
+        def initial = new PipelineSelections(FiltersHelper.excludes(["foo", "bar"]), new Date(), currentUserLoginId())
+        def filters = FiltersHelper.excludes(payload.filters.get(0).pipelines)
         def updated = new PipelineSelections(filters, null, null)
 
         when(pipelineSelectionsService.load(cookie, currentUserLoginId())).thenReturn(initial, updated)

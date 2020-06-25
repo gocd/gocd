@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-public class BlacklistFilter extends AbstractPipelinesFilter {
-    public BlacklistFilter(String name, List<CaseInsensitiveString> pipelines, Set<String> state) {
+public class ExcludesFilter extends AbstractPipelinesFilter {
+    public ExcludesFilter(String name, List<CaseInsensitiveString> pipelines, Set<String> state) {
         super(name, pipelines, state);
     }
 
@@ -40,7 +40,7 @@ public class BlacklistFilter extends AbstractPipelinesFilter {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BlacklistFilter that = (BlacklistFilter) o;
+        ExcludesFilter that = (ExcludesFilter) o;
         return Objects.equals(name(), that.name()) &&
                 Objects.equals(pipelines, that.pipelines);
     }

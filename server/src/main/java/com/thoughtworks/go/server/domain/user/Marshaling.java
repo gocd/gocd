@@ -30,8 +30,8 @@ public class Marshaling {
     private static final String KEY_TYPE = "type";
     private static final String KEY_FILTERS = "filters";
 
-    private static final String TYPE_WHITELIST = "whitelist";
-    private static final String TYPE_BLACKLIST = "blacklist";
+    private static final String TYPE_INCLUDES = "whitelist";
+    private static final String TYPE_EXCLUDES = "blacklist";
 
     public static class FiltersSerializer implements JsonSerializer<Filters> {
         @Override
@@ -70,12 +70,12 @@ public class Marshaling {
         public JsonElement serialize(DashboardFilter src, Type typeOfSrc, JsonSerializationContext context) {
             final JsonElement serialized;
 
-            if (src instanceof WhitelistFilter) {
-                serialized = context.serialize(src, WhitelistFilter.class);
-                serialized.getAsJsonObject().addProperty(KEY_TYPE, TYPE_WHITELIST);
-            } else if (src instanceof BlacklistFilter) {
-                serialized = context.serialize(src, BlacklistFilter.class);
-                serialized.getAsJsonObject().addProperty(KEY_TYPE, TYPE_BLACKLIST);
+            if (src instanceof IncludesFilter) {
+                serialized = context.serialize(src, IncludesFilter.class);
+                serialized.getAsJsonObject().addProperty(KEY_TYPE, TYPE_INCLUDES);
+            } else if (src instanceof ExcludesFilter) {
+                serialized = context.serialize(src, ExcludesFilter.class);
+                serialized.getAsJsonObject().addProperty(KEY_TYPE, TYPE_EXCLUDES);
             } else {
                 throw new IllegalArgumentException("Don't know how to handle DashboardFilter implementation: " + src.getClass().getCanonicalName());
             }
@@ -98,12 +98,12 @@ public class Marshaling {
             if (StringUtils.isBlank(type)) throw new JsonParseException("Missing filter type");
 
             switch (type) {
-                case TYPE_WHITELIST:
+                case TYPE_INCLUDES:
                     return context.deserialize(jsonObject,
-                            WhitelistFilter.class);
-                case TYPE_BLACKLIST:
+                            IncludesFilter.class);
+                case TYPE_EXCLUDES:
                     return context.deserialize(jsonObject,
-                            BlacklistFilter.class);
+                            ExcludesFilter.class);
                 default:
                     throw new JsonParseException(format("Don't know how to deserialize filter type: \"%s\"", type));
             }

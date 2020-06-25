@@ -25,9 +25,9 @@ import java.util.List;
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 
 public class PipelineSelectionsHelper {
-    public static PipelineSelections with(List<String> pipelines, Date date, Long userId, boolean blacklist) {
+    public static PipelineSelections with(List<String> pipelines, Date date, Long userId, boolean shouldBeExcluded) {
         List<CaseInsensitiveString> params = CaseInsensitiveString.list(pipelines);
-        DashboardFilter filter = blacklist ? new BlacklistFilter(DEFAULT_NAME, params, new HashSet<>()) : new WhitelistFilter(DEFAULT_NAME, params, new HashSet<>());
+        DashboardFilter filter = shouldBeExcluded ? new ExcludesFilter(DEFAULT_NAME, params, new HashSet<>()) : new IncludesFilter(DEFAULT_NAME, params, new HashSet<>());
         return new PipelineSelections(new Filters(Collections.singletonList(filter)), date, userId);
     }
 

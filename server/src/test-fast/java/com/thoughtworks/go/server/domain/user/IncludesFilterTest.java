@@ -20,29 +20,29 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class BlacklistFilterTest {
+class IncludesFilterTest {
     @Test
     void isPipelineVisible() {
-        final BlacklistFilter f = new BlacklistFilter(null, CaseInsensitiveString.list("p1"), null);
-        assertFalse(f.isPipelineVisible(new CaseInsensitiveString("p1")));
-        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p0")));
+        final IncludesFilter f = new IncludesFilter(null, CaseInsensitiveString.list("p1"), null);
+        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p1")));
+        assertFalse(f.isPipelineVisible(new CaseInsensitiveString("p0")));
     }
 
     @Test
     void allowPipeline() {
-        final BlacklistFilter f = new BlacklistFilter(null, CaseInsensitiveString.list("p1"), null);
-        assertFalse(f.isPipelineVisible(new CaseInsensitiveString("p1")));
-        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p0")));
-
-        f.allowPipeline(new CaseInsensitiveString("p1"));
+        final IncludesFilter f = new IncludesFilter(null, CaseInsensitiveString.list("p1"), null);
         assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p1")));
+        assertFalse(f.isPipelineVisible(new CaseInsensitiveString("p0")));
+
+        f.allowPipeline(new CaseInsensitiveString("p0"));
+        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p0")));
     }
 
     @Test
     void equals() {
-        final BlacklistFilter a = new BlacklistFilter(null, CaseInsensitiveString.list("p1"), null);
-        final BlacklistFilter b = new BlacklistFilter(null, CaseInsensitiveString.list("p1"), null);
-        final BlacklistFilter c = new BlacklistFilter(null, CaseInsensitiveString.list("p0"), null);
+        final IncludesFilter a = new IncludesFilter(null, CaseInsensitiveString.list("p1"), null);
+        final IncludesFilter b = new IncludesFilter(null, CaseInsensitiveString.list("p1"), null);
+        final IncludesFilter c = new IncludesFilter(null, CaseInsensitiveString.list("p0"), null);
         assertEquals(a, b);
         assertNotEquals(a, c);
     }

@@ -214,15 +214,15 @@ describe("Pipeline List View Model", () => {
 
   it("PipelineListVM.calcSelectionMap() can output the initial selection state as a map", () => {
     const all = { group1: "abc".split(""), group2: "def".split("") };
-    const whitelisted = PipelineListVM.calcSelectionMap(all, false, ["a", "c", "e"]);
+    const shown = PipelineListVM.calcSelectionMap(all, false, ["a", "c", "e"]);
 
-    expect(JSON.stringify(whitelisted)).toBe(JSON.stringify(_st({ a: true, b: false, c: true, d: false, e: true, f: false })));
+    expect(JSON.stringify(shown)).toBe(JSON.stringify(_st({ a: true, b: false, c: true, d: false, e: true, f: false })));
 
-    const blacklisted = PipelineListVM.calcSelectionMap(all, true, ["a", "c", "e"]);
-    expect(JSON.stringify(blacklisted)).toBe(JSON.stringify(_st({ a: false, b: true, c: false, d: true, e: false, f: true })));
+    const hidden = PipelineListVM.calcSelectionMap(all, true, ["a", "c", "e"]);
+    expect(JSON.stringify(hidden)).toBe(JSON.stringify(_st({ a: false, b: true, c: false, d: true, e: false, f: true })));
   });
 
-  it("pipelines() can output the state of the internal selection map as a whitelist or blacklist of pipelines", () => {
+  it("pipelines() can output the state of the internal selection map as an allowlist or denylist of pipelines", () => {
     const all = { group1: "abc".split(""), group2: "def".split("") };
     const sel = _st({ a: true, b: true, c: true, d: true, e: false, f: false });
 

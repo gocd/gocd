@@ -33,7 +33,7 @@ public class CRFilter extends CRBase {
     @SerializedName("ignore")
     @Expose
     private List<String> ignore = new ArrayList<>();
-    @SerializedName("whitelist")
+    @SerializedName("includes")
     @Expose
     private List<String> includes = new ArrayList<>();
 

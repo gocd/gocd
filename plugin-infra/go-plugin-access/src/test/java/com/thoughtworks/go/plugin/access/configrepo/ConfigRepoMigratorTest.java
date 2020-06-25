@@ -15,9 +15,15 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo;
 
+import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
@@ -197,6 +203,20 @@ class ConfigRepoMigratorTest {
             String transformedJSON = migrator.migrate(oldJSON, 9);
 
             assertThatJson(transformedJSON).isEqualTo(newJSON);
+        }
+    }
+
+    @Nested
+    class MigrateV9ToV10 {
+        @Test
+        void shouldReplaceWhitelistWithIncludes() throws IOException {
+            ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
+
+            String oldJSON = documentMother.v9WithWhitelist();
+            String newJSON = documentMother.v10WithIncludes();
+            String transformedJSON = migrator.migrate(oldJSON, 10);
+
+            assertThatJson(newJSON).isEqualTo(transformedJSON);
         }
     }
 }

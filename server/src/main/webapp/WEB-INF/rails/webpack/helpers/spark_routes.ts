@@ -648,4 +648,11 @@ export class SparkRoutes {
     }
     return `/go/api/internal/materials/${fingerprint}/modifications?${queryParams}`;
   }
+
+  static notificationFilterAPIPath(id?: number): string {
+    if (id) {
+      return `/go/api/notification_filters/${id}`;
+    }
+    return '/go/api/notification_filters';
+  }
 }

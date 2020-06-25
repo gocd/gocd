@@ -106,7 +106,7 @@ public class UrlRewriterIntegrationTest {
     @DataPoint
     public static ResponseAssertion PLUGINS_LISTING = new ResponseAssertion(HTTP_URL + "/go/admin/plugins", HTTP_URL + "/go/spark/admin/plugins", true);
     @DataPoint
-    public static ResponseAssertion PACKAGE_REPOSITORIES_LISTING = new ResponseAssertion(HTTP_URL + "/go/admin/package_repositories", HTTP_URL + "/go/rails/admin/package_repositories", true);
+    public static ResponseAssertion PACKAGE_REPOSITORIES_LISTING = new ResponseAssertion(HTTP_URL + "/go/admin/package_repositories", HTTP_URL + "/go/spark/admin/package_repositories", true);
     @DataPoint
     public static ResponseAssertion PACKAGE_DEFINITIONS = new ResponseAssertion(HTTP_URL + "/go/admin/package_definitions", HTTP_URL + "/go/rails/admin/package_definitions", true);
     @DataPoint

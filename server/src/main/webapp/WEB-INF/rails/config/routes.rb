@@ -91,7 +91,6 @@ Rails.application.routes.draw do
       resources :auth_configs, only: [:index], controller: :auth_configs, as: :auth_configs
       resources :roles, only: [:index], controller: :roles, as: :roles
     end
-
   end
 
   namespace :api, as: "" do

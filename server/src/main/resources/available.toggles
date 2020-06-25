@@ -17,24 +17,9 @@
       "value": false
     },
     {
-      "key": "fast_pipeline_save",
-      "description": "Use the pipeline config service to speed up save, instead of doing a full config save",
-      "value": true
-    },
-    {
-      "key": "show_old_pkg_repos_spa",
-      "description": "Switch to the old package repositories SPA. Default is false.",
-      "value": false
-    },
-    {
       "key": "show_old_comparison_spa",
       "description": "Switch to the old comparison SPA. Default is false.",
       "value": false
-    },
-    {
-      "key": "new_pipeline_config_spa",
-      "description": "When enabled, redirects to pipeline config spa. Default is true.",
-      "value": true
     },
     {
       "key": "branch_support",

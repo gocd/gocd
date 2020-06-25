@@ -34,7 +34,7 @@ import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import styles from "./advanced_settings.scss";
-import {BLACKLIST_HELP_MESSAGE, DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
+import {DENYLIST_HELP_MESSAGE, DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
 interface Attrs {
   material: Material;
@@ -121,12 +121,12 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
                    field={mattrs.autoUpdate}
                    errorText={this.errs(mattrs, "autoUpdate")}/>,
 
-        <TextField label="Blacklist" helpText={BLACKLIST_HELP_MESSAGE}
+        <TextField label="Denylist" helpText={DENYLIST_HELP_MESSAGE}
                    property={this.filterProxy.bind(this, mattrs)}
                    errorText={this.errs(mattrs, "filter")}/>,
 
         <CheckboxField property={mattrs.invertFilter} dataTestId={"invert-filter"}
-                       label="Invert the file filter, e.g. a Blacklist becomes a Whitelist instead."
+                       label="Invert the file filter, e.g. a Denylist becomes an Allowlist instead."
                        errorText={this.errs(mattrs, "invertFilter")}/>
       ];
       settings                  = settings.concat(commonSettings);

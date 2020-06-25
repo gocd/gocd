@@ -43,7 +43,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "shallow-clone-recommended-for-large-repositories": "Shallow clone (recommended for large repositories)",
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name": "Material Name",
-      "blacklist": "Blacklist"
+      "denylist": "Denylist"
     });
     assertAutoUpdateSwitchPresent();
 
@@ -61,7 +61,7 @@ describe("AddPipeline: SCM Material Fields", () => {
                                   "password": "Password",
                                   "alternate-checkout-path": "Alternate Checkout Path",
                                   "material-name": "Material Name",
-                                  "blacklist": "Blacklist"
+                                  "denylist": "Denylist"
                                 });
 
     assertLabelledInputsAbsent("shallow-clone-recommended-for-large-repositories");
@@ -81,7 +81,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "password":                "Password",
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
-      "blacklist":               "Blacklist"
+      "denylist":               "Denylist"
     });
     assertAutoUpdateSwitchPresent();
 
@@ -99,7 +99,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "password":                "Password",
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
-      "blacklist":               "Blacklist"
+      "denylist":               "Denylist"
     });
     assertAutoUpdateSwitchPresent();
 
@@ -118,7 +118,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "password":                  "Password",
       "alternate-checkout-path":   "Alternate Checkout Path",
       "material-name":             "Material Name",
-      "blacklist":                 "Blacklist"
+      "denylist":                 "Denylist"
     });
     assertAutoUpdateSwitchPresent();
 
@@ -137,7 +137,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "password":                "Password",
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
-      "blacklist":               "Blacklist"
+      "denylist":                "Denylist"
     });
     assertAutoUpdateSwitchPresent();
 
@@ -155,7 +155,7 @@ describe("AddPipeline: SCM Material Fields", () => {
       "password":                "Password",
       "alternate-checkout-path": "Alternate Checkout Path",
       "material-name":           "Material Name",
-      "blacklist":               "Blacklist"
+      "denylist":                "Denylist"
     });
     assertAutoUpdateSwitchPresent();
 
@@ -183,7 +183,7 @@ describe("AddPipeline: SCM Material Fields", () => {
     assertLabelledInputsAbsent(
       "alternate-checkout-path",
       "material-name",
-      "blacklist"
+      "denylist"
     );
     assertAutoUpdateSwitchAbsent();
 

@@ -16,4 +16,4 @@
 
 export const IDENTIFIER_FORMAT_HELP_MESSAGE = "No spaces. Only letters, numbers, hyphens, underscores, and periods. Max 255 chars.";
 export const DESTINATION_DIR_HELP_MESSAGE = "Specify a different path to clone/checkout this repository. Must be a relative path within the pipeline’s working directory. Defaults to the root of the pipeline's working directory.";
-export const BLACKLIST_HELP_MESSAGE = "Enter the paths to be excluded. Separate multiple entries with a comma.";
+export const DENYLIST_HELP_MESSAGE = "Enter the paths to be excluded when deciding whether to trigger a pipeline based on a change. Separate multiple entries with a comma.";

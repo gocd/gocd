@@ -51,13 +51,6 @@ Rails.application.routes.draw do
   get "admin/:stage_parent/:pipeline_name/materials" => "admin/materials#index", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {stage_parent: "pipelines"}, as: :admin_material_index
   delete "admin/:stage_parent/:pipeline_name/materials/:finger_print" => "admin/materials#destroy", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {stage_parent: "pipelines"}, as: :admin_material_delete
 
-  get "admin/pipelines/create" => "admin/pipelines#new", as: :spark_pipelines_new
-  post "admin/pipelines" => "admin/pipelines#create", as: :pipeline_create
-  post "admin/pipeline/save_clone" => "admin/pipelines#save_clone", as: :pipeline_save_clone
-  get "admin/pipelines/:pipeline_name/pause_info.json" => "admin/pipelines#pause_info", :format => "json", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :pause_info_refresh
-  get "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/pipelines#edit", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_edit
-  put "admin/:stage_parent/:pipeline_name/:current_tab" => "admin/pipelines#update", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT, current_tab: /#{["general", "project_management", "environment_variables", "permissions", "parameters"].join("|")}/}, defaults: {stage_parent: "pipelines"}, as: :pipeline_update
-
   get "admin/commands" => "admin/commands#index", as: :admin_commands
   get "admin/commands/show" => "admin/commands#show", as: :admin_command_definition
   get "admin/commands/lookup" => "admin/commands#lookup", :format => "text", as: :admin_command_lookup

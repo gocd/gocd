@@ -38,19 +38,6 @@ Rails.application.routes.draw do
   put "admin/pipelines/snippet/:group_name" => "admin/pipelines_snippet#update", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipelines_snippet_update
   get "admin/config_change/between/:later_md5/and/:earlier_md5" => 'admin/stages#config_change', as: :admin_config_change
 
-  ["svn", "git", "hg", "p4", "dependency", "tfs", "package"].each do |material_type|
-    get "admin/pipelines/:pipeline_name/materials/#{material_type}/new" => "admin/materials/#{material_type}#new", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_new"
-    post "admin/pipelines/:pipeline_name/materials/#{material_type}" => "admin/materials/#{material_type}#create", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_create"
-    get "admin/pipelines/:pipeline_name/materials/#{material_type}/:finger_print/edit" => "admin/materials/#{material_type}#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_edit"
-    put "admin/pipelines/:pipeline_name/materials/#{material_type}/:finger_print" => "admin/materials/#{material_type}#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: "admin_#{material_type}_update"
-  end
-  defaults :no_layout => true do
-    get "admin/pipelines/:pipeline_name/materials/dependency/pipeline_name_search" => "admin/materials/dependency#pipeline_name_search", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_dependency_material_pipeline_name_search
-    get "admin/pipelines/:pipeline_name/materials/dependency/load_stage_names_for" => "admin/materials/dependency#load_stage_names_for", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_dependency_material_load_stage_names_for
-  end
-  get "admin/:stage_parent/:pipeline_name/materials" => "admin/materials#index", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {stage_parent: "pipelines"}, as: :admin_material_index
-  delete "admin/:stage_parent/:pipeline_name/materials/:finger_print" => "admin/materials#destroy", constraints: {stage_parent: "pipelines", pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {stage_parent: "pipelines"}, as: :admin_material_delete
-
   get "admin/commands" => "admin/commands#index", as: :admin_commands
   get "admin/commands/show" => "admin/commands#show", as: :admin_command_definition
   get "admin/commands/lookup" => "admin/commands#lookup", :format => "text", as: :admin_command_lookup
@@ -82,15 +69,6 @@ Rails.application.routes.draw do
   delete "admin/package_repositories/:id" => "admin/package_repositories#destroy", as: :package_repositories_delete
   get "admin/package_repositories/:plugin/config/" => "admin/package_repositories#plugin_config", constraints: {:plugin => ALLOW_DOTS}, as: :package_repositories_plugin_config
   get "admin/package_repositories/:id/:plugin/config/" => "admin/package_repositories#plugin_config_for_repo", constraints: {:plugin => ALLOW_DOTS}, as: :package_repositories_plugin_config_for_repo
-
-  get "admin/pipelines/:pipeline_name/materials/pluggable_scm/show_existing" => "admin/materials/pluggable_scm#show_existing", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_pluggable_scm_show_existing
-  post "admin/pipelines/:pipeline_name/materials/pluggable_scm/choose_existing" => "admin/materials/pluggable_scm#choose_existing", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_pluggable_scm_choose_existing
-  get "admin/pipelines/:pipeline_name/materials/pluggable_scm/new/:plugin_id" => "admin/materials/pluggable_scm#new", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, plugin_id: ALLOW_DOTS}, as: :admin_pluggable_scm_new
-  post "admin/pipelines/:pipeline_name/materials/pluggable_scm/:plugin_id" => "admin/materials/pluggable_scm#create", constraints: {pipeline_name: PIPELINE_NAME_FORMAT, plugin_id: ALLOW_DOTS}, as: :admin_pluggable_scm_create
-  get "admin/pipelines/:pipeline_name/materials/pluggable_scm/:finger_print/edit" => "admin/materials/pluggable_scm#edit", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_pluggable_scm_edit
-  put "admin/pipelines/:pipeline_name/materials/pluggable_scm/:finger_print" => "admin/materials/pluggable_scm#update", constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :admin_pluggable_scm_update
-  post "admin/materials/pluggable_scm/check_connection/:plugin_id" => "admin/materials/pluggable_scm#check_connection", constraints: {plugin_id: ALLOW_DOTS}, as: :admin_pluggable_scm_check_connection
-  get "admin/materials/pluggable_scm/:scm_id/pipelines_used_in" => "admin/materials/pluggable_scm#pipelines_used_in", as: :scm_pipelines_used_in
 
   resources :analytics, only: [:index], controller: "analytics"
   get 'analytics/:plugin_id/:type/:id' => 'analytics#show', constraints: {plugin_id: PLUGIN_ID_FORMAT, id: PIPELINE_NAME_FORMAT}, as: :show_analytics

@@ -33,7 +33,7 @@ describe('NotificationFilterCRUDSpec', () => {
       expect(filters[0].id()).toBe(1);
       expect(filters[0].pipeline()).toBe('up42');
       expect(filters[0].stage()).toBe('[Any Stage]');
-      expect(filters[0].event()).toBe(NotificationEvent.All.toString());
+      expect(filters[0].event()).toBe(NotificationEvent.All);
       expect(filters[0].matchCommits()).toBeFalse();
       done();
     });
@@ -57,7 +57,7 @@ describe('NotificationFilterCRUDSpec', () => {
       expect(filter.object.id()).toBe(1);
       expect(filter.object.pipeline()).toBe('up42');
       expect(filter.object.stage()).toBe('[Any Stage]');
-      expect(filter.object.event()).toBe(NotificationEvent.All.toString());
+      expect(filter.object.event()).toBe(NotificationEvent.All);
       expect(filter.object.matchCommits()).toBeFalse();
       done();
     });

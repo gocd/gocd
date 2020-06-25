@@ -32,13 +32,4 @@ describe('NotificationFilterSpec', () => {
     expect(filter.errors().count()).toBe(1);
     expect(filter.errors().errorsForDisplay('stage')).toBe('Stage must be present.');
   });
-
-  it('should validate presence of event', () => {
-    const filter = new NotificationFilter(1, "pipeline", "stage", NotificationEvent.All, false);
-    filter.event("");
-
-    expect(filter.isValid()).toBeFalse();
-    expect(filter.errors().count()).toBe(1);
-    expect(filter.errors().errorsForDisplay('event')).toBe('Event must be present.');
-  });
 });

@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.spark.spa;
 
+import com.google.common.collect.ImmutableMap;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -32,10 +34,12 @@ import static spark.Spark.*;
 public class NewPreferencesController implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
+    private final GoConfigService goConfigService;
 
-    public NewPreferencesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public NewPreferencesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, GoConfigService goConfigService) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
+        this.goConfigService = goConfigService;
     }
 
     @Override
@@ -52,8 +56,12 @@ public class NewPreferencesController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
+        Map<String, Object> meta = ImmutableMap.<String, Object>builder()
+                .put("smtp_configured", goConfigService.isSmtpEnabled())
+                .build();
         Map<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Preferences");
+            put("meta", meta);
         }};
         return new ModelAndView(object, null);
     }

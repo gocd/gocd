@@ -655,4 +655,8 @@ export class SparkRoutes {
     }
     return '/go/api/notification_filters';
   }
+
+  static currentUserAPI(): string {
+    return '/go/api/current_user';
+  }
 }

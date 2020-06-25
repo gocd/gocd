@@ -506,8 +506,8 @@ class ConfigConverterTest {
         assertThat(gitMaterialConfig.getFolder()).isNull();
         assertThat(gitMaterialConfig.getAutoUpdate()).isTrue();
         assertThat(gitMaterialConfig.isShallowClone()).isFalse();
-        Filter blacklistFilter = new Filter(new IgnoredFiles("filter"));
-        assertThat(gitMaterialConfig.filter()).isEqualTo(blacklistFilter);
+        Filter ignored = new Filter(new IgnoredFiles("filter"));
+        assertThat(gitMaterialConfig.filter()).isEqualTo(ignored);
         assertThat(gitMaterialConfig.getUrl()).isEqualTo("url");
         assertThat(gitMaterialConfig.getBranch()).isEqualTo("master");
     }
@@ -526,8 +526,8 @@ class ConfigConverterTest {
         assertThat(hgMaterialConfig.getAutoUpdate()).isTrue();
         assertThat(hgMaterialConfig.getFilterAsString()).isEqualTo("filter");
         assertThat(hgMaterialConfig.getUrl()).isEqualTo("url");
-        Filter whitelistFilter = new Filter(new IgnoredFiles("filter"));
-        assertThat(hgMaterialConfig.filter()).isEqualTo(whitelistFilter);
+
+        assertThat(hgMaterialConfig.filter()).isEqualTo(new Filter(new IgnoredFiles("filter")));
         assertThat(hgMaterialConfig.isInvertFilter()).isTrue();
     }
 
@@ -620,7 +620,7 @@ class ConfigConverterTest {
             configConverter.toMaterialConfig(crConfigMaterial, context);
             fail("should have thrown");
         } catch (ConfigConvertionException ex) {
-            assertThat(ex.getMessage()).isEqualTo("Plugable SCMs do not support whitelisting");
+            assertThat(ex.getMessage()).isEqualTo("Pluggable SCMs do not support includes");
         }
     }
 

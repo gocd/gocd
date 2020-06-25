@@ -565,7 +565,7 @@ public class HgMaterialTest {
             hgMaterial.setName(new CaseInsensitiveString("example"));
             hgMaterial.setInvertFilter(true);
             hgMaterial.setFolder("destination");
-            hgMaterial.setFilter(Filter.create("whitelist"));
+            hgMaterial.setFilter(Filter.create("allow"));
 
             final HgMaterialConfig materialConfig = (HgMaterialConfig) hgMaterial.config();
 

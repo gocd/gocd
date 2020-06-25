@@ -41,8 +41,8 @@ public class CRP4Material extends CRScmMaterial {
     @Expose
     private String view;
 
-    public CRP4Material(String materialName, String folder, boolean autoUpdate, boolean whitelist, String username, List<String> filters, String serverAndPort, String view, boolean useTickets) {
-        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, username, filters);
+    public CRP4Material(String materialName, String folder, boolean autoUpdate, boolean isFilterInverted, String username, List<String> filters, String serverAndPort, String view, boolean useTickets) {
+        super(TYPE_NAME, materialName, folder, autoUpdate, isFilterInverted, username, filters);
         this.port = serverAndPort;
         this.useTickets = useTickets;
         this.view = view;

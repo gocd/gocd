@@ -42,8 +42,8 @@ public class CRHgMaterial extends CRScmMaterial {
         this(null, null, true, false, null, null, null, null);
     }
 
-    public CRHgMaterial(String name, String folder, boolean autoUpdate, boolean whitelist, String username, List<String> filter, String url, String branch) {
-        super(TYPE_NAME, name, folder, autoUpdate, whitelist, username, filter);
+    public CRHgMaterial(String name, String folder, boolean autoUpdate, boolean isFilterInverted, String username, List<String> filter, String url, String branch) {
+        super(TYPE_NAME, name, folder, autoUpdate, isFilterInverted, username, filter);
         this.url = url;
         this.branch = branch;
     }

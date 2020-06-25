@@ -41,8 +41,8 @@ public class CRTfsMaterial extends CRScmMaterial {
     @Expose
     private String project;
 
-    public CRTfsMaterial(String materialName, String folder, boolean autoUpdate, boolean whitelist, String username, List<String> filters, String url, String projectPath, String domain) {
-        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, username, filters);
+    public CRTfsMaterial(String materialName, String folder, boolean autoUpdate, boolean isFilterInverted, String username, List<String> filters, String url, String projectPath, String domain) {
+        super(TYPE_NAME, materialName, folder, autoUpdate, isFilterInverted, username, filters);
         this.url = url;
         this.project = projectPath;
         this.domain = domain;

@@ -329,13 +329,13 @@ public class ConfigConverter {
                 if (repoMaterial instanceof ScmMaterialConfig) {
                     ScmMaterialConfig scmMaterialConfig = (ScmMaterialConfig) repoMaterial;
                     scmMaterialConfig.setFilter(toFilter(crConfigMaterial.getFilter().getList()));
-                    scmMaterialConfig.setInvertFilter(crConfigMaterial.getFilter().isWhitelist());
+                    scmMaterialConfig.setInvertFilter(crConfigMaterial.getFilter().isIncluded());
                 } else //must be a pluggable SCM
                 {
                     PluggableSCMMaterialConfig pluggableSCMMaterial = (PluggableSCMMaterialConfig) repoMaterial;
                     pluggableSCMMaterial.setFilter(toFilter(crConfigMaterial.getFilter().getList()));
-                    if (crConfigMaterial.getFilter().isWhitelist())
-                        throw new ConfigConvertionException("Plugable SCMs do not support whitelisting");
+                    if (crConfigMaterial.getFilter().isIncluded())
+                        throw new ConfigConvertionException("Pluggable SCMs do not support includes");
                 }
             }
             return repoMaterial;

@@ -41,7 +41,7 @@ public class CRHgMaterialTest extends AbstractCRTest<CRHgMaterial> {
 
         invalidHgNoUrl = new CRHgMaterial();
         invalidHgWhitelistAndIgnores = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "repos/myhg", "feature");
-        invalidHgWhitelistAndIgnores.setWhitelistNoCheck("src", "tests");
+        invalidHgWhitelistAndIgnores.setIncludesNoCheck("src", "tests");
 
         invalidPasswordAndEncyptedPasswordSet = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "repos/myhg", "feature");
         invalidPasswordAndEncyptedPasswordSet.setPassword("pa$sw0rd");

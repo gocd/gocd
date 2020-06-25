@@ -33,8 +33,8 @@ public class CRGitMaterialTest extends AbstractCRTest<CRGitMaterial> {
     private final CRGitMaterial simpleGitBranch;
     private final CRGitMaterial veryCustomGit;
     private final CRGitMaterial invalidNoUrl;
-    private final CRGitMaterial whitelistGit;
-    private final CRGitMaterial invalidBothWhiteListAndIgnore;
+    private final CRGitMaterial withIncludes;
+    private final CRGitMaterial invalidBothIncludesAndIgnores;
     private final CRGitMaterial invalidPasswordAndEncyptedPasswordSet;
 
     public CRGitMaterialTest() {
@@ -46,11 +46,11 @@ public class CRGitMaterialTest extends AbstractCRTest<CRGitMaterial> {
         simpleGitBranch.setBranch("develop");
 
         veryCustomGit = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), url1, "feature12", true);
-        whitelistGit = new CRGitMaterial("gitMaterial1", "dir1", false, true, null, Arrays.asList("externals", "tools"), url1, "feature12", true);
+        withIncludes = new CRGitMaterial("gitMaterial1", "dir1", false, true, null, Arrays.asList("externals", "tools"), url1, "feature12", true);
 
         invalidNoUrl = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), null, "feature12", true);
-        invalidBothWhiteListAndIgnore = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), url1, "feature12", true);
-        invalidBothWhiteListAndIgnore.setWhitelistNoCheck("src", "tests");
+        invalidBothIncludesAndIgnores = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), url1, "feature12", true);
+        invalidBothIncludesAndIgnores.setIncludesNoCheck("src", "tests");
 
         invalidPasswordAndEncyptedPasswordSet = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), null, "feature12", true);
         invalidPasswordAndEncyptedPasswordSet.setPassword("pa$sw0rd");
@@ -62,13 +62,13 @@ public class CRGitMaterialTest extends AbstractCRTest<CRGitMaterial> {
         examples.put("simpleGit", simpleGit);
         examples.put("simpleGitBranch", simpleGitBranch);
         examples.put("veryCustomGit", veryCustomGit);
-        examples.put("whitelistGit", whitelistGit);
+        examples.put("withIncludes", withIncludes);
     }
 
     @Override
     public void addBadExamples(Map<String, CRGitMaterial> examples) {
         examples.put("invalidNoUrl", invalidNoUrl);
-        examples.put("invalidBothWhiteListAndIgnore", invalidBothWhiteListAndIgnore);
+        examples.put("invalidBothIncludesAndIgnores", invalidBothIncludesAndIgnores);
     }
 
     @Test

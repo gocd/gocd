@@ -43,8 +43,8 @@ public class CRSvnMaterial extends CRScmMaterial {
         type = TYPE_NAME;
     }
 
-    public CRSvnMaterial(String materialName, String folder, boolean autoUpdate, boolean whitelist, String username, List<String> filters, String url, boolean checkExternals) {
-        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, username, filters);
+    public CRSvnMaterial(String materialName, String folder, boolean autoUpdate, boolean isFilterInverted, String username, List<String> filters, String url, boolean checkExternals) {
+        super(TYPE_NAME, materialName, folder, autoUpdate, isFilterInverted, username, filters);
         this.url = url;
         this.checkExternals = checkExternals;
     }

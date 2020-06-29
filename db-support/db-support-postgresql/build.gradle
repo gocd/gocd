@@ -27,7 +27,7 @@ dependencies {
     testCompile project(path: ':db-support:db-migration', configuration: 'testOutput')
 
     testCompile group: 'org.testcontainers', name: 'junit-jupiter', version: '1.14.3'
-    testCompile group: 'org.testcontainers', name: 'testcontainers', version: '1.12.5'
+    testCompile group: 'org.testcontainers', name: 'testcontainers', version: '1.14.3'
     testCompile group: 'org.testcontainers', name: 'postgresql', version: '1.14.3'
 
     testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ

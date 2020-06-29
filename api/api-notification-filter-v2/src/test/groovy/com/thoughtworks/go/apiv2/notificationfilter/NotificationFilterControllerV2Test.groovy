@@ -101,14 +101,16 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
     }
 
     @Test
-    void 'should error out when SMTP is not configured'() {
+    void 'should not error out when SMTP is not configured'() {
+      def user = mock(User)
       when(goConfigService.isSmtpEnabled()).thenReturn(false)
+      when(userService.findUserByName(currentUsernameString())).thenReturn(user)
+      when(user.getNotificationFilters()).thenReturn([])
 
       getWithApiHeader(controller.controllerBasePath())
 
       assertThatResponse()
-        .isBadRequest()
-        .hasJsonMessage("SMTP settings are currently not configured. Ask your administrator to configure SMTP settings.")
+        .isOk()
     }
   }
 
@@ -170,14 +172,21 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
     }
 
     @Test
-    void 'should error out when SMTP is not configured'() {
+    void 'should not error out when SMTP is not configured'() {
+      def user = mock(User)
+      def filterOne = new NotificationFilter("up42", "Stage_1", StageEvent.Breaks, true)
+      filterOne.setId(200L)
+      def filterTwo = new NotificationFilter("up43", "Stage_2", StageEvent.Fails, false)
+      filterTwo.setId(201L)
+      def notificationFilters = Arrays.asList(filterOne, filterTwo)
+      when(userService.findUserByName(currentUsernameString())).thenReturn(user)
+      when(user.getNotificationFilters()).thenReturn(notificationFilters)
       when(goConfigService.isSmtpEnabled()).thenReturn(false)
 
-      getWithApiHeader(controller.controllerPath(100))
+      getWithApiHeader(controller.controllerPath(200))
 
       assertThatResponse()
-        .isBadRequest()
-        .hasJsonMessage("SMTP settings are currently not configured. Ask your administrator to configure SMTP settings.")
+        .isOk()
     }
   }
 
@@ -435,14 +444,15 @@ class NotificationFilterControllerV2Test implements SecurityServiceTrait, Contro
     }
 
     @Test
-    void 'should error out when SMTP is not configured'() {
+    void 'should not error out when SMTP is not configured'() {
+      def user = mock(User)
+      when(userService.findUserByName(currentUsernameString())).thenReturn(user)
       when(goConfigService.isSmtpEnabled()).thenReturn(false)
 
       deleteWithApiHeader(controller.controllerPath(100))
 
       assertThatResponse()
-        .isBadRequest()
-        .hasJsonMessage("SMTP settings are currently not configured. Ask your administrator to configure SMTP settings.")
+        .isOk()
     }
   }
 

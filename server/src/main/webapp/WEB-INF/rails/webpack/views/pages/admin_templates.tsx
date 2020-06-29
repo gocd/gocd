@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {pipelineEditPath} from "gen/ts-routes";
 import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
@@ -127,7 +126,7 @@ export class AdminTemplatesPage extends Page<null, State> {
     };
 
     vnode.state.onEdit = (template, e) => {
-      window.location.href = pipelineEditPath("templates", template.name, "general");
+      window.location.href = SparkRoutes.pipelineEditPath("templates", template.name, "general");
     };
 
     vnode.state.onDelete = (template, e) => {
@@ -154,7 +153,7 @@ export class AdminTemplatesPage extends Page<null, State> {
     };
 
     vnode.state.doEditPipeline = (pipelineName) => {
-      window.location.href = pipelineEditPath("pipelines", pipelineName, "general");
+      window.location.href = SparkRoutes.pipelineEditPath("pipelines", pipelineName, "general");
     };
 
     vnode.state.editPermissions = (template) => {

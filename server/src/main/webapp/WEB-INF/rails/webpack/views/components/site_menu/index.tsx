@@ -172,7 +172,6 @@ export class SiteMenu extends MithrilViewComponent<Attrs> {
               <SiteSubNav>
                 <SiteSubNavHeading text="Server configuration"/>
                 <SiteSubNavItem href="/go/admin/config/server" text="Server Configuration"/>
-                <SiteSubNavItem href="/go/admin/data_sharing/settings" text="Data Sharing"/>
                 <SiteSubNavItem href="/go/admin/maintenance_mode" text="Server Maintenance Mode"/>
                 <SiteSubNavItem href="/go/admin/backup" text="Backup"/>
                 <SiteSubNavItem href="/go/admin/plugins" text="Plugins"/>

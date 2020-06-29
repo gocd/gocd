@@ -26,13 +26,6 @@ describe("Site Header", () => {
   beforeEach(() => {
     jasmine.Ajax.install();
 
-    spyOn(SystemNotifications, "all").and.callFake(() => new Promise<SystemNotifications>((resolve, reject) => {
-      // prevents datasharing notification ajax requests
-      resolve(new SystemNotifications([new Notification({type: "DataSharing_v18.8.0"})]));
-    }));
-
-    jasmine.Ajax.stubRequest("https://datasharing.gocd.org/v1", undefined, "POST").andReturn({});
-    jasmine.Ajax.stubRequest("/go/api/data_sharing/settings").andReturn({});
     jasmine.Ajax.stubRequest("/go/api/server_health_messages", undefined, "GET").andReturn({});
 
   });

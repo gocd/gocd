@@ -50,7 +50,6 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/config_xml")).toHaveText("Config XML");
     expect(findMenuItem("/go/admin/artifact_stores")).toHaveText("Artifact Stores");
     expect(findMenuItem("/go/admin/secret_configs")).toHaveText("Secret Management");
-    expect(findMenuItem("/go/admin/data_sharing/settings")).toHaveText("Data Sharing");
     expect(findMenuItem("/go/admin/maintenance_mode")).toHaveText("Server Maintenance Mode");
     expect(findMenuItem("/go/admin/config/server")).toHaveText("Server Configuration");
     expect(findMenuItem("/go/admin/users")).toHaveText("Users Management");

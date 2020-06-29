@@ -120,18 +120,6 @@
             <column name="STAGEID" type="${dataType.long}"/>
         </createTable>
     </changeSet>
-    <changeSet author="gocd(generated)" id="7">
-        <createTable tableName="DATASHARINGSETTINGS">
-            <column autoIncrement="true" name="ID" type="${dataType.long}">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="ALLOWSHARING" type="${dataType.boolean}">
-                <constraints nullable="false"/>
-            </column>
-            <column name="UPDATEDBY" type="${dataType.caseSensitiveString_255}"/>
-            <column name="UPDATEDON" type="${dataType.timeStamp}"/>
-        </createTable>
-    </changeSet>
     <changeSet author="gocd(generated)" id="8">
         <createTable tableName="ENVIRONMENTVARIABLES">
             <column autoIncrement="true" name="ID" type="${dataType.long}">

@@ -112,7 +112,6 @@
   <context:component-scan base-package="com.thoughtworks.go.apiv1.buildcause"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.artifactstoreconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv6.admin.pipelineconfig"/>
-  <context:component-scan base-package="com.thoughtworks.go.apiv1.datasharing.settings"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv2.datasharing.reporting"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv3.datasharing.usagedata"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv4.admin.templateconfig"/>

@@ -136,18 +136,16 @@ abstract class BaseModal extends Modal {
   }
 
   private onError(errorResponse: ErrorResponse, statusCode: number) {
-    if (422 === statusCode) {
-      if (errorResponse.data) {
-        this.filter(NotificationFilter.fromJSON(errorResponse.data as NotificationFilterJSON));
-      } else if (errorResponse.body) {
-        const parse = JSON.parse(errorResponse.body!);
-        if (parse.id) {
-          this.filter(NotificationFilter.fromJSON(parse));
-        }
-        this.flashMessage.alert(parse.message);
-      } else {
-        this.flashMessage.alert(errorResponse.message);
+    if (errorResponse.data) {
+      this.filter(NotificationFilter.fromJSON(errorResponse.data as NotificationFilterJSON));
+    } else if (errorResponse.body) {
+      const parse = JSON.parse(errorResponse.body!);
+      if (parse.id) {
+        this.filter(NotificationFilter.fromJSON(parse));
       }
+      this.flashMessage.alert(parse.message);
+    } else {
+      this.flashMessage.alert(errorResponse.message);
     }
   }
 

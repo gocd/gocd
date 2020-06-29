@@ -130,7 +130,12 @@ export class NewPreferencesPage extends Page<null, PreferencesState> {
                                    this.fetchData(vnode);
                                  },
                                  (errorResponse) => {
-                                   this.flashMessage.alert(errorResponse.message);
+                                   if (errorResponse.body) {
+                                     const parse = JSON.parse(errorResponse.body);
+                                     this.flashMessage.alert(parse.message);
+                                   } else {
+                                     this.flashMessage.alert(errorResponse.message);
+                                   }
                                  }
                                );
                              }).finally(() => this.pageState = PageState.OK);

@@ -32,8 +32,6 @@ import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.materials.SCMMaterialSource;
 import com.thoughtworks.go.server.newsecurity.filters.InvalidateAuthenticationOnSecurityConfigChangeFilter;
 import com.thoughtworks.go.server.service.*;
-import com.thoughtworks.go.server.service.datasharing.DataSharingSettingsService;
-import com.thoughtworks.go.server.service.datasharing.DataSharingUsageStatisticsReportingService;
 import com.thoughtworks.go.server.service.support.ResourceMonitoring;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
@@ -86,8 +84,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private SCMMaterialSource scmMaterialSource;
     @Autowired private ResourceMonitoring resourceMonitoring;
     @Autowired private PipelineLabelCorrector pipelineLabelCorrector;
-    @Autowired private DataSharingSettingsService dataSharingSettingsService;
-    @Autowired private DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService;
     @Autowired private BackupService backupService;
     @Autowired private DataSource dataSource;
 
@@ -154,8 +150,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
 
             dependencyMaterialUpdateNotifier.initialize();
             scmMaterialSource.initialize();
-            dataSharingSettingsService.initialize();
-            dataSharingUsageStatisticsReportingService.initialize();
             backupService.initialize();
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);

@@ -129,15 +129,6 @@ api/api-dashboard-v3/config/
 api/api-dashboard-v3/out/
 api/api-dashboard-v3/logs/
 api/api-dashboard-v3/target/
-api/api-data-sharing-reporting-v2/logs/
-api/api-data-sharing-reporting-v2/out/
-api/api-data-sharing-reporting-v2/target/
-api/api-data-sharing-settings-v1/logs/
-api/api-data-sharing-settings-v1/out/
-api/api-data-sharing-settings-v1/target/
-api/api-data-sharing-usage-data-v3/logs/
-api/api-data-sharing-usage-data-v3/out/
-api/api-data-sharing-usage-data-v3/target/
 api/api-environments-v3/config/
 api/api-environments-v3/logs/
 api/api-environments-v3/out/

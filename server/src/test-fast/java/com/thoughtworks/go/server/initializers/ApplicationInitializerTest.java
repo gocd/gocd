@@ -32,8 +32,6 @@ import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.materials.SCMMaterialSource;
 import com.thoughtworks.go.server.newsecurity.filters.InvalidateAuthenticationOnSecurityConfigChangeFilter;
 import com.thoughtworks.go.server.service.*;
-import com.thoughtworks.go.server.service.datasharing.DataSharingSettingsService;
-import com.thoughtworks.go.server.service.datasharing.DataSharingUsageStatisticsReportingService;
 import com.thoughtworks.go.server.service.support.ResourceMonitoring;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
@@ -134,10 +132,6 @@ public class ApplicationInitializerTest {
     private ResourceMonitoring resourceMonitoring;
     @Mock
     private PipelineLabelCorrector pipelineLabelCorrector;
-    @Mock
-    private DataSharingSettingsService dataSharingSettingsService;
-    @Mock
-    private DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService;
     @InjectMocks
     ApplicationInitializer initializer = new ApplicationInitializer();
 
@@ -174,16 +168,6 @@ public class ApplicationInitializerTest {
         inOrder.verify(cachedGoConfig).upgradeConfig();
         inOrder.verify(cachedGoConfig).loadConfigIfNull();
         inOrder.verify(goConfigService).initialize();
-    }
-
-    @Test
-    public void shouldInitializeDataSharingConsentSettings() throws Exception {
-        verify(dataSharingSettingsService, times(1)).initialize();
-    }
-
-    @Test
-    public void shouldInitializeServerStatsToBeCollected() throws Exception {
-        verify(dataSharingUsageStatisticsReportingService, times(1)).initialize();
     }
 
     private void verifyOrder(Initializer... initializers) {

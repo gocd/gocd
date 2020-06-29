@@ -396,17 +396,6 @@
             <column name="CANCELLEDBY" type="${dataType.caseSensitiveString_255}"/>
         </createTable>
     </changeSet>
-    <changeSet author="gocd(generated)" id="24">
-        <createTable tableName="USAGEDATAREPORTING">
-            <column autoIncrement="true" name="ID" type="${dataType.long}">
-                <constraints nullable="false" primaryKey="true"/>
-            </column>
-            <column name="SERVERID" type="${dataType.caseSensitiveString_255}">
-                <constraints nullable="false"/>
-            </column>
-            <column name="LASTREPORTEDAT" type="${dataType.timeStamp}"/>
-        </createTable>
-    </changeSet>
     <changeSet author="gocd(generated)" id="25">
         <createTable tableName="USERS">
             <column autoIncrement="true" name="ID" type="${dataType.long}">

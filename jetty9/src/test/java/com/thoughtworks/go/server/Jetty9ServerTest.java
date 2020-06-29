@@ -93,8 +93,6 @@ public class Jetty9ServerTest {
         Mockito.doNothing().when(deploymentManager).addApp(appCaptor.capture());
 
         when(systemEnvironment.getServerPort()).thenReturn(1234);
-        when(systemEnvironment.keystore()).thenReturn(temporaryFolder.newFolder());
-        when(systemEnvironment.truststore()).thenReturn(temporaryFolder.newFolder());
         when(systemEnvironment.getWebappContextPath()).thenReturn("context");
         when(systemEnvironment.getCruiseWar()).thenReturn("cruise.war");
         when(systemEnvironment.getParentLoaderPriority()).thenReturn(true);
@@ -102,12 +100,10 @@ public class Jetty9ServerTest {
         when(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE)).thenReturn(1000);
         when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(2000);
         when(systemEnvironment.configDir()).thenReturn(configDir = temporaryFolder.newFolder());
-        when(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).thenReturn(true);
         when(systemEnvironment.getJettyConfigFile()).thenReturn(new File("foo"));
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(false);
         when(systemEnvironment.sessionTimeoutInSeconds()).thenReturn(1234);
         when(systemEnvironment.sessionCookieMaxAgeInSeconds()).thenReturn(5678);
-        when(systemEnvironment.get(SystemEnvironment.GO_SSL_CONFIG_CLEAR_JETTY_DEFAULT_EXCLUSIONS)).thenReturn(true);
 
         when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[]{});
         jetty9Server = new Jetty9Server(systemEnvironment, "pwd", server, deploymentManager);
@@ -140,31 +136,6 @@ public class Jetty9ServerTest {
         assertThat(connector.getConnectionFactories().size(), is(1));
         ConnectionFactory connectionFactory = connector.getConnectionFactories().iterator().next();
         assertThat(connectionFactory instanceof HttpConnectionFactory, is(true));
-    }
-
-    @Test
-    public void shouldAddSSLSocketConnectorIfKeystoreIsPresent() throws Exception {
-        System.setProperty("go.server.enable.tls", "true");
-        new File(systemEnvironment.configDir(), "keystore").createNewFile();
-        ArgumentCaptor<Connector> captor = ArgumentCaptor.forClass(Connector.class);
-        jetty9Server.configure();
-
-        verify(server, times(2)).addConnector(captor.capture());
-        List<Connector> connectors = captor.getAllValues();
-        Connector sslConnector = connectors.get(1);
-
-        assertThat(sslConnector instanceof ServerConnector, is(true));
-        ServerConnector connector = (ServerConnector) sslConnector;
-        assertThat(connector.getServer(), is(server));
-        assertThat(connector.getConnectionFactories().size(), is(2));
-        Iterator<ConnectionFactory> iterator = connector.getConnectionFactories().iterator();
-        ConnectionFactory first = iterator.next();
-        ConnectionFactory second = iterator.next();
-        assertThat(first instanceof SslConnectionFactory, is(true));
-        SslConnectionFactory sslConnectionFactory = (SslConnectionFactory) first;
-        assertThat(sslConnectionFactory.getProtocol(), is("SSL"));
-        assertThat(sslConnectionFactory.getNextProtocol(), is("HTTP/1.1"));
-        assertThat(second instanceof HttpConnectionFactory, is(true));
     }
 
     @Test

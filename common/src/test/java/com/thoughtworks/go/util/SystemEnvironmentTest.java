@@ -92,14 +92,6 @@ class SystemEnvironmentTest {
     }
 
     @Test
-    void shouldCacheSslPortSystemPropertyOnFirstAccess() {
-        System.setProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT, "8154");
-        assertThat(systemEnvironment.getSslServerPort()).isEqualTo(8154);
-        System.setProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT, "20000");
-        assertThat(systemEnvironment.getSslServerPort()).isEqualTo(8154);
-    }
-
-    @Test
     void shouldCacheConfigDirOnFirstAccess() {
         assertThat(systemEnvironment.getConfigDir()).isEqualTo("config");
         System.setProperty(SystemEnvironment.CONFIG_DIR_PROPERTY, "raghu");
@@ -323,45 +315,6 @@ class SystemEnvironmentTest {
         } finally {
             System.clearProperty("go.landing.page");
         }
-    }
-
-    @Test
-    void shouldGetIncludedCiphersForSSLConfig() {
-        assertThat(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS.propertyName()).isEqualTo("go.ssl.ciphers.include");
-        assertThat(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS instanceof SystemEnvironment.GoStringArraySystemProperty).isTrue();
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS)).isNull();
-    }
-
-    @Test
-    void shouldGetExcludedCiphersForSSLConfig() {
-        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS.propertyName()).isEqualTo("go.ssl.ciphers.exclude");
-        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS instanceof SystemEnvironment.GoStringArraySystemProperty).isTrue();
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS)).isNull();
-    }
-
-    @Test
-    void shouldGetExcludedProtocolsForSSLConfig() {
-        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS.propertyName()).isEqualTo("go.ssl.protocols.exclude");
-        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS instanceof SystemEnvironment.GoStringArraySystemProperty).isTrue();
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS)).isNull();
-    }
-
-    @Test
-    void shouldGetIncludedProtocolsForSSLConfig() {
-        assertThat(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS.propertyName()).isEqualTo("go.ssl.protocols.include");
-        assertThat(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS instanceof SystemEnvironment.GoStringArraySystemProperty).isTrue();
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS)).isNull();
-    }
-
-    @Test
-    void shouldGetRenegotiationAllowedFlagForSSLConfig() {
-        assertThat(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED.propertyName()).isEqualTo("go.ssl.renegotiation.allowed");
-        boolean defaultValue = true;
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).isEqualTo(defaultValue);
-        System.clearProperty("go.ssl.renegotiation.allowed");
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).isEqualTo(defaultValue);
-        System.setProperty("go.ssl.renegotiation.allowed", "false");
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).isFalse();
     }
 
     @Test

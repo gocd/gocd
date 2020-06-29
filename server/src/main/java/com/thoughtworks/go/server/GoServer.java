@@ -126,7 +126,6 @@ public class GoServer {
     ArrayList<Validator> validators() {
         ArrayList<Validator> validators = new ArrayList<>();
         validators.add(new ServerPortValidator(systemEnvironment.getServerPort()));
-        validators.add(new ServerPortValidator(systemEnvironment.getSslServerPort()));
         validators.add(FileValidator.defaultFile("cruise.war"));
         validators.add(FileValidator.configFile("cruise-config.xml", systemEnvironment));
         validators.add(FileValidator.configFileAlwaysOverwrite("cruise-config.xsd", systemEnvironment));

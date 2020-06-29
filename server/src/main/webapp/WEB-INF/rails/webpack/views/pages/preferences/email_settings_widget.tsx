@@ -75,8 +75,8 @@ export class EmailSettingsWidget extends MithrilViewComponent<EmailSettingsAttrs
   }
 
   private checkinAliasesProxy(currentUser: CurrentUser, newValue?: string) {
-    if (newValue && newValue.trim().length > 0) {
-      const updatedValues = newValue.split(',');
+    if (newValue !== undefined) {
+      const updatedValues = newValue.trim().split(',');
       currentUser.checkinAliases(updatedValues);
     }
     return currentUser.checkinAliases().join(',');

@@ -85,6 +85,7 @@ describe('PreferencesWidgetSpec', () => {
                                           activeConfiguration={activeConfiguration}
                                           notificationVMs={Stream(notifications)}
                                           pipelineGroups={Stream(groups)}
-                                          currentUserVM={Stream(user)}/>);
+                                          currentUserVM={Stream(user)}
+                                          isSMTPConfigured={true}/>);
   }
 });

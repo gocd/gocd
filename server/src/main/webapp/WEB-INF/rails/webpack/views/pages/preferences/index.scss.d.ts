@@ -2,3 +2,4 @@
 export const formButton: string;
 export const formHeader: string;
 export const notificationWrapper: string;
+export const tips: string;

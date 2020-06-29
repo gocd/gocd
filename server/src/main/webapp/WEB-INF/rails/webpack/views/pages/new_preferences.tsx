@@ -31,6 +31,10 @@ import {CreateNotificationFilterModal, EditNotificationFilterModal} from "views/
 import {PreferencesWidget, Sections} from "views/pages/preferences/preferences_widget";
 import {ConfirmModal} from "views/pages/server-configuration/confirm_modal";
 
+export interface SMTPAttrs {
+  isSMTPConfigured: boolean;
+}
+
 export interface NotificationsAttrs {
   notificationVMs: Stream<NotificationFilterVMs>;
   pipelineGroups: Stream<PipelineGroups>;
@@ -51,7 +55,7 @@ export interface Routing {
   route: (activeConfiguration: Sections, preferenceVM: PreferenceVM) => void;
 }
 
-export interface PreferencesState extends Routing, NotificationsAttrs, EmailSettingsAttrs {
+export interface PreferencesState extends Routing, NotificationsAttrs, EmailSettingsAttrs, SMTPAttrs {
   onFilterSave: (msg: m.Children) => void;
 }
 
@@ -60,7 +64,8 @@ export class NewPreferencesPage extends Page<null, PreferencesState> {
     vnode.state.activeConfiguration = m.route.param().configuration || Sections.MY_NOTIFICATIONS;
     super.oninit(vnode);
 
-    vnode.state.route = (activeConfiguration: Sections, preferenceVM: PreferenceVM) => {
+    vnode.state.isSMTPConfigured = this.getMeta().smtp_configured;
+    vnode.state.route            = (activeConfiguration: Sections, preferenceVM: PreferenceVM) => {
       if (preferenceVM.isModified()) {
         const modal: ConfirmModal = new ConfirmModal("There are unsaved changes. Do you wish to continue?", () => {
           vnode.state.activeConfiguration = activeConfiguration;
@@ -152,7 +157,7 @@ export class NewPreferencesPage extends Page<null, PreferencesState> {
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       : null;
     let smtpErrorMessage;
-    if (!this.getMeta().smtp_configured) {
+    if (!vnode.state.isSMTPConfigured) {
       const message    = <span>SMTP settings are currently not configured. If you are the administrator, you can configure email support at <Link
         href={"/go/admin/config/server#!email-server"} externalLinkIcon={true}>Mail Server Configuration</Link>.</span>;
       smtpErrorMessage = <FlashMessage type={MessageType.info} message={message}/>;

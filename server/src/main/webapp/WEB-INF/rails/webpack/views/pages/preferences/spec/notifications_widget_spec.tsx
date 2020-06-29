@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineGroups} from "models/internal_pipeline_structure/pipeline_structure";
@@ -41,6 +42,8 @@ describe('NotificationsWidgetSpec', () => {
     mount();
 
     expect(helper.byTestId('notification-filter-add')).toBeInDOM();
+    expect(helper.q('table')).toBeInDOM();
+    expect(helper.q('notification-filters-info')).not.toBeInDOM();
     expect(helper.q('thead').textContent).toBe('PipelineStageEventCheck-ins Matcher');
     expect(helper.qa('tbody tr')[0].textContent).toBe('[Any Pipeline][Any Stage]AllMine');
   });
@@ -58,11 +61,34 @@ describe('NotificationsWidgetSpec', () => {
     expect(onDeleteSpy).toHaveBeenCalled();
   });
 
-  function mount() {
+  it('should render info when there are no filter configured', () => {
+    notifications = new NotificationFilterVMs(new NotificationFilters());
+    mount();
+
+    expect(helper.q('table')).not.toBeInDOM();
+    const helpInfo = helper.byTestId('notification-filters-info');
+    expect(helpInfo).toBeInDOM();
+    expect(helper.qa('li', helpInfo)[0].textContent).toBe('Click on "Add Notification Filter" to add a new email notification filter.');
+    expect(helper.qa('li', helpInfo)[1].textContent).toBe('Notifications will only work if security is enabled and mailhost information is correct. You can read more from here.');
+
+    expect(helper.q('a', helpInfo)).toHaveAttr('href', docsUrl("configuration/dev_notifications.html"));
+  });
+
+  it('should disable add and edit button', () => {
+    mount(false);
+
+    expect(helper.byTestId('notification-filter-add')).toBeDisabled();
+    expect(helper.byTestId('notification-filter-add')).toHaveAttr('title', 'Cannot add filter as SMTP settings has not been configured');
+    expect(helper.byTestId('notification-filter-edit')).toBeDisabled();
+    expect(helper.byTestId('notification-filter-edit')).toHaveAttr('title', 'Cannot edit filter as SMTP settings has not been configured');
+  });
+
+  function mount(isSMTPConfigured: boolean = true) {
     helper.mount(() => <NotificationsWidget notificationVMs={Stream(notifications)}
                                             pipelineGroups={Stream(groups)}
                                             onAddFilter={onAddSpy}
                                             onEditFilter={onEditSpy}
-                                            onDeleteFilter={onDeleteSpy}/>);
+                                            onDeleteFilter={onDeleteSpy}
+                                            isSMTPConfigured={isSMTPConfigured}/>);
   }
 });

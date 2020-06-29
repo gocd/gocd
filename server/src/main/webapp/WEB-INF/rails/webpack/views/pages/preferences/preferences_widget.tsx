@@ -72,7 +72,8 @@ class PreferencesRightPanel extends MithrilViewComponent<PreferencesState> {
                                     pipelineGroups={vnode.attrs.pipelineGroups}
                                     onAddFilter={vnode.attrs.onAddFilter}
                                     onEditFilter={vnode.attrs.onEditFilter}
-                                    onDeleteFilter={vnode.attrs.onDeleteFilter}/>;
+                                    onDeleteFilter={vnode.attrs.onDeleteFilter}
+                                    isSMTPConfigured={vnode.attrs.isSMTPConfigured}/>;
       case Sections.EMAIL_SETTINGS:
         return <EmailSettingsWidget currentUserVM={vnode.attrs.currentUserVM}
                                     onCancel={vnode.attrs.onCancel}

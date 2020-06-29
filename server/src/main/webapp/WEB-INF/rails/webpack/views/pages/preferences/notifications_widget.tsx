@@ -14,33 +14,52 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
+import s from "underscore.string";
 import {ButtonIcon, Primary} from "views/components/buttons";
 import {Delete, Edit, IconGroup} from "views/components/icons";
+import {Link} from "views/components/link";
 import {Table} from "views/components/table";
-import {NotificationsAttrs} from "views/pages/new_preferences";
+import {NotificationsAttrs, SMTPAttrs} from "views/pages/new_preferences";
 import styles from "./index.scss";
 
-export class NotificationsWidget extends MithrilViewComponent<NotificationsAttrs> {
+type Attrs = NotificationsAttrs & SMTPAttrs;
 
-  view(vnode: m.Vnode<NotificationsAttrs, this>) {
+export class NotificationsWidget extends MithrilViewComponent<Attrs> {
+
+  view(vnode: m.Vnode<Attrs, this>) {
+    let msgOrFilters;
+    if (vnode.attrs.notificationVMs().entity().length === 0) {
+      msgOrFilters = <div className={styles.tips} data-test-id="notification-filters-info">
+        <ul>
+          <li>Click on "Add Notification Filter" to add a new email notification filter.</li>
+          <li>Notifications will only work if security is enabled and mailhost information is correct. You can read more
+            from <Link target="_blank" href={docsUrl("configuration/dev_notifications.html")}>here</Link>.
+          </li>
+        </ul>
+      </div>;
+    } else {
+      msgOrFilters = <Table headers={['Pipeline', 'Stage', 'Event', 'Check-ins Matcher', '']}
+                            data={this.getTableData(vnode)}/>;
+    }
     return <div data-test-id="notifications-widget" class={styles.notificationWrapper}>
       <div className={styles.formHeader}>
         <h3>Current Notification Filters</h3>
         <div className={styles.formButton}>
           <Primary icon={ButtonIcon.ADD}
+                   disabled={!vnode.attrs.isSMTPConfigured}
+                   title={this.getTitle(vnode.attrs.isSMTPConfigured, 'add')}
                    dataTestId={"notification-filter-add"}
                    onclick={vnode.attrs.onAddFilter.bind(this)}>Add Notification Filter</Primary>
         </div>
       </div>
-
-      <Table headers={['Pipeline', 'Stage', 'Event', 'Check-ins Matcher', '']}
-             data={this.getTableData(vnode)}/>
+      {msgOrFilters}
     </div>;
   }
 
-  private getTableData(vnode: m.Vnode<NotificationsAttrs, this>) {
+  private getTableData(vnode: m.Vnode<Attrs, this>) {
     return vnode.attrs.notificationVMs().entity().map(
       (filter) => {
         return [
@@ -50,7 +69,8 @@ export class NotificationsWidget extends MithrilViewComponent<NotificationsAttrs
           filter.matchCommits() ? 'Mine' : 'All',
           <IconGroup>
             <Edit data-test-id="notification-filter-edit"
-                  title={'Edit notification filter'}
+                  disabled={!vnode.attrs.isSMTPConfigured}
+                  title={this.getTitle(vnode.attrs.isSMTPConfigured, 'edit')}
                   onclick={vnode.attrs.onEditFilter.bind(this, filter)}/>
             <Delete data-test-id="notification-filter-delete"
                     title={'Delete notification filter'}
@@ -59,5 +79,12 @@ export class NotificationsWidget extends MithrilViewComponent<NotificationsAttrs
         ];
       }
     );
+  }
+
+  private getTitle(isSMTPConfigured: boolean, action: 'add' | 'edit') {
+    if (isSMTPConfigured) {
+      return `${s.capitalize(action)} Notification Filter`;
+    }
+    return `Cannot ${action} filter as SMTP settings has not been configured`;
   }
 }

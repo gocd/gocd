@@ -1214,10 +1214,10 @@
   resolved "https://registry.yarnpkg.com/@types/relateurl/-/relateurl-0.2.28.tgz#6bda7db8653fa62643f5ee69e9f69c11a392e3a6"
   integrity sha1-a9p9uGU/piZD9e5p6facEaOS46Y=
 
-"@types/shell-quote@^1.6.1":
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/@types/shell-quote/-/shell-quote-1.6.2.tgz#9f22cdcf72fd3dfc802938222e115b41071e7117"
-  integrity sha512-M5TzVuMwWzRtBqwa/edfiC5xOzuJHjrWVLrPishrLWCN83tTdDxjgMYWJG+anqP01ofPemijD2iWHzPqgkQ+wA==
+"@types/shell-quote@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@types/shell-quote/-/shell-quote-1.7.0.tgz#0b6b930de00ad35128239b182c1fec8b8c40e876"
+  integrity sha512-0CJaSSayMigMKu/Egx1eVcFjgGYkP6T4dyPRs462BFrMB/OK2FAJFV/24+6R4cGIXw6ZQpZK8XEd2UCVKfkZRw==
 
 "@types/sizzle@*":
   version "2.3.2"

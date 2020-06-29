@@ -97,4 +97,5 @@
     <include file="initial/create-index.xml" relativeToChangelogFile="true" context="createIndex"/>
     <include file="initial/create-view.xml" relativeToChangelogFile="true" context="createView"/>
     <include file="initial/create-trigger.xml" relativeToChangelogFile="true" context="createTrigger"/>
+    <includeAll path="migrations" relativeToChangelogFile="true" context="createMigrations"/>
 </databaseChangeLog>

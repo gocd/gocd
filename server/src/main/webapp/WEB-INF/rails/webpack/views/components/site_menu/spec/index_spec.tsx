@@ -61,7 +61,7 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/admin_access_tokens")).toHaveText("Access Tokens Management");
     expect(findMenuItem("/go/admin/scms")).toHaveText("Pluggable SCMs");
     expect(helper.qa(`a.${styles.siteNavLink}`)).toHaveLength(4);
-    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(19);
+    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(18);
   });
 
   it("should display the menus for users who can view templates", () => {

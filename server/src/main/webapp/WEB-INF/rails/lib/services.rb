@@ -104,7 +104,6 @@ module Services
     :webpack_assets_service,
     :artifact_store_service,
     :external_artifacts_service,
-    :data_sharing_usage_statistics_reporting_service,
     :secret_param_resolver
   )
 

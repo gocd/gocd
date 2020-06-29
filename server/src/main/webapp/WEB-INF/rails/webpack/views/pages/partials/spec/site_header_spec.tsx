@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import m from "mithril";
-import {Notification, SystemNotifications} from "models/notifications/system_notifications";
 import {Attrs, SiteHeader} from "views/pages/partials/site_header";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../site_header.scss";

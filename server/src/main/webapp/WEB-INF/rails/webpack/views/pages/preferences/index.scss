@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import "../../global/common";
 
-import {MithrilViewComponent} from "jsx/mithril-component";
-import m from "mithril";
-import {NewPreferences} from "models/new_preferences/new_preferences";
+.notification-wrapper {
+  padding: 10px 20px;
 
-interface Attrs {
-  dummy?: NewPreferences;
+  table {
+    width:      85%;
+    margin-top: 10px;
+  }
 }
 
-export class NewPreferencesWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
-    return <div> This is widget</div>;
-  }
+.form-header {
+  border-bottom:   1px solid $border-color;
+  display:         flex;
+  flex-direction:  row;
+  justify-content: space-between;
+}
+
+.form-button {
+  margin: 10px 0;
 }

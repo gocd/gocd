@@ -15,7 +15,7 @@
  */
 import {ApiResult, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {NotificationEvent, NotificationFilter, NotificationFilterJSON, NotificationFilters} from "../notification_filters";
+import {NotificationFilter, NotificationFilterJSON, NotificationFilters} from "../notification_filters";
 import {NotificationFiltersCRUD} from "../notification_filters_crud";
 
 describe('NotificationFilterCRUDSpec', () => {
@@ -33,7 +33,7 @@ describe('NotificationFilterCRUDSpec', () => {
       expect(filters[0].id()).toBe(1);
       expect(filters[0].pipeline()).toBe('up42');
       expect(filters[0].stage()).toBe('[Any Stage]');
-      expect(filters[0].event()).toBe(NotificationEvent.All);
+      expect(filters[0].event()).toBe('All');
       expect(filters[0].matchCommits()).toBeFalse();
       done();
     });
@@ -57,7 +57,7 @@ describe('NotificationFilterCRUDSpec', () => {
       expect(filter.object.id()).toBe(1);
       expect(filter.object.pipeline()).toBe('up42');
       expect(filter.object.stage()).toBe('[Any Stage]');
-      expect(filter.object.event()).toBe(NotificationEvent.All);
+      expect(filter.object.event()).toBe('All');
       expect(filter.object.matchCommits()).toBeFalse();
       done();
     });
@@ -90,7 +90,7 @@ describe('NotificationFilterCRUDSpec', () => {
     jasmine.Ajax.stubRequest(url).andReturn(filterResponse());
 
     const filter1 = NotificationFilter.fromJSON(filter());
-    NotificationFiltersCRUD.update(filter1, "old-etag");
+    NotificationFiltersCRUD.update(filter1);
 
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(url);
@@ -123,7 +123,7 @@ describe('NotificationFilterCRUDSpec', () => {
       id:            1,
       pipeline:      "up42",
       stage:         "[Any Stage]",
-      event:         NotificationEvent.All,
+      event:         'All',
       match_commits: false
     } as NotificationFilterJSON;
   }

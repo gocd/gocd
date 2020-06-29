@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-import {SinglePageAppBase} from "helpers/spa_base";
+import {RoutedSinglePageApp} from "helpers/spa_base";
 import {NewPreferencesPage} from "views/pages/new_preferences";
 
-export class NewPreferencesSPA extends SinglePageAppBase {
+export class NewPreferencesSPA extends RoutedSinglePageApp {
   constructor() {
-    super(NewPreferencesPage);
+    super({
+            "/":               NewPreferencesPage,
+            "/:configuration": NewPreferencesPage
+          });
   }
 }
 

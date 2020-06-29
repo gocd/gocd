@@ -40,10 +40,10 @@ export class NotificationFiltersCRUD {
                             .then(this.extractObjectWithEtag);
   }
 
-  static update(notificationFilter: NotificationFilter, etag: string) {
+  static update(notificationFilter: NotificationFilter) {
     return ApiRequestBuilder.PATCH(SparkRoutes.notificationFilterAPIPath(notificationFilter.id()),
                                    this.API_VERSION_HEADER,
-                                   {payload: notificationFilter, etag})
+                                   {payload: notificationFilter})
                             .then(this.extractObjectWithEtag);
   }
 

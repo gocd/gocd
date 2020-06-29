@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {NotificationEvent, NotificationFilter} from "../notification_filters";
+import {NotificationFilter} from "../notification_filters";
 
 describe('NotificationFilterSpec', () => {
   it('should validate presence of pipeline', () => {
-    const filter = new NotificationFilter(1, "", "stage", NotificationEvent.All, false);
+    const filter = new NotificationFilter(1, "", "stage", 'All', false);
 
     expect(filter.isValid()).toBeFalse();
     expect(filter.errors().count()).toBe(1);
@@ -26,7 +26,7 @@ describe('NotificationFilterSpec', () => {
   });
 
   it('should validate presence of stage', () => {
-    const filter = new NotificationFilter(1, "pipeline", "", NotificationEvent.All, false);
+    const filter = new NotificationFilter(1, "pipeline", "", 'All', false);
 
     expect(filter.isValid()).toBeFalse();
     expect(filter.errors().count()).toBe(1);

@@ -15,7 +15,8 @@
  */
 
 import Stream from "mithril/stream";
-import {ValidatableMixin} from "../mixins/new_validatable_mixin";
+import {Errors, ErrorsJSON} from "models/mixins/errors";
+import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
 export interface NotificationFiltersJSON {
   _embedded: EmbeddedJSON;
@@ -31,6 +32,7 @@ export interface NotificationFilterJSON {
   stage: string;
   event: NotificationEvent;
   match_commits: boolean;
+  errors?: ErrorsJSON;
 }
 
 export type NotificationEvent = 'All' | 'Passes' | 'Fails' | 'Breaks' | 'Fixed' | 'Cancelled';
@@ -44,13 +46,14 @@ export class NotificationFilter extends ValidatableMixin {
   event: Stream<NotificationEvent>;
   matchCommits: Stream<boolean>;
 
-  constructor(id: number, pipeline: string, stage: string, event: NotificationEvent, matchCommits: boolean) {
+  constructor(id: number, pipeline: string, stage: string, event: NotificationEvent, matchCommits: boolean, errors: Errors = new Errors()) {
     super();
     this.id           = Stream(id);
     this.pipeline     = Stream(pipeline);
     this.stage        = Stream(stage);
     this.event        = Stream(event);
     this.matchCommits = Stream(matchCommits);
+    this.errors(errors);
 
     this.validatePresenceOf("pipeline");
     this.validatePresenceOf("stage");
@@ -58,7 +61,7 @@ export class NotificationFilter extends ValidatableMixin {
   }
 
   static fromJSON(data: NotificationFilterJSON): NotificationFilter {
-    return new NotificationFilter(data.id, data.pipeline, data.stage, data.event, data.match_commits);
+    return new NotificationFilter(data.id, data.pipeline, data.stage, data.event, data.match_commits, new Errors(data.errors));
   }
 
   static default() {

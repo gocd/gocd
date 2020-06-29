@@ -24,5 +24,4 @@ public interface PartialConfigUpdateCompletedListener {
 
     void onSuccessPartialConfig(ConfigRepoConfig repoConfig, PartialConfig newPart);
 
-
 }

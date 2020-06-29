@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
-import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.EphemeralConfigOrigin
 import com.thoughtworks.go.config.remote.PartialConfig
 import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigException
@@ -41,154 +40,154 @@ import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, ControllerTrait<ConfigRepoOperationsControllerV1> {
-  private static final String PLUGIN_ID = "test.plugin"
-  private static final String REPO_ID = "test-repo"
+    private static final String PLUGIN_ID = "test.plugin"
+    private static final String REPO_ID = "test-repo"
 
-  @Mock
-  GoConfigPluginService pluginService
+    @Mock
+    GoConfigPluginService pluginService
 
-  @Mock
-  ConfigRepoService configRepoService
+    @Mock
+    ConfigRepoService configRepoService
 
-  @Mock
-  GoConfigService goConfigService
+    @Mock
+    GoConfigService goConfigService
 
-  @Mock
-  PartialConfigService partialConfigService
+    @Mock
+    PartialConfigService partialConfigService
 
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
+    @BeforeEach
+    void setUp() {
+        initMocks(this)
+    }
 
-  @Override
-  ConfigRepoOperationsControllerV1 createControllerInstance() {
-    return new ConfigRepoOperationsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pluginService, configRepoService, goConfigService, partialConfigService)
-  }
-
-  @Nested
-  class Preflight {
-    @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
-
-      @Override
-      String getControllerMethodUnderTest() {
-        return "preflight"
-      }
-
-      @Override
-      void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(PREFLIGHT_PATH), [:])
-      }
+    @Override
+    ConfigRepoOperationsControllerV1 createControllerInstance() {
+        return new ConfigRepoOperationsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), pluginService, configRepoService, goConfigService, partialConfigService)
     }
 
     @Nested
-    class Request {
+    class Preflight {
+        @Nested
+        class Security implements SecurityTestTrait, AdminUserSecurity {
 
-      @BeforeEach
-      void setUp() {
-        mockMultipartContent("files[]", "foo.config", "content")
-        loginAsAdmin()
-      }
+            @Override
+            String getControllerMethodUnderTest() {
+                return "preflight"
+            }
 
-      @Test
-      void "requires pluginId parameter"() {
-        postWithApiHeader(controller.controllerPath(PREFLIGHT_PATH), [:])
+            @Override
+            void makeHttpCall() {
+                postWithApiHeader(controller.controllerPath(PREFLIGHT_PATH), [:])
+            }
+        }
 
-        assertThatResponse().
-          isBadRequest().
-          hasJsonMessage("Request is missing parameter `pluginId`")
-      }
+        @Nested
+        class Request {
 
-      @Test
-      void "returns NOT FOUND when plugin does not exist"() {
-        def plugin = mock(ConfigRepoPlugin.class)
-        when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenThrow(new RecordNotFoundException("Not found"))
-        when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
-        postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
+            @BeforeEach
+            void setUp() {
+                mockMultipartContent("files[]", "foo.config", "content")
+                loginAsAdmin()
+            }
 
-        assertThatResponse().
-          isNotFound().
-          hasJsonMessage("Not found")
-      }
+            @Test
+            void "requires pluginId parameter"() {
+                postWithApiHeader(controller.controllerPath(PREFLIGHT_PATH), [:])
 
-      @Test
-      void "returns NOT FOUND when repo does not exist"() {
-        when(configRepoService.getConfigRepo(REPO_ID)).thenReturn(null)
-        postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID&repoId=$REPO_ID"), [:])
+                assertThatResponse().
+                        isBadRequest().
+                        hasJsonMessage("Request is missing parameter `pluginId`")
+            }
 
-        assertThatResponse().
-          isNotFound().
-          hasJsonMessage(EntityType.ConfigRepo.notFoundMessage(REPO_ID))
-      }
+            @Test
+            void "returns NOT FOUND when plugin does not exist"() {
+                def plugin = mock(ConfigRepoPlugin.class)
+                when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenThrow(new RecordNotFoundException("Not found"))
+                when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
+                postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
 
-      @Test
-      void "sets ad-hoc config origin on resultant partial config"() {
-        def plugin = mock(ConfigRepoPlugin.class)
-        def partialConfig = mock(PartialConfig.class)
+                assertThatResponse().
+                        isNotFound().
+                        hasJsonMessage("Not found")
+            }
 
-        when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
-        when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
+            @Test
+            void "returns NOT FOUND when repo does not exist"() {
+                when(configRepoService.getConfigRepo(REPO_ID)).thenReturn(null)
+                postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID&repoId=$REPO_ID"), [:])
 
-        postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
+                assertThatResponse().
+                        isNotFound().
+                        hasJsonMessage(EntityType.ConfigRepo.notFoundMessage(REPO_ID))
+            }
 
-        verify(partialConfig).setOrigins(any(EphemeralConfigOrigin))
-      }
+            @Test
+            void "sets ad-hoc config origin on resultant partial config"() {
+                def plugin = mock(ConfigRepoPlugin.class)
+                def partialConfig = mock(PartialConfig.class)
 
-      @Test
-      void "returns serialized PreflightResult for valid config"() {
-        def plugin = mock(ConfigRepoPlugin.class)
-        def partialConfig = mock(PartialConfig.class)
-        def cruiseConfig = mock(CruiseConfig.class)
-        when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
-        when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
-        when(partialConfigService.merge(eq(partialConfig), any() as String, any() as CruiseConfig, any() as ConfigRepoConfig)).thenReturn(cruiseConfig)
+                when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
+                when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
 
-        postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
+                postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
 
-        verify(goConfigService, times(1)).validateCruiseConfig(cruiseConfig)
-        assertThatResponse().hasJsonBody([
-          errors: [],
-          valid : true
-        ])
-      }
+                verify(partialConfig).setOrigins(any(EphemeralConfigOrigin))
+            }
 
-      @Test
-      void "returns serialized PreflightResult when config fails to parse"() {
-        def plugin = mock(ConfigRepoPlugin.class)
-        def partialConfig = mock(PartialConfig.class)
-        when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenThrow(new InvalidPartialConfigException(partialConfig, "bad content!"))
-        when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
+            @Test
+            void "returns serialized PreflightResult for valid config"() {
+                def plugin = mock(ConfigRepoPlugin.class)
+                def partialConfig = mock(PartialConfig.class)
+                def cruiseConfig = mock(CruiseConfig.class)
+                when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
+                when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
+                when(partialConfigService.merge(eq(partialConfig), any() as String, any() as CruiseConfig)).thenReturn(cruiseConfig)
 
-        postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
+                postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
 
-        verify(partialConfigService, never()).merge(any(PartialConfig.class), anyString(), any(CruiseConfig.class), any(ConfigRepoConfig.class))
-        verify(goConfigService, never()).validateCruiseConfig(any() as CruiseConfig)
+                verify(goConfigService, times(1)).validateCruiseConfig(cruiseConfig)
+                assertThatResponse().hasJsonBody([
+                        errors: [],
+                        valid : true
+                ])
+            }
 
-        assertThatResponse().hasJsonBody([
-          errors: ["bad content!"],
-          valid : false
-        ])
-      }
+            @Test
+            void "returns serialized PreflightResult when config fails to parse"() {
+                def plugin = mock(ConfigRepoPlugin.class)
+                def partialConfig = mock(PartialConfig.class)
+                when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenThrow(new InvalidPartialConfigException(partialConfig, "bad content!"))
+                when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
 
-      @Test
-      void "returns serialized PreflightResult when config fails validations"() {
-        def plugin = mock(ConfigRepoPlugin.class)
-        def partialConfig = mock(PartialConfig.class)
-        def cruiseConfig = mock(CruiseConfig.class)
-        when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
-        when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
-        when(partialConfigService.merge(eq(partialConfig), any() as String, any() as CruiseConfig, any() as ConfigRepoConfig)).thenReturn(cruiseConfig)
-        when(goConfigService.validateCruiseConfig(cruiseConfig)).thenThrow(new GoConfigInvalidException(cruiseConfig, "nope!"))
+                postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
 
-        postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
+                verify(partialConfigService, never()).merge(any(PartialConfig.class), anyString(), any(CruiseConfig.class))
+                verify(goConfigService, never()).validateCruiseConfig(any() as CruiseConfig)
 
-        verify(goConfigService, times(1)).validateCruiseConfig(cruiseConfig)
-        assertThatResponse().hasJsonBody([
-          errors: ["nope!"],
-          valid : false
-        ])
-      }
+                assertThatResponse().hasJsonBody([
+                        errors: ["bad content!"],
+                        valid : false
+                ])
+            }
+
+            @Test
+            void "returns serialized PreflightResult when config fails validations"() {
+                def plugin = mock(ConfigRepoPlugin.class)
+                def partialConfig = mock(PartialConfig.class)
+                def cruiseConfig = mock(CruiseConfig.class)
+                when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
+                when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
+                when(partialConfigService.merge(eq(partialConfig), any() as String, any() as CruiseConfig)).thenReturn(cruiseConfig)
+                when(goConfigService.validateCruiseConfig(cruiseConfig)).thenThrow(new GoConfigInvalidException(cruiseConfig, "nope!"))
+
+                postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
+
+                verify(goConfigService, times(1)).validateCruiseConfig(cruiseConfig)
+                assertThatResponse().hasJsonBody([
+                        errors: ["nope!"],
+                        valid : false
+                ])
+            }
+        }
     }
-  }
 }

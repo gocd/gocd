@@ -18,6 +18,7 @@ import "foundation-sites";
 import $ from "jquery";
 import m from "mithril";
 import {footerMeta, headerMeta} from "models/current_user_permissions";
+import {DataSharingCleaner} from "models/shared/data_sharing_cleaner";
 import {VersionUpdater} from "models/shared/version_updater";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {SiteFooter} from "views/pages/partials/site_footer";
@@ -28,6 +29,7 @@ $(() => {
     $(document).foundation();
     ModalManager.onPageLoad();
     VersionUpdater.update();
+    DataSharingCleaner.clean();
 
     const footerData = footerMeta();
     const headerData = headerMeta();

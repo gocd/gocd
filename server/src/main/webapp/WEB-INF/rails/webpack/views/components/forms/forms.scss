@@ -299,3 +299,22 @@ input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-ele
   resize: none;
 }
 
+.hide-password {
+  @include icon-after($type: $fa-var-eye-slash, $size: 14px, $top: 1px, $color: $icon-color) {
+    right: 30px;
+  }
+
+  input {
+    padding-right: 25px;
+  }
+}
+
+.show-password {
+  @include icon-after($type: $fa-var-eye, $size: 14px, $top: 1px, $color: $icon-color) {
+    right: 30px;
+  }
+
+  input {
+    padding-right: 25px;
+  }
+}

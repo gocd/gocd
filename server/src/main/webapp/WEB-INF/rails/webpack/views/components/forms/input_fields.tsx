@@ -102,10 +102,10 @@ interface DefaultAttrs {
 }
 
 const textInputFieldDefaultAttrs = {
-  autocomplete: "off",
+  autocomplete:   "off",
   autocapitalize: "off",
-  autocorrect: "off",
-  spellcheck: false
+  autocorrect:    "off",
+  spellcheck:     false
 };
 
 interface FormResetButtonAttrs {
@@ -115,7 +115,7 @@ interface FormResetButtonAttrs {
 export interface Option {
   id: string;
   text: string;
-  disabled?:boolean;
+  disabled?: boolean;
 }
 
 interface SelectFieldAttrs extends RestyleAttrs<Styles> {
@@ -138,7 +138,7 @@ class RequiredLabel extends RestyleViewComponent<Styles, RequiredFieldAttr & Res
     if (this.isRequiredField(attrs)) {
       return {
         "aria-required": true,
-        "required": true
+        "required":      true
       };
     }
   }
@@ -308,10 +308,10 @@ function defaultAttributes<T, V>(attrs: BaseAttrs<T> & V,
   const required = RequiredLabel.isRequiredField(attrs as RequiredFieldAttr);
 
   const defaultAttrs: DefaultAttrs = {
-    "readonly": !!(attrs.readonly),
-    "disabled": !!(attrs.readonly),
-    "required": !!required,
-    "id": id,
+    "readonly":     !!(attrs.readonly),
+    "disabled":     !!(attrs.readonly),
+    "required":     !!required,
+    "id":           id,
     "data-test-id": `form-field-input-${labelToId(attrs.label)}`
   };
 
@@ -371,7 +371,7 @@ export type NumberFieldAttrs = BaseAttrs<number> & RequiredFieldAttr & Placehold
 export class TextField extends FormField<string, RequiredFieldAttr & PlaceholderAttr> {
   renderInputField(vnode: m.Vnode<TextFieldAttrs>) {
     const baseAttrs: { [key: string]: string } = {
-      type: vnode.attrs.type || "text",
+      type:  vnode.attrs.type || "text",
       class: this.css.formControl
     };
 
@@ -468,18 +468,29 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
 
   renderInputField(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>) {
     const defaultAttributes = this.defaultAttributes(vnode.attrs);
-    const input = <input type="password"
-                         class={classnames(this.css.formControl, this.css.inline)}
-                         {...defaultAttributes}
-                         {...this.bindingAttributes(vnode.attrs, "oninput", "value")}/>;
+    const showHidePassword  = vnode.attrs.property()!.isEditing()
+      ? <span id="wrapper-input" className={classnames(this.css.hidePassword)} onclick={this.onClickOfShowHideIcon.bind(this, defaultAttributes.id)}/>
+      : undefined;
+    const input             = [
+      <input type="password"
+             className={classnames(this.css.formControl, this.css.inline)}
+             {...defaultAttributes}
+             {...this.bindingAttributes(vnode.attrs, "oninput", "value")}/>,
+      showHidePassword
+    ];
 
-    return [input, PasswordField.resetOrOverride(vnode, () => document.getElementById((defaultAttributes.id))?.focus())];
+    const callbackOnReset = () => {
+      const inputElement = document.getElementById((defaultAttributes.id));
+      inputElement?.setAttribute('type', 'password');
+      inputElement?.focus();
+    };
+    return [input, PasswordField.resetOrOverride(vnode, callbackOnReset)];
   }
 
   protected defaultAttributes(attrs: BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr): any {
     return _.assign(super.defaultAttributes(attrs), textInputFieldDefaultAttrs, {
       readonly: !attrs.property()!.isEditing()
-    }, _.isEmpty(attrs.placeholder) ? {} : { placeholder: attrs.placeholder });
+    }, _.isEmpty(attrs.placeholder) ? {} : {placeholder: attrs.placeholder});
   }
 
   protected bindingAttributes(attrs: BaseAttrs<EncryptedValue>,
@@ -487,7 +498,7 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
                               propertyAttribute: string): any {
     if (attrs.property()!.isEditing()) {
       return {
-        [eventName]: (evt: any) => {
+        [eventName]:         (evt: any) => {
           if (attrs.onchange) {
             attrs.onchange(evt);
           }
@@ -504,7 +515,7 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
 
   }
 
-  private static resetOrOverride(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>, focus: () => any) {
+  private static resetOrOverride(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>, callbackOnReset: () => any) {
     if (vnode.attrs.property()!.isEditing()) {
       return <FormResetButton css={vnode.attrs.css}
                               readonly={vnode.attrs.readonly}
@@ -514,7 +525,24 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
       return <FormResetButton css={vnode.attrs.css}
                               readonly={vnode.attrs.readonly}
                               data-test-id="change-input"
-                              onclick={() => {vnode.attrs.property()!.edit.call(vnode.attrs.property()); focus();}}>Change</FormResetButton>;
+                              onclick={() => {
+                                vnode.attrs.property()!.edit.call(vnode.attrs.property());
+                                callbackOnReset();
+                              }}>Change</FormResetButton>;
+    }
+  }
+
+  private onClickOfShowHideIcon(id: string, e: MouseEvent) {
+    e.stopPropagation();
+    const inputField = document.getElementById("wrapper-input")!;
+    if (inputField.classList.contains(this.css.hidePassword)) {
+      document.getElementById(id)?.setAttribute('type', 'text');
+      inputField.classList.remove(this.css.hidePassword);
+      inputField.classList.add(this.css.showPassword);
+    } else {
+      document.getElementById(id)?.setAttribute('type', 'password');
+      inputField.classList.remove(this.css.showPassword);
+      inputField.classList.add(this.css.hidePassword);
     }
   }
 }
@@ -607,7 +635,7 @@ export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
 
     const bindingAttributes: any = {
       [propertyAttribute]: triStateCheckbox.isChecked(),
-      indeterminate: triStateCheckbox.isIndeterminate()
+      indeterminate:       triStateCheckbox.isIndeterminate()
     };
 
     if (!attrs.readonly) {

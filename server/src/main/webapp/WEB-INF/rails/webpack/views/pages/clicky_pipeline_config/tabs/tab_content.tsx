@@ -93,6 +93,10 @@ export abstract class TabContent<T> {
     //do nothing
   }
 
+  public onPipelineConfigReset() {
+    //do nothing
+  }
+
   protected abstract renderer(entity: T,
                               templateConfig: TemplateConfig,
                               flashMessage: FlashMessageModelWithTimeout,

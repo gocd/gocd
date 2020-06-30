@@ -96,6 +96,13 @@ export class StagesTabContent extends TabContent<PipelineConfig | TemplateConfig
     this.originalStages       = undefined;
   }
 
+  onPipelineConfigReset() {
+    this.isPipelineDefinedOriginallyFromTemplate = Stream();
+    this.stageOrTemplateProperty                = Stream();
+    this.entityReOrderHandler                   = undefined;
+    this.originalStages                         = undefined;
+  }
+
   protected selectedEntity(pipelineConfig: PipelineConfig | TemplateConfig, routeParams: PipelineConfigRouteParams) {
     //initialize only once
     if (this.isPipelineDefinedOriginallyFromTemplate() === undefined) {
@@ -183,7 +190,14 @@ interface StagesOrTemplatesState {
 
 export class StagesOrTemplatesWidget extends MithrilComponent<StagesOrTemplatesAttrs, StagesOrTemplatesState> {
   oninit(vnode: m.Vnode<StagesOrTemplatesAttrs, StagesOrTemplatesState>) {
+    this.initialize(vnode);
+  }
 
+  onupdate(vnode: m.Vnode<StagesOrTemplatesAttrs, StagesOrTemplatesState>) {
+    this.initialize(vnode);
+  }
+
+  initialize(vnode: m.Vnode<StagesOrTemplatesAttrs, StagesOrTemplatesState>) {
     vnode.state.stageOrTemplatePropertyStream = (value?: string) => {
       if (value) {
         vnode.attrs.stageOrTemplateProperty((value === "template") ? "template" : "stage");

@@ -144,6 +144,10 @@ export class JobSettingsTabContentWidget extends MithrilViewComponent<Attrs> {
     </div>;
   }
 
+  onupdate(vnode: m.Vnode<Attrs, this>) {
+    vnode.attrs.resourcesSuggestions.updateProperty(vnode.attrs.entity.resources);
+  }
+
   private isResourcesInputOnFocus(): boolean {
     return document.activeElement?.getAttribute("data-test-id") === "resources-input";
   }
@@ -242,6 +246,10 @@ export class ResourcesSuggestionsProvider extends SuggestionProvider {
     return new Promise<Awesomplete.Suggestion[]>((resolve) => {
       resolve(this.allResources());
     });
+  }
+
+  updateProperty(prop: Stream<string>) {
+    this.property = prop;
   }
 
   replace(suggestion: any) {

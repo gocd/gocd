@@ -73,15 +73,17 @@ class StageRepresenterTest {
       status        : StageState.Building,
       can_operate   : false,
       approved_by   : 'go-user',
+      approval_type : 'manual',
       scheduled_at  : jsonDate(date),
       allow_only_on_success_of_previous_stage: false,
       previous_stage: [
-        _links      : [
+        _links       : [
           self: [href: 'http://test.host/go/api/stages/pipeline-name/2/stage1/1']
         ],
         name        : 'stage1',
         counter     : '1',
         status      : StageState.Unknown,
+        approval_type: 'manual',
         can_operate : false,
         approved_by : null,
         scheduled_at: null,
@@ -109,12 +111,14 @@ class StageRepresenterTest {
     def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "23") })
 
     def expectedJson = [
-      _links      : [
+      _links       : [
         self: [href: 'http://test.host/go/api/stages/pipeline-name/23/stage2/2']
       ],
-      name        : 'stage2',
-      counter     : '2',
-      status      : StageState.Unknown,
+      name         : 'stage2',
+      counter      : '2',
+      status       : StageState.Unknown,
+      approval_type: 'manual',
+      approved_by  : null,
       can_operate : false,
       approved_by : null,
       scheduled_at: null,
@@ -126,7 +130,7 @@ class StageRepresenterTest {
   @Test
   void 'should render cancelled by if stage is cancelled by user'() {
     def stageInstance = new StageInstanceModel('stage2', '2', new JobHistory().addJob("j1", JobState.Completed, JobResult.Cancelled, new Date(12345)))
-    stageInstance.setCancelledBy("foo");
+    stageInstance.setCancelledBy("foo")
 
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
@@ -144,10 +148,12 @@ class StageRepresenterTest {
       _links      : [
         self: [href: 'http://test.host/go/api/stages/pipeline-name/23/stage2/2']
       ],
-      name        : 'stage2',
-      counter     : '2',
-      status      : StageState.Cancelled,
+      name         : 'stage2',
+      counter      : '2',
+      status       : StageState.Cancelled,
+      approved_by  : null,
       can_operate : false,
+      approval_type: 'manual',
       approved_by : null,
       scheduled_at: "1970-01-01T00:00:12Z",
       cancelled_by: "foo",
@@ -181,6 +187,7 @@ class StageRepresenterTest {
       status      : StageState.Cancelled,
       can_operate : false,
       approved_by : null,
+      approval_type: 'manual',
       scheduled_at: "1970-01-01T00:00:12Z",
       cancelled_by: "GoCD",
       allow_only_on_success_of_previous_stage: false

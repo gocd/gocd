@@ -74,6 +74,8 @@ public class GoFileConfigDataSourceTest {
     private GoConfigFileWriter goConfigFileWriter;
     @Mock
     private GoConfigFileReader goConfigFileReader;
+    @Mock
+    private PartialConfigHelper partials;
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -81,8 +83,8 @@ public class GoFileConfigDataSourceTest {
     public void setup() throws Exception {
         initMocks(this);
         dataSource = new GoFileConfigDataSource(goConfigMigration,
-                configRepository, systemEnvironment, timeProvider, xmlLoader, xmlWriter, serverHealthService,
-                cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow, goConfigFileReader, goConfigFileWriter);
+                configRepository, systemEnvironment, timeProvider, xmlLoader, xmlWriter,
+                cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow, goConfigFileReader, goConfigFileWriter, partials);
 
 
     }
@@ -106,44 +108,6 @@ public class GoFileConfigDataSourceTest {
             verifyZeroInteractions(serverHealthService);
             verify(xmlLoader, times(1)).loadConfigHolder(any(String.class), any(MagicalGoConfigXmlLoader.Callback.class));
         }
-    }
-
-    @Test
-    public void shouldReturnTrueWhenBothValidAndKnownPartialsListsAreEmpty() {
-        assertThat(dataSource.areKnownPartialsSameAsValidPartials(new ArrayList<>(), new ArrayList<>()), is(true));
-    }
-
-    @Test
-    public void shouldReturnTrueWhenValidPartialsListIsSameAsKnownPartialList() {
-        ConfigRepoConfig repo1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "id1");
-        ConfigRepoConfig repo2 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin", "id2");
-        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(repo1, "git_r1"));
-        PartialConfig partialConfig2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(repo2, "svn_r1"));
-        List<PartialConfig> known = asList(partialConfig1, partialConfig2);
-        List<PartialConfig> valid = asList(partialConfig1, partialConfig2);
-        assertThat(dataSource.areKnownPartialsSameAsValidPartials(known, valid), is(true));
-    }
-
-    @Test
-    public void shouldReturnFalseWhenValidPartialsListIsNotTheSameAsKnownPartialList() {
-        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "id1"), "git_r1"));
-        PartialConfig partialConfig2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin", "id2"), "svn_r1"));
-        PartialConfig partialConfig3 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "id3"), "git_r2"));
-        PartialConfig partialConfig4 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin", "id4"), "svn_r2"));
-        List<PartialConfig> known = asList(partialConfig1, partialConfig2);
-        List<PartialConfig> valid = asList(partialConfig3, partialConfig4);
-        assertThat(dataSource.areKnownPartialsSameAsValidPartials(known, valid), is(false));
-    }
-
-    @Test
-    public void shouldReturnFalseWhenValidPartialsListIsEmptyWhenKnownListIsNot() {
-        ConfigRepoConfig repo1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "id1");
-        ConfigRepoConfig repo2 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin", "id2");
-        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(repo1, "git_r1"));
-        PartialConfig partialConfig2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(repo2, "svn_r1"));
-        List<PartialConfig> known = asList(partialConfig1, partialConfig2);
-        List<PartialConfig> valid = new ArrayList<>();
-        assertThat(dataSource.areKnownPartialsSameAsValidPartials(known, valid), is(false));
     }
 
     @Test

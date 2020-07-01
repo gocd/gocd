@@ -35,9 +35,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * Tracks all config-repo parsing states
  */
 public class ConfigReposMaterialParseResultManager {
-    private Map<String, PartialConfigParseResult> fingerprintOfPartialToParseResultMap = new ConcurrentHashMap<>();
-    private ServerHealthService serverHealthService;
-    private ConfigRepoService configRepoService;
+    private final Map<String, PartialConfigParseResult> fingerprintOfPartialToParseResultMap = new ConcurrentHashMap<>();
+    private final ServerHealthService serverHealthService;
+    private final ConfigRepoService configRepoService;
 
     ConfigReposMaterialParseResultManager(ServerHealthService serverHealthService, ConfigRepoService configRepoService) {
         this.serverHealthService = serverHealthService;

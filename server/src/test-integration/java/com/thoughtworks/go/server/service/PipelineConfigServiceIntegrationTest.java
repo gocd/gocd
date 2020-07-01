@@ -94,7 +94,7 @@ public class PipelineConfigServiceIntegrationTest {
     @Autowired
     private ConfigElementImplementationRegistry registry;
     @Autowired
-    private GoPartialConfig goPartialConfig;
+    private PartialConfigService partialConfigService;
     @Autowired
     private CachedGoPartials cachedGoPartials;
     @Autowired
@@ -142,9 +142,9 @@ public class PipelineConfigServiceIntegrationTest {
         goConfigService.updateConfig(command);
         remoteDownstreamPipelineName = "remote-downstream";
         partialConfig = PartialConfigMother.pipelineWithDependencyMaterial(remoteDownstreamPipelineName, pipelineConfig, new RepoConfigOrigin(repoConfig1, "repo1_r1"));
-        goPartialConfig.onSuccessPartialConfig(repoConfig1, partialConfig);
+        partialConfigService.onSuccessPartialConfig(repoConfig1, partialConfig);
         PartialConfig partialConfigFromRepo2 = PartialConfigMother.withPipeline("independent-pipeline", new RepoConfigOrigin(repoConfig2, "repo2_r1"));
-        goPartialConfig.onSuccessPartialConfig(repoConfig2, partialConfigFromRepo2);
+        partialConfigService.onSuccessPartialConfig(repoConfig2, partialConfigFromRepo2);
         result = new HttpLocalizedOperationResult();
         headCommitBeforeUpdate = configRepository.getCurrentRevCommit().name();
         goConfigService.security().securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
@@ -778,7 +778,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         String remoteInvalidPipeline = "remote_invalid_pipeline";
         PartialConfig invalidPartial = PartialConfigMother.invalidPartial(remoteInvalidPipeline, new RepoConfigOrigin(repoConfig1, "repo1_r2"));
-        goPartialConfig.onSuccessPartialConfig(repoConfig1, invalidPartial);
+        partialConfigService.onSuccessPartialConfig(repoConfig1, invalidPartial);
         assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteInvalidPipeline)), is(false));
         assertThat(goConfigService.getCurrentConfig().getAllPipelineNames().contains(new CaseInsensitiveString(remoteDownstreamPipelineName)), is(true));
 
@@ -852,7 +852,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
 
         partialConfig = PartialConfigMother.invalidPartial(remoteDownstreamPipeline.name().toString(), new RepoConfigOrigin(repoConfig1, "repo1_r2"));
-        goPartialConfig.onSuccessPartialConfig(repoConfig1, partialConfig);
+        partialConfigService.onSuccessPartialConfig(repoConfig1, partialConfig);
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
         assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
         assertThat(((RepoConfigOrigin) currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).getOrigin()).getRevision(), is("repo1_r1"));
@@ -890,7 +890,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         final CaseInsensitiveString upstreamStageRenamed = new CaseInsensitiveString("upstream_stage_renamed");
         partialConfig = PartialConfigMother.pipelineWithDependencyMaterial("remote-downstream", new PipelineConfig(pipelineConfig.name(), pipelineConfig.materialConfigs(), new StageConfig(upstreamStageRenamed, new JobConfigs())), new RepoConfigOrigin(repoConfig1, "repo1_r2"));
-        goPartialConfig.onSuccessPartialConfig(repoConfig1, partialConfig);
+        partialConfigService.onSuccessPartialConfig(repoConfig1, partialConfig);
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
         DependencyMaterialConfig dependencyMaterialForRemotePipelineInConfigCache = currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name());
         assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("stage")));
@@ -930,7 +930,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         //introduce an invalid change in the independent partial
         PartialConfig invalidIndependentPartial = PartialConfigMother.invalidPartial(independentRemotePipeline, new RepoConfigOrigin(repoConfig2, "repo2_r2"));
-        goPartialConfig.onSuccessPartialConfig(repoConfig2, invalidIndependentPartial);
+        partialConfigService.onSuccessPartialConfig(repoConfig2, invalidIndependentPartial);
         assertThat(((RepoConfigOrigin) cachedGoPartials.getValid(repoConfig2.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo2_r1"));
         assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig2.getRepo().getFingerprint()).getOrigin()).getRevision(), is("repo2_r2"));
         assertThat(((RepoConfigOrigin) goConfigService.getCurrentConfig().getPipelineConfigByName(new CaseInsensitiveString(independentRemotePipeline)).getOrigin()).getRevision(), is("repo2_r1"));
@@ -941,7 +941,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         final CaseInsensitiveString upstreamStageRenamed = new CaseInsensitiveString("upstream_stage_renamed");
         partialConfig = PartialConfigMother.pipelineWithDependencyMaterial("remote-downstream", new PipelineConfig(pipelineConfig.name(), pipelineConfig.materialConfigs(), new StageConfig(upstreamStageRenamed, new JobConfigs())), new RepoConfigOrigin(repoConfig1, "repo1_r2"));
-        goPartialConfig.onSuccessPartialConfig(repoConfig1, partialConfig);
+        partialConfigService.onSuccessPartialConfig(repoConfig1, partialConfig);
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
         DependencyMaterialConfig dependencyMaterialForRemotePipelineInConfigCache = currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name());
         assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("stage")));
@@ -996,7 +996,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         final CaseInsensitiveString upstreamStageRenamed = new CaseInsensitiveString("upstream_stage_renamed");
         partialConfig = PartialConfigMother.pipelineWithDependencyMaterial("remote-downstream", new PipelineConfig(pipelineConfig.name(), pipelineConfig.materialConfigs(), new StageConfig(upstreamStageRenamed, new JobConfigs())), new RepoConfigOrigin(repoConfig1, "repo1_r2"));
-        goPartialConfig.onSuccessPartialConfig(repoConfig1, partialConfig);
+        partialConfigService.onSuccessPartialConfig(repoConfig1, partialConfig);
         CruiseConfig currentConfig = goConfigService.getCurrentConfig();
         DependencyMaterialConfig dependencyMaterialForRemotePipelineInConfigCache = currentConfig.getPipelineConfigByName(remoteDownstreamPipeline.name()).materialConfigs().findDependencyMaterial(pipelineConfig.name());
         assertThat(dependencyMaterialForRemotePipelineInConfigCache.getStageName(), is(new CaseInsensitiveString("stage")));

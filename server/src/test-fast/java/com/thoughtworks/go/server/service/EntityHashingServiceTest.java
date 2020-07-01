@@ -17,157 +17,204 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
-import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.config.remote.PartialConfig;
-import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.helper.EnvironmentConfigMother;
-import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.security.ProductionIVProvider;
+import com.thoughtworks.go.security.TestIVProvider;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
-import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import java.util.Collection;
+import java.util.List;
+
+import static com.thoughtworks.go.server.service.EntityHashingService.ETAG_CACHE_KEY;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class EntityHashingServiceTest {
     private GoConfigService goConfigService;
     private GoCache goCache;
-    private EntityHashingService entityHashingService;
-    private ConfigCache configCache;
-    private ConfigElementImplementationRegistry registry;
+    private EntityHashingService service;
+    private EntityHashes digests;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         this.goConfigService = mock(GoConfigService.class);
         this.goCache = mock(GoCache.class);
-        this.configCache = new ConfigCache();
-        this.registry = ConfigElementImplementationRegistryMother.withNoPlugins();
-        this.entityHashingService = new EntityHashingService(this.goConfigService, this.goCache, configCache, registry);
+        digests = new EntityHashes(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
+        this.service = new EntityHashingService(this.goConfigService, this.goCache, digests);
     }
 
     @Test
-    public void shouldThrowAnExceptionWhenObjectIsNull() {
-        thrown.expect(NullPointerException.class);
-        entityHashingService.hashForEntity((EnvironmentConfig) null);
+    void throwAnExceptionWhenObjectIsNull() {
+        assertThrows(NullPointerException.class, () -> service.hashForEntity((EnvironmentConfig) null));
     }
 
     @Test
-    public void shouldComputeTheDigestOfAGivenXmlPartialGeneratedFromAnObject() {
-        BasicEnvironmentConfig environment = EnvironmentConfigMother.environment("P1");
-        String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(environment);
+    void registersListenersForConfigChange() {
+        service.initialize();
 
-        assertThat(entityHashingService.hashForEntity(environment), is(sha512_256Hex(xml)));
+        verify(goConfigService).register(service);
     }
 
     @Test
-    public void shouldRegisterToListenForConfigChange() {
-        entityHashingService.initialize();
+    void digestsCombinedPluginInfoAndCollection() {
+        final CombinedPluginInfo info1 = new CombinedPluginInfo(new NotificationPluginInfo(
+                GoPluginDescriptor.builder().id("foo").build(),
+                new PluggableInstanceSettings(List.of(new PluginConfiguration("user", null)))
+        ));
+        final CombinedPluginInfo info2 = new CombinedPluginInfo(new NotificationPluginInfo(
+                GoPluginDescriptor.builder().id("bar").build(),
+                new PluggableInstanceSettings(List.of(new PluginConfiguration("user", null)))
+        ));
+        final Collection<CombinedPluginInfo> many = List.of(info1, info2);
 
-        verify(goConfigService).register(entityHashingService);
+        final String actual = service.hashForEntity(many);
+        assertTrue(actual.matches("[a-f0-9]{64}"));
+
+        assertEquals(digests.digestMany(
+                service.hashForEntity(info1),
+                service.hashForEntity(info2)
+        ), actual);
     }
 
     @Test
-    public void shouldUseObjectHashCodeForPluginSettings() {
-        PluginSettings pluginSettings = new PluginSettings("com.foo.plugin");
-        String expected = "be09fc88146dad0d8d80dad98cfbf038689775685ae7c43003745f054dede879";
+    @DisplayName("when plugin settings contain secret properties, the digest used for" +
+            "ETags should not change as long as the decrypted values remain the same, " +
+            "even if the crypto salt changes between requests")
+    void digestIsConsistentForPluginSettingsWithSecretPropertiesEvenWhenCryptoSaltChanges() {
+        TestIVProvider.with(new ProductionIVProvider(), () -> {
+            final String id = "com.foo.plugin";
+            final String key = "can you keep a secret?";
+            final String secret = "nope!";
+            final String pluginSettingsCacheKey = "com.thoughtworks.go.server.domain.PluginSettings.com.foo.plugin";
 
-        String actual = entityHashingService.hashForEntity(pluginSettings);
+            final PluginSettings p1 = pluginSettings(id, key, secret);
+            final PluginSettings p2 = pluginSettings(id, key, secret);
 
-        assertThat(actual, is(expected));
-        verify(goCache).put("GO_ETAG_CACHE", "com.thoughtworks.go.server.domain.PluginSettings.com.foo.plugin", expected);
+            assertNotEquals(
+                    p1.getPluginSettingsProperties().get(0).getEncryptedValue(),
+                    p2.getPluginSettingsProperties().get(0).getEncryptedValue(),
+                    "both entities should have different cipherTexts even though the input values are equal"
+            );
+
+            final String expected = service.hashForEntity(p1);
+
+            // don't care about the actual value, just that we get what looks like a digest
+            assertTrue(expected.matches("[a-f0-9]{64}"));
+            verify(goCache).put(ETAG_CACHE_KEY, pluginSettingsCacheKey, expected);
+
+            // Even though this is a mock and the values are never really cached, I'm
+            // putting this here for logical correctness to demonstrate intent: we must
+            // be sure that our assertion below does not test cached copies.
+            //
+            // Also, if we ever throw in a real cache instead of a mock (unlikely, but
+            // you never know), this test should remain correct.
+            service.removeFromCache(p1, p1.getPluginId());
+            verify(goCache).remove(ETAG_CACHE_KEY, pluginSettingsCacheKey);
+
+            final String second = service.hashForEntity(p2);
+            assertEquals(expected, second, "given the same plaintext, two PluginSettings should have equal digests");
+            verify(goCache, times(2)).put(ETAG_CACHE_KEY, pluginSettingsCacheKey, expected);
+        });
     }
 
     @Test
-    public void shouldInvalidatePipelineConfigEtagsFromCacheOnConfigChange() {
-        entityHashingService.onConfigChange(null);
+    void invalidatesPipelineConfigETagsFromCacheOnConfigChange() {
+        service.onConfigChange(null);
 
-        verify(goCache).remove("GO_ETAG_CACHE");
+        verify(goCache).remove(ETAG_CACHE_KEY);
     }
 
     @Test
-    public void shouldInvalidatePipelineConfigEtagsFromCacheOnPipelineChange() {
-        EntityHashingService.PipelineConfigChangedListener listener = entityHashingService.new PipelineConfigChangedListener();
+    void invalidatesPipelineConfigETagsFromCacheOnPipelineChange() {
+        EntityHashingService.PipelineConfigChangedListener listener = service.new PipelineConfigChangedListener();
 
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("P1");
         listener.onEntityConfigChange(pipelineConfig);
 
-        verify(goCache).remove("GO_ETAG_CACHE", (pipelineConfig.getClass().getName() + "." + "p1"));
+        verify(goCache).remove(ETAG_CACHE_KEY, (pipelineConfig.getClass().getName() + "." + "p1"));
     }
 
     @Test
-    public void entityChecksumIsIdenticalForObjectsWithCaseInsensitiveName() throws Exception {
+    void entityChecksumIsIdenticalForObjectsWithCaseInsensitiveName() {
         BasicEnvironmentConfig environment = EnvironmentConfigMother.environment("UPPER_CASE_NAME");
-        when(goCache.get("GO_ETAG_CACHE", "com.thoughtworks.go.config.BasicEnvironmentConfig.upper_case_name")).thenReturn("foo");
-        String checksum = entityHashingService.hashForEntity(environment);
-        assertThat(checksum, is("foo"));
-        verify(goCache).get("GO_ETAG_CACHE", "com.thoughtworks.go.config.BasicEnvironmentConfig.upper_case_name");
+        when(goCache.get(ETAG_CACHE_KEY, "com.thoughtworks.go.config.BasicEnvironmentConfig.upper_case_name")).thenReturn("foo");
+
+        assertEquals("foo", service.hashForEntity(environment));
+
+        verify(goCache).get(ETAG_CACHE_KEY, "com.thoughtworks.go.config.BasicEnvironmentConfig.upper_case_name");
         verifyNoMoreInteractions(goCache);
     }
 
     @Test
-    public void shouldNotAccessCacheIfTheEnvironmentConfigIsAnInstanceOfMergeEnvConfig() {
-        BasicEnvironmentConfig basicEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env"));
-        MergeEnvironmentConfig mergeEnvConfig = new MergeEnvironmentConfig(basicEnvConfig);
+    @DisplayName("hashForEntity() can determine the proper overloaded method for implementations of " +
+            "EnvironmentConfig and List<EnvironmentConfig> without ambiguity")
+    void hashesEnvironmentConfigsWithoutClassAmbiguityIssues() {
+        // important to test these when typed as the non-specific parent interface
+        final EnvironmentConfig basic = new BasicEnvironmentConfig(new CaseInsensitiveString("hello"));
+        final EnvironmentConfig merged = new MergeEnvironmentConfig(basic);
+        final EnvironmentsConfig mult = new EnvironmentsConfig();
+        mult.add(basic);
+        final EnvironmentsConfig nested = new EnvironmentsConfig();
+        nested.add(merged);
 
-        entityHashingService.hashForEntity(mergeEnvConfig);
-
-        verifyZeroInteractions(goCache);
+        // resolving the wrong overload might result in an exception indicating that the object "does not
+        // have a ConfigTag"
+        assertDoesNotThrow(() -> {
+                    assertTrue(isNotBlank(service.hashForEntity(basic)));
+                    assertTrue(isNotBlank(service.hashForEntity(merged)));
+                    assertTrue(isNotBlank(service.hashForEntity(mult)));
+                    assertTrue(isNotBlank(service.hashForEntity(nested)));
+                }
+        );
     }
 
     @Test
-    public void shouldAccessCacheIfTheEnvironmentConfigIsAnInstanceOfBasicEnvConfig() {
-        BasicEnvironmentConfig basicEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env"));
-        when(goCache.get("GO_ETAG_CACHE", "com.thoughtworks.go.config.BasicEnvironmentConfig.env")).thenReturn("foo");
+    void treatsMergeEnvironmentConfigsAsCollectionsOfEnvironmentConfigs() {
+        BasicEnvironmentConfig env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env"));
+        BasicEnvironmentConfig env2 = new BasicEnvironmentConfig(new CaseInsensitiveString("env"));
+        MergeEnvironmentConfig merged = new MergeEnvironmentConfig(env1, env2);
 
-        String digest = entityHashingService.hashForEntity(basicEnvConfig);
+        when(goCache.get(ETAG_CACHE_KEY, "com.thoughtworks.go.config.BasicEnvironmentConfig.env")).
+                thenReturn("foo").
+                thenReturn("bar");
 
-        assertThat(digest, is("foo"));
-        verify(goCache).get("GO_ETAG_CACHE", "com.thoughtworks.go.config.BasicEnvironmentConfig.env");
+        final String type = MergeEnvironmentConfig.class.getSimpleName();
+        assertEquals(digests.digestMany(type, "foo", "bar"), service.hashForEntity(merged));
+
+        verify(goCache, times(2)).get(ETAG_CACHE_KEY, "com.thoughtworks.go.config.BasicEnvironmentConfig.env");
         verifyNoMoreInteractions(goCache);
     }
 
     @Test
-    public void shouldInvalidateArtifactConfigEtagsFromCacheOnConfigChange() {
-        EntityHashingService.ArtifactConfigChangeListener artifactConfigChangeListener = entityHashingService.new ArtifactConfigChangeListener();
+    void invalidatesArtifactConfigETagsFromCacheOnConfigChange() {
+        EntityHashingService.ArtifactConfigChangeListener artifactConfigChangeListener = service.new ArtifactConfigChangeListener();
         ArtifactConfig artifactConfig = new ArtifactConfig();
 
         artifactConfigChangeListener.onEntityConfigChange(artifactConfig);
 
-        verify(goCache).remove("GO_ETAG_CACHE", (artifactConfig.getClass().getName() + ".cacheKey"));
+        verify(goCache).remove(ETAG_CACHE_KEY, (artifactConfig.getClass().getName() + ".cacheKey"));
     }
 
-    @Test
-    public void computeHashForEntity() {
-        assertEquals(
-                "Given the same structure and origin, computeHashForEntity() should output the same hash code",
-                entityHashingService.computeHashForEntity(PartialConfigMother.withPipeline("foo")),
-                entityHashingService.computeHashForEntity(PartialConfigMother.withPipeline("foo"))
-        );
-
-        assertNotEquals(
-                "Given structurally different partials, computeHashForEntity() outputs different hash codes",
-                entityHashingService.computeHashForEntity(PartialConfigMother.withPipeline("foo")),
-                entityHashingService.computeHashForEntity(PartialConfigMother.withPipeline("bar"))
-        );
-
-        PartialConfig a = PartialConfigMother.withPipeline("foo");
-        PartialConfig b = PartialConfigMother.withPipeline("bar");
-        b.setOrigin(new RepoConfigOrigin(((RepoConfigOrigin) b.getOrigin()).getConfigRepo(), "something-else"));
-
-        assertNotEquals(
-                "Given structurally equal partials, but different origins, computeHashForEntity() outputs different hash codes",
-                entityHashingService.computeHashForEntity(a),
-                entityHashingService.computeHashForEntity(b)
-        );
+    private PluginSettings pluginSettings(String id, String key, String secret) {
+        final PluginSettings p = new PluginSettings(id);
+        final ConfigurationProperty cp = new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue(secret));
+        cp.handleSecureValueConfiguration(true);
+        p.getPluginSettingsProperties().add(cp);
+        return p;
     }
 }

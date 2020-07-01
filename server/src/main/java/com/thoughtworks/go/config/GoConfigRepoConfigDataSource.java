@@ -29,6 +29,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import org.jetbrains.annotations.TestOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,6 +86,7 @@ public class GoConfigRepoConfigDataSource implements ChangedRepoConfigWatchListL
         this.listeners.add(listener);
     }
 
+    @TestOnly
     public boolean latestParseHasFailedForMaterial(MaterialConfig material) {
         PartialConfigParseResult result = getLastParseResult(material);
         if (result == null)

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.GoPartialConfig;
+import com.thoughtworks.go.config.PartialConfigService;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -67,7 +67,7 @@ public class PipelineLabelCorrectorIntegrationTest {
     @Autowired
     private MaterialRepository materialRepository;
     @Autowired
-    private GoPartialConfig goPartialConfig;
+    private PartialConfigService partialConfigService;
     private ScheduleTestUtil scheduleUtil;
     private ConfigRepoConfig repoConfig;
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
@@ -188,7 +188,7 @@ public class PipelineLabelCorrectorIntegrationTest {
         scheduleUtil.checkinInOrder(svn, scheduleUtil.d(1), "svn1r11");
         GitMaterial configRepoMaterial = scheduleUtil.wf((GitMaterial) new MaterialConfigConverter().toMaterial(repoConfig.getRepo()), "git");
         scheduleUtil.checkinInOrder(configRepoMaterial, scheduleUtil.d(1), "s1");
-        goPartialConfig.onSuccessPartialConfig(repoConfig, partialConfig);
+        partialConfigService.onSuccessPartialConfig(repoConfig, partialConfig);
         return remotePipeline;
     }
 }

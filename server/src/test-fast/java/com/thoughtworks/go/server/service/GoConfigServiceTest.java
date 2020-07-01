@@ -102,7 +102,7 @@ public class GoConfigServiceTest {
         instanceFactory = mock(InstanceFactory.class);
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
-        goConfigService = new GoConfigService(goConfigDao, pipelineRepository, this.clock, new GoConfigMigration(new TimeProvider(),
+        goConfigService = new GoConfigService(goConfigDao, this.clock, new GoConfigMigration(new TimeProvider(),
                 registry), goCache, configRepo, registry,
                 instanceFactory, mock(CachedGoPartials.class), systemEnvironment);
     }
@@ -1197,7 +1197,7 @@ public class GoConfigServiceTest {
     private GoConfigService goConfigServiceWithInvalidStatus() {
         goConfigDao = mock(GoConfigDao.class, "badCruiseConfigManager");
         when(goConfigDao.checkConfigFileValid()).thenReturn(GoConfigValidity.invalid("JDom exception"));
-        return new GoConfigService(goConfigDao, pipelineRepository, new SystemTimeClock(), mock(GoConfigMigration.class), goCache, null,
+        return new GoConfigService(goConfigDao, new SystemTimeClock(), mock(GoConfigMigration.class), goCache, null,
                 ConfigElementImplementationRegistryMother.withNoPlugins(), instanceFactory, null, null);
     }
 

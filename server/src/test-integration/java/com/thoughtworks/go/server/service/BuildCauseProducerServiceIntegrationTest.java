@@ -17,7 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.GoPartialConfig;
+import com.thoughtworks.go.config.PartialConfigService;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
@@ -128,7 +128,7 @@ public class BuildCauseProducerServiceIntegrationTest {
     @Autowired
     private TriggerMonitor triggerMonitor;
     @Autowired
-    private GoPartialConfig goPartialConfig;
+    private PartialConfigService partialConfigService;
 
     @Autowired
     private TransactionTemplate transactionTemplate;
@@ -484,7 +484,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         u.checkinInOrder(svn, u.d(1), "svn1r11");
         GitMaterial configRepoMaterial = u.wf((GitMaterial) new MaterialConfigConverter().toMaterial(repoConfig.getRepo()), "git");
         u.checkinInOrder(configRepoMaterial, u.d(1), "s1");
-        goPartialConfig.onSuccessPartialConfig(repoConfig, partialConfig);
+        partialConfigService.onSuccessPartialConfig(repoConfig, partialConfig);
         assertTrue(goConfigService.hasPipelineNamed(remotePipeline.name()));
         scheduleOptions.shouldPerformMDUBeforeScheduling(false);
 

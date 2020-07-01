@@ -35,7 +35,6 @@ public class CachedGoPartials implements PartialConfigResolver {
 
     @Autowired
     public CachedGoPartials(ServerHealthService serverHealthService) {
-
         this.serverHealthService = serverHealthService;
     }
 
@@ -62,13 +61,6 @@ public class CachedGoPartials implements PartialConfigResolver {
         return getPartialConfig(fingerprint, fingerprintToLatestKnownConfigMap);
     }
 
-    private PartialConfig getPartialConfig(String fingerprint, Map<String, PartialConfig> map) {
-        if (map.containsKey(fingerprint)) {
-            return map.get(fingerprint);
-        }
-        return null;
-    }
-
     public void removeValid(String fingerprint) {
         if (fingerprintToLatestValidConfigMap.containsKey(fingerprint)) {
             fingerprintToLatestValidConfigMap.remove(fingerprint);
@@ -88,11 +80,6 @@ public class CachedGoPartials implements PartialConfigResolver {
         } else {
             markAsValidAndUpdateServerHealthMessage(fingerprint, newPart);
         }
-    }
-
-    private void markAsValidAndUpdateServerHealthMessage(String fingerprint, PartialConfig newPart) {
-        fingerprintToLatestValidConfigMap.put(fingerprint, newPart);
-        serverHealthService.removeByScope(HealthStateScope.forPartialConfigRepo(fingerprint));
     }
 
     public void markAsValid(List<PartialConfig> partials) {
@@ -128,6 +115,18 @@ public class CachedGoPartials implements PartialConfigResolver {
             matchingPartial = findPartialByFingerprint(cruiseConfig, fingerprint, getKnown(fingerprint));
         }
         return matchingPartial;
+    }
+
+    private PartialConfig getPartialConfig(String fingerprint, Map<String, PartialConfig> map) {
+        if (map.containsKey(fingerprint)) {
+            return map.get(fingerprint);
+        }
+        return null;
+    }
+
+    private void markAsValidAndUpdateServerHealthMessage(String fingerprint, PartialConfig newPart) {
+        fingerprintToLatestValidConfigMap.put(fingerprint, newPart);
+        serverHealthService.removeByScope(HealthStateScope.forPartialConfigRepo(fingerprint));
     }
 
     private PartialConfig findPartialByFingerprint(CruiseConfig cruiseConfig, String fingerprint, PartialConfig partial) {

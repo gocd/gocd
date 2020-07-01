@@ -16,7 +16,7 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 public class GoConfigDaoBasicTest extends GoConfigDaoTestBase {
 
@@ -26,7 +26,7 @@ public class GoConfigDaoBasicTest extends GoConfigDaoTestBase {
         cachedGoConfig = configHelper.getCachedGoConfig();
     }
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         configHelper.initializeConfigFile();
     }

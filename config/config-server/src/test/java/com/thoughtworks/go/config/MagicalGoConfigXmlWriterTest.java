@@ -321,7 +321,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldFailWhenWritingObjectToXmlPartialWithNoConfigTag() throws Exception {
+    public void shouldFailWhenWritingObjectToXmlPartialWithNoConfigTag() {
         Object badObject = "foo";
         try {
             xmlWriter.toXmlPartial(badObject);

@@ -19,11 +19,23 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 public class TestIVProvider implements IVProvider {
-
     private static final byte[] TEST_IV = Base64.getDecoder().decode("lzcCuNSe4vUx+CsWgN11Uw==");
+    private static final ThreadLocal<IVProvider> override = new ThreadLocal<>();
+
+    public static void with(IVProvider provider, Runnable block) {
+        override.set(provider);
+        try {
+            block.run();
+        } finally {
+            override.remove();
+        }
+    }
 
     @Override
     public byte[] createIV() throws NoSuchAlgorithmException {
+        if (null != override.get()) {
+            return override.get().createIV();
+        }
         return TEST_IV;
     }
 }

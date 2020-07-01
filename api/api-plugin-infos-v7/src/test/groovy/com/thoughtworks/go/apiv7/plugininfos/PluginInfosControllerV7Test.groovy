@@ -222,7 +222,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
       @Test
       void 'should return all plugin infos'() {
         when(pluginInfoFinder.allPluginInfos()).thenReturn(pluginInfos)
-        when(entityHashingService.hashForEntity(pluginInfos)).thenReturn("digest")
+        when(entityHashingService.hashForEntity((Collection<CombinedPluginInfo>) pluginInfos)).thenReturn("digest")
 
         getWithApiHeader(controller.controllerPath())
 
@@ -341,7 +341,7 @@ class PluginInfosControllerV7Test implements SecurityServiceTrait, ControllerTra
       @Test
       void 'should return 304 if plugin info is not modified'() {
         when(pluginInfoFinder.allPluginInfos()).thenReturn(pluginInfos)
-        when(entityHashingService.hashForEntity(pluginInfos)).thenReturn('digest')
+        when(entityHashingService.hashForEntity((Collection<CombinedPluginInfo>) pluginInfos)).thenReturn('digest')
 
         getWithApiHeader(controller.controllerPath(), ['if-none-match': '"digest"'])
 

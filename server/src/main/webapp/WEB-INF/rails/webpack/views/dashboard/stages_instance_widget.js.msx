@@ -18,22 +18,31 @@ import _ from "lodash";
 
 export const StagesInstanceWidget = {
   view: (vnode) => {
-    const stages        = vnode.attrs.stages;
+    const stages = vnode.attrs.stages;
     const stageInstance = _.map(stages, (stage) => {
       let stageStatus = `${stage.name} (${stage.status})`;
       if (stage.isCancelled()) {
         stageStatus = `${stage.name} (cancelled by: ${stage.cancelledBy})`;
       }
-      if (stage.isBuildingOrCompleted()) {
-        return (<a href={stage.stageDetailTabPath}
-                   class={`pipeline_stage ${stage.status.toLowerCase()}`}
-                   title={stageStatus} aria-label={stageStatus}>
 
-        </a>);
+      let manualGate;
+      if (stage.isManual()) {
+        manualGate = <span class="manual_gate" />;
       }
 
-      return (<span class={`pipeline_stage ${stage.status.toLowerCase()}`}
-                    title={stageStatus} aria-label={stageStatus}/>);
+      if (stage.isBuildingOrCompleted()) {
+        return [ manualGate,
+          <a href={stage.stageDetailTabPath}
+             className={`pipeline_stage ${stage.status.toLowerCase()}`}
+             title={stageStatus} aria-label={stageStatus}>
+
+          </a>];
+      }
+
+      return [
+        manualGate,
+        <span className={`pipeline_stage ${stage.status.toLowerCase()}`}
+              title={stageStatus} aria-label={stageStatus}/>];
     });
 
     return (

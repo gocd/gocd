@@ -253,7 +253,8 @@ class EnvironmentVariableConfigTest {
             PipelineConfigs group = mock(BasicPipelineConfigs.class);
 
             when(secretConfig.getId()).thenReturn("secret_config_id");
-            when(secretConfig.canRefer(any(), any())).thenReturn(true);
+            //noinspection unchecked
+            when(secretConfig.canRefer(any(Class.class), any(String.class))).thenReturn(true);
             when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
             when(validationContext.isWithinPipelines()).thenReturn(true);
             when(validationContext.getPipelineGroup()).thenReturn(group);

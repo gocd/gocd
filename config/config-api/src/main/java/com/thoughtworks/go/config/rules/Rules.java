@@ -43,7 +43,7 @@ public class Rules extends BaseCollection<Directive> implements Validatable {
     }
 
     public void validateTree(ValidationContext validationContext) {
-        stream().forEach(directive -> directive.validate(validationContext));
+        this.forEach(directive -> directive.validate(validationContext));
     }
 
     @Override

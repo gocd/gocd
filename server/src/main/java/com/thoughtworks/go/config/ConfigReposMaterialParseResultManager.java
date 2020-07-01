@@ -95,7 +95,6 @@ public class ConfigReposMaterialParseResultManager {
 
             if (!serverHealthErrors.isEmpty() || !result.isSuccessful()) {
                 result.setLatestParsedModification(null); // clear modification to allow a reparse to happen
-                serverHealthService.removeByScope(scope); // clear errors until next reparse
             }
         }
     }

@@ -69,10 +69,22 @@ public class PartialConfigService implements PartialConfigUpdateCompletedListene
 
         if (this.configWatchList.hasConfigRepoWithFingerprint(fingerprint)) {
             if (shouldMergePartial(incoming, fingerprint, repoConfig)) {
+                // validate rules before attempting updateConfig() so that
+                // rule violations will be considered before accepting a merge;
+                // updateConfig() only considers structural validity.
+                final boolean violatesRules = hasRuleViolations(incoming);
+
                 cachedGoPartials.cacheAsLastKnown(fingerprint, incoming);
 
                 if (updateConfig(incoming, fingerprint, repoConfig)) {
                     cachedGoPartials.markAsValid(fingerprint, incoming);
+                } else {
+                    final PartialConfig previousValidPartial = cachedGoPartials.getValid(repoConfig.getRepo().getFingerprint());
+
+                    if (violatesRules && hasRuleViolations(previousValidPartial)) {
+                        // do not allow fallback to the last version of the partial if the current rules do not allow
+                        cachedGoPartials.removeValid(repoConfig.getRepo().getFingerprint());
+                    }
                 }
             }
         }
@@ -95,19 +107,19 @@ public class PartialConfigService implements PartialConfigUpdateCompletedListene
         }
     }
 
-    public CruiseConfig merge(PartialConfig partialConfig, String fingerprint, CruiseConfig cruiseConfig, ConfigRepoConfig repoConfig) {
-        PartialConfigUpdateCommand command = buildUpdateCommand(partialConfig, fingerprint, repoConfig);
+    public CruiseConfig merge(PartialConfig partialConfig, String fingerprint, CruiseConfig cruiseConfig) {
+        PartialConfigUpdateCommand command = buildUpdateCommand(partialConfig, fingerprint);
         command.update(cruiseConfig);
         return cruiseConfig;
     }
 
-    public PartialConfigUpdateCommand buildUpdateCommand(final PartialConfig partial, final String fingerprint, ConfigRepoConfig configRepoConfig) {
-        return new PartialConfigUpdateCommand(partial, fingerprint, cachedGoPartials, configRepoConfig);
+    protected PartialConfigUpdateCommand buildUpdateCommand(final PartialConfig partial, final String fingerprint) {
+        return new PartialConfigUpdateCommand(partial, fingerprint, cachedGoPartials);
     }
 
     private boolean updateConfig(final PartialConfig newPart, final String fingerprint, ConfigRepoConfig repoConfig) {
         try {
-            goConfigService.updateConfig(buildUpdateCommand(newPart, fingerprint, repoConfig));
+            goConfigService.updateConfig(buildUpdateCommand(newPart, fingerprint));
             return true;
         } catch (Exception e) {
             if (repoConfig != null) {
@@ -135,5 +147,14 @@ public class PartialConfigService implements PartialConfigUpdateCompletedListene
         final PartialConfig previous = cachedGoPartials.getKnown(fingerprint);
 
         return !partialConfigHelper.isEquivalent(previous, partial);
+    }
+
+    private boolean hasRuleViolations(PartialConfig partial) {
+        if (null == partial) {
+            return false;
+        }
+
+        partial.validatePermissionsOnSubtree();
+        return partial.hasErrors();
     }
 }

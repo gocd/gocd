@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -141,6 +142,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         ConfigReposConfig configRepos = new ConfigReposConfig();
         for (int i = 0; i < configRepoAdditionThreadCount; i++) {
             ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(git("url" + i), "plugin", "id-" + i);
+            configRepoConfig.getRules().add(new Allow("refer", "*", "*"));
             configRepos.add(configRepoConfig);
             Thread thread = configRepoSaveThread(configRepoConfig, i);
             group3.add(thread);

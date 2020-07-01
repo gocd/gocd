@@ -53,6 +53,7 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:/applicationContext-global.xml",
@@ -64,19 +65,29 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
     @ClassRule
     public static final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Autowired private GoConfigService goConfigService;
+    @Autowired
+    private GoConfigService goConfigService;
     @Autowired
     private ServerHealthService serverHealthService;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private PipelineScheduler buildCauseProducer;
-    @Autowired private PipelineService pipelineService;
-    @Autowired private ScheduleService scheduleService;
-    @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
-    @Autowired private AgentAssignment agentAssignment;
-    @Autowired private GoCache goCache;
-    @Autowired private DependencyMaterialUpdateNotifier notifier;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private PipelineScheduler buildCauseProducer;
+    @Autowired
+    private PipelineService pipelineService;
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private PipelineScheduleQueue pipelineScheduleQueue;
+    @Autowired
+    private AgentAssignment agentAssignment;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private DependencyMaterialUpdateNotifier notifier;
 
-    @Autowired private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
     private GoConfigFileHelper CONFIG_HELPER;
     public Subversion repository;
     public static TestRepo testRepo;
@@ -135,7 +146,7 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateServerHealthWhenSchedulePipelineFails() throws Exception {
+    public void shouldUpdateServerHealthWhenSchedulePipelineFails() {
         pipelineScheduleQueue.schedule(new CaseInsensitiveString("blahPipeline"), saveMaterials(modifySomeFiles(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("blahPipeline")))));
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         List<ServerHealthState> stateList = serverHealthService.filterByScope(HealthStateScope.forStage("blahPipeline", "blahStage"));

@@ -123,7 +123,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
             } else {
                 PartialConfig partialConfig = plugin.parseContent(contents, context);
                 partialConfig.setOrigins(adHocConfigOrigin(repo));
-                CruiseConfig config = partialConfigService.merge(partialConfig, context.configMaterial().getFingerprint(), gcs.clonedConfigForEdit(), repo);
+                CruiseConfig config = partialConfigService.merge(partialConfig, context.configMaterial().getFingerprint(), gcs.clonedConfigForEdit());
 
                 gcs.validateCruiseConfig(config);
                 result.update(Collections.emptyList(), true);

@@ -48,6 +48,9 @@ describe("Dashboard", () => {
       expect(pipelineInstance.stages[1].triggerOnCompletionOfPreviousStage()).toEqual(false);
       expect(pipelineInstance.stages[1].isManual()).toEqual(true);
 
+      expect(pipelineInstance.stages[0].approvedBy).toEqual("changes");
+      expect(pipelineInstance.stages[1].approvedBy).toEqual("admin");
+
       expect(pipelineInstance.isFirstStageInProgress()).toEqual(false);
     });
 
@@ -128,7 +131,7 @@ describe("Dashboard", () => {
             "name":         "up42_stage",
             "counter":      "1",
             "status":       "Unknown",
-            "approved_by":  "changes",
+            "approved_by":  "admin",
             "approval_type": "manual",
             "scheduled_at": "2017-11-10T07:25:28.539Z"
           }

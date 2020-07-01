@@ -188,10 +188,10 @@
   dependencies:
     "@babel/types" "^7.10.3"
 
-"@babel/helper-plugin-utils@^7.0.0", "@babel/helper-plugin-utils@^7.10.1", "@babel/helper-plugin-utils@^7.10.3", "@babel/helper-plugin-utils@^7.8.0", "@babel/helper-plugin-utils@^7.8.3":
-  version "7.10.3"
-  resolved "https://registry.yarnpkg.com/@babel/helper-plugin-utils/-/helper-plugin-utils-7.10.3.tgz#aac45cccf8bc1873b99a85f34bceef3beb5d3244"
-  integrity sha512-j/+j8NAWUTxOtx4LKHybpSClxHoq6I91DQ/mKgAXn5oNUPIUiGppjPIX3TDtJWPrdfP9Kfl7e4fgVMiQR9VE/g==
+"@babel/helper-plugin-utils@^7.0.0", "@babel/helper-plugin-utils@^7.10.1", "@babel/helper-plugin-utils@^7.10.3", "@babel/helper-plugin-utils@^7.10.4", "@babel/helper-plugin-utils@^7.8.0", "@babel/helper-plugin-utils@^7.8.3":
+  version "7.10.4"
+  resolved "https://registry.yarnpkg.com/@babel/helper-plugin-utils/-/helper-plugin-utils-7.10.4.tgz#2f75a831269d4f677de49986dff59927533cf375"
+  integrity sha512-O4KCvQA6lLiMU9l2eawBPMf1xPP8xPfB3iEQw150hOVTqj/rfXz0ThTb4HEzqQfs2Bmo5Ay8BzxfzVtBrr9dVg==
 
 "@babel/helper-regex@^7.10.1":
   version "7.10.1"
@@ -383,12 +383,12 @@
     "@babel/helper-plugin-utils" "^7.10.1"
 
 "@babel/plugin-proposal-throw-expressions@^7":
-  version "7.10.1"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-throw-expressions/-/plugin-proposal-throw-expressions-7.10.1.tgz#89bde971b6081bfecff832c811ad76c2337c6970"
-  integrity sha512-wyhTn1ebUbbphDJVVUpg1wikUOIW8Lg93ng0aDGv07+MxINPS4d0ju68JVH06W4oMnZTwgELA5AImrah9RULYA==
+  version "7.10.4"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-throw-expressions/-/plugin-proposal-throw-expressions-7.10.4.tgz#501154a3c1b33cb1ad5b899204481fa2859cd3f3"
+  integrity sha512-m7K9duXeH/rko36i9G9seLOg2AVdeVTn65k8nnTxgozex0hkDSUr6cktJxTO7jElGEpmMz410pTs0Jn8+empxw==
   dependencies:
-    "@babel/helper-plugin-utils" "^7.10.1"
-    "@babel/plugin-syntax-throw-expressions" "^7.10.1"
+    "@babel/helper-plugin-utils" "^7.10.4"
+    "@babel/plugin-syntax-throw-expressions" "^7.10.4"
 
 "@babel/plugin-proposal-unicode-property-regex@^7.10.1", "@babel/plugin-proposal-unicode-property-regex@^7.4.4":
   version "7.10.1"
@@ -496,12 +496,12 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.8.0"
 
-"@babel/plugin-syntax-throw-expressions@^7.10.1":
-  version "7.10.1"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-throw-expressions/-/plugin-syntax-throw-expressions-7.10.1.tgz#09a88bacf2ad8af7a465af5e910a61d93136b147"
-  integrity sha512-1ieYCCX6HCEvBefYt1Njja2XFrbThi2pffdfpPeB7WzVwbX/UlVOrPw9WSPQyVoyo+kqO0l/KGRNZyrTKo0bew==
+"@babel/plugin-syntax-throw-expressions@^7.10.4":
+  version "7.10.4"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-throw-expressions/-/plugin-syntax-throw-expressions-7.10.4.tgz#a588df9fa2203207a3ac7e35f0db3b67bf68eca3"
+  integrity sha512-Yac/4W71+JdAiOV3aLbnUUe2R0NZzNvdy5EqdauFnBQTxIXT58M89lOplIFVELTSus6PxFMjmbi2vXaJDiV/PQ==
   dependencies:
-    "@babel/helper-plugin-utils" "^7.10.1"
+    "@babel/helper-plugin-utils" "^7.10.4"
 
 "@babel/plugin-syntax-top-level-await@^7.10.1":
   version "7.10.1"

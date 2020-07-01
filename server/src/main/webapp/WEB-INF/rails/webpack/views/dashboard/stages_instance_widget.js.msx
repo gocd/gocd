@@ -41,8 +41,15 @@ export const StagesInstanceWidget = {
 
       let manualGate;
       if (stage.isManual()) {
-        const isTriggerDisabled = stage.isBuildingOrCompleted();
+        let isTriggerDisabled = false;
+        let helpText = `Awaiting approval. Waiting for users with the operate permission to schedule '${stage.name}' stage`;
+        if(stage.isBuildingOrCompleted()) {
+          isTriggerDisabled = true;
+          helpText = `Approved by '${stage.approvedBy}'.`;
+        }
+
         manualGate = <span onclick={isTriggerDisabled ? undefined : vnode.state.triggerStage.bind(vnode.state, stage)}
+                           title={helpText}
                            class={`manual_gate ${isTriggerDisabled ? "disabled" : ""}`} />;
       }
 

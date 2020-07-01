@@ -108,6 +108,14 @@ public class HttpOperationResultTest {
         assertThat(httpOperationResult.detailedMessage(), is("message { desc }\n"));
     }
 
+    @Test
+    public void shouldOmitDescriptionFromServerHealthStateWhenMessageAndDescriptionIsSame() {
+        httpOperationResult.error("message", "message", HealthStateType.general(HealthStateScope.GLOBAL));
+        assertThat(httpOperationResult.httpCode(), is(400));
+        assertThat(httpOperationResult.message(), is("message"));
+        assertThat(httpOperationResult.detailedMessage(), is("message\n"));
+    }
+
     @Test public void shouldReturn500WhenInternalServerErrorOccurs() throws Exception {
         httpOperationResult.internalServerError("error occurred during deletion of agent. Could not delete.", null);
         assertThat(httpOperationResult.httpCode(), is(500));

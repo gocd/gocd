@@ -146,7 +146,11 @@ public class HttpOperationResult implements OperationResult {
 
     public String fullMessage() {
         ServerHealthState serverHealthState = serverHealthStateOperationResult.getServerHealthState();
-        String desc = serverHealthState == null ? BLANK_STRING : serverHealthState.getDescription();
+        String desc = BLANK_STRING;
+        if(serverHealthState != null && !StringUtils.equals(serverHealthState.getDescription(), message)) {
+            desc = serverHealthState.getDescription();
+        }
+
         return StringUtils.isBlank(desc) ? message : String.format("%s { %s }", message, desc);
     }
 

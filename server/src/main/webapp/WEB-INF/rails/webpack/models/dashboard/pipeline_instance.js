@@ -31,6 +31,9 @@ const StageInstance = function (json, pipelineName, pipelineCounter) {
   this.isFailed              = () => json.status === 'Failed';
   this.isBuildingOrCompleted = () => json.status !== 'Unknown';
   this.isCancelled           = () => json.status === 'Cancelled';
+
+  this.isManual                           = () => json.approval_type === 'manual';
+  this.triggerOnCompletionOfPreviousStage = () => json.approval_type === 'success';
 };
 
 export const PipelineInstance = function (info, pipelineName) {

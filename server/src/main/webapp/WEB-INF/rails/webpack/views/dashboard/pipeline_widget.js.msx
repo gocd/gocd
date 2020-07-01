@@ -27,6 +27,7 @@ export const PipelineWidget = {
       pipelineInstances = _.map(pipeline.instances, (instance) => {
         return (
           <PipelineInstanceWidget instance={instance}
+                                  pipeline={pipeline}
                                   dropdown={vnode.attrs.dropdown}
                                   buildCause={vnode.attrs.buildCause}
                                   key={instance.counter}

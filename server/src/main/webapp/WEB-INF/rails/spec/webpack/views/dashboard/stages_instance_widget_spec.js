@@ -17,6 +17,7 @@ import {TestHelper} from "views/pages/spec/test_helper";
 import {PipelineInstance} from "models/dashboard/pipeline_instance";
 import {StagesInstanceWidget} from "views/dashboard/stages_instance_widget";
 import m from "mithril";
+import {Pipeline} from "../../../../webpack/models/dashboard/pipeline";
 
 describe("Dashboard Stages Instance Widget", () => {
 
@@ -65,6 +66,7 @@ describe("Dashboard Stages Instance Widget", () => {
           "name":         "up42_stage2",
           "counter":      "1",
           "status":       "Unknown",
+          "approval_type": "manual",
           "approved_by":  "changes",
           "scheduled_at": "2017-11-10T07:25:28.539Z"
         },
@@ -88,14 +90,54 @@ describe("Dashboard Stages Instance Widget", () => {
     }
   };
 
-  const pipelineName   = 'up42';
-  const stagesInstance = new PipelineInstance(pipelineInstanceJson, pipelineName).stages;
+  const pipelineJson = {
+    "_links": {
+      "self": {
+        "href": "http://localhost:8153/go/api/pipelines/up42/history"
+      },
+      "doc": {
+        "href": "https://api.go.cd/current/#pipelines"
+      }
+    },
+    "name": "up42",
+    "last_updated_timestamp": 1510299695473,
+    "locked": false,
+    "can_unlock": true,
+    "pause_info": {},
+    "can_administer": true,
+    "can_operate": true,
+    "can_pause": true,
+    "from_config_repo": false,
+    "config_repo_id": "sample_config_repo",
+    "config_repo_material_url": "https://foo:1234/go",
+    "tracking_tool": {
+      "regex": "#(\\d+)",
+      "link": "http://example.com/${ID}/"
+    },
+    "_embedded": {
+      "instances": [pipelineInstanceJson]
+    }
+  };
+
+  let pipelineName;
+  let pipeline;
+  let pipelineInstance;
+  let stagesInstance;
 
   beforeEach(() => {
-    helper.mount(() => m(StagesInstanceWidget, {
-      stages: stagesInstance
-    }));
+    pipelineName   = 'up42';
+    pipeline = new Pipeline(pipelineJson);
+    pipelineInstance = new PipelineInstance(pipelineInstanceJson, pipelineName);
+    stagesInstance = pipelineInstance.stages;
+    mount();
   });
+
+  function mount() {
+    helper.mount(() => m(StagesInstanceWidget, {
+      stages: stagesInstance,
+      pipeline
+    }));
+  }
 
   it("should render each stage instance", () => {
     const stagesInstance = helper.qa('.pipeline_stage');
@@ -122,5 +164,42 @@ describe("Dashboard Stages Instance Widget", () => {
     expect(helper.qa('.pipeline_stage')[0].title).toEqual(stage1Status);
     expect(helper.qa('.pipeline_stage')[1].title).toEqual(stage2Status);
     expect(helper.qa('.pipeline_stage')[2].title).toEqual(stage3Status);
+  });
+
+  it("should render manual gate icon before the manual stage", () => {
+    expect(helper.qa('.manual_gate')).toBeInDOM();
+  });
+
+  it("should provide help text for the manual gate", () => {
+    expect(helper.q('.manual_gate').title).toEqual('Awaiting approval. Waiting for users with the operate permission to schedule \'up42_stage2\' stage');
+  });
+
+  it("should render enabled manual gate", () => {
+    expect(helper.q('.manual_gate')).not.toHaveClass('disabled');
+  });
+
+  it("should render disabled manual gate when previous stage is in progress", () => {
+    stagesInstance[0].isCompleted = () => false;
+    m.redraw.sync();
+
+    expect(helper.q('.manual_gate')).toHaveClass('disabled');
+    expect(helper.q('.manual_gate').title).toEqual('Can not schedule next stage - Either the previous stage hasn\'t run or is in progress.');
+  });
+
+  it("should render disabled manual gate when user does not have permission to operate on the pipeline", () => {
+    pipeline.canOperate = false;
+    m.redraw.sync();
+
+    expect(helper.q('.manual_gate')).toHaveClass('disabled');
+    expect(helper.q('.manual_gate').title).toEqual('Can not schedule next stage - You don\'t have permissions to schedule the next stage.');
+  });
+
+  it("should render disabled manual gate when the stage has already been scheduled", () => {
+    stagesInstance[1].isBuildingOrCompleted = () => true;
+    stagesInstance[1].approvedBy = 'admin';
+    m.redraw.sync();
+
+    expect(helper.q('.manual_gate')).toHaveClass('disabled');
+    expect(helper.q('.manual_gate').title).toEqual('Approved by \'admin\'.');
   });
 });

@@ -17,6 +17,20 @@ import m from "mithril";
 import _ from "lodash";
 
 export const StagesInstanceWidget = {
+  oninit(vnode) {
+    const self = vnode.state;
+    const operationMessages = vnode.attrs.operationMessages;
+
+    self.triggerStage = (stage) => {
+      stage.trigger().then((res) => {
+        operationMessages.success(vnode.attrs.pipelineName, res.message);
+        vnode.attrs.invalidateEtag();
+      }, (res) => {
+        operationMessages.failure(vnode.attrs.pipelineName, res.responseJSON.message);
+      });
+    };
+  },
+
   view: (vnode) => {
     const stages = vnode.attrs.stages;
     const stageInstance = _.map(stages, (stage) => {
@@ -27,7 +41,9 @@ export const StagesInstanceWidget = {
 
       let manualGate;
       if (stage.isManual()) {
-        manualGate = <span class="manual_gate" />;
+        const isTriggerDisabled = stage.isBuildingOrCompleted();
+        manualGate = <span onclick={isTriggerDisabled ? undefined : vnode.state.triggerStage.bind(vnode.state, stage)}
+                           class={`manual_gate ${isTriggerDisabled ? "disabled" : ""}`} />;
       }
 
       if (stage.isBuildingOrCompleted()) {

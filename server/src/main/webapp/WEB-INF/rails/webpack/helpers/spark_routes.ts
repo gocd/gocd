@@ -258,6 +258,10 @@ export class SparkRoutes {
     return `/go/api/admin/maintenance_mode/info`;
   }
 
+  static stageTriggerPath(pipelineName: string, pipelineCounter: number, stageName: string): string {
+    return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/run`;
+  }
+
   static cancelStage(pipelineName: string,
                      pipelineCounter: number | string,
                      stageName: string,

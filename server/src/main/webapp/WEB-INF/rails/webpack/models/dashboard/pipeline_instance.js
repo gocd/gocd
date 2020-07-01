@@ -34,6 +34,13 @@ const StageInstance = function (json, pipelineName, pipelineCounter) {
 
   this.isManual                           = () => json.approval_type === 'manual';
   this.triggerOnCompletionOfPreviousStage = () => json.approval_type === 'success';
+
+  this.trigger = () => {
+    return AjaxHelper.POST({
+      url: SparkRoutes.stageTriggerPath(pipelineName, pipelineCounter, json.name),
+      apiVersion: 'v2'
+    });
+  };
 };
 
 export const PipelineInstance = function (info, pipelineName) {

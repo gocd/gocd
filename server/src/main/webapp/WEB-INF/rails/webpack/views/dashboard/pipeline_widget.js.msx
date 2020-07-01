@@ -31,6 +31,8 @@ export const PipelineWidget = {
                                   buildCause={vnode.attrs.buildCause}
                                   key={instance.counter}
                                   pipelineName={pipeline.name}
+                                  operationMessages={vnode.attrs.operationMessages}
+                                  invalidateEtag={vnode.attrs.invalidateEtag}
                                   trackingTool={pipeline.trackingTool}/>
         );
       });

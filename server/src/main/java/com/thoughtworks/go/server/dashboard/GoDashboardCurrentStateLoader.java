@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.config.security.Permissions;
+import com.thoughtworks.go.config.security.permissions.NoOnePermission;
 import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
@@ -202,7 +203,7 @@ public class GoDashboardCurrentStateLoader {
         if (pipelinesAndTheirPermissions.containsKey(pipelineConfig.name())) {
             return pipelinesAndTheirPermissions.get(pipelineConfig.name());
         }
-        return new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE);
+        return new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE);
     }
 
     public void reset() {

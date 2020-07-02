@@ -65,16 +65,16 @@ public class PipelineRepresenter {
         }
 
         jsonOutputWriter.addChild("_embedded", childWriter -> {
-            childWriter.addChildList("instances", writeInstances(model));
+            childWriter.addChildList("instances", writeInstances(model, username));
         });
     }
 
-    private static Consumer<OutputListWriter> writeInstances(GoDashboardPipeline model) {
+    private static Consumer<OutputListWriter> writeInstances(GoDashboardPipeline model, Username username) {
         return listWriter -> {
             model.model().getActivePipelineInstances().stream()
                     .filter(instanceModel -> !(instanceModel instanceof EmptyPipelineInstanceModel))
                     .forEach(instanceModel -> {
-                        listWriter.addChild(childWriter -> PipelineInstanceRepresenter.toJSON(childWriter, instanceModel));
+                        listWriter.addChild(childWriter -> PipelineInstanceRepresenter.toJSON(childWriter, instanceModel, model, username));
                     });
         };
     }

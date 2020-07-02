@@ -15,11 +15,16 @@
  */
 package com.thoughtworks.go.server.dashboard;
 
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.security.Permissions;
+import com.thoughtworks.go.config.security.permissions.EveryonePermission;
+import com.thoughtworks.go.config.security.permissions.NoOnePermission;
+import com.thoughtworks.go.config.security.permissions.PipelinePermission;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Everyone;
 import com.thoughtworks.go.config.security.users.NoOne;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
 import org.junit.Test;
 
@@ -41,7 +46,7 @@ public class GoDashboardPipelineTest {
                 new AllowedUsers(s("viewer1", "viewer2"), Collections.emptySet()),
                 Everyone.INSTANCE,
                 new AllowedUsers(s("admin", "root"), Collections.emptySet()),
-                Everyone.INSTANCE);
+                EveryonePermission.INSTANCE);
 
         GoDashboardPipeline pipeline = new GoDashboardPipeline(new PipelineModel("pipeline1", false, false, notPaused()), permissions, "group1", null, mock(TimeStampBasedCounter.class), new FileConfigOrigin(), 0);
 
@@ -58,7 +63,7 @@ public class GoDashboardPipelineTest {
                 NoOne.INSTANCE,
                 new AllowedUsers(s("operator1"), Collections.emptySet()),
                 NoOne.INSTANCE,
-                NoOne.INSTANCE);
+                NoOnePermission.INSTANCE);
 
         GoDashboardPipeline pipeline = new GoDashboardPipeline(new PipelineModel("pipeline1", false, false, notPaused()),
                 permissions, "group1", null, mock(TimeStampBasedCounter.class), new FileConfigOrigin(), 0);
@@ -73,7 +78,7 @@ public class GoDashboardPipelineTest {
                 NoOne.INSTANCE,
                 NoOne.INSTANCE,
                 new AllowedUsers(s("admin1"), Collections.emptySet()),
-                NoOne.INSTANCE);
+                NoOnePermission.INSTANCE);
 
         GoDashboardPipeline pipeline = new GoDashboardPipeline(new PipelineModel("pipeline1", false, false, notPaused()),
                 permissions, "group1", null, mock(TimeStampBasedCounter.class), new FileConfigOrigin(), 0);
@@ -84,11 +89,12 @@ public class GoDashboardPipelineTest {
 
     @Test
     public void shouldKnowWhetherAUserIsPipelineLevelOperator() throws Exception {
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1");
         Permissions permissions = new Permissions(
                 NoOne.INSTANCE,
                 NoOne.INSTANCE,
                 NoOne.INSTANCE,
-                new AllowedUsers(s("pipeline_operator"), Collections.emptySet()));
+                PipelinePermission.from(pipelineConfig, new AllowedUsers(s("pipeline_operator"), Collections.emptySet())));
 
         GoDashboardPipeline pipeline = new GoDashboardPipeline(new PipelineModel("pipeline1", false, false, notPaused()),
                 permissions, "group1", null, mock(TimeStampBasedCounter.class), new FileConfigOrigin(), 0);

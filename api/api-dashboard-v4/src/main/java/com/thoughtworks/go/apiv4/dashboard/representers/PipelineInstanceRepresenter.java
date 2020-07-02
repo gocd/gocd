@@ -19,13 +19,15 @@ import com.thoughtworks.go.api.base.OutputLinkWriter;
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
+import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.function.Consumer;
 
 public class PipelineInstanceRepresenter {
 
-    public static void toJSON(OutputWriter jsonOutputWriter, PipelineInstanceModel model) {
+    public static void toJSON(OutputWriter jsonOutputWriter, PipelineInstanceModel model, GoDashboardPipeline goDashboardPipeline, Username username) {
         jsonOutputWriter
                 .addLinks(addLinks(model))
                 .add("label", model.getLabel())
@@ -33,7 +35,7 @@ public class PipelineInstanceRepresenter {
                 .add("triggered_by", model.getApprovedByForDisplay())
                 .add("scheduled_at", model.getScheduledDate())
                 .addChild("_embedded", childWriter -> {
-                    childWriter.addChildList("stages", getStages(model));
+                    childWriter.addChildList("stages", getStages(model, goDashboardPipeline, username));
                 });
     }
 
@@ -41,11 +43,11 @@ public class PipelineInstanceRepresenter {
         return linkWriter -> linkWriter.addLink("self", Routes.PipelineInstance.instance(model.getName(), model.getCounter()));
     }
 
-    private static Consumer<OutputListWriter> getStages(PipelineInstanceModel model) {
+    private static Consumer<OutputListWriter> getStages(PipelineInstanceModel model, GoDashboardPipeline goDashboardPipeline, Username username) {
         return writer -> {
             model.getStageHistory().forEach(stage -> {
                 writer.addChild(childWriter -> {
-                    StageRepresenter.toJSON(childWriter, stage, model.getName(), String.valueOf(model.getCounter()));
+                    StageRepresenter.toJSON(childWriter, goDashboardPipeline, stage, username, model.getName(), String.valueOf(model.getCounter()));
                 });
             });
         };

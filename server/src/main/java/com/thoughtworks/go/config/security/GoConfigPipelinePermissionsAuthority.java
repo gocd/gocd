@@ -18,6 +18,9 @@ package com.thoughtworks.go.config.security;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.security.permissions.EveryonePermission;
+import com.thoughtworks.go.config.security.permissions.PipelinePermission;
+import com.thoughtworks.go.config.security.permissions.StagePermission;
 import com.thoughtworks.go.config.security.users.Everyone;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.domain.PipelineGroups;
@@ -28,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
 
@@ -73,22 +77,28 @@ public class GoConfigPipelinePermissionsAuthority {
 
     private Permissions groupPermissionsOnPipeline(PipelineGroupsSecurityHelper security, PipelineConfigs group, PipelineConfig pipeline) {
         if (security.hasNoSuperAdmins()) {
-            return new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE);
+            return new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE);
         }
 
         GroupSecurity policy = security.forGroup(group);
 
         if (!group.hasAuthorizationDefined()) {
             boolean everyoneIsAllowedToViewGroupsWithNoAuth = systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP);
-            Users viewersAndOperators = everyoneIsAllowedToViewGroupsWithNoAuth ? Everyone.INSTANCE : policy.effectiveAdmins();
-            return new Permissions(viewersAndOperators, viewersAndOperators, policy.effectiveAdmins(), viewersAndOperators);
+            Users viewersAndOperators = everyoneIsAllowedToViewGroupsWithNoAuth ? Everyone.INSTANCE : policy.effectiveAdmins();;
+            return new Permissions(viewersAndOperators, viewersAndOperators, policy.effectiveAdmins(), PipelinePermission.from(pipeline, viewersAndOperators));
+        }
+
+        PipelinePermission pipelinePermission = EveryonePermission.INSTANCE;
+
+        if(null != pipeline) {
+            pipelinePermission = pipeline.stream().map(stage -> new StagePermission(stage.name().toString(), policy.operatorsForStage(stage))).collect(Collectors.toCollection(PipelinePermission::new));
         }
 
         return new Permissions(
                 policy.effectiveViewers(),
                 policy.effectiveOperators(),
                 policy.effectiveAdmins(),
-                null == pipeline ? Everyone.INSTANCE : policy.operatorsForPipeline(pipeline)
+                pipelinePermission
         );
     }
 }

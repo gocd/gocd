@@ -15,14 +15,27 @@
  */
 package com.thoughtworks.go.apiv4.dashboard.representers
 
+import com.thoughtworks.go.config.CaseInsensitiveString
+import com.thoughtworks.go.config.TrackingTool
+import com.thoughtworks.go.config.remote.FileConfigOrigin
+import com.thoughtworks.go.config.security.Permissions
+import com.thoughtworks.go.config.security.permissions.NoOnePermission
+import com.thoughtworks.go.config.security.users.NoOne
 import com.thoughtworks.go.domain.*
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistory
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel
+import com.thoughtworks.go.server.dashboard.Counter
+import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
+import com.thoughtworks.go.server.domain.Username
+import com.thoughtworks.go.spark.util.SecureRandom
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
+import static com.thoughtworks.go.helpers.PipelineModelMother.pipeline_model
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.when
 
 class StageRepresenterTest {
 
@@ -37,7 +50,14 @@ class StageRepresenterTest {
     def date = new Date(1367472329111)
     stageInstance.getBuildHistory().addJob("jobName", jobState, jobResult, date)
 
-    def json = toObject({ StageRepresenter.toJSON(it, stageInstance, "pipeline-name", "2") })
+    def counter = mock(Counter.class)
+    when(counter.getNext()).thenReturn(1l)
+    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'pipeline_label'),
+            permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter, new FileConfigOrigin(), 0)
+    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+
+    def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "2") })
 
     def expectedJson = [
       _links        : [
@@ -46,6 +66,7 @@ class StageRepresenterTest {
       name          : 'stage2',
       counter       : '2',
       status        : StageState.Building,
+      can_operate   : false,
       approved_by   : 'go-user',
       scheduled_at  : jsonDate(date),
       previous_stage: [
@@ -55,6 +76,7 @@ class StageRepresenterTest {
         name        : 'stage1',
         counter     : '1',
         status      : StageState.Unknown,
+        can_operate : false,
         approved_by : null,
         scheduled_at: null,
       ]
@@ -66,7 +88,14 @@ class StageRepresenterTest {
   void 'renders stages without previous stage with hal representation'() {
     def stageInstance = new StageInstanceModel('stage2', '2', StageResult.Cancelled, new StageIdentifier('pipeline-name', 23, 'stage', '2'))
 
-    def json = toObject({ StageRepresenter.toJSON(it, stageInstance, "pipeline-name", "23") })
+    def counter = mock(Counter.class)
+    when(counter.getNext()).thenReturn(1l)
+    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'pipeline_label'),
+            permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter, new FileConfigOrigin(), 0)
+    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+
+    def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "23") })
 
     def expectedJson = [
       _links      : [
@@ -75,6 +104,7 @@ class StageRepresenterTest {
       name        : 'stage2',
       counter     : '2',
       status      : StageState.Unknown,
+      can_operate : false,
       approved_by : null,
       scheduled_at: null
     ]
@@ -86,7 +116,14 @@ class StageRepresenterTest {
     def stageInstance = new StageInstanceModel('stage2', '2', new JobHistory().addJob("j1", JobState.Completed, JobResult.Cancelled, new Date(12345)))
     stageInstance.setCancelledBy("foo");
 
-    def json = toObject({ StageRepresenter.toJSON(it, stageInstance, "pipeline-name", "23") })
+    def counter = mock(Counter.class)
+    when(counter.getNext()).thenReturn(1l)
+    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def pipeline = new GoDashboardPipeline(pipeline_model('pipeline-name', 'pipeline_label'),
+            permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter, new FileConfigOrigin(), 0)
+    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+
+    def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "23") })
     def expectedJson = [
       _links      : [
         self: [href: 'http://test.host/go/api/stages/pipeline-name/23/stage2/2']
@@ -94,6 +131,7 @@ class StageRepresenterTest {
       name        : 'stage2',
       counter     : '2',
       status      : StageState.Cancelled,
+      can_operate : false,
       approved_by : null,
       scheduled_at: "1970-01-01T00:00:12Z",
       cancelled_by: "foo"
@@ -105,8 +143,14 @@ class StageRepresenterTest {
   @Test
   void 'should render cancelled by if stage is cancelled by gocd'() {
     def stageInstance = new StageInstanceModel('stage2', '2', new JobHistory().addJob("j1", JobState.Completed, JobResult.Cancelled, new Date(12345)))
+    def counter = mock(Counter.class)
+    when(counter.getNext()).thenReturn(1l)
+    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'pipeline_label'),
+            permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter, new FileConfigOrigin(), 0)
+    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
-    def json = toObject({ StageRepresenter.toJSON(it, stageInstance, "pipeline-name", "23") })
+    def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "23") })
     def expectedJson = [
       _links      : [
         self: [href: 'http://test.host/go/api/stages/pipeline-name/23/stage2/2']
@@ -114,6 +158,7 @@ class StageRepresenterTest {
       name        : 'stage2',
       counter     : '2',
       status      : StageState.Cancelled,
+      can_operate : false,
       approved_by : null,
       scheduled_at: "1970-01-01T00:00:12Z",
       cancelled_by: "GoCD"

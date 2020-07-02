@@ -291,7 +291,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
         assertThatResponse()
           .isConflict()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("pipeline is not locked { pipeline is not locked }")
+          .hasJsonMessage("pipeline is not locked")
       }
     }
   }

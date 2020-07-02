@@ -17,6 +17,7 @@ package com.thoughtworks.go.apiv3.dashboard
 
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.config.security.Permissions
+import com.thoughtworks.go.config.security.permissions.EveryonePermission
 import com.thoughtworks.go.config.security.users.Everyone
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
 import com.thoughtworks.go.server.dashboard.TimeStampBasedCounter
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.when
 
 class GoDashboardPipelineMother {
 
-  static GoDashboardPipeline dashboardPipeline(pipeline_name, group_name = "group1", permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE), timestamp = 1000L) {
+  static GoDashboardPipeline dashboardPipeline(pipeline_name, group_name = "group1", permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE), timestamp = 1000L) {
     def clock = mock(Clock.class)
     when(clock.currentTimeMillis()).thenReturn(timestamp)
     new GoDashboardPipeline(pipeline_model(pipeline_name, 'pipeline-label'), permissions, group_name, null, new TimeStampBasedCounter(clock), new FileConfigOrigin(), 0)

@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv3.dashboard.representers.DashboardFor
 import com.thoughtworks.go.apiv3.dashboard.representers.DashboardRepresenter
 import com.thoughtworks.go.config.security.Permissions
+import com.thoughtworks.go.config.security.permissions.EveryonePermission
 import com.thoughtworks.go.config.security.users.Everyone
 import com.thoughtworks.go.server.dashboard.GoDashboardEnvironment
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup
@@ -159,7 +160,7 @@ class DashboardControllerV3Test implements SecurityServiceTrait, ControllerTrait
         loginAsUser()
 
         def pipelineSelections = PipelineSelections.ALL
-        def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE), true)
+        def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE), true)
         pipelineGroup.addPipeline(GoDashboardPipelineMother.dashboardPipeline('pipeline1'))
         pipelineGroup.addPipeline(GoDashboardPipelineMother.dashboardPipeline('pipeline2'))
         when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
@@ -199,7 +200,7 @@ class DashboardControllerV3Test implements SecurityServiceTrait, ControllerTrait
   }
 
   private static Permissions permissions() {
-    new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE)
+    new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE)
   }
 
   private String computeEtag(List<GoDashboardPipelineGroup> pipelineGroups, List<GoDashboardEnvironment> envs) {

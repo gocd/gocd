@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv3.dashboard.representers
 import com.thoughtworks.go.apiv3.dashboard.GoDashboardPipelineMother
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.security.Permissions
+import com.thoughtworks.go.config.security.permissions.EveryonePermission
 import com.thoughtworks.go.config.security.users.Everyone
 import com.thoughtworks.go.server.dashboard.GoDashboardEnvironment
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup
@@ -35,7 +36,7 @@ class DashboardRepresenterTest {
   void 'renders pipeline dashboard with hal representation'() {
     def personalizationEtag = "sha256hash"
     def user = new Username(new CaseInsensitiveString(SecureRandom.hex()))
-    def permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE)
+    def permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE)
 
     def group1 = new GoDashboardPipelineGroup('group1', permissions, true)
     def group2 = new GoDashboardPipelineGroup('group2', permissions, true)

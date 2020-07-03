@@ -16,6 +16,8 @@
 package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.security.Permissions;
@@ -34,15 +36,17 @@ public class GoDashboardPipeline {
     private final long lastUpdatedTimeStamp;
     private ConfigOrigin origin;
     private int displayOrderWeight;
+    private PipelineConfig pipelineConfig;
 
-    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, TrackingTool trackingTool, Counter timeStampBasedCounter, ConfigOrigin origin, int displayOrderWeight) {
+    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, Counter timeStampBasedCounter, PipelineConfig pipelineConfig) {
         this.pipelineModel = pipelineModel;
         this.permissions = permissions;
         this.groupName = groupName;
-        this.trackingTool = trackingTool;
+        this.trackingTool = pipelineConfig.getTrackingTool();
         this.lastUpdatedTimeStamp = timeStampBasedCounter.getNext();
-        this.origin = origin;
-        this.displayOrderWeight = displayOrderWeight;
+        this.origin = pipelineConfig.getOrigin();
+        this.displayOrderWeight = pipelineConfig.getDisplayOrderWeight();
+        this.pipelineConfig = pipelineConfig;
     }
 
     public String groupName() {
@@ -59,6 +63,10 @@ public class GoDashboardPipeline {
 
     public Optional<TrackingTool> getTrackingTool() {
         return Optional.ofNullable(trackingTool);
+    }
+
+    public PipelineConfig pipelineConfig() {
+        return pipelineConfig;
     }
 
     public StageInstanceModel getLatestStage() {
@@ -139,5 +147,10 @@ public class GoDashboardPipeline {
 
     public ConfigOrigin getOrigin() {
         return origin;
+    }
+
+    public boolean isAllowOnlyOnSuccessOfPreviousStage(String stageName) {
+        StageConfig stage = this.pipelineConfig.getStage(stageName);
+        return stage != null && stage.getApproval().isAllowOnlyOnSuccess();
     }
 }

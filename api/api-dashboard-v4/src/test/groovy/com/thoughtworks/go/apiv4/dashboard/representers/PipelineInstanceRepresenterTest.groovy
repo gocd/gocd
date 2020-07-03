@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.permissions.NoOnePermission
 import com.thoughtworks.go.config.security.users.NoOne
+import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.helpers.PipelineModelMother
 import com.thoughtworks.go.server.dashboard.Counter
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
@@ -44,8 +45,12 @@ class PipelineInstanceRepresenterTest {
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
     def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
+    pipelineConfig.setOrigin(new FileConfigOrigin())
+    pipelineConfig.setTrackingTool(new TrackingTool("http://example.com/\${ID}", "##\\d+"))
+    pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'pipeline_label'),
-            permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter, new FileConfigOrigin(), 0)
+            permissions, "grp", counter, pipelineConfig)
     def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
     def json = toObject({ PipelineInstanceRepresenter.toJSON(it, pipelineInstance, pipeline, username) })
@@ -67,8 +72,12 @@ class PipelineInstanceRepresenterTest {
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
     def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
+    pipelineConfig.setOrigin(new FileConfigOrigin())
+    pipelineConfig.setTrackingTool(new TrackingTool("http://example.com/\${ID}", "##\\d+"))
+    pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'g1'),
-            permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter, new FileConfigOrigin(), 0)
+            permissions, "grp", counter, pipelineConfig)
     def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
     def actualJson = toObject({ PipelineInstanceRepresenter.toJSON(it, instance, pipeline, username) })

@@ -32,6 +32,7 @@ public class StageRepresenter {
                 .add("name", model.getName())
                 .add("counter", model.getCounter())
                 .add("status", model.getState().name())
+                .add("allow_only_on_success_of_previous_stage", goDashboardPipeline.isAllowOnlyOnSuccessOfPreviousStage(model.getName()))
                 .add("can_operate", goDashboardPipeline.isStageOperator(model.getName(), username.getUsername().toString()))
                 .add("approved_by", model.getApprovedBy())
                 .add("scheduled_at", model.getScheduledDate());

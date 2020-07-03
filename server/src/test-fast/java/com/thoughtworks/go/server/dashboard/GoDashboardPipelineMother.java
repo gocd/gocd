@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.server.dashboard;
 
-import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.config.security.permissions.EveryonePermission;
 import com.thoughtworks.go.config.security.users.Everyone;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
 import com.thoughtworks.go.util.SystemTimeClock;
 
@@ -36,6 +36,6 @@ public class GoDashboardPipelineMother {
 
     public static GoDashboardPipeline pipeline(String pipelineName, String groupName, Permissions permissions) {
         return new GoDashboardPipeline(new PipelineModel(pipelineName, false, false, notPaused()),
-                permissions, groupName, null, new TimeStampBasedCounter(new SystemTimeClock()), new FileConfigOrigin(), 0);
+                permissions, groupName, new TimeStampBasedCounter(new SystemTimeClock()), PipelineConfigMother.pipelineConfig(pipelineName));
     }
 }

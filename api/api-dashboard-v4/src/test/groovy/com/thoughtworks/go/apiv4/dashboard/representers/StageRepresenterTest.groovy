@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.permissions.NoOnePermission
 import com.thoughtworks.go.config.security.users.NoOne
 import com.thoughtworks.go.domain.*
+import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistory
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel
 import com.thoughtworks.go.server.dashboard.Counter
@@ -53,8 +54,12 @@ class StageRepresenterTest {
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
     def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
+    pipelineConfig.setOrigin(new FileConfigOrigin())
+    pipelineConfig.setTrackingTool(new TrackingTool("http://example.com/\${ID}", "##\\d+"))
+    pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'pipeline_label'),
-            permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter, new FileConfigOrigin(), 0)
+            permissions, "grp", counter, pipelineConfig)
     def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
     def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "2") })
@@ -69,6 +74,7 @@ class StageRepresenterTest {
       can_operate   : false,
       approved_by   : 'go-user',
       scheduled_at  : jsonDate(date),
+      allow_only_on_success_of_previous_stage: false,
       previous_stage: [
         _links      : [
           self: [href: 'http://test.host/go/api/stages/pipeline-name/2/stage1/1']
@@ -79,6 +85,7 @@ class StageRepresenterTest {
         can_operate : false,
         approved_by : null,
         scheduled_at: null,
+        allow_only_on_success_of_previous_stage: false
       ]
     ]
     assertThatJson(json).isEqualTo(expectedJson)
@@ -91,8 +98,12 @@ class StageRepresenterTest {
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
     def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
+    pipelineConfig.setOrigin(new FileConfigOrigin())
+    pipelineConfig.setTrackingTool(new TrackingTool("http://example.com/\${ID}", "##\\d+"))
+    pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'pipeline_label'),
-            permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter, new FileConfigOrigin(), 0)
+            permissions, "grp", counter, pipelineConfig)
     def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
     def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "23") })
@@ -106,7 +117,8 @@ class StageRepresenterTest {
       status      : StageState.Unknown,
       can_operate : false,
       approved_by : null,
-      scheduled_at: null
+      scheduled_at: null,
+      allow_only_on_success_of_previous_stage: false
     ]
     assertThatJson(json).isEqualTo(expectedJson)
   }
@@ -119,8 +131,12 @@ class StageRepresenterTest {
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
     def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
+    pipelineConfig.setOrigin(new FileConfigOrigin())
+    pipelineConfig.setTrackingTool(new TrackingTool("http://example.com/\${ID}", "##\\d+"))
+    pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('pipeline-name', 'pipeline_label'),
-            permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter, new FileConfigOrigin(), 0)
+            permissions, "grp", counter, pipelineConfig)
     def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
     def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "23") })
@@ -134,7 +150,8 @@ class StageRepresenterTest {
       can_operate : false,
       approved_by : null,
       scheduled_at: "1970-01-01T00:00:12Z",
-      cancelled_by: "foo"
+      cancelled_by: "foo",
+      allow_only_on_success_of_previous_stage: false
     ]
 
     assertThatJson(json).isEqualTo(expectedJson)
@@ -146,8 +163,12 @@ class StageRepresenterTest {
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
     def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
+    def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline_name")
+    pipelineConfig.setOrigin(new FileConfigOrigin())
+    pipelineConfig.setTrackingTool(new TrackingTool("http://example.com/\${ID}", "##\\d+"))
+    pipelineConfig.setDisplayOrderWeight(0)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'pipeline_label'),
-            permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter, new FileConfigOrigin(), 0)
+            permissions, "grp", counter, pipelineConfig)
     def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
     def json = toObject({ StageRepresenter.toJSON(it, pipeline, stageInstance, username, "pipeline-name", "23") })
@@ -161,7 +182,8 @@ class StageRepresenterTest {
       can_operate : false,
       approved_by : null,
       scheduled_at: "1970-01-01T00:00:12Z",
-      cancelled_by: "GoCD"
+      cancelled_by: "GoCD",
+      allow_only_on_success_of_previous_stage: false
     ]
 
     assertThatJson(json).isEqualTo(expectedJson)

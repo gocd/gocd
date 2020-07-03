@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.config.security.Permissions;
+import com.thoughtworks.go.config.security.permissions.EveryonePermission;
+import com.thoughtworks.go.config.security.permissions.NoOnePermission;
 import com.thoughtworks.go.config.security.users.Everyone;
 import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
@@ -299,8 +301,8 @@ public class GoDashboardCurrentStateLoaderTest {
         PipelineInstanceModel pimForP1 = pim(p1Config);
         PipelineInstanceModel pimForP2 = pim(p2Config);
 
-        Permissions permissionsForP1 = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE);
-        Permissions permissionsForP2 = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE);
+        Permissions permissionsForP1 = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE);
+        Permissions permissionsForP2 = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE, NoOnePermission.INSTANCE);
 
         when(pipelineSqlMapDao.loadHistoryForDashboard(Arrays.asList("pipeline1", "pipeline2"))).thenReturn(createPipelineInstanceModels(pimForP1, pimForP2));
         when(permissionsAuthority.pipelinesAndTheirPermissions()).thenReturn(m(p1Config.name(), permissionsForP1, p2Config.name(), permissionsForP2));
@@ -332,7 +334,7 @@ public class GoDashboardCurrentStateLoaderTest {
     public void shouldGetAGoDashboardPipelineGivenASinglePipelineConfigAndItsGroupConfig() throws Exception {
         String pipelineNameStr = "pipeline1";
         CaseInsensitiveString pipelineName = new CaseInsensitiveString(pipelineNameStr);
-        Permissions permissions = new Permissions(Everyone.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE);
+        Permissions permissions = new Permissions(Everyone.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE, NoOnePermission.INSTANCE);
         PipelineConfig p1Config = goConfigMother.addPipelineWithGroup(config, "group1", pipelineNameStr, "stage1", "job1");
         PipelineInstanceModels pipelineInstanceModels = createPipelineInstanceModels(pim(p1Config));
 

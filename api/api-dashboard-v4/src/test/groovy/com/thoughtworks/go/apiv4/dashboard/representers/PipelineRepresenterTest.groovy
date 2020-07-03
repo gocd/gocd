@@ -21,6 +21,8 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.config.remote.RepoConfigOrigin
 import com.thoughtworks.go.config.security.Permissions
+import com.thoughtworks.go.config.security.permissions.EveryonePermission
+import com.thoughtworks.go.config.security.permissions.NoOnePermission
 import com.thoughtworks.go.config.security.users.Everyone
 import com.thoughtworks.go.config.security.users.NoOne
 import com.thoughtworks.go.helper.MaterialConfigsMother
@@ -43,7 +45,7 @@ class PipelineRepresenterTest {
   void 'renders pipeline with hal representation'() {
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
-    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
+    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
     def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'),
       permissions, "grp", new TrackingTool("http://example.com/\${ID}", "##\\d+"), counter, new FileConfigOrigin(), 0)
     def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
@@ -58,7 +60,7 @@ class PipelineRepresenterTest {
       _embedded             : [
         instances: [
           toObject({
-            PipelineInstanceRepresenter.toJSON(it, pipeline.model().activePipelineInstances.first())
+            PipelineInstanceRepresenter.toJSON(it, pipeline.model().activePipelineInstances.first(), pipeline, username)
           })
         ]
       ],
@@ -87,7 +89,7 @@ class PipelineRepresenterTest {
   void 'should consider pipelines with null origin as local'() {
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
-    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
+    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'p1l1'), permissions, "grp", null, counter, null, 0)
 
     def json = toObject({
@@ -101,7 +103,7 @@ class PipelineRepresenterTest {
   void 'should render pause info'() {
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
-    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
+    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
     def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'p1l1', false, true, "under construction"), permissions, "grp", null, counter, null, 0)
 
     def json = toObject({
@@ -120,7 +122,7 @@ class PipelineRepresenterTest {
   void 'should render config repo details if the pipeline is defined using config repo'() {
     def counter = mock(Counter.class)
     when(counter.getNext()).thenReturn(1l)
-    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
+    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
     def origin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
     def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'p1l1', false, true, null), permissions, "grp", null, counter, origin, 0)
     def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
@@ -139,7 +141,7 @@ class PipelineRepresenterTest {
     void 'user can operate a pipeline if user is pipeline_level operator'() {
       def counter = mock(Counter.class)
       when(counter.getNext()).thenReturn(1l)
-      def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE)
+      def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, EveryonePermission.INSTANCE)
       def origin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
       def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", null, counter, origin, 0)
       def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
@@ -157,7 +159,7 @@ class PipelineRepresenterTest {
     void 'user can administer a pipeline if user is admin of pipeline'() {
       def counter = mock(Counter.class)
       when(counter.getNext()).thenReturn(1l)
-      def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE)
+      def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE, NoOnePermission.INSTANCE)
       def origin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
       def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", null, counter, origin, 0)
       def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
@@ -175,7 +177,7 @@ class PipelineRepresenterTest {
     void 'user can unlock and pause a pipeline if user is operator of pipeline'() {
       def counter = mock(Counter.class)
       when(counter.getNext()).thenReturn(1l)
-      def permissions = new Permissions(NoOne.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
+      def permissions = new Permissions(NoOne.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)
       def origin = new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
       def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'pipeline_label'), permissions, "grp", null, counter, origin, 0)
       def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))

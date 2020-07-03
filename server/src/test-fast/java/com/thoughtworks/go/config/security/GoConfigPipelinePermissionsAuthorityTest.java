@@ -34,10 +34,11 @@ import java.util.Set;
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static com.thoughtworks.go.util.SystemEnvironment.ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP;
 import static java.util.Collections.emptySet;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -798,6 +799,83 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         assertThat(p2Permission.operators(), is(new AllowedUsers(s("superadmin1", "groupadmin1"), emptySet())));
         assertThat(p2Permission.admins(), is(new AllowedUsers(s("superadmin1", "groupadmin1"), emptySet())));
         assertThat(p2Permission.pipelineOperators(), is(new AllowedUsers(s("superadmin1", "groupadmin1"), emptySet())));
+    }
+
+    @Test
+    public void shouldAllowRetrievingPermissionsOfAStage() {
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
+
+        PipelineConfig p1Config = configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+
+        configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group1");
+        configMother.addUserAsOperatorOfPipelineGroup(config, "operator1", "group1");
+
+        when(configService.security()).thenReturn(config.server().security());
+        when(configService.findGroupByPipeline(p1Config.name())).thenReturn(config.findGroup("group1"));
+        when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
+
+        Permissions p1Permissions = service.permissionsForPipeline(p1Config.name());
+        assertThat(p1Permissions.viewers(), is(new AllowedUsers(s("superadmin1", "viewer1"), emptySet())));
+        assertThat(p1Permissions.operators(), is(new AllowedUsers(s("superadmin1", "operator1"), emptySet())));
+        assertThat(p1Permissions.admins(), is(new AllowedUsers(s("superadmin1"), emptySet())));
+        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(s("superadmin1", "operator1"), emptySet())));
+
+        assertThat(p1Permissions.stageOperators("stage1A"), is(new AllowedUsers(s("superadmin1", "operator1"), emptySet())));
+    }
+
+    @Test
+    public void shouldAllowRetrievingPermissionsOfAStage_whenPermissionsAreOverridenAtStageLevel() {
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
+
+        PipelineConfig p1Config = configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+        StageConfig stageWithOverriddenPermissions = StageConfigMother.stageConfig("stage2A");
+        stageWithOverriddenPermissions.getApproval().addAdmin(new AdminUser("operator2"));
+        p1Config.add(stageWithOverriddenPermissions);
+
+        configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group1");
+        configMother.addUserAsOperatorOfPipelineGroup(config, "operator1", "group1");
+        configMother.addUserAsOperatorOfPipelineGroup(config, "operator2", "group1");
+
+        when(configService.security()).thenReturn(config.server().security());
+        when(configService.findGroupByPipeline(p1Config.name())).thenReturn(config.findGroup("group1"));
+        when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
+
+        Permissions p1Permissions = service.permissionsForPipeline(p1Config.name());
+        assertThat(p1Permissions.viewers(), is(new AllowedUsers(s("superadmin1", "viewer1"), emptySet())));
+        assertThat(p1Permissions.operators(), is(new AllowedUsers(s("superadmin1", "operator1", "operator2"), emptySet())));
+        assertThat(p1Permissions.admins(), is(new AllowedUsers(s("superadmin1"), emptySet())));
+        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(s("superadmin1", "operator1", "operator2"), emptySet())));
+
+        assertThat(p1Permissions.stageOperators("stage1A"), is(new AllowedUsers(s("superadmin1", "operator1", "operator2"), emptySet())));
+        assertThat(p1Permissions.stageOperators("stage2A"), is(new AllowedUsers(s("superadmin1", "operator2"), emptySet())));
+    }
+
+    @Test
+    public void shouldReturnPipelinePermissionsWhenSpecifiedStageNameDoesNotExists() {
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
+
+        PipelineConfig p1Config = configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
+        StageConfig stageWithOverriddenPermissions = StageConfigMother.stageConfig("stage2A");
+        stageWithOverriddenPermissions.getApproval().addAdmin(new AdminUser("operator2"));
+        p1Config.add(stageWithOverriddenPermissions);
+
+        configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group1");
+        configMother.addUserAsOperatorOfPipelineGroup(config, "operator1", "group1");
+        configMother.addUserAsOperatorOfPipelineGroup(config, "operator2", "group1");
+
+        when(configService.security()).thenReturn(config.server().security());
+        when(configService.findGroupByPipeline(p1Config.name())).thenReturn(config.findGroup("group1"));
+        when(systemEnvironment.get(ALLOW_EVERYONE_TO_VIEW_OPERATE_GROUPS_WITH_NO_GROUP_AUTHORIZATION_SETUP)).thenReturn(true);
+
+        Permissions p1Permissions = service.permissionsForPipeline(p1Config.name());
+        assertThat(p1Permissions.viewers(), is(new AllowedUsers(s("superadmin1", "viewer1"), emptySet())));
+        assertThat(p1Permissions.operators(), is(new AllowedUsers(s("superadmin1", "operator1", "operator2"), emptySet())));
+        assertThat(p1Permissions.admins(), is(new AllowedUsers(s("superadmin1"), emptySet())));
+        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(s("superadmin1", "operator1", "operator2"), emptySet())));
+
+        assertThat(p1Permissions.stageOperators("stage1A"), is(new AllowedUsers(s("superadmin1", "operator1", "operator2"), emptySet())));
+        assertThat(p1Permissions.stageOperators("stage2A"), is(new AllowedUsers(s("superadmin1", "operator2"), emptySet())));
+        assertThat(p1Permissions.stageOperators("stage-non-existing-stage-A"), is(new AllowedUsers(s("superadmin1", "operator1", "operator2"), emptySet())));
     }
 
     private Map<CaseInsensitiveString, Permissions> getPipelinesAndTheirPermissionsWhenDefaultGroupPermissionIsToDeny() {

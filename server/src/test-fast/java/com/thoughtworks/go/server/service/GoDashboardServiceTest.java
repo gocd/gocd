@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.config.security.Permissions;
+import com.thoughtworks.go.config.security.permissions.EveryonePermission;
+import com.thoughtworks.go.config.security.permissions.NoOnePermission;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Everyone;
 import com.thoughtworks.go.config.security.users.NoOne;
@@ -153,10 +155,10 @@ public class GoDashboardServiceTest {
     public void allPipelineGroupsForDashboard_shouldRetrieveOnlyPipelineGroupsViewableByTheUser() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
         GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(new AllowedUsers(Collections.singleton("user1"), Collections.emptySet()),
-                NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE));
+                NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE));
 
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1");
-        GoDashboardPipeline pipeline2 = pipeline("pipeline2", "group2", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE));
+        GoDashboardPipeline pipeline2 = pipeline("pipeline2", "group2", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE));
 
         addPipelinesToCache(pipeline1, pipeline2);
 
@@ -170,10 +172,10 @@ public class GoDashboardServiceTest {
     public void allEnvironmentsForDashboard_shouldRetrieveOnlyPipelinesViewableByTheUser() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
         GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(new AllowedUsers(Collections.singleton("user1"), Collections.emptySet()),
-                NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE));
+                NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE));
 
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1");
-        GoDashboardPipeline pipeline2 = pipeline("pipeline2", "group2", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE));
+        GoDashboardPipeline pipeline2 = pipeline("pipeline2", "group2", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE));
 
         addPipelinesToCache(pipeline1, pipeline2);
 
@@ -240,7 +242,7 @@ public class GoDashboardServiceTest {
     @Test
     public void allPipelineGroupsForDashboard_shouldNotListEmptyPipelineGroup() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
-        addPipelinesToCache(pipeline("pipeline1", "group1", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)));
+        addPipelinesToCache(pipeline("pipeline1", "group1", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)));
 
         List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
@@ -250,7 +252,7 @@ public class GoDashboardServiceTest {
     @Test
     public void allEnvironmentsForDashboard_shouldNotListEmptyPipelineGroup() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
-        addPipelinesToCache(pipeline("pipeline1", "group1", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)));
+        addPipelinesToCache(pipeline("pipeline1", "group1", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOnePermission.INSTANCE)));
 
         configMother.addEnvironmentConfig(config, "env1", "pipeline1");
         List<GoDashboardEnvironment> pipelineGroups = allEnvironmentsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
@@ -264,7 +266,7 @@ public class GoDashboardServiceTest {
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
         GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(Everyone.INSTANCE,
-                Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE));
+                Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE));
 
         addPipelinesToCache(pipeline1);
 
@@ -281,7 +283,7 @@ public class GoDashboardServiceTest {
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
         GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(Everyone.INSTANCE,
-                Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE));
+                Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE));
 
         addPipelinesToCache(pipeline1);
         configMother.addEnvironmentConfig(config, "env1", "pipeline1", "pipeline2");

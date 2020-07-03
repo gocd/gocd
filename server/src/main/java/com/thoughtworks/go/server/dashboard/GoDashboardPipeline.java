@@ -89,6 +89,10 @@ public class GoDashboardPipeline {
         return permissions.pipelineOperators().contains(userName);
     }
 
+    public boolean isStageOperator(String stageName, String userName) {
+        return permissions.stageOperators(stageName).contains(userName);
+    }
+
     public long getLastUpdatedTimeStamp() {
         return lastUpdatedTimeStamp;
     }

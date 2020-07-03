@@ -15,10 +15,7 @@
  */
 package com.thoughtworks.go.config.security;
 
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.PluginRoleConfig;
-import com.thoughtworks.go.config.SecurityConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 
 import java.util.*;
@@ -100,18 +97,18 @@ class GroupSecurity {
         return this.viewers;
     }
 
-    AllowedUsers operatorsForPipeline(PipelineConfig pipeline) {
-        if (!pipeline.first().hasOperatePermissionDefined()) {
+    AllowedUsers operatorsForStage(StageConfig stage) {
+        if (!stage.hasOperatePermissionDefined()) {
             return effectiveOperators();
         }
 
-        Set<String> approversOfFirstStage = namesOf(pipeline.first().getApproval().getAuthConfig(), rolesToUsers);
-        Set<PluginRoleConfig> roleApproverOfFirstStage = pluginRolesFor(security, pipeline.first().getApproval().getAuthConfig().getRoles());
+        Set<String> approversOfStage = namesOf(stage.getApproval().getAuthConfig(), rolesToUsers);
+        Set<PluginRoleConfig> roleApproverOfStage = pluginRolesFor(security, stage.getApproval().getAuthConfig().getRoles());
 
-        Set<String> pipelineOperators = new HashSet<>();
-        pipelineOperators.addAll(configuredAdmins());
-        pipelineOperators.addAll(approversOfFirstStage);
+        Set<String> stageOperators = new HashSet<>();
+        stageOperators.addAll(configuredAdmins());
+        stageOperators.addAll(approversOfStage);
 
-        return new AllowedUsers(pipelineOperators, roleApproverOfFirstStage);
+        return new AllowedUsers(stageOperators, roleApproverOfStage);
     }
 }

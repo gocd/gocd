@@ -15,19 +15,20 @@
  */
 package com.thoughtworks.go.config.security;
 
+import com.thoughtworks.go.config.security.permissions.PipelinePermission;
 import com.thoughtworks.go.config.security.users.Users;
 
 public class Permissions {
     private final Users viewers;
     private final Users operators;
     private final Users admins;
-    private final Users pipelineOperators;
+    private final PipelinePermission pipelinePermission;
 
-    public Permissions(Users viewers, Users operators, Users admins, Users pipelineOperators) {
+    public Permissions(Users viewers, Users operators, Users admins, PipelinePermission pipelinePermission) {
         this.viewers = viewers;
         this.operators = operators;
         this.admins = admins;
-        this.pipelineOperators = pipelineOperators;
+        this.pipelinePermission = pipelinePermission;
     }
 
     public Users viewers() {
@@ -43,7 +44,12 @@ public class Permissions {
     }
 
     public Users pipelineOperators() {
-        return pipelineOperators;
+        return pipelinePermission.getPipelineOperators();
+    }
+
+    public Users stageOperators(String stageName) {
+        Users stageOperators = this.pipelinePermission.getStageOperators(stageName);
+        return stageOperators == null ? operators : stageOperators;
     }
 
     @Override
@@ -56,7 +62,7 @@ public class Permissions {
         if (viewers != null ? !viewers.equals(that.viewers) : that.viewers != null) return false;
         if (operators != null ? !operators.equals(that.operators) : that.operators != null) return false;
         if (admins != null ? !admins.equals(that.admins) : that.admins != null) return false;
-        return pipelineOperators != null ? pipelineOperators.equals(that.pipelineOperators) : that.pipelineOperators == null;
+        return pipelinePermission != null ? pipelinePermission.equals(that.pipelinePermission) : that.pipelinePermission == null;
     }
 
     @Override
@@ -64,7 +70,7 @@ public class Permissions {
         int result = viewers != null ? viewers.hashCode() : 0;
         result = 31 * result + (operators != null ? operators.hashCode() : 0);
         result = 31 * result + (admins != null ? admins.hashCode() : 0);
-        result = 31 * result + (pipelineOperators != null ? pipelineOperators.hashCode() : 0);
+        result = 31 * result + (pipelinePermission != null ? pipelinePermission.hashCode() : 0);
         return result;
     }
 }

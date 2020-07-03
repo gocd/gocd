@@ -18,11 +18,13 @@ package com.thoughtworks.go.apiv4.dashboard.representers;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
+import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.spark.Routes;
 
 public class StageRepresenter {
 
-    public static void toJSON(OutputWriter jsonOutputWriter, StageInstanceModel model, String pipelineName, String pipelineCounter) {
+    public static void toJSON(OutputWriter jsonOutputWriter, GoDashboardPipeline goDashboardPipeline, StageInstanceModel model, Username username, String pipelineName, String pipelineCounter) {
         jsonOutputWriter
                 .addLinks(linkWriter -> {
                     linkWriter.addLink("self", Routes.Stage.self(pipelineName, pipelineCounter, model.getName(), model.getCounter()));
@@ -30,15 +32,17 @@ public class StageRepresenter {
                 .add("name", model.getName())
                 .add("counter", model.getCounter())
                 .add("status", model.getState().name())
+                .add("can_operate", goDashboardPipeline.isStageOperator(model.getName(), username.getUsername().toString()))
                 .add("approved_by", model.getApprovedBy())
                 .add("scheduled_at", model.getScheduledDate());
 
         if (model.getState().stageResult() == StageResult.Cancelled) {
             jsonOutputWriter.add("cancelled_by", model.getCancelledBy() == null ? "GoCD" : model.getCancelledBy());
         }
+
         if (model.getPreviousStage() != null) {
             jsonOutputWriter.addChild("previous_stage", childWriter -> {
-                StageRepresenter.toJSON(childWriter, model.getPreviousStage(), pipelineName, pipelineCounter);
+                StageRepresenter.toJSON(childWriter, goDashboardPipeline, model.getPreviousStage(), username, pipelineName, pipelineCounter);
             });
         }
     }

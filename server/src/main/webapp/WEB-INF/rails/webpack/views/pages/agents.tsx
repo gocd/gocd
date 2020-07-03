@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {AjaxPoller} from "helpers/ajax_poller";
 import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
@@ -23,6 +24,7 @@ import {AgentsCRUD} from "models/agents/agents_crud";
 import {ElasticAgentVM, StaticAgentsVM} from "models/agents/agents_vm";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {MessageType} from "views/components/flash_message";
+import {Link} from "views/components/link";
 import {AgentsWidget} from "views/pages/agents/agents_widget";
 import {Page, PageState} from "views/pages/page";
 import {RequiresPluginInfos} from "views/pages/page_operations";
@@ -85,7 +87,7 @@ export class AgentsPage extends Page<null, State> {
     };
 
     new AjaxPoller({
-                     repeaterFn: this.fetchData.bind(this, vnode),
+                     repeaterFn:      this.fetchData.bind(this, vnode),
                      intervalSeconds: 10
                    }).start();
   }
@@ -121,6 +123,13 @@ export class AgentsPage extends Page<null, State> {
                   }).finally(() => {
         this.pageState = PageState.OK;
       });
+  }
+
+  helpText(): m.Children {
+    return <span>
+      GoCD Agents are the workers in the GoCD ecosystem. Agents pick up jobs which are assigned to them, execute the tasks in the job and report the status of the job to the GoCD Server.
+      <Link href={docsUrl("introduction/concepts_in_go.html#agent")} externalLinkIcon={true}> Learn More</Link>
+    </span>;
   }
 
   private static syncVMState(vnode: m.Vnode<null, State>, agents: Agents) {

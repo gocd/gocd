@@ -18,12 +18,13 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import {ArtifactStore, ArtifactStores} from "models/artifact_stores/artifact_stores";
+import {ArtifactExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
-import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderIcon} from "views/components/header_icon";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
+import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import styles from "views/pages/elastic_agent_configurations/index.scss";
 import {CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos} from "views/pages/page_operations";
 
@@ -35,8 +36,7 @@ export class ArtifactStoresWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     let noArtifactStorePluginMessage;
     if (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().length === 0) {
-      noArtifactStorePluginMessage =
-        <FlashMessage type={MessageType.info} message="No artifact plugin installed."/>;
+      noArtifactStorePluginMessage = <NoPluginsOfTypeInstalled extensionType={new ArtifactExtensionType()}/>;
     }
 
     return <div data-test-id="artifact-stores-widget">

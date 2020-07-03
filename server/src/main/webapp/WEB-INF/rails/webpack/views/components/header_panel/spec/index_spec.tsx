@@ -25,6 +25,7 @@ describe("Header Panel Component", () => {
     const pageTitle = "Test Header";
     mount(pageTitle, []);
     expect(helper.textByTestId("title")).toContain(pageTitle);
+    expect(helper.byTestId("pageActions-help")).not.toBeInDOM();
   });
 
   it("should render header panel along with buttons", () => {
@@ -34,7 +35,7 @@ describe("Header Panel Component", () => {
 
     expect(helper.textByTestId("title")).toContain(pageTitle);
 
-    const pageActionButtons = helper.byTestId("pageActions").children;
+    const pageActionButtons = helper.byTestId("pageActions-buttons").children;
 
     expect(pageActionButtons).toHaveLength(buttons.length);
     expect(pageActionButtons.item(0)).toContainText("Do something");
@@ -46,7 +47,8 @@ describe("Header Panel Component", () => {
     mount(pageTitle);
 
     expect(helper.textByTestId("title")).toContain(pageTitle);
-    expect(helper.byTestId("pageActions")).toBeFalsy();
+    expect(helper.byTestId("pageActions").children).toHaveLength(0);
+    expect(helper.byTestId("pageActions-buttons")).toBeFalsy();
   });
 
   it("should render key value pair when specified", () => {
@@ -68,7 +70,13 @@ describe("Header Panel Component", () => {
     expect(helper.byTestId("key-value-value-stage")).toHaveText("Up42_StAgE");
   });
 
-  function mount(pageTitle: m.Children, buttons?: m.Children, keyValuePair?: { [key: string]: m.Children }) {
-    helper.mount(() => <HeaderPanel buttons={buttons} title={pageTitle} keyValuePair={keyValuePair}/>);
+  it('should render help icon when help text is provided', () => {
+    mount("Title", [], undefined, "Some help text");
+
+    expect(helper.byTestId("pageActions-help")).toBeInDOM();
+  });
+
+  function mount(pageTitle: m.Children, buttons?: m.Children, keyValuePair?: { [key: string]: m.Children }, help?: m.Children) {
+    helper.mount(() => <HeaderPanel buttons={buttons} title={pageTitle} keyValuePair={keyValuePair} help={help}/>);
   }
 });

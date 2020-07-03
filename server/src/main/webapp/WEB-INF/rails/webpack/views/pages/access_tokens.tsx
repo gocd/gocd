@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {AccessTokenCRUD} from "models/access_tokens/access_token_crud";
@@ -21,10 +22,11 @@ import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
-import {AccessTokensWidgetForCurrentUser} from "views/pages/access_tokens/access_tokens_widget";
+import {Link} from "views/components/link";
 import {GenerateTokenModal, RevokeAccessTokenForCurrentUser} from "views/pages/access_tokens/modals";
 import {Page, PageState} from "views/pages/page";
 import {AddOperation, SaveOperation} from "views/pages/page_operations";
+import {AccessTokensWidgetForCurrentUser} from "./access_tokens/access_tokens_widget";
 
 interface State extends AddOperation<AccessToken>, SaveOperation {
   accessTokens: Stream<AccessTokens>;
@@ -65,21 +67,23 @@ export class AccessTokensPage extends Page<null, State> {
   }
 
   headerPanel(vnode: m.Vnode<null, State>): any {
-    return <HeaderPanel title={this.pageName()} buttons={
-      <Buttons.Primary disabled={!vnode.state.meta.supportsAccessToken}
-                       onclick={vnode.state.onAdd.bind(vnode.state)}
-                       data-test-id="generate-token-button">
-        Generate Token
-      </Buttons.Primary>
-    }/>;
+    const buttons = <Buttons.Primary disabled={!vnode.state.meta.supportsAccessToken}
+                                     onclick={vnode.state.onAdd.bind(vnode.state)}
+                                     data-test-id="generate-token-button">Generate Token</Buttons.Primary>;
+    return <HeaderPanel title={this.pageName()} buttons={buttons} help={this.helpText()}/>;
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     if (vnode.state.meta.supportsAccessToken) {
       const flashMessage = this.flashMessage ?
         <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/> : null;
-      return [flashMessage, <AccessTokensWidgetForCurrentUser accessTokens={vnode.state.accessTokens}
-                                                              onRevoke={vnode.state.onRevoke}/>];
+      let widget: m.Children;
+      if (vnode.state.accessTokens().length === 0) {
+        widget = this.helpText();
+      } else {
+        widget = <AccessTokensWidgetForCurrentUser accessTokens={vnode.state.accessTokens} onRevoke={vnode.state.onRevoke}/>;
+      }
+      return [flashMessage, widget];
     }
     return <FlashMessage type={MessageType.info}>
       Creation of access token is not supported by the plugin <strong>{vnode.state.meta.pluginId}</strong>.
@@ -92,6 +96,15 @@ export class AccessTokensPage extends Page<null, State> {
                                           vnode.state.accessTokens(successResponse.body);
                                           this.pageState = PageState.OK;
                                         }, this.setErrorState));
+  }
+
+  helpText(): m.Children {
+    return <ul data-test-id="access-token-info">
+      <li>Click on "Generate Token" to create new personal access token.</li>
+      <li>A Generated token can be used to access the GoCD API.
+        <Link href={docsUrl('configuration/access_tokens.html')} externalLinkIcon={true}> Learn More</Link>
+      </li>
+    </ul>;
   }
 }
 

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -28,6 +29,7 @@ import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import * as Buttons from "views/components/buttons/index";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
+import {Link} from "views/components/link";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Page, PageState} from "views/pages/page";
 import {
@@ -159,11 +161,23 @@ export class SecretConfigsPage extends Page<null, State> {
                   });
   }
 
+  helpText(): m.Children {
+    return <div>
+      GoCD provides plugin endpoints to lookup for secrets defined in an external Secrets Manager. This gives GoCD users the flexibility to use a
+      Secret Manager of their choice to store and manage secrets.
+      <br/>
+      At no point the external secrets are stored in GoCD, these secrets are looked up only when required, e.g if a job is configured to use external
+      secrets, these secrets are looked up just before the job is assigned to an agent and transmitted securely to the agent.
+      <Link href={docsUrl('configuration/secrets_management.html')} externalLinkIcon={true}> Learn More</Link>
+    </div>;
+  }
+
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     const disabled = !vnode.state.pluginInfos || vnode.state.pluginInfos().length === 0;
     return <HeaderPanel title={this.pageName()}
                         buttons={<Buttons.Primary data-test-id="add-secret-config"
                                                   disabled={disabled}
-                                                  onclick={vnode.state.onAdd.bind(this)}>Add</Buttons.Primary>}/>;
+                                                  onclick={vnode.state.onAdd.bind(this)}>Add</Buttons.Primary>}
+                        help={this.helpText()}/>;
   }
 }

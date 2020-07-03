@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs";
@@ -24,19 +25,11 @@ import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
+import {Link} from "views/components/link";
 import {AuthConfigsWidget} from "views/pages/auth_configs/auth_configs_widget";
-import {
-  CloneAuthConfigModal, CreateAuthConfigModal, DeleteAuthConfigModal,
-  EditAuthConfigModal
-} from "views/pages/auth_configs/modals";
+import {CloneAuthConfigModal, CreateAuthConfigModal, DeleteAuthConfigModal, EditAuthConfigModal} from "views/pages/auth_configs/modals";
 import {Page, PageState} from "views/pages/page";
-import {
-  AddOperation,
-  CloneOperation,
-  DeleteOperation,
-  EditOperation,
-  RequiresPluginInfos, SaveOperation
-} from "views/pages/page_operations";
+import {AddOperation, CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 
 interface State extends AddOperation<AuthConfig>, RequiresPluginInfos, EditOperation<AuthConfig>, CloneOperation<AuthConfig>, DeleteOperation<AuthConfig>, SaveOperation {
   authConfigs: AuthConfigs;
@@ -108,7 +101,7 @@ export class AuthConfigsPage extends Page<null, State> {
                        data-test-id="add-auth-config-button"
                        disabled={disabled}>Add</Buttons.Primary>
     ];
-    return <HeaderPanel title={this.pageName()} buttons={headerButtons}/>;
+    return <HeaderPanel title={this.pageName()} buttons={headerButtons} help={this.helpText()}/>;
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
@@ -124,5 +117,12 @@ export class AuthConfigsPage extends Page<null, State> {
                       vnode.state.authConfigs = success.body;
                     }, () => this.setErrorState());
                   });
+  }
+
+  helpText(): m.Children {
+    return <div>
+      "Authorization configuration" is the term used in GoCD for the configuration which allows a GoCD administrator to configure the kind of authentication and authorization used by it. GoCD can be setup to use multiple authorization configurations at the same time.
+      <Link href={docsUrl('configuration/managing_users.html')} externalLinkIcon={true}> Learn More</Link>
+    </div>;
   }
 }

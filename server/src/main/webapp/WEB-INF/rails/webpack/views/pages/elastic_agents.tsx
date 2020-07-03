@@ -344,7 +344,7 @@ export class ElasticAgentsPage extends Page<null, State> {
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {
-    return <HeaderPanel title={this.pageName()} buttons={this.buttons(vnode)}/>;
+    return <HeaderPanel title={this.pageName()} buttons={this.buttons(vnode)} help={this.helpText()}/>;
   }
 
   private mergeClusterProfilePermissions(clusterProfiles: ClusterProfiles, permission: Permission) {

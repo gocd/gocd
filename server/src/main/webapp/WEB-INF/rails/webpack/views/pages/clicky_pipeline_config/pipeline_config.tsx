@@ -176,7 +176,7 @@ export class PipelineConfigPage<T> extends TabHandler<T> {
                                        shouldShowPauseUnpause={true}
                                        shouldShowPipelineSettings={false}/>;
 
-    return <HeaderPanel title={title} sectionName={this.pageName()}/>;
+    return <HeaderPanel title={title} sectionName={this.pageName()} help={this.helpText()}/>;
   }
 
   protected hasEntityConfigChanged() {

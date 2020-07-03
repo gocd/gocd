@@ -19,26 +19,22 @@ import Stream from "mithril/stream";
 import {ArtifactStore, ArtifactStores} from "models/artifact_stores/artifact_stores";
 import {ArtifactStoresCRUD} from "models/artifact_stores/artifact_stores_crud";
 import {Configurations} from "models/shared/configuration";
-import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
+import {ArtifactExtensionType, ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
+import {Link} from "views/components/link";
 import {ArtifactStoresWidget} from "views/pages/artifact_stores/artifact_stores_widget";
 import {
   CloneArtifactStoreModal,
-  CreateArtifactStoreModal, DeleteArtifactStoreModal,
+  CreateArtifactStoreModal,
+  DeleteArtifactStoreModal,
   EditArtifactStoreModal
 } from "views/pages/artifact_stores/modals";
 import {Page, PageState} from "views/pages/page";
-import {
-  AddOperation,
-  CloneOperation,
-  DeleteOperation,
-  EditOperation,
-  RequiresPluginInfos, SaveOperation
-} from "views/pages/page_operations";
+import {AddOperation, CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 
 interface State extends RequiresPluginInfos, AddOperation<ArtifactStore>, EditOperation<ArtifactStore>, CloneOperation<ArtifactStore>, DeleteOperation<ArtifactStore>, SaveOperation {
   artifactStores: ArtifactStores;
@@ -111,7 +107,7 @@ export class ArtifactStoresPage extends Page<null, State> {
                        data-test-id="add-artifact-stores-button"
                        disabled={disabled}>Add</Buttons.Primary>
     ];
-    return <HeaderPanel title={this.pageName()} buttons={headerButtons}/>;
+    return <HeaderPanel title={this.pageName()} buttons={headerButtons} help={this.helpText()}/>;
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
@@ -127,5 +123,18 @@ export class ArtifactStoresPage extends Page<null, State> {
                       this.pageState             = PageState.OK;
                     }, () => this.setErrorState());
                   });
+  }
+
+  helpText(): m.Children {
+    return <ul>
+      <li>Use this page to add a global artifact store to publish/fetch external artifacts.</li>
+      <li>By default, GoCD internally manages and stores artifacts. The Artifact extension allows GoCD to make use of an external artifact store for
+        storing artifacts while retaining traceability between pipelines.
+      </li>
+      <li>Please see <Link href={new ArtifactExtensionType().linkForDocs()} externalLinkIcon={true}>this page</Link> for a
+        list of supported plugins.
+      </li>
+      <li>To build your own custom plugin, please refer <Link href={"https://plugin-api.gocd.org/current/artifacts/#artifact-plugins"}>this</Link>.</li>
+    </ul>;
   }
 }

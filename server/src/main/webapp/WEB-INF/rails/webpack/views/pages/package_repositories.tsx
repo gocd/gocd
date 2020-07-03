@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {ErrorResponse} from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
@@ -28,6 +29,7 @@ import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
+import {Link} from "views/components/link";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import configRepoStyles from "views/pages/config_repos/index.scss";
 import {PackageRepoScrollOptions, PackageRepositoriesWidget} from "views/pages/package_repositories/package_repositories_widget";
@@ -181,6 +183,18 @@ export class PackageRepositoriesPage extends Page<null, State> {
 
   }
 
+  helpText(): m.Children {
+    return <div>
+      Pipelines in GoCD (13.3.0 and onwards) can poll packages in repositories similar to how they poll version control systems. A build typically
+      consumes source code maintained in a version control system (VCS/SCM). <br/>
+      These files (packages) are often maintained in corresponding package repositories. Such packages may be specified as materials for GoCD
+      pipelines. <br/> <br/>
+      A repository may contain one or more packages. A pipeline may refer to a package as a material. When the package is updated in the repository,
+      interested pipelines will get scheduled.
+      <Link href={docsUrl('extension_points/package_repository_extension.html')} externalLinkIcon={true}> Learn More</Link>
+    </div>;
+  }
+
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     const buttons = [
       <Primary icon={ButtonIcon.ADD} disabled={!this.isPluginInstalled(vnode)}
@@ -195,7 +209,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
       </div>;
       buttons.splice(0, 0, searchBox);
     }
-    return <HeaderPanel title={this.pageName()} buttons={buttons}/>;
+    return <HeaderPanel title={this.pageName()} buttons={buttons} help={this.helpText()}/>;
   }
 
   private isPluginInstalled(vnode: m.Vnode<null, State>) {

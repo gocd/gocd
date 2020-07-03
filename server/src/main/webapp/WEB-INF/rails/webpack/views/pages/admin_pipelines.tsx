@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
@@ -31,6 +32,7 @@ import * as Buttons from "views/components/buttons";
 import {ButtonIcon} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
+import {Link} from "views/components/link";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Attrs, PipelineGroupsWidget, PipelinesScrollOptions} from "views/pages/admin_pipelines/admin_pipelines_widget";
 import {
@@ -281,6 +283,17 @@ export class AdminPipelinesPage extends Page<null, State> {
     this.operation = (m.route.param().operation || "").toLowerCase();
   }
 
+  helpText(): m.Children {
+    return <ul data-test-id="pipelines-help-text">
+      <li>Only GoCD system administrators are allowed to create a pipeline group.
+        <Link href={docsUrl("configuration/pipelines.html")} externalLinkIcon={true}> Learn More</Link>
+      </li>
+      <li>A GoCD Administrator can authorize users and roles to be administrators for pipeline groups.
+        <Link href={docsUrl("configuration/delegating_group_administration.html")} externalLinkIcon={true}> Learn More</Link>
+      </li>
+    </ul>;
+  }
+
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     const headerButtons = [
       <Buttons.Secondary css={buttonStyle}
@@ -290,6 +303,6 @@ export class AdminPipelinesPage extends Page<null, State> {
                          onclick={vnode.state.createPipelineGroup.bind(vnode.state)}
                          data-test-id="create-new-pipeline-group">Create new pipeline group</Buttons.Secondary>
     ];
-    return <HeaderPanel title={this.pageName()} buttons={headerButtons}/>;
+    return <HeaderPanel title={this.pageName()} buttons={headerButtons} help={this.helpText()}/>;
   }
 }

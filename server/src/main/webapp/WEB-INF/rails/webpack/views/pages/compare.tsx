@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import {docsUrl} from "gen/gocd_version";
 import {SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -23,6 +23,7 @@ import {PipelineInstance} from "models/compare/pipeline_instance";
 import {PipelineInstanceCRUD} from "models/compare/pipeline_instance_crud";
 import {FlashMessage} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
+import {Link} from "views/components/link";
 import {Page, PageState} from "views/pages/page";
 import {CompareHeaderWidget} from "./compare/compare_header_widget";
 import {ComparisonResultWidget} from "./compare/comparison_result_widget";
@@ -92,9 +93,17 @@ export class ComparePage extends Page<null, State> {
                   );
   }
 
+  helpText(): m.Children {
+    return <div>
+      GoCD allows the comparison between any two builds of a pipeline and displays the changes happened between the two. The information included in
+      the view are code check-ins, upstream pipelines info, mainly revision and instance and story/defect numbers (when linked to a tracking tool).
+      <Link href={docsUrl('advanced_usage/compare_pipelines.html')} externalLinkIcon={true}> Learn More</Link>
+    </div>;
+  }
+
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     const sectionName = <CompareHeaderWidget pipelineName={this.getMeta().pipelineName}/>;
 
-    return <HeaderPanel title={sectionName} sectionName={this.pageName()}/>;
+    return <HeaderPanel title={sectionName} sectionName={this.pageName()} help={this.helpText()}/>;
   }
 }

@@ -35,6 +35,10 @@ export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attr
 
   abstract fetchData(vnode: m.Vnode<Attrs, State>): Promise<any>;
 
+  helpText(): m.Children {
+    return undefined;
+  }
+
   oninit(vnode: m.Vnode<Attrs, State>) {
     this.fetchData(vnode).then(this._onSuccess.bind(this), this._onFailure.bind(this));
   }
@@ -60,7 +64,7 @@ export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attr
   }
 
   protected headerPanel(vnode: m.Vnode<Attrs, State>) {
-    return <HeaderPanel title={this.pageName()}/>;
+    return <HeaderPanel title={this.pageName()} help={this.helpText()}/>;
   }
 
   protected setErrorState() {
@@ -74,8 +78,8 @@ export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attr
 
   protected scrollToTop(): void {
     window.scrollTo({
-                      top: 0,
-                      left: 0,
+                      top:      0,
+                      left:     0,
                       behavior: "smooth"
                     });
   }

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {AjaxPoller} from "helpers/ajax_poller";
 import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
 import _ from "lodash";
@@ -30,6 +31,7 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
+import {Link} from "views/components/link";
 import {ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
 import {ConfigRepoVM} from "views/pages/config_repos/config_repo_view_model";
 import {NewConfigRepoModal} from "views/pages/config_repos/modals";
@@ -120,7 +122,7 @@ export class ConfigReposPage extends Page<null, State> {
       </div>,
       <Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add</Buttons.Primary>
     ];
-    return <HeaderPanel title="Config Repositories" buttons={headerButtons}/>;
+    return <HeaderPanel title="Config Repositories" buttons={headerButtons} help={this.helpText()}/>;
   }
 
   fetchData(vnode: m.Vnode<null, State>) {
@@ -160,6 +162,15 @@ export class ConfigReposPage extends Page<null, State> {
 
   pageName(): string {
     return "Config repositories";
+  }
+
+  helpText(): m.Children {
+    return <div>
+      GoCD can utilize the pipeline definitions stored in an external source code repository (either in your application’s repository, or in a
+      separate repository). The current view lists existing config repositories, and allows CRUD (Create-Read-Update-Delete) operations on them. This
+      view also shows errors and allows you to request a check of a config repository.
+      <Link href={docsUrl('advanced_usage/pipelines_as_code.html')} externalLinkIcon={true}> Learn More</Link>
+    </div>;
   }
 
   private onConfigReposAPIResponse(apiResponse: ApiResult<ConfigRepos>, permissionsResponse: ApiResult<Permissions>, vnode: m.Vnode<null, State>) {

@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import {AdminAccessTokenCRUD} from "models/admin_access_tokens/admin_access_token_crud";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {Link} from "views/components/link";
 import {RevokeAccessTokenByAdmin} from "views/pages/access_tokens/modals";
 import {Page, PageState} from "views/pages/page";
 import {AccessTokensWidgetForAdmin} from "./access_tokens/access_tokens_widget";
@@ -32,7 +34,7 @@ interface State {
 export class AdminAccessTokensPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.accessTokens = Stream();
-    vnode.state.searchText = Stream();
+    vnode.state.searchText   = Stream();
     super.oninit(vnode);
 
     vnode.state.onRevoke = (accessToken: Stream<AccessToken>, e: MouseEvent) => {
@@ -51,9 +53,15 @@ export class AdminAccessTokensPage extends Page<null, State> {
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     const flashMessage = this.flashMessage ?
       <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/> : null;
-    return [flashMessage,
-      <AccessTokensWidgetForAdmin accessTokens={vnode.state.accessTokens} onRevoke={vnode.state.onRevoke}
-                                  searchText={vnode.state.searchText}/>];
+    let widget;
+    if (vnode.state.accessTokens().length === 0) {
+      widget = this.helpText();
+    } else {
+      widget = <AccessTokensWidgetForAdmin accessTokens={vnode.state.accessTokens}
+                                           onRevoke={vnode.state.onRevoke}
+                                           searchText={vnode.state.searchText}/>;
+    }
+    return [flashMessage, widget];
   }
 
   pageName(): string {
@@ -70,5 +78,15 @@ export class AdminAccessTokensPage extends Page<null, State> {
                   this.pageState = PageState.OK;
                 },
                 this.setErrorState));
+  }
+
+  helpText(): m.Children {
+    return (<ol data-test-id="access_token_info">
+      <li>Navigate to <a href="/go/access_tokens">Personal Access Tokens</a></li>
+      <li>Click on "Generate Token" to create new personal access token.</li>
+      <li>The generated token can be used to access the GoCD API.
+        <Link href={docsUrl('configuration/access_tokens.html')} externalLinkIcon={true}> Learn More</Link>
+      </li>
+    </ol>);
   }
 }

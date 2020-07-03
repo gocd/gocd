@@ -71,7 +71,7 @@ export class BackupPage extends Page<null, State> {
                        onclick={BackupPage.openBackupSettings.bind(this)}>
         Configure Backup Settings
       </Buttons.Primary>
-    }/>;
+    } help={this.helpText()}/>;
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>) {

@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import {HeaderKeyValuePair} from "views/components/header_panel/header_key_value_pair";
-
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {QuestionCircle} from "views/components/icons";
+import {Modal} from "views/components/modal";
 import * as style from "./index.scss";
 
 export interface Attrs {
@@ -25,19 +26,25 @@ export interface Attrs {
   sectionName?: m.Children;
   buttons?: m.Children;
   keyValuePair?: { [key: string]: m.Children };
+  help?: m.Children;
 }
 
 export class HeaderPanel extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    let buttons: m.Children = null;
+    const onclick = (e: MouseEvent) => {
+      e.stopPropagation();
+      new HelpTextModal(vnode.attrs.help).render();
+    };
 
-    if (!_.isEmpty(vnode.attrs.buttons)) {
-      buttons = (
-        <div data-test-id="pageActions">
-          {vnode.attrs.buttons}
-        </div>
-      );
-    }
+    const helpText: m.Children = vnode.attrs.help
+      ? (<span class={style.helpTextWrapper} data-test-id="pageActions-help">
+      <QuestionCircle iconOnly={true} title={"Show Help Text"} onclick={onclick}/>
+    </span>)
+      : undefined;
+
+    const buttons: m.Children = _.isEmpty(vnode.attrs.buttons)
+      ? undefined
+      : <span data-test-id="pageActions-buttons">{vnode.attrs.buttons}</span>;
 
     return (<header class={style.pageHeader}>
       <div class={style.pageTitle}>
@@ -45,7 +52,10 @@ export class HeaderPanel extends MithrilViewComponent<Attrs> {
         <h1 class={style.title} data-test-id="title">{vnode.attrs.title}</h1>
         <HeaderKeyValuePair data={vnode.attrs.keyValuePair}/>
       </div>
-      {buttons}
+      <div data-test-id="pageActions">
+        {buttons}
+        {helpText}
+      </div>
     </header>);
   }
 
@@ -56,4 +66,22 @@ export class HeaderPanel extends MithrilViewComponent<Attrs> {
       );
     }
   }
+}
+
+class HelpTextModal extends Modal {
+  private readonly msg: m.Children;
+
+  constructor(msg: m.Children) {
+    super();
+    this.msg = msg;
+  }
+
+  body(): m.Children {
+    return <div data-test-id="help-text-message">{this.msg}</div>;
+  }
+
+  title(): string {
+    return "Show Help Text";
+  }
+
 }

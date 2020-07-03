@@ -52,6 +52,10 @@ export class AgentJobRunHistoryPage extends Page<null, State> {
     return this.fetchJobHistoryForPage(vnode, 1);
   }
 
+  helpText(): m.Children {
+    return undefined;
+  }
+
   private fetchJobHistoryForPage(vnode: m.Vnode<null, State>, pageNumber: number) {
     const pageSize = vnode.state.jobHistory() ? vnode.state.jobHistory().pagination.page_size : 0;
     const offset   = (pageNumber - 1) * pageSize;

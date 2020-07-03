@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -27,6 +28,7 @@ import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
+import {Link} from "views/components/link";
 import {Page, PageState} from "views/pages/page";
 import {AddOperation, CloneOperation, DeleteOperation, EditOperation, SaveOperation} from "views/pages/page_operations";
 import {CloneRoleModal, DeleteRoleConfirmModal, EditRoleModal, NewRoleModal} from "views/pages/roles/modals";
@@ -122,7 +124,7 @@ export class RolesPage extends Page<null, State> {
     const headerButtons = [(<Buttons.Primary data-test-id="role-add-button"
                                              onclick={vnode.state.onAdd.bind(vnode.state)}>Add</Buttons.Primary>)];
 
-    return <HeaderPanel title={this.pageName()} buttons={headerButtons}/>;
+    return <HeaderPanel title={this.pageName()} buttons={headerButtons} help={this.helpText()}/>;
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
@@ -149,4 +151,14 @@ export class RolesPage extends Page<null, State> {
                   });
   }
 
+  helpText(): m.Children {
+    return <div>
+      GoCD allows you to define roles that can be used anywhere that authorization is required. A role is just a group of users.
+      <br/>
+      Starting GoCD 19.11.0, the roles can be configured to allow how the users assigned the role can access a GoCD entity. GoCD system administrators
+      can now define a role with a "policy" that will contain a set of permissions to govern access of a GoCD entity for the users belonging to the
+      role.
+      <Link href={docsUrl('configuration/dev_authorization.html')} externalLinkIcon={true}> Learn More</Link>
+    </div>;
+  }
 }

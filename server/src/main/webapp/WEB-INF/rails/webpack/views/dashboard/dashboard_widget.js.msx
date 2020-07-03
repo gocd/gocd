@@ -85,7 +85,6 @@ export const DashboardWidget = {
 
           {messageView}
           <DashboardGroupsWidget scheme={vm.scheme()}
-                                 newPipelineDropdown={args.newPipelineDropdown}
                                  testDrive={args.testDrive}
                                  invalidateEtag={vm.invalidateEtag}
                                  resolver={dashboard} {...sharedGroupArgs}

@@ -32,16 +32,7 @@ const GroupHeading = {
     let addPipeline = "";
 
     if (vm.canAdminister && paths.new) {
-      vnode.attrs.newPipelineDropdown ?
-        addPipeline = <Dropdown vm={vm}/> :
-        addPipeline = <Buttons.Primary align="right"
-            icon={Buttons.ButtonIcon.ADD}
-            disabled={!vm.canAdminister}
-            aria-label={vm.ariaLabelForNewPipeline()}
-            title={vm.titleForNewPipeline()}
-            onclick={this.goToAddPipeline.bind(null, paths.new)}>
-            New Pipeline
-          </Buttons.Primary>;
+      addPipeline = <Dropdown vm={vm}/>;
     }
 
     return <div class="dashboard-group_title">

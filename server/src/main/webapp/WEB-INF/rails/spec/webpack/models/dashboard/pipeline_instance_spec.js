@@ -51,6 +51,12 @@ describe("Dashboard", () => {
       expect(pipelineInstance.stages[0].approvedBy).toEqual("changes");
       expect(pipelineInstance.stages[1].approvedBy).toEqual("admin");
 
+      expect(pipelineInstance.stages[0].canOperate).toEqual(true);
+      expect(pipelineInstance.stages[1].canOperate).toEqual(false);
+
+      expect(pipelineInstance.stages[0].triggerOnCompletionOfPreviousStage()).toEqual(true);
+      expect(pipelineInstance.stages[1].triggerOnCompletionOfPreviousStage()).toEqual(false);
+
       expect(pipelineInstance.isFirstStageInProgress()).toEqual(false);
     });
 
@@ -117,7 +123,9 @@ describe("Dashboard", () => {
             "status":       "Failed",
             "approved_by":  "changes",
             "approval_type": "success",
-            "scheduled_at": "2017-11-10T07:25:28.539Z"
+            "scheduled_at": "2017-11-10T07:25:28.539Z",
+            "can_operate": true,
+            "allow_only_on_success_of_previous_stage": true
           },
           {
             "_links":       {
@@ -133,7 +141,9 @@ describe("Dashboard", () => {
             "status":       "Unknown",
             "approved_by":  "admin",
             "approval_type": "manual",
-            "scheduled_at": "2017-11-10T07:25:28.539Z"
+            "scheduled_at": "2017-11-10T07:25:28.539Z",
+            "can_operate": false,
+            "allow_only_on_success_of_previous_stage": false
           }
         ]
       }

@@ -17,7 +17,6 @@ import {TestHelper} from "views/pages/spec/test_helper";
 import {PipelineInstance} from "models/dashboard/pipeline_instance";
 import {StagesInstanceWidget} from "views/dashboard/stages_instance_widget";
 import m from "mithril";
-import {Pipeline} from "../../../../webpack/models/dashboard/pipeline";
 
 describe("Dashboard Stages Instance Widget", () => {
 
@@ -52,6 +51,8 @@ describe("Dashboard Stages Instance Widget", () => {
           "counter":      "1",
           "status":       "Failed",
           "approved_by":  "changes",
+          "can_operate": true,
+          "allow_only_on_success_of_previous_stage": false,
           "scheduled_at": "2017-11-10T07:25:28.539Z"
         },
         {
@@ -68,6 +69,8 @@ describe("Dashboard Stages Instance Widget", () => {
           "status":       "Unknown",
           "approval_type": "manual",
           "approved_by":  "changes",
+          "can_operate": true,
+          "allow_only_on_success_of_previous_stage": false,
           "scheduled_at": "2017-11-10T07:25:28.539Z"
         },
         {
@@ -84,49 +87,20 @@ describe("Dashboard Stages Instance Widget", () => {
           "status":       "Cancelled",
           "cancelled_by": "someone",
           "approved_by":  "changes",
+          "can_operate": true,
+          "allow_only_on_success_of_previous_stage": false,
           "scheduled_at": "2017-11-10T07:25:28.539Z"
         }
       ]
     }
   };
 
-  const pipelineJson = {
-    "_links": {
-      "self": {
-        "href": "http://localhost:8153/go/api/pipelines/up42/history"
-      },
-      "doc": {
-        "href": "https://api.go.cd/current/#pipelines"
-      }
-    },
-    "name": "up42",
-    "last_updated_timestamp": 1510299695473,
-    "locked": false,
-    "can_unlock": true,
-    "pause_info": {},
-    "can_administer": true,
-    "can_operate": true,
-    "can_pause": true,
-    "from_config_repo": false,
-    "config_repo_id": "sample_config_repo",
-    "config_repo_material_url": "https://foo:1234/go",
-    "tracking_tool": {
-      "regex": "#(\\d+)",
-      "link": "http://example.com/${ID}/"
-    },
-    "_embedded": {
-      "instances": [pipelineInstanceJson]
-    }
-  };
-
   let pipelineName;
-  let pipeline;
   let pipelineInstance;
   let stagesInstance;
 
   beforeEach(() => {
     pipelineName   = 'up42';
-    pipeline = new Pipeline(pipelineJson);
     pipelineInstance = new PipelineInstance(pipelineInstanceJson, pipelineName);
     stagesInstance = pipelineInstance.stages;
     mount();
@@ -135,7 +109,6 @@ describe("Dashboard Stages Instance Widget", () => {
   function mount() {
     helper.mount(() => m(StagesInstanceWidget, {
       stages: stagesInstance,
-      pipeline
     }));
   }
 
@@ -187,7 +160,7 @@ describe("Dashboard Stages Instance Widget", () => {
   });
 
   it("should render disabled manual gate when user does not have permission to operate on the pipeline", () => {
-    pipeline.canOperate = false;
+    stagesInstance[1].canOperate = false;
     m.redraw.sync();
 
     expect(helper.q('.manual_gate')).toHaveClass('disabled');
@@ -201,5 +174,23 @@ describe("Dashboard Stages Instance Widget", () => {
 
     expect(helper.q('.manual_gate')).toHaveClass('disabled');
     expect(helper.q('.manual_gate').title).toEqual('Approved by \'admin\'.');
+  });
+
+  it("should render disabled manual gate when previous stage is failed and allow_only_on_success_of_previous_stage is set to true", () => {
+    stagesInstance[0].status = 'Failed';
+    stagesInstance[1].triggerOnlyOnSuccessOfPreviousStage = () => true;
+    m.redraw.sync();
+
+    expect(helper.q('.manual_gate')).toHaveClass('disabled');
+    expect(helper.q('.manual_gate').title).toEqual('Can not schedule next stage - stage \'up42_stage2\' is set to run only on success of previous stage, whereas, the previous stage \'up42_stage\' has Failed.');
+  });
+
+  it("should render disabled manual gate when previous stage is cancelled and allow_only_on_success_of_previous_stage is set to true", () => {
+    stagesInstance[0].status = 'Cancelled';
+    stagesInstance[1].triggerOnlyOnSuccessOfPreviousStage = () => true;
+    m.redraw.sync();
+
+    expect(helper.q('.manual_gate')).toHaveClass('disabled');
+    expect(helper.q('.manual_gate').title).toEqual('Can not schedule next stage - stage \'up42_stage2\' is set to run only on success of previous stage, whereas, the previous stage \'up42_stage\' has Cancelled.');
   });
 });

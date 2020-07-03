@@ -34,7 +34,8 @@ export const StagesInstanceWidget = {
   view: (vnode) => {
     const stages = vnode.attrs.stages;
     const stageInstance = _.map(stages, (stage, index) => {
-      const isPreviousStageInProgress = stages[index-1] ? !stages[index-1].isCompleted() : false;
+      const previousStage = stages[index-1];
+      const isPreviousStageInProgress = previousStage ? !previousStage.isCompleted() : false;
       let stageStatus = `${stage.name} (${stage.status})`;
       if (stage.isCancelled()) {
         stageStatus = `${stage.name} (cancelled by: ${stage.cancelledBy})`;
@@ -42,13 +43,12 @@ export const StagesInstanceWidget = {
 
       let manualGate;
       if (stage.isManual()) {
-        let isTriggerDisabled = isPreviousStageInProgress;
-        if(stage.isBuildingOrCompleted() || !vnode.attrs.pipeline.canOperate) {
-          isTriggerDisabled = true;
-        }
+        const canUserOperateOnStage = stage.canOperate;
+        const triggerOnCompletionOfPreviousStage = stage.triggerOnlyOnSuccessOfPreviousStage() && previousStage && (previousStage.isFailed() || previousStage.isCancelled());
+        const isTriggerDisabled = isPreviousStageInProgress || !canUserOperateOnStage || triggerOnCompletionOfPreviousStage || stage.isBuildingOrCompleted();
 
         manualGate = <span onclick={isTriggerDisabled ? undefined : vnode.state.triggerStage.bind(vnode.state, stage)}
-                           title={getHelpText(stage, stages[index - 1], vnode.attrs.pipeline)}
+                           title={getHelpText(stage, previousStage)}
                            class={`manual_gate ${isTriggerDisabled ? "disabled" : ""}`} />;
       }
 
@@ -74,7 +74,7 @@ export const StagesInstanceWidget = {
   }
 };
 
-function getHelpText(stage, previousStage, pipeline) {
+function getHelpText(stage, previousStage) {
   let helpText;
   if(stage.isManual()) {
     helpText = `Awaiting approval. Waiting for users with the operate permission to schedule '${stage.name}' stage`;
@@ -88,9 +88,14 @@ function getHelpText(stage, previousStage, pipeline) {
     helpText = `Can not schedule next stage - Either the previous stage hasn't run or is in progress.`;
   }
 
-  if(!pipeline.canOperate) {
+  if(!stage.canOperate) {
     helpText = `Can not schedule next stage - You don't have permissions to schedule the next stage.`;
   }
+
+  if(stage.triggerOnlyOnSuccessOfPreviousStage() && previousStage && (previousStage.isFailed() || previousStage.isCancelled())) {
+    helpText = `Can not schedule next stage - stage '${stage.name}' is set to run only on success of previous stage, whereas, the previous stage '${previousStage.name}' has ${previousStage.status}.`;
+  }
+
 
   return helpText;
 }

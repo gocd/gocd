@@ -12,11 +12,6 @@
       "value": false
     },
     {
-      "key": "new_pipeline_dropdown",
-      "description": "Makes the button for new pipeline on the dashboard a dropdown so can select add pipeline with pipelines as code",
-      "value": false
-    },
-    {
       "key": "allow_empty_pipeline_groups_dashboard",
       "description": "Coupled with queryParam allowEmpty=true will show empty pipeline groups on the dashboard.",
       "value": false

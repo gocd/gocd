@@ -16,11 +16,11 @@
 package com.thoughtworks.go.apiv3.dashboard.representers
 
 import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.permissions.EveryonePermission
 import com.thoughtworks.go.config.security.users.Everyone
 import com.thoughtworks.go.config.security.users.NoOne
+import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.server.dashboard.GoDashboardEnvironment
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup
@@ -148,6 +148,6 @@ class DashboardGroupRepresenterTest {
   static GoDashboardPipeline dashboardPipeline(pipeline_name, group_name = "group1", permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, EveryonePermission.INSTANCE), long timestamp = 1000) {
     def clock = mock(Clock.class)
     when(clock.currentTimeMillis()).thenReturn(timestamp)
-    new GoDashboardPipeline(pipeline_model(pipeline_name, 'pipeline-label'), permissions, group_name, null, new TimeStampBasedCounter(clock), new FileConfigOrigin(), 0)
+    new GoDashboardPipeline(pipeline_model(pipeline_name, 'pipeline-label'), permissions, group_name, new TimeStampBasedCounter(clock), PipelineConfigMother.pipelineConfig(pipeline_name))
   }
 }

@@ -143,7 +143,7 @@ public class GoDashboardCurrentStateLoader {
 
     private GoDashboardPipeline createGoDashboardPipeline(PipelineConfig pipelineConfig, Permissions permissions, PipelineInstanceModels historyForDashboard, PipelineConfigs group) {
         PipelineModel pipelineModel = pipelineModelFor(pipelineConfig, historyForDashboard);
-        return new GoDashboardPipeline(pipelineModel, permissions, group.getGroup(), pipelineConfig.getTrackingTool(), timeStampBasedCounter, pipelineConfig.getOrigin(), pipelineConfig.getDisplayOrderWeight());
+        return new GoDashboardPipeline(pipelineModel, permissions, group.getGroup(), timeStampBasedCounter, pipelineConfig);
     }
 
     private PipelineModel pipelineModelFor(PipelineConfig pipelineConfig, PipelineInstanceModels historyForDashboard) {

@@ -18,12 +18,12 @@ package com.thoughtworks.go.apiv1.servermaintenancemode
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.servermaintenancemode.representers.MaintenanceModeInfoRepresenter
-import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.domain.JobIdentifier
 import com.thoughtworks.go.domain.JobInstance
 import com.thoughtworks.go.domain.JobResult
 import com.thoughtworks.go.domain.JobState
 import com.thoughtworks.go.helper.AgentInstanceMother
+import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.presentation.pipelinehistory.*
 import com.thoughtworks.go.server.dashboard.GoDashboardCache
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
@@ -341,7 +341,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
         allStages.add(new StageInstanceModel("stage1", "1", allJobs))
         def pipelineInstanceModel = new PipelineInstanceModel(pipelineName, 1, pipelineName, null, allStages)
         pipelineModel.addPipelineInstance(pipelineInstanceModel)
-        return new GoDashboardPipeline(pipelineModel, null, "group1", null, new TimeStampBasedCounter(testingClock), new FileConfigOrigin(), 0)
+        return new GoDashboardPipeline(pipelineModel, null, "group1", new TimeStampBasedCounter(testingClock), PipelineConfigMother.pipelineConfig(pipelineName))
       }
     }
   }

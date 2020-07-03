@@ -95,7 +95,7 @@
     "eslint-plugin-react": "^7.20.2",
     "fibers": "^5.0.0",
     "file-loader": "^6.0.0",
-    "fork-ts-checker-webpack-plugin": "^4.1.6",
+    "fork-ts-checker-webpack-plugin": "^5.0.6",
     "fs-extra": "^9.0.0",
     "html-webpack-plugin": "^4.3.0",
     "jasmine": "^3.5.0",

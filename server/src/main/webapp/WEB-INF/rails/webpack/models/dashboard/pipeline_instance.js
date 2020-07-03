@@ -41,7 +41,7 @@ const StageInstance = function (json, pipelineName, pipelineCounter) {
 
   this.trigger = () => {
     return AjaxHelper.POST({
-      url: SparkRoutes.stageTriggerPath(pipelineName, pipelineCounter, json.name),
+      url: SparkRoutes.runStage(pipelineName, pipelineCounter, json.name),
       apiVersion: 'v2'
     });
   };

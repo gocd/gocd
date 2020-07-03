@@ -76,6 +76,11 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
     delete entries.specRoot;
 
     const jasmineIndexPage = {
+      // rebuild every time; without this, `_specRunner.html` disappears in webpack-watch
+      // after a code change (because of the `clean-webpack-plugin`), unless the template
+      // itself changes.
+      cache: false,
+
       inject: true,
       xhtml: true,
       filename: "_specRunner.html",

@@ -20,14 +20,14 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="2020_06_1_remove_data_sharing_settings_table" author="gocd">
+  <changeSet id="2006001_remove_data_sharing_settings_table" author="gocd">
       <preConditions onFail="MARK_RAN">
         <tableExists tableName="DATASHARINGSETTINGS"/>
       </preConditions>
       <dropTable cascadeConstraints="true" tableName="DATASHARINGSETTINGS"/>
   </changeSet>
 
-  <changeSet id="2020_06_1_remove_usage_data_reporting_table" author="gocd">
+  <changeSet id="2006002_remove_usage_data_reporting_table" author="gocd">
     <preConditions onFail="MARK_RAN">
       <tableExists tableName="USAGEDATAREPORTING"/>
     </preConditions>

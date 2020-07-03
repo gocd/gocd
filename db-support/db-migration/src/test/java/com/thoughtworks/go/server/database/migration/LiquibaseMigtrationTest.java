@@ -59,7 +59,7 @@ public class LiquibaseMigtrationTest {
     }
 
     @Test
-    void shouldRemoveDataSharingRelatedTables_asPartOfMigration_2020_06_1_remove_data_sharing_tables() throws SQLException, LiquibaseException {
+    void shouldRemoveDataSharingRelatedTables_asPartOfMigration_2006_remove_data_sharing_tables() throws SQLException, LiquibaseException {
         //create data sharing tables for test purpose
         try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE DATASHARINGSETTINGS ();");
@@ -69,7 +69,7 @@ public class LiquibaseMigtrationTest {
         verifyTableExists("DATASHARINGSETTINGS");
         verifyTableExists("USAGEDATAREPORTING");
 
-        migrate("migrations/2020_06_1_remove_data_sharing_tables.xml");
+        migrate("migrations/2006.xml");
 
         verifyLiquibaseTablesExists();
         verifyTableDoesNotExists("DATASHARINGSETTINGS");

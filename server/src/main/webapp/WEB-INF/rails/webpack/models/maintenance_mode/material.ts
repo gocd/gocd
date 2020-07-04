@@ -17,6 +17,7 @@
 import {timeFormatter} from "helpers/time_formatter";
 import _ from "lodash";
 import Stream from "mithril/stream";
+import {BranchOrRefspecValidator} from "models/materials/types";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
@@ -185,6 +186,7 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
               errors: { [key: string]: string[] } = {}) {
     super(url, autoUpdate, name, destination, filter, invertFilter, errors);
     this.branch = Stream(branch);
+    this.validateWith(new BranchOrRefspecValidator(), "branch");
   }
 
   static deserialize(json: GitMaterialAttributesJSON) {

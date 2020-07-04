@@ -16,6 +16,7 @@
 
 import {Hg} from "models/materials/spec/material_test_data";
 import {
+  BranchOrRefspecValidator,
   DependencyMaterialAttributes,
   GitMaterialAttributes,
   HgMaterialAttributes,
@@ -25,11 +26,61 @@ import {
   SvnMaterialAttributes,
   TfsMaterialAttributes
 } from "models/materials/types";
+import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Configurations} from "../../shared/configuration";
 import {PluginMetadata, Scm} from "../pluggable_scm";
 import {DependencyMaterialAttributesJSON} from "../serialization";
 
 describe("Material Types", () => {
+  describe("BranchOrRefspecValidator", () => {
+    it("allows blank branch", () => {
+      expect(isValid(null)).toBe(true);
+      expect(isValid("")).toBe(true);
+      expect(isValid(" ")).toBe(true);
+    });
+
+    it("rejects branch with wildcard", () => {
+      expect(new Foo("branch-*"). errors().errorsForDisplay("branch")).toBe("Branch names may not contain '*'.");
+    });
+
+    it("rejects malformed refspec", () => {
+      expect(validating(":a")).toBe("Refspec is missing a source ref.");
+      expect(validating("   :b")).toBe("Refspec is missing a source ref.");
+      expect(validating("refs/foo: ")).toBe("Refspec is missing a destination ref.");
+      expect(validating("refs/bar:")).toBe("Refspec is missing a destination ref.");
+      expect(validating(":")).toBe("Refspec is missing a source ref. Refspec is missing a destination ref.");
+      expect(validating(" : ")).toBe("Refspec is missing a source ref. Refspec is missing a destination ref.");
+      expect(validating("a:b")).toBe("Refspec source must be an absolute ref (must start with `refs/`).");
+      expect(validating("refs/heads/*:my-branch")).toBe("Refspecs may not contain wildcards; source and destination refs must be exact.");
+      expect(validating("refs/heads/foo:branches/*")).toBe("Refspecs may not contain wildcards; source and destination refs must be exact.");
+      expect(validating("refs/heads/*:branches/*")).toBe("Refspecs may not contain wildcards; source and destination refs must be exact.");
+    });
+
+    it("accepts valid refspecs", () => {
+      expect(isValid("refs/pull/123/head:pr-123")).toBe(true);
+      expect(isValid("refs/pull/123/head:refs/my-prs/123")).toBe(true);
+    });
+
+    function validating(branch: string | null): string {
+      return new Foo(branch).errors().errorsForDisplay("branch");
+    }
+
+    function isValid(branch: string | null): boolean {
+      return !new Foo(branch).errors().hasErrors();
+    }
+
+    class Foo extends ValidatableMixin {
+      branch: string | null;
+
+      constructor(branch: string | null) {
+        super();
+        this.branch = branch;
+        this.validateWith(new BranchOrRefspecValidator(), "branch");
+        this.isValid();
+      }
+    }
+  });
+
   describe("Deserialize", () => {
     it("should deserialize hg material with branch", () => {
       const hgJson               = Hg.withBranch();

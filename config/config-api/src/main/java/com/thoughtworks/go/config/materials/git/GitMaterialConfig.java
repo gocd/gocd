@@ -21,12 +21,21 @@ import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
+import java.util.Objects;
+
+import static com.thoughtworks.go.config.materials.git.RefSpecHelper.*;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigTag("git")
 public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwareMaterial {
+    public static final String TYPE = "GitMaterial";
+    public static final String URL = "url";
+    public static final String BRANCH = "branch";
+    public static final String DEFAULT_BRANCH = "master";
+    public static final String SHALLOW_CLONE = "shallowClone";
+
     @ConfigAttribute(value = "url")
     private UrlArgument url;
 
@@ -38,27 +47,8 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
 
     private String submoduleFolder;
 
-    public static final String TYPE = "GitMaterial";
-    public static final String URL = "url";
-    public static final String BRANCH = "branch";
-    public static final String DEFAULT_BRANCH = "master";
-    public static final String SHALLOW_CLONE = "shallowClone";
-
     public GitMaterialConfig() {
         super(TYPE);
-    }
-
-    @Override
-    protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
-        parameters.put("branch", branch);
-    }
-
-    @Override
-    protected void appendAttributes(Map<String, Object> parameters) {
-        parameters.put("url", url);
-        parameters.put("branch", branch);
-        parameters.put("shallowClone", shallowClone);
     }
 
     @Override
@@ -80,50 +70,26 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         GitMaterialConfig that = (GitMaterialConfig) o;
-
-        if (branch != null ? !branch.equals(that.branch) : that.branch != null) {
-            return false;
-        }
-        if (submoduleFolder != null ? !submoduleFolder.equals(that.submoduleFolder) : that.submoduleFolder != null) {
-            return false;
-        }
-        if (url != null ? !url.equals(that.url) : that.url != null) {
-            return false;
-        }
-
-        return super.equals(that);
+        return Objects.equals(url, that.url) &&
+                Objects.equals(branch, that.branch) &&
+                Objects.equals(submoduleFolder, that.submoduleFolder);
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (url != null ? url.hashCode() : 0);
-        result = 31 * result + (branch != null ? branch.hashCode() : 0);
-        result = 31 * result + (submoduleFolder != null ? submoduleFolder.hashCode() : 0);
-        return result;
+        return Objects.hash(super.hashCode(), url, branch, submoduleFolder);
     }
 
     @Override
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
-        validateMaterialUrl(this.url, validationContext);
+        validateMaterialUrl(this.url);
+        validateBranchOrRefSpec(this.branch);
         validateCredentials();
         validateEncryptedPassword();
-    }
-
-    @Override
-    protected String getLocation() {
-        return url.forDisplay();
     }
 
     @Override
@@ -183,7 +149,7 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
         Map map = (Map) attributes;
         if (map.containsKey(BRANCH)) {
             String branchName = (String) map.get(BRANCH);
-            this.branch = StringUtils.isBlank(branchName) ? DEFAULT_BRANCH : branchName;
+            this.branch = isBlank(branchName) ? DEFAULT_BRANCH : branchName;
         }
         if (map.containsKey("userName")) {
             this.userName = (String) map.get("userName");
@@ -206,6 +172,63 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
     public void setShallowClone(Boolean shallowClone) {
         if (shallowClone != null) {
             this.shallowClone = shallowClone;
+        }
+    }
+
+    @Override
+    protected void appendCriteria(Map<String, Object> parameters) {
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
+        parameters.put("branch", branch);
+    }
+
+    @Override
+    protected void appendAttributes(Map<String, Object> parameters) {
+        parameters.put("url", url);
+        parameters.put("branch", branch);
+        parameters.put("shallowClone", shallowClone);
+    }
+
+    @Override
+    protected String getLocation() {
+        return url.forDisplay();
+    }
+
+    /**
+     * This does not thoroughly validate the ref format as `git check-ref-format` would; it only does the
+     * basic necessities of checking for the presence of refspec components and asserting that no wildcards
+     * are present, which probably has the most critical impact to the proper use of refspecs as they pertain
+     * to GoCD materials.
+     *
+     * @param branchOrRefSpec a branch or a refspec
+     */
+    private void validateBranchOrRefSpec(String branchOrRefSpec) {
+        if (isBlank(branchOrRefSpec)) {
+            return;
+        }
+
+        if (hasRefSpec(branchOrRefSpec)) {
+            final String source = findSource(branchOrRefSpec);
+            final String dest = findDest(branchOrRefSpec);
+
+            if (isBlank(source)) {
+                errors().add(BRANCH, "Refspec is missing a source ref");
+            } else {
+                if (!source.startsWith("refs/")) {
+                    errors().add(BRANCH, "Refspec source must be an absolute ref (must start with `refs/`)");
+                }
+            }
+
+            if (isBlank(dest)) {
+                errors().add(BRANCH, "Refspec is missing a destination ref");
+            }
+
+            if (branchOrRefSpec.contains("*")) {
+                errors().add(BRANCH, "Refspecs may not contain wildcards; source and destination refs must be exact");
+            }
+        } else {
+            if (branchOrRefSpec.contains("*")) {
+                errors().add(BRANCH, "Branch names may not contain '*'");
+            }
         }
     }
 }

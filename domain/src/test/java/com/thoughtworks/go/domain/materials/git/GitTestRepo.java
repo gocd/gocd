@@ -42,6 +42,7 @@ public class GitTestRepo extends TestRepo {
     private static final String GIT_3_REVISIONS_BUNDLE = "../common/src/test/resources/data/git/git-3-revisions.git";
     public static final String GIT_FOO_BRANCH_BUNDLE = "../common/src/test/resources/data/git/foo-branch.git";
     public static final String GIT_SUBMODULE_REF_BUNDLE = "../common/src/test/resources/data/git/referenced-submodule.git";
+    public static final String GIT_CUSTOM_REFS_BUNDLE = "../common/src/test/resources/data/git/custom-refs.git";
 
     public static final StringRevision REVISION_0 = new StringRevision("55502a724dd8574f1e4bcf19b605a1f4f182e892");
     public static final StringRevision REVISION_1 = new StringRevision("b613aee673d96e967100306222246aa9decbc53c");
@@ -49,7 +50,7 @@ public class GitTestRepo extends TestRepo {
     public static final StringRevision REVISION_3 = new StringRevision("ab9ff2cee965ae4d0778dbcda1fadffbbc202e85");
     public static final StringRevision REVISION_4 = new StringRevision("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
     public static final StringRevision NON_EXISTENT_REVISION = new StringRevision("4ffef3cb33d98b28858743a53b6ee77bfe9d21bb");
-    private File gitRepo;
+    private final File gitRepo;
 
     public GitTestRepo(String path, TemporaryFolder temporaryFolder) throws IOException {
         this(new File(path), temporaryFolder);
@@ -115,7 +116,7 @@ public class GitTestRepo extends TestRepo {
         createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, new NamedProcessTag("git_config"));
         createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "commit.gpgSign", "false").runOrBomb(true, new NamedProcessTag("git_config"));
 
-        git.fetchAndResetToHead(outputStreamConsumer);
+        git.fetchAndResetToHead(outputStreamConsumer, false);
     }
 
     private GitCommand git(File workingDir) {

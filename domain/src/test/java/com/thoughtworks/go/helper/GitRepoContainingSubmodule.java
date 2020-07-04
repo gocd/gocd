@@ -22,7 +22,9 @@ import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.MaterialFingerprintTag;
 import com.thoughtworks.go.util.NamedProcessTag;
+import com.thoughtworks.go.util.command.CommandLine;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.TemporaryFolder;
 
@@ -38,9 +40,9 @@ import static com.thoughtworks.go.utils.CommandUtils.exec;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class GitRepoContainingSubmodule extends TestRepo {
+    public static final String NAME = "repo-containing-submodule";
     private final File workingDir;
     private File remoteRepoDir;
-    public static final String NAME = "repo-containing-submodule";
 
     public GitRepoContainingSubmodule(TemporaryFolder temporaryFolder) throws Exception {
         super(temporaryFolder);
@@ -69,12 +71,75 @@ public class GitRepoContainingSubmodule extends TestRepo {
         return git(workingCopy(repoFolder)).currentRevision();
     }
 
-    private File workingCopy(String repoFolder) {
-        return new File(workingDir, repoFolder);
-    }
-
     public List<File> files(String repoFolder) {
         return new ArrayList<>(Arrays.asList(workingCopy(repoFolder).listFiles()));
+    }
+
+    public GitMaterial mainRepo() {
+        return material();
+    }
+
+    @Override
+    public String projectRepositoryUrl() {
+        return FileUtil.toFileURI(remoteRepoDir.getAbsoluteFile());
+    }
+
+    @Override
+    public List<Modification> checkInOneFile(String fileName, String comment) throws Exception {
+        addAndCommitNewFile(remoteRepoDir, fileName, comment);
+        return latestModification();
+    }
+
+    public List<Modification> modifyOneFileInSubmoduleAndUpdateMainRepo(File remoteSubmoduleRepoLocation,
+                                                                        String submoduleNameInRepo, String fileName,
+                                                                        String newContentOfFile) throws Exception {
+        String comment = "Changed file: " + fileName + " in submodule: " + remoteSubmoduleRepoLocation;
+        changeFile(remoteSubmoduleRepoLocation, fileName, newContentOfFile);
+        checkInOneFile(remoteSubmoduleRepoLocation, new File(fileName), comment);
+
+        CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("pull").
+                withWorkingDir(new File(remoteRepoDir, submoduleNameInRepo)).
+                runOrBomb(new MaterialFingerprintTag(null));
+        checkInOneFile(remoteRepoDir, new File(submoduleNameInRepo), comment);
+
+        return latestModification();
+    }
+
+    public void goBackOneCommitInSubmoduleAndUpdateMainRepo(String submoduleNameInRepo) {
+        File submoduleDir = new File(remoteRepoDir, submoduleNameInRepo);
+        exec(submoduleDir, "git", "reset", "HEAD~1");
+        exec(submoduleDir, "git", "clean", "-dffx");
+        exec(remoteRepoDir, "git", "add", ".");
+        git(remoteRepoDir).commit("Went to previous commit in submodule");
+    }
+
+    @Override
+    public List<Modification> latestModification() {
+        File dir = workingCopy("local-working-copy");
+        return mainRepo().latestModification(dir, new TestSubprocessExecutionContext());
+    }
+
+    @Override
+    public GitMaterial material() {
+        return new GitMaterial(remoteRepoDir.getAbsolutePath());
+    }
+
+    public void changeSubmoduleUrl(String submoduleName) throws Exception {
+        File newSubmodule = createRepo("new-submodule");
+        addAndCommitNewFile(newSubmodule, "new", "make a commit");
+
+        git(remoteRepoDir).changeSubmoduleUrl(submoduleName, newSubmodule.getAbsolutePath());
+        git(remoteRepoDir).submoduleSync();
+
+        git(new File(remoteRepoDir, "local-submodule")).fetch(inMemoryConsumer());
+        git(new File(remoteRepoDir, "local-submodule")).resetHard(inMemoryConsumer(), new StringRevision("origin/master"));
+        git(remoteRepoDir).add(new File(".gitmodules"));
+        git(remoteRepoDir).add(new File("local-submodule"));
+        git(remoteRepoDir).commit("change submodule url");
+    }
+
+    private File workingCopy(String repoFolder) {
+        return new File(workingDir, repoFolder);
     }
 
     private File createRepo(String repoName) throws Exception {
@@ -109,68 +174,8 @@ public class GitRepoContainingSubmodule extends TestRepo {
         return new GitCommand(null, workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, null);
     }
 
-    public GitMaterial mainRepo() {
-        return material();
-    }
-
-    @Override
-    public String projectRepositoryUrl() {
-        return FileUtil.toFileURI(remoteRepoDir.getAbsoluteFile());
-    }
-
-    @Override
-    public List<Modification> checkInOneFile(String fileName, String comment) throws Exception {
-        addAndCommitNewFile(remoteRepoDir, fileName, comment);
-        return latestModification();
-    }
-
-    public List<Modification> modifyOneFileInSubmoduleAndUpdateMainRepo(File remoteSubmoduleRepoLocation,
-                                                                        String submoduleNameInRepo, String fileName,
-                                                                        String newContentOfFile) throws Exception {
-        String comment = "Changed file: " + fileName + " in submodule: " + remoteSubmoduleRepoLocation;
-        changeFile(remoteSubmoduleRepoLocation, fileName, newContentOfFile);
-        checkInOneFile(remoteSubmoduleRepoLocation, new File(fileName), comment);
-
-        git(new File(remoteRepoDir, submoduleNameInRepo)).pull();
-        checkInOneFile(remoteRepoDir, new File(submoduleNameInRepo), comment);
-
-        return latestModification();
-    }
-
-    public void goBackOneCommitInSubmoduleAndUpdateMainRepo(String submoduleNameInRepo) {
-        File submoduleDir = new File(remoteRepoDir, submoduleNameInRepo);
-        exec(submoduleDir, "git", "reset", "HEAD~1");
-        exec(submoduleDir, "git", "clean", "-dffx");
-        exec(remoteRepoDir, "git", "add", ".");
-        git(remoteRepoDir).commit("Went to previous commit in submodule");
-    }
-
     private void changeFile(File parentDir, String fileName, String newFileContent) throws IOException {
         File fileToChange = new File(parentDir, fileName);
         FileUtils.writeStringToFile(fileToChange, newFileContent, UTF_8);
-    }
-
-    @Override
-    public List<Modification> latestModification() {
-        File dir = workingCopy("local-working-copy");
-        return mainRepo().latestModification(dir, new TestSubprocessExecutionContext());
-    }
-
-    @Override public GitMaterial material() {
-        return new GitMaterial(remoteRepoDir.getAbsolutePath());
-    }
-
-    public void changeSubmoduleUrl(String submoduleName) throws Exception {
-        File newSubmodule = createRepo("new-submodule");
-        addAndCommitNewFile(newSubmodule, "new", "make a commit");
-
-        git(remoteRepoDir).changeSubmoduleUrl(submoduleName, newSubmodule.getAbsolutePath());
-        git(remoteRepoDir).submoduleSync();
-
-        git(new File(remoteRepoDir, "local-submodule")).fetch(inMemoryConsumer());
-        git(new File(remoteRepoDir, "local-submodule")).resetHard(inMemoryConsumer(), new StringRevision("origin/master"));
-        git(remoteRepoDir).add(new File(".gitmodules"));
-        git(remoteRepoDir).add(new File("local-submodule"));
-        git(remoteRepoDir).commit("change submodule url");
     }
 }

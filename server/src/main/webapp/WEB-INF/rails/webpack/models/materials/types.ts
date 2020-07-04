@@ -35,6 +35,7 @@ import {Errors} from "models/mixins/errors";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
+import s from "underscore.string";
 import urlParse from "url-parse";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 import {Filter} from "../maintenance_mode/material";
@@ -297,6 +298,60 @@ class AuthNotSetInUrlAndUserPassFieldsValidator extends Validator {
   }
 }
 
+/**
+ * This does not do a full format validation for git refs as `git check-ref-format` would.
+ * While it's straightforward to do so, it's also probably excessive since most people tend
+ * to _not_ include illegal characters (ASCII control chars, '?', '@', '\', '[', '~', etc).
+ *
+ * Rather, this validator will basically check for missing refspec components and reject the
+ * presence of wildcards; this likely has the most critical impact to the proper use of refspecs
+ * as they pertain to GoCD materials.
+ *
+ * Any other ref validation errors from `git` will bubble up anyway.
+ */
+export class BranchOrRefspecValidator extends Validator {
+  protected doValidate(entity: any, attr: string): void {
+    const branchOrRefspec = this.get(entity, attr);
+
+    if (branchOrRefspec) {
+      if (branchOrRefspec.includes(":")) {
+        const boundary = branchOrRefspec.indexOf(":");
+        const src = branchOrRefspec.substr(0, boundary);
+        const dst = branchOrRefspec.substr(boundary + 1);
+
+        if (s.isBlank(src)) {
+          this.error(entity, attr, "Refspec is missing a source ref");
+        } else {
+          if (!src.startsWith("refs/")) {
+            this.error(entity, attr, "Refspec source must be an absolute ref (must start with `refs/`)");
+          }
+        }
+
+        if (s.isBlank(dst)) {
+          this.error(entity, attr, "Refspec is missing a destination ref");
+        }
+
+        if (branchOrRefspec.includes("*")) {
+          this.error(entity, attr, "Refspecs may not contain wildcards; source and destination refs must be exact");
+        }
+      } else {
+        if (branchOrRefspec.includes("*")) {
+          this.error(entity, attr, "Branch names may not contain '*'");
+        }
+      }
+    }
+  }
+
+  private error(entity: any, attr: string, msg: string): void {
+    entity.errors().add(attr, msg);
+  }
+
+  private get(entity: any, attr: string): string {
+    const val = entity[attr];
+    return ("function" === typeof val) ? val() : val;
+  }
+}
+
 export class GitMaterialAttributes extends ScmMaterialAttributes {
   url: Stream<string | undefined>;
   branch: Stream<string | undefined>;
@@ -312,6 +367,7 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
 
     this.validatePresenceOf("url");
     this.validateWith(new AuthNotSetInUrlAndUserPassFieldsValidator(), "url");
+    this.validateWith(new BranchOrRefspecValidator(), "branch");
   }
 
   static fromJSON(json: GitMaterialAttributesJSON) {

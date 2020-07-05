@@ -87,7 +87,7 @@ public class GitCommandTest {
         void extractsRemoteBranchFromRefSpec() {
             assertEquals("origin/anywhere", withBranch("anywhere").remoteBranch());
             assertEquals("origin/whatever", withBranch("refs/anything/goes:whatever").remoteBranch());
-            assertEquals("refs/heads/with/slashes", withBranch("refs/anything/goes:with/slashes").remoteBranch());
+            assertEquals("origin/with/slashes", withBranch("refs/anything/goes:with/slashes").remoteBranch());
             assertEquals("refs/full/location", withBranch("refs/anything/goes:refs/full/location").remoteBranch());
             assertEquals("origin/any", withBranch("refs/anything/goes:refs/remotes/origin/any").remoteBranch());
             assertEquals("other/remote", withBranch("refs/anything/goes:refs/remotes/other/remote").remoteBranch());

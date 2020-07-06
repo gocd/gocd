@@ -64,7 +64,7 @@ export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
       const canAddPluginRole = RoleModalBody.hasAuthConfigs(vnode);
       let icon;
       if (!canAddPluginRole) {
-        const title = "Either no plugin has authorization capability or there are no authorization configs defined for the same.";
+        const title = "Cannot add Plugin Role. Either no plugin has authorization capability or there are no authorization configs defined for the same.";
         icon        = <Tooltip.Help size={TooltipSize.small} content={title}/>;
       }
       mayBeTypeSelector = (

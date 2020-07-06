@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.user.representers.UserRepresenter
 import com.thoughtworks.go.domain.User
 import com.thoughtworks.go.server.service.UserService
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NonAnonymousUserSecurity
@@ -167,6 +168,36 @@ class CurrentUserControllerTest implements ControllerTrait<CurrentUserController
           .isNotModified()
           .hasContentType(controller.mimeType)
           .hasNoBody()
+      }
+
+      @Test
+      void 'should return error code if validation fails'() {
+        def data = [
+          login_name     : user.name,
+          enabled        : false, // enabled has no effect
+          email_me       : false,
+          email          : 'foo',
+          checkin_aliases: 'foo, bar'
+        ]
+
+        User newUser = new User(user.name, user.displayName, data.checkin_aliases.split(', '), 'foo', false)
+        def result = new HttpLocalizedOperationResult()
+        result.badRequest("Some error message")
+
+        doAnswer({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result1 = invocation.arguments.last()
+          result1.badRequest("Some error message")
+          return newUser
+        }).when(userService).save(eq(user), eq(TriState.from(null)), eq(TriState.from(data.email_me.toString())), eq(data.email), eq(data.checkin_aliases), any() as LocalizedOperationResult)
+        patchWithApiHeader(controller.controllerBasePath(), data)
+
+        def etag = '"' + controller.etagFor(toObjectString({ writer -> UserRepresenter.toJSON(writer, newUser, result) })) + '"'
+
+        assertThatResponse()
+          .isBadRequest()
+          .hasEtag(etag)
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(UserRepresenter.class, newUser, result)
       }
     }
   }

@@ -17,6 +17,7 @@ package com.thoughtworks.go.apiv1.user.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.User;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
 
 public class UserRepresenter {
@@ -25,10 +26,19 @@ public class UserRepresenter {
         UserSummaryRepresenter.toJSON(writer, user.getName());
 
         writer.add("display_name", user.getDisplayName())
-            .add("enabled", user.isEnabled())
-            .add("email", user.getEmail())
-            .add("email_me", user.isEmailMe())
-            .addChildList("checkin_aliases", user.getMatchers());
+                .add("enabled", user.isEnabled())
+                .add("email", user.getEmail())
+                .add("email_me", user.isEmailMe())
+                .addChildList("checkin_aliases", user.getMatchers());
+
+
+    }
+
+    public static void toJSON(OutputWriter writer, User user, HttpLocalizedOperationResult result) {
+        toJSON(writer, user);
+        if (!result.isSuccessful()) {
+            writer.add("message", result.message());
+        }
     }
 
 }

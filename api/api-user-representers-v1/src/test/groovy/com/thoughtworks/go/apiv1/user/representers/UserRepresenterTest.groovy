@@ -16,6 +16,7 @@
 package com.thoughtworks.go.apiv1.user.representers
 
 import com.thoughtworks.go.domain.User
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
@@ -45,5 +46,32 @@ class UserRepresenterTest {
       enabled        : true,
       email_me       : true
     ])
+  }
+
+  @Test
+  void 'should add error message if any'() {
+    def user = new User('jdoe', 'Jon Doe', ['jdoe'] as String[], 'jdoe', true)
+    def result = new HttpLocalizedOperationResult()
+    result.badRequest("some message")
+
+    def actualJson = toObjectString({ UserRepresenter.toJSON(it, user, result) })
+
+    def expectedJson = [
+      _links         : [
+        self        : [href: 'http://test.host/go/api/users/jdoe'],
+        find        : [href: 'http://test.host/go/api/users/:login_name'],
+        doc         : [href: apiDocsUrl('#users')],
+        current_user: [href: 'http://test.host/go/api/current_user'],
+      ],
+      login_name     : 'jdoe',
+      checkin_aliases: ['jdoe'],
+      display_name   : 'Jon Doe',
+      email          : 'jdoe',
+      enabled        : true,
+      email_me       : true,
+      message        : "some message"
+    ]
+
+    assertThatJson(actualJson).isEqualTo(expectedJson)
   }
 }

@@ -109,7 +109,8 @@ public class CurrentUserController extends ApiController implements SparkSpringC
 
         User serializedUser = userService.save(user, TriState.from(null), emailMe, email, checkinAliases, result);
 
-        String json = jsonizeAsTopLevelObject(req, writer -> UserRepresenter.toJSON(writer, serializedUser));
+        res.status(result.httpCode());
+        String json = jsonizeAsTopLevelObject(req, writer -> UserRepresenter.toJSON(writer, serializedUser, result));
         String etag = etagFor(json);
         setEtagHeader(res, etag);
         return json;

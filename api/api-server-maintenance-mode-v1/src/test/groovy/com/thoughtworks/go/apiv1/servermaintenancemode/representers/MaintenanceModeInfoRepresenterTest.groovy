@@ -43,7 +43,7 @@ class MaintenanceModeInfoRepresenterTest {
   TimeProvider timeProvider
 
   @Test
-  void "should represent data sharing info"() {
+  void "should represent maintenance mode info"() {
     def maintenanceModeService = new MaintenanceModeService(timeProvider)
 
     def gitMaterial = MaterialsMother.gitMaterial("foo/bar")

@@ -253,14 +253,6 @@ public class Routes {
         }
     }
 
-    public static class DataSharing {
-        public static final String USAGE_DATA_PATH = "/api/internal/data_sharing/usagedata";
-        public static final String SETTINGS_PATH = "/api/data_sharing/settings";
-        public static final String REPORTING_PATH = "/api/internal/data_sharing/reporting";
-
-        public static final String SETTINGS_DOC = "https://api.go.cd/current/#data_sharing_settings";
-    }
-
     public static class Pipeline {
         public static final String BASE = "/api/pipelines";
         public static final String DOC = "https://api.go.cd/current/#pipelines";
@@ -690,10 +682,6 @@ public class Routes {
 
     public class PluginsSPA {
         public static final String BASE = "/admin/plugins";
-    }
-
-    public class DataSharingSettingsSPA {
-        public static final String BASE = "/admin/data_sharing/settings";
     }
 
     public class BackupsSPA {

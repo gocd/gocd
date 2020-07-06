@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.NotificationFilter;
 import com.thoughtworks.go.domain.PipelineGroups;
-import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -34,7 +33,6 @@ import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.service.lookups.CommandSnippet;
@@ -356,26 +354,6 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
 
     public String hashForEntity(ParamsConfig paramConfigs) {
         return compound(paramConfigs, this::hashForEntity);
-    }
-
-    public String hashForEntity(UsageStatisticsReporting usageStatisticsReporting) {
-        String cacheKey = cacheKey(usageStatisticsReporting, usageStatisticsReporting.getServerId());
-        return getNonConfigEntityDigestFromCache(cacheKey, usageStatisticsReporting);
-    }
-
-    public String hashForEntity(DataSharingSettings dataSharingSettings) {
-        String cacheKey = cacheKey(dataSharingSettings, "data_sharing_settings");
-        return getNonConfigEntityDigestFromCache(cacheKey, dataSharingSettings);
-    }
-
-    public String hashForEntity(PipelineConfig pipelineConfig, String groupName) {
-        return getFromCache(
-                cacheKey(pipelineConfig, pipelineConfig.name()),
-                () -> hashes.digestMany(
-                        hashes.digestDomainConfigEntity(pipelineConfig),
-                        groupName
-                )
-        );
     }
 
     public String hashForEntity(PipelineConfigs pipelineConfigs) {

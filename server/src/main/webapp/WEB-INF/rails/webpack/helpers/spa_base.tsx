@@ -17,7 +17,7 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {footerMeta, headerMeta} from "models/current_user_permissions";
-import {UsageDataReporter} from "models/shared/usage_data_reporter";
+import {DataSharingCleaner} from "models/shared/data_sharing_cleaner";
 import {VersionUpdater} from "models/shared/version_updater";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {Attrs as SiteFooterAttrs, SiteFooter} from "views/pages/partials/site_footer";
@@ -63,9 +63,10 @@ abstract class AbstractPage {
   protected render() {
     window.addEventListener("DOMContentLoaded", () => {
       if (this.enableUsageDataAndVersionUpdating()) {
-        UsageDataReporter.report();
         VersionUpdater.update();
       }
+
+      DataSharingCleaner.clean();
 
       const footerData = footerMeta();
       const headerData = headerMeta();

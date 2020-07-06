@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import m from "mithril";
-import {Notification, SystemNotifications} from "models/notifications/system_notifications";
 import {Attrs, SiteHeader} from "views/pages/partials/site_header";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../site_header.scss";
@@ -26,13 +25,6 @@ describe("Site Header", () => {
   beforeEach(() => {
     jasmine.Ajax.install();
 
-    spyOn(SystemNotifications, "all").and.callFake(() => new Promise<SystemNotifications>((resolve, reject) => {
-      // prevents datasharing notification ajax requests
-      resolve(new SystemNotifications([new Notification({type: "DataSharing_v18.8.0"})]));
-    }));
-
-    jasmine.Ajax.stubRequest("https://datasharing.gocd.org/v1", undefined, "POST").andReturn({});
-    jasmine.Ajax.stubRequest("/go/api/data_sharing/settings").andReturn({});
     jasmine.Ajax.stubRequest("/go/api/server_health_messages", undefined, "GET").andReturn({});
 
   });

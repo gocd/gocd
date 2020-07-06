@@ -141,30 +141,6 @@ export class SparkRoutes {
     }
   }
 
-  static DataSharingSettingsPath(): string {
-    return "/go/api/data_sharing/settings";
-  }
-
-  static DataSharingUsageDataPath(): string {
-    return "/go/api/internal/data_sharing/usagedata";
-  }
-
-  static DataSharingUsageDataEncryptedPath(): string {
-    return "/go/api/internal/data_sharing/usagedata/encrypted";
-  }
-
-  static DataReportingInfoPath(): string {
-    return "/go/api/internal/data_sharing/reporting/info";
-  }
-
-  static DataReportingStartReportingPath(): string {
-    return "/go/api/internal/data_sharing/reporting/start";
-  }
-
-  static DataReportingCompleteReportingPath(): string {
-    return "/go/api/internal/data_sharing/reporting/complete";
-  }
-
   static ApiConfigReposListPath(): string {
     return `/go/api/admin/config_repos`;
   }

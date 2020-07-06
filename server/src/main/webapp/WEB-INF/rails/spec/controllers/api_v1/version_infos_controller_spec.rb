@@ -21,14 +21,10 @@ describe ApiV1::VersionInfosController do
   include ApiV1::ApiVersionHelper
 
   before :each do
-    @server_id = 'unique-server-id'
-
-    @data_sharing_usage_statistics_reporting_service = double('data_sharing_usage_statistics_reporting_service')
     @version_info_service = double('version_info_service')
     @system_environment = double('system_environment', :getUpdateServerUrl => 'https://update.example.com/some/path?foo=bar')
     allow(controller).to receive(:version_info_service).and_return(@version_info_service)
     allow(controller).to receive(:system_environment).and_return(@system_environment)
-    allow(controller).to receive(:data_sharing_usage_statistics_reporting_service).and_return(@data_sharing_usage_statistics_reporting_service)
   end
 
   describe "as_user" do
@@ -63,9 +59,6 @@ describe ApiV1::VersionInfosController do
         expect(@go_latest_version).to receive(:valid?).and_return(true)
         expect(@version_info_service).to receive(:updateServerLatestVersion).with('16.1.0-123', @result).and_return(@model)
 
-        usage_statistics_reporting = UsageStatisticsReporting.new(java.lang.String.new(@server_id), java.util.Date.new)
-        expect(@data_sharing_usage_statistics_reporting_service).to receive(:get).and_return(usage_statistics_reporting)
-
         patch_with_api_header :update_server, params:{:message => @message, :message_signature => @message_signature, :signing_public_key => @signing_public_key, :signing_public_key_signature => @signing_public_key_signature}
 
         actual_json = JSON.parse(response.body)
@@ -73,7 +66,7 @@ describe ApiV1::VersionInfosController do
 
         expect(response).to be_ok
         expect(actual_json).to eq({'component_name' => 'go_server',
-                                   'update_server_url' => "https://update.example.com/some/path?foo=bar&current_version=1.2.3-1&server_id=#{@server_id}",
+                                   'update_server_url' => 'https://update.example.com/some/path?foo=bar&current_version=1.2.3-1',
                                    'installed_version' => '1.2.3-1',
                                    'latest_version' => '5.6.7-1'})
       end
@@ -117,19 +110,15 @@ describe ApiV1::VersionInfosController do
         version_info = VersionInfo.new('go_server', installed_version, latest_version, nil)
 
         expect(@version_info_service).to receive(:getStaleVersionInfo).and_return(version_info)
-        usage_statistics_reporting = UsageStatisticsReporting.new(java.lang.String.new(@server_id), java.util.Date.new)
-        expect(@data_sharing_usage_statistics_reporting_service).to receive(:get).and_return(usage_statistics_reporting)
 
         get_with_api_header :stale
 
         expect(response).to be_ok
-        expect(actual_response).to eq(expected_response_with_args(version_info, ApiV1::VersionInfoRepresenter, @system_environment, @server_id))
+        expect(actual_response).to eq(expected_response_with_options(version_info, @system_environment, ApiV1::VersionInfoRepresenter))
       end
 
       it 'should return an empty response if there are no version_infos for update' do
         expect(@version_info_service).to receive(:getStaleVersionInfo).and_return(nil)
-        usage_statistics_reporting = UsageStatisticsReporting.new(java.lang.String.new(@server_id), java.util.Date.new)
-        expect(@data_sharing_usage_statistics_reporting_service).to receive(:get).and_return(usage_statistics_reporting)
 
         get_with_api_header :stale
 

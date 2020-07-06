@@ -50,7 +50,6 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/config_xml")).toHaveText("Config XML");
     expect(findMenuItem("/go/admin/artifact_stores")).toHaveText("Artifact Stores");
     expect(findMenuItem("/go/admin/secret_configs")).toHaveText("Secret Management");
-    expect(findMenuItem("/go/admin/data_sharing/settings")).toHaveText("Data Sharing");
     expect(findMenuItem("/go/admin/maintenance_mode")).toHaveText("Server Maintenance Mode");
     expect(findMenuItem("/go/admin/config/server")).toHaveText("Server Configuration");
     expect(findMenuItem("/go/admin/users")).toHaveText("Users Management");
@@ -62,7 +61,7 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/admin_access_tokens")).toHaveText("Access Tokens Management");
     expect(findMenuItem("/go/admin/scms")).toHaveText("Pluggable SCMs");
     expect(helper.qa(`a.${styles.siteNavLink}`)).toHaveLength(4);
-    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(19);
+    expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(18);
   });
 
   it("should display the menus for users who can view templates", () => {

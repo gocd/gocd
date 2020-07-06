@@ -737,12 +737,6 @@
   </rule>
 
   <rule>
-    <name>Metrics Consent SPA</name>
-    <from>^/admin/data_sharing/settings(/?)$</from>
-    <to last="true">/spark/admin/data_sharing/settings</to>
-  </rule>
-
-  <rule>
     <name>Analytics Fetch API</name>
     <from>^/analytics/([^/]+)/([^/]+)/([^/]+)</from>
     <to last="true">/spark/analytics/${escape:$1}/${escape:$2}/${escape:$3}</to>
@@ -921,24 +915,6 @@
     <name>Backup API</name>
     <from>^/api/backups/(.*)(/?)$</from>
     <to last="true">/spark/api/backups/$1</to>
-  </rule>
-
-  <rule>
-    <name>Data Sharing APIs</name>
-    <from>^/api/data_sharing/(.*)(/?)$</from>
-    <to last="true">/spark/api/data_sharing/$1</to>
-  </rule>
-
-  <rule>
-    <name>Data Sharing Internal APIs</name>
-    <from>^/api/internal/data_sharing/(.*)(/?)$</from>
-    <to last="true">/spark/api/internal/data_sharing/$1</to>
-  </rule>
-
-  <rule>
-    <name>Data Sharing Reporting APIs</name>
-    <from>^/api/internal/data_sharing/reporting/(.*)(/?)$</from>
-    <to last="true">/spark/api/internal/data_sharing/reporting/$1</to>
   </rule>
 
   <rule>

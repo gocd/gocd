@@ -116,7 +116,7 @@ body {
 }
 
 .dashboard-group {
-  margin-bottom: 50px;
+  margin-bottom: 10px;
   background:    #fff;
 }
 
@@ -127,13 +127,6 @@ body {
 }
 
 .dashboard-group_title {
-  background:    #e7eef0;
-  margin:        0;
-  padding:       10px 10px 10px 30px;
-  position:      relative;
-
-  border-radius: $global-border-radius $global-border-radius 0 0;
-
   span {
     position:    absolute;
     font-size:   12px;

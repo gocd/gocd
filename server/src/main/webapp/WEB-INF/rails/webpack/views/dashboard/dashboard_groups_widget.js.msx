@@ -20,6 +20,8 @@ import {f} from "helpers/form_helper";
 import {PipelineWidget} from "views/dashboard/pipeline_widget";
 import {BehaviorPrompt} from "views/components/behavior_prompt/behavior_prompt";
 import * as Buttons from "views/components/buttons/index";
+import {CollapsiblePanel} from "views/components/collapsible_panel";
+import styles from "./panel.scss";
 
 const GroupHeading = {
   goToAddPipeline(url) {
@@ -29,11 +31,6 @@ const GroupHeading = {
   view(vnode) {
     const vm    = vnode.attrs.vm;
     const paths = vm.routes();
-    let addPipeline = "";
-
-    if (vm.canAdminister && paths.new) {
-      addPipeline = <Dropdown vm={vm}/>;
-    }
 
     return <div class="dashboard-group_title">
       <f.link disabled={!vm.canAdminister} href={paths.show} class="dashboard-group_name"
@@ -49,7 +46,6 @@ const GroupHeading = {
           top: "3px"
         }}
       />]: null}
-      { addPipeline }
     </div>;
   }
 };
@@ -85,12 +81,22 @@ const Group = {
     const sharedArgs = _.assign({}, vnode.attrs);
     _.each(["vm", "resolver", "pipelines", "scheme"], (k) => delete sharedArgs[k]);
 
-    return <div class="dashboard-group" key={vm.name}>
-      <GroupHeading {...vnode.attrs} />
-      <ul class="dashboard-group_items">
-        {_.map(pipelines, (pipeline) => <PipelineWidget invalidateEtag={vnode.attrs.invalidateEtag} pipeline={pipeline} key={pipeline.name} {...sharedArgs} />)}
-      </ul>
-    </div>;
+      const paths = vm.routes();
+      let addPipeline = "";
+
+      if (vm.canAdminister && paths.new) {
+          addPipeline = <Dropdown vm={vm}/>;
+      }
+
+      return <div class="dashboard-group" key={vm.name}>
+          <CollapsiblePanel expanded={true} header={<GroupHeading {...vnode.attrs} />} actions={addPipeline} css={styles}>
+              <ul class="dashboard-group_items">
+                  {_.map(pipelines, (pipeline) => <PipelineWidget invalidateEtag={vnode.attrs.invalidateEtag}
+                                                                  pipeline={pipeline}
+                                                                  key={pipeline.name} {...sharedArgs} />)}
+              </ul>
+          </CollapsiblePanel>
+      </div>;
   }
 };
 
@@ -101,9 +107,7 @@ export const DashboardGroupsWidget = {
     delete sharedArgs.groups;
     delete sharedArgs.testDrive;
 
-    return _.map(groups, (group, i) => <Group vm={group}
-                                                       invalidateEtag={vnode.attrs.invalidateEtag}
-                                                       showPrompt={testDrive && 0 === i}
-                                                       {...sharedArgs} />);
+    return _.map(groups, (group, i) => <Group vm={group} invalidateEtag={vnode.attrs.invalidateEtag}
+                                              showPrompt={testDrive && 0 === i} {...sharedArgs} />);
   }
 };

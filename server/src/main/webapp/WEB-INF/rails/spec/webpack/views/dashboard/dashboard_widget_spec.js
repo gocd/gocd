@@ -285,7 +285,7 @@ describe("Dashboard Widget", () => {
   });
 
   it("should show pipeline add icon when grouped by pipeline group for admin users", () => {
-    expect(helper.q(sel.btnPrimary, helper.q(".dashboard-group_title"))).toBeInDOM();
+    expect(helper.q(sel.btnPrimary, helper.q(".new-pipeline-button"))).toBeInDOM();
   });
 
   it("should not show pipeline add icon when grouped by environments for admin users", () => {

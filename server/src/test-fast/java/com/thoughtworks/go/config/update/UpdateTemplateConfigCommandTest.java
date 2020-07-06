@@ -84,6 +84,7 @@ class UpdateTemplateConfigCommandTest {
     void shouldAllowSubmittingInvalidElasticProfileId() {
         PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.stageConfig("stage", new JobConfigs(new JobConfig("job"))));
         JobConfig jobConfig = updatedTemplateConfig.findBy(new CaseInsensitiveString("stage")).jobConfigByConfigName(new CaseInsensitiveString("job"));
+        jobConfig.addTask(new AntTask());
         jobConfig.setElasticProfileId("invalidElasticProfileId");
 
         cruiseConfig.addTemplate(pipelineTemplateConfig);
@@ -104,6 +105,7 @@ class UpdateTemplateConfigCommandTest {
 
         PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.stageConfig("stage", new JobConfigs(new JobConfig("job"))));
         JobConfig jobConfig = updatedTemplateConfig.findBy(new CaseInsensitiveString("stage")).jobConfigByConfigName(new CaseInsensitiveString("job"));
+        jobConfig.addTask(new AntTask());
         jobConfig.setElasticProfileId("invalidElasticProfileId");
 
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "digest", entityHashingService, externalArtifactsService);

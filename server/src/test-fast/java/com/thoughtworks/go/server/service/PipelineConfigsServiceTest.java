@@ -81,7 +81,7 @@ public class PipelineConfigsServiceTest {
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
         when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenReturn(true);
         String actualXml = service.getXml(groupName, validUser, result);
-        String expectedXml = "<pipelines group=\"group_name\">\n  <pipeline name=\"pipeline_name\">\n    <materials>\n      <svn url=\"file:///tmp/foo\" />\n    </materials>\n    <stage name=\"stage_name\">\n      <jobs>\n        <job name=\"job_name\" />\n      </jobs>\n    </stage>\n  </pipeline>\n</pipelines>";
+        String expectedXml = "<pipelines group=\"group_name\">\n  <pipeline name=\"pipeline_name\">\n    <materials>\n      <svn url=\"file:///tmp/foo\" />\n    </materials>\n    <stage name=\"stage_name\">\n      <jobs>\n        <job name=\"job_name\">\n          <tasks>\n            <ant />\n          </tasks>\n        </job>\n      </jobs>\n    </stage>\n  </pipeline>\n</pipelines>";
         assertThat(actualXml, is(expectedXml));
         assertThat(result.isSuccessful(), is(true));
         verify(goConfigService, times(1)).getConfigForEditing();

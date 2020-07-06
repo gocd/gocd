@@ -61,13 +61,13 @@ export class TemplatesCRUD {
             jobs: [
                 {
                   name: "defaultJob",
-                  "tasks": [
+                  tasks: [
                     {
-                      "type" : "exec",
-                      "attributes" : {
-                        "run_if" : [ "passed" ],
-                        "command" : "echo",
-                        "args" : ""
+                      type : "exec",
+                      attributes : {
+                        run_if : [ "passed" ],
+                        command : "echo",
+                        args : ""
                       }
                     }
                   ]

@@ -786,7 +786,9 @@ public class CachedGoConfigIntegrationTest {
                 "      </materials>\n" +
                 "      <stage name=\"dev\">\n" +
                 "        <jobs>\n" +
-                "          <job name=\"ant\" />\n" +
+                "          <job name=\"ant\">\n" +
+                "            <tasks><ant /></tasks>\n" +
+                "          </job>\n" +
                 "        </jobs>\n" +
                 "      </stage>\n" +
                 "    </pipeline>\n" +

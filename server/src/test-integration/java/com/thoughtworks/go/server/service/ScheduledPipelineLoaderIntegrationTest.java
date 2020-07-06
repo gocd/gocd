@@ -134,7 +134,9 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
     @Test
     public void shouldLoadPipelineAlongwithBuildCauseHavingMaterialPasswordsPopulated() {
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job-one"))));
+        JobConfig jobConfig = new JobConfig("job-one");
+        jobConfig.addTask(new AntTask());
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig)));
         pipelineConfig.materialConfigs().clear();
         SvnMaterial onDirOne = MaterialsMother.svnMaterial("google.com", "dirOne", "loser", "boozer", false, "**/*.html");
         P4Material onDirTwo = MaterialsMother.p4Material("host:987654321", "zoozer", "secret", "through-the-window", true);
@@ -251,7 +253,9 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
     @Test
     public void shouldSetAServerHealthMessageWhenMaterialForPipelineWithBuildCauseIsNotFound() throws IllegalArtifactLocationException, IOException {
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job-one"))));
+        JobConfig jobConfig = new JobConfig("job-one");
+        jobConfig.addTask(new AntTask());
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig)));
         pipelineConfig.materialConfigs().clear();
         SvnMaterialConfig onDirOne = MaterialConfigsMother.svnMaterialConfig("google.com", "dirOne", "loser", "boozer", false, "**/*.html");
         final P4MaterialConfig onDirTwo = MaterialConfigsMother.p4MaterialConfig("host:987654321", "zoozer", "secret", "through-the-window", true);
@@ -305,7 +309,9 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
     @Test//if other materials have expansion concept at some point, add more tests here
     public void shouldSetPasswordForExpandedSvnMaterial() {
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job-one"))));
+        JobConfig jobConfig = new JobConfig("job-one");
+        jobConfig.addTask(new AntTask());
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig)));
         pipelineConfig.materialConfigs().clear();
         SvnMaterialConfig materialConfig = svnRepo.materialConfig();
         materialConfig.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.CHECK_EXTERNALS, String.valueOf(true)));
@@ -325,12 +331,15 @@ public class ScheduledPipelineLoaderIntegrationTest {
     public void shouldLoadShallowCloneFlagForGitMaterialsBaseOnTheirOwnPipelineConfig() throws IOException {
         GitTestRepo testRepo = new GitTestRepo(temporaryFolder);
 
-        PipelineConfig shallowPipeline = PipelineConfigMother.pipelineConfig("shallowPipeline", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job-one"))));
+        JobConfig jobConfig = new JobConfig("job-one");
+        jobConfig.addTask(new AntTask());
+
+        PipelineConfig shallowPipeline = PipelineConfigMother.pipelineConfig("shallowPipeline", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig)));
         shallowPipeline.materialConfigs().clear();
         shallowPipeline.addMaterialConfig(git(testRepo.projectRepositoryUrl(), true));
         configHelper.addPipeline(shallowPipeline);
 
-        PipelineConfig fullPipeline = PipelineConfigMother.pipelineConfig("fullPipeline", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job-one"))));
+        PipelineConfig fullPipeline = PipelineConfigMother.pipelineConfig("fullPipeline", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig)));
         fullPipeline.materialConfigs().clear();
         fullPipeline.addMaterialConfig(git(testRepo.projectRepositoryUrl(), false));
         configHelper.addPipeline(fullPipeline);

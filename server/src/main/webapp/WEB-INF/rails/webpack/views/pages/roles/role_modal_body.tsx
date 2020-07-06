@@ -25,6 +25,8 @@ import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Spinner} from "views/components/spinner";
+import * as Tooltip from "views/components/tooltip";
+import {TooltipSize} from "views/components/tooltip";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 import {GoCDRoleModalBodyWidget, PluginRoleModalBodyWidget} from "views/pages/roles/role_modal_body_widget";
 import styles from "./index.scss";
@@ -59,6 +61,12 @@ export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
 
     let mayBeTypeSelector: any;
     if (vnode.attrs.action === Action.NEW) {
+      const canAddPluginRole = RoleModalBody.hasAuthConfigs(vnode);
+      let icon;
+      if (!canAddPluginRole) {
+        const title = "Cannot add Plugin Role. Either no plugin has authorization capability or there are no authorization configs defined for the same.";
+        icon        = <Tooltip.Help size={TooltipSize.small} content={title}/>;
+      }
       mayBeTypeSelector = (
         <div data-test-id="role-type-selector">
           <label class="inline">Select type of role:&nbsp;&nbsp;&nbsp;</label>
@@ -76,11 +84,14 @@ export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
             name="role-type-selector"
             id="plugin-role"
             type="radio"
-            disabled={!RoleModalBody.hasAuthConfigs(vnode)}
+            disabled={!canAddPluginRole}
             checked={vnode.attrs.role().isPluginRole()}
             onclick={vnode.attrs.changeRoleType && vnode.attrs.changeRoleType.bind(this, RoleType.plugin)}/>
-          <label class={!RoleModalBody.hasAuthConfigs(vnode) ? `${styles.disabled} inline` : "inline"}
-                 disabled={!RoleModalBody.hasAuthConfigs(vnode)} for="plugin-role">Plugin Role</label>
+          <label class={!canAddPluginRole ? `${styles.disabled} inline` : "inline"}
+                 disabled={!canAddPluginRole} for="plugin-role">
+            Plugin Role
+            {icon}
+          </label>
         </div>
       );
     }

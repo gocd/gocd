@@ -105,7 +105,7 @@ describe("RoleModalBody", () => {
       expect(helper.q("#plugin-role")).toBeInDOM();
       expect(helper.q("#plugin-role")).toBeDisabled();
       expect(helper.byTestId("tooltip-wrapper")).toBeInDOM();
-      expect(helper.textByTestId("tooltip-content")).toBe('Either no plugin has authorization capability or there are no authorization configs defined for the same.');
+      expect(helper.textByTestId("tooltip-content")).toBe('Cannot add Plugin Role. Either no plugin has authorization capability or there are no authorization configs defined for the same.');
     });
 
     it("should enable when auth configs are defined", () => {

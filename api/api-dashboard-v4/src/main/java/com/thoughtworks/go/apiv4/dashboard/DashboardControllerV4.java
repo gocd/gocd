@@ -80,6 +80,7 @@ public class DashboardControllerV4 extends ApiController implements SparkSpringC
             before("", mimeType, apiAuthenticationHelper::checkUserAnd403);
 
             get("", mimeType, this::index);
+            exception(Exception.class, this::handleException);
         });
     }
 

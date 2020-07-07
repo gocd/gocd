@@ -82,7 +82,7 @@
     "@types/underscore.string": "^0.0.38",
     "@types/url-parse": "^1.4.3",
     "@types/uuid": "^8.0.0",
-    "@types/webpack": "^4.41.18",
+    "@types/webpack": "^4.41.20",
     "add-matchers": "^0.6.2",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",

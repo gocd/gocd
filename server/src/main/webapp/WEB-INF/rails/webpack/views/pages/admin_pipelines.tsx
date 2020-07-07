@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {pipelineEditPath} from "gen/ts-routes";
 import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
@@ -192,7 +191,7 @@ export class AdminPipelinesPage extends Page<null, State> {
     };
 
     vnode.state.doEditPipeline = (pipeline) => {
-      window.location.href = pipelineEditPath("pipelines", pipeline.name(), "general");
+      window.location.href = SparkRoutes.pipelineEditPath('pipelines', pipeline.name(), 'general');
     };
 
     vnode.state.doClonePipeline = (shallowPipeline) => {

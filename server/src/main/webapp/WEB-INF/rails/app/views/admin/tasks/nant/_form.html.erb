@@ -1,9 +1,0 @@
-<div class="form_item required">
-    <%= render :partial => "admin/tasks/shared/build_task_form.html", :locals => {:scope => {:form => scope[:form], :task => scope[:task], :task_type => "NANT"}} %>
-    <div class="form_item_block">
-        <%= label_tag 'NAnt Path' -%>
-        <%= scope[:form].text_field com.thoughtworks.go.config.NantTask::NANT_PATH %>
-        <div class="contextual_help has_go_tip_right nant_path" title="Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path."></div>
-        <%= error_message_on(scope[:task], com.thoughtworks.go.config.NantTask::NANT_PATH, :css_class => "form_error") %>
-    </div>
-</div>

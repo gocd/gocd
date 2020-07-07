@@ -9,7 +9,7 @@
 
     <% if @can_user_view_settings %>
         <div class="stage_detail_setting">
-          <%= link_to '', pipeline_edit_path(pipeline_name: @pipeline.getName(), current_tab: 'general'), class: 'icon16 setting' %>
+          <%= link_to '', edit_path_for_pipeline(@pipeline.getName()), class: 'icon16 setting' %>
         </div>
     <% end %>
     <% if @lockedPipeline %>

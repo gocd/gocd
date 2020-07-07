@@ -1,6 +1,0 @@
-<div class="form_item_block">
-    <label>Material Name</label>
-    <%= scope[:form].text_field com.thoughtworks.go.config.materials.AbstractMaterialConfig::MATERIAL_NAME, :class => "form_input", :id => nil -%>
-    <div class="contextual_help has_go_tip_right" title="[Optional] The name of the material. If omitted, the default material name is the URL. You can override this by setting the material name explicitly."></div>
-    <%= error_message_on(scope[:form].object, com.thoughtworks.go.config.materials.AbstractMaterialConfig::MATERIAL_NAME, :css_class => "form_error") %>
-</div>

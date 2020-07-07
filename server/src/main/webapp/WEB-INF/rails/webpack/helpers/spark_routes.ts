@@ -577,6 +577,9 @@ export class SparkRoutes {
 
   static templateAuthorizationPath(id: string): string {
     return `/go/api/admin/templates/${id}/authorization`;
+  }
 
+  static pipelineEditPath(stageParent: string, pipelineName: string, tab: string ): string {
+    return `/go/admin/${stageParent}/${pipelineName}/${tab}`;
   }
 }

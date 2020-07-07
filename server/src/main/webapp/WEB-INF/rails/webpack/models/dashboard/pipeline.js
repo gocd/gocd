@@ -16,7 +16,6 @@
 
 import {SparkRoutes} from "helpers/spark_routes";
 import {PipelineInstance} from "models/dashboard/pipeline_instance";
-import Routes from "gen/js-routes";
 import {AjaxHelper} from "helpers/ajax_helper";
 import {VMRoutes} from "helpers/vm_routes";
 import Stream from "mithril/stream";
@@ -27,7 +26,7 @@ export const Pipeline = function (info) {
   this.name  = info.name;
 
   this.canAdminister = info.can_administer;
-  this.settingsPath  = Routes.pipelineEditPath('pipelines', info.name, 'general');
+  this.settingsPath  = SparkRoutes.pipelineEditPath('pipelines', info.name, 'general');
 
   this.historyPath = VMRoutes.pipelineHistoryPath(info.name);
   this.instances   = _.map(info._embedded.instances, (instance) => new PipelineInstance(instance, info.name));

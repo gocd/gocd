@@ -27,8 +27,6 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Tree} from "views/components/hierarchy/tree";
 import css from "./defined_structs.scss";
 
-const Routes = require('gen/js-routes');
-
 type Styles = typeof css;
 
 interface CacheProvider {
@@ -112,7 +110,7 @@ class Link {
     }
 
     if (node instanceof DefinedPipeline) {
-      return <a data-test-id={_.snakeCase("pipeline " + node.name())} href={Routes.pipelineEditPath('pipelines', node.name(), 'general')}>{node.name()}</a>;
+      return <a data-test-id={_.snakeCase("pipeline " + node.name())} href={SparkRoutes.pipelineEditPath('pipelines', node.name(), 'general')}>{node.name()}</a>;
     }
 
     if (node instanceof DefinedEnvironment) {

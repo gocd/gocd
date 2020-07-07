@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import * as Routes from "gen/ts-routes";
 import {ApiResult} from "helpers/api_request_builder";
 import {asSelector} from "helpers/css_proxies";
 import {LocationHandler} from "helpers/location_handler";
+import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
@@ -175,7 +175,7 @@ describe("AddPipeline: Actions Section", () => {
 
       setTimeout(() => { // allow the outer promise.then() wrapping pausePromise to finish
         expect(loc.urls.length).toBe(1);
-        expect(loc.last()).toBe(Routes.pipelineEditPath("pipelines", config.name(), "general"));
+        expect(loc.last()).toBe(SparkRoutes.pipelineEditPath("pipelines", config.name(), "general"));
         done();
       }, 0);
     });

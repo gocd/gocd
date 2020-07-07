@@ -62,15 +62,13 @@
   <rule>
     <name>Package Repositories SPA with toggle</name>
     <from>^/admin/package_repositories(/?)$</from>
-    <run class="com.thoughtworks.go.server.PackageRepositoriesSparkOrRailsToggle" method="redirect"/>
-    <to last="true">/%{attribute:url}</to>
+    <to last="true">/spark/admin/package_repositories</to>
   </rule>
 
   <rule>
     <name>Package Repositories SPA with toggle</name>
     <from>^/admin/package_repositories/(.*)$</from>
-    <run class="com.thoughtworks.go.server.PackageRepositoriesSparkOrRailsToggle" method="redirect"/>
-    <to last="true">/%{attribute:url}</to>
+    <to last="true">/spark/admin/package_repositories</to>
   </rule>
 
   <rule>
@@ -249,8 +247,7 @@
   <rule>
     <name>Comparison UI</name>
     <from>^/compare/([^/]+)/([^/]+)/with/([^/]+)(/?)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="comparisonSPA"/>
-    <to last="true">/%{attribute:sparkOrRails}/compare/${escape:$1}/${escape:$2}/with/${escape:$3}</to>
+    <to last="true">/spark/compare/${escape:$1}/${escape:$2}/with/${escape:$3}</to>
   </rule>
 
   <rule>
@@ -999,7 +996,7 @@
   <rule>
     <name>Redirect to Pipeline Config SPA</name>
     <from>/admin/(pipelines|templates)/([^/]+)/(.*?)?$</from>
-    <run class="com.thoughtworks.go.server.RedirectToPipelineConfigSPAToggle" method="redirect"/>
+    <to type="redirect" last="true">/go/admin/$1/${escape:$2}/edit</to>
   </rule>
 
   <rule>

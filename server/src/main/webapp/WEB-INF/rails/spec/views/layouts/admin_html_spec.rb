@@ -18,6 +18,7 @@ require 'rails_helper'
 require_relative 'layout_html_examples'
 
 describe "/layouts/admin" do
+  include Admin::AdminHelper
   it_should_behave_like :layout
 
   before do
@@ -151,7 +152,7 @@ describe "/layouts/admin" do
       render :inline => 'content', :layout => @layout_name
 
       Capybara.string(response.body).find("#package-repositories-tab-button.current_tab") do |tab|
-        expect(tab).to have_selector("a[id='tab-link-of-package-repositories'][href='/admin/package_repositories/new']")
+        expect(tab).to have_selector("a[id='tab-link-of-package-repositories'][href='/go/admin/package_repositories/new']")
       end
     end
 
@@ -163,7 +164,7 @@ describe "/layouts/admin" do
       package_repositories_new_path
 
       Capybara.string(response.body).find("#package-repositories-tab-button.current_tab") do |tab|
-        expect(tab).to have_selector("a[id='tab-link-of-package-repositories'][href='/admin/package_repositories/list']")
+        expect(tab).to have_selector("a[id='tab-link-of-package-repositories'][href='/go/admin/package_repositories/list']")
       end
     end
   end

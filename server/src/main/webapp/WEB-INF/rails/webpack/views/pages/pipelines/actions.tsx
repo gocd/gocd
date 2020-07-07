@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as Routes from "gen/ts-routes";
 import {ErrorResponse} from "helpers/api_request_builder";
 import {LocationHandler, WindowLocation} from "helpers/location_handler";
+import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -78,7 +78,7 @@ export class PipelineActions extends MithrilViewComponent<Attrs> {
       return pipelineConfig.create(shouldPause).then((response) => {
         response.do(() => {
           if (shouldPause) {
-            this.location.go(Routes.pipelineEditPath("pipelines", pipelineConfig.name(), "general"));
+            this.location.go(SparkRoutes.pipelineEditPath("pipelines", pipelineConfig.name(), "general"));
           } else {
             pipelineConfig.run().then(() => {
               this.location.go(`/go/pipelines?new_pipeline_name=${pipelineConfig.name()}`);

@@ -17,6 +17,7 @@
 require 'rails_helper'
 
 describe ValueStreamMapController do
+  include ApplicationHelper
 
   before(:each)  do
     @value_stream_map_service = double('value_stream_map_service')
@@ -42,7 +43,7 @@ describe ValueStreamMapController do
     @stage_detail_path_partial = proc do |pipeline_name, pipeline_counter, stage_name, stage_counter|
       stage_detail_tab_path_for(pipeline_name: pipeline_name, pipeline_counter: pipeline_counter, stage_name: stage_name, stage_counter: stage_counter)
     end
-    @pipeline_edit_path_normal_edit = proc { |pipeline_name | pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general') }
+    @pipeline_edit_path_normal_edit = proc { |pipeline_name | edit_path_for_pipeline(pipeline_name) }
   end
 
   describe "show" do
@@ -230,7 +231,7 @@ describe ValueStreamMapController do
                 "node_type": "PIPELINE",
                 "name": "p1",
                 "can_edit": false,
-                "edit_path": "/admin/pipelines/p1/general"
+                "edit_path": "/go/admin/pipelines/p1/general"
               }
             ]
           },
@@ -248,7 +249,7 @@ describe ValueStreamMapController do
                 "node_type": "PIPELINE",
                 "name": "current",
                 "can_edit": false,
-                "edit_path": "/admin/pipelines/current/general"
+                "edit_path": "/go/admin/pipelines/current/general"
               }
             ]
           }

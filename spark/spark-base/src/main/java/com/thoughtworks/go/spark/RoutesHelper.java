@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.spark;
 
-
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.thoughtworks.go.api.ApiVersion;
@@ -24,6 +23,8 @@ import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
@@ -34,14 +35,17 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.MediaType.*;
 import static spark.Spark.*;
 
 public class RoutesHelper {
+    private static final Logger LOG = LoggerFactory.getLogger(RoutesHelper.class);
+    private static final Gson GSON = new Gson();
     private static final String TIMER_START = RuntimeHeaderEmitter.class.getName();
 
-    private List<SparkSpringController> controllers;
-    private List<SparkController> sparkControllers;
+    private final List<SparkSpringController> controllers;
+    private final List<SparkController> sparkControllers;
 
     public RoutesHelper(SparkSpringController... controllers) {
         this(controllers, null);
@@ -70,6 +74,14 @@ public class RoutesHelper {
         exception(JsonParseException.class, this::invalidJsonPayload);
         exception(UnprocessableEntityException.class, this::unprocessableEntity);
 
+        exception(Exception.class, (e, req, res) -> {
+            final String query = req.queryString();
+            final String uri = req.requestMethod() + " " + (isNotBlank(query) ? req.pathInfo() + "?" + query : req.pathInfo());
+            LOG.error(format("Unhandled exception on [%s]: %s", uri, e.getMessage()), e);
+
+            res.status(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            res.body(GSON.toJson(Collections.singletonMap("error", e.getMessage())));
+        });
         afterAfter("/*", (request, response) -> request.<RuntimeHeaderEmitter>attribute(TIMER_START).render());
     }
 
@@ -99,7 +111,7 @@ public class RoutesHelper {
 
     private void unprocessableEntity(UnprocessableEntityException exception, Request request, Response response) {
         response.status(HttpStatus.SC_UNPROCESSABLE_ENTITY);
-        response.body(new Gson().toJson(Collections.singletonMap("message", "Your request could not be processed. " + exception.getMessage())));
+        response.body(GSON.toJson(Collections.singletonMap("message", "Your request could not be processed. " + exception.getMessage())));
     }
 
     void httpException(HttpException ex, Request req, Response res) {
@@ -111,7 +123,7 @@ public class RoutesHelper {
         } else if (containsAny(acceptedTypes, APPLICATION_XML_VALUE, TEXT_XML_VALUE, APPLICATION_RSS_XML_VALUE, APPLICATION_ATOM_XML_VALUE)) {
             res.body(ex.asXML());
         } else {
-            res.body(new Gson().toJson(Collections.singletonMap("message", ex.getMessage())));
+            res.body(GSON.toJson(Collections.singletonMap("message", ex.getMessage())));
         }
     }
 
@@ -130,7 +142,7 @@ public class RoutesHelper {
 
     private void invalidJsonPayload(JsonParseException ex, Request req, Response res) {
         res.status(HttpStatus.SC_BAD_REQUEST);
-        res.body(new Gson().toJson(Collections.singletonMap("error", "Payload data is not valid JSON: " + ex.getMessage())));
+        res.body(GSON.toJson(Collections.singletonMap("error", "Payload data is not valid JSON: " + ex.getMessage())));
     }
 
     private class RuntimeHeaderEmitter {

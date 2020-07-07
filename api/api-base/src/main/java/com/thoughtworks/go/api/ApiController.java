@@ -16,13 +16,11 @@
 package com.thoughtworks.go.api;
 
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.server.util.RequestUtils;
 import com.thoughtworks.go.spark.SparkController;
-import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.InvalidMimeTypeException;
@@ -36,7 +34,6 @@ import java.util.*;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseConfirmHeaderMissing;
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseJsonContentTypeExpected;
-import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class ApiController implements ControllerMethods, SparkController {
@@ -130,13 +127,5 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
                 filter.handle(request, response);
             }
         };
-    }
-
-    @SuppressWarnings("unused")
-    protected void handleException(Exception e, Request ignored, Response res) {
-        log.error(format("Unhandled exception: %s", e.getMessage()), e);
-
-        res.status(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        res.body(new Gson().toJson(Collections.singletonMap("error", e.getMessage())));
     }
 }

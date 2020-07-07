@@ -355,7 +355,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         if (isSubmoduleFolder()) {
             return new GitCommand(getFingerprint(), new File(workingFolder.getPath()), GitMaterialConfig.DEFAULT_BRANCH, true, secrets());
         }
-        System.out.printf("**** [%s] WorkingDir for %s: %s\n", executionContext.isServer() ? "server" : "agent", urlForCommandLine(), workingFolder.getPath());
+
         GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, refSpecOrBranch, false, secrets());
         if (!isGitRepository(workingFolder) || isRepositoryChanged(gitCommand, workingFolder)) {
             LOG.debug("Invalid git working copy or repository changed. Delete folder: {}", workingFolder);

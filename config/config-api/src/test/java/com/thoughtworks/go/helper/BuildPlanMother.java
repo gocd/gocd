@@ -15,18 +15,16 @@
  */
 package com.thoughtworks.go.helper;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.ResourceConfigs;
-import com.thoughtworks.go.config.ArtifactTypeConfigs;
+import com.thoughtworks.go.config.*;
 
 public class BuildPlanMother {
 
     public static JobConfigs jobConfigs(String... buildNames) {
         JobConfigs jobConfigs = new JobConfigs();
         for (String buildName : buildNames) {
-            jobConfigs.add(new JobConfig(new CaseInsensitiveString(buildName), new ResourceConfigs(), new ArtifactTypeConfigs()));
+            JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(buildName), new ResourceConfigs(), new ArtifactTypeConfigs());
+            jobConfig.addTask(new AntTask());
+            jobConfigs.add(jobConfig);
         }
         return jobConfigs;
     }
@@ -34,7 +32,9 @@ public class BuildPlanMother {
     public static JobConfigs withBuildPlans(String... jobConfigNames) {
         JobConfigs jobConfigs = new JobConfigs();
         for (String planName : jobConfigNames) {
-            jobConfigs.add(new JobConfig(new CaseInsensitiveString(planName), new ResourceConfigs(), new ArtifactTypeConfigs()));
+            JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(planName), new ResourceConfigs(), new ArtifactTypeConfigs());
+            jobConfig.addTask(new AntTask());
+            jobConfigs.add(jobConfig);
         }
         return jobConfigs;
     }

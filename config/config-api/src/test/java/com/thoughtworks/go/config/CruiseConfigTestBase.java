@@ -245,26 +245,10 @@ public abstract class CruiseConfigTestBase {
             }
         });
 
-        assertThat(tasksVisited.size(), is(2));
-        assertThat(tasksVisited.get(0), is(task1));
-        assertThat(tasksVisited.get(1), is(task2));
-    }
-
-    @Test
-    public void shouldOfferNothingToVisitorsIfThereAreNoTasks() throws Exception {
-        CruiseConfig config = createCruiseConfig();
-        setupJobWithTasks(config, new NullTask());
-
-        final List<Task> tasksVisited = new ArrayList<>();
-        config.accept(new TaskConfigVisitor() {
-
-            @Override
-            public void visit(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig, Task task) {
-                tasksVisited.add(task);
-            }
-        });
-
-        assertThat(tasksVisited.size(), is(0));
+        assertThat(tasksVisited.size(), is(3));
+        assertThat(tasksVisited.get(0), is(task2));
+        assertThat(tasksVisited.get(1), is(task1));
+        assertThat(tasksVisited.get(2), is(task2));
     }
 
     @Test

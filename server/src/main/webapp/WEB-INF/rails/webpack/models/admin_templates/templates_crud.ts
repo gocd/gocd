@@ -58,7 +58,21 @@ export class TemplatesCRUD {
         stages: [
           {
             name: "defaultStage",
-            jobs: [{name: "defaultJob"}]
+            jobs: [
+                {
+                  name: "defaultJob",
+                  tasks: [
+                    {
+                      type : "exec",
+                      attributes : {
+                        run_if : [ "passed" ],
+                        command : "echo",
+                        args : ""
+                      }
+                    }
+                  ]
+                }
+            ]
           }
         ]
       }

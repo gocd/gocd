@@ -38,10 +38,7 @@ import com.thoughtworks.go.config.rules.Deny;
 import com.thoughtworks.go.config.rules.Rules;
 import com.thoughtworks.go.config.validation.*;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.config.Admin;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.RepositoryMetadataStoreHelper;
+import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -1341,7 +1338,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "  <pipeline name='abc'>\n"
                 + "    <stage name='stage1'>"
                 + "      <jobs>"
-                + "        <job name='job1' />"
+                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
                 + "      </jobs>"
                 + "    </stage>"
                 + "  </pipeline>\n"
@@ -1373,7 +1370,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "  <pipeline name='abc'>\n"
                 + "    <stage name='stage1'>"
                 + "      <jobs>"
-                + "        <job name='job1' />"
+                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
                 + "      </jobs>"
                 + "    </stage>"
                 + "  </pipeline>\n"
@@ -1414,7 +1411,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "  <pipeline name='abc'>\n"
                 + "    <stage name='stage1'>"
                 + "      <jobs>"
-                + "        <job name='job1' />"
+                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
                 + "      </jobs>"
                 + "    </stage>"
                 + "  </pipeline>\n"
@@ -1528,7 +1525,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "    </materials>\n"
                 + "    <stage name='badstage'>"
                 + "      <jobs>"
-                + "        <job name='job1' />"
+                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
                 + "      </jobs>"
                 + "    </stage>"
                 + "</pipeline>\n"
@@ -1537,7 +1534,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "  <pipeline name='abc'>\n"
                 + "    <stage name='stage1'>"
                 + "      <jobs>"
-                + "        <job name='job1' />"
+                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
                 + "      </jobs>"
                 + "    </stage>"
                 + "  </pipeline>\n"
@@ -1558,7 +1555,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  <pipeline name='erbshe'>"
                         + "    <stage name='stage1'>"
                         + "      <jobs>"
-                        + "        <job name='job1' />"
+                        + "        <job name='job1'><tasks><ant /></tasks></job>"
                         + "      </jobs>"
                         + "    </stage>"
                         + "  </pipeline>"
@@ -1576,14 +1573,14 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  <pipeline name='erbshe'>"
                         + "    <stage name='stage1'>"
                         + "      <jobs>"
-                        + "        <job name='job1' />"
+                        + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
                         + "      </jobs>"
                         + "    </stage>"
                         + "  </pipeline>"
                         + "  <pipeline name='erbshe2'>"
                         + "    <stage name='stage1'>"
                         + "      <jobs>"
-                        + "        <job name='job1' />"
+                        + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
                         + "      </jobs>"
                         + "    </stage>"
                         + "  </pipeline>"
@@ -1602,14 +1599,14 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  <pipeline name='erbshe'>"
                         + "    <stage name='stage1'>"
                         + "      <jobs>"
-                        + "        <job name='job1' />"
+                        + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
                         + "      </jobs>"
                         + "    </stage>"
                         + "  </pipeline>"
                         + "  <pipeline name='erbshe'>"
                         + "    <stage name='stage1'>"
                         + "      <jobs>"
-                        + "        <job name='job1' />"
+                        + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
                         + "      </jobs>"
                         + "    </stage>"
                         + "  </pipeline>"
@@ -1954,7 +1951,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='mingle'>"
                         + "    <jobs>"
-                        + "      <job name='cardlist' />"
+                        + "      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
                         + "    </jobs>"
                         + "  </stage>"
                         + "</pipeline>", CONFIG_SCHEMA_VERSION);
@@ -1976,7 +1973,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='mingle'>"
                         + "    <jobs>"
-                        + "      <job name='cardlist' />"
+                        + "      <job name='cardlist'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
                         + "    </jobs>"
                         + "  </stage>"
                         + "</pipeline>", CONFIG_SCHEMA_VERSION);
@@ -2024,7 +2021,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='mingle'>"
                         + "    <jobs>"
-                        + "      <job name='do-something'>"
+                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      <environmentvariables>"
                         + "         <variable name='JOB_VARIABLE'><value>job variable</value></variable>"
                         + "      </environmentvariables>"
@@ -2036,6 +2033,9 @@ public class MagicalGoConfigXmlLoaderTest {
 
         JobConfig jobConfig = new JobConfig("do-something");
         jobConfig.addVariable("JOB_VARIABLE", "job variable");
+        ExecTask echo = new ExecTask("echo", "", new Arguments());
+        echo.runIfConfigs.add(RunIfConfig.PASSED);
+        jobConfig.addTask(echo);
         assertThat(cruiseConfig.findJob("pipeline1", "mingle", "do-something")).isEqualTo(jobConfig);
     }
 
@@ -2051,7 +2051,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  </materials>"
                         + "  <stage name='mingle'>"
                         + "    <jobs>"
-                        + "      <job name='do-something'>"
+                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2073,7 +2073,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "      <variable name='STAGE_VARIABLE'><value>stage variable</value></variable>"
                         + "    </environmentvariables>"
                         + "    <jobs>"
-                        + "      <job name='do-something'>"
+                        + "      <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2092,7 +2092,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='mingle'>"
                         + "    <jobs>"
-                        + "      <job name='do-something'>"
+                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      <environmentvariables>"
                         + "         <variable name='JOB_VARIABLE'><value>job variable</value></variable>"
                         + "         <variable name='JOB_VARIABLE'><value>job variable</value></variable>"
@@ -2124,8 +2124,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "    </materials>\n"
                 + "    <stage name='mingle'>"
                 + "      <jobs>"
-                + "        <job name='do-something'>"
-                + "        </job>"
+                + "        <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
                 + "      </jobs>"
                 + "    </stage>"
                 + "</pipeline>\n"
@@ -2184,7 +2183,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='mingle'>"
                         + "    <jobs>"
-                        + "      <job name='do-something'>"
+                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2210,7 +2209,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "         <variable name='STAGE_VARIABLE'><value>stage variable</value></variable>"
                         + "      </environmentvariables>"
                         + "    <jobs>"
-                        + "      <job name='do-something'>"
+                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2256,7 +2255,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='mingle'>"
                         + "    <jobs>"
-                        + "      <job name='do-something'>"
+                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2271,6 +2270,9 @@ public class MagicalGoConfigXmlLoaderTest {
         CruiseConfig cruiseConfig = loadJobWithRunOnAllAgents("true");
         JobConfig job = cruiseConfig.findJob("pipeline1", "mingle", "do-something");
         JobConfig jobConfig = new JobConfig("do-something");
+        ExecTask echo = new ExecTask("echo", "", new Arguments());
+        echo.runIfConfigs.add(RunIfConfig.PASSED);
+        jobConfig.addTask(echo);
         jobConfig.setRunOnAllAgents(true);
         assertThat(job).isEqualTo(jobConfig);
     }
@@ -2280,6 +2282,9 @@ public class MagicalGoConfigXmlLoaderTest {
         CruiseConfig cruiseConfig = loadJobWithRunMultipleInstance("10");
         JobConfig job = cruiseConfig.findJob("pipeline1", "mingle", "do-something");
         JobConfig jobConfig = new JobConfig("do-something");
+        ExecTask echo = new ExecTask("echo", "", new Arguments());
+        echo.runIfConfigs.add(RunIfConfig.PASSED);
+        jobConfig.addTask(echo);
         jobConfig.setRunInstanceCount(10);
         assertThat(job).isEqualTo(jobConfig);
     }
@@ -2295,7 +2300,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='mingle'>"
                         + "    <jobs>"
-                        + "      <job name='do-something'>"
+                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2332,7 +2337,9 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='mingle'>"
                         + "    <jobs>"
-                        + "      <job name='do-something' runOnAllAgents='" + value + "'/>"
+                        + "      <job name='do-something' runOnAllAgents='" + value + "'>"
+                        + "         <tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
+                        + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
                         + "</pipeline>", CONFIG_SCHEMA_VERSION);
@@ -2347,7 +2354,9 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='mingle'>"
                         + "    <jobs>"
-                        + "      <job name='do-something' runInstanceCount='" + value + "'/>"
+                        + "      <job name='do-something' runInstanceCount='" + value + "'>"
+                        + "         <tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
+                        + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
                         + "</pipeline>", CONFIG_SCHEMA_VERSION);
@@ -2376,6 +2385,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    <stage name=\"mingle\">\n"
                         + "      <jobs>\n"
                         + "        <job name=\"functional\">\n"
+                        + "          <tasks><exec command='echo'><runif status='passed' /></exec></tasks>\n"
                         + "          <artifacts>\n"
                         + "            <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
                         + "          </artifacts>\n"
@@ -2443,7 +2453,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='mingle'>"
                         + "    <jobs>"
-                        + "      <job name='do-something'>"
+                        + "      <job name='(.*)'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2465,7 +2475,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='some_stage'>"
                         + "    <jobs>"
-                        + "      <job name='some_job'>"
+                        + "      <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2490,7 +2500,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='some_stage'>"
                         + "    <jobs>"
-                        + "      <job name='some_job'>"
+                        + "      <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2516,7 +2526,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='some_stage'>"
                         + "    <jobs>"
-                        + "      <job name='some_job'>"
+                        + "      <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2544,7 +2554,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='some_stage'>"
                         + "    <jobs>"
-                        + "      <job name='some_job'>"
+                        + "      <job name='plan1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2567,7 +2577,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='some_stage'>"
                         + "    <jobs>"
-                        + "      <job name='some_job'>"
+                        + "      <job name='do-something'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2588,7 +2598,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='some_stage'>"
                         + "    <jobs>"
-                        + "      <job name='some_job'>"
+                        + "      <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2613,7 +2623,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='uppest_stage'>"
                         + "    <jobs>"
-                        + "      <job name='uppest_job'>"
+                        + "      <job name='uppest_job'><tasks><ant /></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2624,7 +2634,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='up_stage'>"
                         + "    <jobs>"
-                        + "      <job name='up_job'>"
+                        + "      <job name='up_job'><tasks><ant /></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2635,7 +2645,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='down_stage'>"
                         + "    <jobs>"
-                        + "      <job name='down_job'>"
+                        + "      <job name='down_job'><tasks><ant /></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2656,8 +2666,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "</pipeline>", CONFIG_SCHEMA_VERSION);
 
         GoConfigHolder holder = ConfigMigrator.loadWithMigration(content);
-        assertThat(holder.config.pipelineConfigByName(new CaseInsensitiveString("downest_pipeline")).getFetchTasks().get(0)).isEqualTo(new FetchTask(new CaseInsensitiveString("uppest_pipeline/up_pipeline/down_pipeline"), new CaseInsensitiveString("uppest_stage"), new CaseInsensitiveString("uppest_job"), "src",
-                "dest"));
+        assertThat(holder.config.pipelineConfigByName(new CaseInsensitiveString("downest_pipeline")).getFetchTasks().get(0)).isEqualTo(new FetchTask(new CaseInsensitiveString("uppest_pipeline/up_pipeline/down_pipeline"), new CaseInsensitiveString("uppest_stage"), new CaseInsensitiveString("uppest_job"), "src", "dest"));
     }
 
     @Test
@@ -2669,19 +2678,19 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  </materials>"
                         + "  <stage name='up_stage'>"
                         + "    <jobs>"
-                        + "      <job name='up_job'>"
+                        + "      <job name='up42_job'><tasks><ant /></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
                         + "  <stage name='up_stage_2'>"
                         + "    <jobs>"
-                        + "      <job name='up_job'>"
+                        + "      <job name='up_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
                         + "  <stage name='up_stage_3'>"
                         + "    <jobs>"
-                        + "      <job name='up_job'>"
+                        + "      <job name='up_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -2724,7 +2733,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "    </materials>"
                 + "  <stage name='some_stage'>"
                 + "    <jobs>"
-                + "      <job name='some_job'>"
+                + "      <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                 + "      </job>"
                 + "    </jobs>"
                 + "  </stage>"
@@ -2801,7 +2810,13 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "    </materials>\n"
                 + "    <stage name=\"stage_name\">\n"
                 + "      <jobs>\n"
-                + "        <job name=\"job_name\" />\n"
+                + "        <job name=\"job_name\">\n"
+                + "            <tasks>\n"
+                + "              <exec command=\"echo\">\n"
+                + "                <runif status=\"passed\" />\n"
+                + "              </exec>\n"
+                + "            </tasks>"
+                + "          </job>\n"
                 + "      </jobs>\n"
                 + "    </stage>\n"
                 + "  </pipeline>\n"
@@ -2862,7 +2877,13 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "    </materials>\n"
                 + "    <stage name=\"stage_name\">\n"
                 + "      <jobs>\n"
-                + "        <job name=\"job_name\" />\n"
+                + "        <job name=\"job_name\">\n"
+                + "            <tasks>\n"
+                + "              <exec command=\"echo\">\n"
+                + "                <runif status=\"passed\" />\n"
+                + "              </exec>\n"
+                + "            </tasks>"
+                + "          </job>\n"
                 + "      </jobs>\n"
                 + "    </stage>\n"
                 + "  </pipeline>\n"
@@ -3189,7 +3210,9 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "    </materials>\n"
                 + "    <stage name=\"stage_name\">\n"
                 + "      <jobs>\n"
-                + "        <job name=\"job_name\" />\n"
+                + "        <job name=\"job_name\">\n"
+                + "         <tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
+                + "        </job>"
                 + "      </jobs>\n"
                 + "    </stage>\n"
                 + "  </pipeline>\n"
@@ -3210,7 +3233,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         "           </authorization>" +
                         "           <stage name='stage-name'>" +
                         "               <jobs>" +
-                        "                   <job name='job-name'/>" +
+                        "                   <job name='job-name'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>" +
                         "               </jobs>" +
                         "           </stage>" +
                         "       </pipeline>" +
@@ -3360,7 +3383,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "     </authorization>"
                 + "  <stage name='build'>"
                 + "    <jobs>"
-                + "      <job name='test1'>"
+                + "      <job name='test1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                 + "      </job>"
                 + "    </jobs>"
                 + "  </stage>"
@@ -3404,8 +3427,13 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "     </authorization>"
                 + "  <stage name='build'>"
                 + "    <jobs>"
-                + "      <job name='test1'>"
-                + "      </job>"
+                + "        <job name=\"test1\">\n"
+                + "            <tasks>\n"
+                + "              <exec command=\"echo\">\n"
+                + "                <runif status=\"passed\" />\n"
+                + "              </exec>\n"
+                + "            </tasks>"
+                + "          </job>\n"
                 + "    </jobs>"
                 + "  </stage>"
                 + "   </pipeline>"
@@ -3447,8 +3475,13 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "     </authorization>"
                 + "  <stage name='build'>"
                 + "    <jobs>"
-                + "      <job name='test1'>"
-                + "      </job>"
+                + "        <job name=\"test1\">\n"
+                + "            <tasks>\n"
+                + "              <exec command=\"echo\">\n"
+                + "                <runif status=\"passed\" />\n"
+                + "              </exec>\n"
+                + "            </tasks>"
+                + "          </job>\n"
                 + "    </jobs>"
                 + "  </stage>"
                 + "   </pipeline>"
@@ -3485,7 +3518,12 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  <stage name=\"mingle\">\n"
                         + "    <jobs>\n"
                         + "      <job name=\"functional\" elasticProfileId=\"unit-test\">\n"
-                        + "      </job>\n"
+                        + "            <tasks>\n"
+                        + "              <exec command=\"echo\">\n"
+                        + "                <runif status=\"passed\" />\n"
+                        + "              </exec>\n"
+                        + "            </tasks>"
+                        + "          </job>\n"
                         + "    </jobs>\n"
                         + "  </stage>\n"
                         + "</pipeline>\n"
@@ -3544,6 +3582,11 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "        <resources>\n"
                         + "          <resource>foo</resource>\n"
                         + "        </resources>\n"
+                        + "        <tasks>\n"
+                        + "          <exec command=\"echo\">\n"
+                        + "            <runif status=\"passed\" />\n"
+                        + "          </exec>\n"
+                        + "        </tasks>"
                         + "      </job>\n"
                         + "    </jobs>\n"
                         + "  </stage>\n"
@@ -3586,7 +3629,12 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  <stage name='some_stage'>"
                         + "    <jobs>"
                         + "      <job name='some_job'>"
-                        + "      </job>"
+                        + "            <tasks>\n"
+                        + "              <exec command=\"echo\">\n"
+                        + "                <runif status=\"passed\" />\n"
+                        + "              </exec>\n"
+                        + "            </tasks>"
+                        + "          </job>\n"
                         + "    </jobs>"
                         + "  </stage>"
                         + "</pipeline>", 88);
@@ -3652,8 +3700,13 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='some_stage'>"
                         + "    <jobs>"
-                        + "      <job name='some_job'>"
-                        + "      </job>"
+                        + "        <job name=\"some_job\">\n"
+                        + "            <tasks>\n"
+                        + "              <exec command=\"echo\">\n"
+                        + "                <runif status=\"passed\" />\n"
+                        + "              </exec>\n"
+                        + "            </tasks>"
+                        + "          </job>\n"
                         + "    </jobs>"
                         + "  </stage>"
                         + "</pipeline>", 88);
@@ -4043,7 +4096,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='some_stage'>"
                         + "    <jobs>"
-                        + "      <job name='some_job'>"
+                        + "      <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -4147,7 +4200,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </materials>"
                         + "  <stage name='some_stage'>"
                         + "    <jobs>"
-                        + "      <job name='some_job'>"
+                        + "      <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
                         + "      </job>"
                         + "    </jobs>"
                         + "  </stage>"
@@ -4403,8 +4456,13 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  <stage name=\"mingle\">" +
                         "      <approval type=\"success\" allowOnlyOnSuccess=\"true\" /> "
                         + "    <jobs>"
-                        + "      <job name=\"functional\">"
-                        + "      </job>"
+                        + "        <job name=\"functional\">\n"
+                        + "            <tasks>\n"
+                        + "              <exec command=\"echo\">\n"
+                        + "                <runif status=\"passed\" />\n"
+                        + "              </exec>\n"
+                        + "            </tasks>"
+                        + "        </job>\n"
                         + "    </jobs>"
                         + "  </stage>"
                         + "</pipeline>"

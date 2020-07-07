@@ -168,7 +168,9 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(scmId);
         pluggableSCMMaterialConfig.setSCMConfig(scm);
 
-        cruiseConfig.addPipeline("default", PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(pluggableSCMMaterialConfig), new JobConfigs(new JobConfig("ls"))));
+        JobConfig jobConfig = new JobConfig("job");
+        jobConfig.addTask(new AntTask());
+        cruiseConfig.addPipeline("default", PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(pluggableSCMMaterialConfig), new JobConfigs(jobConfig)));
 
         xmlWriter.write(cruiseConfig, output, false);
 
@@ -200,7 +202,9 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
         pluggableSCMMaterialConfig.setFolder("dest");
         pluggableSCMMaterialConfig.setFilter(new Filter(new IgnoredFiles("x"), new IgnoredFiles("y")));
 
-        cruiseConfig.addPipeline("default", PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(pluggableSCMMaterialConfig), new JobConfigs(new JobConfig("ls"))));
+        JobConfig jobConfig = new JobConfig("job");
+        jobConfig.addTask(new AntTask());
+        cruiseConfig.addPipeline("default", PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(pluggableSCMMaterialConfig), new JobConfigs(jobConfig)));
 
         xmlWriter.write(cruiseConfig, output, false);
 
@@ -222,7 +226,9 @@ public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
 
         cruiseConfig.getSCMs().add(scm);
 
-        cruiseConfig.addPipeline("default", PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(pluggableSCMMaterialConfig), new JobConfigs(new JobConfig("ls"))));
+        JobConfig jobConfig = new JobConfig("job");
+        jobConfig.addTask(new AntTask());
+        cruiseConfig.addPipeline("default", PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(pluggableSCMMaterialConfig), new JobConfigs(jobConfig)));
         try {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not allow this");

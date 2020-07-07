@@ -155,7 +155,7 @@ shared_examples_for :task_controller do
         stub_save_for_success
         delete :destroy, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :stage_parent => 'pipelines', :current_tab => "tasks"}
         tasks = @pipeline.get(0).getJobs().get(0).getTasks()
-        expect(tasks.size()).to eq(0)
+        expect(tasks.size()).to eq(1)
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::JobNode, ::ConfigUpdate::JobTaskSubject
       end
 
@@ -183,7 +183,7 @@ shared_examples_for :task_controller do
         expect(@task_view_service).to receive(:getOnCancelTaskViewModels).with(@example_task).and_return(@on_cancel_task_vms)
         expect(@task_view_service).to receive(:getViewModel).with(@example_task, "edit").and_return(vm_template_for(@example_task))
 
-        get :edit, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :type => @task_type, :stage_parent => "pipelines", :current_tab => "tasks"}
+        get :edit, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "1", :config_md5 => "abcd1234", :type => @task_type, :stage_parent => "pipelines", :current_tab => "tasks"}
 
         expect(assigns[:task]).to eq(@example_task)
         expect(assigns[:on_cancel_task_vms]).to eq(@on_cancel_task_vms)

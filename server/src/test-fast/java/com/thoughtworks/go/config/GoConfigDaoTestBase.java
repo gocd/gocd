@@ -63,7 +63,7 @@ public abstract class GoConfigDaoTestBase {
         assertThat(cardList.name(), is(new CaseInsensitiveString("cardlist")));
         assertThat(stageConfig.jobConfigByInstanceName("bluemonkeybutt", true).name(), is(new CaseInsensitiveString("bluemonkeybutt")));
         assertThat(cardList.tasks(), iterableWithSize(1));
-        assertThat(cardList.tasks().first(), instanceOf(NullTask.class));
+        assertThat(cardList.tasks().first(), instanceOf(AntTask.class));
     }
 
     @Test

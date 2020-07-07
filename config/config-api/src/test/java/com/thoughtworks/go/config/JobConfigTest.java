@@ -422,9 +422,27 @@ class JobConfigTest {
     @Test
     void shouldValidateThatTheTimeoutIsAValidNumber() {
         JobConfig job = new JobConfig("job");
+        job.addTask(new AntTask());
         job.setTimeout("5.5");
         job.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
         assertThat(job.errors().isEmpty()).isTrue();
+    }
+
+    @Test
+    void shouldValidateThatJobContainsTasks() {
+        JobConfig job = new JobConfig("job");
+        job.addTask(new AntTask());
+        job.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
+        assertThat(job.errors().isEmpty()).isTrue();
+    }
+
+    @Test
+    void shouldMarkJobInvalidIfJobContainsNoTasks() {
+        JobConfig job = new JobConfig("job");
+        job.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
+        assertThat(job.errors().isEmpty()).isFalse();
+        assertThat(job.errors().size()).isEqualTo(1);
+        assertThat(job.errors().on(JobConfig.TASKS)).isEqualTo("Job 'job' must have at least one task.");
     }
 
     @Test
@@ -475,6 +493,7 @@ class JobConfigTest {
         Tasks tasks = mock(Tasks.class);
         Tabs tabs = mock(Tabs.class);
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);
+        when(tasks.size()).thenReturn(1);
         when(tasks.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
         when(resourceConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
         when(artifactTypeConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
@@ -575,8 +594,11 @@ class JobConfigTest {
         }
     }
 
+
+
     private JobConfig createJobAndValidate(final String name) {
         JobConfig jobConfig = new JobConfig(name);
+        jobConfig.addTask(new AntTask());
         jobConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
         return jobConfig;
     }

@@ -229,7 +229,7 @@ public class MagicalGoConfigXmlWriterTest {
                 + "    </materials>\n"
                 + "    <stage name='badstage'>"
                 + "      <jobs>"
-                + "        <job name='job1' />"
+                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
                 + "      </jobs>"
                 + "    </stage>"
                 + "</pipeline>\n"
@@ -238,7 +238,7 @@ public class MagicalGoConfigXmlWriterTest {
                 + "  <pipeline name='abc'>\n"
                 + "    <stage name='stage1'>"
                 + "      <jobs>"
-                + "        <job name='job1' />"
+                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
                 + "      </jobs>"
                 + "    </stage>"
                 + "  </pipeline>\n"
@@ -270,6 +270,9 @@ public class MagicalGoConfigXmlWriterTest {
                         + "  <stage name=\"stage\">\n"
                         + "    <jobs>\n"
                         + "      <job name=\"functional\">\n"
+                        + "        <tasks>\n"
+                        + "          <ant />\n"
+                        + "        </tasks>\n"
                         + "        <artifacts>\n"
                         + "          <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
                         + "        </artifacts>\n"
@@ -283,6 +286,9 @@ public class MagicalGoConfigXmlWriterTest {
                 "<stage name=\"stage\">\n"
                         + "  <jobs>\n"
                         + "    <job name=\"functional\">\n"
+                        + "      <tasks>\n"
+                        + "        <ant />\n"
+                        + "      </tasks>\n"
                         + "      <artifacts>\n"
                         + "        <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
                         + "      </artifacts>\n"
@@ -293,6 +299,9 @@ public class MagicalGoConfigXmlWriterTest {
 
         assertThat(xmlWriter.toXmlPartial(build), is(
                 "<job name=\"functional\">\n"
+                        + "  <tasks>\n"
+                        + "    <ant />\n"
+                        + "  </tasks>\n"
                         + "  <artifacts>\n"
                         + "    <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
                         + "  </artifacts>\n"
@@ -362,7 +371,7 @@ public class MagicalGoConfigXmlWriterTest {
                 + "  <pipeline name='abc'>\n"
                 + "    <stage name='stage1'>"
                 + "      <jobs>"
-                + "        <job name='job1' />"
+                + "        <job name='job1'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>"
                 + "      </jobs>"
                 + "    </stage>"
                 + "  </pipeline>\n"
@@ -426,7 +435,7 @@ public class MagicalGoConfigXmlWriterTest {
                 + "<pipeline name='pipeline1'>\n"
                 + "    <materials>\n"
                 + "      <svn url =\"svnurl\"/>"
-                + "    </materials>\n<stage name='stage'><jobs><job name='job'></job></jobs></stage>"
+                + "    </materials>\n<stage name='stage'><jobs><job name='job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job></jobs></stage>"
                 + "</pipeline>\n"
                 + "</pipelines>\n", CONFIG_SCHEMA_VERSION);
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
@@ -457,7 +466,7 @@ public class MagicalGoConfigXmlWriterTest {
                 + "    </materials>\n"
                 + "  <stage name='dist' fetchMaterials='true'>\n"
                 + "    <jobs>\n"
-                + "      <job name='package' />\n"
+                + "      <job name='package'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
                 + "    </jobs>\n"
                 + "  </stage>\n"
                 + "</pipeline>\n"
@@ -495,7 +504,7 @@ public class MagicalGoConfigXmlWriterTest {
                 + "    </materials>\n"
                 + "  <stage name='dist' fetchMaterials='true'>\n"
                 + "    <jobs>\n"
-                + "      <job name='package' />\n"
+                + "      <job name='package'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
                 + "    </jobs>\n"
                 + "  </stage>\n"
                 + "</pipeline>\n"
@@ -528,7 +537,7 @@ public class MagicalGoConfigXmlWriterTest {
                 + "    </materials>\n"
                 + "  <stage name='dist' cleanWorkingDir='false'>\n"
                 + "    <jobs>\n"
-                + "      <job name='package' />\n"
+                + "      <job name='package'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
                 + "    </jobs>\n"
                 + "  </stage>\n"
                 + "</pipeline>\n"
@@ -561,7 +570,7 @@ public class MagicalGoConfigXmlWriterTest {
                 + "    </materials>\n"
                 + "  <stage name='dist'>\n"
                 + "    <jobs>\n"
-                + "      <job name='package' />\n"
+                + "      <job name='package'><tasks><exec command='echo'><runif status='passed' /></exec></tasks></job>\n"
                 + "    </jobs>\n"
                 + "  </stage>\n"
                 + "</pipeline>\n"
@@ -865,7 +874,9 @@ public class MagicalGoConfigXmlWriterTest {
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(packageId);
         packageMaterialConfig.setPackageDefinition(expectedPackageDefinition);
 
-        cruiseConfig.addPipeline("default", com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(packageMaterialConfig), new JobConfigs(new JobConfig("ls"))));
+        JobConfig jobConfig = new JobConfig("ls");
+        jobConfig.addTask(new AntTask());
+        cruiseConfig.addPipeline("default", com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(packageMaterialConfig), new JobConfigs(jobConfig)));
         xmlWriter.write(cruiseConfig, output, false);
         GoConfigHolder goConfigHolder = xmlLoader.loadConfigHolder(output.toString());
         PipelineConfig pipelineConfig = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("test"));
@@ -883,7 +894,9 @@ public class MagicalGoConfigXmlWriterTest {
         packageMaterialConfig.setPackageDefinition(
                 com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create("does-not-exist", "package-name", new Configuration(com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create("k2", false, "v2")), repository));
 
-        cruiseConfig.addPipeline("default", com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(packageMaterialConfig), new JobConfigs(new JobConfig("ls"))));
+        JobConfig jobConfig = new JobConfig("ls");
+        jobConfig.addTask(new AntTask());
+        cruiseConfig.addPipeline("default", com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig("test", new MaterialConfigs(packageMaterialConfig), new JobConfigs(jobConfig)));
         try {
             xmlWriter.write(cruiseConfig, output, false);
             fail("should not allow this");

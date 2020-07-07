@@ -2075,6 +2075,85 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedXml).contains(defaultRuleAdded);
     }
 
+    @Test
+    public void migration137_shouldAddEchoTasksForEmptyJob() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                        + "<cruise schemaVersion=\"136\">"
+                        + "    <pipelines>"
+                        + "      <pipeline name=\"in_env\">"
+                        + "         <materials>"
+                        + "           <hg url=\"blah\"/>"
+                        + "         </materials>"
+                        + "         <stage name=\"some_stage\">"
+                        + "           <jobs>"
+                        + "             <job name=\"ls_job\">"
+                        + "               <tasks>"
+                        + "                 <exec command=\"ls\"/>"
+                        + "               </tasks>"
+                        + "             </job>"
+                        + "             <job name=\"empty_job\">"
+                        + "             </job>"
+                        + "           </jobs>"
+                        + "         </stage>"
+                        + "      </pipeline>"
+                        + "    </pipelines>"
+                        + "   <templates>"
+                        + "    <pipeline name=\"template1\">"
+                        + "      <stage name=\"defaultStage\">"
+                        + "        <jobs>"
+                        + "          <job name=\"empty_job\" />"
+                        + "        </jobs>"
+                        + "      </stage>"
+                        + "    </pipeline>"
+                        + "  </templates>"
+                        + "</cruise>";
+
+        String expectedConfig = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"137\">"
+                + "    <pipelines>"
+                + "      <pipeline name=\"in_env\">"
+                + "         <materials>"
+                + "           <hg url=\"blah\"/>"
+                + "         </materials>"
+                + "         <stage name=\"some_stage\">"
+                + "           <jobs>"
+                + "             <job name=\"ls_job\">"
+                + "               <tasks>"
+                + "                 <exec command=\"ls\"/>"
+                + "               </tasks>"
+                + "             </job>"
+                + "             <job name=\"empty_job\">"
+                + "               <tasks>"
+                + "                 <exec command=\"echo\">"
+                + "                   <runif status=\"passed\" />"
+                + "                 </exec>"
+                + "               </tasks>"
+                + "             </job>"
+                + "           </jobs>"
+                + "         </stage>"
+                + "      </pipeline>"
+                + "    </pipelines>"
+                + "   <templates>"
+                + "    <pipeline name=\"template1\">"
+                + "      <stage name=\"defaultStage\">"
+                + "        <jobs>"
+                + "          <job name=\"empty_job\">"
+                + "            <tasks>"
+                + "              <exec command=\"echo\">"
+                + "                <runif status=\"passed\" />"
+                + "              </exec>"
+                + "            </tasks>"
+                + "          </job>"
+                + "        </jobs>"
+                + "      </stage>"
+                + "    </pipeline>"
+                + "  </templates>"
+                + "</cruise>";
+
+        final String migratedXml = ConfigMigrator.migrate(configXml, 136, 137);
+        XmlAssert.assertThat(migratedXml).and(expectedConfig).ignoreWhitespace().areIdentical();
+    }
+
     private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {
         assertThat(actual.replaceAll("\\r", "")).contains(substring.replaceAll("\\r", ""));
     }

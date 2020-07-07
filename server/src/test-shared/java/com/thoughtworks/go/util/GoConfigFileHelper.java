@@ -151,7 +151,9 @@ public class GoConfigFileHelper {
     }
 
     private static JobConfig defaultBuildPlan(String name) {
-        return new JobConfig(new CaseInsensitiveString(name), new ResourceConfigs(), new ArtifactTypeConfigs());
+        JobConfig job = new JobConfig(new CaseInsensitiveString(name), new ResourceConfigs(), new ArtifactTypeConfigs());
+        job.addTask(new AntTask());
+        return job;
     }
 
     public static CruiseConfig load(String content) {

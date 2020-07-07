@@ -236,7 +236,9 @@ public class GoConfigMother {
     }
 
     private static JobConfig defaultBuildPlan(String name) {
-        return new JobConfig(new CaseInsensitiveString(name), new ResourceConfigs(), new ArtifactTypeConfigs());
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(name), new ResourceConfigs(), new ArtifactTypeConfigs());
+        jobConfig.addTask(new AntTask());
+        return jobConfig;
     }
 
     public static BasicCruiseConfig cruiseConfigWithMailHost(MailHost mailHost) {

@@ -32,8 +32,9 @@ public class StageConfigMother {
     }
 
     public static StageConfig oneBuildPlanWithResourcesAndMaterials(String stageName, String buildName) {
-        JobConfigs jobConfigs = new JobConfigs(new JobConfig(
-                new CaseInsensitiveString(buildName), new ResourceConfigs(new ResourceConfig("Windows"), new ResourceConfig(".NET")), new ArtifactTypeConfigs()));
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString(buildName), new ResourceConfigs(new ResourceConfig("Windows"), new ResourceConfig(".NET")), new ArtifactTypeConfigs());
+        jobConfig.addTask(new AntTask());
+        JobConfigs jobConfigs = new JobConfigs(jobConfig);
         return stageConfig(stageName, jobConfigs);
     }
 
@@ -41,9 +42,11 @@ public class StageConfigMother {
         JobConfig windoze = new JobConfig(
                 new CaseInsensitiveString("WinBuild"), new ResourceConfigs(new ResourceConfig("Windows"), new ResourceConfig(".NET")), new ArtifactTypeConfigs(Arrays.asList(new TestArtifactConfig("junit", "junit")))
         );
+        windoze.addTask(new AntTask());
         JobConfig linux = new JobConfig(
                 new CaseInsensitiveString("NixBuild"), new ResourceConfigs(new ResourceConfig("Linux"), new ResourceConfig("java")), new ArtifactTypeConfigs(Arrays.asList(new TestArtifactConfig("junit", "junit")))
         );
+        linux.addTask(new AntTask());
         JobConfigs jobConfigs = new JobConfigs(windoze, linux);
         return stageConfig(stageName, jobConfigs);
     }

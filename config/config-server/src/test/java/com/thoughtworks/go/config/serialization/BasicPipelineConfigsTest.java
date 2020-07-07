@@ -52,6 +52,7 @@ public class BasicPipelineConfigsTest {
             + "      <stage name=\"mingle\">\n"
             + "       <jobs>\n"
             + "         <job name=\"functional\">\n"
+            + "           <tasks><ant /></tasks>\n"
             + "           <artifacts>\n"
             + "             <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
             + "           </artifacts>\n"

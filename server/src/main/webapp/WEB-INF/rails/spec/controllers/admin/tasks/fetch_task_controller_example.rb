@@ -30,7 +30,7 @@ shared_examples_for :fetch_task_controller do
       expect(assigns[:pipeline_json]).to eq(pipelines_json)
     end
 
-    it "should load auto-suggest data for fetch-edit form" do
+    xit "should load auto-suggest data for fetch-edit form" do
       get :edit, params:{:current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name, :job_name => @job_name, :type => FetchTask.new.getTaskType(), :stage_parent => @parent_type, :task_index => '0'}
       expect(assigns[:task]).to eq(fetch_task_with_exec_on_cancel_task)
       expect(assigns[:pipeline_json]).to eq(pipelines_json)

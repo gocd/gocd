@@ -65,6 +65,7 @@ public class MagicalGoConfigXmlLoaderFixture {
                         + "        <artifacts>\n"
                         + "          <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
                         + "        </artifacts>\n"
+                        + "        <tasks><exec command=\"echo\"><runif status=\"passed\" /></exec></tasks>\n"
                         + "      </job>\n"
                         + "    </jobs>\n"
                         + "  </stage>\n"

@@ -41,6 +41,7 @@ public class ServerIdImmutabilityValidator implements GoConfigValidator {
         if (serverId == null || serverId.equals(newServerId) || ! env.enforceServerImmutability()) {
             return;
         }
+
         throw new RuntimeException("The value of 'serverId' uniquely identifies a Go server instance. This field cannot be modified.");
     }
 

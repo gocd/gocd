@@ -86,9 +86,9 @@ public class PipelineConfigTest {
         originalTasks.add(new FetchTask(new CaseInsensitiveString("some_other_pipeline"), stageConfig.name(), jobConfig.name(), "src", "dest"));
         PipelineConfig clone = pipelineConfig.duplicate();
         Tasks clonedTasks = clone.get(0).getJobs().get(0).getTasks();
-        assertThat(((FetchTask) clonedTasks.get(0)).getTargetPipelineName(), is(new CaseInsensitiveString("")));
-        assertThat(((FetchTask) clonedTasks.get(1)).getTargetPipelineName(), is(new CaseInsensitiveString("some_other_pipeline")));
-        assertThat(((FetchTask) originalTasks.get(0)).getTargetPipelineName(), is(pipelineConfig.name()));
+        assertThat(((FetchTask) clonedTasks.get(1)).getTargetPipelineName(), is(new CaseInsensitiveString("")));
+        assertThat(((FetchTask) clonedTasks.get(2)).getTargetPipelineName(), is(new CaseInsensitiveString("some_other_pipeline")));
+        assertThat(((FetchTask) originalTasks.get(1)).getTargetPipelineName(), is(pipelineConfig.name()));
     }
 
     @Test //#6821

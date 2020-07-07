@@ -452,7 +452,9 @@ public class PipelineConfigServiceIntegrationTest {
     @Test
     public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedFromTemplateHasErrors() throws GitAPIException {
         JobConfigs jobConfigs = new JobConfigs();
-        jobConfigs.add(new JobConfig(new CaseInsensitiveString("Job")));
+        JobConfig job = new JobConfig(new CaseInsensitiveString("Job"));
+        job.addTask(new AntTask());
+        jobConfigs.add(job);
         StageConfig stage = new StageConfig(new CaseInsensitiveString("Stage-1"), jobConfigs);
         final PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("foo"), stage);
         goConfigDao.updateConfig(new UpdateConfigCommand() {
@@ -501,7 +503,9 @@ public class PipelineConfigServiceIntegrationTest {
         GoConfigHolder goConfigHolderBeforeUpdate = goConfigDao.loadConfigHolder();
 
         String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
-        pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("addtn_job"));
+        jobConfig.addTask(new AntTask());
+        pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(jobConfig)));
 
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, groupName, digest, result);
 
@@ -1061,7 +1065,9 @@ public class PipelineConfigServiceIntegrationTest {
     @Test
     public void updatePipelineConfig_shouldCreateAndAddPipelineToThePipelineGroupEvenIfItDoesNotExist() {
         String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
-        pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("addtn_job"));
+        jobConfig.addTask(new AntTask());
+        pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(jobConfig)));
 
         assertFalse(goConfigService.groups().hasGroup("updated_group"));
 
@@ -1076,7 +1082,9 @@ public class PipelineConfigServiceIntegrationTest {
     @Test
     public void updatePipelineConfig_shouldValidateUpdatedPipelineGroupName() {
         String digest = entityHashingService.hashForEntity(pipelineConfig, groupName);
-        pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("addtn_job"));
+        jobConfig.addTask(new AntTask());
+        pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(jobConfig)));
 
         pipelineConfigService.updatePipelineConfig(user, pipelineConfig, "invalid-name!@$", digest, result);
 

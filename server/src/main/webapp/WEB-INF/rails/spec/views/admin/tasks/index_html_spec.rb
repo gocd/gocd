@@ -41,7 +41,7 @@ describe "admin/tasks/index.html.erb" do
     assign(:task_view_models, [tvm(ExecTask.new), tvm(RakeTask.new), tvm(AntTask.new),tvm(FetchTask.new), tvm(NantTask.new)])
   end
 
-  it "should show tasks" do
+  xit "should show tasks" do
     render
 
     Capybara.string(response.body).find('table.list_table').tap do |table|

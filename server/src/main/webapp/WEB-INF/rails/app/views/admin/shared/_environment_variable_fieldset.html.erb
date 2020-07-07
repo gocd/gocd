@@ -1,5 +1,0 @@
-<div class="fieldset">
-    <%= md5_field %>
-    <%= register_defaultable_list(nested_name) %>
-    <%= render :partial => 'admin/shared/name_value', :locals => {:scope => {form: form, collection: collection, collection_name: collection_name, read_only_page: read_only_page ||= false}} %>
-</div>

@@ -56,8 +56,8 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
                               }) as webpack.Plugin,
     new LicensePlugins(configOptions.licenseReportFile),
     new ForkTsCheckerWebpackPlugin({
-                                     checkSyntacticErrors: true,
-                                     useTypescriptIncrementalApi: true,
+                                     typescript: { diagnosticOptions: { semantic: true, syntactic: true } },
+                                     issue: { scope: "all" }
                                    })
   ];
 

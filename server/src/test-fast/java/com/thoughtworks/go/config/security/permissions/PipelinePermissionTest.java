@@ -54,4 +54,9 @@ class PipelinePermissionTest {
     void shouldNotFailWhenInvalidStageNameIsSpecified() {
         assertEquals(pipelinePermission.getStageOperators("stageX"), null);
     }
+
+    @Test
+    void shouldReturnEveryonePermissionWhenPipelineIsNull() {
+        assertEquals(PipelinePermission.from(null, new AllowedUsers(Collections.emptySet(), Collections.emptySet())), EveryonePermission.INSTANCE);
+    }
 }

@@ -53,6 +53,10 @@ public class PipelinePermission extends ArrayList<StagePermission> {
     }
 
     public static PipelinePermission from(PipelineConfig pipeline, Users operators) {
+        if(pipeline == null) {
+            return EveryonePermission.INSTANCE;
+        }
+
         List<StagePermission> permissions = pipeline.stream().map(stage -> new StagePermission(stage.name().toString(), operators)).collect(Collectors.toList());
         return new PipelinePermission(permissions);
     }

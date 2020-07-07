@@ -101,14 +101,14 @@ export class NewPreferencesPage extends Page<null, PreferencesState> {
             vnode.state.currentUserVM().sync(successResponse.body.object, successResponse.body.etag);
           },
           (errorResponse) => {
-            if (422 === result.getStatusCode()) {
-              if (errorResponse.data) {
-                vnode.state.currentUserVM().entity(CurrentUser.fromJSON(JsonUtils.toCamelCasedObject(errorResponse.data)));
-              } else if (errorResponse.body) {
-                this.flashMessage.alert(JSON.parse(errorResponse.body!).message);
-              } else {
-                this.flashMessage.alert(errorResponse.message);
-              }
+            if (errorResponse.data) {
+              vnode.state.currentUserVM().entity(CurrentUser.fromJSON(JsonUtils.toCamelCasedObject(errorResponse.data)));
+            } else if (errorResponse.body) {
+              const parse = JSON.parse(errorResponse.body!);
+              this.flashMessage.alert(parse.message);
+              vnode.state.currentUserVM().entity(CurrentUser.fromJSON(parse));
+            } else {
+              this.flashMessage.alert(errorResponse.message);
             }
           });
       });
@@ -163,8 +163,8 @@ export class NewPreferencesPage extends Page<null, PreferencesState> {
       smtpErrorMessage = <FlashMessage type={MessageType.info} message={message}/>;
     }
     return [
-      flashMessage,
       smtpErrorMessage,
+      flashMessage,
       <PreferencesWidget {...vnode.state}/>
     ];
   }

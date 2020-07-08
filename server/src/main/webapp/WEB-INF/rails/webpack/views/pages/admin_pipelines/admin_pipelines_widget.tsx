@@ -201,6 +201,18 @@ class PipelineGroupWidget extends MithrilViewComponent<PipelineGroupAttrs> {
 }
 
 export class PipelineGroupsWidget extends MithrilViewComponent<Attrs> {
+
+  public static helpTextWhenEmpty() {
+    return <ul data-test-id="pipelines-help-text">
+      <li>Only GoCD system administrators are allowed to create a pipeline group.
+        <Link href={docsUrl("configuration/pipelines.html")} externalLinkIcon={true}> Learn More</Link>
+      </li>
+      <li>A GoCD Administrator can authorize users and roles to be administrators for pipeline groups.
+        <Link href={docsUrl("configuration/delegating_group_administration.html")} externalLinkIcon={true}> Learn More</Link>
+      </li>
+    </ul>;
+  }
+
   view(vnode: m.Vnode<Attrs>) {
     if (vnode.attrs.scrollOptions.sm.hasTarget()) {
       const target    = vnode.attrs.scrollOptions.sm.getTarget();
@@ -225,9 +237,14 @@ export class PipelineGroupsWidget extends MithrilViewComponent<Attrs> {
         Learn More
       </Link>
     </span>;
-      return <FlashMessage type={MessageType.info}>
-        Either no pipelines have been defined or you are not authorized to view the same. {docLink}
-      </FlashMessage>;
+      return [
+        <FlashMessage type={MessageType.info}>
+          Either no pipelines have been defined or you are not authorized to view the same. {docLink}
+        </FlashMessage>,
+        <div className={styles.tips}>
+          {PipelineGroupsWidget.helpTextWhenEmpty()}
+        </div>
+      ];
     }
     const canMovePipeline = vnode.attrs.pipelineGroups().length > 1;
     return (

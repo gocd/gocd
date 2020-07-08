@@ -103,6 +103,16 @@ export class EnvironmentWidget extends MithrilViewComponent<EnvAttrs> {
 }
 
 export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
+  public static helpText(){
+    return <ul>
+      <li>Click on "Add Environment" to add a new environment.</li>
+      <li>An Environment is a grouping of pipelines and agents.</li>
+      <li>By assigning an agent to an environment, it will be used to run only those jobs that belong to the pipelines of that environment.</li>
+      <li>An agent can belong to more than one environment. A pipeline can, however, only be assigned to a single environment.
+        <Link href={docsUrl('configuration/managing_environments.html')} externalLinkIcon={true}> Learn More</Link>
+      </li>
+    </ul> ;
+  }
   view(vnode: m.Vnode<Attrs>) {
     const manager = vnode.attrs.sm;
     if (manager.hasTarget()) {
@@ -138,7 +148,12 @@ export class EnvironmentsWidget extends MithrilViewComponent<Attrs> {
       Either no environments have been set up or you are not authorized to view the environments. {docLink}
     </span>;
 
-    return <FlashMessage type={MessageType.info} message={noEnvironmentPresentMsg}
-                         dataTestId="no-environment-present-msg"/>;
+    return [
+      <FlashMessage type={MessageType.info} message={noEnvironmentPresentMsg}
+                    dataTestId="no-environment-present-msg"/>,
+      <div className={styles.tips}>
+        {EnvironmentsWidget.helpText()}
+      </div>
+    ];
   }
 }

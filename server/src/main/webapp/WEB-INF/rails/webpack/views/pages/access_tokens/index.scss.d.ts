@@ -7,3 +7,4 @@ export const personalAccessTokenContainer: string;
 export const revoked: string;
 export const revokedTokensTable: string;
 export const spinnerContainer: string;
+export const tips: string;

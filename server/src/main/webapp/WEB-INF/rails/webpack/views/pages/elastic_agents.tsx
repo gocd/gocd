@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -33,6 +34,7 @@ import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
+import {Link} from "views/components/link";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import {CloseListener} from "views/components/wizard";
@@ -68,16 +70,19 @@ export interface State extends RequiresPluginInfos, SaveOperation {
 
 export class ElasticAgentsPage extends Page<null, State> {
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    let noPluginMsg;
     if (vnode.state.pluginInfos().length === 0) {
-      return (<NoPluginsOfTypeInstalled extensionType={new ElasticAgentsExtensionType()}/>);
+      noPluginMsg= (<NoPluginsOfTypeInstalled extensionType={new ElasticAgentsExtensionType()}/>);
     }
     if (vnode.state.clusterProfiles().empty()) {
       return <div>
+        {noPluginMsg}
         <HelpText/>
       </div>;
     }
 
     return <div>
+      {noPluginMsg}
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       <ClusterProfilesWidget elasticProfiles={vnode.state.elasticProfiles()}
                              clusterProfiles={vnode.state.clusterProfiles()}
@@ -341,6 +346,20 @@ export class ElasticAgentsPage extends Page<null, State> {
         () => this.setErrorState()
       );
     });
+  }
+
+  helpText(): m.Children {
+    return <ul>
+      <li>A cluster profile is the connection configuration of the environment where elastic agents run. Typically, this includes the cluster
+        connection URL, credentials, network, permission settings etc. Eg: Kubernetes Cluster Configurations.
+      </li>
+      <li>An elastic profile usually contains the configuration for your elastic agent. Depending on the plugin used, this may contain the machine
+        image (ami, docker image), size of the CPU/memory/disk, network settings among other things.
+      </li>
+      <li>You can read more about elastic agent configurations from
+        <Link target="_blank" href={docsUrl("configuration/elastic_agents.html")}> here</Link>.
+      </li>
+    </ul>;
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {

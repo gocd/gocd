@@ -53,4 +53,5 @@ export const showPassword: string;
 export const spinnerWrapper: string;
 export const textArea: string;
 export const textareaFixed: string;
+export const tips: string;
 export const wrapperForSearchBox: string;

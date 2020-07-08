@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {docsUrl} from "gen/gocd_version";
 import {ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -27,7 +26,6 @@ import {AnchorVM, ScrollManager} from "views/components/anchor/anchor";
 import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
-import {Link} from "views/components/link";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import {Page, PageState} from "views/pages/page";
 import {PluggableSCMScrollOptions, PluggableScmsWidget} from "views/pages/pluggable_scms/pluggable_scms_widget";
@@ -148,15 +146,7 @@ export class PluggableScmsPage extends Page<null, State> {
   }
 
   helpText(): m.Children {
-    return <div>
-      The material of a pipeline is usually some source code maintained in some version control. GoCD has built-in support for Git, Mercurial, SVN,
-      TFS & Perforce. Users can use SCM plugins to integrate with other SCMs.
-      <br/>
-      Unlike built-in VCS/SCM materials, the material definition in case of plugin SCMs is not contained within the pipeline definition. They are
-      global entities. Many pipelines may have material definitions referring to the same SCM. When there is a new revision in the SCM, interested
-      pipelines will get scheduled.
-      <Link href={docsUrl('extension_points/scm_extension.html')} externalLinkIcon={true}> Learn More</Link>
-    </div>;
+    return PluggableScmsWidget.helpText();
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -26,6 +27,7 @@ import {Table} from "views/components/table";
 import styles from "views/pages/access_tokens/index.scss";
 
 import {timeFormatter as TimeFormatter} from "helpers/time_formatter";
+import {Link} from "views/components/link";
 
 export function getLastUsedInformation(accessToken: AccessToken) {
   const lastUsedAt = accessToken.lastUsedAt();
@@ -63,13 +65,22 @@ interface AdminAttrs extends Attrs {
 }
 
 export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs> {
+
+  public static helpText() {
+    return <ul data-test-id="access-token-info">
+      <li>Click on "Generate Token" to create new personal access token.</li>
+      <li>A Generated token can be used to access the GoCD API.
+        <Link href={docsUrl('configuration/access_tokens.html')} externalLinkIcon={true}> Learn More</Link>
+      </li>
+    </ul>;
+  }
+
   view(vnode: m.Vnode<Attrs>) {
     const accessTokens = vnode.attrs.accessTokens();
     if (accessTokens.length === 0) {
-      return (<ul data-test-id="access-token-info">
-        <li>Click on "Generate Token" to create new personal access token.</li>
-        <li>A Generated token can be used to access the GoCD API.</li>
-      </ul>);
+      return <div class={styles.tips}>
+        {AccessTokensWidgetForCurrentUser.helpText()}
+      </div>;
     }
     return (
       <div class={styles.personalAccessTokenContainer}>
@@ -147,10 +158,22 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
 
 export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs> {
 
+  public static helpTextWhenNoTokensCreated() {
+    return <ul data-test-id="access_token_info">
+      <li>Navigate to <a href="/go/access_tokens">Personal Access Tokens</a>.</li>
+      <li>Click on "Generate Token" to create new personal access token.</li>
+      <li>The generated token can be used to access the GoCD API.
+        <Link href={docsUrl('configuration/access_tokens.html')} externalLinkIcon={true}> Learn More</Link>
+      </li>
+    </ul>;
+  }
+
   view(vnode: m.Vnode<AdminAttrs>) {
     const accessTokens = vnode.attrs.accessTokens();
     if (accessTokens.length === 0) {
-      return AccessTokensWidgetForAdmin.helpTextWhenNoTokensCreated();
+      return <div class={styles.tips}>
+        {AccessTokensWidgetForAdmin.helpTextWhenNoTokensCreated()}
+      </div>;
     }
 
     return (
@@ -176,14 +199,6 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
     }
     return <Buttons.Default data-test-id="button-revoke"
                             onclick={onRevoke.bind(this, accessToken)}>Revoke</Buttons.Default>;
-  }
-
-  private static helpTextWhenNoTokensCreated() {
-    return (<ol data-test-id="access_token_info">
-      <li>Navigate to <a href="/go/access_tokens">Personal Access Tokens</a></li>
-      <li>Click on "Generate Token" to create new personal access token.</li>
-      <li>The generated token can be used to access the GoCD API.</li>
-    </ol>);
   }
 
   private filterBySearchText(accessTokens: AccessTokens, searchText?: string) {

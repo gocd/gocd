@@ -120,9 +120,6 @@ export class AuthConfigsPage extends Page<null, State> {
   }
 
   helpText(): m.Children {
-    return <div>
-      "Authorization configuration" is the term used in GoCD for the configuration which allows a GoCD administrator to configure the kind of authentication and authorization used by it. GoCD can be setup to use multiple authorization configurations at the same time.
-      <Link href={docsUrl('configuration/managing_users.html')} externalLinkIcon={true}> Learn More</Link>
-    </div>;
+    return AuthConfigsWidget.helpText();
   }
 }

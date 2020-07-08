@@ -284,14 +284,7 @@ export class AdminPipelinesPage extends Page<null, State> {
   }
 
   helpText(): m.Children {
-    return <ul data-test-id="pipelines-help-text">
-      <li>Only GoCD system administrators are allowed to create a pipeline group.
-        <Link href={docsUrl("configuration/pipelines.html")} externalLinkIcon={true}> Learn More</Link>
-      </li>
-      <li>A GoCD Administrator can authorize users and roles to be administrators for pipeline groups.
-        <Link href={docsUrl("configuration/delegating_group_administration.html")} externalLinkIcon={true}> Learn More</Link>
-      </li>
-    </ul>;
+    return PipelineGroupsWidget.helpTextWhenEmpty();
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {

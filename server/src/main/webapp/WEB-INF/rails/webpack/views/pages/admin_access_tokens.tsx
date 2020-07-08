@@ -53,15 +53,12 @@ export class AdminAccessTokensPage extends Page<null, State> {
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     const flashMessage = this.flashMessage ?
       <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/> : null;
-    let widget;
-    if (vnode.state.accessTokens().length === 0) {
-      widget = this.helpText();
-    } else {
-      widget = <AccessTokensWidgetForAdmin accessTokens={vnode.state.accessTokens}
-                                           onRevoke={vnode.state.onRevoke}
-                                           searchText={vnode.state.searchText}/>;
-    }
-    return [flashMessage, widget];
+    return [
+      flashMessage,
+      <AccessTokensWidgetForAdmin accessTokens={vnode.state.accessTokens}
+                                  onRevoke={vnode.state.onRevoke}
+                                  searchText={vnode.state.searchText}/>
+    ];
   }
 
   pageName(): string {
@@ -81,12 +78,6 @@ export class AdminAccessTokensPage extends Page<null, State> {
   }
 
   helpText(): m.Children {
-    return (<ol data-test-id="access_token_info">
-      <li>Navigate to <a href="/go/access_tokens">Personal Access Tokens</a></li>
-      <li>Click on "Generate Token" to create new personal access token.</li>
-      <li>The generated token can be used to access the GoCD API.
-        <Link href={docsUrl('configuration/access_tokens.html')} externalLinkIcon={true}> Learn More</Link>
-      </li>
-    </ol>);
+    return AccessTokensWidgetForAdmin.helpTextWhenNoTokensCreated();
   }
 }

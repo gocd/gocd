@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {docsUrl} from "gen/gocd_version";
 import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
@@ -33,7 +32,6 @@ import * as Buttons from "views/components/buttons";
 import {ButtonIcon} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
-import {Link} from "views/components/link";
 import {ModalState} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {AdminTemplatesWidget, Attrs, TemplatesScrollOptions} from "views/pages/admin_templates/admin_templates_widget";
@@ -244,12 +242,7 @@ export class AdminTemplatesPage extends Page<null, State> {
   }
 
   helpText(): m.Children {
-    return <ul>
-      <li>Templating helps to create reusable workflows and makes managing large number of pipelines easier.</li>
-      <li>GoCD Administrators can enable any GoCD user to edit a template by making them a template administrator.
-        <Link href={docsUrl("configuration/pipeline_templates.html")} externalLinkIcon={true}> Learn More</Link>
-      </li>
-    </ul>;
+    return AdminTemplatesWidget.helpText();
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {

@@ -7,4 +7,5 @@ export const pipelineGroupName: string;
 export const pipelineGroupRow: string;
 export const pipelineName: string;
 export const pipelineRow: string;
+export const tips: string;
 export const value: string;

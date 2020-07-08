@@ -77,13 +77,10 @@ export class AccessTokensPage extends Page<null, State> {
     if (vnode.state.meta.supportsAccessToken) {
       const flashMessage = this.flashMessage ?
         <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/> : null;
-      let widget: m.Children;
-      if (vnode.state.accessTokens().length === 0) {
-        widget = this.helpText();
-      } else {
-        widget = <AccessTokensWidgetForCurrentUser accessTokens={vnode.state.accessTokens} onRevoke={vnode.state.onRevoke}/>;
-      }
-      return [flashMessage, widget];
+      return [
+        flashMessage,
+        <AccessTokensWidgetForCurrentUser accessTokens={vnode.state.accessTokens} onRevoke={vnode.state.onRevoke}/>
+      ];
     }
     return <FlashMessage type={MessageType.info}>
       Creation of access token is not supported by the plugin <strong>{vnode.state.meta.pluginId}</strong>.
@@ -99,12 +96,7 @@ export class AccessTokensPage extends Page<null, State> {
   }
 
   helpText(): m.Children {
-    return <ul data-test-id="access-token-info">
-      <li>Click on "Generate Token" to create new personal access token.</li>
-      <li>A Generated token can be used to access the GoCD API.
-        <Link href={docsUrl('configuration/access_tokens.html')} externalLinkIcon={true}> Learn More</Link>
-      </li>
-    </ul>;
+    return AccessTokensWidgetForCurrentUser.helpText();
   }
 }
 

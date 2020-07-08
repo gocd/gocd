@@ -184,15 +184,7 @@ export class PackageRepositoriesPage extends Page<null, State> {
   }
 
   helpText(): m.Children {
-    return <div>
-      Pipelines in GoCD (13.3.0 and onwards) can poll packages in repositories similar to how they poll version control systems. A build typically
-      consumes source code maintained in a version control system (VCS/SCM). <br/>
-      These files (packages) are often maintained in corresponding package repositories. Such packages may be specified as materials for GoCD
-      pipelines. <br/> <br/>
-      A repository may contain one or more packages. A pipeline may refer to a package as a material. When the package is updated in the repository,
-      interested pipelines will get scheduled.
-      <Link href={docsUrl('extension_points/package_repository_extension.html')} externalLinkIcon={true}> Learn More</Link>
-    </div>;
+    return PackageRepositoriesWidget.helpText();
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {

@@ -24,6 +24,7 @@ import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {HeaderIcon} from "views/components/header_icon";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
+import {Link} from "views/components/link";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import styles from "views/pages/elastic_agent_configurations/index.scss";
 import {CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos} from "views/pages/page_operations";
@@ -33,10 +34,30 @@ interface Attrs extends RequiresPluginInfos, EditOperation<ArtifactStore>, Clone
 }
 
 export class ArtifactStoresWidget extends MithrilViewComponent<Attrs> {
+  public static helpText() {
+    return <ul>
+      <li>Use this page to add a global artifact store to publish/fetch external artifacts.</li>
+      <li>By default, GoCD internally manages and stores artifacts. The Artifact extension allows GoCD to make use of an external artifact store for
+        storing artifacts while retaining traceability between pipelines.
+      </li>
+      <li>To build your own custom plugin, please refer <Link href={"https://plugin-api.gocd.org/current/artifacts/#artifact-plugins"}>this</Link>.
+      </li>
+    </ul>;
+  }
+
   view(vnode: m.Vnode<Attrs>) {
     let noArtifactStorePluginMessage;
     if (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().length === 0) {
       noArtifactStorePluginMessage = <NoPluginsOfTypeInstalled extensionType={new ArtifactExtensionType()}/>;
+    }
+
+    if (_.isEmpty(vnode.attrs.artifactStores)) {
+      return <div data-test-id="artifact-stores-widget">
+        {noArtifactStorePluginMessage}
+        <div className={styles.tips}>
+          {ArtifactStoresWidget.helpText()}
+        </div>
+      </div>;
     }
 
     return <div data-test-id="artifact-stores-widget">

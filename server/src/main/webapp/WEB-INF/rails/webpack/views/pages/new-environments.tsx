@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {docsUrl} from "gen/gocd_version";
 import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -27,7 +26,6 @@ import {AnchorVM, ScrollManager} from "views/components/anchor/anchor";
 import {Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
-import {Link} from "views/components/link";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {CreateEnvModal} from "views/pages/new-environments/create_env_modal";
 import {EnvironmentsWidget} from "views/pages/new-environments/environments_widget";
@@ -130,13 +128,7 @@ export class NewEnvironmentsPage extends Page<null, State> {
   }
 
   helpText(): m.Children {
-    return <ul>
-      <li>An Environment is a grouping of pipelines and agents.</li>
-      <li>By assigning an agent to an environment, it will be used to run only those jobs that belong to the pipelines of that environment.</li>
-      <li>An agent can belong to more than one environment. A pipeline can, however, only be assigned to a single environment.
-        <Link href={docsUrl('configuration/managing_environments.html')} externalLinkIcon={true}> Learn More</Link>
-      </li>
-    </ul>;
+    return EnvironmentsWidget.helpText();
   }
 
   private parseEnvironmentLink(sm: ScrollManager) {

@@ -162,14 +162,7 @@ export class SecretConfigsPage extends Page<null, State> {
   }
 
   helpText(): m.Children {
-    return <div>
-      GoCD provides plugin endpoints to lookup for secrets defined in an external Secrets Manager. This gives GoCD users the flexibility to use a
-      Secret Manager of their choice to store and manage secrets.
-      <br/>
-      At no point the external secrets are stored in GoCD, these secrets are looked up only when required, e.g if a job is configured to use external
-      secrets, these secrets are looked up just before the job is assigned to an agent and transmitted securely to the agent.
-      <Link href={docsUrl('configuration/secrets_management.html')} externalLinkIcon={true}> Learn More</Link>
-    </div>;
+    return SecretConfigsWidget.helpText();
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {

@@ -50,17 +50,21 @@ interface PluginRoleAttrs extends RoleAttrs {
 }
 
 export class RolesWidget extends MithrilViewComponent<Attrs> {
+  public static helpText() {
+    return <ul data-test-id="role-config-info">
+      <li>Click on "Add" to add new role configuration.</li>
+      <li>A role configuration is used to define a group of users, along with the access permissions, who perform
+        similar tasks. You can read more about roles based access control in GoCD
+        from <Link target="_blank"
+                   href={docsUrl("configuration/dev_authorization.html#role-based-security")}>here</Link>.
+      </li>
+    </ul>;
+  }
+
   view(vnode: m.Vnode<Attrs>): m.Children | void | null {
     if (_.isEmpty(vnode.attrs.roles)) {
       return <div class={styles.tips}>
-        <ul data-test-id="role-config-info">
-          <li>Click on "Add" to add new role configuration.</li>
-          <li>A role configuration is used to define a group of users, along with the access permissions, who perform
-            similar tasks. You can read more about roles based access control in GoCD
-            from <Link target="_blank"
-                       href={docsUrl("configuration/dev_authorization.html#role-based-security")}>here</Link>.
-          </li>
-        </ul>
+        {RolesWidget.helpText()}
       </div>;
     }
     return <div data-test-id="role-widget">

@@ -1,0 +1,57 @@
+#!/usr/bin/env node
+
+const fs = require("fs");
+const path = require("path");
+const semver = require("semver");
+const { execSync } = require('child_process');
+
+const WORKSPACE = path.dirname(__dirname)
+const RAILS_ROOT = path.join(WORKSPACE, "server", "src", "main", "webapp", "WEB-INF", "rails");
+
+const manifest = JSON.parse(fs.readFileSync(path.join(RAILS_ROOT, "package.json")))
+
+function update(dict) {
+  interestingKeys(dict).forEach((mod) => {
+    const range = dict[mod];
+    console.log(`Checking ${mod} -- current: ${range}`);
+
+    // reverse sort to get the latest first
+    const versions = JSON.parse(execSync(`npm view ${mod} versions --json`).toString()).reverse();
+    const latest = semver.maxSatisfying(versions, range);
+
+    if (range.startsWith("^") || range.startsWith("~")) {
+      const parts = range.substring(1).split(".");
+      const upgraded = range[0] + latest.split(".").slice(0, parts.length).join(".");
+      if (range !== upgraded) {
+        dict[mod] = upgraded;
+        console.log("  => updating", mod, "to", upgraded);
+      }
+    }
+  });
+}
+
+update(manifest.dependencies);
+update(manifest.devDependencies);
+
+fs.writeFileSync(path.join(RAILS_ROOT, "package.json"), JSON.stringify(manifest, null, 2), {
+  encoding: "utf8",
+  mode: 0o644
+});
+
+fs.unlinkSync(path.join(RAILS_ROOT, "yarn.lock"));
+
+console.log("Updating yarn.lock");
+execSync("yarn install", { cwd: RAILS_ROOT });
+
+function interestingKeys(dict) {
+  return Object.keys(dict).filter((k) => excludes(dict, k));
+}
+
+function excludes(dict, key) {
+  return !(
+    key === "foundation-sites" ||
+    dict[key].startsWith("file:") ||
+    dict[key].startsWith("http:") ||
+    dict[key].startsWith("https:")
+  );
+}

@@ -34,7 +34,7 @@
     </authorization>
     <pipeline name="up42">
       <materials>
-        <git url="test-repo" />
+        <git url="https://github.com/krazybird/public-repo" />
       </materials>
       <stage name="up42_stage">
         <jobs>

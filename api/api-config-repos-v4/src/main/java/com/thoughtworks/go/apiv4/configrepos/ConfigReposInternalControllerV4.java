@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv4.configrepos;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.spring.ToggleRegisterLatest;
 import com.thoughtworks.go.apiv4.configrepos.representers.ConfigRepoWithResultListRepresenter;
 import com.thoughtworks.go.config.GoConfigRepoConfigDataSource;
 import com.thoughtworks.go.config.PartialConfigParseResult;
@@ -46,6 +47,7 @@ import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
 import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
+@ToggleRegisterLatest(controllerPath = ConfigRepos.INTERNAL_BASE, apiVersion = ApiVersion.v4, as = "branch_support")
 @Component
 public class ConfigReposInternalControllerV4 extends ApiController implements SparkSpringController {
 

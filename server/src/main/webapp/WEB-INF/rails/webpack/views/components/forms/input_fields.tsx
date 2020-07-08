@@ -468,7 +468,7 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
 
   renderInputField(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>) {
     const defaultAttributes = this.defaultAttributes(vnode.attrs);
-    const showHidePassword  = vnode.attrs.property()!.isEditing()
+    const showHidePassword  = vnode.attrs.property()!.isEditing() && !vnode.attrs.readonly
       ? <span id="wrapper-input" className={classnames(this.css.hidePassword)} onclick={this.onClickOfShowHideIcon.bind(this, defaultAttributes.id)}/>
       : undefined;
     const input             = [

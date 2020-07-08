@@ -26,10 +26,15 @@ export interface Attrs {
   data: Map<string, m.Children>;
   inline?: boolean;
   "data-test-id"?: string;
+  whenEmpty?: m.Children;
 }
 
 export class KeyValuePair extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
+    if (!vnode.attrs.data.size && !!vnode.attrs.whenEmpty) {
+      return vnode.attrs.whenEmpty;
+    }
+
     const isInline = vnode.attrs.inline;
 
     const elements: m.Children[] = [];
@@ -44,12 +49,9 @@ export class KeyValuePair extends MithrilViewComponent<Attrs> {
               class={styles.value}>{KeyValuePair.renderedValue(value)}</span>
       </li>);
     });
-    return (
-      <ul data-test-id={vnode.attrs['data-test-id']}
-          class={classnames(styles.keyValuePair, {[styles.keyValuePairInline]: isInline})}>
-        {elements}
-      </ul>
-    );
+    return <ul data-test-id={vnode.attrs['data-test-id']} class={classnames(styles.keyValuePair, {[styles.keyValuePairInline]: isInline})}>
+      {elements}
+    </ul>;
   }
 
   private static renderedValue(value: m.Children) {

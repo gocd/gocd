@@ -22,6 +22,12 @@ describe("KeyValuePair", () => {
   const helper = new TestHelper();
   afterEach(helper.unmount.bind(helper));
 
+  it("renders empty message if configured and there is no data", () => {
+    helper.mount(() => <KeyValuePair data={new Map()} whenEmpty={<em>Ain't nothing there!</em>}/>);
+    expect(helper.qa(`.${styles.keyValuePair} .${styles.key}`).length).toBe(0);
+    expect(helper.textAll(`*`)).toContain("Ain't nothing there!");
+  });
+
   it("should render key value pairs", () => {
     helper.mount(() => <KeyValuePair data={data()}/>);
 

@@ -286,7 +286,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
   private userPropertiesDetails(repo: ConfigRepo) {
     return <div data-test-id="config-repo-user-properties-panel">
       <SectionHeader title="User-defined Properties"/>
-      <div class={styles.configRepoProperties}><KeyValuePair data={userDefinedProperties(repo)}/></div>
+      <div class={styles.configRepoProperties}><KeyValuePair data={userDefinedProperties(repo)} whenEmpty={<em>No properties have been defined.</em>}/></div>
     </div>;
   }
 }

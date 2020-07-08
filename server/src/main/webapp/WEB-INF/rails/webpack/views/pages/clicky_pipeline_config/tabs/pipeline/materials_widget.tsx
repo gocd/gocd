@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import classnames from "classnames";
 import {ErrorResponse} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
@@ -59,7 +60,7 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
       headers.push("");
     }
 
-    return <div class={style.materialTab}>
+    return <div class={classnames(style.materialTab, {[style.editable]: !vnode.attrs.readonly})}>
       <Table headers={headers} data={this.tableData(vnode)}/>
       {addMaterialBtn}
     </div>;

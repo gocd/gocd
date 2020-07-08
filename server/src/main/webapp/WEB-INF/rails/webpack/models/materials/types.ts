@@ -103,6 +103,7 @@ export class Material extends ValidatableMixin {
       case "plugin":
         return "";
       case "git":
+        // @ts-ignore
         return  `${this.attributes()!.url()} [ ${this.attributes()!.branch()} ]`;
       default:
         // @ts-ignore

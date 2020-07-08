@@ -108,7 +108,7 @@ describe('ConfigRepoCRUD', () => {
       const responseJSON = response.unwrap() as SuccessResponse<any>;
       const configRepo   = (responseJSON.body as ObjectWithEtag<ConfigRepo>).object;
       expect(configRepo.id()).toBe("config-repo-id-1");
-      expect(configRepo.material()!.materialUrl()).toBe("http://foo.com");
+      expect(configRepo.material()!.materialUrl()).toBe("http://foo.com [ master ]");
       done();
     });
 
@@ -129,7 +129,7 @@ describe('ConfigRepoCRUD', () => {
       const responseJSON = response.unwrap() as SuccessResponse<any>;
       const configRepo   = (responseJSON.body as ObjectWithEtag<ConfigRepo>).object;
       expect(configRepo.id()).toBe("config-repo-id-1");
-      expect(configRepo.material()!.materialUrl()).toBe("http://foo.com");
+      expect(configRepo.material()!.materialUrl()).toBe("http://foo.com [ master ]");
       done();
     });
 
@@ -151,7 +151,7 @@ describe('ConfigRepoCRUD', () => {
       const responseJSON = response.unwrap() as SuccessResponse<any>;
       const configRepo   = (responseJSON.body as ObjectWithEtag<ConfigRepo>).object;
       expect(configRepo.id()).toBe("config-repo-id-1");
-      expect(configRepo.material()!.materialUrl()).toBe("http://foo.com");
+      expect(configRepo.material()!.materialUrl()).toBe("http://foo.com [ master ]");
       done();
     });
 

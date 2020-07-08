@@ -59,10 +59,12 @@
     td {
       vertical-align: middle;
     }
+  }
+}
 
-    td:last-child {
-      width: 100px;
-    }
+.material-tab.editable {
+  td:last-child {
+    width: 100px;
   }
 }
 

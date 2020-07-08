@@ -76,7 +76,7 @@ describe("MaterialsWidgetSpec", () => {
     expect(helper.qa("td", dataRow)).toHaveLength(4);
     expect(helper.qa("td", dataRow)[0].textContent).toBe("GM");
     expect(helper.qa("td", dataRow)[1].textContent).toBe("Git");
-    expect(helper.qa("td", dataRow)[2].textContent).toBe("test-repo");
+    expect(helper.qa("td", dataRow)[2].textContent).toBe("test-repo [ master ]");
   });
 
   it('should disable delete button if only one material is present', () => {

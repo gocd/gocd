@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs";
@@ -25,7 +24,6 @@ import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
-import {Link} from "views/components/link";
 import {AuthConfigsWidget} from "views/pages/auth_configs/auth_configs_widget";
 import {CloneAuthConfigModal, CreateAuthConfigModal, DeleteAuthConfigModal, EditAuthConfigModal} from "views/pages/auth_configs/modals";
 import {Page, PageState} from "views/pages/page";

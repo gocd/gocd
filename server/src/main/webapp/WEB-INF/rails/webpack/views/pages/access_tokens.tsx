@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {AccessTokenCRUD} from "models/access_tokens/access_token_crud";
@@ -22,7 +21,6 @@ import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
-import {Link} from "views/components/link";
 import {GenerateTokenModal, RevokeAccessTokenForCurrentUser} from "views/pages/access_tokens/modals";
 import {Page, PageState} from "views/pages/page";
 import {AddOperation, SaveOperation} from "views/pages/page_operations";

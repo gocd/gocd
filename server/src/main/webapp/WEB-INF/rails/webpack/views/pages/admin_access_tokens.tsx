@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import {AdminAccessTokenCRUD} from "models/admin_access_tokens/admin_access_token_crud";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {Link} from "views/components/link";
 import {RevokeAccessTokenByAdmin} from "views/pages/access_tokens/modals";
 import {Page, PageState} from "views/pages/page";
 import {AccessTokensWidgetForAdmin} from "./access_tokens/access_tokens_widget";

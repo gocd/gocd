@@ -31,31 +31,34 @@ export interface Attrs {
 
 export class HeaderPanel extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
+    let buttons: m.Children = null;
     const onclick = (e: MouseEvent) => {
       e.stopPropagation();
       new HelpTextModal(vnode.attrs.help).render();
     };
 
     const helpText: m.Children = vnode.attrs.help
-      ? (<span class={style.helpTextWrapper} data-test-id="pageActions-help">
+      ? (<span class={style.helpTextWrapper} data-test-id="help-text-icon">
       <QuestionCircle iconOnly={true} title={"Show Help Text"} onclick={onclick}/>
     </span>)
       : undefined;
 
-    const buttons: m.Children = _.isEmpty(vnode.attrs.buttons)
-      ? undefined
-      : <span data-test-id="pageActions-buttons">{vnode.attrs.buttons}</span>;
+    if (!_.isEmpty(vnode.attrs.buttons)) {
+      buttons = (
+        <div data-test-id="pageActions">
+          {vnode.attrs.buttons}
+        </div>
+      );
+    }
 
     return (<header class={style.pageHeader}>
       <div class={style.pageTitle}>
         {this.maybeSection(vnode)}
         <h1 class={style.title} data-test-id="title">{vnode.attrs.title}</h1>
+        {helpText}
         <HeaderKeyValuePair data={vnode.attrs.keyValuePair}/>
       </div>
-      <div data-test-id="pageActions">
-        {buttons}
-        {helpText}
-      </div>
+      {buttons}
     </header>);
   }
 

@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
-
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import {
   AccessTokensWidgetForAdmin,
-  formatTimeInformation, getLastUsedInformation, getRevokedBy
+  formatTimeInformation,
+  getLastUsedInformation,
+  getRevokedBy
 } from "views/pages/access_tokens/access_tokens_widget";
 import {AccessTokenTestData} from "views/pages/access_tokens/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -54,9 +57,11 @@ describe("AccessTokensWidgetForAdminSpec", () => {
     helper.mount(() => <AccessTokensWidgetForAdmin accessTokens={Stream(new AccessTokens())} onRevoke={onRevoke}
                                                    searchText={Stream("")}/>);
 
-    expect(helper.byTestId("access_token_info")).toBeInDOM();
-    expect(helper.textByTestId("access_token_info")).
-      toContain("Navigate to Personal Access TokensClick on \"Generate Token\" to create new personal access token.The generated token can be used to access the GoCD API.");
+    const helpElement = helper.byTestId("access_token_info");
+    expect(helpElement).toBeInDOM();
+    expect(helpElement.textContent).toContain('Navigate to Personal Access Tokens.Click on "Generate Token" to create new personal access token.The generated token can be used to access the GoCD API. Learn More');
+    expect(helper.qa('a', helpElement)[0]).toHaveAttr('href', '/go/access_tokens');
+    expect(helper.qa('a', helpElement)[1]).toHaveAttr('href', docsUrl("configuration/access_tokens.html"));
 
     expect(helper.byTestId("tab-header-0")).toBeFalsy();
     expect(helper.byTestId("tab-header-1")).toBeFalsy();

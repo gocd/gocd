@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {docsUrl} from "gen/gocd_version";
 import {ErrorResponse} from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
@@ -29,7 +28,6 @@ import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
-import {Link} from "views/components/link";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
 import configRepoStyles from "views/pages/config_repos/index.scss";
 import {PackageRepoScrollOptions, PackageRepositoriesWidget} from "views/pages/package_repositories/package_repositories_widget";

@@ -152,7 +152,7 @@ export class AdminPipelinesPage extends Page<null, State> {
                                 .then((result) => {
                                   result.do(
                                     () => vnode.state.onSuccessfulSave(
-                                      <span>The pipeline group <em>{pipeline.name()}</em> was deleted successfully!</span>
+                                      <span>The pipeline <em>{pipeline.name()}</em> was deleted successfully!</span>
                                     ),
                                     onOperationError
                                   );

@@ -3787,7 +3787,7 @@ fork-ts-checker-webpack-plugin@^5:
     semver "^5.6.0"
     tapable "^1.0.0"
 
-foundation-sites@6.3.0:
+foundation-sites@=6.3.0:
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/foundation-sites/-/foundation-sites-6.3.0.tgz#19b2d6e5edced8418a4a7b4a1d65287ee1c8d512"
   integrity sha1-GbLW5e3O2EGKSntKHWUofuHI1RI=
@@ -5379,7 +5379,7 @@ mississippi@^3.0.0:
     stream-each "^1.1.0"
     through2 "^2.0.0"
 
-mithril@2:
+mithril@^2:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/mithril/-/mithril-2.0.4.tgz#d125969d992b924c7185d24ff92d997e5c00116b"
   integrity sha512-mgw+DMZlhMS4PpprF6dl7ZoeZq5GGcAuWnrg5e12MvaGauc4jzWsDZtVGRCktsiQczOEUr2K5teKbE5k44RlOg==

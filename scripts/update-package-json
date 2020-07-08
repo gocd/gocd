@@ -33,7 +33,7 @@ function update(dict) {
 update(manifest.dependencies);
 update(manifest.devDependencies);
 
-fs.writeFileSync(path.join(RAILS_ROOT, "package.json"), JSON.stringify(manifest, null, 2), {
+fs.writeFileSync(path.join(RAILS_ROOT, "package.json"), JSON.stringify(manifest, null, 2) + "\n", {
   encoding: "utf8",
   mode: 0o644
 });
@@ -49,7 +49,6 @@ function interestingKeys(dict) {
 
 function excludes(dict, key) {
   return !(
-    key === "foundation-sites" ||
     dict[key].startsWith("file:") ||
     dict[key].startsWith("http:") ||
     dict[key].startsWith("https:")

@@ -15,3 +15,4 @@
 #
 
 browser: <%= ENV['BROWSER'] %>
+configuration_class: WithHeadless

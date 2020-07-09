@@ -23,12 +23,12 @@ const childProcess        = require('child_process');
 let browsers;
 
 if (process.platform === 'darwin') {
-  browsers = ['Firefox', 'Chrome'];
+  browsers = ['FirefoxHeadless', 'ChromeHeadless'];
 } else if (process.platform === 'win32') {
   browsers = ['EdgeHeadless'];
 } else {
   // linux, bsd, et.al.
-  browsers = ['Firefox'];
+  browsers = ['FirefoxHeadless'];
 }
 
 module.exports = function (config) {

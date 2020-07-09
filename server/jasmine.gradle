@@ -124,16 +124,16 @@ task downloadChromeDriver(type: DownloaderTask) { thisTask ->
 
   switch (currentOS) {
     case org.gradle.internal.os.OperatingSystem.MacOs:
-      osURIPart = 'mac';
+      osURIPart = 'mac64';
       break
     case org.gradle.internal.os.OperatingSystem.Windows:
-      osURIPart = 'win'
+      osURIPart = 'win32'
       break
     default:
-      osURIPart = 'linux'
+      osURIPart = 'linux64'
       break;
   }
-  url = "https://chromedriver.storage.googleapis.com/${packageVersion}/chromedriver_${osURIPart}64.zip"
+  url = "https://chromedriver.storage.googleapis.com/${packageVersion}/chromedriver_${osURIPart}.zip"
 }
 
 task karma(type: Exec) {

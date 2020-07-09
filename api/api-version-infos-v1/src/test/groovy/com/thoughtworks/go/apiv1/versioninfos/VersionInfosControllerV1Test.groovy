@@ -97,4 +97,46 @@ class VersionInfosControllerV1Test implements SecurityServiceTrait, ControllerTr
         .hasBody("{ }")
     }
   }
+
+  @Nested
+  class LatestVersion {
+
+    @BeforeEach
+    void setUp() {
+      loginAsUser()
+    }
+
+    @Nested
+    class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "latestVersion"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerBasePath() + "/latest_version")
+      }
+    }
+
+    @Test
+    void 'should render latest version'() {
+      when(versionInfoService.getGoUpdate()).thenReturn("2.4.6.2")
+
+      getWithApiHeader(controller.controllerBasePath() + "/latest_version")
+
+      assertThatResponse()
+        .isOk()
+        .hasJsonBody([latest_version: "2.4.6.2"])
+    }
+
+    @Test
+    void 'should return empty response when there is no info available'() {
+      getWithApiHeader(controller.controllerBasePath() + "/latest_version")
+
+      assertThatResponse()
+        .isOk()
+        .hasBody("{ }")
+    }
+  }
 }

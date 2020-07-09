@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.service.VersionInfoService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -61,11 +62,21 @@ public class VersionInfosControllerV1 extends ApiController implements SparkSpri
             before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
             get(Routes.VersionInfos.STALE, this::stale);
+            get(Routes.VersionInfos.LATEST_VERSION, this::latestVersion);
         });
     }
 
     public String stale(Request request, Response response) throws Exception {
         VersionInfo staleVersionInfo = versionInfoService.getStaleVersionInfo();
         return writerForTopLevelObject(request, response, writer -> VersionInfoRepresenter.toJSON(writer, staleVersionInfo, systemEnvironment));
+    }
+
+    public String latestVersion(Request request, Response response) throws Exception {
+        String goUpdate = versionInfoService.getGoUpdate();
+        return writerForTopLevelObject(request, response, writer -> {
+            if (StringUtils.isNotBlank(goUpdate)) {
+                writer.add("latest_version", goUpdate);
+            }
+        });
     }
 }

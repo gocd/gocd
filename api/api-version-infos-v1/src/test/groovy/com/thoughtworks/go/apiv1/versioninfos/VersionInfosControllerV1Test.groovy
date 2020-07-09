@@ -18,28 +18,41 @@ package com.thoughtworks.go.apiv1.versioninfos
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.apiv1.versioninfos.representers.VersionInfoRepresenter
+import com.thoughtworks.go.domain.GoVersion
+import com.thoughtworks.go.domain.VersionInfo
+import com.thoughtworks.go.server.service.VersionInfoService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
+import com.thoughtworks.go.util.SystemEnvironment
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.mockito.Mock
 
+import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
 class VersionInfosControllerV1Test implements SecurityServiceTrait, ControllerTrait<VersionInfosControllerV1> {
+  @Mock
+  private VersionInfoService versionInfoService
+  @Mock
+  private SystemEnvironment systemEnvironment
 
   @BeforeEach
   void setUp() {
     initMocks(this)
+    when(systemEnvironment.getUpdateServerUrl()).thenReturn("https://update.example.com/some/path")
   }
 
   @Override
   VersionInfosControllerV1 createControllerInstance() {
-    new VersionInfosControllerV1(new ApiAuthenticationHelper(securityService, goConfigService))
+    new VersionInfosControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), versionInfoService, systemEnvironment)
   }
 
   @Nested
-  class Index {
+  class Stale {
 
     @BeforeEach
     void setUp() {
@@ -48,16 +61,40 @@ class VersionInfosControllerV1Test implements SecurityServiceTrait, ControllerTr
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
-
       @Override
       String getControllerMethodUnderTest() {
-        return "index"
+        return "stale"
       }
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerBasePath())
+        getWithApiHeader(controller.controllerBasePath() + "/stale")
       }
+    }
+
+    @Test
+    void 'should render stale version info'() {
+      def info = new VersionInfo("go_server", new GoVersion('1.2.3-1'), new GoVersion('5.6.7-1'), null)
+
+      when(systemEnvironment.getUpdateServerUrl()).thenReturn("https://update.example.com/some/path")
+      when(versionInfoService.getStaleVersionInfo()).thenReturn(info)
+
+      getWithApiHeader(controller.controllerBasePath() + "/stale")
+
+      assertThatResponse()
+        .isOk()
+        .hasBodyWithJsonObject(VersionInfoRepresenter.class, info, systemEnvironment)
+    }
+
+    @Test
+    void 'should return empty response when there are no stale version infos'() {
+      when(versionInfoService.getStaleVersionInfo()).thenReturn(null)
+
+      getWithApiHeader(controller.controllerBasePath() + "/stale")
+
+      assertThatResponse()
+        .isOk()
+        .hasBody("{ }")
     }
   }
 }

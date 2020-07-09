@@ -19,23 +19,31 @@ package com.thoughtworks.go.apiv1.versioninfos;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.apiv1.versioninfos.representers.VersionInfoRepresenter;
+import com.thoughtworks.go.domain.VersionInfo;
+import com.thoughtworks.go.server.service.VersionInfoService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import spark.Request;
+import spark.Response;
 
-import static spark.Spark.before;
-import static spark.Spark.path;
+import static spark.Spark.*;
 
 @Component
 public class VersionInfosControllerV1 extends ApiController implements SparkSpringController {
-
     private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private VersionInfoService versionInfoService;
+    private SystemEnvironment systemEnvironment;
 
     @Autowired
-    public VersionInfosControllerV1(ApiAuthenticationHelper apiAuthenticationHelper) {
+    public VersionInfosControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, VersionInfoService versionInfoService, SystemEnvironment systemEnvironment) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.versionInfoService = versionInfoService;
+        this.systemEnvironment = systemEnvironment;
     }
 
     @Override
@@ -51,6 +59,13 @@ public class VersionInfosControllerV1 extends ApiController implements SparkSpri
 
             before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
             before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+
+            get(Routes.VersionInfos.STALE, this::stale);
         });
+    }
+
+    public String stale(Request request, Response response) throws Exception {
+        VersionInfo staleVersionInfo = versionInfoService.getStaleVersionInfo();
+        return writerForTopLevelObject(request, response, writer -> VersionInfoRepresenter.toJSON(writer, staleVersionInfo, systemEnvironment));
     }
 }

@@ -24,6 +24,13 @@
 
 <urlrewrite>
   <rule>
+    <name>Update Check URLs</name>
+    <from>^/(api/version_infos/.*)$</from>
+    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="versionInfoAPIs"/>
+    <to last="true">/%{attribute:sparkOrRails}/$1</to>
+  </rule>
+
+  <rule>
     <name>Template Config SPA</name>
     <from>^/admin/templates/([^/]+)/edit(/?)$</from>
     <to last="true">/spark/admin/templates/${escape:$1}/edit</to>
@@ -1040,13 +1047,6 @@
   <rule>
     <name>Rails Internal API</name>
     <from>^/(api/config/internal/.*)$</from>
-    <to last="true">/rails/$1</to>
-    <set name="rails_bound">true</set>
-  </rule>
-
-  <rule>
-    <name>Update Check URLs</name>
-    <from>^/(api/version_infos/.*)$</from>
     <to last="true">/rails/$1</to>
     <set name="rails_bound">true</set>
   </rule>

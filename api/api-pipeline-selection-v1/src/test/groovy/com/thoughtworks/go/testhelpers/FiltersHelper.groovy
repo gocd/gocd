@@ -16,13 +16,13 @@
 package com.thoughtworks.go.testhelpers
 
 import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.server.domain.user.BlacklistFilter
+import com.thoughtworks.go.server.domain.user.ExcludesFilter
 import com.thoughtworks.go.server.domain.user.Filters
 
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME
 
 class FiltersHelper {
-  static Filters blacklist(List<String> pipelines) {
-    return Filters.single(new BlacklistFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), new HashSet<>()))
+  static Filters excludes(List<String> pipelines) {
+    return Filters.single(new ExcludesFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), new HashSet<>()))
   }
 }

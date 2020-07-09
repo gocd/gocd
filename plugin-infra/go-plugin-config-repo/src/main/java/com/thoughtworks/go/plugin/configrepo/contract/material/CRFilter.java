@@ -33,21 +33,21 @@ public class CRFilter extends CRBase {
     @SerializedName("ignore")
     @Expose
     private List<String> ignore = new ArrayList<>();
-    @SerializedName("whitelist")
+    @SerializedName("includes")
     @Expose
-    private List<String> whitelist = new ArrayList<>();
+    private List<String> includes = new ArrayList<>();
 
-    public CRFilter(List<String> list, boolean whitelist) {
-        if (whitelist)
-            this.whitelist = list;
+    public CRFilter(List<String> list, boolean isFilterInverted) {
+        if (isFilterInverted)
+            this.includes = list;
         else
             this.ignore = list;
     }
 
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
-        if (this.isBlacklist() && this.isWhitelist()) {
-            errors.addError(getLocation(parentLocation), "Material filter cannot contain both ignores and whitelist");
+        if (this.isIgnored() && this.isIncluded()) {
+            errors.addError(getLocation(parentLocation), "Material filter cannot contain both ignores and includes");
         }
     }
 
@@ -58,36 +58,31 @@ public class CRFilter extends CRBase {
     }
 
     public boolean isEmpty() {
-        return (whitelist == null || whitelist.isEmpty()) && (ignore == null || ignore.isEmpty());
+        return (includes == null || includes.isEmpty()) && (ignore == null || ignore.isEmpty());
     }
 
-    public boolean isWhitelist() {
-        return whitelist != null && whitelist.size() > 0;
+    public boolean isIncluded() {
+        return includes != null && includes.size() > 0;
     }
 
     public List<String> getList() {
-        if (isBlacklist())
+        if (isIgnored())
             return ignore;
         else
-            return whitelist;
+            return includes;
     }
 
-    private boolean isBlacklist() {
+    private boolean isIgnored() {
         return ignore != null && ignore.size() > 0;
     }
 
     public void setIgnore(List<String> ignore) {
         this.ignore = ignore;
-        this.whitelist = null;
+        this.includes = null;
     }
 
-    public void setWhitelist(List<String> whitelist) {
-        this.ignore = null;
-        this.whitelist = whitelist;
-    }
-
-    public void setWhitelistNoCheck(List<String> list) {
-        this.whitelist = list;
+    public void setIncludesNoCheck(List<String> list) {
+        this.includes = list;
     }
 
 }

@@ -26,7 +26,7 @@ class PipelineSelectionsRepresenterTest {
   class Serialize {
     @Test
     void 'should serialize'() {
-      String actualJson = PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(FiltersHelper.blacklist(['build-linux', 'build-windows'])))
+      String actualJson = PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(FiltersHelper.excludes(['build-linux', 'build-windows'])))
 
       JsonFluentAssert.assertThatJson(actualJson).isEqualTo([
         filters: [[name: 'Default', state: [], type: 'blacklist', pipelines: ['build-linux', 'build-windows']]]

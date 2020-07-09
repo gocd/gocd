@@ -68,7 +68,7 @@ public class PipelineSelectionsServiceTest {
     @Test
     public void shouldPersistPipelineSelections_WhenSecurityIsDisabled() {
         disableSecurity();
-        final Filters filters = Filters.single(whitelist("pipeline1"));
+        final Filters filters = Filters.single(includes("pipeline1"));
         when(pipelineRepository.saveSelectedPipelines(pipelineSelectionsWithFilters(filters))).thenReturn(2L);
         assertEquals(2L, pipelineSelectionsService.save(null, null, filters));
         verify(pipelineRepository).saveSelectedPipelines(pipelineSelectionsWithFilters(filters));
@@ -79,7 +79,7 @@ public class PipelineSelectionsServiceTest {
         enableSecurity();
 
         User user = getUser("badger");
-        final Filters filters = Filters.single(whitelist("pipeline1"));
+        final Filters filters = Filters.single(includes("pipeline1"));
 
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
         when(pipelineRepository.saveSelectedPipelines(pipelineSelectionsWithFilters(filters))).thenReturn(2L);
@@ -101,7 +101,7 @@ public class PipelineSelectionsServiceTest {
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(pipelineSelections);
         when(pipelineRepository.saveSelectedPipelines(pipelineSelections)).thenReturn(2L);
 
-        final Filters newFilters = Filters.single(blacklist("pipelineX", "pipeline3"));
+        final Filters newFilters = Filters.single(excludes("pipelineX", "pipeline3"));
         long pipelineSelectionId = pipelineSelectionsService.save("1", user.getId(), newFilters);
 
         assertEquals(2L, pipelineSelectionId);
@@ -118,7 +118,7 @@ public class PipelineSelectionsServiceTest {
         PipelineSelections pipelineSelections = PipelineSelectionsHelper.with(Collections.singletonList("pip1"));
         when(pipelineRepository.findPipelineSelectionsById("123")).thenReturn(pipelineSelections);
 
-        final Filters newFilters = Filters.single(blacklist("pipelineX", "pipeline3"));
+        final Filters newFilters = Filters.single(excludes("pipelineX", "pipeline3"));
         assertNotEquals(newFilters, pipelineSelections.viewFilters()); // sanity check
 
         pipelineSelectionsService.save("123", null, newFilters);
@@ -211,12 +211,12 @@ public class PipelineSelectionsServiceTest {
         });
     }
 
-    private DashboardFilter blacklist(String... pipelines) {
-        return new BlacklistFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), Collections.emptySet());
+    private DashboardFilter excludes(String... pipelines) {
+        return new ExcludesFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), Collections.emptySet());
     }
 
-    private DashboardFilter whitelist(String... pipelines) {
-        return new WhitelistFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), Collections.emptySet());
+    private DashboardFilter includes(String... pipelines) {
+        return new IncludesFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), Collections.emptySet());
     }
 
     private void expectLoad(final CruiseConfig result) throws Exception {

@@ -53,10 +53,10 @@ public abstract class CRScmMaterial extends CRMaterial implements SourceCodeMate
     public CRScmMaterial() {
     }
 
-    public CRScmMaterial(String type, String materialName, String folder, boolean autoUpdate, boolean whitelist, String username, List<String> filter) {
+    public CRScmMaterial(String type, String materialName, String folder, boolean autoUpdate, boolean isFilterInverted, String username, List<String> filter) {
         super(type, materialName);
         this.destination = folder;
-        this.filter = new CRFilter(filter, whitelist);
+        this.filter = new CRFilter(filter, isFilterInverted);
         this.autoUpdate = autoUpdate;
         this.username = username;
     }
@@ -69,7 +69,7 @@ public abstract class CRScmMaterial extends CRMaterial implements SourceCodeMate
 
     public boolean isWhitelist() {
         if (this.filter != null)
-            return this.filter.isWhitelist();
+            return this.filter.isIncluded();
         return false;
     }
 
@@ -84,8 +84,8 @@ public abstract class CRScmMaterial extends CRMaterial implements SourceCodeMate
             this.filter.getErrors(errors, location);
     }
 
-    public void setWhitelistNoCheck(String... filters) { //for tests
-        this.filter.setWhitelistNoCheck(Arrays.asList(filters));
+    public void setIncludesNoCheck(String... filters) { //for tests
+        this.filter.setIncludesNoCheck(Arrays.asList(filters));
     }
 
     public boolean hasEncryptedPassword() {

@@ -638,7 +638,7 @@ public class GitMaterialTest {
             gitMaterial.setName(new CaseInsensitiveString("example"));
             gitMaterial.setInvertFilter(true);
             gitMaterial.setFolder("destination");
-            gitMaterial.setFilter(Filter.create("whitelist"));
+            gitMaterial.setFilter(Filter.create("allow"));
 
             final GitMaterialConfig materialConfig = (GitMaterialConfig) gitMaterial.config();
 

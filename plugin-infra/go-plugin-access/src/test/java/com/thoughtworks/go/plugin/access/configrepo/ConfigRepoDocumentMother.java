@@ -115,4 +115,12 @@ class ConfigRepoDocumentMother {
     String v9Pipeline() {
         return JsonUtils.toJsonString(getJSONFor("/v9_pipeline.json"));
     }
+
+    public String v9WithWhitelist() {
+        return JsonUtils.toJsonString(getJSONFor("/v9_pipeline_with_whitelist.json"));
+    }
+
+    public String v10WithIncludes() {
+        return JsonUtils.toJsonString(getJSONFor("/v10_pipeline_with_includes.json"));
+    }
 }

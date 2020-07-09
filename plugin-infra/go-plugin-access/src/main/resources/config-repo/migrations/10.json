@@ -1,0 +1,25 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "target_version": {
+        "#10": "&1" // Set target version to 10.
+      },
+      "pipelines": {
+        "*": {
+          "materials": {
+            "*": {
+              "filter": {
+                "whitelist": "pipelines.[&4].materials.[&2].filter.includes",
+                "*": "pipelines.[&4].materials.[&2].filter.&"
+              },
+              "*": "pipelines.[&3].materials.[&1].&"
+            }
+          },
+          "*": "pipelines.[&1].&"
+        }
+      },
+      "*": "&"
+    }
+  }
+]

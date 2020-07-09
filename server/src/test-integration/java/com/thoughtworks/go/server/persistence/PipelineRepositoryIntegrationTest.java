@@ -331,7 +331,7 @@ public class PipelineRepositoryIntegrationTest {
         User user = createUser();
 
         List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
-        long id = pipelineRepository.saveSelectedPipelines(blacklist(unSelected, user.getId()));
+        long id = pipelineRepository.saveSelectedPipelines(excludes(unSelected, user.getId()));
         assertThat(pipelineRepository.findPipelineSelectionsById(id).userId(), is(user.getId()));
     }
 
@@ -340,9 +340,9 @@ public class PipelineRepositoryIntegrationTest {
         User user = createUser();
 
         List<String> selected = Arrays.asList("pipeline1", "pipeline2");
-        final PipelineSelections whitelist = whitelist(selected, user.getId());
-        long id = pipelineRepository.saveSelectedPipelines(whitelist);
-        assertEquals(whitelist, pipelineRepository.findPipelineSelectionsById(id));
+        final PipelineSelections included = includes(selected, user.getId());
+        long id = pipelineRepository.saveSelectedPipelines(included);
+        assertEquals(included, pipelineRepository.findPipelineSelectionsById(id));
     }
 
     @Test
@@ -350,9 +350,9 @@ public class PipelineRepositoryIntegrationTest {
         User user = createUser();
 
         List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
-        final PipelineSelections blacklist = blacklist(unSelected, user.getId());
-        long id = pipelineRepository.saveSelectedPipelines(blacklist);
-        assertEquals(blacklist, pipelineRepository.findPipelineSelectionsById(id));
+        final PipelineSelections excluded = excludes(unSelected, user.getId());
+        long id = pipelineRepository.saveSelectedPipelines(excluded);
+        assertEquals(excluded, pipelineRepository.findPipelineSelectionsById(id));
     }
 
     @Test
@@ -360,7 +360,7 @@ public class PipelineRepositoryIntegrationTest {
         User user = createUser();
 
         List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
-        long id = pipelineRepository.saveSelectedPipelines(blacklist(unSelected, user.getId()));
+        long id = pipelineRepository.saveSelectedPipelines(excludes(unSelected, user.getId()));
         assertThat(pipelineRepository.findPipelineSelectionsByUserId(user.getId()).getId(), is(id));
     }
 
@@ -391,15 +391,15 @@ public class PipelineRepositoryIntegrationTest {
         }
     }
 
-    private PipelineSelections blacklist(List<String> pipelines, Long userId) {
+    private PipelineSelections excludes(List<String> pipelines, Long userId) {
         final List<CaseInsensitiveString> pipelineNames = CaseInsensitiveString.list(pipelines);
-        Filters filters = new Filters(Collections.singletonList(new BlacklistFilter(DEFAULT_NAME, pipelineNames, new HashSet<>())));
+        Filters filters = new Filters(Collections.singletonList(new ExcludesFilter(DEFAULT_NAME, pipelineNames, new HashSet<>())));
         return new PipelineSelections(filters, new Date(), userId);
     }
 
-    private PipelineSelections whitelist(List<String> pipelines, Long userId) {
+    private PipelineSelections includes(List<String> pipelines, Long userId) {
         final List<CaseInsensitiveString> pipelineNames = CaseInsensitiveString.list(pipelines);
-        Filters filters = new Filters(Collections.singletonList(new WhitelistFilter(DEFAULT_NAME, pipelineNames, new HashSet<>())));
+        Filters filters = new Filters(Collections.singletonList(new IncludesFilter(DEFAULT_NAME, pipelineNames, new HashSet<>())));
         return new PipelineSelections(filters, new Date(), userId);
     }
 }

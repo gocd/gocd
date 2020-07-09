@@ -23,7 +23,7 @@ import java.sql.*;
 class M001 {
     private static final String ID = "id";
     private static final String SELECTIONS = "selections";
-    private static final String BLACKLIST = "isblacklist";
+    private static final String TO_BE_EXCLUDED = "isblacklist";
     private static final int SCHEMA = 1;
     private static final Gson GSON = new Gson();
 
@@ -34,7 +34,7 @@ class M001 {
             try (Statement s = cxn.createStatement()) {
                 final ResultSet rs = s.executeQuery("SELECT id, selections, isblacklist FROM pipelineselections WHERE version = 0");
                 while (rs.next()) {
-                    perform(cxn, rs.getLong(ID), rs.getString(SELECTIONS), rs.getBoolean(BLACKLIST));
+                    perform(cxn, rs.getLong(ID), rs.getString(SELECTIONS), rs.getBoolean(TO_BE_EXCLUDED));
                 }
             }
         };
@@ -65,8 +65,8 @@ class M001 {
     private static class FilterSet {
         Filter[] filters;
 
-        public FilterSet(String selections, boolean isBlacklist) {
-            this.filters = new Filter[]{new Filter(selections, isBlacklist)};
+        public FilterSet(String selections, boolean isToBeExcluded) {
+            this.filters = new Filter[]{new Filter(selections, isToBeExcluded)};
         }
     }
 
@@ -75,10 +75,10 @@ class M001 {
         String type;
         String[] pipelines;
 
-        public Filter(String selections, boolean isBlacklist) {
+        public Filter(String selections, boolean isToBeExcluded) {
             name = "Default";
             pipelines = StringUtils.isBlank(selections) ? new String[]{} : StringUtils.split(selections, ",");
-            type = isBlacklist ? "blacklist" : "whitelist";
+            type = isToBeExcluded ? "blacklist" : "whitelist";
         }
     }
 }

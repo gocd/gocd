@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.is;
 public class CRConfigMaterialTest extends AbstractCRTest<CRConfigMaterial> {
     private final CRConfigMaterial named;
     private final CRConfigMaterial namedDest;
-    private final CRConfigMaterial blacklist;
+    private final CRConfigMaterial materialWithIgnores;
     private final CRConfigMaterial invalidList;
 
     public CRConfigMaterialTest() {
@@ -38,10 +38,10 @@ public class CRConfigMaterialTest extends AbstractCRTest<CRConfigMaterial> {
         List<String> patterns = new ArrayList<>();
         patterns.add("externals");
         patterns.add("tools");
-        blacklist = new CRConfigMaterial("primary", "folder",new CRFilter(patterns,false));
+        materialWithIgnores = new CRConfigMaterial("primary", "folder",new CRFilter(patterns,false));
 
         CRFilter badFilter = new CRFilter(patterns,false);
-        badFilter.setWhitelistNoCheck(patterns);
+        badFilter.setIncludesNoCheck(patterns);
         invalidList = new CRConfigMaterial("primary", "folder",badFilter);
     }
 
@@ -49,7 +49,7 @@ public class CRConfigMaterialTest extends AbstractCRTest<CRConfigMaterial> {
     public void addGoodExamples(Map<String, CRConfigMaterial> examples) {
         examples.put("namedExample", named);
         examples.put("namedDest", namedDest);
-        examples.put("blacklist", blacklist);
+        examples.put("ignoreFilter", materialWithIgnores);
     }
 
     @Override

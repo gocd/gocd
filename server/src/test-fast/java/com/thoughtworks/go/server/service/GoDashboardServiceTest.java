@@ -26,7 +26,7 @@ import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.domain.user.BlacklistFilter;
+import com.thoughtworks.go.server.domain.user.ExcludesFilter;
 import com.thoughtworks.go.server.domain.user.DashboardFilter;
 import com.thoughtworks.go.server.domain.user.Filters;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
@@ -188,7 +188,7 @@ public class GoDashboardServiceTest {
 
     @Test
     public void allPipelineGroupsForDashboard_shouldRetrievePipelineGroupsBasedOnDashboardFilters() {
-        DashboardFilter filter = new BlacklistFilter("foo", CaseInsensitiveString.list("pipeline2", "pipeline4"), Collections.emptySet());
+        DashboardFilter filter = new ExcludesFilter("foo", CaseInsensitiveString.list("pipeline2", "pipeline4"), Collections.emptySet());
 
         configMother.addPipelineWithGroup(config, "group2", "pipeline4", "stage1A", "job1A1");
         GoDashboardPipeline pipeline4 = pipeline("pipeline4", "group2");
@@ -213,7 +213,7 @@ public class GoDashboardServiceTest {
 
     @Test
     public void allEnvironmentsForDashboard_shouldRetrievePipelineGroupsBasedOnDashboardFilters() {
-        DashboardFilter filter = new BlacklistFilter("foo", CaseInsensitiveString.list("pipeline2", "pipeline4"), Collections.emptySet());
+        DashboardFilter filter = new ExcludesFilter("foo", CaseInsensitiveString.list("pipeline2", "pipeline4"), Collections.emptySet());
 
         configMother.addPipelineWithGroup(config, "group2", "pipeline4", "stage1A", "job1A1");
         GoDashboardPipeline pipeline4 = pipeline("pipeline4", "group2");

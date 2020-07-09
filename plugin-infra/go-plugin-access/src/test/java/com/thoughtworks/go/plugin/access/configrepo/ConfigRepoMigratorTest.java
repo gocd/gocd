@@ -15,6 +15,9 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo;
 
+import com.thoughtworks.go.plugin.access.configrepo.v1.JsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.configrepo.v2.JsonMessageHandler2_0;
+import com.thoughtworks.go.plugin.access.configrepo.v3.JsonMessageHandler3_0;
 import com.thoughtworks.go.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +29,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.fail;
 
 class ConfigRepoMigratorTest {
     private ConfigRepoMigrator migrator;
@@ -217,6 +223,21 @@ class ConfigRepoMigratorTest {
             String transformedJSON = migrator.migrate(oldJSON, 10);
 
             assertThatJson(newJSON).isEqualTo(transformedJSON);
+        }
+    }
+
+    @Test
+    void currentContractVersionShouldBeTheHighestPossibleMigration() {
+        assertThat(JsonMessageHandler1_0.CURRENT_CONTRACT_VERSION, is(JsonMessageHandler3_0.CURRENT_CONTRACT_VERSION));
+        assertThat(JsonMessageHandler2_0.CURRENT_CONTRACT_VERSION, is(JsonMessageHandler3_0.CURRENT_CONTRACT_VERSION));
+
+        new ConfigRepoMigrator().migrate("{}", JsonMessageHandler3_0.CURRENT_CONTRACT_VERSION);
+
+        try {
+            new ConfigRepoMigrator().migrate("{}", JsonMessageHandler3_0.CURRENT_CONTRACT_VERSION + 1);
+            fail("Should have failed to migrate to wrong version which is one more than the current contract version");
+        } catch (RuntimeException e) {
+            assertThat(e.getMessage(), is(String.format("Failed to migrate to version %s", JsonMessageHandler3_0.CURRENT_CONTRACT_VERSION + 1)));
         }
     }
 }

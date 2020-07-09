@@ -76,6 +76,11 @@ class WithHeadless < JasmineSeleniumRunner::ConfigureJasmine
       options = super
       options[:options] ||= Selenium::WebDriver::Chrome::Options.new
       options[:options].add_argument '--headless'
+      options[:options].add_argument '--no-first-run'
+      options[:options].add_argument '--disable-gpu'
+      options[:options].add_argument '--disable-extensions'
+      options[:options].add_argument '--no-sandbox'
+      options[:options].add_argument '--enable-logging=stderr'
     else
       raise "Don't know how to configure browser: #{browser}"
     end

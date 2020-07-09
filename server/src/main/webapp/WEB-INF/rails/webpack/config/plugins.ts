@@ -56,9 +56,9 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
                               }) as webpack.Plugin,
     new LicensePlugins(configOptions.licenseReportFile),
     new ForkTsCheckerWebpackPlugin({
-                                     typescript: { diagnosticOptions: { semantic: true, syntactic: true } },
-                                     issue: { scope: "all" }
-                                   })
+      typescript: { diagnosticOptions: { semantic: true, syntactic: true } },
+      issue: { scope: "all" }
+    })
   ];
 
   if (configOptions.production) {
@@ -123,11 +123,16 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
 
     plugins.push(new HtmlWebpackPlugin(jasmineIndexPage));
     plugins.push(new JasmineAssetsPlugin());
-    plugins.push(new WebpackBuildNotifierPlugin({
-                                                  suppressSuccess: true,
-                                                  suppressWarning: true
-                                                })
-    );
+
+    // in Windows Server Core containers, this causes webpack to hang indefinitely.
+    // it's not critical for builds anyway, just a nice dev utility.
+    if (process.platform !== "win32") {
+      plugins.push(new WebpackBuildNotifierPlugin({
+                                                    suppressSuccess: true,
+                                                    suppressWarning: true
+                                                  })
+      );
+    }
   }
   return plugins;
 }

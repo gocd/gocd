@@ -25,7 +25,9 @@ let browsers;
 if (process.platform === 'darwin') {
   browsers = ['FirefoxHeadless', 'ChromeHeadless'];
 } else if (process.platform === 'win32') {
-  browsers = ['EdgeHeadless'];
+  // chrome is the ONLY browser (not even Chromium Edge!) that
+  // works (or even installs successfully) on Windows Server Core
+  browsers = ['ChromeHeadless'];
 } else {
   // linux, bsd, et.al.
   browsers = ['FirefoxHeadless'];
@@ -45,7 +47,7 @@ module.exports = function (config) {
         seed:   process.env['JASMINE_SEED']
       }
     },
-    plugins:       [jasmineSeedReporter, "karma-*", "@chiragrupani/karma-chromium-edge-launcher"],
+    plugins:       [jasmineSeedReporter, "karma-*"],
     preprocessors: {
       '**/*.js': ['sourcemap']
     },

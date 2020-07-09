@@ -63,7 +63,6 @@
     "@babel/plugin-transform-react-jsx": "^7",
     "@babel/preset-env": "^7",
     "@babel/preset-react": "^7",
-    "@chiragrupani/karma-chromium-edge-launcher": "^2.0.0",
     "@types/awesomplete": "^1.1.10",
     "@types/chart.js": "^2.9.22",
     "@types/classnames": "^2.2.10",

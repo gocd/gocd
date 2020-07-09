@@ -25,14 +25,7 @@ let browsers;
 if (process.platform === 'darwin') {
   browsers = ['Firefox', 'Chrome'];
 } else if (process.platform === 'win32') {
-
-  // make sure to kill Edge browser before doing anything.
-  childProcess.spawnSync('taskkill', ['/F', '/IM', 'MicrosoftEdge.exe', '/T']);
-
-  // Clear Edge history so that it doesn't re-open tabs after getting killed
-  childProcess.spawnSync('powershell', ['-Command', "Remove-Item $env:USERPROFILE/AppData/Local/Packages/Microsoft.MicrosoftEdge_8wekyb3d8bbwe/AC/* -Force -Recurse"]);
-
-  browsers = ['Edge'];
+  browsers = ['EdgeHeadless'];
 } else {
   // linux, bsd, et.al.
   browsers = ['Firefox'];
@@ -52,7 +45,7 @@ module.exports = function (config) {
         seed:   process.env['JASMINE_SEED']
       }
     },
-    plugins:       [jasmineSeedReporter, "karma-*"],
+    plugins:       [jasmineSeedReporter, "karma-*", "@chiragrupani/karma-chromium-edge-launcher"],
     preprocessors: {
       '**/*.js': ['sourcemap']
     },

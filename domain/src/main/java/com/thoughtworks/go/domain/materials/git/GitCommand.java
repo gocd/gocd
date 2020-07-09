@@ -110,6 +110,11 @@ public class GitCommand extends SCMCommand {
                 gitClone,
                 git_C().withArgs("config", "--replace-all", "remote.origin.fetch", "+" + expandRefSpec()),
                 git_C().withArgs("fetch", "--prune", "--recurse-submodules=no"),
+                // Enter a detached head state without updating/restoring files in the workspace.
+                // This covers an edge-case where the destination ref is the same as the default
+                // branch, which would otherwise cause `git branch -f <local-ref> <remote-ref>` to
+                // fail when local-ref == current-ref.
+                git_C().withArgs("update-ref", "--no-deref", "HEAD", "HEAD"),
                 // Important to create a "real" local branch and not just use `symbolic-ref`
                 // to update HEAD in order to ensure that GitMaterial#isBranchEqual() passes;
                 // failing this check will cause the working directory to be obliterated and we

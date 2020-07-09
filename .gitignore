@@ -518,3 +518,7 @@ api/api-agents-v7/out/
 api/api-agents-v7/target/
 api/api-agents-v7/logs/
 api/api-agents-v7/config/
+api/api-version-infos-v1/out/
+api/api-version-infos-v1/target/
+api/api-version-infos-v1/logs/
+api/api-version-infos-v1/config/

@@ -18,10 +18,15 @@ package com.thoughtworks.go.apiv1.versioninfos;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.apiv1.versioninfos.models.GoLatestVersion;
+import com.thoughtworks.go.apiv1.versioninfos.representers.GoLatestVersionRepresenter;
 import com.thoughtworks.go.apiv1.versioninfos.representers.VersionInfoRepresenter;
 import com.thoughtworks.go.domain.VersionInfo;
 import com.thoughtworks.go.server.service.VersionInfoService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -30,6 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
+
+import java.io.IOException;
 
 import static spark.Spark.*;
 
@@ -63,6 +70,7 @@ public class VersionInfosControllerV1 extends ApiController implements SparkSpri
 
             get(Routes.VersionInfos.STALE, this::stale);
             get(Routes.VersionInfos.LATEST_VERSION, this::latestVersion);
+            patch(Routes.VersionInfos.GO_SERVER, this::updateGoServerInfo);
         });
     }
 
@@ -78,5 +86,31 @@ public class VersionInfosControllerV1 extends ApiController implements SparkSpri
                 writer.add("latest_version", goUpdate);
             }
         });
+    }
+
+    public String updateGoServerInfo(Request request, Response response) throws IOException {
+        GoLatestVersion goLatestVersion = buildEntityFromRequest(request);
+        goLatestVersion.setSystemEnvironment(systemEnvironment);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        if (!goLatestVersion.isValid()) {
+            log.error("[Go Update Check] Latest version update failed, version information from update server tampered.");
+            result.badRequest("Message tampered, cannot process.");
+            return renderHTTPOperationResult(result, request, response);
+        }
+
+        VersionInfo versionInfo = versionInfoService.updateServerLatestVersion(goLatestVersion.latestVersion(), result);
+
+        if (result.isSuccessful()) {
+            return writerForTopLevelObject(request, response, writer -> VersionInfoRepresenter.toJSON(writer, versionInfo, systemEnvironment));
+        } else {
+            return renderHTTPOperationResult(result, request, response);
+        }
+    }
+
+    private GoLatestVersion buildEntityFromRequest(Request request) {
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
+        return GoLatestVersionRepresenter.fromJSON(jsonReader);
     }
 }

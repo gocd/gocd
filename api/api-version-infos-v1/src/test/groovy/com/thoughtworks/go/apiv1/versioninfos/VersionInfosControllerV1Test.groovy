@@ -139,4 +139,26 @@ class VersionInfosControllerV1Test implements SecurityServiceTrait, ControllerTr
         .hasBody("{ }")
     }
   }
+
+  @Nested
+  class PatchGoServer {
+
+    @BeforeEach
+    void setUp() {
+      loginAsUser()
+    }
+
+    @Nested
+    class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "updateGoServerInfo"
+      }
+
+      @Override
+      void makeHttpCall() {
+        patchWithApiHeader(controller.controllerBasePath() + "/go_server", [:])
+      }
+    }
+  }
 }

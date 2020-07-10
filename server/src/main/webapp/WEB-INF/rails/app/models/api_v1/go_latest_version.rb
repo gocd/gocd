@@ -39,7 +39,7 @@ module ApiV1
     end
 
     def signing_public_key_tampered?
-      public_key = File.read(@system_environment.getUpdateServerPublicKeyPath())
+      public_key = @system_environment.getUpdateServerPublicKey()
 
       !MessageVerifier.verify(@signing_public_key, @signing_public_key_signature, public_key)
     end

@@ -17,11 +17,13 @@ package com.thoughtworks.go.util;
 
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.utils.Timeout;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.Charset;
@@ -660,6 +662,11 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public String getUpdateServerPublicKeyPath() {
         return String.format("%s/%s", getConfigDir(), GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME.getValue());
+    }
+
+    //used in rails
+    public String getUpdateServerPublicKey() throws IOException {
+        return FileUtils.readFileToString(new File(this.getUpdateServerPublicKeyPath()), "utf8");
     }
 
     public boolean isGOUpdateCheckEnabled() {

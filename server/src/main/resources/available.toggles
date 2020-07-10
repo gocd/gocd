@@ -27,8 +27,8 @@
     },
     {
       "key": "use_rails_version_infos_api",
-      "description": "Use rails based version infos API. Default is true.",
-      "value": true
+      "description": "Use rails based version infos API. Default is false.",
+      "value": false
     }
   ]
 }

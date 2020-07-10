@@ -23,19 +23,14 @@ const childProcess        = require('child_process');
 let browsers;
 
 if (process.platform === 'darwin') {
-  browsers = ['Firefox', 'Chrome'];
+  browsers = ['FirefoxHeadless', 'ChromeHeadless'];
 } else if (process.platform === 'win32') {
-
-  // make sure to kill Edge browser before doing anything.
-  childProcess.spawnSync('taskkill', ['/F', '/IM', 'MicrosoftEdge.exe', '/T']);
-
-  // Clear Edge history so that it doesn't re-open tabs after getting killed
-  childProcess.spawnSync('powershell', ['-Command', "Remove-Item $env:USERPROFILE/AppData/Local/Packages/Microsoft.MicrosoftEdge_8wekyb3d8bbwe/AC/* -Force -Recurse"]);
-
-  browsers = ['Edge'];
+  // chrome is the ONLY browser (not even Chromium Edge!) that
+  // works (or even installs successfully) on Windows Server Core
+  browsers = ['ChromeHeadless'];
 } else {
   // linux, bsd, et.al.
-  browsers = ['Firefox'];
+  browsers = ['FirefoxHeadless'];
 }
 
 module.exports = function (config) {

@@ -3046,9 +3046,9 @@ ee-first@1.1.1:
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
 electron-to-chromium@^1.3.488:
-  version "1.3.492"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.492.tgz#bde16082a05a124266e5ecc9cf0ce53d137f2919"
-  integrity sha512-AD6v9Y2wN0HuoRH4LwCmlSHjkKq51D1U52bTuvM5uPzisbHVm3Hms15c42TBFLewxnSqxAynK/tbeaUi4Rnjqw==
+  version "1.3.493"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.493.tgz#825d4335d053db27dafa72619ba9bae06f79f791"
+  integrity sha512-XI8utnmn79O57cYTS0Y2smVmxwQvVisp7T/5mHHrUnY6yVXaglssFFxiHmSAIBil3c5XmhCqkhcS9j237zj83A==
 
 elliptic@^6.0.0, elliptic@^6.5.2:
   version "6.5.3"
@@ -4860,10 +4860,6 @@ karma-chrome-launcher@^3.1.0:
   integrity sha512-3dPs/n7vgz1rxxtynpzZTvb9y/GIaW8xjAwcIGttLbycqoFtI7yo1NGnQi6oFTherRE+GIhCAHZC4vEqWGhNvg==
   dependencies:
     which "^1.2.1"
-
-"karma-edge-launcher@https://github.com/karma-runner/karma-edge-launcher.git#f2bf198c02753f732dd1a2ac530981b7897d52d8":
-  version "0.4.3"
-  resolved "https://github.com/karma-runner/karma-edge-launcher.git#f2bf198c02753f732dd1a2ac530981b7897d52d8"
 
 karma-firefox-launcher@^1.3.0:
   version "1.3.0"

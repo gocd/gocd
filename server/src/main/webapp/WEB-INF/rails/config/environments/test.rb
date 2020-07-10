@@ -61,3 +61,30 @@ def Spring.load_context
   ctx_files = Dir[File.expand_path(File.join(Rails.root, "..", '..', '..', 'resources', "applicationContext*.xml"))].map { |path| "/#{File.basename(path)}" }
   ClassPathXmlApplicationContext.new(ctx_files.to_java(:string))
 end
+
+require "jasmine_selenium_runner/configure_jasmine"
+
+class WithHeadless < JasmineSeleniumRunner::ConfigureJasmine
+  def selenium_options
+    options = super
+
+    if browser =~ /^firefox/
+      options = super
+      options[:options] ||= Selenium::WebDriver::Firefox::Options.new
+      options[:options].add_argument '-headless'
+    elsif browser =~ /^chrome/
+      options = super
+      options[:options] ||= Selenium::WebDriver::Chrome::Options.new
+      options[:options].add_argument '--headless'
+      options[:options].add_argument '--no-first-run'
+      options[:options].add_argument '--disable-gpu'
+      options[:options].add_argument '--disable-extensions'
+      options[:options].add_argument '--no-sandbox'
+      options[:options].add_argument '--enable-logging=stderr'
+    else
+      raise "Don't know how to configure browser: #{browser}"
+    end
+
+    options
+  end
+end

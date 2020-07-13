@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
@@ -43,10 +44,10 @@ describe("AuthorizationConfigurationWidget", () => {
     mount(new AuthConfigs(), pluginInfos);
 
     expect(helper.byTestId("auth-config-widget")).toBeFalsy();
-    expect(helper.byTestId("auth-config-info")).toBeInDOM();
-    expect(helper.textByTestId("auth-config-info"))
-      .toBe(
-        "Click on \"Add\" to add new authorization configuration.An auth configuration can be used to setup user authorization. You can read more about authorization in GoCD from here.");
+    const helpElement = helper.byTestId("auth-config-info");
+    expect(helpElement).toBeInDOM();
+    expect(helpElement.textContent).toBe('Click on "Add" to add new authorization configuration."Authorization configuration" is the term used in GoCD for the configuration which allows a GoCD administrator to configure the kind of authentication and authorization used by it.GoCD can be setup to use multiple authorization configurations at the same time.An auth configuration can be used to setup user authorization. You can read more about authorization in GoCD from here.');
+    expect(helper.q('a', helpElement)).toHaveAttr('href', docsUrl("configuration/dev_authentication.html"));
   });
 
   it("should render id info and action buttons", () => {

@@ -15,6 +15,7 @@
  */
 
 // utils
+import {docsUrl} from "gen/gocd_version";
 import {queryParamAsString} from "helpers/url";
 import _ from "lodash";
 import m from "mithril";
@@ -30,6 +31,7 @@ import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 // components
 import {ConceptDiagram} from "views/components/concept_diagram";
 import {EnvironmentVariablesWidget} from "views/components/environment_variables";
+import {Link} from "views/components/link";
 import {Page, PageState} from "views/pages/page";
 import {PipelineActions} from "views/pages/pipelines/actions";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
@@ -157,5 +159,12 @@ export class PipelineCreatePage extends Page<{}, State> {
                       this.pageState = PageState.OK;
                     }, this.setErrorState);
                   });
+  }
+
+  helpText(): m.Children {
+    return <div>
+      To read about the basic pipeline setup, follow
+      <Link href={docsUrl('configuration/quick_pipeline_setup.html')} externalLinkIcon={true}> this.</Link>
+    </div>;
   }
 }

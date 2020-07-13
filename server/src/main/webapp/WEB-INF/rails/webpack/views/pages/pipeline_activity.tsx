@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {AjaxPoller} from "helpers/ajax_poller";
 import {ApiResult} from "helpers/api_request_builder";
 import m from "mithril";
@@ -23,6 +24,7 @@ import {PipelineActivityService} from "models/pipeline_activity/pipeline_activit
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
+import {Link} from "views/components/link";
 import {PaginationWidget} from "views/components/pagination";
 import {Pagination} from "views/components/pagination/models/pagination";
 import {Page, PageState} from "views/pages/page";
@@ -155,6 +157,14 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
     this.fetchPipelineHistory();
   }
 
+  helpText(): m.Children {
+    return <div>
+      The pipeline activity helps GoCD users to see the status of historical runs of a pipeline. The current page makes it easier to browse
+      through the pipeline runs by filtering pipeline runs using label, user or material revision (e.g. git commit sha).
+      <Link href={docsUrl('advanced_usage/pipeline_activity.html')} externalLinkIcon={true}> Learn More</Link>
+    </div>;
+  }
+
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     let title: m.Children = <div data-test-id="pipeline-pause-header"/>;
 
@@ -170,7 +180,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
                    dataTestId={"search-field"}
                    placeholder={"Filter history..."}
                    onchange={this.fetchData.bind(this)}/>
-    }/>;
+    } help={this.helpText()}/>;
   }
 
   protected fetchPipelineHistory(): Promise<void> {

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {SecretConfigs} from "models/secret_configs/secret_configs";
@@ -136,12 +137,12 @@ describe("SecretConfigsWidget", () => {
   it("should display info when no secret configs are present", () => {
     mount([], pluginInfos);
 
-    expect(helper.byTestId("secret-configs-group")).toBeFalsy();
-    expect(helper.byTestId("secret-config-info")).toBeInDOM();
-    expect(helper.textByTestId("secret-config-info"))
-      .toBe(
-        "Click on \"Add\" to add new secret configuration.A secret configuration can be used to access secrets from a secret management store.");
+    const helpElement = helper.byTestId("secret-config-info");
 
+    expect(helper.byTestId("secret-configs-group")).toBeFalsy();
+    expect(helpElement).toBeInDOM();
+    expect(helpElement.textContent).toBe("Click on \"Add\" to add new secret configuration.A secret configuration can be used to access secrets from an external secret management store.You can read more about secret configurations from here.");
+    expect(helper.q('a', helpElement)).toHaveAttr('href', docsUrl("configuration/secrets_management.html"));
   });
 
   function mount(secretConfigs: SecretConfigs, pluginInfos: PluginInfos) {

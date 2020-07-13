@@ -124,7 +124,11 @@ export class NewEnvironmentsPage extends Page<null, State> {
     const headerButtons = [];
     headerButtons.push(<Primary dataTestId="add-environment-button" onclick={vnode.state.onAdd}>Add
       Environment</Primary>);
-    return <HeaderPanel title="Environments" buttons={headerButtons}/>;
+    return <HeaderPanel title="Environments" buttons={headerButtons} help={this.helpText()}/>;
+  }
+
+  helpText(): m.Children {
+    return EnvironmentsWidget.helpText();
   }
 
   private parseEnvironmentLink(sm: ScrollManager) {

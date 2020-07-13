@@ -17,3 +17,4 @@ export const pluginName: string;
 export const pluginNotInstalled: string;
 export const spinnerWrapper: string;
 export const tableCell: string;
+export const tips: string;

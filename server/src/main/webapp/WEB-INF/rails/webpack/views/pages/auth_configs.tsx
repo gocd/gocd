@@ -25,18 +25,9 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {AuthConfigsWidget} from "views/pages/auth_configs/auth_configs_widget";
-import {
-  CloneAuthConfigModal, CreateAuthConfigModal, DeleteAuthConfigModal,
-  EditAuthConfigModal
-} from "views/pages/auth_configs/modals";
+import {CloneAuthConfigModal, CreateAuthConfigModal, DeleteAuthConfigModal, EditAuthConfigModal} from "views/pages/auth_configs/modals";
 import {Page, PageState} from "views/pages/page";
-import {
-  AddOperation,
-  CloneOperation,
-  DeleteOperation,
-  EditOperation,
-  RequiresPluginInfos, SaveOperation
-} from "views/pages/page_operations";
+import {AddOperation, CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 
 interface State extends AddOperation<AuthConfig>, RequiresPluginInfos, EditOperation<AuthConfig>, CloneOperation<AuthConfig>, DeleteOperation<AuthConfig>, SaveOperation {
   authConfigs: AuthConfigs;
@@ -108,7 +99,7 @@ export class AuthConfigsPage extends Page<null, State> {
                        data-test-id="add-auth-config-button"
                        disabled={disabled}>Add</Buttons.Primary>
     ];
-    return <HeaderPanel title={this.pageName()} buttons={headerButtons}/>;
+    return <HeaderPanel title={this.pageName()} buttons={headerButtons} help={this.helpText()}/>;
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
@@ -124,5 +115,9 @@ export class AuthConfigsPage extends Page<null, State> {
                       vnode.state.authConfigs = success.body;
                     }, () => this.setErrorState());
                   });
+  }
+
+  helpText(): m.Children {
+    return AuthConfigsWidget.helpText();
   }
 }

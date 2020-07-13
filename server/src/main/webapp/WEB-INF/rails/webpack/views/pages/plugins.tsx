@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {docsUrl} from "gen/gocd_version";
 import {ApiResult} from "helpers/api_request_builder";
 import m from "mithril";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
+import {Link} from "views/components/link";
 import {PluginsWidget} from "views/pages/new_plugins/plugins_widget";
 import {Page} from "./page";
 
@@ -37,6 +39,13 @@ export class PluginsPage extends Page {
 
   fetchData() {
     return PluginInfoCRUD.all({include_bad: true}).then(this.onSuccess.bind(this));
+  }
+
+  helpText(): m.Children {
+    return <div>
+      Plugins allow users to extend the functionality of GoCD. You can read more about them from
+      <Link href={docsUrl("extension_points/plugin_user_guide.html")} externalLinkIcon={true}> here.</Link>
+    </div>;
   }
 
   private onSuccess(pluginInfos: ApiResult<PluginInfos>) {

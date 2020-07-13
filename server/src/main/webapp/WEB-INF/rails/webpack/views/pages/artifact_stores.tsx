@@ -28,17 +28,12 @@ import {HeaderPanel} from "views/components/header_panel";
 import {ArtifactStoresWidget} from "views/pages/artifact_stores/artifact_stores_widget";
 import {
   CloneArtifactStoreModal,
-  CreateArtifactStoreModal, DeleteArtifactStoreModal,
+  CreateArtifactStoreModal,
+  DeleteArtifactStoreModal,
   EditArtifactStoreModal
 } from "views/pages/artifact_stores/modals";
 import {Page, PageState} from "views/pages/page";
-import {
-  AddOperation,
-  CloneOperation,
-  DeleteOperation,
-  EditOperation,
-  RequiresPluginInfos, SaveOperation
-} from "views/pages/page_operations";
+import {AddOperation, CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 
 interface State extends RequiresPluginInfos, AddOperation<ArtifactStore>, EditOperation<ArtifactStore>, CloneOperation<ArtifactStore>, DeleteOperation<ArtifactStore>, SaveOperation {
   artifactStores: ArtifactStores;
@@ -111,7 +106,7 @@ export class ArtifactStoresPage extends Page<null, State> {
                        data-test-id="add-artifact-stores-button"
                        disabled={disabled}>Add</Buttons.Primary>
     ];
-    return <HeaderPanel title={this.pageName()} buttons={headerButtons}/>;
+    return <HeaderPanel title={this.pageName()} buttons={headerButtons} help={this.helpText()}/>;
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
@@ -127,5 +122,9 @@ export class ArtifactStoresPage extends Page<null, State> {
                       this.pageState             = PageState.OK;
                     }, () => this.setErrorState());
                   });
+  }
+
+  helpText(): m.Children {
+    return ArtifactStoresWidget.helpText();
   }
 }

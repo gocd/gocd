@@ -39,6 +39,16 @@ export interface PluggableSCMScrollOptions {
 }
 
 export class PluggableScmsWidget extends MithrilViewComponent<Attrs> {
+
+  public static helpText() {
+    return <ul>
+      <li>Click on "Create Pluggable Scm" to add new SCM.</li>
+      <li>An SCM can be set up and used as a material in the pipelines. You can read more
+        from <Link target="_blank" href={docsUrl("extension_points/scm_extension.html")}>here</Link>.
+      </li>
+    </ul>;
+  }
+
   view(vnode: m.Vnode<Attrs>) {
     if (vnode.attrs.scrollOptions.sm.hasTarget()) {
       const target           = vnode.attrs.scrollOptions.sm.getTarget();
@@ -50,12 +60,7 @@ export class PluggableScmsWidget extends MithrilViewComponent<Attrs> {
     }
     if (!vnode.attrs.scms || _.isEmpty(vnode.attrs.scms())) {
       return <div className={styles.tips} data-test-id="pluggable-scm-info">
-        <ul>
-          <li>Click on "Create Pluggable Scm" to add new SCM.</li>
-          <li>An SCM can be set up and used as a material in the pipelines. You can read more
-            from <Link target="_blank" href={docsUrl("extension_points/scm_extension.html")}>here</Link>.
-          </li>
-        </ul>
+        {PluggableScmsWidget.helpText()}
       </div>;
     }
     return <div data-test-id="scms-widget">

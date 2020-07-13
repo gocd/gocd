@@ -281,6 +281,10 @@ export class AdminPipelinesPage extends Page<null, State> {
     this.operation = (m.route.param().operation || "").toLowerCase();
   }
 
+  helpText(): m.Children {
+    return PipelineGroupsWidget.helpTextWhenEmpty();
+  }
+
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     const headerButtons = [
       <Buttons.Secondary css={buttonStyle}
@@ -290,6 +294,6 @@ export class AdminPipelinesPage extends Page<null, State> {
                          onclick={vnode.state.createPipelineGroup.bind(vnode.state)}
                          data-test-id="create-new-pipeline-group">Create new pipeline group</Buttons.Secondary>
     ];
-    return <HeaderPanel title={this.pageName()} buttons={headerButtons}/>;
+    return <HeaderPanel title={this.pageName()} buttons={headerButtons} help={this.helpText()}/>;
   }
 }

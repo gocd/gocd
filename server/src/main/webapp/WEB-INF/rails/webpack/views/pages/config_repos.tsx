@@ -120,7 +120,7 @@ export class ConfigReposPage extends Page<null, State> {
       </div>,
       <Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add</Buttons.Primary>
     ];
-    return <HeaderPanel title="Config Repositories" buttons={headerButtons}/>;
+    return <HeaderPanel title="Config Repositories" buttons={headerButtons} help={this.helpText()}/>;
   }
 
   fetchData(vnode: m.Vnode<null, State>) {
@@ -160,6 +160,10 @@ export class ConfigReposPage extends Page<null, State> {
 
   pageName(): string {
     return "Config repositories";
+  }
+
+  helpText(): m.Children {
+    return ConfigReposWidget.helpText();
   }
 
   private onConfigReposAPIResponse(apiResponse: ApiResult<ConfigRepos>, permissionsResponse: ApiResult<Permissions>, vnode: m.Vnode<null, State>) {

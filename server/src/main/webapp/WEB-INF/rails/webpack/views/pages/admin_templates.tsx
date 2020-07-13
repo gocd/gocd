@@ -241,6 +241,10 @@ export class AdminTemplatesPage extends Page<null, State> {
                   });
   }
 
+  helpText(): m.Children {
+    return AdminTemplatesWidget.helpText();
+  }
+
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     const isEnabled     = headerMeta().isUserAdmin || headerMeta().isGroupAdmin;
     const headerButtons = [
@@ -251,7 +255,7 @@ export class AdminTemplatesPage extends Page<null, State> {
                        data-test-id="create-new-template">Create a new template</Buttons.Primary>
     ];
 
-    return <HeaderPanel title={this.pageName()} buttons={headerButtons}/>;
+    return <HeaderPanel title={this.pageName()} buttons={headerButtons} help={this.helpText()}/>;
   }
 
   private parseTemplatesLink(sm: ScrollManager) {

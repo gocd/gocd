@@ -41,6 +41,15 @@ export interface PackageRepoScrollOptions {
 }
 
 export class PackageRepositoriesWidget extends MithrilViewComponent<Attrs> {
+
+  public static helpText() {
+    return <ul>
+      <li>Click on "Create Package Repository" to add new package repository.</li>
+      <li>A package repository can be set up to use packages as a material in the pipelines. You can read more
+        from <Link target="_blank" href={docsUrl("extension_points/package_repository_extension.html")}>here</Link>.
+      </li>
+    </ul>;
+  }
   view(vnode: m.Vnode<Attrs>) {
     const pkgRepoScrollOptions = vnode.attrs.scrollOptions.package_repo_sm;
     if (pkgRepoScrollOptions.sm.hasTarget()) {
@@ -53,12 +62,7 @@ export class PackageRepositoriesWidget extends MithrilViewComponent<Attrs> {
     }
     if (_.isEmpty(vnode.attrs.packageRepositories())) {
       return <div className={styles.tips} data-test-id="package-repo-info">
-        <ul>
-          <li>Click on "Create Package Repository" to add new package repository.</li>
-          <li>A package repository can be set up to use packages as a material in the pipelines. You can read more
-            from <Link target="_blank" href={docsUrl("extension_points/package_repository_extension.html")}>here</Link>.
-          </li>
-        </ul>
+        {PackageRepositoriesWidget.helpText()}
       </div>;
     }
     return <div data-test-id="package-repositories-widget">

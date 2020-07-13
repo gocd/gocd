@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
@@ -26,6 +27,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderIcon} from "views/components/header_icon";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
+import {Link} from "views/components/link";
 import {ShowRulesWidget} from "views/components/rules/show_rules_widget";
 import {CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos} from "views/pages/page_operations";
 import styles from "views/pages/secret_configs/index.scss";
@@ -35,6 +37,16 @@ interface Attrs extends RequiresPluginInfos, EditOperation<SecretConfig>, CloneO
 }
 
 export class SecretConfigsWidget extends MithrilViewComponent<Attrs> {
+  public static helpText() {
+    return <ul data-test-id="secret-config-info">
+      <li>Click on "Add" to add new secret configuration.</li>
+      <li>A secret configuration can be used to access secrets from an external secret management store.</li>
+      <li>You can read more about secret configurations from
+        <Link target="_blank" href={docsUrl('configuration/secrets_management.html')}> here</Link>.
+      </li>
+    </ul>;
+  }
+
   view(vnode: m.Vnode<Attrs>) {
     let noSecretPluginInstalled;
     if (!this.hasSecretPlugins(vnode)) {
@@ -44,10 +56,7 @@ export class SecretConfigsWidget extends MithrilViewComponent<Attrs> {
     if (vnode.attrs.secretConfigs === null || vnode.attrs.secretConfigs().length === 0) {
       return (<div class={styles.tips}>
         {noSecretPluginInstalled}
-        <ul data-test-id="secret-config-info">
-          <li>Click on "Add" to add new secret configuration.</li>
-          <li>A secret configuration can be used to access secrets from a secret management store.</li>
-        </ul>
+        {SecretConfigsWidget.helpText()}
       </div>);
     }
 

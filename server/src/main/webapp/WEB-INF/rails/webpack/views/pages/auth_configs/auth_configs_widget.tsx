@@ -34,6 +34,20 @@ interface Attrs extends RequiresPluginInfos, EditOperation<AuthConfig>, CloneOpe
 }
 
 export class AuthConfigsWidget extends MithrilViewComponent<Attrs> {
+
+  public static helpText() {
+    return <ul data-test-id="auth-config-info">
+      <li>Click on "Add" to add new authorization configuration.</li>
+      <li>"Authorization configuration" is the term used in GoCD for the configuration which allows a GoCD administrator to configure the kind of
+        authentication and authorization used by it.
+      </li>
+      <li>GoCD can be setup to use multiple authorization configurations at the same time.</li>
+      <li>An auth configuration can be used to setup user authorization. You can read more about authorization in
+        GoCD from <Link target="_blank" href={docsUrl("configuration/dev_authentication.html")}>here</Link>.
+      </li>
+    </ul>;
+  }
+
   view(vnode: m.Vnode<Attrs>) {
     let noAuthorizationPluginMessage;
     if (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().length === 0) {
@@ -42,15 +56,11 @@ export class AuthConfigsWidget extends MithrilViewComponent<Attrs> {
     }
 
     if (vnode.attrs.authConfigs == null || vnode.attrs.authConfigs.length === 0) {
-      return (<div class={styles.tips}>
-        {noAuthorizationPluginMessage}
-        <ul data-test-id="auth-config-info">
-          <li>Click on "Add" to add new authorization configuration.</li>
-          <li>An auth configuration can be used to setup user authorization. You can read more about authorization in
-            GoCD from <Link target="_blank" href={docsUrl("configuration/dev_authentication.html")}>here</Link>.
-          </li>
-        </ul>
-      </div>);
+      return [
+        noAuthorizationPluginMessage,
+        <div className={styles.tips}>
+          {AuthConfigsWidget.helpText()}
+        </div>];
     }
 
     return <div data-test-id="auth-config-widget">

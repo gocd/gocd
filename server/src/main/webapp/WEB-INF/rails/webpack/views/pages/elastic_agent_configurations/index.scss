@@ -162,3 +162,8 @@ $disabled-text-color: #999;
 .add-icon {
   @include icon-before($type: $fa-var-plus);
 }
+
+.tips {
+  background: $white;
+  padding:    20px;
+}

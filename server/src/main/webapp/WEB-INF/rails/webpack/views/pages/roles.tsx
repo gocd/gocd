@@ -122,7 +122,7 @@ export class RolesPage extends Page<null, State> {
     const headerButtons = [(<Buttons.Primary data-test-id="role-add-button"
                                              onclick={vnode.state.onAdd.bind(vnode.state)}>Add</Buttons.Primary>)];
 
-    return <HeaderPanel title={this.pageName()} buttons={headerButtons}/>;
+    return <HeaderPanel title={this.pageName()} buttons={headerButtons} help={this.helpText()}/>;
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
@@ -149,4 +149,7 @@ export class RolesPage extends Page<null, State> {
                   });
   }
 
+  helpText(): m.Children {
+    return RolesWidget.helpText();
+  }
 }

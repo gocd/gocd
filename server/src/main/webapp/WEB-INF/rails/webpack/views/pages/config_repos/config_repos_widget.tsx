@@ -292,6 +292,17 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
 }
 
 export class ConfigReposWidget extends MithrilViewComponent<CollectionAttrs> {
+  public static helpText() {
+    return <ul>
+      <li>Click on "Add" to add a new config repository.</li>
+      <li>GoCD can utilize the pipeline definitions stored in an external source code repository (either in your application’s repository, or in a
+        separate repository).
+      </li>
+      <li>You can read more about config repositories from <Link target="_blank" href={docsUrl('advanced_usage/pipelines_as_code.html')}>here</Link>.
+      </li>
+    </ul>;
+  }
+
   view(vnode: m.Vnode<CollectionAttrs>): m.Children | void | null {
     const models = vnode.attrs.models();
 
@@ -315,10 +326,14 @@ export class ConfigReposWidget extends MithrilViewComponent<CollectionAttrs> {
     }
 
     if (!models.length) {
-      return (
+      return [
         <FlashMessage type={MessageType.info}>
           Either no config repositories have been set up or you are not authorized to view the same. {docLink}
-        </FlashMessage>);
+        </FlashMessage>,
+        <div className={styles.tips}>
+          {ConfigReposWidget.helpText()}
+        </div>
+      ];
     }
 
     return <div>

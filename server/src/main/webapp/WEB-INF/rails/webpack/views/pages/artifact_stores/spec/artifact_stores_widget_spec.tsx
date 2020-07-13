@@ -35,8 +35,8 @@ describe("ArtifactStoresModal", () => {
   it("should show flash message when no artifact plugin installed", () => {
     mount(new ArtifactStores(), new PluginInfos());
 
-    expect(helper.byTestId("flash-message-info")).toBeInDOM();
-    expect(helper.textByTestId("flash-message-info")).toBe("No artifact plugin installed.");
+    expect(helper.byTestId("flash-message-warning")).toBeInDOM();
+    expect(helper.textByTestId("flash-message-warning")).toBe("To use this page, you must ensure that there are one or more artifact plugins installed. Please see this page for a list of supported plugins.");
   });
 
   it("should render action buttons", () => {

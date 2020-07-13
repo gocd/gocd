@@ -32,7 +32,7 @@ interface State {
 export class AdminAccessTokensPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.accessTokens = Stream();
-    vnode.state.searchText = Stream();
+    vnode.state.searchText   = Stream();
     super.oninit(vnode);
 
     vnode.state.onRevoke = (accessToken: Stream<AccessToken>, e: MouseEvent) => {
@@ -51,9 +51,12 @@ export class AdminAccessTokensPage extends Page<null, State> {
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     const flashMessage = this.flashMessage ?
       <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/> : null;
-    return [flashMessage,
-      <AccessTokensWidgetForAdmin accessTokens={vnode.state.accessTokens} onRevoke={vnode.state.onRevoke}
-                                  searchText={vnode.state.searchText}/>];
+    return [
+      flashMessage,
+      <AccessTokensWidgetForAdmin accessTokens={vnode.state.accessTokens}
+                                  onRevoke={vnode.state.onRevoke}
+                                  searchText={vnode.state.searchText}/>
+    ];
   }
 
   pageName(): string {
@@ -70,5 +73,9 @@ export class AdminAccessTokensPage extends Page<null, State> {
                   this.pageState = PageState.OK;
                 },
                 this.setErrorState));
+  }
+
+  helpText(): m.Children {
+    return AccessTokensWidgetForAdmin.helpTextWhenNoTokensCreated();
   }
 }

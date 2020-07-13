@@ -182,6 +182,16 @@ class TemplateWidget extends MithrilViewComponent<TemplateAttrs> {
 }
 
 export class AdminTemplatesWidget extends MithrilViewComponent<Attrs> {
+
+  public static helpText() {
+    return <ul>
+      <li>Templating helps to create reusable workflows and makes managing large number of pipelines easier.</li>
+      <li>GoCD Administrators can enable any GoCD user to edit a template by making them a template administrator.
+        <Link href={docsUrl("configuration/pipeline_templates.html")} externalLinkIcon={true}> Learn More</Link>
+      </li>
+    </ul>;
+  }
+
   view(vnode: m.Vnode<Attrs>) {
     const templateUrl = "configuration/pipeline_templates.html";
     const docLink     = <span data-test-id="doc-link">
@@ -205,8 +215,13 @@ export class AdminTemplatesWidget extends MithrilViewComponent<Attrs> {
       Either no templates have been set up or you are not authorized to view the same. {docLink}
     </span>;
 
-      return <FlashMessage type={MessageType.info} message={noTemplatesFoundMsg}
-                           dataTestId="no-template-present-msg"/>;
+      return [
+        <FlashMessage type={MessageType.info} message={noTemplatesFoundMsg}
+                      dataTestId="no-template-present-msg"/>,
+        <div className={styles.tips}>
+          {AdminTemplatesWidget.helpText()}
+        </div>
+      ];
     }
     return (
       <div data-test-id="templates">

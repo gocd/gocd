@@ -145,6 +145,10 @@ export class PluggableScmsPage extends Page<null, State> {
                   });
   }
 
+  helpText(): m.Children {
+    return PluggableScmsWidget.helpText();
+  }
+
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     const buttons = [
       <Primary icon={ButtonIcon.ADD} disabled={!this.isPluginInstalled(vnode)}
@@ -152,7 +156,7 @@ export class PluggableScmsPage extends Page<null, State> {
         Create Pluggable Scm
       </Primary>
     ];
-    return <HeaderPanel title={this.pageName()} buttons={buttons}/>;
+    return <HeaderPanel title={this.pageName()} buttons={buttons} help={this.helpText()}/>;
   }
 
   private isPluginInstalled(vnode: m.Vnode<null, State>) {

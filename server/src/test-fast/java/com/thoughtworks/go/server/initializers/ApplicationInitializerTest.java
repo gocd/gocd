@@ -125,6 +125,8 @@ public class ApplicationInitializerTest {
     @Mock
     private EntityHashingService entityHashingService;
     @Mock
+    private RevokeStaleAccessTokenService revokeStaleAccessTokenService;
+    @Mock
     private DependencyMaterialUpdateNotifier dependencyMaterialUpdateNotifier;
     @Mock
     private SCMMaterialSource scmMaterialSource;

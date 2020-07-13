@@ -175,6 +175,22 @@ public class AccessTokenServiceIntegrationTest {
     }
 
     @Test
+    public void shouldRevokeAccessTokenWithinGoCD() {
+        String tokenDescription = "This is my first Token";
+        AccessToken createdToken = accessTokenService.create(tokenDescription, "BOB", authConfigId);
+
+        assertThat(createdToken.isRevoked()).isFalse();
+        assertThat(createdToken.getRevokeCause()).isBlank();
+
+        accessTokenService.revokeAccessTokenByGoCD(createdToken.getId(), "from GoCD");
+
+        AccessToken tokenAfterRevoking = accessTokenService.find(createdToken.getId(), "bOb");
+        assertThat(tokenAfterRevoking.isRevoked()).isTrue();
+        assertThat(tokenAfterRevoking.getRevokedBy()).isEqualTo("GoCD");
+        assertThat(tokenAfterRevoking.getRevokeCause()).isEqualTo("from GoCD");
+    }
+
+    @Test
     public void shouldFailToRevokeAnAlreadyRevokedAccessToken() {
         String tokenDescription = "This is my first Token";
         AccessToken createdToken = accessTokenService.create(tokenDescription, "BOB", authConfigId);

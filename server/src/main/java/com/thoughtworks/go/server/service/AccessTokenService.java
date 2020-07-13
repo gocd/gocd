@@ -78,6 +78,18 @@ public class AccessTokenService {
         return token;
     }
 
+    // load access token within GoCD
+    private AccessToken findAccessTokenForGoCD(long id) {
+        AccessToken token;
+        token = accessTokenDao.loadForAdminUser(id);
+
+        if (token == null) {
+            throw new RecordNotFoundException(EntityType.AccessToken, id);
+        }
+
+        return token;
+    }
+
     public AccessToken findByAccessToken(String actualToken) {
         if (actualToken.length() != 40) {
             throw new InvalidAccessTokenException();
@@ -103,18 +115,28 @@ public class AccessTokenService {
         return token;
     }
 
+    // for APIs
     public AccessToken revokeAccessToken(long id, String username, String revokeCause) {
         AccessToken fetchedAccessToken = find(Long.parseLong(String.valueOf(id)), username);
+        return revoke(fetchedAccessToken, username, revokeCause);
+    }
 
+    // for GoCD
+    public AccessToken revokeAccessTokenByGoCD(long id, String revokeCause) {
+        AccessToken fetchedAccessToken = findAccessTokenForGoCD(Long.parseLong(String.valueOf(id)));
+        return revoke(fetchedAccessToken, "GoCD", revokeCause);
+    }
+
+    private AccessToken revoke(AccessToken fetchedAccessToken, String username, String revokeCause) {
         if (fetchedAccessToken.isRevoked()) {
             throw new ConflictException("Access token has already been revoked!");
         }
 
-        ACCESS_TOKEN_LOGGER.debug("[Access Token] Revoking access token with id: '{}' for user '{}' with revoked cause '{}'.", id, username, revokeCause);
+        ACCESS_TOKEN_LOGGER.debug("[Access Token] Revoking access token with id: '{}' for user '{}' with revoked cause '{}'.", fetchedAccessToken.getId(), username, revokeCause);
         fetchedAccessToken.revoke(username, revokeCause, timeProvider.currentTimestamp());
         accessTokenDao.saveOrUpdate(fetchedAccessToken);
 
-        ACCESS_TOKEN_LOGGER.debug("[Access Token] Done revoking access token with id: '{}' for user '{}' with revoked cause '{}'.", id, username, revokeCause);
+        ACCESS_TOKEN_LOGGER.debug("[Access Token] Done revoking access token with id: '{}' for user '{}' with revoked cause '{}'.", fetchedAccessToken.getId(), username, revokeCause);
 
         return fetchedAccessToken;
     }

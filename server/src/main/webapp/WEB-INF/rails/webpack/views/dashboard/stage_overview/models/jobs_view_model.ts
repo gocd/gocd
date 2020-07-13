@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import {JobJSON, Result} from "./stage_instance";
 
 export class JobsViewModel {

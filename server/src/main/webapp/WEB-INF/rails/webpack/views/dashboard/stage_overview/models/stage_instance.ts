@@ -15,10 +15,10 @@
  */
 
 import Stream from "mithril/stream";
+import moment from "moment";
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "../../../../helpers/api_request_builder";
 import {SparkRoutes} from "../../../../helpers/spark_routes";
 import {JobStateTransitionJSON, State} from "../../../../models/agent_job_run_history";
-import moment from "moment";
 import {JobsViewModel} from "./jobs_view_model";
 
 export enum Result {
@@ -26,13 +26,13 @@ export enum Result {
 }
 
 export interface JobJSON {
-  name: string,
-  state: State,
-  result: Result,
-  scheduled_date: number,
-  rerun: boolean,
-  original_job_id: number | null,
-  agent_uuid: string | null,
+  name: string;
+  state: State;
+  result: Result;
+  scheduled_date: number;
+  rerun: boolean;
+  original_job_id: number | null;
+  agent_uuid: string | null;
   job_state_transitions: JobStateTransitionJSON[];
 }
 
@@ -41,7 +41,7 @@ export interface StageInstanceJSON {
   counter: number;
   approval_type: string;
   approved_by: string;
-  result: Result
+  result: Result;
   rerun_of_counter: number | null;
   fetch_materials: boolean;
   clean_working_directory: boolean;
@@ -53,45 +53,12 @@ export interface StageInstanceJSON {
 
 export class StageInstance {
   private static API_VERSION_HEADER = ApiVersion.latest;
-  private json: StageInstanceJSON;
   readonly jobsVM: Stream<JobsViewModel>;
+  private json: StageInstanceJSON;
 
   constructor(json: StageInstanceJSON) {
     this.json = json;
     this.jobsVM = Stream(new JobsViewModel(json.jobs));
-  }
-
-  triggeredBy(): string {
-    return `Triggered by ${this.json.approved_by}`;
-  }
-
-  triggeredOn(): string {
-    const LOCAL_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss [Local Time]";
-    return `on ${moment.unix(this.stageScheduledTime()).format(LOCAL_TIME_FORMAT)}`;
-  }
-
-  private stageScheduledTime(): number {
-    return this.json.jobs[0].scheduled_date / 1000;
-  }
-
-  stageDuration(): string {
-    if (this.isStageInProgress()) {
-      return `in progress`;
-    }
-
-    const highestJobTime = this.json.jobs.reduce((first: number, next: JobJSON) => {
-      let completed = next.job_state_transitions.find(t => t.state === "Completed");
-      return first < completed.state_change_time ? completed.state_change_time : first;
-    }, 0);
-
-    const end = moment.unix(highestJobTime / 1000);
-    const start = moment.unix(this.stageScheduledTime())
-
-    return moment.utc(end.diff(start)).format("HH:mm:ss");
-  }
-
-  private isStageInProgress(): boolean {
-    return this.json.result === Result[Result.Unknown];
   }
 
   static fromJSON(json: StageInstanceJSON) {
@@ -105,5 +72,38 @@ export class StageInstance {
           return StageInstance.fromJSON(JSON.parse(body) as StageInstanceJSON);
         });
       });
+  }
+
+  triggeredBy(): string {
+    return `Triggered by ${this.json.approved_by}`;
+  }
+
+  triggeredOn(): string {
+    const LOCAL_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss [Local Time]";
+    return `on ${moment.unix(this.stageScheduledTime()).format(LOCAL_TIME_FORMAT)}`;
+  }
+
+  stageDuration(): string {
+    if (this.isStageInProgress()) {
+      return `in progress`;
+    }
+
+    const highestJobTime = this.json.jobs.reduce((first: number, next: JobJSON) => {
+      const completed = next.job_state_transitions.find(t => t.state === "Completed");
+      return first < completed.state_change_time ? completed.state_change_time : first;
+    }, 0);
+
+    const end = moment.unix(highestJobTime / 1000);
+    const start = moment.unix(this.stageScheduledTime());
+
+    return moment.utc(end.diff(start)).format("HH:mm:ss");
+  }
+
+  private stageScheduledTime(): number {
+    return this.json.jobs[0].scheduled_date / 1000;
+  }
+
+  private isStageInProgress(): boolean {
+    return this.json.result === Result[Result.Unknown];
   }
 }

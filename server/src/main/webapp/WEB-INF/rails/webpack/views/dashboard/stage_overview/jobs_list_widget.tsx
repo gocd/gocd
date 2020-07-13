@@ -18,18 +18,18 @@ import {bind} from "classnames/bind";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {MithrilComponent} from "../../../jsx/mithril-component";
-import {StageInstance} from "./models/stage_instance";
-import {JobsViewModel} from "./models/jobs_view_model";
 import {CheckboxField} from "../../components/forms/input_fields";
-import * as styles from "./index.scss";
 import {PipelineRunWidget} from "../../pages/pipeline_activity/pipeline_run_info_widget";
+import * as styles from "./index.scss";
+import {JobsViewModel} from "./models/jobs_view_model";
+import {StageInstance} from "./models/stage_instance";
 
 import pipelineHistoryStyles from "../../pages/pipeline_activity/index.scss";
 
 const classnames = bind(pipelineHistoryStyles);
 
 export interface Attrs {
-  stageInstance: Stream<StageInstance>
+  stageInstance: Stream<StageInstance>;
 }
 
 export interface State {
@@ -44,7 +44,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
       return ["", "Status", "Job Name", "Duration", "Agent"];
     };
 
-    vnode.state.getTableRowForJob = (jobName: String, jobsVM: JobsViewModel) => {
+    vnode.state.getTableRowForJob = (jobName: string, jobsVM: JobsViewModel) => {
       return <tr>
         <td data-test-id={`checkbox-for-job-${jobName}`} class={styles.jobCheckbox}>
           <CheckboxField property={Stream()}/>
@@ -61,8 +61,8 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         <td class={styles.jobName}> {jobName} </td>
         <td> in progress</td>
         <td> agent 1</td>
-      </tr>
-    }
+      </tr>;
+    };
   }
 
   view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
@@ -78,7 +78,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         {
           ['buildingJobNames', 'failedJobNames', 'cancelledJobNames', 'passedJobNames'].map((m) => {
             return (vnode.attrs.stageInstance().jobsVM()[m]() as string[])
-              .map(jobName => vnode.state.getTableRowForJob(jobName, vnode.attrs.stageInstance().jobsVM()))
+              .map(jobName => vnode.state.getTableRowForJob(jobName, vnode.attrs.stageInstance().jobsVM()));
           })
         }
       </table>

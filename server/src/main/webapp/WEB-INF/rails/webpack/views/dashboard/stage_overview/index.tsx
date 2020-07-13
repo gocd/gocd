@@ -16,12 +16,12 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
-import * as styles from "./index.scss";
 import {MithrilComponent} from "../../../jsx/mithril-component";
-import {StageHeaderWidget} from "./stage_overview_header";
-import {StageInstance} from "./models/stage_instance";
 import {Spinner} from "../../components/spinner";
+import * as styles from "./index.scss";
 import {JobsListWidget} from "./jobs_list_widget";
+import {StageInstance} from "./models/stage_instance";
+import {StageHeaderWidget} from "./stage_overview_header";
 
 export interface Attrs {
   pipelineName: string;
@@ -48,7 +48,7 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
     if (!vnode.state.stageInstance()) {
       return <div data-test-id="stage-overview-container" className={styles.stageOverviewContainer}>
         <Spinner/>
-      </div>
+      </div>;
     }
 
     return <div data-test-id="stage-overview-container" class={styles.stageOverviewContainer}>
@@ -57,6 +57,6 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
                          pipelineName={vnode.attrs.pipelineName}
                          stageInstance={vnode.state.stageInstance}/>
     <JobsListWidget stageInstance={vnode.state.stageInstance}/>
-    </div>
+    </div>;
   }
 }

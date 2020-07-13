@@ -17,8 +17,8 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {TestHelper} from "../../../pages/spec/test_helper";
-import {StageHeaderWidget} from "../stage_overview_header";
 import {StageInstance} from "../models/stage_instance";
+import {StageHeaderWidget} from "../stage_overview_header";
 import {TestData} from "./test_data";
 
 describe('Stage Overview Header', () => {
@@ -83,7 +83,7 @@ describe('Stage Overview Header', () => {
                                 pipelineCounter={pipelineCounter}
                                 stageName={stageName}
                                 stageCounter={stageCounter}
-                                stageInstance={Stream(stageInstance)}/>
-    })
+                                stageInstance={Stream(stageInstance)}/>;
+    });
   }
 });

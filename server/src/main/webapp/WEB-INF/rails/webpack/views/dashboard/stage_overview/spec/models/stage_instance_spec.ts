@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-
 import {Result, StageInstance, StageInstanceJSON} from "../../models/stage_instance";
 import {TestData} from "../test_data";
 
-describe('Stage Instance', function () {
+describe('Stage Instance', () => {
 
   let stageInstanceJson: StageInstanceJSON;
 
-  beforeEach(function () {
+  beforeEach(() => {
     stageInstanceJson = TestData.stageInstanceJSON();
   });
 

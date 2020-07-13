@@ -16,9 +16,9 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
-import * as styles from "./index.scss";
-import {MithrilComponent} from "../../../jsx/mithril-component";
 import * as Icons from "views/components/icons";
+import {MithrilComponent} from "../../../jsx/mithril-component";
+import * as styles from "./index.scss";
 import {StageInstance} from "./models/stage_instance";
 
 interface StageHeaderAttrs {
@@ -28,11 +28,8 @@ interface StageHeaderAttrs {
   stageInstance: Stream<StageInstance>;
 }
 
-interface StageHeaderState {
-}
-
-export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageHeaderState> {
-  view(vnode: m.Vnode<StageHeaderAttrs, StageHeaderState>): m.Children | void | null {
+export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
+  view(vnode: m.Vnode<StageHeaderAttrs, {}>): m.Children | void | null {
     return <div data-test-id="stage-overview-header" class={styles.stageHeaderContainer}>
       <div data-test-id="stage-name-and-operations-container" class={styles.flexBox}>
         <div class={styles.stageNameContainer}>

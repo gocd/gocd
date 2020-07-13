@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.newsecurity.filterchains;
 
+import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
@@ -229,6 +230,7 @@ public class AuthenticationFilterChainTest {
                     .withBearerAuth("some-access-token")
                     .build();
 
+            when(securityAuthConfigService.findProfile(anyString())).thenReturn(new SecurityAuthConfig());
             HttpSession originalSession = request.getSession();
             when(accessTokenService.findByAccessToken("some-access-token")).thenReturn(accessToken);
             final AuthenticationToken authenticationToken = mock(AuthenticationToken.class);

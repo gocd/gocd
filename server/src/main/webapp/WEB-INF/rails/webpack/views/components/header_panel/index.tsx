@@ -17,31 +17,23 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import {HeaderKeyValuePair} from "views/components/header_panel/header_key_value_pair";
-import {QuestionCircle} from "views/components/icons";
-import {Modal} from "views/components/modal";
+import {Help, TooltipSize} from "views/components/tooltip";
 import * as style from "./index.scss";
 
-export interface Attrs {
+interface HelpTextAttrs {
+  help?: m.Children;
+}
+
+export interface Attrs extends HelpTextAttrs {
   title: m.Children;
   sectionName?: m.Children;
   buttons?: m.Children;
   keyValuePair?: { [key: string]: m.Children };
-  help?: m.Children;
 }
 
 export class HeaderPanel extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     let buttons: m.Children = null;
-    const onclick = (e: MouseEvent) => {
-      e.stopPropagation();
-      new HelpTextModal(vnode.attrs.help).render();
-    };
-
-    const helpText: m.Children = vnode.attrs.help
-      ? (<span class={style.helpTextWrapper} data-test-id="help-text-icon">
-      <QuestionCircle iconOnly={true} title={"Show Help Text"} onclick={onclick}/>
-    </span>)
-      : undefined;
 
     if (!_.isEmpty(vnode.attrs.buttons)) {
       buttons = (
@@ -55,7 +47,7 @@ export class HeaderPanel extends MithrilViewComponent<Attrs> {
       <div class={style.pageTitle}>
         {this.maybeSection(vnode)}
         <h1 class={style.title} data-test-id="title">{vnode.attrs.title}</h1>
-        {helpText}
+        <HelpTextWidget help={vnode.attrs.help}/>
         <HeaderKeyValuePair data={vnode.attrs.keyValuePair}/>
       </div>
       {buttons}
@@ -71,20 +63,13 @@ export class HeaderPanel extends MithrilViewComponent<Attrs> {
   }
 }
 
-class HelpTextModal extends Modal {
-  private readonly msg: m.Children;
-
-  constructor(msg: m.Children) {
-    super();
-    this.msg = msg;
+class HelpTextWidget extends MithrilViewComponent<HelpTextAttrs> {
+  view(vnode: m.Vnode<HelpTextAttrs, this>): m.Children | void | null {
+    if (!vnode.attrs.help) {
+      return undefined;
+    }
+    return <div data-test-id="help-text-wrapper" className={style.helpTextWrapper}>
+      <Help content={vnode.attrs.help} size={TooltipSize.medium}/>
+    </div>;
   }
-
-  body(): m.Children {
-    return <div data-test-id="help-text-message">{this.msg}</div>;
-  }
-
-  title(): string {
-    return "Show Help Text";
-  }
-
 }

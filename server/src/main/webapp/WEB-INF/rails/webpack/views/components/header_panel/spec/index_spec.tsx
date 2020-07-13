@@ -25,7 +25,7 @@ describe("Header Panel Component", () => {
     const pageTitle = "Test Header";
     mount(pageTitle, []);
     expect(helper.textByTestId("title")).toContain(pageTitle);
-    expect(helper.byTestId("help-text-icon")).not.toBeInDOM();
+    expect(helper.byTestId("help-text-wrapper")).not.toBeInDOM();
   });
 
   it("should render header panel along with buttons", () => {
@@ -72,7 +72,7 @@ describe("Header Panel Component", () => {
   it('should render help icon when help text is provided', () => {
     mount("Title", [], undefined, "Some help text");
 
-    expect(helper.byTestId("help-text-icon")).toBeInDOM();
+    expect(helper.byTestId("help-text-wrapper")).toBeInDOM();
   });
 
   function mount(pageTitle: m.Children, buttons?: m.Children, keyValuePair?: { [key: string]: m.Children }, help?: m.Children) {

@@ -17,6 +17,7 @@ import m from "mithril";
 import _ from "lodash";
 
 import {f} from "helpers/form_helper";
+import {StageOverview} from "./stage_overview/index";
 
 export const StagesInstanceWidget = {
   oninit(vnode) {
@@ -65,13 +66,20 @@ export const StagesInstanceWidget = {
              className={`pipeline_stage ${stage.status.toLowerCase()}`}
              title={stageStatus} aria-label={stageStatus}>
           </a>
+          <StageOverview pipelineName={stage.pipelineName()}
+                         pipelineCounter={stage.pipelineCounter()}
+                         stageName={stage.name}
+                         stageCounter={stage.counter}/>
         </div>);
       }
 
       return (<div class="pipeline_stage_manual_gate_wrapper">
         {manualGate}
-        <span className={`pipeline_stage ${stage.status.toLowerCase()}`}
-              title={stageStatus} aria-label={stageStatus}/>
+        <span className={`pipeline_stage ${stage.status.toLowerCase()}`} title={stageStatus} aria-label={stageStatus}/>
+        <StageOverview pipelineName={stage.pipelineName()}
+                       pipelineCounter={stage.pipelineCounter()}
+                       stageName={stage.name}
+                       stageCounter={stage.counter}/>
       </div>);
     });
 
@@ -80,7 +88,6 @@ export const StagesInstanceWidget = {
         {stageInstance}
       </ul>
     );
-  }
 };
 
 function getHelpText(stage, previousStage) {

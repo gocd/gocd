@@ -116,7 +116,7 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
     return stage.scheduled();
   }
 
-  private static stageStatusClass(status: string) {
+  public static stageStatusClass(status: string) {
     if (!status) {
       return;
     }

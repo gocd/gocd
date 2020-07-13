@@ -21,6 +21,8 @@ import Routes from "gen/js-routes";
 import _ from "lodash";
 
 const StageInstance = function (json, pipelineName, pipelineCounter) {
+  this.pipelineName          = () => pipelineName;
+  this.pipelineCounter       = () => pipelineCounter;
   this.name                  = json.name;
   this.counter               = json.counter;
   this.status                = json.status;

@@ -31,6 +31,12 @@ describe("Dashboard", () => {
 
       expect(pipelineInstance.stages.length).toEqual(pipelineInstanceJson._embedded.stages.length);
 
+      expect(pipelineInstance.stages[0].pipelineName()).toEqual(pipelineName);
+      expect(pipelineInstance.stages[0].pipelineCounter()).toEqual(pipelineInstanceJson.counter);
+
+      expect(pipelineInstance.stages[1].pipelineName()).toEqual(pipelineName);
+      expect(pipelineInstance.stages[1].pipelineCounter()).toEqual(pipelineInstanceJson.counter);
+
       const stage = pipelineInstanceJson._embedded.stages[0];
       expect(pipelineInstance.stages[0].name).toEqual(stage.name);
       expect(pipelineInstance.stages[0].counter).toEqual(stage.counter);

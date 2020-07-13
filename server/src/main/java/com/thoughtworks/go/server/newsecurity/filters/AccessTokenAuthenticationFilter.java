@@ -141,7 +141,13 @@ public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
                     , new Timestamp(System.currentTimeMillis()));
 
             try {
-                SecurityAuthConfig authConfig = securityAuthConfigService.findProfile(accessTokenCredential.getAccessToken().getAuthConfigId());
+                String authConfigId = accessTokenCredential.getAccessToken().getAuthConfigId();
+                SecurityAuthConfig authConfig = securityAuthConfigService.findProfile(authConfigId);
+                if(authConfig == null) {
+                    String errorMessage = String.format("Can not find authorization configuration \"%s\" to which the requested personal access token belongs. Authorization Configuration \"%s\" might have been renamed or deleted. Please revoke the existing token and create a new one for the same.", authConfigId, authConfigId);
+                    onAuthenticationFailure(request, response, errorMessage);
+                    return;
+                }
                 final AuthenticationToken<AccessTokenCredential> authenticationToken = authenticationProvider.authenticateUser(accessTokenCredential, authConfig);
                 if (authenticationToken == null) {
                     onAuthenticationFailure(request, response, BAD_CREDENTIALS_MSG);

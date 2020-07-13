@@ -176,6 +176,26 @@ public class AccessTokenAuthenticationFilterTest {
         }
 
         @Test
+        void shouldDisallowAccessWhenBelongingAuthConfigIsNotFound() throws Exception {
+            when(securityAuthConfigService.findProfile(accessToken.getAuthConfigId())).thenReturn(null);
+
+            request = HttpRequestBuilder.GET("/api/blah")
+                    .withBearerAuth(TOKEN)
+                    .build();
+
+            final AuthenticationToken<AccessTokenCredential> authenticationToken = createAuthentication(BOB);
+            when(authenticationProvider.authenticateUser(new AccessTokenCredential(accessToken), authConfig)).thenReturn(authenticationToken);
+
+            filter.doFilter(request, response, filterChain);
+
+            assertThat(response.getStatus()).isEqualTo(401);
+
+            assertThat(response.getContentAsString()).isEqualTo("{\n" +
+                    "  \"message\": \"Can not find authorization configuration \\\""+authConfig.getId()+"\\\" to which the requested personal access token belongs. Authorization Configuration \\\""+authConfig.getId()+"\\\" might have been renamed or deleted. Please revoke the existing token and create a new one for the same.\"\n" +
+                    "}");
+        }
+
+        @Test
         void shouldAllowAccessWhenGoodCredentialsAreProvided() throws Exception {
             request = HttpRequestBuilder.GET("/api/blah")
                     .withBearerAuth(TOKEN)

@@ -107,6 +107,16 @@ describe('MaterialWithFingerPrintSpec', () => {
 
     expect(material.attributesAsMap().get("Filter")).toEqual(['abc']);
   });
+
+  it('should return true if search string matches name, type or display url', () => {
+    const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("some-name", false, "http://svn.com/gocd/gocd", "master"));
+
+    expect(material.matches("git")).toBeTrue();
+    expect(material.matches("name")).toBeTrue();
+    expect(material.matches("gocd")).toBeTrue();
+    expect(material.matches("mas")).toBeTrue();
+    expect(material.matches("abc")).toBeFalse();
+  });
 });
 
 describe('MaterialWithFingerprintsSpec', () => {

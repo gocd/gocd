@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {MaterialAPIs, MaterialWithFingerprints} from "models/materials/materials";
+import {MaterialAPIs, MaterialWithFingerprint, MaterialWithFingerprints} from "models/materials/materials";
+import {FlashMessage, MessageType} from "views/components/flash_message";
+import {SearchField} from "views/components/forms/input_fields";
+import {HeaderPanel} from "views/components/header_panel";
 import {MaterialsWidget} from "views/pages/materials/materials_widget";
 import {Page, PageState} from "views/pages/page";
+import configRepoStyles from "./config_repos/index.scss";
 
 export interface MaterialsAttrs {
   materials: Stream<MaterialWithFingerprints>;
 }
 
-// tslint:disable-next-line:no-empty-interface
 interface State extends MaterialsAttrs {
+  searchText: Stream<string>;
 }
 
 export class MaterialsPage extends Page<null, State> {
@@ -33,11 +38,24 @@ export class MaterialsPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
 
-    vnode.state.materials = Stream();
+    vnode.state.materials  = Stream();
+    vnode.state.searchText = Stream();
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    return <MaterialsWidget {...vnode.state}/>;
+    const filteredMaterials: Stream<MaterialWithFingerprints> = Stream(vnode.state.materials());
+    if (vnode.state.searchText()) {
+      const results = _.filter(filteredMaterials(), (vm: MaterialWithFingerprint) => vm.matches(vnode.state.searchText()));
+
+      if (_.isEmpty(results)) {
+        return <div>
+          <FlashMessage type={MessageType.info}>No Results for the search
+            string: <em>{vnode.state.searchText()}</em></FlashMessage>
+        </div>;
+      }
+      filteredMaterials(new MaterialWithFingerprints(...results));
+    }
+    return <MaterialsWidget materials={filteredMaterials}/>;
   }
 
   pageName(): string {
@@ -57,5 +75,17 @@ export class MaterialsPage extends Page<null, State> {
 
   helpText(): m.Children {
     return MaterialsWidget.helpText();
+  }
+
+  protected headerPanel(vnode: m.Vnode<null, State>): any {
+    const buttons = [];
+    if (!_.isEmpty(vnode.state.materials())) {
+      const searchBox = <div className={configRepoStyles.wrapperForSearchBox}>
+        <SearchField property={vnode.state.searchText} dataTestId={"search-box"}
+                     placeholder="Search for a material name or url"/>
+      </div>;
+      buttons.push(searchBox);
+    }
+    return <HeaderPanel title={this.pageName()} buttons={buttons} help={this.helpText()}/>;
   }
 }

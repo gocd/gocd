@@ -50,6 +50,18 @@ export class MaterialWithFingerprint extends Material {
     return _.reduce(this.attributes(), MaterialWithFingerprint.resolveKeyValueForAttribute, map);
   }
 
+  matches(textToMatch: string): boolean {
+    if (!textToMatch) {
+      return true;
+    }
+    const searchableStrings = [
+      this.type(),
+      this.name(),
+      this.materialUrl()
+    ];
+    return searchableStrings.some((value) => value ? value.toLowerCase().includes(textToMatch.trim().toLowerCase()) : false);
+  }
+
   private static resolveKeyValueForAttribute(accumulator: Map<string, string>, value: any, key: string) {
     if (key.startsWith("__") || ["name"].includes(key)) {
       return accumulator;

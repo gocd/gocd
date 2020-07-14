@@ -1,0 +1,15 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "target_version": {
+        "#11": "&1" // Set target version to 11.
+      },
+      "*": "&" //copy everything
+    }
+  },
+  {
+    "operation": "com.thoughtworks.go.plugin.access.configrepo.AddEmptyTaskJoltTransformer"
+  }
+]
+

@@ -58,6 +58,7 @@ export class MaterialsPage extends Page<null, State> {
       result.do((successResponse) => {
         this.pageState = PageState.OK;
         vnode.state.materials(successResponse.body);
+        vnode.state.materials().sortOnType();
       }, this.setErrorState);
     });
   }

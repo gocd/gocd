@@ -86,6 +86,10 @@ export class MaterialWithFingerprints extends Array<MaterialWithFingerprint> {
   static fromJSON(data: MaterialWithFingerprintJSON[]): MaterialWithFingerprints {
     return new MaterialWithFingerprints(...data.map((a) => MaterialWithFingerprint.fromJSON(a)));
   }
+
+  sortOnType() {
+    this.sort((m1, m2) => m1.type()!.localeCompare(m2.type()!));
+  }
 }
 
 export class MaterialAPIs {

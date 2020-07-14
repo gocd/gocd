@@ -18,7 +18,16 @@ import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import {Filter} from "models/maintenance_mode/material";
 import {MaterialAPIs, MaterialWithFingerprint, MaterialWithFingerprints} from "../materials";
-import {GitMaterialAttributes} from "../types";
+import {
+  DependencyMaterialAttributes,
+  GitMaterialAttributes,
+  HgMaterialAttributes,
+  P4MaterialAttributes,
+  PackageMaterialAttributes,
+  PluggableScmMaterialAttributes,
+  SvnMaterialAttributes,
+  TfsMaterialAttributes
+} from "../types";
 
 describe('MaterialsAPISpec', () => {
   beforeEach(() => jasmine.Ajax.install());
@@ -97,5 +106,30 @@ describe('MaterialWithFingerPrintSpec', () => {
     const material = new MaterialWithFingerprint("git", "fingerprint", attrs);
 
     expect(material.attributesAsMap().get("Filter")).toEqual(['abc']);
+  });
+});
+
+describe('MaterialWithFingerprintsSpec', () => {
+  it('should sort based on type', () => {
+    const materials = new MaterialWithFingerprints();
+    materials.push(new MaterialWithFingerprint("git", "some", new GitMaterialAttributes()));
+    materials.push(new MaterialWithFingerprint("hg", "some", new HgMaterialAttributes()));
+    materials.push(new MaterialWithFingerprint("svn", "some", new SvnMaterialAttributes()));
+    materials.push(new MaterialWithFingerprint("p4", "some", new P4MaterialAttributes()));
+    materials.push(new MaterialWithFingerprint("tfs", "some", new TfsMaterialAttributes()));
+    materials.push(new MaterialWithFingerprint("dependency", "some", new DependencyMaterialAttributes()));
+    materials.push(new MaterialWithFingerprint("package", "some", new PackageMaterialAttributes()));
+    materials.push(new MaterialWithFingerprint("plugin", "some", new PluggableScmMaterialAttributes(undefined, undefined, "", "", new Filter([]))));
+
+    materials.sortOnType();
+
+    expect(materials[0].type()).toBe('dependency');
+    expect(materials[1].type()).toBe('git');
+    expect(materials[2].type()).toBe('hg');
+    expect(materials[3].type()).toBe('p4');
+    expect(materials[4].type()).toBe('package');
+    expect(materials[5].type()).toBe('plugin');
+    expect(materials[6].type()).toBe('svn');
+    expect(materials[7].type()).toBe('tfs');
   });
 });

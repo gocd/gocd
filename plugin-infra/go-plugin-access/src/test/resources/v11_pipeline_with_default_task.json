@@ -1,0 +1,120 @@
+{
+  "target_version": "11",
+  "pipelines": [
+    {
+      "name": "firstpipe",
+      "environment_variables": [
+        {
+          "name": "env1",
+          "value": "value1"
+        }
+      ],
+      "lock_behavior": "lockOnFailure",
+      "group": "configrepo-example",
+      "display_order_weight": 10,
+      "materials": [
+        {
+          "url": "https://github.com/akshaydewan/arduino.git",
+          "type": "git",
+          "name": "git_material",
+          "filter": {
+            "includes": [
+              "dir1",
+              "dir2"
+            ]
+          }
+        },
+        {
+          "pipeline": "up42",
+          "stage": "up42_stage",
+          "name": "upstream_material",
+          "type": "dependency",
+          "filter": {
+            "ignore": [
+              "dir1",
+              "dir2"
+            ]
+          }
+        },
+        {
+          "pipeline": "up43",
+          "stage": "up43_stage",
+          "name": "upstream_material_2",
+          "type": "dependency"
+        }
+      ],
+      "stages": [
+        {
+          "name": "build",
+          "fetch_materials": true,
+          "never_cleanup_artifacts": false,
+          "clean_working_directory": false,
+          "environment_variables": [],
+          "jobs": [
+            {
+              "name": "build",
+              "environment_variables": [],
+              "tabs": [],
+              "resources": [],
+              "artifacts": [],
+              "run_instance_count": null,
+              "timeout": 0,
+              "tasks": [
+                {
+                  "arguments": [],
+                  "command": "echo",
+                  "run_if": "passed",
+                  "type": "exec"
+                }
+              ]
+            },
+            {
+              "name": "build2",
+              "environment_variables": [],
+              "tabs": [],
+              "resources": [],
+              "artifacts": [],
+              "run_instance_count": null,
+              "timeout": 0,
+              "tasks": [
+                {
+                  "arguments": [],
+                  "command": "echo",
+                  "run_if": "passed",
+                  "type": "exec"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "deploy",
+          "fetch_materials": true,
+          "never_cleanup_artifacts": false,
+          "clean_working_directory": true,
+          "environment_variables": [],
+          "approval": {
+            "type": "manual"
+          },
+          "jobs": [
+            {
+              "name": "deploy",
+              "environment_variables": [],
+              "tabs": [],
+              "resources": [],
+              "artifacts": [],
+              "run_instance_count": null,
+              "timeout": 0,
+              "tasks": [
+                {
+                  "type": "rake"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

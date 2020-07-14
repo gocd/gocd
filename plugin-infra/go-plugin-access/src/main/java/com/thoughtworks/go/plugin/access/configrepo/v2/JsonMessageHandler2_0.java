@@ -49,7 +49,7 @@ import java.util.Map;
  *   - Introduce target_version of 4: Allow display_order_weight at pipeline level.
  */
 public class JsonMessageHandler2_0 implements JsonMessageHandler {
-    public static final int CURRENT_CONTRACT_VERSION = 10;
+    public static final int CURRENT_CONTRACT_VERSION = 11;
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler2_0.class);
     private final GsonCodec codec;
     private final ConfigRepoMigrator migrator;

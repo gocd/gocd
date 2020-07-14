@@ -18,6 +18,8 @@ package com.thoughtworks.go.plugin.access.configrepo;
 import com.thoughtworks.go.plugin.access.configrepo.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.configrepo.v2.JsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.access.configrepo.v3.JsonMessageHandler3_0;
+import com.thoughtworks.go.plugin.access.configrepo.v3.messages.ParseDirectoryResponseMessage;
+import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +29,8 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -221,6 +225,21 @@ class ConfigRepoMigratorTest {
             String oldJSON = documentMother.v9WithWhitelist();
             String newJSON = documentMother.v10WithIncludes();
             String transformedJSON = migrator.migrate(oldJSON, 10);
+
+            assertThatJson(newJSON).isEqualTo(transformedJSON);
+        }
+    }
+
+    @Nested
+    class MigrateV10ToV11 {
+        @Test
+        void shouldAddDefaultEchoTask() throws IOException {
+            ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
+
+            String oldJSON = documentMother.v10WithoutTasks();
+            String newJSON = documentMother.v11WithSleepTasks();
+
+            String transformedJSON = migrator.migrate(oldJSON, 11);
 
             assertThatJson(newJSON).isEqualTo(transformedJSON);
         }

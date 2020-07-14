@@ -123,4 +123,12 @@ class ConfigRepoDocumentMother {
     public String v10WithIncludes() {
         return JsonUtils.toJsonString(getJSONFor("/v10_pipeline_with_includes.json"));
     }
+
+    public String v10WithoutTasks() {
+        return JsonUtils.toJsonString(getJSONFor("/v10_pipeline_with_no_tasks.json"));
+    }
+
+    public String v11WithSleepTasks() {
+        return JsonUtils.toJsonString(getJSONFor("/v11_pipeline_with_default_task.json"));
+    }
 }

@@ -334,6 +334,8 @@ dependencies {
 
   testCompile project(':test:http-mocks')
 
+  testCompile group: 'com.github.paweladamski', name: 'HttpClientMock', version: '1.0.4'
+
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5

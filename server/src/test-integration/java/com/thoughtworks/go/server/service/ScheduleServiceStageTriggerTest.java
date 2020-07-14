@@ -346,7 +346,6 @@ public class ScheduleServiceStageTriggerTest {
             scheduleService.rerunStage(pipeline.getName(), 1, stageConfig.name().toString());
         });
 
-        assertThat(exception.getClass(), is(RuntimeException.class));
         assertThat(exception.getMessage(), is("Cannot schedule ft as the previous stage dev has Failed!"));
     }
 

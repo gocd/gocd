@@ -16,7 +16,8 @@
 
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {MaterialAPIs, MaterialWithFingerprints} from "../materials";
+import {Filter} from "models/maintenance_mode/material";
+import {MaterialAPIs, MaterialWithFingerprint, MaterialWithFingerprints} from "../materials";
 import {GitMaterialAttributes} from "../types";
 
 describe('MaterialsAPISpec', () => {
@@ -78,4 +79,23 @@ describe('MaterialsAPISpec', () => {
       responseText:    JSON.stringify(data)
     };
   }
+});
+
+describe('MaterialWithFingerPrintSpec', () => {
+  it('should convert attributes into Map', () => {
+    const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("name", false, "some-url", "master"));
+
+    const attrs = material.attributesAsMap();
+
+    expect(attrs.size).toBe(9);
+    expect(attrs.has("name")).toBeFalse();
+  });
+
+  it('should render filters', () => {
+    const attrs = new GitMaterialAttributes();
+    attrs.filter(new Filter(["abc"]));
+    const material = new MaterialWithFingerprint("git", "fingerprint", attrs);
+
+    expect(material.attributesAsMap().get("Filter")).toEqual(['abc']);
+  });
 });

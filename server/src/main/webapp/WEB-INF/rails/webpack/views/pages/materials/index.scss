@@ -19,3 +19,41 @@
   background-color: $white;
   padding:          20px;
 }
+
+.material {
+  vertical-align: middle;
+  margin:         0 10px 0 -15px;
+  width:          60px;
+  height:         40px;
+  text-align:     center;
+  background:     transparent url('../../../../app/assets/images/andare/thumbs-materials-100x100.png') no-repeat;
+
+  &.git {
+    background-position: 0 -60px;
+  }
+
+  &.mercurial {
+    background-position: 0 -106px;
+  }
+
+  &.subversion {
+    background-position: 0 -207px;
+  }
+
+  &.perforce {
+    background-position: 0 -157px;
+  }
+
+  &.tfs {
+    background-position: 0 -257px;
+  }
+
+  &.package {
+    background-position: 0 -332px;
+  }
+
+  &.unknown {
+    @include icon-before($type: $fa-var-question, $color: $icon-light-color, $size: 35px, $margin: 0);
+    background: $white;
+  }
+}

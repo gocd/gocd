@@ -16,11 +16,14 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
+import _ from "lodash";
 import Stream from "mithril/stream";
+import {humanizedMaterialAttributeName} from "models/config_repos/types";
+import {Filter} from "models/maintenance_mode/material";
 import {MaterialJSON} from "./serialization";
 import {Material, MaterialAttributes} from "./types";
 
-interface MaterialWithFingerprintJSON extends MaterialJSON {
+export interface MaterialWithFingerprintJSON extends MaterialJSON {
   fingerprint: string;
 }
 
@@ -30,7 +33,7 @@ interface MaterialWithFingerprintsJSON {
   };
 }
 
-class MaterialWithFingerprint extends Material {
+export class MaterialWithFingerprint extends Material {
   fingerprint: Stream<string>;
 
   constructor(type: string, fingerprint: string, attributes: MaterialAttributes) {
@@ -40,6 +43,37 @@ class MaterialWithFingerprint extends Material {
 
   static fromJSON(data: MaterialWithFingerprintJSON): MaterialWithFingerprint {
     return new MaterialWithFingerprint(data.type, data.fingerprint, MaterialAttributes.deserialize(data));
+  }
+
+  attributesAsMap(): Map<string, any> {
+    const map = new Map();
+    return _.reduce(this.attributes(), MaterialWithFingerprint.resolveKeyValueForAttribute, map);
+  }
+
+  private static resolveKeyValueForAttribute(accumulator: Map<string, string>, value: any, key: string) {
+    if (key.startsWith("__") || ["name"].includes(key)) {
+      return accumulator;
+    }
+
+    let renderedValue = value;
+    const renderedKey = humanizedMaterialAttributeName(key);
+
+    // test for value being a stream
+    if (_.isFunction(value)) {
+      value = value();
+    }
+
+    // test for value being an EncryptedPassword
+    if (value && value.valueForDisplay) {
+      renderedValue = value.valueForDisplay();
+    }
+
+    renderedValue = _.isFunction(renderedValue) ? renderedValue() : renderedValue;
+    if (key === "filter" && renderedValue) {
+      renderedValue = (renderedValue as Filter).ignore();
+    }
+    accumulator.set(renderedKey, renderedValue);
+    return accumulator;
   }
 }
 

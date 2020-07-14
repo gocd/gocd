@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
-import {MaterialWithFingerprint, MaterialWithFingerprintJSON} from "models/materials/materials";
+import Stream from "mithril/stream";
+import {MaterialWithFingerprint, MaterialWithFingerprintJSON, MaterialWithFingerprints} from "models/materials/materials";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";
-import {MaterialWidget} from "../materials_widget";
+import {MaterialsWidget, MaterialWidget} from "../materials_widget";
 
 describe('MaterialWidgetSpec', () => {
   const helper = new TestHelper();
@@ -70,5 +72,33 @@ describe('MaterialWidgetSpec', () => {
         shallow_clone: false
       }
     } as MaterialWithFingerprintJSON;
+  }
+});
+
+describe('MaterialsWidgetSpec', () => {
+  const helper = new TestHelper();
+  let materials: MaterialWithFingerprints;
+
+  afterEach((done) => helper.unmount(done));
+  beforeEach(() => {
+    materials = new MaterialWithFingerprints();
+  });
+
+  it('should display help text when no materials have been defined', () => {
+    mount();
+
+    const flashElement = helper.byTestId("flash-message-info");
+    expect(flashElement).toBeInDOM();
+    expect(flashElement.textContent).toContain('Either no pipelines have been set up or you are not authorized to view the same.');
+    expect(helper.q('a', flashElement)).toHaveAttr('href', docsUrl('configuration/dev_authorization.html#specifying-permissions-for-pipeline-groups'));
+
+    const helpElement = helper.byTestId("materials-help");
+    expect(helpElement).toBeInDOM();
+    expect(helpElement.textContent).toBe('A material is a cause for a pipeline to run. The GoCD Server continuously polls configured materials and when a new change or commit is found, the corresponding pipelines are run or "triggered". Learn More');
+    expect(helper.q('a', helpElement)).toHaveAttr('href', docsUrl('introduction/concepts_in_go.html#materials'));
+  });
+
+  function mount() {
+    helper.mount(() => <MaterialsWidget materials={Stream(materials)}/>);
   }
 });

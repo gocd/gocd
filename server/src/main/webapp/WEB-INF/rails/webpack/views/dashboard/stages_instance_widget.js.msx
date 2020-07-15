@@ -69,6 +69,7 @@ export const StagesInstanceWidget = {
           <StageOverview pipelineName={stage.pipelineName()}
                          pipelineCounter={stage.pipelineCounter()}
                          stageName={stage.name}
+                         stageStatus={stage.status}
                          stageCounter={stage.counter}/>
         </div>);
       }

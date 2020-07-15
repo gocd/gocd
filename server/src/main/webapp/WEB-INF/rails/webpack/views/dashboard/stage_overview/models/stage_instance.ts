@@ -16,43 +16,10 @@
 
 import Stream from "mithril/stream";
 import moment from "moment";
-import {ApiRequestBuilder, ApiResult, ApiVersion} from "../../../../helpers/api_request_builder";
-import {SparkRoutes} from "../../../../helpers/spark_routes";
-import {JobStateTransitionJSON, State} from "../../../../models/agent_job_run_history";
 import {JobsViewModel} from "./jobs_view_model";
-
-export enum Result {
-  Passed, Failed, Cancelled, Unknown
-}
-
-export interface JobJSON {
-  name: string;
-  state: State;
-  result: Result;
-  scheduled_date: number;
-  rerun: boolean;
-  original_job_id: number | null;
-  agent_uuid: string | null;
-  job_state_transitions: JobStateTransitionJSON[];
-}
-
-export interface StageInstanceJSON {
-  name: string;
-  counter: number;
-  approval_type: string;
-  approved_by: string;
-  result: Result;
-  rerun_of_counter: number | null;
-  fetch_materials: boolean;
-  clean_working_directory: boolean;
-  artifacts_deleted: boolean;
-  pipeline_name: string;
-  pipeline_counter: number;
-  jobs: JobJSON[];
-}
+import {JobJSON, Result, StageInstanceJSON} from "./types";
 
 export class StageInstance {
-  private static API_VERSION_HEADER = ApiVersion.latest;
   readonly jobsVM: Stream<JobsViewModel>;
   private json: StageInstanceJSON;
 
@@ -63,15 +30,6 @@ export class StageInstance {
 
   static fromJSON(json: StageInstanceJSON) {
     return new StageInstance(json);
-  }
-
-  static get(pipelineName: string, pipelineCounter: number | string, stageName: string, stageCounter: string | number) {
-    return ApiRequestBuilder.GET(SparkRoutes.getStageInstance(pipelineName, pipelineCounter, stageName, stageCounter), this.API_VERSION_HEADER)
-      .then((result: ApiResult<string>) => {
-        return result.map((body) => {
-          return StageInstance.fromJSON(JSON.parse(body) as StageInstanceJSON);
-        });
-      });
   }
 
   triggeredBy(): string {

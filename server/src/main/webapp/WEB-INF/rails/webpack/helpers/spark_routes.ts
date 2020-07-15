@@ -474,6 +474,10 @@ export class SparkRoutes {
     return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}/cancel`;
   }
 
+  static getStageHistory(pipelineName: string, stageName: string) {
+    return `/go/api/stages/${pipelineName}/${stageName}/history`;
+  }
+
   static commentOnPipelineInstance(pipelineName: string, pipelineCounter: string | number) {
     return `/go/api/pipelines/${pipelineName}/${pipelineCounter}/comment`;
   }

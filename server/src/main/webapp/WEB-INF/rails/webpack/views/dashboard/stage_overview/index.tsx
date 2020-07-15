@@ -20,32 +20,32 @@ import {MithrilComponent} from "../../../jsx/mithril-component";
 import {Spinner} from "../../components/spinner";
 import * as styles from "./index.scss";
 import {JobsListWidget} from "./jobs_list_widget";
-import {StageInstance} from "./models/stage_instance";
 import {StageHeaderWidget} from "./stage_overview_header";
+import {StageOverviewViewModel} from "./models/stage_overview_view_model";
+import {StageState} from "./models/types";
 
 export interface Attrs {
   pipelineName: string;
   pipelineCounter: string | number;
   stageName: string;
   stageCounter: string | number;
+  stageStatus: StageState;
 }
 
 export interface State {
-  stageInstance: Stream<StageInstance | undefined>;
+  stageOverviewVM: Stream<StageOverviewViewModel | undefined>;
 }
 
 export class StageOverview extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.stageInstance = Stream(undefined);
+    vnode.state.stageOverviewVM = Stream(undefined);
 
-    StageInstance.get(vnode.attrs.pipelineName, vnode.attrs.pipelineCounter, vnode.attrs.stageName, vnode.attrs.stageCounter)
-      .then((result) => result.do((successResponse) => {
-        vnode.state.stageInstance(successResponse.body);
-      }));
+    StageOverviewViewModel.initialize(vnode.attrs.pipelineName, vnode.attrs.pipelineCounter, vnode.attrs.stageName, vnode.attrs.stageCounter, vnode.attrs.stageStatus)
+      .then((result) => vnode.state.stageOverviewVM(result as StageOverviewViewModel));
   }
 
   view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
-    if (!vnode.state.stageInstance()) {
+    if (!vnode.state.stageOverviewVM()) {
       return <div data-test-id="stage-overview-container" className={styles.stageOverviewContainer}>
         <Spinner/>
       </div>;
@@ -55,8 +55,8 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
       <StageHeaderWidget stageName={vnode.attrs.stageName}
                          stageCounter={vnode.attrs.stageCounter}
                          pipelineName={vnode.attrs.pipelineName}
-                         stageInstance={vnode.state.stageInstance}/>
-    <JobsListWidget stageInstance={vnode.state.stageInstance}/>
+                         stageInstance={vnode.state.stageOverviewVM().stageInstance}/>
+      <JobsListWidget stageInstance={vnode.state.stageOverviewVM().stageInstance}/>
     </div>;
   }
 }

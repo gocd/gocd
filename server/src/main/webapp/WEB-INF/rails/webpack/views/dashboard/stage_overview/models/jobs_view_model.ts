@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import {JobJSON, Result} from "./stage_instance";
+import {JobJSON, Result} from "./types";
 
 export class JobsViewModel {
   private readonly __jobs: JobJSON[];
 
+  //todo: fixme
   constructor(jobs: JobJSON[]) {
     this.__jobs = jobs;
   }

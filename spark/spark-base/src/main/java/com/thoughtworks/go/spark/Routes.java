@@ -900,5 +900,11 @@ public class Routes {
     public class InternalDependencyPipelines {
         public static final String BASE = "/api/internal/pipelines/:pipeline_name/:stage_name/upstream";
     }
-	public class AgentsOperations {public static final String BASE = "/admin/api/agents-operations";}
+
+    public class VersionInfos {
+        public static final String BASE = "/api/version_infos";
+        public static final String STALE = "/stale";
+        public static final String LATEST_VERSION = "/latest_version";
+        public static final String GO_SERVER = "/go_server";
+    }
 }

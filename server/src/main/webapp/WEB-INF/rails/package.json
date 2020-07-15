@@ -34,7 +34,7 @@
     "lodash": "^4.17.19",
     "lodash-inflection": "^1.5.0",
     "lorem-ipsum": "^2.0.3",
-    "lru_map": "^0.3.3",
+    "lru_map": "^0.4.0",
     "mithril": "^2",
     "moment": "^2.27.0",
     "moment-duration-format": "^2.3.2",

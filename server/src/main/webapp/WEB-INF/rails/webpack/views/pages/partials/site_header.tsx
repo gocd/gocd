@@ -31,6 +31,7 @@ export interface Attrs {
   isUserAdmin: boolean;
   canViewAdminPage: boolean;
   showAnalyticsDashboard: boolean;
+  showMaterialsSpa: boolean;
 }
 
 export class SiteHeader extends MithrilViewComponent<Attrs> {
@@ -42,6 +43,7 @@ export class SiteHeader extends MithrilViewComponent<Attrs> {
     const canViewTemplates       = vnode.attrs.canViewTemplates;
     const userDisplayName        = vnode.attrs.userDisplayName;
     const isAnonymous            = vnode.attrs.isAnonymous;
+    const showMaterialsSpa       = vnode.attrs.showMaterialsSpa;
 
     let userMenu: m.Children = null;
 
@@ -76,6 +78,7 @@ export class SiteHeader extends MithrilViewComponent<Attrs> {
                       isUserAdmin={isUserAdmin}
                       isGroupAdmin={isGroupAdmin}
                       canViewTemplates={canViewTemplates}
+                      showMaterialsSpa={showMaterialsSpa}
             />
           </div>
 

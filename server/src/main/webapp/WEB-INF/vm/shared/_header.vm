@@ -60,6 +60,7 @@
       data-maintenance-mode-updated-on = "${maintenanceModeService.updatedOn()}"
       data-maintenance-mode-updated-by = "${maintenanceModeService.updatedBy()}"
   #end
+  data-show-materials-spa="$show_materials_spa"
   >
 <div class="page-wrap">
   <div id="body_bg">

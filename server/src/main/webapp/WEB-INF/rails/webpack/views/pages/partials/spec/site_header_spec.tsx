@@ -39,12 +39,14 @@ describe("Site Header", () => {
             isGroupAdmin: false,
             isUserAdmin: false,
             canViewAdminPage: false,
-            showAnalyticsDashboard: false
+            showAnalyticsDashboard: false,
+            showMaterialsSpa: false
           });
     expect(helper.text(`.${styles.userLink}`)).toBe("Jon Doe");
     expect(findMenuItem("/go/preferences/notifications")).toHaveText("Preferences");
     expect(findMenuItem("/go/access_tokens")).toHaveText("Personal Access Tokens");
     expect(findMenuItem("/go/auth/logout")).toHaveText("Sign out");
+    expect(findMenuItem("/go/materials")).toBeFalsy();
     expect(findMenuItem("https://gocd.org/help")).toHaveText("Need Help?");
   });
 
@@ -56,12 +58,14 @@ describe("Site Header", () => {
             isGroupAdmin: false,
             isUserAdmin: false,
             canViewAdminPage: false,
-            showAnalyticsDashboard: false
+            showAnalyticsDashboard: false,
+            showMaterialsSpa: true
           });
     expect(helper.q(`.${styles.userLink}`)).toBeFalsy();
     expect(findMenuItem("/go/preferences/notifications")).toBeFalsy();
     expect(findMenuItem("/go/access_tokens")).toBeFalsy();
     expect(findMenuItem("/go/auth/logout")).toBeFalsy();
+    expect(findMenuItem("/go/materials")).toHaveText("Materials");
     expect(findMenuItem("https://gocd.org/help")).toHaveText("Need Help?");
   });
 

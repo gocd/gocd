@@ -51,6 +51,7 @@
       data-maintenance-mode-updated-on="${maintenanceModeService.updatedOn()}"
       data-maintenance-mode-updated-by="${maintenanceModeService.updatedBy()}"
       </#if>
+      data-show-materials-spa="${show_materials_spa?c}"
       data-meta="${meta}"
       >
     <#if devMode>

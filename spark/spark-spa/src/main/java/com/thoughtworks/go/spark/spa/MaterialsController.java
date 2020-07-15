@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -31,10 +33,12 @@ import static spark.Spark.*;
 
 public class MaterialsController implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
+    private final FeatureToggleService featureToggleService;
     private final TemplateEngine engine;
 
-    public MaterialsController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public MaterialsController(SPAAuthenticationHelper authenticationHelper, FeatureToggleService featureToggleService, TemplateEngine engine) {
         this.authenticationHelper = authenticationHelper;
+        this.featureToggleService = featureToggleService;
         this.engine = engine;
     }
 
@@ -47,8 +51,15 @@ public class MaterialsController implements SparkController {
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             before("", authenticationHelper::checkUserAnd403);
+            before("", this::showIfEnabled);
             get("", this::index, engine);
         });
+    }
+
+    private void showIfEnabled(Request request, Response response) {
+        if (!featureToggleService.isToggleOn(Toggles.SHOW_MATERIALS_SPA)) {
+            throw authenticationHelper.renderNotFoundResponse("Not Found");
+        }
     }
 
     public ModelAndView index(Request request, Response response) {

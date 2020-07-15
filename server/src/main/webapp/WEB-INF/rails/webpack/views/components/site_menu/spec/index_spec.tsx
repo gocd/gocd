@@ -29,7 +29,8 @@ describe("Site Menu", () => {
             isGroupAdmin: true,
             isUserAdmin: true,
             canViewAdminPage: true,
-            showAnalytics: true
+            showAnalytics: true,
+            showMaterialsSpa: false
           } as Attrs);
     const dashboard = helper.qa("a").item(0);
     const agents    = helper.qa("a").item(1);
@@ -39,6 +40,7 @@ describe("Site Menu", () => {
     expect(dashboard).toHaveAttr("href", "/go/pipelines");
     expect(agents).toHaveText("Agents");
     expect(agents).toHaveAttr("href", "/go/agents");
+    expect(findMenuItem("/go/materials")).toBeFalsy();
     expect(analytics).toHaveText("Analytics");
     expect(analytics).toHaveAttr("href", "/go/analytics");
     expect(admin).toHaveText("Admin");
@@ -70,7 +72,8 @@ describe("Site Menu", () => {
             isGroupAdmin: false,
             isUserAdmin: false,
             canViewAdminPage: true,
-            showAnalytics: true
+            showAnalytics: true,
+            showMaterialsSpa: false
           } as Attrs);
     const dashboard = helper.qa("a").item(0);
     const agents    = helper.qa("a").item(1);
@@ -80,6 +83,7 @@ describe("Site Menu", () => {
     expect(dashboard).toHaveAttr("href", "/go/pipelines");
     expect(agents).toHaveText("Agents");
     expect(agents).toHaveAttr("href", "/go/agents");
+    expect(findMenuItem("/go/materials")).toBeFalsy();
     expect(analytics).toHaveText("Analytics");
     expect(analytics).toHaveAttr("href", "/go/analytics");
     expect(admin).toHaveText("Admin");
@@ -107,7 +111,8 @@ describe("Site Menu", () => {
             isGroupAdmin: true,
             isUserAdmin: false,
             canViewAdminPage: true,
-            showAnalytics: true
+            showAnalytics: true,
+            showMaterialsSpa: false
           } as Attrs);
     const dashboard = helper.qa("a").item(0);
     const agents    = helper.qa("a").item(1);
@@ -144,7 +149,8 @@ describe("Site Menu", () => {
             isGroupAdmin: true,
             isUserAdmin: false,
             canViewAdminPage: true,
-            showAnalytics: false
+            showAnalytics: false,
+            showMaterialsSpa: false
           } as Attrs);
     const dashboard = helper.qa("a").item(0);
     const agents    = helper.qa("a").item(1);
@@ -163,7 +169,8 @@ describe("Site Menu", () => {
             isGroupAdmin: false,
             isUserAdmin: false,
             canViewAdminPage: false,
-            showAnalytics: false
+            showAnalytics: false,
+            showMaterialsSpa: false
           } as Attrs);
     const dashboard = helper.qa("a").item(0);
     const agents    = helper.qa("a").item(1);
@@ -179,6 +186,21 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/scms")).toBeFalsy();
 
     expect(helper.qa(`a.${styles.siteSubNavLink}`)).toHaveLength(3);
+  });
+
+  it('should show Materials link when attribute is passed as true', () => {
+    mount({
+            canViewTemplates: true,
+            isGroupAdmin:     false,
+            isUserAdmin:      false,
+            canViewAdminPage: false,
+            showAnalytics:    false,
+            showMaterialsSpa: true
+          } as Attrs);
+    const materials = helper.qa("a").item(2);
+
+    expect(materials).toHaveText("Materials");
+    expect(materials).toHaveAttr("href", "/go/materials");
   });
 
   function mount(menuAttrs: Attrs) {

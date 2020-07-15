@@ -554,6 +554,10 @@ module ApplicationHelper
     end
   end
 
+  def show_materials_spa?
+    Toggles.isToggleOn(Toggles.SHOW_MATERIALS_SPA)
+  end
+
   private
 
   def show_analytics_only_for_admins?

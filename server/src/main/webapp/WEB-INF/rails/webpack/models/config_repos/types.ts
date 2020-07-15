@@ -221,7 +221,10 @@ const HUMAN_NAMES_FOR_MATERIAL_ATTRIBUTES: { [index: string]: string } = {
   emailAddress:      "Email",
   revision:          "Revision",
   comment:           "Comment",
-  modifiedTime:      "Modified Time"
+  modifiedTime:      "Modified Time",
+  invertFilter:      "Filter inverted",
+  shallowClone:      "Shallow Clone",
+  filter:            "Filter"
 };
 
 const MATERIAL_TYPE_MAP: { [index: string]: string } = {

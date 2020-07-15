@@ -31,6 +31,12 @@
   </rule>
 
   <rule>
+    <name>Materials SPA</name>
+    <from>^/materials(/?)$</from>
+    <to last="true">/spark/materials</to>
+  </rule>
+
+  <rule>
     <name>Template Config SPA</name>
     <from>^/admin/templates/([^/]+)/edit(/?)$</from>
     <to last="true">/spark/admin/templates/${escape:$1}/edit</to>

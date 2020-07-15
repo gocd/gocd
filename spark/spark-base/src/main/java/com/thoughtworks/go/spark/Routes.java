@@ -907,4 +907,8 @@ public class Routes {
         public static final String LATEST_VERSION = "/latest_version";
         public static final String GO_SERVER = "/go_server";
     }
+
+    public class MaterialsSPA {
+        public static final String BASE = "/materials";
+    }
 }

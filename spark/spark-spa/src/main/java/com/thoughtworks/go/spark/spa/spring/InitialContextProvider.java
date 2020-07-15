@@ -75,6 +75,7 @@ public class InitialContextProvider {
         context.put("spaTimeout", SystemEnvironment.goSpaTimeout());
         context.put("showAnalyticsDashboard", showAnalyticsDashboard());
         context.put("devMode", !new SystemEnvironment().useCompressedJs());
+        context.put(Toggles.SHOW_MATERIALS_SPA,Toggles.isToggleOn(Toggles.SHOW_MATERIALS_SPA));
         return context;
     }
 

@@ -158,6 +158,7 @@ public class Routes {
 
     public static class MaterialConfig {
         public static final String BASE = "/api/config/materials";
+        public static final String INTERNAL_BASE = "/api/internal/materials";
         public static final String DOC = apiDocsUrl("#materials");
 
         public static String vsm(String materialFingerprint, String revision) {

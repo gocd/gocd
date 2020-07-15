@@ -24,6 +24,12 @@
 
 <urlrewrite>
   <rule>
+    <name>Internal Materials URL</name>
+    <from>^/(api/internal/materials)$</from>
+    <to last="true">/spark/api/internal/materials</to>
+  </rule>
+
+  <rule>
     <name>Update Check URLs</name>
     <from>^/(api/version_infos/.*)$</from>
     <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="versionInfoAPIs"/>

@@ -5125,10 +5125,10 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
-lru_map@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/lru_map/-/lru_map-0.4.0.tgz#ee6024080b986e6bbc681896fd62f6efae9037d8"
-  integrity sha512-pLrI03mhpNJdiFVEQApY/jQVMiphI5OJmtSASWsCXWgf5M4lrhJebSAQEBlTKYnQ9AhC4cg1dd8I1ks7X8YU8Q==
+lru_map@^0.3.3:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/lru_map/-/lru_map-0.3.3.tgz#b5c8351b9464cbd750335a79650a0ec0e56118dd"
+  integrity sha1-tcg1G5Rky9dQM1p5ZQoOwOVhGN0=
 
 make-dir@^2.0.0:
   version "2.1.0"

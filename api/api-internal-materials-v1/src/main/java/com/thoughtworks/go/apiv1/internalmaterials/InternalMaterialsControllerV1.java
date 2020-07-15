@@ -19,24 +19,31 @@ package com.thoughtworks.go.apiv1.internalmaterials;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.server.service.EntityHashingService;
+import com.thoughtworks.go.apiv1.internalmaterials.representers.UsagesRepresenter;
+import com.thoughtworks.go.server.service.MaterialConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import spark.Request;
+import spark.Response;
 
-import static spark.Spark.before;
-import static spark.Spark.path;
+import java.util.List;
+import java.util.Map;
+
+import static spark.Spark.*;
 
 @Component
 public class InternalMaterialsControllerV1 extends ApiController implements SparkSpringController {
-
+    public static final String FINGERPRINT = "fingerprint";
     private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final MaterialConfigService materialConfigService;
 
     @Autowired
-    public InternalMaterialsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper) {
+    public InternalMaterialsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, MaterialConfigService materialConfigService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.materialConfigService = materialConfigService;
     }
 
     @Override
@@ -50,7 +57,15 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+            before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+
+            get(Routes.MaterialConfig.USAGES, mimeType, this::usages);
         });
+    }
+
+    public String usages(Request request, Response response) throws Exception {
+        String fingerprint = request.params(FINGERPRINT);
+        Map<String, List<String>> usagesForMaterial = materialConfigService.getUsagesForMaterial(currentUsernameString(), fingerprint);
+        return writerForTopLevelObject(request, response, writer -> UsagesRepresenter.toJSON(writer, fingerprint, usagesForMaterial));
     }
 }

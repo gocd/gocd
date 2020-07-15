@@ -18,16 +18,23 @@ package com.thoughtworks.go.apiv1.internalmaterials
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.apiv1.internalmaterials.representers.UsagesRepresenter
+import com.thoughtworks.go.server.service.MaterialConfigService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.Mock
 
+import static org.mockito.ArgumentMatchers.anyString
+import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
 class InternalMaterialsControllerV1Test implements SecurityServiceTrait, ControllerTrait<InternalMaterialsControllerV1> {
+  @Mock
+  private MaterialConfigService materialConfigService
 
   @BeforeEach
   void setUp() {
@@ -36,11 +43,11 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
   @Override
   InternalMaterialsControllerV1 createControllerInstance() {
-    new InternalMaterialsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService))
+    new InternalMaterialsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), materialConfigService)
   }
 
   @Nested
-  class Index {
+  class Usages {
 
     @BeforeEach
     void setUp() {
@@ -52,13 +59,26 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
       @Override
       String getControllerMethodUnderTest() {
-        return "index"
+        return "usages"
       }
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerBasePath())
+        getWithApiHeader(controller.controllerBasePath() + "/some-fingerprint/usages")
       }
+    }
+
+    @Test
+    void 'should return 200 with usages'() {
+      def usages = new HashMap<>()
+      usages.put("grp", ["pipeline1", "pipeline2"])
+      when(materialConfigService.getUsagesForMaterial(anyString(), anyString())).thenReturn(usages)
+
+      getWithApiHeader(controller.controllerBasePath() + "/some-fingerprint/usages")
+
+      assertThatResponse()
+        .isOk()
+        .hasBodyWithJsonObject(UsagesRepresenter.class, "some-fingerprint", usages)
     }
   }
 }

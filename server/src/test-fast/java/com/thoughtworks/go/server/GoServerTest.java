@@ -106,7 +106,6 @@ public class GoServerTest {
         assertThat(appServer instanceof AppServerStub, is(true));
         AppServerStub appServerStub = (AppServerStub) appServer;
 
-        assertThat(appServerStub.calls.get("addExtraJarsToClasspath"), is(""));
         assertThat(appServerStub.calls.get("setSessionCookieConfig"), is("something"));
         assertThat(appServerStub.calls.get("hasStarted"), is(true));
         assertThat(appServerStub.calls.get("configure"), is(true));
@@ -146,42 +145,6 @@ public class GoServerTest {
     }
 
     @Test
-    public void shouldLoadAllJarsInTheAddonsDirectoryIntoClassPath() throws Exception {
-        File addonsDirectory = temporaryFolder.newFolder("test-addons", "some-addon-dir");
-        temporaryFolder.newFile("test-addons/some-addon-dir/addon-1.JAR");
-        temporaryFolder.newFile("test-addons/some-addon-dir/addon-2.jar");
-        temporaryFolder.newFile("test-addons/some-addon-dir/addon-3.jAR");
-        temporaryFolder.newFile("test-addons/some-addon-dir/some-file-which-does-not-end-with-dot-jar.txt");
-
-        File oneAddonDirectory = temporaryFolder.newFolder("test-addons", "one-addon-dir");
-        temporaryFolder.newFile("test-addons/one-addon-dir/addon-1.jar");
-
-        File noAddonDirectory = temporaryFolder.newFolder("test-addons", "no-addon-dir");
-        SSLSocketFactory sslSocketFactory = mock(SSLSocketFactory.class);
-        when(sslSocketFactory.getSupportedCipherSuites()).thenReturn(new String[0]);
-
-        GoServer goServerWithMultipleAddons = new GoServer(setAddonsPathTo(addonsDirectory));
-        goServerWithMultipleAddons.startServer();
-        AppServerStub appServer = (AppServerStub) com.thoughtworks.go.util.ReflectionUtil.getField(goServerWithMultipleAddons, "server");
-        assertExtraClasspath(appServer, addonsDir + "/some-addon-dir/addon-1.JAR", addonsDir + "/some-addon-dir/addon-2.jar", addonsDir + "/some-addon-dir/addon-3.jAR");
-
-        GoServer goServerWithOneAddon = new GoServer(setAddonsPathTo(oneAddonDirectory));
-        goServerWithOneAddon.startServer();
-        appServer = (AppServerStub) com.thoughtworks.go.util.ReflectionUtil.getField(goServerWithOneAddon, "server");
-        assertExtraClasspath(appServer, addonsDir + "/one-addon-dir/addon-1.jar");
-
-        GoServer goServerWithNoAddon = new GoServer(setAddonsPathTo(noAddonDirectory));
-        goServerWithNoAddon.startServer();
-        appServer = (AppServerStub) com.thoughtworks.go.util.ReflectionUtil.getField(goServerWithNoAddon, "server");
-        assertExtraClasspath(appServer, "");
-
-        GoServer goServerWithInaccessibleAddonDir = new GoServer(setAddonsPathTo(new File("non-existent-directory")));
-        goServerWithInaccessibleAddonDir.startServer();
-        appServer = (AppServerStub) com.thoughtworks.go.util.ReflectionUtil.getField(goServerWithNoAddon, "server");
-        assertExtraClasspath(appServer, "");
-    }
-
-    @Test
     public void shouldTurnOffJrubyObjectProxyCacheByDefault(){
         new GoServer();
         assertThat(new SystemEnvironment().getPropertyImpl("jruby.ji.objectProxyCache"), is("false"));
@@ -197,20 +160,6 @@ public class GoServerTest {
             assertTrue("Expected " + extraJars + " to contain: " + platformIndependantNameOfExpectedJar, actualExtraClassPath.contains(platformIndependantNameOfExpectedJar));
         }
     }
-
-//    private File createInAddonDir(String dirInsideAddonDir) {
-//        File dirWhichWillContainAddons = new File(addonsDir, dirInsideAddonDir);
-//        dirWhichWillContainAddons.mkdirs();
-//        return dirWhichWillContainAddons;
-//    }
-
-    private SystemEnvironment setAddonsPathTo(File path) {
-        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
-        when(systemEnvironment.get(SystemEnvironment.APP_SERVER)).thenReturn(AppServerStub.class.getCanonicalName());
-        doReturn(path.getPath()).when(systemEnvironment).get(SystemEnvironment.ADDONS_PATH);
-        return systemEnvironment;
-    }
-
 
     private class StubGoServer extends GoServer {
         private boolean wasStarted = false;

@@ -18,17 +18,12 @@ package com.thoughtworks.go.server;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.validators.*;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOCase;
-import org.apache.commons.io.filefilter.FalseFileFilter;
-import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.List;
 
 public class GoServer {
 
@@ -77,38 +72,19 @@ public class GoServer {
         Constructor<?> constructor = Class.forName(systemEnvironment.get(SystemEnvironment.APP_SERVER)).getConstructor(SystemEnvironment.class, String.class);
         AppServer server = ((AppServer) constructor.newInstance(systemEnvironment, systemEnvironment.getServerKeyStorePassword()));
         server.configure();
-        server.addExtraJarsToClasspath(getExtraJarsToBeAddedToClasspath());
+        logMessageIfUsingAddons();
         server.setSessionConfig();
         return server;
     }
 
-    private String getExtraJarsToBeAddedToClasspath() {
-        ArrayList<File> extraClassPathFiles = new ArrayList<>();
-        extraClassPathFiles.addAll(getAddonJarFiles());
-        String extraClasspath = convertToClasspath(extraClassPathFiles);
-        LOG.info("Including addons: {}", extraClasspath);
-        return extraClasspath;
-    }
-
-    private String convertToClasspath(List<File> addonJars) {
-        if (addonJars.size() == 0) {
-            return "";
-        }
-
-        StringBuilder addonJarClassPath = new StringBuilder(addonJars.get(0).getPath());
-        for (int i = 1; i < addonJars.size(); i++) {
-            addonJarClassPath.append(",").append(addonJars.get(i));
-        }
-        return addonJarClassPath.toString();
-    }
-
-    private List<File> getAddonJarFiles() {
+    private void logMessageIfUsingAddons() {
         File addonsPath = new File(systemEnvironment.get(SystemEnvironment.ADDONS_PATH));
-        if (!addonsPath.exists() || !addonsPath.canRead()) {
-            return new ArrayList<>();
+        if (addonsPath.exists() && addonsPath.canRead()) {
+            if (addonsPath.list().length > 0) {
+                LOG.info("Looks like you are using GoCD addons: '%s'. Support for GoCD addons is removed in GoCD 20.6.0." +
+                        "You no longer need a separate addon, the functionality supported by the addons is now part of GoCD core.", addonsPath.list());
+            }
         }
-
-        return new ArrayList<>(FileUtils.listFiles(addonsPath, new SuffixFileFilter("jar", IOCase.INSENSITIVE), FalseFileFilter.INSTANCE));
     }
 
     public void stop() throws Exception {

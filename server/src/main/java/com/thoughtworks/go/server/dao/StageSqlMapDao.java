@@ -125,6 +125,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
             }
             goCache.remove(cacheKeyForStageHistories(pipelineName, stage.getName()));
             goCache.remove(cacheKeyForDetailedStageHistories(pipelineName, stage.getName()));
+            goCache.remove(cacheKeyForStageHistoryViaCursor(pipelineName, stage.getName()));
         } finally {
             readWriteLock.releaseWriteLock(mutex);
         }

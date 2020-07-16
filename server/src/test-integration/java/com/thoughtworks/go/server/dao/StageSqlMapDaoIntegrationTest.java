@@ -1873,6 +1873,32 @@ public class StageSqlMapDaoIntegrationTest {
     }
 
     @Test
+    void findDetailedStageHistoryViaCursor_shouldReturnTheUpdatedStageHistoryWhenNewStageInstancesAreAvailable() {
+        HgMaterial hg = new HgMaterial("url", null);
+        String[] hg_revs = {"h1", "h2", "h3"};
+        scheduleUtil.checkinInOrder(hg, hg_revs);
+
+        ScheduleTestUtil.AddedPipeline p1 = scheduleUtil.saveConfigWith(PIPELINE_NAME, STAGE_DEV, scheduleUtil.m(hg));
+        String run1 = scheduleUtil.runAndPass(p1, "h1");
+        String run2 = scheduleUtil.runAndPass(p1, "h2");
+        String run3 = scheduleUtil.runAndPass(p1, "h3");
+        String run4 = scheduleUtil.runAndPass(p1, "h1", "h2");
+        String run5 = scheduleUtil.runAndPass(p1, "h2", "h3");
+        String run6 = scheduleUtil.runAndPass(p1, "h3", "h1");
+        String run7 = scheduleUtil.runAndPass(p1, "h1", "h2", "h3");
+
+        StageInstanceModels stageHistory = stageDao.findDetailedStageHistoryViaCursor(PIPELINE_NAME, STAGE_DEV, FeedModifier.Latest, 0, 3);
+
+        assertStageModels(stageHistory, run7, run6, run5);
+
+        String run8 = scheduleUtil.runAndPass(p1, "h1", "h2", "h3", "h4");
+
+        StageInstanceModels updatedStageHistory = stageDao.findDetailedStageHistoryViaCursor(PIPELINE_NAME, STAGE_DEV, FeedModifier.Latest, 0, 3);
+
+        assertStageModels(updatedStageHistory, run8, run7, run6);
+    }
+
+    @Test
     public void latestAndOldest_shouldReturnOldestAndLatestStageRun() {
         HgMaterial hg = new HgMaterial("foo-bar", null);
         String[] hg_revs = {"rev1", "rev2", "rev3"};

@@ -19,46 +19,37 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {MithrilComponent} from "../../../jsx/mithril-component";
 import {CheckboxField} from "../../components/forms/input_fields";
-import {PipelineRunWidget} from "../../pages/pipeline_activity/pipeline_run_info_widget";
 import * as styles from "./index.scss";
 import {JobsViewModel} from "./models/jobs_view_model";
-import {StageInstance} from "./models/stage_instance";
 
 import pipelineHistoryStyles from "../../pages/pipeline_activity/index.scss";
+import {JobProgressBarWidget} from "./job_progress_bar_widget";
+import {JobJSON} from "./models/types";
 
 const classnames = bind(pipelineHistoryStyles);
 
 export interface Attrs {
-  stageInstance: Stream<StageInstance>;
+  jobsVM: Stream<JobsViewModel>;
 }
 
 export interface State {
-  getTableHeaders: () => string[];
-
-  getTableRowForJob: (jobName: string, jobsVM: JobsViewModel) => m.Children;
+  getTableRowForJob: (jobName: JobJSON) => m.Children;
 }
 
 export class JobsListWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.getTableHeaders = () => {
-      return ["", "Status", "Job Name", "Duration", "Agent"];
-    };
-
-    vnode.state.getTableRowForJob = (jobName: string, jobsVM: JobsViewModel) => {
+    vnode.state.getTableRowForJob = (job: JobJSON) => {
+      const jobName = job.name;
       return <tr>
         <td data-test-id={`checkbox-for-job-${jobName}`} class={styles.jobCheckbox}>
           <CheckboxField property={Stream()}/>
         </td>
         <td>
-          <div class={classnames(pipelineHistoryStyles.stage)}>
-            <div class={pipelineHistoryStyles.stageStatusWrapper}>
-              <span class={classnames(PipelineRunWidget.stageStatusClass("building"))}/>
-              <div class={pipelineHistoryStyles.stageInfoIconWrapper}>
-              </div>
-            </div>
-          </div>
+          {job.name}
         </td>
-        <td class={styles.jobName}> {jobName} </td>
+        <td class={styles.jobName}>
+          <JobProgressBarWidget job={job}/>
+        </td>
         <td> in progress</td>
         <td> agent 1</td>
       </tr>;
@@ -70,15 +61,15 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
       <table>
         <tr>
           <th data-test-id="checkbox-header"/>
-          <th data-test-id="status-header">Status</th>
           <th data-test-id="job-name-header">Job Name</th>
+          <th data-test-id="status-header">Status</th>
           <th data-test-id="duration-header">Duration</th>
           <th data-test-id="agent-header">Agent</th>
         </tr>
         {
           ['buildingJobNames', 'failedJobNames', 'cancelledJobNames', 'passedJobNames'].map((m) => {
-            return (vnode.attrs.stageInstance().jobsVM()[m]() as string[])
-              .map(jobName => vnode.state.getTableRowForJob(jobName, vnode.attrs.stageInstance().jobsVM()));
+            return (vnode.attrs.jobsVM()[m]() as JobJSON[])
+              .map(job => vnode.state.getTableRowForJob(job));
           })
         }
       </table>

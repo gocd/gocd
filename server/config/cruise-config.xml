@@ -40,7 +40,18 @@
         <jobs>
           <job name="up42_job">
             <tasks>
-              <exec command="ls" />
+              <exec command="sleep">
+                <arg>30</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+          <job name="up42_job2">
+            <tasks>
+              <exec command="sleep">
+                <arg>30</arg>
+                <runif status="passed" />
+              </exec>
             </tasks>
           </job>
         </jobs>

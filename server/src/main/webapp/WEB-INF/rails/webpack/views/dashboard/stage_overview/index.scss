@@ -23,6 +23,13 @@ $btn-group-border-color: #ccc;
 $btn-color: #647984;
 $btn-hover-color: #1c435c;
 
+$progress-bar-waiting: #5c5e71;
+$progress-bar-building: #5cd2d3;
+$progress-bar-unknown: #fff;
+
+$tooltip-background: #f3f3f3;
+$tooltip-border-color: #ccc;
+
 .stage-overview-container {
   position:      absolute;
   z-index:       map_get($zindex, stage-overview);
@@ -30,9 +37,7 @@ $btn-hover-color: #1c435c;
   border-radius: 3px;
   font-size:     12px;
   width:         500px;
-  max-height:    500px;
   min-height:    200px;
-  overflow-y:    auto;
   margin:        25px 0 0 5px;
   background:    $body-background;
 }
@@ -148,4 +153,67 @@ $btn-hover-color: #1c435c;
   min-width:  140px;
   word-break: break-all;
 }
+
+
+.progress-bar-container {
+  height:        13px;
+  width:         250px;
+  display:       flex;
+  border:        0.5px solid $border-color;
+  border-radius: 3px;
+  overflow:      hidden;
+  cursor:        pointer;
+
+  .waiting {
+    background: lighten($progress-bar-waiting, 10%);
+  }
+
+  .building {
+    background: $progress-bar-building;
+  }
+
+  .unknown {
+    background: $progress-bar-unknown;
+  }
+}
+
+.progress-bar-tooltip {
+  visibility:    hidden;
+  margin-top:    7px;
+  margin-left:   40px;
+  width:         150px;
+  text-align:    center;
+  padding:       10px;
+  border-radius: 6px;
+  position:      absolute;
+  z-index:       map_get($zindex, tooltip);
+  background:    $tooltip-background;
+  border:        1px solid $tooltip-border-color;
+
+  :before {
+    content:       '';
+    display:       block;
+    width:         0;
+    height:        0;
+    position:      absolute;
+
+    border-top:    8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right:  8px solid $tooltip-border-color;
+
+    left:          65px;
+    top:           -12px;
+    transform:     rotate(90deg);
+  }
+
+  .tooltip-key-value-pair {
+    display: flex;
+  }
+
+  .tooltip-key {
+    font-weight:  700;
+    margin-right: 5px;
+  }
+}
+
 

@@ -19,16 +19,20 @@ import {StageInstance} from "./stage_instance";
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "../../../../helpers/api_request_builder";
 import {SparkRoutes} from "../../../../helpers/spark_routes";
 import {Result, StageInstanceJSON, StageState} from "./types";
+import {JobsViewModel} from "./jobs_view_model";
 
 export class StageOverviewViewModel {
   private static STAGES_API_VERSION_HEADER = ApiVersion.latest;
   readonly stageInstance: Stream<StageInstance>;
+  readonly jobsVM: Stream<JobsViewModel>;
   readonly lastPassedStageInstance: Stream<StageInstance | undefined>;
 
   constructor(stageInstance: StageInstance, lastPassedStageInstance?: StageInstance) {
     this.stageInstance = Stream(stageInstance);
     this.lastPassedStageInstance = Stream(lastPassedStageInstance);
+    this.jobsVM = Stream(new JobsViewModel(stageInstance.jobs()))
   }
+
 
   /*
     ** Responsible to fetch all the required data to show stage overview. **

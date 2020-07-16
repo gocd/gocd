@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-import Stream from "mithril/stream";
 import moment from "moment";
-import {JobsViewModel} from "./jobs_view_model";
 import {JobJSON, Result, StageInstanceJSON} from "./types";
 
 export class StageInstance {
-  readonly jobsVM: Stream<JobsViewModel>;
   private json: StageInstanceJSON;
 
   constructor(json: StageInstanceJSON) {
     this.json = json;
-    this.jobsVM = Stream(new JobsViewModel(json.jobs));
   }
 
   static fromJSON(json: StageInstanceJSON) {
     return new StageInstance(json);
+  }
+
+  jobs(): JobJSON[] {
+    return this.json.jobs;
   }
 
   triggeredBy(): string {

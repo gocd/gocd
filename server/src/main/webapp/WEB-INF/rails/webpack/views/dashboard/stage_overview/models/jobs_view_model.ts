@@ -17,30 +17,29 @@
 import {JobJSON, Result} from "./types";
 
 export class JobsViewModel {
-  private readonly __jobs: JobJSON[];
+  private readonly jobs: JobJSON[];
 
-  //todo: fixme
   constructor(jobs: JobJSON[]) {
-    this.__jobs = jobs;
+    this.jobs = jobs;
   }
 
-  buildingJobNames(): string[] {
+  buildingJobNames(): JobJSON[] {
     return this.getJobNamesByResult(Result.Unknown);
   }
 
-  failedJobNames(): string[] {
+  failedJobNames(): JobJSON[] {
     return this.getJobNamesByResult(Result.Failed);
   }
 
-  cancelledJobNames(): string[] {
+  cancelledJobNames(): JobJSON[] {
     return this.getJobNamesByResult(Result.Cancelled);
   }
 
-  passedJobNames(): string[] {
+  passedJobNames(): JobJSON[] {
     return this.getJobNamesByResult(Result.Passed);
   }
 
   private getJobNamesByResult(result: Result) {
-    return this.__jobs.filter((j: JobJSON) => j.result === Result[result]).map(j => j.name);
+    return this.jobs.filter((j: JobJSON) => j.result === Result[result]);
   }
 }

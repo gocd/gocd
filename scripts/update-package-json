@@ -2,8 +2,10 @@
 
 const fs = require("fs");
 const path = require("path");
-const semver = require("semver");
 const { execSync } = require('child_process');
+
+// externals
+const semver = tryRequire("semver");
 
 const WORKSPACE = path.dirname(__dirname)
 const RAILS_ROOT = path.join(WORKSPACE, "server", "src", "main", "webapp", "WEB-INF", "rails");
@@ -53,4 +55,13 @@ function excludes(dict, key) {
     dict[key].startsWith("http:") ||
     dict[key].startsWith("https:")
   );
+}
+
+function tryRequire(name) {
+  try {
+    return require(name);
+  } catch {
+    console.error(`This script requires the package \`${name}\`; please \`cd ${path.relative(process.cwd(), __dirname)} && npm install && cd -\` before running this script`);
+    process.exit(1);
+  }
 }

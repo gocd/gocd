@@ -1,0 +1,25 @@
+{
+   "version": "1",
+   "toggles": [
+      {
+         "key": "pipeline_comment_feature_toggle_key",
+         "description": "Enables commenting on a pipeline run, in the pipeline history view. See more at: http://www.go.cd/documentation/user/current/beta/comment_on_pipeline_run.html. Default: off.",
+         "value": false
+      },
+      {
+         "key": "plugin_upload_feature_toggle_key",
+         "description": "Enables uploading a plugin, directly from Go's plugins tab. Default: off.",
+         "value": false
+      },
+      {
+         "key": "color_logs_feature_toggle_key",
+         "description": "Enables colored logs in job detail. Default: off.",
+         "value": false
+      },
+      {
+         "key": "new_cctray_feature_toggle_key",
+         "description": "Enables new cctray implementation. See more at: https://github.com/gocd/gocd/pull/877. Default: on.",
+         "value": true
+      }
+   ]
+}

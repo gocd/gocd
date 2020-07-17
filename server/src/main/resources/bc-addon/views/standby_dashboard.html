@@ -1,0 +1,288 @@
+<html xmlns="http://www.w3.org/1999/xhtml" lang='en'>
+<head>
+	<title>Standby Dashboard</title>
+	<link debug="false" href="/go/<<<REPLACED_BY_GO:application.css>>>" media="all" rel="stylesheet"/>
+	<link debug="false" href="/go/<<<REPLACED_BY_GO:patterns/application.css>>>" media="all" rel="stylesheet"/>
+	<script debug="false" src="/go/<<<REPLACED_BY_GO:application.js>>>"></script>
+	<link rel="shortcut icon" href="/go/<<<REPLACED_BY_GO:cruise.ico>>>"/>
+	<style>
+		.application_nav {
+			padding: 5px 10px;
+		}
+
+		.application_nav .user {
+			margin-right: 0;
+		}
+
+		.application_nav .user li.current_user {
+			border-radius: 3px;
+		}
+
+		.application_nav .current_user_name {
+			padding: 5px;
+			display: block;
+		}
+
+		.application_nav .icon {
+			padding-left:        25px !important;
+			background-position: -30px -14px;
+		}
+
+		.application_nav .user li.current_user .enhanced_dropdown {
+			right: 0;
+		}
+	</style>
+</head>
+<body>
+<div ng-app="dashboard" ng-controller="DashboardController">
+	<div id="header">
+		<div class="header clear_float">
+			<a href="/go/home" id="application_logo">&nbsp;</a>
+
+			<div ng-show="dashboardData.userName" class="application_nav">
+				<ul class="user">
+					<li class="current_user icon">
+						<a href="#" class="current_user_name dropdown-arrow-icon">{{dashboardData.userName}}</a>
+						<ul class='enhanced_dropdown hidden'>
+							<li class="logout">
+								<a class="sign_out" href="/go/auth/logout" id="nav-logout">Sign out</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="body_content">
+		<div class="page_header">
+			<h1 id="page-title" class="entity_title">Sync Status</h1>
+		</div>
+
+
+		<div class="content">
+			<div ng-switch="dashboardData.setupStatus">
+				<div ng-switch-when="success">
+					<div class="section">
+						<span class="title">Primary Details</span> ({{dashboardData.primaryServerDetails.url}})
+
+						<div
+							class="sync_item {{compareValues(dashboardData.primaryServerDetails.latestDatabaseWalLocation, dashboardData.standbyServerDetails.latestReceivedDatabaseWalLocation)}}">
+							<span class="label">Database WAL Location:</span>
+							<span class="value">{{dashboardData.primaryServerDetails.latestDatabaseWalLocation}}</span>
+						</div>
+
+						<div ng-switch="dashboardData.primaryServerDetails.error == undefined">
+							<div ng-switch-when="false">
+								<span class="label failure">{{dashboardData.primaryServerDetails.error}}</span>
+							</div>
+
+							<div ng-switch-default>
+								<div class="sync_item">
+									<span class="label">Config Files Update Interval:</span>
+									<span class="value">{{dashboardData.primaryServerDetails.configFilesUpdateInterval}}ms</span>
+								</div>
+
+								<div class="sync_item">
+									<span class="label">Last Config/Plugins Update Time:</span>
+									<span
+										class="value">{{dashboardData.primaryServerDetails.lastConfigUpdateTime}}</span>
+								</div>
+
+								<div class="sync_item {{compare('CRUISE_CONFIG_XML')}}">
+									<span class="label">Config MD5:</span>
+									<span
+										class="value">{{dashboardData.primaryServerDetails.CRUISE_CONFIG_XML.md5}}</span>
+								</div>
+
+								<div class="sync_item {{compare('CIPHER')}}">
+									<span class="label">AES Cipher MD5:</span>
+									<span class="value">{{dashboardData.primaryServerDetails.AES_CIPHER.md5}}</span>
+								</div>
+
+								<div class="sync_item {{compare('JETTY_XML')}}">
+									<span class="label">Jetty Xml MD5:</span>
+									<span class="value">{{dashboardData.primaryServerDetails.JETTY_XML.md5}}</span>
+								</div>
+
+								<div class="sync_item {{compare('USER_FEATURE_TOGGLE')}}">
+									<span class="label">User feature toggle MD5:</span>
+									<span
+										class="value">{{dashboardData.primaryServerDetails.USER_FEATURE_TOGGLE.md5}}</span>
+								</div>
+
+								<div
+									class="sync_item {{compareValues(pluginsOnPrimary.toString(), pluginsOnStandby.toString())}}">
+									<span class="label">Plugin checksums:</span>
+
+									<div class="value plugins_list" ng-repeat="plugin in pluginsOnPrimary">
+										<span>{{plugin}}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="section">
+						<span class="title">Standby Details</span>
+
+						<div
+							class="sync_item {{compareValues(dashboardData.primaryServerDetails.latestDatabaseWalLocation, dashboardData.standbyServerDetails.latestReceivedDatabaseWalLocation)}}">
+							<span class="label">Last Received Database WAL Location:</span>
+							<span
+								class="value">{{dashboardData.standbyServerDetails.latestReceivedDatabaseWalLocation}}</span>
+						</div>
+
+						<div class="sync_item">
+							<span class="label">Primary Server Status Check Interval:</span>
+							<span
+								class="value">{{dashboardData.standbyServerDetails.primaryStatusCheckInterval}}ms</span>
+						</div>
+
+						<div class="sync_item">
+							<span class="label">Last Successful Sync time:</span>
+							<span class="value">{{dashboardData.standbyServerDetails.lastUpdateTime}}</span>
+						</div>
+
+						<div class="sync_item {{compare('CRUISE_CONFIG_XML')}}">
+							<span class="label">Config MD5:</span>
+							<span class="value">{{dashboardData.standbyServerDetails.CRUISE_CONFIG_XML}}</span>
+						</div>
+
+						<div class="sync_item {{compare('AES_CIPHER')}}">
+							<span class="label">AES Cipher MD5:</span>
+							<span class="value">{{dashboardData.standbyServerDetails.AES_CIPHER}}</span>
+						</div>
+
+						<div class="sync_item {{compare('JETTY_XML')}}">
+							<span class="label">Jetty Xml MD5:</span>
+							<span class="value">{{dashboardData.standbyServerDetails.JETTY_XML}}</span>
+						</div>
+
+						<div class="sync_item {{compare('USER_FEATURE_TOGGLE')}}">
+							<span class="label">User feature toggle MD5:</span>
+							<span class="value">{{dashboardData.standbyServerDetails.USER_FEATURE_TOGGLE}}</span>
+						</div>
+
+						<div
+							class="sync_item {{compareValues(pluginsOnPrimary.toString(), pluginsOnStandby.toString())}}">
+							<span class="label">Plugin checksums:</span>
+
+							<div class="value plugins_list" ng-repeat="plugin in pluginsOnStandby">
+								<span>{{plugin}}</span>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+			<div class="section" ng-switch="dashboardData.syncErrors.length > 0">
+				<div ng-switch-when="true">
+					<span class="title">Errors</span>
+
+					<div class="sync_error_message" ng-repeat="error in dashboardData.syncErrors">
+						<span>{{error}}</span>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+</div>
+<style type="text/css">
+	body {
+		background-color: #fff;
+		font-size:        14px;
+	}
+
+	.content {
+		margin-top:       78px;
+		padding-top:      24px;
+		background-color: #fff;
+		margin-left:      15px;
+		margin-right:     15px;
+	}
+
+	.section .title {
+		display:       inline-block;
+		font-size:     22px;
+		font-weight:   300;
+		font-family:   "Helvetica Neue", Arial, Helvetica, sans-serif;
+		margin-bottom: 0.5em;
+	}
+
+	.section {
+		margin-bottom: 2em;
+	}
+
+	.sync_item {
+		clear:         both;
+		margin-bottom: 0.75em;
+	}
+
+	.sync_item .label {
+		font-weight: bold;
+	}
+
+	.sync_item.not_same {
+		color: red;
+	}
+
+	.sync_error_message {
+		margin-bottom: 1em;
+	}
+
+	.plugins_list span {
+		display:     inline-block;
+		margin-top:  0.3em;
+		margin-left: 10px;
+	}
+</style>
+
+<script type="text/javascript">
+	var dashboard_data_url = "dashboard.json";
+	var mainApp = angular.module("dashboard", []);
+	mainApp.controller('DashboardController', function ($scope, $http, $timeout) {
+		$scope.initialize = function () {
+			$scope.updateDashboardData();
+		}
+
+		var getValueOrDefault = function (allData, key, defaultIfNotFound) {
+			if (allData === null || typeof allData === "undefined" || allData[key] === null || typeof allData[key] === "undefined") {
+				return defaultIfNotFound;
+			}
+			return allData[key];
+		};
+
+		$scope.compare = function (key) {
+			var primaryValue = getValueOrDefault($scope.dashboardData.primaryServerDetails, key, {md5: ""}).md5;
+			var standbyValue = getValueOrDefault($scope.dashboardData.standbyServerDetails, key, "");
+
+			return $scope.compareValues(primaryValue, standbyValue);
+		};
+
+		$scope.compareValues = function (value1, value2) {
+			return (value1 || "") === (value2 || "") ? "same" : "not_same";
+		}
+
+		$scope.updateDashboardData = function () {
+			$http.get(dashboard_data_url).success(function (response) {
+				$scope.dashboardData = response;
+				$scope.pluginsOnPrimary = getValueOrDefault($scope.dashboardData.primaryServerDetails, "pluginStatus", "").split(", ").sort();
+				$scope.pluginsOnStandby = getValueOrDefault($scope.dashboardData.standbyServerDetails, "pluginStatus", "").split(", ").sort();
+
+				if ($scope.dashboardData.setupStatus == "success") {
+					$timeout(function () {
+						$scope.updateDashboardData()
+					}, 10000);
+				}
+			});
+		}
+
+		$scope.initialize();
+	});
+</script>
+</body>
+</html>

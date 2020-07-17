@@ -357,7 +357,7 @@ public class AgentDaoTest {
             assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent3.getUuid()).getResources(), is("r3,r4"));
 
             assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent1.getUuid()).getEnvironments(), is("e2,e4"));
-            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent2.getUuid()).getEnvironments(), is(emptyString()));
+            assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent2.getUuid()).getEnvironments(), isEmptyString());
             assertThat(agentDao.getAgentByUUIDFromCacheOrDB(agent3.getUuid()).getEnvironments(), is("e2,e4"));
         }
 

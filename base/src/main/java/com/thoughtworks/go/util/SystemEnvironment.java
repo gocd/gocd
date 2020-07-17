@@ -902,10 +902,4 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
             return "Y".equalsIgnoreCase(propertyValueFromSystem) || "true".equalsIgnoreCase(propertyValueFromSystem);
         }
     }
-
-    @Deprecated // retained for BC
-    public File agentkeystore() {
-        return new File(configDir(), "agentkeystore");
-    }
-
 }

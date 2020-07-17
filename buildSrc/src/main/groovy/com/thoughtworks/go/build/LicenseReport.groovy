@@ -60,6 +60,7 @@ class LicenseReport {
     MPL_1_1,
     UNLICENSE,
     PUBLIC_DOMAIN,
+    ISC
   ].collect { it.id })
 
   private final Project project

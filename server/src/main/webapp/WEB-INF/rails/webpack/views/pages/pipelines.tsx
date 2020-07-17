@@ -85,7 +85,7 @@ export class PipelineCreatePage extends Page<{}, State> {
     return [
       <FillableSection>
         <UserInputPane heading="Part 1: Material">
-          <MaterialEditor material={material} showExtraMaterials={true} pluggableScms={vnode.state.scmMaterials()}
+          <MaterialEditor material={material} showExtraMaterials={true} pluggableScms={vnode.state.scmMaterials()} pipelineGroupName={this.model.pipeline.group()}
                           readonly={false} packageRepositories={mergedPkgRepos} pluginInfos={vnode.state.pluginInfos()}/>
         </UserInputPane>
         <ConceptDiagram image={materialImg}>

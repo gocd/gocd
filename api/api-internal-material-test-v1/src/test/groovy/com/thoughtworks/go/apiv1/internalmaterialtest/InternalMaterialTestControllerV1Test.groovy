@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.domain.materials.ValidationBean
 import com.thoughtworks.go.domain.materials.git.GitCommand
 import com.thoughtworks.go.server.service.MaterialConfigConverter
+import com.thoughtworks.go.server.service.SecretParamResolver
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -50,6 +51,8 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
 
   @Mock
   GitCommand gitCommand
+  @Mock
+  SecretParamResolver secretParamResolver
 
   @BeforeEach
   void setUp() {
@@ -58,7 +61,7 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
 
   @Override
   InternalMaterialTestControllerV1 createControllerInstance() {
-    new InternalMaterialTestControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment)
+    new InternalMaterialTestControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment, secretParamResolver)
   }
 
   @Nested

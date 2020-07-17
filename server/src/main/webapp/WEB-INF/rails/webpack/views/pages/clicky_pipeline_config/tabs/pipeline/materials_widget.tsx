@@ -45,6 +45,7 @@ interface MaterialsAttrs {
   pipelineConfigSave: () => Promise<any>;
   flashMessage: FlashMessageModelWithTimeout;
   parentPipelineName: string;
+  pipelineGroupName: string;
 }
 
 export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
@@ -68,12 +69,13 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
 
   private addMaterial(vnode: m.Vnode<MaterialsAttrs, this>, e: MouseEvent) {
     e.stopPropagation();
-    MaterialModal.forAdd(vnode.attrs.parentPipelineName, vnode.attrs.materials, vnode.attrs.scmMaterials, vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.pipelineConfigSave).render();
+    MaterialModal.forAdd(vnode.attrs.pipelineGroupName, vnode.attrs.parentPipelineName, vnode.attrs.materials, vnode.attrs.scmMaterials, vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.pipelineConfigSave).render();
   }
 
   private updateMaterial(vnode: m.Vnode<MaterialsAttrs, this>, materialToUpdate: Material, e: MouseEvent) {
     e.stopPropagation();
     MaterialModal.forEdit(materialToUpdate,
+                          vnode.attrs.pipelineGroupName,
                           vnode.attrs.parentPipelineName,
                           vnode.attrs.materials,
                           vnode.attrs.scmMaterials,
@@ -144,11 +146,11 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
         urlOrDescription = material.materialUrl();
         break;
       case "package":
-        const pkgAttrs   = material.attributes() as PackageMaterialAttributes;
-        const pkgInfo    = vnode.attrs.packages().find((pkg) => pkg.id() === pkgAttrs.ref())!;
-        const pkgRepo    = vnode.attrs.packageRepositories().find((pkgRepo) => pkgRepo.repoId() === pkgInfo.packageRepo().id());
+        const pkgAttrs = material.attributes() as PackageMaterialAttributes;
+        const pkgInfo  = vnode.attrs.packages().find((pkg) => pkg.id() === pkgAttrs.ref())!;
+        const pkgRepo  = vnode.attrs.packageRepositories().find((pkgRepo) => pkgRepo.repoId() === pkgInfo.packageRepo().id());
 
-        if(!pkgRepo) {
+        if (!pkgRepo) {
           break;
         }
 
@@ -166,10 +168,10 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
       case "plugin":
         const pluginAttrs = material.attributes() as PluggableScmMaterialAttributes;
         const scmMaterial = vnode.attrs.scmMaterials().find((pkg) => pkg.id() === pluginAttrs.ref());
-        if(!scmMaterial) {
+        if (!scmMaterial) {
           break;
         }
-        const scmPlugin   = vnode.attrs.pluginInfos().findByPluginId(scmMaterial.pluginMetadata().id());
+        const scmPlugin = vnode.attrs.pluginInfos().findByPluginId(scmMaterial.pluginMetadata().id());
 
         materialName = scmMaterial.name();
         if (scmPlugin === undefined) {

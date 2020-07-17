@@ -51,7 +51,7 @@ describe("MaterialsWidgetSpec", () => {
                                         pluginInfos={Stream(pluginInfos)}
                                         packageRepositories={Stream(pkgRepos)}
                                         packages={Stream(pkgs)} scmMaterials={Stream(scms)} parentPipelineName={pipelineConfig.name()}
-                                        pipelineConfigSave={jasmine.createSpy("pipelineConfigSave")}
+                                        pipelineGroupName={pipelineConfig.group()} pipelineConfigSave={jasmine.createSpy("pipelineConfigSave")}
                                         flashMessage={new FlashMessageModelWithTimeout()}/>);
   }
 

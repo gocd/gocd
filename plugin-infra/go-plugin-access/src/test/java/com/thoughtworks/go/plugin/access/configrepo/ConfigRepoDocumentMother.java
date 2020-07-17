@@ -131,4 +131,12 @@ class ConfigRepoDocumentMother {
     public String v11WithSleepTasks() {
         return JsonUtils.toJsonString(getJSONFor("/v11_pipeline_with_default_task.json"));
     }
+
+    public String v10WithoutPipelines() {
+        return JsonUtils.toJsonString(getJSONFor("/v10_no_pipelines.json"));
+    }
+
+    public String v11WithoutPipelines() {
+        return JsonUtils.toJsonString(getJSONFor("/v11_no_pipelines.json"));
+    }
 }

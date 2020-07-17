@@ -28,6 +28,9 @@ public class AddEmptyTaskJoltTransformer implements ContextualTransform {
     @Override
     public Object transform(Object input, Map<String, Object> context) {
         List<?> pipelines = getFieldFromMap(input, "pipelines");
+        if (pipelines == null) {
+            return input;
+        }
         pipelines.forEach((Object pipeline) -> {
             List<?> stages = getFieldFromMap(pipeline, "stages");
             stages.forEach((Object stage) -> {

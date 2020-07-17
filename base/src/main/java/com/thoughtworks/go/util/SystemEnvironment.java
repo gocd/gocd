@@ -214,7 +214,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     private volatile static Integer agentConnectionTimeout;
-    private volatile static Integer cruiseSSlPort;
     private volatile static String cruiseConfigDir;
     private volatile static Long databaseFullSizeLimit;
     private volatile static Charset consoleLogCharsetAsCharset;
@@ -532,7 +531,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     private void clearCachedSystemEnvironment() {
         agentConnectionTimeout = null;
-        cruiseSSlPort = null;
         cruiseConfigDir = null;
         databaseFullSizeLimit = null;
         artifactFullSizeLimit = null;

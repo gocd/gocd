@@ -15,13 +15,16 @@
  */
 
 import m from "mithril";
+import Stream from "mithril/stream";
 import * as styles from "./index.scss";
 import {MithrilComponent} from "../../../jsx/mithril-component";
 import {JobJSON} from "./models/types";
+import {JobDuration, JobDurationStrategyHelper} from "./models/job_duration_stratergy_helper";
+import {StageInstance} from "./models/stage_instance";
 
 export interface Attrs {
   job: JobJSON;
-
+  lastPassedStageInstance: Stream<StageInstance | undefined>;
 }
 
 export class JobProgressBarWidget extends MithrilComponent<Attrs> {
@@ -36,29 +39,35 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs, {}>): m.Children | void | null {
+    const jobDuration: JobDuration = JobDurationStrategyHelper.getDuration(vnode.attrs.job, vnode.attrs.lastPassedStageInstance());
+
     return <div>
       <div data-test-id="progress-bar-container-div" class={styles.progressBarContainer}>
-        <div class={`${styles.waiting}`} style="width: 70%"/>
-        <div className={`${styles.building}`} style="width: 20%"/>
-        <div className={`${styles.unknown}`} style="width: 10%"/>
+        <div class={`${styles.waiting}`} style={`width: ${jobDuration.waitTimePercentage}%`}/>
+        <div className={`${styles.building}`} style={`width: ${jobDuration.buildTimePercentage}%`}/>
+        <div className={`${styles.unknown}`} style={`width: ${jobDuration.unknownTimePercentage}%`}/>
       </div>
 
       <div class={styles.progressBarTooltip}>
-        <div class={styles.tooltipKeyValuePair}>
-          <div class={styles.tooltipKey}>Job:</div>
-          <div>up42_job</div>
-        </div>
-        <div className={styles.tooltipKeyValuePair}>
-          <div className={styles.tooltipKey}>State:</div>
-          <div>Building</div>
-        </div>
         <div className={styles.tooltipKeyValuePair}>
           <div className={styles.tooltipKey}>Wait Time:</div>
-          <div>30s</div>
+          <div>{jobDuration.waitTimeForDisplay}</div>
         </div>
         <div className={styles.tooltipKeyValuePair}>
           <div className={styles.tooltipKey}>Build Time:</div>
-          <div>12m</div>
+          <div>{jobDuration.buildTimeForDisplay}</div>
+        </div>
+        <div className={styles.tooltipKeyValuePair}>
+          <div className={styles.tooltipKey}>Total Time:</div>
+          <div>{jobDuration.totalTimeForDisplay}</div>
+        </div>
+        <div className={styles.tooltipKeyValuePair}>
+          <div className={styles.tooltipKey}>Scheduled At:</div>
+          <div>{jobDuration.startTimeForDisplay}</div>
+        </div>
+        <div className={styles.tooltipKeyValuePair}>
+          <div className={styles.tooltipKey}>Completed At:</div>
+          <div>{jobDuration.endTimeForDisplay}</div>
         </div>
       </div>
     </div>

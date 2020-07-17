@@ -25,20 +25,22 @@ import {JobsViewModel} from "./models/jobs_view_model";
 import pipelineHistoryStyles from "../../pages/pipeline_activity/index.scss";
 import {JobProgressBarWidget} from "./job_progress_bar_widget";
 import {JobJSON} from "./models/types";
+import {StageInstance} from "./models/stage_instance";
 
 const classnames = bind(pipelineHistoryStyles);
 
 export interface Attrs {
   jobsVM: Stream<JobsViewModel>;
+  lastPassedStageInstance: Stream<StageInstance | undefined>;
 }
 
 export interface State {
-  getTableRowForJob: (jobName: JobJSON) => m.Children;
+  getTableRowForJob: (jobName: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>) => m.Children;
 }
 
 export class JobsListWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.getTableRowForJob = (job: JobJSON) => {
+    vnode.state.getTableRowForJob = (job: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>) => {
       const jobName = job.name;
       return <tr>
         <td data-test-id={`checkbox-for-job-${jobName}`} class={styles.jobCheckbox}>
@@ -48,7 +50,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
           {job.name}
         </td>
         <td class={styles.jobName}>
-          <JobProgressBarWidget job={job}/>
+          <JobProgressBarWidget job={job} lastPassedStageInstance={lastPassedStageInstance}/>
         </td>
         <td> in progress</td>
         <td> agent 1</td>
@@ -69,7 +71,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         {
           ['buildingJobNames', 'failedJobNames', 'cancelledJobNames', 'passedJobNames'].map((m) => {
             return (vnode.attrs.jobsVM()[m]() as JobJSON[])
-              .map(job => vnode.state.getTableRowForJob(job));
+              .map(job => vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance));
           })
         }
       </table>

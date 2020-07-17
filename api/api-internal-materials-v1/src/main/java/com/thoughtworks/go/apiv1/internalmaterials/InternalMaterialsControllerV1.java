@@ -74,7 +74,7 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
         });
     }
 
-    private String index(Request request, Response response) throws Exception {
+    public String index(Request request, Response response) throws Exception {
         MaterialConfigs materialConfigs = materialConfigService.getMaterialConfigs(currentUsernameString());
         Map<String, Modifications> modifications = materialService.getModificationWithMaterial();
         Map<MaterialConfig, Modifications> mergedMap = createMergedMap(materialConfigs, modifications);

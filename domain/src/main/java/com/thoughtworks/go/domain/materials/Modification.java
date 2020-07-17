@@ -413,4 +413,9 @@ public class Modification extends PersistentObject implements Comparable, Serial
     public String getAdditionalData() {
         return additionalData;
     }
+
+    // used in ibatis
+    public void setPipelineId(Long pipelineId) {
+        this.pipelineId = pipelineId;
+    }
 }

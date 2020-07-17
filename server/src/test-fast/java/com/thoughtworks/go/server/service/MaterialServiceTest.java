@@ -38,6 +38,7 @@ import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
 import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
@@ -47,6 +48,7 @@ import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfigur
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.server.dao.MaterialSqlMapDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.materials.GitPoller;
@@ -74,9 +76,9 @@ import java.util.Map;
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -98,6 +100,8 @@ public class MaterialServiceTest {
     private TransactionTemplate transactionTemplate;
     @Mock
     private SecretParamResolver secretParamResolver;
+    @Mock
+    private MaterialSqlMapDao materialSqlMapDao;
 
     private MaterialService materialService;
 
@@ -105,7 +109,7 @@ public class MaterialServiceTest {
     public void setUp() {
         initMocks(this);
         materialService = new MaterialService(materialRepository, goConfigService, securityService,
-                packageRepositoryExtension, scmExtension, transactionTemplate, secretParamResolver);
+                packageRepositoryExtension, scmExtension, transactionTemplate, secretParamResolver, materialSqlMapDao);
     }
 
     @Test
@@ -398,6 +402,30 @@ public class MaterialServiceTest {
         Modifications gotModifications = materialService.getModificationsFor(materialConfig, pagination);
 
         assertThat(gotModifications, is(modifications));
+    }
+
+    @Test
+    public void shouldGetLatestModificationWithMaterial() {
+        MaterialInstance instance = MaterialsMother.gitMaterial("http://example.com/gocd.git").createMaterialInstance();
+        List<Modification> modificationList = ModificationsMother.multipleModificationList();
+        modificationList.forEach((mod) -> mod.setMaterialInstance(instance));
+
+        when(materialSqlMapDao.getModificationWithMaterial(anyInt())).thenReturn(new Modifications(modificationList));
+
+        Map<String, Modifications> modificationsMap = materialService.getModificationWithMaterial();
+
+        assertEquals(modificationsMap.size(), 1);
+        assertThat(modificationsMap.keySet(), containsInAnyOrder(instance.getFingerprint()));
+        assertEquals(modificationsMap.get(instance.getFingerprint()), modificationList);
+    }
+
+    @Test
+    public void shouldReturnEmptyMapIfNoMaterialAndModificationFound() {
+        when(materialSqlMapDao.getModificationWithMaterial(anyInt())).thenReturn(new Modifications());
+
+        Map<String, Modifications> modificationsMap = materialService.getModificationWithMaterial();
+
+        assertEquals(modificationsMap.size(), 0);
     }
 
     private void assertHasModification(MaterialRevisions materialRevisions, boolean b) {

@@ -72,5 +72,6 @@
     <mapper resource="com/thoughtworks/go/server/dao/maps/Stage.xml"/>
     <mapper resource="com/thoughtworks/go/server/dao/maps/JobInstance.xml"/>
     <mapper resource="com/thoughtworks/go/server/dao/maps/BuildStateTransition.xml"/>
+    <mapper resource="com/thoughtworks/go/server/dao/maps/Material.xml"/>
   </mappers>
 </configuration>

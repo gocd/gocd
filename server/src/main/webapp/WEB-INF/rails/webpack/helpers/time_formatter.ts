@@ -15,7 +15,7 @@
  */
 import * as CONSTANTS from "helpers/constants";
 import _ from "lodash";
-import {LRUMap} from "lru_map";
+import LRUCache from "lru-cache";
 import moment from "moment";
 import "moment-duration-format";
 
@@ -27,15 +27,42 @@ const SERVER_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss Z [Server Time]";
 // the default timestamp format rendered by the server
 const defaultFormat      = "YYYY-MM-DDTHH:mm:ssZ";
 
+class Cache implements _.MapCache {
+  private readonly lru: LRUCache<any, any>;
+
+  constructor(max: number) {
+    this.lru = new LRUCache({ max });
+  }
+
+  has(key: any) { return this.lru.has(key); }
+
+  get(key: any) { return this.lru.get(key); }
+
+  set(key: any, value: any) {
+    this.lru.set(key, value);
+    return this;
+  }
+
+  delete(key: any) {
+    if (this.lru.has(key)) {
+      this.lru.del(key);
+      return true;
+    }
+    return false;
+  }
+
+  clear() { this.lru.reset(); }
+}
+
 const format = _.memoize((time) => {
   return moment(time, defaultFormat).format(LOCAL_TIME_FORMAT);
 });
-format.cache = new LRUMap(CACHE_SIZE);
+format.cache = new Cache(CACHE_SIZE);
 
 const formatInServerTime = _.memoize((time) => {
   return moment(time, defaultFormat).utcOffset(utcOffsetInMinutes).format(SERVER_TIME_FORMAT);
 });
-formatInServerTime.cache = new LRUMap(CACHE_SIZE);
+formatInServerTime.cache = new Cache(CACHE_SIZE);
 
 const formatInDate = (time?: moment.MomentInput) => {
   return moment(time, defaultFormat).format(DATE_FORMAT);

@@ -44,6 +44,7 @@ interface Attrs {
   readonly?: boolean;
   parentPipelineName?: string;
   showGitMaterialShallowClone?: boolean;
+  pipelineGroupName?: string;
 }
 
 function markAllDisabled(vnodes: m.ChildArray) {
@@ -82,7 +83,7 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
     const fields: m.Children = [this.requiredFields(mattrs, vnode)];
 
     if (!vnode.attrs.hideTestConnection) {
-      fields.push(<TestConnection material={vnode.attrs.material} pipeline={vnode.attrs.parentPipelineName}/>);
+      fields.push(<TestConnection material={vnode.attrs.material} pipeline={vnode.attrs.parentPipelineName} group={vnode.attrs.pipelineGroupName}/>);
     }
 
     fields.push(this.advancedOptions(mattrs, vnode));

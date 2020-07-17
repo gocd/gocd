@@ -41,8 +41,9 @@ export class MaterialModal extends Modal {
   private readonly isNew: boolean;
   private readonly readonly: boolean;
   private readonly parentPipelineName: string;
+  private readonly pipelineGroupName: string;
 
-  constructor(title: string, entity: Stream<Material>, parentPipelineName: string, materials: Stream<Materials>, scms: Stream<Scms>,
+  constructor(title: string, entity: Stream<Material>, pipelineGroupName: string, parentPipelineName: string, materials: Stream<Materials>, scms: Stream<Scms>,
               packages: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
               pipelineConfigSave: () => Promise<any>, isNew: boolean, readonly: boolean) {
     super(Size.medium);
@@ -59,19 +60,20 @@ export class MaterialModal extends Modal {
     this.closeModalOnOverlayClick = false;
     this.readonly                 = readonly;
     this.parentPipelineName       = parentPipelineName;
+    this.pipelineGroupName        = pipelineGroupName;
   }
 
-  static forAdd(parentPipelineName: string, materials: Stream<Materials>, scms: Stream<Scms>, packageRepositories: Stream<PackageRepositories>,
+  static forAdd(pipelineGroupName: string, parentPipelineName: string, materials: Stream<Materials>, scms: Stream<Scms>, packageRepositories: Stream<PackageRepositories>,
                 pluginInfos: Stream<PluginInfos>, onSuccessfulAdd: () => Promise<any>) {
     const materialType = materials().scmMaterialsHaveDestination() ? "git" : "dependency";
-    return new MaterialModal("Add material", Stream(new Material(materialType)), parentPipelineName, materials, scms, packageRepositories, pluginInfos, onSuccessfulAdd, true, false);
+    return new MaterialModal("Add material", Stream(new Material(materialType)), pipelineGroupName, parentPipelineName, materials, scms, packageRepositories, pluginInfos, onSuccessfulAdd, true, false);
   }
 
-  static forEdit(material: Material, parentPipelineName: string, materials: Stream<Materials>, scms: Stream<Scms>,
+  static forEdit(material: Material, pipelineGroupName: string, parentPipelineName: string, materials: Stream<Materials>, scms: Stream<Scms>,
                  packageRepositories: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
                  pipelineConfigSave: () => Promise<any>, readonly: boolean) {
     const title = `Edit material - ${s.capitalize(material.type()!)}`;
-    return new MaterialModal(title, Stream(material), parentPipelineName, materials, scms, packageRepositories, pluginInfos, pipelineConfigSave, false, readonly);
+    return new MaterialModal(title, Stream(material), pipelineGroupName, parentPipelineName, materials, scms, packageRepositories, pluginInfos, pipelineConfigSave, false, readonly);
   }
 
   title(): string {
@@ -86,7 +88,8 @@ export class MaterialModal extends Modal {
         <MaterialEditor material={this.entity()} showExtraMaterials={true}
                         disableScmMaterials={this.isNew && !allScmMaterialsHaveDestination} readonly={this.readonly}
                         parentPipelineName={this.parentPipelineName} disabledMaterialTypeSelection={!this.isNew}
-                        pluggableScms={this.pluggableScms()} packageRepositories={this.packageRepositories()} pluginInfos={this.pluginInfos()}/>
+                        pipelineGroupName={this.pipelineGroupName} pluggableScms={this.pluggableScms()}
+                        packageRepositories={this.packageRepositories()} pluginInfos={this.pluginInfos()}/>
       </div>
     </div>;
   }
@@ -114,7 +117,7 @@ export class MaterialModal extends Modal {
       this.pipelineConfigSave()
           .then(() => this.close())
           .catch((errorResponse?: string) => {
-            if(errorResponse ) {
+            if (errorResponse) {
               const parse            = JSON.parse(JSON.parse(errorResponse).body);
               const unconsumedErrors = this.entity().consumeErrorsResponse(parse.data);
               this.errorMessage(<span>{parse.message}<br/> {unconsumedErrors.allErrorsForDisplay()}</span>);

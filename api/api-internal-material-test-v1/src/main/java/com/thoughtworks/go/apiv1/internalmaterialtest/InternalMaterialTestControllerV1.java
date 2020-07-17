@@ -31,6 +31,7 @@ import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
+import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
 import com.thoughtworks.go.domain.materials.Material;
@@ -38,6 +39,7 @@ import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.server.service.CheckConnectionSubprocessExecutionContext;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
+import com.thoughtworks.go.server.service.SecretParamResolver;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -64,15 +66,17 @@ public class InternalMaterialTestControllerV1 extends ApiController implements S
     private final PasswordDeserializer passwordDeserializer;
     private final MaterialConfigConverter materialConfigConverter;
     private final SystemEnvironment systemEnvironment;
+    private final SecretParamResolver secretParamResolver;
 
     @Autowired
-    public InternalMaterialTestControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, GoConfigService goConfigService, PasswordDeserializer passwordDeserializer, MaterialConfigConverter materialConfigConverter, SystemEnvironment systemEnvironment) {
+    public InternalMaterialTestControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, GoConfigService goConfigService, PasswordDeserializer passwordDeserializer, MaterialConfigConverter materialConfigConverter, SystemEnvironment systemEnvironment, SecretParamResolver secretParamResolver) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.goConfigService = goConfigService;
         this.passwordDeserializer = passwordDeserializer;
         this.materialConfigConverter = materialConfigConverter;
         this.systemEnvironment = systemEnvironment;
+        this.secretParamResolver = secretParamResolver;
     }
 
     @Override
@@ -115,8 +119,15 @@ public class InternalMaterialTestControllerV1 extends ApiController implements S
             performParamExpansion(scmMaterialConfig, pipelineName);
         }
         Material material = materialConfigConverter.toMaterial(scmMaterialConfig);
+        resolveSecrets(pipelineGroupName, material);
         ValidationBean validationBean = material.checkConnection(new CheckConnectionSubprocessExecutionContext(systemEnvironment));
         return handleValidationBeanResponse(validationBean, response);
+    }
+
+    private void resolveSecrets(String pipelineGroupName, Material material) {
+        if (material instanceof ScmMaterial) {
+            secretParamResolver.resolve((ScmMaterial) material, pipelineGroupName);
+        }
     }
 
     public ScmMaterialConfig buildEntityFromRequestBody(Request req) {

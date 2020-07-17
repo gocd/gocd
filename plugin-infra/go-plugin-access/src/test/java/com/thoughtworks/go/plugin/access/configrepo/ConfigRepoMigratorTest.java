@@ -243,6 +243,18 @@ class ConfigRepoMigratorTest {
 
             assertThatJson(newJSON).isEqualTo(transformedJSON);
         }
+
+        @Test
+        void shouldPassIfThereAreNoPipelines() {
+            ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
+
+            String oldJSON = documentMother.v10WithoutPipelines();
+            String newJSON = documentMother.v11WithoutPipelines();
+
+            String transformedJSON = migrator.migrate(oldJSON, 11);
+
+            assertThatJson(newJSON).isEqualTo(transformedJSON);
+        }
     }
 
     @Test

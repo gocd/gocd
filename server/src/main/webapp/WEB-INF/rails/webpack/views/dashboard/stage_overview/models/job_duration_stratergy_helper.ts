@@ -48,6 +48,17 @@ export class JobDurationStrategyHelper {
     return this.getCompletedJobDuration(job);
   }
 
+  static getJobDurationForDisplay(job: JobJSON): string {
+    const isJobInProgress = job.result === Result[Result.Unknown];
+    if (isJobInProgress) {
+      return "in progress";
+    }
+
+    const end = moment.unix(this.getJobStateTime(job, "Completed"));
+    const start = moment.unix(this.getJobStateTime(job, "Scheduled"));
+    return this.formatTimeForDisplay(moment.utc(end.diff(start)));
+  }
+
   private static getInProgressJobDuration(job: JobJSON, passedStageInstance: StageInstance | undefined) {
     const end = moment.unix(this.getJobStateTime(job, "Completed"));
     const preparing = moment.unix(this.getJobStateTime(job, "Preparing"));

@@ -27,6 +27,7 @@ import {JobProgressBarWidget} from "./job_progress_bar_widget";
 import {JobJSON} from "./models/types";
 import {StageInstance} from "./models/stage_instance";
 import {JobStateWidget} from "./job_state_widget";
+import {JobDurationStrategyHelper} from "./models/job_duration_stratergy_helper";
 
 const classnames = bind(pipelineHistoryStyles);
 
@@ -56,7 +57,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         <td>
           <JobProgressBarWidget job={job} lastPassedStageInstance={lastPassedStageInstance}/>
         </td>
-        <td>in progress</td>
+        <td>{JobDurationStrategyHelper.getJobDurationForDisplay(job)}</td>
         <td>agent 1</td>
       </tr>;
     };

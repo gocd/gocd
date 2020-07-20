@@ -47,13 +47,13 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         <td data-test-id={`checkbox-for-job-${jobName}`} class={styles.jobCheckbox}>
           <CheckboxField property={Stream()}/>
         </td>
-        <td>
+        <td className={styles.jobName}>
           {job.name}
         </td>
-        <td className={styles.jobName}>
+        <td>
           <JobStateWidget job={job}/>
         </td>
-        <td class={styles.jobName}>
+        <td>
           <JobProgressBarWidget job={job} lastPassedStageInstance={lastPassedStageInstance}/>
         </td>
         <td>in progress</td>
@@ -68,7 +68,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         <tr>
           <th data-test-id="checkbox-header"/>
           <th data-test-id="job-name-header">Name</th>
-          <th data-test-id="status-header">State</th>
+          <th data-test-id="state-header">State</th>
           <th data-test-id="status-header">Status</th>
           <th data-test-id="duration-header">Duration</th>
           <th data-test-id="agent-header">Agent</th>

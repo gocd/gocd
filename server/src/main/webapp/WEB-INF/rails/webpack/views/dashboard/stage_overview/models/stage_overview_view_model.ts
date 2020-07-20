@@ -145,14 +145,15 @@ export class StageOverviewViewModel {
         .then((result) => {
           return result.do((successResponse) => {
             this.stageInstance(successResponse.body);
+            this.jobsVM().update(this.stageInstance().jobs());
             m.redraw.sync();
           });
         });
     };
     const poller = new AjaxPoller({
       repeaterFn,
-      initialIntervalSeconds: 5,
-      intervalSeconds:        5
+      initialIntervalSeconds: 0,
+      intervalSeconds:        2
     });
 
     poller.start();

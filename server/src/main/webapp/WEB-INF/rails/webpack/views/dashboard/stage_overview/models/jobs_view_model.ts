@@ -39,6 +39,11 @@ export class JobsViewModel {
     return this.getJobNamesByResult(Result.Passed);
   }
 
+  // responsible to update the view model
+  update(jobs: JobJSON[]) {
+    this.jobs = jobs;
+  }
+
   private getJobNamesByResult(result: Result) {
     return this.jobs.filter((j: JobJSON) => j.result === Result[result]);
   }

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import classnames from "classnames";
 import {docsUrl} from "gen/gocd_version";
+import {timeFormatter} from "helpers/time_formatter";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {MaterialWithFingerprint} from "models/materials/materials";
+import {humanizedMaterialAttributeName, MaterialModification} from "models/config_repos/types";
+import {MaterialWithModifications} from "models/materials/materials";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {KeyValuePair} from "views/components/key_value_pair";
@@ -26,6 +27,7 @@ import {Link} from "views/components/link";
 import headerStyles from "views/pages/config_repos/index.scss";
 import {MaterialsAttrs} from "views/pages/materials";
 import styles from "./index.scss";
+import {MaterialHeaderWidget} from "./material_header_widget";
 
 export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
 
@@ -55,54 +57,47 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
   }
 }
 
-interface MaterialAttrs {
-  material: MaterialWithFingerprint;
+export interface MaterialAttrs {
+  material: MaterialWithModifications;
 }
 
 export class MaterialWidget extends MithrilViewComponent<MaterialAttrs> {
   view(vnode: m.Vnode<MaterialAttrs, this>): m.Children | void | null {
-    const test = vnode.attrs.material.attributesAsMap();
-    return <CollapsiblePanel header={<MaterialHeader {...vnode.attrs} />}>
-      <KeyValuePair data={test}/>
+    const material = vnode.attrs.material;
+
+    return <CollapsiblePanel header={<MaterialHeaderWidget {...vnode.attrs} />}>
+      <h3>Latest Modification Details</h3>
+      {this.showLatestModificationDetails(material.modification, material.config.fingerprint())}
+      <h3>Material Attributes</h3>
+      <KeyValuePair data-test-id={"material-attributes"} data={material.config.attributesAsMap()}/>
     </CollapsiblePanel>;
   }
 
-}
+  private showLatestModificationDetails(modification: MaterialModification | null, fingerprint: string) {
+    if (modification === null) {
+      return <FlashMessage type={MessageType.info}>This material was never parsed</FlashMessage>;
+    }
+    const attrs = this.resolveAttrsIntoReadableFormat(modification);
+    this.setDateInReadableFormat(attrs, "modifiedTime");
 
-class MaterialHeader extends MithrilViewComponent<MaterialAttrs> {
-  view(vnode: m.Vnode<MaterialAttrs, this>): m.Children | void | null {
-    return [
-      this.getIcon(vnode),
-      <div className={headerStyles.headerTitle}>
-        <h4 data-test-id="material-type" className={headerStyles.headerTitleText}>{vnode.attrs.material.typeForDisplay()}</h4>
-        <span data-test-id="material-display-name" className={headerStyles.headerTitleUrl}>{vnode.attrs.material.displayName()}</span>
-      </div>
-    ];
+    return <div data-test-id="latest-modification-details" className={headerStyles.configRepoProperties}>
+      <KeyValuePair data={attrs}/>
+    </div>;
   }
 
-  private getIcon(vnode: m.Vnode<MaterialAttrs, this>) {
-    let style      = styles.unknown;
-    const material = vnode.attrs.material;
-    switch (material.type()) {
-      case "git":
-        style = styles.git;
-        break;
-      case "hg":
-        style = styles.mercurial;
-        break;
-      case "svn":
-        style = styles.subversion;
-        break;
-      case "p4":
-        style = styles.perforce;
-        break;
-      case "tfs":
-        style = styles.tfs;
-        break;
-      case "package":
-        style = styles.package;
-        break;
-    }
-    return <div data-test-id="material-icon" className={classnames(styles.material, style)}/>;
+  private resolveAttrsIntoReadableFormat(mod: MaterialModification): Map<string, m.Children> {
+    const attrs  = new Map();
+    const keys   = Object.keys(mod).map(humanizedMaterialAttributeName);
+    const values = Object.values(mod);
+
+    keys.forEach((key, index) => attrs.set(key, values[index]));
+    return attrs;
+  }
+
+  private setDateInReadableFormat(attrs: Map<string, m.Children>, key: string) {
+    const updatedKey    = humanizedMaterialAttributeName(key);
+    const originalValue = attrs.get(updatedKey);
+    attrs.delete(updatedKey);
+    attrs.set(updatedKey, <span title={timeFormatter.formatInServerTime(originalValue)}>{timeFormatter.format(originalValue)}</span>);
   }
 }

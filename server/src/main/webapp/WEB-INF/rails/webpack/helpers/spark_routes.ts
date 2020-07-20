@@ -588,6 +588,14 @@ export class SparkRoutes {
   }
 
   static getAllMaterials(): string {
-    return '/go/api/config/materials';
+    return '/go/api/internal/materials';
+  }
+
+  static getMaterialUsages(fingerprint: string) {
+    return `/go/api/internal/materials/${fingerprint}/usages`;
+  }
+
+  static materialsVsmLink(fingerprint: string, revision:string) {
+    return `/go/materials/value_stream_map/${fingerprint}/${revision}`;
   }
 }

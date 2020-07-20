@@ -17,7 +17,7 @@
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import {Filter} from "models/maintenance_mode/material";
-import {MaterialAPIs, MaterialWithFingerprint, MaterialWithFingerprints} from "../materials";
+import {MaterialAPIs, Materials, MaterialWithFingerprint, MaterialWithModifications} from "../materials";
 import {
   DependencyMaterialAttributes,
   GitMaterialAttributes,
@@ -39,16 +39,23 @@ describe('MaterialsAPISpec', () => {
 
     const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
       const responseJSON = response.unwrap() as SuccessResponse<any>;
-      const materials    = (responseJSON.body as MaterialWithFingerprints);
+      const materials    = (responseJSON.body as Materials);
 
       expect(materials).toHaveLength(1);
 
       const material = materials[0];
-      expect(material.type()).toBe('git');
-      expect(material.name()).toBe('some-name');
-      expect(material.fingerprint()).toBe('4879d548d34a4f3ba7ed4a532bc1b02');
+      expect(material.config.type()).toBe('git');
+      expect(material.config.name()).toBe('some-name');
+      expect(material.config.fingerprint()).toBe('4879d548d34a4f3ba7ed4a532bc1b02');
 
-      expect(material.attributes()).toBeInstanceOf(GitMaterialAttributes);
+      expect(material.config.attributes()).toBeInstanceOf(GitMaterialAttributes);
+
+      expect(material.modification).not.toBeNull();
+      expect(material.modification!.modifiedTime).toBe("2019-12-23T10:25:52Z");
+      expect(material.modification!.username).toBe("GoCD test user");
+      expect(material.modification!.comment).toBe("Dummy commit");
+      expect(material.modification!.emailAddress).toBe("gocd@test.com");
+      expect(material.modification!.revision).toBe("abcd1234");
       done();
     });
 
@@ -62,8 +69,8 @@ describe('MaterialsAPISpec', () => {
 
   function materialsResponse() {
     const data = {
-      _embedded: {
-        materials: [{
+      materials: [{
+        config:       {
           type:        "git",
           fingerprint: "4879d548d34a4f3ba7ed4a532bc1b02",
           attributes:  {
@@ -77,13 +84,20 @@ describe('MaterialsAPISpec', () => {
             submodule_folder: null,
             shallow_clone:    false
           }
-        }]
-      }
+        },
+        modification: {
+          username:      "GoCD test user",
+          email_address: "gocd@test.com",
+          revision:      "abcd1234",
+          comment:       "Dummy commit",
+          modified_time: "2019-12-23T10:25:52Z"
+        }
+      }]
     };
     return {
       status:          200,
       responseHeaders: {
-        "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8",
+        "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
       },
       responseText:    JSON.stringify(data)
     };
@@ -96,7 +110,8 @@ describe('MaterialWithFingerPrintSpec', () => {
 
     const attrs = material.attributesAsMap();
 
-    expect(attrs.size).toBe(9);
+    expect(attrs.size).toBe(10);
+    expect(attrs.has("Fingerprint")).toBeTrue();
     expect(attrs.has("name")).toBeFalse();
   });
 
@@ -119,27 +134,27 @@ describe('MaterialWithFingerPrintSpec', () => {
   });
 });
 
-describe('MaterialWithFingerprintsSpec', () => {
+describe('MaterialsWithModificationsSpec', () => {
   it('should sort based on type', () => {
-    const materials = new MaterialWithFingerprints();
-    materials.push(new MaterialWithFingerprint("git", "some", new GitMaterialAttributes()));
-    materials.push(new MaterialWithFingerprint("hg", "some", new HgMaterialAttributes()));
-    materials.push(new MaterialWithFingerprint("svn", "some", new SvnMaterialAttributes()));
-    materials.push(new MaterialWithFingerprint("p4", "some", new P4MaterialAttributes()));
-    materials.push(new MaterialWithFingerprint("tfs", "some", new TfsMaterialAttributes()));
-    materials.push(new MaterialWithFingerprint("dependency", "some", new DependencyMaterialAttributes()));
-    materials.push(new MaterialWithFingerprint("package", "some", new PackageMaterialAttributes()));
-    materials.push(new MaterialWithFingerprint("plugin", "some", new PluggableScmMaterialAttributes(undefined, undefined, "", "", new Filter([]))));
+    const materials = new Materials();
+    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("git", "some", new GitMaterialAttributes()), null));
+    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("hg", "some", new HgMaterialAttributes()), null));
+    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("svn", "some", new SvnMaterialAttributes()), null));
+    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("p4", "some", new P4MaterialAttributes()), null));
+    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("tfs", "some", new TfsMaterialAttributes()), null));
+    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("dependency", "some", new DependencyMaterialAttributes()), null));
+    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("package", "some", new PackageMaterialAttributes()), null));
+    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("plugin", "some", new PluggableScmMaterialAttributes(undefined, undefined, "", "", new Filter([]))), null));
 
     materials.sortOnType();
 
-    expect(materials[0].type()).toBe('dependency');
-    expect(materials[1].type()).toBe('git');
-    expect(materials[2].type()).toBe('hg');
-    expect(materials[3].type()).toBe('p4');
-    expect(materials[4].type()).toBe('package');
-    expect(materials[5].type()).toBe('plugin');
-    expect(materials[6].type()).toBe('svn');
-    expect(materials[7].type()).toBe('tfs');
+    expect(materials[0].config.type()).toBe('dependency');
+    expect(materials[1].config.type()).toBe('git');
+    expect(materials[2].config.type()).toBe('hg');
+    expect(materials[3].config.type()).toBe('p4');
+    expect(materials[4].config.type()).toBe('package');
+    expect(materials[5].config.type()).toBe('plugin');
+    expect(materials[6].config.type()).toBe('svn');
+    expect(materials[7].config.type()).toBe('tfs');
   });
 });

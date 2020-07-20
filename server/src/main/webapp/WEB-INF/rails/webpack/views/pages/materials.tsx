@@ -17,7 +17,7 @@
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {MaterialAPIs, MaterialWithFingerprint, MaterialWithFingerprints} from "models/materials/materials";
+import {MaterialAPIs, Materials, MaterialWithModifications} from "models/materials/materials";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
@@ -26,7 +26,7 @@ import {Page, PageState} from "views/pages/page";
 import configRepoStyles from "./config_repos/index.scss";
 
 export interface MaterialsAttrs {
-  materials: Stream<MaterialWithFingerprints>;
+  materials: Stream<Materials>;
 }
 
 interface State extends MaterialsAttrs {
@@ -43,9 +43,9 @@ export class MaterialsPage extends Page<null, State> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    const filteredMaterials: Stream<MaterialWithFingerprints> = Stream(vnode.state.materials());
+    const filteredMaterials: Stream<Materials> = Stream(vnode.state.materials());
     if (vnode.state.searchText()) {
-      const results = _.filter(filteredMaterials(), (vm: MaterialWithFingerprint) => vm.matches(vnode.state.searchText()));
+      const results = _.filter(filteredMaterials(), (vm: MaterialWithModifications) => vm.config.matches(vnode.state.searchText()));
 
       if (_.isEmpty(results)) {
         return <div>
@@ -53,7 +53,7 @@ export class MaterialsPage extends Page<null, State> {
             string: <em>{vnode.state.searchText()}</em></FlashMessage>
         </div>;
       }
-      filteredMaterials(new MaterialWithFingerprints(...results));
+      filteredMaterials(new Materials(...results));
     }
     return <MaterialsWidget materials={filteredMaterials}/>;
   }

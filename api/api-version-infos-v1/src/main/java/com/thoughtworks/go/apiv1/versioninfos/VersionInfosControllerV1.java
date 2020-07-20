@@ -62,15 +62,13 @@ public class VersionInfosControllerV1 extends ApiController implements SparkSpri
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
             before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
-            get(Routes.VersionInfos.STALE, this::stale);
-            get(Routes.VersionInfos.LATEST_VERSION, this::latestVersion);
-            patch(Routes.VersionInfos.GO_SERVER, this::updateGoServerInfo);
+            get(Routes.VersionInfos.STALE, mimeType, this::stale);
+            get(Routes.VersionInfos.LATEST_VERSION, mimeType, this::latestVersion);
+            patch(Routes.VersionInfos.GO_SERVER, mimeType, this::updateGoServerInfo);
         });
     }
 

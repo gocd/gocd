@@ -183,10 +183,9 @@ $building: #ffc11b;
 }
 
 .job-name {
-  max-width:  255px;
-  min-width:  140px;
-  word-break: break-all;
-  display:    flex;
+  word-break:  break-all;
+  display:     flex;
+  font-weight: 600;
 }
 
 

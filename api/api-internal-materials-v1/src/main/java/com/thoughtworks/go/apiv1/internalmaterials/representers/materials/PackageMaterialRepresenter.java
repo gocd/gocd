@@ -24,6 +24,7 @@ public class PackageMaterialRepresenter implements MaterialRepresenter<PackageMa
 
     @Override
     public Consumer<OutputWriter> toJSON(PackageMaterialConfig packageMaterialConfig) {
-        return jsonWriter -> jsonWriter.add("ref", packageMaterialConfig.getPackageId());
+        return jsonWriter -> jsonWriter.add("ref", packageMaterialConfig.getPackageId())
+                .add("auto_update", packageMaterialConfig.isAutoUpdate());
     }
 }

@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.apiv1.internalmaterials.representers.materials
 
-
 import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.PackageMaterialConfig
+import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import org.junit.jupiter.api.Test
 
@@ -40,14 +40,16 @@ class PackageMaterialRepresenterTest {
       fingerprint: packageMaterialConfig.fingerprint,
       attributes :
         [
-          ref: "p-id"
+          ref        : "p-id",
+          auto_update: true
         ]
     ])
   }
 
   @Test
   void "should render errors"() {
-    def package_config = new PackageMaterialConfig(new CaseInsensitiveString(''), '', null)
+    def packageRepository = PackageRepositoryMother.create("id")
+    def package_config = new PackageMaterialConfig(new CaseInsensitiveString(''), '', packageRepository.getPackages().get(0))
     def material_configs = new MaterialConfigs(package_config)
     material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
 
@@ -57,7 +59,8 @@ class PackageMaterialRepresenterTest {
       type       : "package",
       fingerprint: package_config.fingerprint,
       attributes : [
-        ref: ""
+        ref        : "",
+        auto_update: true
       ],
       errors     : [
         ref: ["Please select a repository and package"]

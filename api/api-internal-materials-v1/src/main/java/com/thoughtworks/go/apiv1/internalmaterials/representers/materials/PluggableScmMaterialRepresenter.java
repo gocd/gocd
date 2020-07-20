@@ -25,7 +25,8 @@ public class PluggableScmMaterialRepresenter implements MaterialRepresenter<Plug
     @Override
     public Consumer<OutputWriter> toJSON(PluggableSCMMaterialConfig pluggableSCMMaterialConfig) {
         return jsonWriter -> {
-            jsonWriter.add("ref", pluggableSCMMaterialConfig.getScmId());
+            jsonWriter.add("ref", pluggableSCMMaterialConfig.getScmId())
+                    .add("auto_update", pluggableSCMMaterialConfig.isAutoUpdate());
             if (pluggableSCMMaterialConfig.filter().isEmpty()) {
                 jsonWriter.renderNull("filter");
             } else {

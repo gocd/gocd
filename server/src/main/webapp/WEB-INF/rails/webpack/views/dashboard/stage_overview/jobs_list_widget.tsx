@@ -49,6 +49,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
           <CheckboxField property={Stream()}/>
         </td>
         <td className={styles.jobName}>
+          <div class={`${styles[job.result.toString().toLowerCase()]} ${styles.jobResult}`}/>
           {job.name}
         </td>
         <td>

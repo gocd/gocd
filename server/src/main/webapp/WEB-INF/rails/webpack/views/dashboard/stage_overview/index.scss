@@ -30,13 +30,18 @@ $progress-bar-unknown: #fff;
 $tooltip-background: #f3f3f3;
 $tooltip-border-color: #ccc;
 
+$white: #fff;
+$passed: #00c853;
+$failed: #fa2d2d;
+$building: #ffc11b;
+
 .stage-overview-container {
   position:      absolute;
   z-index:       map_get($zindex, stage-overview);
   border:        1px solid $border-color;
   border-radius: 3px;
   font-size:     12px;
-  width:         625px;
+  width:         700px;
   min-height:    200px;
   margin:        25px 0 0 5px;
   background:    $body-background;
@@ -133,6 +138,35 @@ $tooltip-border-color: #ccc;
 
 // job list
 
+.job-result {
+  width:         18px;
+  height:        18px;
+  margin-right:  10px;
+  margin-top:    3px;
+  margin-left:   5px;
+  font-size:     11px;
+  border-radius: 2px;
+}
+
+.passed {
+  @include icon-before($type: $fa-var-check, $color: $white, $margin: 0 0 0 3px);
+  background: $passed;
+}
+
+.failed {
+  @include icon-before($type: $fa-var-exclamation-circle, $color: $white, $margin: 0 0 0 4.5px);
+  background: $failed;
+}
+
+.cancelled {
+  @include icon-before($type: $fa-var-ban, $margin: 0 0 0 4.5px);
+  background: $building;
+}
+
+.unknown {
+  background: transparent url('../../../../app/assets/images/building.gif') repeat-x;
+}
+
 .job-list-container {
   font-size:  13px;
   margin-top: 10px;
@@ -152,6 +186,7 @@ $tooltip-border-color: #ccc;
   max-width:  255px;
   min-width:  140px;
   word-break: break-all;
+  display:    flex;
 }
 
 

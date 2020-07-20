@@ -33,9 +33,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.when
+import static org.mockito.ArgumentMatchers.*
+import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, ControllerTrait<InternalMaterialTestControllerV1> {
@@ -178,6 +177,29 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
         assertThatResponse()
             .isOk()
             .hasJsonMessage("Connection OK.")
+      }
+
+      @Test
+      void 'should resolve secrets before connecting to scm material'() {
+        def material = mock(GitMaterial.class)
+        def validationBean = ValidationBean.valid()
+        when(material.checkConnection(any())).thenReturn(validationBean)
+        when(materialConfigConverter.toMaterial(any(MaterialConfig.class))).thenReturn(material)
+
+        postWithApiHeader(controller.controllerBasePath(), [
+          "type"      : "git",
+          "attributes": [
+            "url": "some-url"
+          ]
+        ])
+
+        def mockOrders = inOrder(secretParamResolver, material)
+
+        mockOrders.verify(secretParamResolver).resolve(eq(material), anyString())
+        mockOrders.verify(material).checkConnection(any())
+        assertThatResponse()
+          .isOk()
+          .hasJsonMessage("Connection OK.")
       }
     }
   }

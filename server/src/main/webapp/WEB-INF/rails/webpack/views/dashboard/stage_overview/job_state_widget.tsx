@@ -48,9 +48,7 @@ export class JobStateWidget extends MithrilComponent<Attrs, State> {
   }
 
   view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
-    return <div data-test-id="job-state-container">
-      {vnode.state.getState(vnode.attrs.job)}
-    </div>;
+    return vnode.state.getState(vnode.attrs.job);
   }
 
 }

@@ -41,10 +41,11 @@ $building: #ffc11b;
   border:        1px solid $border-color;
   border-radius: 3px;
   font-size:     12px;
-  width:         700px;
+  width:         725px;
   min-height:    200px;
   margin:        25px 0 0 5px;
   background:    $body-background;
+  box-shadow:    2px 3px $header-background;
 }
 
 .stage-header-container {
@@ -183,9 +184,11 @@ $building: #ffc11b;
 }
 
 .job-name {
-  word-break:  break-all;
-  display:     flex;
-  font-weight: 600;
+  font-weight:   600;
+  width:         100%;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
 }
 
 

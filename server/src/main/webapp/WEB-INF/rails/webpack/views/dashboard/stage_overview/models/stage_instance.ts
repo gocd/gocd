@@ -62,6 +62,8 @@ export class StageInstance {
   }
 
   private isStageInProgress(): boolean {
-    return this.json.result === Result[Result.Unknown];
+    //stage result is marked as failed even before all the jobs are completed.
+    // hence check the status of all the jobs instead of the top level stage.
+    return this.jobs().some(job => job.result === Result[Result.Unknown]);
   }
 }

@@ -2,6 +2,29 @@
   "target_version": "10",
   "pipelines": [
     {
+      "group": "first",
+      "name": "up42",
+      "display_order_weight": -1.0,
+      "label_template": "${COUNT}",
+      "lock_behavior": "none",
+      "environment_variables": [],
+      "parameters": [],
+      "materials": [
+        {
+          "url": "test-repo",
+          "branch": "master",
+          "shallow_clone": false,
+          "filter": {
+            "ignore": [],
+            "includes": []
+          },
+          "auto_update": true,
+          "type": "git"
+        }
+      ],
+      "template": "build-template"
+    },
+    {
       "name": "firstpipe",
       "environment_variables": [
         {

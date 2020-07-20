@@ -62,6 +62,7 @@ public class AddEmptyTaskJoltTransformer implements ContextualTransform {
             return Collections.emptyList();
         }
 
-        return ((LinkedHashMap<String, List<?>>) input).get(field);
+        List<?> result = ((LinkedHashMap<String, List<?>>) input).get(field);
+        return result == null ? Collections.emptyList() : result;
     }
 }

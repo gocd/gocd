@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+import m from "mithril";
 import Stream from "mithril/stream";
-import {StageInstance} from "./stage_instance";
+import {AjaxPoller} from "../../../../helpers/ajax_poller";
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "../../../../helpers/api_request_builder";
 import {SparkRoutes} from "../../../../helpers/spark_routes";
-import {Result, StageInstanceJSON, StageState} from "./types";
 import {JobsViewModel} from "./jobs_view_model";
+import {StageInstance} from "./stage_instance";
+import {Result, StageInstanceJSON, StageState} from "./types";
 
 export class StageOverviewViewModel {
   private static STAGES_API_VERSION_HEADER = ApiVersion.latest;
@@ -27,12 +29,15 @@ export class StageOverviewViewModel {
   readonly jobsVM: Stream<JobsViewModel>;
   readonly lastPassedStageInstance: Stream<StageInstance | undefined>;
 
-  constructor(stageInstance: StageInstance, lastPassedStageInstance?: StageInstance) {
+  constructor(pipelineName: string, pipelineCounter: string | number,
+              stageName: string, stageCounter: string | number,
+              stageInstance: StageInstance, lastPassedStageInstance?: StageInstance) {
     this.stageInstance = Stream(stageInstance);
     this.lastPassedStageInstance = Stream(lastPassedStageInstance);
-    this.jobsVM = Stream(new JobsViewModel(stageInstance.jobs()))
-  }
+    this.jobsVM = Stream(new JobsViewModel(stageInstance.jobs()));
 
+    this.createRepeater(pipelineName, pipelineCounter, stageName, stageCounter);
+  }
 
   /*
     ** Responsible to fetch all the required data to show stage overview. **
@@ -99,7 +104,7 @@ export class StageOverviewViewModel {
               });
           }
 
-          return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter)
+          return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter);
         });
       });
   }
@@ -110,7 +115,7 @@ export class StageOverviewViewModel {
     return this.fetchStageInstance(pipelineName, pipelineCounter, stageName, stageCounter)
       .then((result) => {
         return result.do((successResponse) => {
-          return new StageOverviewViewModel(successResponse.body, latestStageInstance);
+          return new StageOverviewViewModel(pipelineName, pipelineCounter, stageName, stageCounter, successResponse.body, latestStageInstance);
         });
       });
   }
@@ -132,4 +137,26 @@ export class StageOverviewViewModel {
         });
       });
   }
+
+  private createRepeater(pipelineName: string, pipelineCounter: string | number,
+                         stageName: string, stageCounter: string | number) {
+    const repeaterFn = () => {
+      return StageOverviewViewModel.fetchStageInstance(pipelineName, pipelineCounter, stageName, stageCounter)
+        .then((result) => {
+          return result.do((successResponse) => {
+            this.stageInstance(successResponse.body);
+            m.redraw.sync();
+          });
+        });
+    };
+    const poller = new AjaxPoller({
+      repeaterFn,
+      initialIntervalSeconds: 5,
+      intervalSeconds:        5
+    });
+
+    poller.start();
+    return poller;
+  }
+
 }

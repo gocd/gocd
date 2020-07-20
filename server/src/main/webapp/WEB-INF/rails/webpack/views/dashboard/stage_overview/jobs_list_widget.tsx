@@ -26,6 +26,7 @@ import pipelineHistoryStyles from "../../pages/pipeline_activity/index.scss";
 import {JobProgressBarWidget} from "./job_progress_bar_widget";
 import {JobJSON} from "./models/types";
 import {StageInstance} from "./models/stage_instance";
+import {JobStateWidget} from "./job_state_widget";
 
 const classnames = bind(pipelineHistoryStyles);
 
@@ -49,11 +50,14 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         <td>
           {job.name}
         </td>
+        <td className={styles.jobName}>
+          <JobStateWidget job={job}/>
+        </td>
         <td class={styles.jobName}>
           <JobProgressBarWidget job={job} lastPassedStageInstance={lastPassedStageInstance}/>
         </td>
-        <td> in progress</td>
-        <td> agent 1</td>
+        <td>in progress</td>
+        <td>agent 1</td>
       </tr>;
     };
   }
@@ -63,7 +67,8 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
       <table>
         <tr>
           <th data-test-id="checkbox-header"/>
-          <th data-test-id="job-name-header">Job Name</th>
+          <th data-test-id="job-name-header">Name</th>
+          <th data-test-id="status-header">State</th>
           <th data-test-id="status-header">Status</th>
           <th data-test-id="duration-header">Duration</th>
           <th data-test-id="agent-header">Agent</th>

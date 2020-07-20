@@ -15,9 +15,9 @@
  */
 
 import {timeFormatter} from "../../../../helpers/time_formatter";
-import {JobJSON, Result} from "./types";
+import {JobStateTransitionJSON, State} from "../../../../models/agent_job_run_history";
 import {StageInstance} from "./stage_instance";
-import {State} from "../../../../models/agent_job_run_history";
+import {JobJSON, Result} from "./types";
 
 const moment = require('moment');
 
@@ -42,14 +42,53 @@ export class JobDurationStrategyHelper {
   static getDuration(job: JobJSON, passedStageInstance: StageInstance | undefined): JobDuration {
     const isJobInProgress = job.result === Result[Result.Unknown];
     if (isJobInProgress) {
-      return this.getInProgressJobDuration(job, passedStageInstance)
+      return this.getInProgressJobDuration(job, passedStageInstance);
     }
 
     return this.getCompletedJobDuration(job);
   }
 
   private static getInProgressJobDuration(job: JobJSON, passedStageInstance: StageInstance | undefined) {
-    return {} as JobDuration;
+    const end = moment.unix(this.getJobStateTime(job, "Completed"));
+    const preparing = moment.unix(this.getJobStateTime(job, "Preparing"));
+    const start = moment.unix(this.getJobStateTime(job, "Scheduled"));
+
+    const lastCompletedJob = this.findJobFromLastCompletedStage(job.name, passedStageInstance);
+
+    let totalTime;
+    if (lastCompletedJob) {
+      const lastJobEnd = moment.unix(this.getJobStateTime(lastCompletedJob, "Completed"));
+      const lastJobStart = moment.unix(this.getJobStateTime(lastCompletedJob, "Scheduled"));
+      totalTime = moment.utc(lastJobEnd.diff(lastJobStart));
+    } else {
+      totalTime = moment.utc(end.diff(start));
+    }
+    const totalTimeForDisplay = "Unknown";
+
+    const waitTime = moment.utc(preparing.diff(start));
+    const waitTimeForDisplay = this.formatTimeForDisplay(waitTime);
+
+    const buildTime = moment.utc(end.diff(preparing));
+    const buildTimeForDisplay = this.formatTimeForDisplay(buildTime);
+
+    const waitTimePercentage = this.calculatePercentage(totalTime, waitTime);
+    const buildTimePercentage = this.calculatePercentage(totalTime, buildTime);
+
+    const startTimeForDisplay = timeFormatter.format(start);
+    const endTimeForDisplay = "Unknown";
+
+    return {
+      unknownTimePercentage: 0,
+      waitTimePercentage,
+      buildTimePercentage,
+
+      waitTimeForDisplay,
+      buildTimeForDisplay,
+      totalTimeForDisplay,
+
+      startTimeForDisplay,
+      endTimeForDisplay
+    };
   }
 
   private static getCompletedJobDuration(job: JobJSON) {
@@ -88,21 +127,33 @@ export class JobDurationStrategyHelper {
 
   private static formatTimeForDisplay(time: any) {
     if (time.hours() > 0) {
-      time.format(this.DEFAULT_TIME_FORMAT_FOR_HOURS)
+      return time.format(this.DEFAULT_TIME_FORMAT_FOR_HOURS);
     }
 
     if (time.minutes() > 0) {
-      time.format(this.DEFAULT_TIME_FORMAT_FOR_MINUTES)
+      return time.format(this.DEFAULT_TIME_FORMAT_FOR_MINUTES);
     }
 
-    return time.format(this.DEFAULT_TIME_FORMAT_FOR_SECONDS)
+    return time.format(this.DEFAULT_TIME_FORMAT_FOR_SECONDS);
   }
 
   private static getJobStateTime(job: JobJSON, state: State): number {
-    return job.job_state_transitions.find(t => t.state === state).state_change_time / 1000;
+    let state: JobStateTransitionJSON = job.job_state_transitions.find(t => t.state === state);
+    if (!state) {
+      state = {
+        state,
+        state_change_time: moment().valueOf()
+      } as JobStateTransitionJSON;
+    }
+
+    return state.state_change_time / 1000;
   }
 
   private static calculatePercentage(total: number, part: number) {
     return Math.round((part / total) * 100);
+  }
+
+  private static findJobFromLastCompletedStage(jobName: string, passedStageInstance: StageInstance | undefined): JobJSON | undefined {
+    return passedStageInstance?.jobs().find(j => j.name === jobName);
   }
 }

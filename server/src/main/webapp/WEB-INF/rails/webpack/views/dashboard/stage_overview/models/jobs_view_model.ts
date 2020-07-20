@@ -23,6 +23,10 @@ export class JobsViewModel {
     this.jobs = jobs;
   }
 
+  getJobs(): JobJSON[] {
+    return this.jobs;
+  }
+
   buildingJobNames(): JobJSON[] {
     return this.getJobNamesByResult(Result.Unknown);
   }

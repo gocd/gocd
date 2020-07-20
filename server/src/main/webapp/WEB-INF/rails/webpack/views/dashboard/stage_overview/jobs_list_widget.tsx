@@ -75,12 +75,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
           <th data-test-id="duration-header">Duration</th>
           <th data-test-id="agent-header">Agent</th>
         </tr>
-        {
-          ['buildingJobNames', 'failedJobNames', 'cancelledJobNames', 'passedJobNames'].map((m) => {
-            return (vnode.attrs.jobsVM()[m]() as JobJSON[])
-              .map(job => vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance));
-          })
-        }
+        {vnode.attrs.jobsVM().getJobs().map(job => vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance))}
       </table>
     </div>;
   }

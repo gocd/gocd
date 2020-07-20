@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.helper.PipelineConfigMother
+import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -45,9 +46,12 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
   @Mock
   private ConfigRepoPlugin configRepoPlugin
 
+  @Mock
+  private EntityHashingService entityHashingService
+
   @Override
   ExportControllerV1 createControllerInstance() {
-    new ExportControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigPluginService, goConfigService)
+    new ExportControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigPluginService, goConfigService, entityHashingService)
   }
 
   @BeforeEach
@@ -99,7 +103,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
         when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
-        when(configRepoPlugin.etagForExport(pipeline, groupName)).thenReturn(exportEtag)
+        when(entityHashingService.hashForEntity(pipeline, groupName, pluginId)).thenReturn(exportEtag)
         Map<String, String> headers = new HashMap<String, String>() {
           {
             put("Content-Type", "text/plain")
@@ -177,7 +181,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
         when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
-        when(configRepoPlugin.etagForExport(pipeline, groupName)).thenReturn(exportEtag)
+        when(entityHashingService.hashForEntity(pipeline, groupName, pluginId)).thenReturn(exportEtag)
 
         getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?plugin_id=${pluginId}"), ['if-none-match': "\"$exportEtag\""])
 

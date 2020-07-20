@@ -28,6 +28,7 @@ import com.thoughtworks.go.config.update.CreatePipelineConfigCommand
 import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.plugin.access.configrepo.ConfigFileList
 import com.thoughtworks.go.server.service.ConfigRepoService
+import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.MaterialConfigConverter
 import com.thoughtworks.go.server.service.MaterialService
 import com.thoughtworks.go.server.service.PipelineConfigService
@@ -88,6 +89,9 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
   @Mock
   SystemEnvironment systemEnvironment
 
+  @Mock
+  EntityHashingService entityHashingService
+
   @BeforeEach
   void setUp() {
     initMocks(this)
@@ -105,7 +109,8 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
       materialConfigConverter,
       subprocessExecutionContext,
       systemEnvironment,
-      configRepoService
+      configRepoService,
+      entityHashingService
     )
   }
 
@@ -310,7 +315,7 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
 
       @Test
       void 'should be able to export pipeline config if user is admin and etag is stale'() {
-        when(configRepoPlugin.etagForExport(any(PipelineConfig), eq(GROUP_NAME))).thenReturn(ETAG)
+        when(entityHashingService.hashForEntity(any(PipelineConfig), eq(GROUP_NAME), eq(PLUGIN_ID))).thenReturn(ETAG)
         when(configRepoPlugin.pipelineExport(any(PipelineConfig), eq(GROUP_NAME))).thenReturn(from("message from plugin", [
           "Content-Type"     : "text/plain",
           "X-Export-Filename": "foo.txt"
@@ -360,7 +365,7 @@ class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, C
 
       @Test
       void "should return 304 for export pipeline config if etag matches"() {
-        when(configRepoPlugin.etagForExport(any(PipelineConfig), eq(GROUP_NAME))).thenReturn(ETAG)
+        when(entityHashingService.hashForEntity(any(PipelineConfig), eq(GROUP_NAME), eq(PLUGIN_ID))).thenReturn(ETAG)
         when(pluginService.isConfigRepoPlugin(PLUGIN_ID)).thenReturn(true)
         when(pluginService.supportsPipelineExport(PLUGIN_ID)).thenReturn(true)
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(configRepoPlugin)

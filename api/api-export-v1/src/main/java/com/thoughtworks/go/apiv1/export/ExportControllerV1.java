@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.spark.Routes.Export;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -44,13 +45,16 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final GoConfigPluginService crPluginService;
     private final GoConfigService configService;
+    private EntityHashingService entityHashingService;
 
     @Autowired
-    public ExportControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, GoConfigPluginService crPluginService, GoConfigService configService) {
+    public ExportControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, GoConfigPluginService crPluginService, GoConfigService configService,
+                              EntityHashingService entityHashingService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.crPluginService = crPluginService;
         this.configService = configService;
+        this.entityHashingService = entityHashingService;
     }
 
     @Override
@@ -87,7 +91,7 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
         }
 
         ConfigRepoPlugin repoPlugin = crPlugin(pluginId);
-        String etag = repoPlugin.etagForExport(pipelineConfig, groupName);
+        String etag = entityHashingService.hashForEntity(pipelineConfig, groupName, pluginId);
 
         if (fresh(req, etag)) {
             return notModified(res);

@@ -24,7 +24,7 @@ import com.thoughtworks.go.apiv1.internalmaterials.representers.UsagesRepresente
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.domain.materials.Modifications;
+import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.service.MaterialConfigService;
 import com.thoughtworks.go.server.service.MaterialService;
 import com.thoughtworks.go.spark.Routes;
@@ -76,8 +76,8 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
 
     public String index(Request request, Response response) throws Exception {
         MaterialConfigs materialConfigs = materialConfigService.getMaterialConfigs(currentUsernameString());
-        Map<String, Modifications> modifications = materialService.getModificationWithMaterial();
-        Map<MaterialConfig, Modifications> mergedMap = createMergedMap(materialConfigs, modifications);
+        Map<String, Modification> modifications = materialService.getModificationWithMaterial();
+        Map<MaterialConfig, Modification> mergedMap = createMergedMap(materialConfigs, modifications);
         return writerForTopLevelObject(request, response, writer -> MaterialWithModificationsRepresenter.toJSON(writer, mergedMap));
     }
 
@@ -87,14 +87,14 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
         return writerForTopLevelObject(request, response, writer -> UsagesRepresenter.toJSON(writer, fingerprint, usagesForMaterial));
     }
 
-    private Map<MaterialConfig, Modifications> createMergedMap(MaterialConfigs materialConfigs, Map<String, Modifications> modificationsMap) {
-        HashMap<MaterialConfig, Modifications> map = new HashMap<>();
+    private Map<MaterialConfig, Modification> createMergedMap(MaterialConfigs materialConfigs, Map<String, Modification> modificationsMap) {
+        HashMap<MaterialConfig, Modification> map = new HashMap<>();
         if (materialConfigs.isEmpty()) {
             return map;
         }
         for (MaterialConfig materialConfig : materialConfigs) {
             if (!materialConfig.getType().equals(DependencyMaterialConfig.TYPE)) {
-                Modifications mod = modificationsMap.getOrDefault(materialConfig.getFingerprint(), new Modifications());
+                Modification mod = modificationsMap.getOrDefault(materialConfig.getFingerprint(), null);
                 map.put(materialConfig, mod);
             }
         }

@@ -19,5 +19,5 @@ package com.thoughtworks.go.server.dao;
 import com.thoughtworks.go.domain.materials.Modifications;
 
 public interface MaterialDao {
-    Modifications getModificationWithMaterial(int count);
+    Modifications getModificationWithMaterial();
 }

@@ -165,17 +165,14 @@ public class MaterialService {
         return material.getClass();
     }
 
-    public Map<String, Modifications> getModificationWithMaterial() {
-        Modifications modifications = materialSqlMapDao.getModificationWithMaterial(1);
-        Map<String, Modifications> materialAndModifications = new HashMap<>();
+    public Map<String, Modification> getModificationWithMaterial() {
+        Modifications modifications = materialSqlMapDao.getModificationWithMaterial();
+        Map<String, Modification> materialAndModifications = new HashMap<>();
         modifications.forEach((mod) -> {
             String fingerprint = mod.getMaterialInstance().getFingerprint();
-            if (!materialAndModifications.containsKey(fingerprint)) {
-                materialAndModifications.put(fingerprint, new Modifications());
-            }
             Modification modification = new Modification(mod);
             modification.setMaterialInstance(null);
-            materialAndModifications.get(fingerprint).add(modification);
+            materialAndModifications.put(fingerprint, modification);
         });
         return materialAndModifications;
     }

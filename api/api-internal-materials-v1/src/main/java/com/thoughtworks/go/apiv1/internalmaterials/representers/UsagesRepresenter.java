@@ -39,7 +39,7 @@ public class UsagesRepresenter {
 
     private static void addGrpUsages(OutputListWriter usagesWriter, String group, List<String> pipelines) {
         usagesWriter.addChild(childWriter -> childWriter.add("group", group)
-                .addChildList("pipeline", pipelines));
+                .addChildList("pipelines", pipelines));
     }
 
     private static Consumer<OutputLinkWriter> links(String fingerprint) {

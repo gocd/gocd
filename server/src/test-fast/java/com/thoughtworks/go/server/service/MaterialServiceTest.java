@@ -407,23 +407,23 @@ public class MaterialServiceTest {
     @Test
     public void shouldGetLatestModificationWithMaterial() {
         MaterialInstance instance = MaterialsMother.gitMaterial("http://example.com/gocd.git").createMaterialInstance();
-        List<Modification> modificationList = ModificationsMother.multipleModificationList();
-        modificationList.forEach((mod) -> mod.setMaterialInstance(instance));
+        Modification modification = ModificationsMother.withModifiedFileWhoseNameLengthIsOneK();
+        modification.setMaterialInstance(instance);
 
-        when(materialSqlMapDao.getModificationWithMaterial(anyInt())).thenReturn(new Modifications(modificationList));
+        when(materialSqlMapDao.getModificationWithMaterial()).thenReturn(new Modifications(modification));
 
-        Map<String, Modifications> modificationsMap = materialService.getModificationWithMaterial();
+        Map<String, Modification> modificationsMap = materialService.getModificationWithMaterial();
 
         assertEquals(modificationsMap.size(), 1);
         assertThat(modificationsMap.keySet(), containsInAnyOrder(instance.getFingerprint()));
-        assertEquals(modificationsMap.get(instance.getFingerprint()), modificationList);
+        assertEquals(modificationsMap.get(instance.getFingerprint()), modification);
     }
 
     @Test
     public void shouldReturnEmptyMapIfNoMaterialAndModificationFound() {
-        when(materialSqlMapDao.getModificationWithMaterial(anyInt())).thenReturn(new Modifications());
+        when(materialSqlMapDao.getModificationWithMaterial()).thenReturn(new Modifications());
 
-        Map<String, Modifications> modificationsMap = materialService.getModificationWithMaterial();
+        Map<String, Modification> modificationsMap = materialService.getModificationWithMaterial();
 
         assertEquals(modificationsMap.size(), 0);
     }

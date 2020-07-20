@@ -21,8 +21,6 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.internalmaterials.representers.MaterialWithModificationsRepresenter
 import com.thoughtworks.go.apiv1.internalmaterials.representers.UsagesRepresenter
 import com.thoughtworks.go.config.materials.MaterialConfigs
-import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig
-import com.thoughtworks.go.domain.materials.Modifications
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.helper.ModificationsMother
 import com.thoughtworks.go.server.service.MaterialConfigService
@@ -119,7 +117,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
       MaterialConfigs materialConfigs = new MaterialConfigs()
       def git = MaterialConfigsMother.git("http://example.com")
       materialConfigs.add(git)
-      def modifications = new Modifications(ModificationsMother.multipleModificationList())
+      def modifications = ModificationsMother.withModifiedFileWhoseNameLengthIsOneK()
 
       def map = new HashMap<>()
       map.put(git.getFingerprint(), modifications)
@@ -161,7 +159,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
       getWithApiHeader(controller.controllerBasePath())
 
       def resultMap = new HashMap<>()
-      resultMap.put(git, new Modifications())
+      resultMap.put(git, null)
 
       assertThatResponse()
         .isOk()
@@ -175,7 +173,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
       def git = MaterialConfigsMother.git("http://example.com")
       materialConfigs.add(dependencyConfig)
       materialConfigs.add(git)
-      def modifications = new Modifications(ModificationsMother.multipleModificationList())
+      def modifications = ModificationsMother.withModifiedFileWhoseNameLengthIsOneK()
 
       def map = new HashMap<>()
       map.put(git.getFingerprint(), modifications)

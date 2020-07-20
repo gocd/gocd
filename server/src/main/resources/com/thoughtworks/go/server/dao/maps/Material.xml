@@ -161,7 +161,7 @@
                   FROM modifications
                   ORDER BY materialid, row_num
                 ) mod
-           WHERE mod.row_num &lt;= #{count}
+           WHERE mod.row_num &lt;= 1
          ) modification ON modification.materialid = materials.id
   </select>
 </mapper>

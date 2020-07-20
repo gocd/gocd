@@ -102,7 +102,7 @@ public class MaterialSqlMapDaoIntegrationTest {
 
         dbHelper.saveRevs(materialRevisions);
 
-        Modifications modifications = materialSqlMapDao.getModificationWithMaterial(1);
+        Modifications modifications = materialSqlMapDao.getModificationWithMaterial();
 
         assertThat(modifications.size()).isEqualTo(1);
         Modification modification = modifications.get(0);
@@ -120,38 +120,6 @@ public class MaterialSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldFetchMultipleModifications() {
-        MaterialRevisions materialRevisions = new MaterialRevisions();
-
-        GitMaterial material = new GitMaterial("git://username:password@localhost");
-        material.setSubmoduleFolder("sub_module");
-        List<Modification> modificationList = ModificationsMother.multipleModificationList();
-        materialRevisions.addRevision(material, modificationList);
-        //        addRevision(materialRevisions, new P4Material("localhost:1666", "view"));
-
-        dbHelper.saveRevs(materialRevisions);
-
-        Modifications modifications = materialSqlMapDao.getModificationWithMaterial(2);
-
-        assertThat(modifications.size()).isEqualTo(2);
-        assertModificationAreEqual(modifications.get(0), modificationList.get(0));
-        assertModificationAreEqual(modifications.get(1), modificationList.get(1));
-
-        MaterialInstance instance1 = modifications.get(0).getMaterialInstance();
-        MaterialInstance instance2 = modifications.get(1).getMaterialInstance();
-
-        assertThat(instance1).isInstanceOf(GitMaterialInstance.class);
-        assertThat(instance2).isInstanceOf(GitMaterialInstance.class);
-        assertThat(instance1).isEqualTo(instance2);
-
-        assertThat(instance1.getFingerprint()).isEqualTo(material.getFingerprint());
-        assertThat(instance1.getUrl()).isEqualTo(material.getUrl());
-        assertThat(instance1.getUsername()).isEqualTo(material.getUserName());
-        assertThat(instance1.getBranch()).isEqualTo(material.getBranch());
-        assertThat(instance1.getSubmoduleFolder()).isEqualTo(material.getSubmoduleFolder());
-    }
-
-    @Test
     public void shouldFetchDetailsRelatedToHg() {
         MaterialRevisions materialRevisions = new MaterialRevisions();
 
@@ -162,7 +130,7 @@ public class MaterialSqlMapDaoIntegrationTest {
 
         dbHelper.saveRevs(materialRevisions);
 
-        Modifications modifications = materialSqlMapDao.getModificationWithMaterial(1);
+        Modifications modifications = materialSqlMapDao.getModificationWithMaterial();
         MaterialInstance instance = modifications.get(0).getMaterialInstance();
 
         assertThat(instance).isInstanceOf(HgMaterialInstance.class);
@@ -182,7 +150,7 @@ public class MaterialSqlMapDaoIntegrationTest {
 
         dbHelper.saveRevs(materialRevisions);
 
-        Modifications modifications = materialSqlMapDao.getModificationWithMaterial(1);
+        Modifications modifications = materialSqlMapDao.getModificationWithMaterial();
 
         assertThat(modifications.size()).isEqualTo(1);
 
@@ -206,7 +174,7 @@ public class MaterialSqlMapDaoIntegrationTest {
 
         dbHelper.saveRevs(materialRevisions);
 
-        Modifications modifications = materialSqlMapDao.getModificationWithMaterial(1);
+        Modifications modifications = materialSqlMapDao.getModificationWithMaterial();
 
         assertThat(modifications.size()).isEqualTo(1);
 
@@ -230,7 +198,7 @@ public class MaterialSqlMapDaoIntegrationTest {
 
         dbHelper.saveRevs(materialRevisions);
 
-        Modifications modifications = materialSqlMapDao.getModificationWithMaterial(1);
+        Modifications modifications = materialSqlMapDao.getModificationWithMaterial();
 
         assertThat(modifications.size()).isEqualTo(1);
 
@@ -253,7 +221,7 @@ public class MaterialSqlMapDaoIntegrationTest {
 
         dbHelper.saveRevs(materialRevisions);
 
-        Modifications modifications = materialSqlMapDao.getModificationWithMaterial(1);
+        Modifications modifications = materialSqlMapDao.getModificationWithMaterial();
 
         assertThat(modifications.size()).isEqualTo(1);
 

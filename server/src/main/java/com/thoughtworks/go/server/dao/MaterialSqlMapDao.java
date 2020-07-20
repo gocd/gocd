@@ -40,9 +40,8 @@ public class MaterialSqlMapDao extends SqlMapClientDaoSupport implements Materia
     }
 
     @Override
-    public Modifications getModificationWithMaterial(int count) {
-        Map params = arguments("count", count).asMap();
-        List<Modification> modifications = getSqlMapClientTemplate().queryForList("materialWithModifications", params);
+    public Modifications getModificationWithMaterial() {
+        List<Modification> modifications = getSqlMapClientTemplate().queryForList("materialWithModifications");
         return new Modifications(modifications);
     }
 }

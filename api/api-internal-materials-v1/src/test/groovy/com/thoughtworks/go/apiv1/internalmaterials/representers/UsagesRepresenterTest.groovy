@@ -42,7 +42,7 @@ class UsagesRepresenterTest {
       usages: [
         [
           group   : "grp",
-          pipeline: ["pipeline1", "pipeline2"]
+          pipelines: ["pipeline1", "pipeline2"]
         ]
       ]
     ]

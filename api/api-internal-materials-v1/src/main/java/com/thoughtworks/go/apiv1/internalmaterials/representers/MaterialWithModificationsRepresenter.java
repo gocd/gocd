@@ -17,12 +17,10 @@
 package com.thoughtworks.go.apiv1.internalmaterials.representers;
 
 import com.thoughtworks.go.api.base.OutputLinkWriter;
-import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.apiv1.internalmaterials.representers.materials.MaterialsRepresenter;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.Collections;
@@ -30,22 +28,22 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class MaterialWithModificationsRepresenter {
-    public static void toJSON(OutputWriter outputWriter, Map<MaterialConfig, Modifications> modificationsMap) {
+    public static void toJSON(OutputWriter outputWriter, Map<MaterialConfig, Modification> modificationsMap) {
         outputWriter.addLinks(links());
         if (modificationsMap.isEmpty()) {
             outputWriter.addChildList("materials", Collections.emptyList());
             return;
         }
         outputWriter.addChildList("materials", materialWriter -> {
-            modificationsMap.forEach((config, mods) -> materialWriter.addChild(childWriter -> {
-                childWriter.addChild("config", MaterialsRepresenter.toJSON(config))
-                        .addChildList("modifications", modWriter -> modificationsWriter(modWriter, mods));
+            modificationsMap.forEach((config, mod) -> materialWriter.addChild(childWriter -> {
+                childWriter.addChild("config", MaterialsRepresenter.toJSON(config));
+                if (mod == null) {
+                    childWriter.renderNull("modification");
+                } else {
+                    childWriter.addChild("modification", modWriter -> modificationWriter(modWriter, mod));
+                }
             }));
         });
-    }
-
-    private static void modificationsWriter(OutputListWriter modWriter, Modifications mods) {
-        mods.forEach((mod) -> modWriter.addChild((writer) -> modificationWriter(writer, mod)));
     }
 
     private static void modificationWriter(OutputWriter writer, Modification mod) {

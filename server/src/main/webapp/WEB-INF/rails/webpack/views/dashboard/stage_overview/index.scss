@@ -51,7 +51,7 @@ $building: #ffc11b;
 }
 
 .stage-header-container {
-  padding:       15px;
+  padding:       16px;
   border-bottom: 1px solid $border-color;
   background:    $header-background;
 }
@@ -131,11 +131,7 @@ $building: #ffc11b;
 }
 
 .stage-duration-container {
-  width: 75px;
-
-  div {
-    text-align: center;
-  }
+  text-align: right;
 }
 
 
@@ -200,8 +196,8 @@ $building: #ffc11b;
 
 .table-header, .table-row {
   display:    flex;
-  width:      750px;
-  margin:     0 10px 0 10px;
+  width:      740px;
+  margin:     0 15px 0 15px;
   border:     1px solid $border-color;
   border-top: unset;
   background: $white;
@@ -242,6 +238,21 @@ $building: #ffc11b;
   font-style:    italic;
   background:    $table-header-background;
   border-radius: 5px 5px 0 0;
+
+  .name-cell {
+    padding-left: 50px;
+  }
+}
+
+.table-body {
+  max-height: 300px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.triggered-by-and-on {
+  font-weight: 600;
+  font-style:  italic;
 }
 
 .table-row {
@@ -347,11 +358,11 @@ $building: #ffc11b;
   display: flex;
 
   .count-container:nth-child(1) {
-    margin-left: 8px;
+    margin-left: 15px;
   }
 
   .count-container:nth-child(3) {
-    margin-right: 295px;
+    margin-right: 278px;
   }
 }
 

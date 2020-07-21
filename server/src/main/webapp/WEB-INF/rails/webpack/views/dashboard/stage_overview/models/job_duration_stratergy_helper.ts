@@ -136,7 +136,7 @@ export class JobDurationStrategyHelper {
     };
   }
 
-  private static formatTimeForDisplay(time: any) {
+  static formatTimeForDisplay(time: any) {
     if (time.hours() > 0) {
       return time.format(this.DEFAULT_TIME_FORMAT_FOR_HOURS);
     }

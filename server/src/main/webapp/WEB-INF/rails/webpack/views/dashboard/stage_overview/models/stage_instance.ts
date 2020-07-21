@@ -16,6 +16,7 @@
 
 import moment from "moment";
 import {JobJSON, Result, StageInstanceJSON} from "./types";
+import {JobDurationStrategyHelper} from "./job_duration_stratergy_helper";
 
 export class StageInstance {
   private json: StageInstanceJSON;
@@ -33,12 +34,12 @@ export class StageInstance {
   }
 
   triggeredBy(): string {
-    return `Triggered by ${this.json.approved_by}`;
+    return this.json.approved_by;
   }
 
   triggeredOn(): string {
-    const LOCAL_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss [Local Time]";
-    return `on ${moment.unix(this.stageScheduledTime()).format(LOCAL_TIME_FORMAT)}`;
+    const LOCAL_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss";
+    return `${moment.unix(this.stageScheduledTime()).format(LOCAL_TIME_FORMAT)}`;
   }
 
   stageDuration(): string {
@@ -54,7 +55,7 @@ export class StageInstance {
     const end = moment.unix(highestJobTime / 1000);
     const start = moment.unix(this.stageScheduledTime());
 
-    return moment.utc(end.diff(start)).format("HH:mm:ss");
+    return JobDurationStrategyHelper.formatTimeForDisplay(moment.utc(end.diff(start)));
   }
 
   private stageScheduledTime(): number {

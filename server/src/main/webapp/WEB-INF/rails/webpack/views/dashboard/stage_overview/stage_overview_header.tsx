@@ -33,10 +33,6 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
     return <div data-test-id="stage-overview-header" class={styles.stageHeaderContainer}>
       <div data-test-id="stage-name-and-operations-container" class={styles.flexBox}>
         <div class={styles.stageNameContainer}>
-          <div data-test-id="pipeline-name-container">
-            <div className={styles.stageNameTitle}>Pipeline</div>
-            <div className={styles.stageName}>{vnode.attrs.pipelineName}</div>
-          </div>
           <div data-test-id="stage-name-container">
             <div className={styles.stageNameTitle}>Stage</div>
             <div className={styles.stageName}>{vnode.attrs.stageName}</div>
@@ -46,7 +42,6 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
             <div className={styles.stageName}>{vnode.attrs.stageCounter}</div>
           </div>
         </div>
-
         <div data-test-id="stage-operations-container" class={styles.stageOperationButtonGroup}>
           <div><Icons.Trigger iconOnly={true}/></div>
           <div class={styles.stageSettings}><Icons.Settings iconOnly={true}/></div>
@@ -56,12 +51,14 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
       <div data-test-id="stage-trigger-and-timing-container"
            class={`${styles.flexBox} ${styles.stageTriggerAndTimingContainer}`}>
         <div data-test-id="stage-trigger-by-container">
-          <div>{vnode.attrs.stageInstance().triggeredBy()}</div>
-          <div>{vnode.attrs.stageInstance().triggeredOn()}</div>
+          <div>Triggered by <span
+            class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredBy()}</span> on <span
+            class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredOn()}</span> Local Time
+          </div>
         </div>
         <div data-test-id="stage-duration-container" class={styles.stageDurationContainer}>
-          <div className={styles.stageNameTitle}>Duration:</div>
-          <div>{vnode.attrs.stageInstance().stageDuration()}</div>
+          <div>Duration: <span class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().stageDuration()}</span>
+          </div>
         </div>
       </div>
     </div>;

@@ -81,7 +81,8 @@ describe("PipelineConfig View Model", () => {
           name: "** UNNAMED PIPELINE **",
           materials: [{attributes: {auto_update: true, shallow_clone: false, password: ""}, type: "git"}],
           stages: [],
-          parameters: []
+          parameters: [],
+          environment_variables: []
         }
       }
     );

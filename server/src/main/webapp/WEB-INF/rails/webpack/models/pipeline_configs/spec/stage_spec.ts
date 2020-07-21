@@ -113,6 +113,7 @@ describe("Stage model", () => {
           roles: []
         }
       },
+      environment_variables: [],
       jobs: [
         {
           name: "name",
@@ -131,4 +132,17 @@ describe("Stage model", () => {
     });
   });
 
+  it('should validate env variables', () => {
+    const stage = new Stage("stage_name", [validJob()]);
+    stage.environmentVariables().push(new EnvironmentVariable("", "some-value"));
+
+    expect(stage.isValid()).toBeFalse();
+    expect(stage.errors().count()).toBe(1);
+
+    const envVar = stage.environmentVariables().plainTextVariables()[0];
+
+    expect(envVar.errors().count()).toBe(1);
+    expect(envVar.errors().keys()).toEqual(["name"]);
+    expect(envVar.errors().errorsForDisplay("name")).toBe("Name must be present.");
+  });
 });

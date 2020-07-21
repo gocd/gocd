@@ -260,6 +260,20 @@ describe("PipelineConfig model", () => {
       });
     });
   });
+
+  it('should validate env variables', () => {
+    const pip = new PipelineConfig("some-name", defaultMaterials, defaultStages).withGroup("foo");
+    pip.environmentVariables().push(new EnvironmentVariable("","some-value"));
+
+    expect(pip.isValid()).toBe(false);
+    expect(pip.errors().count()).toBe(1);
+
+    const envVar = pip.environmentVariables().plainTextVariables()[0];
+
+    expect(envVar.errors().count()).toBe(1);
+    expect(envVar.errors().keys()).toEqual(["name"]);
+    expect(envVar.errors().errorsForDisplay("name")).toBe("Name must be present.");
+  });
 });
 
 function stubPipelineCreateSuccess(config: PipelineConfig) {

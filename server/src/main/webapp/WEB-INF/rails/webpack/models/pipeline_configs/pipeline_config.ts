@@ -171,7 +171,7 @@ export class PipelineConfig extends ValidatableMixin {
   readonly trackingTool         = Stream<TrackingTool>();
   readonly timer                = Stream<Timer>();
 
-  constructor(name: string = "", materials: Material[] = [], stages: Stage[] = []) {
+  constructor(name: string = "", materials: Material[] = [], stages: Stage[] = [], envVars = new EnvironmentVariables()) {
     super();
 
     this.name = Stream(name);
@@ -184,6 +184,9 @@ export class PipelineConfig extends ValidatableMixin {
     this.materials = Stream(new Materials(...materials));
     this.validateNonEmptyCollection("materials", {message: `A pipeline must have at least one material`});
     this.validateEach("materials");
+
+    this.environmentVariables = Stream(envVars);
+    this.validateEach("environmentVariables");
 
     this.stages = Stream(new NameableSet(stages));
     this.validateAssociated("stages");

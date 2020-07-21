@@ -110,7 +110,7 @@ export class Stage extends ValidatableMixin {
 
   private readonly __name = Stream<string>();
 
-  constructor(name: string = "", jobs: Job[] = []) {
+  constructor(name: string = "", jobs: Job[] = [], envVars = new EnvironmentVariables()) {
     super();
 
     this.__name = Stream(name);
@@ -120,6 +120,9 @@ export class Stage extends ValidatableMixin {
     this.validateIdFormat("name");
 
     this.validateAssociated("approval");
+
+    this.environmentVariables = Stream(envVars);
+    this.validateEach("environmentVariables");
 
     this.jobs = Stream(new NameableSet(jobs));
     this.validateNonEmptyCollection("jobs", {message: `A stage must have at least one job`});

@@ -41,8 +41,7 @@ interface State {
   pipelineStatus: Stream<PipelineStatus>;
 }
 
-export class
-PipelinePauseHeader extends MithrilComponent<Attrs, State> {
+export class PipelinePauseHeader extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
     vnode.state.pipelineStatus = Stream();
     if (vnode.attrs.pipelineStatus) {

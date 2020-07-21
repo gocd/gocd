@@ -43,11 +43,15 @@ export class HeaderPanel extends MithrilViewComponent<Attrs> {
       );
     }
 
+    const helpText = (vnode.attrs.sectionName)
+      ? undefined
+      : <HelpTextWidget help={vnode.attrs.help}/>;
+
     return (<header class={style.pageHeader}>
       <div class={style.pageTitle}>
         {this.maybeSection(vnode)}
         <h1 class={style.title} data-test-id="title">{vnode.attrs.title}</h1>
-        <HelpTextWidget help={vnode.attrs.help}/>
+        {helpText}
         <HeaderKeyValuePair data={vnode.attrs.keyValuePair}/>
       </div>
       {buttons}
@@ -56,9 +60,10 @@ export class HeaderPanel extends MithrilViewComponent<Attrs> {
 
   private maybeSection(vnode: m.Vnode<Attrs>) {
     if (vnode.attrs.sectionName) {
-      return (
+      return <div class={style.sectionWrapper} data-test-id="section-wrapper">
         <h1 class={style.sectionName} data-test-id="section-name">{vnode.attrs.sectionName}</h1>
-      );
+        <HelpTextWidget help={vnode.attrs.help}/>
+      </div>;
     }
   }
 }

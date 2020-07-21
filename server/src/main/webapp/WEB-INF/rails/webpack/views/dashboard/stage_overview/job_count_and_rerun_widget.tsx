@@ -32,7 +32,7 @@ export class JobCountAndRerunWidget extends MithrilViewComponent<Attrs> {
     return <div class={styles.jobCountAndRerunContainer} data-test-id="job-count-and-rerun-container">
       <div class={styles.jobCountContainer} data-test-id="job-cont-container">
         <div class={styles.countContainer} data-test-id="in-progress-jobs-container">
-          <div class={styles.countLabel}>In Progress :</div>
+          <div class={styles.countLabel}>Building :</div>
           <div className={styles.countText}> {vnode.attrs.jobsVM().buildingJobNames().length}</div>
         </div>
         <div class={styles.countContainer} data-test-id="passed-jobs-container">

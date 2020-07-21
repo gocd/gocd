@@ -73,6 +73,13 @@ describe("Header Panel Component", () => {
     mount("Title", [], undefined, "Some help text");
 
     expect(helper.byTestId("help-text-wrapper")).toBeInDOM();
+    expect(helper.byTestId("title").nextSibling).toBe(helper.byTestId("help-text-wrapper"));
+  });
+
+  it('should render help icon near sectionName if present', () => {
+    helper.mount(() => <HeaderPanel title={"some title"} sectionName={"Section Name"} help={"Some help text"}/>);
+
+    expect(helper.byTestId("help-text-wrapper", helper.byTestId("section-wrapper"))).toBeInDOM();
   });
 
   function mount(pageTitle: m.Children, buttons?: m.Children, keyValuePair?: { [key: string]: m.Children }, help?: m.Children) {

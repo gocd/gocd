@@ -7,5 +7,6 @@ export const pageHeader: string;
 export const pageTitle: string;
 export const page_title: string;
 export const sectionName: string;
+export const sectionWrapper: string;
 export const title: string;
 export const value: string;

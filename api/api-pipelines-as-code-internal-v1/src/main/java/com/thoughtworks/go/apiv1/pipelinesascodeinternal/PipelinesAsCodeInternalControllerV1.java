@@ -79,6 +79,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
     private final SubprocessExecutionContext subprocessExecutionContext;
     private SystemEnvironment systemEnvironment;
     private ConfigRepoService configRepoService;
+    private EntityHashingService entityHashingService;
 
     @Autowired
     public PipelinesAsCodeInternalControllerV1(
@@ -91,7 +92,8 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
             MaterialConfigConverter materialConfigConverter,
             SubprocessExecutionContext subprocessExecutionContext,
             SystemEnvironment systemEnvironment,
-            ConfigRepoService configRepoService) {
+            ConfigRepoService configRepoService,
+            EntityHashingService entityHashingService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.passwordDeserializer = passwordDeserializer;
@@ -103,6 +105,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
         this.subprocessExecutionContext = subprocessExecutionContext;
         this.systemEnvironment = systemEnvironment;
         this.configRepoService = configRepoService;
+        this.entityHashingService = entityHashingService;
     }
 
     @Override
@@ -192,7 +195,7 @@ public class PipelinesAsCodeInternalControllerV1 extends ApiController implement
             return MessageJson.create(format("Please fix the validation errors for pipeline %s.", pipeline.name()), jsonWriter(pipeline));
         }
 
-        String etag = repoPlugin.etagForExport(pipeline, groupName);
+        String etag = entityHashingService.hashForEntity(pipeline, groupName, pluginId);
 
         if (fresh(req, etag)) {
             return notModified(res);

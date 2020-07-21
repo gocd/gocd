@@ -210,6 +210,16 @@ public class EntityHashingServiceTest {
         verify(goCache).remove(ETAG_CACHE_KEY, (artifactConfig.getClass().getName() + ".cacheKey"));
     }
 
+    @Test
+    void hashesForAPipelineConfigDiffersForDifferentPlugins() {
+        PipelineConfig test = PipelineConfigMother.pipelineConfig("test");
+
+        String hashForPlugin1 = service.hashForEntity(test, "group1", "plugin_1");
+        String hashForPlugin2 = service.hashForEntity(test, "group1", "plugin_2");
+
+        assertNotEquals(hashForPlugin1, hashForPlugin2);
+    }
+
     private PluginSettings pluginSettings(String id, String key, String secret) {
         final PluginSettings p = new PluginSettings(id);
         final ConfigurationProperty cp = new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue(secret));

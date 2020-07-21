@@ -95,8 +95,4 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
             throw new InvalidPartialConfigException(crParseResult, crParseResult.getErrors().getErrorsAsText());
         return crParseResult;
     }
-
-    public String etagForExport(PipelineConfig pipelineConfig, String groupName) {
-        return sha512_256Hex(Integer.toString(Objects.hash(pipelineConfig, groupName, crExtension.pluginDescriptorFor(pluginId))));
-    }
 }

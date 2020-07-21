@@ -366,6 +366,14 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         );
     }
 
+    public String hashForEntity(PipelineConfig pipelineConfig, String groupName, String pluginId) {
+        return hashes.digestMany(
+                hashes.digestDomainConfigEntity(pipelineConfig),
+                groupName,
+                pluginId
+        );
+    }
+
     public String hashForEntity(PipelineConfigs pipelineConfigs) {
         String cacheKey = cacheKey(pipelineConfigs, pipelineConfigs.getGroup());
         return getConfigEntityDigestFromCache(cacheKey, pipelineConfigs);

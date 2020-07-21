@@ -19,12 +19,14 @@ $border-color: #cde;
 $header-background: #e7eef0;
 $body-background: #f4f8f9;
 
+$table-header-background: #efefef;
+
 $btn-group-border-color: #ccc;
 $btn-color: #647984;
 $btn-hover-color: #1c435c;
 
-$progress-bar-waiting: #5c5e71;
-$progress-bar-building: #5cd2d3;
+$progress-bar-waiting: #c1c1c1;
+$progress-bar-building: #2cb1c1;
 $progress-bar-unknown: #fff;
 
 $tooltip-background: #f3f3f3;
@@ -41,7 +43,7 @@ $building: #ffc11b;
   border:        1px solid $border-color;
   border-radius: 3px;
   font-size:     12px;
-  width:         740px;
+  width:         750px;
   min-height:    200px;
   margin:        25px 0 0 5px;
   background:    $body-background;
@@ -167,6 +169,7 @@ $building: #ffc11b;
   &:before {
     position: relative;
     top:      -3px;
+    left:     -0.7px;
   }
 }
 
@@ -177,6 +180,7 @@ $building: #ffc11b;
   &:before {
     position: relative;
     top:      -3px;
+    left:     -0.7px;
   }
 }
 
@@ -224,7 +228,11 @@ $building: #ffc11b;
 }
 
 .table-header {
-  height: 32px;
+  height:      32px;
+  line-height: 30px;
+  border-top:  1px solid $border-color;
+  font-style:  italic;
+  background:  $table-header-background;
 }
 
 .table-row {
@@ -268,7 +276,7 @@ $building: #ffc11b;
   margin-top:    6px;
 
   .waiting {
-    background: lighten($progress-bar-waiting, 20%);
+    background: $progress-bar-waiting;
   }
 
   .building {
@@ -319,4 +327,62 @@ $building: #ffc11b;
   }
 }
 
+// job count and rerun container
+
+.job-count-and-rerun-container {
+  display: flex;
+  margin:  15px 0 15px 0;
+}
+
+.job-count-container {
+  display: flex;
+
+  .job-result {
+    margin-right: 4px;
+    height:       15px;
+    width:        15px;
+    font-size:    10px;
+  }
+
+  .passed {
+    &:before {
+      top:  -3.5px;
+      left: -2.5px;
+    }
+  }
+
+  .failed {
+    &:before {
+      top:  -3.5px;
+      left: -1.5px;
+    }
+  }
+
+  .cancelled {
+    &:before {
+      top:  -3px;
+      left: -2px;
+    }
+  }
+
+
+  .count-container:nth-child(1) {
+    margin-left: 8px;
+  }
+
+  .count-container:nth-child(3) {
+    margin-right: 195px;
+  }
+}
+
+.count-container {
+  display:      flex;
+  margin-right: 15px;
+  margin-top:   2px;
+}
+
+.count-text {
+  font-weight: 600;
+  font-size:   13px;
+}
 

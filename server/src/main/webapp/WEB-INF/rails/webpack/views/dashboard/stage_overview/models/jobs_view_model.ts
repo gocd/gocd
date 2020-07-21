@@ -32,11 +32,7 @@ export class JobsViewModel {
   }
 
   failedJobNames(): JobJSON[] {
-    return this.getJobNamesByResult(Result.Failed);
-  }
-
-  cancelledJobNames(): JobJSON[] {
-    return this.getJobNamesByResult(Result.Cancelled);
+    return this.getJobNamesByResult(Result.Failed).concat(this.getJobNamesByResult(Result.Cancelled));
   }
 
   passedJobNames(): JobJSON[] {

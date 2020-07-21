@@ -23,6 +23,7 @@ import {JobsListWidget} from "./jobs_list_widget";
 import {StageHeaderWidget} from "./stage_overview_header";
 import {StageOverviewViewModel} from "./models/stage_overview_view_model";
 import {StageState} from "./models/types";
+import {JobCountAndRerunWidget} from "./job_count_and_rerun_widget";
 
 export interface Attrs {
   pipelineName: string;
@@ -56,6 +57,7 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
                          stageCounter={vnode.attrs.stageCounter}
                          pipelineName={vnode.attrs.pipelineName}
                          stageInstance={vnode.state.stageOverviewVM().stageInstance}/>
+      <JobCountAndRerunWidget jobsVM={vnode.state.stageOverviewVM().jobsVM}/>
       <JobsListWidget jobsVM={vnode.state.stageOverviewVM().jobsVM}
                       lastPassedStageInstance={vnode.state.stageOverviewVM().lastPassedStageInstance}/>
     </div>;

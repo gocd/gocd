@@ -41,7 +41,7 @@ export class JobStateWidget extends MithrilComponent<Attrs, State> {
         case "Completing":
           return "uploading artifacts";
         case"Completed":
-          return `${job.result}`;
+          return `Completed (${job.result})`;
       }
       return "Waiting for agent";
     };

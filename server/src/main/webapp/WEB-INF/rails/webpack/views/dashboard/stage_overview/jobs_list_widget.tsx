@@ -43,40 +43,41 @@ export interface State {
 export class JobsListWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
     vnode.state.getTableRowForJob = (job: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>) => {
-      const jobName = job.name;
-      return <tr>
-        <td data-test-id={`checkbox-for-job-${jobName}`} class={styles.jobCheckbox}>
+      return <div class={styles.tableRow} data-test-id={`table-row-for-job-${job.name}`}>
+        <div class={styles.checkboxCell} data-test-id={`checkbox-for-${job.name}`}>
           <CheckboxField property={Stream()}/>
-        </td>
-        <td>
-          <div class={`${styles[job.result.toString().toLowerCase()]} ${styles.jobResult}`}/>
+        </div>
+        <div class={styles.nameCell} data-test-id={`job-name-for-${job.name}`}>
+          <div className={`${styles[job.result.toString().toLowerCase()]} ${styles.jobResult}`}/>
           <div className={styles.jobName}>{job.name}</div>
-        </td>
-        <td>
+        </div>
+        <div class={styles.stateCell} data-test-id={`state-for-${job.name}`}>
           <JobStateWidget job={job}/>
-        </td>
-        <td>
+        </div>
+        <div class={styles.statusCell} data-test-id={`status-for-${job.name}`}>
           <JobProgressBarWidget job={job} lastPassedStageInstance={lastPassedStageInstance}/>
-        </td>
-        <td>{JobDurationStrategyHelper.getJobDurationForDisplay(job)}</td>
-        <td>agent 1</td>
-      </tr>;
+        </div>
+        <div class={styles.durationCell} data-test-id={`duration-for-${job.name}`}>
+          {JobDurationStrategyHelper.getJobDurationForDisplay(job)}
+        </div>
+        <div class={styles.agentCell} data-test-id={`agent-for-${job.name}`}>
+          agent1
+        </div>
+      </div>;
     };
   }
 
   view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
     return <div data-test-id="jobs-list-widget" class={styles.jobListContainer}>
-      <table>
-        <tr>
-          <th data-test-id="checkbox-header"/>
-          <th data-test-id="job-name-header">Name</th>
-          <th data-test-id="state-header">State</th>
-          <th data-test-id="status-header">Status</th>
-          <th data-test-id="duration-header">Duration</th>
-          <th data-test-id="agent-header">Agent</th>
-        </tr>
-        {vnode.attrs.jobsVM().getJobs().map(job => vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance))}
-      </table>
+      <div class={styles.tableHeader} data-test-id="table-header">
+        <div class={styles.checkboxCell} data-test-id="checkbox-header"/>
+        <div class={styles.nameCell} data-test-id="job-name-header">Name</div>
+        <div class={styles.stateCell} data-test-id="state-header">State</div>
+        <div class={styles.statusCell} data-test-id="status-header">Status</div>
+        <div class={styles.durationCell} data-test-id="duration-header">Duration</div>
+        <div class={styles.agentCell} data-test-id="agent-header">Agent</div>
+      </div>
+      {vnode.attrs.jobsVM().getJobs().map(job => vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance))}
     </div>;
   }
 }

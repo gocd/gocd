@@ -41,7 +41,7 @@ $building: #ffc11b;
   border:        1px solid $border-color;
   border-radius: 3px;
   font-size:     12px;
-  width:         725px;
+  width:         740px;
   min-height:    200px;
   margin:        25px 0 0 5px;
   background:    $body-background;
@@ -150,18 +150,34 @@ $building: #ffc11b;
 }
 
 .passed {
-  @include icon-before($type: $fa-var-check, $color: $white, $margin: 0 0 0 3px);
+  @include icon-before($type: $fa-var-check, $color: $white);
   background: $passed;
+
+  &:before {
+    position: relative;
+    top:      -2.5px;
+    left:     -1.5px;
+  }
 }
 
 .failed {
-  @include icon-before($type: $fa-var-exclamation-circle, $color: $white, $margin: 0 0 0 4.5px);
+  @include icon-before($type: $fa-var-exclamation-circle, $color: $white);
   background: $failed;
+
+  &:before {
+    position: relative;
+    top:      -3px;
+  }
 }
 
 .cancelled {
-  @include icon-before($type: $fa-var-ban, $margin: 0 0 0 4.5px);
+  @include icon-before($type: $fa-var-ban);
   background: $building;
+
+  &:before {
+    position: relative;
+    top:      -3px;
+  }
 }
 
 .unknown {
@@ -171,21 +187,70 @@ $building: #ffc11b;
 .job-list-container {
   font-size:  13px;
   margin-top: 10px;
+}
 
-  table {
-    border-collapse: separate;
-    border-spacing:  0.5em 0.7em;
+.table-header, .table-row {
+  display:       flex;
+  width:         100%;
+  border-bottom: 1px solid $border-color;
+
+  .checkbox-cell {
+    width: 25px;
+  }
+
+  .name-cell {
+    width:         110px;
+    display:       flex;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+  }
+
+  .state-cell {
+    width:      165px;
+    font-style: italic;
+  }
+
+  .status-cell {
+    width: 255px;
+  }
+
+  .duration-cell {
+    width: 85px;
+  }
+
+  .agent-cell {
+    width: 100px;
   }
 }
 
-.job-checkbox input[type="checkbox"] { //sass-lint:disable-line no-qualifying-elements
+.table-header {
+  height: 32px;
+}
+
+.table-row {
+  height:      40px;
+  line-height: 23px;
+}
+
+.table-header > div {
+  font-size:   13px;
+  font-weight: 600;
+  text-align:  center;
+}
+
+.table-row > div {
+  font-size:  13px;
+  text-align: center;
+  margin:     7px 0 5px 8px;
+}
+
+.checkbox-cell input[type="checkbox"] { //sass-lint:disable-line no-qualifying-elements
   height:     13px;
-  margin-top: -6px;
+  margin-top: -4px;
 }
 
 .job-name {
   font-weight:   600;
-  width:         100%;
   overflow:      hidden;
   text-overflow: ellipsis;
   white-space:   nowrap;
@@ -200,9 +265,10 @@ $building: #ffc11b;
   border-radius: 3px;
   overflow:      hidden;
   cursor:        pointer;
+  margin-top:    6px;
 
   .waiting {
-    background: lighten($progress-bar-waiting, 10%);
+    background: lighten($progress-bar-waiting, 20%);
   }
 
   .building {

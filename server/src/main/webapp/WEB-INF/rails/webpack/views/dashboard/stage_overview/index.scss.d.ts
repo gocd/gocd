@@ -4,6 +4,7 @@ export const building: string;
 export const cancelled: string;
 export const checkboxCell: string;
 export const countContainer: string;
+export const countLabel: string;
 export const countText: string;
 export const durationCell: string;
 export const failed: string;

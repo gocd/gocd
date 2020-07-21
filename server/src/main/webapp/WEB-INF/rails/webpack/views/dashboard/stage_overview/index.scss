@@ -346,41 +346,12 @@ $building: #ffc11b;
 .job-count-container {
   display: flex;
 
-  .job-result {
-    margin-right: 4px;
-    height:       15px;
-    width:        15px;
-    font-size:    10px;
-  }
-
-  .passed {
-    &:before {
-      top:  -3.5px;
-      left: -2.5px;
-    }
-  }
-
-  .failed {
-    &:before {
-      top:  -3.5px;
-      left: -1.5px;
-    }
-  }
-
-  .cancelled {
-    &:before {
-      top:  -3px;
-      left: -2px;
-    }
-  }
-
-
   .count-container:nth-child(1) {
     margin-left: 8px;
   }
 
   .count-container:nth-child(3) {
-    margin-right: 195px;
+    margin-right: 295px;
   }
 }
 
@@ -390,7 +361,13 @@ $building: #ffc11b;
   margin-top:   2px;
 }
 
+.count-label {
+  font-size:   13px;
+  margin-left: 5px;
+}
+
 .count-text {
+  margin-left: 5px;
   font-weight: 600;
   font-size:   13px;
 }

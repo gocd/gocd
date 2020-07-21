@@ -32,16 +32,16 @@ export class JobCountAndRerunWidget extends MithrilViewComponent<Attrs> {
     return <div class={styles.jobCountAndRerunContainer} data-test-id="job-count-and-rerun-container">
       <div class={styles.jobCountContainer} data-test-id="job-cont-container">
         <div class={styles.countContainer} data-test-id="in-progress-jobs-container">
-          <div class={`${styles.unknown} ${styles.jobResult}`}/>
-          <div class={styles.countText}>In Progress : {vnode.attrs.jobsVM().buildingJobNames().length}</div>
+          <div class={styles.countLabel}>In Progress :</div>
+          <div className={styles.countText}> {vnode.attrs.jobsVM().buildingJobNames().length}</div>
         </div>
         <div class={styles.countContainer} data-test-id="passed-jobs-container">
-          <div className={`${styles.passed} ${styles.jobResult}`}/>
-          <div class={styles.countText}>Passed : {vnode.attrs.jobsVM().passedJobNames().length}</div>
+          <div className={styles.countLabel}>Passed :</div>
+          <div class={styles.countText}> {vnode.attrs.jobsVM().passedJobNames().length}</div>
         </div>
         <div class={styles.countContainer} data-test-id="failed-jobs-container">
-          <div className={`${styles.failed} ${styles.jobResult}`}/>
-          <div class={styles.countText}>Failed : {vnode.attrs.jobsVM().failedJobNames().length}</div>
+          <div className={styles.countLabel}>Failed :</div>
+          <div class={styles.countText}> {vnode.attrs.jobsVM().failedJobNames().length}</div>
         </div>
       </div>
       <div data-test-id="job-rerun-container">

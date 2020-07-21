@@ -22,20 +22,20 @@ import com.thoughtworks.go.config.update.CreateTemplateConfigCommand;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import com.thoughtworks.go.presentation.ConfigForEdit;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
-import com.thoughtworks.go.server.ui.TemplatesViewModel;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 public class TemplateConfigServiceTest {
@@ -187,70 +187,6 @@ public class TemplateConfigServiceTest {
     }
 
     @Test
-    public void shouldLoadClonedTemplateForEdit() {
-        String templateName = "empty_template";
-        CaseInsensitiveString templateAdminUser = new CaseInsensitiveString("templateAdminUser");
-        Username templateUser = new Username(templateAdminUser);
-
-        PipelineTemplateConfig emptyTemplate = PipelineTemplateConfigMother.createTemplate(templateName, new Authorization(new AdminsConfig(new AdminUser(templateAdminUser))), StageConfigMother.stageConfig("some_stage"));
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
-        cruiseConfig.addTemplate(emptyTemplate);
-        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString(templateName), templateUser)).thenReturn(true);
-        when(goConfigService.getConfigHolder()).thenReturn(new GoConfigHolder(cruiseConfig, cruiseConfig));
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ConfigForEdit<PipelineTemplateConfig> configForEdit = service.loadForEdit(templateName, templateUser, result);
-
-        assertThat(configForEdit, is(not(nullValue())));
-        CaseInsensitiveString empty_template = new CaseInsensitiveString(templateName);
-        assertThat(configForEdit.getConfig().name(), is(empty_template));
-
-        PipelineTemplateConfig template = configForEdit.getConfig();
-        PipelineTemplateConfig templateForEdit = configForEdit.getCruiseConfig().findTemplate(empty_template);
-        PipelineTemplateConfig processedTemplate = configForEdit.getProcessedConfig().findTemplate(empty_template);
-        PipelineTemplateConfig serversTemplate = cruiseConfig.findTemplate(empty_template);
-        serversTemplate.add(new StageConfig(new CaseInsensitiveString("stage-one"), new JobConfigs(new JobConfig("job"))));//modify the server's copy
-        assertThat(serversTemplate.size(), is(2));
-        assertThat(template.size(), is(1));//given copy should remain unmodified
-        assertThat(templateForEdit.size(), is(1));
-        assertThat(processedTemplate.size(), is(1));
-    }
-
-    @Test
-    public void shouldErrorOutIfTemplateIsNotFound() {
-        PipelineTemplateConfig emptyTemplate = template("empty_template");
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
-        cruiseConfig.addTemplate(emptyTemplate);
-        when(securityService.isAuthorizedToEditTemplate(any(CaseInsensitiveString.class), any(Username.class))).thenReturn(true);
-        when(goConfigService.getConfigHolder()).thenReturn(new GoConfigHolder(cruiseConfig, cruiseConfig));
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ConfigForEdit<PipelineTemplateConfig> configForEdit = service.loadForEdit("blah", new Username(new CaseInsensitiveString("someuser")), result);
-
-        assertThat(configForEdit, is(nullValue()));
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(404));
-    }
-
-    @Test
-    public void shouldErrorOutIfUserIsNotAllowedToAdministerTheGivenTemplate() {
-        Username username = new Username(new CaseInsensitiveString("user"));
-        String templateName = "templateName";
-        PipelineTemplateConfig emptyTemplate = PipelineTemplateConfigMother.createTemplate(templateName);
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
-        cruiseConfig.addTemplate(emptyTemplate);
-        when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString(templateName), username)).thenReturn(false);
-        when(goConfigService.getConfigHolder()).thenReturn(new GoConfigHolder(cruiseConfig, cruiseConfig));
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ConfigForEdit<PipelineTemplateConfig> configForEdit = service.loadForEdit(templateName, username, result);
-
-        assertThat(configForEdit, is(nullValue()));
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(403));
-        assertThat(result.message(), is("Unauthorized to edit 'templateName' template."));
-    }
-
-    @Test
     public void shouldReturnAListOfAllPipelineConfigsThatAreNotUsedInTemplates() {
         Username user = new Username(new CaseInsensitiveString("user"));
         when(securityService.isUserAdmin(user)).thenReturn(true);
@@ -312,44 +248,6 @@ public class TemplateConfigServiceTest {
         expectedResult.unprocessableEntity(EntityType.Template.entityConfigValidationFailed(templateName, errorMessage));
 
         assertThat(result.toString(), is(expectedResult.toString()));
-    }
-
-    @Test
-    public void shouldReturnAMapOfAllTemplatesWithAuthorizationsForAnyUser() {
-        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
-        cruiseConfig.setServerConfig(serverConfig);
-        GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
-
-        CaseInsensitiveString templateViewUser = new CaseInsensitiveString("template-view");
-        CaseInsensitiveString templateAdmin = new CaseInsensitiveString("template-admin");
-        PipelineTemplateConfig template1 = PipelineTemplateConfigMother.createTemplate("t1", new Authorization(new ViewConfig(new AdminUser(templateViewUser))), StageConfigMother.manualStage("foo"));
-        PipelineTemplateConfig template2 = PipelineTemplateConfigMother.createTemplate("t2");
-        PipelineTemplateConfig template3 = PipelineTemplateConfigMother.createTemplate("t3", new Authorization(new AdminsConfig(new AdminUser(templateAdmin))), StageConfigMother.manualStage("foobar"));
-        cruiseConfig.addTemplate(template1);
-        cruiseConfig.addTemplate(template2);
-        cruiseConfig.addTemplate(template3);
-
-        when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
-
-        List<TemplatesViewModel> templatesForSuperAdmins = new ArrayList<>();
-        templatesForSuperAdmins.add(new TemplatesViewModel(template1, true, true));
-        templatesForSuperAdmins.add(new TemplatesViewModel(template2, true, true));
-        templatesForSuperAdmins.add(new TemplatesViewModel(template3, true, true));
-
-        List<TemplatesViewModel> templatesForTemplateAdmin = new ArrayList<>();
-        templatesForTemplateAdmin.add(new TemplatesViewModel(template1, false, false));
-        templatesForTemplateAdmin.add(new TemplatesViewModel(template2, false, false));
-        templatesForTemplateAdmin.add(new TemplatesViewModel(template3, true, true));
-
-        List<TemplatesViewModel> templatesForTemplateViewUser = new ArrayList<>();
-        templatesForTemplateViewUser.add(new TemplatesViewModel(template1, true, false));
-        templatesForTemplateViewUser.add(new TemplatesViewModel(template2, false, false));
-        templatesForTemplateViewUser.add(new TemplatesViewModel(template3, false, false));
-
-        assertThat(service.getTemplateViewModels(new CaseInsensitiveString("admin")), is(templatesForSuperAdmins));
-        assertThat(service.getTemplateViewModels(templateAdmin), is(templatesForTemplateAdmin));
-        assertThat(service.getTemplateViewModels(templateViewUser), is(templatesForTemplateViewUser));
     }
 
     @Test

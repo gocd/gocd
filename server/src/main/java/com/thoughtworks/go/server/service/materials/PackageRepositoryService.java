@@ -82,24 +82,6 @@ public class PackageRepositoryService {
         repositoryMetadataStore = RepositoryMetadataStore.getInstance();
     }
 
-    public ConfigUpdateAjaxResponse savePackageRepositoryToConfig(PackageRepository packageRepository, final String md5, Username username) {
-        performPluginValidationsFor(packageRepository);
-        UpdateConfigFromUI updateCommand = getPackageRepositoryUpdateCommand(packageRepository, username);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(updateCommand, md5, username, result);
-        if (result.isSuccessful()) {
-            ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.success(packageRepository.getId(), result.httpCode(),
-                    configUpdateResponse.wasMerged() ? "The configuration was modified by someone else, but your changes were merged successfully." : "Saved configuration successfully.");
-            return response;
-        } else {
-            List<String> globalErrors = globalErrors(configUpdateResponse.getCruiseConfig().getAllErrorsExceptFor(configUpdateResponse.getSubject()));
-            HashMap<String, List<String>> fieldErrors = fieldErrors(configUpdateResponse.getSubject(), "package_repository");
-            String message = result.message();
-            ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.failure(packageRepository.getId(), result.httpCode(), message, fieldErrors, globalErrors);
-            return response;
-        }
-    }
-
     public void checkConnection(final PackageRepository packageRepository, final LocalizedOperationResult result) {
         try {
             Result checkConnectionResult = packageRepositoryExtension.checkConnectionToRepository(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));

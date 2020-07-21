@@ -62,57 +62,6 @@ public class PluggableTaskServiceTest {
         PluggableTaskConfigStore.store().setPreferenceFor(pluginId, preference);
     }
 
-
-    @Test
-    public void shouldValidateTask() {
-        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
-        PluggableTask modifiedTask = new PluggableTask(new PluginConfiguration(pluginId, "1"), configuration);
-        ValidationResult validationResult = new ValidationResult();
-        validationResult.addError(new ValidationError("KEY1", "error message"));
-        when(taskExtension.validate(eq(modifiedTask.getPluginConfiguration().getId()), any(TaskConfig.class))).thenReturn(validationResult);
-
-        pluggableTaskService.validate(modifiedTask);
-
-        assertThat(modifiedTask.getConfiguration().getProperty("KEY1").errors().isEmpty(), is(false));
-        assertThat(modifiedTask.getConfiguration().getProperty("KEY1").errors().firstError(), is("error message"));
-        verify(taskExtension).validate(eq(modifiedTask.getPluginConfiguration().getId()), any(TaskConfig.class));
-    }
-
-    @Test
-    public void shouldValidateMandatoryFields() {
-        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
-        PluggableTask modifiedTask = new PluggableTask(new PluginConfiguration(pluginId, "1"), configuration);
-        ValidationResult validationResult = new ValidationResult();
-        when(taskExtension.validate(eq(modifiedTask.getPluginConfiguration().getId()), any(TaskConfig.class))).thenReturn(validationResult);
-
-        pluggableTaskService.validate(modifiedTask);
-
-        final List<ValidationError> validationErrors = validationResult.getErrors();
-        assertFalse(validationErrors.isEmpty());
-        final ValidationError validationError = validationErrors.stream().filter(new Predicate<ValidationError>() {
-            @Override
-            public boolean test(ValidationError item) {
-                return ((ValidationError) item).getKey().equals("KEY1");
-            }
-        }).findFirst().orElse(null);
-        assertNotNull(validationError);
-        assertThat(validationError.getMessage(), is("This field is required"));
-    }
-
-    @Test
-    public void shouldPassValidationIfAllRequiredFieldsHaveValues() {
-        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
-        configuration.getProperty("KEY1").setConfigurationValue(new ConfigurationValue("junk"));
-        PluggableTask modifiedTask = new PluggableTask(new PluginConfiguration(pluginId, "1"), configuration);
-        ValidationResult validationResult = new ValidationResult();
-        when(taskExtension.validate(eq(modifiedTask.getPluginConfiguration().getId()), any(TaskConfig.class))).thenReturn(validationResult);
-
-        pluggableTaskService.validate(modifiedTask);
-
-        final List<ValidationError> validationErrors = validationResult.getErrors();
-        assertTrue(validationErrors.isEmpty());
-    }
-
     @Test
     public void isValidShouldValidateThePluggableTask() {
         PluggableTask pluggableTask = mock(PluggableTask.class);

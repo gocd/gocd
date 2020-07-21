@@ -127,7 +127,7 @@ $building: #ffc11b;
 }
 
 .stage-trigger-and-timing-container {
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
 .stage-duration-container {
@@ -362,7 +362,7 @@ $building: #ffc11b;
   }
 
   .count-container:nth-child(3) {
-    margin-right: 300px;
+    margin-right: 265px;
   }
 }
 
@@ -370,6 +370,7 @@ $building: #ffc11b;
   display:      flex;
   margin-right: 15px;
   margin-top:   2px;
+  width:        80px;
 }
 
 .count-label {

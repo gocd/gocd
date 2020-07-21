@@ -25,6 +25,7 @@ interface StageHeaderAttrs {
   stageName: string;
   stageCounter: string | number;
   pipelineName: string;
+  pipelineCounter: string | number;
   stageInstance: Stream<StageInstance>;
 }
 
@@ -33,6 +34,14 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
     return <div data-test-id="stage-overview-header" class={styles.stageHeaderContainer}>
       <div data-test-id="stage-name-and-operations-container" class={styles.flexBox}>
         <div class={styles.stageNameContainer}>
+          <div data-test-id="pipeline-name-container">
+            <div className={styles.stageNameTitle}>Pipeline</div>
+            <div className={styles.stageName}>{vnode.attrs.pipelineName}</div>
+          </div>
+          <div data-test-id="pipeline-instance-container">
+            <div className={styles.stageNameTitle}>Instance</div>
+            <div className={styles.stageName}>{vnode.attrs.pipelineCounter}</div>
+          </div>
           <div data-test-id="stage-name-container">
             <div className={styles.stageNameTitle}>Stage</div>
             <div className={styles.stageName}>{vnode.attrs.stageName}</div>

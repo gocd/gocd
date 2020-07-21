@@ -18,7 +18,7 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import {MithrilViewComponent} from "../../../jsx/mithril-component";
-import {ButtonGroup, Primary} from "../../components/buttons";
+import {ButtonGroup, Secondary} from "../../components/buttons";
 import * as styles from "./index.scss";
 import Stream from "./jobs_list_widget";
 import {JobsViewModel} from "./models/jobs_view_model";
@@ -46,8 +46,8 @@ export class JobCountAndRerunWidget extends MithrilViewComponent<Attrs> {
       </div>
       <div data-test-id="job-rerun-container">
         <ButtonGroup>
-          <Primary small={true}>Rerun Failed</Primary>
-          <Primary small={true}>Rerun Selected</Primary>
+          <Secondary small={true}>Rerun Failed</Secondary>
+          <Secondary small={true}>Rerun Selected</Secondary>
         </ButtonGroup>
       </div>
     </div>;

@@ -43,7 +43,7 @@ $building: #ffc11b;
   border:        1px solid $border-color;
   border-radius: 3px;
   font-size:     12px;
-  width:         750px;
+  width:         770px;
   min-height:    200px;
   margin:        25px 0 0 5px;
   background:    $body-background;
@@ -145,7 +145,7 @@ $building: #ffc11b;
   width:         18px;
   height:        18px;
   margin-right:  10px;
-  margin-top:    3px;
+  margin-top:    6px;
   margin-left:   5px;
   font-size:     11px;
   border-radius: 2px;
@@ -157,7 +157,7 @@ $building: #ffc11b;
 
   &:before {
     position: relative;
-    top:      -2.5px;
+    top:      -4px;
     left:     -1.5px;
   }
 }
@@ -168,7 +168,7 @@ $building: #ffc11b;
 
   &:before {
     position: relative;
-    top:      -3px;
+    top:      -4px;
     left:     -0.7px;
   }
 }
@@ -179,7 +179,7 @@ $building: #ffc11b;
 
   &:before {
     position: relative;
-    top:      -3px;
+    top:      -4px;
     left:     -0.7px;
   }
 }
@@ -191,12 +191,20 @@ $building: #ffc11b;
 .job-list-container {
   font-size:  13px;
   margin-top: 10px;
+
+  .table-row:last-child {
+    margin-bottom: 10px;
+    border-radius: 0 0 5px 5px;
+  }
 }
 
 .table-header, .table-row {
-  display:       flex;
-  width:         100%;
-  border-bottom: 1px solid $border-color;
+  display:    flex;
+  width:      750px;
+  margin:     0 10px 0 10px;
+  border:     1px solid $border-color;
+  border-top: unset;
+  background: $white;
 
   .checkbox-cell {
     width: 25px;
@@ -228,16 +236,17 @@ $building: #ffc11b;
 }
 
 .table-header {
-  height:      32px;
-  line-height: 30px;
-  border-top:  1px solid $border-color;
-  font-style:  italic;
-  background:  $table-header-background;
+  height:        32px;
+  line-height:   30px;
+  border-top:    1px solid $border-color;
+  font-style:    italic;
+  background:    $table-header-background;
+  border-radius: 5px 5px 0 0;
 }
 
 .table-row {
-  height:      40px;
-  line-height: 23px;
+  height:      44px;
+  line-height: 26px;
 }
 
 .table-header > div {
@@ -254,7 +263,7 @@ $building: #ffc11b;
 
 .checkbox-cell input[type="checkbox"] { //sass-lint:disable-line no-qualifying-elements
   height:     13px;
-  margin-top: -4px;
+  margin-top: -1px;
 }
 
 .job-name {
@@ -273,7 +282,7 @@ $building: #ffc11b;
   border-radius: 3px;
   overflow:      hidden;
   cursor:        pointer;
-  margin-top:    6px;
+  margin-top:    9px;
 
   .waiting {
     background: $progress-bar-waiting;

@@ -20,6 +20,7 @@ import {MithrilComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {Filter} from "models/maintenance_mode/material";
 import {DependencyMaterialAutocomplete, PipelineNameCache} from "models/materials/dependency_autocomplete_cache";
 import {Scms} from "models/materials/pluggable_scm";
 import {
@@ -41,7 +42,7 @@ import {TooltipSize} from "views/components/tooltip";
 import {ConfigurationDetailsWidget} from "views/pages/package_repositories/configuration_details_widget";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import styles from "./advanced_settings.scss";
-import {DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
+import {DENYLIST_HELP_MESSAGE, DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
 interface Attrs {
   material: Material;
@@ -362,15 +363,20 @@ interface PluginState {
 }
 
 export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
-  readonly defaultScms              = [{id: "", text: "Select a scm"}];
-  private disableScmField: boolean  = true;
-  private errorMessage?: m.Children = undefined;
+  readonly defaultScms                = [{id: "", text: "Select a scm"}];
+  private disableScmField: boolean    = true;
+  private errorMessage?: m.Children   = undefined;
+  private filterValue: Stream<string> = Stream("");
 
   oninit(vnode: m.Vnode<PluginAttrs, PluginState>): any {
     vnode.state.pluginId              = Stream("");
     vnode.state.scmsForSelectedPlugin = Stream(this.defaultScms);
 
     const attrs = vnode.attrs.material.attributes() as PluggableScmMaterialAttributes;
+    if (attrs.filter() === undefined) {
+      attrs.filter(new Filter([]));
+    }
+    this.filterValue(attrs.filter().ignore().join(','));
     if (attrs.ref()) {
       const selectedScm = vnode.attrs.scms.find((scm) => scm.id() === attrs.ref());
       if (selectedScm !== undefined) {
@@ -456,8 +462,19 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
       return <AdvancedSettings forceOpen={forceOpen}>
         <TextField label={labelForDestination} property={attrs.destination} readonly={vnodeAttrs.readonly}
                    errorText={attrs.errors().errorsForDisplay("destination")}/>
+        <TextField label="Denylist" helpText={DENYLIST_HELP_MESSAGE}
+                   property={this.filterValue} onchange={this.filterProxy.bind(this, attrs)}
+                   errorText={attrs.errors().errorsForDisplay("filter")}/>
       </AdvancedSettings>;
     }
+  }
+
+  private filterProxy(attrs: PluggableScmMaterialAttributes) {
+    const filters = this.filterValue().split(',')
+                        .map((val) => val.trim())
+                        .filter((val) => val.length > 0);
+    attrs.filter().ignore(filters);
+
   }
 
   private setErrorMessageIfApplicable(vnode: m.Vnode<PluginAttrs, PluginState>) {

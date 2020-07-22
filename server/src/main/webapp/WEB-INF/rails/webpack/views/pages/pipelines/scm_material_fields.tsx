@@ -16,6 +16,7 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {Filter} from "models/maintenance_mode/material";
 import {
   GitMaterialAttributes,
@@ -69,6 +70,16 @@ function markAllDisabled(vnodes: m.ChildArray) {
 }
 
 abstract class ScmFields extends MithrilViewComponent<Attrs> {
+  protected filterValue: Stream<string> = Stream("");
+
+  oninit(vnode: m.Vnode<Attrs, this>): any {
+    const attrs = vnode.attrs.material.attributes() as ScmMaterialAttributes;
+    if (attrs.filter() === undefined) {
+      attrs.filter(new Filter([]));
+    }
+    this.filterValue(attrs.filter()!.ignore().join(','));
+  }
+
   errs(attrs: MaterialAttributes, key: string): string {
     return attrs.errors().errorsForDisplay(key);
   }
@@ -123,7 +134,8 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
                    errorText={this.errs(mattrs, "autoUpdate")}/>,
 
         <TextField label="Denylist" helpText={DENYLIST_HELP_MESSAGE}
-                   property={this.filterProxy.bind(this, mattrs)}
+                   property={this.filterValue}
+                   onchange={this.filterProxy.bind(this,mattrs)}
                    errorText={this.errs(mattrs, "filter")}/>,
 
         <CheckboxField property={mattrs.invertFilter} dataTestId={"invert-filter"}
@@ -147,15 +159,11 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
 
   abstract extraFields(attrs: MaterialAttributes, vnode: m.Vnode<Attrs>): m.ChildArray;
 
-  protected filterProxy(attrs: ScmMaterialAttributes, newValue?: string): string | undefined {
-    if (attrs.filter() === undefined) {
-      attrs.filter(new Filter([]));
-    }
-    const filter = attrs.filter()!;
-    if (newValue) {
-      filter.ignore(newValue.split(',').map((val) => val.trim()).filter((val) => val.length > 0));
-    }
-    return filter.ignore().join(',');
+  protected filterProxy(attrs: ScmMaterialAttributes) {
+    const filters = this.filterValue().split(',')
+                        .map((val) => val.trim())
+                        .filter((val) => val.length > 0);
+    attrs.filter()!.ignore(filters);
   }
 }
 
@@ -174,7 +182,7 @@ export class GitFields extends ScmFields {
       <PasswordField label="Password" property={mat.password}/>
     ];
 
-    if(vnode.attrs.showGitMaterialShallowClone === undefined || vnode.attrs.showGitMaterialShallowClone === true) {
+    if (vnode.attrs.showGitMaterialShallowClone === undefined || vnode.attrs.showGitMaterialShallowClone === true) {
       fields.push(<CheckboxField label="Shallow clone (recommended for large repositories)" property={mat.shallowClone}/>);
     }
 

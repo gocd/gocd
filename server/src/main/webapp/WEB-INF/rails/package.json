@@ -24,7 +24,7 @@
     "chart.js": "^2.9.3",
     "chartjs-plugin-zoom": "^0.7.7",
     "classnames": "^2.2.6",
-    "clipboard-polyfill": "^2.8.6",
+    "clipboard-polyfill": "^3.0.0",
     "core-js": "^3.6.5",
     "filesize": "^6.1.0",
     "font-awesome": "^4.7.0",

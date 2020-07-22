@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.rules.Allow;
+import com.thoughtworks.go.config.rules.Rules;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.scm.SCM;
@@ -68,6 +69,8 @@ public class PartialConfigServiceIntegrationTest {
     private GoCache goCache;
     @Autowired
     private GoConfigDao goConfigDao;
+    @Autowired
+    private GoConfigRepoConfigDataSource goConfigRepoConfigDataSource;
 
     private final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ConfigRepoConfig repoConfig1;
@@ -275,6 +278,111 @@ public class PartialConfigServiceIntegrationTest {
         assertThat(serverHealthStates.isEmpty(), is(false));
         assertThat(serverHealthStates.get(0).getLogLevel(), is(HealthStateLevel.ERROR));
         assertThat(serverHealthStates.get(0).getDescription(), is("Parameter 'param1' is not defined. All pipelines using this parameter directly or via a template must define it.- For Config Repo: url1 at 124"));
+    }
+
+    @Test // See Error #1 from https://github.com/gocd/gocd/issues/8368
+    public void shouldRemovePipelinesWhenRulesAreUpdatedToSpecifyNoWhitelist() {
+        partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1")));
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1")), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getRepo().getFingerprint())).isEmpty(), is(true));
+
+        goConfigRepoConfigDataSource.onConfigRepoConfigChange(repoConfig1);
+
+        ConfigRepoConfig repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "plugin", "id-1");
+        repoConfig1Cloned.setRules(new Rules());
+
+        partialConfigService.onSuccessPartialConfig(repoConfig1Cloned, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1Cloned, "1")));
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1")), is(false));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(false));
+        ServerHealthState healthStateForInvalidConfigMerge = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0);
+        assertThat(healthStateForInvalidConfigMerge.getMessage(), is("Invalid Merged Configuration"));
+        assertThat(healthStateForInvalidConfigMerge.getDescription(), is("Number of errors: 1+\n" +
+                "I. Rule Validation Errors: \n" +
+                "\t1. Not allowed to refer to pipeline group 'group'. Check the 'Rules' of this config repository.;; \n" +
+                "\n" +
+                "II. Config Validation Errors: \n" +
+                "- For Config Repo: url1 at 1"));
+        assertThat(healthStateForInvalidConfigMerge.getLogLevel(), is(HealthStateLevel.ERROR));
+
+        cachedGoPartials.clear();
+    }
+
+    @Test // See Error #2 from https://github.com/gocd/gocd/issues/8368
+    public void shouldAddPipelinesWhenRulesAreUpdatedToSpecifyAllowAllPipelines() {
+        partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1")));
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1")), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getRepo().getFingerprint())).isEmpty(), is(true));
+
+        goConfigRepoConfigDataSource.onConfigRepoConfigChange(repoConfig1);
+
+        ConfigRepoConfig repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "plugin", "id-1");
+        repoConfig1Cloned.setRules(new Rules());
+
+        partialConfigService.onSuccessPartialConfig(repoConfig1Cloned, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1Cloned, "1")));
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1")), is(false));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(false));
+        ServerHealthState healthStateForInvalidConfigMerge = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0);
+        assertThat(healthStateForInvalidConfigMerge.getMessage(), is("Invalid Merged Configuration"));
+        assertThat(healthStateForInvalidConfigMerge.getDescription(), is("Number of errors: 1+\n" +
+                "I. Rule Validation Errors: \n" +
+                "\t1. Not allowed to refer to pipeline group 'group'. Check the 'Rules' of this config repository.;; \n" +
+                "\n" +
+                "II. Config Validation Errors: \n" +
+                "- For Config Repo: url1 at 1"));
+        assertThat(healthStateForInvalidConfigMerge.getLogLevel(), is(HealthStateLevel.ERROR));
+
+        repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "plugin", "id-1");
+        goConfigRepoConfigDataSource.onConfigRepoConfigChange(repoConfig1Cloned);
+
+        partialConfigService.onSuccessPartialConfig(repoConfig1Cloned, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1Cloned, "1")));
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1")), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getRepo().getFingerprint())).isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldKeepLastValidPartialsWhenLatestPartialsAreInvalid() {
+        partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1")));
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1")), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getRepo().getFingerprint())).isEmpty(), is(true));
+
+        final String invalidPipelineInPartial = "p1_repo1_invalid";
+        PartialConfig invalidPartial = PartialConfigMother.invalidPartial(invalidPipelineInPartial, new RepoConfigOrigin(repoConfig1, "2"));
+        partialConfigService.onSuccessPartialConfig(repoConfig1, invalidPartial);
+
+        assertThat(findPartial(invalidPipelineInPartial, cachedGoPartials.lastValidPartials()), is(nullValue()));
+        assertThat(findPartial(invalidPipelineInPartial, cachedGoPartials.lastKnownPartials()), is(invalidPartial));
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(invalidPipelineInPartial)), is(false));
+        List<ServerHealthState> serverHealthStatesForRepo1 = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1));
+        assertThat(serverHealthStatesForRepo1.isEmpty(), is(false));
+        assertThat(serverHealthStatesForRepo1.get(0).getLogLevel(), is(HealthStateLevel.ERROR));
+    }
+
+    @Test // See Error #3 from https://github.com/gocd/gocd/issues/8368
+    public void shouldDiscardLastValidPartialsWhenLatestPartialsAreInvalidWRTRules() {
+        partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1")));
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1")), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getRepo().getFingerprint())).isEmpty(), is(true));
+
+
+        goConfigRepoConfigDataSource.onConfigRepoConfigChange(repoConfig1);
+
+        ConfigRepoConfig repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "plugin", "id-1");
+        repoConfig1Cloned.setRules(new Rules());
+
+        final String invalidPipelineInPartial = "p1_repo1_invalid";
+        PartialConfig invalidPartial = PartialConfigMother.invalidPartial(invalidPipelineInPartial, new RepoConfigOrigin(repoConfig1Cloned, "2"));
+
+        partialConfigService.onSuccessPartialConfig(repoConfig1Cloned, invalidPartial);
+
+        assertThat(findPartial(invalidPipelineInPartial, cachedGoPartials.lastValidPartials()), is(nullValue()));
+        assertThat(findPartial(invalidPipelineInPartial, cachedGoPartials.lastKnownPartials()), is(invalidPartial));
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1")), is(false));
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(invalidPipelineInPartial)), is(false));
+        List<ServerHealthState> serverHealthStatesForRepo1 = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1));
+        assertThat(serverHealthStatesForRepo1.isEmpty(), is(false));
+        assertThat(serverHealthStatesForRepo1.get(0).getLogLevel(), is(HealthStateLevel.ERROR));
+
+        cachedGoPartials.clear();
     }
 
     private boolean cacheContainsPartial(List<PartialConfig> partialConfigs, final PartialConfig partialConfig) {

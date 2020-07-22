@@ -168,7 +168,7 @@ public class PartialConfigServiceTest {
 
     @Test
     void clearsLastValidPartialOnFailureWhenFailsRuleValidations() {
-        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenThrow(new RuntimeException("Nope"));
+        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenThrow(new RuntimeException("Nope")).thenReturn(ConfigSaveState.UPDATED);
         when(partialConfigHelper.isEquivalent(any(PartialConfig.class), any(PartialConfig.class))).thenReturn(false);
 
         // an empty set guarantees violations
@@ -198,7 +198,7 @@ public class PartialConfigServiceTest {
 
         assertTrue(cachedGoPartials.lastValidPartials().isEmpty());
 
-        verify(goConfigService).updateConfig(any(UpdateConfigCommand.class));
+        verify(goConfigService, times(2)).updateConfig(any(UpdateConfigCommand.class));
     }
 
     @Test

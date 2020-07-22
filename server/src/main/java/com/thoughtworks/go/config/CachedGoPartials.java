@@ -68,6 +68,12 @@ public class CachedGoPartials implements PartialConfigResolver {
         }
     }
 
+    public void removeValidWithoutClearingServerHealthMessage(String fingerprint) {
+        if (fingerprintToLatestValidConfigMap.containsKey(fingerprint)) {
+            fingerprintToLatestValidConfigMap.remove(fingerprint);
+        }
+    }
+
     public void cacheAsLastKnown(String fingerprint, PartialConfig newPart) {
         fingerprintToLatestKnownConfigMap.put(fingerprint, newPart);
     }

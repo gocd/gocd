@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.PartialConfigUpdateCommand;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -69,21 +70,40 @@ public class PartialConfigService implements PartialConfigUpdateCompletedListene
 
         if (this.configWatchList.hasConfigRepoWithFingerprint(fingerprint)) {
             if (shouldMergePartial(incoming, fingerprint, repoConfig)) {
-                // validate rules before attempting updateConfig() so that
-                // rule violations will be considered before accepting a merge;
-                // updateConfig() only considers structural validity.
-                final boolean violatesRules = hasRuleViolations(incoming);
-
+                // mark the fingerprint as last known
                 cachedGoPartials.cacheAsLastKnown(fingerprint, incoming);
 
-                if (updateConfig(incoming, fingerprint, repoConfig)) {
+                //validate rules
+                hasRuleViolations(incoming);
+
+                //validate config.
+                // updateConfig will fail to update the configuration if there are validation errors.
+                // Even in case of rules violation, the updateConfig method is required to populate a server health message of rule violation, which also will be shown on the config repo spa.
+                final boolean isConfigUpdated = updateConfig(incoming, fingerprint, repoConfig);
+
+                if (isConfigUpdated) {
+                    // mark the partial as valid when config is updated successfully for it.
                     cachedGoPartials.markAsValid(fingerprint, incoming);
                 } else {
                     final PartialConfig previousValidPartial = cachedGoPartials.getValid(repoConfig.getRepo().getFingerprint());
 
-                    if (violatesRules && hasRuleViolations(previousValidPartial)) {
-                        // do not allow fallback to the last version of the partial if the current rules do not allow
-                        cachedGoPartials.removeValid(repoConfig.getRepo().getFingerprint());
+                    if (previousValidPartial != null) {
+                        // lets say the latest partial is invalid for the current config repo rules.
+                        // in such cases, validate the previous valid partial with respect to current config repo rules.
+                        // if the previous valid partials are valid - do nothing - as the error for the latest partial is already populated and config contains the last known partial
+                        // and if the previous valid partials are invalid - remove those config without clearing the server health message. Server health message is populated for the same fingerprint with the latest parse failure message.
+                        ((RepoConfigOrigin) previousValidPartial.getOrigin()).setConfigRepo(((RepoConfigOrigin) incoming.getOrigin()).getConfigRepo());
+                        if (hasRuleViolations(previousValidPartial)) {
+                            //  remove cached partial without clearing server health message.
+                            cachedGoPartials.removeValidWithoutClearingServerHealthMessage(fingerprint);
+
+                            //Removing cached partials is not enough, we need to perform a full config save immediately in order to invoke appropriate listeners that removes the pipelines.
+                            //todo: Do we care about error handling while removing the partials?
+                            goConfigService.updateConfig(cruiseConfig -> {
+                                cruiseConfig.getPartials().remove(cachedGoPartials.findPartialByFingerprint(cruiseConfig, fingerprint));
+                                return cruiseConfig;
+                            });
+                        }
                     }
                 }
             }

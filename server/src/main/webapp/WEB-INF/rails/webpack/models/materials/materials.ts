@@ -28,13 +28,13 @@ export interface MaterialWithFingerprintJSON extends MaterialJSON {
   fingerprint: string;
 }
 
-interface MaterialWithModificationsJSON {
+interface MaterialWithModificationJSON {
   config: MaterialWithFingerprintJSON;
   modification: MaterialModificationJSON;
 }
 
 interface MaterialsJSON {
-  materials: MaterialWithModificationsJSON[];
+  materials: MaterialWithModificationJSON[];
 }
 
 export class MaterialWithFingerprint extends Material {
@@ -94,7 +94,7 @@ export class MaterialWithFingerprint extends Material {
   }
 }
 
-export class MaterialWithModifications {
+export class MaterialWithModification {
   config: MaterialWithFingerprint;
   modification: MaterialModification | null;
 
@@ -103,20 +103,20 @@ export class MaterialWithModifications {
     this.modification = modification;
   }
 
-  static fromJSON(data: MaterialWithModificationsJSON): MaterialWithModifications {
+  static fromJSON(data: MaterialWithModificationJSON): MaterialWithModification {
     const mod = data.modification === null ? null : MaterialModification.fromJSON(data.modification);
-    return new MaterialWithModifications(MaterialWithFingerprint.fromJSON(data.config), mod);
+    return new MaterialWithModification(MaterialWithFingerprint.fromJSON(data.config), mod);
   }
 }
 
-export class Materials extends Array<MaterialWithModifications> {
-  constructor(...vals: MaterialWithModifications[]) {
+export class Materials extends Array<MaterialWithModification> {
+  constructor(...vals: MaterialWithModification[]) {
     super(...vals);
     Object.setPrototypeOf(this, Object.create(Materials.prototype));
   }
 
-  static fromJSON(data: MaterialWithModificationsJSON[]): Materials {
-    return new Materials(...data.map((a) => MaterialWithModifications.fromJSON(a)));
+  static fromJSON(data: MaterialWithModificationJSON[]): Materials {
+    return new Materials(...data.map((a) => MaterialWithModification.fromJSON(a)));
   }
 
   sortOnType() {

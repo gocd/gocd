@@ -20,7 +20,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import {MaterialModification} from "models/config_repos/types";
-import {MaterialWithModifications} from "models/materials/materials";
+import {MaterialWithModification} from "models/materials/materials";
 import {Link} from "views/components/link";
 import headerStyles from "views/pages/config_repos/index.scss";
 import styles from "./index.scss";
@@ -31,7 +31,7 @@ export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
   private static readonly MAX_USERNAME_AND_REVISION_LENGTH: number = 40;
 
   view(vnode: m.Vnode<MaterialAttrs, this>): m.Children | void | null {
-    const material = vnode.attrs.material;
+    const material = vnode.attrs.materialVM.material;
     return [
       MaterialHeaderWidget.getIcon(material),
       <div className={headerStyles.headerTitle}>
@@ -42,7 +42,7 @@ export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
     ];
   }
 
-  private static getIcon(material: MaterialWithModifications) {
+  private static getIcon(material: MaterialWithModification) {
     let style = styles.unknown;
     switch (material.config.type()) {
       case "git":

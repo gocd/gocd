@@ -17,16 +17,17 @@
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {MaterialAPIs, Materials, MaterialWithModifications} from "models/materials/materials";
+import {MaterialAPIs} from "models/materials/materials";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {MaterialsWidget} from "views/pages/materials/materials_widget";
+import {MaterialVM, MaterialVMs} from "views/pages/materials/models/material_view_model";
 import {Page, PageState} from "views/pages/page";
 import configRepoStyles from "./config_repos/index.scss";
 
 export interface MaterialsAttrs {
-  materials: Stream<Materials>;
+  materialVMs: Stream<MaterialVMs>;
 }
 
 interface State extends MaterialsAttrs {
@@ -38,14 +39,14 @@ export class MaterialsPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
 
-    vnode.state.materials  = Stream();
-    vnode.state.searchText = Stream();
+    vnode.state.materialVMs = Stream();
+    vnode.state.searchText  = Stream();
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    const filteredMaterials: Stream<Materials> = Stream(vnode.state.materials());
+    const filteredMaterials: Stream<MaterialVMs> = Stream(vnode.state.materialVMs());
     if (vnode.state.searchText()) {
-      const results = _.filter(filteredMaterials(), (vm: MaterialWithModifications) => vm.config.matches(vnode.state.searchText()));
+      const results = _.filter(filteredMaterials(), (vm: MaterialVM) => vm.matches(vnode.state.searchText()));
 
       if (_.isEmpty(results)) {
         return <div>
@@ -53,9 +54,9 @@ export class MaterialsPage extends Page<null, State> {
             string: <em>{vnode.state.searchText()}</em></FlashMessage>
         </div>;
       }
-      filteredMaterials(new Materials(...results));
+      filteredMaterials(new MaterialVMs(...results));
     }
-    return <MaterialsWidget materials={filteredMaterials}/>;
+    return <MaterialsWidget materialVMs={filteredMaterials}/>;
   }
 
   pageName(): string {
@@ -67,8 +68,8 @@ export class MaterialsPage extends Page<null, State> {
     return Promise.resolve(MaterialAPIs.all()).then((result) => {
       result.do((successResponse) => {
         this.pageState = PageState.OK;
-        vnode.state.materials(successResponse.body);
-        vnode.state.materials().sortOnType();
+        vnode.state.materialVMs(MaterialVMs.fromMaterials(successResponse.body));
+        vnode.state.materialVMs().sortOnType();
       }, this.setErrorState);
     });
   }
@@ -79,7 +80,7 @@ export class MaterialsPage extends Page<null, State> {
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     const buttons = [];
-    if (!_.isEmpty(vnode.state.materials())) {
+    if (!_.isEmpty(vnode.state.materialVMs())) {
       const searchBox = <div className={configRepoStyles.wrapperForSearchBox}>
         <SearchField property={vnode.state.searchText} dataTestId={"search-box"}
                      placeholder="Search for a material name or url"/>

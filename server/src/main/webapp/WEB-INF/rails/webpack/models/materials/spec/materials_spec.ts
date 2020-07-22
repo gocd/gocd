@@ -17,7 +17,7 @@
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import {Filter} from "models/maintenance_mode/material";
-import {MaterialAPIs, Materials, MaterialWithFingerprint, MaterialWithModifications} from "../materials";
+import {MaterialAPIs, Materials, MaterialWithFingerprint, MaterialWithModification} from "../materials";
 import {
   DependencyMaterialAttributes,
   GitMaterialAttributes,
@@ -137,14 +137,14 @@ describe('MaterialWithFingerPrintSpec', () => {
 describe('MaterialsWithModificationsSpec', () => {
   it('should sort based on type', () => {
     const materials = new Materials();
-    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("git", "some", new GitMaterialAttributes()), null));
-    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("hg", "some", new HgMaterialAttributes()), null));
-    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("svn", "some", new SvnMaterialAttributes()), null));
-    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("p4", "some", new P4MaterialAttributes()), null));
-    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("tfs", "some", new TfsMaterialAttributes()), null));
-    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("dependency", "some", new DependencyMaterialAttributes()), null));
-    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("package", "some", new PackageMaterialAttributes()), null));
-    materials.push(new MaterialWithModifications(new MaterialWithFingerprint("plugin", "some", new PluggableScmMaterialAttributes(undefined, undefined, "", "", new Filter([]))), null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("git", "some", new GitMaterialAttributes()), null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("hg", "some", new HgMaterialAttributes()), null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("svn", "some", new SvnMaterialAttributes()), null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("p4", "some", new P4MaterialAttributes()), null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("tfs", "some", new TfsMaterialAttributes()), null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("dependency", "some", new DependencyMaterialAttributes()), null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("package", "some", new PackageMaterialAttributes()), null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("plugin", "some", new PluggableScmMaterialAttributes(undefined, undefined, "", "", new Filter([]))), null));
 
     materials.sortOnType();
 

@@ -19,7 +19,6 @@ import {timeFormatter} from "helpers/time_formatter";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {humanizedMaterialAttributeName, MaterialModification} from "models/config_repos/types";
-import {MaterialWithModifications} from "models/materials/materials";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {KeyValuePair} from "views/components/key_value_pair";
@@ -28,6 +27,8 @@ import headerStyles from "views/pages/config_repos/index.scss";
 import {MaterialsAttrs} from "views/pages/materials";
 import styles from "./index.scss";
 import {MaterialHeaderWidget} from "./material_header_widget";
+import {MaterialUsageWidget} from "./material_usage_widget";
+import {MaterialVM} from "./models/material_view_model";
 
 export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
 
@@ -39,7 +40,7 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
   }
 
   view(vnode: m.Vnode<MaterialsAttrs>) {
-    if (vnode.attrs.materials().length === 0) {
+    if (vnode.attrs.materialVMs().length === 0) {
       return <div>
         <FlashMessage type={MessageType.info}>
           Either no pipelines have been set up or you are not authorized to view the same.&nbsp;
@@ -52,28 +53,30 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
       </div>;
     }
     return <div data-test-id="materials-widget">
-      {vnode.attrs.materials().map((material) => <MaterialWidget material={material}/>)}
+      {vnode.attrs.materialVMs().map((materialVM) => <MaterialWidget materialVM={materialVM}/>)}
     </div>;
   }
 }
 
 export interface MaterialAttrs {
-  material: MaterialWithModifications;
+  materialVM: MaterialVM;
 }
 
 export class MaterialWidget extends MithrilViewComponent<MaterialAttrs> {
   view(vnode: m.Vnode<MaterialAttrs, this>): m.Children | void | null {
-    const material = vnode.attrs.material;
+    const vm       = vnode.attrs.materialVM;
+    const material = vm.material;
 
-    return <CollapsiblePanel header={<MaterialHeaderWidget {...vnode.attrs} />}>
+    return <CollapsiblePanel header={<MaterialHeaderWidget {...vnode.attrs} />} onexpand={() => vm.notify("expand")}>
+      <MaterialUsageWidget materialVM={vm}/>
       <h3>Latest Modification Details</h3>
-      {this.showLatestModificationDetails(material.modification, material.config.fingerprint())}
+      {this.showLatestModificationDetails(material.modification)}
       <h3>Material Attributes</h3>
       <KeyValuePair data-test-id={"material-attributes"} data={material.config.attributesAsMap()}/>
     </CollapsiblePanel>;
   }
 
-  private showLatestModificationDetails(modification: MaterialModification | null, fingerprint: string) {
+  private showLatestModificationDetails(modification: MaterialModification | null) {
     if (modification === null) {
       return <FlashMessage type={MessageType.info}>This material was never parsed</FlashMessage>;
     }

@@ -17,20 +17,21 @@
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {MaterialModification} from "models/config_repos/types";
-import {MaterialWithFingerprint, MaterialWithModifications} from "models/materials/materials";
+import {MaterialWithFingerprint, MaterialWithModification} from "models/materials/materials";
 import headerStyles from "views/pages/config_repos/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";
 import {MaterialHeaderWidget} from "../material_header_widget";
+import {MaterialVM} from "../models/material_view_model";
 import {git} from "./materials_widget_spec";
 
 describe('MaterialHeaderWidgetSpec', () => {
   const helper = new TestHelper();
-  let material: MaterialWithModifications;
+  let material: MaterialWithModification;
 
   afterEach((done) => helper.unmount(done));
   beforeEach(() => {
-    material = new MaterialWithModifications(MaterialWithFingerprint.fromJSON(git()), null);
+    material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), null);
   });
 
   it('should display the name of the material with type', () => {
@@ -96,6 +97,6 @@ describe('MaterialHeaderWidgetSpec', () => {
   });
 
   function mount() {
-    helper.mount(() => <MaterialHeaderWidget material={material}/>);
+    helper.mount(() => <MaterialHeaderWidget materialVM={new MaterialVM(material)}/>);
   }
 });

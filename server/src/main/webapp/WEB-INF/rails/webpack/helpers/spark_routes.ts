@@ -584,7 +584,7 @@ export class SparkRoutes {
   }
 
   static pipelineEditPath(stageParent: string, pipelineName: string, tab: string ): string {
-    return `/go/admin/${stageParent}/${pipelineName}/${tab}`;
+    return `/go/admin/${stageParent}/${pipelineName}/edit#!${pipelineName}/${tab}`;
   }
 
   static getAllMaterials(): string {

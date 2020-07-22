@@ -17,17 +17,18 @@ import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {MaterialModification} from "models/config_repos/types";
-import {Materials, MaterialWithFingerprint, MaterialWithFingerprintJSON, MaterialWithModifications} from "models/materials/materials";
+import {MaterialWithFingerprint, MaterialWithFingerprintJSON, MaterialWithModification} from "models/materials/materials";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialsWidget, MaterialWidget} from "../materials_widget";
+import {MaterialVM, MaterialVMs} from "../models/material_view_model";
 
 describe('MaterialWidgetSpec', () => {
   const helper = new TestHelper();
-  let material: MaterialWithModifications;
+  let materialVM: MaterialVM;
 
   afterEach((done) => helper.unmount(done));
   beforeEach(() => {
-    material = new MaterialWithModifications(MaterialWithFingerprint.fromJSON(git()), null);
+    materialVM = new MaterialVM(new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), null));
   });
 
   it('should display the header', () => {
@@ -55,7 +56,7 @@ describe('MaterialWidgetSpec', () => {
   });
 
   it('should display latest modifications', () => {
-    material.modification
+    materialVM.material.modification
       = new MaterialModification("GoCD Test User <devnull@example.com>", null, "b9b4f4b758e91117d70121a365ba0f8e37f89a9d", "Initial commit", "2019-12-23T10:25:52Z");
     mount();
 
@@ -75,17 +76,17 @@ describe('MaterialWidgetSpec', () => {
   });
 
   function mount() {
-    helper.mount(() => <MaterialWidget material={material}/>);
+    helper.mount(() => <MaterialWidget materialVM={materialVM}/>);
   }
 });
 
 describe('MaterialsWidgetSpec', () => {
   const helper = new TestHelper();
-  let materials: Materials;
+  let materialVMs: MaterialVMs;
 
   afterEach((done) => helper.unmount(done));
   beforeEach(() => {
-    materials = new Materials();
+    materialVMs = new MaterialVMs();
   });
 
   it('should display help text when no materials have been defined', () => {
@@ -103,7 +104,7 @@ describe('MaterialsWidgetSpec', () => {
   });
 
   function mount() {
-    helper.mount(() => <MaterialsWidget materials={Stream(materials)}/>);
+    helper.mount(() => <MaterialsWidget materialVMs={Stream(materialVMs)}/>);
   }
 });
 

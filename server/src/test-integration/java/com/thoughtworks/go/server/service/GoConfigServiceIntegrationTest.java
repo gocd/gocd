@@ -15,20 +15,14 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.update.ConfigUpdateResponse;
-import com.thoughtworks.go.config.update.UpdateConfigFromUI;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.Task;
-import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
@@ -41,10 +35,7 @@ import com.thoughtworks.go.presentation.ConfigForEdit;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.ReflectionUtil;
-import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,11 +46,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
-import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -312,218 +300,6 @@ public class GoConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateConfigFromUI() {
-        configHelper.addPipeline("pipeline", "stage");
-        String md5 = goConfigService.getConfigForEditing().getMd5();
-        ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new AddStageToPipelineCommand("secondStage"), md5, Username.ANONYMOUS, new HttpLocalizedOperationResult());
-
-        PipelineConfig config = goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString("pipeline"));
-
-        assertThat(config.size(), is(2));
-        assertThat(config.get(0).name(), is(new CaseInsensitiveString("stage")));
-        assertThat(config.get(1).name(), is(new CaseInsensitiveString("secondStage")));
-
-        assertThat(response.configAfterUpdate().hasStageConfigNamed(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("secondStage"), true), is(true));
-    }
-
-    @Test
-    public void shouldRespondWithNewConfigWhenSavedSuccessfully() {
-        configHelper.addPipeline("pipeline", "stage");
-        String md5 = goConfigService.getConfigForEditing().getMd5();
-        UpdateConfigFromUI pipelineAndStageRename = new PipelineStageRenamingCommand();
-        ConfigUpdateResponse response = goConfigService.updateConfigFromUI(pipelineAndStageRename, md5, Username.ANONYMOUS, new HttpLocalizedOperationResult());
-
-        PipelineConfig pipeline = goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString("new-pipeline"));
-        StageConfig stage = pipeline.getStage(new CaseInsensitiveString("new-stage"));
-        assertThat(pipeline, not(nullValue()));
-        assertThat(stage, not(nullValue()));
-
-        assertThat(((PipelineConfig) response.getNode()).name(), is(new CaseInsensitiveString("new-pipeline")));
-        assertThat(((StageConfig) response.getSubject()).name(), is(new CaseInsensitiveString("new-stage")));
-
-        assertThat(response.configAfterUpdate().hasStageConfigNamed(new CaseInsensitiveString("new-pipeline"), new CaseInsensitiveString("new-stage"), false), is(true));
-    }
-
-    @Test
-    public void shouldRespondWithLatestUnmodifiedConfigInCaseOfUnexpectedFailures() {
-        configHelper.addPipeline("pipeline", "stage");
-        String md5 = goConfigService.getConfigForEditing().getMd5();
-        UpdateConfigFromUI pipelineAndStageRename = new PipelineStageRenamingCommand() {
-            @Override
-            public void update(Validatable pipelineNode) {
-                throw new RuntimeException("Oh no!");
-            }
-        };
-        ConfigUpdateResponse response = goConfigService.updateConfigFromUI(pipelineAndStageRename, md5, Username.ANONYMOUS, new HttpLocalizedOperationResult());
-
-        assertThat(goConfigService.getConfigForEditing().hasPipelineNamed(new CaseInsensitiveString("new-pipeline")), is(false));
-        assertThat(goConfigService.getConfigForEditing().hasPipelineNamed(new CaseInsensitiveString("pipeline")), is(true));
-
-        assertThat(((PipelineConfig) response.getNode()).name(), is(new CaseInsensitiveString("pipeline")));
-        assertThat(((StageConfig) response.getSubject()).name(), is(new CaseInsensitiveString("stage")));
-
-        assertThat(response.configAfterUpdate().hasStageConfigNamed(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("new-stage"), false), is(false));
-        assertThat(response.configAfterUpdate().hasStageConfigNamed(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"), false), is(true));
-    }
-
-    @Test
-    public void shouldRespondWithModifiedConfigWhenSaveFailsBecauseOfValidationErrors() {
-        configHelper.addPipeline("pipeline", "stage");
-        String md5 = goConfigService.getConfigForEditing().getMd5();
-        UpdateConfigFromUI pipelineAndStageRename = new PipelineStageRenamingCommand() {{
-            newPipelineName = "pipeline!@foo - bar";
-        }};
-        ConfigUpdateResponse response = goConfigService.updateConfigFromUI(pipelineAndStageRename, md5, Username.ANONYMOUS, new HttpLocalizedOperationResult());
-
-        assertThat(goConfigService.getConfigForEditing().hasPipelineNamed(new CaseInsensitiveString("pipeline!@foo - bar")), is(false));
-        assertThat(goConfigService.getConfigForEditing().hasPipelineNamed(new CaseInsensitiveString("pipeline")), is(true));
-
-        assertThat(((PipelineConfig) response.getNode()).name(), is(new CaseInsensitiveString("pipeline!@foo - bar")));
-        assertThat(((StageConfig) response.getSubject()).name(), is(new CaseInsensitiveString("new-stage")));
-
-        assertThat(response.configAfterUpdate().hasStageConfigNamed(new CaseInsensitiveString("pipeline!@foo - bar"), new CaseInsensitiveString("new-stage"), false), is(false));
-    }
-
-    @Test
-    public void shouldReturnAllErrorsAppliedOverEditedCopy() {
-        configHelper.addPipeline("pipeline", "stage");
-        configHelper.addParamToPipeline("pipeline", "link", "ftp://example.com");
-        String md5 = goConfigService.getConfigForEditing().getMd5();
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new UpdateConfigFromUI() {
-            @Override
-            public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
-
-            }
-
-            @Override
-            public Validatable node(CruiseConfig cruiseConfig) {
-                return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline"));
-            }
-
-            @Override
-            public Validatable updatedNode(CruiseConfig cruiseConfig) {
-                return node(cruiseConfig);
-            }
-
-            @Override
-            public void update(Validatable pipeline) {
-                PipelineConfig pipelineConfig = (PipelineConfig) pipeline;
-                pipelineConfig.setTrackingTool(new TrackingTool("#{link}", "(evo-\\d+)"));
-            }
-
-            @Override
-            public Validatable subject(Validatable node) {
-                return node;
-            }
-
-            @Override
-            public Validatable updatedSubject(Validatable updatedNode) {
-                return subject(updatedNode);
-            }
-        }, md5, new Username(new CaseInsensitiveString("admin")), result);
-
-        TrackingTool trackingTool = ((PipelineConfig) response.getNode()).getTrackingTool();
-        assertThat(trackingTool.errors().on(TrackingTool.LINK), is("Link must be a URL containing '${ID}'. Go will replace the string '${ID}' with the first matched group from the regex at run-time."));
-        assertThat(trackingTool.getLink(), is("#{link}"));
-    }
-
-    @Test
-    public void shouldReturnTheLatestConfigAsResultWhenThereIsAnMd5Conflict() {
-        configHelper.addPipeline("pipeline", "stage");
-        String md5 = goConfigService.getConfigForEditing().getMd5();
-        goConfigService.updateConfigFromUI(new AddStageToPipelineCommand("secondStage"), md5, Username.ANONYMOUS, new HttpLocalizedOperationResult());
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new AddStageToPipelineCommand("thirdStage"), md5, Username.ANONYMOUS, result);
-
-        assertFailedResult(result, "Save failed. Configuration file has been modified by someone else.");
-        CruiseConfig expectedConfig = goConfigService.getConfigForEditing();
-        CruiseConfig modifiedConfig = new Cloner().deepClone(expectedConfig);
-        ReflectionUtil.setField(modifiedConfig, "md5", expectedConfig.getMd5());
-        PipelineConfig expected = modifiedConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline"));
-        expected.addStageWithoutValidityAssertion(StageConfigMother.custom("thirdStage", "job"));
-
-        PipelineConfig actual = (PipelineConfig) response.getNode();
-
-        assertThat(response.configAfterUpdate(), is(expectedConfig));
-        assertThat(response.getCruiseConfig(), is(modifiedConfig));
-        assertThat(actual, is(expected));
-        assertFailedResult(result, "Save failed. Configuration file has been modified by someone else.");
-    }
-
-    @Test
-    public void shouldReturnAResponseWithTheValidatedCruiseConfig() {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        configHelper.addPipeline("pipeline", "stage");
-        String md5 = goConfigService.getConfigForEditing().getMd5();
-        ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new AddStageToPipelineCommand("stage"), md5, Username.ANONYMOUS, result);
-
-        CruiseConfig invalidConfig = response.getCruiseConfig();
-        assertThat(invalidConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline")).size(), is(2));//Make sure that the config returned is the duplicate on.
-
-        PipelineConfig config = (PipelineConfig) response.getNode();
-        assertThat(config.size(), is(2));
-
-        assertStageError(config.get(1), "You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique.", StageConfig.NAME);
-        assertFailedResult(result, "Save failed, see errors below");
-
-        assertThat(response.configAfterUpdate().hasStageConfigNamed(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("secondStage"), true), is(false));
-    }
-
-    @Test
-    public void shouldNotUpdateConfigFromUI_whenUpdateMethodBombs() {
-        final PipelineConfig pipelineConfig = configHelper.addPipeline("pipeline", "stage");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String md5 = goConfigService.getConfigForEditing().getMd5();
-        ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new AddStageToPipelineCommand("secondStage") {
-            @Override
-            public void update(Validatable node) {
-                super.update(node);
-                throw new RuntimeException("oops, foo bared!");
-            }
-        }, md5, Username.ANONYMOUS, result);
-
-        PipelineConfig config = goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString("pipeline"));
-
-        assertThat(config.size(), is(1));
-        assertThat(config.get(0).name(), is(new CaseInsensitiveString("stage")));
-
-        assertThat(response.getCruiseConfig(), is(goConfigService.getConfigForEditing()));
-        assertThat(response.getNode(), is(pipelineConfig));
-        assertFailedResult(result, "Save failed. oops, foo bared!");
-    }
-
-    @Test
-    public void shouldNotUpdateConfigFromUIWhentheUserDoesNotHavePermissions() {
-        final PipelineConfig pipelineConfig = configHelper.addPipeline("pipeline", "stage");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String md5 = goConfigService.getConfigForEditing().getMd5();
-        final CruiseConfig[] configObtainedInCheckPermissions = new CruiseConfig[1];
-        ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new AddStageToPipelineCommand("secondStage") {
-            @Override
-            public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
-                result.forbidden(EntityType.PipelineGroup.forbiddenToEdit("groupName", Username.ANONYMOUS.getUsername()), null);
-                configObtainedInCheckPermissions[0] = cruiseConfig;
-            }
-        }, md5, Username.ANONYMOUS, result);
-
-        assertThat(configObtainedInCheckPermissions[0], is(goConfigService.getCurrentConfig()));
-
-        PipelineConfig config = goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString("pipeline"));
-
-        assertThat(config.size(), is(1));
-        assertThat(config.get(0).name(), is(new CaseInsensitiveString("stage")));
-
-        assertThat(response.getCruiseConfig(), is(goConfigService.getConfigForEditing()));
-        assertThat(response.getNode(), is(pipelineConfig));
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(403));
-        assertThat(result.message(), is(EntityType.PipelineGroup.forbiddenToEdit("groupName", "anonymous")));
-    }
-
-    @Test
     public void shouldLoadConfigFileOnlyWhenModifiedOnDisk() throws InterruptedException {
         cachedGoConfig.forceReload();
         Thread.sleep(1000);
@@ -708,71 +484,6 @@ public class GoConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldInternallyGetGoConfigInvalidExceptionOnValidationErrorAndFailWithATopLevelConfigError() throws Exception {
-        String oldMd5 = goConfigService.getConfigForEditing().getMd5();
-        CruiseConfig user1SeeingConfig = configHelper.load();
-
-        // Setup a pipeline group in the config
-        new GoConfigMother().addPipelineWithGroup(user1SeeingConfig, "defaultGroup", "user1_pipeline", "user1_stage", "user1_job");
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        configHelper.getXml(user1SeeingConfig, os);
-
-        GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
-        saver.saveXml(os.toString(), oldMd5);
-
-        CruiseConfig configBeforePipelineGroupWasAddedAtBeginning = configHelper.load();
-        String md5BeforeAddingGroupAtBeginning = configBeforePipelineGroupWasAddedAtBeginning.getMd5();
-
-        // User 1 edits config XML and adds a pipeline group before the first group in config
-        String configXMLWithGroupAddedAtBeginning = os.toString().replace("</pipelines>", "</pipelines><pipelines group=\"first_group\"/>");
-        saver.saveXml(configXMLWithGroupAddedAtBeginning, md5BeforeAddingGroupAtBeginning);
-
-        // User 2 adds another pipeline group, with the same name, through UI, but using the older MD5.
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new UpdateConfigFromUI() {
-            @Override
-            public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
-            }
-
-            @Override
-            public Validatable node(CruiseConfig cruiseConfig) {
-                return cruiseConfig;
-            }
-
-            @Override
-            public Validatable updatedNode(CruiseConfig cruiseConfig) {
-                return node(cruiseConfig);
-            }
-
-            @Override
-            public void update(Validatable config) {
-                CruiseConfig cruiseConfig = (CruiseConfig) config;
-                MaterialConfigs materials = new MaterialConfigs(MaterialConfigsMother.mockMaterialConfigs("file:///tmp/foo"));
-                new GoConfigMother().addPipelineWithGroup(cruiseConfig, "first_group", "up_pipeline", materials, "down_stage", "down_job");
-            }
-
-            @Override
-            public Validatable subject(Validatable node) {
-                return node;
-            }
-
-            @Override
-            public Validatable updatedSubject(Validatable updatedNode) {
-                return subject(updatedNode);
-            }
-        }, md5BeforeAddingGroupAtBeginning, new Username(new CaseInsensitiveString("admin")), result);
-
-        CruiseConfig config = response.getCruiseConfig();
-        assertThat(config.getMd5(), is(md5BeforeAddingGroupAtBeginning));
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(SC_CONFLICT));
-        assertThat(result.message(), anyOf(
-                is("Save failed. Duplicate unique value [first_group] declared for identity constraint of element \"cruise\"."),
-                is("Save failed. Duplicate unique value [first_group] declared for identity constraint \"uniquePipelines\" of element \"cruise\".")
-        ));
-    }
-
-    @Test
     public void shouldNotThrowUpOnConfigSaveWhenIndependentChangesAreMade_ViaMergeFlow() throws Exception {
         // Priming current configuration to add lines simulating the license section before removal
         for (int i = 0; i < 10; i++) {
@@ -821,46 +532,6 @@ public class GoConfigServiceIntegrationTest {
         assertThat(validity.isValid(), is(true));
     }
 
-
-    @Test
-    public void shouldEncryptPluggablePublishArtifactPropertiesDuringSave() throws IOException {
-        String xmlWithArtifactStore = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResourceAsStream("/data/pluggable_artifacts_with_params.xml"), UTF_8));
-        configHelper.writeXmlToConfigFile(xmlWithArtifactStore);
-        goConfigService.forceNotifyListeners();
-
-        String md5 = goConfigService.getConfigForEditing().getMd5();
-        goConfigService.updateConfigFromUI(new CommandToUpdatePluggablePublishArtifactProperties("ancestor",
-                        "defaultStage", "defaultJob", "NEW_SECRET"), md5,
-                Username.ANONYMOUS, new HttpLocalizedOperationResult());
-
-        Configuration ancestorPluggablePublishAftifactConfigAfterEncryption = goConfigDao.loadConfigHolder()
-                .configForEdit.pipelineConfigByName(new CaseInsensitiveString("ancestor"))
-                .getExternalArtifactConfigs().get(0).getConfiguration();
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getValue(), is("NEW_SECRET"));
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue(), startsWith("AES:"));
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getConfigValue(), is(nullValue()));
-    }
-
-    @Test
-    public void shouldEncryptPluggableFetchArtifactPropertiesDuringSave() throws IOException {
-        String xmlWithArtifactStore = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResourceAsStream("/data/pluggable_artifacts_with_params.xml"), UTF_8));
-        configHelper.writeXmlToConfigFile(xmlWithArtifactStore);
-        goConfigService.forceNotifyListeners();
-
-        String md5 = goConfigService.getConfigForEditing().getMd5();
-        goConfigService.updateConfigFromUI(new CommandToUpdatePluggableFetchArtifactTaskProperties("child",
-                        "defaultStage", "defaultJob", "NEW_SECRET"),
-                md5, Username.ANONYMOUS, new HttpLocalizedOperationResult());
-
-        PipelineConfig child = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("child"));
-        Configuration childFetchConfigAfterEncryption = ((FetchPluggableArtifactTask) child
-                .get(0).getJobs().get(0).tasks().get(0)).getConfiguration();
-
-        assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getValue(), is("NEW_SECRET"));
-        assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getEncryptedValue(), startsWith("AES:"));
-        assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getConfigValue(), is(nullValue()));
-    }
-
     private void setupMetadataForPlugin() {
         PluginDescriptor pluginDescriptor = GoPluginDescriptor.builder().id("cd.go.artifact.docker.registry").build();
         PluginConfiguration buildFile = new PluginConfiguration("BuildFile", new Metadata(false, false));
@@ -878,115 +549,6 @@ public class GoConfigServiceIntegrationTest {
         ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
     }
 
-    private class CommandToUpdatePluggablePublishArtifactProperties implements UpdateConfigFromUI {
-        private final String pipeline;
-        private final String stageName;
-        private final String jobName;
-        private final String newSecret;
-
-        public CommandToUpdatePluggablePublishArtifactProperties(String pipeline, String stageName, String jobName, String newSecret) {
-            this.pipeline = pipeline;
-            this.stageName = stageName;
-            this.jobName = jobName;
-            this.newSecret = newSecret;
-        }
-
-        @Override
-        public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
-
-        }
-
-        @Override
-        public Validatable node(CruiseConfig cruiseConfig) {
-            return pipelineConfig(cruiseConfig);
-        }
-
-        @Override
-        public Validatable updatedNode(CruiseConfig cruiseConfig) {
-            return pipelineConfig(cruiseConfig);
-        }
-
-        private PipelineConfig pipelineConfig(CruiseConfig cruiseConfig) {
-            return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipeline));
-        }
-
-        @Override
-        public void update(Validatable node) {
-            PipelineConfig pipelineConfig = (PipelineConfig) node;
-            List<PluggableArtifactConfig> pluggableArtifactConfigs = pipelineConfig.getStage(stageName).getJobs()
-                    .getJob(new CaseInsensitiveString(jobName)).artifactTypeConfigs().getPluggableArtifactConfigs();
-            for (PluggableArtifactConfig artifactConfig : pluggableArtifactConfigs) {
-                artifactConfig.getConfiguration().getProperty("Image").deserialize("Image", newSecret, null);
-            }
-        }
-
-        @Override
-        public Validatable subject(Validatable node) {
-            return node;
-        }
-
-        @Override
-        public Validatable updatedSubject(Validatable updatedNode) {
-            return updatedNode;
-        }
-    }
-
-    private class CommandToUpdatePluggableFetchArtifactTaskProperties implements UpdateConfigFromUI {
-        private final String pipeline;
-        private final String stageName;
-        private final String jobName;
-        private String newSecret;
-
-        public CommandToUpdatePluggableFetchArtifactTaskProperties(String pipeline, String stageName, String jobName, String newSecret) {
-            this.pipeline = pipeline;
-            this.stageName = stageName;
-            this.jobName = jobName;
-            this.newSecret = newSecret;
-        }
-
-        @Override
-        public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
-
-        }
-
-        @Override
-        public Validatable node(CruiseConfig cruiseConfig) {
-            return pipelineConfig(cruiseConfig);
-        }
-
-        @Override
-        public Validatable updatedNode(CruiseConfig cruiseConfig) {
-            return pipelineConfig(cruiseConfig);
-        }
-
-        private PipelineConfig pipelineConfig(CruiseConfig cruiseConfig) {
-            return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipeline));
-        }
-
-        @Override
-        public void update(Validatable node) {
-            PipelineConfig pipelineConfig = (PipelineConfig) node;
-
-            Tasks tasks = pipelineConfig.getStage(stageName).getJobs().getJob(new CaseInsensitiveString(jobName)).tasks();
-            Tasks pluggableFetchTasks = tasks.findByType(FetchPluggableArtifactTask.class);
-            for (Task pluggableFetchTask : pluggableFetchTasks) {
-                FetchPluggableArtifactTask fetchTask = (FetchPluggableArtifactTask) pluggableFetchTask;
-                fetchTask.getConfiguration().getProperty("FetchProperty").deserialize("FetchProperty", newSecret, null);
-            }
-        }
-
-        @Override
-        public Validatable subject(Validatable node) {
-            return node;
-        }
-
-        @Override
-        public Validatable updatedSubject(Validatable updatedNode) {
-            return updatedNode;
-        }
-    }
-
-
     private void setJobTimeoutTo(final String jobTimeout) {
         CruiseConfig config = configHelper.currentConfig();
         config.server().setJobTimeout(jobTimeout);
@@ -1003,83 +565,4 @@ public class GoConfigServiceIntegrationTest {
         assertThat(duplicatedStage.errors().on(field), is(message));
     }
 
-    private static class AddStageToPipelineCommand implements UpdateConfigFromUI {
-        public String stageName;
-
-        public AddStageToPipelineCommand(String stageName) {
-            this.stageName = stageName;
-        }
-
-        @Override
-        public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
-        }
-
-        @Override
-        public Validatable node(CruiseConfig cruiseConfig) {
-            return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline"));
-        }
-
-        @Override
-        public Validatable updatedNode(CruiseConfig cruiseConfig) {
-            return node(cruiseConfig);
-        }
-
-        @Override
-        public void update(Validatable node) {
-            PipelineConfig pipeline = (PipelineConfig) node;
-            pipeline.addStageWithoutValidityAssertion(StageConfigMother.custom(stageName, "job"));
-        }
-
-        @Override
-        public Validatable subject(Validatable node) {
-            return node;
-        }
-
-        @Override
-        public Validatable updatedSubject(Validatable updatedNode) {
-            return subject(updatedNode);
-        }
-    }
-
-    private static class PipelineStageRenamingCommand implements UpdateConfigFromUI {
-
-        protected String newPipelineName = "new-pipeline";
-
-        @Override
-        public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
-
-        }
-
-        @Override
-        public Validatable node(CruiseConfig cruiseConfig) {
-            return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline"));
-        }
-
-        @Override
-        public Validatable updatedNode(CruiseConfig cruiseConfig) {
-            return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(newPipelineName));
-        }
-
-        @Override
-        public void update(Validatable pipelineNode) {
-            PipelineConfig pipeline = (PipelineConfig) pipelineNode;
-            ReflectionUtil.setField(pipeline, "name", new CaseInsensitiveString(newPipelineName));
-            ReflectionUtil.setField(pipeline.getStage(new CaseInsensitiveString("stage")), "name", new CaseInsensitiveString("new-stage"));
-        }
-
-        private StageConfig getStage(Validatable pipelineNode, String stageName) {
-            PipelineConfig pipeline = (PipelineConfig) pipelineNode;
-            return pipeline.getStage(new CaseInsensitiveString(stageName));
-        }
-
-        @Override
-        public Validatable subject(Validatable pipelineNode) {
-            return getStage(pipelineNode, "stage");
-        }
-
-        @Override
-        public Validatable updatedSubject(Validatable pipelineNode) {
-            return getStage(pipelineNode, "new-stage");
-        }
-    }
 }

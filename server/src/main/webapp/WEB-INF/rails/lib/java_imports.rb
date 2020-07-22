@@ -212,10 +212,6 @@ module JavaImports
   java_import com.thoughtworks.go.domain.config.EncryptedConfigurationValue unless defined? EncryptedConfigurationValue
   java_import com.thoughtworks.go.plugin.api.config.Option unless defined? Option
   java_import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore unless defined? RepositoryMetadataStore
-  java_import com.thoughtworks.go.server.service.materials.commands.PackageMaterialAddWithNewPackageDefinitionCommand unless defined? PackageMaterialAddWithNewPackageDefinitionCommand
-  java_import com.thoughtworks.go.server.service.materials.commands.PackageMaterialAddWithExistingPackageDefinitionCommand unless defined? PackageMaterialAddWithExistingPackageDefinitionCommand
-  java_import com.thoughtworks.go.server.service.materials.commands.PackageMaterialUpdateWithNewPackageDefinitionCommand unless defined? PackageMaterialUpdateWithNewPackageDefinitionCommand
-  java_import com.thoughtworks.go.server.service.materials.commands.PackageMaterialUpdateWithExistingPackageDefinitionCommand unless defined? PackageMaterialUpdateWithExistingPackageDefinitionCommand
   java_import com.thoughtworks.go.server.service.materials.commands.PackageDefinitionCreator unless defined? PackageDefinitionCreator
   java_import com.thoughtworks.go.util.Pair unless defined? Pair
   java_import com.thoughtworks.go.presentation.MissingPluggableTaskViewModel unless defined? MissingPluggableTaskViewModel

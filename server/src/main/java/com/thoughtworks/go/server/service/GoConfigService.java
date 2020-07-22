@@ -23,7 +23,8 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
-import com.thoughtworks.go.config.update.*;
+import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
+import com.thoughtworks.go.config.update.PipelineConfigCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.Admin;
@@ -47,7 +48,10 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.Pair;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.SystemTimeClock;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
@@ -67,7 +71,6 @@ import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.validation.GoConfigValidity.*;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditPipeline;
-import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateType.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -321,89 +324,12 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return timeout != null && !"0".equals(timeout);
     }
 
-    public ConfigUpdateResponse updateConfigFromUI(final UpdateConfigFromUI command,
-                                                   final String md5,
-                                                   Username username,
-                                                   final LocalizedOperationResult result) {
-        UiBasedConfigUpdateCommand updateCommand = new UiBasedConfigUpdateCommand(md5, command, result);
-        UpdatedNodeSubjectResolver updatedConfigResolver = new UpdatedNodeSubjectResolver();
-        try {
-            ConfigSaveState configSaveState = updateConfig(updateCommand);
-            return latestUpdateResponse(command, updateCommand, updatedConfigResolver, clonedConfigForEdit(), configSaveState);
-        } catch (ConfigFileHasChangedException e) {
-            CruiseConfig updatedConfig = handleMergeException(md5, updateCommand);
-            result.conflict(saveFailedWithReason(e.getMessage()));
-            return latestUpdateResponse(command, updateCommand, new OldNodeSubjectResolver(), updatedConfig, null);
-        } catch (ConfigUpdateCheckFailedException e) {
-            //result is already set
-        } catch (Exception e) {
-            ConfigMergeException mergeException = ExceptionUtils.getCause(e, ConfigMergeException.class);
-            ConfigMergePostValidationException mergePostValidationException = ExceptionUtils.getCause(e, ConfigMergePostValidationException.class);
-            if (mergeException != null || mergePostValidationException != null) {
-                CruiseConfig updatedConfig = handleMergeException(md5, updateCommand);
-                result.conflict(saveFailedWithReason(e.getMessage()));
-                return latestUpdateResponse(command, updateCommand, new OldNodeSubjectResolver(), updatedConfig, null);
-            }
-            GoConfigInvalidException ex = ExceptionUtils.getCause(e, GoConfigInvalidException.class);
-            if (ex != null) {
-                CruiseConfig badConfig = ex.getCruiseConfig();
-                setMD5(md5, badConfig);
-                Validatable node = updatedConfigResolver.getNode(command, updateCommand.cruiseConfig());
-                BasicCruiseConfig.copyErrors(command.updatedNode(badConfig), node);
-                result.badRequest("Save failed, see errors below");
-                return new ConfigUpdateResponse(badConfig, node, subjectFromNode(command, updatedConfigResolver, node), updateCommand, null);
-            } else {
-                result.badRequest(saveFailedWithReason(e.getMessage()));
-            }
-        }
-
-        CruiseConfig newConfigSinceNoOtherConfigExists = clonedConfigForEdit();
-        setMD5(md5, newConfigSinceNoOtherConfigExists);
-        return latestUpdateResponse(command, updateCommand, new OldNodeSubjectResolver(), newConfigSinceNoOtherConfigExists, null);
-    }
-
-    private CruiseConfig handleMergeException(String md5, UiBasedConfigUpdateCommand updateCommand) {
-        CruiseConfig updatedConfig;
-        try {
-            updateCommand.update(clonedConfigForEdit());
-            updatedConfig = updateCommand.cruiseConfig();
-        } catch (Exception oops) {
-            //Ignore this. We are trying to retain the user's input. However, if things have changed so massively that we cannot apply this update we cannot do anything.
-            //But hey, at least we tried...
-            updatedConfig = clonedConfigForEdit();
-        }
-        setMD5(md5, updatedConfig);
-        return updatedConfig;
-    }
-
     private void setMD5(String md5, CruiseConfig badConfig) {
         try {
             MagicalGoConfigXmlLoader.setMd5(badConfig, md5);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             // Ignore
         }
-    }
-
-    private Validatable subjectFromNode(UpdateConfigFromUI command,
-                                        NodeSubjectResolver updatedConfigResolver,
-                                        Validatable node) {
-        return node != null ? updatedConfigResolver.getSubject(command, node) : null;
-    }
-
-    private ConfigUpdateResponse latestUpdateResponse(UpdateConfigFromUI command,
-                                                      UiBasedConfigUpdateCommand updateCommand,
-                                                      final NodeSubjectResolver nodeSubResolver,
-                                                      final CruiseConfig config,
-                                                      ConfigSaveState configSaveState) {
-        Validatable node = null;
-        Validatable subject = null;
-        try {
-            node = nodeSubResolver.getNode(command, config);
-            subject = subjectFromNode(command, nodeSubResolver, node);
-        } catch (Exception e) {
-            //ignore, let node be null, will be handled by assert_loaded
-        }
-        return new ConfigUpdateResponse(config, node, subject, updateCommand, configSaveState);
     }
 
     public ConfigSaveState updateServerConfig(final MailHost mailHost,

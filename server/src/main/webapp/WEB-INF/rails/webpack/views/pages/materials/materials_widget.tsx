@@ -15,16 +15,21 @@
  */
 
 import {docsUrl} from "gen/gocd_version";
+import {SparkRoutes} from "helpers/spark_routes";
 import {timeFormatter} from "helpers/time_formatter";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import {humanizedMaterialAttributeName, MaterialModification} from "models/config_repos/types";
+import {MaterialWithFingerprint} from "models/materials/materials";
+import {Scms} from "models/materials/pluggable_scm";
+import {PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
+import {Packages} from "models/package_repositories/package_repositories";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import headerStyles from "views/pages/config_repos/index.scss";
-import {MaterialsAttrs} from "views/pages/materials";
+import {AdditionalInfoAttrs, MaterialsAttrs} from "views/pages/materials";
 import styles from "./index.scss";
 import {MaterialHeaderWidget} from "./material_header_widget";
 import {MaterialUsageWidget} from "./material_usage_widget";
@@ -53,7 +58,8 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
       </div>;
     }
     return <div data-test-id="materials-widget">
-      {vnode.attrs.materialVMs().map((materialVM) => <MaterialWidget materialVM={materialVM}/>)}
+      {vnode.attrs.materialVMs().map((materialVM) => <MaterialWidget materialVM={materialVM} scms={vnode.attrs.scms}
+                                                                     packages={vnode.attrs.packages}/>)}
     </div>;
   }
 }
@@ -62,8 +68,11 @@ export interface MaterialAttrs {
   materialVM: MaterialVM;
 }
 
-export class MaterialWidget extends MithrilViewComponent<MaterialAttrs> {
-  view(vnode: m.Vnode<MaterialAttrs, this>): m.Children | void | null {
+export interface MaterialWithInfoAttrs extends MaterialAttrs, AdditionalInfoAttrs {
+}
+
+export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> {
+  view(vnode: m.Vnode<MaterialWithInfoAttrs, this>): m.Children | void | null {
     const vm       = vnode.attrs.materialVM;
     const material = vm.material;
 
@@ -72,8 +81,34 @@ export class MaterialWidget extends MithrilViewComponent<MaterialAttrs> {
       <h3>Latest Modification Details</h3>
       {this.showLatestModificationDetails(material.modification)}
       <h3>Material Attributes</h3>
-      <KeyValuePair data-test-id={"material-attributes"} data={material.config.attributesAsMap()}/>
+      <KeyValuePair data-test-id={"material-attributes"} data={this.getMaterialData(material.config, vnode.attrs.packages(), vnode.attrs.scms())}/>
     </CollapsiblePanel>;
+  }
+
+  private getMaterialData(material: MaterialWithFingerprint, packages: Packages, scms: Scms): Map<string, m.Children> {
+    let map = new Map();
+    if (material.type() === "package") {
+      const pkgAttrs = material.attributes() as PackageMaterialAttributes;
+      const pkgInfo  = packages.find((pkg) => pkg.id() === pkgAttrs.ref())!;
+
+      const link = <Link href={SparkRoutes.packageRepositoriesSPA(pkgInfo.packageRepo().name(), pkgInfo.name())}>
+        {pkgInfo.name()}
+      </Link>;
+
+      map.set("Ref", link);
+    } else if (material.type() === "plugin") {
+      const pluginAttrs = material.attributes() as PluggableScmMaterialAttributes;
+      const scmMaterial = scms.find((scm) => scm.id() === pluginAttrs.ref())!;
+
+      const value = <Link href={SparkRoutes.pluggableScmSPA(scmMaterial.name())}>
+        {scmMaterial.name()}
+      </Link>;
+
+      map.set("Ref", value);
+    } else {
+      map = material.attributesAsMap();
+    }
+    return map;
   }
 
   private showLatestModificationDetails(modification: MaterialModification | null) {

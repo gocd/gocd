@@ -50,9 +50,31 @@ export class MaterialWithFingerprint extends Material {
   }
 
   attributesAsMap(): Map<string, any> {
-    const map = new Map();
-    map.set("Fingerprint", this.fingerprint());
-    return _.reduce(this.attributes(), MaterialWithFingerprint.resolveKeyValueForAttribute, map);
+    const map: Map<string, string> = new Map();
+    let keys: string[]             = [];
+    switch (this.type()) {
+      case "git":
+      case "hg":
+        keys = ["url", "branch"];
+        break;
+      case "p4":
+        keys = ["port", "view"];
+        break;
+      case "tfs":
+        keys = ["url", "domain", "projectPath"];
+        break;
+      case "svn":
+        keys = ["url"];
+        break;
+    }
+    const reducer = (map: Map<any, any>, value: any, key: string) => {
+      if (keys.includes(key)) {
+        MaterialWithFingerprint.resolveKeyValueForAttribute(map, value, key);
+      }
+      return map;
+    };
+    _.reduce(this.attributes(), reducer, map);
+    return map;
   }
 
   matches(textToMatch: string): boolean {

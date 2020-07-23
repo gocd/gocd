@@ -105,22 +105,64 @@ describe('MaterialsAPISpec', () => {
 });
 
 describe('MaterialWithFingerPrintSpec', () => {
-  it('should convert attributes into Map', () => {
-    const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("name", false, "some-url", "master"));
+  describe('MaterialAttrsAsMapSpec', () => {
+    it('should convert git attributes into Map', () => {
+      const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("name", false, "some-url", "master"));
 
-    const attrs = material.attributesAsMap();
+      const attrs = material.attributesAsMap();
+      const keys  = Array.from(attrs.keys());
 
-    expect(attrs.size).toBe(10);
-    expect(attrs.has("Fingerprint")).toBeTrue();
-    expect(attrs.has("name")).toBeFalse();
-  });
+      expect(keys.length).toBe(2);
+      expect(keys).toEqual(['URL', 'Branch']);
+    });
 
-  it('should render filters', () => {
-    const attrs = new GitMaterialAttributes();
-    attrs.filter(new Filter(["abc"]));
-    const material = new MaterialWithFingerprint("git", "fingerprint", attrs);
+    it('should convert hg attributes into Map', () => {
+      const material = new MaterialWithFingerprint("hg", "fingerprint", new HgMaterialAttributes("name", false, "some-url"));
 
-    expect(material.attributesAsMap().get("Filter")).toEqual(['abc']);
+      const attrs = material.attributesAsMap();
+      const keys  = Array.from(attrs.keys());
+
+      expect(keys.length).toBe(2);
+      expect(keys).toEqual(['URL', 'Branch']);
+    });
+
+    it('should convert svn attributes into Map', () => {
+      const material = new MaterialWithFingerprint("svn", "fingerprint", new SvnMaterialAttributes("name", false, "some-url"));
+
+      const attrs = material.attributesAsMap();
+      const keys  = Array.from(attrs.keys());
+
+      expect(keys.length).toBe(1);
+      expect(keys).toEqual(['URL']);
+    });
+
+    it('should convert p4 attributes into Map', () => {
+      const material = new MaterialWithFingerprint("p4", "fingerprint", new P4MaterialAttributes("name", false, "some-url", false, "view"));
+
+      const attrs = material.attributesAsMap();
+      const keys  = Array.from(attrs.keys());
+
+      expect(keys.length).toBe(2);
+      expect(keys).toEqual(['Host and Port', 'View']);
+    });
+
+    it('should convert tfs attributes into Map', () => {
+      const material = new MaterialWithFingerprint("tfs", "fingerprint", new TfsMaterialAttributes("name", false, "some-url", "domain", "view"));
+
+      const attrs = material.attributesAsMap();
+      const keys  = Array.from(attrs.keys());
+
+      expect(keys.length).toBe(3);
+      expect(keys).toEqual(['URL', 'Domain', 'Project Path']);
+    });
+
+    it('should return empty attributes for non-scm materials', () => {
+      const material = new MaterialWithFingerprint("dependency", "fingerprint", new DependencyMaterialAttributes("name", false, "some-url", "domain"));
+
+      const attrs = material.attributesAsMap();
+
+      expect(attrs.size).toBe(0);
+    });
   });
 
   it('should return true if search string matches name, type or display url', () => {

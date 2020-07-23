@@ -18,6 +18,10 @@ import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {MaterialAPIs} from "models/materials/materials";
+import {Scms} from "models/materials/pluggable_scm";
+import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
+import {PackagesCRUD} from "models/package_repositories/packages_crud";
+import {Packages} from "models/package_repositories/package_repositories";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
@@ -26,7 +30,12 @@ import {MaterialVM, MaterialVMs} from "views/pages/materials/models/material_vie
 import {Page, PageState} from "views/pages/page";
 import configRepoStyles from "./config_repos/index.scss";
 
-export interface MaterialsAttrs {
+export interface AdditionalInfoAttrs {
+  scms: Stream<Scms>;
+  packages: Stream<Packages>;
+}
+
+export interface MaterialsAttrs extends AdditionalInfoAttrs {
   materialVMs: Stream<MaterialVMs>;
 }
 
@@ -40,6 +49,8 @@ export class MaterialsPage extends Page<null, State> {
     super.oninit(vnode);
 
     vnode.state.materialVMs = Stream();
+    vnode.state.scms        = Stream();
+    vnode.state.packages    = Stream();
     vnode.state.searchText  = Stream();
   }
 
@@ -56,7 +67,7 @@ export class MaterialsPage extends Page<null, State> {
       }
       filteredMaterials(new MaterialVMs(...results));
     }
-    return <MaterialsWidget materialVMs={filteredMaterials}/>;
+    return <MaterialsWidget materialVMs={filteredMaterials} scms={vnode.state.scms} packages={vnode.state.packages}/>;
   }
 
   pageName(): string {
@@ -65,11 +76,21 @@ export class MaterialsPage extends Page<null, State> {
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     this.pageState = PageState.LOADING;
-    return Promise.resolve(MaterialAPIs.all()).then((result) => {
-      result.do((successResponse) => {
+    return Promise.all([MaterialAPIs.all(), PluggableScmCRUD.all(), PackagesCRUD.all()]).then((result) => {
+      result[0].do((successResponse) => {
         this.pageState = PageState.OK;
         vnode.state.materialVMs(MaterialVMs.fromMaterials(successResponse.body));
         vnode.state.materialVMs().sortOnType();
+      }, this.setErrorState);
+
+      result[1].do((successResponse) => {
+        this.pageState = PageState.OK;
+        vnode.state.scms(successResponse.body);
+      }, this.setErrorState);
+
+      result[2].do((successResponse) => {
+        this.pageState = PageState.OK;
+        vnode.state.packages(successResponse.body);
       }, this.setErrorState);
     });
   }

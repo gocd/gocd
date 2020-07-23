@@ -385,6 +385,25 @@ public class PartialConfigServiceIntegrationTest {
         cachedGoPartials.clear();
     }
 
+    @Test
+    public void onFailedPartialConfig_shouldRemoveLastValidPartialsFromConfigInCaseOfRuleViolations() {
+        partialConfigService.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1")));
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1")), is(true));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1.getRepo().getFingerprint())).isEmpty(), is(true));
+
+        goConfigRepoConfigDataSource.onConfigRepoConfigChange(repoConfig1);
+
+        ConfigRepoConfig repoConfig1Cloned = createConfigRepoWithDefaultRules(git("url1"), "plugin", "id-1");
+        repoConfig1Cloned.setRules(new Rules());
+
+        partialConfigService.onFailedPartialConfig(repoConfig1Cloned, null);
+
+        assertThat(cachedGoPartials.getValid(repoConfig1Cloned.getRepo().getFingerprint()), is(nullValue()));
+        assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1_repo1")), is(false));
+
+        cachedGoPartials.clear();
+    }
+
     private boolean cacheContainsPartial(List<PartialConfig> partialConfigs, final PartialConfig partialConfig) {
         return partialConfigs.stream().filter(new Predicate<PartialConfig>() {
             @Override

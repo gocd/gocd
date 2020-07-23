@@ -232,9 +232,9 @@ describe ApplicationHelper do
     end
 
     it "should resolve URL for AJAX Request URL" do
-      expected = %q|<form onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('/pipelines/show', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;" action="/pipelines/show" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" />|
+      expected = %q|<form onsubmit="AjaxRefreshers.disableAjax();; new Ajax.Request('/errors/inactive', {asynchronous:true, evalScripts:true, on202:function(request){do something here}, on401:function(request){redirectToLoginPage('/auth/login');}, onComplete:function(request){AjaxRefreshers.enableAjax();}, onSuccess:function(request){whatever}, parameters:Form.serialize(this)}); return false;" action="/errors/inactive" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" />|
 
-      actual = blocking_form_remote_tag(:url => {:controller => 'pipelines', :action => 'show'}, :success => "whatever", 202 => "do something here")
+      actual = blocking_form_remote_tag(:url => {:controller => 'go_errors', :action => 'inactive'}, :success => "whatever", 202 => "do something here")
 
       expect(actual).to eq(expected)
     end

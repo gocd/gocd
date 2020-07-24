@@ -49,7 +49,7 @@ export interface State {
 
 export class StagesWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.getModal = () => new AddStageModal(vnode.attrs.stages(), vnode.attrs.pipelineConfigSave);
+    vnode.state.getModal = () => new AddStageModal(vnode.attrs.stages(), vnode.attrs.pipelineConfigSave, vnode.attrs.flashMessage);
   }
 
   view(vnode: m.Vnode<Attrs, State>) {

@@ -21,6 +21,7 @@ import {Material} from "models/materials/types";
 import {PackageRepositories} from "models/package_repositories/package_repositories";
 import {Materials} from "models/pipeline_configs/pipeline_config";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {MaterialModal} from "views/pages/clicky_pipeline_config/modal/material_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -42,7 +43,7 @@ describe("MaterialModalSpec", () => {
   afterEach(() => ModalManager.closeAll());
 
   it('should render material editor', () => {
-    const modal = new MaterialModal("Some modal title", Stream(material), "test", "test", Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), true, false);
+    const modal = new MaterialModal("Some modal title", Stream(material), "test", "test", Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), new FlashMessageModelWithTimeout(), true, false);
     modal.render();
     m.redraw.sync();
     const helper = new TestHelper().forModal();
@@ -54,7 +55,7 @@ describe("MaterialModalSpec", () => {
   });
 
   it("should show save and reset buttons", () => {
-    const modal = new MaterialModal("Some modal title", Stream(material), "test", "test", Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), true, false);
+    const modal = new MaterialModal("Some modal title", Stream(material), "test", "test", Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), new FlashMessageModelWithTimeout(), true, false);
     modal.render();
     m.redraw.sync();
     const helper = new TestHelper().forModal();
@@ -64,7 +65,7 @@ describe("MaterialModalSpec", () => {
   });
 
   it("should not show save and reset buttons for read only materials", () => {
-    const modal = new MaterialModal("Some modal title", Stream(material), "test", "test", Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), true, true);
+    const modal = new MaterialModal("Some modal title", Stream(material), "test", "test", Stream(materials), Stream(scms), Stream(pkgRepos), Stream(pluginInfos), jasmine.createSpy("pipelineConfigSave"), new FlashMessageModelWithTimeout(), true, true);
     modal.render();
     m.redraw.sync();
     const helper = new TestHelper().forModal();

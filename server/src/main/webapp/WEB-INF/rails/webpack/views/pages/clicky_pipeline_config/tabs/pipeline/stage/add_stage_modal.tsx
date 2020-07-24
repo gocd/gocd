@@ -22,6 +22,7 @@ import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {Stage} from "models/pipeline_configs/stage";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {Modal, ModalState} from "views/components/modal";
 import {AbstractTaskModal} from "views/pages/clicky_pipeline_config/tabs/job/tasks/abstract";
@@ -42,12 +43,14 @@ export class AddStageModal extends Modal {
 
   private readonly existingStageNames: string[];
   private readonly errorMsg = `Another stage with the same name already exists!`;
+  private parentFlashMessage: FlashMessageModelWithTimeout;
 
-  constructor(stages: NameableSet<Stage>, pipelineConfigSave: () => Promise<any>) {
+  constructor(stages: NameableSet<Stage>, pipelineConfigSave: () => Promise<any>, flashMessage: FlashMessageModelWithTimeout) {
     super();
 
     this.stages             = stages;
     this.pipelineConfigSave = pipelineConfigSave;
+    this.parentFlashMessage = flashMessage;
 
     this.stageToCreate = new Stage();
     this.jobToCreate   = new Job();
@@ -134,12 +137,15 @@ export class AddStageModal extends Modal {
   }
 
   private onSave() {
-    this.modalState = ModalState.LOADING;
-    this.jobToCreate.tasks([this.taskModal!.getTask()]);
-    this.stageToCreate.jobs(new NameableSet([this.jobToCreate]));
-    this.stages.add(this.stageToCreate);
+    if (this.stageToCreate.isValid()) {
+      this.modalState = ModalState.LOADING;
+      this.jobToCreate.tasks([this.taskModal!.getTask()]);
+      this.stageToCreate.jobs(new NameableSet([this.jobToCreate]));
+      this.stages.add(this.stageToCreate);
 
-    return this.performPipelineSave();
+      return this.performPipelineSave();
+    }
+    return Promise.reject();
   }
 
   private onClose() {
@@ -151,6 +157,7 @@ export class AddStageModal extends Modal {
     if (errorResponse && errorResponse.body) {
       const parsed = JSON.parse(errorResponse.body);
       this.stageToCreate.consumeErrorsResponse(parsed.data);
+      this.parentFlashMessage.clear();
     }
 
     this.stages.delete(this.stageToCreate);

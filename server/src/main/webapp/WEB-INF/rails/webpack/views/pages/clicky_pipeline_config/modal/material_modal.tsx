@@ -23,7 +23,7 @@ import {Materials} from "models/pipeline_configs/pipeline_config";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import s from "underscore.string";
 import {Cancel, Primary} from "views/components/buttons";
-import {FlashMessage, MessageType} from "views/components/flash_message";
+import {FlashMessage, FlashMessageModelWithTimeout, MessageType} from "views/components/flash_message";
 import {Modal, Size} from "views/components/modal";
 import {MaterialEditor} from "views/pages/pipelines/material_editor";
 import styles from "./material_modal.scss";
@@ -42,10 +42,11 @@ export class MaterialModal extends Modal {
   private readonly readonly: boolean;
   private readonly parentPipelineName: string;
   private readonly pipelineGroupName: string;
+  private parentFlashMessage: FlashMessageModelWithTimeout;
 
   constructor(title: string, entity: Stream<Material>, pipelineGroupName: string, parentPipelineName: string, materials: Stream<Materials>, scms: Stream<Scms>,
               packages: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
-              pipelineConfigSave: () => Promise<any>, isNew: boolean, readonly: boolean) {
+              pipelineConfigSave: () => Promise<any>, parentFlashMessage: FlashMessageModelWithTimeout, isNew: boolean, readonly: boolean) {
     super(Size.medium);
     this.__title                  = title;
     this.originalEntity           = entity;
@@ -61,19 +62,20 @@ export class MaterialModal extends Modal {
     this.readonly                 = readonly;
     this.parentPipelineName       = parentPipelineName;
     this.pipelineGroupName        = pipelineGroupName;
+    this.parentFlashMessage       = parentFlashMessage;
   }
 
   static forAdd(pipelineGroupName: string, parentPipelineName: string, materials: Stream<Materials>, scms: Stream<Scms>, packageRepositories: Stream<PackageRepositories>,
-                pluginInfos: Stream<PluginInfos>, onSuccessfulAdd: () => Promise<any>) {
+                pluginInfos: Stream<PluginInfos>, onSuccessfulAdd: () => Promise<any>, parentFlashMessage: FlashMessageModelWithTimeout) {
     const materialType = materials().scmMaterialsHaveDestination() ? "git" : "dependency";
-    return new MaterialModal("Add material", Stream(new Material(materialType)), pipelineGroupName, parentPipelineName, materials, scms, packageRepositories, pluginInfos, onSuccessfulAdd, true, false);
+    return new MaterialModal("Add material", Stream(new Material(materialType)), pipelineGroupName, parentPipelineName, materials, scms, packageRepositories, pluginInfos, onSuccessfulAdd, parentFlashMessage, true, false);
   }
 
   static forEdit(material: Material, pipelineGroupName: string, parentPipelineName: string, materials: Stream<Materials>, scms: Stream<Scms>,
                  packageRepositories: Stream<PackageRepositories>, pluginInfos: Stream<PluginInfos>,
-                 pipelineConfigSave: () => Promise<any>, readonly: boolean) {
+                 pipelineConfigSave: () => Promise<any>, parentFlashMessage: FlashMessageModelWithTimeout, readonly: boolean) {
     const title = `Edit material - ${s.capitalize(material.type()!)}`;
-    return new MaterialModal(title, Stream(material), pipelineGroupName, parentPipelineName, materials, scms, packageRepositories, pluginInfos, pipelineConfigSave, false, readonly);
+    return new MaterialModal(title, Stream(material), pipelineGroupName, parentPipelineName, materials, scms, packageRepositories, pluginInfos, pipelineConfigSave, parentFlashMessage, false, readonly);
   }
 
   title(): string {
@@ -121,6 +123,7 @@ export class MaterialModal extends Modal {
               const parse            = JSON.parse(JSON.parse(errorResponse).body);
               const unconsumedErrors = this.entity().consumeErrorsResponse(parse.data);
               this.errorMessage(<span>{parse.message}<br/> {unconsumedErrors.allErrorsForDisplay()}</span>);
+              this.parentFlashMessage.clear();
             }
 
             if (this.isNew) {

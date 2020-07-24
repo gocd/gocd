@@ -69,7 +69,7 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
 
   private addMaterial(vnode: m.Vnode<MaterialsAttrs, this>, e: MouseEvent) {
     e.stopPropagation();
-    MaterialModal.forAdd(vnode.attrs.pipelineGroupName, vnode.attrs.parentPipelineName, vnode.attrs.materials, vnode.attrs.scmMaterials, vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.pipelineConfigSave).render();
+    MaterialModal.forAdd(vnode.attrs.pipelineGroupName, vnode.attrs.parentPipelineName, vnode.attrs.materials, vnode.attrs.scmMaterials, vnode.attrs.packageRepositories, vnode.attrs.pluginInfos, vnode.attrs.pipelineConfigSave, vnode.attrs.flashMessage).render();
   }
 
   private updateMaterial(vnode: m.Vnode<MaterialsAttrs, this>, materialToUpdate: Material, e: MouseEvent) {
@@ -82,6 +82,7 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
                           vnode.attrs.packageRepositories,
                           vnode.attrs.pluginInfos,
                           vnode.attrs.pipelineConfigSave,
+                          vnode.attrs.flashMessage,
                           vnode.attrs.readonly).render();
   }
 

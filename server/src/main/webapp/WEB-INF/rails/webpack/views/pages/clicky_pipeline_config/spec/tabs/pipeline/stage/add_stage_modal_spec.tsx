@@ -17,6 +17,7 @@
 import m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {AddStageModal} from "views/pages/clicky_pipeline_config/tabs/pipeline/stage/add_stage_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -132,7 +133,7 @@ describe("Add Stage Modal", () => {
   function mount() {
     const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
 
-    modal = new AddStageModal(pipelineConfig.stages(), jasmine.createSpy());
+    modal = new AddStageModal(pipelineConfig.stages(), jasmine.createSpy(), new FlashMessageModelWithTimeout());
     helper.mount(() => modal.body());
   }
 });

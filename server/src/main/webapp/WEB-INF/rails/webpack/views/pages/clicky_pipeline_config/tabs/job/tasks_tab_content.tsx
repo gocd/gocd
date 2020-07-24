@@ -211,6 +211,7 @@ export class TasksWidget extends MithrilComponent<Attrs, State> {
       } else {
         vnode.state.modal.flashMessage.setMessage(MessageType.alert, parsed.message);
       }
+      vnode.attrs.flashMessage.clear();
     }
 
     onFailureCallback();

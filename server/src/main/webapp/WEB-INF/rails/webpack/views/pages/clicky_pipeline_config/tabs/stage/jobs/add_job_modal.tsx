@@ -159,15 +159,12 @@ export class AddJobModal extends Modal {
   }
 
   private onSave() {
-    if(this.jobToCreate.isValid()) {
-      this.modalState = ModalState.LOADING;
-      this.jobToCreate.tasks([]);
-      this.jobToCreate.tasks().push(this.taskModal!.getTask());
-      this.stage.jobs().add(this.jobToCreate);
+    this.modalState = ModalState.LOADING;
+    this.jobToCreate.tasks([]);
+    this.jobToCreate.tasks().push(this.taskModal!.getTask());
+    this.stage.jobs().add(this.jobToCreate);
 
-      return this.performPipelineSave();
-    }
-    return Promise.reject();
+    return this.performPipelineSave();
   }
 
   private onClose() {
@@ -179,9 +176,9 @@ export class AddJobModal extends Modal {
     if (errorResponse) {
       const parsed = JSON.parse(JSON.parse(errorResponse).body);
       this.jobToCreate.consumeErrorsResponse(parsed.data);
-      this.flashMessage.clear();
     }
 
+    this.flashMessage.clear();
     this.stage.jobs().delete(this.jobToCreate);
     m.redraw.sync();
   }

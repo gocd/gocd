@@ -28,10 +28,15 @@ import {JobJSON} from "./models/types";
 import {StageInstance} from "./models/stage_instance";
 import {JobStateWidget} from "./job_state_widget";
 import {JobDurationStrategyHelper} from "./models/job_duration_stratergy_helper";
+import {Link} from "../../components/link";
 
 const classnames = bind(pipelineHistoryStyles);
 
 export interface Attrs {
+  stageName: string;
+  stageCounter: string | number;
+  pipelineName: string;
+  pipelineCounter: string | number;
   jobsVM: Stream<JobsViewModel>;
   lastPassedStageInstance: Stream<StageInstance | undefined>;
 }
@@ -43,13 +48,17 @@ export interface State {
 export class JobsListWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
     vnode.state.getTableRowForJob = (job: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>) => {
+      const jobDetailsPageLink = `/go/tab/build/detail/${vnode.attrs.pipelineName}/${vnode.attrs.pipelineCounter}/${vnode.attrs.stageName}/${vnode.attrs.stageCounter}/${job.name}`;
+
       return <div class={styles.tableRow} data-test-id={`table-row-for-job-${job.name}`}>
         <div class={styles.checkboxCell} data-test-id={`checkbox-for-${job.name}`}>
           <CheckboxField property={Stream()}/>
         </div>
         <div class={styles.nameCell} data-test-id={`job-name-for-${job.name}`}>
           <div className={`${styles[job.result.toString().toLowerCase()]} ${styles.jobResult}`}/>
-          <div className={styles.jobName}>{job.name}</div>
+          <div className={styles.jobName}>
+            <Link href={jobDetailsPageLink} target={"_blank"}>{job.name}</Link>
+          </div>
         </div>
         <div class={styles.stateCell} data-test-id={`state-for-${job.name}`}>
           <JobStateWidget job={job}/>

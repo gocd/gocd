@@ -26,7 +26,9 @@ $btn-color: #647984;
 $btn-hover-color: #1c435c;
 
 $progress-bar-waiting: #c1c1c1;
+$progress-bar-preparing: #85c9d1;
 $progress-bar-building: #2cb1c1;
+$progress-bar-uploading-artifacts: #217a85;
 $progress-bar-unknown: #fff;
 
 $tooltip-background: #f3f3f3;
@@ -207,7 +209,7 @@ $building: #ffc11b;
   }
 
   .name-cell {
-    width:         110px;
+    width:         120px;
     display:       flex;
     overflow:      hidden;
     text-overflow: ellipsis;
@@ -299,8 +301,16 @@ $building: #ffc11b;
     background: $progress-bar-waiting;
   }
 
+  .preparing {
+    background: $progress-bar-preparing;
+  }
+
   .building {
     background: $progress-bar-building;
+  }
+
+  .uploading-artifacts {
+    background: $progress-bar-uploading-artifacts;
   }
 
   .unknown {

@@ -23,11 +23,15 @@ const moment = require('moment');
 
 export interface JobDuration {
   waitTimePercentage: number;
+  preparingTimePercentage: number;
   buildTimePercentage: number;
+  uploadingArtifactTimePercentage: number;
   unknownTimePercentage: number;
 
   waitTimeForDisplay: string;
+  preparingTimeForDisplay: string;
   buildTimeForDisplay: string;
+  uploadingArtifactTimeForDisplay: string;
   totalTimeForDisplay: string;
 
   startTimeForDisplay: string;
@@ -40,12 +44,7 @@ export class JobDurationStrategyHelper {
   static readonly DEFAULT_TIME_FORMAT_FOR_SECONDS: string = "ss[s]";
 
   static getDuration(job: JobJSON, passedStageInstance: StageInstance | undefined): JobDuration {
-    const isJobInProgress = job.result === Result[Result.Unknown];
-    if (isJobInProgress) {
-      return this.getInProgressJobDuration(job, passedStageInstance);
-    }
-
-    return this.getCompletedJobDuration(job);
+    return this.getCompletedJobDuration(job, passedStageInstance);
   }
 
   static getJobDurationForDisplay(job: JobJSON): string {
@@ -59,83 +58,6 @@ export class JobDurationStrategyHelper {
     return this.formatTimeForDisplay(moment.utc(end.diff(start)));
   }
 
-  private static getInProgressJobDuration(job: JobJSON, passedStageInstance: StageInstance | undefined) {
-    const end = moment.unix(this.getJobStateTime(job, "Completed"));
-    const preparing = moment.unix(this.getJobStateTime(job, "Preparing"));
-    const start = moment.unix(this.getJobStateTime(job, "Scheduled"));
-
-    const lastCompletedJob = this.findJobFromLastCompletedStage(job.name, passedStageInstance);
-
-    let totalTime;
-    if (lastCompletedJob) {
-      const lastJobEnd = moment.unix(this.getJobStateTime(lastCompletedJob, "Completed"));
-      const lastJobStart = moment.unix(this.getJobStateTime(lastCompletedJob, "Scheduled"));
-      totalTime = moment.utc(lastJobEnd.diff(lastJobStart));
-    } else {
-      totalTime = moment.utc(end.diff(start));
-    }
-    const totalTimeForDisplay = "Unknown";
-
-    const waitTime = moment.utc(preparing.diff(start));
-    const waitTimeForDisplay = this.formatTimeForDisplay(waitTime);
-
-    const buildTime = moment.utc(end.diff(preparing));
-    const buildTimeForDisplay = this.formatTimeForDisplay(buildTime);
-
-    const waitTimePercentage = this.calculatePercentage(totalTime, waitTime);
-    const buildTimePercentage = this.calculatePercentage(totalTime, buildTime);
-
-    const startTimeForDisplay = timeFormatter.format(start);
-    const endTimeForDisplay = "Unknown";
-
-    return {
-      unknownTimePercentage: 0,
-      waitTimePercentage,
-      buildTimePercentage,
-
-      waitTimeForDisplay,
-      buildTimeForDisplay,
-      totalTimeForDisplay,
-
-      startTimeForDisplay,
-      endTimeForDisplay
-    };
-  }
-
-  private static getCompletedJobDuration(job: JobJSON) {
-    const end = moment.unix(this.getJobStateTime(job, "Completed"));
-    const preparing = moment.unix(this.getJobStateTime(job, "Preparing"));
-    const start = moment.unix(this.getJobStateTime(job, "Scheduled"));
-
-    const totalTime = moment.utc(end.diff(start));
-    const totalTimeForDisplay = this.formatTimeForDisplay(totalTime);
-
-    const waitTime = moment.utc(preparing.diff(start));
-    const waitTimeForDisplay = this.formatTimeForDisplay(waitTime);
-
-    const buildTime = moment.utc(end.diff(preparing));
-    const buildTimeForDisplay = this.formatTimeForDisplay(buildTime);
-
-    const waitTimePercentage = this.calculatePercentage(totalTime, waitTime);
-    const buildTimePercentage = this.calculatePercentage(totalTime, buildTime);
-
-    const startTimeForDisplay = timeFormatter.format(start);
-    const endTimeForDisplay = timeFormatter.format(end);
-
-    return {
-      unknownTimePercentage: 0,
-      waitTimePercentage,
-      buildTimePercentage,
-
-      waitTimeForDisplay,
-      buildTimeForDisplay,
-      totalTimeForDisplay,
-
-      startTimeForDisplay,
-      endTimeForDisplay
-    };
-  }
-
   static formatTimeForDisplay(time: any) {
     if (time.hours() > 0) {
       return time.format(this.DEFAULT_TIME_FORMAT_FOR_HOURS);
@@ -146,6 +68,73 @@ export class JobDurationStrategyHelper {
     }
 
     return time.format(this.DEFAULT_TIME_FORMAT_FOR_SECONDS);
+  }
+
+  private static getCompletedJobDuration(job: JobJSON, passedStageInstance: StageInstance | undefined) {
+    const isJobInProgress = job.result === Result[Result.Unknown];
+
+    const end = moment.unix(this.getJobStateTime(job, "Completed"));
+    const completing = moment.unix(this.getJobStateTime(job, "Completing"));
+    const building = moment.unix(this.getJobStateTime(job, "Building"));
+    const preparing = moment.unix(this.getJobStateTime(job, "Preparing"));
+    const start = moment.unix(this.getJobStateTime(job, "Scheduled"));
+
+    let totalTime, totalTimeForDisplay;
+    if (isJobInProgress) {
+      const lastCompletedJob = this.findJobFromLastCompletedStage(job.name, passedStageInstance);
+
+      if (lastCompletedJob) {
+        const lastJobEnd = moment.unix(this.getJobStateTime(lastCompletedJob, "Completed"));
+        const lastJobStart = moment.unix(this.getJobStateTime(lastCompletedJob, "Scheduled"));
+        totalTime = moment.utc(lastJobEnd.diff(lastJobStart));
+      } else {
+        totalTime = moment.utc(end.diff(start));
+        totalTimeForDisplay = "unknown";
+      }
+    } else {
+      totalTime = moment.utc(end.diff(start));
+      totalTimeForDisplay = this.formatTimeForDisplay(totalTime);
+    }
+
+    const waitTime = moment.utc(preparing.diff(start));
+    const waitTimeForDisplay = this.formatTimeForDisplay(waitTime);
+
+    const preparingTime = moment.utc(building.diff(preparing));
+    const preparingTimeForDisplay = this.formatTimeForDisplay(preparingTime);
+
+    const buildTime = moment.utc(completing.diff(building));
+    const buildTimeForDisplay = this.formatTimeForDisplay(buildTime);
+
+    const uploadingArtifactTime = moment.utc(end.diff(completing));
+    const uploadingArtifactTimeForDisplay = this.formatTimeForDisplay(buildTime);
+
+    const waitTimePercentage = this.calculatePercentage(totalTime, waitTime);
+    const preparingTimePercentage = this.calculatePercentage(totalTime, preparingTime);
+    const buildTimePercentage = this.calculatePercentage(totalTime, buildTime);
+    // Math.round will round up values round(1.3) + round(1.3) + round(1.4) = 3
+    // where the result should've been 4. Add 1 to the uploading artifact percentage,
+    // if the view overflowed, overflow: hidden will remove the extra 1 percent
+    const uploadingArtifactTimePercentage = this.calculatePercentage(totalTime, uploadingArtifactTime) + 1;
+
+    const startTimeForDisplay = timeFormatter.format(start);
+    const endTimeForDisplay = isJobInProgress ? "unknown" : timeFormatter.format(end);
+
+    return {
+      unknownTimePercentage: 0,
+      waitTimePercentage,
+      preparingTimePercentage,
+      buildTimePercentage,
+      uploadingArtifactTimePercentage,
+
+      waitTimeForDisplay,
+      preparingTimeForDisplay,
+      buildTimeForDisplay,
+      uploadingArtifactTimeForDisplay,
+      totalTimeForDisplay,
+
+      startTimeForDisplay,
+      endTimeForDisplay
+    };
   }
 
   private static getJobStateTime(job: JobJSON, state: State): number {

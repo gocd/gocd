@@ -137,15 +137,12 @@ export class AddStageModal extends Modal {
   }
 
   private onSave() {
-    if (this.stageToCreate.isValid()) {
-      this.modalState = ModalState.LOADING;
-      this.jobToCreate.tasks([this.taskModal!.getTask()]);
-      this.stageToCreate.jobs(new NameableSet([this.jobToCreate]));
-      this.stages.add(this.stageToCreate);
+    this.modalState = ModalState.LOADING;
+    this.jobToCreate.tasks([this.taskModal!.getTask()]);
+    this.stageToCreate.jobs(new NameableSet([this.jobToCreate]));
+    this.stages.add(this.stageToCreate);
 
-      return this.performPipelineSave();
-    }
-    return Promise.reject();
+    return this.performPipelineSave();
   }
 
   private onClose() {
@@ -157,9 +154,9 @@ export class AddStageModal extends Modal {
     if (errorResponse && errorResponse.body) {
       const parsed = JSON.parse(errorResponse.body);
       this.stageToCreate.consumeErrorsResponse(parsed.data);
-      this.parentFlashMessage.clear();
     }
 
+    this.parentFlashMessage.clear();
     this.stages.delete(this.stageToCreate);
     m.redraw.sync();
   }

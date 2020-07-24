@@ -32,4 +32,8 @@ public class ServiceConstants {
             return true;
         }
     }
+
+    public class VSM {
+        public static final String BAD_PIPELINE_COUNTER_MSG = "The params 'pipeline_counter' must be a number greater than 0.";
+    }
 }

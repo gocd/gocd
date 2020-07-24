@@ -18,9 +18,13 @@ package com.thoughtworks.go.spark;
 import com.google.common.net.UrlEscapers;
 import org.apache.commons.lang3.text.StrSubstitutor;
 
+import java.net.URLEncoder;
+
 import static com.google.common.collect.ImmutableMap.of;
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class Routes {
 
@@ -47,7 +51,7 @@ public class Routes {
         public static final String BASE = "/api/admin/internal/command_snippets";
 
         public static String self(String searchTerm) {
-            return String.format("%s?prefix=%s", BASE, searchTerm);
+            return format("%s?prefix=%s", BASE, searchTerm);
         }
     }
 
@@ -944,6 +948,26 @@ public class Routes {
                 link += "&pattern=" + UrlEscapers.urlFormParameterEscaper().escape(pattern);
             }
             return link;
+        }
+    }
+
+    public static class InternalVsm {
+        public static final String BASE = "/api/internal/pipelines/value_stream_map/:pipeline_name/:pipeline_counter";
+
+        public static String pipelineLocator(String name, Integer pipelineCounter) {
+            return format("/go/pipelines/value_stream_map/%s/%d", name, pipelineCounter);
+        }
+
+        public static String materialLocator(String fingerprint, String revision) {
+            return format("/go/materials/value_stream_map/%s/%s", fingerprint, URLEncoder.encode(revision, UTF_8));
+        }
+
+        public static String pipelineStageLocator(String pipelineName, Integer pipelineCounter, String stageName, int stageCounter) {
+            return format("/go/pipelines/%s/%d/%s/%d", pipelineName, pipelineCounter, stageName, stageCounter);
+        }
+
+        public static String editPipelinePath(String pipelineName) {
+            return "/go/admin/pipelines/" + pipelineName + "/edit";
         }
     }
 }

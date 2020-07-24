@@ -526,3 +526,7 @@ api/api-internal-materials-v1/out/
 api/api-internal-materials-v1/target/
 api/api-internal-materials-v1/logs/
 api/api-internal-materials-v1/config/
+api/api-internal-vsm-v1/out/
+api/api-internal-vsm-v1/target/
+api/api-internal-vsm-v1/logs/
+api/api-internal-vsm-v1/config/

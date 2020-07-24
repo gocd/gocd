@@ -42,6 +42,12 @@
   </rule>
 
   <rule>
+    <name>Internal Pipeline VSM API</name>
+    <from>^/api/internal/pipelines/value_stream_map/([^/]+)/([^/]+)(/?)$</from>
+    <to last="true">/spark/api/internal/pipelines/value_stream_map/${escape:$1}/${escape:$2}</to>
+  </rule>
+
+  <rule>
     <name>Update Check URLs</name>
     <from>^/(api/version_infos/.*)$</from>
     <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="versionInfoAPIs"/>

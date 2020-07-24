@@ -114,7 +114,7 @@ export class JobDurationStrategyHelper {
     // Math.round will round up values round(1.3) + round(1.3) + round(1.4) = 3
     // where the result should've been 4. Add 1 to the uploading artifact percentage,
     // if the view overflowed, overflow: hidden will remove the extra 1 percent
-    const uploadingArtifactTimePercentage = this.calculatePercentage(totalTime, uploadingArtifactTime) + 1;
+    const uploadingArtifactTimePercentage = this.calculatePercentage(totalTime, uploadingArtifactTime) + (isJobInProgress ? 0 : 1);
 
     const startTimeForDisplay = timeFormatter.format(start);
     const endTimeForDisplay = isJobInProgress ? "unknown" : timeFormatter.format(end);

@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.PartialConfigUpdateCommand;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -59,8 +60,12 @@ public class PartialConfigService implements PartialConfigUpdateCompletedListene
 
     @Override
     public void onFailedPartialConfig(ConfigRepoConfig repoConfig, Exception ex) {
-        // do nothing here, we keep previous version of part.
-        // As an addition we should stop scheduling pipelines defined in that old part.
+        // Apply latest config repo rules on last valid partial. Remove if there any rule violations.
+        final String fingerprint = repoConfig.getRepo().getFingerprint();
+
+        if (hasRuleViolationsOnPreviousValidPartial(repoConfig)) {
+            removeCachedLastValidPartial(fingerprint);
+        }
     }
 
     @Override
@@ -69,21 +74,28 @@ public class PartialConfigService implements PartialConfigUpdateCompletedListene
 
         if (this.configWatchList.hasConfigRepoWithFingerprint(fingerprint)) {
             if (shouldMergePartial(incoming, fingerprint, repoConfig)) {
-                // validate rules before attempting updateConfig() so that
-                // rule violations will be considered before accepting a merge;
-                // updateConfig() only considers structural validity.
-                final boolean violatesRules = hasRuleViolations(incoming);
-
+                // mark the fingerprint as last known
                 cachedGoPartials.cacheAsLastKnown(fingerprint, incoming);
 
+                //validate rules
+                hasRuleViolations(incoming);
+
+                /* Validate config.
+                UpdateConfig will fail to update the configuration if there are validation errors.
+                Even in case of rules violation, the updateConfig method is required to populate a server health message
+                of rule violation, which also will be shown on the config repo spa.*/
                 if (updateConfig(incoming, fingerprint, repoConfig)) {
+                    // mark the partial as valid when config is updated successfully for it.
                     cachedGoPartials.markAsValid(fingerprint, incoming);
                 } else {
-                    final PartialConfig previousValidPartial = cachedGoPartials.getValid(repoConfig.getRepo().getFingerprint());
-
-                    if (violatesRules && hasRuleViolations(previousValidPartial)) {
-                        // do not allow fallback to the last version of the partial if the current rules do not allow
-                        cachedGoPartials.removeValid(repoConfig.getRepo().getFingerprint());
+                    /* If the latest partial is invalid for the current config repo rules.
+                    1. Apply latest config repo rules to previous valid partial.
+                    2. If the previous valid partials are valid - do nothing - as the error for the latest partial is
+                       already populated and config contains the last known partial.
+                    3. If the previous valid partials are invalid - remove those config without clearing the server health message.
+                       Server health message is populated for the same fingerprint with the latest parse failure message.*/
+                    if (hasRuleViolationsOnPreviousValidPartial(repoConfig)) {
+                        removeCachedLastValidPartial(fingerprint);
                     }
                 }
             }
@@ -115,6 +127,31 @@ public class PartialConfigService implements PartialConfigUpdateCompletedListene
 
     protected PartialConfigUpdateCommand buildUpdateCommand(final PartialConfig partial, final String fingerprint) {
         return new PartialConfigUpdateCommand(partial, fingerprint, cachedGoPartials);
+    }
+
+    private void removeCachedLastValidPartial(String fingerprint) {
+        //  remove cached partial without clearing server health message.
+        cachedGoPartials.removeValidWithoutClearingServerHealthMessage(fingerprint);
+
+        /*Removing cached partials is not enough, we need to perform a full config save immediately in order to invoke
+        appropriate listeners that removes the pipelines.*/
+        //todo: Do we care about error handling while removing the partials?
+        goConfigService.updateConfig(cruiseConfig -> {
+            cruiseConfig.getPartials().remove(cachedGoPartials.findPartialByFingerprint(cruiseConfig, fingerprint));
+            return cruiseConfig;
+        });
+    }
+
+    private boolean hasRuleViolationsOnPreviousValidPartial(ConfigRepoConfig latestConfigRepoConfig) {
+        final PartialConfig previousValidPartial = cachedGoPartials.getValid(latestConfigRepoConfig.getRepo().getFingerprint());
+
+        if (previousValidPartial == null) {
+            return false;
+        }
+
+        ((RepoConfigOrigin) previousValidPartial.getOrigin()).setConfigRepo(latestConfigRepoConfig);
+
+        return hasRuleViolations(previousValidPartial);
     }
 
     private boolean updateConfig(final PartialConfig newPart, final String fingerprint, ConfigRepoConfig repoConfig) {

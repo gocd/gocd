@@ -38,5 +38,6 @@ export const tooltipKey: string;
 export const tooltipKeyValuePair: string;
 export const triggeredByAndOn: string;
 export const unknown: string;
+export const unknownProperty: string;
 export const uploadingArtifacts: string;
 export const waiting: string;

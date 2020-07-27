@@ -319,16 +319,17 @@ $building: #ffc11b;
 }
 
 .progress-bar-tooltip {
+  font-size:     12px;
   visibility:    hidden;
   margin-top:    7px;
-  margin-left:   40px;
-  width:         335px;
+  margin-left:   -25px;
+  width:         310px;
   text-align:    center;
   padding:       10px;
   border-radius: 6px;
   position:      absolute;
   z-index:       map_get($zindex, tooltip);
-  background:    $tooltip-background;
+  background:    rgb(243, 243, 243, 0.85); //sass-lint:disable-line no-color-literals
   border:        1px solid $tooltip-border-color;
 
   :before {
@@ -342,19 +343,24 @@ $building: #ffc11b;
     border-bottom: 8px solid transparent;
     border-right:  8px solid $tooltip-border-color;
 
-    left:          65px;
+    left:          140px;
     top:           -12px;
     transform:     rotate(90deg);
   }
 
   .tooltip-key-value-pair {
-    display: flex;
+    display:     flex;
+    line-height: 23px;
   }
 
   .tooltip-key {
     font-weight:  700;
     margin-right: 5px;
   }
+}
+
+.unknown-property {
+  font-style: italic;
 }
 
 // job count and rerun container

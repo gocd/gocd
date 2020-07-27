@@ -22,6 +22,7 @@ import {JobJSON, Result} from "./types";
 const moment = require('moment');
 
 export interface JobDuration {
+  isJobInProgress: boolean;
   waitTimePercentage: number;
   preparingTimePercentage: number;
   buildTimePercentage: number;
@@ -78,7 +79,6 @@ export class JobDurationStrategyHelper {
     const building = moment.unix(this.getJobStateTime(job, "Building"));
     const preparing = moment.unix(this.getJobStateTime(job, "Preparing"));
     const start = moment.unix(this.getJobStateTime(job, "Scheduled"));
-
     let totalTime, totalTimeForDisplay = "unknown";
     if (isJobInProgress) {
       const lastCompletedJob = this.findJobFromLastCompletedStage(job.name, passedStageInstance);
@@ -105,20 +105,18 @@ export class JobDurationStrategyHelper {
     const buildTimeForDisplay = this.formatTimeForDisplay(buildTime);
 
     const uploadingArtifactTime = moment.utc(end.diff(completing));
-    const uploadingArtifactTimeForDisplay = this.formatTimeForDisplay(buildTime);
+    const uploadingArtifactTimeForDisplay = this.formatTimeForDisplay(uploadingArtifactTime);
 
     const waitTimePercentage = this.calculatePercentage(totalTime, waitTime);
     const preparingTimePercentage = this.calculatePercentage(totalTime, preparingTime);
     const buildTimePercentage = this.calculatePercentage(totalTime, buildTime);
-    // Math.round will round up values round(1.3) + round(1.3) + round(1.4) = 3
-    // where the result should've been 4. Add 1 to the uploading artifact percentage,
-    // if the view overflowed, overflow: hidden will remove the extra 1 percent
-    const uploadingArtifactTimePercentage = this.calculatePercentage(totalTime, uploadingArtifactTime) + (isJobInProgress ? 0 : 1);
+    const uploadingArtifactTimePercentage = this.calculatePercentage(totalTime, uploadingArtifactTime);
 
     const startTimeForDisplay = timeFormatter.format(start);
     const endTimeForDisplay = isJobInProgress ? "unknown" : timeFormatter.format(end);
 
     return {
+      isJobInProgress,
       unknownTimePercentage: 0,
       waitTimePercentage,
       preparingTimePercentage,

@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
+import {bind} from "classnames/bind";
 import m from "mithril";
 import Stream from "mithril/stream";
-import * as styles from "./index.scss";
 import {MithrilComponent} from "../../../jsx/mithril-component";
-import {JobJSON} from "./models/types";
+import * as styles from "./index.scss";
 import {JobDuration, JobDurationStrategyHelper} from "./models/job_duration_stratergy_helper";
 import {StageInstance} from "./models/stage_instance";
+import {JobJSON} from "./models/types";
+
+const classnames = bind(styles);
 
 export interface Attrs {
   job: JobJSON;
@@ -40,38 +43,47 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs, {}>): m.Children | void | null {
     const jobDuration: JobDuration = JobDurationStrategyHelper.getDuration(vnode.attrs.job, vnode.attrs.lastPassedStageInstance());
+    const isJobInProgress = jobDuration.isJobInProgress;
 
-    return <div>
+    const tooltipItems = {
+      'Waiting':             jobDuration.waitTimeForDisplay,
+      'Preparing':           jobDuration.preparingTimeForDisplay,
+      'Building':            jobDuration.buildTimeForDisplay,
+      'Uploading Artifacts': jobDuration.uploadingArtifactTimeForDisplay,
+      'Total Time':          jobDuration.totalTimeForDisplay,
+      'Scheduled At':        jobDuration.startTimeForDisplay,
+      'Completed At':        jobDuration.endTimeForDisplay
+    };
+
+    return (<div>
       <div data-test-id="progress-bar-container-div" class={styles.progressBarContainer}>
         <div class={`${styles.waiting}`} style={`width: ${jobDuration.waitTimePercentage}%`}/>
         <div class={`${styles.preparing}`} style={`width: ${jobDuration.preparingTimePercentage}%`}/>
         <div className={`${styles.building}`} style={`width: ${jobDuration.buildTimePercentage}%`}/>
-        <div className={`${styles.uploadingArtifacts}`} style={`width: ${jobDuration.uploadingArtifactTimePercentage}%`}/>
+        <div className={`${styles.uploadingArtifacts}`}
+             style={`width: ${jobDuration.uploadingArtifactTimePercentage}%`}/>
         <div className={`${styles.unknown}`} style={`width: ${jobDuration.unknownTimePercentage}%`}/>
       </div>
 
       <div class={styles.progressBarTooltip}>
-        <div className={styles.tooltipKeyValuePair}>
-          <div className={styles.tooltipKey}>Wait Time:</div>
-          <div>{jobDuration.waitTimeForDisplay}</div>
-        </div>
-        <div className={styles.tooltipKeyValuePair}>
-          <div className={styles.tooltipKey}>Build Time:</div>
-          <div>{jobDuration.buildTimeForDisplay}</div>
-        </div>
-        <div className={styles.tooltipKeyValuePair}>
-          <div className={styles.tooltipKey}>Total Time:</div>
-          <div>{jobDuration.totalTimeForDisplay}</div>
-        </div>
-        <div className={styles.tooltipKeyValuePair}>
-          <div className={styles.tooltipKey}>Scheduled At:</div>
-          <div>{jobDuration.startTimeForDisplay}</div>
-        </div>
-        <div className={styles.tooltipKeyValuePair}>
-          <div className={styles.tooltipKey}>Completed At:</div>
-          <div>{jobDuration.endTimeForDisplay}</div>
-        </div>
+        {
+          Object.keys(tooltipItems).map(key => {
+            const value = tooltipItems[key];
+            const isUnknownProperty = isUnknown(value, isJobInProgress);
+            const valueForDisplay = isUnknownProperty ? "unknown" : value;
+            return (
+              <div className={styles.tooltipKeyValuePair}>
+                <div className={styles.tooltipKey}>{key} :</div>
+                <div className={classnames({[styles.unknownProperty]: isUnknownProperty})}>{valueForDisplay}</div>
+              </div>
+            );
+          })
+        }
       </div>
-    </div>
+    </div>);
   }
+}
+
+function isUnknown(val: string, isJobInProgress: boolean) {
+  return isJobInProgress && val.toLowerCase() === "00s";
 }

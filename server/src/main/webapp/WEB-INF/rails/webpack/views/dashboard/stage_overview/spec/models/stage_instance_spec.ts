@@ -50,7 +50,7 @@ describe('Stage Instance', () => {
     it("should provide stage duration", () => {
       // modify the json
       const json = StageInstance.fromJSON(stageInstanceJson);
-      expect(json.stageDuration()).toBe('26s');
+      expect(json.stageDuration()).toBe('01h 40m 50s');
     });
   });
 });

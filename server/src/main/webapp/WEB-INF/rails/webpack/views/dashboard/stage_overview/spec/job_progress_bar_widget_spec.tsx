@@ -38,25 +38,25 @@ describe("Job Progress Bar Widget", () => {
 
   it("should render job progress bar waiting portion", () => {
     const children = helper.byTestId('progress-bar-container-div').children;
-    expect(children[0].style.width).toBe("51%");
+    expect(children[0].style.width).toBe("30%");
     expect(children[0].classList[0]).toBe(styles.waiting);
   });
 
   it("should render job progress bar preparing portion", () => {
     const children = helper.byTestId('progress-bar-container-div').children;
-    expect(children[1].style.width).toBe("10%");
+    expect(children[1].style.width).toBe("20%");
     expect(children[1].classList[0]).toBe(styles.preparing);
   });
 
   it("should render job progress bar building portion", () => {
     const children = helper.byTestId('progress-bar-container-div').children;
-    expect(children[2].style.width).toBe("39%");
+    expect(children[2].style.width).toBe("30%");
     expect(children[2].classList[0]).toBe(styles.building);
   });
 
   it("should render job progress bar uploading artifacts portion", () => {
     const children = helper.byTestId('progress-bar-container-div').children;
-    expect(children[3].style.width).toBe("0%");
+    expect(children[3].style.width).toBe("20%");
     expect(children[3].classList[0]).toBe(styles.uploadingArtifacts);
   });
 
@@ -105,7 +105,7 @@ describe("Job Progress Bar Widget", () => {
       progressBar.dispatchEvent(new MouseEvent('mouseover'));
 
       expect(tooltip).toContainText("Waiting");
-      expect(tooltip).toContainText("13s");
+      expect(tooltip).toContainText("03m 00s");
     });
 
     it("should render preparing time", () => {
@@ -114,7 +114,7 @@ describe("Job Progress Bar Widget", () => {
       progressBar.dispatchEvent(new MouseEvent('mouseover'));
 
       expect(tooltip).toContainText("Preparing");
-      expect(tooltip).toContainText("02s");
+      expect(tooltip).toContainText("02m 00s");
     });
 
     it("should render building time", () => {
@@ -123,7 +123,7 @@ describe("Job Progress Bar Widget", () => {
       progressBar.dispatchEvent(new MouseEvent('mouseover'));
 
       expect(tooltip).toContainText("Building");
-      expect(tooltip).toContainText("10s");
+      expect(tooltip).toContainText("03m 00s");
     });
 
     it("should render uploading artifacts time", () => {
@@ -132,7 +132,7 @@ describe("Job Progress Bar Widget", () => {
       progressBar.dispatchEvent(new MouseEvent('mouseover'));
 
       expect(tooltip).toContainText("Uploading Artifacts");
-      expect(tooltip).toContainText("00s");
+      expect(tooltip).toContainText("02m 00s");
     });
 
     it("should render total time", () => {
@@ -141,7 +141,7 @@ describe("Job Progress Bar Widget", () => {
       progressBar.dispatchEvent(new MouseEvent('mouseover'));
 
       expect(tooltip).toContainText("Total Time");
-      expect(tooltip).toContainText("26s");
+      expect(tooltip).toContainText("10m 00s");
     });
 
     it("should render scheduled at time", () => {
@@ -150,7 +150,7 @@ describe("Job Progress Bar Widget", () => {
       progressBar.dispatchEvent(new MouseEvent('mouseover'));
 
       expect(tooltip).toContainText("Scheduled At");
-      expect(tooltip).toContainText("27 Jul, 2020 at 10:20:14 Local Time");
+      expect(tooltip).toContainText("27 Jul, 2020 at 11:51:04 Local Time");
     });
 
     it("should render completed at time", () => {
@@ -159,7 +159,7 @@ describe("Job Progress Bar Widget", () => {
       progressBar.dispatchEvent(new MouseEvent('mouseover'));
 
       expect(tooltip).toContainText("Completed At");
-      expect(tooltip).toContainText("27 Jul, 2020 at 10:20:40 Local Time");
+      expect(tooltip).toContainText("27 Jul, 2020 at 12:01:04 Local Time");
     });
   });
 

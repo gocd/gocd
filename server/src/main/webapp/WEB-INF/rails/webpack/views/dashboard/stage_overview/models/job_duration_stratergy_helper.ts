@@ -95,16 +95,16 @@ export class JobDurationStrategyHelper {
       totalTimeForDisplay = this.formatTimeForDisplay(totalTime);
     }
 
-    const waitTime = moment.utc(preparing.diff(start));
+    const waitTime = this.calculateDifference(preparing, start);
     const waitTimeForDisplay = this.formatTimeForDisplay(waitTime);
 
-    const preparingTime = moment.utc(building.diff(preparing));
+    const preparingTime = this.calculateDifference(building, preparing);
     const preparingTimeForDisplay = this.formatTimeForDisplay(preparingTime);
 
-    const buildTime = moment.utc(completing.diff(building));
+    const buildTime = this.calculateDifference(completing, building);
     const buildTimeForDisplay = this.formatTimeForDisplay(buildTime);
 
-    const uploadingArtifactTime = moment.utc(end.diff(completing));
+    const uploadingArtifactTime = this.calculateDifference(end, completing);
     const uploadingArtifactTimeForDisplay = this.formatTimeForDisplay(uploadingArtifactTime);
 
     const waitTimePercentage = this.calculatePercentage(totalTime, waitTime);
@@ -132,6 +132,10 @@ export class JobDurationStrategyHelper {
       startTimeForDisplay,
       endTimeForDisplay
     };
+  }
+
+  private static calculateDifference(end, start) {
+    return end.isBefore(start) ? moment.utc(0) : moment.utc(end.diff(start));
   }
 
   private static getJobStateTime(job: JobJSON, state: State): number {

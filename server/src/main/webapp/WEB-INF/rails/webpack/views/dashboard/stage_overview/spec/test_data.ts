@@ -1,4 +1,4 @@
-import {StageInstanceJSON} from "../models/stage_instance";
+import {StageInstanceJSON} from "../models/types";
 
 export class TestData {
   static stageInstanceJSON(): StageInstanceJSON {

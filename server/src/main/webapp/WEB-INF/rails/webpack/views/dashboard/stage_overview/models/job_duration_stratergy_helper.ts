@@ -79,7 +79,7 @@ export class JobDurationStrategyHelper {
     const preparing = moment.unix(this.getJobStateTime(job, "Preparing"));
     const start = moment.unix(this.getJobStateTime(job, "Scheduled"));
 
-    let totalTime, totalTimeForDisplay;
+    let totalTime, totalTimeForDisplay = "unknown";
     if (isJobInProgress) {
       const lastCompletedJob = this.findJobFromLastCompletedStage(job.name, passedStageInstance);
 
@@ -89,7 +89,6 @@ export class JobDurationStrategyHelper {
         totalTime = moment.utc(lastJobEnd.diff(lastJobStart));
       } else {
         totalTime = moment.utc(end.diff(start));
-        totalTimeForDisplay = "unknown";
       }
     } else {
       totalTime = moment.utc(end.diff(start));

@@ -28,6 +28,7 @@ export class StageOverviewViewModel {
   readonly stageInstance: Stream<StageInstance>;
   readonly jobsVM: Stream<JobsViewModel>;
   readonly lastPassedStageInstance: Stream<StageInstance | undefined>;
+  readonly repeater: Stream<any>;
 
   constructor(pipelineName: string, pipelineCounter: string | number,
               stageName: string, stageCounter: string | number,
@@ -35,8 +36,7 @@ export class StageOverviewViewModel {
     this.stageInstance = Stream(stageInstance);
     this.lastPassedStageInstance = Stream(lastPassedStageInstance);
     this.jobsVM = Stream(new JobsViewModel(stageInstance.jobs()));
-
-    this.createRepeater(pipelineName, pipelineCounter, stageName, stageCounter);
+    this.repeater = Stream(this.createRepeater(pipelineName, pipelineCounter, stageName, stageCounter));
   }
 
   /*

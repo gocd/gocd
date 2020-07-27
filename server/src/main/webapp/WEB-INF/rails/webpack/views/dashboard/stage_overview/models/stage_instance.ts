@@ -15,8 +15,8 @@
  */
 
 import moment from "moment";
-import {JobJSON, Result, StageInstanceJSON} from "./types";
 import {JobDurationStrategyHelper} from "./job_duration_stratergy_helper";
+import {JobJSON, Result, StageInstanceJSON} from "./types";
 
 export class StageInstance {
   private json: StageInstanceJSON;

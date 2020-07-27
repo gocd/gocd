@@ -74,7 +74,7 @@ describe('Stage Overview Header', () => {
   it('should render stage duration', () => {
     expect(helper.byTestId('stage-duration-container')).toBeInDOM();
     expect(helper.byTestId('stage-duration-container')).toContainText('Duration');
-    expect(helper.byTestId('stage-duration-container')).toContainText('00:03:24');
+    expect(helper.byTestId('stage-duration-container')).toContainText('03m 24s');
   });
 
   function mount() {

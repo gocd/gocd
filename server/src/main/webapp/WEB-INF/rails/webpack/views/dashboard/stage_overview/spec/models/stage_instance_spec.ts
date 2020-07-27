@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {Result, StageInstance, StageInstanceJSON} from "../../models/stage_instance";
+import {StageInstance} from "../../models/stage_instance";
+import {Result, StageInstanceJSON} from "../../models/types";
 import {TestData} from "../test_data";
 
 describe('Stage Instance', () => {
@@ -31,17 +32,17 @@ describe('Stage Instance', () => {
 
   it('should provide triggered by information', () => {
     const json = StageInstance.fromJSON(stageInstanceJson);
-    expect(json.triggeredBy()).toBe('Triggered by admin');
+    expect(json.triggeredBy()).toBe('admin');
   });
 
   it('should provide triggered on information', () => {
     const json = StageInstance.fromJSON(stageInstanceJson);
-    expect(json.triggeredOn()).toBe('on 09 Jul, 2020 at 12:36:04 Local Time');
+    expect(json.triggeredOn()).toBe('09 Jul, 2020 at 12:36:04');
   });
 
   describe("Stage Duration", () => {
     it("should provide stage duration as in progress when some of the jobs from the stage are still in progress", () => {
-      stageInstanceJson.result = Result[Result.Unknown];
+      stageInstanceJson.jobs[0].result = Result[Result.Unknown];
       const json = StageInstance.fromJSON(stageInstanceJson);
       expect(json.stageDuration()).toBe('in progress');
     });
@@ -49,7 +50,7 @@ describe('Stage Instance', () => {
     it("should provide stage duration", () => {
       // modify the json
       const json = StageInstance.fromJSON(stageInstanceJson);
-      expect(json.stageDuration()).toBe('00:03:24');
+      expect(json.stageDuration()).toBe('03m 24s');
     });
   });
 });

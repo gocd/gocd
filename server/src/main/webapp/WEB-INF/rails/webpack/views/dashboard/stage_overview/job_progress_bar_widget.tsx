@@ -60,12 +60,11 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
         <div class={`${styles.waiting}`} style={`width: ${jobDuration.waitTimePercentage}%`}/>
         <div class={`${styles.preparing}`} style={`width: ${jobDuration.preparingTimePercentage}%`}/>
         <div className={`${styles.building}`} style={`width: ${jobDuration.buildTimePercentage}%`}/>
-        <div className={`${styles.uploadingArtifacts}`}
-             style={`width: ${jobDuration.uploadingArtifactTimePercentage}%`}/>
+        <div className={`${styles.uploadingArtifacts}`} style={`width: ${jobDuration.uploadingArtifactTimePercentage}%`}/>
         <div className={`${styles.unknown}`} style={`width: ${jobDuration.unknownTimePercentage}%`}/>
       </div>
 
-      <div class={styles.progressBarTooltip}>
+      <div data-test-id="progress-bar-tooltip" class={styles.progressBarTooltip}>
         {
           Object.keys(tooltipItems).map(key => {
             const value = tooltipItems[key];

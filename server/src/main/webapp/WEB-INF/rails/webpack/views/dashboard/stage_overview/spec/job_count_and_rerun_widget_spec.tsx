@@ -40,13 +40,13 @@ describe("Job Count And Rerun Widget", () => {
   it("should render passed job count", () => {
     expect(helper.byTestId('passed-jobs-container')).toBeInDOM();
     expect(helper.byTestId('passed-jobs-container')).toContainText('Passed');
-    expect(helper.byTestId('passed-jobs-container')).toContainText(0);
+    expect(helper.byTestId('passed-jobs-container')).toContainText(1);
   });
 
   it("should render failed job count", () => {
     expect(helper.byTestId('failed-jobs-container')).toBeInDOM();
     expect(helper.byTestId('failed-jobs-container')).toContainText('Failed');
-    expect(helper.byTestId('failed-jobs-container')).toContainText(1);
+    expect(helper.byTestId('failed-jobs-container')).toContainText(0);
   });
 
   it('should render job rerun buttons', () => {

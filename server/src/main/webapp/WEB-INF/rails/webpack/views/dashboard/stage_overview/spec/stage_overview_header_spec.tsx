@@ -68,13 +68,13 @@ describe('Stage Overview Header', () => {
 
   it('should render triggered on information', () => {
     expect(helper.byTestId('stage-trigger-and-timing-container')).toBeInDOM();
-    expect(helper.byTestId('stage-trigger-and-timing-container')).toContainText('on 09 Jul, 2020 at 12:36:04 Local Time');
+    expect(helper.byTestId('stage-trigger-and-timing-container')).toContainText('on 27 Jul, 2020 at 10:20:14 Local Time');
   });
 
   it('should render stage duration', () => {
     expect(helper.byTestId('stage-duration-container')).toBeInDOM();
     expect(helper.byTestId('stage-duration-container')).toContainText('Duration');
-    expect(helper.byTestId('stage-duration-container')).toContainText('03m 24s');
+    expect(helper.byTestId('stage-duration-container')).toContainText('26s');
   });
 
   function mount() {

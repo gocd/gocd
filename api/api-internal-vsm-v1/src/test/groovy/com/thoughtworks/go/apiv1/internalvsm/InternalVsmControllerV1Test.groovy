@@ -26,6 +26,7 @@ import com.thoughtworks.go.server.service.ValueStreamMapService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
@@ -39,8 +40,7 @@ import org.mockito.invocation.InvocationOnMock
 
 import java.util.stream.Stream
 
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.anyInt
+import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -80,7 +80,7 @@ class InternalVsmControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader("/api/internal/pipelines/value_stream_map/up42/1")
+        getWithApiHeader("/api/internal/value_stream_map/pipelines/up42/1")
       }
     }
 
@@ -97,7 +97,7 @@ class InternalVsmControllerV1Test implements SecurityServiceTrait, ControllerTra
         def vsm = new ValueStreamMapPresentationModel(null, null, [])
         when(valueStreamMapService.getValueStreamMap(any(CaseInsensitiveString.class), anyInt(), any(Username.class), any())).thenReturn(vsm)
 
-        getWithApiHeader("/api/internal/pipelines/value_stream_map/up42/1")
+        getWithApiHeader("/api/internal/value_stream_map/pipelines/up42/1")
 
         assertThatResponse()
           .isOk()
@@ -112,7 +112,7 @@ class InternalVsmControllerV1Test implements SecurityServiceTrait, ControllerTra
           result.forbidden("user does not have access", HealthStateType.forbidden())
         })
 
-        getWithApiHeader("/api/internal/pipelines/value_stream_map/some-pipeline/1")
+        getWithApiHeader("/api/internal/value_stream_map/pipelines/some-pipeline/1")
 
         assertThatResponse()
           .isForbidden()
@@ -122,7 +122,7 @@ class InternalVsmControllerV1Test implements SecurityServiceTrait, ControllerTra
       @ParameterizedTest
       @MethodSource("pipelineCounters")
       void 'should return 400 if the counter is incorrect'(String input) {
-        getWithApiHeader("/api/internal/pipelines/value_stream_map/up42/" + input)
+        getWithApiHeader("/api/internal/value_stream_map/pipelines/up42/" + input)
 
         assertThatResponse()
           .isBadRequest()
@@ -134,6 +134,60 @@ class InternalVsmControllerV1Test implements SecurityServiceTrait, ControllerTra
           Arguments.of("-10"),
           Arguments.of("abc")
         )
+      }
+    }
+  }
+
+  @Nested
+  class MaterialVsm {
+
+    @Nested
+    class Security implements SecurityTestTrait, NormalUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "materialsVsm"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader("/api/internal/value_stream_map/materials/fingerprint/revision")
+      }
+    }
+
+    @Nested
+    class AsAuthorizedUser {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should return 200 when asked for vsm for a material revision'() {
+        def vsm = new ValueStreamMapPresentationModel(null, null, [])
+        when(valueStreamMapService.getValueStreamMap(anyString(), anyString(), any(Username.class), any())).thenReturn(vsm)
+
+        getWithApiHeader("/api/internal/value_stream_map/materials/fingerprint/rev")
+
+        assertThatResponse()
+          .isOk()
+          .hasBodyWithJsonObject(VSMRepresenter.class, vsm)
+      }
+
+      @Test
+      void 'should return error if the user does not have view access'() {
+        when(valueStreamMapService.getValueStreamMap(anyString(), anyString(), any(Username.class), any()))
+          .then({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          result.forbidden("user does not have access", HealthStateType.forbidden())
+        })
+
+        getWithApiHeader("/api/internal/value_stream_map/materials/fingerprint/rev")
+
+        assertThatResponse()
+          .isForbidden()
+          .hasJsonMessage("user does not have access")
       }
     }
   }

@@ -53,4 +53,21 @@ class PipelineRevisionRepresenterTest {
 
     assertThatJson(actualJson).isEqualTo(expectedJson)
   }
+
+  @Test
+  void 'should render locator as empty when counter is 0'() {
+    def revision = new PipelineRevision("pipeline-name", 0, "pipeline-label")
+
+    def actualJson = toArrayString({ PipelineRevisionRepresenter.toJSON(it, "pipeline-name", [revision]) })
+
+    def expectedJson = [
+      [
+        label  : "pipeline-label",
+        counter: 0,
+        locator: "",
+        stages : []
+      ]]
+
+    assertThatJson(actualJson).isEqualTo(expectedJson)
+  }
 }

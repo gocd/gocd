@@ -56,12 +56,14 @@ public class InternalVsmControllerV1 extends ApiController implements SparkSprin
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", mimeType, this::setContentType);
-            before("", mimeType, this::verifyContentType);
+            before("/*", mimeType, this::setContentType);
+            before("/*", mimeType, this::verifyContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
+            before(Routes.InternalVsm.PIPELINE, mimeType, this.apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
+            before(Routes.InternalVsm.MATERIALS, mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
-            get("", mimeType, this::index);
+            get(Routes.InternalVsm.PIPELINE, mimeType, this::index);
+            get(Routes.InternalVsm.MATERIALS, mimeType, this::materialsVsm);
         });
     }
 
@@ -70,6 +72,18 @@ public class InternalVsmControllerV1 extends ApiController implements SparkSprin
         Integer pipelineCounter = getCounter(request);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ValueStreamMapPresentationModel valueStreamMap = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString(pipelineName), pipelineCounter, currentUsername(), result);
+        if (result.isSuccessful()) {
+            return writerForTopLevelObject(request, response, writer -> VSMRepresenter.toJSON(writer, valueStreamMap));
+        }
+        return renderHTTPOperationResult(result, request, response);
+    }
+
+    public String materialsVsm(Request request, Response response) throws Exception {
+        String fingerprint = request.params("material_fingerprint");
+        String revision = request.params("revision");
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        ValueStreamMapPresentationModel valueStreamMap = valueStreamMapService.getValueStreamMap(fingerprint, revision, currentUsername(), result);
         if (result.isSuccessful()) {
             return writerForTopLevelObject(request, response, writer -> VSMRepresenter.toJSON(writer, valueStreamMap));
         }

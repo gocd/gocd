@@ -30,10 +30,15 @@ public class PipelineRevisionRepresenter {
         }
         revisions.forEach((rev) -> {
             PipelineRevision pipelineRevision = (PipelineRevision) rev;
-            outputListWriter.addChild(childWriter -> childWriter.add("label", pipelineRevision.getLabel())
-                    .add("counter", pipelineRevision.getCounter())
-                    .add("locator", Routes.InternalVsm.pipelineLocator(pipelineName, pipelineRevision.getCounter()))
-                    .addChildList("stages", stagesWriter -> StageRepresenter.toJSON(stagesWriter, pipelineRevision.getStages(), pipelineName, pipelineRevision.getCounter())));
+            outputListWriter.addChild(childWriter -> {
+                String locator = pipelineRevision.getCounter() == 0
+                        ? ""
+                        : Routes.InternalVsm.pipelineLocator(pipelineName, pipelineRevision.getCounter());
+                childWriter.add("label", pipelineRevision.getLabel())
+                        .add("counter", pipelineRevision.getCounter())
+                        .add("locator", locator)
+                        .addChildList("stages", stagesWriter -> StageRepresenter.toJSON(stagesWriter, pipelineRevision.getStages(), pipelineName, pipelineRevision.getCounter()));
+            });
         });
     }
 }

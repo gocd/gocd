@@ -36,9 +36,10 @@ public class StageRepresenter {
             } else {
                 writer.renderNull("duration");
             }
-            if (stage.getState() != StageState.Unknown) {
-                writer.add("locator", Routes.InternalVsm.pipelineStageLocator(pipelineName, pipelineCounter, stage.getName(), stage.getCounter()));
-            }
+            String locator = stage.getState() == StageState.Unknown
+                    ? ""
+                    : Routes.InternalVsm.pipelineStageLocator(pipelineName, pipelineCounter, stage.getName(), stage.getCounter());
+            writer.add("locator", locator);
         }));
     }
 }

@@ -66,7 +66,7 @@ class StageRepresenterTest {
   }
 
   @Test
-  void 'should not render locator if stage state is unknown'() {
+  void 'should render locator as empty if stage state is unknown'() {
     def stage = new Stage()
     stage.name = "stage-name"
     stage.state = StageState.Unknown
@@ -77,7 +77,8 @@ class StageRepresenterTest {
       [
         name    : "stage-name",
         status  : "Unknown",
-        duration: null
+        duration: null,
+        locator : ""
       ]]
 
     assertThatJson(actualJson).isEqualTo(expectedJson)

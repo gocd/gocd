@@ -52,7 +52,7 @@ class VSMRepresenterTest {
     def actualJson = toObjectString({ VSMRepresenter.toJSON(it, vsmModel) })
 
     def expectedJson = [
-      current_material: "url",
+      current_material: "fingerprint",
       levels          : [
         toObject({ VSMNodesRepresenter.toJSON(it, [dependent]) })
       ]]

@@ -952,7 +952,9 @@ public class Routes {
     }
 
     public static class InternalVsm {
-        public static final String BASE = "/api/internal/pipelines/value_stream_map/:pipeline_name/:pipeline_counter";
+        public static final String BASE = "/api/internal/value_stream_map";
+        public static final String PIPELINE = "/pipelines/:pipeline_name/:pipeline_counter";
+        public static final String MATERIALS = "/materials/:material_fingerprint/:revision";
 
         public static String pipelineLocator(String name, Integer pipelineCounter) {
             return format("/go/pipelines/value_stream_map/%s/%d", name, pipelineCounter);

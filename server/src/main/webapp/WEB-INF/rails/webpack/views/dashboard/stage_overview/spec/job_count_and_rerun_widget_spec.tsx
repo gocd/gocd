@@ -58,7 +58,7 @@ describe("Job Count And Rerun Widget", () => {
 
   function mount() {
     helper.mount(() => {
-      return <JobCountAndRerunWidget jobsVM={Stream(new JobsViewModel(TestData.stageInstanceJSON().jobs))}/>
-    })
+      return <JobCountAndRerunWidget jobsVM={Stream(new JobsViewModel(TestData.stageInstanceJSON().jobs))}/>;
+    });
   }
 });

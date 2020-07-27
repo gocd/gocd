@@ -22,13 +22,13 @@ import {CheckboxField} from "../../components/forms/input_fields";
 import * as styles from "./index.scss";
 import {JobsViewModel} from "./models/jobs_view_model";
 
+import {Link} from "../../components/link";
 import pipelineHistoryStyles from "../../pages/pipeline_activity/index.scss";
 import {JobProgressBarWidget} from "./job_progress_bar_widget";
-import {JobJSON} from "./models/types";
-import {StageInstance} from "./models/stage_instance";
 import {JobStateWidget} from "./job_state_widget";
 import {JobDurationStrategyHelper} from "./models/job_duration_stratergy_helper";
-import {Link} from "../../components/link";
+import {StageInstance} from "./models/stage_instance";
+import {JobJSON} from "./models/types";
 
 const classnames = bind(pipelineHistoryStyles);
 

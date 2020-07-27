@@ -18,9 +18,9 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import * as Icons from "views/components/icons";
 import {MithrilComponent} from "../../../jsx/mithril-component";
+import {Link} from "../../components/link";
 import * as styles from "./index.scss";
 import {StageInstance} from "./models/stage_instance";
-import {Link} from "../../components/link";
 
 interface StageHeaderAttrs {
   stageName: string;

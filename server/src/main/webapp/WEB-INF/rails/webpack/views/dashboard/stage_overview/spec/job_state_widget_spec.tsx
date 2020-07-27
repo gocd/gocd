@@ -15,11 +15,11 @@
  */
 
 import m from "mithril";
-import {TestHelper} from "../../../pages/spec/test_helper";
 import {State} from "../../../../models/agent_job_run_history";
+import {TestHelper} from "../../../pages/spec/test_helper";
 import {JobStateWidget} from "../job_state_widget";
-import {TestData} from "./test_data";
 import {Result} from "../models/types";
+import {TestData} from "./test_data";
 
 describe("Job State Widget", () => {
   const helper = new TestHelper();
@@ -72,7 +72,7 @@ describe("Job State Widget", () => {
     jobJSON.result = result;
 
     helper.mount(() => {
-      return <JobStateWidget job={jobJSON}/>
+      return <JobStateWidget job={jobJSON}/>;
     });
   }
 });

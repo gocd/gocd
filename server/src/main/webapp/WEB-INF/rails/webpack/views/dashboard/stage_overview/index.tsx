@@ -20,10 +20,10 @@ import {MithrilComponent} from "../../../jsx/mithril-component";
 import {Spinner} from "../../components/spinner";
 import * as styles from "./index.scss";
 import {JobsListWidget} from "./jobs_list_widget";
-import {StageHeaderWidget} from "./stage_overview_header";
+import {JobCountAndRerunWidget} from "./job_count_and_rerun_widget";
 import {StageOverviewViewModel} from "./models/stage_overview_view_model";
 import {StageState} from "./models/types";
-import {JobCountAndRerunWidget} from "./job_count_and_rerun_widget";
+import {StageHeaderWidget} from "./stage_overview_header";
 
 export interface Attrs {
   pipelineName: string;

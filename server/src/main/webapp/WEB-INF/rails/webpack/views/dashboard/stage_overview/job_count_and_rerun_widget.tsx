@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import m from "mithril";
 import Stream from "mithril/stream";
 import {MithrilViewComponent} from "../../../jsx/mithril-component";

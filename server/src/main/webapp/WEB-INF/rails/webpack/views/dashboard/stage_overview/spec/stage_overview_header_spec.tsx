@@ -72,9 +72,17 @@ describe('Stage Overview Header', () => {
   });
 
   it('should render stage duration', () => {
-    expect(helper.byTestId('stage-duration-container')).toBeInDOM();
-    expect(helper.byTestId('stage-duration-container')).toContainText('Duration');
-    expect(helper.byTestId('stage-duration-container')).toContainText('01h 40m 50s');
+    expect(helper.byTestId('stage-trigger-and-timing-container')).toContainText('Duration');
+    expect(helper.byTestId('stage-trigger-and-timing-container')).toContainText('01h 40m 50s');
+  });
+
+  it('should render link to stage details page', () => {
+    const expectedLink = `/go/pipelines/up42/20/up42_stage/1`;
+    const link = helper.q('a');
+
+    expect(helper.byTestId('stage-details-page-link')).toBeInDOM();
+    expect(link).toContainText('Go to Stage Details Page >>');
+    expect(link.href.indexOf(expectedLink)).not.toBe(-1);
   });
 
   function mount() {

@@ -132,7 +132,7 @@ $building: #ffc11b;
   margin-top: 20px;
 }
 
-.stage-duration-container {
+.stage-details-page-link {
   text-align: right;
 }
 
@@ -255,6 +255,10 @@ $building: #ffc11b;
 .triggered-by-and-on {
   font-weight: 600;
   font-style:  italic;
+}
+
+.duration-separator {
+  margin: 0 7px 0 7px;
 }
 
 .table-row {

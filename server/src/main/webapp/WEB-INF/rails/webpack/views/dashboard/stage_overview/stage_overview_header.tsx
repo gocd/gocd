@@ -20,6 +20,7 @@ import * as Icons from "views/components/icons";
 import {MithrilComponent} from "../../../jsx/mithril-component";
 import * as styles from "./index.scss";
 import {StageInstance} from "./models/stage_instance";
+import {Link} from "../../components/link";
 
 interface StageHeaderAttrs {
   stageName: string;
@@ -31,6 +32,8 @@ interface StageHeaderAttrs {
 
 export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
   view(vnode: m.Vnode<StageHeaderAttrs, {}>): m.Children | void | null {
+    const stageDetailsPageLink = `/go/pipelines/${vnode.attrs.pipelineName}/${vnode.attrs.pipelineCounter}/${vnode.attrs.stageName}/${vnode.attrs.stageCounter}`;
+
     return <div data-test-id="stage-overview-header" class={styles.stageHeaderContainer}>
       <div data-test-id="stage-name-and-operations-container" class={styles.flexBox}>
         <div class={styles.stageNameContainer}>
@@ -63,11 +66,12 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
           <div>Triggered by <span
             class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredBy()}</span> on <span
             class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredOn()}</span> Local Time
+            <span class={styles.durationSeparator}>|</span>
+            Duration: <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().stageDuration()}</span>
           </div>
         </div>
-        <div data-test-id="stage-duration-container" class={styles.stageDurationContainer}>
-          <div>Duration: <span class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().stageDuration()}</span>
-          </div>
+        <div data-test-id="stage-details-page-link" class={styles.stageDetailsPageLink}>
+          <Link href={stageDetailsPageLink} target={"_blank"}>Go to Stage Details Page >></Link>
         </div>
       </div>
     </div>;

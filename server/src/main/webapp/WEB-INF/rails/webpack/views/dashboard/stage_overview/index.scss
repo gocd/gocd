@@ -47,9 +47,25 @@ $building: #ffc11b;
   font-size:     12px;
   width:         770px;
   min-height:    200px;
-  margin:        25px 0 0 5px;
+  margin:        29px 0 0 5px;
   background:    $body-background;
   box-shadow:    2px 3px $header-background;
+
+  &:before {
+    content:       '';
+    display:       block;
+    width:         0;
+    height:        0;
+    position:      absolute;
+
+    border-top:    8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right:  8px solid $border-color;
+
+    left:          12px;
+    top:           -13px;
+    transform:     rotate(90deg);
+  }
 }
 
 .stage-header-container {

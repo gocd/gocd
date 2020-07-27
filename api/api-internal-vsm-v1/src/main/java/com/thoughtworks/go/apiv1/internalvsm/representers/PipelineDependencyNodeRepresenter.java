@@ -28,9 +28,10 @@ public class PipelineDependencyNodeRepresenter {
         if (node.getViewType() == null) {
             locator = "/go/pipeline/activity/" + name;
         }
-        VSMDependencyNodeRepresenter.toJSON(outputWriter, node, locator, node.getType().toString().toUpperCase());
-
-        outputWriter.addChildList("instances", outputListWriter -> PipelineRevisionRepresenter.toJSON(outputListWriter, name, node.revisions()))
+        VSMDependencyNodeRepresenter.toJSON(outputWriter, node);
+        outputWriter.add("locator", locator)
+                .add("node_type", node.getType().toString().toUpperCase())
+                .addChildList("instances", outputListWriter -> PipelineRevisionRepresenter.toJSON(outputListWriter, name, node.revisions()))
                 .add("edit_path", Routes.InternalVsm.editPipelinePath(name))
                 .add("can_edit", node.canEdit());
     }

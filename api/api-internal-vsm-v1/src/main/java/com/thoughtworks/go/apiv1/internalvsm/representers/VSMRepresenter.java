@@ -28,7 +28,7 @@ public class VSMRepresenter {
             outputWriter.add("current_pipeline", valueStreamMap.getCurrentPipeline().getName());
         }
         if (valueStreamMap.getCurrentMaterial() != null) {
-            outputWriter.add("current_pipeline", valueStreamMap.getCurrentMaterial().getName());
+            outputWriter.add("current_material", valueStreamMap.getCurrentMaterial().getName());
         }
         renderPipelineDependencies(outputWriter, valueStreamMap.getNodesAtEachLevel());
     }

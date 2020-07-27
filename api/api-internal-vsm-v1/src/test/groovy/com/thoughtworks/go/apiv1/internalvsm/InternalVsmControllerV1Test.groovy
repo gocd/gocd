@@ -16,14 +16,37 @@
 
 package com.thoughtworks.go.apiv1.internalvsm
 
+import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.apiv1.internalvsm.representers.VSMRepresenter
+import com.thoughtworks.go.config.CaseInsensitiveString
+import com.thoughtworks.go.server.domain.Username
+import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel
+import com.thoughtworks.go.server.service.ValueStreamMapService
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import org.mockito.Mock
+import org.mockito.invocation.InvocationOnMock
+
+import java.util.stream.Stream
+
+import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.anyInt
+import static org.mockito.Mockito.when
+import static org.mockito.MockitoAnnotations.initMocks
 
 class InternalVsmControllerV1Test implements SecurityServiceTrait, ControllerTrait<InternalVsmControllerV1> {
+  @Mock
+  private ValueStreamMapService valueStreamMapService
 
   @BeforeEach
   void setUp() {
@@ -32,7 +55,7 @@ class InternalVsmControllerV1Test implements SecurityServiceTrait, ControllerTra
 
   @Override
   InternalVsmControllerV1 createControllerInstance() {
-    new InternalVsmControllerV1(new ApiAuthenticationHelper(securityService, goConfigService))
+    new InternalVsmControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), valueStreamMapService)
   }
 
   @Nested
@@ -40,15 +63,15 @@ class InternalVsmControllerV1Test implements SecurityServiceTrait, ControllerTra
 
     @BeforeEach
     void setUp() {
-      loginAsUser()
-    }
-
-    @Test
-    void 'test a request'() {
+      when(goConfigService.hasPipelineNamed(any(CaseInsensitiveString.class))).thenReturn(true)
     }
 
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, PipelineAccessSecurity {
+      @Override
+      String getPipelineName() {
+        return "up42"
+      }
 
       @Override
       String getControllerMethodUnderTest() {
@@ -57,7 +80,60 @@ class InternalVsmControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerBasePath())
+        getWithApiHeader("/api/internal/pipelines/value_stream_map/up42/1")
+      }
+    }
+
+    @Nested
+    class AsAuthorizedUser {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should return 200 when asked for vsm for a pipeline instance'() {
+        def vsm = new ValueStreamMapPresentationModel(null, null, [])
+        when(valueStreamMapService.getValueStreamMap(any(CaseInsensitiveString.class), anyInt(), any(Username.class), any())).thenReturn(vsm)
+
+        getWithApiHeader("/api/internal/pipelines/value_stream_map/up42/1")
+
+        assertThatResponse()
+          .isOk()
+          .hasBodyWithJsonObject(VSMRepresenter.class, vsm)
+      }
+
+      @Test
+      void 'should return error if the user does not have view access'() {
+        when(valueStreamMapService.getValueStreamMap(any(CaseInsensitiveString.class), anyInt(), any(Username.class), any()))
+          .then({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          result.forbidden("user does not have access", HealthStateType.forbidden())
+        })
+
+        getWithApiHeader("/api/internal/pipelines/value_stream_map/some-pipeline/1")
+
+        assertThatResponse()
+          .isForbidden()
+          .hasJsonMessage("user does not have access")
+      }
+
+      @ParameterizedTest
+      @MethodSource("pipelineCounters")
+      void 'should return 400 if the counter is incorrect'(String input) {
+        getWithApiHeader("/api/internal/pipelines/value_stream_map/up42/" + input)
+
+        assertThatResponse()
+          .isBadRequest()
+          .hasJsonMessage("The params 'pipeline_counter' must be a number greater than 0.")
+      }
+
+      static Stream<Arguments> pipelineCounters() {
+        return Stream.of(
+          Arguments.of("-10"),
+          Arguments.of("abc")
+        )
       }
     }
   }

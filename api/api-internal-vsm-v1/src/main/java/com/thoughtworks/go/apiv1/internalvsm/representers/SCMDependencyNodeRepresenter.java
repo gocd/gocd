@@ -23,10 +23,12 @@ import java.util.Collections;
 
 public class SCMDependencyNodeRepresenter {
     public static void toJSON(OutputWriter outputWriter, SCMDependencyNode node) {
-        VSMDependencyNodeRepresenter.toJSON(outputWriter, node, "", node.getMaterialType().toUpperCase());
-        outputWriter.addChildList("instances", Collections.emptyList());
-        outputWriter.addChildList("material_revisions", revisionWriter -> node.getMaterialRevisions()
-                .forEach((rev) -> revisionWriter.addChild(writer -> writer.addChildList("modifications", modWriter -> ModificationsRepresenter.toJSON(modWriter, node.getId(), rev.getModifications())))));
+        VSMDependencyNodeRepresenter.toJSON(outputWriter, node);
+        outputWriter.add("locator", "")
+                .add("node_type", node.getMaterialType().toUpperCase())
+                .addChildList("instances", Collections.emptyList())
+                .addChildList("material_revisions", revisionWriter -> node.getMaterialRevisions()
+                        .forEach((rev) -> revisionWriter.addChild(writer -> writer.addChildList("modifications", modWriter -> ModificationsRepresenter.toJSON(modWriter, node.getId(), rev.getModifications())))));
         if (!node.getMaterialNames().isEmpty()) {
             outputWriter.addChildList("material_names", node.getMaterialNames());
         }

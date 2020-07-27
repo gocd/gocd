@@ -39,10 +39,4 @@ public class VSMDependencyNodeRepresenter {
             outputWriter.add("view_type", node.getViewType());
         }
     }
-
-    public static void toJSON(OutputWriter outputWriter, Node node, String locator, String nodeType) {
-        toJSON(outputWriter, node);
-        outputWriter.add("locator", locator)
-                .add("node_type", nodeType);
-    }
 }

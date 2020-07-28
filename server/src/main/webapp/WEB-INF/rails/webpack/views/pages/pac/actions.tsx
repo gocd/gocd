@@ -22,6 +22,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {ConfigRepo} from "models/config_repos/types";
+import {Rule, Rules} from "models/rules/rules";
 import * as Buttons from "views/components/buttons";
 import css from "./styles.scss";
 
@@ -66,6 +67,9 @@ export class PacActions extends MithrilViewComponent<Attrs> {
     this.clearErrors();
 
     if (configRepo.isValid()) {
+      // allow everything
+      configRepo.rules(new Rules(Stream(new Rule("allow", "refer", "*", "*"))));
+
       ConfigReposCRUD.create(configRepo).then((result: ApiResult<any>) => {
         result.do((s) => {
           this.location.go(SparkRoutes.ConfigRepoViewPath(configRepo.id()));

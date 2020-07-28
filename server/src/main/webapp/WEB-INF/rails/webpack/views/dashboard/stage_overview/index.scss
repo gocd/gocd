@@ -245,7 +245,10 @@ $building: #ffc11b;
   }
 
   .agent-cell {
-    width: 100px;
+    width:         110px;
+    margin-right:  10px;
+    overflow:      hidden;
+    text-overflow: ellipsis;
   }
 }
 

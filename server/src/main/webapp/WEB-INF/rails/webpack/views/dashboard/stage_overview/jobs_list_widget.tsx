@@ -29,6 +29,8 @@ import {JobStateWidget} from "./job_state_widget";
 import {JobDurationStrategyHelper} from "./models/job_duration_stratergy_helper";
 import {StageInstance} from "./models/stage_instance";
 import {JobJSON} from "./models/types";
+import {JobAgentWidget} from "./job_agent_widget";
+import {Agents} from "../../../models/agents/agents";
 
 const classnames = bind(pipelineHistoryStyles);
 
@@ -38,16 +40,17 @@ export interface Attrs {
   pipelineName: string;
   pipelineCounter: string | number;
   jobsVM: Stream<JobsViewModel>;
+  agents: Stream<Agents>;
   lastPassedStageInstance: Stream<StageInstance | undefined>;
 }
 
 export interface State {
-  getTableRowForJob: (jobName: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>) => m.Children;
+  getTableRowForJob: (jobName: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>) => m.Children;
 }
 
 export class JobsListWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.getTableRowForJob = (job: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>) => {
+    vnode.state.getTableRowForJob = (job: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>) => {
       const jobDetailsPageLink = `/go/tab/build/detail/${vnode.attrs.pipelineName}/${vnode.attrs.pipelineCounter}/${vnode.attrs.stageName}/${vnode.attrs.stageCounter}/${job.name}`;
 
       return <div class={styles.tableRow} data-test-id={`table-row-for-job-${job.name}`}>
@@ -70,7 +73,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
           {JobDurationStrategyHelper.getJobDurationForDisplay(job)}
         </div>
         <div class={styles.agentCell} data-test-id={`agent-for-${job.name}`}>
-          agent1
+          <JobAgentWidget job={job} agents={agents}/>
         </div>
       </div>;
     };
@@ -87,7 +90,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         <div class={styles.agentCell} data-test-id="agent-header">Agent</div>
       </div>
       <div class={styles.tableBody} data-test-id="table-body">
-        {vnode.attrs.jobsVM().getJobs().map(job => vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance))}
+        {vnode.attrs.jobsVM().getJobs().map(job => vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance, vnode.attrs.agents))}
       </div>
     </div>;
   }

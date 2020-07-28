@@ -19,6 +19,8 @@ import Stream from "mithril/stream";
 import {AjaxPoller} from "../../../../helpers/ajax_poller";
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "../../../../helpers/api_request_builder";
 import {SparkRoutes} from "../../../../helpers/spark_routes";
+import {Agents} from "../../../../models/agents/agents";
+import {AgentsCRUD} from "../../../../models/agents/agents_crud";
 import {JobsViewModel} from "./jobs_view_model";
 import {StageInstance} from "./stage_instance";
 import {Result, StageInstanceJSON, StageState} from "./types";
@@ -27,15 +29,18 @@ export class StageOverviewViewModel {
   private static STAGES_API_VERSION_HEADER = ApiVersion.latest;
   readonly stageInstance: Stream<StageInstance>;
   readonly jobsVM: Stream<JobsViewModel>;
+  readonly agents: Stream<Agents>;
   readonly lastPassedStageInstance: Stream<StageInstance | undefined>;
   readonly repeater: Stream<any>;
 
   constructor(pipelineName: string, pipelineCounter: string | number,
               stageName: string, stageCounter: string | number,
-              stageInstance: StageInstance, lastPassedStageInstance?: StageInstance) {
+              stageInstance: StageInstance, agents: Agents,
+              lastPassedStageInstance?: StageInstance) {
     this.stageInstance = Stream(stageInstance);
     this.lastPassedStageInstance = Stream(lastPassedStageInstance);
     this.jobsVM = Stream(new JobsViewModel(stageInstance.jobs()));
+    this.agents = Stream(agents);
     this.repeater = Stream(this.createRepeater(pipelineName, pipelineCounter, stageName, stageCounter));
   }
 
@@ -69,6 +74,9 @@ export class StageOverviewViewModel {
     *                       |
     *                       |
     *             FETCH CURRENT STAGE INSTANCE
+    *                       |
+    *                       |
+    *                  FETCH AGENTS
     *                       |
     *                       |
     *                      STOP
@@ -112,12 +120,13 @@ export class StageOverviewViewModel {
   private static initializeCurrentStageInstance(pipelineName: string, pipelineCounter: string | number,
                                                 stageName: string, stageCounter: string | number,
                                                 latestStageInstance?: StageInstance) {
-    return this.fetchStageInstance(pipelineName, pipelineCounter, stageName, stageCounter)
-      .then((result) => {
-        return result.do((successResponse) => {
-          return new StageOverviewViewModel(pipelineName, pipelineCounter, stageName, stageCounter, successResponse.body, latestStageInstance);
+    return Promise.all([this.fetchStageInstance(pipelineName, pipelineCounter, stageName, stageCounter), AgentsCRUD.all()]).then((result) => {
+      return result[0].do((stageInstanceResponse) => {
+        return result[1].do((agentsResponse) => {
+          return new StageOverviewViewModel(pipelineName, pipelineCounter, stageName, stageCounter, stageInstanceResponse.body, agentsResponse.body, latestStageInstance);
         });
       });
+    });
   }
 
   private static fetchStageInstance(pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number) {
@@ -141,15 +150,20 @@ export class StageOverviewViewModel {
   private createRepeater(pipelineName: string, pipelineCounter: string | number,
                          stageName: string, stageCounter: string | number) {
     const repeaterFn = () => {
-      return StageOverviewViewModel.fetchStageInstance(pipelineName, pipelineCounter, stageName, stageCounter)
-        .then((result) => {
-          return result.do((successResponse) => {
-            this.stageInstance(successResponse.body);
-            this.jobsVM().update(this.stageInstance().jobs());
-            m.redraw.sync();
-          });
+      return Promise.all([StageOverviewViewModel.fetchStageInstance(pipelineName, pipelineCounter, stageName, stageCounter), AgentsCRUD.all()]).then(result => {
+        result[0].do((successResponse) => {
+          this.stageInstance(successResponse.body);
+          this.jobsVM().update(this.stageInstance().jobs());
+          m.redraw.sync();
         });
+
+        result[1].do((successResponse) => {
+          this.agents(successResponse.body);
+          m.redraw.sync();
+        });
+      });
     };
+
     const poller = new AjaxPoller({
       repeaterFn,
       initialIntervalSeconds: 0,

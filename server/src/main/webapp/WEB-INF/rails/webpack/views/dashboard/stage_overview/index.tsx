@@ -35,6 +35,12 @@ export interface Attrs {
 }
 
 export class StageOverview extends MithrilComponent<Attrs, {}> {
+  onupdate(vnode: m.Vnode<Attrs, {}>) {
+    vnode.dom.onclick = (e) => {
+      e.stopPropagation();
+    };
+  }
+
   view(vnode: m.Vnode<Attrs, {}>): m.Children | void | null {
     if (!vnode.attrs.stageOverviewVM()) {
       return <div data-test-id="stage-overview-container" className={styles.stageOverviewContainer}>

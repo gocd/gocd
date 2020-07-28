@@ -40,6 +40,9 @@ fs.writeFileSync(path.join(RAILS_ROOT, "package.json"), JSON.stringify(manifest,
   mode: 0o644
 });
 
+// deleting yarn.lock allows us to sort of "tree-shake" our deps by forcing yarn to rebuild
+// the depgraph; sometimes newer versions of packages remove dependencies and a normal yarn
+// update doesn't seem to prune those old deps from the lockfile.
 fs.unlinkSync(path.join(RAILS_ROOT, "yarn.lock"));
 
 console.log("Updating yarn.lock");

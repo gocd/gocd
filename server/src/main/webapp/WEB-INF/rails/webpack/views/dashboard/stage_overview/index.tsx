@@ -31,14 +31,23 @@ export interface Attrs {
   stageName: string;
   stageCounter: string | number;
   stageStatus: StageState;
+  stageIndex: number;
   stageOverviewVM: Stream<StageOverviewViewModel | undefined>;
 }
 
 export class StageOverview extends MithrilComponent<Attrs, {}> {
-  onupdate(vnode: m.Vnode<Attrs, {}>) {
+  oncreate(vnode: m.Vnode<Attrs, {}>) {
     vnode.dom.onclick = (e) => {
       e.stopPropagation();
     };
+
+    // horizontal alignment
+    // 10px is the initial margin left and each stage bar is of 45px in width (including margin)
+    vnode.dom.style.left = `${10 + (vnode.attrs.stageIndex % 5 * 45)}px`;
+
+    //vertical alignment
+    //29px is the initial margin top and each vertical stage bar is of 26px in width (including margin)
+    vnode.dom.style.marginTop = `${29 + (Math.floor(vnode.attrs.stageIndex / 5) * 26)}px`;
   }
 
   view(vnode: m.Vnode<Attrs, {}>): m.Children | void | null {

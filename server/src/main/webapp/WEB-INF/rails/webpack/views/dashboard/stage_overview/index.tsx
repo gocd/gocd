@@ -31,22 +31,12 @@ export interface Attrs {
   stageName: string;
   stageCounter: string | number;
   stageStatus: StageState;
-}
-
-export interface State {
   stageOverviewVM: Stream<StageOverviewViewModel | undefined>;
 }
 
-export class StageOverview extends MithrilComponent<Attrs, State> {
-  oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.stageOverviewVM = Stream(undefined);
-
-    StageOverviewViewModel.initialize(vnode.attrs.pipelineName, vnode.attrs.pipelineCounter, vnode.attrs.stageName, vnode.attrs.stageCounter, vnode.attrs.stageStatus)
-      .then((result) => vnode.state.stageOverviewVM(result as StageOverviewViewModel));
-  }
-
-  view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
-    if (!vnode.state.stageOverviewVM()) {
+export class StageOverview extends MithrilComponent<Attrs, {}> {
+  view(vnode: m.Vnode<Attrs, {}>): m.Children | void | null {
+    if (!vnode.attrs.stageOverviewVM()) {
       return <div data-test-id="stage-overview-container" className={styles.stageOverviewContainer}>
         <Spinner/>
       </div>;
@@ -57,15 +47,15 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
                          stageCounter={vnode.attrs.stageCounter}
                          pipelineName={vnode.attrs.pipelineName}
                          pipelineCounter={vnode.attrs.pipelineCounter}
-                         stageInstance={vnode.state.stageOverviewVM().stageInstance}/>
-      <JobCountAndRerunWidget jobsVM={vnode.state.stageOverviewVM().jobsVM}/>
+                         stageInstance={vnode.attrs.stageOverviewVM().stageInstance}/>
+      <JobCountAndRerunWidget jobsVM={vnode.attrs.stageOverviewVM().jobsVM}/>
       <JobsListWidget stageName={vnode.attrs.stageName}
                       stageCounter={vnode.attrs.stageCounter}
                       pipelineName={vnode.attrs.pipelineName}
                       pipelineCounter={vnode.attrs.pipelineCounter}
-                      jobsVM={vnode.state.stageOverviewVM().jobsVM}
-                      agents={vnode.state.stageOverviewVM().agents}
-                      lastPassedStageInstance={vnode.state.stageOverviewVM().lastPassedStageInstance}/>
+                      jobsVM={vnode.attrs.stageOverviewVM().jobsVM}
+                      agents={vnode.attrs.stageOverviewVM().agents}
+                      lastPassedStageInstance={vnode.attrs.stageOverviewVM().lastPassedStageInstance}/>
     </div>;
 
   }

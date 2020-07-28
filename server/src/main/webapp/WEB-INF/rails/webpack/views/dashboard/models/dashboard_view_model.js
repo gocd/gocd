@@ -112,6 +112,7 @@ export function DashboardViewModel(dashboard) {
   FilterMixin.call(this);
 
   let dropdownPipelineName, dropdownPipelineCounter;
+  let stageOverviewPipelineName, stageOverviewPipelineCounter, stageOverviewStageName, stageOverviewStageCounter;
 
   const self = this;
 
@@ -126,13 +127,33 @@ export function DashboardViewModel(dashboard) {
       isOpen: (name, instanceCounter) => ((name === dropdownPipelineName) && (instanceCounter === dropdownPipelineCounter)),
 
       show: (name, instanceCounter) => {
-        dropdownPipelineName    = name;
+        dropdownPipelineName = name;
         dropdownPipelineCounter = instanceCounter;
       },
 
       hide: () => {
-        dropdownPipelineName    = undefined;
+        dropdownPipelineName = undefined;
         dropdownPipelineCounter = undefined;
+      }
+    },
+
+    stageOverview: {
+      model: Stream(),
+
+      isOpen: (pipeline, pCounter, stage, sCounter) => ((pipeline === stageOverviewPipelineName) && (pCounter === stageOverviewPipelineCounter) && (stage === stageOverviewStageName) && (sCounter === stageOverviewStageCounter)),
+
+      show: (pipeline, pCounter, stage, sCounter) => {
+        stageOverviewPipelineName = pipeline;
+        stageOverviewPipelineCounter = pCounter;
+        stageOverviewStageName = stage;
+        stageOverviewStageCounter = sCounter;
+      },
+
+      hide: () => {
+        stageOverviewPipelineName = undefined;
+        stageOverviewPipelineCounter = undefined;
+        stageOverviewStageName = undefined;
+        stageOverviewStageCounter = undefined;
       }
     },
 

@@ -101,6 +101,7 @@ $(() => {
 
   $(document.body).on("click", () => {
     dashboardVM.dropdown.hide();
+    dashboardVM.stageOverview.hide();
     personalizeVM.hideAllDropdowns();
 
     /**

@@ -50,7 +50,7 @@ export const DashboardWidget = {
       "doCancelPolling",
       "doRefreshImmediately",
       "pluginsSupportingAnalytics", "shouldShowAnalyticsIcon"
-    ]), _.pick(vm, ["operationMessages", "dropdown", "buildCause"]));
+    ]), _.pick(vm, ["operationMessages", "stageOverview", "dropdown", "buildCause"]));
 
     if (args.showSpinner()) {
       return (<span class="page-spinner"/>);

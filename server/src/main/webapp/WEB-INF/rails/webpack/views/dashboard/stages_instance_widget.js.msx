@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import m from "mithril";
+
 import _ from "lodash";
 
 import {f} from "helpers/form_helper";
 import {StageOverview} from "./stage_overview/index";
+import {StageOverviewViewModel} from "./stage_overview/models/stage_overview_view_model";
 
 export const StagesInstanceWidget = {
   oninit(vnode) {
@@ -31,6 +32,13 @@ export const StagesInstanceWidget = {
       }, (res) => {
         operationMessages.failure(vnode.attrs.pipelineName, res.responseJSON.message);
       });
+    };
+
+    vnode.state.showStageOverview = function (pipelineName, pipelineCounter, stageName, stageCounter, stageStatus, stageOverview, e) {
+      stageOverview.model(undefined);
+      stageOverview.show(pipelineName, pipelineCounter, stageName, stageCounter);
+      StageOverviewViewModel.initialize(pipelineName, pipelineCounter, stageName, stageCounter, stageStatus).then((result) => stageOverview.model(result));
+      e.stopPropagation();
     };
   },
 
@@ -50,13 +58,31 @@ export const StagesInstanceWidget = {
         const triggerOnCompletionOfPreviousStage = stage.triggerOnlyOnSuccessOfPreviousStage() && previousStage && (previousStage.isFailed() || previousStage.isCancelled());
         const isTriggerDisabled = isPreviousStageInProgress || !canUserOperateOnStage || triggerOnCompletionOfPreviousStage || stage.isBuildingOrCompleted();
 
-        if(isTriggerDisabled) {
-          manualGate = (<f.linkWithTooltip class="stage_manual_gate_tooltip" tooltipText={getHelpText(stage, previousStage)}>
-            <span class={`manual_gate disabled`}/>
-          </f.linkWithTooltip>);
+        if (isTriggerDisabled) {
+          manualGate = (
+            <f.linkWithTooltip class="stage_manual_gate_tooltip" tooltipText={getHelpText(stage, previousStage)}>
+              <span class={`manual_gate disabled`}/>
+            </f.linkWithTooltip>);
         } else {
-          manualGate = <span onclick={vnode.state.triggerStage.bind(vnode.state, stage)} title={getHelpText(stage, previousStage)} class={`manual_gate`}/>;
+          manualGate =
+            <span onclick={vnode.state.triggerStage.bind(vnode.state, stage)} title={getHelpText(stage, previousStage)}
+                  class={`manual_gate`}/>;
         }
+      }
+
+      const pipelineName = stage.pipelineName();
+      const pipelineCounter = stage.pipelineCounter();
+      const stageName = stage.name;
+      const stageCounter = stage.counter;
+
+      let optionalStageOverview;
+      if (vnode.attrs.stageOverview.isOpen(pipelineName, pipelineCounter, stageName, stageCounter)) {
+        optionalStageOverview = <StageOverview pipelineName={stage.pipelineName()}
+                                               pipelineCounter={stage.pipelineCounter()}
+                                               stageName={stage.name}
+                                               stageCounter={stage.counter}
+                                               stageOverviewVM={vnode.attrs.stageOverview.model}
+                                               stageStatus={stage.status}/>;
       }
 
       if (stage.isBuildingOrCompleted()) {
@@ -66,21 +92,14 @@ export const StagesInstanceWidget = {
              className={`pipeline_stage ${stage.status.toLowerCase()}`}
              title={stageStatus} aria-label={stageStatus}>
           </a>
-          <StageOverview pipelineName={stage.pipelineName()}
-                         pipelineCounter={stage.pipelineCounter()}
-                         stageName={stage.name}
-                         stageStatus={stage.status}
-                         stageCounter={stage.counter}/>
+          {optionalStageOverview}
         </div>);
       }
 
       return (<div class="pipeline_stage_manual_gate_wrapper">
         {manualGate}
         <span className={`pipeline_stage ${stage.status.toLowerCase()}`} title={stageStatus} aria-label={stageStatus}/>
-        <StageOverview pipelineName={stage.pipelineName()}
-                       pipelineCounter={stage.pipelineCounter()}
-                       stageName={stage.name}
-                       stageCounter={stage.counter}/>
+        {optionalStageOverview}
       </div>);
     });
 
@@ -89,6 +108,7 @@ export const StagesInstanceWidget = {
         {stageInstance}
       </ul>
     );
+  }
 };
 
 function getHelpText(stage, previousStage) {

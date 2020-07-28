@@ -26,7 +26,7 @@ enum Distro implements DistroBehavior {
       def installSasl_Post_3_9 = ['apk add --no-cache cyrus-sasl cyrus-sasl-plain']
 
       return [
-        new DistroVersion(version: '3.9', releaseName: '3.9', eolDate: parseDate('2020-11-01'), installPrerequisitesCommands: installSasl_Post_3_9),
+        new DistroVersion(version: '3.9', releaseName: '3.9', eolDate: parseDate('2020-11-01'), installPrerequisitesCommands: installSasl_Post_3_9, continueToBuild: true),
         new DistroVersion(version: '3.10', releaseName: '3.10', eolDate: parseDate('2021-05-01'), installPrerequisitesCommands: installSasl_Post_3_9),
         new DistroVersion(version: '3.11', releaseName: '3.11', eolDate: parseDate('2021-11-01'), installPrerequisitesCommands: installSasl_Post_3_9)
       ]

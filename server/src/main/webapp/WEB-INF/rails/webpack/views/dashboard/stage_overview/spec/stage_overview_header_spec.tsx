@@ -18,6 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {TestHelper} from "../../../pages/spec/test_helper";
 import {StageInstance} from "../models/stage_instance";
+import {Result} from "../models/types";
 import {StageHeaderWidget} from "../stage_overview_header";
 import {TestData} from "./test_data";
 
@@ -74,6 +75,19 @@ describe('Stage Overview Header', () => {
   it('should render stage duration', () => {
     expect(helper.byTestId('stage-trigger-and-timing-container')).toContainText('Duration');
     expect(helper.byTestId('stage-trigger-and-timing-container')).toContainText('01h 40m 50s');
+  });
+
+  it('should render stage cancelled by when stage is cancelled', () => {
+    helper.unmount();
+    const json = TestData.stageInstanceJSON();
+    json.result = Result[Result.Cancelled];
+    json.cancelled_by = 'admin';
+    stageInstance = new StageInstance(json);
+    mount();
+
+    expect(helper.byTestId('cancelled-by-container')).toBeInDOM();
+    expect(helper.byTestId('cancelled-by-container')).toContainText('Cancelled by admin');
+    expect(helper.byTestId('cancelled-by-container')).toContainText('on 27 Jul, 2020 at 12:01:04 Local Time');
   });
 
   it('should render link to stage details page', () => {

@@ -53,4 +53,22 @@ describe('Stage Instance', () => {
       expect(json.stageDuration()).toBe('01h 40m 50s');
     });
   });
+
+  it('should answer false whether the stage is not cancelled', () => {
+    const json = StageInstance.fromJSON(stageInstanceJson);
+    expect(json.isCancelled()).toBe(false);
+  });
+
+  it('should answer true whether the stage is cancelled', () => {
+    stageInstanceJson.result = Result[Result.Cancelled];
+    const json = StageInstance.fromJSON(stageInstanceJson);
+    expect(json.isCancelled()).toBe(true);
+  });
+
+  it('should provide the cancelled by information', () => {
+    stageInstanceJson.result = Result[Result.Cancelled];
+    stageInstanceJson.cancelled_by = 'admin';
+    const json = StageInstance.fromJSON(stageInstanceJson);
+    expect(json.cancelledBy()).toBe('admin');
+  });
 });

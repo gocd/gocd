@@ -34,6 +34,15 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
   view(vnode: m.Vnode<StageHeaderAttrs, {}>): m.Children | void | null {
     const stageDetailsPageLink = `/go/pipelines/${vnode.attrs.pipelineName}/${vnode.attrs.pipelineCounter}/${vnode.attrs.stageName}/${vnode.attrs.stageCounter}`;
 
+    let canceledBy: m.Child, dummyContainer;
+    if (vnode.attrs.stageInstance().isCancelled()) {
+      canceledBy = (<div data-test-id="cancelled-by-container" class={styles.triggeredByContainer}>
+        Cancelled by <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().cancelledBy()}</span> on <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().cancelledOn()}</span> Local Time
+      </div>);
+
+      dummyContainer = <div className={styles.dummyContainerAboveStageDetailsLink}/>;
+    }
+
     return <div data-test-id="stage-overview-header" class={styles.stageHeaderContainer}>
       <div data-test-id="stage-name-and-operations-container" class={styles.flexBox}>
         <div class={styles.stageNameContainer}>
@@ -63,14 +72,14 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
       <div data-test-id="stage-trigger-and-timing-container"
            class={`${styles.flexBox} ${styles.stageTriggerAndTimingContainer}`}>
         <div data-test-id="stage-trigger-by-container">
-          <div>Triggered by <span
-            class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredBy()}</span> on <span
-            class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredOn()}</span> Local Time
-            <span class={styles.durationSeparator}>|</span>
-            Duration: <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().stageDuration()}</span>
+          {canceledBy}
+          <div data-test-id="triggered-by-container" class={styles.triggeredByContainer}>
+            Triggered by <span class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredBy()}</span> on <span class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredOn()}</span> Local Time
+            <span class={styles.durationSeparator}>|</span>Duration: <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().stageDuration()}</span>
           </div>
         </div>
         <div data-test-id="stage-details-page-link" class={styles.stageDetailsPageLink}>
+          {dummyContainer}
           <Link href={stageDetailsPageLink} target={"_blank"}>Go to Stage Details Page >></Link>
         </div>
       </div>

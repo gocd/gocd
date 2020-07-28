@@ -58,6 +58,24 @@ export class StageInstance {
     return JobDurationStrategyHelper.formatTimeForDisplay(moment.utc(end.diff(start)));
   }
 
+  isCancelled(): boolean {
+    return this.json.result === Result[Result.Cancelled];
+  }
+
+  cancelledBy(): string | undefined {
+    return this.json.cancelled_by;
+  }
+
+  cancelledOn(): string {
+    if (!this.isCancelled()) {
+      throw new Error(`Stage is not cancelled.`);
+    }
+
+    const LOCAL_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss";
+    const completedTime = this.json.jobs[0].job_state_transitions.find(t => t.state === "Completed").state_change_time;
+    return `${moment.unix(completedTime / 1000).format(LOCAL_TIME_FORMAT)}`;
+  }
+
   private stageScheduledTime(): number {
     return this.json.jobs[0].scheduled_date / 1000;
   }

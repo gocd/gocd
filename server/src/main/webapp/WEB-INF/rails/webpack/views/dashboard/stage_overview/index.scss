@@ -268,6 +268,10 @@ $building: #ffc11b;
   overflow-y: scroll;
 }
 
+.triggered-by-container {
+  line-height: 25px;
+}
+
 .triggered-by-and-on {
   font-weight: 600;
   font-style:  italic;
@@ -276,6 +280,11 @@ $building: #ffc11b;
 .duration-separator {
   margin: 0 7px 0 7px;
 }
+
+.dummy-container-above-stage-details-link {
+  height: 28px;
+}
+
 
 .table-row {
   height:      44px;

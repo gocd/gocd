@@ -40,6 +40,7 @@ export interface StageInstanceJSON {
   counter: number;
   approval_type: string;
   approved_by: string;
+  cancelled_by?: string;
   result: Result;
   rerun_of_counter: number | null;
   fetch_materials: boolean;

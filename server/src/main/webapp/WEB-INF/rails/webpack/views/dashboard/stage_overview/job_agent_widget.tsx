@@ -18,9 +18,9 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {MithrilComponent} from "../../../jsx/mithril-component";
 import {Agent, Agents} from "../../../models/agents/agents";
-import {JobJSON} from "./models/types";
-import * as styles from "./index.scss";
 import {Link} from "../../components/link";
+import * as styles from "./index.scss";
+import {JobJSON} from "./models/types";
 
 export interface Attrs {
   job: JobJSON;
@@ -41,7 +41,7 @@ export class JobAgentWidget extends MithrilComponent<Attrs, State> {
       const agentDetailsPageLink = `/go/agents/${job.agent_uuid}/job_run_history`;
       const agent: Agent | undefined = agents().getAgent(job.agent_uuid);
 
-      return <Link href={agentDetailsPageLink} target={"_blank"}>{agent ? agent.hostname : job.agent_uuid}</Link>
+      return <Link href={agentDetailsPageLink} target={"_blank"}>{agent ? agent.hostname : job.agent_uuid}</Link>;
     };
   }
 

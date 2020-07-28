@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-
 import m from "mithril";
 import Stream from "mithril/stream";
+import {Agents} from "../../../../models/agents/agents";
+import {AgentsTestData} from "../../../../models/agents/spec/agents_test_data";
 import {TestHelper} from "../../../pages/spec/test_helper";
 import {JobAgentWidget} from "../job_agent_widget";
 import {JobJSON} from "../models/types";
-import {Agents} from "../../../../models/agents/agents";
 import {TestData} from "./test_data";
-import {AgentsTestData} from "../../../../models/agents/spec/agents_test_data";
 
 describe("Job Agent Widget", () => {
   const helper = new TestHelper();

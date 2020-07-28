@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-export function ruleTestData() {
+import {RuleJSON} from "../rules";
+
+export function ruleTestData(): RuleJSON {
   return {
     directive: "allow",
     action:    "refer",
@@ -23,7 +25,7 @@ export function ruleTestData() {
   };
 }
 
-export function rulesTestData() {
+export function rulesTestData(): RuleJSON[] {
   return [
     {
       directive: "allow",

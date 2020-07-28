@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {RuleJSON} from "models/rules/rules";
+
 export function newSecretConfig(id = "secrets_id", pluginId = "cd.go.secrets.file") {
   return {
     id,
@@ -46,7 +48,7 @@ export function newSecretConfig(id = "secrets_id", pluginId = "cd.go.secrets.fil
         type: "pipeline_group",
         resource: "TestPipelines"
       }
-    ]
+    ] as RuleJSON[]
   };
 }
 

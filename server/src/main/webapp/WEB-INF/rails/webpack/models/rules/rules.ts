@@ -18,21 +18,24 @@ import Stream from "mithril/stream";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
+type Directive = "allow" | "deny" | ""; // empty string means "unset"; needed for the input widget
+type Action = "refer";
+
 export interface RuleJSON {
-  directive: string;
-  action: string;
+  directive: Directive;
+  action: Action;
   type: string;
   resource: string;
   errors?: ErrorsJSON;
 }
 
 export class Rule extends ValidatableMixin {
-  directive: Stream<string>;
-  action: Stream<string>;
+  directive: Stream<Directive>;
+  action: Stream<Action>;
   type: Stream<string>;
   resource: Stream<string>;
 
-  constructor(directive: string, action: string, type: string, resource: string, errors: Errors = new Errors()) {
+  constructor(directive: Directive, action: Action, type: string, resource: string, errors: Errors = new Errors()) {
     super();
     this.directive = Stream(directive);
     this.action    = Stream(action);

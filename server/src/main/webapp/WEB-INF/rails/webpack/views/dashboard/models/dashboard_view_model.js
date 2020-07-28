@@ -150,6 +150,9 @@ export function DashboardViewModel(dashboard) {
       },
 
       hide: () => {
+        if(self.stageOverview.model()) {
+          self.stageOverview.model().stopRepeater();
+        }
         stageOverviewPipelineName = undefined;
         stageOverviewPipelineCounter = undefined;
         stageOverviewStageName = undefined;

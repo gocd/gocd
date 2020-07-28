@@ -44,6 +44,10 @@ export class StageOverviewViewModel {
     this.repeater = Stream(this.createRepeater(pipelineName, pipelineCounter, stageName, stageCounter));
   }
 
+  public stopRepeater(): void {
+    this.repeater().stop();
+  }
+
   /*
     ** Responsible to fetch all the required data to show stage overview. **
     *

@@ -41,9 +41,17 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
       e.stopPropagation();
     };
 
-    // horizontal alignment
-    // 10px is the initial margin left and each stage bar is of 45px in width (including margin)
-    vnode.dom.style.left = `${10 + (vnode.attrs.stageIndex % 5 * 45)}px`;
+    const windowWidth = window.innerWidth;
+    const stageOverviewRightBoundry = vnode.dom.getBoundingClientRect().right;
+
+    if (stageOverviewRightBoundry > windowWidth) {
+      vnode.dom.style.left = `-${725 - (vnode.attrs.stageIndex % 5 * 45)}px`;
+      vnode.dom.classList.add(styles.alignLeft);
+    } else {
+      // horizontal alignment
+      // 10px is the initial margin left and each stage bar is of 45px in width (including margin)
+      vnode.dom.style.left = `${10 + (vnode.attrs.stageIndex % 5 * 45)}px`;
+    }
 
     //vertical alignment
     //29px is the initial margin top and each vertical stage bar is of 26px in width (including margin)

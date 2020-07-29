@@ -68,6 +68,12 @@ $building: #ffc11b;
   }
 }
 
+.stage-overview-container.align-left {
+  &:before {
+    left: 748px;
+  }
+}
+
 .stage-header-container {
   padding:       16px;
   border-bottom: 1px solid $border-color;

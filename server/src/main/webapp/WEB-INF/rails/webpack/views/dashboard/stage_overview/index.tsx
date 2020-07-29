@@ -62,7 +62,7 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
 
   view(vnode: m.Vnode<Attrs, {}>): m.Children | void | null {
     if (!vnode.attrs.stageOverviewVM()) {
-      return <div data-test-id="stage-overview-container" className={styles.stageOverviewContainer}>
+      return <div data-test-id="stage-overview-container-spinner" className={styles.stageOverviewContainer}>
         <Spinner/>
       </div>;
     }

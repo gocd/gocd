@@ -21,6 +21,7 @@ import {StageInstance} from "../models/stage_instance";
 import {Result} from "../models/types";
 import {StageHeaderWidget} from "../stage_overview_header";
 import {TestData} from "./test_data";
+import {FlashMessageModelWithTimeout} from "../../../components/flash_message";
 
 describe('Stage Overview Header', () => {
   const helper = new TestHelper();
@@ -30,9 +31,10 @@ describe('Stage Overview Header', () => {
   const stageName = "up42_stage";
   const stageCounter = 1;
 
-  let stageInstance: StageInstance;
+  let stageInstance: StageInstance, flashMessage: FlashMessageModelWithTimeout;
 
   beforeEach(() => {
+    flashMessage = new FlashMessageModelWithTimeout();
     stageInstance = new StageInstance(TestData.stageInstanceJSON());
     mount();
   });
@@ -105,6 +107,7 @@ describe('Stage Overview Header', () => {
                                 pipelineCounter={pipelineCounter}
                                 stageName={stageName}
                                 stageCounter={stageCounter}
+                                flashMessage={flashMessage}
                                 stageInstance={Stream(stageInstance)}/>;
     });
   }

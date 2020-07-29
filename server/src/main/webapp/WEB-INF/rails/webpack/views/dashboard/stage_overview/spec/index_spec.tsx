@@ -15,11 +15,14 @@
  */
 
 import m from "mithril";
-import {SparkRoutes} from "../../../../helpers/spark_routes";
+import Stream from "mithril/stream";
+import {Agents} from "../../../../models/agents/agents";
 import {TestHelper} from "../../../pages/spec/test_helper";
 import {StageOverview} from "../index";
+import {StageOverviewViewModel} from "../models/stage_overview_view_model";
 import {StageState} from "../models/types";
 import {TestData} from "./test_data";
+import {StageInstance} from "../models/stage_instance";
 
 describe("Stage Overview Widget", () => {
   const helper = new TestHelper();
@@ -29,38 +32,36 @@ describe("Stage Overview Widget", () => {
   const stageCounter = 97654321;
 
   beforeEach(() => {
-    mount(pipelineName, pipelineCounter, stageName, stageCounter);
   });
 
   afterEach(() => {
     helper.unmount();
   });
 
-  it("should render stage overview", () => {
-    expect(helper.byTestId('stage-overview-container')).toBeInDOM();
+  it("should render spinner when there is no stage overview", () => {
+    mount(pipelineName, pipelineCounter, stageName, stageCounter, undefined);
+
+    expect(helper.byTestId('stage-overview-container')).not.toBeInDOM();
+    expect(helper.byTestId('stage-overview-container-spinner')).toBeInDOM();
   });
 
-  function mount(pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: number | string) {
-    jasmine.Ajax.withMock(() => {
-      const STAGE_INSTANCE_URL = SparkRoutes.getStageInstance(pipelineName, pipelineCounter, stageName, stageCounter);
-      const response = TestData.stageInstanceJSON();
+  it("should render stage overview", () => {
+    const stageOverviewViewModel = new StageOverviewViewModel(pipelineName, pipelineCounter, stageName, stageCounter, StageInstance.fromJSON(TestData.stageInstanceJSON()), new Agents());
+    mount(pipelineName, pipelineCounter, stageName, stageCounter, stageOverviewViewModel);
 
-      jasmine.Ajax.stubRequest(STAGE_INSTANCE_URL, undefined, "GET").andReturn({
-        responseText:    JSON.stringify(response),
-        status:          200,
-        responseHeaders: {
-          "Content-Type": "application/vnd.go.cd.v1+json",
-          "ETag":         "ETag"
-        }
-      });
+    expect(helper.byTestId('stage-overview-container')).toBeInDOM();
+    expect(helper.byTestId('stage-overview-container-spinner')).not.toBeInDOM();
+  });
 
-      helper.mount(() => {
-        return <StageOverview pipelineName={pipelineName}
-                              pipelineCounter={pipelineCounter}
-                              stageName={stageName}
-                              stageCounter={stageCounter}
-                              stageStatus={StageState[StageState.Passed]}/>;
-      });
+  function mount(pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: number | string, stageOverviewViewModel: StageOverviewViewModel | undefined) {
+
+    helper.mount(() => {
+      return <StageOverview pipelineName={pipelineName}
+                            pipelineCounter={pipelineCounter}
+                            stageName={stageName}
+                            stageCounter={stageCounter}
+                            stageOverviewVM={Stream(stageOverviewViewModel)}
+                            stageStatus={StageState[StageState.Passed]}/>;
     });
   }
 

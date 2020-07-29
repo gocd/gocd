@@ -28,7 +28,8 @@ enum Distro implements DistroBehavior {
       return [
         new DistroVersion(version: '3.9', releaseName: '3.9', eolDate: parseDate('2020-11-01'), installPrerequisitesCommands: installSasl_Post_3_9, continueToBuild: true),
         new DistroVersion(version: '3.10', releaseName: '3.10', eolDate: parseDate('2021-05-01'), installPrerequisitesCommands: installSasl_Post_3_9),
-        new DistroVersion(version: '3.11', releaseName: '3.11', eolDate: parseDate('2021-11-01'), installPrerequisitesCommands: installSasl_Post_3_9)
+        new DistroVersion(version: '3.11', releaseName: '3.11', eolDate: parseDate('2021-11-01'), installPrerequisitesCommands: installSasl_Post_3_9),
+        new DistroVersion(version: '3.12', releaseName: '3.12', eolDate: parseDate('2022-05-01'), installPrerequisitesCommands: installSasl_Post_3_9)
       ]
     }
 

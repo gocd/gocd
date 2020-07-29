@@ -45,7 +45,7 @@ $building: #ffc11b;
   border:        1px solid $border-color;
   border-radius: 3px;
   font-size:     12px;
-  width:         770px;
+  width:         780px;
   min-height:    200px;
   margin:        29px 0 0 5px;
   background:    $body-background;
@@ -143,10 +143,10 @@ $building: #ffc11b;
 }
 
 .stage-name {
-  font-size:   15px;
+  font-size:   17px;
   font-weight: 600;
   text-align:  center;
-  max-width:   100px;
+  max-width:   200px;
   word-break:  break-all;
 }
 
@@ -247,7 +247,7 @@ $building: #ffc11b;
   }
 
   .duration-cell {
-    width: 85px;
+    width: 105px;
   }
 
   .agent-cell {

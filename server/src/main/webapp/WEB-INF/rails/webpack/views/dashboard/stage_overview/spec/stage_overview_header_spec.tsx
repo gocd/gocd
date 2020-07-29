@@ -21,7 +21,7 @@ import {StageInstance} from "../models/stage_instance";
 import {Result} from "../models/types";
 import {StageHeaderWidget} from "../stage_overview_header";
 import {TestData} from "./test_data";
-import {FlashMessageModelWithTimeout} from "../../../components/flash_message";
+import {FlashMessageModelWithTimeout, MessageType} from "../../../components/flash_message";
 
 describe('Stage Overview Header', () => {
   const helper = new TestHelper();
@@ -100,6 +100,19 @@ describe('Stage Overview Header', () => {
     expect(link).toContainText('Go to Stage Details Page >>');
     expect(link.href.indexOf(expectedLink)).not.toBe(-1);
   });
+
+  it('should not render flash message when no message is present', () => {
+    expect(flashMessage.message).toBe(undefined);
+    expect(helper.byTestId('stage-overview-flash-message')).not.toBeInDOM();
+  });
+
+  it('should render flash message when message is present', () => {
+    flashMessage.setMessage(MessageType.success, "Success!");
+    helper.redraw();
+
+    expect(helper.byTestId('stage-overview-flash-message')).toBeInDOM();
+  });
+
 
   function mount() {
     helper.mount(() => {

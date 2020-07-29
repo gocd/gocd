@@ -47,7 +47,7 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
 
     let optionalFlashMessage: m.Child;
     if(vnode.attrs.flashMessage.hasMessage()) {
-      optionalFlashMessage = (<FlashMessage message={vnode.attrs.flashMessage.message} type={vnode.attrs.flashMessage.type}/>);
+      optionalFlashMessage = (<FlashMessage dataTestId="stage-overview-flash-message" message={vnode.attrs.flashMessage.message} type={vnode.attrs.flashMessage.type}/>);
     }
 
     return <div data-test-id="stage-overview-header" class={styles.stageHeaderContainer}>

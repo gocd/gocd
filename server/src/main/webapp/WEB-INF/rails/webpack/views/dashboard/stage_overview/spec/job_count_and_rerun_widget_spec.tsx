@@ -19,12 +19,17 @@ import Stream from "mithril/stream";
 import {TestHelper} from "../../../pages/spec/test_helper";
 import {JobCountAndRerunWidget} from "../job_count_and_rerun_widget";
 import {JobsViewModel} from "../models/jobs_view_model";
+import {Result} from "../models/types";
 import {TestData} from "./test_data";
 
 describe("Job Count And Rerun Widget", () => {
   const helper = new TestHelper();
 
-  beforeEach(mount);
+  let jobs: JobsViewModel;
+  beforeEach(() => {
+    jobs = new JobsViewModel(TestData.stageInstanceJSON().jobs);
+    mount();
+  });
   afterEach(helper.unmount.bind(helper));
 
   it("should render job count container", () => {
@@ -56,9 +61,81 @@ describe("Job Count And Rerun Widget", () => {
     expect(helper.qa('button')[1]).toContainText('Rerun Selected');
   });
 
+
+  it('should render rerun failed button in enabled state with title', () => {
+    helper.unmount();
+    const json = TestData.stageInstanceJSON().jobs;
+    json[0].result = Result[Result.Failed];
+    jobs = new JobsViewModel(json);
+    mount();
+
+    expect(helper.qa('button')[0]).not.toBeDisabled();
+    const expectedTitle = 'Rerun all the failed jobs from the stage. Reruning failed jobs will reschedule \'up42_job\' job(s).';
+    expect(helper.qa('button')[0].title).toBe(expectedTitle);
+  });
+
+  it('should render rerun selected button in enabled state with title', () => {
+    helper.unmount();
+    const json = TestData.stageInstanceJSON().jobs;
+    json[0].result = Result[Result.Failed];
+    jobs = new JobsViewModel(json);
+    jobs.checkedState.get(json[0].name)(true);
+    mount();
+
+    expect(helper.qa('button')[1]).not.toBeDisabled();
+    const expectedTitle = 'Rerun selected jobs from the stage.';
+    expect(helper.qa('button')[1].title).toBe(expectedTitle);
+  });
+
+  it('should render rerun failed button in disabled state with title when no jobs have failed', () => {
+    expect(helper.qa('button')[0]).toBeDisabled();
+    const expectedTitle = 'Can not rerun failed jobs. No jobs from the current stage are in failed state.';
+    expect(helper.qa('button')[0].title).toBe(expectedTitle);
+  });
+
+  it('should render rerun selected button in disabled state with title when no jobs are selected for rerun', () => {
+    expect(helper.qa('button')[1]).toBeDisabled();
+    const expectedTitle = 'Can not rerun selected jobs. No jobs have been selected for rerun.';
+    expect(helper.qa('button')[1].title).toBe(expectedTitle);
+  });
+
+  it('should render rerun failed button in disabled state with title when jobs are in progress', () => {
+    helper.unmount();
+    const json = TestData.stageInstanceJSON().jobs;
+    json.push(TestData.stageInstanceJSON().jobs[0]);
+    json[1].name = json[1].name + `2`;
+
+    json[0].result = Result[Result.Failed];
+    json[1].result = Result[Result.Unknown];
+    jobs = new JobsViewModel(json);
+    mount();
+
+    expect(helper.qa('button')[0]).toBeDisabled();
+    const expectedTitle = 'Can not rerun failed jobs. Some jobs from the stage are still in progress.';
+    expect(helper.qa('button')[0].title).toBe(expectedTitle);
+  });
+
+  it('should render rerun selected button in disabled state with title when jobs are in progress', () => {
+    helper.unmount();
+    const json = TestData.stageInstanceJSON().jobs;
+    json.push(TestData.stageInstanceJSON().jobs[0]);
+    json[1].name = json[1].name + `2`;
+
+    json[0].result = Result[Result.Failed];
+    json[1].result = Result[Result.Unknown];
+    jobs = new JobsViewModel(json);
+    jobs.checkedState.get(json[0].name)(true);
+    mount();
+
+    expect(helper.qa('button')[1]).toBeDisabled();
+    const expectedTitle = 'Can not rerun selected jobs. Some jobs from the stage are still in progress.';
+    expect(helper.qa('button')[1].title).toBe(expectedTitle);
+  });
+
+
   function mount() {
     helper.mount(() => {
-      return <JobCountAndRerunWidget jobsVM={Stream(new JobsViewModel(TestData.stageInstanceJSON().jobs))}/>;
+      return <JobCountAndRerunWidget jobsVM={Stream(jobs)}/>;
     });
   }
 });

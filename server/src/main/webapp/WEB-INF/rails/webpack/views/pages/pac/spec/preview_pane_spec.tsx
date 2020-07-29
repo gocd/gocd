@@ -40,12 +40,12 @@ describe("AddPaC: PreviewPane", () => {
     mime("application/x-yaml");
     m.redraw.sync();
 
-    expect(helper.text(sel.previewPane)).toBe("# Your Pipelines as Code\n# definition will automatically\n# update here");
+    expect(helper.text(sel.previewPane)).toBe("# Your Pipelines as Code definition\n# will automatically update here");
 
     mime("application/json");
     m.redraw.sync();
 
-    expect(helper.text(sel.previewPane)).toBe("// Your Pipelines as Code\n// definition will automatically\n// update here");
+    expect(helper.text(sel.previewPane)).toBe("// Your Pipelines as Code definition\n// will automatically update here");
   });
 
   it("renders content when available", () => {

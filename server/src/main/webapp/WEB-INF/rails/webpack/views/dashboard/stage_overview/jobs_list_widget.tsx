@@ -45,17 +45,17 @@ export interface Attrs {
 }
 
 export interface State {
-  getTableRowForJob: (jobName: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>) => m.Children;
+  getTableRowForJob: (jobName: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>, checkboxStream: Stream<boolean>) => m.Children;
 }
 
 export class JobsListWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.getTableRowForJob = (job: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>) => {
+    vnode.state.getTableRowForJob = (job: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>, checkboxStream: Stream<boolean>) => {
       const jobDetailsPageLink = `/go/tab/build/detail/${vnode.attrs.pipelineName}/${vnode.attrs.pipelineCounter}/${vnode.attrs.stageName}/${vnode.attrs.stageCounter}/${job.name}`;
 
       return <div class={styles.tableRow} data-test-id={`table-row-for-job-${job.name}`}>
         <div class={styles.checkboxCell} data-test-id={`checkbox-for-${job.name}`}>
-          <CheckboxField property={Stream()}/>
+          <CheckboxField property={checkboxStream}/>
         </div>
         <div class={styles.nameCell} data-test-id={`job-name-for-${job.name}`}>
           <div className={`${styles[job.result.toString().toLowerCase()]} ${styles.jobResult}`}/>
@@ -90,7 +90,10 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         <div class={styles.agentCell} data-test-id="agent-header">Agent</div>
       </div>
       <div class={styles.tableBody} data-test-id="table-body">
-        {vnode.attrs.jobsVM().getJobs().map(job => vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance, vnode.attrs.agents))}
+        {vnode.attrs.jobsVM().getJobs().map(job => {
+          const checkboxStream = vnode.attrs.jobsVM().checkedState.get(job.name)!;
+          return vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance, vnode.attrs.agents, checkboxStream);
+        })}
       </div>
     </div>;
   }

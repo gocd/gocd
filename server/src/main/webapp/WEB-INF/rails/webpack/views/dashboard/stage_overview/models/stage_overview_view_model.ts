@@ -24,6 +24,7 @@ import {AgentsCRUD} from "../../../../models/agents/agents_crud";
 import {JobsViewModel} from "./jobs_view_model";
 import {StageInstance} from "./stage_instance";
 import {Result, StageInstanceJSON, StageState} from "./types";
+import {FlashMessageModelWithTimeout} from "../../../components/flash_message";
 
 export class StageOverviewViewModel {
   private static STAGES_API_VERSION_HEADER = ApiVersion.latest;
@@ -32,6 +33,7 @@ export class StageOverviewViewModel {
   readonly agents: Stream<Agents>;
   readonly lastPassedStageInstance: Stream<StageInstance | undefined>;
   readonly repeater: Stream<any>;
+  readonly flashMessage: FlashMessageModelWithTimeout = new FlashMessageModelWithTimeout();
 
   constructor(pipelineName: string, pipelineCounter: string | number,
               stageName: string, stageCounter: string | number,

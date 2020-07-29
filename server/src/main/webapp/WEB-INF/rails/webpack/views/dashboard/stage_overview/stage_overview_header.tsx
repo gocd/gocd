@@ -18,6 +18,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import * as Icons from "views/components/icons";
 import {MithrilComponent} from "../../../jsx/mithril-component";
+import {FlashMessage, FlashMessageModelWithTimeout} from "../../components/flash_message";
 import {Link} from "../../components/link";
 import * as styles from "./index.scss";
 import {StageInstance} from "./models/stage_instance";
@@ -27,6 +28,7 @@ interface StageHeaderAttrs {
   stageCounter: string | number;
   pipelineName: string;
   pipelineCounter: string | number;
+  flashMessage: FlashMessageModelWithTimeout;
   stageInstance: Stream<StageInstance>;
 }
 
@@ -43,7 +45,13 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
       dummyContainer = <div className={styles.dummyContainerAboveStageDetailsLink}/>;
     }
 
+    let optionalFlashMessage: m.Child;
+    if(vnode.attrs.flashMessage.hasMessage()) {
+      optionalFlashMessage = (<FlashMessage message={vnode.attrs.flashMessage.message} type={vnode.attrs.flashMessage.type}/>);
+    }
+
     return <div data-test-id="stage-overview-header" class={styles.stageHeaderContainer}>
+      {optionalFlashMessage}
       <div data-test-id="stage-name-and-operations-container" class={styles.flexBox}>
         <div class={styles.stageNameContainer}>
           <div data-test-id="pipeline-name-container">

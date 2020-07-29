@@ -466,6 +466,14 @@ export class SparkRoutes {
     return `/go/api/stages/${pipelineName}/${counter}/${stageName}/run`;
   }
 
+  static rerunFailedJobs(pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number) {
+    return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}/run-failed-jobs`;
+  }
+
+  static rerunSelectedJobs(pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number) {
+    return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}/run-selected-jobs`;
+  }
+
   static getStageInstance(pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: number | string) {
     return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}`;
   }

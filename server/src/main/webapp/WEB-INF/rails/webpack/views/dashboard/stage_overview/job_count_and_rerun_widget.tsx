@@ -16,18 +16,72 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
-import {MithrilViewComponent} from "../../../jsx/mithril-component";
+import {MithrilComponent} from "../../../jsx/mithril-component";
 import {ButtonGroup, Secondary} from "../../components/buttons";
 import * as styles from "./index.scss";
 import Stream from "./jobs_list_widget";
 import {JobsViewModel} from "./models/jobs_view_model";
+import {FlashMessageModelWithTimeout, MessageType} from "../../components/flash_message";
 
 export interface Attrs {
+  stageName: string;
+  stageCounter: string | number;
+  pipelineName: string;
+  pipelineCounter: string | number;
+  flashMessage: FlashMessageModelWithTimeout;
   jobsVM: Stream<JobsViewModel>;
 }
 
-export class JobCountAndRerunWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
+export interface State {
+  rerunFailed: (attrs: Attrs) => void;
+  rerunSelected: (attrs: Attrs) => void;
+}
+
+export class JobCountAndRerunWidget extends MithrilComponent<Attrs, State> {
+  oninit(vnode: m.Vnode<Attrs, State>) {
+    function getResultHandler(attrs) {
+      return (result) => {
+        result.do((successResponse) => {
+          attrs.flashMessage.setMessage(MessageType.success, JSON.parse(successResponse.body).message);
+        }, (errorResponse) => {
+          attrs.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body).message);
+        });
+      };
+    }
+
+    vnode.state.rerunFailed = (attrs: Attrs) => {
+      attrs.jobsVM().rerunFailedJobs(attrs.pipelineName, attrs.pipelineCounter, attrs.stageName, attrs.stageCounter).then(getResultHandler(attrs));
+    };
+
+    vnode.state.rerunSelected = (attrs: Attrs) => {
+      attrs.jobsVM().rerunSelectedJobs(attrs.pipelineName, attrs.pipelineCounter, attrs.stageName, attrs.stageCounter).then(getResultHandler(attrs));
+    };
+  }
+
+  view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
+    const failedJobNames = vnode.attrs.jobsVM().failedJobNames().map(j => j.name);
+    let rerunFailedTitle = `Rerun all the failed jobs from the stage. Reruning failed jobs will reschedule '${failedJobNames.join(', ')}' job(s).`;
+    let rerunSelectedTitle = `Rerun selected jobs from the stage.`;
+
+    let disableRerunFailed = false, disableRerunSelected = false;
+
+    const isStageCompleted = vnode.attrs.jobsVM().buildingJobNames().length === 0;
+    if (!isStageCompleted) {
+      rerunFailedTitle = `Can not rerun failed jobs. Some jobs from the stage are still in progress.`;
+      rerunSelectedTitle = `Can not rerun selected jobs. Some jobs from the stage are still in progress.`;
+      disableRerunFailed = disableRerunSelected = true;
+    }
+
+    if (failedJobNames.length === 0) {
+      disableRerunFailed = true;
+      rerunFailedTitle = `Can not rerun failed jobs. No jobs from the current stage are in failed state.`;
+    }
+
+    if (vnode.attrs.jobsVM().getCheckedJobNames().length === 0) {
+      disableRerunSelected = true;
+      rerunSelectedTitle = `Can not rerun selected jobs. No jobs have been selected for rerun.`;
+    }
+
     return <div class={styles.jobCountAndRerunContainer} data-test-id="job-count-and-rerun-container">
       <div class={styles.jobCountContainer} data-test-id="job-cont-container">
         <div class={styles.countContainer} data-test-id="in-progress-jobs-container">
@@ -45,8 +99,8 @@ export class JobCountAndRerunWidget extends MithrilViewComponent<Attrs> {
       </div>
       <div data-test-id="job-rerun-container">
         <ButtonGroup>
-          <Secondary small={true}>Rerun Failed</Secondary>
-          <Secondary small={true}>Rerun Selected</Secondary>
+          <Secondary title={rerunFailedTitle} disabled={disableRerunFailed} small={true} onclick={vnode.state.rerunFailed.bind(vnode.state, vnode.attrs)}>Rerun Failed</Secondary>
+          <Secondary title={rerunSelectedTitle} disabled={disableRerunSelected} small={true} onclick={vnode.state.rerunSelected.bind(vnode.state, vnode.attrs)}>Rerun Selected</Secondary>
         </ButtonGroup>
       </div>
     </div>;

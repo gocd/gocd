@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
+import Stream from 'mithril/stream';
 import {JobJSON, Result} from "./types";
+import {ApiRequestBuilder, ApiVersion} from "../../../../helpers/api_request_builder";
+import {SparkRoutes} from "../../../../helpers/spark_routes";
 
 export class JobsViewModel {
+  public readonly checkedState: Map<string, Stream<boolean>> = new Map();
   private readonly jobs: JobJSON[];
 
   constructor(jobs: JobJSON[]) {
     this.jobs = jobs;
+    jobs.forEach(job => this.checkedState.set(job.name, Stream(false)));
   }
 
   getJobs(): JobJSON[] {
@@ -37,6 +42,27 @@ export class JobsViewModel {
 
   passedJobNames(): JobJSON[] {
     return this.getJobNamesByResult(Result.Passed);
+  }
+
+  getCheckedJobNames(): string[] {
+    const checkedJobNames: string[] = [];
+    this.checkedState.forEach((value: Stream<boolean>, key: string) => {
+      if (value() === true) {
+        checkedJobNames.push(key);
+      }
+    });
+
+    return checkedJobNames;
+  }
+
+  rerunFailedJobs(pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number) {
+    return ApiRequestBuilder.POST(SparkRoutes.rerunFailedJobs(pipelineName, pipelineCounter, stageName, stageCounter), ApiVersion.latest);
+  }
+
+  rerunSelectedJobs(pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number) {
+    const jobs = this.getCheckedJobNames();
+    return ApiRequestBuilder.POST(SparkRoutes.rerunSelectedJobs(pipelineName, pipelineCounter, stageName, stageCounter),
+      ApiVersion.latest, {payload: {jobs}});
   }
 
   // responsible to update the view model

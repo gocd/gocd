@@ -42,6 +42,10 @@ $input-length-for-rules: 300px;
   margin-right: 10px;
 }
 
+// TODO: Why unqualified tag selector? When webpack compiles production bundle,
+// this rule is applied to every page. This doesn't happen in the development
+// bundle. Qualifying this with a class (or nesting under a class) will prevent
+// this side-effect.
 code {
   white-space: pre-wrap;
   word-break:  break-all;

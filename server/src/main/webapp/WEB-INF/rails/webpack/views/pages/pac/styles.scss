@@ -58,6 +58,7 @@ $shell-sample-cmd: $task-cmd-color;
   margin: 0;
 
   code {
+    white-space: pre;
     overflow-y: auto;
     display: block;
   }

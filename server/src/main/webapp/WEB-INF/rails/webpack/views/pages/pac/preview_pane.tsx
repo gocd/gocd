@@ -48,7 +48,7 @@ export class PreviewPane extends MithrilComponent<Attrs> {
   content(language: LanguageSpec, content: string) {
     return content ?
       m.trust(Prism.highlight(content, language.grammar, language.name)) :
-      this.comments(language, "Your Pipelines as Code definition\nwill automatically update here");
+      this.comments(language, "Your Pipelines as Code\ndefinition will automatically\nupdate here");
   }
 
   comments(language: LanguageSpec, ...lines: string[]) {

@@ -43,9 +43,13 @@ $input-length-for-rules: 300px;
 }
 
 code {
+  // this forces a line-break so that long lines of generated/exported PaC code
+  // do not cause horizontal scrollbars, which are not only ugly, but also
+  // clumsy vertical scrolling with a trackpad.
   white-space: pre-wrap;
-  word-break:  break-all;
-  word-wrap:   break-word;
+
+  word-break: break-all;
+  word-wrap:  break-word;
 }
 
 .spinner-wrapper {

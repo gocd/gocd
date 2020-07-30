@@ -17,23 +17,53 @@ import m from "mithril";
 import _ from "lodash";
 
 export const StagesInstanceWidget = {
+  oninit(vnode) {
+    const self = vnode.state;
+    const operationMessages = vnode.attrs.operationMessages;
+
+    self.triggerStage = (stage) => {
+      stage.trigger().then((res) => {
+        operationMessages.success(vnode.attrs.pipelineName, res.message);
+        vnode.attrs.invalidateEtag();
+      }, (res) => {
+        operationMessages.failure(vnode.attrs.pipelineName, res.responseJSON.message);
+      });
+    };
+  },
+
   view: (vnode) => {
-    const stages        = vnode.attrs.stages;
-    const stageInstance = _.map(stages, (stage) => {
+    const stages = vnode.attrs.stages;
+    const stageInstance = _.map(stages, (stage, index) => {
+      const previousStage = stages[index-1];
+      const isPreviousStageInProgress = previousStage ? !previousStage.isCompleted() : false;
       let stageStatus = `${stage.name} (${stage.status})`;
       if (stage.isCancelled()) {
         stageStatus = `${stage.name} (cancelled by: ${stage.cancelledBy})`;
       }
-      if (stage.isBuildingOrCompleted()) {
-        return (<a href={stage.stageDetailTabPath}
-                   class={`pipeline_stage ${stage.status.toLowerCase()}`}
-                   title={stageStatus} aria-label={stageStatus}>
 
-        </a>);
+      let manualGate;
+      if (stage.isManual()) {
+        const canUserOperateOnStage = stage.canOperate;
+        const triggerOnCompletionOfPreviousStage = stage.triggerOnlyOnSuccessOfPreviousStage() && previousStage && (previousStage.isFailed() || previousStage.isCancelled());
+        const isTriggerDisabled = isPreviousStageInProgress || !canUserOperateOnStage || triggerOnCompletionOfPreviousStage || stage.isBuildingOrCompleted();
+
+        manualGate = <span onclick={isTriggerDisabled ? undefined : vnode.state.triggerStage.bind(vnode.state, stage)}
+                           title={getHelpText(stage, previousStage)}
+                           class={`manual_gate ${isTriggerDisabled ? "disabled" : ""}`} />;
       }
 
-      return (<span class={`pipeline_stage ${stage.status.toLowerCase()}`}
-                    title={stageStatus} aria-label={stageStatus}/>);
+      if (stage.isBuildingOrCompleted()) {
+        return [ manualGate,
+          <a href={stage.stageDetailTabPath}
+             className={`pipeline_stage ${stage.status.toLowerCase()}`}
+             title={stageStatus} aria-label={stageStatus}>
+          </a>];
+      }
+
+      return [
+        manualGate,
+        <span className={`pipeline_stage ${stage.status.toLowerCase()}`}
+              title={stageStatus} aria-label={stageStatus}/>];
     });
 
     return (
@@ -43,4 +73,30 @@ export const StagesInstanceWidget = {
     );
   }
 };
+
+function getHelpText(stage, previousStage) {
+  let helpText;
+  if(stage.isManual()) {
+    helpText = `Awaiting approval. Waiting for users with the operate permission to schedule '${stage.name}' stage`;
+  }
+
+  if(stage.isBuildingOrCompleted()) {
+    helpText = `Approved by '${stage.approvedBy}'.`;
+  }
+
+  if(previousStage && !previousStage.isCompleted()) {
+    helpText = `Can not schedule next stage - Either the previous stage hasn't run or is in progress.`;
+  }
+
+  if(!stage.canOperate) {
+    helpText = `Can not schedule next stage - You don't have permissions to schedule the next stage.`;
+  }
+
+  if(stage.triggerOnlyOnSuccessOfPreviousStage() && previousStage && (previousStage.isFailed() || previousStage.isCancelled())) {
+    helpText = `Can not schedule next stage - stage '${stage.name}' is set to run only on success of previous stage, whereas, the previous stage '${previousStage.name}' has ${previousStage.status}.`;
+  }
+
+
+  return helpText;
+}
 

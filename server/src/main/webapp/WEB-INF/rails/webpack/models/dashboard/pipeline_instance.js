@@ -31,6 +31,20 @@ const StageInstance = function (json, pipelineName, pipelineCounter) {
   this.isFailed              = () => json.status === 'Failed';
   this.isBuildingOrCompleted = () => json.status !== 'Unknown';
   this.isCancelled           = () => json.status === 'Cancelled';
+  this.isCompleted           = () => json.status === 'Passed' || json.status === 'Failed' || json.status === 'Cancelled';
+
+  this.canOperate                          = json.can_operate;
+  this.approvedBy                          = json.approved_by;
+  this.isManual                            = () => json.approval_type === 'manual';
+  this.triggerOnCompletionOfPreviousStage  = () => !this.isManual();
+  this.triggerOnlyOnSuccessOfPreviousStage = () => json.allow_only_on_success_of_previous_stage;
+
+  this.trigger = () => {
+    return AjaxHelper.POST({
+      url: SparkRoutes.runStage(pipelineName, pipelineCounter, json.name),
+      apiVersion: 'v2'
+    });
+  };
 };
 
 export const PipelineInstance = function (info, pipelineName) {

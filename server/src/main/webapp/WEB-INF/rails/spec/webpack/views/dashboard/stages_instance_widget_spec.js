@@ -51,6 +51,8 @@ describe("Dashboard Stages Instance Widget", () => {
           "counter":      "1",
           "status":       "Failed",
           "approved_by":  "changes",
+          "can_operate": true,
+          "allow_only_on_success_of_previous_stage": false,
           "scheduled_at": "2017-11-10T07:25:28.539Z"
         },
         {
@@ -65,7 +67,10 @@ describe("Dashboard Stages Instance Widget", () => {
           "name":         "up42_stage2",
           "counter":      "1",
           "status":       "Unknown",
+          "approval_type": "manual",
           "approved_by":  "changes",
+          "can_operate": true,
+          "allow_only_on_success_of_previous_stage": false,
           "scheduled_at": "2017-11-10T07:25:28.539Z"
         },
         {
@@ -82,20 +87,30 @@ describe("Dashboard Stages Instance Widget", () => {
           "status":       "Cancelled",
           "cancelled_by": "someone",
           "approved_by":  "changes",
+          "can_operate": true,
+          "allow_only_on_success_of_previous_stage": false,
           "scheduled_at": "2017-11-10T07:25:28.539Z"
         }
       ]
     }
   };
 
-  const pipelineName   = 'up42';
-  const stagesInstance = new PipelineInstance(pipelineInstanceJson, pipelineName).stages;
+  let pipelineName;
+  let pipelineInstance;
+  let stagesInstance;
 
   beforeEach(() => {
-    helper.mount(() => m(StagesInstanceWidget, {
-      stages: stagesInstance
-    }));
+    pipelineName   = 'up42';
+    pipelineInstance = new PipelineInstance(pipelineInstanceJson, pipelineName);
+    stagesInstance = pipelineInstance.stages;
+    mount();
   });
+
+  function mount() {
+    helper.mount(() => m(StagesInstanceWidget, {
+      stages: stagesInstance,
+    }));
+  }
 
   it("should render each stage instance", () => {
     const stagesInstance = helper.qa('.pipeline_stage');
@@ -122,5 +137,60 @@ describe("Dashboard Stages Instance Widget", () => {
     expect(helper.qa('.pipeline_stage')[0].title).toEqual(stage1Status);
     expect(helper.qa('.pipeline_stage')[1].title).toEqual(stage2Status);
     expect(helper.qa('.pipeline_stage')[2].title).toEqual(stage3Status);
+  });
+
+  it("should render manual gate icon before the manual stage", () => {
+    expect(helper.qa('.manual_gate')).toBeInDOM();
+  });
+
+  it("should provide help text for the manual gate", () => {
+    expect(helper.q('.manual_gate').title).toEqual('Awaiting approval. Waiting for users with the operate permission to schedule \'up42_stage2\' stage');
+  });
+
+  it("should render enabled manual gate", () => {
+    expect(helper.q('.manual_gate')).not.toHaveClass('disabled');
+  });
+
+  it("should render disabled manual gate when previous stage is in progress", () => {
+    stagesInstance[0].isCompleted = () => false;
+    m.redraw.sync();
+
+    expect(helper.q('.manual_gate')).toHaveClass('disabled');
+    expect(helper.q('.manual_gate').title).toEqual('Can not schedule next stage - Either the previous stage hasn\'t run or is in progress.');
+  });
+
+  it("should render disabled manual gate when user does not have permission to operate on the pipeline", () => {
+    stagesInstance[1].canOperate = false;
+    m.redraw.sync();
+
+    expect(helper.q('.manual_gate')).toHaveClass('disabled');
+    expect(helper.q('.manual_gate').title).toEqual('Can not schedule next stage - You don\'t have permissions to schedule the next stage.');
+  });
+
+  it("should render disabled manual gate when the stage has already been scheduled", () => {
+    stagesInstance[1].isBuildingOrCompleted = () => true;
+    stagesInstance[1].approvedBy = 'admin';
+    m.redraw.sync();
+
+    expect(helper.q('.manual_gate')).toHaveClass('disabled');
+    expect(helper.q('.manual_gate').title).toEqual('Approved by \'admin\'.');
+  });
+
+  it("should render disabled manual gate when previous stage is failed and allow_only_on_success_of_previous_stage is set to true", () => {
+    stagesInstance[0].status = 'Failed';
+    stagesInstance[1].triggerOnlyOnSuccessOfPreviousStage = () => true;
+    m.redraw.sync();
+
+    expect(helper.q('.manual_gate')).toHaveClass('disabled');
+    expect(helper.q('.manual_gate').title).toEqual('Can not schedule next stage - stage \'up42_stage2\' is set to run only on success of previous stage, whereas, the previous stage \'up42_stage\' has Failed.');
+  });
+
+  it("should render disabled manual gate when previous stage is cancelled and allow_only_on_success_of_previous_stage is set to true", () => {
+    stagesInstance[0].status = 'Cancelled';
+    stagesInstance[1].triggerOnlyOnSuccessOfPreviousStage = () => true;
+    m.redraw.sync();
+
+    expect(helper.q('.manual_gate')).toHaveClass('disabled');
+    expect(helper.q('.manual_gate').title).toEqual('Can not schedule next stage - stage \'up42_stage2\' is set to run only on success of previous stage, whereas, the previous stage \'up42_stage\' has Cancelled.');
   });
 });

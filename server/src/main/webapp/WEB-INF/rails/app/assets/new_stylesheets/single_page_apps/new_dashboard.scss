@@ -569,6 +569,23 @@ body {
   margin:          1px 0 10px -4px;
   padding:         0;
 
+  .manual_gate {
+    @include icon-before(step-forward, 14px, 0);
+
+    padding: 1px 5px;
+    cursor:  pointer;
+
+    &.disabled {
+      opacity:    0.5;
+      cursor:     not-allowed;
+
+      &:hover {
+        opacity:    0.5;
+        cursor:     not-allowed;
+      }
+    }
+  }
+
   .pipeline_stage {
     width:       34px;
     height:      16px;

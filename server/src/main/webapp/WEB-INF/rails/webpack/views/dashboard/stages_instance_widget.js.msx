@@ -58,6 +58,7 @@ export const StagesInstanceWidget = {
         const triggerOnCompletionOfPreviousStage = stage.triggerOnlyOnSuccessOfPreviousStage() && previousStage && (previousStage.isFailed() || previousStage.isCancelled());
         const isTriggerDisabled = isPreviousStageInProgress || !canUserOperateOnStage || triggerOnCompletionOfPreviousStage || stage.isBuildingOrCompleted();
 
+
         if (isTriggerDisabled) {
           manualGate = (
             <f.linkWithTooltip class="stage_manual_gate_tooltip" tooltipText={getHelpText(stage, previousStage)}>
@@ -90,6 +91,7 @@ export const StagesInstanceWidget = {
         return (<div class="pipeline_stage_manual_gate_wrapper">
           {manualGate}
           <a href={stage.stageDetailTabPath}
+             onclick={vnode.state.showStageOverview.bind(vnode, pipelineName, pipelineCounter, stageName, stageCounter, stage.status, vnode.attrs.stageOverview)}
              className={`pipeline_stage ${stage.status.toLowerCase()}`}
              title={stageStatus} aria-label={stageStatus}>
           </a>

@@ -62,6 +62,14 @@ export class StageInstance {
     return this.json.result === Result[Result.Cancelled];
   }
 
+  isCompleted(): boolean {
+    return this.json.result === Result[Result.Cancelled] || this.json.result === Result[Result.Passed] || this.json.result === Result[Result.Failed];
+  }
+
+  isInProgress(): boolean {
+    return this.json.result === Result[Result.Unknown];
+  }
+
   cancelledBy(): string | undefined {
     return this.json.cancelled_by;
   }

@@ -17,7 +17,7 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import * as Icons from "views/components/icons";
-import {MithrilComponent} from "../../../jsx/mithril-component";
+import {MithrilComponent, MithrilViewComponent} from "../../../jsx/mithril-component";
 import {FlashMessage, FlashMessageModelWithTimeout} from "../../components/flash_message";
 import {Link} from "../../components/link";
 import * as styles from "./index.scss";
@@ -28,6 +28,7 @@ interface StageHeaderAttrs {
   stageCounter: string | number;
   pipelineName: string;
   pipelineCounter: string | number;
+  stageInstanceFromDashboard: any;
   flashMessage: FlashMessageModelWithTimeout;
   stageInstance: Stream<StageInstance>;
 }
@@ -74,7 +75,7 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
           </div>
         </div>
         <div data-test-id="stage-operations-container" class={styles.stageOperationButtonGroup}>
-          <div><Icons.Trigger iconOnly={true}/></div>
+          <StageTriggerOrCancelButtonWidget stageInstance={vnode.attrs.stageInstance} stageInstanceFromDashboard={vnode.attrs.stageInstanceFromDashboard}/>
           <div class={styles.stageSettings}>
             <Icons.Settings iconOnly={true} onclick={() => window.open(stageSettingsUrl)}/>
           </div>
@@ -97,4 +98,19 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
       </div>
     </div>;
   }
+}
+
+interface StageTriggerOrCancelButtonAttrs {
+  stageInstance: Stream<StageInstance>;
+}
+
+class StageTriggerOrCancelButtonWidget extends MithrilViewComponent<StageTriggerOrCancelButtonAttrs> {
+  view(vnode: m.Vnode<StageTriggerOrCancelButtonAttrs, this>): m.Children | void | null {
+    if(vnode.attrs.stageInstance().isCompleted()) {
+      return <div><Icons.Trigger iconOnly={true}/></div>;
+    }
+
+    return <div><Icons.Trigger iconOnly={true}/></div>;
+  }
+
 }

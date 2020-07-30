@@ -17,12 +17,12 @@ package com.thoughtworks.go.apiv1.pipelineinstance;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.HistoryMethods;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelRepresenter;
 import com.thoughtworks.go.apiv1.pipelineinstance.representers.PipelineInstanceModelsRepresenter;
-import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.domain.PipelineRunIdInfo;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
@@ -38,13 +38,10 @@ import spark.Response;
 
 import java.io.IOException;
 
-import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_CURSOR_MSG;
-import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_PAGE_SIZE_MSG;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
-public class PipelineInstanceControllerV1 extends ApiController implements SparkSpringController {
+public class PipelineInstanceControllerV1 extends ApiController implements SparkSpringController, HistoryMethods {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PipelineHistoryService pipelineHistoryService;
 
@@ -106,33 +103,6 @@ public class PipelineInstanceControllerV1 extends ApiController implements Spark
         pipelineHistoryService.updateComment(pipelineName, pipelineCounter, reader.getString("comment"), currentUsername());
 
         return renderMessage(response, 200, "Comment successfully updated.");
-    }
-
-    private Integer getPageSize(Request request) {
-        Integer offset;
-        try {
-            offset = Integer.valueOf(request.queryParamOrDefault("page_size", "10"));
-            if (offset < 10 || offset > 100) {
-                throw new BadRequestException(BAD_PAGE_SIZE_MSG);
-            }
-        } catch (NumberFormatException e) {
-            throw new BadRequestException(BAD_PAGE_SIZE_MSG);
-        }
-        return offset;
-    }
-
-    private long getCursor(Request request, String key) {
-        long cursor = 0;
-        try {
-            String value = request.queryParams(key);
-            if (isBlank(value)) {
-                return cursor;
-            }
-            cursor = Long.parseLong(value);
-        } catch (NumberFormatException nfe) {
-            throw new BadRequestException(String.format(BAD_CURSOR_MSG, key));
-        }
-        return cursor;
     }
 
     private Integer getCounterValue(Request request) {

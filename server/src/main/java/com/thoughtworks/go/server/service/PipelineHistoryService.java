@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -49,7 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_CURSOR_MSG;
+import static com.thoughtworks.go.server.service.ServiceConstants.History.validateCursor;
 import static java.lang.String.format;
 
 @Service
@@ -169,14 +168,6 @@ public class PipelineHistoryService {
         return populatePipelineInstanceModels(username, history);
     }
 
-    private boolean validateCursor(Long cursor, String key) {
-        if (cursor == 0) return false;
-        if (cursor < 0) {
-            throw new BadRequestException(format(BAD_CURSOR_MSG, key));
-        }
-        return true;
-    }
-
     public PipelineRunIdInfo getOldestAndLatestPipelineId(String pipelineName, Username username) {
         checkForExistenceAndAccess(username, pipelineName);
         return pipelineDao.getOldestAndLatestPipelineId(pipelineName);
@@ -256,9 +247,9 @@ public class PipelineHistoryService {
         for (StageInstanceModel stageHistoryItem : pipelineInstanceModel.getStageHistory()) {
             ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
             boolean canRun = scheduleService.canRun(
-                pipelineInstanceModel.getPipelineIdentifier(), stageHistoryItem.getName(),
-                CaseInsensitiveString.str(username.getUsername()), pipelineInstanceModel.hasPreviousStageBeenScheduled(
-                    stageHistoryItem.getName()), result);
+                    pipelineInstanceModel.getPipelineIdentifier(), stageHistoryItem.getName(),
+                    CaseInsensitiveString.str(username.getUsername()), pipelineInstanceModel.hasPreviousStageBeenScheduled(
+                            stageHistoryItem.getName()), result);
             stageHistoryItem.setCanRun(canRun);
             if (!canRun && result.getServerHealthState() != null && result.getServerHealthState().getType().equals(HealthStateType.forbidden())) {
                 stageHistoryItem.setErrorMessage(result.getServerHealthState().getMessage());
@@ -416,7 +407,7 @@ public class PipelineHistoryService {
                 boolean canForce = schedulingCheckerService.canManuallyTrigger(CaseInsensitiveString.str(pipelineName), username);
                 PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(CaseInsensitiveString.str(pipelineName));
                 groupModels.addPipelineInstance(groupName, activePipeline, canForce, securityService.hasOperatePermissionForPipeline(
-                    username.getUsername(), CaseInsensitiveString.str(pipelineName)
+                        username.getUsername(), CaseInsensitiveString.str(pipelineName)
                 ), pauseInfo);
             }
         }
@@ -506,7 +497,7 @@ public class PipelineHistoryService {
             boolean canForce = schedulingCheckerService.canManuallyTrigger(pipelineName, username);
             PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
             PipelineModel pipelineModel = new PipelineModel(pipelineName, canForce, securityService.hasOperatePermissionForPipeline(
-                username.getUsername(), pipelineName
+                    username.getUsername(), pipelineName
             ), pauseInfo);
             populateLockStatus(instanceModel.getName(), username, instanceModel);
             pipelineModel.addPipelineInstance(instanceModel);

@@ -16,9 +16,20 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.exceptions.BadRequestException;
+
+import static java.lang.String.format;
+
 public class ServiceConstants {
-    public class History {
-        public static final String BAD_PAGE_SIZE_MSG = "The query parameter 'page_size', if specified must be a number between 10 and 100.";
+    public static class History {
         public static final String BAD_CURSOR_MSG = "The query parameter '%s', if specified, must be a positive integer.";
+
+        static boolean validateCursor(Long cursor, String key) {
+            if (cursor == 0) return false;
+            if (cursor < 0) {
+                throw new BadRequestException(format(BAD_CURSOR_MSG, key));
+            }
+            return true;
+        }
     }
 }

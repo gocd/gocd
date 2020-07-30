@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -66,8 +65,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_CURSOR_MSG;
-import static java.lang.String.format;
+import static com.thoughtworks.go.server.service.ServiceConstants.History.validateCursor;
 
 @Service
 public class StageService implements StageFinder {
@@ -520,14 +518,6 @@ public class StageService implements StageFinder {
         if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
             throw new NotAuthorizedException(EntityType.Pipeline.forbiddenToView(pipelineName, username.getUsername()));
         }
-    }
-
-    private boolean validateCursor(Long cursor, String key) {
-        if (cursor == 0) return false;
-        if (cursor < 0) {
-            throw new BadRequestException(format(BAD_CURSOR_MSG, key));
-        }
-        return true;
     }
 
     /**

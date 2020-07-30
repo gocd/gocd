@@ -48,7 +48,6 @@ import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfigur
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.server.dao.MaterialSqlMapDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.materials.GitPoller;
@@ -76,6 +75,7 @@ import java.util.Map;
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -100,8 +100,6 @@ public class MaterialServiceTest {
     private TransactionTemplate transactionTemplate;
     @Mock
     private SecretParamResolver secretParamResolver;
-    @Mock
-    private MaterialSqlMapDao materialSqlMapDao;
 
     private MaterialService materialService;
 
@@ -109,7 +107,7 @@ public class MaterialServiceTest {
     public void setUp() {
         initMocks(this);
         materialService = new MaterialService(materialRepository, goConfigService, securityService,
-                packageRepositoryExtension, scmExtension, transactionTemplate, secretParamResolver, materialSqlMapDao);
+                packageRepositoryExtension, scmExtension, transactionTemplate, secretParamResolver);
     }
 
     @Test
@@ -409,8 +407,10 @@ public class MaterialServiceTest {
         MaterialInstance instance = MaterialsMother.gitMaterial("http://example.com/gocd.git").createMaterialInstance();
         Modification modification = ModificationsMother.withModifiedFileWhoseNameLengthIsOneK();
         modification.setMaterialInstance(instance);
+        ArrayList<Modification> mods = new ArrayList<>();
+        mods.add(modification);
 
-        when(materialSqlMapDao.getModificationWithMaterial()).thenReturn(new Modifications(modification));
+        when(materialRepository.getModificationWithMaterial()).thenReturn(mods);
 
         Map<String, Modification> modificationsMap = materialService.getModificationWithMaterial();
 
@@ -421,7 +421,7 @@ public class MaterialServiceTest {
 
     @Test
     public void shouldReturnEmptyMapIfNoMaterialAndModificationFound() {
-        when(materialSqlMapDao.getModificationWithMaterial()).thenReturn(new Modifications());
+        when(materialRepository.getModificationWithMaterial()).thenReturn(emptyList());
 
         Map<String, Modification> modificationsMap = materialService.getModificationWithMaterial();
 

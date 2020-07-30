@@ -31,7 +31,6 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
-import com.thoughtworks.go.server.dao.MaterialSqlMapDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.materials.*;
@@ -62,7 +61,6 @@ public class MaterialService {
     private TransactionTemplate transactionTemplate;
     private SecretParamResolver secretParamResolver;
     private Map<Class, MaterialPoller> materialPollerMap = new HashMap<>();
-    private MaterialSqlMapDao materialSqlMapDao;
 
     @Autowired
     public MaterialService(MaterialRepository materialRepository,
@@ -71,8 +69,7 @@ public class MaterialService {
                            PackageRepositoryExtension packageRepositoryExtension,
                            SCMExtension scmExtension,
                            TransactionTemplate transactionTemplate,
-                           SecretParamResolver secretParamResolver,
-                           MaterialSqlMapDao materialSqlMapDao) {
+                           SecretParamResolver secretParamResolver) {
         this.materialRepository = materialRepository;
         this.goConfigService = goConfigService;
         this.securityService = securityService;
@@ -80,7 +77,6 @@ public class MaterialService {
         this.scmExtension = scmExtension;
         this.transactionTemplate = transactionTemplate;
         this.secretParamResolver = secretParamResolver;
-        this.materialSqlMapDao = materialSqlMapDao;
         populatePollerImplementations();
     }
 
@@ -166,7 +162,7 @@ public class MaterialService {
     }
 
     public Map<String, Modification> getModificationWithMaterial() {
-        Modifications modifications = materialSqlMapDao.getModificationWithMaterial();
+        List<Modification> modifications = materialRepository.getModificationWithMaterial();
         Map<String, Modification> materialAndModifications = new HashMap<>();
         modifications.forEach((mod) -> {
             String fingerprint = mod.getMaterialInstance().getFingerprint();

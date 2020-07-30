@@ -142,7 +142,7 @@ public class MaterialDatabaseUpdaterIntegrationTest {
     private class MaterialServiceWhichSlowsDownFirstTimeModificationCheck extends MaterialService {
         public MaterialServiceWhichSlowsDownFirstTimeModificationCheck(MaterialRepository materialRepository, GoConfigService goConfigService, SecurityService securityService,
                                                                        PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) {
-            super(materialRepository, goConfigService, securityService, packageRepositoryExtension, scmExtension, transactionTemplate, secretParamResolver, null);
+            super(materialRepository, goConfigService, securityService, packageRepositoryExtension, scmExtension, transactionTemplate, secretParamResolver);
         }
 
         @Override

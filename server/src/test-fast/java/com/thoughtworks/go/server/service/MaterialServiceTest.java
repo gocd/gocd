@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
@@ -30,6 +31,7 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
+import com.thoughtworks.go.domain.PipelineRunIdInfo;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
@@ -48,6 +50,7 @@ import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfigur
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.materials.GitPoller;
@@ -76,9 +79,10 @@ import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMoth
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -426,6 +430,111 @@ public class MaterialServiceTest {
         Map<String, Modification> modificationsMap = materialService.getLatestModificationForEachMaterial();
 
         assertEquals(modificationsMap.size(), 0);
+    }
+
+    @Test
+    public void history_shouldCallDaoToFetchLatestModificationData() {
+        GitMaterialConfig materialConfig = git("http://test.com");
+        GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
+        Modifications modifications = new Modifications();
+        modifications.add(new Modification("user", "comment 1", "email", new DateTime().minusHours(1).toDate(), "revision"));
+        modifications.add(new Modification("user", "comment 2", "email", new DateTime().minusHours(2).toDate(), "revision"));
+        modifications.add(new Modification("user", "comment 3", "email", new DateTime().minusHours(3).toDate(), "revision"));
+
+        when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
+        when(materialRepository.loadHistory(anyLong(), any(), anyLong(), anyInt())).thenReturn(modifications);
+
+        List<Modification> gotModifications = materialService.getModificationsFor(materialConfig, 0, 0, 3);
+
+        verify(materialRepository).loadHistory(anyLong(), eq(FeedModifier.Latest), eq(0L), eq(3));
+        assertThat(gotModifications, is(modifications));
+    }
+
+    @Test
+    public void history_shouldCallDaoToFetchModificationDataAfterTheGivenCursor() {
+        GitMaterialConfig materialConfig = git("http://test.com");
+        GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
+        Modifications modifications = new Modifications();
+        modifications.add(new Modification("user", "comment 1", "email", new DateTime().minusHours(1).toDate(), "revision"));
+
+        when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
+        when(materialRepository.loadHistory(anyLong(), any(), anyLong(), anyInt())).thenReturn(modifications);
+
+        List<Modification> gotModifications = materialService.getModificationsFor(materialConfig, 2, 0, 3);
+
+        verify(materialRepository).loadHistory(anyLong(), eq(FeedModifier.After), eq(2L), eq(3));
+    }
+
+    @Test
+    public void history_shouldCallDaoToFetchModificationDataBeforeTheGivenCursor() {
+        GitMaterialConfig materialConfig = git("http://test.com");
+        GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
+        Modifications modifications = new Modifications();
+        modifications.add(new Modification("user", "comment 1", "email", new DateTime().minusHours(1).toDate(), "revision"));
+
+        when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
+        when(materialRepository.loadHistory(anyLong(), any(), anyLong(), anyInt())).thenReturn(modifications);
+
+        List<Modification> gotModifications = materialService.getModificationsFor(materialConfig, 0, 2, 3);
+
+        verify(materialRepository).loadHistory(anyLong(), eq(FeedModifier.Before), eq(2L), eq(3));
+    }
+
+    @Test
+    public void history_shouldThrowIfTheAfterCursorIsInvalid() {
+        GitMaterialConfig materialConfig = git("http://test.com");
+        GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
+
+        when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
+
+        assertThatCode(() -> materialService.getModificationsFor(materialConfig, -10, 0, 3))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("The query parameter 'after', if specified, must be a positive integer.");
+
+        verify(materialRepository).findMaterialInstance(materialConfig);
+        verifyNoMoreInteractions(materialRepository);
+    }
+
+    @Test
+    public void history_shouldThrowIfTheBeforeCursorIsInvalid() {
+        GitMaterialConfig materialConfig = git("http://test.com");
+        GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
+
+        when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
+
+        assertThatCode(() -> materialService.getModificationsFor(materialConfig, 0, -10, 3))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("The query parameter 'before', if specified, must be a positive integer.");
+
+        verify(materialRepository).findMaterialInstance(materialConfig);
+        verifyNoMoreInteractions(materialRepository);
+    }
+
+    @Test
+    public void shouldCallDaoToFetchLatestAndOlderModification() {
+        GitMaterialConfig materialConfig = git("http://test.com");
+        GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
+        PipelineRunIdInfo value = new PipelineRunIdInfo(1, 2);
+
+        when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
+        when(materialRepository.getOldestAndLatestModificationId(anyLong())).thenReturn(value);
+
+        PipelineRunIdInfo info = materialService.getLatestAndOldestModification(materialConfig);
+
+        verify(materialRepository).getOldestAndLatestModificationId(anyLong());
+        assertThat(info, is(value));
+    }
+
+    @Test
+    public void shouldReturnNullIfNoInstanceIsPresent() {
+        GitMaterialConfig materialConfig = git("http://test.com");
+
+        when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(null);
+
+        PipelineRunIdInfo info = materialService.getLatestAndOldestModification(materialConfig);
+
+        verify(materialRepository, never()).getOldestAndLatestModificationId(anyLong());
+        assertThat(info, is(nullValue()));
     }
 
     private void assertHasModification(MaterialRevisions materialRevisions, boolean b) {

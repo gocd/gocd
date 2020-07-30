@@ -40,18 +40,10 @@ public class MaterialWithModificationsRepresenter {
                 if (mod == null) {
                     childWriter.renderNull("modification");
                 } else {
-                    childWriter.addChild("modification", modWriter -> modificationWriter(modWriter, mod));
+                    childWriter.addChild("modification", modWriter -> ModificationRepresenter.toJSON(modWriter, mod));
                 }
             }));
         });
-    }
-
-    private static void modificationWriter(OutputWriter writer, Modification mod) {
-        writer.addIfNotNull("username", mod.getUserName())
-                .addIfNotNull("email_address", mod.getEmailAddress())
-                .addIfNotNull("revision", mod.getRevision())
-                .addIfNotNull("modified_time", mod.getModifiedTime())
-                .addIfNotNull("comment", mod.getComment());
     }
 
     private static Consumer<OutputLinkWriter> links() {

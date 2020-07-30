@@ -28,9 +28,11 @@ import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.domain.PipelineRunIdInfo;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
+import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.materials.*;
@@ -48,6 +50,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.server.service.ServiceConstants.History.validateCursor;
 import static java.util.stream.Collectors.toMap;
 
 /**
@@ -168,5 +171,29 @@ public class MaterialService {
         return modifications
                 .stream()
                 .collect(toMap(mod -> mod.getMaterialInstance().getFingerprint(), mod -> mod));
+    }
+
+    public List<Modification> getModificationsFor(MaterialConfig materialConfig, long afterCursor, long beforeCursor, Integer pageSize) {
+        MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
+        if (materialInstance == null) {
+            return null;
+        }
+        List<Modification> modifications;
+        if (validateCursor(afterCursor, "after")) {
+            modifications = materialRepository.loadHistory(materialInstance.getId(), FeedModifier.After, afterCursor, pageSize);
+        } else if (validateCursor(beforeCursor, "before")) {
+            modifications = materialRepository.loadHistory(materialInstance.getId(), FeedModifier.Before, beforeCursor, pageSize);
+        } else {
+            modifications = materialRepository.loadHistory(materialInstance.getId(), FeedModifier.Latest, 0, pageSize);
+        }
+        return modifications;
+    }
+
+    public PipelineRunIdInfo getLatestAndOldestModification(MaterialConfig materialConfig) {
+        MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
+        if (materialInstance == null) {
+            return null;
+        }
+        return materialRepository.getOldestAndLatestModificationId(materialInstance.getId());
     }
 }

@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
 import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.database.QueryExtensions;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
@@ -1039,5 +1040,69 @@ public class MaterialRepository extends HibernateDaoSupport {
             return query.addEntity("mods", Modification.class)
                     .list();
         });
+    }
+
+    public List<Modification> loadHistory(long materialId, FeedModifier modifier, long cursor, Integer pageSize) {
+        Map<String, Object> params = new HashMap<>();
+        String queryString = null;
+        switch (modifier) {
+            case Latest:
+                queryString = "SELECT * " +
+                        "FROM modifications " +
+                        "WHERE materialid = :materialId " +
+                        "ORDER BY id DESC " +
+                        "LIMIT :size ";
+                params.put("materialId", materialId);
+                params.put("size", pageSize);
+                break;
+            case After:
+                queryString = "SELECT * " +
+                        "FROM modifications " +
+                        "WHERE materialid = :materialId " +
+                        "  and id < :cursor " +
+                        "ORDER BY id DESC " +
+                        "LIMIT :size ";
+                params.put("materialId", materialId);
+                params.put("size", pageSize);
+                params.put("cursor", cursor);
+                break;
+            case Before:
+                queryString = "SELECT * " +
+                        "FROM (SELECT * " +
+                        "      FROM modifications " +
+                        "      WHERE materialid = :materialId " +
+                        "        and id > :cursor " +
+                        "      ORDER BY id ASC " +
+                        "      LIMIT :size ) as HistoryBeforeSpecifiedId " +
+                        "ORDER BY id DESC";
+                params.put("materialId", materialId);
+                params.put("size", pageSize);
+                params.put("cursor", cursor);
+                break;
+        }
+        String finalQueryString = queryString;
+        List<Modification> mods = (List<Modification>) getHibernateTemplate().execute((HibernateCallback) session -> {
+            SQLQuery query = session.createSQLQuery(finalQueryString);
+            query.setProperties(params);
+            return query.addEntity("mods", Modification.class)
+                    .list();
+        });
+        System.out.println("mods = " + mods);
+        return mods;
+    }
+
+    public PipelineRunIdInfo getOldestAndLatestModificationId(long materialId) {
+        String queryString = "SELECT MAX(modifications.id) as latestRunId, MIN(modifications.id) as oldestRunId " +
+                "FROM modifications " +
+                "WHERE modifications.materialid = ? ";
+
+        Object[] info = (Object[]) getHibernateTemplate().execute((HibernateCallback) session -> {
+            SQLQuery query = session.createSQLQuery(queryString);
+            query.setLong(0, materialId);
+            return query.addScalar("latestRunId", new LongType())
+                    .addScalar("oldestRunId", new LongType())
+                    .uniqueResult();
+        });
+        return new PipelineRunIdInfo((long) info[0], (long) info[1]);
     }
 }

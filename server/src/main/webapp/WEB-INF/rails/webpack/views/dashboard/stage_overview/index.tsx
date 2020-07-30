@@ -31,7 +31,7 @@ export interface Attrs {
   stageName: string;
   stageCounter: string | number;
   stageStatus: StageState;
-  stageIndex: number;
+  stages: any[];
   stageOverviewVM: Stream<StageOverviewViewModel | undefined>;
 }
 
@@ -44,20 +44,61 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
     const windowWidth = window.innerWidth;
     const stageOverviewRightBoundry = vnode.dom.getBoundingClientRect().right;
 
-    if (stageOverviewRightBoundry > windowWidth) {
-      // horizontal left alignment
-      // 725px is the initial alignment and each stage bar is of 45px in width (including margin)
-      vnode.dom.style.left = `-${725 - (vnode.attrs.stageIndex % 5 * 45)}px`;
+    // align stage overview to left when the right boundry of the stage overview is outside of the window width
+    const shouldAlignLeft = stageOverviewRightBoundry > windowWidth;
+
+    // add an extra class which aligns the caret to right.
+    if (shouldAlignLeft) {
       vnode.dom.classList.add(styles.alignLeft);
-    } else {
-      // horizontal alignment
-      // 10px is the initial margin left and each stage bar is of 45px in width (including margin)
-      vnode.dom.style.left = `${10 + (vnode.attrs.stageIndex % 5 * 45)}px`;
     }
+
+    // if () {
+    //   // horizontal left alignment
+    //   // 725px is the initial alignment and each stage bar is of 45px in width (including margin)
+    //   vnode.dom.style.left = `-${725 - (vnode.attrs.stageIndex % 5 * 45)}px`;
+    //   vnode.dom.classList.add(styles.alignLeft);
+
+    const currentStageIndex = vnode.attrs.stages.findIndex(s => s.name === vnode.attrs.stageName);
+    const toOperate = vnode.attrs.stages.slice(0, currentStageIndex + 1);
+
+    //initial alignment is 10px (margin)
+    let stagesWidth = 10;
+    let stageTriggerWidth = 0;
+    let verticalResetCount = 0;
+
+    toOperate.forEach((stage, index) => {
+      if (index === 0) {
+        return;
+      }
+
+      // the pipeline tile in which stages are rendered in a row is of width is 235 px,
+      // so, when the sum of the stage width reaches the row width, the stage is rendered in the next row
+      if ((stagesWidth + stageTriggerWidth) + 45 > 220) {
+        stagesWidth = 10;
+        stageTriggerWidth = stage.isManual() ? 18 : 0;
+        verticalResetCount++;
+        return;
+      }
+
+      // each manual stage icon is of 18px in width
+      if (stage.isManual()) {
+        stageTriggerWidth = stageTriggerWidth + 18;
+      }
+
+      // each manual stage bar is of 44.5px in width
+      stagesWidth = stagesWidth + 44.5;
+    });
+
+    // 744 is the initial right alignment
+    const leftAlign = shouldAlignLeft ? -(744 - (stagesWidth + stageTriggerWidth)) : (stagesWidth + stageTriggerWidth);
+
+    // horizontal alignment
+    // 10px is the initial margin left and each stage bar is of 45px in width (including margin)
+    vnode.dom.style.left = `${leftAlign}px`;
 
     //vertical alignment
     //29px is the initial margin top and each vertical stage bar is of 26px in width (including margin)
-    vnode.dom.style.marginTop = `${29 + (Math.floor(vnode.attrs.stageIndex / 5) * 26)}px`;
+    vnode.dom.style.marginTop = `${29 + (verticalResetCount * 26)}px`;
   }
 
   view(vnode: m.Vnode<Attrs, {}>): m.Children | void | null {

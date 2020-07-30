@@ -156,7 +156,7 @@ describe("Dashboard Stages Instance Widget", () => {
     m.redraw.sync();
 
     expect(helper.q('.manual_gate')).toHaveClass('disabled');
-    expect(helper.q('.manual_gate').title).toEqual('Can not schedule next stage - Either the previous stage hasn\'t run or is in progress.');
+    expect(helper.q('.tooltip')).toContainText('Can not schedule next stage - Either the previous stage hasn\'t run or is in progress.');
   });
 
   it("should render disabled manual gate when user does not have permission to operate on the pipeline", () => {
@@ -164,7 +164,7 @@ describe("Dashboard Stages Instance Widget", () => {
     m.redraw.sync();
 
     expect(helper.q('.manual_gate')).toHaveClass('disabled');
-    expect(helper.q('.manual_gate').title).toEqual('Can not schedule next stage - You don\'t have permissions to schedule the next stage.');
+    expect(helper.q('.tooltip')).toContainText('Can not schedule next stage - You don\'t have permissions to schedule the next stage.');
   });
 
   it("should render disabled manual gate when the stage has already been scheduled", () => {
@@ -173,7 +173,7 @@ describe("Dashboard Stages Instance Widget", () => {
     m.redraw.sync();
 
     expect(helper.q('.manual_gate')).toHaveClass('disabled');
-    expect(helper.q('.manual_gate').title).toEqual('Approved by \'admin\'.');
+    expect(helper.q('.tooltip')).toContainText('Approved by \'admin\'.');
   });
 
   it("should render disabled manual gate when previous stage is failed and allow_only_on_success_of_previous_stage is set to true", () => {
@@ -182,7 +182,7 @@ describe("Dashboard Stages Instance Widget", () => {
     m.redraw.sync();
 
     expect(helper.q('.manual_gate')).toHaveClass('disabled');
-    expect(helper.q('.manual_gate').title).toEqual('Can not schedule next stage - stage \'up42_stage2\' is set to run only on success of previous stage, whereas, the previous stage \'up42_stage\' has Failed.');
+    expect(helper.q('.tooltip')).toContainText('Can not schedule next stage - stage \'up42_stage2\' is set to run only on success of previous stage, whereas, the previous stage \'up42_stage\' has Failed.');
   });
 
   it("should render disabled manual gate when previous stage is cancelled and allow_only_on_success_of_previous_stage is set to true", () => {
@@ -191,6 +191,6 @@ describe("Dashboard Stages Instance Widget", () => {
     m.redraw.sync();
 
     expect(helper.q('.manual_gate')).toHaveClass('disabled');
-    expect(helper.q('.manual_gate').title).toEqual('Can not schedule next stage - stage \'up42_stage2\' is set to run only on success of previous stage, whereas, the previous stage \'up42_stage\' has Cancelled.');
+    expect(helper.q('.tooltip')).toContainText('Can not schedule next stage - stage \'up42_stage2\' is set to run only on success of previous stage, whereas, the previous stage \'up42_stage\' has Cancelled.');
   });
 });

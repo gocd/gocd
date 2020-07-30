@@ -586,7 +586,11 @@ body {
     }
   }
 
-  .pipeline_stage {
+  .pipeline_stage_manual_gate_wrapper {
+    display: flex;
+  }
+
+  .pipeline_stage_manual_gate_wrapper .pipeline_stage {
     width:       34px;
     height:      16px;
     line-height: 13px;
@@ -768,6 +772,26 @@ body {
       opacity:    0.5;
       cursor:     not-allowed;
     }
+  }
+}
+
+.pipeline_stage_manual_gate_wrapper {
+  .tooltip {
+    left:       -60px;
+    margin-top: 7px;
+    width:      150px;
+  }
+
+  .tooltip:before {
+    left: 68px;
+  }
+}
+
+.stage_manual_gate_tooltip {
+  color: #000;
+
+  &:hover {
+    color: #000;
   }
 }
 

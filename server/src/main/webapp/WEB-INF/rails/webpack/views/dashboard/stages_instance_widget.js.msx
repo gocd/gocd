@@ -16,6 +16,8 @@
 import m from "mithril";
 import _ from "lodash";
 
+import {f} from "helpers/form_helper";
+
 export const StagesInstanceWidget = {
   oninit(vnode) {
     const self = vnode.state;
@@ -34,7 +36,7 @@ export const StagesInstanceWidget = {
   view: (vnode) => {
     const stages = vnode.attrs.stages;
     const stageInstance = _.map(stages, (stage, index) => {
-      const previousStage = stages[index-1];
+      const previousStage = stages[index - 1];
       const isPreviousStageInProgress = previousStage ? !previousStage.isCompleted() : false;
       let stageStatus = `${stage.name} (${stage.status})`;
       if (stage.isCancelled()) {
@@ -42,28 +44,35 @@ export const StagesInstanceWidget = {
       }
 
       let manualGate;
-      if (stage.isManual()) {
+      if (index !== 0 && stage.isManual()) {
         const canUserOperateOnStage = stage.canOperate;
         const triggerOnCompletionOfPreviousStage = stage.triggerOnlyOnSuccessOfPreviousStage() && previousStage && (previousStage.isFailed() || previousStage.isCancelled());
         const isTriggerDisabled = isPreviousStageInProgress || !canUserOperateOnStage || triggerOnCompletionOfPreviousStage || stage.isBuildingOrCompleted();
 
-        manualGate = <span onclick={isTriggerDisabled ? undefined : vnode.state.triggerStage.bind(vnode.state, stage)}
-                           title={getHelpText(stage, previousStage)}
-                           class={`manual_gate ${isTriggerDisabled ? "disabled" : ""}`} />;
+        if(isTriggerDisabled) {
+          manualGate = (<f.linkWithTooltip class="stage_manual_gate_tooltip" tooltipText={getHelpText(stage, previousStage)}>
+            <span class={`manual_gate disabled`}/>
+          </f.linkWithTooltip>);
+        } else {
+          manualGate = <span onclick={vnode.state.triggerStage.bind(vnode.state, stage)} title={getHelpText(stage, previousStage)} class={`manual_gate`}/>;
+        }
       }
 
       if (stage.isBuildingOrCompleted()) {
-        return [ manualGate,
+        return (<div class="pipeline_stage_manual_gate_wrapper">
+          {manualGate}
           <a href={stage.stageDetailTabPath}
              className={`pipeline_stage ${stage.status.toLowerCase()}`}
              title={stageStatus} aria-label={stageStatus}>
-          </a>];
+          </a>
+        </div>);
       }
 
-      return [
-        manualGate,
+      return (<div class="pipeline_stage_manual_gate_wrapper">
+        {manualGate}
         <span className={`pipeline_stage ${stage.status.toLowerCase()}`}
-              title={stageStatus} aria-label={stageStatus}/>];
+              title={stageStatus} aria-label={stageStatus}/>
+      </div>);
     });
 
     return (
@@ -76,23 +85,23 @@ export const StagesInstanceWidget = {
 
 function getHelpText(stage, previousStage) {
   let helpText;
-  if(stage.isManual()) {
+  if (stage.isManual()) {
     helpText = `Awaiting approval. Waiting for users with the operate permission to schedule '${stage.name}' stage`;
   }
 
-  if(stage.isBuildingOrCompleted()) {
+  if (stage.isBuildingOrCompleted()) {
     helpText = `Approved by '${stage.approvedBy}'.`;
   }
 
-  if(previousStage && !previousStage.isCompleted()) {
+  if (previousStage && !previousStage.isCompleted()) {
     helpText = `Can not schedule next stage - Either the previous stage hasn't run or is in progress.`;
   }
 
-  if(!stage.canOperate) {
+  if (!stage.canOperate) {
     helpText = `Can not schedule next stage - You don't have permissions to schedule the next stage.`;
   }
 
-  if(stage.triggerOnlyOnSuccessOfPreviousStage() && previousStage && (previousStage.isFailed() || previousStage.isCancelled())) {
+  if (stage.triggerOnlyOnSuccessOfPreviousStage() && previousStage && (previousStage.isFailed() || previousStage.isCancelled())) {
     helpText = `Can not schedule next stage - stage '${stage.name}' is set to run only on success of previous stage, whereas, the previous stage '${previousStage.name}' has ${previousStage.status}.`;
   }
 

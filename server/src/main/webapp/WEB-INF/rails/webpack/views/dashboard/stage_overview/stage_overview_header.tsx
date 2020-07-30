@@ -50,6 +50,8 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
       optionalFlashMessage = (<FlashMessage dataTestId="stage-overview-flash-message" message={vnode.attrs.flashMessage.message} type={vnode.attrs.flashMessage.type}/>);
     }
 
+    const stageSettingsUrl = `/go/admin/pipelines/${vnode.attrs.pipelineName}/edit#!${vnode.attrs.pipelineName}/${vnode.attrs.stageName}/stage_settings`;
+
     return <div data-test-id="stage-overview-header" class={styles.stageHeaderContainer}>
       {optionalFlashMessage}
       <div data-test-id="stage-name-and-operations-container" class={styles.flexBox}>
@@ -73,7 +75,9 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
         </div>
         <div data-test-id="stage-operations-container" class={styles.stageOperationButtonGroup}>
           <div><Icons.Trigger iconOnly={true}/></div>
-          <div class={styles.stageSettings}><Icons.Settings iconOnly={true}/></div>
+          <div class={styles.stageSettings}>
+            <Icons.Settings iconOnly={true} onclick={() => window.open(stageSettingsUrl)}/>
+          </div>
         </div>
       </div>
 

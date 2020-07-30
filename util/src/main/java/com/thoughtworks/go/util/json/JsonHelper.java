@@ -17,15 +17,16 @@ package com.thoughtworks.go.util.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.Map;
 
 public class JsonHelper {
-    public static void addDeveloperErrorMessage(Map jsonMap, Exception e) {
+    public static void addDeveloperErrorMessage(Map<String, Object> jsonMap, Exception e) {
         addFriendlyErrorMessage(jsonMap, e.getMessage() + ": " + e.getCause() + " at " + e.getStackTrace()[0]);
     }
 
-    public static void addFriendlyErrorMessage(Map jsonMap, String e) {
+    public static void addFriendlyErrorMessage(Map<String, Object> jsonMap, String e) {
         jsonMap.put("error", e);
     }
 
@@ -38,11 +39,22 @@ public class JsonHelper {
         return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().fromJson(jsonString, clazz);
     }
 
+    public static <T> T fromJson(final String jsonString) {
+        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().
+                fromJson(jsonString, new TypeToken<T>() {}.getType());
+    }
+
     public static <T> T safeFromJson(final String jsonString, final Class<T> clazz) {
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.excludeFieldsWithoutExposeAnnotation().create();
         try {
-            return gson.fromJson(jsonString, clazz);
+            return fromJson(jsonString, clazz);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static <T> T safeFromJson(final String jsonString) {
+        try {
+            return fromJson(jsonString);
         } catch (Exception e) {
             return null;
         }

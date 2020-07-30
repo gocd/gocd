@@ -24,11 +24,12 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
 /**
- * @understands persistent material
+ * persistent material
  */
 public abstract class MaterialInstance extends PersistentObject {
     protected String url;
@@ -66,7 +67,6 @@ public abstract class MaterialInstance extends PersistentObject {
         this.useTickets = useTickets;
         this.branch = branch;
         this.flyweightName = flyweightName;
-        this.workspace = workspace;
         this.projectPath = projectPath;
         this.domain = domain;
         this.configuration = configuration;
@@ -74,7 +74,7 @@ public abstract class MaterialInstance extends PersistentObject {
     }
 
     protected boolean getUseTickets() {
-        return useTickets == null ? false : useTickets;
+        return useTickets != null && useTickets;
     }
 
     @Override
@@ -84,56 +84,22 @@ public abstract class MaterialInstance extends PersistentObject {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof MaterialInstance)) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (!(o instanceof MaterialInstance)) return false;
+        if (!super.equals(o)) return false;
         MaterialInstance that = (MaterialInstance) o;
-
-        if (branch != null ? !branch.equals(that.branch) : that.branch != null) {
-            return false;
-        }
-        if (checkExternals != null ? !checkExternals.equals(that.checkExternals) : that.checkExternals != null) {
-            return false;
-        }
-        if (domain != null ? !domain.equals(that.domain) : that.domain != null) {
-            return false;
-        }
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
-            return false;
-        }
-        if (projectPath != null ? !projectPath.equals(that.projectPath) : that.projectPath != null) {
-            return false;
-        }
-        if (stageName != null ? !stageName.equals(that.stageName) : that.stageName != null) {
-            return false;
-        }
-        if (submoduleFolder != null ? !submoduleFolder.equals(that.submoduleFolder) : that.submoduleFolder != null) {
-            return false;
-        }
-        if (url != null ? !url.equals(that.url) : that.url != null) {
-            return false;
-        }
-        if (useTickets != null ? !useTickets.equals(that.useTickets) : that.useTickets != null) {
-            return false;
-        }
-        if (username != null ? !username.equals(that.username) : that.username != null) {
-            return false;
-        }
-        if (view != null ? !view.equals(that.view) : that.view != null) {
-            return false;
-        }
-        if (workspace != null ? !workspace.equals(that.workspace) : that.workspace != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(url, that.url) &&
+                Objects.equals(username, that.username) &&
+                Objects.equals(pipelineName, that.pipelineName) &&
+                Objects.equals(stageName, that.stageName) &&
+                Objects.equals(view, that.view) &&
+                Objects.equals(useTickets, that.useTickets) &&
+                Objects.equals(branch, that.branch) &&
+                Objects.equals(submoduleFolder, that.submoduleFolder) &&
+                Objects.equals(checkExternals, that.checkExternals) &&
+                Objects.equals(workspace, that.workspace) &&
+                Objects.equals(projectPath, that.projectPath) &&
+                Objects.equals(domain, that.domain);
     }
 
     public abstract Material toOldMaterial(String name, String folder, String password);
@@ -160,7 +126,7 @@ public abstract class MaterialInstance extends PersistentObject {
 
     public void setAdditionalData(String additionalData) {
         this.additionalData = additionalData;
-        this.additionalDataMap = JsonHelper.safeFromJson(this.additionalData, HashMap.class);
+        this.additionalDataMap = JsonHelper.safeFromJson(this.additionalData);
     }
 
     public Map<String, String> getAdditionalDataMap() {
@@ -185,6 +151,4 @@ public abstract class MaterialInstance extends PersistentObject {
     public String getUsername() {
         return username;
     }
-
-
 }

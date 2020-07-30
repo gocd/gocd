@@ -470,8 +470,8 @@ public class GitCommand extends SCMCommand {
     }
 
     /**
-     * Creates git command that includes {@code -C workindDir}. This differs from {@link #gitWd()}
-     * in that it does not verify the directory's existence on construction.
+     * Creates git command that includes {@code -C workingDir}. This differs from {@link #gitWd()}
+     * in that it does not assert/validate the directory's existence on construction.
      *
      * @return a {@code git} {@link CommandLine} that will switch to {@code workingDir}
      */

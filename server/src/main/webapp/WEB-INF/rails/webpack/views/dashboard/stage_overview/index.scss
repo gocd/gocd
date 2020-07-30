@@ -15,7 +15,7 @@
  */
 @import "../../global/common";
 
-$border-color: #cde;
+$border-color: #ccc;
 $header-background: #e7eef0;
 $body-background: #f4f8f9;
 
@@ -49,7 +49,7 @@ $building: #ffc11b;
   min-height:    200px;
   margin:        29px 0 0 5px;
   background:    $body-background;
-  box-shadow:    2px 3px $header-background;
+  box-shadow:    3px 3px $header-background;
 
   &:before {
     content:       '';

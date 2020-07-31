@@ -96,10 +96,6 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
     // horizontal alignment
     // 10px is the initial margin left and each stage bar is of 45px in width (including margin)
     vnode.dom.style.left = `${leftAlign}px`;
-
-    //vertical alignment
-    //29px is the initial margin top and each vertical stage bar is of 26px in width (including margin)
-    vnode.dom.style.marginTop = `${29 + (verticalResetCount * 26)}px`;
   }
 
   view(vnode: m.Vnode<Attrs, {}>): m.Children | void | null {

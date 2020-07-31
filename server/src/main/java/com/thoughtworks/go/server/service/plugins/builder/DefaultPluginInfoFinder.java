@@ -91,15 +91,6 @@ public class DefaultPluginInfoFinder {
         }
     }
 
-    public Map<String, String> pluginIdToViewTemplate() {
-        HashMap<String, String> pluginToView = new HashMap<>();
-        Collection<CombinedPluginInfo> combinedPluginInfos = allPluginInfos(ARTIFACT_EXTENSION);
-        for (CombinedPluginInfo combinedPluginInfo : combinedPluginInfos) {
-            pluginToView.put(combinedPluginInfo.getDescriptor().id(), ((ArtifactPluginInfo)combinedPluginInfo.extensionFor(ARTIFACT_EXTENSION)).getArtifactConfigSettings().getView().getTemplate());
-        }
-        return pluginToView;
-    }
-
     public Map<String, String> pluginDisplayNameToPluginId(String extensionType) {
         Map<String, String> pluginDisplayNameToId = new HashMap<>();
         Collection<CombinedPluginInfo> combinedPluginInfos = allPluginInfos(extensionType);
@@ -107,15 +98,6 @@ public class DefaultPluginInfoFinder {
             pluginDisplayNameToId.put(combinedPluginInfo.getDescriptor().about().name(), combinedPluginInfo.getDescriptor().id());
         }
         return pluginDisplayNameToId;
-    }
-    public List<Map<String, String>> pluginIdToFetchViewTemplate() {
-        return allPluginInfos(ARTIFACT_EXTENSION).stream().map(info -> {
-            Map<String, String> pluginToView = new HashMap<>();
-            pluginToView.put("id", info.getDescriptor().id());
-            pluginToView.put("name", info.getDescriptor().about().name());
-            pluginToView.put("view", ((ArtifactPluginInfo) info.extensionFor(ARTIFACT_EXTENSION)).getFetchArtifactSettings().getView().getTemplate());
-            return pluginToView;
-        }).collect(toList());
     }
 
     private Function<PluginInfo, String> pluginID() {

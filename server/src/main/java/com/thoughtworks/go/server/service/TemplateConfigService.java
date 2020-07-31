@@ -26,12 +26,10 @@ import com.thoughtworks.go.config.update.UpdateTemplateAuthConfigCommand;
 import com.thoughtworks.go.config.update.UpdateTemplateConfigCommand;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.presentation.ConfigForEdit;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
-import com.thoughtworks.go.server.ui.TemplatesViewModel;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,17 +151,6 @@ public class TemplateConfigService {
         return pluggableTasks;
     }
 
-    public ConfigForEdit<PipelineTemplateConfig> loadForEdit(String templateName, Username username, HttpLocalizedOperationResult result) {
-        if (!securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString(templateName), username)) {
-            result.forbidden("Unauthorized to edit '" + templateName + "' template.", HealthStateType.forbidden());
-            return null;
-        }
-        GoConfigHolder configHolder = goConfigService.getConfigHolder();
-        configHolder = cloner.deepClone(configHolder);
-        PipelineTemplateConfig template = findTemplate(templateName, result, configHolder);
-        return template != null ? new ConfigForEdit<>(template, configHolder) : null;
-    }
-
     public PipelineTemplateConfig loadForView(String templateName, HttpLocalizedOperationResult result) {
         return findTemplate(templateName, result, goConfigService.getConfigHolder());
     }
@@ -190,17 +177,6 @@ public class TemplateConfigService {
             }
         }
         return allPipelinesNotUsingTemplates;
-    }
-
-    public List<TemplatesViewModel> getTemplateViewModels(CaseInsensitiveString username) {
-        List<TemplatesViewModel> templatesViewModels = new ArrayList<>();
-        CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
-        for (PipelineTemplateConfig templateConfig : cruiseConfig.getTemplates()) {
-            boolean authorizedToViewTemplate = cruiseConfig.isAuthorizedToViewTemplate(templateConfig, username);
-            boolean authorizedToEditTemplate = cruiseConfig.isAuthorizedToEditTemplate(templateConfig, username);
-            templatesViewModels.add(new TemplatesViewModel(templateConfig, authorizedToViewTemplate, authorizedToEditTemplate));
-        }
-        return templatesViewModels;
     }
 
     private PipelineTemplateConfig findTemplate(String templateName, HttpLocalizedOperationResult result, GoConfigHolder configHolder) {

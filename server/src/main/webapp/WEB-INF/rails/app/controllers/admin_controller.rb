@@ -24,26 +24,6 @@ class AdminController < ApplicationController
   GO_CONFIG_ERROR_HEADER = 'Go-Config-Error'
 
   protected
-  def save_popup(md5, save_action, render_error_options_or_proc = {:action => :new, :layout => false}, url_options = {}, flash_success_message = "Saved successfully.", &load_data)
-    render_error_options_or_proc.reverse_merge(:layout => false) unless render_error_options_or_proc.is_a?(Proc)
-    save(md5, render_error_options_or_proc, save_action, flash_success_message, load_data) do |message|
-      render(:plain => 'Saved successfully', :location => url_options_with_flash(message, {:action => :index, :class => 'success'}.merge(url_options)))
-    end
-  end
-
-  def set_save_redirect_url url
-    @onsuccess_redirect_uri = url
-  end
-
-  def save_page(md5, redirect_url, render_error_options_or_proc, save_action, success_message = "Saved successfully.", &load_data)
-    set_save_redirect_url redirect_url
-    save(md5, render_error_options_or_proc, save_action, success_message, load_data) do |message|
-      url = com.thoughtworks.go.util.UrlUtil.urlWithQuery(@onsuccess_redirect_uri, "fm", set_flash_message(message, "success"))
-      redirect_to(url)
-    end
-  end
-
-  protected
 
   def render_error_with_options(options)
     render(options)
@@ -100,39 +80,6 @@ class AdminController < ApplicationController
   end
 
   private
-
-  def save(md5, render_error_options_or_proc, save_action, success_message, load_data)
-    @update_result = HttpLocalizedOperationResult.new
-    update_response = go_config_service.updateConfigFromUI(save_action, md5, current_user, @update_result)
-    @cruise_config, @node, @subject, @config_after = update_response.getCruiseConfig(), update_response.getNode(), update_response.getSubject(), update_response.configAfterUpdate()
-
-    unless @update_result.isSuccessful()
-      @config_file_conflict = (@update_result.httpCode() == 409)
-      flash.now[:error] = @update_result.message()
-      response.headers[GO_CONFIG_ERROR_HEADER] = flash[:error]
-    end
-
-    begin
-      load_data.call
-    rescue
-      Rails.logger.error $!
-      render_assertion_failure({})
-    end
-    return if @error_rendered
-
-    if @update_result.isSuccessful()
-      success_message = "#{success_message} #{'The configuration was modified by someone else, but your changes were merged successfully.'}" if update_response.wasMerged()
-      yield success_message
-    else
-      all_errors_on_other_objects = update_response.getCruiseConfig().getAllErrorsExceptFor(@subject)
-      if render_error_options_or_proc.is_a?(Proc)
-        render_error_options_or_proc.call(@update_result, all_errors_on_other_objects)
-      else
-        render_error(@update_result, all_errors_on_other_objects, render_error_options_or_proc)
-      end
-    end
-  end
-
   def enable_admin_error_template
     self.error_template_for_request = 'shared/config_error'
   end

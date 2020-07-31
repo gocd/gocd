@@ -16,7 +16,10 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.exceptions.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.StageNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -26,10 +29,7 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.config.rules.Rules;
-import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
-import com.thoughtworks.go.config.update.UiBasedConfigUpdateCommand;
-import com.thoughtworks.go.config.update.UpdateConfigFromUI;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -619,19 +619,6 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void uiBasedUpdateCommandShouldReturnTheConfigPassedByUpdateOperation() {
-        UiBasedConfigUpdateCommand command = new UiBasedConfigUpdateCommand("md5", null, null) {
-            @Override
-            public boolean canContinue(CruiseConfig cruiseConfig) {
-                return true;
-            }
-        };
-        CruiseConfig after = new BasicCruiseConfig();
-        command.afterUpdate(after);
-        assertThat(command.configAfter(), sameInstance(after));
-    }
-
-    @Test
     public void shouldUseInstanceFactoryToCreateAStageInstanceForTheSpecifiedPipelineStageCombination() throws Exception {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("foo-pipeline", "foo-stage", "foo-job");
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser");
@@ -860,51 +847,6 @@ public class GoConfigServiceTest {
         assertThat(result.httpCode(), is(SC_INTERNAL_SERVER_ERROR));
         assertThat(result.message(), is("Could not retrieve config changes for this revision."));
     }
-
-    @Test
-    public void shouldReturnWasMergedInConfigUpdateResponse_WhenConfigIsMerged() {
-        when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.<UpdateConfigCommand>any())).thenReturn(ConfigSaveState.MERGED);
-        ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(mock(UpdateConfigFromUI.class), "md5", new Username(new CaseInsensitiveString("user")),
-                new HttpLocalizedOperationResult());
-        assertThat(configUpdateResponse.wasMerged(), is(true));
-    }
-
-    @Test
-    public void shouldReturnNotMergedInConfigUpdateResponse_WhenConfigIsUpdated() {
-        when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.<UpdateConfigCommand>any())).thenReturn(ConfigSaveState.UPDATED);
-        ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(mock(UpdateConfigFromUI.class), "md5", new Username(new CaseInsensitiveString("user")),
-                new HttpLocalizedOperationResult());
-        assertThat(configUpdateResponse.wasMerged(), is(false));
-    }
-
-    @Test
-    public void shouldReturnNotMergedInConfigUpdateResponse_WhenConfigUpdateFailed() throws Exception {
-        when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.<UpdateConfigCommand>any())).thenThrow(new ConfigFileHasChangedException());
-        expectLoadForEditing(cruiseConfig);
-        ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(mock(UpdateConfigFromUI.class), "md5", new Username(new CaseInsensitiveString("user")),
-                new HttpLocalizedOperationResult());
-        assertThat(configUpdateResponse.wasMerged(), is(false));
-    }
-
-    @Test
-    public void badConfigShouldContainOldMD5_WhenConfigUpdateFailed() {
-        when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.<UpdateConfigCommand>any())).thenThrow(new RuntimeException(getGoConfigInvalidException()));
-        ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(mock(UpdateConfigFromUI.class), "old-md5", new Username(new CaseInsensitiveString("user")),
-                new HttpLocalizedOperationResult());
-        assertThat(configUpdateResponse.wasMerged(), is(false));
-        assertThat(configUpdateResponse.getCruiseConfig().getMd5(), is("old-md5"));
-    }
-
-    @Test
-    public void configShouldContainOldMD5_WhenConfigMergeFailed() {
-        when(goConfigDao.loadForEditing()).thenReturn(new BasicCruiseConfig());
-        when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.<UpdateConfigCommand>any())).thenThrow(new ConfigFileHasChangedException());
-        ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(mock(UpdateConfigFromUI.class), "old-md5", new Username(new CaseInsensitiveString("user")),
-                new HttpLocalizedOperationResult());
-        assertThat(configUpdateResponse.wasMerged(), is(false));
-        assertThat(configUpdateResponse.getCruiseConfig().getMd5(), is("old-md5"));
-    }
-
 
     @Test
     public void shouldReturnConfigStateFromDaoLayer_WhenUpdatingServerConfig() {

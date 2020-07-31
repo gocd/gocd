@@ -63,12 +63,4 @@ public class ArtifactStoreService extends PluginProfilesService<ArtifactStore> {
             result.setMessage(EntityType.ArtifactStore.deleteSuccessful(newArtifactStore.getId()));
         }
     }
-
-    public Map<String, String> storeIdToPluginId() {
-        HashMap<String, String> artifactStoreToPluginId = new HashMap<>();
-        for (ArtifactStore artifactStore : getPluginProfiles()) {
-            artifactStoreToPluginId.put(artifactStore.getId(), artifactStore.getPluginId());
-        }
-        return artifactStoreToPluginId;
-    }
 }

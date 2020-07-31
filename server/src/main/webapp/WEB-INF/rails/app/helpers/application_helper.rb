@@ -513,6 +513,11 @@ module ApplicationHelper
     "/go/admin/templates/#{pipeline_name}/general"
   end
 
+  def compare_pipelines_path(options)
+    options = options.with_indifferent_access
+    "/go/compare/#{options[:pipeline_name]}/#{options[:from_counter]}/with/#{options[:to_counter]}"
+  end
+
   def plugin_supports_status_report?(plugin_id)
     plugin_info = ElasticAgentMetadataStore.instance().getPluginInfo(plugin_id)
 
@@ -558,7 +563,16 @@ module ApplicationHelper
     Toggles.isToggleOn(Toggles.SHOW_MATERIALS_SPA)
   end
 
+  def stage_width_percent(total_number_of_stages, is_last_running_stage,total_width)
+    last_running_width = is_last_running_stage ? 0 : 0
+    round_to(((total_width / total_number_of_stages) - last_running_width), 4).to_s + "%"
+  end
+
   private
+
+  def round_to(float, precision)
+    (float * 10**precision).round.to_f / 10**precision
+  end
 
   def show_analytics_only_for_admins?
     system_environment.enableAnalyticsOnlyForAdmins

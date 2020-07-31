@@ -31,40 +31,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PluggableTaskService {
-
     private TaskExtension taskExtension;
 
     @Autowired
     public PluggableTaskService(TaskExtension taskExtension) {
         this.taskExtension = taskExtension;
-    }
-
-    public boolean validate(final PluggableTask modifiedTask) {
-        final TaskConfig configuration = new TaskConfig();
-        for (ConfigurationProperty configurationProperty : modifiedTask.getConfiguration()) {
-            configuration.add(new TaskConfigProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getValue()));
-        }
-
-        final String pluginId = modifiedTask.getPluginConfiguration().getId();
-        ValidationResult validationResult = taskExtension.validate(pluginId, configuration);
-
-        final TaskPreference preference = PluggableTaskConfigStore.store().preferenceFor(pluginId);
-        if (PluggableTaskConfigStore.store().hasPreferenceFor(pluginId)) {
-            for (ConfigurationProperty configurationProperty : modifiedTask.getConfiguration()) {
-                String key = configurationProperty.getConfigurationKey().getName();
-                final Property property = preference.getConfig().get(key);
-                if (property != null) {
-                    final Boolean required = property.getOption(Property.REQUIRED);
-                    if (required && StringUtils.isBlank(configurationProperty.getConfigValue()))
-                        validationResult.addError(new ValidationError(property.getKey(), "This field is required"));
-                }
-            }
-        }
-        for (ValidationError validationError : validationResult.getErrors()) {
-            modifiedTask.getConfiguration().getProperty(validationError.getKey()).addError(validationError.getKey(), validationError.getMessage());
-        }
-
-        return validationResult.isSuccessful();
     }
 
     public boolean isValid(PluggableTask task) {

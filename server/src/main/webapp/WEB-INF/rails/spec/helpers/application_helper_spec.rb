@@ -694,4 +694,10 @@ describe ApplicationHelper do
   it 'should render duration to string' do
     expect(duration_to_string(org.joda.time.Duration.new(1230 * 1000))).to eq('20 minutes and 30 seconds')
   end
+
+  describe :stage_width_percent do
+    it "should return percent" do
+      expect(stage_width_percent(3, true, 20.0)).to eq("6.6667%")
+    end
+  end
 end

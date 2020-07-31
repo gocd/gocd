@@ -212,10 +212,6 @@ module JavaImports
   java_import com.thoughtworks.go.domain.config.EncryptedConfigurationValue unless defined? EncryptedConfigurationValue
   java_import com.thoughtworks.go.plugin.api.config.Option unless defined? Option
   java_import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore unless defined? RepositoryMetadataStore
-  java_import com.thoughtworks.go.server.service.materials.commands.PackageMaterialAddWithNewPackageDefinitionCommand unless defined? PackageMaterialAddWithNewPackageDefinitionCommand
-  java_import com.thoughtworks.go.server.service.materials.commands.PackageMaterialAddWithExistingPackageDefinitionCommand unless defined? PackageMaterialAddWithExistingPackageDefinitionCommand
-  java_import com.thoughtworks.go.server.service.materials.commands.PackageMaterialUpdateWithNewPackageDefinitionCommand unless defined? PackageMaterialUpdateWithNewPackageDefinitionCommand
-  java_import com.thoughtworks.go.server.service.materials.commands.PackageMaterialUpdateWithExistingPackageDefinitionCommand unless defined? PackageMaterialUpdateWithExistingPackageDefinitionCommand
   java_import com.thoughtworks.go.server.service.materials.commands.PackageDefinitionCreator unless defined? PackageDefinitionCreator
   java_import com.thoughtworks.go.util.Pair unless defined? Pair
   java_import com.thoughtworks.go.presentation.MissingPluggableTaskViewModel unless defined? MissingPluggableTaskViewModel
@@ -241,7 +237,6 @@ module JavaImports
   java_import com.thoughtworks.go.config.EnvironmentVariablesConfig unless defined? EnvironmentVariablesConfig
   java_import com.thoughtworks.go.config.EnvironmentVariableConfig unless defined? EnvironmentVariableConfig
   java_import com.thoughtworks.go.config.elastic.ElasticProfile unless defined? ElasticProfile
-  java_import com.thoughtworks.go.server.ui.TemplatesViewModel unless defined? TemplatesViewModel
   java_import com.thoughtworks.go.config.remote.RepoConfigOrigin unless defined? RepoConfigOrigin
   java_import com.thoughtworks.go.config.remote.FileConfigOrigin unless defined? FileConfigOrigin
   java_import com.thoughtworks.go.config.remote.ConfigRepoConfig unless defined? ConfigRepoConfig

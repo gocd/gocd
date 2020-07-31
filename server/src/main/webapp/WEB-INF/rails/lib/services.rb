@@ -93,7 +93,6 @@ module Services
     :stage_service,
     :system_environment,
     :system_service,
-    :task_view_service,
     :template_config_service,
     :user_search_service,
     :user_service,

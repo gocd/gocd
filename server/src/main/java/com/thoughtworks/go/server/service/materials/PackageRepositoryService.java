@@ -82,24 +82,6 @@ public class PackageRepositoryService {
         repositoryMetadataStore = RepositoryMetadataStore.getInstance();
     }
 
-    public ConfigUpdateAjaxResponse savePackageRepositoryToConfig(PackageRepository packageRepository, final String md5, Username username) {
-        performPluginValidationsFor(packageRepository);
-        UpdateConfigFromUI updateCommand = getPackageRepositoryUpdateCommand(packageRepository, username);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(updateCommand, md5, username, result);
-        if (result.isSuccessful()) {
-            ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.success(packageRepository.getId(), result.httpCode(),
-                    configUpdateResponse.wasMerged() ? "The configuration was modified by someone else, but your changes were merged successfully." : "Saved configuration successfully.");
-            return response;
-        } else {
-            List<String> globalErrors = globalErrors(configUpdateResponse.getCruiseConfig().getAllErrorsExceptFor(configUpdateResponse.getSubject()));
-            HashMap<String, List<String>> fieldErrors = fieldErrors(configUpdateResponse.getSubject(), "package_repository");
-            String message = result.message();
-            ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.failure(packageRepository.getId(), result.httpCode(), message, fieldErrors, globalErrors);
-            return response;
-        }
-    }
-
     public void checkConnection(final PackageRepository packageRepository, final LocalizedOperationResult result) {
         try {
             Result checkConnectionResult = packageRepositoryExtension.checkConnectionToRepository(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
@@ -175,59 +157,6 @@ public class PackageRepositoryService {
         }
         packageRepository.getPluginConfiguration().errors().add(PluginConfiguration.ID, "Invalid plugin id");
         return false;
-    }
-
-
-    UpdateConfigFromUI getPackageRepositoryUpdateCommand(final PackageRepository packageRepository, final Username username) {
-        return new UpdateConfigFromUI() {
-
-            @Override
-            public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
-                if (!securityService.canViewAdminPage(username)) {
-                    result.forbidden(EntityType.PackageRepository.forbiddenToEdit(packageRepository.getId(), username.getUsername()), null);
-                }
-            }
-
-            @Override
-            public Validatable node(CruiseConfig cruiseConfig) {
-                return cruiseConfig;
-            }
-
-            @Override
-            public Validatable updatedNode(CruiseConfig cruiseConfig) {
-                return cruiseConfig;
-            }
-
-            @Override
-            public void update(Validatable node) {
-                ((CruiseConfig) node).savePackageRepository(packageRepository);
-            }
-
-            @Override
-            public Validatable subject(Validatable node) {
-                return ((CruiseConfig) node).getPackageRepositories().find(packageRepository.getRepoId());
-            }
-
-            @Override
-            public Validatable updatedSubject(Validatable updatedNode) {
-                return ((CruiseConfig) updatedNode).getPackageRepositories().find(packageRepository.getRepoId());
-            }
-        };
-    }
-
-    private HashMap<String, List<String>> fieldErrors(Validatable subject, String filedErrorPrefix) {
-        HashMap<String, List<String>> filedErrors = new HashMap<>();
-        //TODO; Ideally subject should not be null, but when xsd validations fails subject comes as null hence this fix
-        if (subject != null) {
-            collectFieldErrors(filedErrors, filedErrorPrefix, subject);
-        }
-        return filedErrors;
-    }
-
-    private List<String> globalErrors(List<ConfigErrors> allErrorsExceptSubject) {
-        ArrayList<String> globalErrors = new ArrayList<>();
-        collectGlobalErrors(globalErrors, allErrorsExceptSubject);
-        return globalErrors;
     }
 
     public PackageRepository getPackageRepository(String repoId) {

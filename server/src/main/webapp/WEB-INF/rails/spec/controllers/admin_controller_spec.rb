@@ -17,8 +17,6 @@
 require 'rails_helper'
 
 describe AdminController do
-  include ConfigSaveStubbing
-
   before do
     @go_config_service = stub_service(:go_config_service)
     mother = GoConfigMother.new()
@@ -28,50 +26,6 @@ describe AdminController do
 
   after(:each) do
     controller.instance_variable_set(:@should_not_render_layout, false)
-  end
-
-  class UpdateCommand
-    include com.thoughtworks.go.config.update.UpdateConfigFromUI
-
-    def checkPermission(cruiseConfig, result)
-      true
-    end
-
-    def node(cruiseConfig)
-      cruiseConfig.pipelineConfigByName(CaseInsensitiveString.new("pipeline1"))
-    end
-
-    def upatedNode(cruiseConfig)
-      node(cruiseConfig)
-    end
-
-    def update(pipeline)
-      pipeline.setLabelTemplate("foo-${COUNT}")
-    end
-
-    def subject(pipeline)
-      pipeline
-    end
-
-    def updatedSubject(pipeline)
-      subject(pipeline)
-    end
-  end
-
-  it "should capture cruise_config, node and subject for an update operation" do
-    stub_save_for_success
-    controller.send(:save, "md5", {:action => "foo", :controller => "bar"}, UpdateCommand.new, "Saved successfully.",proc {}) {}
-
-    expect(controller.instance_variable_get('@cruise_config')).to eq(@cruise_config)
-    expect(controller.instance_variable_get('@node')).to eq(@cruise_config.pipelineConfigByName(CaseInsensitiveString.new('pipeline1')))
-    expect(controller.instance_variable_get('@subject')).to eq(@cruise_config.pipelineConfigByName(CaseInsensitiveString.new('pipeline1')))
-  end
-
-  it "should capture config before and after update" do
-    stub_save_for_success
-    controller.send(:save, "md5", {:action => "foo", :controller => "bar"}, UpdateCommand.new, "Saved successfully.", proc {}) {}
-
-    expect(controller.instance_variable_get('@config_after').pipelineConfigByName(CaseInsensitiveString.new("pipeline1")).getLabelTemplate()).to eq("foo-${COUNT}")
   end
 
   describe "assert_load" do
@@ -154,19 +108,6 @@ describe AdminController do
     end
   end
 
-  it "should render error response for exceptions in after update block" do
-    stub_save_for_success
-    exception = nil
-    expect(Rails.logger).to receive(:error) do |ex|
-      exception = ex
-    end
-    expect(controller).to receive(:render_assertion_failure).with({})
-    controller.send(:save, "md5", {:action => "foo", :controller => "bar"}, UpdateCommand.new, "Saved successfully.", proc do
-      raise "random exception"
-    end) {}
-    expect(exception.message).to eq("random exception")
-  end
-
   it "should use config_errors page for rendering errors" do
     expect(controller._process_action_callbacks.select { |c| c.kind == :before }.map(&:filter)).to include(:enable_admin_error_template)
     controller.send(:enable_admin_error_template)
@@ -176,72 +117,6 @@ describe AdminController do
   it "should report 'Bad Request' when no status override given" do
     expect(controller).to receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 404})
     controller.send(:assert_load, :foo, nil)
-  end
-
-  it "should use update_result http code if available when assert_load fails" do
-    stub_save_for_validation_error do |result, _, _|
-      result.conflict("Save failed. message")
-    end
-    allow(controller).to receive(:response).and_return(response = double('response'))
-    allow(response).to receive(:headers).and_return({})
-    expect(controller).to receive_render_with({:template => "shared/config_error.html", :layout => "application", :status => 409})
-
-    controller.send(:save_page, "md5", "url", {:action => "foo", :controller => "bar"}, UpdateCommand.new) do
-      assert_load(:foo, nil)
-    end
-    expect(response.headers["Go-Config-Error"]).to eq "Save failed. message"
-  end
-
-  it "should NOT continue and do render or redirect when assert_load fails during save_page but update was successful" do
-    stub_save_for_success
-    allow(controller).to receive(:response).and_return(response = double('response'))
-
-    expect(response).not_to receive(:headers)
-    expect(controller).to receive(:render).once.with({:template => "shared/config_error.html", :layout => "application", :status => 200})
-    expect(controller).not_to receive(:redirect_to)
-
-    controller.send(:save_page, "md5", "url", {:action => "foo", :controller => "bar"}, UpdateCommand.new) do
-      assert_load(:foo, nil)
-      assert_load(:bar, nil)
-    end
-  end
-
-  it "should NOT continue and do render or redirect when assert_load fails during save_popup but update was successful" do
-    stub_save_for_success
-    allow(controller).to receive(:response).and_return(response = double('response'))
-
-    expect(response).not_to receive(:headers)
-    expect(controller).to receive(:render).once.with({:template => "shared/config_error.html", :layout => "application", :status => 200})
-    expect(controller).not_to receive(:render).with(:text => "Saved successfully")
-
-    controller.send(:save_popup, "md5", UpdateCommand.new, {:action => "foo", :controller => "bar"}) do
-      assert_load(:foo, nil)
-      assert_load(:bar, nil)
-    end
-  end
-
-  it "should use flash-message to report successful save" do
-    stub_save_for_success
-    expect(controller).to receive_redirect_to(/http:\/\/foo.bar\?fm=#{uuid_pattern}/)
-    controller.send(:save_page, "md5", "http://foo.bar", {:action => "foo", :controller => "bar"}, UpdateCommand.new) {}
-  end
-
-  it "should append to save successful message when configuration is merged" do
-    stub_save_for_success @cruise_config, {:config_save_state => com.thoughtworks.go.config.ConfigSaveState::MERGED}
-    final_success_message = ""
-    controller.send(:save, "md5", {:action => "foo", :controller => "bar"}, UpdateCommand.new, "Saved successfully.", Proc.new{}) do |message|
-      final_success_message = message
-    end
-    expect(final_success_message).to eq("Saved successfully. The configuration was modified by someone else, but your changes were merged successfully.")
-  end
-
-  it "should retain successful message when configuration is only updated" do
-    stub_save_for_success @cruise_config, {:config_save_state => com.thoughtworks.go.config.ConfigSaveState::UPDATED}
-    final_success_message = ""
-    controller.send(:save, "md5", {:action => "foo", :controller => "bar"}, UpdateCommand.new, "Saved successfully.", Proc.new{}) do |message|
-      final_success_message = message
-    end
-    expect(final_success_message).to eq("Saved successfully.")
   end
 
   it "should flatten and give unique error messages" do

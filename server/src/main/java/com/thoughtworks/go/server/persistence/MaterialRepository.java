@@ -1026,7 +1026,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         return new File(new File("pipelines", "flyweight"), materialInstance.getFlyweightName());
     }
 
-    public List<Modification> getModificationWithMaterial() {
+    public List<Modification> getLatestModificationForEachMaterial() {
         String queryString = "SELECT mods.* " +
                 "FROM (" +
                 "   SELECT MAX(id) OVER (PARTITION BY materialid) as max_id, * " +

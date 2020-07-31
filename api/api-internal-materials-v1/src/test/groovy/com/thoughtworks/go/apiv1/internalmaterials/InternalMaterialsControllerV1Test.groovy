@@ -123,7 +123,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
       map.put(git.getFingerprint(), modifications)
 
       when(materialConfigService.getMaterialConfigs(anyString())).thenReturn(materialConfigs)
-      when(materialService.getModificationWithMaterial()).thenReturn(map)
+      when(materialService.getLatestModificationForEachMaterial()).thenReturn(map)
 
       getWithApiHeader(controller.controllerBasePath())
 
@@ -138,7 +138,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
     @Test
     void 'should return 200 with empty materials'() {
       when(materialConfigService.getMaterialConfigs(anyString())).thenReturn(new MaterialConfigs())
-      when(materialService.getModificationWithMaterial()).thenReturn(emptyMap())
+      when(materialService.getLatestModificationForEachMaterial()).thenReturn(emptyMap())
 
       getWithApiHeader(controller.controllerBasePath())
 
@@ -154,7 +154,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
       materialConfigs.add(git)
 
       when(materialConfigService.getMaterialConfigs(anyString())).thenReturn(materialConfigs)
-      when(materialService.getModificationWithMaterial()).thenReturn(emptyMap())
+      when(materialService.getLatestModificationForEachMaterial()).thenReturn(emptyMap())
 
       getWithApiHeader(controller.controllerBasePath())
 
@@ -180,7 +180,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
       map.put(dependencyConfig.getFingerprint(), modifications)
 
       when(materialConfigService.getMaterialConfigs(anyString())).thenReturn(materialConfigs)
-      when(materialService.getModificationWithMaterial()).thenReturn(map)
+      when(materialService.getLatestModificationForEachMaterial()).thenReturn(map)
 
       getWithApiHeader(controller.controllerBasePath())
 

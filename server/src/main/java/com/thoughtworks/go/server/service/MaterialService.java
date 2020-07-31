@@ -48,6 +48,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.stream.Collectors.toMap;
+
 /**
  * @understands interactions between material-config, repository and modifications
  */
@@ -161,15 +163,10 @@ public class MaterialService {
         return material.getClass();
     }
 
-    public Map<String, Modification> getModificationWithMaterial() {
-        List<Modification> modifications = materialRepository.getModificationWithMaterial();
-        Map<String, Modification> materialAndModifications = new HashMap<>();
-        modifications.forEach((mod) -> {
-            String fingerprint = mod.getMaterialInstance().getFingerprint();
-            Modification modification = new Modification(mod);
-            modification.setMaterialInstance(null);
-            materialAndModifications.put(fingerprint, modification);
-        });
-        return materialAndModifications;
+    public Map<String, Modification> getLatestModificationForEachMaterial() {
+        List<Modification> modifications = materialRepository.getLatestModificationForEachMaterial();
+        return modifications
+                .stream()
+                .collect(toMap(mod -> mod.getMaterialInstance().getFingerprint(), mod -> mod));
     }
 }

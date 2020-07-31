@@ -1324,13 +1324,13 @@ public class MaterialRepositoryIntegrationTest {
     public void shouldFetchModificationsWithMaterial() {
         MaterialRevisions materialRevisions = new MaterialRevisions();
         SvnMaterial material = MaterialsMother.svnMaterial("http://username:password@localhost");
-        List<Modification> modificationList = getModifications(1);
+        List<Modification> modificationList = getModifications(2);
         materialRevisions.addRevision(material, modificationList);
 
         dbHelper.saveRevs(materialRevisions);
         Modification expectedModification = modificationList.get(0);
 
-        List<Modification> modifications = repo.getModificationWithMaterial();
+        List<Modification> modifications = repo.getLatestModificationForEachMaterial();
 
         assertThat(modifications.size(), is(1));
         Modification modification = modifications.get(0);
@@ -1353,12 +1353,12 @@ public class MaterialRepositoryIntegrationTest {
 
         HgMaterial material = MaterialsMother.hgMaterial("http://username:password@localhost");
         material.setBranch("master");
-        List<Modification> modificationList = getModifications(1);
+        List<Modification> modificationList = getModifications(2);
         materialRevisions.addRevision(material, modificationList);
 
         dbHelper.saveRevs(materialRevisions);
 
-        List<Modification> modifications = repo.getModificationWithMaterial();
+        List<Modification> modifications = repo.getLatestModificationForEachMaterial();
         assertModificationEqual(modificationList.get(0), modifications.get(0));
 
         MaterialInstance instance = modifications.get(0).getMaterialInstance();
@@ -1375,12 +1375,12 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevisions materialRevisions = new MaterialRevisions();
 
         P4Material material = new P4Material("localhost:1666", "view");
-        List<Modification> modificationList = getModifications(1);
+        List<Modification> modificationList = getModifications(2);
         materialRevisions.addRevision(material, modificationList);
 
         dbHelper.saveRevs(materialRevisions);
 
-        List<Modification> modifications = repo.getModificationWithMaterial();
+        List<Modification> modifications = repo.getLatestModificationForEachMaterial();
 
         assertThat(modifications.size(), is(1));
         assertModificationEqual(modificationList.get(0), modifications.get(0));
@@ -1400,12 +1400,12 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevisions materialRevisions = new MaterialRevisions();
 
         TfsMaterial material = MaterialsMother.tfsMaterial("http://tfs.com");
-        List<Modification> modificationList = getModifications(1);
+        List<Modification> modificationList = getModifications(2);
         materialRevisions.addRevision(material, modificationList);
 
         dbHelper.saveRevs(materialRevisions);
 
-        List<Modification> modifications = repo.getModificationWithMaterial();
+        List<Modification> modifications = repo.getLatestModificationForEachMaterial();
 
         assertThat(modifications.size(), is(1));
         assertModificationEqual(modificationList.get(0), modifications.get(0));
@@ -1425,12 +1425,12 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevisions materialRevisions = new MaterialRevisions();
 
         PackageMaterial material = MaterialsMother.packageMaterial();
-        List<Modification> modificationList = getModifications(1);
+        List<Modification> modificationList = getModifications(2);
         materialRevisions.addRevision(material, modificationList);
 
         dbHelper.saveRevs(materialRevisions);
 
-        List<Modification> modifications = repo.getModificationWithMaterial();
+        List<Modification> modifications = repo.getLatestModificationForEachMaterial();
 
         assertThat(modifications.size(), is(1));
         assertModificationEqual(modificationList.get(0), modifications.get(0));
@@ -1449,12 +1449,12 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevisions materialRevisions = new MaterialRevisions();
 
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
-        List<Modification> modificationList = getModifications(1);
+        List<Modification> modificationList = getModifications(2);
         materialRevisions.addRevision(material, modificationList);
 
         dbHelper.saveRevs(materialRevisions);
 
-        List<Modification> modifications = repo.getModificationWithMaterial();
+        List<Modification> modifications = repo.getLatestModificationForEachMaterial();
 
         assertThat(modifications.size(), is(1));
         assertModificationEqual(modificationList.get(0), modifications.get(0));

@@ -410,9 +410,9 @@ public class MaterialServiceTest {
         ArrayList<Modification> mods = new ArrayList<>();
         mods.add(modification);
 
-        when(materialRepository.getModificationWithMaterial()).thenReturn(mods);
+        when(materialRepository.getLatestModificationForEachMaterial()).thenReturn(mods);
 
-        Map<String, Modification> modificationsMap = materialService.getModificationWithMaterial();
+        Map<String, Modification> modificationsMap = materialService.getLatestModificationForEachMaterial();
 
         assertEquals(modificationsMap.size(), 1);
         assertThat(modificationsMap.keySet(), containsInAnyOrder(instance.getFingerprint()));
@@ -421,9 +421,9 @@ public class MaterialServiceTest {
 
     @Test
     public void shouldReturnEmptyMapIfNoMaterialAndModificationFound() {
-        when(materialRepository.getModificationWithMaterial()).thenReturn(emptyList());
+        when(materialRepository.getLatestModificationForEachMaterial()).thenReturn(emptyList());
 
-        Map<String, Modification> modificationsMap = materialService.getModificationWithMaterial();
+        Map<String, Modification> modificationsMap = materialService.getLatestModificationForEachMaterial();
 
         assertEquals(modificationsMap.size(), 0);
     }

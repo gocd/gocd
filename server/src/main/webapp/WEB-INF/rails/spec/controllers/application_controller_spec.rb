@@ -280,7 +280,7 @@ describe ApplicationController do
       end
 
       it "should return only the path to a given resource and not the whole url" do
-        expect(controller.url_for(controller: 'pipelines', action: :build_cause, foo: "junk",only_path:false)).to eq("http://test.host/pipelines/build_cause?foo=junk")
+        expect(controller.url_for(controller: 'go_errors', action: :inactive, foo: "junk", only_path: false)).to eq("http://test.host/errors/inactive?foo=junk")
       end
 
       it "should cache the url if options is an active-record object" do
@@ -295,8 +295,8 @@ describe ApplicationController do
       end
 
       it "should return full path when requested explicitly" do
-        expect(controller.url_for(controller: 'pipelines', action: :build_cause, foo: "junk",
-                                  only_path: false)).to eq("http://test.host/pipelines/build_cause?foo=junk")
+        expect(controller.url_for(controller: 'go_errors', action: :inactive, foo: "junk",
+                                  only_path: false)).to eq("http://test.host/errors/inactive?foo=junk")
       end
     end
 
@@ -317,18 +317,18 @@ describe ApplicationController do
 
       it "should cache the url" do
         Services.go_cache.clear
-        expect(controller.url_for(controller: 'pipelines', action: :build_cause)).to eq("http://test.host/pipelines/build_cause")
+        expect(controller.url_for(controller: 'go_errors', action: :inactive)).to eq("http://test.host/errors/inactive")
         key = Services.go_cache.getKeys.grep(/#{Regexp.quote(com.thoughtworks.go.listener.BaseUrlChangeListener::URLS_CACHE_KEY)}#{Regexp.quote(GoCache::SUB_KEY_DELIMITER)}/).last
         expect(key).to be_present
         Services.go_cache.put(key, "some-random-url")
-        expect(controller.url_for(controller: 'pipelines', action: :build_cause)).to eq("some-random-url")
+        expect(controller.url_for(controller: 'go_errors', action: :inactive)).to eq("some-random-url")
         expect(Services.go_cache.get(key)).to eq('some-random-url')
       end
 
       it "should cache the url irrespective of option key type" do
         Services.go_cache.clear
-        url_options = {controller: 'pipelines', action: :build_cause, foo: 'bar', boo: 'baz'}
-        expect(controller.url_for(url_options)).to eq("http://test.host/pipelines/build_cause?boo=baz&foo=bar")
+        url_options = {controller: 'go_errors', action: :inactive, foo: 'bar', boo: 'baz'}
+        expect(controller.url_for(url_options)).to eq("http://test.host/errors/inactive?boo=baz&foo=bar")
         key = Services.go_cache.getKeys.grep(/#{Regexp.quote(com.thoughtworks.go.listener.BaseUrlChangeListener::URLS_CACHE_KEY)}#{Regexp.quote(GoCache::SUB_KEY_DELIMITER)}/).last
         expect(key).to be_present
         Services.go_cache.put(key, "some-random-url")

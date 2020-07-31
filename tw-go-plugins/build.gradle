@@ -41,9 +41,9 @@ def dependencies = [
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-yum-repository-poller-plugin',
-    tagName: 'v2.0.5-37-exp',
+    tagName: 'v2.0.5-37',
     asset: 'gocd-yum-repo-plugin-2.0.5-37.jar',
-    checksum: 'f3da04af3fd3402e1022425fb4f9c4caede36f72e53bbbd78d81adfdd2b26b23'
+    checksum: '7518b4f2d63e69591bf83780f3eba96183a68d0e8fe1e8feb38797df0a4b448f'
   ),
   new GithubArtifact(
     user: 'tomzo',

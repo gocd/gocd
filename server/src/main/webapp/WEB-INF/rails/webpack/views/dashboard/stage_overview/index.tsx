@@ -105,6 +105,8 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
       </div>;
     }
 
+    const inProgressStageFromPipeline = Stream(vnode.attrs.stages.find((s) => !s.isCompleted()));
+
     return <div data-test-id="stage-overview-container" class={styles.stageOverviewContainer}>
       <StageHeaderWidget stageName={vnode.attrs.stageName}
                          stageCounter={vnode.attrs.stageCounter}
@@ -118,6 +120,7 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
                               pipelineName={vnode.attrs.pipelineName}
                               pipelineCounter={vnode.attrs.pipelineCounter}
                               flashMessage={vnode.attrs.stageOverviewVM().flashMessage}
+                              inProgressStageFromPipeline={inProgressStageFromPipeline}
                               jobsVM={vnode.attrs.stageOverviewVM().jobsVM}/>
       <JobsListWidget stageName={vnode.attrs.stageName}
                       stageCounter={vnode.attrs.stageCounter}

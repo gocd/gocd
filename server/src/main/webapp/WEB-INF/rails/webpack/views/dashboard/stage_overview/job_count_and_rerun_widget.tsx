@@ -18,10 +18,10 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {MithrilComponent} from "../../../jsx/mithril-component";
 import {ButtonGroup, Secondary} from "../../components/buttons";
+import {FlashMessageModelWithTimeout, MessageType} from "../../components/flash_message";
 import * as styles from "./index.scss";
 import Stream from "./jobs_list_widget";
 import {JobsViewModel} from "./models/jobs_view_model";
-import {FlashMessageModelWithTimeout, MessageType} from "../../components/flash_message";
 
 export interface Attrs {
   stageName: string;
@@ -30,6 +30,7 @@ export interface Attrs {
   pipelineCounter: string | number;
   flashMessage: FlashMessageModelWithTimeout;
   jobsVM: Stream<JobsViewModel>;
+  inProgressStageFromPipeline: Stream<any | undefined>;
 }
 
 export interface State {
@@ -65,6 +66,12 @@ export class JobCountAndRerunWidget extends MithrilComponent<Attrs, State> {
 
     let disableRerunFailed = false, disableRerunSelected = false;
 
+    if (vnode.attrs.inProgressStageFromPipeline() !== undefined) {
+      rerunFailedTitle = `Can not rerun failed jobs. Stage '${vnode.attrs.inProgressStageFromPipeline().name}' from the current pipeline is still in progress.`;
+      rerunSelectedTitle = `Can not rerun selected jobs. Stage '${vnode.attrs.inProgressStageFromPipeline().name}' from the current pipeline is still in progress.`;
+      disableRerunFailed = disableRerunSelected = true;
+    }
+
     const isStageCompleted = vnode.attrs.jobsVM().buildingJobNames().length === 0;
     if (!isStageCompleted) {
       rerunFailedTitle = `Can not rerun failed jobs. Some jobs from the stage are still in progress.`;
@@ -99,8 +106,10 @@ export class JobCountAndRerunWidget extends MithrilComponent<Attrs, State> {
       </div>
       <div data-test-id="job-rerun-container">
         <ButtonGroup>
-          <Secondary title={rerunFailedTitle} disabled={disableRerunFailed} small={true} onclick={vnode.state.rerunFailed.bind(vnode.state, vnode.attrs)}>Rerun Failed</Secondary>
-          <Secondary title={rerunSelectedTitle} disabled={disableRerunSelected} small={true} onclick={vnode.state.rerunSelected.bind(vnode.state, vnode.attrs)}>Rerun Selected</Secondary>
+          <Secondary title={rerunFailedTitle} disabled={disableRerunFailed} small={true}
+                     onclick={vnode.state.rerunFailed.bind(vnode.state, vnode.attrs)}>Rerun Failed</Secondary>
+          <Secondary title={rerunSelectedTitle} disabled={disableRerunSelected} small={true}
+                     onclick={vnode.state.rerunSelected.bind(vnode.state, vnode.attrs)}>Rerun Selected</Secondary>
         </ButtonGroup>
       </div>
     </div>;

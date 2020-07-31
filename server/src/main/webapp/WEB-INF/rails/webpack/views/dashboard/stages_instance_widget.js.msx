@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import m from "mithril";
 import _ from "lodash";
 
 import {f} from "helpers/form_helper";
@@ -91,8 +92,7 @@ export const StagesInstanceWidget = {
       if (stage.isBuildingOrCompleted()) {
         return (<div class="pipeline_stage_manual_gate_wrapper">
           {manualGate}
-          <a href={stage.stageDetailTabPath}
-             onclick={vnode.state.showStageOverview.bind(vnode, pipelineName, pipelineCounter, stageName, stageCounter, stage.status, vnode.attrs.stageOverview)}
+          <a onclick={vnode.state.showStageOverview.bind(vnode, pipelineName, pipelineCounter, stageName, stageCounter, stage.status, vnode.attrs.stageOverview)}
              className={`pipeline_stage ${stage.status.toLowerCase()}`}
              title={stageStatus} aria-label={stageStatus}>
           </a>

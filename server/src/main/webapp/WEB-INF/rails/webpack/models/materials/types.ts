@@ -138,7 +138,7 @@ export class Material extends ValidatableMixin {
     );
   }
 
-  checkConnection(pipelineName?: string, pipelineGroup?: string) {
+  checkConnection(pipelineName?: string, pipelineGroup?: string, configRepoId?: string) {
     const payload = this.toApiPayload();
     if (pipelineName) {
       payload.pipeline_name = pipelineName;
@@ -146,11 +146,17 @@ export class Material extends ValidatableMixin {
     if (pipelineGroup) {
       payload.pipeline_group = pipelineGroup;
     }
-    return ApiRequestBuilder.POST(
-      SparkRoutes.materialConnectionCheck(),
-      Material.API_VERSION_HEADER,
-      {payload}
-    );
+
+    let url: string, apiVersion: ApiVersion;
+    if (configRepoId) {
+      url = SparkRoutes.configRepoConnectionCheck(configRepoId);
+      apiVersion = ApiVersion.v4;
+    } else {
+      url = SparkRoutes.materialConnectionCheck();
+      apiVersion = Material.API_VERSION_HEADER;
+    }
+
+    return ApiRequestBuilder.POST(url, apiVersion, {payload});
   }
 
   typeForDisplay() {

@@ -18,6 +18,7 @@ import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {ConfigRepo} from "../../../../models/config_repos/types";
 import {TestConnection} from "../test_connection";
 import styles from "../test_connection.scss";
 
@@ -148,6 +149,77 @@ describe("Materials: TestConnection", () => {
       expect(request.url).toEqual(TEST_CONNECTION_URL);
       const data = request.data();
       expect(Object.keys(data)).toEqual(['attributes', 'type', 'pipeline_group']);
+    });
+  });
+
+  describe("Config Repo Check Connection", () => {
+    const CONFIG_REPO_ID = 'repo1';
+    const CONFIG_REPO_TEST_CONNECTION_URL = SparkRoutes.configRepoConnectionCheck(CONFIG_REPO_ID);
+    const material = new Material('git', new GitMaterialAttributes("git", true, "some-git-repo"));
+    const configRepo = new ConfigRepo(CONFIG_REPO_ID, "json", material);
+
+    it("Renders success message when successful connection", (done) => {
+      jasmine.Ajax.withMock(() => {
+        const response = {message: "Connection OK."};
+
+        jasmine.Ajax.stubRequest(CONFIG_REPO_TEST_CONNECTION_URL, payload(validMaterial), "POST")
+          .andReturn({
+            responseText:    JSON.stringify(response),
+            status:          200,
+            responseHeaders: {
+              "Content-Type": "application/vnd.go.cd.v4+json",
+              "ETag":         "ETag"
+            }
+          });
+
+        helper.mount(() => <TestConnection material={validMaterial} configRepo={configRepo} complete={() => {
+          expect(helper.byTestId("test-connection-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
+
+          setTimeout(() => { // make this async so as to allow mithril to update the dom
+            m.redraw.sync();
+            expect(helper.byTestId("test-connection-button").matches("[disabled]")).toBe(false); // enabled on complete
+            expect(helper.byTestId("test-connection-icon")).toHaveClass(styles.testConnectionSuccess);
+            expect(helper.byTestId("flash-message-success").querySelector("p")).toContainText("Connection OK");
+            done();
+          }, 0);
+        }}/>);
+
+        expect(helper.byTestId('test-connection-button')).toBeVisible();
+        helper.clickByTestId("test-connection-button");
+        expect(jasmine.Ajax.requests.count()).toEqual(1);
+      });
+    });
+
+    it("Renders error message when connection is not successful", (done) => {
+      jasmine.Ajax.withMock(() => {
+        const response = {message: "Error while parsing material URL"};
+
+        jasmine.Ajax.stubRequest(CONFIG_REPO_TEST_CONNECTION_URL, payload(invalidMaterial), "POST")
+          .andReturn({
+            responseText:    JSON.stringify(response),
+            status:          422,
+            responseHeaders: {
+              "Content-Type": "application/vnd.go.cd.v1+json",
+              "ETag":         "ETag"
+            }
+          });
+
+        helper.mount(() => <TestConnection material={invalidMaterial} configRepo={configRepo} complete={() => {
+          expect(helper.byTestId("test-connection-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
+
+          setTimeout(() => { // make this async so as to allow mithril to update the dom
+            m.redraw.sync();
+            expect(helper.byTestId("test-connection-button").matches("[disabled]")).toBe(false); // enabled on complete
+            expect(helper.byTestId("test-connection-icon")).toHaveClass(styles.testConnectionFailure);
+            expect(helper.byTestId("flash-message-alert").querySelector("pre")).toContainText("Error while parsing material URL");
+            done();
+          }, 10);
+        }}/>);
+
+        expect(helper.byTestId('test-connection-button')).toBeVisible();
+        helper.clickByTestId("test-connection-button");
+        expect(jasmine.Ajax.requests.count()).toEqual(1);
+      });
     });
   });
 

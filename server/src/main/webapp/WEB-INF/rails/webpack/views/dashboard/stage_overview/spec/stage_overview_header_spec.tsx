@@ -16,12 +16,12 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
+import {FlashMessageModelWithTimeout, MessageType} from "../../../components/flash_message";
 import {TestHelper} from "../../../pages/spec/test_helper";
 import {StageInstance} from "../models/stage_instance";
 import {Result} from "../models/types";
 import {StageHeaderWidget} from "../stage_overview_header";
 import {TestData} from "./test_data";
-import {FlashMessageModelWithTimeout, MessageType} from "../../../components/flash_message";
 
 describe('Stage Overview Header', () => {
   const helper = new TestHelper();
@@ -112,7 +112,6 @@ describe('Stage Overview Header', () => {
 
     expect(helper.byTestId('stage-overview-flash-message')).toBeInDOM();
   });
-
 
   function mount() {
     helper.mount(() => {

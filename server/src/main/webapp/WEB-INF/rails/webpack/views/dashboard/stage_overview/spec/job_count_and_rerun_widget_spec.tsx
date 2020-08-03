@@ -61,7 +61,6 @@ describe("Job Count And Rerun Widget", () => {
     expect(helper.qa('button')[1]).toContainText('Rerun Selected');
   });
 
-
   it('should render rerun failed button in enabled state with title', () => {
     helper.unmount();
     const json = TestData.stageInstanceJSON().jobs;
@@ -131,7 +130,6 @@ describe("Job Count And Rerun Widget", () => {
     const expectedTitle = 'Can not rerun selected jobs. Some jobs from the stage are still in progress.';
     expect(helper.qa('button')[1].title).toBe(expectedTitle);
   });
-
 
   function mount() {
     helper.mount(() => {

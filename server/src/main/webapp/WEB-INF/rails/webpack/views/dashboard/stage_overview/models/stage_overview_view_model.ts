@@ -21,10 +21,10 @@ import {ApiRequestBuilder, ApiResult, ApiVersion} from "../../../../helpers/api_
 import {SparkRoutes} from "../../../../helpers/spark_routes";
 import {Agents} from "../../../../models/agents/agents";
 import {AgentsCRUD} from "../../../../models/agents/agents_crud";
+import {FlashMessageModelWithTimeout} from "../../../components/flash_message";
 import {JobsViewModel} from "./jobs_view_model";
 import {StageInstance} from "./stage_instance";
 import {Result, StageInstanceJSON, StageState} from "./types";
-import {FlashMessageModelWithTimeout} from "../../../components/flash_message";
 
 export class StageOverviewViewModel {
   private static STAGES_API_VERSION_HEADER = ApiVersion.latest;
@@ -44,10 +44,6 @@ export class StageOverviewViewModel {
     this.jobsVM = Stream(new JobsViewModel(stageInstance.jobs()));
     this.agents = Stream(agents);
     this.repeater = Stream(this.createRepeater(pipelineName, pipelineCounter, stageName, stageCounter));
-  }
-
-  public stopRepeater(): void {
-    this.repeater().stop();
   }
 
   /*
@@ -121,6 +117,10 @@ export class StageOverviewViewModel {
           return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter);
         });
       });
+  }
+
+  public stopRepeater(): void {
+    this.repeater().stop();
   }
 
   private static initializeCurrentStageInstance(pipelineName: string, pipelineCounter: string | number,

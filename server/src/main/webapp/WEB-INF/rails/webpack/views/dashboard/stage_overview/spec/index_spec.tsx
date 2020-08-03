@@ -19,10 +19,10 @@ import Stream from "mithril/stream";
 import {Agents} from "../../../../models/agents/agents";
 import {TestHelper} from "../../../pages/spec/test_helper";
 import {StageOverview} from "../index";
+import {StageInstance} from "../models/stage_instance";
 import {StageOverviewViewModel} from "../models/stage_overview_view_model";
 import {StageState} from "../models/types";
 import {TestData} from "./test_data";
-import {StageInstance} from "../models/stage_instance";
 
 describe("Stage Overview Widget", () => {
   const helper = new TestHelper();
@@ -30,9 +30,6 @@ describe("Stage Overview Widget", () => {
   const pipelineCounter = 123456789;
   const stageName = "build-and-run-jasmine-specs";
   const stageCounter = 97654321;
-
-  beforeEach(() => {
-  });
 
   afterEach(() => {
     helper.unmount();

@@ -15,9 +15,9 @@
  */
 
 import Stream from 'mithril/stream';
-import {JobJSON, Result} from "./types";
 import {ApiRequestBuilder, ApiVersion} from "../../../../helpers/api_request_builder";
 import {SparkRoutes} from "../../../../helpers/spark_routes";
+import {JobJSON, Result} from "./types";
 
 export class JobsViewModel {
   public readonly checkedState: Map<string, Stream<boolean>> = new Map();

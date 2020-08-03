@@ -50,7 +50,7 @@ public class InternalMaterialTestControllerV1 extends AbstractMaterialTestContro
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
 
             post("", mimeType, this::testConnection);
         });

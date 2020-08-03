@@ -522,3 +522,7 @@ api/api-version-infos-v1/out/
 api/api-version-infos-v1/target/
 api/api-version-infos-v1/logs/
 api/api-version-infos-v1/config/
+api/api-abstract-material-test/out/
+api/api-abstract-material-test/target/
+api/api-abstract-material-test/logs/
+api/api-abstract-material-test/config/

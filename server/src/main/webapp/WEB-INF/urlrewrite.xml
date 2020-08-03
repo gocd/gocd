@@ -869,7 +869,7 @@
 
   <rule>
     <name>Spark Config Repos Internal Operations API</name>
-    <from>^/api/internal/config_repos/([^/]+)/(trigger_update|status|definitions)(/?)</from>
+    <from>^/api/internal/config_repos/([^/]+)/(material_test|trigger_update|status|definitions)(/?)</from>
     <to last="true">/spark/api/internal/config_repos/${escape:$1}/${escape:$2}</to>
   </rule>
 
@@ -881,7 +881,7 @@
 
   <rule>
     <name>Spark Config Repos Operations API</name>
-    <from>^/api/admin/config_repos/([^/]+)/(trigger_update|status|definitions)(/?)</from>
+    <from>^/api/admin/config_repos/([^/]+)/(material_test|trigger_update|status|definitions)(/?)</from>
     <to last="true">/spark/api/admin/config_repos/${escape:$1}/${escape:$2}</to>
   </rule>
 

@@ -108,6 +108,7 @@ public class Routes {
         public static final String DEFINITIONS_PATH = REPO_PATH + "/definitions";
         public static final String STATUS_PATH = REPO_PATH + "/status";
         public static final String TRIGGER_UPDATE_PATH = REPO_PATH + "/trigger_update";
+        public static final String CHECK_CONNECTION_PATH = REPO_PATH + "/material_test";
 
         // For building _links entry in API response
         public static String find() {

@@ -18,13 +18,17 @@ package com.thoughtworks.go.apiv4.configrepos
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.materials.PasswordDeserializer
+import com.thoughtworks.go.config.materials.git.GitMaterial
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
 import com.thoughtworks.go.config.policy.Allow
 import com.thoughtworks.go.config.policy.Policy
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.ConfigReposConfig
 import com.thoughtworks.go.config.remote.PartialConfig
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.domain.materials.Modification
+import com.thoughtworks.go.domain.materials.ValidationBean
 import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.materials.MaterialUpdateService
@@ -32,10 +36,12 @@ import com.thoughtworks.go.server.service.ConfigRepoService
 import com.thoughtworks.go.server.service.EnvironmentConfigService
 import com.thoughtworks.go.server.service.MaterialConfigConverter
 import com.thoughtworks.go.server.service.PipelineConfigsService
+import com.thoughtworks.go.server.service.SecretParamResolver
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
+import com.thoughtworks.go.util.SystemEnvironment
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -45,6 +51,8 @@ import org.mockito.invocation.InvocationOnMock
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.anyString
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -68,8 +76,21 @@ class ConfigReposInternalControllerV4Test implements SecurityServiceTrait, Contr
 
     @Mock
     private EnvironmentConfigService environmentConfigService
+
     @Mock
     private PipelineConfigsService pipelineConfigsService
+
+    @Mock
+    private PasswordDeserializer passwordDeserializer
+
+    @Mock
+    private MaterialConfigConverter materialConfigConverter
+
+    @Mock
+    private SystemEnvironment systemEnvironment
+
+    @Mock
+    private SecretParamResolver secretParamResolver
 
     @BeforeEach
     void setUp() {
@@ -91,7 +112,7 @@ class ConfigReposInternalControllerV4Test implements SecurityServiceTrait, Contr
 
     @Override
     ConfigReposInternalControllerV4 createControllerInstance() {
-        new ConfigReposInternalControllerV4(new ApiAuthenticationHelper(securityService, goConfigService), service, dataSource, materialUpdateService, converter, environmentConfigService, pipelineConfigsService)
+        new ConfigReposInternalControllerV4(new ApiAuthenticationHelper(securityService, goConfigService), service, dataSource, materialUpdateService, converter, environmentConfigService, pipelineConfigsService, goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment, secretParamResolver)
     }
 
     @Nested
@@ -254,6 +275,107 @@ class ConfigReposInternalControllerV4Test implements SecurityServiceTrait, Contr
                         ]
                 ]
         ]
+    }
+
+
+    @Nested
+    class CheckConnection {
+        @BeforeEach
+        void setUp() {
+            loginAsAdmin()
+        }
+
+        @Test
+        void 'should render error if material type is invalid'() {
+            postWithApiHeader(controller.controllerPath(ID_1, 'material_test'), ["type": "some-random-type"])
+            assertThatResponse()
+                    .isUnprocessableEntity()
+                    .hasJsonMessage("Your request could not be processed. Invalid material type 'some-random-type'. It has to be one of [git, hg, svn, p4, tfs, dependency, package, plugin].")
+        }
+
+        @Test
+        void 'should render error if material type does not support check connection functionality'() {
+            postWithApiHeader(controller.controllerPath(ID_1, 'material_test'), ["type": "dependency"])
+            assertThatResponse()
+                    .isUnprocessableEntity()
+                    .hasJsonMessage("Your request could not be processed. The material of type 'dependency' does not support connection testing.")
+        }
+
+        @Test
+        void 'should render error if material is not valid'() {
+            postWithApiHeader(controller.controllerPath(ID_1, 'material_test'), [
+                    "type"      : "git",
+                    "attributes": [
+                            "url"               : "",
+                            "encrypted_password": "encrypted-password",
+                            "password"          : "password"
+                    ]
+            ])
+
+            def expectedJSON = [
+                    "message": "There was an error with the material configuration.\n- url: URL cannot be blank",
+                    "data"   : [
+                            "errors"    : [
+                                    "url": ["URL cannot be blank"]
+                            ],
+                            "type"      : "git",
+                            "attributes": [
+                                    "url"             : "",
+                                    "destination"     : null,
+                                    "filter"          : null,
+                                    "invert_filter"   : false,
+                                    "name"            : null,
+                                    "auto_update"     : true,
+                                    "branch"          : "master",
+                                    "submodule_folder": null,
+                                    "shallow_clone"   : false
+                            ]
+                    ]
+            ]
+
+            assertThatResponse()
+                    .isUnprocessableEntity()
+                    .hasJsonMessage("There was an error with the material configuration.\\n- url: URL cannot be blank")
+                    .hasJsonBody(expectedJSON)
+        }
+
+        @Test
+        void 'should render error if cannot connect to material'() {
+            def material = mock(GitMaterial.class)
+            def validationBean = ValidationBean.notValid("some-error")
+            when(material.checkConnection(any())).thenReturn(validationBean)
+            when(materialConfigConverter.toMaterial(any(MaterialConfig.class))).thenReturn(material)
+
+            postWithApiHeader(controller.controllerPath(ID_1, 'material_test'), [
+                    "type"      : "git",
+                    "attributes": [
+                            "url": "some-url"
+                    ]
+            ])
+
+            assertThatResponse()
+                    .isUnprocessableEntity()
+                    .hasJsonMessage("some-error")
+        }
+
+        @Test
+        void 'should render success response if can connect to material'() {
+            def material = mock(GitMaterial.class)
+            def validationBean = ValidationBean.valid()
+            when(material.checkConnection(any())).thenReturn(validationBean)
+            when(materialConfigConverter.toMaterial(any(MaterialConfig.class))).thenReturn(material)
+
+            postWithApiHeader(controller.controllerPath(ID_1, 'material_test'), [
+                    "type"      : "git",
+                    "attributes": [
+                            "url": "some-url"
+                    ]
+            ])
+
+            assertThatResponse()
+                    .isOk()
+                    .hasJsonMessage("Connection OK.")
+        }
     }
 
     static ConfigRepoConfig repo(String id) {

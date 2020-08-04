@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.apiv4.configrepos;
 
+import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
-import com.thoughtworks.go.api.abstractmaterialtest.AbstractMaterialTestController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
@@ -29,17 +29,17 @@ import com.thoughtworks.go.apiv4.configrepos.representers.ConfigReposConfigRepre
 import com.thoughtworks.go.apiv4.configrepos.representers.PartialConfigRepresenter;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
-import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.ConfigRepoService;
+import com.thoughtworks.go.server.service.EntityHashingService;
+import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -57,7 +57,7 @@ import static spark.Spark.*;
 
 @ToggleRegisterLatest(controllerPath = Routes.ConfigRepos.BASE, apiVersion = ApiVersion.v4, as = "branch_support")
 @Component
-public class ConfigReposControllerV4 extends AbstractMaterialTestController implements SparkSpringController, CrudController<ConfigRepoConfig> {
+public class ConfigReposControllerV4 extends ApiController implements SparkSpringController, CrudController<ConfigRepoConfig> {
     private final ApiAuthenticationHelper authHelper;
     private final ConfigRepoService service;
     private final EntityHashingService entityHashingService;
@@ -65,10 +65,8 @@ public class ConfigReposControllerV4 extends AbstractMaterialTestController impl
     private final MaterialConfigConverter converter;
 
     @Autowired
-    public ConfigReposControllerV4(ApiAuthenticationHelper authHelper, GoConfigService goConfigService, PasswordDeserializer passwordDeserializer, MaterialConfigConverter materialConfigConverter, SystemEnvironment systemEnvironment, SecretParamResolver secretParamResolver,
-                                   ConfigRepoService service, EntityHashingService entityHashingService, MaterialUpdateService materialUpdateService, MaterialConfigConverter converter) {
-        super(ApiVersion.v4, goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment, secretParamResolver);
-
+    public ConfigReposControllerV4(ApiAuthenticationHelper authHelper, ConfigRepoService service, EntityHashingService entityHashingService, MaterialUpdateService materialUpdateService, MaterialConfigConverter converter) {
+        super(ApiVersion.v4);
         this.authHelper = authHelper;
         this.service = service;
         this.entityHashingService = entityHashingService;
@@ -108,7 +106,6 @@ public class ConfigReposControllerV4 extends AbstractMaterialTestController impl
             before(Routes.ConfigRepos.STATUS_PATH, mimeType, this::authorize);
             before(Routes.ConfigRepos.TRIGGER_UPDATE_PATH, mimeType, this::authorize);
             before(Routes.ConfigRepos.DEFINITIONS_PATH, mimeType, this::authorize);
-            before(Routes.ConfigRepos.CHECK_CONNECTION_PATH, mimeType, this::authorize);
 
             get(Routes.ConfigRepos.INDEX_PATH, mimeType, this::index);
             get(Routes.ConfigRepos.REPO_PATH, mimeType, this::showRepo);
@@ -118,7 +115,6 @@ public class ConfigReposControllerV4 extends AbstractMaterialTestController impl
             get(Routes.ConfigRepos.STATUS_PATH, mimeType, this::inProgress);
             post(Routes.ConfigRepos.TRIGGER_UPDATE_PATH, mimeType, this::triggerUpdate);
             get(Routes.ConfigRepos.DEFINITIONS_PATH, mimeType, this::definedConfigs);
-            post(Routes.ConfigRepos.CHECK_CONNECTION_PATH, mimeType, this::testConnection);
         });
     }
 

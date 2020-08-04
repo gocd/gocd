@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
+import {ApiRequestBuilder} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import Stream from "mithril/stream";
 import {Traversable} from "models/base/traversable";
+import {ConfigReposCRUD} from "./config_repos_crud";
 
 export interface NamedTree extends Traversable {
   name: () => string;
@@ -49,7 +50,7 @@ export class DefinedStructures implements NamedTree {
   }
 
   static fetch(repoId: string, etag?: string) {
-    return ApiRequestBuilder.GET(SparkRoutes.configRepoDefinedConfigsPath(repoId), ApiVersion.v3, { etag });
+    return ApiRequestBuilder.GET(SparkRoutes.configRepoDefinedConfigsPath(repoId), ConfigReposCRUD.API_VERSION_HEADER, { etag });
   }
 
   name(): string {

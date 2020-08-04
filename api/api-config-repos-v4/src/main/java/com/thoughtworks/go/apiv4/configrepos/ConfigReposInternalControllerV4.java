@@ -15,22 +15,22 @@
  */
 package com.thoughtworks.go.apiv4.configrepos;
 
-import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.abstractmaterialtest.AbstractMaterialTestController;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.spring.ToggleRegisterLatest;
 import com.thoughtworks.go.apiv4.configrepos.representers.ConfigRepoWithResultListRepresenter;
 import com.thoughtworks.go.config.GoConfigRepoConfigDataSource;
 import com.thoughtworks.go.config.PartialConfigParseResult;
 import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
-import com.thoughtworks.go.server.service.ConfigRepoService;
-import com.thoughtworks.go.server.service.EnvironmentConfigService;
-import com.thoughtworks.go.server.service.MaterialConfigConverter;
-import com.thoughtworks.go.server.service.PipelineConfigsService;
+import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.Routes.ConfigRepos;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -49,7 +49,7 @@ import static spark.Spark.*;
 
 @ToggleRegisterLatest(controllerPath = ConfigRepos.INTERNAL_BASE, apiVersion = ApiVersion.v4, as = "branch_support")
 @Component
-public class ConfigReposInternalControllerV4 extends ApiController implements SparkSpringController {
+public class ConfigReposInternalControllerV4 extends AbstractMaterialTestController implements SparkSpringController {
 
     private final ConfigRepoService service;
     private final GoConfigRepoConfigDataSource dataSource;
@@ -60,8 +60,9 @@ public class ConfigReposInternalControllerV4 extends ApiController implements Sp
     private final PipelineConfigsService pipelineConfigsService;
 
     @Autowired
-    public ConfigReposInternalControllerV4(ApiAuthenticationHelper authHelper, ConfigRepoService service, GoConfigRepoConfigDataSource dataSource, MaterialUpdateService mus, MaterialConfigConverter converter, EnvironmentConfigService environmentConfigService, PipelineConfigsService pipelineConfigsService) {
-        super(ApiVersion.v4);
+    public ConfigReposInternalControllerV4(ApiAuthenticationHelper authHelper, ConfigRepoService service, GoConfigRepoConfigDataSource dataSource, MaterialUpdateService mus, MaterialConfigConverter converter, EnvironmentConfigService environmentConfigService, PipelineConfigsService pipelineConfigsService,
+                                           GoConfigService goConfigService, PasswordDeserializer passwordDeserializer, MaterialConfigConverter materialConfigConverter, SystemEnvironment systemEnvironment, SecretParamResolver secretParamResolver) {
+        super(ApiVersion.v4, goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment, secretParamResolver);
         this.service = service;
         this.dataSource = dataSource;
         this.authHelper = authHelper;
@@ -83,7 +84,10 @@ public class ConfigReposInternalControllerV4 extends ApiController implements Sp
             before("", mimeType, authHelper::checkUserAnd403);
             before("", mimeType, this::verifyContentType);
 
+            before(Routes.ConfigRepos.CHECK_CONNECTION_PATH, mimeType, this::authorize);
+
             get(ConfigRepos.INDEX_PATH, mimeType, this::listRepos);
+            post(Routes.ConfigRepos.CHECK_CONNECTION_PATH, mimeType, this::testConnection);
         });
     }
 
@@ -130,5 +134,9 @@ public class ConfigReposInternalControllerV4 extends ApiController implements Sp
 
     private boolean isMaterialUpdateInProgress(ConfigRepoConfig configRepoConfig) {
         return mus.isInProgress(converter.toMaterial(configRepoConfig.getRepo()));
+    }
+
+    private void authorize(Request request, Response response) {
+        authHelper.checkUserHasPermissions(currentUsername(), getAction(request), CONFIG_REPO, request.params(":id"));
     }
 }

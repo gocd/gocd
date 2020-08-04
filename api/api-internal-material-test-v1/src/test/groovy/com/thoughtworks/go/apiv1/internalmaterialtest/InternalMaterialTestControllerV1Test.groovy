@@ -24,7 +24,9 @@ import com.thoughtworks.go.domain.materials.ValidationBean
 import com.thoughtworks.go.domain.materials.git.GitCommand
 import com.thoughtworks.go.server.service.MaterialConfigConverter
 import com.thoughtworks.go.server.service.SecretParamResolver
+import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.util.SystemEnvironment
@@ -67,7 +69,7 @@ class InternalMaterialTestControllerV1Test implements SecurityServiceTrait, Cont
   class TestConnection {
 
     @Nested
-    class Security implements SecurityTestTrait, NormalUserSecurity {
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {

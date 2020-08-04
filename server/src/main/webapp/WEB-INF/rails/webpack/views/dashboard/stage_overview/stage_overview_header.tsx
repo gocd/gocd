@@ -102,6 +102,7 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
 
 interface StageTriggerOrCancelButtonAttrs {
   stageInstance: Stream<StageInstance>;
+  stageInstanceFromDashboard: any;
 }
 
 class StageTriggerOrCancelButtonWidget extends MithrilViewComponent<StageTriggerOrCancelButtonAttrs> {

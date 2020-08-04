@@ -38,7 +38,8 @@ import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PluggableSCMMaterialConfigTest {
@@ -112,14 +113,14 @@ public class PluggableSCMMaterialConfigTest {
         SCM scmConfig = mock(SCM.class);
         when(configSaveValidationContext.findScmById(anyString())).thenReturn(scmConfig);
         when(scmConfig.doesPluginExist()).thenReturn(true);
-        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "/usr/home", null);
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "/usr/home", null, false);
         pluggableSCMMaterialConfig.setScmId("scm-id");
         pluggableSCMMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
 
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
         assertThat(pluggableSCMMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Dest folder '/usr/home' is not valid. It must be a sub-directory of the working folder."));
 
-        pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "./../crap", null);
+        pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "./../crap", null, false);
         pluggableSCMMaterialConfig.setScmId("scm-id");
         pluggableSCMMaterialConfig.validateConcreteMaterial(configSaveValidationContext);
 
@@ -134,7 +135,7 @@ public class PluggableSCMMaterialConfigTest {
         when(validationContext.findScmById(anyString())).thenReturn(null);
         SCM scmConfig = mock(SCM.class);
         when(scmConfig.doesPluginExist()).thenReturn(true);
-        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "usr/home", null);
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "usr/home", null, false);
         pluggableSCMMaterialConfig.setScmId("scm-id");
         pluggableSCMMaterialConfig.validateTree(validationContext);
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
@@ -147,7 +148,7 @@ public class PluggableSCMMaterialConfigTest {
         when(configSaveValidationContext.findScmById(anyString())).thenReturn(mock(SCM.class));
         SCM scmConfig = mock(SCM.class);
         when(scmConfig.doesPluginExist()).thenReturn(false);
-        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "usr/home", null);
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, "usr/home", null, false);
         pluggableSCMMaterialConfig.setScmId("scm-id");
         pluggableSCMMaterialConfig.validateTree(configSaveValidationContext);
         assertThat(pluggableSCMMaterialConfig.errors().getAll().size(), is(1));
@@ -160,6 +161,7 @@ public class PluggableSCMMaterialConfigTest {
         attributes.put(PluggableSCMMaterialConfig.SCM_ID, "scm-id");
         attributes.put(PluggableSCMMaterialConfig.FOLDER, "dest");
         attributes.put(PluggableSCMMaterialConfig.FILTER, "/foo/**.*,/another/**.*,bar");
+        attributes.put(PluggableSCMMaterialConfig.INVERT_FILTER, "true");
 
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig();
         pluggableSCMMaterialConfig.setConfigAttributes(attributes);
@@ -167,6 +169,7 @@ public class PluggableSCMMaterialConfigTest {
         assertThat(pluggableSCMMaterialConfig.getScmId(), is("scm-id"));
         assertThat(pluggableSCMMaterialConfig.getFolder(), is("dest"));
         assertThat(pluggableSCMMaterialConfig.filter(), is(new Filter(new IgnoredFiles("/foo/**.*"), new IgnoredFiles("/another/**.*"), new IgnoredFiles("bar"))));
+        assertThat(pluggableSCMMaterialConfig.isInvertFilter(), is(true));
     }
 
     @Test
@@ -263,7 +266,7 @@ public class PluggableSCMMaterialConfigTest {
     public void shouldDelegateToSCMConfigForAutoUpdate() throws Exception {
         SCM scm = mock(SCM.class);
         when(scm.isAutoUpdate()).thenReturn(false);
-        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(new CaseInsensitiveString("scm-name"), scm, null, null);
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(new CaseInsensitiveString("scm-name"), scm, null, null, false);
 
         assertThat(pluggableSCMMaterialConfig.isAutoUpdate(), is(false));
 
@@ -275,7 +278,7 @@ public class PluggableSCMMaterialConfigTest {
         SCM scmConfig = mock(SCM.class);
         when(scmConfig.getName()).thenReturn("scm-name");
         when(scmConfig.getConfigForDisplay()).thenReturn("k1:v1");
-        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, null, null);
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, null, null, false);
 
         assertThat(pluggableSCMMaterialConfig.getName(), is(new CaseInsensitiveString("scm-name")));
         assertThat(pluggableSCMMaterialConfig.getDisplayName(), is("scm-name"));
@@ -283,7 +286,7 @@ public class PluggableSCMMaterialConfigTest {
         assertThat(pluggableSCMMaterialConfig.getUriForDisplay(), is("k1:v1"));
 
         when(scmConfig.getName()).thenReturn(null);
-        pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, null, null);
+        pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(null, scmConfig, null, null, false);
 
         assertThat(pluggableSCMMaterialConfig.getName(), is(nullValue()));
         assertThat(pluggableSCMMaterialConfig.getDisplayName(), is("k1:v1"));

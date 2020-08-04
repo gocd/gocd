@@ -590,7 +590,7 @@ class ConfigConverterTest {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setSCMs(scms);
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
-        PluggableSCMMaterialConfig configRepoMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString("scmid"), myscm, null, null);
+        PluggableSCMMaterialConfig configRepoMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString("scmid"), myscm, null, null, false);
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1", null);
 
@@ -612,7 +612,7 @@ class ConfigConverterTest {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setSCMs(scms);
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
-        PluggableSCMMaterialConfig configRepoMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString("scmid"), myscm, null, null);
+        PluggableSCMMaterialConfig configRepoMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString("scmid"), myscm, null, null, false);
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1", new CRFilter(filter, true));
 
@@ -1729,7 +1729,7 @@ class ConfigConverterTest {
         cruiseConfig.setSCMs(scms);
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
-        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(new CaseInsensitiveString("name"), myscm, "directory", Filter.create("filter"));
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(new CaseInsensitiveString("name"), myscm, "directory", Filter.create("filter"), false);
 
         CRPluggableScmMaterial crPluggableScmMaterial =
                 (CRPluggableScmMaterial) configConverter.materialToCRMaterial(pluggableSCMMaterialConfig);

@@ -86,7 +86,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     @DataPoint
     public static MaterialConfig pkgMaterialConfig = new PackageMaterialConfig(cis("name"), "pkg-id", packageDefinition);
     @DataPoint
-    public static MaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(cis("name"), scmConfig, "folder", filterFor("*.txt"));
+    public static MaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(cis("name"), scmConfig, "folder", filterFor("*.txt"), false);
     @DataPoint
     public static MaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("name1"), cis("pipeline1"), cis("stage1"));
 

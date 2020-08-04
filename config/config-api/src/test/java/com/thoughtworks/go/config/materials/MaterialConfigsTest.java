@@ -209,7 +209,7 @@ Above scenario allowed
         materialOne.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder1"));
         HgMaterialConfig materialTwo = hg("http://url2", null);
         materialTwo.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder1"));
-        PluggableSCMMaterialConfig materialThree = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), "folder1", null);
+        PluggableSCMMaterialConfig materialThree = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), "folder1", null, false);
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
         PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));
         pipelineOne.setMaterialConfigs(new MaterialConfigs(materialOne, materialTwo, materialThree));
@@ -257,7 +257,7 @@ Above scenario allowed
         HgMaterialConfig materialConfigOne = hg("http://url1", null);
         materialConfigOne.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder"));
         HgMaterialConfig materialConfigTwo = hg("http://url2", null);
-        PluggableSCMMaterialConfig materialConfigThree = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), null, null);
+        PluggableSCMMaterialConfig materialConfigThree = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), null, null, false);
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
         PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));
         pipelineOne.setMaterialConfigs((new MaterialConfigs(materialConfigOne, materialConfigTwo, materialConfigThree)));
@@ -271,7 +271,7 @@ Above scenario allowed
 
     @Test
     public void shouldAddErrorWhenMatchingScmConfigDoesNotExist() {
-        PluggableSCMMaterialConfig scmMaterialConfig = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), null, null);
+        PluggableSCMMaterialConfig scmMaterialConfig = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), null, null, false);
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(new CaseInsensitiveString("package-name"), "package-id", PackageDefinitionMother.create("package-id"));
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("one"));
@@ -324,7 +324,7 @@ Above scenario allowed
 
         assertThat(pipelineOne.materialConfigs().scmMaterialsHaveDestination(), is(true));
 
-        PluggableSCMMaterialConfig materialConfigTwo = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), null, null);
+        PluggableSCMMaterialConfig materialConfigTwo = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), null, null, false);
         pipelineOne.materialConfigs().add(materialConfigTwo);
 
         assertThat(pipelineOne.materialConfigs().scmMaterialsHaveDestination(), is(false));

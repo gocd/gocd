@@ -289,11 +289,11 @@ public class MaterialConfigsMother {
             configuration.add(configurationProperty);
         }
         scmConfig.setConfiguration(configuration);
-        return new PluggableSCMMaterialConfig(null, scmConfig, "des-folder", null);
+        return new PluggableSCMMaterialConfig(null, scmConfig, "des-folder", null, false);
     }
 
     public static PluggableSCMMaterialConfig pluggableSCMMaterialConfig(String scmId, String destinationFolder, Filter filter) {
-        return new PluggableSCMMaterialConfig(null, SCMMother.create(scmId), destinationFolder, filter);
+        return new PluggableSCMMaterialConfig(null, SCMMother.create(scmId), destinationFolder, filter, false);
     }
 
     public static DependencyMaterialConfig dependencyMaterialConfig(String pipelineName, String stageName) {

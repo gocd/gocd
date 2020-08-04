@@ -84,7 +84,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="138"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="137"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -640,7 +640,6 @@
     </xsd:sequence>
     <xsd:attribute name="ref" type="xsd:string" use="required"/>
     <xsd:attribute name="dest" type="filePathType" use="optional"/>
-    <xsd:attribute name="invertFilter" type="xsd:boolean" use="optional"/>
   </xsd:complexType>
   <xsd:complexType name="jobsType">
     <xsd:sequence>

@@ -395,7 +395,7 @@ public class ConfigConverter {
 
         return new PluggableSCMMaterialConfig(toMaterialName(crPluggableScmMaterial.getName()),
                 scmConfig, crPluggableScmMaterial.getDestination(),
-                toFilter(crPluggableScmMaterial.getFilterList()));
+                toFilter(crPluggableScmMaterial.getFilterList()), false);
     }
 
     private SCMs getSCMs() {

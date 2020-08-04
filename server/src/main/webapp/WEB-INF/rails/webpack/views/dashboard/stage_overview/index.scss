@@ -34,6 +34,8 @@ $progress-bar-unknown: #fff;
 $tooltip-background: #f3f3f3;
 $tooltip-border-color: #ccc;
 
+$tooltip-message-background: #333;
+
 $white: #fff;
 $passed: #00c853;
 $failed: #fa2d2d;
@@ -87,6 +89,10 @@ $building: #ffc11b;
   border-radius: 5px;
   height:        29px;
   margin-top:    8px;
+
+  i:hover {
+    background: transparent;
+  }
 }
 
 .stage-operation-button-group > div:first-child {
@@ -104,7 +110,11 @@ $building: #ffc11b;
 }
 
 .stage-settings {
-  &:hover {
+  i:hover {
+    background: transparent;
+  }
+
+  &:hover:enabled {
     animation-name:            rotate;
     animation-duration:        2s;
     animation-iteration-count: infinite;
@@ -438,3 +448,35 @@ $building: #ffc11b;
   font-size:   13px;
 }
 
+.tooltip-message {
+  display:       block;
+  position:      absolute;
+  width:         180px;
+  margin-left:   -73px;
+  color:         $white;
+  background:    $tooltip-message-background;
+  font-size:     12px;
+  padding:       10px;
+  border-radius: 3px;
+  margin-top:    2px;
+
+  &:before {
+    content:       '';
+    display:       block;
+    width:         0;
+    height:        0;
+    position:      absolute;
+
+    border-top:    10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right:  10px solid $tooltip-message-background;
+
+    left:          80px;
+    top:           -13px;
+    transform:     rotate(90deg);
+  }
+}
+
+.hidden {
+  display: none;
+}

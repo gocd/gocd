@@ -80,6 +80,7 @@ export const StagesInstanceWidget = {
       let optionalStageOverview;
       if (vnode.attrs.stageOverview.isOpen(pipelineName, pipelineCounter, stageName, stageCounter)) {
         optionalStageOverview = <StageOverview pipelineName={stage.pipelineName()}
+                                               canAdminister={vnode.attrs.canAdminister}
                                                pipelineCounter={stage.pipelineCounter()}
                                                stageName={stage.name}
                                                stageCounter={stage.counter}

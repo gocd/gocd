@@ -29,26 +29,54 @@ interface StageHeaderAttrs {
   pipelineName: string;
   pipelineCounter: string | number;
   stageInstanceFromDashboard: any;
+  canAdminister: boolean;
   flashMessage: FlashMessageModelWithTimeout;
   stageInstance: Stream<StageInstance>;
 }
 
-export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
-  view(vnode: m.Vnode<StageHeaderAttrs, {}>): m.Children | void | null {
+interface StageHeaderState {
+  isSettingsHover: Stream<boolean>;
+}
+
+export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageHeaderState> {
+  oninit(vnode: m.Vnode<StageHeaderAttrs, StageHeaderState>) {
+    vnode.state.isSettingsHover = Stream<boolean>(false);
+  }
+
+  view(vnode: m.Vnode<StageHeaderAttrs, StageHeaderState>): m.Children | void | null {
     const stageDetailsPageLink = `/go/pipelines/${vnode.attrs.pipelineName}/${vnode.attrs.pipelineCounter}/${vnode.attrs.stageName}/${vnode.attrs.stageCounter}`;
 
     let canceledBy: m.Child, dummyContainer;
     if (vnode.attrs.stageInstance().isCancelled()) {
       canceledBy = (<div data-test-id="cancelled-by-container" class={styles.triggeredByContainer}>
-        Cancelled by <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().cancelledBy()}</span> on <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().cancelledOn()}</span> Local Time
+        Cancelled by <span
+        className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().cancelledBy()}</span> on <span
+        className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().cancelledOn()}</span> Local Time
       </div>);
 
       dummyContainer = <div className={styles.dummyContainerAboveStageDetailsLink}/>;
     }
 
     let optionalFlashMessage: m.Child;
-    if(vnode.attrs.flashMessage.hasMessage()) {
-      optionalFlashMessage = (<FlashMessage dataTestId="stage-overview-flash-message" message={vnode.attrs.flashMessage.message} type={vnode.attrs.flashMessage.type}/>);
+    if (vnode.attrs.flashMessage.hasMessage()) {
+      optionalFlashMessage = (
+        <FlashMessage dataTestId="stage-overview-flash-message" message={vnode.attrs.flashMessage.message}
+                      type={vnode.attrs.flashMessage.type}/>);
+    }
+
+    let stageSettings: m.Child;
+    if (vnode.attrs.canAdminister) {
+      stageSettings = (<div className={styles.stageSettings}>
+        <Icons.Settings iconOnly={true} onclick={() => window.open(stageSettingsUrl)}/>
+      </div>);
+    } else {
+      const disabledEditMessage = `You dont have permissions to edit the stage.`;
+      stageSettings = (<div className={styles.stageSettings}>
+        <Icons.Settings iconOnly={true} disabled={true} onmouseover={() => vnode.state.isSettingsHover(true)}
+                        onmouseout={() => vnode.state.isSettingsHover(false)}/>
+        <span
+          class={`${styles.tooltipMessage} ${!vnode.state.isSettingsHover() && styles.hidden}`}>{disabledEditMessage}</span>
+      </div>);
     }
 
     const stageSettingsUrl = `/go/admin/pipelines/${vnode.attrs.pipelineName}/edit#!${vnode.attrs.pipelineName}/${vnode.attrs.stageName}/stage_settings`;
@@ -78,9 +106,7 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
           <StageTriggerOrCancelButtonWidget stageInstance={vnode.attrs.stageInstance}
                                             flashMessage={vnode.attrs.flashMessage}
                                             stageInstanceFromDashboard={vnode.attrs.stageInstanceFromDashboard}/>
-          <div class={styles.stageSettings}>
-            <Icons.Settings iconOnly={true} onclick={() => window.open(stageSettingsUrl)}/>
-          </div>
+          {stageSettings}
         </div>
       </div>
 
@@ -89,8 +115,11 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
         <div data-test-id="stage-trigger-by-container">
           {canceledBy}
           <div data-test-id="triggered-by-container" class={styles.triggeredByContainer}>
-            Triggered by <span class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredBy()}</span> on <span class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredOn()}</span> Local Time
-            <span class={styles.durationSeparator}>|</span>Duration: <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().stageDuration()}</span>
+            Triggered by <span
+            class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredBy()}</span> on <span
+            class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredOn()}</span> Local Time
+            <span class={styles.durationSeparator}>|</span>Duration: <span
+            className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().stageDuration()}</span>
           </div>
         </div>
         <div data-test-id="stage-details-page-link" class={styles.stageDetailsPageLink}>
@@ -109,11 +138,13 @@ interface StageTriggerOrCancelButtonAttrs {
 }
 
 interface StageTriggerOrCancelButtonState {
-  getResultHandler: (attrs: StageTriggerOrCancelButtonAttrs) => any
+  getResultHandler: (attrs: StageTriggerOrCancelButtonAttrs) => any;
+  isTriggerHover: Stream<boolean>;
 }
 
 class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCancelButtonAttrs, StageTriggerOrCancelButtonState> {
   oninit(vnode: m.Vnode<StageTriggerOrCancelButtonAttrs, StageTriggerOrCancelButtonState>) {
+    vnode.state.isTriggerHover = Stream<boolean>(false);
     vnode.state.getResultHandler = (attrs) => {
       return (result) => {
         result.do((successResponse) => {
@@ -126,15 +157,27 @@ class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCa
   }
 
   view(vnode: m.Vnode<StageTriggerOrCancelButtonAttrs, StageTriggerOrCancelButtonState>): m.Children | void | null {
+    const disabled = !vnode.attrs.stageInstanceFromDashboard.canOperate;
+    const disabledClass = (vnode.state.isTriggerHover() && disabled) ? '' : styles.hidden;
+
     if (vnode.attrs.stageInstance().isCompleted()) {
-      return <div data-test-id="rerun-stage"><Icons.Repeat iconOnly={true} onclick={() => {
-        vnode.attrs.stageInstance().runStage().then(vnode.state.getResultHandler(vnode.attrs));
-      }}/></div>;
+      const disabledMessage = `You dont have permissions to rerun the stage.`;
+      return <div data-test-id="rerun-stage">
+        <Icons.Repeat iconOnly={true} disabled={disabled}
+                      onmouseover={() => vnode.state.isTriggerHover(true)}
+                      onmouseout={() => vnode.state.isTriggerHover(false)}
+                      onclick={() => {vnode.attrs.stageInstance().runStage().then(vnode.state.getResultHandler(vnode.attrs));}}/>
+        <span className={`${styles.tooltipMessage} ${disabledClass}`}>{disabledMessage}</span>
+      </div>;
     }
 
-    return <div data-test-id="cancel-stage"><Icons.CancelStage iconOnly={true} onclick={() => {
-      vnode.attrs.stageInstance().cancelStage().then(vnode.state.getResultHandler(vnode.attrs));
-    }}/></div>;
+    const disabledMessage = `You dont have permissions to cancel the stage.`;
+    return <div data-test-id="cancel-stage">
+      <Icons.CancelStage iconOnly={true} disabled={disabled}
+                         onmouseover={() => vnode.state.isTriggerHover(true)}
+                         onmouseout={() => vnode.state.isTriggerHover(false)}
+                         onclick={() => {vnode.attrs.stageInstance().cancelStage().then(vnode.state.getResultHandler(vnode.attrs));}}/>
+      <span className={`${styles.tooltipMessage} ${disabledClass}`}>{disabledMessage}</span>
+    </div>;
   }
-
 }

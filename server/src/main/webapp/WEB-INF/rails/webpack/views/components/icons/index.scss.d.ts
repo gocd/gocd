@@ -2,6 +2,7 @@
 export const analytics: string;
 export const angleDoubleRight: string;
 export const btnIcon: string;
+export const cancelStage: string;
 export const caretDown: string;
 export const caretRight: string;
 export const check: string;

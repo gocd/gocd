@@ -187,7 +187,7 @@ export class SparkRoutes {
   }
 
   static configRepoConnectionCheck(id: string): string {
-    return `/go/api/admin/config_repos/${id}/material_test`;
+    return `/go/api/internal/config_repos/${id}/material_test`;
   }
 
   static configRepoRevisionStatusPath(id: string): string {

@@ -64,6 +64,21 @@ describe('Stage Overview Header', () => {
     expect(helper.byTestId('stage-operations-container')).toBeInDOM();
   });
 
+  it('should render stage rerun button whens stage is completed', () => {
+    expect(helper.byTestId('stage-operations-container')).toBeInDOM();
+    expect(helper.byTestId('rerun-stage')).toBeInDOM();
+    expect(helper.byTestId('cancel-stage')).not.toBeInDOM();
+  });
+
+  it('should render stage cancel button whens stage is in progress', () => {
+    stageInstance.isCompleted = () => false;
+    helper.redraw();
+
+    expect(helper.byTestId('stage-operations-container')).toBeInDOM();
+    expect(helper.byTestId('rerun-stage')).not.toBeInDOM();
+    expect(helper.byTestId('cancel-stage')).toBeInDOM();
+  });
+
   it('should render triggered by information', () => {
     expect(helper.byTestId('stage-trigger-and-timing-container')).toBeInDOM();
     expect(helper.byTestId('stage-trigger-and-timing-container')).toContainText('Triggered by admin');

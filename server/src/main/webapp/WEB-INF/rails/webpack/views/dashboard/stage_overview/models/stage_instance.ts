@@ -17,6 +17,8 @@
 import moment from "moment";
 import {JobDurationStrategyHelper} from "./job_duration_stratergy_helper";
 import {JobJSON, Result, StageInstanceJSON} from "./types";
+import {ApiRequestBuilder, ApiVersion} from "../../../../helpers/api_request_builder";
+import {SparkRoutes} from "../../../../helpers/spark_routes";
 
 export class StageInstance {
   private json: StageInstanceJSON;
@@ -82,6 +84,14 @@ export class StageInstance {
     const LOCAL_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss";
     const completedTime = this.json.jobs[0].job_state_transitions.find(t => t.state === "Completed").state_change_time;
     return `${moment.unix(completedTime / 1000).format(LOCAL_TIME_FORMAT)}`;
+  }
+
+  cancelStage() {
+    return ApiRequestBuilder.POST(SparkRoutes.cancelStage(this.json.pipeline_name, this.json.pipeline_counter, this.json.name, this.json.counter), ApiVersion.latest);
+  }
+
+  runStage() {
+    return ApiRequestBuilder.POST(SparkRoutes.runStage(this.json.pipeline_name, this.json.pipeline_counter, this.json.name), ApiVersion.latest);
   }
 
   private stageScheduledTime(): number {

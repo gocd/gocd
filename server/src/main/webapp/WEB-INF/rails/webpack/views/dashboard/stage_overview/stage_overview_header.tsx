@@ -17,8 +17,8 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import * as Icons from "views/components/icons";
-import {MithrilComponent, MithrilViewComponent} from "../../../jsx/mithril-component";
-import {FlashMessage, FlashMessageModelWithTimeout} from "../../components/flash_message";
+import {MithrilComponent} from "../../../jsx/mithril-component";
+import {FlashMessage, FlashMessageModelWithTimeout, MessageType} from "../../components/flash_message";
 import {Link} from "../../components/link";
 import * as styles from "./index.scss";
 import {StageInstance} from "./models/stage_instance";
@@ -75,7 +75,9 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
           </div>
         </div>
         <div data-test-id="stage-operations-container" class={styles.stageOperationButtonGroup}>
-          <StageTriggerOrCancelButtonWidget stageInstance={vnode.attrs.stageInstance} stageInstanceFromDashboard={vnode.attrs.stageInstanceFromDashboard}/>
+          <StageTriggerOrCancelButtonWidget stageInstance={vnode.attrs.stageInstance}
+                                            flashMessage={vnode.attrs.flashMessage}
+                                            stageInstanceFromDashboard={vnode.attrs.stageInstanceFromDashboard}/>
           <div class={styles.stageSettings}>
             <Icons.Settings iconOnly={true} onclick={() => window.open(stageSettingsUrl)}/>
           </div>
@@ -103,15 +105,36 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, {}> {
 interface StageTriggerOrCancelButtonAttrs {
   stageInstance: Stream<StageInstance>;
   stageInstanceFromDashboard: any;
+  flashMessage: FlashMessageModelWithTimeout;
 }
 
-class StageTriggerOrCancelButtonWidget extends MithrilViewComponent<StageTriggerOrCancelButtonAttrs> {
-  view(vnode: m.Vnode<StageTriggerOrCancelButtonAttrs, this>): m.Children | void | null {
-    if(vnode.attrs.stageInstance().isCompleted()) {
-      return <div><Icons.Trigger iconOnly={true}/></div>;
+interface StageTriggerOrCancelButtonState {
+  getResultHandler: (attrs: StageTriggerOrCancelButtonAttrs) => any
+}
+
+class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCancelButtonAttrs, StageTriggerOrCancelButtonState> {
+  oninit(vnode: m.Vnode<StageTriggerOrCancelButtonAttrs, StageTriggerOrCancelButtonState>) {
+    vnode.state.getResultHandler = (attrs) => {
+      return (result) => {
+        result.do((successResponse) => {
+          attrs.flashMessage.setMessage(MessageType.success, JSON.parse(successResponse.body).message);
+        }, (errorResponse) => {
+          attrs.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body).message);
+        });
+      };
+    };
+  }
+
+  view(vnode: m.Vnode<StageTriggerOrCancelButtonAttrs, StageTriggerOrCancelButtonState>): m.Children | void | null {
+    if (vnode.attrs.stageInstance().isCompleted()) {
+      return <div data-test-id="rerun-stage"><Icons.Repeat iconOnly={true} onclick={() => {
+        vnode.attrs.stageInstance().runStage().then(vnode.state.getResultHandler(vnode.attrs));
+      }}/></div>;
     }
 
-    return <div><Icons.Trigger iconOnly={true}/></div>;
+    return <div data-test-id="cancel-stage"><Icons.CancelStage iconOnly={true} onclick={() => {
+      vnode.attrs.stageInstance().cancelStage().then(vnode.state.getResultHandler(vnode.attrs));
+    }}/></div>;
   }
 
 }

@@ -55,6 +55,7 @@ describe("Stage Overview Widget", () => {
     helper.mount(() => {
       return <StageOverview pipelineName={pipelineName}
                             pipelineCounter={pipelineCounter}
+                            stages={[]}
                             stageName={stageName}
                             stageCounter={stageCounter}
                             stageOverviewVM={Stream(stageOverviewViewModel)}

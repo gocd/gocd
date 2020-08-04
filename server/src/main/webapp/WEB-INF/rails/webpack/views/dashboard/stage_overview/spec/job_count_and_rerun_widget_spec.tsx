@@ -133,7 +133,7 @@ describe("Job Count And Rerun Widget", () => {
 
   function mount() {
     helper.mount(() => {
-      return <JobCountAndRerunWidget jobsVM={Stream(jobs)}/>;
+      return <JobCountAndRerunWidget jobsVM={Stream(jobs)} inProgressStageFromPipeline={Stream()}/>;
     });
   }
 });

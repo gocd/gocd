@@ -53,12 +53,8 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
       vnode.dom.classList.add(styles.alignLeft);
     }
 
-    // if () {
     //   // horizontal left alignment
     //   // 725px is the initial alignment and each stage bar is of 45px in width (including margin)
-    //   vnode.dom.style.left = `-${725 - (vnode.attrs.stageIndex % 5 * 45)}px`;
-    //   vnode.dom.classList.add(styles.alignLeft);
-
     const currentStageIndex = vnode.attrs.stages.findIndex(s => s.name === vnode.attrs.stageName);
     const toOperate = vnode.attrs.stages.slice(0, currentStageIndex + 1);
 

@@ -18,7 +18,8 @@ import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_buil
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import Stream from "mithril/stream";
-import {humanizedMaterialAttributeName} from "models/config_repos/types";
+import {MaterialModificationJSON} from "models/config_repos/serialization";
+import {humanizedMaterialAttributeName, MaterialModification} from "models/config_repos/types";
 import {Filter} from "models/maintenance_mode/material";
 import {MaterialJSON} from "./serialization";
 import {Material, MaterialAttributes} from "./types";
@@ -27,10 +28,13 @@ export interface MaterialWithFingerprintJSON extends MaterialJSON {
   fingerprint: string;
 }
 
-interface MaterialWithFingerprintsJSON {
-  _embedded: {
-    materials: MaterialWithFingerprintJSON[];
-  };
+interface MaterialWithModificationJSON {
+  config: MaterialWithFingerprintJSON;
+  modification: MaterialModificationJSON;
+}
+
+interface MaterialsJSON {
+  materials: MaterialWithModificationJSON[];
 }
 
 export class MaterialWithFingerprint extends Material {
@@ -46,8 +50,31 @@ export class MaterialWithFingerprint extends Material {
   }
 
   attributesAsMap(): Map<string, any> {
-    const map = new Map();
-    return _.reduce(this.attributes(), MaterialWithFingerprint.resolveKeyValueForAttribute, map);
+    const map: Map<string, string> = new Map();
+    let keys: string[]             = [];
+    switch (this.type()) {
+      case "git":
+      case "hg":
+        keys = ["url", "branch"];
+        break;
+      case "p4":
+        keys = ["port", "view"];
+        break;
+      case "tfs":
+        keys = ["url", "domain", "projectPath"];
+        break;
+      case "svn":
+        keys = ["url"];
+        break;
+    }
+    const reducer = (map: Map<any, any>, value: any, key: string) => {
+      if (keys.includes(key)) {
+        MaterialWithFingerprint.resolveKeyValueForAttribute(map, value, key);
+      }
+      return map;
+    };
+    _.reduce(this.attributes(), reducer, map);
+    return map;
   }
 
   matches(textToMatch: string): boolean {
@@ -89,18 +116,33 @@ export class MaterialWithFingerprint extends Material {
   }
 }
 
-export class MaterialWithFingerprints extends Array<MaterialWithFingerprint> {
-  constructor(...vals: MaterialWithFingerprint[]) {
-    super(...vals);
-    Object.setPrototypeOf(this, Object.create(MaterialWithFingerprints.prototype));
+export class MaterialWithModification {
+  config: MaterialWithFingerprint;
+  modification: MaterialModification | null;
+
+  constructor(config: MaterialWithFingerprint, modification: MaterialModification | null) {
+    this.config       = config;
+    this.modification = modification;
   }
 
-  static fromJSON(data: MaterialWithFingerprintJSON[]): MaterialWithFingerprints {
-    return new MaterialWithFingerprints(...data.map((a) => MaterialWithFingerprint.fromJSON(a)));
+  static fromJSON(data: MaterialWithModificationJSON): MaterialWithModification {
+    const mod = data.modification === null ? null : MaterialModification.fromJSON(data.modification);
+    return new MaterialWithModification(MaterialWithFingerprint.fromJSON(data.config), mod);
+  }
+}
+
+export class Materials extends Array<MaterialWithModification> {
+  constructor(...vals: MaterialWithModification[]) {
+    super(...vals);
+    Object.setPrototypeOf(this, Object.create(Materials.prototype));
+  }
+
+  static fromJSON(data: MaterialWithModificationJSON[]): Materials {
+    return new Materials(...data.map((a) => MaterialWithModification.fromJSON(a)));
   }
 
   sortOnType() {
-    this.sort((m1, m2) => m1.type()!.localeCompare(m2.type()!));
+    this.sort((m1, m2) => m1.config.type()!.localeCompare(m2.config.type()!));
   }
 }
 
@@ -110,8 +152,8 @@ export class MaterialAPIs {
   static all() {
     return ApiRequestBuilder.GET(SparkRoutes.getAllMaterials(), this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => result.map((body) => {
-                              const data = JSON.parse(body) as MaterialWithFingerprintsJSON;
-                              return MaterialWithFingerprints.fromJSON(data._embedded.materials);
+                              const data = JSON.parse(body) as MaterialsJSON;
+                              return Materials.fromJSON(data.materials);
                             }));
   }
 }

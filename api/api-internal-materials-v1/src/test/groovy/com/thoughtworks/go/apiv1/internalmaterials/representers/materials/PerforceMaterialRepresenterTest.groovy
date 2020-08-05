@@ -39,7 +39,6 @@ class PerforceMaterialRepresenterTest implements MaterialRepresenterTrait<P4Mate
       fingerprint: existingMaterial().fingerprint,
       attributes : [
         port              : "host:9876",
-        use_tickets       : true,
         view              : "view",
         name              : "p4-material",
         auto_update       : true

@@ -555,7 +555,13 @@ export class SparkRoutes {
     return '/go/api/admin/internal/scms/verify_connection';
   }
 
-  static packageRepositoriesSPA() {
+  static packageRepositoriesSPA(repo?: string, pkg?: string) {
+    if (repo) {
+      if (pkg) {
+        return `/go/admin/package_repositories#!${repo}/packages/${pkg}`;
+      }
+      return `/go/admin/package_repositories#!${repo}`;
+    }
     return '/go/admin/package_repositories';
   }
 
@@ -575,7 +581,10 @@ export class SparkRoutes {
     return `/go/api/admin/scms/${scm_name}/usages`;
   }
 
-  static pluggableScmSPA() {
+  static pluggableScmSPA(scm?: string) {
+    if (scm) {
+      return `/go/admin/scms#!${scm}`;
+    }
     return '/go/admin/scms';
   }
 
@@ -583,11 +592,19 @@ export class SparkRoutes {
     return `/go/api/admin/templates/${id}/authorization`;
   }
 
-  static pipelineEditPath(stageParent: string, pipelineName: string, tab: string ): string {
-    return `/go/admin/${stageParent}/${pipelineName}/${tab}`;
+  static pipelineEditPath(stageParent: string, pipelineName: string, tab: string): string {
+    return `/go/admin/${stageParent}/${pipelineName}/edit#!${pipelineName}/${tab}`;
   }
 
   static getAllMaterials(): string {
-    return '/go/api/config/materials';
+    return '/go/api/internal/materials';
+  }
+
+  static getMaterialUsages(fingerprint: string) {
+    return `/go/api/internal/materials/${fingerprint}/usages`;
+  }
+
+  static materialsVsmLink(fingerprint: string, revision: string) {
+    return `/go/materials/value_stream_map/${fingerprint}/${revision}`;
   }
 }

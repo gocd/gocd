@@ -55,7 +55,7 @@ public class MaterialWithModificationsRepresenter {
     }
 
     private static Consumer<OutputLinkWriter> links() {
-        return outputLinkWriter -> outputLinkWriter.addLink("self", Routes.MaterialConfig.INTERNAL_BASE)
+        return outputLinkWriter -> outputLinkWriter.addLink("self", Routes.InternalMaterialConfig.INTERNAL_BASE)
                 .addAbsoluteLink("doc", Routes.MaterialConfig.DOC);
     }
 }

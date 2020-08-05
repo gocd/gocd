@@ -32,55 +32,17 @@ class TfsMaterialRepresenterTest implements MaterialRepresenterTrait<TfsMaterial
     MaterialConfigsMother.tfsMaterialConfig()
   }
 
-  TfsMaterialConfig existingMaterialWithErrors() {
-    def tfsConfig = tfs(new GoCipher(), new HgUrlArgument(''), '', '', '', '/some-path/')
-    def materialConfigs = new MaterialConfigs(tfsConfig)
-    materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
-    return materialConfigs.first() as TfsMaterialConfig
-  }
-
   def materialHash() {
     [
       type       : 'tfs',
       fingerprint: existingMaterial().fingerprint,
       attributes : [
         url               : "http://10.4.4.101:8080/tfs/Sample",
-        destination       : "dest-folder",
-        filter            : [
-          ignore: ['**/*.html', '**/foobar/']
-        ],
-        invert_filter     : false,
         domain            : "some_domain",
-        username          : "loser",
-        encrypted_password: new GoCipher().encrypt("passwd"),
         project_path      : "walk_this_path",
         name              : "tfs-material",
         auto_update       : true
       ]
-    ]
-  }
-
-
-  def expectedMaterialHashWithErrors() {
-    [
-      type       : "tfs",
-      fingerprint: existingMaterialWithErrors().fingerprint,
-      attributes : [
-        url          : "",
-        destination  : null,
-        filter       : null,
-        invert_filter: false,
-        name         : null,
-        auto_update  : true,
-        domain       : "",
-        username     : "",
-        project_path : "/some-path/"
-      ],
-      errors     :
-        [
-          url     : ["URL cannot be blank"],
-          username: ["Username cannot be blank"]
-        ]
     ]
   }
 }

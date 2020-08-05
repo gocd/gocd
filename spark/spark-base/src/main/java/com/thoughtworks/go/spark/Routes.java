@@ -158,13 +158,7 @@ public class Routes {
 
     public static class MaterialConfig {
         public static final String BASE = "/api/config/materials";
-        public static final String INTERNAL_BASE = "/api/internal/materials";
-        public static final String USAGES = "/:fingerprint/usages";
         public static final String DOC = apiDocsUrl("#materials");
-
-        public static String usages(String fingerprint) {
-            return (BASE + USAGES).replaceAll(":fingerprint", fingerprint);
-        }
 
         public static String vsm(String materialFingerprint, String revision) {
             return StrSubstitutor.replace("/materials/value_stream_map/${material_fingerprint}/${revision}", of(
@@ -917,5 +911,15 @@ public class Routes {
 
     public class MaterialsSPA {
         public static final String BASE = "/materials";
+    }
+
+    public static class InternalMaterialConfig {
+        public static final String INTERNAL_BASE = "/api/internal/materials";
+        public static final String USAGES = "/:fingerprint/usages";
+
+
+        public static String usages(String fingerprint) {
+            return (MaterialConfig.BASE + USAGES).replaceAll(":fingerprint", fingerprint);
+        }
     }
 }

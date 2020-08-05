@@ -16,30 +16,13 @@
 package com.thoughtworks.go.apiv1.internalmaterials.representers.materials
 
 
-import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.config.PipelineConfig
-import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
-import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
-import com.thoughtworks.go.security.GoCipher
-import com.thoughtworks.go.util.command.UrlArgument
-
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn
 
 class SvnMaterialRepresenterTest implements MaterialRepresenterTrait<SvnMaterialConfig> {
 
-
   SvnMaterialConfig existingMaterial() {
     MaterialConfigsMother.svnMaterialConfig()
-  }
-
-  SvnMaterialConfig existingMaterialWithErrors() {
-    def svnConfig = svn(new UrlArgument(''), '', '', true, new GoCipher(), true, null, false, '', new CaseInsensitiveString('!nV@l!d'))
-    def materialConfigs = new MaterialConfigs(svnConfig)
-    materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
-    return materialConfigs.get(0) as SvnMaterialConfig
   }
 
   def materialHash() {
@@ -47,40 +30,10 @@ class SvnMaterialRepresenterTest implements MaterialRepresenterTrait<SvnMaterial
       type       : 'svn',
       fingerprint: existingMaterial().fingerprint,
       attributes : [
-        url               : "url",
-        destination       : "svnDir",
-        filter            : [
-          ignore: [
-            "*.doc"
-          ]
-        ],
-        invert_filter     : false,
-        name              : "svn-material",
-        auto_update       : false,
-        check_externals   : true,
-        username          : "user",
-        encrypted_password: new GoCipher().encrypt("pass")
-      ]
-    ]
-  }
-
-  def expectedMaterialHashWithErrors() {
-    [
-      type       : "svn",
-      fingerprint: existingMaterialWithErrors().fingerprint,
-      attributes : [
-        url            : "",
-        destination    : "",
-        filter         : null,
-        invert_filter  : false,
-        name           : "!nV@l!d",
-        auto_update    : true,
+        url            : "url",
+        name           : "svn-material",
+        auto_update    : false,
         check_externals: true,
-        username       : ""
-      ],
-      errors     : [
-        name: ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
-        url : ["URL cannot be blank"]
       ]
     ]
   }

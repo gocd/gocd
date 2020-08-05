@@ -57,7 +57,7 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
 
     @Override
     public String controllerBasePath() {
-        return Routes.MaterialConfig.INTERNAL_BASE;
+        return Routes.InternalMaterialConfig.INTERNAL_BASE;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
             before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
             before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
-            get(Routes.MaterialConfig.USAGES, mimeType, this::usages);
+            get(Routes.InternalMaterialConfig.USAGES, mimeType, this::usages);
             get("", mimeType, this::index);
         });
     }

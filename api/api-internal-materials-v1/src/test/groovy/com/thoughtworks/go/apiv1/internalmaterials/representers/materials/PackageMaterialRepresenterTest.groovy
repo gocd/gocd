@@ -46,26 +46,4 @@ class PackageMaterialRepresenterTest {
     ])
   }
 
-  @Test
-  void "should render errors"() {
-    def packageRepository = PackageRepositoryMother.create("id")
-    def package_config = new PackageMaterialConfig(new CaseInsensitiveString(''), '', packageRepository.getPackages().get(0))
-    def material_configs = new MaterialConfigs(package_config)
-    material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
-
-    def actualJson = toObjectString(MaterialsRepresenter.toJSON(material_configs.first()))
-
-    assertThatJson(actualJson).isEqualTo([
-      type       : "package",
-      fingerprint: package_config.fingerprint,
-      attributes : [
-        ref        : "",
-        auto_update: true
-      ],
-      errors     : [
-        ref: ["Please select a repository and package"]
-      ]
-    ])
-  }
-
 }

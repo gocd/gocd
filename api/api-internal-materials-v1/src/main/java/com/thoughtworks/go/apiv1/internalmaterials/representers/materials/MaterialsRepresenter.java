@@ -55,28 +55,6 @@ public class MaterialsRepresenter {
 
     public static Consumer<OutputWriter> toJSON(MaterialConfig materialConfig) {
         return materialWriter -> {
-            if (!materialConfig.errors().isEmpty()) {
-                materialWriter.addChild("errors", errorWriter -> {
-                    HashMap<String, String> errorMapping = new HashMap<>();
-                    errorMapping.put("materialName", "name");
-                    errorMapping.put("folder", "destination");
-                    errorMapping.put("autoUpdate", "auto_update");
-                    errorMapping.put("filterAsString", "filter");
-                    errorMapping.put("checkexternals", "check_externals");
-                    errorMapping.put("serverAndPort", "port");
-                    errorMapping.put("useTickets", "use_tickets");
-                    errorMapping.put("pipelineName", "pipeline");
-                    errorMapping.put("stageName", "stage");
-                    errorMapping.put("pipelineStageName", "pipeline");
-                    errorMapping.put("packageId", "ref");
-                    errorMapping.put("scmId", "ref");
-                    errorMapping.put("encryptedPassword", "encrypted_password");
-
-
-                    new ErrorGetter(errorMapping).toJSON(errorWriter, materialConfig);
-                });
-
-            }
 
             stream(Materials.values())
                     .filter(material -> material.type == materialConfig.getClass())

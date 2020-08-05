@@ -16,13 +16,6 @@
 package com.thoughtworks.go.apiv1.internalmaterials.representers.materials
 
 
-import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.config.PipelineConfig
-import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
-import com.thoughtworks.go.config.materials.MaterialConfigs
-import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig
-import com.thoughtworks.go.domain.scm.SCM
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import org.junit.jupiter.api.Test
 
@@ -41,34 +34,7 @@ class PluggableScmMaterialRepresenterTest {
       fingerprint: pluggableSCMMaterial.fingerprint,
       attributes : [
         ref        : "scm-id",
-        auto_update: true,
-        filter     : [
-          ignore: ["**/*.html", "**/foobar/"]
-        ],
-        destination: 'des-folder',
-      ]
-    ])
-  }
-
-  @Test
-  void "should render errors"() {
-    def pluggableScmMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString(''), new SCM("id", "name"), '/dest', null)
-    def materialConfigs = new MaterialConfigs(pluggableScmMaterial)
-    materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
-
-    def actualJson = toObjectString(MaterialsRepresenter.toJSON(materialConfigs.first()))
-    assertThatJson(actualJson).isEqualTo([
-      type       : "plugin",
-      fingerprint: pluggableScmMaterial.fingerprint,
-      attributes : [
-        ref        : "id",
-        auto_update: true,
-        filter     : null,
-        destination: "/dest",
-      ],
-      errors     : [
-        destination: ["Dest folder '/dest' is not valid. It must be a sub-directory of the working folder."],
-        ref        : ["Could not find SCM for given scm-id: [id]."]
+        auto_update: true
       ]
     ])
   }

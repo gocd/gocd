@@ -28,18 +28,8 @@ public abstract class ScmMaterialRepresenter<T extends ScmMaterialConfig> implem
             if (!(scmMaterialConfig instanceof P4MaterialConfig)) {
                 jsonWriter.add("url", scmMaterialConfig.getUrl());
             }
-            jsonWriter.add("destination", scmMaterialConfig.getFolder());
-
-            if (scmMaterialConfig.filter().isEmpty()) {
-                jsonWriter.renderNull("filter");
-            } else {
-                jsonWriter.addChild("filter", FilterRepresenter.toJSON(scmMaterialConfig.filter()));
-            }
-            jsonWriter.add("invert_filter", scmMaterialConfig.isInvertFilter());
             jsonWriter.add("name", scmMaterialConfig.getName());
             jsonWriter.add("auto_update", scmMaterialConfig.isAutoUpdate());
-            jsonWriter.addIfNotNull("username", scmMaterialConfig.getUserName());
-            jsonWriter.addIfNotNull("encrypted_password", scmMaterialConfig.getEncryptedPassword());
         };
     }
 }

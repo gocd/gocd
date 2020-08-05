@@ -15,14 +15,9 @@
  */
 package com.thoughtworks.go.apiv1.internalmaterials.representers.materials
 
-import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.config.PipelineConfig
-import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
-import com.thoughtworks.go.config.materials.MaterialConfigs
+
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
-import com.thoughtworks.go.util.command.UrlArgument
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -35,16 +30,6 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
     return MaterialConfigsMother.gitMaterialConfig()
   }
 
-  GitMaterialConfig existingMaterialWithErrors() {
-    def gitConfig = git(new UrlArgument(''), null, null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
-    def dupGitMaterial = git(new UrlArgument(''), null, null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
-    def materialConfigs = new MaterialConfigs(gitConfig)
-    materialConfigs.add(dupGitMaterial)
-
-    materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
-    return materialConfigs.get(0) as GitMaterialConfig
-  }
-
   @Test
   void "should serialize material without name"() {
     def gitMaterialConfig = git("http://funk.com/blank")
@@ -54,15 +39,10 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
       type       : 'git',
       fingerprint: gitMaterialConfig.fingerprint,
       attributes : [
-        url             : "http://funk.com/blank",
-        destination     : null,
-        filter          : null,
-        invert_filter   : false,
-        name            : null,
-        auto_update     : true,
-        branch          : "master",
-        submodule_folder: null,
-        shallow_clone   : false
+        url        : "http://funk.com/blank",
+        name       : null,
+        auto_update: true,
+        branch     : "master",
       ]
     ])
   }
@@ -76,40 +56,12 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
       type       : 'git',
       fingerprint: gitMaterialConfig.fingerprint,
       attributes : [
-        url             : "http://funk.com/blank",
-        destination     : null,
-        filter          : null,
-        invert_filter   : false,
-        name            : null,
-        auto_update     : true,
-        branch          : "master",
-        submodule_folder: null,
-        shallow_clone   : false
+        url        : "http://funk.com/blank",
+        name       : null,
+        auto_update: true,
+        branch     : "master",
       ]
     ])
-  }
-
-  def expectedMaterialHashWithErrors() {
-    [
-      type       : "git",
-      fingerprint: existingMaterialWithErrors().fingerprint,
-      attributes : [
-        url             : "",
-        destination     : "",
-        filter          : null,
-        invert_filter   : false,
-        name            : "!nV@l!d",
-        auto_update     : true,
-        branch          : "master",
-        submodule_folder: "",
-        shallow_clone   : false,
-      ],
-      errors     : [
-        name       : ["You have defined multiple materials called '!nV@l!d'. Material names are case-insensitive and must be unique. Note that for dependency materials the default materialName is the name of the upstream pipeline. You can override this by setting the materialName explicitly for the upstream pipeline.", "Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
-        destination: ["Destination directory is required when a pipeline has multiple SCM materials."],
-        url        : ["URL cannot be blank"]
-      ]
-    ]
   }
 
   def materialHash() {
@@ -117,17 +69,10 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
       type       : 'git',
       fingerprint: existingMaterial().fingerprint,
       attributes : [
-        url             : "http://user:password@funk.com/blank",
-        destination     : "destination",
-        filter          : [
-          ignore: ['**/*.html', '**/foobar/']
-        ],
-        invert_filter   : false,
-        branch          : 'branch',
-        submodule_folder: 'sub_module_folder',
-        shallow_clone   : true,
-        name            : 'AwesomeGitMaterial',
-        auto_update     : false,
+        url        : "http://user:password@funk.com/blank",
+        branch     : 'branch',
+        name       : 'AwesomeGitMaterial',
+        auto_update: false,
       ]
     ]
   }

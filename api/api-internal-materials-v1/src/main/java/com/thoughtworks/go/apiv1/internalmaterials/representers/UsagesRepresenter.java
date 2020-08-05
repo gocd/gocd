@@ -43,7 +43,7 @@ public class UsagesRepresenter {
     }
 
     private static Consumer<OutputLinkWriter> links(String fingerprint) {
-        return outputLinkWriter -> outputLinkWriter.addLink("self", Routes.MaterialConfig.usages(fingerprint))
+        return outputLinkWriter -> outputLinkWriter.addLink("self", Routes.InternalMaterialConfig.usages(fingerprint))
                 .addAbsoluteLink("doc", Routes.MaterialConfig.DOC);
     }
 }

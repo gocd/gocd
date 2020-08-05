@@ -25,23 +25,12 @@ trait MaterialRepresenterTrait<T extends MaterialConfig> {
 
   abstract T existingMaterial()
 
-  abstract T existingMaterialWithErrors()
-
   abstract Object materialHash()
-
-  abstract Object expectedMaterialHashWithErrors()
 
   @Test
   void 'should render material with hal representation'() {
     def actualJson = toObjectString(MaterialsRepresenter.toJSON(existingMaterial()))
 
     assertThatJson(actualJson).isEqualTo(materialHash())
-  }
-
-  @Test
-  void "should render errors"() {
-    def actualJson = toObjectString(MaterialsRepresenter.toJSON(existingMaterialWithErrors()))
-
-    assertThatJson(actualJson).isEqualTo(expectedMaterialHashWithErrors())
   }
 }

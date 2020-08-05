@@ -81,6 +81,7 @@ class ModificationsRepresenterTest {
     @BeforeEach
     void setUp() {
       for (int i = 6; i >= 2; i--) {
+
         def mod = new Modification("user", "comment: " + i, "email", new DateTime().minusHours(i).toDate(), "revision: " + i)
         mod.id = i
         mods.add(mod)

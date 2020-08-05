@@ -87,7 +87,7 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
       @BeforeEach
       void setUp() {
         loginAsUser()
-        when(materialService.getLatestAndOldestModification(any(MaterialConfig.class))).thenReturn(info)
+        when(materialService.getLatestAndOldestModification(any(MaterialConfig.class), anyString())).thenReturn(info)
       }
 
       @Test
@@ -100,6 +100,7 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
 
         getWithApiHeader("/api/internal/materials/abc123/modifications")
 
+        verify(materialService, never()).findMatchingModifications(any(MaterialConfig.class), anyString(), anyLong(), anyLong(), anyInt())
         verify(materialService).getModificationsFor(eq(git), eq(0L), eq(0L), eq(10))
 
         assertThatResponse()
@@ -192,6 +193,24 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
         assertThatResponse()
           .isBadRequest()
           .hasJsonMessage("The query parameter 'page_size', if specified must be a number between 10 and 100.")
+      }
+
+      @Test
+      void 'should return matching modifications if pattern is supplied'() {
+        def git = MaterialConfigsMother.git("http://example.com")
+        def modifications = new Modifications(ModificationsMother.withModifiedFileWhoseNameLengthIsOneK())
+
+        when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).thenReturn(git)
+        when(materialService.findMatchingModifications(any(MaterialConfig.class), anyString(), anyLong(), anyLong(), anyInt())).thenReturn(modifications)
+
+        getWithApiHeader("/api/internal/materials/abc123/modifications?pattern=hello")
+
+        verify(materialService).findMatchingModifications(eq(git), eq("hello"), eq(0L), eq(0L), eq(10))
+        verify(materialService, never()).getModificationsFor(eq(git), eq(3L), eq(0L), eq(10))
+
+        assertThatResponse()
+          .isOk()
+          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint())
       }
 
       static Stream<Arguments> pageSizes() {

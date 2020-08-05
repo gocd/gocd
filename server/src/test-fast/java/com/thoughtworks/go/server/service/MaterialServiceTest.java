@@ -517,11 +517,11 @@ public class MaterialServiceTest {
         PipelineRunIdInfo value = new PipelineRunIdInfo(1, 2);
 
         when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
-        when(materialRepository.getOldestAndLatestModificationId(anyLong())).thenReturn(value);
+        when(materialRepository.getOldestAndLatestModificationId(anyLong(), anyString())).thenReturn(value);
 
-        PipelineRunIdInfo info = materialService.getLatestAndOldestModification(materialConfig);
+        PipelineRunIdInfo info = materialService.getLatestAndOldestModification(materialConfig, "");
 
-        verify(materialRepository).getOldestAndLatestModificationId(anyLong());
+        verify(materialRepository).getOldestAndLatestModificationId(anyLong(), eq(""));
         assertThat(info, is(value));
     }
 
@@ -531,10 +531,106 @@ public class MaterialServiceTest {
 
         when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(null);
 
-        PipelineRunIdInfo info = materialService.getLatestAndOldestModification(materialConfig);
+        PipelineRunIdInfo info = materialService.getLatestAndOldestModification(materialConfig, "");
 
-        verify(materialRepository, never()).getOldestAndLatestModificationId(anyLong());
+        verify(materialRepository, never()).getOldestAndLatestModificationId(anyLong(), anyString());
         assertThat(info, is(nullValue()));
+    }
+
+    @Test
+    public void findMatchingMods_shouldCallDaoToFetchLatestMatchingMods() {
+        GitMaterialConfig config = git("http://test.com");
+        GitMaterialInstance instance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
+        Modifications modifications = new Modifications();
+        modifications.add(new Modification("user", "comment 1", "email", new DateTime().minusHours(1).toDate(), "revision"));
+        modifications.add(new Modification("user", "comment 2", "email", new DateTime().minusHours(2).toDate(), "revision"));
+        modifications.add(new Modification("user", "comment 3", "email", new DateTime().minusHours(3).toDate(), "revision"));
+
+        when(materialRepository.findMaterialInstance(config)).thenReturn(instance);
+        when(materialRepository.findLatestMatchingModifications(anyLong(), anyString(), anyInt())).thenReturn(modifications);
+
+        List<Modification> result = materialService.findMatchingModifications(config, "comment", 0, 0, 10);
+
+        verify(materialRepository).findLatestMatchingModifications(eq(instance.getId()), eq("comment"), eq(10));
+        assertThat(result, is(modifications));
+    }
+
+    @Test
+    public void findMatchingMods_shouldCallDaoToFetchMatchingModsAfterCursor() {
+        GitMaterialConfig config = git("http://test.com");
+        GitMaterialInstance instance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
+        Modifications modifications = new Modifications();
+        modifications.add(new Modification("user", "comment 1", "email", new DateTime().minusHours(1).toDate(), "revision"));
+        modifications.add(new Modification("user", "comment 2", "email", new DateTime().minusHours(2).toDate(), "revision"));
+        modifications.add(new Modification("user", "comment 3", "email", new DateTime().minusHours(3).toDate(), "revision"));
+
+        when(materialRepository.findMaterialInstance(config)).thenReturn(instance);
+        when(materialRepository.findMatchingModificationsAfterCursor(anyLong(), anyString(), anyLong(), anyInt())).thenReturn(modifications);
+
+        List<Modification> result = materialService.findMatchingModifications(config, "comment", 3, 0, 10);
+
+        verify(materialRepository).findMatchingModificationsAfterCursor(eq(instance.getId()), eq("comment"), eq(3L), eq(10));
+        assertThat(result, is(modifications));
+    }
+
+    @Test
+    public void findMatchingMods_shouldCallDaoToFetchMatchingModsBeforeCursor() {
+        GitMaterialConfig config = git("http://test.com");
+        GitMaterialInstance instance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
+        Modifications modifications = new Modifications();
+        modifications.add(new Modification("user", "comment 1", "email", new DateTime().minusHours(1).toDate(), "revision"));
+        modifications.add(new Modification("user", "comment 2", "email", new DateTime().minusHours(2).toDate(), "revision"));
+        modifications.add(new Modification("user", "comment 3", "email", new DateTime().minusHours(3).toDate(), "revision"));
+
+        when(materialRepository.findMaterialInstance(config)).thenReturn(instance);
+        when(materialRepository.findMatchingModificationsBeforeCursor(anyLong(), anyString(), anyLong(), anyInt())).thenReturn(modifications);
+
+        List<Modification> result = materialService.findMatchingModifications(config, "comment", 0, 3, 10);
+
+        verify(materialRepository).findMatchingModificationsBeforeCursor(eq(instance.getId()), eq("comment"), eq(3L), eq(10));
+        assertThat(result, is(modifications));
+    }
+
+    @Test
+    public void findMatchingMods_shouldReturnNullIfMaterialIsNotPresent() {
+        GitMaterialConfig material = git("http://test.com");
+
+        when(materialRepository.findMaterialInstance(material)).thenReturn(null);
+
+        List<Modification> result = materialService.findMatchingModifications(material, "comment", 0, 0, 10);
+
+        verify(materialRepository).findMaterialInstance(material);
+        verifyNoMoreInteractions(materialRepository);
+    }
+
+    @Test
+    public void findMatchingMods_shouldThrowIfTheAfterCursorIsInvalid() {
+        GitMaterialConfig materialConfig = git("http://test.com");
+        GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
+
+        when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
+
+        assertThatCode(() -> materialService.findMatchingModifications(materialConfig, "comment", -10, 0, 3))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("The query parameter 'after', if specified, must be a positive integer.");
+
+        verify(materialRepository).findMaterialInstance(materialConfig);
+        verifyNoMoreInteractions(materialRepository);
+    }
+
+    @Test
+    public void findMatchingMods_shouldThrowIfTheBeforeCursorIsInvalid() {
+        GitMaterialConfig materialConfig = git("http://test.com");
+        GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
+
+        when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
+
+        assertThatCode(() -> materialService.findMatchingModifications(materialConfig, "pattern", 0, -10, 3))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("The query parameter 'before', if specified, must be a positive integer.");
+
+        verify(materialRepository).findMaterialInstance(materialConfig);
+        verifyNoMoreInteractions(materialRepository);
     }
 
     private void assertHasModification(MaterialRevisions materialRevisions, boolean b) {

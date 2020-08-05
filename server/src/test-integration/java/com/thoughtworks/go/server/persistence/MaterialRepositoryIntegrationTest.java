@@ -1356,7 +1356,7 @@ public class MaterialRepositoryIntegrationTest {
         Modifications modificationList = materialRevisions.getModifications(material);
 
         List<Modification> modifications = repo.getLatestModificationForEachMaterial();
-        assertModificationEqual(modificationList.get(0), modifications.get(0));
+        assertModificationAreEqual(modificationList.get(0), modifications.get(0));
 
         MaterialInstance instance = modifications.get(0).getMaterialInstance();
 
@@ -1510,11 +1510,126 @@ public class MaterialRepositoryIntegrationTest {
         //modifications gets updated with the material instance which contains the id
         long materialId = mods.get(0).getMaterialInstance().getId();
 
-        PipelineRunIdInfo info = repo.getOldestAndLatestModificationId(materialId);
+        PipelineRunIdInfo info = repo.getOldestAndLatestModificationId(materialId, "");
 
         assertThat(info, not(nullValue()));
         assertThat(info.getLatestRunId(), is(mods.get(0).getId()));
         assertThat(info.getOldestRunId(), is(mods.get(4).getId()));
+    }
+    @Test
+    public void shouldReturnNullasLatestAndOlderModIDIfPatternDoesNotMatch() {
+        SvnMaterial material = MaterialsMother.svnMaterial("http://username:password@localhost");
+        MaterialRevisions materialRevisions = saveModifications(material, 5);
+
+        Modifications mods = materialRevisions.getModifications(material);
+        //modifications gets updated with the material instance which contains the id
+        long materialId = mods.get(0).getMaterialInstance().getId();
+
+        PipelineRunIdInfo info = repo.getOldestAndLatestModificationId(materialId, "revision");
+
+        assertThat(info, is(nullValue()));
+    }
+
+    @Test
+    public void shouldReturnLatestAndOldestModificationIDBasedOnPattern() {
+        GitMaterial material = MaterialsMother.gitMaterial("http://example.com/gocd");
+        MaterialRevisions materialRevisions = new MaterialRevisions();
+        List<Modification> mods = new ArrayList<>();
+        mods.add(new Modification("user 1", "hello world", EMAIL_ADDRESS, new DateTime().minusHours(1).toDate(), "Revisions-matches"));
+        mods.add(new Modification("user 2", "this will match as well - yellow", EMAIL_ADDRESS, new DateTime().minusHours(2).toDate(), "Revision-also-matches"));
+        mods.add(new Modification("user 3", "this should match as well", EMAIL_ADDRESS, new DateTime().minusHours(3).toDate(), "Revision-hello"));
+        mods.add(new Modification("user 4", "some comment", EMAIL_ADDRESS, new DateTime().minusHours(4).toDate(), "revisions-which-will-not-match"));
+
+        materialRevisions.addRevision(material, mods);
+
+        dbHelper.saveRevs(materialRevisions);
+        //modifications gets updated with the material instance which contains the id
+        long materialId = mods.get(0).getMaterialInstance().getId();
+
+        PipelineRunIdInfo info = repo.getOldestAndLatestModificationId(materialId, "ello");
+
+        assertThat(info, not(nullValue()));
+        assertThat(info.getLatestRunId(), is(mods.get(0).getId()));
+        assertThat(info.getOldestRunId(), is(mods.get(2).getId()));
+    }
+
+    @Test
+    public void shouldReturnLatestMatchingMods() {
+        GitMaterial material = MaterialsMother.gitMaterial("http://example.com/gocd");
+        MaterialRevisions materialRevisions = new MaterialRevisions();
+        List<Modification> mods = new ArrayList<>();
+        mods.add(new Modification("user 1", "hello world", EMAIL_ADDRESS, new DateTime().minusHours(1).toDate(), "Revisions-matches"));
+        mods.add(new Modification("user 2", "this will match as well - yellow", EMAIL_ADDRESS, new DateTime().minusHours(2).toDate(), "Revision-also-matches"));
+        mods.add(new Modification("user 3", "this should match as well", EMAIL_ADDRESS, new DateTime().minusHours(3).toDate(), "Revision-hello"));
+        mods.add(new Modification("user 4", "some comment", EMAIL_ADDRESS, new DateTime().minusHours(4).toDate(), "revisions-which-will-not-match"));
+
+        materialRevisions.addRevision(material, mods);
+
+        dbHelper.saveRevs(materialRevisions);
+        //modifications gets updated with the material instance which contains the id
+        long materialId = mods.get(0).getMaterialInstance().getId();
+
+        List<Modification> matchingMods = repo.findLatestMatchingModifications(materialId, "ello", 10);
+
+        assertThat(matchingMods.size(), is(3));
+        assertModificationAreEqual(matchingMods.get(0), mods.get(0));
+        assertModificationAreEqual(matchingMods.get(1), mods.get(1));
+        assertModificationAreEqual(matchingMods.get(2), mods.get(2));
+    }
+
+    @Test
+    public void shouldReturnMatchingModsIrrespectiveOfCase() {
+        GitMaterial material = MaterialsMother.gitMaterial("http://example.com/gocd");
+        MaterialRevisions materialRevisions = new MaterialRevisions();
+        List<Modification> mods = new ArrayList<>();
+        mods.add(new Modification("user 1", "this will match", EMAIL_ADDRESS, new DateTime().minusHours(1).toDate(), "Revisions-matches"));
+        mods.add(new Modification("user 2", "this wont", EMAIL_ADDRESS, new DateTime().minusHours(2).toDate(), "Revision-not-matches"));
+        mods.add(new Modification("user 3", "this also wont", EMAIL_ADDRESS, new DateTime().minusHours(3).toDate(), "Revision-hello"));
+        mods.add(new Modification("user 4", "this should match as well", EMAIL_ADDRESS, new DateTime().minusHours(4).toDate(), "revisions-which-will-match"));
+
+        materialRevisions.addRevision(material, mods);
+
+        dbHelper.saveRevs(materialRevisions);
+        //modifications gets updated with the material instance which contains the id
+        long materialId = mods.get(0).getMaterialInstance().getId();
+
+        List<Modification> matchingMods = repo.findLatestMatchingModifications(materialId, "revisions", 10);
+
+        assertThat(matchingMods.size(), is(2));
+        assertModificationAreEqual(matchingMods.get(0), mods.get(0));
+        assertModificationAreEqual(matchingMods.get(1), mods.get(3));
+    }
+
+    @Test
+    public void shouldReturnMatchingModsAfterSaidCursor() {
+        GitMaterial material = MaterialsMother.gitMaterial("http://example.com/example_gocd");
+        MaterialRevisions materialRevisions = saveModifications(material, 5);
+
+        Modifications mods = materialRevisions.getModifications(material);
+        //modifications gets updated with the material instance which contains the id
+        long materialId = mods.get(0).getMaterialInstance().getId();
+
+        List<Modification> matchingMods = repo.findMatchingModificationsAfterCursor(materialId, "comment", mods.get(2).getId(), 10);
+
+        assertThat(matchingMods.size(), is(2));
+        assertModificationAreEqual(matchingMods.get(0), mods.get(3));
+        assertModificationAreEqual(matchingMods.get(1), mods.get(4));
+    }
+
+    @Test
+    public void shouldReturnMatchingModsBeforeSaidCursor() {
+        GitMaterial material = MaterialsMother.gitMaterial("http://example.com/gocd_test");
+        MaterialRevisions materialRevisions = saveModifications(material, 5);
+
+        Modifications mods = materialRevisions.getModifications(material);
+        //modifications gets updated with the material instance which contains the id
+        long materialId = mods.get(0).getMaterialInstance().getId();
+
+        List<Modification> matchingMods = repo.findMatchingModificationsBeforeCursor(materialId, "comment", mods.get(2).getId(), 10);
+
+        assertThat(matchingMods.size(), is(2));
+        assertModificationAreEqual(matchingMods.get(0), mods.get(0));
+        assertModificationAreEqual(matchingMods.get(1), mods.get(1));
     }
 
     private MaterialRevisions saveModifications(Material material, int count) {
@@ -1531,12 +1646,12 @@ public class MaterialRepositoryIntegrationTest {
         return materialRevisions;
     }
 
-    private void assertModificationAreEqual(Modification modification, Modification expectedModification) {
-        assertThat(modification.getRevision(), is(expectedModification.getRevision()));
-        assertThat(modification.getModifiedTime().getTime(), is(expectedModification.getModifiedTime().getTime()));
-        assertThat(modification.getComment(), is(expectedModification.getComment()));
-        assertThat(modification.getUserName(), is(expectedModification.getUserName()));
-        assertThat(modification.getEmailAddress(), is(expectedModification.getEmailAddress()));
+    private void assertModificationAreEqual(Modification actual, Modification expected) {
+        assertThat(actual.getRevision(), is(expected.getRevision()));
+        assertThat(actual.getModifiedTime().getTime(), is(expected.getModifiedTime().getTime()));
+        assertThat(actual.getComment(), is(expected.getComment()));
+        assertThat(actual.getUserName(), is(expected.getUserName()));
+        assertThat(actual.getEmailAddress(), is(expected.getEmailAddress()));
     }
 
     private void assertModificationAreEqualWithId(Modification actual, Modification expected) {

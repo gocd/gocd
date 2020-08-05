@@ -55,6 +55,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.hibernate.criterion.Restrictions.eq;
 import static org.hibernate.criterion.Restrictions.isNull;
 
@@ -1087,22 +1088,126 @@ public class MaterialRepository extends HibernateDaoSupport {
             return query.addEntity("mods", Modification.class)
                     .list();
         });
-        System.out.println("mods = " + mods);
         return mods;
     }
 
-    public PipelineRunIdInfo getOldestAndLatestModificationId(long materialId) {
+    public PipelineRunIdInfo getOldestAndLatestModificationId(long materialId, String pattern) {
         String queryString = "SELECT MAX(modifications.id) as latestRunId, MIN(modifications.id) as oldestRunId " +
                 "FROM modifications " +
-                "WHERE modifications.materialid = ? ";
+                "WHERE modifications.materialid = :materialId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("materialId", materialId);
+        if (isNotBlank(pattern)) {
+            queryString = queryString +
+                    "  AND (LOWER(modifications.comment) LIKE :pattern " +
+                    "  OR LOWER(modifications.userName) LIKE :pattern " +
+                    "  OR LOWER(modifications.revision) LIKE :pattern ) ";
 
+            params.put("pattern", "%" + pattern.toLowerCase() + "%");
+        }
+        String finalQueryString = queryString;
         Object[] info = (Object[]) getHibernateTemplate().execute((HibernateCallback) session -> {
-            SQLQuery query = session.createSQLQuery(queryString);
-            query.setLong(0, materialId);
+            SQLQuery query = session.createSQLQuery(finalQueryString);
+            query.setProperties(params);
             return query.addScalar("latestRunId", new LongType())
                     .addScalar("oldestRunId", new LongType())
                     .uniqueResult();
         });
+        if (info == null || info[0] == null || info[1] == null) {
+            return null;
+        }
         return new PipelineRunIdInfo((long) info[0], (long) info[1]);
+    }
+
+    public List<Modification> findLatestMatchingModifications(long materialId, String pattern, Integer pageSize) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("materialId", materialId);
+        params.put("pattern", "%" + pattern.toLowerCase() + "%");
+        params.put("rawPattern", pattern.toLowerCase());
+        params.put("size", pageSize);
+        String exactMatchQuery = "SELECT * " +
+                "FROM modifications " +
+                "WHERE materialid = :materialId " +
+                "  AND LOWER(revision) = :rawPattern " +
+                "ORDER BY id DESC " +
+                "LIMIT :size";
+        String likeMatchQuery = "SELECT * " +
+                "FROM modifications " +
+                "WHERE materialid = :materialId " +
+                "  AND (LOWER(modifications.comment) LIKE :pattern " +
+                "  OR LOWER(userName) LIKE :pattern " +
+                "  OR LOWER(revision) LIKE :pattern ) " +
+                "ORDER BY id DESC " +
+                "LIMIT :size";
+        return getMatchingModifications(exactMatchQuery, likeMatchQuery, params);
+    }
+
+    public List<Modification> findMatchingModificationsBeforeCursor(long materialId, String pattern, long cursor, Integer pageSize) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("materialId", materialId);
+        params.put("pattern", "%" + pattern.toLowerCase() + "%");
+        params.put("rawPattern", pattern.toLowerCase());
+        params.put("size", pageSize);
+        params.put("cursor", cursor);
+        String exactMatchQuery = "SELECT * " +
+                "FROM ( SELECT * " +
+                "    FROM modifications " +
+                "    WHERE materialid = :materialId AND id > :cursor " +
+                "      AND LOWER(revision) = :rawPattern " +
+                "    ORDER BY id DESC " +
+                "    LIMIT :size ) as MatchBeforeSpecifiedCursor " +
+                "ORDER BY id DESC";
+        String likeMatchQuery = "SELECT * " +
+                "FROM ( SELECT * " +
+                "    FROM modifications " +
+                "    WHERE materialid = :materialId AND id > :cursor " +
+                "      AND (LOWER(modifications.comment) LIKE :pattern " +
+                "      OR LOWER(userName) LIKE :pattern " +
+                "      OR LOWER(revision) LIKE :pattern ) " +
+                "    ORDER BY id DESC " +
+                "    LIMIT :size) as LikeMatchBeforeSpecifiedCursor " +
+                "ORDER BY id DESC";
+        return getMatchingModifications(exactMatchQuery, likeMatchQuery, params);
+    }
+
+    public List<Modification> findMatchingModificationsAfterCursor(long materialId, String pattern, long cursor, Integer pageSize) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("materialId", materialId);
+        params.put("pattern", "%" + pattern.toLowerCase() + "%");
+        params.put("rawPattern", pattern.toLowerCase());
+        params.put("size", pageSize);
+        params.put("cursor", cursor);
+        String exactMatchQuery = "SELECT * " +
+                "FROM modifications " +
+                "WHERE materialid = :materialId AND id < :cursor " +
+                "  AND LOWER(revision) = :rawPattern " +
+                "ORDER BY id DESC " +
+                "LIMIT :size";
+        String likeMatchQuery = "SELECT * " +
+                "FROM modifications " +
+                "WHERE materialid = :materialId AND id < :cursor " +
+                "  AND (LOWER(modifications.comment) LIKE :pattern " +
+                "  OR LOWER(userName) LIKE :pattern " +
+                "  OR LOWER(revision) LIKE :pattern ) " +
+                "ORDER BY id DESC " +
+                "LIMIT :size";
+        return getMatchingModifications(exactMatchQuery, likeMatchQuery, params);
+    }
+
+    private List<Modification> getMatchingModifications(String exactMatchQuery, String likeMatchQuery, Map<String, Object> params) {
+        HashSet<Modification> modSet = new HashSet<>(executeQuery(exactMatchQuery, params));
+        modSet.addAll(executeQuery(likeMatchQuery, params));
+        ArrayList<Modification> finalList = new ArrayList<>(modSet);
+        finalList.sort((mod1, mod2) -> Long.compare(mod2.getId(), mod1.getId()));
+        return finalList;
+    }
+
+    private List<Modification> executeQuery(String queryString, Map<String, Object> args) {
+        return (List<Modification>) getHibernateTemplate().execute((HibernateCallback) session -> {
+            SQLQuery query = session.createSQLQuery(queryString);
+            query.setProperties(args);
+            return query.addEntity("modifications", Modification.class)
+                    .list();
+        });
     }
 }

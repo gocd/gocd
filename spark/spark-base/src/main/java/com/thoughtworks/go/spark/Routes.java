@@ -177,18 +177,9 @@ public class Routes {
         public static final String BASE = "/api/materials/:fingerprint/modifications";
         public static final String OFFSET = "/:offset";
         public static final String FIND = BASE + "/{offset}";
-        public static final String INTERNAL_BASE = "/api/internal/materials/:fingerprint/modifications";
 
         public static String modification(String fingerprint) {
             return BASE.replaceAll(":fingerprint", fingerprint);
-        }
-
-        public static String previous(String pipelineName, long before) {
-            return INTERNAL_BASE.replaceAll(":fingerprint", pipelineName) + "?before=" + before;
-        }
-
-        public static String next(String pipelineName, long after) {
-            return INTERNAL_BASE.replaceAll(":fingerprint", pipelineName) + "?after=" + after;
         }
     }
 
@@ -926,9 +917,18 @@ public class Routes {
         public static final String INTERNAL_BASE = "/api/internal/materials";
         public static final String USAGES = "/:fingerprint/usages";
 
+        public static final String INTERNAL_BASE_MODIFICATIONS = "/api/internal/materials/:fingerprint/modifications";
 
         public static String usages(String fingerprint) {
             return (MaterialConfig.BASE + USAGES).replaceAll(":fingerprint", fingerprint);
+        }
+
+        public static String previous(String pipelineName, long before) {
+            return INTERNAL_BASE_MODIFICATIONS.replaceAll(":fingerprint", pipelineName) + "?before=" + before;
+        }
+
+        public static String next(String pipelineName, long after) {
+            return INTERNAL_BASE_MODIFICATIONS.replaceAll(":fingerprint", pipelineName) + "?after=" + after;
         }
     }
 }

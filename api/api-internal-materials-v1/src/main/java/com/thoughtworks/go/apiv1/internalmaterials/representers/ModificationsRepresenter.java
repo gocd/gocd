@@ -32,22 +32,24 @@ public class ModificationsRepresenter {
             outputWriter.addChildList("modifications", emptyList());
             return;
         }
-        Modification latest = modifications.get(0);
-        Modification oldest = modifications.get(modifications.size() - 1);
-        String previousLink = null, nextLink = null;
-        if (latest.getId() != latestAndOldestModId.getLatestRunId()) {
-            previousLink = Routes.MaterialModifications.previous(fingerprint, latest.getId());
-        }
-        if (oldest.getId() != latestAndOldestModId.getOldestRunId()) {
-            nextLink = Routes.MaterialModifications.next(fingerprint, oldest.getId());
-        }
-        if (isNotBlank(previousLink) || isNotBlank(nextLink)) {
-            String finalPreviousLink = previousLink;
-            String finalNextLink = nextLink;
-            outputWriter.addLinks(outputLinkWriter -> {
-                outputLinkWriter.addLinkIfPresent("previous", finalPreviousLink);
-                outputLinkWriter.addLinkIfPresent("next", finalNextLink);
-            });
+        if (latestAndOldestModId != null) {
+            Modification latest = modifications.get(0);
+            Modification oldest = modifications.get(modifications.size() - 1);
+            String previousLink = null, nextLink = null;
+            if (latest.getId() != latestAndOldestModId.getLatestRunId()) {
+                previousLink = Routes.InternalMaterialConfig.previous(fingerprint, latest.getId());
+            }
+            if (oldest.getId() != latestAndOldestModId.getOldestRunId()) {
+                nextLink = Routes.InternalMaterialConfig.next(fingerprint, oldest.getId());
+            }
+            if (isNotBlank(previousLink) || isNotBlank(nextLink)) {
+                String finalPreviousLink = previousLink;
+                String finalNextLink = nextLink;
+                outputWriter.addLinks(outputLinkWriter -> {
+                    outputLinkWriter.addLinkIfPresent("previous", finalPreviousLink);
+                    outputLinkWriter.addLinkIfPresent("next", finalNextLink);
+                });
+            }
         }
         outputWriter.addChildList("modifications", childWriter -> {
             modifications.forEach((mod) -> childWriter.addChild(writer -> ModificationRepresenter.toJSON(writer, mod)));

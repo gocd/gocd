@@ -35,6 +35,7 @@ import spark.Response;
 
 import java.util.List;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
@@ -52,7 +53,7 @@ public class InternalMaterialModificationsControllerV1 extends ApiController imp
 
     @Override
     public String controllerBasePath() {
-        return Routes.MaterialModifications.INTERNAL_BASE;
+        return Routes.InternalMaterialConfig.INTERNAL_BASE_MODIFICATIONS;
     }
 
     @Override
@@ -76,9 +77,12 @@ public class InternalMaterialModificationsControllerV1 extends ApiController imp
         HttpOperationResult result = new HttpOperationResult();
         MaterialConfig materialConfig = materialConfigService.getMaterialConfig(currentUsernameString(), fingerprint, result);
         if (result.canContinue()) {
-            List<Modification> modifications = materialService.getModificationsFor(materialConfig, after, before, pageSize);
-            PipelineRunIdInfo info = materialService.getLatestAndOldestModification(materialConfig);
+            List<Modification> modifications = isBlank(pattern)
+                    ? materialService.getModificationsFor(materialConfig, after, before, pageSize)
+                    : materialService.findMatchingModifications(materialConfig, pattern, after, before, pageSize);
+            PipelineRunIdInfo info = materialService.getLatestAndOldestModification(materialConfig, pattern);
             return writerForTopLevelObject(request, response, writer -> ModificationsRepresenter.toJSON(writer, modifications, info, materialConfig.getFingerprint()));
+
         } else {
             return renderHTTPOperationResult(result, request, response);
         }

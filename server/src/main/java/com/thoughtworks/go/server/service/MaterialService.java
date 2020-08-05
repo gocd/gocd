@@ -189,11 +189,27 @@ public class MaterialService {
         return modifications;
     }
 
-    public PipelineRunIdInfo getLatestAndOldestModification(MaterialConfig materialConfig) {
+    public PipelineRunIdInfo getLatestAndOldestModification(MaterialConfig materialConfig, String pattern) {
         MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
         if (materialInstance == null) {
             return null;
         }
-        return materialRepository.getOldestAndLatestModificationId(materialInstance.getId());
+        return materialRepository.getOldestAndLatestModificationId(materialInstance.getId(), pattern);
+    }
+
+    public List<Modification> findMatchingModifications(MaterialConfig materialConfig, String pattern, long afterCursor, long beforeCursor, Integer pageSize) {
+        MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
+        if (materialInstance == null) {
+            return null;
+        }
+        List<Modification> matchingMods;
+        if (validateCursor(afterCursor, "after")) {
+            matchingMods = materialRepository.findMatchingModificationsAfterCursor(materialInstance.getId(), pattern, afterCursor, pageSize);
+        } else if (validateCursor(beforeCursor, "before")) {
+            matchingMods = materialRepository.findMatchingModificationsBeforeCursor(materialInstance.getId(), pattern, beforeCursor, pageSize);
+        } else {
+            matchingMods = materialRepository.findLatestMatchingModifications(materialInstance.getId(), pattern, pageSize);
+        }
+        return matchingMods;
     }
 }

@@ -38,6 +38,7 @@ import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialRevision;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
 import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
@@ -74,9 +75,10 @@ import java.util.Map;
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -398,6 +400,32 @@ public class MaterialServiceTest {
         Modifications gotModifications = materialService.getModificationsFor(materialConfig, pagination);
 
         assertThat(gotModifications, is(modifications));
+    }
+
+    @Test
+    public void shouldGetLatestModificationWithMaterial() {
+        MaterialInstance instance = MaterialsMother.gitMaterial("http://example.com/gocd.git").createMaterialInstance();
+        Modification modification = ModificationsMother.withModifiedFileWhoseNameLengthIsOneK();
+        modification.setMaterialInstance(instance);
+        ArrayList<Modification> mods = new ArrayList<>();
+        mods.add(modification);
+
+        when(materialRepository.getLatestModificationForEachMaterial()).thenReturn(mods);
+
+        Map<String, Modification> modificationsMap = materialService.getLatestModificationForEachMaterial();
+
+        assertEquals(modificationsMap.size(), 1);
+        assertThat(modificationsMap.keySet(), containsInAnyOrder(instance.getFingerprint()));
+        assertEquals(modificationsMap.get(instance.getFingerprint()), modification);
+    }
+
+    @Test
+    public void shouldReturnEmptyMapIfNoMaterialAndModificationFound() {
+        when(materialRepository.getLatestModificationForEachMaterial()).thenReturn(emptyList());
+
+        Map<String, Modification> modificationsMap = materialService.getLatestModificationForEachMaterial();
+
+        assertEquals(modificationsMap.size(), 0);
     }
 
     private void assertHasModification(MaterialRevisions materialRevisions, boolean b) {

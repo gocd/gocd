@@ -48,6 +48,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.stream.Collectors.toMap;
+
 /**
  * @understands interactions between material-config, repository and modifications
  */
@@ -159,5 +161,12 @@ public class MaterialService {
 
     Class<? extends Material> getMaterialClass(Material material) {
         return material.getClass();
+    }
+
+    public Map<String, Modification> getLatestModificationForEachMaterial() {
+        List<Modification> modifications = materialRepository.getLatestModificationForEachMaterial();
+        return modifications
+                .stream()
+                .collect(toMap(mod -> mod.getMaterialInstance().getFingerprint(), mod -> mod));
     }
 }

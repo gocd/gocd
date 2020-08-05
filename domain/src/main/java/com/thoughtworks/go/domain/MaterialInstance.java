@@ -73,7 +73,7 @@ public abstract class MaterialInstance extends PersistentObject {
         this.fingerprint = toOldMaterial(null, null, null).getFingerprint();
     }
 
-    protected boolean getUseTickets() {
+    public boolean getUseTickets() {
         return useTickets != null && useTickets;
     }
 
@@ -150,5 +150,21 @@ public abstract class MaterialInstance extends PersistentObject {
 
     public String getUsername() {
         return username;
+    }
+
+    public String getView() {
+        return view;
+    }
+
+    public Boolean getCheckExternals() {
+        return checkExternals;
+    }
+
+    public String getProjectPath() {
+        return projectPath;
+    }
+
+    public String getDomain() {
+        return domain;
     }
 }

@@ -912,4 +912,14 @@ public class Routes {
     public class MaterialsSPA {
         public static final String BASE = "/materials";
     }
+
+    public static class InternalMaterialConfig {
+        public static final String INTERNAL_BASE = "/api/internal/materials";
+        public static final String USAGES = "/:fingerprint/usages";
+
+
+        public static String usages(String fingerprint) {
+            return (MaterialConfig.BASE + USAGES).replaceAll(":fingerprint", fingerprint);
+        }
+    }
 }

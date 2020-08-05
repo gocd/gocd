@@ -526,3 +526,7 @@ api/api-abstract-material-test/out/
 api/api-abstract-material-test/target/
 api/api-abstract-material-test/logs/
 api/api-abstract-material-test/config/
+api/api-internal-materials-v1/out/
+api/api-internal-materials-v1/target/
+api/api-internal-materials-v1/logs/
+api/api-internal-materials-v1/config/

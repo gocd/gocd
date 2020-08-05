@@ -23,29 +23,30 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import java.util.List;
+import java.util.Map;
+
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class MaterialConfigServiceTest {
+class MaterialConfigServiceTest {
     @Mock
-    GoConfigService goConfigService;
+    private GoConfigService goConfigService;
 
     @Mock
-    SecurityService securityService;
+    private SecurityService securityService;
 
-    String user;
-    MaterialConfigService materialConfigService;
+    private String user;
+    private MaterialConfigService materialConfigService;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void setup() throws Exception {
         initMocks(this);
 
         user = "looser";
@@ -56,24 +57,23 @@ public class MaterialConfigServiceTest {
         PipelineConfigs pipelineGroup1 = new BasicPipelineConfigs();
         pipelineGroup1.setGroup("group1");
         PipelineConfig pipelineConfig1 = new PipelineConfig();
-        GitMaterialConfig gitMaterialConfig1 = git("http://test.com");
-        pipelineConfig1.addMaterialConfig(gitMaterialConfig1);
-        GitMaterialConfig getMaterialConfig2 = git("http://crap.com");
-        pipelineConfig1.addMaterialConfig(getMaterialConfig2);
+        pipelineConfig1.setName("pipeline1");
+        pipelineConfig1.addMaterialConfig(git("http://test.com"));
+        pipelineConfig1.addMaterialConfig(git("http://crap.com"));
         pipelineGroup1.add(pipelineConfig1);
 
         PipelineConfigs pipelineGroup2 = new BasicPipelineConfigs();
         pipelineGroup2.setGroup("group2");
         PipelineConfig pipelineConfig2 = new PipelineConfig();
-        GitMaterialConfig gitMaterialConfig3 = git("http://another.com");
-        pipelineConfig2.addMaterialConfig(gitMaterialConfig3);
+        pipelineConfig2.setName("pipeline2");
+        pipelineConfig2.addMaterialConfig(git("http://another.com"));
         pipelineGroup2.add(pipelineConfig2);
 
         PipelineConfigs pipelineGroup3 = new BasicPipelineConfigs();
         pipelineGroup3.setGroup("group3");
         PipelineConfig pipelineConfig3 = new PipelineConfig();
-        GitMaterialConfig gitMaterialConfig4 = git("http://test.com");
-        pipelineConfig1.addMaterialConfig(gitMaterialConfig4);
+        pipelineConfig3.setName("pipeline3");
+        pipelineConfig3.addMaterialConfig(git("http://test.com"));
         pipelineGroup3.add(pipelineConfig3);
 
         PipelineGroups pipelineGroups = new PipelineGroups(pipelineGroup1, pipelineGroup2, pipelineGroup3);
@@ -83,40 +83,61 @@ public class MaterialConfigServiceTest {
     }
 
     @Test
-    public void shouldGetUniqueMaterialConfigsToWhichUserHasViewPermission() {
+    void shouldGetUniqueMaterialConfigsToWhichUserHasViewPermission() {
         MaterialConfigs materialConfigs = materialConfigService.getMaterialConfigs(user);
 
-        assertThat(materialConfigs.size(), is(2));
-        assertThat(materialConfigs.get(0), is(git("http://test.com")));
-        assertThat(materialConfigs.get(1), is(git("http://crap.com")));
+        assertThat(materialConfigs.size()).isEqualTo(2);
+        assertThat(materialConfigs.get(0)).isEqualTo(git("http://test.com"));
+        assertThat(materialConfigs.get(1)).isEqualTo(git("http://crap.com"));
     }
 
     @Test
-    public void shouldGetMaterialConfigByFingerprint() {
+    void shouldGetMaterialConfigByFingerprint() {
         HttpOperationResult result = new HttpOperationResult();
         GitMaterialConfig gitMaterialConfig = git("http://crap.com");
         MaterialConfig materialConfig = materialConfigService.getMaterialConfig(user, gitMaterialConfig.getFingerprint(), result);
 
-        assertThat(materialConfig, is(gitMaterialConfig));
-        assertThat(result.canContinue(), is(true));
+        assertThat(materialConfig).isEqualTo(gitMaterialConfig);
+        assertThat(result.canContinue()).isTrue();
     }
 
     @Test
-    public void shouldPopulateErrorCorrectlyWhenMaterialNotFound_getMaterialConfigByFingerprint() {
+    void shouldPopulateErrorCorrectlyWhenMaterialNotFound_getMaterialConfigByFingerprint() {
         HttpOperationResult result = new HttpOperationResult();
         MaterialConfig materialConfig = materialConfigService.getMaterialConfig(user, "unknown-fingerprint", result);
 
-        assertThat(materialConfig, is(nullValue()));
-        assertThat(result.httpCode(), is(404));
+        assertThat(materialConfig).isNull();
+        assertThat(result.httpCode()).isEqualTo(404);
     }
 
     @Test
-    public void shouldPopulateErrorCorrectlyWhenUnauthorizedToViewMaterial_getMaterialConfigByFingerprint() {
+    void shouldPopulateErrorCorrectlyWhenUnauthorizedToViewMaterial_getMaterialConfigByFingerprint() {
         HttpOperationResult result = new HttpOperationResult();
         GitMaterialConfig gitMaterialConfig = git("http://another.com");
         MaterialConfig materialConfig = materialConfigService.getMaterialConfig(user, gitMaterialConfig.getFingerprint(), result);
 
-        assertThat(materialConfig, is(nullValue()));
-        assertThat(result.httpCode(), is(403));
+        assertThat(materialConfig).isNull();
+        assertThat(result.httpCode()).isEqualTo(403);
+    }
+
+    @Test
+    void shouldReturnUsagesOfAGivenMaterial() {
+        GitMaterialConfig material = git("http://test.com");
+
+        Map<String, List<String>> usages = materialConfigService.getUsagesForMaterial(user, material.getFingerprint());
+
+        assertThat(usages.size()).isEqualTo(2);
+        assertThat(usages.keySet()).isSubsetOf("group1", "group3");
+        assertThat(usages.get("group1")).containsExactly("pipeline1");
+        assertThat(usages.get("group3")).containsExactly("pipeline3");
+    }
+
+    @Test
+    void shouldReturnEmptyMapIfNotUsagesFound() {
+        GitMaterialConfig material = git("http://example.com");
+
+        Map<String, List<String>> usages = materialConfigService.getUsagesForMaterial(user, material.getFingerprint());
+
+        assertThat(usages).isEmpty();
     }
 }

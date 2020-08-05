@@ -25,68 +25,85 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @understands providing services around a pipeline configuration
  */
 @Service
 public class MaterialConfigService {
-	private final GoConfigService goConfigService;
-	private final SecurityService securityService;
+    private final GoConfigService goConfigService;
+    private final SecurityService securityService;
 
-	@Autowired
-	public MaterialConfigService(GoConfigService goConfigService, SecurityService securityService) {
-		this.goConfigService = goConfigService;
-		this.securityService = securityService;
-	}
+    @Autowired
+    public MaterialConfigService(GoConfigService goConfigService, SecurityService securityService) {
+        this.goConfigService = goConfigService;
+        this.securityService = securityService;
+    }
 
-	public MaterialConfigs getMaterialConfigs(String username) {
-		MaterialConfigs materialConfigs = new MaterialConfigs();
-		Set<String> materialFingerprints = new HashSet<>();
-		for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
-			if (securityService.hasViewPermissionForGroup(username, pipelineGroup.getGroup())) {
-				for (PipelineConfig pipelineConfig : pipelineGroup) {
-					for (MaterialConfig currentMaterialConfig : pipelineConfig.materialConfigs()) {
-						if (!materialFingerprints.contains(currentMaterialConfig.getFingerprint())) {
-							materialConfigs.add(currentMaterialConfig);
-							materialFingerprints.add(currentMaterialConfig.getFingerprint());
-						}
-					}
-				}
-			}
-		}
-		return materialConfigs;
-	}
+    public MaterialConfigs getMaterialConfigs(String username) {
+        MaterialConfigs materialConfigs = new MaterialConfigs();
+        Set<String> materialFingerprints = new HashSet<>();
+        for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
+            if (securityService.hasViewPermissionForGroup(username, pipelineGroup.getGroup())) {
+                for (PipelineConfig pipelineConfig : pipelineGroup) {
+                    for (MaterialConfig currentMaterialConfig : pipelineConfig.materialConfigs()) {
+                        if (!materialFingerprints.contains(currentMaterialConfig.getFingerprint())) {
+                            materialConfigs.add(currentMaterialConfig);
+                            materialFingerprints.add(currentMaterialConfig.getFingerprint());
+                        }
+                    }
+                }
+            }
+        }
+        return materialConfigs;
+    }
 
-	public MaterialConfig getMaterialConfig(String username, String materialFingerprint, OperationResult result) {
-		MaterialConfig materialConfig = null;
-		boolean hasViewPermissionForMaterial = false;
-		for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
-			boolean hasViewPermissionForGroup = securityService.hasViewPermissionForGroup(username, pipelineGroup.getGroup());
-			for (PipelineConfig pipelineConfig : pipelineGroup) {
-				for (MaterialConfig currentMaterialConfig : pipelineConfig.materialConfigs()) {
-					if (currentMaterialConfig.getFingerprint().equals(materialFingerprint)) {
-						materialConfig = currentMaterialConfig;
-						if (hasViewPermissionForGroup) {
-							hasViewPermissionForMaterial = true;
-							break;
-						}
-					}
-				}
-			}
-		}
-		if (materialConfig == null) {
-			result.notFound("Not Found", "Material not found", HealthStateType.general(HealthStateScope.GLOBAL));
-			return null;
-		}
+    public MaterialConfig getMaterialConfig(String username, String materialFingerprint, OperationResult result) {
+        MaterialConfig materialConfig = null;
+        boolean hasViewPermissionForMaterial = false;
+        for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
+            boolean hasViewPermissionForGroup = securityService.hasViewPermissionForGroup(username, pipelineGroup.getGroup());
+            for (PipelineConfig pipelineConfig : pipelineGroup) {
+                for (MaterialConfig currentMaterialConfig : pipelineConfig.materialConfigs()) {
+                    if (currentMaterialConfig.getFingerprint().equals(materialFingerprint)) {
+                        materialConfig = currentMaterialConfig;
+                        if (hasViewPermissionForGroup) {
+                            hasViewPermissionForMaterial = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (materialConfig == null) {
+            result.notFound("Not Found", "Material not found", HealthStateType.general(HealthStateScope.GLOBAL));
+            return null;
+        }
 
-		if (!hasViewPermissionForMaterial) {
-			result.forbidden("Unauthorized", "Do not have view permission to this material", HealthStateType.general(HealthStateScope.GLOBAL));
-			return null;
-		}
+        if (!hasViewPermissionForMaterial) {
+            result.forbidden("Unauthorized", "Do not have view permission to this material", HealthStateType.general(HealthStateScope.GLOBAL));
+            return null;
+        }
 
-		return materialConfig;
-	}
+        return materialConfig;
+    }
+
+    public Map<String, List<String>> getUsagesForMaterial(String username, String fingerprint) {
+        Map<String, List<String>> usages = new HashMap<>();
+        goConfigService.groups().stream()
+                .filter((grp) -> securityService.hasViewPermissionForGroup(username, grp.getGroup()))
+                .forEach((grp) -> grp.getPipelines()
+                        .stream()
+                        .filter((pipeline -> pipeline.materialConfigs().getByMaterialFingerPrint(fingerprint) != null))
+                        .forEach((pipeline) -> {
+                            if (!usages.containsKey(grp.getGroup())) {
+                                usages.put(grp.getGroup(), new ArrayList<>());
+                            }
+                            usages.get(grp.getGroup()).add(pipeline.name().toString());
+                        })
+                );
+        return usages;
+    }
+
 }

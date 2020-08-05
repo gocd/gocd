@@ -31,14 +31,18 @@ import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.*;
+import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInstance;
+import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
+import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -1314,6 +1318,162 @@ public class MaterialRepositoryIntegrationTest {
         });
 
         assertThat(repo.getTotalModificationsFor(materialInstance), is(new Long(count + 1)));
+    }
+
+    @Test
+    public void shouldFetchModificationsWithMaterial() {
+        MaterialRevisions materialRevisions = new MaterialRevisions();
+        SvnMaterial material = MaterialsMother.svnMaterial("http://username:password@localhost");
+        List<Modification> modificationList = getModifications(2);
+        materialRevisions.addRevision(material, modificationList);
+
+        dbHelper.saveRevs(materialRevisions);
+        Modification expectedModification = modificationList.get(0);
+
+        List<Modification> modifications = repo.getLatestModificationForEachMaterial();
+
+        assertThat(modifications.size(), is(1));
+        Modification modification = modifications.get(0);
+
+        assertModificationEqual(expectedModification, modification);
+
+        MaterialInstance instance = modification.getMaterialInstance();
+
+        assertThat(instance, instanceOf(SvnMaterialInstance.class));
+        assertThat(instance.getFingerprint(), is(material.getFingerprint()));
+        assertThat(instance.getUrl(), is(material.getUrl()));
+        assertThat(instance.getUsername(), is(material.getUserName()));
+        assertThat(instance.getBranch(), isEmptyOrNullString());
+        assertThat(instance.getCheckExternals(), is(material.isCheckExternals()));
+    }
+
+    @Test
+    public void shouldFetchDetailsRelatedToHg() {
+        MaterialRevisions materialRevisions = new MaterialRevisions();
+
+        HgMaterial material = MaterialsMother.hgMaterial("http://username:password@localhost");
+        material.setBranch("master");
+        List<Modification> modificationList = getModifications(2);
+        materialRevisions.addRevision(material, modificationList);
+
+        dbHelper.saveRevs(materialRevisions);
+
+        List<Modification> modifications = repo.getLatestModificationForEachMaterial();
+        assertModificationEqual(modificationList.get(0), modifications.get(0));
+
+        MaterialInstance instance = modifications.get(0).getMaterialInstance();
+
+        assertThat(instance, instanceOf(HgMaterialInstance.class));
+        assertThat(instance.getFingerprint(), is(material.getFingerprint()));
+        assertThat(instance.getUrl(), is(material.getUrl()));
+        assertThat(instance.getUsername(), is(material.getUserName()));
+        assertThat(instance.getBranch(), is(material.getBranch()));
+    }
+
+    @Test
+    public void shouldFetchDetailsRelatedToP4() {
+        MaterialRevisions materialRevisions = new MaterialRevisions();
+
+        P4Material material = new P4Material("localhost:1666", "view");
+        List<Modification> modificationList = getModifications(2);
+        materialRevisions.addRevision(material, modificationList);
+
+        dbHelper.saveRevs(materialRevisions);
+
+        List<Modification> modifications = repo.getLatestModificationForEachMaterial();
+
+        assertThat(modifications.size(), is(1));
+        assertModificationEqual(modificationList.get(0), modifications.get(0));
+
+        MaterialInstance instance = modifications.get(0).getMaterialInstance();
+
+        assertThat(instance, instanceOf(P4MaterialInstance.class));
+        assertThat(instance.getFingerprint(), is(material.getFingerprint()));
+        assertThat(instance.getUrl(), is(material.getUrl()));
+        assertThat(instance.getUsername(), is(material.getUserName()));
+        assertThat(instance.getView(), is(material.getView()));
+        assertThat(instance.getUseTickets(), is(material.getUseTickets()));
+    }
+
+    @Test
+    public void shouldFetchDetailsRelatedToTfs() {
+        MaterialRevisions materialRevisions = new MaterialRevisions();
+
+        TfsMaterial material = MaterialsMother.tfsMaterial("http://tfs.com");
+        List<Modification> modificationList = getModifications(2);
+        materialRevisions.addRevision(material, modificationList);
+
+        dbHelper.saveRevs(materialRevisions);
+
+        List<Modification> modifications = repo.getLatestModificationForEachMaterial();
+
+        assertThat(modifications.size(), is(1));
+        assertModificationEqual(modificationList.get(0), modifications.get(0));
+
+        MaterialInstance instance = modifications.get(0).getMaterialInstance();
+
+        assertThat(instance, instanceOf(TfsMaterialInstance.class));
+        assertThat(instance.getFingerprint(), is(material.getFingerprint()));
+        assertThat(instance.getUrl(), is(material.getUrl()));
+        assertThat(instance.getUsername(), is(material.getUserName()));
+        assertThat(instance.getProjectPath(), is(material.getProjectPath()));
+        assertThat(instance.getDomain(), is(material.getDomain()));
+    }
+
+    @Test
+    public void shouldFetchDetailsRelatedToPackage() {
+        MaterialRevisions materialRevisions = new MaterialRevisions();
+
+        PackageMaterial material = MaterialsMother.packageMaterial();
+        List<Modification> modificationList = getModifications(2);
+        materialRevisions.addRevision(material, modificationList);
+
+        dbHelper.saveRevs(materialRevisions);
+
+        List<Modification> modifications = repo.getLatestModificationForEachMaterial();
+
+        assertThat(modifications.size(), is(1));
+        assertModificationEqual(modificationList.get(0), modifications.get(0));
+
+        MaterialInstance instance = modifications.get(0).getMaterialInstance();
+
+        assertThat(instance, instanceOf(PackageMaterialInstance.class));
+        assertThat(instance.getFingerprint(), is(material.getFingerprint()));
+        assertThat(instance.getAdditionalData(), isEmptyOrNullString());
+        PackageMaterial packageMaterial = JsonHelper.fromJson(instance.getConfiguration(), PackageMaterial.class);
+        assertThat(packageMaterial, is(material));
+    }
+
+    @Test
+    public void shouldFetchDetailsRelatedToPluginMaterial() {
+        MaterialRevisions materialRevisions = new MaterialRevisions();
+
+        PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+        List<Modification> modificationList = getModifications(2);
+        materialRevisions.addRevision(material, modificationList);
+
+        dbHelper.saveRevs(materialRevisions);
+
+        List<Modification> modifications = repo.getLatestModificationForEachMaterial();
+
+        assertThat(modifications.size(), is(1));
+        assertModificationEqual(modificationList.get(0), modifications.get(0));
+
+        MaterialInstance instance = modifications.get(0).getMaterialInstance();
+
+        assertThat(instance, instanceOf(PluggableSCMMaterialInstance.class));
+        assertThat(instance.getFingerprint(), is(material.getFingerprint()));
+        assertThat(instance.getAdditionalData(), isEmptyOrNullString());
+        PluggableSCMMaterial pluggableSCMMaterial = JsonHelper.fromJson(instance.getConfiguration(), PluggableSCMMaterial.class);
+        assertThat(pluggableSCMMaterial, is(material));
+    }
+
+    private void assertModificationEqual(Modification expectedModification, Modification modification) {
+        assertThat(modification.getRevision(), is(expectedModification.getRevision()));
+        assertThat(modification.getModifiedTime().getTime(), is(expectedModification.getModifiedTime().getTime()));
+        assertThat(modification.getComment(), is(expectedModification.getComment()));
+        assertThat(modification.getUserName(), is(expectedModification.getUserName()));
+        assertThat(modification.getEmailAddress(), is(expectedModification.getEmailAddress()));
     }
 
     private ArrayList<Modification> getModifications(int count) {

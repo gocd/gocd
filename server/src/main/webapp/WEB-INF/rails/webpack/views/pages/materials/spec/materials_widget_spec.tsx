@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import {docsUrl} from "gen/gocd_version";
+import {timeFormatter} from "helpers/time_formatter";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {MaterialModification} from "models/config_repos/types";
@@ -114,7 +115,7 @@ describe('MaterialWidgetSpec', () => {
     expect(attrs[1].textContent).toBe("Email(Not specified)");
     expect(attrs[2].textContent).toBe("Revisionb9b4f4b758e91117d70121a365ba0f8e37f89a9d");
     expect(attrs[3].textContent).toBe("CommentInitial commit");
-    expect(attrs[4].textContent).toBe("Modified Time23 Dec, 2019 at 15:55:52 Local Time");
+    expect(attrs[4].textContent).toBe("Modified Time" + timeFormatter.format(material.modification.modifiedTime));
 
     expect(helper.q('span span', attrs[4])).toHaveAttr('title', '23 Dec, 2019 at 10:25:52 +00:00 Server Time');
   });

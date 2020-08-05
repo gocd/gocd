@@ -22,6 +22,7 @@ import {MaterialModification} from "models/config_repos/types";
 import {MaterialWithFingerprint, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import headerStyles from "views/pages/config_repos/index.scss";
@@ -57,8 +58,18 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
     const modificationDetails = material.modification === null
       ? <FlashMessage type={MessageType.info}>This material was never parsed</FlashMessage>
       : MaterialWidget.showModificationDetails(material.modification);
+    let actionButtons;
 
-    return <CollapsiblePanel header={<MaterialHeaderWidget {...vnode.attrs} />} onexpand={() => vm.notify("expand")}>
+    const materialType = material.config.type();
+    if (materialType === "package" || materialType === "plugin") {
+      actionButtons = <IconGroup>
+        <Edit data-test-id={"edit-material"} title={"Edit package"} onclick={vnode.attrs.onEdit.bind(this, material.config)}/>
+      </IconGroup>;
+    }
+
+    return <CollapsiblePanel header={<MaterialHeaderWidget {...vnode.attrs} />}
+                             actions={actionButtons}
+                             onexpand={() => vm.notify("expand")}>
       <MaterialUsageWidget materialVM={vm}/>
       <h3>Latest Modification Details</h3>
       <div data-test-id="latest-modification-details" className={headerStyles.configRepoProperties}>

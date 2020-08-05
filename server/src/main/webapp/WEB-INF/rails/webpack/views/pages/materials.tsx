@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -26,7 +27,11 @@ import {MaterialVM, MaterialVMs} from "views/pages/materials/models/material_vie
 import {Page, PageState} from "views/pages/page";
 import configRepoStyles from "./config_repos/index.scss";
 
-export interface MaterialsAttrs {
+export interface AdditionalInfoAttrs {
+  onEdit: (material: MaterialWithFingerprint, e: MouseEvent) => void;
+}
+
+export interface MaterialsAttrs extends AdditionalInfoAttrs {
   materialVMs: Stream<MaterialVMs>;
   shouldShowPackageOrScmLink: boolean;
 }
@@ -42,6 +47,22 @@ export class MaterialsPage extends Page<null, State> {
 
     vnode.state.materialVMs = Stream();
     vnode.state.searchText  = Stream();
+    vnode.state.onEdit      = (material: MaterialWithFingerprint, e: MouseEvent) => {
+      e.stopPropagation();
+      const materialType = material.type();
+      switch (materialType) {
+        case "package":
+          const pkgAttrs = material.attributes() as PackageMaterialAttributes;
+          const pkgInfo  = vnode.state.packages().find((pkg) => pkg.id() === pkgAttrs.ref())!;
+          window.open(`${SparkRoutes.packageRepositoriesSPA(pkgInfo.packageRepo().name(), pkgInfo.name())}/edit`);
+          break;
+        case "plugin":
+          const pluginAttrs = material.attributes() as PluggableScmMaterialAttributes;
+          const scmMaterial = vnode.state.scms().find((scm) => scm.id() === pluginAttrs.ref())!;
+          window.open(`${SparkRoutes.pluggableScmSPA(scmMaterial.name())}/edit`);
+          break;
+      }
+    };
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
@@ -58,7 +79,8 @@ export class MaterialsPage extends Page<null, State> {
       filteredMaterials(new MaterialVMs(...results));
     }
     return [<MaterialsWidget key={filteredMaterials().length} materialVMs={filteredMaterials}
-                             shouldShowPackageOrScmLink={Page.isUserAnAdmin() || Page.isUserAGroupAdmin()}/>];
+                             shouldShowPackageOrScmLink={Page.isUserAnAdmin() || Page.isUserAGroupAdmin()}
+                             onEdit={vnode.state.onEdit}/>];
   }
 
   pageName(): string {

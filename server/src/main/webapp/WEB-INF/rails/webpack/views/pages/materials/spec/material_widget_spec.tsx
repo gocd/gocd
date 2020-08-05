@@ -47,6 +47,7 @@ describe('MaterialWidgetSpec', () => {
     mount();
 
     expect(helper.qa('h3')[1].textContent).toBe("Material Attributes");
+    expect(helper.byTestId('edit-material')).not.toBeInDOM();
 
     const attrsElement = helper.byTestId('material-attributes');
 
@@ -60,6 +61,7 @@ describe('MaterialWidgetSpec', () => {
     mount();
 
     expect(helper.qa('h3')[1].textContent).toBe("Material Attributes");
+    expect(helper.byTestId('edit-material')).toBeInDOM();
 
     const attrsElement = helper.byTestId('material-attributes');
 
@@ -75,6 +77,7 @@ describe('MaterialWidgetSpec', () => {
     mount();
 
     expect(helper.qa('h3')[1].textContent).toBe("Material Attributes");
+    expect(helper.byTestId('edit-material')).toBeInDOM();
 
     const attrsElement = helper.byTestId('material-attributes');
 
@@ -111,6 +114,18 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.q('span span', attrs[4])).toHaveAttr('title', '23 Dec, 2019 at 10:25:52 +00:00 Server Time');
   });
 
+  it('should send a callback to onEdit method', () => {
+    material.config = new MaterialWithFingerprint("package", "fingerprint", new PackageMaterialAttributes(undefined, true, "pkg-id"));
+    const onEditSpy = jasmine.createSpy("onEdit");
+
+    mount(onEditSpy);
+
+    helper.clickByTestId("edit-material");
+
+    expect(onEditSpy).toHaveBeenCalled();
+    expect(onEditSpy).toHaveBeenCalledWith(material.config, jasmine.any(MouseEvent));
+  });
+
   it('should not add link if shouldShowPackageOrScmLink is false for scm', () => {
     material.config = new MaterialWithFingerprint("plugin", "fingerprint",
                                                   new PluggableScmMaterialAttributes(undefined, true, "some-id", "scm-name"));
@@ -141,7 +156,8 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.q('a', helper.byTestId('key-value-value-ref'))).not.toBeInDOM();
   });
 
-  function mount(shouldShowPackageOrScmLink: boolean = true) {
-    helper.mount(() => <MaterialWidget materialVM={new MaterialVM(material)} shouldShowPackageOrScmLink={shouldShowPackageOrScmLink}/>);
+  function mount(onEditSpy = jasmine.createSpy("onEdit"), shouldShowPackageOrScmLink: boolean = true) {
+    helper.mount(() => <MaterialWidget materialVM={new MaterialVM(material)} shouldShowPackageOrScmLink={shouldShowPackageOrScmLink}
+                                       onEdit={onEditSpy}/>);
   }
 });

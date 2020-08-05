@@ -199,13 +199,13 @@ public class AgentProcessParentImplTest {
                 "-sslVerificationMode",
                 "NONE",
                 "-rootCertFile",
-                "/path/to/cert.pem",
+                new File("/path/to/cert.pem").getAbsolutePath(),
                 "-sslCertificateFile",
-                "/path/to/ssl_certificate.pem",
+                new File("/path/to/ssl_certificate.pem").getAbsolutePath(),
                 "-sslPrivateKeyFile",
-                "/path/to/private.key",
+                new File("/path/to/private.key").getAbsolutePath(),
                 "-sslPrivateKeyPassphraseFile",
-                "/path/to/private_key_passphrase.key"
+                new File("/path/to/private_key_passphrase.key").getAbsolutePath()
         }));
     }
 

@@ -46,13 +46,16 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
     const isJobInProgress = jobDuration.isJobInProgress;
 
     const tooltipItems = {
+      'Total Time':   jobDuration.totalTimeForDisplay,
+      'Scheduled At': jobDuration.startTimeForDisplay,
+      'Completed At': jobDuration.endTimeForDisplay,
+    };
+
+    const stateTransitionItems = {
       'Waiting':             jobDuration.waitTimeForDisplay,
       'Preparing':           jobDuration.preparingTimeForDisplay,
       'Building':            jobDuration.buildTimeForDisplay,
-      'Uploading Artifacts': jobDuration.uploadingArtifactTimeForDisplay,
-      'Total Time':          jobDuration.totalTimeForDisplay,
-      'Scheduled At':        jobDuration.startTimeForDisplay,
-      'Completed At':        jobDuration.endTimeForDisplay
+      'Uploading Artifacts': jobDuration.uploadingArtifactTimeForDisplay
     };
 
     return (<div>
@@ -66,12 +69,42 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
 
       <div data-test-id="progress-bar-tooltip" class={styles.progressBarTooltip}>
         {
+          Object.keys(stateTransitionItems).map((key, index) => {
+            const value = stateTransitionItems[key];
+            const isUnknownProperty = isUnknown(value, isJobInProgress);
+            const valueForDisplay = isUnknownProperty ? "unknown" : value;
+            const isLastItem = Object.keys(stateTransitionItems).length - 1 === index;
+            const isNextUnknownProperty = isLastItem ? isJobInProgress : isUnknown(stateTransitionItems[Object.keys(stateTransitionItems)[index + 1]], isJobInProgress);
+
+            let stateTransitionLine: m.Child;
+            if (!isLastItem) {
+              stateTransitionLine = <div class={styles.transitionLine}/>;
+            }
+
+            let transitionCircleClass = `${styles.transitionCircle} ${styles.completed} ${styles[key.replace(' ', '').toLowerCase()]}`;
+            if (isUnknownProperty) {
+              transitionCircleClass = `${styles.transitionCircle} ${styles[key.replace(' ', '').toLowerCase()]}`;
+            } else if (isNextUnknownProperty) {
+              transitionCircleClass = styles.inProgress;
+            }
+
+            return [
+              <div class={`${styles.tooltipKeyValuePair} ${styles.stateTransitionItem}`}>
+                <span className={transitionCircleClass}/>
+                <div className={styles.tooltipKey}>{key} :</div>
+                <div className={classnames({[styles.unknownProperty]: isUnknownProperty})}>{valueForDisplay}</div>
+              </div>,
+              stateTransitionLine
+            ];
+          })
+        }
+        {
           Object.keys(tooltipItems).map(key => {
             const value = tooltipItems[key];
             const isUnknownProperty = isUnknown(value, isJobInProgress);
             const valueForDisplay = isUnknownProperty ? "unknown" : value;
             return (
-              <div className={styles.tooltipKeyValuePair}>
+              <div class={`${styles.tooltipKeyValuePair} ${styles.tooltipItem}`}>
                 <div className={styles.tooltipKey}>{key} :</div>
                 <div className={classnames({[styles.unknownProperty]: isUnknownProperty})}>{valueForDisplay}</div>
               </div>

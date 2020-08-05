@@ -396,9 +396,78 @@ $building: #ffc11b;
     transform:     rotate(90deg);
   }
 
+  .state-transition-item {
+    margin-bottom: 6px;
+  }
+
+  .tooltip-item {
+    margin: 3px 0 3px 0;
+  }
+
   .tooltip-key-value-pair {
     display:     flex;
     line-height: 23px;
+
+    .in-progress {
+      @include icon-after($type: $fa-var-spinner);
+
+      &:after {
+        animation:   spin 1500ms linear infinite;
+        margin-left: 2px;
+        font-size:   15px;
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    }
+
+    .completed {
+      @include icon-after($type: $fa-var-check, $color: $white);
+
+      &:after {
+        position:   absolute;
+        left:       8px;
+        margin-top: 4px;
+      }
+    }
+
+    .transition-circle {
+      background:    $progress-bar-waiting;
+      height:        18px;
+      width:         18px;
+      border-radius: 10px;
+      margin-right:  10px;
+      margin-top:    3px;
+    }
+
+    .waiting {
+      background: $progress-bar-waiting;
+    }
+
+    .preparing {
+      background: $progress-bar-preparing;
+    }
+
+    .building {
+      background: $progress-bar-building;
+    }
+
+    .uploadingartifacts {
+      background: $progress-bar-uploading-artifacts;
+    }
+  }
+
+  .transition-line {
+    height:      11px;
+    width:       3px;
+    margin:      -8px 0 -4px 8px;
+    border-left: 2px solid $border-color;
   }
 
   .tooltip-key {

@@ -15,13 +15,9 @@
  */
 package com.thoughtworks.go.apiv1.internalmaterials.representers.materials;
 
-import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.representers.ErrorGetter;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
-import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
@@ -29,7 +25,6 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
-import java.util.HashMap;
 import java.util.function.Consumer;
 
 import static java.util.Arrays.stream;

@@ -28,7 +28,6 @@ public class PerforceMaterialRepresenter extends ScmMaterialRepresenter<P4Materi
         return super.toJSON(p4MaterialConfig).andThen(
                 jsonWriter -> {
                     jsonWriter.add("port", p4MaterialConfig.getServerAndPort());
-                    jsonWriter.add("use_tickets", p4MaterialConfig.getUseTickets());
                     jsonWriter.add("view", p4MaterialConfig.getView());
                 }
         );

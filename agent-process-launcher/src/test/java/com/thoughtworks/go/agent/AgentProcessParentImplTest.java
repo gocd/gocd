@@ -169,6 +169,46 @@ public class AgentProcessParentImplTest {
         }));
     }
 
+    @Test
+    public void shouldAddSSLConfigurationIfProvided() throws InterruptedException {
+        final List<String> cmd = new ArrayList<>();
+        String expectedAgentMd5 = TEST_AGENT.getMd5();
+        String expectedAgentPluginsMd5 = TEST_AGENT_PLUGINS.getMd5();
+        String expectedTfsMd5 = TEST_TFS_IMPL.getMd5();
+        Map context = context();
+
+        context.put(AgentBootstrapperArgs.PRIVATE_KEY, "/path/to/private.key");
+        context.put(AgentBootstrapperArgs.PRIVATE_KEY_PASSPHRASE_FILE, "/path/to/private_key_passphrase.key");
+        context.put(AgentBootstrapperArgs.SSL_CERTIFICATE, "/path/to/ssl_certificate.pem");
+
+        AgentProcessParentImpl bootstrapper = createBootstrapper(cmd);
+        int returnCode = bootstrapper.run("launcher_version", "bar", getURLGenerator(), new HashMap<>(), context);
+
+        assertThat(returnCode, is(42));
+        assertThat(cmd.toArray(new String[]{}), equalTo(new String[]{
+                (getProperty("java.home") + getProperty("file.separator") + "bin" + getProperty("file.separator") + "java"),
+                "-Dagent.plugins.md5=" + expectedAgentPluginsMd5,
+                "-Dagent.binary.md5=" + expectedAgentMd5,
+                "-Dagent.launcher.md5=bar",
+                "-Dagent.tfs.md5=" + expectedTfsMd5,
+                "-Dagent.bootstrapper.version=UNKNOWN",
+                "-jar",
+                "agent.jar",
+                "-serverUrl",
+                "http://localhost:" + server.getPort() + "/go/",
+                "-sslVerificationMode",
+                "NONE",
+                "-rootCertFile",
+                "/path/to/cert.pem",
+                "-sslCertificateFile",
+                "/path/to/ssl_certificate.pem",
+                "-sslPrivateKeyFile",
+                "/path/to/private.key",
+                "-sslPrivateKeyPassphraseFile",
+                "/path/to/private_key_passphrase.key"
+        }));
+    }
+
     private Process mockProcess() throws InterruptedException {
         return mockProcess(new ByteArrayInputStream(new byte[0]), new ByteArrayInputStream(new byte[0]), new ByteArrayOutputStream());
     }

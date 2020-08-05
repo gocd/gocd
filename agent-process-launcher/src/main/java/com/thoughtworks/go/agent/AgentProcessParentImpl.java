@@ -153,6 +153,21 @@ public class AgentProcessParentImpl implements AgentProcessParent {
             commandSnippets.add(bootstrapperArgs.getRootCertFile().getAbsolutePath());
         }
 
+        if (bootstrapperArgs.getSslCertificateFile() != null) {
+            commandSnippets.add("-sslCertificateFile");
+            commandSnippets.add(bootstrapperArgs.getSslCertificateFile().getAbsolutePath());
+        }
+
+        if (bootstrapperArgs.getSslPrivateKeyFile() != null) {
+            commandSnippets.add("-sslPrivateKeyFile");
+            commandSnippets.add(bootstrapperArgs.getSslPrivateKeyFile().getAbsolutePath());
+        }
+
+        if (bootstrapperArgs.getSslPrivateKeyPassphraseFile() != null) {
+            commandSnippets.add("-sslPrivateKeyPassphraseFile");
+            commandSnippets.add(bootstrapperArgs.getSslPrivateKeyPassphraseFile().getAbsolutePath());
+        }
+
         return commandSnippets.toArray(new String[]{});
     }
 

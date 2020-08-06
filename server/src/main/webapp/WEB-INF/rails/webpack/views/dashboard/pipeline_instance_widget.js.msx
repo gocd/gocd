@@ -87,6 +87,7 @@ export const PipelineInstanceWidget = {
           <div title={scheduledAtServerTime}>{scheduledAtLocalTime}</div>
         </div>
         <StagesInstanceWidget stages={instance.stages}
+                              pipeline={vnode.attrs.pipeline}
                               canAdminister={vnode.attrs.canAdminister}
                               stageOverview={vnode.attrs.stageOverview}
                               pipelineName={instance.pipelineName}

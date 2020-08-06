@@ -157,7 +157,9 @@ export function DashboardViewModel(dashboard) {
         stageOverviewPipelineCounter = undefined;
         stageOverviewStageName = undefined;
         stageOverviewStageCounter = undefined;
-      }
+      },
+
+      matchesPipelineAndStage: (pipeline, stage) => (pipeline === stageOverviewPipelineName) && (stage === stageOverviewStageName)
     },
 
     buildCause: Stream()

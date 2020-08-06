@@ -78,7 +78,23 @@ export const StagesInstanceWidget = {
       const stageCounter = stage.counter;
 
       let optionalStageOverview;
-      if (vnode.attrs.stageOverview.isOpen(pipelineName, pipelineCounter, stageName, stageCounter)) {
+
+      let isModelOpen = vnode.attrs.stageOverview.isOpen(pipelineName, pipelineCounter, stageName, stageCounter);
+      if (!isModelOpen && vnode.attrs.stageOverview.matchesPipelineAndStage(pipelineName, stageName)) {
+        const anyMatches = vnode.attrs.pipeline.instances.some((instance) => {
+          return instance.stages.some((stage) => {
+            return vnode.attrs.stageOverview.isOpen(instance.pipelineName, instance.counter, stage.name, stage.counter);
+          });
+        });
+
+        if (!anyMatches) {
+          isModelOpen = true;
+          vnode.attrs.stageOverview.hide();
+          vnode.state.showStageOverview(pipelineName, pipelineCounter, stageName, stageCounter, stage.status, vnode.attrs.stageOverview, {stopPropagation: () => undefined});
+        }
+      }
+
+      if (isModelOpen) {
         optionalStageOverview = <StageOverview pipelineName={stage.pipelineName()}
                                                canAdminister={vnode.attrs.canAdminister}
                                                pipelineCounter={stage.pipelineCounter()}

@@ -165,7 +165,8 @@ $building: #ffc11b;
 }
 
 .stage-details-page-link {
-  text-align: right;
+  text-align:  right;
+  padding-top: 23px;
 }
 
 
@@ -287,8 +288,12 @@ $building: #ffc11b;
   overflow-y: scroll;
 }
 
+.cancelled-by-wrapper {
+  margin-bottom: 12px;
+}
+
 .triggered-by-container {
-  line-height: 25px;
+  line-height: 20px;
 }
 
 .triggered-by-and-on {
@@ -301,9 +306,8 @@ $building: #ffc11b;
 }
 
 .dummy-container-above-stage-details-link {
-  height: 28px;
+  height: 53px;
 }
-
 
 .table-row {
   height:      44px;

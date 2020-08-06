@@ -103,8 +103,9 @@ describe('Stage Overview Header', () => {
     mount();
 
     expect(helper.byTestId('cancelled-by-container')).toBeInDOM();
+    expect(helper.byTestId('cancelled-on-container')).toBeInDOM();
     expect(helper.byTestId('cancelled-by-container')).toContainText('Cancelled by admin');
-    expect(helper.byTestId('cancelled-by-container')).toContainText('on 27 Jul, 2020 at 12:01:04 Local Time');
+    expect(helper.byTestId('cancelled-on-container')).toContainText('on 27 Jul, 2020 at 12:01:04 Local Time');
   });
 
   it('should render link to stage details page', () => {

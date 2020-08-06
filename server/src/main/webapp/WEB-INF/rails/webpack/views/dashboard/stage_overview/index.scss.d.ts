@@ -3,6 +3,7 @@ export const agentCell: string;
 export const alignLeft: string;
 export const building: string;
 export const cancelled: string;
+export const cancelledByWrapper: string;
 export const checkboxCell: string;
 export const completed: string;
 export const countContainer: string;

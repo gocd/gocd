@@ -27,6 +27,7 @@ import {StageInstance} from "./stage_instance";
 import {Result, StageInstanceJSON, StageState} from "./types";
 
 export class StageOverviewViewModel {
+  private static POLLING_INTERVAL_IN_SECONDS = 5;
   private static STAGES_API_VERSION_HEADER = ApiVersion.latest;
   readonly stageInstance: Stream<StageInstance>;
   readonly jobsVM: Stream<JobsViewModel>;
@@ -172,8 +173,8 @@ export class StageOverviewViewModel {
 
     const poller = new AjaxPoller({
       repeaterFn,
-      initialIntervalSeconds: 0,
-      intervalSeconds:        2
+      initialIntervalSeconds: StageOverviewViewModel.POLLING_INTERVAL_IN_SECONDS,
+      intervalSeconds:        StageOverviewViewModel.POLLING_INTERVAL_IN_SECONDS
     });
 
     poller.start();

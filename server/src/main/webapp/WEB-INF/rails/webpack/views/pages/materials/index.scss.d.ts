@@ -3,6 +3,7 @@ export const git: string;
 export const help: string;
 export const material: string;
 export const mercurial: string;
+export const modification: string;
 export const package: string;
 export const perforce: string;
 export const subversion: string;

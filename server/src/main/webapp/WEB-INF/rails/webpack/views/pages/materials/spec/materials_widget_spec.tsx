@@ -45,7 +45,8 @@ describe('MaterialsWidgetSpec', () => {
   });
 
   function mount() {
-    helper.mount(() => <MaterialsWidget materialVMs={Stream(materialVMs)} shouldShowPackageOrScmLink={false}/>);
+    helper.mount(() => <MaterialsWidget materialVMs={Stream(materialVMs)} shouldShowPackageOrScmLink={false}
+                                        onEdit={jasmine.createSpy("onEdit")} showModifications={jasmine.createSpy("showModifications")}/>);
   }
 });
 

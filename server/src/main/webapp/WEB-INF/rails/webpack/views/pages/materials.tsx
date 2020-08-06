@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+import {ErrorResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {MaterialAPIs} from "models/materials/materials";
+import {MaterialAPIs, MaterialWithFingerprint} from "models/materials/materials";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
@@ -26,9 +27,11 @@ import {MaterialsWidget} from "views/pages/materials/materials_widget";
 import {MaterialVM, MaterialVMs} from "views/pages/materials/models/material_view_model";
 import {Page, PageState} from "views/pages/page";
 import configRepoStyles from "./config_repos/index.scss";
+import {ShowModificationsModal} from "./materials/modal";
 
 export interface AdditionalInfoAttrs {
   onEdit: (material: MaterialWithFingerprint, e: MouseEvent) => void;
+  showModifications: (material: MaterialWithFingerprint, e: MouseEvent) => void;
 }
 
 export interface MaterialsAttrs extends AdditionalInfoAttrs {
@@ -47,7 +50,8 @@ export class MaterialsPage extends Page<null, State> {
 
     vnode.state.materialVMs = Stream();
     vnode.state.searchText  = Stream();
-    vnode.state.onEdit      = (material: MaterialWithFingerprint, e: MouseEvent) => {
+
+    vnode.state.onEdit = (material: MaterialWithFingerprint, e: MouseEvent) => {
       e.stopPropagation();
       const materialType = material.type();
       switch (materialType) {
@@ -62,6 +66,21 @@ export class MaterialsPage extends Page<null, State> {
           window.open(`${SparkRoutes.pluggableScmSPA(scmMaterial.name())}/edit`);
           break;
       }
+    };
+
+    vnode.state.showModifications = (material: MaterialWithFingerprint, e: MouseEvent) => {
+      e.stopPropagation();
+      MaterialAPIs.modifications(material.fingerprint())
+                  .then((result) => {
+                    result.do(
+                      (successResponse) => {
+                        new ShowModificationsModal(material, successResponse.body).render();
+                      },
+                      (errorResponse: ErrorResponse) => {
+                        this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
+                      }
+                    );
+                  });
     };
   }
 
@@ -80,7 +99,7 @@ export class MaterialsPage extends Page<null, State> {
     }
     return [<MaterialsWidget key={filteredMaterials().length} materialVMs={filteredMaterials}
                              shouldShowPackageOrScmLink={Page.isUserAnAdmin() || Page.isUserAGroupAdmin()}
-                             onEdit={vnode.state.onEdit}/>];
+                             onEdit={vnode.state.onEdit} showModifications={vnode.state.showModifications}/>];
   }
 
   pageName(): string {

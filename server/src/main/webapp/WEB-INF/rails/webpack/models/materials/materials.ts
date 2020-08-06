@@ -385,6 +385,21 @@ export class Materials extends Array<MaterialWithModification> {
   }
 }
 
+interface ModificationsJSON {
+  modifications: MaterialModificationJSON[];
+}
+
+export class MaterialModifications extends Array<MaterialModification> {
+  constructor(...vals: MaterialModification[]) {
+    super(...vals);
+    Object.setPrototypeOf(this, Object.create(MaterialModifications.prototype));
+  }
+
+  static fromJSON(data: MaterialModificationJSON[]): MaterialModifications {
+    return new MaterialModifications(...data.map((a) => MaterialModification.fromJSON(a)));
+  }
+}
+
 export class MaterialAPIs {
   private static API_VERSION_HEADER = ApiVersion.latest;
 
@@ -393,6 +408,14 @@ export class MaterialAPIs {
                             .then((result: ApiResult<string>) => result.map((body) => {
                               const data = JSON.parse(body) as MaterialsJSON;
                               return Materials.fromJSON(data.materials);
+                            }));
+  }
+
+  static modifications(fingerprint: string) {
+    return ApiRequestBuilder.GET(SparkRoutes.getModifications(fingerprint), this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => result.map((body) => {
+                              const parse = JSON.parse(body) as ModificationsJSON;
+                              return MaterialModifications.fromJSON(parse.modifications);
                             }));
   }
 }

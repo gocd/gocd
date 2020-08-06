@@ -57,3 +57,13 @@
     background: $white;
   }
 }
+
+.modification {
+  & + & {
+    border-top: 1px $black solid;
+
+    ul {
+      margin-top: 20px;
+    }
+  }
+}

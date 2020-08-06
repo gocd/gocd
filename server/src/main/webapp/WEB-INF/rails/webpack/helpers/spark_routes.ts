@@ -623,4 +623,8 @@ export class SparkRoutes {
   static materialsVsmLink(fingerprint: string, revision: string) {
     return `/go/materials/value_stream_map/${fingerprint}/${revision}`;
   }
+
+  static getModifications(fingerprint: string) {
+    return `/go/api/internal/materials/${fingerprint}/modifications`;
+  }
 }

@@ -29,7 +29,9 @@ import {MaterialVM} from "../models/material_view_model";
 import {git} from "./materials_widget_spec";
 
 describe('MaterialWidgetSpec', () => {
-  const helper = new TestHelper();
+  const helper     = new TestHelper();
+  const showModSpy = jasmine.createSpy("showModifications");
+  const onEditSpy  = jasmine.createSpy("onEdit");
   let material: MaterialWithModification;
 
   afterEach((done) => helper.unmount(done));
@@ -37,10 +39,11 @@ describe('MaterialWidgetSpec', () => {
     material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), null);
   });
 
-  it('should display the header', () => {
+  it('should display the header and action buttons', () => {
     mount();
 
     expect(helper.byTestId("material-icon")).toBeInDOM();
+    expect(helper.byTestId("show-modifications-material")).toBeInDOM();
   });
 
   it('should render git material attributes in the panel body', () => {
@@ -114,11 +117,19 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.q('span span', attrs[4])).toHaveAttr('title', '23 Dec, 2019 at 10:25:52 +00:00 Server Time');
   });
 
+  it('should send a callback to showModifications method', () => {
+    mount();
+
+    helper.clickByTestId("show-modifications-material");
+
+    expect(showModSpy).toHaveBeenCalled();
+    expect(showModSpy).toHaveBeenCalledWith(material.config, jasmine.any(MouseEvent));
+  });
+
   it('should send a callback to onEdit method', () => {
     material.config = new MaterialWithFingerprint("package", "fingerprint", new PackageMaterialAttributes(undefined, true, "pkg-id"));
-    const onEditSpy = jasmine.createSpy("onEdit");
 
-    mount(onEditSpy);
+    mount();
 
     helper.clickByTestId("edit-material");
 
@@ -156,8 +167,8 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.q('a', helper.byTestId('key-value-value-ref'))).not.toBeInDOM();
   });
 
-  function mount(onEditSpy = jasmine.createSpy("onEdit"), shouldShowPackageOrScmLink: boolean = true) {
+  function mount(shouldShowPackageOrScmLink: boolean = true) {
     helper.mount(() => <MaterialWidget materialVM={new MaterialVM(material)} shouldShowPackageOrScmLink={shouldShowPackageOrScmLink}
-                                       onEdit={onEditSpy}/>);
+                                       onEdit={onEditSpy} showModifications={showModSpy}/>);
   }
 });

@@ -107,10 +107,17 @@ export class JobDurationStrategyHelper {
     const uploadingArtifactTime = this.calculateDifference(end, completing);
     const uploadingArtifactTimeForDisplay = this.formatTimeForDisplay(uploadingArtifactTime);
 
-    const waitTimePercentage = this.calculatePercentage(totalTime, waitTime);
+    let waitTimePercentage = this.calculatePercentage(totalTime, waitTime);
     const preparingTimePercentage = this.calculatePercentage(totalTime, preparingTime);
     const buildTimePercentage = this.calculatePercentage(totalTime, buildTime);
     const uploadingArtifactTimePercentage = this.calculatePercentage(totalTime, uploadingArtifactTime);
+
+    // math.round may result into total perentage being 99, example 33.3 + 33.3 + 33.4 is 100,
+    // but Math.round(33.3) + Math.round(33.3) + Math.round(33.4) is 99 :/
+    // showing 99 percentage on the bar sometimes causes an empty space on the bar for a completed job
+    if (waitTimePercentage + preparingTimePercentage + buildTimePercentage + uploadingArtifactTimePercentage !== 100) {
+      waitTimePercentage += 1;
+    }
 
     const startTimeForDisplay = timeFormatter.format(start);
     const endTimeForDisplay = isJobInProgress ? "unknown" : timeFormatter.format(end);

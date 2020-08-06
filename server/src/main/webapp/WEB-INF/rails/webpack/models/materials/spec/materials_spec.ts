@@ -77,6 +77,8 @@ describe('MaterialsAPISpec', () => {
       const modifications = (responseJSON.body as MaterialModifications);
 
       expect(modifications).toHaveLength(1);
+      expect(modifications.previousLink).toBeUndefined();
+      expect(modifications.nextLink).toBe('some-link-for-next-page');
 
       const mod = modifications[0];
 
@@ -135,6 +137,11 @@ describe('MaterialsAPISpec', () => {
 
   function modificationResponse() {
     const data = {
+      _links:        {
+        next: {
+          href: "some-link-for-next-page"
+        }
+      },
       modifications: [{
         username:      "GoCD test user",
         email_address: "gocd@test.com",

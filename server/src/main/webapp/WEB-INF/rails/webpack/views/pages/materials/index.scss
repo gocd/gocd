@@ -59,11 +59,30 @@
 }
 
 .modification {
+  ul {
+    margin: 0;
+  }
+
   & + & {
     border-top: 1px $black solid;
+  }
+}
 
-    ul {
-      margin-top: 20px;
-    }
+.pagination {
+  display:         flex;
+  justify-content: center;
+
+  .pagination-link {
+    margin:           4px;
+    padding:          6px 10px;
+    background-color: $white;
+    border-radius:    $global-border-radius;
+    text-align:       center;
+  }
+
+  .disabled {
+    color:           $go-disabled;
+    cursor:          not-allowed;
+    text-decoration: none;
   }
 }

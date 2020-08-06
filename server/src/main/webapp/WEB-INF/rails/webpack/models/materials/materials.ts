@@ -18,6 +18,7 @@ import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_buil
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import Stream from "mithril/stream";
+import {stringOrUndefined} from "models/compare/pipeline_instance_json";
 import {MaterialModificationJSON} from "models/config_repos/serialization";
 import {humanizedMaterialAttributeName, MaterialModification} from "models/config_repos/types";
 import {Filter} from "models/maintenance_mode/material";
@@ -385,18 +386,34 @@ export class Materials extends Array<MaterialWithModification> {
   }
 }
 
+interface LinkJSON {
+  href: string;
+}
+
 interface ModificationsJSON {
+  _links?: {
+    next?: LinkJSON;
+    previous?: LinkJSON;
+  };
   modifications: MaterialModificationJSON[];
 }
 
 export class MaterialModifications extends Array<MaterialModification> {
+  nextLink: stringOrUndefined;
+  previousLink: stringOrUndefined;
+
   constructor(...vals: MaterialModification[]) {
     super(...vals);
     Object.setPrototypeOf(this, Object.create(MaterialModifications.prototype));
   }
 
-  static fromJSON(data: MaterialModificationJSON[]): MaterialModifications {
-    return new MaterialModifications(...data.map((a) => MaterialModification.fromJSON(a)));
+  static fromJSON(data: ModificationsJSON): MaterialModifications {
+    const mods = new MaterialModifications(...data.modifications.map((a) => MaterialModification.fromJSON(a)));
+    if (data._links) {
+      mods.nextLink     = data._links.next === undefined ? undefined : data._links.next.href;
+      mods.previousLink = data._links.previous === undefined ? undefined : data._links.previous.href;
+    }
+    return mods;
   }
 }
 
@@ -411,11 +428,15 @@ export class MaterialAPIs {
                             }));
   }
 
-  static modifications(fingerprint: string) {
-    return ApiRequestBuilder.GET(SparkRoutes.getModifications(fingerprint), this.API_VERSION_HEADER)
+  /*
+  *  Link is the href provided in the first response which can be used to get the next/previous list of records
+  */
+  static modifications(fingerprint: string, link?: string) {
+    const url = link ? link : SparkRoutes.getModifications(fingerprint);
+    return ApiRequestBuilder.GET(url, this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => result.map((body) => {
                               const parse = JSON.parse(body) as ModificationsJSON;
-                              return MaterialModifications.fromJSON(parse.modifications);
+                              return MaterialModifications.fromJSON(parse);
                             }));
   }
 }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {ErrorResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
@@ -70,17 +69,7 @@ export class MaterialsPage extends Page<null, State> {
 
     vnode.state.showModifications = (material: MaterialWithFingerprint, e: MouseEvent) => {
       e.stopPropagation();
-      MaterialAPIs.modifications(material.fingerprint())
-                  .then((result) => {
-                    result.do(
-                      (successResponse) => {
-                        new ShowModificationsModal(material, successResponse.body).render();
-                      },
-                      (errorResponse: ErrorResponse) => {
-                        this.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
-                      }
-                    );
-                  });
+      new ShowModificationsModal(material).render();
     };
   }
 

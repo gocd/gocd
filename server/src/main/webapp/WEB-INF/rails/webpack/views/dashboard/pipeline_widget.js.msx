@@ -27,9 +27,12 @@ export const PipelineWidget = {
       pipelineInstances = _.map(pipeline.instances, (instance) => {
         return (
           <PipelineInstanceWidget instance={instance}
+                                  canAdminister={pipeline.canAdminister}
+                                  stageOverview={vnode.attrs.stageOverview}
                                   dropdown={vnode.attrs.dropdown}
                                   buildCause={vnode.attrs.buildCause}
                                   key={instance.counter}
+                                  pipeline={pipeline}
                                   pipelineName={pipeline.name}
                                   operationMessages={vnode.attrs.operationMessages}
                                   invalidateEtag={vnode.attrs.invalidateEtag}

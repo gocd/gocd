@@ -191,6 +191,10 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-angle-double-right);
 }
 
+.cancel-stage {
+  @include icon-before($type: $fa-var-ban);
+}
+
 .icon-group {
   border:        1px solid $border-color;
   border-radius: $btn-group-border-radius;

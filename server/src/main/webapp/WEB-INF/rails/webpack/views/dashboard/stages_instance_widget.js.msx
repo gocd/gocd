@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import m from "mithril";
 import _ from "lodash";
 
 import {f} from "helpers/form_helper";
+import {StageOverview} from "./stage_overview/index";
+import {StageOverviewViewModel} from "./stage_overview/models/stage_overview_view_model";
 
 export const StagesInstanceWidget = {
   oninit(vnode) {
@@ -30,6 +33,13 @@ export const StagesInstanceWidget = {
       }, (res) => {
         operationMessages.failure(vnode.attrs.pipelineName, res.responseJSON.message);
       });
+    };
+
+    vnode.state.showStageOverview = function (pipelineName, pipelineCounter, stageName, stageCounter, stageStatus, stageOverview, e) {
+      stageOverview.model(undefined);
+      stageOverview.show(pipelineName, pipelineCounter, stageName, stageCounter);
+      StageOverviewViewModel.initialize(pipelineName, pipelineCounter, stageName, stageCounter, stageStatus).then((result) => stageOverview.model(result));
+      e.stopPropagation();
     };
   },
 
@@ -49,29 +59,68 @@ export const StagesInstanceWidget = {
         const triggerOnCompletionOfPreviousStage = stage.triggerOnlyOnSuccessOfPreviousStage() && previousStage && (previousStage.isFailed() || previousStage.isCancelled());
         const isTriggerDisabled = isPreviousStageInProgress || !canUserOperateOnStage || triggerOnCompletionOfPreviousStage || stage.isBuildingOrCompleted();
 
-        if(isTriggerDisabled) {
-          manualGate = (<f.linkWithTooltip class="stage_manual_gate_tooltip" tooltipText={getHelpText(stage, previousStage)}>
-            <span class={`manual_gate disabled`}/>
-          </f.linkWithTooltip>);
+
+        if (isTriggerDisabled) {
+          manualGate = (
+            <f.linkWithTooltip class="stage_manual_gate_tooltip" tooltipText={getHelpText(stage, previousStage)}>
+              <span class={`manual_gate disabled`}/>
+            </f.linkWithTooltip>);
         } else {
-          manualGate = <span onclick={vnode.state.triggerStage.bind(vnode.state, stage)} title={getHelpText(stage, previousStage)} class={`manual_gate`}/>;
+          manualGate =
+            <span onclick={vnode.state.triggerStage.bind(vnode.state, stage)} title={getHelpText(stage, previousStage)}
+                  class={`manual_gate`}/>;
         }
+      }
+
+      const pipelineName = stage.pipelineName();
+      const pipelineCounter = stage.pipelineCounter();
+      const stageName = stage.name;
+      const stageCounter = stage.counter;
+
+      let optionalStageOverview;
+
+      let isModelOpen = vnode.attrs.stageOverview.isOpen(pipelineName, pipelineCounter, stageName, stageCounter);
+      if (!isModelOpen && vnode.attrs.stageOverview.matchesPipelineAndStage(pipelineName, stageName)) {
+        const anyMatches = vnode.attrs.pipeline.instances.some((instance) => {
+          return instance.stages.some((stage) => {
+            return vnode.attrs.stageOverview.isOpen(instance.pipelineName, instance.counter, stage.name, stage.counter);
+          });
+        });
+
+        if (!anyMatches) {
+          isModelOpen = true;
+          vnode.attrs.stageOverview.hide();
+          vnode.state.showStageOverview(pipelineName, pipelineCounter, stageName, stageCounter, stage.status, vnode.attrs.stageOverview, {stopPropagation: () => undefined});
+        }
+      }
+
+      if (isModelOpen) {
+        optionalStageOverview = <StageOverview pipelineName={stage.pipelineName()}
+                                               canAdminister={vnode.attrs.canAdminister}
+                                               pipelineCounter={stage.pipelineCounter()}
+                                               stageName={stage.name}
+                                               stageCounter={stage.counter}
+                                               stages={stages}
+                                               stageInstanceFromDashboard={stage}
+                                               stageOverviewVM={vnode.attrs.stageOverview.model}
+                                               stageStatus={stage.status}/>;
       }
 
       if (stage.isBuildingOrCompleted()) {
         return (<div class="pipeline_stage_manual_gate_wrapper">
           {manualGate}
-          <a href={stage.stageDetailTabPath}
+          <a onclick={vnode.state.showStageOverview.bind(vnode, pipelineName, pipelineCounter, stageName, stageCounter, stage.status, vnode.attrs.stageOverview)}
              className={`pipeline_stage ${stage.status.toLowerCase()}`}
              title={stageStatus} aria-label={stageStatus}>
           </a>
+          {optionalStageOverview}
         </div>);
       }
 
       return (<div class="pipeline_stage_manual_gate_wrapper">
         {manualGate}
-        <span className={`pipeline_stage ${stage.status.toLowerCase()}`}
-              title={stageStatus} aria-label={stageStatus}/>
+        <span className={`pipeline_stage ${stage.status.toLowerCase()}`} title={stageStatus} aria-label={stageStatus}/>
+        {optionalStageOverview}
       </div>);
     });
 

@@ -942,6 +942,7 @@ describe("Dashboard Pipeline Widget", () => {
       doRefreshImmediately,
       operationMessages: dashboardViewModel.operationMessages,
       dropdown:          dashboardViewModel.dropdown,
+      stageOverview:     dashboardViewModel.stageOverview,
       buildCause:        dashboardViewModel.buildCause
     }));
   }

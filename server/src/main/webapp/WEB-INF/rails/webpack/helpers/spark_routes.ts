@@ -462,12 +462,28 @@ export class SparkRoutes {
     return `/go/pipelines/value_stream_map/${pipelineName}/${counter}`;
   }
 
-  static runStage(pipelineName: string, counter: string, stageName: string) {
+  static runStage(pipelineName: string, counter: string | number, stageName: string) {
     return `/go/api/stages/${pipelineName}/${counter}/${stageName}/run`;
+  }
+
+  static rerunFailedJobs(pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number) {
+    return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}/run-failed-jobs`;
+  }
+
+  static rerunSelectedJobs(pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number) {
+    return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}/run-selected-jobs`;
+  }
+
+  static getStageInstance(pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: number | string) {
+    return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}`;
   }
 
   static cancelStageInstance(pipelineName: string, pipelineCounter: string, stageName: string, stageCounter: number) {
     return `/go/api/stages/${pipelineName}/${pipelineCounter}/${stageName}/${stageCounter}/cancel`;
+  }
+
+  static getStageHistory(pipelineName: string, stageName: string) {
+    return `/go/api/stages/${pipelineName}/${stageName}/history`;
   }
 
   static commentOnPipelineInstance(pipelineName: string, pipelineCounter: string | number) {

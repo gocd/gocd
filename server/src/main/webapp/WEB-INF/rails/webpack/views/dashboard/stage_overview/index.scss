@@ -1,0 +1,557 @@
+/*
+ * Copyright 2020 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@import "../../global/common";
+
+$border-color: #ccc;
+$header-background: #e7eef0;
+$body-background: #f4f8f9;
+
+$table-header-background: #efefef;
+
+$btn-group-border-color: #ccc;
+$btn-color: #647984;
+$btn-hover-color: #1c435c;
+
+$progress-bar-waiting: #c1c1c1;
+$progress-bar-preparing: #85c9d1;
+$progress-bar-building: #2cb1c1;
+$progress-bar-uploading-artifacts: #217a85;
+$progress-bar-unknown: #fff;
+
+$tooltip-background: #f3f3f3;
+$tooltip-border-color: #ccc;
+
+$tooltip-message-background: #333;
+
+$white: #fff;
+$gray: #808080;
+$passed: #00c853;
+$failed: #fa2d2d;
+$building: #ffc11b;
+
+.stage-overview-container {
+  position:      absolute;
+  z-index:       map_get($zindex, stage-overview);
+  border:        1px solid $border-color;
+  border-radius: 3px;
+  font-size:     12px;
+  width:         780px;
+  min-height:    200px;
+  margin:        29px 0 0 5px;
+  background:    $body-background;
+  box-shadow:    3px 3px $header-background;
+
+  &:before {
+    content:       '';
+    display:       block;
+    width:         0;
+    height:        0;
+    position:      absolute;
+
+    border-top:    8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right:  8px solid $border-color;
+
+    left:          12px;
+    top:           -13px;
+    transform:     rotate(90deg);
+  }
+}
+
+.stage-overview-container.align-left {
+  &:before {
+    left: 755px;
+  }
+}
+
+.stage-header-container {
+  padding:       16px;
+  border-bottom: 1px solid $border-color;
+  background:    $header-background;
+}
+
+.stage-operation-button-group {
+  display:       flex;
+  font-size:     15px;
+  border:        1px solid $btn-group-border-color;
+  border-radius: 5px;
+  height:        29px;
+  margin-top:    4px;
+
+  i:hover {
+    background: transparent;
+  }
+}
+
+.stage-operation-button-group > div:first-child {
+  border-right: 1px solid $btn-group-border-color;
+}
+
+.stage-operation-button-group div {
+  color:   $btn-color;
+  padding: 1px 7px 1px 7px;
+
+  &:hover {
+    color: $btn-hover-color;
+  }
+
+}
+
+.stage-settings {
+  i:hover {
+    background: transparent;
+  }
+
+  &:hover:enabled {
+    animation-name:            rotate;
+    animation-duration:        2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
+
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+.flex-box {
+  display:         flex;
+  justify-content: space-between;
+}
+
+.stage-name-container {
+  display: flex;
+
+  i {
+    font-size:   17px;
+    margin:      4px 10px;
+    font-weight: 400;
+    color:       $gray;
+  }
+}
+
+.stage-name-title {
+  font-size:     10px;
+  margin-bottom: -2px;
+}
+
+.stage-name {
+  margin-top:  -4px;
+  font-size:   17px;
+  font-weight: 600;
+  max-width:   200px;
+  word-break:  break-all;
+}
+
+.stage-trigger-and-timing-container {
+  margin-top: 20px;
+}
+
+.stage-details-page-link {
+  text-align:  right;
+  padding-top: 23px;
+}
+
+
+// job list
+
+.job-result {
+  width:         18px;
+  height:        18px;
+  margin-right:  10px;
+  margin-top:    6px;
+  margin-left:   5px;
+  font-size:     11px;
+  border-radius: 2px;
+}
+
+.passed {
+  @include icon-before($type: $fa-var-check, $color: $white);
+  background: $passed;
+
+  &:before {
+    position: relative;
+    top:      -4px;
+    left:     -1.5px;
+  }
+}
+
+.failed {
+  @include icon-before($type: $fa-var-exclamation-circle, $color: $white);
+  background: $failed;
+
+  &:before {
+    position: relative;
+    top:      -4px;
+    left:     -0.7px;
+  }
+}
+
+.cancelled {
+  @include icon-before($type: $fa-var-ban);
+  background: $building;
+
+  &:before {
+    position: relative;
+    top:      -4px;
+    left:     -0.7px;
+  }
+}
+
+.unknown {
+  background: transparent url('../../../../app/assets/images/building.gif') repeat-x;
+}
+
+.job-list-container {
+  font-size:  13px;
+  margin-top: 10px;
+
+  .table-row:last-child {
+    margin-bottom: 10px;
+    border-radius: 0 0 5px 5px;
+  }
+}
+
+.table-header, .table-row {
+  display:    flex;
+  width:      740px;
+  margin:     0 15px 0 15px;
+  border:     1px solid $border-color;
+  border-top: unset;
+  background: $white;
+
+  .checkbox-cell {
+    width: 25px;
+  }
+
+  .name-cell {
+    width:         120px;
+    display:       flex;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+  }
+
+  .state-cell {
+    width:      165px;
+    font-style: italic;
+  }
+
+  .status-cell {
+    width: 255px;
+  }
+
+  .duration-cell {
+    width: 105px;
+  }
+
+  .agent-cell {
+    width:         110px;
+    margin-right:  10px;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.table-header {
+  height:        32px;
+  line-height:   30px;
+  border-top:    1px solid $border-color;
+  font-style:    italic;
+  background:    $table-header-background;
+  border-radius: 5px 5px 0 0;
+
+  .name-cell {
+    padding-left: 50px;
+  }
+}
+
+.table-body {
+  max-height: 318px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.cancelled-by-wrapper {
+  margin-bottom: 12px;
+}
+
+.triggered-by-container {
+  line-height: 20px;
+}
+
+.triggered-by-and-on {
+  font-weight: 600;
+  font-style:  italic;
+}
+
+.duration-separator {
+  margin: 0 7px 0 7px;
+}
+
+.dummy-container-above-stage-details-link {
+  height: 53px;
+}
+
+.table-row {
+  height:      44px;
+  line-height: 26px;
+}
+
+.table-header > div {
+  font-size:   13px;
+  font-weight: 600;
+  text-align:  center;
+}
+
+.table-row > div {
+  font-size:  13px;
+  text-align: center;
+  margin:     7px 0 5px 8px;
+}
+
+.checkbox-cell input[type="checkbox"] { //sass-lint:disable-line no-qualifying-elements
+  height:     13px;
+  margin-top: -2px;
+}
+
+.job-name {
+  font-weight:   600;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
+}
+
+
+.progress-bar-container {
+  height:        11px;
+  width:         250px;
+  display:       flex;
+  border:        0.5px solid $border-color;
+  border-radius: 3px;
+  overflow:      hidden;
+  cursor:        pointer;
+  margin-top:    9px;
+
+  .waiting {
+    background: $progress-bar-waiting;
+  }
+
+  .preparing {
+    background: $progress-bar-preparing;
+  }
+
+  .building {
+    background: $progress-bar-building;
+  }
+
+  .uploading-artifacts {
+    background: $progress-bar-uploading-artifacts;
+  }
+
+  .unknown {
+    background: $progress-bar-unknown;
+  }
+}
+
+.progress-bar-tooltip {
+  font-size:     12px;
+  visibility:    hidden;
+  margin-top:    7px;
+  margin-left:   -30px;
+  width:         320px;
+  text-align:    center;
+  padding:       10px;
+  border-radius: 6px;
+  position:      absolute;
+  z-index:       map_get($zindex, tooltip);
+  background:    rgb(243, 243, 243, 0.85); //sass-lint:disable-line no-color-literals
+  border:        1px solid $tooltip-border-color;
+
+  :before {
+    content:       '';
+    display:       block;
+    width:         0;
+    height:        0;
+    position:      absolute;
+
+    border-top:    8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right:  8px solid $tooltip-border-color;
+
+    left:          140px;
+    top:           -12px;
+    transform:     rotate(90deg);
+  }
+
+  .state-transition-item {
+    margin-bottom: 6px;
+  }
+
+  .tooltip-item {
+    margin: 3px 0 3px 0;
+  }
+
+  .tooltip-key-value-pair {
+    display:     flex;
+    line-height: 23px;
+
+    .in-progress {
+      @include icon-after($type: $fa-var-spinner);
+
+      &:after {
+        animation:   spin 1500ms linear infinite;
+        margin-left: 2px;
+        font-size:   15px;
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    }
+
+    .completed {
+      @include icon-after($type: $fa-var-check, $color: $white);
+
+      &:after {
+        position:   absolute;
+        left:       8px;
+        margin-top: 4px;
+      }
+    }
+
+    .transition-circle {
+      background:    $progress-bar-waiting;
+      height:        18px;
+      width:         18px;
+      border-radius: 10px;
+      margin-right:  10px;
+      margin-top:    3px;
+    }
+
+    .waiting {
+      background: $progress-bar-waiting;
+    }
+
+    .preparing {
+      background: $progress-bar-preparing;
+    }
+
+    .building {
+      background: $progress-bar-building;
+    }
+
+    .uploadingartifacts {
+      background: $progress-bar-uploading-artifacts;
+    }
+  }
+
+  .transition-line {
+    height:      11px;
+    width:       3px;
+    margin:      -8px 0 -4px 8px;
+    border-left: 2px solid $border-color;
+  }
+
+  .tooltip-key {
+    font-weight:  700;
+    margin-right: 7px;
+  }
+}
+
+.unknown-property {
+  font-style: italic;
+}
+
+// job count and rerun container
+
+.job-count-and-rerun-container {
+  display: flex;
+  margin:  15px 0 15px 0;
+}
+
+.job-count-container {
+  display: flex;
+
+  .count-container:nth-child(1) {
+    margin-left: 15px;
+  }
+
+  .count-container:nth-child(3) {
+    margin-right: 250px;
+  }
+}
+
+.count-container {
+  display:      flex;
+  margin-right: 15px;
+  margin-top:   2px;
+  width:        85px;
+}
+
+.count-label {
+  font-size:   14px;
+  margin-left: 5px;
+}
+
+.count-text {
+  margin-left: 5px;
+  font-weight: 600;
+  font-size:   15px;
+}
+
+.tooltip-message {
+  display:       block;
+  position:      absolute;
+  width:         180px;
+  margin-left:   -73px;
+  color:         $white;
+  background:    $tooltip-message-background;
+  font-size:     12px;
+  padding:       10px;
+  border-radius: 3px;
+  margin-top:    2px;
+
+  &:before {
+    content:       '';
+    display:       block;
+    width:         0;
+    height:        0;
+    position:      absolute;
+
+    border-top:    10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right:  10px solid $tooltip-message-background;
+
+    left:          80px;
+    top:           -13px;
+    transform:     rotate(90deg);
+  }
+}
+
+.hidden {
+  display: none;
+}

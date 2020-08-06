@@ -35,7 +35,7 @@ export interface JobRunHistoryJSON {
 }
 
 export interface JobStateTransitionJSON {
-  state_change_time: string;
+  state_change_time: string | number;
   state: State;
 }
 

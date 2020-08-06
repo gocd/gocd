@@ -211,4 +211,8 @@ export class Agents extends Array<Agent> {
   hasAgent(uuid: string) {
     return this.findIndex((agent) => agent.uuid === uuid) > -1;
   }
+
+  getAgent(uuid: string): Agent | undefined {
+    return this.find((agent) => agent.uuid === uuid);
+  }
 }

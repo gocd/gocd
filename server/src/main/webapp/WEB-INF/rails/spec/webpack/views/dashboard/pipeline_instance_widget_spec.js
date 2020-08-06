@@ -97,9 +97,10 @@ describe("Dashboard Pipeline Instance Widget", () => {
 
     helper.mount(() => m(PipelineInstanceWidget, {
       instance,
-      buildCause:   dashboardViewModel.buildCause,
-      dropdown:     dashboardViewModel.dropdown,
-      trackingTool: {link: "http://example.com/${ID}", regex: "#(\\d+)"},
+      buildCause:    dashboardViewModel.buildCause,
+      dropdown:      dashboardViewModel.dropdown,
+      stageOverview: dashboardViewModel.stageOverview,
+      trackingTool:  {link: "http://example.com/${ID}", regex: "#(\\d+)"},
       pipelineName
     }));
   });

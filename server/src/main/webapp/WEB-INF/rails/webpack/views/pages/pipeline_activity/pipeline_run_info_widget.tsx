@@ -45,6 +45,29 @@ interface PipelineRunAttrs {
 type StringOrNumber = string | number;
 
 export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
+
+  public static stageStatusClass(status: string) {
+    if (!status) {
+      return;
+    }
+
+    switch (status.trim().toLowerCase()) {
+      case "building":
+        return styles.building;
+      case "failing":
+        return styles.failing;
+      case "failed":
+        return styles.failed;
+      case "cancelled":
+        return styles.cancelled;
+      case "passed":
+        return styles.passed;
+      case "waiting":
+        return styles.waiting;
+      default:
+        return styles.unknown;
+    }
+  }
   view(vnode: m.Vnode<PipelineRunAttrs>): m.Children | void | null {
     const pipelineRunInfo = vnode.attrs.pipelineRunInfo;
 
@@ -114,29 +137,6 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
     }
 
     return stage.scheduled();
-  }
-
-  private static stageStatusClass(status: string) {
-    if (!status) {
-      return;
-    }
-
-    switch (status.trim().toLowerCase()) {
-      case "building":
-        return styles.building;
-      case "failing":
-        return styles.failing;
-      case "failed":
-        return styles.failed;
-      case "cancelled":
-        return styles.cancelled;
-      case "passed":
-        return styles.passed;
-      case "waiting":
-        return styles.waiting;
-      default:
-        return styles.unknown;
-    }
   }
 
   private static getVSMLink(vnode: m.Vnode<PipelineRunAttrs>, pipelineRunInfo: PipelineRunInfo) {

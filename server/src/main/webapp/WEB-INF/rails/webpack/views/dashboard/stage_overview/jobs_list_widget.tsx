@@ -60,7 +60,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         <div class={styles.nameCell} data-test-id={`job-name-for-${job.name}`}>
           <div className={`${styles[job.result.toString().toLowerCase()]} ${styles.jobResult}`}/>
           <div className={styles.jobName}>
-            <Link href={jobDetailsPageLink} target={"_blank"}>{job.name}</Link>
+            <Link title={job.name} href={jobDetailsPageLink} target={"_blank"}>{job.name}</Link>
           </div>
         </div>
         <div class={styles.stateCell} data-test-id={`state-for-${job.name}`}>

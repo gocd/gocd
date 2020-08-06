@@ -117,5 +117,5 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
 }
 
 function isUnknown(val: string, isJobInProgress: boolean) {
-  return isJobInProgress && val.toLowerCase() === "00s";
+  return isJobInProgress && (val.toLowerCase() === "00s" || val.toLowerCase() === "unknown");
 }

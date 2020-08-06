@@ -1516,8 +1516,9 @@ public class MaterialRepositoryIntegrationTest {
         assertThat(info.getLatestRunId(), is(mods.get(0).getId()));
         assertThat(info.getOldestRunId(), is(mods.get(4).getId()));
     }
+
     @Test
-    public void shouldReturnNullasLatestAndOlderModIDIfPatternDoesNotMatch() {
+    public void shouldReturnNullAsLatestAndOlderModIDIfPatternDoesNotMatch() {
         SvnMaterial material = MaterialsMother.svnMaterial("http://username:password@localhost");
         MaterialRevisions materialRevisions = saveModifications(material, 5);
 
@@ -1569,7 +1570,7 @@ public class MaterialRepositoryIntegrationTest {
         //modifications gets updated with the material instance which contains the id
         long materialId = mods.get(0).getMaterialInstance().getId();
 
-        List<Modification> matchingMods = repo.findLatestMatchingModifications(materialId, "ello", 10);
+        List<Modification> matchingMods = repo.findMatchingModifications(materialId, "ello", FeedModifier.Latest, 0, 10);
 
         assertThat(matchingMods.size(), is(3));
         assertModificationAreEqual(matchingMods.get(0), mods.get(0));
@@ -1593,7 +1594,7 @@ public class MaterialRepositoryIntegrationTest {
         //modifications gets updated with the material instance which contains the id
         long materialId = mods.get(0).getMaterialInstance().getId();
 
-        List<Modification> matchingMods = repo.findLatestMatchingModifications(materialId, "revisions", 10);
+        List<Modification> matchingMods = repo.findMatchingModifications(materialId, "revisions", FeedModifier.Latest, 0, 10);
 
         assertThat(matchingMods.size(), is(2));
         assertModificationAreEqual(matchingMods.get(0), mods.get(0));
@@ -1609,7 +1610,7 @@ public class MaterialRepositoryIntegrationTest {
         //modifications gets updated with the material instance which contains the id
         long materialId = mods.get(0).getMaterialInstance().getId();
 
-        List<Modification> matchingMods = repo.findMatchingModificationsAfterCursor(materialId, "comment", mods.get(2).getId(), 10);
+        List<Modification> matchingMods = repo.findMatchingModifications(materialId, "comment", FeedModifier.After, mods.get(2).getId(), 10);
 
         assertThat(matchingMods.size(), is(2));
         assertModificationAreEqual(matchingMods.get(0), mods.get(3));
@@ -1625,7 +1626,7 @@ public class MaterialRepositoryIntegrationTest {
         //modifications gets updated with the material instance which contains the id
         long materialId = mods.get(0).getMaterialInstance().getId();
 
-        List<Modification> matchingMods = repo.findMatchingModificationsBeforeCursor(materialId, "comment", mods.get(2).getId(), 10);
+        List<Modification> matchingMods = repo.findMatchingModifications(materialId, "comment", FeedModifier.Before, mods.get(2).getId(), 10);
 
         assertThat(matchingMods.size(), is(2));
         assertModificationAreEqual(matchingMods.get(0), mods.get(0));

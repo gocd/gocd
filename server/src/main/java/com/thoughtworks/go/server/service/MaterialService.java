@@ -204,11 +204,11 @@ public class MaterialService {
         }
         List<Modification> matchingMods;
         if (validateCursor(afterCursor, "after")) {
-            matchingMods = materialRepository.findMatchingModificationsAfterCursor(materialInstance.getId(), pattern, afterCursor, pageSize);
+            matchingMods = materialRepository.findMatchingModifications(materialInstance.getId(), pattern, FeedModifier.After, afterCursor, pageSize);
         } else if (validateCursor(beforeCursor, "before")) {
-            matchingMods = materialRepository.findMatchingModificationsBeforeCursor(materialInstance.getId(), pattern, beforeCursor, pageSize);
+            matchingMods = materialRepository.findMatchingModifications(materialInstance.getId(), pattern, FeedModifier.Before, beforeCursor, pageSize);
         } else {
-            matchingMods = materialRepository.findLatestMatchingModifications(materialInstance.getId(), pattern, pageSize);
+            matchingMods = materialRepository.findMatchingModifications(materialInstance.getId(), pattern, FeedModifier.Latest, 0, pageSize);
         }
         return matchingMods;
     }

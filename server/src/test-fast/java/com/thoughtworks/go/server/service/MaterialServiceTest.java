@@ -547,11 +547,11 @@ public class MaterialServiceTest {
         modifications.add(new Modification("user", "comment 3", "email", new DateTime().minusHours(3).toDate(), "revision"));
 
         when(materialRepository.findMaterialInstance(config)).thenReturn(instance);
-        when(materialRepository.findLatestMatchingModifications(anyLong(), anyString(), anyInt())).thenReturn(modifications);
+        when(materialRepository.findMatchingModifications(anyLong(), anyString(), any(FeedModifier.class), anyLong(), anyInt())).thenReturn(modifications);
 
         List<Modification> result = materialService.findMatchingModifications(config, "comment", 0, 0, 10);
 
-        verify(materialRepository).findLatestMatchingModifications(eq(instance.getId()), eq("comment"), eq(10));
+        verify(materialRepository).findMatchingModifications(eq(instance.getId()), eq("comment"), eq(FeedModifier.Latest), eq(0L), eq(10));
         assertThat(result, is(modifications));
     }
 
@@ -565,11 +565,11 @@ public class MaterialServiceTest {
         modifications.add(new Modification("user", "comment 3", "email", new DateTime().minusHours(3).toDate(), "revision"));
 
         when(materialRepository.findMaterialInstance(config)).thenReturn(instance);
-        when(materialRepository.findMatchingModificationsAfterCursor(anyLong(), anyString(), anyLong(), anyInt())).thenReturn(modifications);
+        when(materialRepository.findMatchingModifications(anyLong(), anyString(), any(FeedModifier.class), anyLong(), anyInt())).thenReturn(modifications);
 
         List<Modification> result = materialService.findMatchingModifications(config, "comment", 3, 0, 10);
 
-        verify(materialRepository).findMatchingModificationsAfterCursor(eq(instance.getId()), eq("comment"), eq(3L), eq(10));
+        verify(materialRepository).findMatchingModifications(eq(instance.getId()), eq("comment"), eq(FeedModifier.After), eq(3L), eq(10));
         assertThat(result, is(modifications));
     }
 
@@ -583,11 +583,11 @@ public class MaterialServiceTest {
         modifications.add(new Modification("user", "comment 3", "email", new DateTime().minusHours(3).toDate(), "revision"));
 
         when(materialRepository.findMaterialInstance(config)).thenReturn(instance);
-        when(materialRepository.findMatchingModificationsBeforeCursor(anyLong(), anyString(), anyLong(), anyInt())).thenReturn(modifications);
+        when(materialRepository.findMatchingModifications(anyLong(), anyString(), any(FeedModifier.class), anyLong(), anyInt())).thenReturn(modifications);
 
         List<Modification> result = materialService.findMatchingModifications(config, "comment", 0, 3, 10);
 
-        verify(materialRepository).findMatchingModificationsBeforeCursor(eq(instance.getId()), eq("comment"), eq(3L), eq(10));
+        verify(materialRepository).findMatchingModifications(eq(instance.getId()), eq("comment"), eq(FeedModifier.Before), eq(3L), eq(10));
         assertThat(result, is(modifications));
     }
 

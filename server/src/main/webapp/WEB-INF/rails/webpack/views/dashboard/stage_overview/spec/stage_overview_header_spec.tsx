@@ -130,7 +130,12 @@ describe('Stage Overview Header', () => {
 
   function mount() {
     helper.mount(() => {
+      const stageInstanceFromDashboard = {
+        canOperate: true
+      };
+
       return <StageHeaderWidget pipelineName={pipelineName}
+                                stageInstanceFromDashboard={stageInstanceFromDashboard}
                                 pipelineCounter={pipelineCounter}
                                 stageName={stageName}
                                 stageCounter={stageCounter}

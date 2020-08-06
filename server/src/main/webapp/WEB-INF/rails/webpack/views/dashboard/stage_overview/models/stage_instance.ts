@@ -15,10 +15,10 @@
  */
 
 import moment from "moment";
-import {JobDurationStrategyHelper} from "./job_duration_stratergy_helper";
-import {JobJSON, Result, StageInstanceJSON} from "./types";
 import {ApiRequestBuilder, ApiVersion} from "../../../../helpers/api_request_builder";
 import {SparkRoutes} from "../../../../helpers/spark_routes";
+import {JobDurationStrategyHelper} from "./job_duration_stratergy_helper";
+import {JobJSON, Result, StageInstanceJSON} from "./types";
 
 export class StageInstance {
   private json: StageInstanceJSON;

@@ -53,11 +53,16 @@ describe("Stage Overview Widget", () => {
   function mount(pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: number | string, stageOverviewViewModel: StageOverviewViewModel | undefined) {
 
     helper.mount(() => {
+      const stageInstanceFromDashboard = {
+        canOperate: true
+      };
+
       return <StageOverview pipelineName={pipelineName}
                             pipelineCounter={pipelineCounter}
                             stages={[]}
                             stageName={stageName}
                             stageCounter={stageCounter}
+                            stageInstanceFromDashboard={stageInstanceFromDashboard}
                             stageOverviewVM={Stream(stageOverviewViewModel)}
                             stageStatus={StageState[StageState.Passed]}/>;
     });

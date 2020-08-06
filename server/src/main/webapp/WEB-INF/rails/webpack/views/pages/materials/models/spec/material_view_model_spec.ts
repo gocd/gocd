@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {MaterialModification} from "models/config_repos/types";
 import {Filter} from "models/maintenance_mode/material";
 import {Materials, MaterialWithFingerprint, MaterialWithModification} from "models/materials/materials";
 import {
@@ -48,6 +49,17 @@ describe('MaterialVMSpec', () => {
     expect(materialVM.matches("gocd")).toBeTrue();
     expect(materialVM.matches("mas")).toBeTrue();
     expect(materialVM.matches("abc")).toBeFalse();
+  });
+
+  it('should return true if search string matches username, revision or comment for the latest modification', () => {
+    const material   = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("", false, "some-url", "master"));
+    const materialVM = new MaterialVM(new MaterialWithModification(material, new MaterialModification("username", "email_address", "some-revision", "a very very long comment with abc", "")));
+
+    expect(materialVM.matches("revision")).toBeTrue();
+    expect(materialVM.matches("comment")).toBeTrue();
+    expect(materialVM.matches("name")).toBeTrue();
+    expect(materialVM.matches("abc")).toBeTrue();
+    expect(materialVM.matches("123")).toBeFalse();
   });
 
   it('should return type as config.type', () => {

@@ -15,25 +15,13 @@
  */
 
 import {docsUrl} from "gen/gocd_version";
-import {SparkRoutes} from "helpers/spark_routes";
-import {timeFormatter} from "helpers/time_formatter";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import {humanizedMaterialAttributeName, MaterialModification} from "models/config_repos/types";
-import {MaterialWithFingerprint} from "models/materials/materials";
-import {Scms} from "models/materials/pluggable_scm";
-import {PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
-import {Packages} from "models/package_repositories/package_repositories";
-import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
-import headerStyles from "views/pages/config_repos/index.scss";
-import {AdditionalInfoAttrs, MaterialsAttrs} from "views/pages/materials";
+import {MaterialsAttrs} from "views/pages/materials";
 import styles from "./index.scss";
-import {MaterialHeaderWidget} from "./material_header_widget";
-import {MaterialUsageWidget} from "./material_usage_widget";
-import {MaterialVM} from "./models/material_view_model";
+import {MaterialWidget} from "./material_widget";
 
 export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
 
@@ -61,81 +49,5 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
       {vnode.attrs.materialVMs().map((materialVM) => <MaterialWidget materialVM={materialVM} scms={vnode.attrs.scms}
                                                                      packages={vnode.attrs.packages}/>)}
     </div>;
-  }
-}
-
-export interface MaterialAttrs {
-  materialVM: MaterialVM;
-}
-
-export interface MaterialWithInfoAttrs extends MaterialAttrs, AdditionalInfoAttrs {
-}
-
-export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> {
-  view(vnode: m.Vnode<MaterialWithInfoAttrs, this>): m.Children | void | null {
-    const vm       = vnode.attrs.materialVM;
-    const material = vm.material;
-
-    return <CollapsiblePanel header={<MaterialHeaderWidget {...vnode.attrs} />} onexpand={() => vm.notify("expand")}>
-      <MaterialUsageWidget materialVM={vm}/>
-      <h3>Latest Modification Details</h3>
-      {this.showLatestModificationDetails(material.modification)}
-      <h3>Material Attributes</h3>
-      <KeyValuePair data-test-id={"material-attributes"} data={this.getMaterialData(material.config, vnode.attrs.packages(), vnode.attrs.scms())}/>
-    </CollapsiblePanel>;
-  }
-
-  private getMaterialData(material: MaterialWithFingerprint, packages: Packages, scms: Scms): Map<string, m.Children> {
-    let map = new Map();
-    if (material.type() === "package") {
-      const pkgAttrs = material.attributes() as PackageMaterialAttributes;
-      const pkgInfo  = packages.find((pkg) => pkg.id() === pkgAttrs.ref())!;
-
-      const link = <Link href={SparkRoutes.packageRepositoriesSPA(pkgInfo.packageRepo().name(), pkgInfo.name())}>
-        {pkgInfo.name()}
-      </Link>;
-
-      map.set("Ref", link);
-    } else if (material.type() === "plugin") {
-      const pluginAttrs = material.attributes() as PluggableScmMaterialAttributes;
-      const scmMaterial = scms.find((scm) => scm.id() === pluginAttrs.ref())!;
-
-      const value = <Link href={SparkRoutes.pluggableScmSPA(scmMaterial.name())}>
-        {scmMaterial.name()}
-      </Link>;
-
-      map.set("Ref", value);
-    } else {
-      map = material.attributesAsMap();
-    }
-    return map;
-  }
-
-  private showLatestModificationDetails(modification: MaterialModification | null) {
-    if (modification === null) {
-      return <FlashMessage type={MessageType.info}>This material was never parsed</FlashMessage>;
-    }
-    const attrs = this.resolveAttrsIntoReadableFormat(modification);
-    this.setDateInReadableFormat(attrs, "modifiedTime");
-
-    return <div data-test-id="latest-modification-details" className={headerStyles.configRepoProperties}>
-      <KeyValuePair data={attrs}/>
-    </div>;
-  }
-
-  private resolveAttrsIntoReadableFormat(mod: MaterialModification): Map<string, m.Children> {
-    const attrs  = new Map();
-    const keys   = Object.keys(mod).map(humanizedMaterialAttributeName);
-    const values = Object.values(mod);
-
-    keys.forEach((key, index) => attrs.set(key, values[index]));
-    return attrs;
-  }
-
-  private setDateInReadableFormat(attrs: Map<string, m.Children>, key: string) {
-    const updatedKey    = humanizedMaterialAttributeName(key);
-    const originalValue = attrs.get(updatedKey);
-    attrs.delete(updatedKey);
-    attrs.set(updatedKey, <span title={timeFormatter.formatInServerTime(originalValue)}>{timeFormatter.format(originalValue)}</span>);
   }
 }

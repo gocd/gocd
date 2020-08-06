@@ -73,8 +73,8 @@ describe('MaterialHeaderWidgetSpec', () => {
     mount();
 
     expect(helper.byTestId("latest-mod-in-header")).toBeInDOM();
-    expect(helper.q(`.${headerStyles.comment}`).textContent).toBe("A very long comment to be shown on the header which should be trimmed and rest pa...");
-    expect(helper.q(`.${headerStyles.committerInfo}`).textContent).toBe("A_Long_username_with_a_long_long_long... | b07d423864ec120362b3584635cb07d423864...");
+    expect(helper.q(`.${headerStyles.comment}`).textContent).toBe("A very long comment to be shown on the header which should be trimmed and rest part sho...");
+    expect(helper.q(`.${headerStyles.committerInfo}`).textContent).toBe("A_Long_username_with_a_long_long... | b07d423864ec120362b3584635cb07d423864...  | VSM");
   });
 
   it('should not show username or separator if empty', () => {
@@ -82,18 +82,19 @@ describe('MaterialHeaderWidgetSpec', () => {
     mount();
 
     expect(helper.byTestId("latest-mod-in-header")).toBeInDOM();
-    expect(helper.q(`.${headerStyles.committerInfo}`).textContent).toBe("b07d423864ec120362b3584635c");
+    expect(helper.q(`.${headerStyles.committerInfo}`).textContent).toBe("b07d423864ec120362b3584635c | VSM");
   });
 
-  it('should render revision as a link to VSM', () => {
+  it('should render link to VSM', () => {
     material.modification
-      = new MaterialModification("username", null, "b07d423864ec120362b3584635cb07d423864ec120362b3584635c", "dummy comment", "");
+      = new MaterialModification("username", null, "b07d423864ec120362b3584635cb07", "dummy comment", "");
     mount();
 
+    expect(helper.q(`.${headerStyles.committerInfo}`).textContent).toBe("username | b07d423864ec120362b3584635cb07  | VSM");
     expect(helper.byTestId("vsm-link")).toBeInDOM();
-    expect(helper.textByTestId("vsm-link")).toBe('b07d423864ec120362b3584635cb07d423864...');
+    expect(helper.textByTestId("vsm-link")).toBe('VSM');
     expect(helper.byTestId("vsm-link")).toHaveAttr('href', SparkRoutes.materialsVsmLink(material.config.fingerprint(), material.modification.revision));
-    expect(helper.byTestId("vsm-link")).toHaveAttr('title', 'VSM');
+    expect(helper.byTestId("vsm-link")).toHaveAttr('title', 'Value Stream Map');
   });
 
   function mount() {

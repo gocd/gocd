@@ -26,7 +26,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Tree} from "views/components/hierarchy/tree";
 import css from "views/pages/config_repos/defined_structs.scss";
 import {MaterialUsagesVM} from "views/pages/materials/models/material_usages_view_model";
-import {MaterialAttrs} from "./materials_widget";
+import {MaterialAttrs} from "./material_widget";
 
 type Styles = typeof css;
 

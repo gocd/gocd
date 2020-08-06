@@ -17,7 +17,6 @@ package com.thoughtworks.go.apiv2.compare;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.HistoryMethods;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv2.compare.representers.PipelineInstanceModelsRepresenter;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
@@ -35,7 +34,7 @@ import java.io.IOException;
 import static spark.Spark.*;
 
 @Component
-public class InternalCompareControllerV2 extends ApiController implements SparkSpringController, HistoryMethods {
+public class InternalCompareControllerV2 extends ApiController implements SparkSpringController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PipelineHistoryService pipelineHistoryService;
 

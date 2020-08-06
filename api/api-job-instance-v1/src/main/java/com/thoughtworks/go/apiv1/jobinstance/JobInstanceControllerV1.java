@@ -17,7 +17,6 @@ package com.thoughtworks.go.apiv1.jobinstance;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.HistoryMethods;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.jobinstance.representers.JobInstanceRepresenter;
 import com.thoughtworks.go.apiv1.jobinstance.representers.JobInstancesRepresenter;
@@ -40,7 +39,7 @@ import static java.lang.String.format;
 import static spark.Spark.*;
 
 @Component
-public class JobInstanceControllerV1 extends ApiController implements SparkSpringController, HistoryMethods {
+public class JobInstanceControllerV1 extends ApiController implements SparkSpringController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final JobInstanceService jobInstanceService;
 

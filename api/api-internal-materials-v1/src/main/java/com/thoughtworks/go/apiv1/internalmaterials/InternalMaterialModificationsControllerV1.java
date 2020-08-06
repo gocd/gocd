@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv1.internalmaterials;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.HistoryMethods;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.internalmaterials.representers.ModificationsRepresenter;
 import com.thoughtworks.go.domain.PipelineRunIdInfo;
@@ -39,7 +38,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
-public class InternalMaterialModificationsControllerV1 extends ApiController implements SparkSpringController, HistoryMethods {
+public class InternalMaterialModificationsControllerV1 extends ApiController implements SparkSpringController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final MaterialConfigService materialConfigService;
     private final MaterialService materialService;

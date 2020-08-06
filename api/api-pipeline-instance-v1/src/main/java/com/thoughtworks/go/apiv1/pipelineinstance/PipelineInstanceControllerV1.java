@@ -17,7 +17,6 @@ package com.thoughtworks.go.apiv1.pipelineinstance;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.HistoryMethods;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
@@ -41,7 +40,7 @@ import java.io.IOException;
 import static spark.Spark.*;
 
 @Component
-public class PipelineInstanceControllerV1 extends ApiController implements SparkSpringController, HistoryMethods {
+public class PipelineInstanceControllerV1 extends ApiController implements SparkSpringController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PipelineHistoryService pipelineHistoryService;
 

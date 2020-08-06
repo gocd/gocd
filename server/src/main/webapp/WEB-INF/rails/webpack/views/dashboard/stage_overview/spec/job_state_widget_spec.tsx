@@ -53,17 +53,17 @@ describe("Job State Widget", () => {
 
   it("should render completed passed job state", () => {
     mount("Completed", Result[Result.Passed]);
-    expect(helper.root).toContainText('Completed (Passed)');
+    expect(helper.root).toContainText('Passed');
   });
 
   it("should render completed failed job state", () => {
     mount("Completed", Result[Result.Failed]);
-    expect(helper.root).toContainText('Completed (Failed)');
+    expect(helper.root).toContainText('Failed');
   });
 
   it("should render completed cancelled job state", () => {
     mount("Completed", Result[Result.Cancelled]);
-    expect(helper.root).toContainText('Completed (Cancelled)');
+    expect(helper.root).toContainText('Cancelled');
   });
 
   function mount(state: State, result: Result = Result[Result.Passed]) {

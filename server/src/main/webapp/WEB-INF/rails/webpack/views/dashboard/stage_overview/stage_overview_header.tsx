@@ -92,14 +92,17 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
             <div className={styles.stageNameTitle}>Pipeline</div>
             <div className={styles.stageName}>{vnode.attrs.pipelineName}</div>
           </div>
+          <Icons.AngleDoubleRight iconOnly={true}/>
           <div data-test-id="pipeline-instance-container">
             <div className={styles.stageNameTitle}>Instance</div>
             <div className={styles.stageName}>{vnode.attrs.pipelineCounter}</div>
           </div>
+          <Icons.AngleDoubleRight iconOnly={true}/>
           <div data-test-id="stage-name-container">
             <div className={styles.stageNameTitle}>Stage</div>
             <div className={styles.stageName}>{vnode.attrs.stageName}</div>
           </div>
+          <Icons.AngleDoubleRight iconOnly={true}/>
           <div data-test-id="stage-instance-container">
             <div className={styles.stageNameTitle}>Instance</div>
             <div className={styles.stageName}>{vnode.attrs.stageCounter}</div>

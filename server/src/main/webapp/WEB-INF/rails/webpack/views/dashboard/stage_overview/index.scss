@@ -37,6 +37,7 @@ $tooltip-border-color: #ccc;
 $tooltip-message-background: #333;
 
 $white: #fff;
+$gray: #808080;
 $passed: #00c853;
 $failed: #fa2d2d;
 $building: #ffc11b;
@@ -88,7 +89,7 @@ $building: #ffc11b;
   border:        1px solid $btn-group-border-color;
   border-radius: 5px;
   height:        29px;
-  margin-top:    8px;
+  margin-top:    4px;
 
   i:hover {
     background: transparent;
@@ -139,23 +140,24 @@ $building: #ffc11b;
 
 .stage-name-container {
   display: flex;
-}
 
-.stage-name-container div {
-  margin-right: 15px;
+  i {
+    font-size:   17px;
+    margin:      4px 10px;
+    font-weight: 400;
+    color:       $gray;
+  }
 }
 
 .stage-name-title {
-  font-size:     12px;
+  font-size:     10px;
   margin-bottom: -2px;
-  text-align:    center;
-  font-style:    italic;
 }
 
 .stage-name {
+  margin-top:  -4px;
   font-size:   17px;
   font-weight: 600;
-  text-align:  center;
   max-width:   200px;
   word-break:  break-all;
 }

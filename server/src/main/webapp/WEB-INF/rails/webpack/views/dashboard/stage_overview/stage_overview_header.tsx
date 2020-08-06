@@ -32,6 +32,7 @@ interface StageHeaderAttrs {
   canAdminister: boolean;
   flashMessage: FlashMessageModelWithTimeout;
   stageInstance: Stream<StageInstance>;
+  inProgressStageFromPipeline: Stream<any | undefined>;
 }
 
 interface StageHeaderState {
@@ -110,6 +111,7 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
         </div>
         <div data-test-id="stage-operations-container" class={styles.stageOperationButtonGroup}>
           <StageTriggerOrCancelButtonWidget stageInstance={vnode.attrs.stageInstance}
+                                            inProgressStageFromPipeline={vnode.attrs.inProgressStageFromPipeline}
                                             flashMessage={vnode.attrs.flashMessage}
                                             stageInstanceFromDashboard={vnode.attrs.stageInstanceFromDashboard}/>
           {stageSettings}
@@ -142,6 +144,7 @@ interface StageTriggerOrCancelButtonAttrs {
   stageInstance: Stream<StageInstance>;
   stageInstanceFromDashboard: any;
   flashMessage: FlashMessageModelWithTimeout;
+  inProgressStageFromPipeline: Stream<any | undefined>;
 }
 
 interface StageTriggerOrCancelButtonState {
@@ -164,11 +167,18 @@ class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCa
   }
 
   view(vnode: m.Vnode<StageTriggerOrCancelButtonAttrs, StageTriggerOrCancelButtonState>): m.Children | void | null {
-    const disabled = !vnode.attrs.stageInstanceFromDashboard.canOperate;
-    const disabledClass = (vnode.state.isTriggerHover() && disabled) ? '' : styles.hidden;
+    let disabled = !vnode.attrs.stageInstanceFromDashboard.canOperate;
+    let disabledClass = (vnode.state.isTriggerHover() && disabled) ? '' : styles.hidden;
 
     if (vnode.attrs.stageInstance().isCompleted()) {
-      const disabledMessage = `You dont have permissions to rerun the stage.`;
+      let disabledMessage = `You dont have permissions to rerun the stage.`;
+
+      if(vnode.attrs.inProgressStageFromPipeline()) {
+        disabled = true;
+        disabledClass = (vnode.state.isTriggerHover() && disabled) ? '' : styles.hidden;
+        disabledMessage = `Can not rerun current stage. Stage '${vnode.attrs.inProgressStageFromPipeline().name}' from the pipeline is still in progress.`;
+      }
+
       return <div data-test-id="rerun-stage">
         <Icons.Repeat iconOnly={true} disabled={disabled}
                       onmouseover={() => vnode.state.isTriggerHover(true)}

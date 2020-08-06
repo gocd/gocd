@@ -110,6 +110,7 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
                          pipelineName={vnode.attrs.pipelineName}
                          pipelineCounter={vnode.attrs.pipelineCounter}
                          stageInstanceFromDashboard={vnode.attrs.stageInstanceFromDashboard}
+                         inProgressStageFromPipeline={inProgressStageFromPipeline}
                          flashMessage={vnode.attrs.stageOverviewVM().flashMessage}
                          canAdminister={vnode.attrs.canAdminister}
                          stageInstance={vnode.attrs.stageOverviewVM().stageInstance}/>

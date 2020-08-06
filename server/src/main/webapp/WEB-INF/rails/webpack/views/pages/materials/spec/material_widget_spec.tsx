@@ -121,6 +121,37 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.q('span span', attrs[4])).toHaveAttr('title', '23 Dec, 2019 at 10:25:52 +00:00 Server Time');
   });
 
+  it('should display message if scm information is not present', () => {
+    const scm = Scm.fromJSON(getPluggableScm());
+    scms.push(scm);
+    material.config = new MaterialWithFingerprint("plugin", "fingerprint",
+                                                  new PluggableScmMaterialAttributes(undefined, true, "some-id", "", new Filter([])));
+    mount();
+
+    expect(helper.qa('h3')[1].textContent).toBe("Material Attributes");
+
+    const attrsElement = helper.byTestId('material-attributes');
+
+    expect(attrsElement).toBeInDOM();
+    expect(helper.qa('li', attrsElement).length).toBe(1);
+    expect(helper.textByTestId('key-value-value-ref')).toBe("No SCM found for 'some-id'!");
+  });
+
+  it('should display message if package information is not present', () => {
+    const pkg = Package.fromJSON(getPackage());
+    packages.push(pkg);
+    material.config = new MaterialWithFingerprint("package", "fingerprint", new PackageMaterialAttributes(undefined, true, "some-pkg-id"));
+    mount();
+
+    expect(helper.qa('h3')[1].textContent).toBe("Material Attributes");
+
+    const attrsElement = helper.byTestId('material-attributes');
+
+    expect(attrsElement).toBeInDOM();
+    expect(helper.qa('li', attrsElement).length).toBe(1);
+    expect(helper.textByTestId('key-value-value-ref')).toBe("No package found for 'some-pkg-id'!");
+  });
+
   function mount() {
     helper.mount(() => <MaterialWidget materialVM={new MaterialVM(material)} packages={Stream(packages)} scms={Stream(scms)}/>);
   }

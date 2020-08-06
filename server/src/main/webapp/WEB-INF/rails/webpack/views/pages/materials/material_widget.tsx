@@ -18,6 +18,7 @@ import {SparkRoutes} from "helpers/spark_routes";
 import {timeFormatter} from "helpers/time_formatter";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {MaterialModification} from "models/config_repos/types";
 import {MaterialWithFingerprint} from "models/materials/materials";
 import {Scms} from "models/materials/pluggable_scm";
@@ -68,28 +69,32 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
         {modificationDetails}
       </div>
       <h3>Material Attributes</h3>
-      <KeyValuePair data-test-id={"material-attributes"} data={this.getMaterialData(material.config, vnode.attrs.packages(), vnode.attrs.scms())}/>
+      <KeyValuePair data-test-id={"material-attributes"} data={this.getMaterialData(material.config, vnode.attrs.packages, vnode.attrs.scms)}/>
     </CollapsiblePanel>;
   }
 
-  private getMaterialData(material: MaterialWithFingerprint, packages: Packages, scms: Scms): Map<string, m.Children> {
+  private getMaterialData(material: MaterialWithFingerprint, packages: Stream<Packages>, scms: Stream<Scms>): Map<string, m.Children> {
     let map = new Map();
     if (material.type() === "package") {
       const pkgAttrs = material.attributes() as PackageMaterialAttributes;
-      const pkgInfo  = packages.find((pkg) => pkg.id() === pkgAttrs.ref())!;
+      const pkgInfo  = packages().find((pkg) => pkg.id() === pkgAttrs.ref());
 
-      const link = <Link href={SparkRoutes.packageRepositoriesSPA(pkgInfo.packageRepo().name(), pkgInfo.name())}>
-        {pkgInfo.name()}
-      </Link>;
+      const pkgName = pkgInfo === undefined
+        ? `No package found for '${pkgAttrs.ref()}'!`
+        : <Link href={SparkRoutes.packageRepositoriesSPA(pkgInfo.packageRepo().name(), pkgInfo.name())}>
+          {pkgInfo.name()}
+        </Link>;
 
-      map.set("Ref", link);
+      map.set("Ref", pkgName);
     } else if (material.type() === "plugin") {
       const pluginAttrs = material.attributes() as PluggableScmMaterialAttributes;
-      const scmMaterial = scms.find((scm) => scm.id() === pluginAttrs.ref())!;
+      const scmMaterial = scms().find((scm) => scm.id() === pluginAttrs.ref());
 
-      const value = <Link href={SparkRoutes.pluggableScmSPA(scmMaterial.name())}>
-        {scmMaterial.name()}
-      </Link>;
+      const value = scmMaterial === undefined
+        ? `No SCM found for '${pluginAttrs.ref()}'!`
+        : <Link href={SparkRoutes.pluggableScmSPA(scmMaterial.name())}>
+          {scmMaterial.name()}
+        </Link>;
 
       map.set("Ref", value);
     } else {

@@ -27,8 +27,9 @@ import styles from "./index.scss";
 import {MaterialAttrs} from "./material_widget";
 
 export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
-  private static readonly MAX_COMMIT_MSG_LENGTH: number            = 84;
-  private static readonly MAX_USERNAME_AND_REVISION_LENGTH: number = 40;
+  private static readonly MAX_COMMIT_MSG_LENGTH: number = 90;
+  private static readonly MAX_USERNAME_LENGTH: number   = 35;
+  private static readonly MAX_REVISION_LENGTH: number   = 40;
 
   view(vnode: m.Vnode<MaterialAttrs, this>): m.Children | void | null {
     const material = vnode.attrs.materialVM.material;
@@ -74,23 +75,21 @@ export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
       return "This material was never parsed";
     }
 
-    const comment         = _.truncate(modification.comment, {length: MaterialHeaderWidget.MAX_COMMIT_MSG_LENGTH});
-    const username        = _.truncate(modification.username, {length: MaterialHeaderWidget.MAX_USERNAME_AND_REVISION_LENGTH});
-    const revision        = _.truncate(modification.revision, {length: MaterialHeaderWidget.MAX_USERNAME_AND_REVISION_LENGTH});
-    const usernameElement = _.isEmpty(username)
-      ? undefined
-      : <span>
-      <span className={headerStyles.committer}>{username}</span> | </span>;
+    const comment               = _.truncate(modification.comment, {length: MaterialHeaderWidget.MAX_COMMIT_MSG_LENGTH});
+    const username              = _.truncate(modification.username, {length: MaterialHeaderWidget.MAX_USERNAME_LENGTH});
+    const revision              = _.truncate(modification.revision, {length: MaterialHeaderWidget.MAX_REVISION_LENGTH});
+    const usernameAndRevElement = _.isEmpty(username)
+      ? revision
+      : <span><span className={headerStyles.committer}>{username}</span> | {revision} </span>;
 
-    const revisionLink = <Link dataTestId={"vsm-link"} href={SparkRoutes.materialsVsmLink(fingerprint, modification.revision)}
-                               title={"VSM"} onclick={e => e.stopPropagation()}>{revision}</Link>;
-    return <div
-      className={headerStyles.commitInfo}>
+    const vsmLink = <Link dataTestId={"vsm-link"} href={SparkRoutes.materialsVsmLink(fingerprint, modification.revision)}
+                          title={"Value Stream Map"} onclick={e => e.stopPropagation()}>VSM</Link>;
+    return <div className={headerStyles.commitInfo}>
       <span className={headerStyles.comment}>
         {comment}
       </span>
       <div className={headerStyles.committerInfo}>
-        {usernameElement}{revisionLink}
+        {usernameAndRevElement} | {vsmLink}
       </div>
     </div>;
   }

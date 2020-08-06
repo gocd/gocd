@@ -24,7 +24,7 @@ import {MaterialWithModification} from "models/materials/materials";
 import {Link} from "views/components/link";
 import headerStyles from "views/pages/config_repos/index.scss";
 import styles from "./index.scss";
-import {MaterialAttrs} from "./materials_widget";
+import {MaterialAttrs} from "./material_widget";
 
 export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
   private static readonly MAX_COMMIT_MSG_LENGTH: number            = 84;
@@ -38,7 +38,9 @@ export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
         <h4 data-test-id="material-type" className={headerStyles.headerTitleText}>{material.config.typeForDisplay()}</h4>
         <span data-test-id="material-display-name" className={headerStyles.headerTitleUrl}>{material.config.displayName()}</span>
       </div>,
-      <div data-test-id="latest-mod-in-header">{this.showLatestModificationDetails(material.config.fingerprint(), material.modification)}</div>
+      <div data-test-id="latest-mod-in-header">
+        {MaterialHeaderWidget.showLatestModificationDetails(material.config.fingerprint(), material.modification)}
+      </div>
     ];
   }
 
@@ -67,7 +69,7 @@ export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
     return <div data-test-id="material-icon" className={classnames(styles.material, style)}/>;
   }
 
-  private showLatestModificationDetails(fingerprint: string, modification: MaterialModification | null) {
+  private static showLatestModificationDetails(fingerprint: string, modification: MaterialModification | null) {
     if (modification === null) {
       return "This material was never parsed";
     }

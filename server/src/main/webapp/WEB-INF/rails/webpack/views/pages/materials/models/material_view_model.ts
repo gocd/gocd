@@ -75,7 +75,19 @@ export class MaterialVM {
   }
 
   matches(query: string) {
-    return this.material.config.matches(query);
+    if (!query) {
+      return true;
+    }
+    const searchableStrings = [
+      this.material.config.type(),
+      this.material.config.name(),
+      this.material.config.materialUrl()
+    ];
+    const modification      = this.material.modification;
+    if (modification !== null) {
+      searchableStrings.push(modification.username, modification.revision, modification.comment);
+    }
+    return searchableStrings.some((value) => value ? value.toLowerCase().includes(query.trim().toLowerCase()) : false);
   }
 
   type() {

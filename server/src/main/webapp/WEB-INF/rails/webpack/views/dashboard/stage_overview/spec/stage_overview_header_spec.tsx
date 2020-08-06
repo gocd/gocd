@@ -138,6 +138,7 @@ describe('Stage Overview Header', () => {
       return <StageHeaderWidget pipelineName={pipelineName}
                                 stageInstanceFromDashboard={stageInstanceFromDashboard}
                                 pipelineCounter={pipelineCounter}
+                                inProgressStageFromPipeline={Stream()}
                                 stageName={stageName}
                                 stageCounter={stageCounter}
                                 flashMessage={flashMessage}

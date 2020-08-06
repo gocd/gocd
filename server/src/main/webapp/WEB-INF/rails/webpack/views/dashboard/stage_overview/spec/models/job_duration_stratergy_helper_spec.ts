@@ -313,7 +313,7 @@ describe("Job Duration Strategy Helper", () => {
 
       expect(JobDurationStrategyHelper.getDuration(job, StageInstance.fromJSON(TestData.stageInstanceJSON()))).toEqual({
         isJobInProgress:                 true,
-        waitTimePercentage:              50,
+        waitTimePercentage:              51,
         preparingTimePercentage:         0,
         buildTimePercentage:             0,
         uploadingArtifactTimePercentage: 0,

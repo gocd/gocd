@@ -139,15 +139,17 @@ export class JobDurationStrategyHelper {
   }
 
   private static getJobStateTime(job: JobJSON, state: State): number {
-    let state: JobStateTransitionJSON = job.job_state_transitions.find(t => t.state === state);
-    if (!state) {
-      state = {
+    const isJobCompleted = job.result !== Result[Result.Unknown];
+
+    let jobState: JobStateTransitionJSON = job.job_state_transitions.find(t => t.state === state);
+    if (!jobState) {
+      jobState = {
         state,
-        state_change_time: moment().valueOf()
+        state_change_time: isJobCompleted ? job.job_state_transitions[job.job_state_transitions.length - 1].state_change_time : moment().valueOf()
       } as JobStateTransitionJSON;
     }
 
-    return state.state_change_time / 1000;
+    return jobState.state_change_time / 1000;
   }
 
   private static calculatePercentage(total: number, part: number) {

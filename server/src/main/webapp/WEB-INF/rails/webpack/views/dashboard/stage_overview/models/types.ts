@@ -27,7 +27,7 @@ export enum StageState {
 export interface JobJSON {
   name: string;
   state: State;
-  result: Result;
+  result: Result | string;
   scheduled_date: number;
   rerun: boolean;
   original_job_id: number | null;
@@ -41,7 +41,7 @@ export interface StageInstanceJSON {
   approval_type: string;
   approved_by: string;
   cancelled_by?: string;
-  result: Result;
+  result: Result | string;
   rerun_of_counter: number | null;
   fetch_materials: boolean;
   clean_working_directory: boolean;

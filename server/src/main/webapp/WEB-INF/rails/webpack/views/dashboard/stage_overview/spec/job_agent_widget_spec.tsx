@@ -31,7 +31,7 @@ describe("Job Agent Widget", () => {
   it("should render unassigned when no agent is assigned for the job", () => {
     const agents = AgentsTestData.list();
     const job = TestData.stageInstanceJSON().jobs[0];
-    job.agent_uuid = undefined;
+    job.agent_uuid = null;
     mount(job, Agents.fromJSON(agents));
     expect(helper.root).toContainText('unassigned');
   });
@@ -52,14 +52,14 @@ describe("Job Agent Widget", () => {
 
     const expectedLink = `/go/agents/${job.agent_uuid}/job_run_history`;
     expect(helper.root).toContainText(agents._embedded.agents[0].hostname);
-    expect(helper.q('a').href.indexOf(expectedLink)).not.toBe(-1);
+    expect((helper.q('a') as any).href.indexOf(expectedLink)).not.toBe(-1);
   });
 
   it("should render agent uuid when no agent with the specified uuid is present in the agents", () => {
     const agents = AgentsTestData.list();
     const job = TestData.stageInstanceJSON().jobs[0];
     mount(job, Agents.fromJSON(agents));
-    expect(helper.root).toContainText(job.agent_uuid);
+    expect(helper.root).toContainText(job.agent_uuid as string);
   });
 
   function mount(job: JobJSON, agents: Agents) {

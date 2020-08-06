@@ -38,31 +38,31 @@ describe("Job Progress Bar Widget", () => {
 
   it("should render job progress bar waiting portion", () => {
     const children = helper.byTestId('progress-bar-container-div').children;
-    expect(children[0].style.width).toBe("30%");
+    expect((children[0] as any).style.width).toBe("30%");
     expect(children[0].classList[0]).toBe(styles.waiting);
   });
 
   it("should render job progress bar preparing portion", () => {
     const children = helper.byTestId('progress-bar-container-div').children;
-    expect(children[1].style.width).toBe("20%");
+    expect((children[1] as any).style.width).toBe("20%");
     expect(children[1].classList[0]).toBe(styles.preparing);
   });
 
   it("should render job progress bar building portion", () => {
     const children = helper.byTestId('progress-bar-container-div').children;
-    expect(children[2].style.width).toBe("30%");
+    expect((children[2] as any).style.width).toBe("30%");
     expect(children[2].classList[0]).toBe(styles.building);
   });
 
   it("should render job progress bar uploading artifacts portion", () => {
     const children = helper.byTestId('progress-bar-container-div').children;
-    expect(children[3].style.width).toBe("20%");
+    expect((children[3] as any).style.width).toBe("20%");
     expect(children[3].classList[0]).toBe(styles.uploadingArtifacts);
   });
 
   it("should render job progress bar unknown portion", () => {
     const children = helper.byTestId('progress-bar-container-div').children;
-    expect(children[4].style.width).toBe("0%");
+    expect((children[4] as any).style.width).toBe("0%");
     expect(children[4].classList[0]).toBe(styles.unknown);
   });
 

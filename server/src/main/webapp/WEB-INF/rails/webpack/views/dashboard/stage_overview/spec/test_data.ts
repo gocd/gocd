@@ -23,6 +23,7 @@ export class TestData {
           rerun:                 false,
           original_job_id:       null,
           agent_uuid:            "638f3328-0e3e-474e-9355-35d5383cd704",
+          // @ts-ignore
           pipeline_name:         null,
           pipeline_counter:      null,
           stage_name:            null,

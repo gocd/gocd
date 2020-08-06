@@ -30,7 +30,7 @@ export interface Attrs {
   pipelineCounter: string | number;
   stageName: string;
   stageCounter: string | number;
-  stageStatus: StageState;
+  stageStatus: StageState | string;
   stages: any[];
   canAdminister: boolean;
   stageInstanceFromDashboard: any;
@@ -39,11 +39,13 @@ export interface Attrs {
 
 export class StageOverview extends MithrilComponent<Attrs, {}> {
   oncreate(vnode: m.Vnode<Attrs, {}>) {
-    vnode.dom.onclick = (e) => {
+    // @ts-ignore
+    vnode.dom.onclick = (e: any) => {
       e.stopPropagation();
     };
 
     const windowWidth = window.innerWidth;
+    // @ts-ignore
     const stageOverviewRightBoundry = vnode.dom.getBoundingClientRect().right;
 
     // align stage overview to left when the right boundry of the stage overview is outside of the window width
@@ -51,6 +53,7 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
 
     // add an extra class which aligns the caret to right.
     if (shouldAlignLeft) {
+      // @ts-ignore
       vnode.dom.classList.add(styles.alignLeft);
     }
 
@@ -62,7 +65,6 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
     //initial alignment is 10px (margin)
     let stagesWidth = 10;
     let stageTriggerWidth = 0;
-    let verticalResetCount = 0;
 
     toOperate.forEach((stage, index) => {
       if (index === 0) {
@@ -74,7 +76,6 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
       if ((stagesWidth + stageTriggerWidth) + 45 > 220) {
         stagesWidth = 10;
         stageTriggerWidth = stage.isManual() ? 18 : 0;
-        verticalResetCount++;
         return;
       }
 
@@ -92,6 +93,7 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
 
     // horizontal alignment
     // 10px is the initial margin left and each stage bar is of 45px in width (including margin)
+    // @ts-ignore
     vnode.dom.style.left = `${leftAlign}px`;
   }
 
@@ -111,23 +113,23 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
                          pipelineCounter={vnode.attrs.pipelineCounter}
                          stageInstanceFromDashboard={vnode.attrs.stageInstanceFromDashboard}
                          inProgressStageFromPipeline={inProgressStageFromPipeline}
-                         flashMessage={vnode.attrs.stageOverviewVM().flashMessage}
+                         flashMessage={vnode.attrs.stageOverviewVM()!.flashMessage}
                          canAdminister={vnode.attrs.canAdminister}
-                         stageInstance={vnode.attrs.stageOverviewVM().stageInstance}/>
+                         stageInstance={vnode.attrs.stageOverviewVM()!.stageInstance}/>
       <JobCountAndRerunWidget stageName={vnode.attrs.stageName}
                               stageCounter={vnode.attrs.stageCounter}
                               pipelineName={vnode.attrs.pipelineName}
                               pipelineCounter={vnode.attrs.pipelineCounter}
-                              flashMessage={vnode.attrs.stageOverviewVM().flashMessage}
+                              flashMessage={vnode.attrs.stageOverviewVM()!.flashMessage}
                               inProgressStageFromPipeline={inProgressStageFromPipeline}
-                              jobsVM={vnode.attrs.stageOverviewVM().jobsVM}/>
+                              jobsVM={vnode.attrs.stageOverviewVM()!.jobsVM}/>
       <JobsListWidget stageName={vnode.attrs.stageName}
                       stageCounter={vnode.attrs.stageCounter}
                       pipelineName={vnode.attrs.pipelineName}
                       pipelineCounter={vnode.attrs.pipelineCounter}
-                      jobsVM={vnode.attrs.stageOverviewVM().jobsVM}
-                      agents={vnode.attrs.stageOverviewVM().agents}
-                      lastPassedStageInstance={vnode.attrs.stageOverviewVM().lastPassedStageInstance}/>
+                      jobsVM={vnode.attrs.stageOverviewVM()!.jobsVM}
+                      agents={vnode.attrs.stageOverviewVM()!.agents}
+                      lastPassedStageInstance={vnode.attrs.stageOverviewVM()!.lastPassedStageInstance}/>
     </div>;
 
   }

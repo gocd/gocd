@@ -27,6 +27,7 @@ describe('Stage Instance', () => {
   });
 
   it('should deserialize from json', () => {
+    // @ts-ignore
     const _json = StageInstance.fromJSON(stageInstanceJson);
   });
 

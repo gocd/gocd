@@ -16,11 +16,11 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
+import {ErrorResponse} from "../../../helpers/api_request_builder";
 import {MithrilComponent} from "../../../jsx/mithril-component";
 import {ButtonGroup, Secondary} from "../../components/buttons";
 import {FlashMessageModelWithTimeout, MessageType} from "../../components/flash_message";
 import * as styles from "./index.scss";
-import Stream from "./jobs_list_widget";
 import {JobsViewModel} from "./models/jobs_view_model";
 
 export interface Attrs {
@@ -40,12 +40,12 @@ export interface State {
 
 export class JobCountAndRerunWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    function getResultHandler(attrs) {
-      return (result) => {
-        result.do((successResponse) => {
+    function getResultHandler(attrs: Attrs) {
+      return (result: any) => {
+        result.do((successResponse: any) => {
           attrs.flashMessage.setMessage(MessageType.success, JSON.parse(successResponse.body).message);
-        }, (errorResponse) => {
-          attrs.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body).message);
+        }, (errorResponse: ErrorResponse) => {
+          attrs.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
         });
       };
     }

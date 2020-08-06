@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {MithrilComponent} from "../../../jsx/mithril-component";
@@ -24,15 +23,12 @@ import {JobsViewModel} from "./models/jobs_view_model";
 
 import {Agents} from "../../../models/agents/agents";
 import {Link} from "../../components/link";
-import pipelineHistoryStyles from "../../pages/pipeline_activity/index.scss";
 import {JobAgentWidget} from "./job_agent_widget";
 import {JobProgressBarWidget} from "./job_progress_bar_widget";
 import {JobStateWidget} from "./job_state_widget";
 import {JobDurationStrategyHelper} from "./models/job_duration_stratergy_helper";
 import {StageInstance} from "./models/stage_instance";
 import {JobJSON} from "./models/types";
-
-const classnames = bind(pipelineHistoryStyles);
 
 export interface Attrs {
   stageName: string;
@@ -58,7 +54,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
           <CheckboxField property={checkboxStream}/>
         </div>
         <div class={styles.nameCell} data-test-id={`job-name-for-${job.name}`}>
-          <div className={`${styles[job.result.toString().toLowerCase()]} ${styles.jobResult}`}/>
+          <div className={`${(styles as any)[job.result.toString().toLowerCase() as string]} ${styles.jobResult}`}/>
           <div className={styles.jobName}>
             <Link title={job.name} href={jobDetailsPageLink} target={"_blank"}>{job.name}</Link>
           </div>

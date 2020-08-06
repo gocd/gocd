@@ -17,6 +17,7 @@
 import m from "mithril";
 import Stream from "mithril/stream";
 import * as Icons from "views/components/icons";
+import {ErrorResponse} from "../../../helpers/api_request_builder";
 import {MithrilComponent} from "../../../jsx/mithril-component";
 import {FlashMessage, FlashMessageModelWithTimeout, MessageType} from "../../components/flash_message";
 import {Link} from "../../components/link";
@@ -133,7 +134,9 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
         </div>
         <div data-test-id="stage-details-page-link" class={styles.stageDetailsPageLink}>
           {dummyContainer}
-          <Link href={stageDetailsPageLink} target={"_blank"}>Go to Stage Details Page >></Link>
+          <Link href={stageDetailsPageLink} target={"_blank"}>
+            {`Go to Stage Details Page >>`}
+          </Link>
         </div>
       </div>
     </div>;
@@ -156,11 +159,11 @@ class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCa
   oninit(vnode: m.Vnode<StageTriggerOrCancelButtonAttrs, StageTriggerOrCancelButtonState>) {
     vnode.state.isTriggerHover = Stream<boolean>(false);
     vnode.state.getResultHandler = (attrs) => {
-      return (result) => {
-        result.do((successResponse) => {
+      return (result: any) => {
+        result.do((successResponse: any) => {
           attrs.flashMessage.setMessage(MessageType.success, JSON.parse(successResponse.body).message);
-        }, (errorResponse) => {
-          attrs.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body).message);
+        }, (errorResponse: ErrorResponse) => {
+          attrs.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
         });
       };
     };

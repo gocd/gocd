@@ -49,12 +49,13 @@ export class StageInstance {
       return `in progress`;
     }
 
+    // @ts-ignore
     const highestJobTime = this.json.jobs.reduce((first: number, next: JobJSON) => {
-      const completed = next.job_state_transitions.find(t => t.state === "Completed");
+      const completed = next.job_state_transitions.find(t => t.state === "Completed")!;
       return first < completed.state_change_time ? completed.state_change_time : first;
     }, 0);
 
-    const end = moment.unix(highestJobTime / 1000);
+    const end = moment.unix(+highestJobTime / 1000);
     const start = moment.unix(this.stageScheduledTime());
 
     return JobDurationStrategyHelper.formatTimeForDisplay(moment.utc(end.diff(start)));
@@ -82,8 +83,8 @@ export class StageInstance {
     }
 
     const LOCAL_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss";
-    const completedTime = this.json.jobs[0].job_state_transitions.find(t => t.state === "Completed").state_change_time;
-    return `${moment.unix(completedTime / 1000).format(LOCAL_TIME_FORMAT)}`;
+    const completedTime = this.json.jobs[0].job_state_transitions.find(t => t.state === "Completed")!.state_change_time;
+    return `${moment.unix(+completedTime / 1000).format(LOCAL_TIME_FORMAT)}`;
   }
 
   cancelStage() {

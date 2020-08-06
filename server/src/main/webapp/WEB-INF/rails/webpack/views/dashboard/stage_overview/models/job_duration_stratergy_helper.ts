@@ -141,14 +141,14 @@ export class JobDurationStrategyHelper {
     };
   }
 
-  private static calculateDifference(end, start) {
+  private static calculateDifference(end: any, start: any) {
     return end.isBefore(start) ? moment.utc(0) : moment.utc(end.diff(start));
   }
 
   private static getJobStateTime(job: JobJSON, state: State): number {
     const isJobCompleted = job.result !== Result[Result.Unknown];
 
-    let jobState: JobStateTransitionJSON = job.job_state_transitions.find(t => t.state === state);
+    let jobState: JobStateTransitionJSON = job.job_state_transitions.find(t => t.state === state)!;
     if (!jobState) {
       jobState = {
         state,
@@ -156,7 +156,7 @@ export class JobDurationStrategyHelper {
       } as JobStateTransitionJSON;
     }
 
-    return jobState.state_change_time / 1000;
+    return +jobState.state_change_time / 1000;
   }
 
   private static calculatePercentage(total: number, part: number) {

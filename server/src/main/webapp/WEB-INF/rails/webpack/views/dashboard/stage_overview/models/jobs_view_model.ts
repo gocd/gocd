@@ -21,11 +21,11 @@ import {JobJSON, Result} from "./types";
 
 export class JobsViewModel {
   public readonly checkedState: Map<string, Stream<boolean>> = new Map();
-  private readonly jobs: JobJSON[];
+  private jobs: JobJSON[];
 
   constructor(jobs: JobJSON[]) {
     this.jobs = jobs;
-    jobs.forEach(job => this.checkedState.set(job.name, Stream(false)));
+    jobs.forEach(job => this.checkedState.set(job.name, Stream<boolean>(false)));
   }
 
   getJobs(): JobJSON[] {

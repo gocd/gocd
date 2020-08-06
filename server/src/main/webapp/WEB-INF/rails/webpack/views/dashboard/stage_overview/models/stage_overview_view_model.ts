@@ -90,9 +90,8 @@ export class StageOverviewViewModel {
                     stageName: string,
                     stageCounter: string | number,
                     stageStatus: StageState) {
-    const isCompleted = stageStatus === StageState[StageState.Cancelled]
-      || stageStatus === StageState[StageState.Passed]
-      || stageStatus === StageState[StageState.Failed];
+    // @ts-ignore
+    const isCompleted = stageStatus === StageState[StageState.Cancelled] || stageStatus === StageState[StageState.Passed] || stageStatus === StageState[StageState.Failed];
 
     if (isCompleted) {
       return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter);

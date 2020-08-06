@@ -66,7 +66,7 @@ describe("Job State Widget", () => {
     expect(helper.root).toContainText('Cancelled');
   });
 
-  function mount(state: State, result: Result = Result[Result.Passed]) {
+  function mount(state: State, result: Result | string = Result[Result.Passed]) {
     const jobJSON = TestData.stageInstanceJSON().jobs[0];
     jobJSON.state = state;
     jobJSON.result = result;

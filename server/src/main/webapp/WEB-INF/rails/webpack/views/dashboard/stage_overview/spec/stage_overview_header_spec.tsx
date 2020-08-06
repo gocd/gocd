@@ -114,7 +114,7 @@ describe('Stage Overview Header', () => {
 
     expect(helper.byTestId('stage-details-page-link')).toBeInDOM();
     expect(link).toContainText('Go to Stage Details Page >>');
-    expect(link.href.indexOf(expectedLink)).not.toBe(-1);
+    expect((link as any).href.indexOf(expectedLink)).not.toBe(-1);
   });
 
   it('should not render flash message when no message is present', () => {
@@ -136,6 +136,7 @@ describe('Stage Overview Header', () => {
       };
 
       return <StageHeaderWidget pipelineName={pipelineName}
+                                canAdminister={true}
                                 stageInstanceFromDashboard={stageInstanceFromDashboard}
                                 pipelineCounter={pipelineCounter}
                                 inProgressStageFromPipeline={Stream()}

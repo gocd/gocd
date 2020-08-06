@@ -16,6 +16,7 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
+import {FlashMessageModelWithTimeout} from "../../../components/flash_message";
 import {TestHelper} from "../../../pages/spec/test_helper";
 import {JobCountAndRerunWidget} from "../job_count_and_rerun_widget";
 import {JobsViewModel} from "../models/jobs_view_model";
@@ -39,19 +40,19 @@ describe("Job Count And Rerun Widget", () => {
   it("should render building job count", () => {
     expect(helper.byTestId('in-progress-jobs-container')).toBeInDOM();
     expect(helper.byTestId('in-progress-jobs-container')).toContainText('Building');
-    expect(helper.byTestId('in-progress-jobs-container')).toContainText(0);
+    expect(helper.byTestId('in-progress-jobs-container')).toContainText(`0`);
   });
 
   it("should render passed job count", () => {
     expect(helper.byTestId('passed-jobs-container')).toBeInDOM();
     expect(helper.byTestId('passed-jobs-container')).toContainText('Passed');
-    expect(helper.byTestId('passed-jobs-container')).toContainText(1);
+    expect(helper.byTestId('passed-jobs-container')).toContainText(`1`);
   });
 
   it("should render failed job count", () => {
     expect(helper.byTestId('failed-jobs-container')).toBeInDOM();
     expect(helper.byTestId('failed-jobs-container')).toContainText('Failed');
-    expect(helper.byTestId('failed-jobs-container')).toContainText(0);
+    expect(helper.byTestId('failed-jobs-container')).toContainText(`0`);
   });
 
   it('should render job rerun buttons', () => {
@@ -78,7 +79,7 @@ describe("Job Count And Rerun Widget", () => {
     const json = TestData.stageInstanceJSON().jobs;
     json[0].result = Result[Result.Failed];
     jobs = new JobsViewModel(json);
-    jobs.checkedState.get(json[0].name)(true);
+    jobs.checkedState.get(json[0].name)!(true);
     mount();
 
     expect(helper.qa('button')[1]).not.toBeDisabled();
@@ -123,7 +124,7 @@ describe("Job Count And Rerun Widget", () => {
     json[0].result = Result[Result.Failed];
     json[1].result = Result[Result.Unknown];
     jobs = new JobsViewModel(json);
-    jobs.checkedState.get(json[0].name)(true);
+    jobs.checkedState.get(json[0].name)!(true);
     mount();
 
     expect(helper.qa('button')[1]).toBeDisabled();
@@ -133,7 +134,12 @@ describe("Job Count And Rerun Widget", () => {
 
   function mount() {
     helper.mount(() => {
-      return <JobCountAndRerunWidget jobsVM={Stream(jobs)} inProgressStageFromPipeline={Stream()}/>;
+      return <JobCountAndRerunWidget pipelineName="up42"
+                                     pipelineCounter={1}
+                                     stageName="up42_stage"
+                                     stageCounter={1}
+                                     flashMessage={new FlashMessageModelWithTimeout()}
+                                     jobsVM={Stream(jobs)} inProgressStageFromPipeline={Stream()}/>;
     });
   }
 });

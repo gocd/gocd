@@ -32,11 +32,15 @@ export interface Attrs {
 
 export class JobProgressBarWidget extends MithrilComponent<Attrs> {
   oncreate(vnode: m.Vnode<Attrs, {}>) {
+    // @ts-ignore
     vnode.dom.children[0].onmouseover = () => {
+      // @ts-ignore
       vnode.dom.children[1].style.visibility = 'visible';
     };
 
+    // @ts-ignore
     vnode.dom.children[0].onmouseout = () => {
+      // @ts-ignore
       vnode.dom.children[1].style.visibility = 'hidden';
     };
   }
@@ -70,20 +74,20 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
       <div data-test-id="progress-bar-tooltip" class={styles.progressBarTooltip}>
         {
           Object.keys(stateTransitionItems).map((key, index) => {
-            const value = stateTransitionItems[key];
+            const value = (stateTransitionItems as any)[key];
             const isUnknownProperty = isUnknown(value, isJobInProgress);
             const valueForDisplay = isUnknownProperty ? "unknown" : value;
             const isLastItem = Object.keys(stateTransitionItems).length - 1 === index;
-            const isNextUnknownProperty = isLastItem ? isJobInProgress : isUnknown(stateTransitionItems[Object.keys(stateTransitionItems)[index + 1]], isJobInProgress);
+            const isNextUnknownProperty = isLastItem ? isJobInProgress : isUnknown((stateTransitionItems as any)[Object.keys(stateTransitionItems)[index + 1]], isJobInProgress);
 
             let stateTransitionLine: m.Child;
             if (!isLastItem) {
               stateTransitionLine = <div class={styles.transitionLine}/>;
             }
 
-            let transitionCircleClass = `${styles.transitionCircle} ${styles.completed} ${styles[key.replace(' ', '').toLowerCase()]}`;
+            let transitionCircleClass = `${styles.transitionCircle} ${styles.completed} ${(styles as any)[key.replace(' ', '').toLowerCase()]}`;
             if (isUnknownProperty) {
-              transitionCircleClass = `${styles.transitionCircle} ${styles[key.replace(' ', '').toLowerCase()]}`;
+              transitionCircleClass = `${styles.transitionCircle} ${(styles as any)[key.replace(' ', '').toLowerCase()]}`;
             } else if (isNextUnknownProperty) {
               transitionCircleClass = styles.inProgress;
             }
@@ -100,7 +104,7 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
         }
         {
           Object.keys(tooltipItems).map(key => {
-            const value = tooltipItems[key];
+            const value = (tooltipItems as any)[key];
             const isUnknownProperty = isUnknown(value, isJobInProgress);
             const valueForDisplay = isUnknownProperty ? "unknown" : value;
             return (

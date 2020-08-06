@@ -34,31 +34,13 @@
     </authorization>
     <pipeline name="up42">
       <materials>
-        <git url="https://github.com/ganeshspatil/junk" />
+        <git url="test-repo" />
       </materials>
       <stage name="up42_stage">
         <jobs>
           <job name="up42_job">
             <tasks>
-              <exec command="sleep">
-                <arg>10</arg>
-                <runif status="passed" />
-              </exec>
-            </tasks>
-          </job>
-          <job name="up42_job2">
-            <tasks>
-              <exec command="sleep">
-                <arg>20</arg>
-                <runif status="passed" />
-              </exec>
-            </tasks>
-          </job>
-          <job name="up42_job3">
-            <tasks>
-              <exec command="sleep">
-                <arg>30</arg>
-              </exec>
+              <exec command="ls" />
             </tasks>
           </job>
         </jobs>

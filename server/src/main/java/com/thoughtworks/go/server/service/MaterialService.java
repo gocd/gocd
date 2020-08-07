@@ -41,6 +41,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +53,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.server.service.ServiceConstants.History.validateCursor;
 import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * @understands interactions between material-config, repository and modifications
@@ -173,22 +175,6 @@ public class MaterialService {
                 .collect(toMap(mod -> mod.getMaterialInstance().getFingerprint(), mod -> mod));
     }
 
-    public List<Modification> getModificationsFor(MaterialConfig materialConfig, long afterCursor, long beforeCursor, Integer pageSize) {
-        MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
-        if (materialInstance == null) {
-            return null;
-        }
-        List<Modification> modifications;
-        if (validateCursor(afterCursor, "after")) {
-            modifications = materialRepository.loadHistory(materialInstance.getId(), FeedModifier.After, afterCursor, pageSize);
-        } else if (validateCursor(beforeCursor, "before")) {
-            modifications = materialRepository.loadHistory(materialInstance.getId(), FeedModifier.Before, beforeCursor, pageSize);
-        } else {
-            modifications = materialRepository.loadHistory(materialInstance.getId(), FeedModifier.Latest, 0, pageSize);
-        }
-        return modifications;
-    }
-
     public PipelineRunIdInfo getLatestAndOldestModification(MaterialConfig materialConfig, String pattern) {
         MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
         if (materialInstance == null) {
@@ -197,19 +183,37 @@ public class MaterialService {
         return materialRepository.getOldestAndLatestModificationId(materialInstance.getId(), pattern);
     }
 
-    public List<Modification> findMatchingModifications(MaterialConfig materialConfig, String pattern, long afterCursor, long beforeCursor, Integer pageSize) {
+    public List<Modification> getModificationsFor(MaterialConfig materialConfig, String pattern, long after, long before, Integer pageSize) {
         MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
+
         if (materialInstance == null) {
             return null;
         }
-        List<Modification> matchingMods;
+
+        return isBlank(pattern)
+                ? getModificationsFor(materialInstance, after, before, pageSize)
+                : findMatchingModifications(materialInstance, pattern, after, before, pageSize);
+    }
+
+    private List<Modification> getModificationsFor(MaterialInstance materialInstance, long afterCursor, long beforeCursor, Integer pageSize) {
+        Pair<Long, FeedModifier> cursor = cursor(afterCursor, beforeCursor);
+
+        return materialRepository.loadHistory(materialInstance.getId(), cursor.last(), cursor.first(), pageSize);
+    }
+
+    private List<Modification> findMatchingModifications(MaterialInstance materialInstance, String pattern, long afterCursor, long beforeCursor, Integer pageSize) {
+        Pair<Long, FeedModifier> cursor = cursor(afterCursor, beforeCursor);
+
+        return materialRepository.findMatchingModifications(materialInstance.getId(), pattern, cursor.last(), cursor.first(), pageSize);
+    }
+
+    private Pair<Long, FeedModifier> cursor(long afterCursor, long beforeCursor) {
         if (validateCursor(afterCursor, "after")) {
-            matchingMods = materialRepository.findMatchingModifications(materialInstance.getId(), pattern, FeedModifier.After, afterCursor, pageSize);
+            return new Pair<>(afterCursor, FeedModifier.After);
         } else if (validateCursor(beforeCursor, "before")) {
-            matchingMods = materialRepository.findMatchingModifications(materialInstance.getId(), pattern, FeedModifier.Before, beforeCursor, pageSize);
-        } else {
-            matchingMods = materialRepository.findMatchingModifications(materialInstance.getId(), pattern, FeedModifier.Latest, 0, pageSize);
+            return new Pair<>(beforeCursor, FeedModifier.Before);
         }
-        return matchingMods;
+
+        return new Pair<>(0L, FeedModifier.Latest);
     }
 }

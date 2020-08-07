@@ -34,7 +34,6 @@ import spark.Response;
 
 import java.util.List;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
@@ -69,21 +68,22 @@ public class InternalMaterialModificationsControllerV1 extends ApiController imp
 
     public String modifications(Request request, Response response) throws Exception {
         String fingerprint = request.params("fingerprint");
-        Long after = getCursor(request, "after");
-        Long before = getCursor(request, "before");
+        Long after = afterCursor(request);
+        Long before = beforeCursor(request);
         Integer pageSize = getPageSize(request);
         String pattern = request.queryParamOrDefault("pattern", "");
+
         HttpOperationResult result = new HttpOperationResult();
         MaterialConfig materialConfig = materialConfigService.getMaterialConfig(currentUsernameString(), fingerprint, result);
-        if (result.canContinue()) {
-            List<Modification> modifications = isBlank(pattern)
-                    ? materialService.getModificationsFor(materialConfig, after, before, pageSize)
-                    : materialService.findMatchingModifications(materialConfig, pattern, after, before, pageSize);
-            PipelineRunIdInfo info = materialService.getLatestAndOldestModification(materialConfig, pattern);
-            return writerForTopLevelObject(request, response, writer -> ModificationsRepresenter.toJSON(writer, modifications, info, materialConfig.getFingerprint()));
 
-        } else {
+        if (!result.canContinue()) {
             return renderHTTPOperationResult(result, request, response);
         }
+
+        List<Modification> modifications = materialService.getModificationsFor(materialConfig, pattern, after, before, pageSize);
+        PipelineRunIdInfo info = materialService.getLatestAndOldestModification(materialConfig, pattern);
+
+        return writerForTopLevelObject(request, response, writer -> ModificationsRepresenter.toJSON(writer, modifications, info, materialConfig.getFingerprint(), pattern));
+
     }
 }

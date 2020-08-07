@@ -444,7 +444,7 @@ public class MaterialServiceTest {
         when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
         when(materialRepository.loadHistory(anyLong(), any(), anyLong(), anyInt())).thenReturn(modifications);
 
-        List<Modification> gotModifications = materialService.getModificationsFor(materialConfig, 0, 0, 3);
+        List<Modification> gotModifications = materialService.getModificationsFor(materialConfig, "", 0, 0, 3);
 
         verify(materialRepository).loadHistory(anyLong(), eq(FeedModifier.Latest), eq(0L), eq(3));
         assertThat(gotModifications, is(modifications));
@@ -460,7 +460,7 @@ public class MaterialServiceTest {
         when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
         when(materialRepository.loadHistory(anyLong(), any(), anyLong(), anyInt())).thenReturn(modifications);
 
-        List<Modification> gotModifications = materialService.getModificationsFor(materialConfig, 2, 0, 3);
+        List<Modification> gotModifications = materialService.getModificationsFor(materialConfig, "", 2, 0, 3);
 
         verify(materialRepository).loadHistory(anyLong(), eq(FeedModifier.After), eq(2L), eq(3));
     }
@@ -475,7 +475,7 @@ public class MaterialServiceTest {
         when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
         when(materialRepository.loadHistory(anyLong(), any(), anyLong(), anyInt())).thenReturn(modifications);
 
-        List<Modification> gotModifications = materialService.getModificationsFor(materialConfig, 0, 2, 3);
+        List<Modification> gotModifications = materialService.getModificationsFor(materialConfig, "", 0, 2, 3);
 
         verify(materialRepository).loadHistory(anyLong(), eq(FeedModifier.Before), eq(2L), eq(3));
     }
@@ -487,7 +487,7 @@ public class MaterialServiceTest {
 
         when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
 
-        assertThatCode(() -> materialService.getModificationsFor(materialConfig, -10, 0, 3))
+        assertThatCode(() -> materialService.getModificationsFor(materialConfig, "", -10, 0, 3))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("The query parameter 'after', if specified, must be a positive integer.");
 
@@ -502,7 +502,7 @@ public class MaterialServiceTest {
 
         when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
 
-        assertThatCode(() -> materialService.getModificationsFor(materialConfig, 0, -10, 3))
+        assertThatCode(() -> materialService.getModificationsFor(materialConfig, "", 0, -10, 3))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("The query parameter 'before', if specified, must be a positive integer.");
 
@@ -549,7 +549,7 @@ public class MaterialServiceTest {
         when(materialRepository.findMaterialInstance(config)).thenReturn(instance);
         when(materialRepository.findMatchingModifications(anyLong(), anyString(), any(FeedModifier.class), anyLong(), anyInt())).thenReturn(modifications);
 
-        List<Modification> result = materialService.findMatchingModifications(config, "comment", 0, 0, 10);
+        List<Modification> result = materialService.getModificationsFor(config, "comment", 0, 0, 10);
 
         verify(materialRepository).findMatchingModifications(eq(instance.getId()), eq("comment"), eq(FeedModifier.Latest), eq(0L), eq(10));
         assertThat(result, is(modifications));
@@ -567,7 +567,7 @@ public class MaterialServiceTest {
         when(materialRepository.findMaterialInstance(config)).thenReturn(instance);
         when(materialRepository.findMatchingModifications(anyLong(), anyString(), any(FeedModifier.class), anyLong(), anyInt())).thenReturn(modifications);
 
-        List<Modification> result = materialService.findMatchingModifications(config, "comment", 3, 0, 10);
+        List<Modification> result = materialService.getModificationsFor(config, "comment", 3, 0, 10);
 
         verify(materialRepository).findMatchingModifications(eq(instance.getId()), eq("comment"), eq(FeedModifier.After), eq(3L), eq(10));
         assertThat(result, is(modifications));
@@ -585,7 +585,7 @@ public class MaterialServiceTest {
         when(materialRepository.findMaterialInstance(config)).thenReturn(instance);
         when(materialRepository.findMatchingModifications(anyLong(), anyString(), any(FeedModifier.class), anyLong(), anyInt())).thenReturn(modifications);
 
-        List<Modification> result = materialService.findMatchingModifications(config, "comment", 0, 3, 10);
+        List<Modification> result = materialService.getModificationsFor(config, "comment", 0, 3, 10);
 
         verify(materialRepository).findMatchingModifications(eq(instance.getId()), eq("comment"), eq(FeedModifier.Before), eq(3L), eq(10));
         assertThat(result, is(modifications));
@@ -597,39 +597,10 @@ public class MaterialServiceTest {
 
         when(materialRepository.findMaterialInstance(material)).thenReturn(null);
 
-        List<Modification> result = materialService.findMatchingModifications(material, "comment", 0, 0, 10);
+        List<Modification> result = materialService.getModificationsFor(material, "comment", 0, 0, 10);
 
+        assertThat(result, is(nullValue()));
         verify(materialRepository).findMaterialInstance(material);
-        verifyNoMoreInteractions(materialRepository);
-    }
-
-    @Test
-    public void findMatchingMods_shouldThrowIfTheAfterCursorIsInvalid() {
-        GitMaterialConfig materialConfig = git("http://test.com");
-        GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
-
-        when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
-
-        assertThatCode(() -> materialService.findMatchingModifications(materialConfig, "comment", -10, 0, 3))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("The query parameter 'after', if specified, must be a positive integer.");
-
-        verify(materialRepository).findMaterialInstance(materialConfig);
-        verifyNoMoreInteractions(materialRepository);
-    }
-
-    @Test
-    public void findMatchingMods_shouldThrowIfTheBeforeCursorIsInvalid() {
-        GitMaterialConfig materialConfig = git("http://test.com");
-        GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
-
-        when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
-
-        assertThatCode(() -> materialService.findMatchingModifications(materialConfig, "pattern", 0, -10, 3))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("The query parameter 'before', if specified, must be a positive integer.");
-
-        verify(materialRepository).findMaterialInstance(materialConfig);
         verifyNoMoreInteractions(materialRepository);
     }
 

@@ -96,16 +96,15 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
         def modifications = new Modifications(ModificationsMother.withModifiedFileWhoseNameLengthIsOneK())
 
         when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).thenReturn(git)
-        when(materialService.getModificationsFor(any(MaterialConfig.class), anyLong(), anyLong(), anyInt())).thenReturn(modifications)
+        when(materialService.getModificationsFor(any(MaterialConfig.class), anyString(), anyLong(), anyLong(), anyInt())).thenReturn(modifications)
 
         getWithApiHeader("/api/internal/materials/abc123/modifications")
 
-        verify(materialService, never()).findMatchingModifications(any(MaterialConfig.class), anyString(), anyLong(), anyLong(), anyInt())
-        verify(materialService).getModificationsFor(eq(git), eq(0L), eq(0L), eq(10))
+        verify(materialService).getModificationsFor(eq(git), eq(""), eq(0L), eq(0L), eq(10))
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint())
+          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint(), "")
       }
 
       @Test
@@ -131,15 +130,15 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
         def modifications = new Modifications(ModificationsMother.withModifiedFileWhoseNameLengthIsOneK())
 
         when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).thenReturn(git)
-        when(materialService.getModificationsFor(any(MaterialConfig.class), anyLong(), anyLong(), anyInt())).thenReturn(modifications)
+        when(materialService.getModificationsFor(any(MaterialConfig.class), anyString(), anyLong(), anyLong(), anyInt())).thenReturn(modifications)
 
         getWithApiHeader("/api/internal/materials/abc123/modifications?after=3")
 
-        verify(materialService).getModificationsFor(eq(git), eq(3L), eq(0L), eq(10))
+        verify(materialService).getModificationsFor(eq(git), eq(""), eq(3L), eq(0L), eq(10))
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint())
+          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint(), "")
       }
 
       @Test
@@ -148,15 +147,15 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
         def modifications = new Modifications(ModificationsMother.withModifiedFileWhoseNameLengthIsOneK())
 
         when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).thenReturn(git)
-        when(materialService.getModificationsFor(any(MaterialConfig.class), anyLong(), anyLong(), anyInt())).thenReturn(modifications)
+        when(materialService.getModificationsFor(any(MaterialConfig.class), anyString(), anyLong(), anyLong(), anyInt())).thenReturn(modifications)
 
         getWithApiHeader("/api/internal/materials/abc123/modifications?before=3")
 
-        verify(materialService).getModificationsFor(eq(git), eq(0L), eq(3L), eq(10))
+        verify(materialService).getModificationsFor(eq(git), eq(""), eq(0L), eq(3L), eq(10))
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint())
+          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint(), "")
       }
 
       @Test
@@ -201,16 +200,15 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
         def modifications = new Modifications(ModificationsMother.withModifiedFileWhoseNameLengthIsOneK())
 
         when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).thenReturn(git)
-        when(materialService.findMatchingModifications(any(MaterialConfig.class), anyString(), anyLong(), anyLong(), anyInt())).thenReturn(modifications)
+        when(materialService.getModificationsFor(any(MaterialConfig.class), anyString(), anyLong(), anyLong(), anyInt())).thenReturn(modifications)
 
         getWithApiHeader("/api/internal/materials/abc123/modifications?pattern=hello")
 
-        verify(materialService).findMatchingModifications(eq(git), eq("hello"), eq(0L), eq(0L), eq(10))
-        verify(materialService, never()).getModificationsFor(eq(git), eq(3L), eq(0L), eq(10))
+        verify(materialService).getModificationsFor(eq(git), eq("hello"), eq(0L), eq(0L), eq(10))
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint())
+          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint(), "hello")
       }
 
       static Stream<Arguments> pageSizes() {

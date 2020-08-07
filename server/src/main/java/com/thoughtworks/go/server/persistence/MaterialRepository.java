@@ -54,6 +54,7 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.server.persistence.MaterialQueries.loadModificationQuery;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.hibernate.criterion.Restrictions.eq;
@@ -1044,51 +1045,20 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     public List<Modification> loadHistory(long materialId, FeedModifier modifier, long cursor, Integer pageSize) {
-        Map<String, Object> params = new HashMap<>();
-        String queryString = null;
-        switch (modifier) {
-            case Latest:
-                queryString = "SELECT * " +
-                        "FROM modifications " +
-                        "WHERE materialid = :materialId " +
-                        "ORDER BY id DESC " +
-                        "LIMIT :size ";
-                params.put("materialId", materialId);
-                params.put("size", pageSize);
-                break;
-            case After:
-                queryString = "SELECT * " +
-                        "FROM modifications " +
-                        "WHERE materialid = :materialId " +
-                        "  and id < :cursor " +
-                        "ORDER BY id DESC " +
-                        "LIMIT :size ";
-                params.put("materialId", materialId);
-                params.put("size", pageSize);
-                params.put("cursor", cursor);
-                break;
-            case Before:
-                queryString = "SELECT * " +
-                        "FROM (SELECT * " +
-                        "      FROM modifications " +
-                        "      WHERE materialid = :materialId " +
-                        "        and id > :cursor " +
-                        "      ORDER BY id ASC " +
-                        "      LIMIT :size ) as HistoryBeforeSpecifiedId " +
-                        "ORDER BY id DESC";
-                params.put("materialId", materialId);
-                params.put("size", pageSize);
-                params.put("cursor", cursor);
-                break;
-        }
-        String finalQueryString = queryString;
-        List<Modification> mods = (List<Modification>) getHibernateTemplate().execute((HibernateCallback) session -> {
-            SQLQuery query = session.createSQLQuery(finalQueryString);
+        Map<String, Object> params = Map.of(
+                "materialId", materialId,
+                "size", pageSize,
+                "cursor", cursor
+        );
+
+        String queryString = loadModificationQuery(modifier);
+
+        return (List<Modification>) getHibernateTemplate().execute((HibernateCallback) session -> {
+            SQLQuery query = session.createSQLQuery(queryString);
             query.setProperties(params);
             return query.addEntity("mods", Modification.class)
                     .list();
         });
-        return mods;
     }
 
     public PipelineRunIdInfo getOldestAndLatestModificationId(long materialId, String pattern) {
@@ -1120,47 +1090,15 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     public List<Modification> findMatchingModifications(long materialId, String pattern, FeedModifier modifier, long cursor, Integer pageSize) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("materialId", materialId);
-        params.put("pattern", "%" + pattern.toLowerCase() + "%");
-        params.put("size", pageSize);
-        params.put("cursor", cursor);
-        String queryString = null;
-        switch (modifier) {
-            case Latest:
-                queryString = "SELECT * " +
-                        "FROM modifications " +
-                        "WHERE materialid = :materialId " +
-                        "  AND (LOWER(modifications.comment) LIKE :pattern " +
-                        "  OR LOWER(userName) LIKE :pattern " +
-                        "  OR LOWER(revision) LIKE :pattern ) " +
-                        "ORDER BY id DESC " +
-                        "LIMIT :size";
-                break;
-            case After:
-                queryString = "SELECT * " +
-                        "FROM modifications " +
-                        "WHERE materialid = :materialId AND id < :cursor " +
-                        "  AND (LOWER(modifications.comment) LIKE :pattern " +
-                        "  OR LOWER(userName) LIKE :pattern " +
-                        "  OR LOWER(revision) LIKE :pattern ) " +
-                        "ORDER BY id DESC " +
-                        "LIMIT :size";
-                break;
-            case Before:
-                queryString = "SELECT * " +
-                        "FROM ( SELECT * " +
-                        "    FROM modifications " +
-                        "    WHERE materialid = :materialId AND id > :cursor " +
-                        "      AND (LOWER(modifications.comment) LIKE :pattern " +
-                        "      OR LOWER(userName) LIKE :pattern " +
-                        "      OR LOWER(revision) LIKE :pattern ) " +
-                        "    ORDER BY id DESC " +
-                        "    LIMIT :size) as LikeMatchBeforeSpecifiedCursor " +
-                        "ORDER BY id DESC";
-                break;
-        }
-        String finalQueryString = queryString;
+        Map<String, Object> params = Map.of(
+                "materialId", materialId,
+                "pattern", "%" + pattern.toLowerCase() + "%",
+                "size", pageSize,
+                "cursor", cursor
+        );
+
+        String finalQueryString = MaterialQueries.loadModificationMatchingPatternQuery(modifier);
+
         return (List<Modification>) getHibernateTemplate().execute((HibernateCallback) session -> {
             SQLQuery query = session.createSQLQuery(finalQueryString);
             query.setProperties(params);

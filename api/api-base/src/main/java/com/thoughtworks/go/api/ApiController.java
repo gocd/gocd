@@ -145,6 +145,14 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         return offset;
     }
 
+    protected long beforeCursor(Request request) {
+        return getCursor(request, "before");
+    }
+
+    protected long afterCursor(Request request) {
+        return getCursor(request, "after");
+    }
+
     protected long getCursor(Request request, String key) {
         long cursor = 0;
         try {

@@ -20,6 +20,7 @@ import org.apache.commons.lang3.text.StrSubstitutor;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class Routes {
 
@@ -923,12 +924,20 @@ public class Routes {
             return (MaterialConfig.BASE + USAGES).replaceAll(":fingerprint", fingerprint);
         }
 
-        public static String previous(String pipelineName, long before) {
-            return INTERNAL_BASE_MODIFICATIONS.replaceAll(":fingerprint", pipelineName) + "?before=" + before;
+        public static String previous(String pipelineName, long before, String pattern) {
+            String link = INTERNAL_BASE_MODIFICATIONS.replaceAll(":fingerprint", pipelineName) + "?before=" + before;
+            if (isNotBlank(pattern)) {
+                link += "&pattern=" + UrlEscapers.urlFormParameterEscaper().escape(pattern);
+            }
+            return link;
         }
 
-        public static String next(String pipelineName, long after) {
-            return INTERNAL_BASE_MODIFICATIONS.replaceAll(":fingerprint", pipelineName) + "?after=" + after;
+        public static String next(String pipelineName, long after, String pattern) {
+            String link = INTERNAL_BASE_MODIFICATIONS.replaceAll(":fingerprint", pipelineName) + "?after=" + after;
+            if (isNotBlank(pattern)) {
+                link += "&pattern=" + UrlEscapers.urlFormParameterEscaper().escape(pattern);
+            }
+            return link;
         }
     }
 }

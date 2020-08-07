@@ -624,7 +624,10 @@ export class SparkRoutes {
     return `/go/materials/value_stream_map/${fingerprint}/${revision}`;
   }
 
-  static getModifications(fingerprint: string) {
+  static getModifications(fingerprint: string, searchPattern?: string) {
+    if (searchPattern) {
+      return `/go/api/internal/materials/${fingerprint}/modifications?pattern=${searchPattern.trim()}`;
+    }
     return `/go/api/internal/materials/${fingerprint}/modifications`;
   }
 }

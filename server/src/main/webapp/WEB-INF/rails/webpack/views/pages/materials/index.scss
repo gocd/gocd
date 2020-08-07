@@ -92,3 +92,12 @@ $background-color: #ebf5f7;
     text-decoration: none;
   }
 }
+
+.search-box-wrapper {
+  margin-bottom: 8px;
+  text-align:    right;
+
+  input {
+    width: 350px;
+  }
+}

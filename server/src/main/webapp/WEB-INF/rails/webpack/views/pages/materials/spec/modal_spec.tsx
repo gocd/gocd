@@ -45,12 +45,13 @@ describe('ShowModificationsModalSpec', () => {
     expect(modal.title()).toBe("Show Modifications for 'some-name'");
   });
 
-  it('should show a spinner if modal state is loading', () => {
+  it('should show a spinner and search box if modal state is loading', () => {
     mount();
     modal.modalState = ModalState.LOADING;
     helper.redraw();
 
     expect(helper.byTestId("spinner")).toBeInDOM();
+    expect(helper.byTestId("search-box")).toBeInDOM();
     expect(helper.byTestId("modifications-modal")).not.toBeInDOM();
   });
 
@@ -117,7 +118,7 @@ describe('ShowModificationsModalSpec', () => {
     materialMods.push(new MaterialModification("GoCD Test User <devnull@example.com>", null, "b9b4f4b758e91117d70121a365ba0f8e37f89a9d", "Initial commit", "2019-12-23T10:25:52Z"));
 
     const service: ApiService = new class implements ApiService {
-      fetchHistory(fingerprint: string, link: stringOrUndefined, onSuccess: (data: MaterialModifications) => void, onError: (message: string) => void): void {
+      fetchHistory(fingerprint: string, searchPattern: string, link: stringOrUndefined, onSuccess: (data: MaterialModifications) => void, onError: (message: string) => void): void {
         onSuccess(materialMods);
         spy(fingerprint, link);
       }
@@ -142,7 +143,7 @@ class DummyService implements ApiService {
     this.materialMods = materialMods;
   }
 
-  fetchHistory(fingerprint: string, link: stringOrUndefined, onSuccess: (data: MaterialModifications) => void, onError: (message: string) => void): void {
+  fetchHistory(fingerprint: string, searchPatter: string, link: stringOrUndefined, onSuccess: (data: MaterialModifications) => void, onError: (message: string) => void): void {
     onSuccess(this.materialMods);
   }
 }

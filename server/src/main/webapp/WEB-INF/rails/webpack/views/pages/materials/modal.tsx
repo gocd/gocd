@@ -16,16 +16,18 @@
 import classnames from "classnames";
 import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {stringOrUndefined} from "models/compare/pipeline_instance_json";
 import {MaterialModification} from "models/config_repos/types";
 import {MaterialAPIs, MaterialModifications, MaterialWithFingerprint} from "models/materials/materials";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {SearchField} from "views/components/forms/input_fields";
+import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import linkStyles from "views/components/link/index.scss";
 import {Modal, ModalState, Size} from "views/components/modal";
-import {KeyValuePair} from "../../components/key_value_pair";
 import styles from "./index.scss";
 import {MaterialWidget} from "./material_widget";
 
@@ -34,6 +36,7 @@ export class ShowModificationsModal extends Modal {
   private material: MaterialWithFingerprint;
   private modifications: Stream<MaterialModifications> = Stream();
   private service: ApiService;
+  private searchQuery: Stream<string>                  = Stream("");
 
   constructor(material: MaterialWithFingerprint, service: ApiService = new FetchHistoryService()) {
     super(Size.large);
@@ -43,8 +46,21 @@ export class ShowModificationsModal extends Modal {
   }
 
   body(): m.Children {
+    const onPatternChange = () => {
+      if (_.isEmpty(this.searchQuery()) || this.searchQuery().length < 2) {
+        return;
+      }
+      _.throttle(() => this.fetchModifications(), 500, {trailing: true})();
+    };
+
+    const searchBox = <div className={styles.searchBoxWrapper}>
+      Search for a modification: &nbsp;&nbsp;
+      <SearchField property={this.searchQuery} dataTestId={"search-box"}
+                   oninput={onPatternChange}
+                   placeholder="Search in revision, comment or username"/>
+    </div>;
     if (this.isLoading()) {
-      return;
+      return <div>{searchBox}</div>;
     }
 
     if (this.errorMessage()) {
@@ -54,8 +70,8 @@ export class ShowModificationsModal extends Modal {
     const onPageChange = (link: string) => {
       this.fetchModifications(link);
     };
-
     return <div data-test-id="modifications-modal">
+      {searchBox}
       {this.modifications().map((mod, index) => {
         const details = MaterialWidget.showModificationDetails(mod);
         ShowModificationsModal.updateWithVsmLink(details, mod, this.material.fingerprint());
@@ -80,7 +96,7 @@ export class ShowModificationsModal extends Modal {
 
   private fetchModifications(link?: string) {
     this.modalState = ModalState.LOADING;
-    this.service.fetchHistory(this.material.fingerprint(), link,
+    this.service.fetchHistory(this.material.fingerprint(), this.searchQuery(), link,
                               (mods) => {
                                 this.modifications(mods);
                                 this.modalState = ModalState.OK;
@@ -133,17 +149,17 @@ class PaginationWidget extends MithrilViewComponent<PaginationAttrs> {
 }
 
 export interface ApiService {
-  fetchHistory(fingerprint: string, link: stringOrUndefined,
+  fetchHistory(fingerprint: string, searchPattern: string, link: stringOrUndefined,
                onSuccess: (data: MaterialModifications) => void,
                onError: (message: string) => void): void;
 }
 
 class FetchHistoryService implements ApiService {
-  fetchHistory(fingerprint: string, link: stringOrUndefined,
+  fetchHistory(fingerprint: string, searchPattern: string, link: stringOrUndefined,
                onSuccess: (data: MaterialModifications) => void,
                onError: (message: string) => void): void {
 
-    MaterialAPIs.modifications(fingerprint, link).then((result) => {
+    MaterialAPIs.modifications(fingerprint, searchPattern, link).then((result) => {
       result.do((successResponse) => onSuccess(successResponse.body),
                 (errorResponse) => onError(errorResponse.message));
     });

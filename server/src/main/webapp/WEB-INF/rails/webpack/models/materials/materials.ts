@@ -431,8 +431,8 @@ export class MaterialAPIs {
   /*
   *  Link is the href provided in the first response which can be used to get the next/previous list of records
   */
-  static modifications(fingerprint: string, link?: string) {
-    const url = link ? link : SparkRoutes.getModifications(fingerprint);
+  static modifications(fingerprint: string, searchPattern: string, link?: string) {
+    const url = link ? link : SparkRoutes.getModifications(fingerprint, searchPattern);
     return ApiRequestBuilder.GET(url, this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => result.map((body) => {
                               const parse = JSON.parse(body) as ModificationsJSON;

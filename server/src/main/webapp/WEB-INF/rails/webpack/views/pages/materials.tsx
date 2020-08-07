@@ -67,7 +67,7 @@ export class MaterialsPage extends Page<null, State> {
       }
       filteredMaterials(new MaterialVMs(...results));
     }
-    return <MaterialsWidget materialVMs={filteredMaterials} scms={vnode.state.scms} packages={vnode.state.packages}/>;
+    return [<MaterialsWidget key={filteredMaterials().length} materialVMs={filteredMaterials} scms={vnode.state.scms} packages={vnode.state.packages}/>];
   }
 
   pageName(): string {

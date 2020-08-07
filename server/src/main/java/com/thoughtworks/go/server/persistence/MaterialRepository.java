@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
 import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.database.QueryExtensions;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
@@ -53,7 +54,9 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.server.persistence.MaterialQueries.loadModificationQuery;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.hibernate.criterion.Restrictions.eq;
 import static org.hibernate.criterion.Restrictions.isNull;
 
@@ -1037,6 +1040,69 @@ public class MaterialRepository extends HibernateDaoSupport {
         return (List<Modification>) getHibernateTemplate().execute((HibernateCallback) session -> {
             SQLQuery query = session.createSQLQuery(queryString);
             return query.addEntity("mods", Modification.class)
+                    .list();
+        });
+    }
+
+    public List<Modification> loadHistory(long materialId, FeedModifier modifier, long cursor, Integer pageSize) {
+        Map<String, Object> params = Map.of(
+                "materialId", materialId,
+                "size", pageSize,
+                "cursor", cursor
+        );
+
+        String queryString = loadModificationQuery(modifier);
+
+        return (List<Modification>) getHibernateTemplate().execute((HibernateCallback) session -> {
+            SQLQuery query = session.createSQLQuery(queryString);
+            query.setProperties(params);
+            return query.addEntity("mods", Modification.class)
+                    .list();
+        });
+    }
+
+    public PipelineRunIdInfo getOldestAndLatestModificationId(long materialId, String pattern) {
+        String queryString = "SELECT MAX(modifications.id) as latestRunId, MIN(modifications.id) as oldestRunId " +
+                "FROM modifications " +
+                "WHERE modifications.materialid = :materialId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("materialId", materialId);
+        if (isNotBlank(pattern)) {
+            queryString = queryString +
+                    "  AND (LOWER(modifications.comment) LIKE :pattern " +
+                    "  OR LOWER(modifications.userName) LIKE :pattern " +
+                    "  OR LOWER(modifications.revision) LIKE :pattern ) ";
+
+            params.put("pattern", "%" + pattern.toLowerCase() + "%");
+        }
+        String finalQueryString = queryString;
+        Object[] info = (Object[]) getHibernateTemplate().execute((HibernateCallback) session -> {
+            SQLQuery query = session.createSQLQuery(finalQueryString);
+            query.setProperties(params);
+            return query.addScalar("latestRunId", new LongType())
+                    .addScalar("oldestRunId", new LongType())
+                    .uniqueResult();
+        });
+        if (info == null || info[0] == null || info[1] == null) {
+            return null;
+        }
+        return new PipelineRunIdInfo((long) info[0], (long) info[1]);
+    }
+
+    public List<Modification> findMatchingModifications(long materialId, String pattern, FeedModifier modifier, long cursor, Integer pageSize) {
+        Map<String, Object> params = Map.of(
+                "materialId", materialId,
+                "pattern", "%" + pattern.toLowerCase() + "%",
+                "size", pageSize,
+                "cursor", cursor
+        );
+
+        String finalQueryString = MaterialQueries.loadModificationMatchingPatternQuery(modifier);
+
+        return (List<Modification>) getHibernateTemplate().execute((HibernateCallback) session -> {
+            SQLQuery query = session.createSQLQuery(finalQueryString);
+            query.setProperties(params);
+            return query.addEntity("modifications", Modification.class)
                     .list();
         });
     }

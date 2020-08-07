@@ -19,7 +19,6 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv2.compare.representers.PipelineInstanceModelsRepresenter;
-import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.service.PipelineHistoryService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -32,7 +31,6 @@ import spark.Response;
 
 import java.io.IOException;
 
-import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_PAGE_SIZE_MSG;
 import static spark.Spark.*;
 
 @Component
@@ -75,18 +73,5 @@ public class InternalCompareControllerV2 extends ApiController implements SparkS
         } else {
             return renderHTTPOperationResult(result, request, response);
         }
-    }
-
-    private Integer getPageSize(Request request) {
-        Integer offset;
-        try {
-            offset = Integer.valueOf(request.queryParamOrDefault("page_size", "10"));
-            if (offset < 10 || offset > 100) {
-                throw new BadRequestException(BAD_PAGE_SIZE_MSG);
-            }
-        } catch (NumberFormatException e) {
-            throw new BadRequestException(BAD_PAGE_SIZE_MSG);
-        }
-        return offset;
     }
 }

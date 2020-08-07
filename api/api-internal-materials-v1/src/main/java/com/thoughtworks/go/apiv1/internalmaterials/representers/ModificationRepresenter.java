@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service;
+package com.thoughtworks.go.apiv1.internalmaterials.representers;
 
-import com.thoughtworks.go.config.exceptions.BadRequestException;
+import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.domain.materials.Modification;
 
-import static java.lang.String.format;
-
-public class ServiceConstants {
-    public static class History {
-        public static final String BAD_CURSOR_MSG = "The query parameter '%s', if specified, must be a positive integer.";
-
-        static boolean validateCursor(Long cursor, String key) {
-            if (cursor == 0) return false;
-            if (cursor < 0) {
-                throw new BadRequestException(format(BAD_CURSOR_MSG, key));
-            }
-            return true;
-        }
+public class ModificationRepresenter {
+    public static void toJSON(OutputWriter writer, Modification mod) {
+        writer.addIfNotNull("username", mod.getUserName())
+                .addIfNotNull("email_address", mod.getEmailAddress())
+                .addIfNotNull("revision", mod.getRevision())
+                .addIfNotNull("modified_time", mod.getModifiedTime())
+                .addIfNotNull("comment", mod.getComment());
     }
 }
+

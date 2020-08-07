@@ -116,7 +116,7 @@ public class AgentJobHistoryControllerV1 extends ApiController implements SparkS
         }
     }
 
-    private Integer getPageSize(Request request) {
+    protected Integer getPageSize(Request request) {
         Integer offset;
         try {
             offset = Integer.valueOf(request.queryParamOrDefault("page_size", "50"));

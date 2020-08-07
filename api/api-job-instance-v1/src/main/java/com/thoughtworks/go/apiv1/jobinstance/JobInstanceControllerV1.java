@@ -35,10 +35,7 @@ import spark.Response;
 
 import java.io.IOException;
 
-import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_CURSOR_MSG;
-import static com.thoughtworks.go.server.service.ServiceConstants.History.BAD_PAGE_SIZE_MSG;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
@@ -99,19 +96,6 @@ public class JobInstanceControllerV1 extends ApiController implements SparkSprin
         return writerForTopLevelObject(request, response, writer -> JobInstanceRepresenter.toJSON(writer, jobInstance));
     }
 
-    private Integer getPageSize(Request request) {
-        Integer offset;
-        try {
-            offset = Integer.valueOf(request.queryParamOrDefault("page_size", "10"));
-            if (offset < 10 || offset > 100) {
-                throw new BadRequestException(BAD_PAGE_SIZE_MSG);
-            }
-        } catch (NumberFormatException e) {
-            throw new BadRequestException(BAD_PAGE_SIZE_MSG);
-        }
-        return offset;
-    }
-
     private Integer getValue(Request request, String paramKey) {
         Integer value;
         String errorMsg = format("The params '%s' must be a number greater than 0.", paramKey);
@@ -124,19 +108,5 @@ public class JobInstanceControllerV1 extends ApiController implements SparkSprin
             throw new BadRequestException(errorMsg);
         }
         return value;
-    }
-
-    private long getCursor(Request request, String key) {
-        long cursor = 0;
-        try {
-            String value = request.queryParams(key);
-            if (isBlank(value)) {
-                return cursor;
-            }
-            cursor = Long.parseLong(value);
-        } catch (NumberFormatException nfe) {
-            throw new BadRequestException(String.format(BAD_CURSOR_MSG, key));
-        }
-        return cursor;
     }
 }

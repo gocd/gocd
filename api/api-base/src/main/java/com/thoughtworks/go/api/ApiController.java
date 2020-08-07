@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.server.util.RequestUtils;
 import com.thoughtworks.go.spark.SparkController;
 import org.slf4j.Logger;
@@ -37,6 +38,8 @@ import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseJsonConte
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class ApiController implements ControllerMethods, SparkController {
+    protected String BAD_PAGE_SIZE_MSG = "The query parameter 'page_size', if specified must be a number between 10 and 100.";
+    protected String BAD_CURSOR_MSG = "The query parameter '%s', if specified, must be a positive integer.";
     private static final Set<String> UPDATE_HTTP_METHODS = new HashSet<>(Arrays.asList("PUT", "POST", "PATCH"));
 
     /**
@@ -127,5 +130,40 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
                 filter.handle(request, response);
             }
         };
+    }
+
+    protected Integer getPageSize(Request request) {
+        Integer offset;
+        try {
+            offset = Integer.valueOf(request.queryParamOrDefault("page_size", "10"));
+            if (offset < 10 || offset > 100) {
+                throw new BadRequestException(BAD_PAGE_SIZE_MSG);
+            }
+        } catch (NumberFormatException e) {
+            throw new BadRequestException(BAD_PAGE_SIZE_MSG);
+        }
+        return offset;
+    }
+
+    protected long beforeCursor(Request request) {
+        return getCursor(request, "before");
+    }
+
+    protected long afterCursor(Request request) {
+        return getCursor(request, "after");
+    }
+
+    protected long getCursor(Request request, String key) {
+        long cursor = 0;
+        try {
+            String value = request.queryParams(key);
+            if (isBlank(value)) {
+                return cursor;
+            }
+            cursor = Long.parseLong(value);
+        } catch (NumberFormatException nfe) {
+            throw new BadRequestException(String.format(BAD_CURSOR_MSG, key));
+        }
+        return cursor;
     }
 }

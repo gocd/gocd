@@ -28,9 +28,11 @@ import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.domain.PipelineRunIdInfo;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
+import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.materials.*;
@@ -39,6 +41,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +51,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.server.service.ServiceConstants.History.validateCursor;
 import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * @understands interactions between material-config, repository and modifications
@@ -168,5 +173,47 @@ public class MaterialService {
         return modifications
                 .stream()
                 .collect(toMap(mod -> mod.getMaterialInstance().getFingerprint(), mod -> mod));
+    }
+
+    public PipelineRunIdInfo getLatestAndOldestModification(MaterialConfig materialConfig, String pattern) {
+        MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
+        if (materialInstance == null) {
+            return null;
+        }
+        return materialRepository.getOldestAndLatestModificationId(materialInstance.getId(), pattern);
+    }
+
+    public List<Modification> getModificationsFor(MaterialConfig materialConfig, String pattern, long after, long before, Integer pageSize) {
+        MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
+
+        if (materialInstance == null) {
+            return null;
+        }
+
+        return isBlank(pattern)
+                ? getModificationsFor(materialInstance, after, before, pageSize)
+                : findMatchingModifications(materialInstance, pattern, after, before, pageSize);
+    }
+
+    private List<Modification> getModificationsFor(MaterialInstance materialInstance, long afterCursor, long beforeCursor, Integer pageSize) {
+        Pair<Long, FeedModifier> cursor = cursor(afterCursor, beforeCursor);
+
+        return materialRepository.loadHistory(materialInstance.getId(), cursor.last(), cursor.first(), pageSize);
+    }
+
+    private List<Modification> findMatchingModifications(MaterialInstance materialInstance, String pattern, long afterCursor, long beforeCursor, Integer pageSize) {
+        Pair<Long, FeedModifier> cursor = cursor(afterCursor, beforeCursor);
+
+        return materialRepository.findMatchingModifications(materialInstance.getId(), pattern, cursor.last(), cursor.first(), pageSize);
+    }
+
+    private Pair<Long, FeedModifier> cursor(long afterCursor, long beforeCursor) {
+        if (validateCursor(afterCursor, "after")) {
+            return new Pair<>(afterCursor, FeedModifier.After);
+        } else if (validateCursor(beforeCursor, "before")) {
+            return new Pair<>(beforeCursor, FeedModifier.Before);
+        }
+
+        return new Pair<>(0L, FeedModifier.Latest);
     }
 }

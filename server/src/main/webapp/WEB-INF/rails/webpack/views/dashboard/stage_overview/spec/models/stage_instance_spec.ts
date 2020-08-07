@@ -37,8 +37,8 @@ describe('Stage Instance', () => {
   });
 
   it('should provide triggered on information', () => {
-    const json = StageInstance.fromJSON(stageInstanceJson);
-    expect(json.triggeredOn()).toBe('27 Jul, 2020 at 10:20:14');
+    const json: StageInstance = StageInstance.fromJSON(stageInstanceJson);
+    expect(json.triggeredOn()).toBe(TestData.unixTime(json.stageScheduledTime()));
   });
 
   describe("Stage Duration", () => {

@@ -86,7 +86,7 @@ describe('Stage Overview Header', () => {
 
   it('should render triggered on information', () => {
     expect(helper.byTestId('stage-trigger-and-timing-container')).toBeInDOM();
-    expect(helper.byTestId('stage-trigger-and-timing-container')).toContainText('on 27 Jul, 2020 at 10:20:14 Local Time');
+    expect(helper.byTestId('stage-trigger-and-timing-container')).toContainText(stageInstance.triggeredOn());
   });
 
   it('should render stage duration', () => {
@@ -105,7 +105,7 @@ describe('Stage Overview Header', () => {
     expect(helper.byTestId('cancelled-by-container')).toBeInDOM();
     expect(helper.byTestId('cancelled-on-container')).toBeInDOM();
     expect(helper.byTestId('cancelled-by-container')).toContainText('Cancelled by admin');
-    expect(helper.byTestId('cancelled-on-container')).toContainText('on 27 Jul, 2020 at 12:01:04 Local Time');
+    expect(helper.byTestId('cancelled-on-container')).toContainText(stageInstance.cancelledOn());
   });
 
   it('should render link to stage details page', () => {

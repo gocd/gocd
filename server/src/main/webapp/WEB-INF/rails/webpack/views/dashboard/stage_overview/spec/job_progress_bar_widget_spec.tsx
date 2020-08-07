@@ -25,8 +25,10 @@ import {TestData} from "./test_data";
 describe("Job Progress Bar Widget", () => {
   const helper = new TestHelper();
 
+  let json: JobJSON;
   beforeEach(() => {
-    mount(TestData.stageInstanceJSON().jobs[0]);
+    json = TestData.stageInstanceJSON().jobs[0];
+    mount(json);
   });
   afterEach(helper.unmount.bind(helper));
 
@@ -150,7 +152,7 @@ describe("Job Progress Bar Widget", () => {
       progressBar.dispatchEvent(new MouseEvent('mouseover'));
 
       expect(tooltip).toContainText("Scheduled At");
-      expect(tooltip).toContainText("27 Jul, 2020 at 11:51:04 Local Time");
+      expect(tooltip).toContainText(TestData.unixTime(json.job_state_transitions[0].state_change_time as number / 1000));
     });
 
     it("should render completed at time", () => {
@@ -159,7 +161,7 @@ describe("Job Progress Bar Widget", () => {
       progressBar.dispatchEvent(new MouseEvent('mouseover'));
 
       expect(tooltip).toContainText("Completed At");
-      expect(tooltip).toContainText("27 Jul, 2020 at 12:01:04 Local Time");
+      expect(tooltip).toContainText(TestData.unixTime((json.job_state_transitions[5].state_change_time as number) / 1000));
     });
   });
 

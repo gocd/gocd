@@ -95,7 +95,7 @@ export class StageInstance {
     return ApiRequestBuilder.POST(SparkRoutes.runStage(this.json.pipeline_name, this.json.pipeline_counter, this.json.name), ApiVersion.latest);
   }
 
-  private stageScheduledTime(): number {
+  stageScheduledTime(): number {
     return this.json.jobs[0].scheduled_date / 1000;
   }
 

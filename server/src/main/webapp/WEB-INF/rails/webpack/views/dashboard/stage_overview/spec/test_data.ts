@@ -1,6 +1,12 @@
+import moment from "moment";
 import {StageInstanceJSON} from "../models/types";
 
 export class TestData {
+  static unixTime(val: number): any {
+    const LOCAL_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss";
+    return `${moment.unix(val).format(LOCAL_TIME_FORMAT)}`;
+  }
+
   static stageInstanceJSON(): StageInstanceJSON {
     return {
       name:                    "up42_stage",

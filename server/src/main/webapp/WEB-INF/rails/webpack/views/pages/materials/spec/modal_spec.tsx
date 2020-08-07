@@ -64,12 +64,19 @@ describe('ShowModificationsModalSpec', () => {
     expect(helper.byTestId("modifications-modal")).not.toBeInDOM();
   });
 
-  it('should render modifications', () => {
+  it('should render modifications with vsm link', () => {
     materialMods.push(new MaterialModification("GoCD Test User <devnull@example.com>", null, "b9b4f4b758e91117d70121a365ba0f8e37f89a9d", "Initial commit", "2019-12-23T10:25:52Z"));
     mount();
 
     expect(helper.byTestId("modifications-modal")).toBeInDOM();
     expect(helper.qa('li', helper.byTestId('modification-0')).length).toBe(5);
+
+    const revisionElement = helper.qa('li', helper.byTestId('modification-0'))[2];
+
+    expect(revisionElement.textContent).toBe('Revisionb9b4f4b758e91117d70121a365ba0f8e37f89a9d | VSM');
+    expect(helper.byTestId("vsm-link", revisionElement)).toBeInDOM();
+    expect(helper.byTestId("vsm-link", revisionElement)).toHaveAttr('href', '/go/materials/value_stream_map/some-fingerprint/b9b4f4b758e91117d70121a365ba0f8e37f89a9d');
+    expect(helper.byTestId("vsm-link", revisionElement)).toHaveAttr('title', 'Value Stream Map');
   });
 
   it('should have enabled next and previous buttons if both links are available', () => {

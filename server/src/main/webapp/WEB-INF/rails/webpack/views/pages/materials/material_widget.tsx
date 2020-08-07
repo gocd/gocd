@@ -49,7 +49,7 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
     attrs.set("Modified Time", <span
       title={timeFormatter.formatInServerTime(modification.modifiedTime)}>{timeFormatter.format(modification.modifiedTime)}</span>);
 
-    return <KeyValuePair data={attrs}/>;
+    return attrs;
   }
 
   view(vnode: m.Vnode<MaterialWithInfoAttrs, this>): m.Children | void | null {
@@ -58,7 +58,7 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
     const config              = material.config;
     const modificationDetails = material.modification === null
       ? <FlashMessage type={MessageType.info}>This material was never parsed</FlashMessage>
-      : MaterialWidget.showModificationDetails(material.modification);
+      : <KeyValuePair data={MaterialWidget.showModificationDetails(material.modification)}/>;
 
     let maybeEditButton;
 

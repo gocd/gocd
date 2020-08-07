@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 import classnames from "classnames";
+import {SparkRoutes} from "helpers/spark_routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {stringOrUndefined} from "models/compare/pipeline_instance_json";
+import {MaterialModification} from "models/config_repos/types";
 import {MaterialAPIs, MaterialModifications, MaterialWithFingerprint} from "models/materials/materials";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {Link} from "views/components/link";
 import linkStyles from "views/components/link/index.scss";
 import {Modal, ModalState, Size} from "views/components/modal";
+import {KeyValuePair} from "../../components/key_value_pair";
 import styles from "./index.scss";
 import {MaterialWidget} from "./material_widget";
 
 export class ShowModificationsModal extends Modal {
-  errorMessage: Stream<string>                 = Stream();
+  errorMessage: Stream<string>                         = Stream();
   private material: MaterialWithFingerprint;
   private modifications: Stream<MaterialModifications> = Stream();
   private service: ApiService;
@@ -53,8 +57,10 @@ export class ShowModificationsModal extends Modal {
 
     return <div data-test-id="modifications-modal">
       {this.modifications().map((mod, index) => {
+        const details = MaterialWidget.showModificationDetails(mod);
+        ShowModificationsModal.updateWithVsmLink(details, mod, this.material.fingerprint());
         return <div data-test-id={`modification-${index}`} class={styles.modification}>
-          {MaterialWidget.showModificationDetails(mod)}
+          <KeyValuePair data={details}/>
         </div>;
       })}
       <PaginationWidget previousLink={this.modifications().previousLink} nextLink={this.modifications().nextLink}
@@ -64,6 +70,12 @@ export class ShowModificationsModal extends Modal {
 
   title(): string {
     return `Show Modifications for '${this.material.displayName() || this.material.typeForDisplay()}'`;
+  }
+
+  private static updateWithVsmLink(details: Map<string, m.Children>, mod: MaterialModification, fingerprint: string) {
+    const vsmLink = <Link dataTestId={"vsm-link"} href={SparkRoutes.materialsVsmLink(fingerprint, mod.revision)}
+                          title={"Value Stream Map"}>VSM</Link>;
+    details.set("Revision", <span>{details.get("Revision")} | {vsmLink}</span>);
   }
 
   private fetchModifications(link?: string) {

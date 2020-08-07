@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.apiv1.internalmaterials.representers
 
+import com.thoughtworks.go.apiv1.internalmaterials.models.MaterialInfo
 import com.thoughtworks.go.apiv1.internalmaterials.representers.materials.MaterialsRepresenter
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.helper.ModificationsMother
@@ -53,7 +54,7 @@ class MaterialWithModificationsRepresenterTest {
     def map = new HashMap();
     def git = MaterialConfigsMother.git("http://example.com", "main")
     def modification = ModificationsMother.withModifiedFileWhoseNameLengthIsOneK()
-    map.put(git, modification)
+    map.put(git, new MaterialInfo(modification, true))
 
     def actualJson = toObjectString({ MaterialWithModificationsRepresenter.toJSON(it, map) })
 
@@ -68,8 +69,9 @@ class MaterialWithModificationsRepresenterTest {
       ],
       materials: [
         [
-          "config"      : toObject(MaterialsRepresenter.toJSON(git)),
-          "modification": [
+          "config"                     : toObject(MaterialsRepresenter.toJSON(git)),
+          "material_update_in_progress": true,
+          "modification"               : [
             "username"     : "lgao",
             "email_address": "foo@bar.com",
             "revision"     : modification.revision,
@@ -87,7 +89,7 @@ class MaterialWithModificationsRepresenterTest {
   void 'should render modification as null'() {
     def map = new HashMap();
     def git = MaterialConfigsMother.git("http://example.com", "main")
-    map.put(git, null)
+    map.put(git, new MaterialInfo(null, false))
 
     def actualJson = toObjectString({ MaterialWithModificationsRepresenter.toJSON(it, map) })
 
@@ -102,8 +104,9 @@ class MaterialWithModificationsRepresenterTest {
       ],
       materials: [
         [
-          "config"      : toObject(MaterialsRepresenter.toJSON(git)),
-          "modification": null
+          "config"                     : toObject(MaterialsRepresenter.toJSON(git)),
+          "material_update_in_progress": false,
+          "modification"               : null
         ]
       ]
     ]

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-apply plugin: 'groovy'
+package com.thoughtworks.go.apiv1.internalmaterials.models;
 
-dependencies {
-  compile project(':api:api-base')
+import com.thoughtworks.go.domain.materials.Modification;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-  compileOnly group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
-  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
-  testCompile project(path: ':api:api-base', configuration: 'testOutput')
-
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+@Getter
+@AllArgsConstructor
+public class MaterialInfo {
+    private Modification modification;
+    private boolean isUpdateInProgress;
 }

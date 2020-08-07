@@ -19,12 +19,14 @@ package com.thoughtworks.go.apiv1.internalmaterials;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.apiv1.internalmaterials.models.MaterialInfo;
 import com.thoughtworks.go.apiv1.internalmaterials.representers.MaterialWithModificationsRepresenter;
 import com.thoughtworks.go.apiv1.internalmaterials.representers.UsagesRepresenter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.service.MaterialConfigService;
 import com.thoughtworks.go.server.service.MaterialService;
 import com.thoughtworks.go.spark.Routes;
@@ -34,10 +36,12 @@ import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
 @Component
@@ -46,13 +50,15 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final MaterialConfigService materialConfigService;
     private final MaterialService materialService;
+    private final MaintenanceModeService maintenanceModeService;
 
     @Autowired
-    public InternalMaterialsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, MaterialConfigService materialConfigService, MaterialService materialService) {
+    public InternalMaterialsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, MaterialConfigService materialConfigService, MaterialService materialService, MaintenanceModeService maintenanceModeService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.materialConfigService = materialConfigService;
         this.materialService = materialService;
+        this.maintenanceModeService = maintenanceModeService;
     }
 
     @Override
@@ -77,7 +83,8 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
     public String index(Request request, Response response) throws Exception {
         MaterialConfigs materialConfigs = materialConfigService.getMaterialConfigs(currentUsernameString());
         Map<String, Modification> modifications = materialService.getLatestModificationForEachMaterial();
-        Map<MaterialConfig, Modification> mergedMap = createMergedMap(materialConfigs, modifications);
+        Collection<MaintenanceModeService.MaterialPerformingMDU> runningMDUs = maintenanceModeService.getRunningMDUs();
+        Map<MaterialConfig, MaterialInfo> mergedMap = createMergedMap(materialConfigs, modifications, runningMDUs);
         return writerForTopLevelObject(request, response, writer -> MaterialWithModificationsRepresenter.toJSON(writer, mergedMap));
     }
 
@@ -87,15 +94,17 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
         return writerForTopLevelObject(request, response, writer -> UsagesRepresenter.toJSON(writer, fingerprint, usagesForMaterial));
     }
 
-    private Map<MaterialConfig, Modification> createMergedMap(MaterialConfigs materialConfigs, Map<String, Modification> modificationsMap) {
-        HashMap<MaterialConfig, Modification> map = new HashMap<>();
+    private Map<MaterialConfig, MaterialInfo> createMergedMap(MaterialConfigs materialConfigs, Map<String, Modification> modificationsMap, Collection<MaintenanceModeService.MaterialPerformingMDU> runningMDUs) {
+        HashMap<MaterialConfig, MaterialInfo> map = new HashMap<>();
         if (materialConfigs.isEmpty()) {
             return map;
         }
+        List<String> mdus = runningMDUs.stream().map((mdu) -> mdu.getMaterial().getFingerprint()).collect(toList());
         for (MaterialConfig materialConfig : materialConfigs) {
             if (!materialConfig.getType().equals(DependencyMaterialConfig.TYPE)) {
                 Modification mod = modificationsMap.getOrDefault(materialConfig.getFingerprint(), null);
-                map.put(materialConfig, mod);
+                boolean isMDUInProgress = mdus.contains(materialConfig.getFingerprint());
+                map.put(materialConfig, new MaterialInfo(mod, isMDUInProgress));
             }
         }
         return map;

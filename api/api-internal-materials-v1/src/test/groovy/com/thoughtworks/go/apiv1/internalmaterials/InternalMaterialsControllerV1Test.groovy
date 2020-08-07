@@ -18,11 +18,13 @@ package com.thoughtworks.go.apiv1.internalmaterials
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.apiv1.internalmaterials.models.MaterialInfo
 import com.thoughtworks.go.apiv1.internalmaterials.representers.MaterialWithModificationsRepresenter
 import com.thoughtworks.go.apiv1.internalmaterials.representers.UsagesRepresenter
 import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.helper.ModificationsMother
+import com.thoughtworks.go.server.service.MaintenanceModeService
 import com.thoughtworks.go.server.service.MaterialConfigService
 import com.thoughtworks.go.server.service.MaterialService
 import com.thoughtworks.go.spark.ControllerTrait
@@ -43,6 +45,8 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
   private MaterialConfigService materialConfigService
   @Mock
   private MaterialService materialService
+  @Mock
+  private MaintenanceModeService maintenanceModeService
 
   @BeforeEach
   void setUp() {
@@ -51,7 +55,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
   @Override
   InternalMaterialsControllerV1 createControllerInstance() {
-    new InternalMaterialsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), materialConfigService, materialService)
+    new InternalMaterialsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), materialConfigService, materialService, maintenanceModeService)
   }
 
   @Nested
@@ -112,7 +116,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
     }
 
     @Test
-    void 'should return 200 with materials and their modifications'() {
+    void 'should return 200 with materials and their info: modifications and mdu progress'() {
       MaterialConfigs materialConfigs = new MaterialConfigs()
       def git = MaterialConfigsMother.git("http://example.com")
       materialConfigs.add(git)
@@ -123,11 +127,12 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
       when(materialConfigService.getMaterialConfigs(anyString())).thenReturn(materialConfigs)
       when(materialService.getLatestModificationForEachMaterial()).thenReturn(map)
+      when(maintenanceModeService.getRunningMDUs()).thenReturn([])
 
       getWithApiHeader(controller.controllerBasePath())
 
       def resultMap = new HashMap<>()
-      resultMap.put(git, modifications)
+      resultMap.put(git, new MaterialInfo(modifications, false))
 
       assertThatResponse()
         .isOk()
@@ -154,11 +159,12 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
       when(materialConfigService.getMaterialConfigs(anyString())).thenReturn(materialConfigs)
       when(materialService.getLatestModificationForEachMaterial()).thenReturn(emptyMap())
+      when(maintenanceModeService.getRunningMDUs()).thenReturn([])
 
       getWithApiHeader(controller.controllerBasePath())
 
       def resultMap = new HashMap<>()
-      resultMap.put(git, null)
+      resultMap.put(git, new MaterialInfo(null, false))
 
       assertThatResponse()
         .isOk()
@@ -180,11 +186,12 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
       when(materialConfigService.getMaterialConfigs(anyString())).thenReturn(materialConfigs)
       when(materialService.getLatestModificationForEachMaterial()).thenReturn(map)
+      when(maintenanceModeService.getRunningMDUs()).thenReturn([])
 
       getWithApiHeader(controller.controllerBasePath())
 
       def resultMap = new HashMap<>()
-      resultMap.put(git, modifications)
+      resultMap.put(git, new MaterialInfo(modifications, false))
 
       assertThatResponse()
         .isOk()

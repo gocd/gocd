@@ -20,6 +20,7 @@ import {
   GitMaterialAttributes,
   HgMaterialAttributes,
   MaterialAPIs,
+  MaterialModifications,
   Materials,
   MaterialWithFingerprint,
   MaterialWithModification,
@@ -91,7 +92,7 @@ describe('MaterialsAPISpec', () => {
       done();
     });
 
-    MaterialAPIs.modifications("fingerprint").then(onResponse);
+    MaterialAPIs.modifications("fingerprint", "").then(onResponse);
 
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(url);

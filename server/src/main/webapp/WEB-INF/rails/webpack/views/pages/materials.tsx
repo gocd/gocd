@@ -18,7 +18,7 @@ import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {MaterialAPIs, MaterialWithFingerprint} from "models/materials/materials";
+import {MaterialAPIs, MaterialWithFingerprint, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
@@ -31,11 +31,11 @@ import {ShowModificationsModal} from "./materials/modal";
 export interface AdditionalInfoAttrs {
   onEdit: (material: MaterialWithFingerprint, e: MouseEvent) => void;
   showModifications: (material: MaterialWithFingerprint, e: MouseEvent) => void;
+  shouldShowPackageOrScmLink: boolean;
 }
 
 export interface MaterialsAttrs extends AdditionalInfoAttrs {
   materialVMs: Stream<MaterialVMs>;
-  shouldShowPackageOrScmLink: boolean;
 }
 
 interface State extends MaterialsAttrs {
@@ -56,13 +56,11 @@ export class MaterialsPage extends Page<null, State> {
       switch (materialType) {
         case "package":
           const pkgAttrs = material.attributes() as PackageMaterialAttributes;
-          const pkgInfo  = vnode.state.packages().find((pkg) => pkg.id() === pkgAttrs.ref())!;
-          window.open(`${SparkRoutes.packageRepositoriesSPA(pkgInfo.packageRepo().name(), pkgInfo.name())}/edit`);
+          window.open(`${SparkRoutes.packageRepositoriesSPA(pkgAttrs.packageRepoName(), pkgAttrs.packageName())}/edit`);
           break;
         case "plugin":
           const pluginAttrs = material.attributes() as PluggableScmMaterialAttributes;
-          const scmMaterial = vnode.state.scms().find((scm) => scm.id() === pluginAttrs.ref())!;
-          window.open(`${SparkRoutes.pluggableScmSPA(scmMaterial.name())}/edit`);
+          window.open(`${SparkRoutes.pluggableScmSPA(pluginAttrs.scmName())}/edit`);
           break;
       }
     };

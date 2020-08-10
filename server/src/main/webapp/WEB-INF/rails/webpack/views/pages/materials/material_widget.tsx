@@ -26,6 +26,7 @@ import {Analytics, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import headerStyles from "views/pages/config_repos/index.scss";
+import {AdditionalInfoAttrs} from "views/pages/materials";
 import {MaterialHeaderWidget} from "./material_header_widget";
 import {MaterialUsageWidget} from "./material_usage_widget";
 import {MaterialVM} from "./models/material_view_model";
@@ -34,8 +35,7 @@ export interface MaterialAttrs {
   materialVM: MaterialVM;
 }
 
-interface MaterialWithInfoAttrs extends MaterialAttrs {
-  shouldShowPackageOrScmLink: boolean;
+interface MaterialWithInfoAttrs extends MaterialAttrs, AdditionalInfoAttrs {
 }
 
 export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> {

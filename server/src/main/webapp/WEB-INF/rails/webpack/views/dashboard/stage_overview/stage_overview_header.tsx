@@ -184,6 +184,7 @@ class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCa
 
       return <div data-test-id="rerun-stage">
         <Icons.Repeat iconOnly={true} disabled={disabled}
+                      title="Rerun stage"
                       onmouseover={() => vnode.state.isTriggerHover(true)}
                       onmouseout={() => vnode.state.isTriggerHover(false)}
                       onclick={() => {vnode.attrs.stageInstance().runStage().then(vnode.state.getResultHandler(vnode.attrs));}}/>
@@ -194,6 +195,7 @@ class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCa
     const disabledMessage = `You dont have permissions to cancel the stage.`;
     return <div data-test-id="cancel-stage">
       <Icons.CancelStage iconOnly={true} disabled={disabled}
+                         title="Cancel stage"
                          onmouseover={() => vnode.state.isTriggerHover(true)}
                          onmouseout={() => vnode.state.isTriggerHover(false)}
                          onclick={() => {vnode.attrs.stageInstance().cancelStage().then(vnode.state.getResultHandler(vnode.attrs));}}/>

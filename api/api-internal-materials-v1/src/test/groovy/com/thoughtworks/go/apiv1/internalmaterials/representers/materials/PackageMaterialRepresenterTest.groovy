@@ -15,13 +15,8 @@
  */
 package com.thoughtworks.go.apiv1.internalmaterials.representers.materials
 
-import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.config.PipelineConfig
-import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
-import com.thoughtworks.go.config.materials.MaterialConfigs
+
 import com.thoughtworks.go.config.materials.PackageMaterialConfig
-import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import org.junit.jupiter.api.Test
 
@@ -40,8 +35,10 @@ class PackageMaterialRepresenterTest {
       fingerprint: packageMaterialConfig.fingerprint,
       attributes :
         [
-          ref        : "p-id",
-          auto_update: true
+          ref              : "p-id",
+          auto_update      : true,
+          package_name     : "package-name",
+          package_repo_name: "repo-name"
         ]
     ])
   }

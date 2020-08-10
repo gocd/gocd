@@ -34,7 +34,8 @@ class PluggableScmMaterialRepresenterTest {
       fingerprint: pluggableSCMMaterial.fingerprint,
       attributes : [
         ref        : "scm-id",
-        auto_update: true
+        auto_update: true,
+        scm_name   : "scm-scm-id"
       ]
     ])
   }

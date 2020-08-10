@@ -28,27 +28,27 @@ describe("Job State Widget", () => {
 
   it("should render scheduled job state", () => {
     mount("Scheduled");
-    expect(helper.root).toContainText('waiting for an agent');
+    expect(helper.root).toContainText('Waiting for an agent');
   });
 
   it("should render assigned job state", () => {
     mount("Assigned");
-    expect(helper.root).toContainText('agent assigned');
+    expect(helper.root).toContainText('Agent assigned');
   });
 
   it("should render preparing job state", () => {
     mount("Preparing");
-    expect(helper.root).toContainText('checking out materials');
+    expect(helper.root).toContainText('Checking out materials');
   });
 
   it("should render building job state", () => {
     mount("Building");
-    expect(helper.root).toContainText('building');
+    expect(helper.root).toContainText('Building');
   });
 
   it("should render completing job state", () => {
     mount("Completing");
-    expect(helper.root).toContainText('uploading artifacts');
+    expect(helper.root).toContainText('Uploading artifacts');
   });
 
   it("should render completed passed job state", () => {

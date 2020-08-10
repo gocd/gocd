@@ -18,14 +18,17 @@ import {timeFormatter} from "helpers/time_formatter";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {MaterialModification} from "models/config_repos/types";
-import {Filter} from "models/maintenance_mode/material";
-import {MaterialWithFingerprint, MaterialWithModification} from "models/materials/materials";
+import {
+  MaterialWithFingerprint,
+  MaterialWithModification,
+  PackageMaterialAttributes,
+  PluggableScmMaterialAttributes
+} from "models/materials/materials";
 import {Scm, Scms} from "models/materials/pluggable_scm";
-import {PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
 import {Package, Packages} from "models/package_repositories/package_repositories";
 import {getPackage} from "models/package_repositories/spec/test_data";
+import {getPluggableScm} from "views/pages/pluggable_scms/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {getPluggableScm} from "../../pluggable_scms/spec/test_data";
 import {MaterialWidget} from "../material_widget";
 import {MaterialVM} from "../models/material_view_model";
 import {git} from "./materials_widget_spec";
@@ -64,7 +67,7 @@ describe('MaterialWidgetSpec', () => {
     const scm = Scm.fromJSON(getPluggableScm());
     scms.push(scm);
     material.config
-      = new MaterialWithFingerprint("plugin", "fingerprint", new PluggableScmMaterialAttributes(undefined, true, scm.id(), "", new Filter([])));
+      = new MaterialWithFingerprint("plugin", "fingerprint", new PluggableScmMaterialAttributes(undefined, true, scm.id(), "scm_name"));
     mount();
 
     expect(helper.qa('h3')[1].textContent).toBe("Material Attributes");
@@ -81,7 +84,7 @@ describe('MaterialWidgetSpec', () => {
     const pkg = Package.fromJSON(getPackage());
     packages.push(pkg);
     material.config
-      = new MaterialWithFingerprint("package", "fingerprint", new PackageMaterialAttributes(undefined, true, pkg.id()));
+      = new MaterialWithFingerprint("package", "fingerprint", new PackageMaterialAttributes(undefined, true, pkg.id(), "pkg-name", "pkg-repo-name"));
     mount();
 
     expect(helper.qa('h3')[1].textContent).toBe("Material Attributes");
@@ -125,7 +128,7 @@ describe('MaterialWidgetSpec', () => {
     const scm = Scm.fromJSON(getPluggableScm());
     scms.push(scm);
     material.config = new MaterialWithFingerprint("plugin", "fingerprint",
-                                                  new PluggableScmMaterialAttributes(undefined, true, "some-id", "", new Filter([])));
+                                                  new PluggableScmMaterialAttributes(undefined, true, "some-id", "scm-name"));
     mount();
 
     expect(helper.qa('h3')[1].textContent).toBe("Material Attributes");

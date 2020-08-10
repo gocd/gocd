@@ -16,18 +16,19 @@
 
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {Filter} from "models/maintenance_mode/material";
-import {MaterialAPIs, Materials, MaterialWithFingerprint, MaterialWithModification} from "../materials";
 import {
-  DependencyMaterialAttributes,
   GitMaterialAttributes,
   HgMaterialAttributes,
+  MaterialAPIs,
+  Materials,
+  MaterialWithFingerprint,
+  MaterialWithModification,
   P4MaterialAttributes,
   PackageMaterialAttributes,
   PluggableScmMaterialAttributes,
   SvnMaterialAttributes,
   TfsMaterialAttributes
-} from "../types";
+} from "../materials";
 
 describe('MaterialsAPISpec', () => {
   beforeEach(() => jasmine.Ajax.install());
@@ -155,14 +156,6 @@ describe('MaterialWithFingerPrintSpec', () => {
       expect(keys.length).toBe(3);
       expect(keys).toEqual(['URL', 'Domain', 'Project Path']);
     });
-
-    it('should return empty attributes for non-scm materials', () => {
-      const material = new MaterialWithFingerprint("dependency", "fingerprint", new DependencyMaterialAttributes("name", false, "some-url", "domain"));
-
-      const attrs = material.attributesAsMap();
-
-      expect(attrs.size).toBe(0);
-    });
   });
 });
 
@@ -174,19 +167,17 @@ describe('MaterialsWithModificationsSpec', () => {
     materials.push(new MaterialWithModification(new MaterialWithFingerprint("svn", "some", new SvnMaterialAttributes()), null));
     materials.push(new MaterialWithModification(new MaterialWithFingerprint("p4", "some", new P4MaterialAttributes()), null));
     materials.push(new MaterialWithModification(new MaterialWithFingerprint("tfs", "some", new TfsMaterialAttributes()), null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("dependency", "some", new DependencyMaterialAttributes()), null));
     materials.push(new MaterialWithModification(new MaterialWithFingerprint("package", "some", new PackageMaterialAttributes()), null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("plugin", "some", new PluggableScmMaterialAttributes(undefined, undefined, "", "", new Filter([]))), null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("plugin", "some", new PluggableScmMaterialAttributes(undefined, undefined, "", "scm_name")), null));
 
     materials.sortOnType();
 
-    expect(materials[0].config.type()).toBe('dependency');
-    expect(materials[1].config.type()).toBe('git');
-    expect(materials[2].config.type()).toBe('hg');
-    expect(materials[3].config.type()).toBe('p4');
-    expect(materials[4].config.type()).toBe('package');
-    expect(materials[5].config.type()).toBe('plugin');
-    expect(materials[6].config.type()).toBe('svn');
-    expect(materials[7].config.type()).toBe('tfs');
+    expect(materials[0].config.type()).toBe('git');
+    expect(materials[1].config.type()).toBe('hg');
+    expect(materials[2].config.type()).toBe('p4');
+    expect(materials[3].config.type()).toBe('package');
+    expect(materials[4].config.type()).toBe('plugin');
+    expect(materials[5].config.type()).toBe('svn');
+    expect(materials[6].config.type()).toBe('tfs');
   });
 });

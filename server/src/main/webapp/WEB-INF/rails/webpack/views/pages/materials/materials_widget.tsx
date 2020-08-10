@@ -46,8 +46,8 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
       </div>;
     }
     return <div data-test-id="materials-widget">
-      {vnode.attrs.materialVMs().map((materialVM) => <MaterialWidget materialVM={materialVM} scms={vnode.attrs.scms}
-                                                                     packages={vnode.attrs.packages}/>)}
+      {vnode.attrs.materialVMs().map((materialVM) => <MaterialWidget materialVM={materialVM}
+                                                                     shouldShowPackageOrScmLink={vnode.attrs.shouldShowPackageOrScmLink}/>)}
     </div>;
   }
 }

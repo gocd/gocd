@@ -21,11 +21,64 @@ import Stream from "mithril/stream";
 import {MaterialModificationJSON} from "models/config_repos/serialization";
 import {humanizedMaterialAttributeName, MaterialModification} from "models/config_repos/types";
 import {Filter} from "models/maintenance_mode/material";
-import {MaterialJSON} from "./serialization";
-import {Material, MaterialAttributes} from "./types";
+import {DependencyMaterialAttributes, mapTypeToDisplayType} from "./types";
 
-export interface MaterialWithFingerprintJSON extends MaterialJSON {
+interface BaseAttributesJSON {
+  name: string;
+  auto_update: boolean;
+}
+
+interface GitMaterialAttributesJSON extends BaseAttributesJSON {
+  url: string;
+  branch: string;
+}
+
+interface SvnMaterialAttributesJSON extends BaseAttributesJSON {
+  url: string;
+  check_externals: boolean;
+}
+
+interface HgMaterialAttributesJSON extends BaseAttributesJSON {
+  url: string;
+  branch: string;
+}
+
+interface P4MaterialAttributesJSON extends BaseAttributesJSON {
+  port: string;
+  use_tickets: boolean;
+  view: string;
+}
+
+interface TfsMaterialAttributesJSON extends BaseAttributesJSON {
+  url: string;
+  domain: string;
+  project_path: string;
+}
+
+interface PackageMaterialAttributesJSON extends BaseAttributesJSON {
+  ref: string;
+  package_name: string;
+  package_repo_name: string;
+}
+
+interface PluggableScmMaterialAttributesJSON extends BaseAttributesJSON {
+  ref: string;
+  scm_name: string;
+}
+
+type MaterialAttributesJSON =
+  GitMaterialAttributesJSON
+  | SvnMaterialAttributesJSON
+  | HgMaterialAttributesJSON
+  | P4MaterialAttributesJSON
+  | TfsMaterialAttributesJSON
+  | PackageMaterialAttributesJSON
+  | PluggableScmMaterialAttributesJSON;
+
+export interface MaterialWithFingerprintJSON {
+  type: string;
   fingerprint: string;
+  attributes: MaterialAttributesJSON;
 }
 
 interface MaterialWithModificationJSON {
@@ -37,16 +90,195 @@ interface MaterialsJSON {
   materials: MaterialWithModificationJSON[];
 }
 
-export class MaterialWithFingerprint extends Material {
+abstract class MaterialAttributes {
+  name: Stream<string | undefined>;
+  autoUpdate: Stream<boolean>;
+
+  protected constructor(name?: string, autoUpdate: boolean = false) {
+    this.name       = Stream(name);
+    this.autoUpdate = Stream(autoUpdate);
+  }
+
+  static deserialize(material: MaterialWithFingerprintJSON) {
+    switch (material.type) {
+      case "git":
+        return GitMaterialAttributes.fromJSON(material.attributes as GitMaterialAttributesJSON);
+      case "svn":
+        return SvnMaterialAttributes.fromJSON(material.attributes as SvnMaterialAttributesJSON);
+      case "hg":
+        return HgMaterialAttributes.fromJSON(material.attributes as HgMaterialAttributesJSON);
+      case "p4":
+        return P4MaterialAttributes.fromJSON(material.attributes as P4MaterialAttributesJSON);
+      case "tfs":
+        return TfsMaterialAttributes.fromJSON(material.attributes as TfsMaterialAttributesJSON);
+      case "package":
+        return PackageMaterialAttributes.fromJSON(material.attributes as PackageMaterialAttributesJSON);
+      case "plugin":
+        return PluggableScmMaterialAttributes.fromJSON(material.attributes as PluggableScmMaterialAttributesJSON);
+      default:
+        throw new Error(`Unknown material type ${material.type}`);
+    }
+  }
+}
+
+export class GitMaterialAttributes extends MaterialAttributes {
+  url: Stream<string | undefined>;
+  branch: Stream<string | undefined>;
+
+  constructor(name?: string, autoUpdate?: boolean, url?: string, branch?: string) {
+    super(name, autoUpdate);
+    this.url    = Stream(url);
+    this.branch = Stream(branch);
+  }
+
+  static fromJSON(json: GitMaterialAttributesJSON) {
+    return new GitMaterialAttributes(json.name, json.auto_update, json.url, json.branch);
+  }
+}
+
+export class SvnMaterialAttributes extends MaterialAttributes {
+  url: Stream<string | undefined>;
+  checkExternals: Stream<boolean | undefined>;
+
+  constructor(name?: string,
+              autoUpdate?: boolean,
+              url?: string,
+              checkExternals?: boolean) {
+    super(name, autoUpdate);
+    this.url            = Stream(url);
+    this.checkExternals = Stream(checkExternals);
+  }
+
+  static fromJSON(json: SvnMaterialAttributesJSON) {
+    return new SvnMaterialAttributes(json.name, json.auto_update, json.url, json.check_externals);
+  }
+}
+
+export class HgMaterialAttributes extends MaterialAttributes {
+  url: Stream<string | undefined>;
+  branch: Stream<string | undefined>;
+
+  constructor(name?: string, autoUpdate?: boolean, url?: string, branch?: string) {
+    super(name, autoUpdate);
+    this.url    = Stream(url);
+    this.branch = Stream(branch);
+  }
+
+  static fromJSON(json: HgMaterialAttributesJSON) {
+    return new HgMaterialAttributes(json.name, json.auto_update, json.url, json.branch);
+  }
+}
+
+export class P4MaterialAttributes extends MaterialAttributes {
+  port: Stream<string | undefined>;
+  useTickets: Stream<boolean | undefined>;
+  view: Stream<string | undefined>;
+
+  constructor(name?: string,
+              autoUpdate?: boolean,
+              port?: string,
+              useTickets?: boolean,
+              view?: string) {
+    super(name, autoUpdate);
+    this.port       = Stream(port);
+    this.useTickets = Stream(useTickets);
+    this.view       = Stream(view);
+  }
+
+  static fromJSON(json: P4MaterialAttributesJSON) {
+    return new P4MaterialAttributes(json.name, json.auto_update, json.port, json.use_tickets, json.view);
+  }
+}
+
+export class TfsMaterialAttributes extends MaterialAttributes {
+  url: Stream<string | undefined>;
+  domain: Stream<string | undefined>;
+  projectPath: Stream<string | undefined>;
+
+  constructor(name?: string,
+              autoUpdate?: boolean,
+              url?: string,
+              domain?: string,
+              projectPath?: string) {
+    super(name, autoUpdate);
+    this.url         = Stream(url);
+    this.domain      = Stream(domain);
+    this.projectPath = Stream(projectPath);
+  }
+
+  static fromJSON(json: TfsMaterialAttributesJSON) {
+    return new TfsMaterialAttributes(json.name, json.auto_update, json.url, json.domain, json.project_path);
+  }
+}
+
+export class PackageMaterialAttributes extends MaterialAttributes {
+  ref: Stream<string | undefined>;
+  packageName: Stream<string | undefined>;
+  packageRepoName: Stream<string | undefined>;
+
+  constructor(name?: string, autoUpdate?: boolean, ref?: string, packageName?: string, packageRepoName?: string) {
+    super(name, autoUpdate);
+    this.ref             = Stream(ref);
+    this.packageName     = Stream(packageName);
+    this.packageRepoName = Stream(packageRepoName);
+  }
+
+  static fromJSON(data: PackageMaterialAttributesJSON): PackageMaterialAttributes {
+    return new PackageMaterialAttributes(data.name, data.auto_update, data.ref, data.package_name, data.package_repo_name);
+  }
+}
+
+export class PluggableScmMaterialAttributes extends MaterialAttributes {
+  ref: Stream<string>;
+  scmName: Stream<string>;
+
+  constructor(name: string | undefined, autoUpdate: boolean | undefined, ref: string, scmName: string) {
+    super(name, autoUpdate);
+    this.ref     = Stream(ref);
+    this.scmName = Stream(scmName);
+  }
+
+  static fromJSON(data: PluggableScmMaterialAttributesJSON): PluggableScmMaterialAttributes {
+    return new PluggableScmMaterialAttributes(data.name, data.auto_update, data.ref, data.scm_name);
+  }
+}
+
+export class MaterialWithFingerprint {
+  type: Stream<string>;
   fingerprint: Stream<string>;
+  attributes: Stream<MaterialAttributes>;
 
   constructor(type: string, fingerprint: string, attributes: MaterialAttributes) {
-    super(type, attributes);
+    this.type        = Stream(type);
     this.fingerprint = Stream(fingerprint);
+    this.attributes  = Stream(attributes);
   }
 
   static fromJSON(data: MaterialWithFingerprintJSON): MaterialWithFingerprint {
     return new MaterialWithFingerprint(data.type, data.fingerprint, MaterialAttributes.deserialize(data));
+  }
+
+  name(): string {
+    return this.attributes()!.name() || "";
+  }
+
+  typeForDisplay() {
+    return mapTypeToDisplayType[this.type()!];
+  }
+
+  displayName() {
+    const name = this.name();
+    if (name.length > 0) {
+      return name;
+    }
+    if (this.type() === "package" || this.type() === "plugin") {
+      return "";
+    }
+    if (this.type() === "p4") {
+      return (this.attributes() as P4MaterialAttributes).port();
+    }
+    // @ts-ignore
+    return this.attributes()!.url();
   }
 
   attributesAsMap(): Map<string, any> {
@@ -75,6 +307,25 @@ export class MaterialWithFingerprint extends Material {
     };
     _.reduce(this.attributes(), reducer, map);
     return map;
+  }
+
+  materialUrl(): string {
+    switch (this.type()) {
+      case "p4":
+        return (this.attributes() as P4MaterialAttributes).port()!;
+      case "dependency":
+        const attrs = (this.attributes() as DependencyMaterialAttributes);
+        return `${attrs.pipeline()} / ${attrs.stage()}`;
+      case "package":
+      case "plugin":
+        return "";
+      case "git":
+        // @ts-ignore
+        return `${this.attributes()!.url()} [ ${this.attributes()!.branch()} ]`;
+      default:
+        // @ts-ignore
+        return this.attributes()!.url();
+    }
   }
 
   private static resolveKeyValueForAttribute(accumulator: Map<string, string>, value: any, key: string) {

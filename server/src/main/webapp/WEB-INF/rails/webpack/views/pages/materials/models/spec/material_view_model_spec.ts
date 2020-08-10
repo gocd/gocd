@@ -15,19 +15,19 @@
  */
 
 import {MaterialModification} from "models/config_repos/types";
-import {Filter} from "models/maintenance_mode/material";
-import {Materials, MaterialWithFingerprint, MaterialWithModification} from "models/materials/materials";
 import {
-  DependencyMaterialAttributes,
   GitMaterialAttributes,
   HgMaterialAttributes,
+  Materials,
+  MaterialWithFingerprint,
+  MaterialWithModification,
   P4MaterialAttributes,
   PackageMaterialAttributes,
   PluggableScmMaterialAttributes,
   SvnMaterialAttributes,
   TfsMaterialAttributes
-} from "models/materials/types";
-import {DummyCache} from "../../spec/material_usage_widget_spec";
+} from "models/materials/materials";
+import {DummyCache} from "views/pages/materials/spec/material_usage_widget_spec";
 import {MaterialVM, MaterialVMs} from "../material_view_model";
 
 describe('MaterialVMSpec', () => {
@@ -78,20 +78,18 @@ describe('MaterialsVMsSpec', () => {
     materials.push(new MaterialWithModification(new MaterialWithFingerprint("svn", "some", new SvnMaterialAttributes()), null));
     materials.push(new MaterialWithModification(new MaterialWithFingerprint("p4", "some", new P4MaterialAttributes()), null));
     materials.push(new MaterialWithModification(new MaterialWithFingerprint("tfs", "some", new TfsMaterialAttributes()), null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("dependency", "some", new DependencyMaterialAttributes()), null));
     materials.push(new MaterialWithModification(new MaterialWithFingerprint("package", "some", new PackageMaterialAttributes()), null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("plugin", "some", new PluggableScmMaterialAttributes(undefined, undefined, "", "", new Filter([]))), null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("plugin", "some", new PluggableScmMaterialAttributes(undefined, undefined, "", "scm-name")), null));
 
     const materialVMs = MaterialVMs.fromMaterials(materials);
     materialVMs.sortOnType();
 
-    expect(materialVMs[0].type()).toBe('dependency');
-    expect(materialVMs[1].type()).toBe('git');
-    expect(materialVMs[2].type()).toBe('hg');
-    expect(materialVMs[3].type()).toBe('p4');
-    expect(materialVMs[4].type()).toBe('package');
-    expect(materialVMs[5].type()).toBe('plugin');
-    expect(materialVMs[6].type()).toBe('svn');
-    expect(materialVMs[7].type()).toBe('tfs');
+    expect(materialVMs[0].type()).toBe('git');
+    expect(materialVMs[1].type()).toBe('hg');
+    expect(materialVMs[2].type()).toBe('p4');
+    expect(materialVMs[3].type()).toBe('package');
+    expect(materialVMs[4].type()).toBe('plugin');
+    expect(materialVMs[5].type()).toBe('svn');
+    expect(materialVMs[6].type()).toBe('tfs');
   });
 });

@@ -17,8 +17,6 @@ import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {MaterialWithFingerprintJSON} from "models/materials/materials";
-import {Scms} from "models/materials/pluggable_scm";
-import {Packages} from "models/package_repositories/package_repositories";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialsWidget} from "../materials_widget";
 import {MaterialVMs} from "../models/material_view_model";
@@ -47,7 +45,7 @@ describe('MaterialsWidgetSpec', () => {
   });
 
   function mount() {
-    helper.mount(() => <MaterialsWidget materialVMs={Stream(materialVMs)} packages={Stream(new Packages())} scms={Stream(new Scms())}/>);
+    helper.mount(() => <MaterialsWidget materialVMs={Stream(materialVMs)} shouldShowPackageOrScmLink={false}/>);
   }
 });
 

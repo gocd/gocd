@@ -40,7 +40,7 @@ import urlParse from "url-parse";
 import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 import {Filter} from "../maintenance_mode/material";
 
-const mapTypeToDisplayType: { [key: string]: string; } = {
+export const mapTypeToDisplayType: { [key: string]: string; } = {
   git:        "Git",
   svn:        "Subversion",
   hg:         "Mercurial",

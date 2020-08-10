@@ -18,18 +18,13 @@ import {SparkRoutes} from "helpers/spark_routes";
 import {timeFormatter} from "helpers/time_formatter";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import Stream from "mithril/stream";
 import {MaterialModification} from "models/config_repos/types";
-import {MaterialWithFingerprint} from "models/materials/materials";
-import {Scms} from "models/materials/pluggable_scm";
-import {PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
-import {Packages} from "models/package_repositories/package_repositories";
+import {MaterialWithFingerprint, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import headerStyles from "views/pages/config_repos/index.scss";
-import {AdditionalInfoAttrs} from "../materials";
 import {MaterialHeaderWidget} from "./material_header_widget";
 import {MaterialUsageWidget} from "./material_usage_widget";
 import {MaterialVM} from "./models/material_view_model";
@@ -38,7 +33,8 @@ export interface MaterialAttrs {
   materialVM: MaterialVM;
 }
 
-interface MaterialWithInfoAttrs extends MaterialAttrs, AdditionalInfoAttrs {
+interface MaterialWithInfoAttrs extends MaterialAttrs {
+  shouldShowPackageOrScmLink: boolean;
 }
 
 export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> {
@@ -69,32 +65,30 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
         {modificationDetails}
       </div>
       <h3>Material Attributes</h3>
-      <KeyValuePair data-test-id={"material-attributes"} data={this.getMaterialData(material.config, vnode.attrs.packages, vnode.attrs.scms)}/>
+      <KeyValuePair data-test-id={"material-attributes"} data={this.getMaterialData(material.config, vnode.attrs.shouldShowPackageOrScmLink)}/>
     </CollapsiblePanel>;
   }
 
-  private getMaterialData(material: MaterialWithFingerprint, packages: Stream<Packages>, scms: Stream<Scms>): Map<string, m.Children> {
+  private getMaterialData(material: MaterialWithFingerprint, shouldShowPackageOrScmLink: boolean): Map<string, m.Children> {
     let map = new Map();
     if (material.type() === "package") {
       const pkgAttrs = material.attributes() as PackageMaterialAttributes;
-      const pkgInfo  = packages().find((pkg) => pkg.id() === pkgAttrs.ref());
 
-      const pkgName = pkgInfo === undefined
-        ? `No package found for '${pkgAttrs.ref()}'!`
-        : <Link href={SparkRoutes.packageRepositoriesSPA(pkgInfo.packageRepo().name(), pkgInfo.name())}>
-          {pkgInfo.name()}
-        </Link>;
+      const pkgName = shouldShowPackageOrScmLink
+        ? <Link href={SparkRoutes.packageRepositoriesSPA(pkgAttrs.packageRepoName(), pkgAttrs.packageName())}>
+          {pkgAttrs.packageName()}
+        </Link>
+        : pkgAttrs.packageName();
 
       map.set("Ref", pkgName);
     } else if (material.type() === "plugin") {
       const pluginAttrs = material.attributes() as PluggableScmMaterialAttributes;
-      const scmMaterial = scms().find((scm) => scm.id() === pluginAttrs.ref());
 
-      const value = scmMaterial === undefined
-        ? `No SCM found for '${pluginAttrs.ref()}'!`
-        : <Link href={SparkRoutes.pluggableScmSPA(scmMaterial.name())}>
-          {scmMaterial.name()}
-        </Link>;
+      const value = shouldShowPackageOrScmLink
+        ? <Link href={SparkRoutes.pluggableScmSPA(pluginAttrs.scmName())}>
+          {pluginAttrs.scmName()}
+        </Link>
+        : pluginAttrs.scmName();
 
       map.set("Ref", value);
     } else {

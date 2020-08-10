@@ -17,8 +17,7 @@
 import {asSelector} from "helpers/css_proxies";
 import m from "mithril";
 import {ObjectCache} from "models/base/cache";
-import {MaterialWithFingerprint, MaterialWithModification} from "models/materials/materials";
-import {GitMaterialAttributes} from "models/materials/types";
+import {GitMaterialAttributes, MaterialWithFingerprint, MaterialWithModification} from "models/materials/materials";
 import css from "views/pages/config_repos/defined_structs.scss";
 import {emptyTree,} from "views/pages/config_repos/spec/test_data";
 import {MaterialUsagesVM} from "views/pages/materials/models/material_usages_view_model";

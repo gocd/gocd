@@ -16,16 +16,14 @@
 
 import {timeFormatter} from "helpers/time_formatter";
 import m from "mithril";
-import Stream from "mithril/stream";
 import {MaterialModification} from "models/config_repos/types";
-import {Filter} from "models/maintenance_mode/material";
-import {MaterialWithFingerprint, MaterialWithModification} from "models/materials/materials";
-import {Scm, Scms} from "models/materials/pluggable_scm";
-import {PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/types";
-import {Package, Packages} from "models/package_repositories/package_repositories";
-import {getPackage} from "models/package_repositories/spec/test_data";
+import {
+  MaterialWithFingerprint,
+  MaterialWithModification,
+  PackageMaterialAttributes,
+  PluggableScmMaterialAttributes
+} from "models/materials/materials";
 import {TestHelper} from "views/pages/spec/test_helper";
-import {getPluggableScm} from "../../pluggable_scms/spec/test_data";
 import {MaterialWidget} from "../material_widget";
 import {MaterialVM} from "../models/material_view_model";
 import {git} from "./materials_widget_spec";
@@ -33,14 +31,10 @@ import {git} from "./materials_widget_spec";
 describe('MaterialWidgetSpec', () => {
   const helper = new TestHelper();
   let material: MaterialWithModification;
-  let packages: Packages;
-  let scms: Scms;
 
   afterEach((done) => helper.unmount(done));
   beforeEach(() => {
     material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), null);
-    packages = new Packages();
-    scms     = new Scms();
   });
 
   it('should display the header', () => {
@@ -61,10 +55,8 @@ describe('MaterialWidgetSpec', () => {
   });
 
   it('should render ref with link for plugin', () => {
-    const scm = Scm.fromJSON(getPluggableScm());
-    scms.push(scm);
     material.config
-      = new MaterialWithFingerprint("plugin", "fingerprint", new PluggableScmMaterialAttributes(undefined, true, scm.id(), "", new Filter([])));
+      = new MaterialWithFingerprint("plugin", "fingerprint", new PluggableScmMaterialAttributes(undefined, true, "scm-id", "scm_name"));
     mount();
 
     expect(helper.qa('h3')[1].textContent).toBe("Material Attributes");
@@ -73,15 +65,13 @@ describe('MaterialWidgetSpec', () => {
 
     expect(attrsElement).toBeInDOM();
     expect(helper.qa('li', attrsElement).length).toBe(1);
-    expect(helper.q('a', helper.byTestId('key-value-value-ref')).textContent).toBe('pluggable.scm.material.name');
-    expect(helper.q('a', helper.byTestId('key-value-value-ref'))).toHaveAttr('href', '/go/admin/scms#!pluggable.scm.material.name');
+    expect(helper.q('a', helper.byTestId('key-value-value-ref')).textContent).toBe('scm_name');
+    expect(helper.q('a', helper.byTestId('key-value-value-ref'))).toHaveAttr('href', '/go/admin/scms#!scm_name');
   });
 
   it('should render ref with link for package', () => {
-    const pkg = Package.fromJSON(getPackage());
-    packages.push(pkg);
     material.config
-      = new MaterialWithFingerprint("package", "fingerprint", new PackageMaterialAttributes(undefined, true, pkg.id()));
+      = new MaterialWithFingerprint("package", "fingerprint", new PackageMaterialAttributes(undefined, true, "pkg-id", "pkg-name", "pkg-repo-name"));
     mount();
 
     expect(helper.qa('h3')[1].textContent).toBe("Material Attributes");
@@ -121,12 +111,10 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.q('span span', attrs[4])).toHaveAttr('title', '23 Dec, 2019 at 10:25:52 +00:00 Server Time');
   });
 
-  it('should display message if scm information is not present', () => {
-    const scm = Scm.fromJSON(getPluggableScm());
-    scms.push(scm);
+  it('should not add link if shouldShowPackageOrScmLink is false for scm', () => {
     material.config = new MaterialWithFingerprint("plugin", "fingerprint",
-                                                  new PluggableScmMaterialAttributes(undefined, true, "some-id", "", new Filter([])));
-    mount();
+                                                  new PluggableScmMaterialAttributes(undefined, true, "some-id", "scm-name"));
+    mount(false);
 
     expect(helper.qa('h3')[1].textContent).toBe("Material Attributes");
 
@@ -134,14 +122,14 @@ describe('MaterialWidgetSpec', () => {
 
     expect(attrsElement).toBeInDOM();
     expect(helper.qa('li', attrsElement).length).toBe(1);
-    expect(helper.textByTestId('key-value-value-ref')).toBe("No SCM found for 'some-id'!");
+    expect(helper.textByTestId('key-value-value-ref')).toBe("scm-name");
+    expect(helper.q('a', helper.byTestId('key-value-value-ref'))).not.toBeInDOM();
   });
 
-  it('should display message if package information is not present', () => {
-    const pkg = Package.fromJSON(getPackage());
-    packages.push(pkg);
-    material.config = new MaterialWithFingerprint("package", "fingerprint", new PackageMaterialAttributes(undefined, true, "some-pkg-id"));
-    mount();
+  it('should not add link if shouldShowPackageOrScmLink is false for package', () => {
+    material.config = new MaterialWithFingerprint("package", "fingerprint",
+                                                  new PackageMaterialAttributes(undefined, true, "some-pkg-id", "pkg-name", "pkg-repo-name"));
+    mount(false);
 
     expect(helper.qa('h3')[1].textContent).toBe("Material Attributes");
 
@@ -149,10 +137,11 @@ describe('MaterialWidgetSpec', () => {
 
     expect(attrsElement).toBeInDOM();
     expect(helper.qa('li', attrsElement).length).toBe(1);
-    expect(helper.textByTestId('key-value-value-ref')).toBe("No package found for 'some-pkg-id'!");
+    expect(helper.textByTestId('key-value-value-ref')).toBe("pkg-name");
+    expect(helper.q('a', helper.byTestId('key-value-value-ref'))).not.toBeInDOM();
   });
 
-  function mount() {
-    helper.mount(() => <MaterialWidget materialVM={new MaterialVM(material)} packages={Stream(packages)} scms={Stream(scms)}/>);
+  function mount(shouldShowPackageOrScmLink: boolean = true) {
+    helper.mount(() => <MaterialWidget materialVM={new MaterialVM(material)} shouldShowPackageOrScmLink={shouldShowPackageOrScmLink}/>);
   }
 });

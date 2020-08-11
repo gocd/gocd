@@ -134,9 +134,7 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
         </div>
         <div data-test-id="stage-details-page-link" class={styles.stageDetailsPageLink}>
           {dummyContainer}
-          <Link href={stageDetailsPageLink} target={"_blank"}>
-            {`Go to Stage Details Page >>`}
-          </Link>
+          <Link href={stageDetailsPageLink} externalLinkIcon={true} target={"_blank"}>Go to Stage Details Page</Link>
         </div>
       </div>
     </div>;

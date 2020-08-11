@@ -245,11 +245,19 @@ $building: #ffc11b;
   }
 
   .name-cell {
-    min-width:     90px;
-    max-width:     165px;
+    width:         120px;
     display:       flex;
     overflow:      hidden;
     text-overflow: ellipsis;
+
+    i {
+      color:       $link-color;
+      margin-left: 2px;
+
+      &:hover {
+        font-size: 14px;
+      }
+    }
   }
 
   .state-cell {

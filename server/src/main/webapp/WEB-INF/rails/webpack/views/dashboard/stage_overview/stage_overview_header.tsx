@@ -55,7 +55,7 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
           Cancelled by <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().cancelledBy()}</span>
         </div>
         <div data-test-id="cancelled-on-container" className={styles.triggeredByContainer}>
-          on <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().cancelledOn()}</span> Local Time
+          on <span title={vnode.attrs.stageInstance().cancelledOnServerTime()} className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().cancelledOn()}</span> Local Time
         </div>
       </div>);
 
@@ -127,7 +127,7 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
             Triggered by <span class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredBy()}</span>
           </div>
           <div data-test-id="triggered-on-container" className={styles.triggeredByContainer}>
-            on <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredOn()}</span> Local Time
+            on <span title={vnode.attrs.stageInstance().triggeredOnServerTime()} className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredOn()}</span> Local Time
             <span className={styles.durationSeparator}>|</span>
             Duration: <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().stageDuration()}</span>
           </div>

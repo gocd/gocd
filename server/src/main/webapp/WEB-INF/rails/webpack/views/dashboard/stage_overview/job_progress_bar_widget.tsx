@@ -36,6 +36,14 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
     vnode.dom.children[0].onmouseover = () => {
       // @ts-ignore
       vnode.dom.children[1].style.visibility = 'visible';
+
+      // stage overview job table body is a scrollable div and the tooltips are rendered absolute WRT to the job progress bar.
+      // when the table body is scrolled, the tooltip is not re-positioned to considered the scrolled div.
+      // find the amount of pixels the body is scrolled and reposition the tooltip considering scrolled offset.
+      // 8 px is the default margin top required for the tooltip caret.
+      const scrolledTop = document.getElementById("scrollable-jobs-table-body")!.scrollTop;
+      // @ts-ignore
+      vnode.dom.children[1].style.marginTop = (8 - scrolledTop) + 'px';
     };
 
     // @ts-ignore

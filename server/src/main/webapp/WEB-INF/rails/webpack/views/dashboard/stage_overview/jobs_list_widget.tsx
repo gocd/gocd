@@ -85,7 +85,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         <div class={styles.durationCell} data-test-id="duration-header">Duration</div>
         <div class={styles.agentCell} data-test-id="agent-header">Agent</div>
       </div>
-      <div class={styles.tableBody} data-test-id="table-body">
+      <div id="scrollable-jobs-table-body" class={styles.tableBody} data-test-id="table-body">
         {vnode.attrs.jobsVM().getJobs().map(job => {
           const checkboxStream = vnode.attrs.jobsVM().checkedState.get(job.name)!;
           return vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance, vnode.attrs.agents, checkboxStream);

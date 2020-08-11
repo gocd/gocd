@@ -22,6 +22,7 @@ import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.Clock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,10 +88,30 @@ public class AgentAuthenticationFilter extends OncePerRequestFilter {
         if (isAuthenticated(agentToken, authenticationToken)) {
             LOGGER.debug("Agent is already authenticated");
         } else {
-            if (!hmacOf(uuid).equals(token)) {
-                LOGGER.debug("Denying access, agent with uuid '{}' submitted bad token.", uuid);
-                response.setStatus(403);
-                return;
+            try {
+                String hmac = hmacOf(uuid);
+                if (!hmac.equals(token)) {
+                    LOGGER.debug("Denying access, agent with uuid '{}' submitted bad token.", uuid);
+                    if (Toggles.isToggleOn(Toggles.LOG_AGENT_TOKEN)) {
+                        LOGGER.info("[Debug Issue #8427] Agent token and generated hmac does not match,\n " +
+                                "UUID from Agent: '{}'\n" +
+                                "Token from agent: '{}'\n" +
+                                "Generated hmac: '{}'\n" +
+                                "Token generation key used: '{}'\n", uuid, token, hmac, goConfigService.serverConfig().getTokenGenerationKey());
+                    }
+
+                    response.setStatus(403);
+                    return;
+                }
+            } catch (Exception e) {
+                if (Toggles.isToggleOn(Toggles.LOG_AGENT_TOKEN)) {
+                    LOGGER.error("[Debug Issue #8427] Error while generating hmac or comparing with given token,\n" +
+                            "UUID from Agent: '{}'\n" +
+                            "Token from agent: '{}'\n" +
+                            "Token generation key used: '{}'\n", uuid, token, goConfigService.serverConfig().getTokenGenerationKey(), e);
+                }
+
+                throw e;
             }
 
             GoUserPrinciple agentUser = new GoUserPrinciple("_go_agent_" + uuid, "", GoAuthority.ROLE_AGENT.asAuthority());

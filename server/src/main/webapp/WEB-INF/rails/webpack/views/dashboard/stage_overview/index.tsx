@@ -88,8 +88,8 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
       stagesWidth = stagesWidth + 44.5;
     });
 
-    // 744 is the initial right alignment
-    const leftAlign = shouldAlignLeft ? -(744 - (stagesWidth + stageTriggerWidth)) : (stagesWidth + stageTriggerWidth);
+    // 563 is the initial right alignment
+    const leftAlign = shouldAlignLeft ? -(563 - (stagesWidth + stageTriggerWidth)) : (stagesWidth + stageTriggerWidth);
 
     // horizontal alignment
     // 10px is the initial margin left and each stage bar is of 45px in width (including margin)

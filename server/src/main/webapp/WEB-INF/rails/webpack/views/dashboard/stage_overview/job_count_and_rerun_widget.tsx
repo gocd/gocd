@@ -90,6 +90,14 @@ export class JobCountAndRerunWidget extends MithrilComponent<Attrs, State> {
     }
 
     return <div class={styles.jobCountAndRerunContainer} data-test-id="job-count-and-rerun-container">
+      <div class={styles.jobRerunContainer} data-test-id="job-rerun-container">
+        <ButtonGroup>
+          <Secondary title={rerunFailedTitle} disabled={disableRerunFailed} small={true}
+                     onclick={vnode.state.rerunFailed.bind(vnode.state, vnode.attrs)}>Rerun Failed</Secondary>
+          <Secondary title={rerunSelectedTitle} disabled={disableRerunSelected} small={true}
+                     onclick={vnode.state.rerunSelected.bind(vnode.state, vnode.attrs)}>Rerun Selected</Secondary>
+        </ButtonGroup>
+      </div>
       <div class={styles.jobCountContainer} data-test-id="job-cont-container">
         <div class={styles.countContainer} data-test-id="in-progress-jobs-container">
           <div class={styles.countLabel}>Building :</div>
@@ -103,14 +111,6 @@ export class JobCountAndRerunWidget extends MithrilComponent<Attrs, State> {
           <div className={styles.countLabel}>Failed :</div>
           <div class={styles.countText}> {vnode.attrs.jobsVM().failedJobNames().length}</div>
         </div>
-      </div>
-      <div data-test-id="job-rerun-container">
-        <ButtonGroup>
-          <Secondary title={rerunFailedTitle} disabled={disableRerunFailed} small={true}
-                     onclick={vnode.state.rerunFailed.bind(vnode.state, vnode.attrs)}>Rerun Failed</Secondary>
-          <Secondary title={rerunSelectedTitle} disabled={disableRerunSelected} small={true}
-                     onclick={vnode.state.rerunSelected.bind(vnode.state, vnode.attrs)}>Rerun Selected</Secondary>
-        </ButtonGroup>
       </div>
     </div>;
   }

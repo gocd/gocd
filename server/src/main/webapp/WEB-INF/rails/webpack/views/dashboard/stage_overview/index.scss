@@ -48,7 +48,7 @@ $building: #ffc11b;
   border:        1px solid $border-color;
   border-radius: 3px;
   font-size:     12px;
-  width:         780px;
+  width:         813px;
   min-height:    200px;
   margin:        29px 0 0 5px;
   background:    $body-background;
@@ -73,7 +73,7 @@ $building: #ffc11b;
 
 .stage-overview-container.align-left {
   &:before {
-    left: 755px;
+    left: 575px;
   }
 }
 
@@ -234,7 +234,7 @@ $building: #ffc11b;
 
 .table-header, .table-row {
   display:    flex;
-  width:      740px;
+  width:      780px;
   margin:     0 15px 0 15px;
   border:     1px solid $border-color;
   border-top: unset;
@@ -245,7 +245,7 @@ $building: #ffc11b;
   }
 
   .name-cell {
-    width:         171px;
+    width:         160px;
     display:       flex;
     overflow:      hidden;
     text-overflow: ellipsis;
@@ -266,7 +266,7 @@ $building: #ffc11b;
   }
 
   .status-cell {
-    width: 255px;
+    width: 250px;
   }
 
   .duration-cell {
@@ -354,7 +354,7 @@ $building: #ffc11b;
 
 .progress-bar-container {
   height:        11px;
-  width:         250px;
+  width:         240px;
   display:       flex;
   border:        0.5px solid $border-color;
   border-radius: 3px;
@@ -504,15 +504,16 @@ $building: #ffc11b;
   margin:  15px 0 15px 0;
 }
 
+.job-rerun-container {
+  margin-left:  15px;
+  margin-right: 285px;
+}
+
 .job-count-container {
   display: flex;
 
   .count-container:nth-child(1) {
     margin-left: 15px;
-  }
-
-  .count-container:nth-child(3) {
-    margin-right: 250px;
   }
 }
 

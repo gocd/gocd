@@ -20,6 +20,7 @@ export const jobCountAndRerunContainer: string;
 export const jobCountContainer: string;
 export const jobListContainer: string;
 export const jobName: string;
+export const jobRerunContainer: string;
 export const jobResult: string;
 export const nameCell: string;
 export const passed: string;

@@ -79,7 +79,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
     return <div data-test-id="jobs-list-widget" class={styles.jobListContainer}>
       <div class={styles.tableHeader} data-test-id="table-header">
         <div class={styles.checkboxCell} data-test-id="checkbox-header"/>
-        <div class={styles.nameCell} data-test-id="job-name-header">Name</div>
+        <div class={styles.nameCell} data-test-id="job-name-header">Job Name</div>
         <div class={styles.stateCell} data-test-id="state-header">State</div>
         <div class={styles.statusCell} data-test-id="status-header">Status</div>
         <div class={styles.durationCell} data-test-id="duration-header">Duration</div>

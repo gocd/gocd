@@ -20,7 +20,6 @@ import * as Icons from "views/components/icons";
 import {MithrilComponent} from "../../../jsx/mithril-component";
 import {Agents} from "../../../models/agents/agents";
 import {CheckboxField} from "../../components/forms/input_fields";
-import {Link} from "../../components/link";
 import * as styles from "./index.scss";
 import {JobAgentWidget} from "./job_agent_widget";
 import {JobProgressBarWidget} from "./job_progress_bar_widget";

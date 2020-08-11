@@ -52,6 +52,8 @@ describe("Job Duration Strategy Helper", () => {
 
         totalTimeForDisplay: "unknown",
 
+        totalTime: moment.utc(moment.unix(currentTime.getTime() / 1000).diff(moment.unix(scheduledTime / 1000))),
+
         endTimeForDisplay:   "unknown",
         startTimeForDisplay: timeFormatter.format(moment.unix(scheduledTime / 1000))
       });
@@ -89,6 +91,8 @@ describe("Job Duration Strategy Helper", () => {
         uploadingArtifactTimeForDisplay: "00s",
 
         totalTimeForDisplay: "unknown",
+
+        totalTime: moment.utc(moment.unix(currentTime.getTime() / 1000).diff(moment.unix(scheduledTime / 1000))),
 
         endTimeForDisplay:   "unknown",
         startTimeForDisplay: timeFormatter.format(moment.unix(scheduledTime / 1000))
@@ -132,6 +136,8 @@ describe("Job Duration Strategy Helper", () => {
         uploadingArtifactTimeForDisplay: "00s",
 
         totalTimeForDisplay: "unknown",
+
+        totalTime: moment.utc(moment.unix(currentTime.getTime() / 1000).diff(moment.unix(scheduledTime / 1000))),
 
         endTimeForDisplay:   "unknown",
         startTimeForDisplay: timeFormatter.format(moment.unix(scheduledTime / 1000))
@@ -180,6 +186,8 @@ describe("Job Duration Strategy Helper", () => {
         uploadingArtifactTimeForDisplay: "00s",
 
         totalTimeForDisplay: "unknown",
+
+        totalTime: moment.utc(moment.unix(currentTime.getTime() / 1000).diff(moment.unix(scheduledTime / 1000))),
 
         endTimeForDisplay:   "unknown",
         startTimeForDisplay: timeFormatter.format(moment.unix(scheduledTime / 1000))
@@ -233,6 +241,8 @@ describe("Job Duration Strategy Helper", () => {
         uploadingArtifactTimeForDisplay: "02m 00s",
 
         totalTimeForDisplay: "unknown",
+
+        totalTime: moment.utc(moment.unix(currentTime.getTime() / 1000).diff(moment.unix(scheduledTime / 1000))),
 
         endTimeForDisplay:   "unknown",
         startTimeForDisplay: timeFormatter.format(moment.unix(scheduledTime / 1000))
@@ -291,6 +301,8 @@ describe("Job Duration Strategy Helper", () => {
 
         totalTimeForDisplay: "10m 00s",
 
+        totalTime: moment.utc(moment.unix(currentTime.getTime() / 1000).diff(moment.unix(scheduledTime / 1000))),
+
         endTimeForDisplay:   timeFormatter.format(moment.unix(currentTime.getTime() / 1000)),
         startTimeForDisplay: timeFormatter.format(moment.unix(scheduledTime / 1000))
       });
@@ -325,6 +337,8 @@ describe("Job Duration Strategy Helper", () => {
         uploadingArtifactTimeForDisplay: "00s",
 
         totalTimeForDisplay: "unknown",
+
+        totalTime: moment.utc(moment.unix(currentTime.getTime() / 1000).diff(moment.unix((currentTime.getTime() - (1000 * 60 * 10)) / 1000))),
 
         endTimeForDisplay:   "unknown",
         startTimeForDisplay: timeFormatter.format(moment.unix(scheduledTime / 1000))

@@ -19,7 +19,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {MithrilComponent} from "../../../jsx/mithril-component";
 import * as styles from "./index.scss";
-import {JobDuration, JobDurationStrategyHelper} from "./models/job_duration_stratergy_helper";
+import {JobDuration} from "./models/job_duration_stratergy_helper";
 import {StageInstance} from "./models/stage_instance";
 import {JobJSON} from "./models/types";
 
@@ -27,6 +27,8 @@ const classnames = bind(styles);
 
 export interface Attrs {
   job: JobJSON;
+  jobDuration: JobDuration;
+  longestTotalTime: number;
   lastPassedStageInstance: Stream<StageInstance | undefined>;
 }
 
@@ -44,6 +46,12 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
       const scrolledTop = document.getElementById("scrollable-jobs-table-body")?.scrollTop || 0;
       // @ts-ignore
       vnode.dom.children[1].style.marginTop = (8 - scrolledTop) + 'px';
+
+      // align tooltip at the centre of the job progress bar.
+      // at -144px, the tooltip will be positioned at the start of the progress bar.
+      // find the total width of the progress bar and add half of it to 144, which will shift the tooltip to the centre of the progress bar
+      // @ts-ignore
+      vnode.dom.children[1].style.marginLeft = `-${(144 - (vnode.dom.children[0].getBoundingClientRect().width / 2))}px`;
     };
 
     // @ts-ignore
@@ -54,8 +62,9 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs, {}>): m.Children | void | null {
-    const jobDuration: JobDuration = JobDurationStrategyHelper.getDuration(vnode.attrs.job, vnode.attrs.lastPassedStageInstance());
+    const jobDuration: JobDuration = vnode.attrs.jobDuration;
     const isJobInProgress = jobDuration.isJobInProgress;
+    const totalWidth = Math.floor((jobDuration.totalTime.valueOf() / vnode.attrs.longestTotalTime) * 100);
 
     const tooltipItems = {
       'Total Time':   jobDuration.totalTimeForDisplay,
@@ -79,7 +88,7 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
     ];
 
     return (<div>
-      <div data-test-id="progress-bar-container-div" class={styles.progressBarContainer}>
+      <div data-test-id="progress-bar-container-div" style={`width: ${totalWidth}%`} class={styles.progressBarContainer}>
         {
           innerBars.map((bar) => {
             if (bar.duration !== 0) {

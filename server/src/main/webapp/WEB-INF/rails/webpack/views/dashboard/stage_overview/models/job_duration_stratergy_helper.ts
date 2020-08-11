@@ -28,6 +28,7 @@ export interface JobDuration {
   buildTimePercentage: number;
   uploadingArtifactTimePercentage: number;
   unknownTimePercentage: number;
+  totalTime: any;
 
   waitTimeForDisplay: string;
   preparingTimeForDisplay: string;
@@ -137,7 +138,8 @@ export class JobDurationStrategyHelper {
       totalTimeForDisplay,
 
       startTimeForDisplay,
-      endTimeForDisplay
+      endTimeForDisplay,
+      totalTime
     };
   }
 

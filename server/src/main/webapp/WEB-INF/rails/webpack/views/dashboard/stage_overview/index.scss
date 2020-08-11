@@ -218,6 +218,7 @@ $building: #ffc11b;
 }
 
 .unknown {
+  min-width:  18px;
   background: transparent url('../../../../app/assets/images/building.gif') repeat-x;
 }
 
@@ -244,10 +245,19 @@ $building: #ffc11b;
   }
 
   .name-cell {
-    width:         120px;
+    width:         171px;
     display:       flex;
     overflow:      hidden;
     text-overflow: ellipsis;
+
+    i {
+      color:       $link-color;
+      margin-left: 2px;
+
+      &:hover {
+        font-size: 14px;
+      }
+    }
   }
 
   .state-cell {
@@ -268,6 +278,7 @@ $building: #ffc11b;
     margin-right:  10px;
     overflow:      hidden;
     text-overflow: ellipsis;
+    white-space:   nowrap;
   }
 }
 
@@ -280,12 +291,12 @@ $building: #ffc11b;
   border-radius: 5px 5px 0 0;
 
   .name-cell {
-    padding-left: 50px;
+    padding-left: 30px;
   }
 }
 
 .table-body {
-  max-height: 318px;
+  max-height: 243px;
   overflow-x: hidden;
   overflow-y: scroll;
 }
@@ -383,7 +394,7 @@ $building: #ffc11b;
   border-radius: 6px;
   position:      absolute;
   z-index:       map_get($zindex, tooltip);
-  background:    rgb(243, 243, 243, 0.85); //sass-lint:disable-line no-color-literals
+  background:    rgb(243, 243, 243, 0.95); //sass-lint:disable-line no-color-literals
   border:        1px solid $tooltip-border-color;
 
   :before {

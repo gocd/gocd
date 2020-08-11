@@ -27,7 +27,7 @@ import {StageInstance} from "./stage_instance";
 import {Result, StageInstanceJSON, StageState} from "./types";
 
 export class StageOverviewViewModel {
-  private static POLLING_INTERVAL_IN_SECONDS = 5;
+  private static POLLING_INTERVAL_IN_SECONDS = 10;
   private static STAGES_API_VERSION_HEADER = ApiVersion.latest;
   readonly stageInstance: Stream<StageInstance>;
   readonly jobsVM: Stream<JobsViewModel>;

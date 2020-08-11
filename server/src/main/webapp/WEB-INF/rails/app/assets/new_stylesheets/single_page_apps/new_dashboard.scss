@@ -598,14 +598,14 @@ body {
     text-align:  center;
 
     &.passed {
-      @include icon-before($passed-icon, 12px, 3px);
+      @include icon-before($passed-icon, 12px, 0);
 
       background: $passed;
       color:      #fff;
     }
 
     &.failed {
-      @include icon-before($failed-icon, 12px, 3px);
+      @include icon-before($failed-icon, 12px, 0);
 
       background: $failed;
       color:      #fff;
@@ -631,7 +631,7 @@ body {
     }
 
     &.cancelled {
-      @include icon-before($cancelled-icon, 12px, 3px);
+      @include icon-before($cancelled-icon, 12px, 0);
 
       background: $building;
       color:      $dark-gray;

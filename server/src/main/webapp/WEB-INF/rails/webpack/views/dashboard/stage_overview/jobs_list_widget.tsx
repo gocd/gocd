@@ -16,16 +16,15 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
+import * as Icons from "views/components/icons";
 import {MithrilComponent} from "../../../jsx/mithril-component";
+import {Agents} from "../../../models/agents/agents";
 import {CheckboxField} from "../../components/forms/input_fields";
 import * as styles from "./index.scss";
-import {JobsViewModel} from "./models/jobs_view_model";
-
-import {Agents} from "../../../models/agents/agents";
-import {Link} from "../../components/link";
 import {JobAgentWidget} from "./job_agent_widget";
 import {JobProgressBarWidget} from "./job_progress_bar_widget";
 import {JobStateWidget} from "./job_state_widget";
+import {JobsViewModel} from "./models/jobs_view_model";
 import {JobDurationStrategyHelper} from "./models/job_duration_stratergy_helper";
 import {StageInstance} from "./models/stage_instance";
 import {JobJSON} from "./models/types";
@@ -55,9 +54,8 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         </div>
         <div class={styles.nameCell} data-test-id={`job-name-for-${job.name}`}>
           <div className={`${(styles as any)[job.result.toString().toLowerCase() as string]} ${styles.jobResult}`}/>
-          <div className={styles.jobName}>
-            <Link title={job.name} href={jobDetailsPageLink} target={"_blank"}>{job.name}</Link>
-          </div>
+          <span title={job.name} className={styles.jobName}>{job.name}</span>
+          <Icons.ConsoleLog onclick={() => window.open(jobDetailsPageLink)} target={"_blank"} iconOnly={true}/>
         </div>
         <div class={styles.stateCell} data-test-id={`state-for-${job.name}`}>
           <JobStateWidget job={job}/>
@@ -79,13 +77,13 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
     return <div data-test-id="jobs-list-widget" class={styles.jobListContainer}>
       <div class={styles.tableHeader} data-test-id="table-header">
         <div class={styles.checkboxCell} data-test-id="checkbox-header"/>
-        <div class={styles.nameCell} data-test-id="job-name-header">Name</div>
+        <div class={styles.nameCell} data-test-id="job-name-header">Job Name</div>
         <div class={styles.stateCell} data-test-id="state-header">State</div>
         <div class={styles.statusCell} data-test-id="status-header">Status</div>
         <div class={styles.durationCell} data-test-id="duration-header">Duration</div>
         <div class={styles.agentCell} data-test-id="agent-header">Agent</div>
       </div>
-      <div class={styles.tableBody} data-test-id="table-body">
+      <div id="scrollable-jobs-table-body" class={styles.tableBody} data-test-id="table-body">
         {vnode.attrs.jobsVM().getJobs().map(job => {
           const checkboxStream = vnode.attrs.jobsVM().checkedState.get(job.name)!;
           return vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance, vnode.attrs.agents, checkboxStream);

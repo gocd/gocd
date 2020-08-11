@@ -16,6 +16,7 @@
 
 import moment from "moment";
 import {ApiRequestBuilder, ApiVersion} from "../../../../helpers/api_request_builder";
+import * as CONSTANTS from "../../../../helpers/constants";
 import {SparkRoutes} from "../../../../helpers/spark_routes";
 import {JobDurationStrategyHelper} from "./job_duration_stratergy_helper";
 import {JobJSON, Result, StageInstanceJSON} from "./types";
@@ -41,7 +42,13 @@ export class StageInstance {
 
   triggeredOn(): string {
     const LOCAL_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss";
-    return `${moment.unix(this.stageScheduledTime()).format(LOCAL_TIME_FORMAT)}`;
+    return moment.unix(this.stageScheduledTime()).format(LOCAL_TIME_FORMAT);
+  }
+
+  triggeredOnServerTime(): string {
+    const SERVER_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss Z [Server Time]";
+    const utcOffsetInMinutes = CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET / 60000;
+    return moment.unix(this.stageScheduledTime()).utcOffset(utcOffsetInMinutes).format(SERVER_TIME_FORMAT);
   }
 
   stageDuration(): string {
@@ -85,6 +92,18 @@ export class StageInstance {
     const LOCAL_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss";
     const completedTime = this.json.jobs[0].job_state_transitions.find(t => t.state === "Completed")!.state_change_time;
     return `${moment.unix(+completedTime / 1000).format(LOCAL_TIME_FORMAT)}`;
+  }
+
+  cancelledOnServerTime(): string {
+    if (!this.isCancelled()) {
+      throw new Error(`Stage is not cancelled.`);
+    }
+
+    const SERVER_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss Z [Server Time]";
+    const utcOffsetInMinutes = CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET / 60000;
+    const completedTime = this.json.jobs[0].job_state_transitions.find(t => t.state === "Completed")!.state_change_time;
+
+    return moment.unix(+completedTime / 1000).utcOffset(utcOffsetInMinutes).format(SERVER_TIME_FORMAT);
   }
 
   cancelStage() {

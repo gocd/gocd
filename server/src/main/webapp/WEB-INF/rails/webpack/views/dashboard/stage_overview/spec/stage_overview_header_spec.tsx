@@ -89,6 +89,11 @@ describe('Stage Overview Header', () => {
     expect(helper.byTestId('stage-trigger-and-timing-container')).toContainText(stageInstance.triggeredOn());
   });
 
+  it('should render triggered on server time information on hover', () => {
+    expect(helper.byTestId('stage-trigger-and-timing-container')).toBeInDOM();
+    expect(helper.q('span', helper.byTestId('triggered-on-container')).title).toBe(stageInstance.triggeredOnServerTime());
+  });
+
   it('should render stage duration', () => {
     expect(helper.byTestId('stage-trigger-and-timing-container')).toContainText('Duration');
     expect(helper.byTestId('stage-trigger-and-timing-container')).toContainText('01h 40m 50s');
@@ -108,12 +113,23 @@ describe('Stage Overview Header', () => {
     expect(helper.byTestId('cancelled-on-container')).toContainText(stageInstance.cancelledOn());
   });
 
+  it('should render cancelled on server time information on hover', () => {
+    helper.unmount();
+    const json = TestData.stageInstanceJSON();
+    json.result = Result[Result.Cancelled];
+    json.cancelled_by = 'admin';
+    stageInstance = new StageInstance(json);
+    mount();
+
+    expect(helper.q('span', helper.byTestId('cancelled-on-container')).title).toBe(stageInstance.cancelledOnServerTime());
+  });
+
   it('should render link to stage details page', () => {
     const expectedLink = `/go/pipelines/up42/20/up42_stage/1`;
     const link = helper.q('a');
 
     expect(helper.byTestId('stage-details-page-link')).toBeInDOM();
-    expect(link).toContainText('Go to Stage Details Page >>');
+    expect(link).toContainText('Go to Stage Details Page');
     expect((link as any).href.indexOf(expectedLink)).not.toBe(-1);
   });
 

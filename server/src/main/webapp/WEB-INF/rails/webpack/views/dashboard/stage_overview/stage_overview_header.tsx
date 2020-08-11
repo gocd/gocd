@@ -55,7 +55,7 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
           Cancelled by <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().cancelledBy()}</span>
         </div>
         <div data-test-id="cancelled-on-container" className={styles.triggeredByContainer}>
-          on <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().cancelledOn()}</span> Local Time
+          on <span title={vnode.attrs.stageInstance().cancelledOnServerTime()} className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().cancelledOn()}</span> Local Time
         </div>
       </div>);
 
@@ -127,16 +127,14 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
             Triggered by <span class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredBy()}</span>
           </div>
           <div data-test-id="triggered-on-container" className={styles.triggeredByContainer}>
-            on <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredOn()}</span> Local Time
+            on <span title={vnode.attrs.stageInstance().triggeredOnServerTime()} className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredOn()}</span> Local Time
             <span className={styles.durationSeparator}>|</span>
             Duration: <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().stageDuration()}</span>
           </div>
         </div>
         <div data-test-id="stage-details-page-link" class={styles.stageDetailsPageLink}>
           {dummyContainer}
-          <Link href={stageDetailsPageLink} target={"_blank"}>
-            {`Go to Stage Details Page >>`}
-          </Link>
+          <Link href={stageDetailsPageLink} externalLinkIcon={true} target={"_blank"}>Go to Stage Details Page</Link>
         </div>
       </div>
     </div>;
@@ -184,6 +182,7 @@ class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCa
 
       return <div data-test-id="rerun-stage">
         <Icons.Repeat iconOnly={true} disabled={disabled}
+                      title="Rerun stage"
                       onmouseover={() => vnode.state.isTriggerHover(true)}
                       onmouseout={() => vnode.state.isTriggerHover(false)}
                       onclick={() => {vnode.attrs.stageInstance().runStage().then(vnode.state.getResultHandler(vnode.attrs));}}/>
@@ -194,6 +193,7 @@ class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCa
     const disabledMessage = `You dont have permissions to cancel the stage.`;
     return <div data-test-id="cancel-stage">
       <Icons.CancelStage iconOnly={true} disabled={disabled}
+                         title="Cancel stage"
                          onmouseover={() => vnode.state.isTriggerHover(true)}
                          onmouseout={() => vnode.state.isTriggerHover(false)}
                          onclick={() => {vnode.attrs.stageInstance().cancelStage().then(vnode.state.getResultHandler(vnode.attrs));}}/>

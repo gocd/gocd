@@ -257,6 +257,12 @@ export class CancelStage extends Icon {
   }
 }
 
+export class ConsoleLog extends Icon {
+  constructor() {
+    super(styles.consoleLog, "Console Log");
+  }
+}
+
 export class IconGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (

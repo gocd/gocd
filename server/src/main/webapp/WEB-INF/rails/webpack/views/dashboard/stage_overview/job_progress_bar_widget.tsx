@@ -41,7 +41,7 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
       // when the table body is scrolled, the tooltip is not re-positioned to considered the scrolled div.
       // find the amount of pixels the body is scrolled and reposition the tooltip considering scrolled offset.
       // 8 px is the default margin top required for the tooltip caret.
-      const scrolledTop = document.getElementById("scrollable-jobs-table-body")!.scrollTop;
+      const scrolledTop = document.getElementById("scrollable-jobs-table-body")?.scrollTop || 0;
       // @ts-ignore
       vnode.dom.children[1].style.marginTop = (8 - scrolledTop) + 'px';
     };

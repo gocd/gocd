@@ -385,7 +385,7 @@ $building: #ffc11b;
   border-radius: 6px;
   position:      absolute;
   z-index:       map_get($zindex, tooltip);
-  background:    rgb(243, 243, 243, 0.85); //sass-lint:disable-line no-color-literals
+  background:    rgb(243, 243, 243, 0.95); //sass-lint:disable-line no-color-literals
   border:        1px solid $tooltip-border-color;
 
   :before {

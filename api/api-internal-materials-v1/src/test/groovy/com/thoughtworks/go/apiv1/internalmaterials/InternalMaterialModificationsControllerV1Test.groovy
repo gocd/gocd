@@ -104,7 +104,7 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint(), "")
+          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint(), "", 10)
       }
 
       @Test
@@ -138,7 +138,7 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint(), "")
+          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint(), "", 10)
       }
 
       @Test
@@ -155,7 +155,7 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint(), "")
+          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint(), "", 10)
       }
 
       @Test
@@ -208,7 +208,7 @@ class InternalMaterialModificationsControllerV1Test implements SecurityServiceTr
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint(), "hello")
+          .hasBodyWithJsonObject(ModificationsRepresenter.class, modifications, info, git.getFingerprint(), "hello", 10)
       }
 
       static Stream<Arguments> pageSizes() {

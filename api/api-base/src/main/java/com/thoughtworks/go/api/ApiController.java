@@ -38,6 +38,7 @@ import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseJsonConte
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class ApiController implements ControllerMethods, SparkController {
+    protected static final String DEFAULT_PAGE_SIZE = "10";
     protected String BAD_PAGE_SIZE_MSG = "The query parameter 'page_size', if specified must be a number between 10 and 100.";
     protected String BAD_CURSOR_MSG = "The query parameter '%s', if specified, must be a positive integer.";
     private static final Set<String> UPDATE_HTTP_METHODS = new HashSet<>(Arrays.asList("PUT", "POST", "PATCH"));
@@ -135,7 +136,7 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
     protected Integer getPageSize(Request request) {
         Integer offset;
         try {
-            offset = Integer.valueOf(request.queryParamOrDefault("page_size", "10"));
+            offset = Integer.valueOf(request.queryParamOrDefault("page_size", DEFAULT_PAGE_SIZE));
             if (offset < 10 || offset > 100) {
                 throw new BadRequestException(BAD_PAGE_SIZE_MSG);
             }

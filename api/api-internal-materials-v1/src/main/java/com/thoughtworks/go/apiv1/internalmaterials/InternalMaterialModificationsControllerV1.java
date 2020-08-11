@@ -83,7 +83,6 @@ public class InternalMaterialModificationsControllerV1 extends ApiController imp
         List<Modification> modifications = materialService.getModificationsFor(materialConfig, pattern, after, before, pageSize);
         PipelineRunIdInfo info = materialService.getLatestAndOldestModification(materialConfig, pattern);
 
-        return writerForTopLevelObject(request, response, writer -> ModificationsRepresenter.toJSON(writer, modifications, info, materialConfig.getFingerprint(), pattern));
-
+        return writerForTopLevelObject(request, response, writer -> ModificationsRepresenter.toJSON(writer, modifications, info, materialConfig.getFingerprint(), pattern, pageSize));
     }
 }

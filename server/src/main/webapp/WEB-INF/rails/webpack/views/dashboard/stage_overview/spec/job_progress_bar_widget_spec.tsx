@@ -35,7 +35,7 @@ describe("Job Progress Bar Widget", () => {
   it("should render job progress bar", () => {
     expect(helper.byTestId('progress-bar-container-div')).toBeInDOM();
     const children = helper.byTestId('progress-bar-container-div').children;
-    expect(children).toHaveLength(5);
+    expect(children).toHaveLength(4);
   });
 
   it("should render job progress bar waiting portion", () => {
@@ -64,8 +64,7 @@ describe("Job Progress Bar Widget", () => {
 
   it("should render job progress bar unknown portion", () => {
     const children = helper.byTestId('progress-bar-container-div').children;
-    expect((children[4] as any).style.width).toBe("0%");
-    expect(children[4].classList[0]).toBe(styles.unknown);
+    expect((children[4] as any)).not.toBeInDOM();
   });
 
   describe("Tooltip", () => {

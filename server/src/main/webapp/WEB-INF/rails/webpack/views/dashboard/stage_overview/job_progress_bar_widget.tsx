@@ -70,13 +70,23 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
       'Uploading Artifacts': jobDuration.uploadingArtifactTimeForDisplay
     };
 
+    const innerBars = [
+      {className: styles.waiting, duration: jobDuration.waitTimePercentage},
+      {className: styles.preparing, duration: jobDuration.preparingTimePercentage},
+      {className: styles.building, duration: jobDuration.buildTimePercentage},
+      {className: styles.uploadingArtifacts, duration: jobDuration.uploadingArtifactTimePercentage},
+      {className: styles.unknown, duration: jobDuration.unknownTimePercentage},
+    ];
+
     return (<div>
       <div data-test-id="progress-bar-container-div" class={styles.progressBarContainer}>
-        <div class={`${styles.waiting}`} style={`width: ${jobDuration.waitTimePercentage}%`}/>
-        <div class={`${styles.preparing}`} style={`width: ${jobDuration.preparingTimePercentage}%`}/>
-        <div className={`${styles.building}`} style={`width: ${jobDuration.buildTimePercentage}%`}/>
-        <div className={`${styles.uploadingArtifacts}`} style={`width: ${jobDuration.uploadingArtifactTimePercentage}%`}/>
-        <div className={`${styles.unknown}`} style={`width: ${jobDuration.unknownTimePercentage}%`}/>
+        {
+          innerBars.map((bar) => {
+            if (bar.duration !== 0) {
+              return (<div className={`${bar.className}`} style={`width: ${bar.duration}%`}/>);
+            }
+          })
+        }
       </div>
 
       <div data-test-id="progress-bar-tooltip" class={styles.progressBarTooltip}>

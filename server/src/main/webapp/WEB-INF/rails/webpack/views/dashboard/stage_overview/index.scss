@@ -218,7 +218,7 @@ $building: #ffc11b;
 }
 
 .unknown {
-  min-width: 18px;
+  min-width:  18px;
   background: transparent url('../../../../app/assets/images/building.gif') repeat-x;
 }
 
@@ -245,7 +245,8 @@ $building: #ffc11b;
   }
 
   .name-cell {
-    width:         165px;
+    min-width:     90px;
+    max-width:     165px;
     display:       flex;
     overflow:      hidden;
     text-overflow: ellipsis;

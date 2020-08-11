@@ -16,8 +16,9 @@
 
 import {SparkRoutes} from "helpers/spark_routes";
 import {timeFormatter} from "helpers/time_formatter";
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
+import Stream from "mithril/stream";
 import {MaterialModification} from "models/config_repos/types";
 import {MaterialWithFingerprint, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
@@ -27,6 +28,7 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import headerStyles from "views/pages/config_repos/index.scss";
 import {AdditionalInfoAttrs} from "views/pages/materials";
+import styles from "./index.scss";
 import {MaterialHeaderWidget} from "./material_header_widget";
 import {MaterialUsageWidget} from "./material_usage_widget";
 import {MaterialVM} from "./models/material_view_model";
@@ -45,7 +47,7 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
     attrs.set("Username", modification.username);
     attrs.set("Email", modification.emailAddress);
     attrs.set("Revision", modification.revision);
-    attrs.set("Comment", modification.comment);
+    attrs.set("Comment", <EllipseText text={modification.comment}/>);
     attrs.set("Modified Time", <span
       title={timeFormatter.formatInServerTime(modification.modifiedTime)}>{timeFormatter.format(modification.modifiedTime)}</span>);
 
@@ -112,5 +114,52 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
       map = material.attributesAsMap();
     }
     return map;
+  }
+}
+
+interface EllipseAttrs {
+  text: string;
+}
+
+interface EllipseState {
+  expanded: Stream<boolean>;
+  setExpandedTo: (state: boolean, e: MouseEvent) => void;
+}
+
+class EllipseText extends MithrilComponent<EllipseAttrs, EllipseState> {
+  private static MIN_CHAR_COUNT = 80;
+
+  oninit(vnode: m.Vnode<EllipseAttrs, EllipseState>): any {
+    vnode.state.expanded = Stream();
+    vnode.state.expanded(false);
+
+    vnode.state.setExpandedTo = (state: boolean) => {
+      vnode.state.expanded(state);
+    };
+  }
+
+  view(vnode: m.Vnode<EllipseAttrs, EllipseState>): m.Children | void | null {
+    const charactersToShow = Math.min(this.getCharCountToShow(vnode), vnode.attrs.text.length);
+    if (vnode.attrs.text.length <= EllipseText.MIN_CHAR_COUNT) {
+      return <pre>{vnode.attrs.text}</pre>;
+    }
+    return <pre class={styles.ellipseWrapper}
+                data-test-id="ellipsized-content">
+        <span>{vnode.state.expanded() ? vnode.attrs.text : EllipseText.getEllipsizedString(vnode, charactersToShow)}</span>
+      {vnode.state.expanded() ? EllipseText.element(vnode, "less", false) : EllipseText.element(vnode, "more", true)}
+      </pre>;
+  }
+
+  private static getEllipsizedString(vnode: m.Vnode<EllipseAttrs, EllipseState>, charactersToShow: number) {
+    return vnode.attrs.text.substr(0, charactersToShow).concat("...");
+  }
+
+  private static element(vnode: m.Vnode<EllipseAttrs, EllipseState>, text: string, state: boolean) {
+    return <span data-test-id={`ellipse-action-${text}`} class={styles.ellipsisActionButton}
+                 onclick={vnode.state.setExpandedTo.bind(this, state)}>{text}</span>;
+  }
+
+  private getCharCountToShow(vnode: m.Vnode<EllipseAttrs, EllipseState>) {
+    return (vnode.attrs.text.includes('\n') ? vnode.attrs.text.indexOf('\n') : EllipseText.MIN_CHAR_COUNT);
   }
 }

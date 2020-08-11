@@ -16,6 +16,7 @@
 @import "../../global/common";
 
 $background-color: #ebf5f7;
+$button_color: #2d6ca2;
 
 .help {
   background-color: $white;
@@ -100,4 +101,15 @@ $background-color: #ebf5f7;
   input {
     width: 350px;
   }
+}
+
+.ellipse-wrapper {
+  display:    inline-block;
+  word-break: break-all;
+}
+
+.ellipsis-action-button {
+  color:        $button_color;
+  padding-left: 10px;
+  cursor:       pointer;
 }

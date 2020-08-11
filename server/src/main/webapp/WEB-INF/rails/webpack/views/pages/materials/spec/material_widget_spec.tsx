@@ -167,6 +167,44 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.q('a', helper.byTestId('key-value-value-ref'))).not.toBeInDOM();
   });
 
+  it('should render modification comment as truncated if it exceeds min length', () => {
+    material.modification
+      = new MaterialModification("GoCD Test User <devnull@example.com>", null, "b9b4f4b758e91117d70121a365ba0f8e37f89a9d", "A very long comment to be shown as part of the panel body which should be trimmed and rest part should not be shown by default. ", "2019-12-23T10:25:52Z");
+    mount();
+
+    expect(helper.q('h3').textContent).toBe("Latest Modification Details");
+    expect(helper.byTestId('latest-modification-details')).toBeInDOM();
+
+    const attrs = helper.qa('li', helper.byTestId('latest-modification-details'));
+
+    expect(attrs.length).toBe(5);
+    expect(attrs[3].textContent).toBe("CommentA very long comment to be shown as part of the panel body which should be trimme...more");
+
+    expect(helper.byTestId("ellipse-action-more", attrs[3])).toBeInDOM();
+    helper.clickByTestId("ellipse-action-more");
+
+    expect(attrs[3].textContent).toBe("CommentA very long comment to be shown as part of the panel body which should be trimmed and rest part should not be shown by default. less");
+  });
+
+  it('should render the first line in modification comment as truncated text', () => {
+    material.modification
+      = new MaterialModification("GoCD Test User <devnull@example.com>", null, "b9b4f4b758e91117d70121a365ba0f8e37f89a9d", "A very long comment to be shown as part of the panel body.\n Which should be trimmed and rest part should not be shown by default. ", "2019-12-23T10:25:52Z");
+    mount();
+
+    expect(helper.q('h3').textContent).toBe("Latest Modification Details");
+    expect(helper.byTestId('latest-modification-details')).toBeInDOM();
+
+    const attrs = helper.qa('li', helper.byTestId('latest-modification-details'));
+
+    expect(attrs.length).toBe(5);
+    expect(attrs[3].textContent).toBe("CommentA very long comment to be shown as part of the panel body....more");
+
+    expect(helper.byTestId("ellipse-action-more", attrs[3])).toBeInDOM();
+    helper.clickByTestId("ellipse-action-more");
+
+    expect(attrs[3].textContent).toBe("CommentA very long comment to be shown as part of the panel body.\n Which should be trimmed and rest part should not be shown by default. less");
+  });
+
   function mount(shouldShowPackageOrScmLink: boolean = true) {
     helper.mount(() => <MaterialWidget materialVM={new MaterialVM(material)} shouldShowPackageOrScmLink={shouldShowPackageOrScmLink}
                                        onEdit={onEditSpy} showModifications={showModSpy}/>);

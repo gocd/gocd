@@ -19,6 +19,7 @@ import Stream from "mithril/stream";
 import {TestHelper} from "../../../pages/spec/test_helper";
 import styles from "../index.scss";
 import {JobProgressBarWidget} from "../job_progress_bar_widget";
+import {JobDurationStrategyHelper} from "../models/job_duration_stratergy_helper";
 import {JobJSON} from "../models/types";
 import {TestData} from "./test_data";
 
@@ -166,7 +167,10 @@ describe("Job Progress Bar Widget", () => {
 
   function mount(job: JobJSON) {
     helper.mount(() => {
-      return <JobProgressBarWidget job={job} lastPassedStageInstance={Stream()}/>;
+      return <JobProgressBarWidget job={job}
+                                   jobDuration={JobDurationStrategyHelper.getDuration(job, undefined)}
+                                   longestTotalTime={1000000000}
+                                   lastPassedStageInstance={Stream()}/>;
     });
   }
 

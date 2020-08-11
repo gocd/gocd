@@ -25,7 +25,7 @@ import {JobAgentWidget} from "./job_agent_widget";
 import {JobProgressBarWidget} from "./job_progress_bar_widget";
 import {JobStateWidget} from "./job_state_widget";
 import {JobsViewModel} from "./models/jobs_view_model";
-import {JobDurationStrategyHelper} from "./models/job_duration_stratergy_helper";
+import {JobDuration, JobDurationStrategyHelper} from "./models/job_duration_stratergy_helper";
 import {StageInstance} from "./models/stage_instance";
 import {JobJSON} from "./models/types";
 
@@ -40,12 +40,12 @@ export interface Attrs {
 }
 
 export interface State {
-  getTableRowForJob: (jobName: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>, checkboxStream: Stream<boolean>) => m.Children;
+  getTableRowForJob: (jobName: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>, checkboxStream: Stream<boolean>, jobDuration: JobDuration, longestTotalTime: number) => m.Children;
 }
 
 export class JobsListWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.getTableRowForJob = (job: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>, checkboxStream: Stream<boolean>) => {
+    vnode.state.getTableRowForJob = (job: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>, checkboxStream: Stream<boolean>, jobDuration: JobDuration, longestTotalTime: number) => {
       const jobDetailsPageLink = `/go/tab/build/detail/${vnode.attrs.pipelineName}/${vnode.attrs.pipelineCounter}/${vnode.attrs.stageName}/${vnode.attrs.stageCounter}/${job.name}`;
 
       return <div class={styles.tableRow} data-test-id={`table-row-for-job-${job.name}`}>
@@ -61,7 +61,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
           <JobStateWidget job={job}/>
         </div>
         <div class={styles.statusCell} data-test-id={`status-for-${job.name}`}>
-          <JobProgressBarWidget job={job} lastPassedStageInstance={lastPassedStageInstance}/>
+          <JobProgressBarWidget job={job} lastPassedStageInstance={lastPassedStageInstance} jobDuration={jobDuration} longestTotalTime={longestTotalTime}/>
         </div>
         <div class={styles.durationCell} data-test-id={`duration-for-${job.name}`}>
           {JobDurationStrategyHelper.getJobDurationForDisplay(job)}
@@ -74,6 +74,15 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
   }
 
   view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
+    let longestTotalTime: number = 0;
+    const duration: JobDuration[] = vnode.attrs.jobsVM().getJobs().map((job) => {
+      const duration = JobDurationStrategyHelper.getDuration(job, vnode.attrs.lastPassedStageInstance());
+      if (duration.totalTime > longestTotalTime) {
+        longestTotalTime = duration.totalTime.valueOf();
+      }
+      return duration;
+    });
+
     return <div data-test-id="jobs-list-widget" class={styles.jobListContainer}>
       <div class={styles.tableHeader} data-test-id="table-header">
         <div class={styles.checkboxCell} data-test-id="checkbox-header"/>
@@ -84,9 +93,9 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         <div class={styles.agentCell} data-test-id="agent-header">Agent</div>
       </div>
       <div id="scrollable-jobs-table-body" class={styles.tableBody} data-test-id="table-body">
-        {vnode.attrs.jobsVM().getJobs().map(job => {
+        {vnode.attrs.jobsVM().getJobs().map((job, index) => {
           const checkboxStream = vnode.attrs.jobsVM().checkedState.get(job.name)!;
-          return vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance, vnode.attrs.agents, checkboxStream);
+          return vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance, vnode.attrs.agents, checkboxStream, duration[index], longestTotalTime);
         })}
       </div>
     </div>;

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {timeFormatter} from "helpers/time_formatter";
 import {stringOrUndefined} from "models/compare/pipeline_instance_json";
 import {MaterialModification} from "models/config_repos/types";
 import {MaterialModifications, MaterialWithFingerprint} from "models/materials/materials";
@@ -70,11 +71,13 @@ describe('ShowModificationsModalSpec', () => {
     mount();
 
     expect(helper.byTestId("modifications-modal")).toBeInDOM();
-    expect(helper.qa('li', helper.byTestId('modification-0')).length).toBe(5);
+    expect(helper.byTestId('modification-0')).toBeInDOM();
 
-    const revisionElement = helper.qa('li', helper.byTestId('modification-0'))[2];
+    expect(helper.q(`.${styles.comment}`).textContent).toBe('Initial commit');
+    expect(helper.textByTestId("username-with-time")).toBe(`By GoCD Test User <devnull@example.com> on ${timeFormatter.format("2019-12-23T10:25:52Z")}`);
+    const revisionElement = helper.q(`.${styles.revision}`);
+    expect(revisionElement.textContent).toBe('b9b4f4b758e91117d70121a365ba0f8e37f89a9d | VSM');
 
-    expect(revisionElement.textContent).toBe('Revisionb9b4f4b758e91117d70121a365ba0f8e37f89a9d | VSM');
     expect(helper.byTestId("vsm-link", revisionElement)).toBeInDOM();
     expect(helper.byTestId("vsm-link", revisionElement)).toHaveAttr('href', '/go/materials/value_stream_map/some-fingerprint/b9b4f4b758e91117d70121a365ba0f8e37f89a9d');
     expect(helper.byTestId("vsm-link", revisionElement)).toHaveAttr('title', 'Value Stream Map');
@@ -133,6 +136,26 @@ describe('ShowModificationsModalSpec', () => {
 
     helper.click(helper.q("a[title='Next']", pageDiv));
     expect(spy.calls.mostRecent().args).toEqual([material.fingerprint(), "some-link"]);
+  });
+
+  it('should truncate comment if it exceeds the limit', () => {
+    materialMods.push(new MaterialModification("GoCD Test User <devnull@example.com>", null, "b9b4f4b758e91117d70121a365ba0f8e37f89a9d", "A very long comment to be shown as part of the panel body which should be trimmed and rest part should not be shown by default. ", "2019-12-23T10:25:52Z"));
+    mount();
+
+    expect(helper.q(`.${styles.comment}`).textContent).toBe('A very long comment to be shown as part of the panel body which should be trimme...more');
+    helper.clickByTestId("ellipse-action-more");
+
+    expect(helper.q(`.${styles.comment}`).textContent).toBe('A very long comment to be shown as part of the panel body which should be trimmed and rest part should not be shown by default. less');
+  });
+
+  it('should render the first line in modification comment as truncated text', () => {
+    materialMods.push(new MaterialModification("GoCD Test User <devnull@example.com>", null, "b9b4f4b758e91117d70121a365ba0f8e37f89a9d", "A very long comment to be shown as part of the panel body.\n Which should be trimmed and rest part should not be shown by default.", "2019-12-23T10:25:52Z"));
+    mount();
+
+    expect(helper.q(`.${styles.comment}`).textContent).toBe('A very long comment to be shown as part of the panel body....more');
+    helper.clickByTestId("ellipse-action-more");
+
+    expect(helper.q(`.${styles.comment}`).textContent).toBe('A very long comment to be shown as part of the panel body.\n Which should be trimmed and rest part should not be shown by default.less');
   });
 });
 

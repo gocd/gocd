@@ -625,9 +625,11 @@ export class SparkRoutes {
   }
 
   static getModifications(fingerprint: string, searchPattern?: string) {
+    const queryParams = new URLSearchParams();
+    queryParams.append("page_size", "20");
     if (searchPattern) {
-      return `/go/api/internal/materials/${fingerprint}/modifications?pattern=${searchPattern.trim()}`;
+      queryParams.append("pattern", searchPattern.trim());
     }
-    return `/go/api/internal/materials/${fingerprint}/modifications`;
+    return `/go/api/internal/materials/${fingerprint}/modifications?${queryParams}`;
   }
 }

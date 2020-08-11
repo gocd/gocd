@@ -24,7 +24,6 @@ import {MaterialModification} from "models/config_repos/types";
 import {MaterialAPIs, MaterialModifications, MaterialWithFingerprint} from "models/materials/materials";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
-import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import linkStyles from "views/components/link/index.scss";
 import {Modal, ModalState, Size} from "views/components/modal";
@@ -76,7 +75,11 @@ export class ShowModificationsModal extends Modal {
         const details = MaterialWidget.showModificationDetails(mod);
         ShowModificationsModal.updateWithVsmLink(details, mod, this.material.fingerprint());
         return <div data-test-id={`modification-${index}`} class={styles.modification}>
-          <KeyValuePair data={details}/>
+          <div class={styles.commentRevisionWrapper}>
+            <div class={styles.comment}>{details.get("Comment")}</div>
+            <div class={styles.revision}>{details.get("Revision")}</div>
+          </div>
+          <div data-test-id="username-with-time">By {details.get("Username")} on {details.get("Modified Time")}</div>
         </div>;
       })}
       <PaginationWidget previousLink={this.modifications().previousLink} nextLink={this.modifications().nextLink}

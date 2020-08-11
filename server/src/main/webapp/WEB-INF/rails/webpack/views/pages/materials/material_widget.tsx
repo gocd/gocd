@@ -141,13 +141,13 @@ class EllipseText extends MithrilComponent<EllipseAttrs, EllipseState> {
   view(vnode: m.Vnode<EllipseAttrs, EllipseState>): m.Children | void | null {
     const charactersToShow = Math.min(this.getCharCountToShow(vnode), vnode.attrs.text.length);
     if (vnode.attrs.text.length <= EllipseText.MIN_CHAR_COUNT) {
-      return <pre>{vnode.attrs.text}</pre>;
+      return <span>{vnode.attrs.text}</span>;
     }
-    return <pre class={styles.ellipseWrapper}
-                data-test-id="ellipsized-content">
-        <span>{vnode.state.expanded() ? vnode.attrs.text : EllipseText.getEllipsizedString(vnode, charactersToShow)}</span>
+    return <span class={styles.ellipseWrapper}
+                 data-test-id="ellipsized-content">
+      {vnode.state.expanded() ? vnode.attrs.text : EllipseText.getEllipsizedString(vnode, charactersToShow)}
       {vnode.state.expanded() ? EllipseText.element(vnode, "less", false) : EllipseText.element(vnode, "more", true)}
-      </pre>;
+      </span>;
   }
 
   private static getEllipsizedString(vnode: m.Vnode<EllipseAttrs, EllipseState>, charactersToShow: number) {

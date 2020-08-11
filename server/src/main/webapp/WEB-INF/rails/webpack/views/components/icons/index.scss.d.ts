@@ -12,6 +12,7 @@ export const chevronRightRound: string;
 export const clone: string;
 export const close: string;
 export const comment: string;
+export const consoleLog: string;
 export const disabled: string;
 export const download: string;
 export const edit: string;

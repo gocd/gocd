@@ -195,6 +195,10 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-ban);
 }
 
+.console-log {
+  @include icon-before($type: $fa-var-file-text-o);
+}
+
 .icon-group {
   border:        1px solid $border-color;
   border-radius: $btn-group-border-radius;

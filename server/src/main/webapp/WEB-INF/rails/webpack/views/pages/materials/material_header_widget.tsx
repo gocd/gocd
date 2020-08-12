@@ -66,6 +66,9 @@ export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
       case "package":
         style = styles.package;
         break;
+      case "plugin":
+        style = styles.plugin;
+        break;
     }
     return <div data-test-id="material-icon" className={classnames(styles.material, style)}/>;
   }

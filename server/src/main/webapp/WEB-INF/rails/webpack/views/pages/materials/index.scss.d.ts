@@ -12,6 +12,7 @@ export const package: string;
 export const pagination: string;
 export const paginationLink: string;
 export const perforce: string;
+export const plugin: string;
 export const searchBoxWrapper: string;
 export const subversion: string;
 export const tfs: string;

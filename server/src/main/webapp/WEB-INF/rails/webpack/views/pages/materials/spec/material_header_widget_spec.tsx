@@ -73,7 +73,7 @@ describe('MaterialHeaderWidgetSpec', () => {
   [
     {type: "p4", classname: styles.perforce, attrs: new P4MaterialAttributes()},
     {type: "package", classname: styles.package, attrs: new PackageMaterialAttributes()},
-    {type: "plugin", classname: styles.unknown, attrs: new PluggableScmMaterialAttributes(undefined, true, "", "")}
+    {type: "plugin", classname: styles.plugin, attrs: new PluggableScmMaterialAttributes(undefined, true, "", "")}
   ].forEach((parameter) => {
     it(`should display icon for ${parameter.type} `, () => {
       material.config.attributes(parameter.attrs);

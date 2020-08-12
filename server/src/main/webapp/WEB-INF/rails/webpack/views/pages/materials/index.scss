@@ -55,6 +55,11 @@ $button_color: #2d6ca2;
     background-position: 0 -332px;
   }
 
+  &.plugin {
+    background:      transparent url("../../../../app/assets/images/andare/icon-plugin-default.png") no-repeat;
+    background-size: 45px;
+  }
+
   &.unknown {
     @include icon-before($type: $fa-var-question, $color: $icon-light-color, $size: 35px, $margin: 0);
     background: $white;

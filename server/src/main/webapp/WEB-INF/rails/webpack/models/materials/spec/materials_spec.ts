@@ -213,6 +213,43 @@ describe('MaterialWithFingerPrintSpec', () => {
       expect(keys).toEqual(['URL', 'Domain', 'Project Path']);
     });
   });
+
+  describe('DisplayNameSpec', () => {
+    it('should show url and branch as display name for git', () => {
+      const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("name", false, "some-url", "master"));
+      expect(material.displayName()).toBe("some-url [ master ]");
+    });
+
+    it('should show url and branch as display name for hg', () => {
+      const material = new MaterialWithFingerprint("hg", "fingerprint", new HgMaterialAttributes("name", false, "some-url", "branch"));
+      expect(material.displayName()).toBe("some-url [ branch ]");
+    });
+
+    it('should show url as display name for svn', () => {
+      const material = new MaterialWithFingerprint("svn", "fingerprint", new SvnMaterialAttributes("name", false, "some-url"));
+      expect(material.displayName()).toBe("some-url");
+    });
+
+    it('should show port and view as display name for p4', () => {
+      const material = new MaterialWithFingerprint("p4", "fingerprint", new P4MaterialAttributes("name", false, "some-url", false, "view"));
+      expect(material.displayName()).toBe("some-url [ view ]");
+    });
+
+    it('should show url as display name for tfs', () => {
+      const material = new MaterialWithFingerprint("tfs", "fingerprint", new TfsMaterialAttributes("name", false, "some-url", "domain", "view"));
+      expect(material.displayName()).toBe("some-url");
+    });
+
+    it('should show repo and package name as display name for package', () => {
+      const material = new MaterialWithFingerprint("package", "fingerprint", new PackageMaterialAttributes(undefined, true, "some-ref", "package_name", "pkg-repo-name"));
+      expect(material.displayName()).toBe("pkg-repo-name_package_name");
+    });
+
+    it('should show scm name as display name for plugin', () => {
+      const material = new MaterialWithFingerprint("plugin", "fingerprint", new PluggableScmMaterialAttributes(undefined, true, "some-ref", "scm-name"));
+      expect(material.displayName()).toBe("scm-name");
+    });
+  });
 });
 
 describe('MaterialsWithModificationsSpec', () => {

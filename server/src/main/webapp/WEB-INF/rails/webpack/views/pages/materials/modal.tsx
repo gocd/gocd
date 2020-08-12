@@ -27,6 +27,7 @@ import {SearchField} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";
 import linkStyles from "views/components/link/index.scss";
 import {Modal, ModalState, Size} from "views/components/modal";
+import headerStyles from "views/pages/config_repos/index.scss";
 import styles from "./index.scss";
 import {MaterialWidget} from "./material_widget";
 
@@ -53,7 +54,6 @@ export class ShowModificationsModal extends Modal {
     };
 
     const searchBox = <div className={styles.searchBoxWrapper}>
-      Search for a modification: &nbsp;&nbsp;
       <SearchField property={this.searchQuery} dataTestId={"search-box"}
                    oninput={onPatternChange}
                    placeholder="Search in revision, comment or username"/>
@@ -69,17 +69,18 @@ export class ShowModificationsModal extends Modal {
     const onPageChange = (link: string) => {
       this.fetchModifications(link);
     };
-    return <div data-test-id="modifications-modal">
+    return <div data-test-id="modifications-modal" class={styles.modificationModal}>
       {searchBox}
       {this.modifications().map((mod, index) => {
         const details = MaterialWidget.showModificationDetails(mod);
         ShowModificationsModal.updateWithVsmLink(details, mod, this.material.fingerprint());
         return <div data-test-id={`modification-${index}`} class={styles.modification}>
-          <div class={styles.commentRevisionWrapper}>
-            <div class={styles.comment}>{details.get("Comment")}</div>
-            <div class={styles.revision}>{details.get("Revision")}</div>
+          <div data-test-id="modification-comment" class={headerStyles.comment}>{details.get("Comment")}</div>
+          <div data-test-id="committer-info">
+            <span class={headerStyles.committer}>
+              By {details.get("Username")} on {details.get("Modified Time")}
+            </span> | {details.get("Revision")}
           </div>
-          <div data-test-id="username-with-time">By {details.get("Username")} on {details.get("Modified Time")}</div>
         </div>;
       })}
       <PaginationWidget previousLink={this.modifications().previousLink} nextLink={this.modifications().nextLink}
@@ -88,7 +89,7 @@ export class ShowModificationsModal extends Modal {
   }
 
   title(): string {
-    return `Show Modifications for '${this.material.displayName() || this.material.typeForDisplay()}'`;
+    return `Show Modifications for '${this.material.name() || this.material.displayName() || this.material.typeForDisplay()}'`;
   }
 
   private static updateWithVsmLink(details: Map<string, m.Children>, mod: MaterialModification, fingerprint: string) {

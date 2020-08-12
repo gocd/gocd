@@ -36,7 +36,7 @@ export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
     return [
       MaterialHeaderWidget.getIcon(material),
       <div className={headerStyles.headerTitle}>
-        <h4 data-test-id="material-type" className={headerStyles.headerTitleText}>{material.config.typeForDisplay()}</h4>
+        <h4 data-test-id="material-type" className={headerStyles.headerTitleText}>{material.config.name() || material.config.typeForDisplay()}</h4>
         <span data-test-id="material-display-name" className={headerStyles.headerTitleUrl}>{material.config.displayName()}</span>
       </div>,
       <div data-test-id="latest-mod-in-header">
@@ -74,8 +74,11 @@ export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
     if (modification === null) {
       return "This material was never parsed";
     }
-
-    const comment               = _.truncate(modification.comment, {length: MaterialHeaderWidget.MAX_COMMIT_MSG_LENGTH});
+    const commentLength         = modification.comment.includes('\n')
+      ? modification.comment.indexOf('\n') + 3 // the lodash replaces the last 3 digit with ellipse
+      : MaterialHeaderWidget.MAX_COMMIT_MSG_LENGTH;
+    // Math.min is required if the first line is greater than 90 chars
+    const comment               = _.truncate(modification.comment, {length: Math.min(commentLength, MaterialHeaderWidget.MAX_COMMIT_MSG_LENGTH)});
     const username              = _.truncate(modification.username, {length: MaterialHeaderWidget.MAX_USERNAME_LENGTH});
     const revision              = _.truncate(modification.revision, {length: MaterialHeaderWidget.MAX_REVISION_LENGTH});
     const usernameAndRevElement = _.isEmpty(username)

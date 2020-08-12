@@ -98,15 +98,18 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
   }
 
   view(vnode: m.Vnode<Attrs, {}>): m.Children | void | null {
+    // @ts-ignore
+    const status = styles[`${vnode.attrs.stageInstanceFromDashboard.status.toLowerCase()}-stage`];
+
     if (!vnode.attrs.stageOverviewVM()) {
-      return <div data-test-id="stage-overview-container-spinner" className={styles.stageOverviewContainer}>
+      return <div data-test-id="stage-overview-container-spinner" class={`${styles.stageOverviewContainer} ${status}`}>
         <Spinner/>
       </div>;
     }
 
     const inProgressStageFromPipeline = Stream(vnode.attrs.stages.find((s) => s.isBuilding()));
-
-    return <div data-test-id="stage-overview-container" class={styles.stageOverviewContainer}>
+    return <div data-test-id="stage-overview-container" class={`${styles.stageOverviewContainer} ${status}`}>
+      <div class={`${status} ${styles.stageOverviewStatus}`}/>
       <StageHeaderWidget stageName={vnode.attrs.stageName}
                          stageCounter={vnode.attrs.stageCounter}
                          pipelineName={vnode.attrs.pipelineName}

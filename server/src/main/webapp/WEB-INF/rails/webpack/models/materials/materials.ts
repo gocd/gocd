@@ -453,8 +453,8 @@ export class MaterialModifications extends Array<MaterialModification> {
 export class MaterialAPIs {
   private static API_VERSION_HEADER = ApiVersion.latest;
 
-  static all() {
-    return ApiRequestBuilder.GET(SparkRoutes.getAllMaterials(), this.API_VERSION_HEADER)
+  static all(etag?: string) {
+    return ApiRequestBuilder.GET(SparkRoutes.getAllMaterials(), this.API_VERSION_HEADER, {etag})
                             .then((result: ApiResult<string>) => result.map((body) => {
                               const data = JSON.parse(body) as MaterialsJSON;
                               return Materials.fromJSON(data.materials);

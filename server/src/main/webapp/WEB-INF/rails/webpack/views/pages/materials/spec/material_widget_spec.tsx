@@ -18,6 +18,7 @@ import {timeFormatter} from "helpers/time_formatter";
 import m from "mithril";
 import {MaterialModification} from "models/config_repos/types";
 import {MaterialWithFingerprint, MaterialWithModification, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
+import headerStyles from "views/pages/config_repos/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialWidget} from "../material_widget";
 import {git} from "./materials_widget_spec";

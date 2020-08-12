@@ -56,6 +56,20 @@ describe('MaterialsAPISpec', () => {
     expect(request.url).toEqual(url);
     expect(request.method).toEqual("GET");
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
+    expect(request.requestHeaders['If-None-Match']).toBeUndefined();
+  });
+
+  it('should send etag for fetching all materials', () => {
+    const url = SparkRoutes.getAllMaterials();
+    jasmine.Ajax.stubRequest(url).andReturn(materialsResponse());
+
+    MaterialAPIs.all("etag-to-send");
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(url);
+    expect(request.method).toEqual("GET");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
+    expect(request.requestHeaders['If-None-Match']).toEqual("etag-to-send");
   });
 
   it('should get list of modifications', (done) => {
@@ -359,7 +373,7 @@ describe('MaterialsSpec', () => {
 describe('MaterialsWithModificationSpec', () => {
   it('should return true if search string matches name, type or display url of the config', () => {
     const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("some-name", false, "http://svn.com/gocd/gocd", "master"));
-    const withMod  = new MaterialWithModification(material, null);
+    const withMod  = new MaterialWithModification(material, false, null);
 
     expect(withMod.matches("git")).toBeTrue();
     expect(withMod.matches("name")).toBeTrue();
@@ -370,7 +384,7 @@ describe('MaterialsWithModificationSpec', () => {
 
   it('should return true if search string matches username, revision or comment for the latest modification', () => {
     const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("", false, "some-url", "master"));
-    const withMod  = new MaterialWithModification(material, new MaterialModification("username", "email_address", "some-revision", "a very very long comment with abc", ""));
+    const withMod  = new MaterialWithModification(material, true, new MaterialModification("username", "email_address", "some-revision", "a very very long comment with abc", ""));
 
     expect(withMod.matches("revision")).toBeTrue();
     expect(withMod.matches("comment")).toBeTrue();
@@ -381,7 +395,7 @@ describe('MaterialsWithModificationSpec', () => {
 
   it('should return type as config.type', () => {
     const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("some-name", false, "http://svn.com/gocd/gocd", "master"));
-    const withMod  = new MaterialWithModification(material, null);
+    const withMod  = new MaterialWithModification(material, true, null);
 
     expect(withMod.type()).toBe(material.type());
   });

@@ -68,6 +68,7 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
       maybeEditButton = <Edit data-test-id={"edit-material"} title={"Edit package"}
                               onclick={vnode.attrs.onEdit.bind(this, config)}/>;
     }
+
     const actionButtons = <IconGroup>
       {maybeEditButton}
       <Usage data-test-id={"show-usages"} title={"Show Usages"} onclick={vnode.attrs.showUsages.bind(this, config)}/>

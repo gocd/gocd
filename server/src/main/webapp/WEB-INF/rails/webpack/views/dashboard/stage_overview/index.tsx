@@ -132,6 +132,7 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
                       pipelineCounter={vnode.attrs.pipelineCounter}
                       jobsVM={vnode.attrs.stageOverviewVM()!.jobsVM}
                       agents={vnode.attrs.stageOverviewVM()!.agents}
+                      isStageInProgress={Stream(vnode.attrs.stageOverviewVM()!.stageInstance().isInProgress())}
                       lastPassedStageInstance={vnode.attrs.stageOverviewVM()!.lastPassedStageInstance}/>
     </div>;
 

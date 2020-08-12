@@ -319,6 +319,10 @@ function defaultAttributes<T, V>(attrs: BaseAttrs<T> & V,
     defaultAttrs["data-test-id"] = attrs.dataTestId as string;
   }
 
+  if (attrs.title) {
+    defaultAttrs.title = attrs.title as string;
+  }
+
   return _.assign(defaultAttrs,
                   RequiredLabel.defaultAttributes(attrs),
                   Label.defaultAttributes(attrs),

@@ -35,7 +35,7 @@ class ModificationsRepresenterTest {
 
   @Test
   void 'should render empty json if modifications is null'() {
-    def actualJson = toObjectString({ ModificationsRepresenter.toJSON(it, null, null, "", "") })
+    def actualJson = toObjectString({ ModificationsRepresenter.toJSON(it, null, null, "", "", 10) })
 
     def expectedJson = [
       modifications: []
@@ -46,7 +46,7 @@ class ModificationsRepresenterTest {
 
   @Test
   void 'should render empty json if modifications is empty'() {
-    def actualJson = toObjectString({ ModificationsRepresenter.toJSON(it, emptyList(), null, "", "") })
+    def actualJson = toObjectString({ ModificationsRepresenter.toJSON(it, emptyList(), null, "", "", 10) })
 
     def expectedJson = [
       modifications: []
@@ -61,7 +61,7 @@ class ModificationsRepresenterTest {
     mod.id = 1
 
     def actualJson = toObjectString({
-      ModificationsRepresenter.toJSON(it, asList(mod), new PipelineRunIdInfo(1, 1), "fingerprint", "")
+      ModificationsRepresenter.toJSON(it, asList(mod), new PipelineRunIdInfo(1, 1), "fingerprint", "", 10)
     })
 
     def expectedJson = [
@@ -92,7 +92,7 @@ class ModificationsRepresenterTest {
     @Test
     void 'should render both next and previous links if records are present'() {
       def actualJson = toObjectString({
-        ModificationsRepresenter.toJSON(it, mods, new PipelineRunIdInfo(10, 1), "fingerprint", "")
+        ModificationsRepresenter.toJSON(it, mods, new PipelineRunIdInfo(10, 1), "fingerprint", "", 10)
       })
 
       def expectedJson = [
@@ -112,7 +112,7 @@ class ModificationsRepresenterTest {
     @Test
     void 'should return only next link if the latest instance id is present'() {
       def actualJson = toObjectString({
-        ModificationsRepresenter.toJSON(it, mods, new PipelineRunIdInfo(6, 1), "fingerprint", "")
+        ModificationsRepresenter.toJSON(it, mods, new PipelineRunIdInfo(6, 1), "fingerprint", "", 10)
       })
 
       def expectedJson = [
@@ -129,7 +129,7 @@ class ModificationsRepresenterTest {
     @Test
     void 'should return only previous link if the oldest instance id is present'() {
       def actualJson = toObjectString({
-        ModificationsRepresenter.toJSON(it, mods, new PipelineRunIdInfo(10, 2), "fingerprint", "")
+        ModificationsRepresenter.toJSON(it, mods, new PipelineRunIdInfo(10, 2), "fingerprint", "", 10)
       })
 
       def expectedJson = [
@@ -146,13 +146,30 @@ class ModificationsRepresenterTest {
     @Test
     void 'should return link with pattern if present'() {
       def actualJson = toObjectString({
-        ModificationsRepresenter.toJSON(it, mods, new PipelineRunIdInfo(10, 2), "fingerprint", "some pattern")
+        ModificationsRepresenter.toJSON(it, mods, new PipelineRunIdInfo(10, 2), "fingerprint", "some pattern", 10)
       })
 
       def expectedJson = [
         _links       : [
           previous: [
             href: "http://test.host/go/api/internal/materials/fingerprint/modifications?before=6&pattern=some+pattern"
+          ]
+        ],
+        modifications: modsJson
+      ]
+      assertThatJson(actualJson).isEqualTo(expectedJson)
+    }
+
+    @Test
+    void 'should return link with page size if greater than 10'() {
+      def actualJson = toObjectString({
+        ModificationsRepresenter.toJSON(it, mods, new PipelineRunIdInfo(10, 2), "fingerprint", "", 20)
+      })
+
+      def expectedJson = [
+        _links       : [
+          previous: [
+            href: "http://test.host/go/api/internal/materials/fingerprint/modifications?before=6&page_size=20"
           ]
         ],
         modifications: modsJson

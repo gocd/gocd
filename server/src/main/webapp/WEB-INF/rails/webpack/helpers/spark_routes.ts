@@ -623,4 +623,13 @@ export class SparkRoutes {
   static materialsVsmLink(fingerprint: string, revision: string) {
     return `/go/materials/value_stream_map/${fingerprint}/${revision}`;
   }
+
+  static getModifications(fingerprint: string, searchPattern?: string) {
+    const queryParams = new URLSearchParams();
+    queryParams.append("page_size", "20");
+    if (searchPattern) {
+      queryParams.append("pattern", searchPattern.trim());
+    }
+    return `/go/api/internal/materials/${fingerprint}/modifications?${queryParams}`;
+  }
 }

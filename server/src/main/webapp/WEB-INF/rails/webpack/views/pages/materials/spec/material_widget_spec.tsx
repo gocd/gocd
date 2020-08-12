@@ -29,7 +29,9 @@ import {MaterialVM} from "../models/material_view_model";
 import {git} from "./materials_widget_spec";
 
 describe('MaterialWidgetSpec', () => {
-  const helper = new TestHelper();
+  const helper     = new TestHelper();
+  const showModSpy = jasmine.createSpy("showModifications");
+  const onEditSpy  = jasmine.createSpy("onEdit");
   let material: MaterialWithModification;
 
   afterEach((done) => helper.unmount(done));
@@ -37,16 +39,18 @@ describe('MaterialWidgetSpec', () => {
     material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), null);
   });
 
-  it('should display the header', () => {
+  it('should display the header and action buttons', () => {
     mount();
 
     expect(helper.byTestId("material-icon")).toBeInDOM();
+    expect(helper.byTestId("show-modifications-material")).toBeInDOM();
   });
 
   it('should render git material attributes in the panel body', () => {
     mount();
 
     expect(helper.qa('h3')[1].textContent).toBe("Material Attributes");
+    expect(helper.byTestId('edit-material')).not.toBeInDOM();
 
     const attrsElement = helper.byTestId('material-attributes');
 
@@ -60,6 +64,7 @@ describe('MaterialWidgetSpec', () => {
     mount();
 
     expect(helper.qa('h3')[1].textContent).toBe("Material Attributes");
+    expect(helper.byTestId('edit-material')).toBeInDOM();
 
     const attrsElement = helper.byTestId('material-attributes');
 
@@ -75,6 +80,7 @@ describe('MaterialWidgetSpec', () => {
     mount();
 
     expect(helper.qa('h3')[1].textContent).toBe("Material Attributes");
+    expect(helper.byTestId('edit-material')).toBeInDOM();
 
     const attrsElement = helper.byTestId('material-attributes');
 
@@ -111,6 +117,26 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.q('span span', attrs[4])).toHaveAttr('title', '23 Dec, 2019 at 10:25:52 +00:00 Server Time');
   });
 
+  it('should send a callback to showModifications method', () => {
+    mount();
+
+    helper.clickByTestId("show-modifications-material");
+
+    expect(showModSpy).toHaveBeenCalled();
+    expect(showModSpy).toHaveBeenCalledWith(material.config, jasmine.any(MouseEvent));
+  });
+
+  it('should send a callback to onEdit method', () => {
+    material.config = new MaterialWithFingerprint("package", "fingerprint", new PackageMaterialAttributes(undefined, true, "pkg-id"));
+
+    mount();
+
+    helper.clickByTestId("edit-material");
+
+    expect(onEditSpy).toHaveBeenCalled();
+    expect(onEditSpy).toHaveBeenCalledWith(material.config, jasmine.any(MouseEvent));
+  });
+
   it('should not add link if shouldShowPackageOrScmLink is false for scm', () => {
     material.config = new MaterialWithFingerprint("plugin", "fingerprint",
                                                   new PluggableScmMaterialAttributes(undefined, true, "some-id", "scm-name"));
@@ -141,7 +167,46 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.q('a', helper.byTestId('key-value-value-ref'))).not.toBeInDOM();
   });
 
+  it('should render modification comment as truncated if it exceeds min length', () => {
+    material.modification
+      = new MaterialModification("GoCD Test User <devnull@example.com>", null, "b9b4f4b758e91117d70121a365ba0f8e37f89a9d", "A very long comment to be shown as part of the panel body which should be trimmed and rest part should not be shown by default. ", "2019-12-23T10:25:52Z");
+    mount();
+
+    expect(helper.q('h3').textContent).toBe("Latest Modification Details");
+    expect(helper.byTestId('latest-modification-details')).toBeInDOM();
+
+    const attrs = helper.qa('li', helper.byTestId('latest-modification-details'));
+
+    expect(attrs.length).toBe(5);
+    expect(attrs[3].textContent).toBe("CommentA very long comment to be shown as part of the panel body which should be trimme...more");
+
+    expect(helper.byTestId("ellipse-action-more", attrs[3])).toBeInDOM();
+    helper.clickByTestId("ellipse-action-more");
+
+    expect(attrs[3].textContent).toBe("CommentA very long comment to be shown as part of the panel body which should be trimmed and rest part should not be shown by default. less");
+  });
+
+  it('should render the first line in modification comment as truncated text', () => {
+    material.modification
+      = new MaterialModification("GoCD Test User <devnull@example.com>", null, "b9b4f4b758e91117d70121a365ba0f8e37f89a9d", "A very long comment to be shown as part of the panel body.\n Which should be trimmed and rest part should not be shown by default. ", "2019-12-23T10:25:52Z");
+    mount();
+
+    expect(helper.q('h3').textContent).toBe("Latest Modification Details");
+    expect(helper.byTestId('latest-modification-details')).toBeInDOM();
+
+    const attrs = helper.qa('li', helper.byTestId('latest-modification-details'));
+
+    expect(attrs.length).toBe(5);
+    expect(attrs[3].textContent).toBe("CommentA very long comment to be shown as part of the panel body....more");
+
+    expect(helper.byTestId("ellipse-action-more", attrs[3])).toBeInDOM();
+    helper.clickByTestId("ellipse-action-more");
+
+    expect(attrs[3].textContent).toBe("CommentA very long comment to be shown as part of the panel body.\n Which should be trimmed and rest part should not be shown by default. less");
+  });
+
   function mount(shouldShowPackageOrScmLink: boolean = true) {
-    helper.mount(() => <MaterialWidget materialVM={new MaterialVM(material)} shouldShowPackageOrScmLink={shouldShowPackageOrScmLink}/>);
+    helper.mount(() => <MaterialWidget materialVM={new MaterialVM(material)} shouldShowPackageOrScmLink={shouldShowPackageOrScmLink}
+                                       onEdit={onEditSpy} showModifications={showModSpy}/>);
   }
 });

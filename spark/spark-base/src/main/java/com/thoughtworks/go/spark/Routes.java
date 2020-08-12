@@ -924,16 +924,22 @@ public class Routes {
             return (MaterialConfig.BASE + USAGES).replaceAll(":fingerprint", fingerprint);
         }
 
-        public static String previous(String pipelineName, long before, String pattern) {
+        public static String previous(String pipelineName, long before, String pattern, Integer pageSize) {
             String link = INTERNAL_BASE_MODIFICATIONS.replaceAll(":fingerprint", pipelineName) + "?before=" + before;
-            if (isNotBlank(pattern)) {
-                link += "&pattern=" + UrlEscapers.urlFormParameterEscaper().escape(pattern);
-            }
+            link = appendQueryString(link, pattern, pageSize);
             return link;
         }
 
-        public static String next(String pipelineName, long after, String pattern) {
+        public static String next(String pipelineName, long after, String pattern, Integer pageSize) {
             String link = INTERNAL_BASE_MODIFICATIONS.replaceAll(":fingerprint", pipelineName) + "?after=" + after;
+            link = appendQueryString(link, pattern, pageSize);
+            return link;
+        }
+
+        private static String appendQueryString(String link, String pattern, Integer pageSize) {
+            if (pageSize > 10) {
+                link += "&page_size=" + pageSize;
+            }
             if (isNotBlank(pattern)) {
                 link += "&pattern=" + UrlEscapers.urlFormParameterEscaper().escape(pattern);
             }

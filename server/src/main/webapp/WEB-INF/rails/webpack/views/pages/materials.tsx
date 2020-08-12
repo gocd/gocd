@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {MaterialAPIs} from "models/materials/materials";
+import {MaterialAPIs, MaterialWithFingerprint, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
@@ -25,10 +26,16 @@ import {MaterialsWidget} from "views/pages/materials/materials_widget";
 import {MaterialVM, MaterialVMs} from "views/pages/materials/models/material_view_model";
 import {Page, PageState} from "views/pages/page";
 import configRepoStyles from "./config_repos/index.scss";
+import {ShowModificationsModal} from "./materials/modal";
 
-export interface MaterialsAttrs {
-  materialVMs: Stream<MaterialVMs>;
+export interface AdditionalInfoAttrs {
+  onEdit: (material: MaterialWithFingerprint, e: MouseEvent) => void;
+  showModifications: (material: MaterialWithFingerprint, e: MouseEvent) => void;
   shouldShowPackageOrScmLink: boolean;
+}
+
+export interface MaterialsAttrs extends AdditionalInfoAttrs {
+  materialVMs: Stream<MaterialVMs>;
 }
 
 interface State extends MaterialsAttrs {
@@ -42,6 +49,26 @@ export class MaterialsPage extends Page<null, State> {
 
     vnode.state.materialVMs = Stream();
     vnode.state.searchText  = Stream();
+
+    vnode.state.onEdit = (material: MaterialWithFingerprint, e: MouseEvent) => {
+      e.stopPropagation();
+      const materialType = material.type();
+      switch (materialType) {
+        case "package":
+          const pkgAttrs = material.attributes() as PackageMaterialAttributes;
+          window.open(`${SparkRoutes.packageRepositoriesSPA(pkgAttrs.packageRepoName(), pkgAttrs.packageName())}/edit`);
+          break;
+        case "plugin":
+          const pluginAttrs = material.attributes() as PluggableScmMaterialAttributes;
+          window.open(`${SparkRoutes.pluggableScmSPA(pluginAttrs.scmName())}/edit`);
+          break;
+      }
+    };
+
+    vnode.state.showModifications = (material: MaterialWithFingerprint, e: MouseEvent) => {
+      e.stopPropagation();
+      new ShowModificationsModal(material).render();
+    };
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
@@ -58,7 +85,8 @@ export class MaterialsPage extends Page<null, State> {
       filteredMaterials(new MaterialVMs(...results));
     }
     return [<MaterialsWidget key={filteredMaterials().length} materialVMs={filteredMaterials}
-                             shouldShowPackageOrScmLink={Page.isUserAnAdmin() || Page.isUserAGroupAdmin()}/>];
+                             shouldShowPackageOrScmLink={Page.isUserAnAdmin() || Page.isUserAGroupAdmin()}
+                             onEdit={vnode.state.onEdit} showModifications={vnode.state.showModifications}/>];
   }
 
   pageName(): string {

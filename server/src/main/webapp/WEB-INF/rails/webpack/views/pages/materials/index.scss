@@ -15,6 +15,9 @@
  */
 @import "../../global/common";
 
+$background-color: #ebf5f7;
+$button_color: #2d6ca2;
+
 .help {
   background-color: $white;
   padding:          20px;
@@ -56,4 +59,76 @@
     @include icon-before($type: $fa-var-question, $color: $icon-light-color, $size: 35px, $margin: 0);
     background: $white;
   }
+}
+
+.modification {
+  font-size:      13px;
+  font-weight:    600;
+  padding-bottom: 10px;
+  padding-left:   0.5em;
+
+  &:hover {
+    background-color: $background-color;
+  }
+
+  & + & {
+    border-top: 1px $black solid;
+  }
+
+  .comment-revision-wrapper {
+    display:         flex;
+    justify-content: space-between;
+    flex-direction:  row;
+
+    .comment {
+      max-width: 640px;
+      padding:   1em 0;
+    }
+
+    .revision {
+      min-width:  350px;
+      text-align: end;
+      padding:    1em 0;
+    }
+  }
+}
+
+.pagination {
+  display:         flex;
+  justify-content: center;
+
+  .pagination-link {
+    margin:           4px;
+    padding:          6px 10px;
+    background-color: $white;
+    border-radius:    $global-border-radius;
+    text-align:       center;
+  }
+
+  .disabled {
+    color:           $go-disabled;
+    cursor:          not-allowed;
+    text-decoration: none;
+  }
+}
+
+.search-box-wrapper {
+  margin-bottom: 8px;
+  text-align:    right;
+
+  input {
+    width: 350px;
+  }
+}
+
+.ellipse-wrapper {
+  display:     inline-block;
+  word-break:  break-all;
+  white-space: pre-line;
+}
+
+.ellipsis-action-button {
+  color:        $button_color;
+  padding-left: 10px;
+  cursor:       pointer;
 }

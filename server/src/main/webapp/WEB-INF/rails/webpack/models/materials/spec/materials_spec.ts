@@ -20,6 +20,7 @@ import {
   GitMaterialAttributes,
   HgMaterialAttributes,
   MaterialAPIs,
+  MaterialModifications,
   Materials,
   MaterialWithFingerprint,
   MaterialWithModification,
@@ -68,6 +69,37 @@ describe('MaterialsAPISpec', () => {
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
+  it('should get list of modifications', (done) => {
+    const url = SparkRoutes.getModifications("fingerprint");
+    jasmine.Ajax.stubRequest(url).andReturn(modificationResponse());
+
+    const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
+      const responseJSON  = response.unwrap() as SuccessResponse<any>;
+      const modifications = (responseJSON.body as MaterialModifications);
+
+      expect(modifications).toHaveLength(1);
+      expect(modifications.previousLink).toBeUndefined();
+      expect(modifications.nextLink).toBe('some-link-for-next-page');
+
+      const mod = modifications[0];
+
+      expect(mod).not.toBeNull();
+      expect(mod.modifiedTime).toBe("2019-12-23T10:25:52Z");
+      expect(mod.username).toBe("GoCD test user");
+      expect(mod.comment).toBe("Dummy commit");
+      expect(mod.emailAddress).toBe("gocd@test.com");
+      expect(mod.revision).toBe("abcd1234");
+      done();
+    });
+
+    MaterialAPIs.modifications("fingerprint", "").then(onResponse);
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(url);
+    expect(request.method).toEqual("GET");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
+  });
+
   function materialsResponse() {
     const data = {
       materials: [{
@@ -93,6 +125,30 @@ describe('MaterialsAPISpec', () => {
           comment:       "Dummy commit",
           modified_time: "2019-12-23T10:25:52Z"
         }
+      }]
+    };
+    return {
+      status:          200,
+      responseHeaders: {
+        "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+      },
+      responseText:    JSON.stringify(data)
+    };
+  }
+
+  function modificationResponse() {
+    const data = {
+      _links:        {
+        next: {
+          href: "some-link-for-next-page"
+        }
+      },
+      modifications: [{
+        username:      "GoCD test user",
+        email_address: "gocd@test.com",
+        revision:      "abcd1234",
+        comment:       "Dummy commit",
+        modified_time: "2019-12-23T10:25:52Z"
       }]
     };
     return {

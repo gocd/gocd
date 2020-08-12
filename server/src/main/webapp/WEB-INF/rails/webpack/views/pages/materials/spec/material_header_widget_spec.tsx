@@ -121,6 +121,24 @@ describe('MaterialHeaderWidgetSpec', () => {
     expect(helper.byTestId("vsm-link")).toHaveAttr('title', 'Value Stream Map');
   });
 
+  it('should render the first line of the modification comment', () => {
+    material.modification
+      = new MaterialModification("A_Long_username_with_a_long_long_long_long_long_text", null, "b07d423864ec120362b3584635cb07d423864ec120362b3584635c", "A very long comment to be shown on the header.\nWhich should be trimmed and rest part should not be shown", "");
+    mount();
+
+    expect(helper.byTestId("latest-mod-in-header")).toBeInDOM();
+    expect(helper.q(`.${headerStyles.comment}`).textContent).toBe("A very long comment to be shown on the header....");
+  });
+
+  it('should render the first line as truncated if longer than max chars of the modification comment', () => {
+    material.modification
+      = new MaterialModification("A_Long_username_with_a_long_long_long_long_long_text", null, "b07d423864ec120362b3584635cb07d423864ec120362b3584635c", "A very long comment to be shown on the header which should be trimmed and rest part should not be shown.\n Also this is the complete message", "");
+    mount();
+
+    expect(helper.byTestId("latest-mod-in-header")).toBeInDOM();
+    expect(helper.q(`.${headerStyles.comment}`).textContent).toBe("A very long comment to be shown on the header which should be trimmed and rest part sho...");
+  });
+
   function mount() {
     helper.mount(() => <MaterialHeaderWidget materialVM={new MaterialVM(material)}/>);
   }

@@ -17,7 +17,13 @@
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {MaterialModification} from "models/config_repos/types";
-import {MaterialWithFingerprint, MaterialWithModification} from "models/materials/materials";
+import {
+  MaterialWithFingerprint,
+  MaterialWithModification,
+  P4MaterialAttributes,
+  PackageMaterialAttributes,
+  PluggableScmMaterialAttributes
+} from "models/materials/materials";
 import headerStyles from "views/pages/config_repos/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";
@@ -34,25 +40,43 @@ describe('MaterialHeaderWidgetSpec', () => {
     material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), null);
   });
 
-  it('should display the name of the material with type', () => {
+  it('should display the name of the material with attributes', () => {
     mount();
 
     expect(helper.byTestId("material-type")).toBeInDOM();
+    expect(helper.textByTestId("material-type")).toBe('some-name');
+    expect(helper.textByTestId("material-display-name")).toBe(material.config.displayName()!);
+  });
+
+  it('should display the type if name is not provided', () => {
+    material.config.attributes().name(undefined);
+    mount();
+
     expect(helper.textByTestId("material-type")).toBe('Git');
-    expect(helper.textByTestId("material-display-name")).toBe('some-name');
   });
 
   [
     {type: "git", classname: styles.git},
     {type: "hg", classname: styles.mercurial},
-    {type: "p4", classname: styles.perforce},
     {type: "svn", classname: styles.subversion},
     {type: "tfs", classname: styles.tfs},
     {type: "dependency", classname: styles.unknown},
-    {type: "package", classname: styles.package},
-    {type: "plugin", classname: styles.unknown}
   ].forEach((parameter) => {
     it(`should display icon for ${parameter.type} `, () => {
+      material.config.type(parameter.type);
+      mount();
+
+      expect(helper.byTestId("material-icon")).toHaveClass(parameter.classname);
+    });
+  });
+
+  [
+    {type: "p4", classname: styles.perforce, attrs: new P4MaterialAttributes()},
+    {type: "package", classname: styles.package, attrs: new PackageMaterialAttributes()},
+    {type: "plugin", classname: styles.unknown, attrs: new PluggableScmMaterialAttributes(undefined, true, "", "")}
+  ].forEach((parameter) => {
+    it(`should display icon for ${parameter.type} `, () => {
+      material.config.attributes(parameter.attrs);
       material.config.type(parameter.type);
       mount();
 

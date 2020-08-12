@@ -88,7 +88,7 @@ export class ShowModificationsModal extends Modal {
   }
 
   title(): string {
-    return `Show Modifications for '${this.material.displayName() || this.material.typeForDisplay()}'`;
+    return `Show Modifications for '${this.material.name() || this.material.displayName() || this.material.typeForDisplay()}'`;
   }
 
   private static updateWithVsmLink(details: Map<string, m.Children>, mod: MaterialModification, fingerprint: string) {

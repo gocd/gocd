@@ -46,6 +46,13 @@ describe('ShowModificationsModalSpec', () => {
     expect(modal.title()).toBe("Show Modifications for 'some-name'");
   });
 
+  it('should render title as attribute if name is not provided', () => {
+    material.attributes().name(undefined);
+    mount();
+
+    expect(modal.title()).toBe("Show Modifications for 'git@github.com:sample_repo/example.git [ master ]'");
+  });
+
   it('should show a spinner and search box if modal state is loading', () => {
     mount();
     modal.modalState = ModalState.LOADING;

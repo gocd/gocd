@@ -268,18 +268,25 @@ export class MaterialWithFingerprint {
   }
 
   displayName() {
-    const name = this.name();
-    if (name.length > 0) {
-      return name;
+    switch (this.type()) {
+      case "git":
+      case "hg":
+        // @ts-ignore
+        return `${this.attributes()!.url()} [ ${this.attributes()!.branch()} ]`;
+      case "svn":
+        return (this.attributes() as SvnMaterialAttributes).url();
+      case "tfs":
+        return (this.attributes() as TfsMaterialAttributes).url();
+      case "p4":
+        const p4Attrs = this.attributes() as P4MaterialAttributes;
+        return `${p4Attrs.port()} [ ${p4Attrs.view()} ]`;
+      case "package":
+        const attrs = this.attributes() as PackageMaterialAttributes;
+        return `${attrs.packageRepoName()}_${attrs.packageName()}`;
+      case "plugin":
+        return (this.attributes() as PluggableScmMaterialAttributes).scmName();
     }
-    if (this.type() === "package" || this.type() === "plugin") {
-      return "";
-    }
-    if (this.type() === "p4") {
-      return (this.attributes() as P4MaterialAttributes).port();
-    }
-    // @ts-ignore
-    return this.attributes()!.url();
+    return "";
   }
 
   attributesAsMap(): Map<string, any> {

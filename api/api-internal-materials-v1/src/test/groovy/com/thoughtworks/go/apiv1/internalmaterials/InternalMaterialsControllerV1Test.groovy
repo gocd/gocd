@@ -140,6 +140,17 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
     }
 
     @Test
+    void 'should return 304 when etag matches'() {
+      when(materialConfigService.getMaterialConfigs(anyString())).thenReturn(new MaterialConfigs())
+      when(materialService.getLatestModificationForEachMaterial()).thenReturn(emptyMap())
+
+      getWithApiHeader(controller.controllerBasePath(), ['if-none-match': 'f329a259ce39701e259956818e1b15eecee59460159d9158a55a885feb612110'])
+
+      assertThatResponse()
+        .isNotModified()
+    }
+
+    @Test
     void 'should return 200 with empty materials'() {
       when(materialConfigService.getMaterialConfigs(anyString())).thenReturn(new MaterialConfigs())
       when(materialService.getLatestModificationForEachMaterial()).thenReturn(emptyMap())
@@ -148,6 +159,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
       assertThatResponse()
         .isOk()
+        .hasEtag("\"f329a259ce39701e259956818e1b15eecee59460159d9158a55a885feb612110\"")
         .hasBodyWithJsonObject(MaterialWithModificationsRepresenter.class, emptyMap())
     }
 

@@ -18,10 +18,12 @@ package com.thoughtworks.go.apiv1.internalmaterials.models;
 
 import com.thoughtworks.go.domain.materials.Modification;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
+@EqualsAndHashCode
 public class MaterialInfo {
     private Modification modification;
     private boolean isUpdateInProgress;

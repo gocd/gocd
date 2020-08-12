@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
 import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
@@ -85,6 +86,14 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
         Map<String, Modification> modifications = materialService.getLatestModificationForEachMaterial();
         Collection<MaintenanceModeService.MaterialPerformingMDU> runningMDUs = maintenanceModeService.getRunningMDUs();
         Map<MaterialConfig, MaterialInfo> mergedMap = createMergedMap(materialConfigs, modifications, runningMDUs);
+
+        final String etag = etagFor(mergedMap);
+
+        if (fresh(request, etag)) {
+            return notModified(response);
+        }
+
+        setEtagHeader(response, etag);
         return writerForTopLevelObject(request, response, writer -> MaterialWithModificationsRepresenter.toJSON(writer, mergedMap));
     }
 
@@ -108,5 +117,9 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
             }
         }
         return map;
+    }
+
+    private String etagFor(Object entity) {
+        return sha512_256Hex(Integer.toString(entity.hashCode()));
     }
 }

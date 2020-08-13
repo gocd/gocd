@@ -270,9 +270,12 @@ export class MaterialWithFingerprint {
   displayName() {
     switch (this.type()) {
       case "git":
-      case "hg":
         // @ts-ignore
         return `${this.attributes()!.url()} [ ${this.attributes()!.branch()} ]`;
+      case "hg":
+        const hgAttrs = this.attributes() as HgMaterialAttributes;
+        const branch  = hgAttrs.branch() ? ` [ ${hgAttrs.branch()} ]` : "";
+        return `${hgAttrs.url()}${branch}`;
       case "svn":
         return (this.attributes() as SvnMaterialAttributes).url();
       case "tfs":

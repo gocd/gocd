@@ -225,6 +225,11 @@ describe('MaterialWithFingerPrintSpec', () => {
       expect(material.displayName()).toBe("some-url [ branch ]");
     });
 
+    it('should show only url as display name for hg when branch is not set', () => {
+      const material = new MaterialWithFingerprint("hg", "fingerprint", new HgMaterialAttributes("name", false, "some-url"));
+      expect(material.displayName()).toBe("some-url");
+    });
+
     it('should show url as display name for svn', () => {
       const material = new MaterialWithFingerprint("svn", "fingerprint", new SvnMaterialAttributes("name", false, "some-url"));
       expect(material.displayName()).toBe("some-url");

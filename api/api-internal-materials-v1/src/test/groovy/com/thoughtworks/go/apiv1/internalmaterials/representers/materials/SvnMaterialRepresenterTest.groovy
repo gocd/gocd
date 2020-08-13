@@ -22,7 +22,7 @@ import com.thoughtworks.go.helper.MaterialConfigsMother
 class SvnMaterialRepresenterTest implements MaterialRepresenterTrait<SvnMaterialConfig> {
 
   SvnMaterialConfig existingMaterial() {
-    MaterialConfigsMother.svnMaterialConfig()
+    MaterialConfigsMother.svnMaterialConfig("http://user:pass@svn-material", "folder")
   }
 
   def materialHash() {
@@ -30,7 +30,7 @@ class SvnMaterialRepresenterTest implements MaterialRepresenterTrait<SvnMaterial
       type       : 'svn',
       fingerprint: existingMaterial().fingerprint,
       attributes : [
-        url            : "url",
+        url            : "http://user:******@svn-material",
         name           : "svn-material",
         auto_update    : false,
         check_externals: true,

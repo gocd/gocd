@@ -26,7 +26,7 @@ public abstract class ScmMaterialRepresenter<T extends ScmMaterialConfig> implem
     public Consumer<OutputWriter> toJSON(T scmMaterialConfig) {
         return jsonWriter -> {
             if (!(scmMaterialConfig instanceof P4MaterialConfig)) {
-                jsonWriter.add("url", scmMaterialConfig.getUrl());
+                jsonWriter.add("url", scmMaterialConfig.getUriForDisplay());
             }
             jsonWriter.add("name", scmMaterialConfig.getName());
             jsonWriter.add("auto_update", scmMaterialConfig.isAutoUpdate());

@@ -16,20 +16,14 @@
 package com.thoughtworks.go.apiv1.internalmaterials.representers.materials
 
 
-import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.PipelineConfig
-import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
-import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
-import com.thoughtworks.go.security.GoCipher
-import com.thoughtworks.go.util.command.HgUrlArgument
-
-import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs
 
 class TfsMaterialRepresenterTest implements MaterialRepresenterTrait<TfsMaterialConfig> {
   TfsMaterialConfig existingMaterial() {
-    MaterialConfigsMother.tfsMaterialConfig()
+    def tfs = MaterialConfigsMother.tfsMaterialConfig()
+    tfs.setUrl("http://user:pass@10.4.4.101:8080/tfs/Sample")
+    return tfs
   }
 
   def materialHash() {
@@ -37,11 +31,11 @@ class TfsMaterialRepresenterTest implements MaterialRepresenterTrait<TfsMaterial
       type       : 'tfs',
       fingerprint: existingMaterial().fingerprint,
       attributes : [
-        url               : "http://10.4.4.101:8080/tfs/Sample",
-        domain            : "some_domain",
-        project_path      : "walk_this_path",
-        name              : "tfs-material",
-        auto_update       : true
+        url         : "http://user:******@10.4.4.101:8080/tfs/Sample",
+        domain      : "some_domain",
+        project_path: "walk_this_path",
+        name        : "tfs-material",
+        auto_update : true
       ]
     ]
   }

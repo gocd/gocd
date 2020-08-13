@@ -207,6 +207,7 @@ export class KitchenSink extends MithrilComponent<null, any> {
             <Icons.Lock onclick={() => alert("You pressed lock button!")}/>
             <Icons.Close onclick={() => alert("You pressed close button!")}/>
             <Icons.QuestionMark onclick={() => alert("You pressed question button!")}/>
+            <Icons.List onclick={() => alert("You pressed list button!")}/>
           </IconGroup>
         </p>
         <p>
@@ -219,6 +220,7 @@ export class KitchenSink extends MithrilComponent<null, any> {
             <Icons.Lock disabled={true}/>
             <Icons.Close disabled={true}/>
             <Icons.QuestionMark disabled={true}/>
+            <Icons.List disabled={true}/>
           </IconGroup>
         </p>
         <hr/>

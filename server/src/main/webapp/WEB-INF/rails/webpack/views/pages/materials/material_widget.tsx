@@ -23,7 +23,7 @@ import {MaterialModification} from "models/config_repos/types";
 import {MaterialWithFingerprint, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {Analytics, Edit, IconGroup} from "views/components/icons";
+import {Edit, IconGroup, List} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import headerStyles from "views/pages/config_repos/index.scss";
@@ -71,8 +71,8 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
     }
     const actionButtons = <IconGroup>
       {maybeEditButton}
-      <Analytics data-test-id={"show-modifications-material"} title={"Show Modifications"}
-                 onclick={vnode.attrs.showModifications.bind(this, config)}/>
+      <List data-test-id={"show-modifications-material"} title={"Show Modifications"}
+            onclick={vnode.attrs.showModifications.bind(this, config)}/>
     </IconGroup>;
 
     return <CollapsiblePanel header={<MaterialHeaderWidget {...vnode.attrs} />}

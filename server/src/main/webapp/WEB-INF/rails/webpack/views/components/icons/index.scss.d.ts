@@ -20,6 +20,7 @@ export const enabled: string;
 export const forward: string;
 export const iconGroup: string;
 export const infoCircle: string;
+export const list: string;
 export const lock: string;
 export const minus: string;
 export const plus: string;

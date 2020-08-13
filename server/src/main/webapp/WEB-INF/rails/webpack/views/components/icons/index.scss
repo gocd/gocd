@@ -199,6 +199,10 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-file-text-o);
 }
 
+.list {
+  @include icon-before($type: $fa-var-list);
+}
+
 .icon-group {
   border:        1px solid $border-color;
   border-radius: $btn-group-border-radius;

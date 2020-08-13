@@ -90,7 +90,7 @@ export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
 
     const vsmLink = <Link dataTestId={"vsm-link"} href={SparkRoutes.materialsVsmLink(fingerprint, modification.revision)}
                           title={"Value Stream Map"} onclick={e => e.stopPropagation()}>VSM</Link>;
-    return <div className={headerStyles.commitInfo}>
+    return <div className={styles.commitInfo}>
       <span className={headerStyles.comment}>
         {comment}
       </span>

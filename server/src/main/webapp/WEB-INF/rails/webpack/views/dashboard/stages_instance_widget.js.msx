@@ -20,6 +20,7 @@ import _ from "lodash";
 import {f} from "helpers/form_helper";
 import {StageOverview} from "./stage_overview/index";
 import {StageOverviewViewModel} from "./stage_overview/models/stage_overview_view_model";
+import {Modal} from "views/shared/new_modal";
 
 export const StagesInstanceWidget = {
   oninit(vnode) {
@@ -27,12 +28,39 @@ export const StagesInstanceWidget = {
     const operationMessages = vnode.attrs.operationMessages;
 
     self.triggerStage = (stage) => {
-      stage.trigger().then((res) => {
-        operationMessages.success(vnode.attrs.pipelineName, res.message);
-        vnode.attrs.invalidateEtag();
-      }, (res) => {
-        operationMessages.failure(vnode.attrs.pipelineName, res.responseJSON.message);
+      const modal = new Modal({
+        size:    'small',
+        title:   `Trigger stage ${stage.name}`,
+        body:    () => <div class="manual-stage-trigger-body">Do you want to trigger stage '<em>{stage.name}</em>'?</div>,
+        onclose: () => modal.destroy(),
+        buttons: () => {
+          return [
+            {
+              text:    "OK",
+              class:   'save primary',
+              onclick: () => {
+                stage.trigger().then((res) => {
+                  operationMessages.success(vnode.attrs.pipelineName, res.message);
+                  vnode.attrs.invalidateEtag();
+                  modal.destroy();
+                }, (res) => {
+                  operationMessages.failure(vnode.attrs.pipelineName, res.responseJSON.message);
+                  modal.destroy();
+                });
+              }
+            },
+            {
+              text:    "CLOSE",
+              class:   'save secondary',
+              onclick: () => {
+                return modal.destroy();
+              }
+            }
+          ];
+        }
       });
+
+      modal.render();
     };
 
     vnode.state.showStageOverview = function (pipelineName, pipelineCounter, stageName, stageCounter, stageStatus, stageOverview, e) {

@@ -36,7 +36,6 @@ export const StagesInstanceWidget = {
     };
 
     vnode.state.showStageOverview = function (pipelineName, pipelineCounter, stageName, stageCounter, stageStatus, stageOverview, e) {
-      stageOverview.model(undefined);
       stageOverview.show(pipelineName, pipelineCounter, stageName, stageCounter);
       StageOverviewViewModel.initialize(pipelineName, pipelineCounter, stageName, stageCounter, stageStatus).then((result) => stageOverview.model(result));
       e.stopPropagation();

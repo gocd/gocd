@@ -143,6 +143,7 @@ export function DashboardViewModel(dashboard) {
       isOpen: (pipeline, pCounter, stage, sCounter) => ((pipeline === stageOverviewPipelineName) && (pCounter === stageOverviewPipelineCounter) && (stage === stageOverviewStageName) && (sCounter === stageOverviewStageCounter)),
 
       show: (pipeline, pCounter, stage, sCounter) => {
+        self.stageOverview.hide();
         stageOverviewPipelineName = pipeline;
         stageOverviewPipelineCounter = pCounter;
         stageOverviewStageName = stage;

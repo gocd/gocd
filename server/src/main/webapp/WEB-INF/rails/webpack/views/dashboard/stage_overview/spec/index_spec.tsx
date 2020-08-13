@@ -54,7 +54,8 @@ describe("Stage Overview Widget", () => {
 
     helper.mount(() => {
       const stageInstanceFromDashboard = {
-        canOperate: true
+        canOperate: true,
+        status:     'passed'
       };
 
       return <StageOverview pipelineName={pipelineName}

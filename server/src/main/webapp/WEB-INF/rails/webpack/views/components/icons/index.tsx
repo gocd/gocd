@@ -263,6 +263,12 @@ export class ConsoleLog extends Icon {
   }
 }
 
+export class List extends Icon {
+  constructor() {
+    super(styles.list, "List");
+  }
+}
+
 export class IconGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (

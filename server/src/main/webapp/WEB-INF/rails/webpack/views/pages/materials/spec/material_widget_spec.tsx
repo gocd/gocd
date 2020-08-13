@@ -58,7 +58,7 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.qa('li', attrsElement).length).toBe(2);
   });
 
-  it('should render ref with link for plugin', () => {
+  it('should render ref with link and edit material icon for plugin', () => {
     material.config
       = new MaterialWithFingerprint("plugin", "fingerprint", new PluggableScmMaterialAttributes(undefined, true, "scm-id", "scm_name"));
     mount();
@@ -74,7 +74,7 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.q('a', helper.byTestId('key-value-value-ref'))).toHaveAttr('href', '/go/admin/scms#!scm_name');
   });
 
-  it('should render ref with link for package', () => {
+  it('should render ref with link and edit material icon for package', () => {
     material.config
       = new MaterialWithFingerprint("package", "fingerprint", new PackageMaterialAttributes(undefined, true, "pkg-id", "pkg-name", "pkg-repo-name"));
     mount();

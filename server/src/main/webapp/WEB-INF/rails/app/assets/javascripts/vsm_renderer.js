@@ -258,13 +258,18 @@ Graph_Renderer = function (container) {
         });
     }
 
+    function isNodeTypeScm() {
+        return ['git', 'mercurial', 'subversion', 'perforce', 'tfs', 'package'].indexOf(nodeClassName) === -1;
+    }
+
     function renderScmEntity(node) {
         var gui = '', node_name = '';
         var modification = firstModification(node);
 
         if (modification) {
             nodeClassName = node.node_type.toLowerCase();
-            gui += '<div class= "material_revisions ' + nodeClassName + '"></div>'
+            var pluginClassName = isNodeTypeScm() ? "scm " : "";
+            gui += '<div class= "material_revisions ' + pluginClassName + nodeClassName + '"></div>'
             if (node.node_type == 'PACKAGE' && typeof(node.material_names) !== "undefined") {
                 node_name = node.material_names.join();
             } else {

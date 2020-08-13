@@ -69,7 +69,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait<GitMaterial
       type       : 'git',
       fingerprint: existingMaterial().fingerprint,
       attributes : [
-        url        : "http://user:password@funk.com/blank",
+        url        : "http://user:******@funk.com/blank",
         branch     : 'branch',
         name       : 'AwesomeGitMaterial',
         auto_update: false,

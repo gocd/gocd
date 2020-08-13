@@ -16,21 +16,13 @@
 package com.thoughtworks.go.apiv1.internalmaterials.representers.materials
 
 
-import com.thoughtworks.go.config.BasicCruiseConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.config.PipelineConfig
-import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
-import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
-import com.thoughtworks.go.util.command.HgUrlArgument
-
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 
 class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   HgMaterialConfig existingMaterial() {
-    return MaterialConfigsMother.hgMaterialConfigFull("http://domain/path")
+    return MaterialConfigsMother.hgMaterialConfigFull("http://user:pass@domain/path")
   }
 
   def materialHash() {
@@ -38,9 +30,9 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
       type       : 'hg',
       fingerprint: existingMaterial().fingerprint,
       attributes : [
-        url          : "http://domain/path",
-        name         : "hg-material",
-        auto_update  : true
+        url        : "http://user:******@domain/path",
+        name       : "hg-material",
+        auto_update: true
       ]
     ]
   }

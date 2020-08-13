@@ -18,6 +18,7 @@ import {PipelineInstance} from "models/dashboard/pipeline_instance";
 import {StagesInstanceWidget} from "views/dashboard/stages_instance_widget";
 import m from "mithril";
 import {DashboardViewModel} from "../../../../webpack/views/dashboard/models/dashboard_view_model";
+import {Modal} from "views/shared/new_modal";
 
 describe("Dashboard Stages Instance Widget", () => {
 
@@ -107,6 +108,8 @@ describe("Dashboard Stages Instance Widget", () => {
     mount();
   });
 
+  afterEach(Modal.destroyAll);
+
   function mount() {
     helper.mount(() => m(StagesInstanceWidget, {
       stages:        stagesInstance,
@@ -147,6 +150,15 @@ describe("Dashboard Stages Instance Widget", () => {
 
   it("should render enabled manual gate", () => {
     expect(helper.q('.manual_gate')).not.toHaveClass('disabled');
+  });
+
+  it("should render confirmation modal when manual gate is clicked", () => {
+    expect(helper.q('.manual_gate')).not.toHaveClass('disabled');
+    helper.click(helper.q('.manual_gate'));
+
+    expect(helper.q('.modal-title', document.body)).toContainText('Trigger stage up42_stage2');
+    expect(helper.q('.manual-stage-trigger-body', document.body)).toContainText('Do you want to trigger stage');
+    expect(helper.q('.manual-stage-trigger-body', document.body)).toContainText('up42_stage2');
   });
 
   it("should render disabled manual gate when previous stage is in progress", () => {

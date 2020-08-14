@@ -42,7 +42,7 @@ export class StageOverviewViewModel {
               lastPassedStageInstance?: StageInstance) {
     this.stageInstance = Stream(stageInstance);
     this.lastPassedStageInstance = Stream(lastPassedStageInstance);
-    this.jobsVM = Stream(new JobsViewModel(stageInstance.jobs()));
+    this.jobsVM = Stream(new JobsViewModel(stageInstance.jobs(), agents));
     this.agents = Stream(agents);
     this.repeater = Stream(this.createRepeater(pipelineName, pipelineCounter, stageName, stageCounter));
   }
@@ -157,15 +157,13 @@ export class StageOverviewViewModel {
                          stageName: string, stageCounter: string | number) {
     const repeaterFn = () => {
       return Promise.all([StageOverviewViewModel.fetchStageInstance(pipelineName, pipelineCounter, stageName, stageCounter), AgentsCRUD.all()]).then(result => {
-        result[0].do((successResponse) => {
-          this.stageInstance(successResponse.body);
-          this.jobsVM().update(this.stageInstance().jobs());
-          m.redraw.sync();
-        });
-
-        result[1].do((successResponse) => {
-          this.agents(successResponse.body);
-          m.redraw.sync();
+        result[0].do((jobsSuccessResponse) => {
+          result[1].do((agentsSuccessResponse) => {
+            this.stageInstance(jobsSuccessResponse.body);
+            this.jobsVM().update(this.stageInstance().jobs(), agentsSuccessResponse.body);
+            this.agents(agentsSuccessResponse.body);
+            m.redraw.sync();
+          });
         });
       });
     };

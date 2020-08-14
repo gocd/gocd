@@ -22,13 +22,14 @@ import {JobCountAndRerunWidget} from "../job_count_and_rerun_widget";
 import {JobsViewModel} from "../models/jobs_view_model";
 import {Result} from "../models/types";
 import {TestData} from "./test_data";
+import {Agents} from "../../../../models/agents/agents";
 
 describe("Job Count And Rerun Widget", () => {
   const helper = new TestHelper();
 
   let jobs: JobsViewModel;
   beforeEach(() => {
-    jobs = new JobsViewModel(TestData.stageInstanceJSON().jobs);
+    jobs = new JobsViewModel(TestData.stageInstanceJSON().jobs, new Agents());
     mount();
   });
   afterEach(helper.unmount.bind(helper));
@@ -66,7 +67,7 @@ describe("Job Count And Rerun Widget", () => {
     helper.unmount();
     const json = TestData.stageInstanceJSON().jobs;
     json[0].result = Result[Result.Failed];
-    jobs = new JobsViewModel(json);
+    jobs = new JobsViewModel(json, new Agents());
     mount();
 
     expect(helper.qa('button')[0]).not.toBeDisabled();
@@ -78,7 +79,7 @@ describe("Job Count And Rerun Widget", () => {
     helper.unmount();
     const json = TestData.stageInstanceJSON().jobs;
     json[0].result = Result[Result.Failed];
-    jobs = new JobsViewModel(json);
+    jobs = new JobsViewModel(json, new Agents());
     jobs.checkedState.get(json[0].name)!(true);
     mount();
 
@@ -107,7 +108,7 @@ describe("Job Count And Rerun Widget", () => {
 
     json[0].result = Result[Result.Failed];
     json[1].result = Result[Result.Unknown];
-    jobs = new JobsViewModel(json);
+    jobs = new JobsViewModel(json, new Agents());
     mount();
 
     expect(helper.qa('button')[0]).toBeDisabled();
@@ -123,7 +124,7 @@ describe("Job Count And Rerun Widget", () => {
 
     json[0].result = Result[Result.Failed];
     json[1].result = Result[Result.Unknown];
-    jobs = new JobsViewModel(json);
+    jobs = new JobsViewModel(json, new Agents());
     jobs.checkedState.get(json[0].name)!(true);
     mount();
 

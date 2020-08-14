@@ -49,15 +49,24 @@ export class JobDurationStrategyHelper {
     return this.getCompletedJobDuration(job, passedStageInstance);
   }
 
-  static getJobDurationForDisplay(job: JobJSON): string {
+  static getJobDuration(job: JobJSON): any {
     const isJobInProgress = job.result === Result[Result.Unknown];
     if (isJobInProgress) {
-      return "in progress";
+      return undefined;
     }
 
     const end = moment.unix(this.getJobStateTime(job, "Completed"));
     const start = moment.unix(this.getJobStateTime(job, "Scheduled"));
-    return this.formatTimeForDisplay(moment.utc(end.diff(start)));
+    return moment.utc(end.diff(start));
+  }
+
+  static getJobDurationForDisplay(job: JobJSON): string {
+    const duration = JobDurationStrategyHelper.getJobDuration(job);
+    if (duration === undefined) {
+      return "in progress";
+    }
+
+    return this.formatTimeForDisplay(duration);
   }
 
   static formatTimeForDisplay(time: any) {

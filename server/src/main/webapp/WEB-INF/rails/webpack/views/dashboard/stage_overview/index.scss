@@ -38,6 +38,7 @@ $tooltip-message-background: #333;
 
 $white: #fff;
 $gray: #808080;
+$dark-gray: #2f4f4f;
 $passed: #00c853;
 $failed: #fa2d2d;
 $building: #ffc11b;
@@ -619,4 +620,22 @@ $building: #ffc11b;
 
 .hidden {
   display: none;
+}
+
+.unsorted {
+  @include icon-before($fa-var-sort);
+  color:       $gray;
+  margin-left: 2px;
+}
+
+.asc {
+  @include icon-before($fa-var-sort-asc);
+  color:       $dark-gray;
+  margin-left: 2px;
+}
+
+.desc {
+  @include icon-before($fa-var-sort-desc);
+  color:       $dark-gray;
+  margin-left: 2px;
 }

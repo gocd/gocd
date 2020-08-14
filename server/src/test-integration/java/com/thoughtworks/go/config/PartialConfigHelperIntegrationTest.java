@@ -20,43 +20,33 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Arguments;
-import com.thoughtworks.go.server.service.EntityHashes;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.stubbing.Answer;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Collections;
-import java.util.List;
 
 import static com.thoughtworks.go.config.remote.ConfigRepoConfig.createConfigRepoConfig;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.gitMaterialConfig;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static com.thoughtworks.go.helper.PartialConfigMother.withPipeline;
-import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.junit.jupiter.api.Assertions.*;
 
-class PartialConfigHelperTest {
-    @Mock
-    private EntityHashes hasher;
-    private PartialConfigHelper helper;
-
-    @BeforeEach
-    void setup() {
-        initMocks(this);
-        helper = new PartialConfigHelper(hasher);
-        when(hasher.digestPartial(any(PartialConfig.class))).thenAnswer((Answer<String>) invocation -> {
-            final PartialConfig partial = invocation.getArgument(0);
-            return Integer.toString(partial.hashCode());
-        });
-    }
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {
+        "classpath:/applicationContext-global.xml",
+        "classpath:/applicationContext-dataLocalAccess.xml",
+        "classpath:/testPropertyConfigurer.xml",
+        "classpath:/spring-all-servlet.xml",
+})
+public class PartialConfigHelperIntegrationTest {
+    @Autowired
+    PartialConfigHelper helper;
 
     @Test
-    void isEquivalent_PartialConfig() {
+    public void shouldAnswerWhetherPartialConfigsAreEquivalent() throws Exception {
         assertTrue(helper.isEquivalent(git("1"), git("1")));
 
         assertFalse(helper.isEquivalent(git("1"), git("2")));
@@ -68,43 +58,22 @@ class PartialConfigHelperTest {
     }
 
     @Test
-    void isEquivalent_CollectionPartialConfig_returnsTrueWhenBothCollectionsAreEmpty() {
+    public void isEquivalent_CollectionPartialConfig_returnsTrueWhenBothCollectionsAreEmpty() {
         assertTrue(helper.isEquivalent(null, Collections.emptyList()));
         assertTrue(helper.isEquivalent(Collections.emptyList(), null));
         assertTrue(helper.isEquivalent(Collections.emptyList(), Collections.emptyList()));
     }
 
     @Test
-    void isEquivalent_CollectionPartialConfig_returnsTrueWhenGivenEquivalentCollections() {
-        List<PartialConfig> a = asList(git("1"), svn("1"));
-        List<PartialConfig> b = asList(git("1"), svn("1"));
-        assertTrue(helper.isEquivalent(a, b));
-    }
-
-    @Test
-    void isEquivalent_CollectionPartialConfig_returnsTrueWhenGivenDifferentCollections() {
-        List<PartialConfig> a = asList(git("1"), svn("1"));
-        List<PartialConfig> b = asList(git("2"), svn("2"));
-        assertFalse(helper.isEquivalent(a, b));
-        assertFalse(helper.isEquivalent(a, Collections.emptyList()));
-    }
-
-    @Test
-    void isEquivalent_CollectionPartialConfig_shouldNotFailWhenSerializationToXMLFails() {
-        when(hasher.digestPartial(any(PartialConfig.class))).thenThrow(new RuntimeException());
-
+    public void isEquivalent_CollectionPartialConfig_shouldNotFailWhenConfigPartialContainsStructuralErrors() {
+        PartialConfig partial1 = git("1");
         ExecTask invalidExecTask = new ExecTask("docker", new Arguments(new Argument(null)));
         JobConfig invalidJob = new JobConfig("up42_job");
         invalidJob.addTask(invalidExecTask);
+        partial1.getGroups().get(0).get(0).first().getJobs().add(invalidJob);
 
-        ConfigRepoConfig repo = createConfigRepoConfig(svnMaterialConfig(), "plugin", "id");
-        PartialConfig partialConfig = withPipeline("p", new RepoConfigOrigin(repo, "git"));
-        partialConfig.getGroups().get(0).get(0).first().getJobs().add(invalidJob);
-
-        List<PartialConfig> a = asList(partialConfig, git("git"));
-        List<PartialConfig> b = Collections.emptyList();
-
-        assertFalse(helper.isEquivalent(a, b));
+        PartialConfig partial2 = git("1");
+        assertFalse(helper.isEquivalent(partial1, partial2));
     }
 
     private PartialConfig git(String name) {

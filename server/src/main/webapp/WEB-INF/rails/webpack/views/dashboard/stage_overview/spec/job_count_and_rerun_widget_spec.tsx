@@ -16,13 +16,13 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
+import {Agents} from "../../../../models/agents/agents";
 import {FlashMessageModelWithTimeout} from "../../../components/flash_message";
 import {TestHelper} from "../../../pages/spec/test_helper";
 import {JobCountAndRerunWidget} from "../job_count_and_rerun_widget";
 import {JobsViewModel} from "../models/jobs_view_model";
 import {Result} from "../models/types";
 import {TestData} from "./test_data";
-import {Agents} from "../../../../models/agents/agents";
 
 describe("Job Count And Rerun Widget", () => {
   const helper = new TestHelper();

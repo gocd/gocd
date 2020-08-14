@@ -24,7 +24,7 @@ import * as styles from "./index.scss";
 import {JobAgentWidget} from "./job_agent_widget";
 import {JobProgressBarWidget} from "./job_progress_bar_widget";
 import {JobStateWidget} from "./job_state_widget";
-import {JobsViewModel} from "./models/jobs_view_model";
+import {JobsViewModel, SortableColumn} from "./models/jobs_view_model";
 import {JobDuration, JobDurationStrategyHelper} from "./models/job_duration_stratergy_helper";
 import {StageInstance} from "./models/stage_instance";
 import {JobJSON} from "./models/types";
@@ -41,12 +41,12 @@ export interface Attrs {
 }
 
 export interface State {
-  getTableRowForJob: (jobName: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>, checkboxStream: Stream<boolean>, jobDuration: JobDuration, longestTotalTime: number, isStageInProgress: boolean) => m.Children;
+  getTableRowForJob: (jobName: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>, checkboxStream: Stream<boolean>, jobDuration: JobDuration, longestTotalTime: number, isStageInProgress: boolean, jobsVM: Stream<JobsViewModel>) => m.Children;
 }
 
 export class JobsListWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.getTableRowForJob = (job: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>, checkboxStream: Stream<boolean>, jobDuration: JobDuration, longestTotalTime: number, isStageInProgress: boolean) => {
+    vnode.state.getTableRowForJob = (job: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>, checkboxStream: Stream<boolean>, jobDuration: JobDuration, longestTotalTime: number, isStageInProgress: boolean, jobsVM: Stream<JobsViewModel>) => {
       let title: string | undefined;
       if (isStageInProgress) {
         title = `Can not select jobs for rerun as the current stage is still in progress.`;
@@ -79,8 +79,10 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
   }
 
   view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
+    const jobsVM = vnode.attrs.jobsVM();
+
     let longestTotalTime: number = 0;
-    const duration: JobDuration[] = vnode.attrs.jobsVM().getJobs().map((job) => {
+    const duration: JobDuration[] = jobsVM.getJobs().map((job) => {
       const duration = JobDurationStrategyHelper.getDuration(job, vnode.attrs.lastPassedStageInstance());
       if (duration.totalTime > longestTotalTime) {
         longestTotalTime = duration.totalTime.valueOf();
@@ -91,16 +93,30 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
     return <div data-test-id="jobs-list-widget" class={styles.jobListContainer}>
       <div class={styles.tableHeader} data-test-id="table-header">
         <div class={styles.checkboxCell} data-test-id="checkbox-header"/>
-        <div class={styles.nameCell} data-test-id="job-name-header">Job Name</div>
-        <div class={styles.stateCell} data-test-id="state-header">State</div>
-        <div class={styles.statusCell} data-test-id="status-header">Status</div>
-        <div class={styles.durationCell} data-test-id="duration-header">Duration</div>
-        <div class={styles.agentCell} data-test-id="agent-header">Agent</div>
+        <div class={styles.nameCell} data-test-id="job-name-header">
+          Job Name
+          <span onclick={() => jobsVM.updateSort(SortableColumn.NAME)} class={(styles as any)[jobsVM.getSortType(SortableColumn.NAME)]}/>
+        </div>
+        <div class={styles.stateCell} data-test-id="state-header">
+          State
+          <span onclick={() => jobsVM.updateSort(SortableColumn.STATE)} class={(styles as any)[jobsVM.getSortType(SortableColumn.STATE)]}/>
+        </div>
+        <div class={styles.statusCell} data-test-id="status-header">
+          Status
+        </div>
+        <div class={styles.durationCell} data-test-id="duration-header">
+          Duration
+          <span onclick={() => jobsVM.updateSort(SortableColumn.DURATION)} class={(styles as any)[jobsVM.getSortType(SortableColumn.DURATION)]}/>
+        </div>
+        <div class={styles.agentCell} data-test-id="agent-header">
+          Agent
+          <span onclick={() => jobsVM.updateSort(SortableColumn.AGENT)} class={(styles as any)[jobsVM.getSortType(SortableColumn.AGENT)]}/>
+        </div>
       </div>
       <div id="scrollable-jobs-table-body" class={styles.tableBody} data-test-id="table-body">
-        {vnode.attrs.jobsVM().getJobs().map((job, index) => {
+        {jobsVM.getJobs().map((job, index) => {
           const checkboxStream = vnode.attrs.jobsVM().checkedState.get(job.name)!;
-          return vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance, vnode.attrs.agents, checkboxStream, duration[index], longestTotalTime, vnode.attrs.isStageInProgress());
+          return vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance, vnode.attrs.agents, checkboxStream, duration[index], longestTotalTime, vnode.attrs.isStageInProgress(), vnode.attrs.jobsVM);
         })}
       </div>
     </div>;

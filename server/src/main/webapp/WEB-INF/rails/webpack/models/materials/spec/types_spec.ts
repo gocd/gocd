@@ -40,7 +40,7 @@ describe("Material Types", () => {
     });
 
     it("rejects branch with wildcard", () => {
-      expect(new Foo("branch-*"). errors().errorsForDisplay("branch")).toBe("Branch names may not contain '*'.");
+      expect(new Foo("branch-*").errors().errorsForDisplay("branch")).toBe("Branch names may not contain '*'.");
     });
 
     it("rejects malformed refspec", () => {
@@ -315,4 +315,79 @@ describe("Material Types", () => {
     });
   });
 
+  describe('DisplayNameSpec', () => {
+    it('should return the url as display name if name is undefined', () => {
+      const material = new Material("git", new GitMaterialAttributes(undefined, true, "http://repo.git"));
+
+      expect(material.displayName()).toBe('http://repo.git');
+    });
+
+    it('should mask the user info for http/https url', () => {
+      const attrs    = new GitMaterialAttributes(undefined, true, "http://user:pass@repo.git");
+      const material = new Material("git", attrs);
+
+      expect(material.displayName()).toBe('http://user:******@repo.git');
+
+      attrs.url("http://user@repo.git");
+      expect(material.displayName()).toBe('http://******@repo.git');
+    });
+
+    it("should not mask Git SCP-style URLs", () => {
+      const material = new Material("git", new GitMaterialAttributes(undefined, true, "git@host:repo.git"));
+      expect(material.displayName()).toBe('git@host:repo.git');
+    });
+
+    it("should not mask SSH URLs", () => {
+      const material = new Material("git", new GitMaterialAttributes(undefined, true, "ssh://git@host/repo.git"));
+      expect(material.displayName()).toBe('ssh://git@host/repo.git');
+    });
+
+    it("should not mask SSH+SVN URLs", () => {
+      const material = new Material("git", new GitMaterialAttributes(undefined, true, "ssh+svn://git@host/repo.git"));
+      expect(material.displayName()).toBe('ssh+svn://git@host/repo.git');
+    });
+  });
+
+  describe('MaterialUrlSpec', () => {
+    it('should return the url as display name if name is undefined', () => {
+      const material = new Material("git", new GitMaterialAttributes(undefined, true, "http://repo.git"));
+
+      expect(material.displayName()).toBe('http://repo.git');
+    });
+
+    it('should mask the user info for http/https url', () => {
+      const attrs    = new GitMaterialAttributes(undefined, true, "http://user:pass@repo.git");
+      const material = new Material("git", attrs);
+
+      expect(material.displayName()).toBe('http://user:******@repo.git');
+
+      attrs.url("http://user@repo.git");
+      expect(material.displayName()).toBe('http://******@repo.git');
+    });
+
+    it("should not mask Git SCP-style URLs", () => {
+      const material = new Material("git", new GitMaterialAttributes(undefined, true, "git@host:repo.git"));
+      expect(material.displayName()).toBe('git@host:repo.git');
+    });
+
+    it("should not mask SSH URLs", () => {
+      const material = new Material("git", new GitMaterialAttributes(undefined, true, "ssh://git@host/repo.git"));
+      expect(material.displayName()).toBe('ssh://git@host/repo.git');
+    });
+
+    it("should not mask SSH+SVN URLs", () => {
+      const material = new Material("git", new GitMaterialAttributes(undefined, true, "ssh+svn://git@host/repo.git"));
+      expect(material.displayName()).toBe('ssh+svn://git@host/repo.git');
+    });
+
+    it('should mask the user info in url for Hg material', () => {
+      const hgAttrs  = new HgMaterialAttributes(undefined, true, "http://user:pass@example.com");
+      const material = new Material("hg", hgAttrs);
+
+      expect(material.displayName()).toBe('http://user:******@example.com');
+
+      hgAttrs.url("http://user@example.com");
+      expect(material.displayName()).toBe('http://******@example.com');
+    });
+  });
 });

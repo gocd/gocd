@@ -51,6 +51,26 @@ export const mapTypeToDisplayType: { [key: string]: string; } = {
   plugin:     "Plugin"
 };
 
+function urlForDisplay(url?: string) {
+  if (!url) { return undefined;}
+
+  const parsed = urlParse(url, {});
+  // do not mask passwords
+  if (_.isEmpty(parsed.auth) || parsed.protocol.includes('ssh') || parsed.protocol.includes('svn+ssh')) {
+    return parsed.href;
+  }
+
+  if (parsed.auth.includes(":")) {
+    // mask password when username and password is provided as username:password@url
+    parsed.set('password', '******');
+  } else {
+    // mask token when credentials are provided as token@url
+    parsed.set('username', '******');
+  }
+
+  return parsed.href;
+}
+
 export class Materials {
   static fromJSON(material: MaterialJSON): Material {
     return new Material(material.type, MaterialAttributes.deserialize(material));
@@ -104,10 +124,10 @@ export class Material extends ValidatableMixin {
         return "";
       case "git":
         // @ts-ignore
-        return  `${this.attributes()!.url()} [ ${this.attributes()!.branch()} ]`;
+        return `${urlForDisplay(this.attributes()!.url())} [ ${this.attributes()!.branch()} ]`;
       default:
         // @ts-ignore
-        return this.attributes()!.url();
+        return urlForDisplay(this.attributes()!.url());
     }
   }
 
@@ -149,10 +169,10 @@ export class Material extends ValidatableMixin {
 
     let url: string, apiVersion: ApiVersion;
     if (configRepoId) {
-      url = SparkRoutes.configRepoConnectionCheck(configRepoId);
+      url        = SparkRoutes.configRepoConnectionCheck(configRepoId);
       apiVersion = ApiVersion.v4;
     } else {
-      url = SparkRoutes.materialConnectionCheck();
+      url        = SparkRoutes.materialConnectionCheck();
       apiVersion = Material.API_VERSION_HEADER;
     }
 
@@ -178,7 +198,7 @@ export class Material extends ValidatableMixin {
       return (this.attributes() as P4MaterialAttributes).port();
     }
     // @ts-ignore
-    return this.attributes()!.url();
+    return urlForDisplay(this.attributes()!.url());
   }
 
   allErrors(): string[] {
@@ -325,8 +345,8 @@ export class BranchOrRefspecValidator extends Validator {
     if (branchOrRefspec) {
       if (branchOrRefspec.includes(":")) {
         const boundary = branchOrRefspec.indexOf(":");
-        const src = branchOrRefspec.substr(0, boundary);
-        const dst = branchOrRefspec.substr(boundary + 1);
+        const src      = branchOrRefspec.substr(0, boundary);
+        const dst      = branchOrRefspec.substr(boundary + 1);
 
         if (s.isBlank(src)) {
           this.error(entity, attr, "Refspec is missing a source ref");

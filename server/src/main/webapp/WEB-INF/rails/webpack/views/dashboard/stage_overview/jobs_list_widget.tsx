@@ -41,18 +41,22 @@ export interface Attrs {
 }
 
 export interface State {
-  getTableRowForJob: (jobName: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>, checkboxStream: Stream<boolean>, jobDuration: JobDuration, longestTotalTime: number, isStageInProgress: boolean, jobsVM: Stream<JobsViewModel>) => m.Children;
+  getTableRowForJob: (attrs: Attrs, job: JobJSON, checkboxStream: Stream<boolean>, jobDuration: JobDuration, longestTotalTime: number) => m.Children;
 }
 
 export class JobsListWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.getTableRowForJob = (job: JobJSON, lastPassedStageInstance: Stream<StageInstance | undefined>, agents: Stream<Agents>, checkboxStream: Stream<boolean>, jobDuration: JobDuration, longestTotalTime: number, isStageInProgress: boolean, jobsVM: Stream<JobsViewModel>) => {
+    vnode.state.getTableRowForJob = (attrs: Attrs, job: JobJSON, checkboxStream: Stream<boolean>, jobDuration: JobDuration, longestTotalTime: number) => {
+      const lastPassedStageInstance: Stream<StageInstance | undefined> = attrs.lastPassedStageInstance;
+      const agents: Stream<Agents> = attrs.agents;
+      const isStageInProgress: boolean = attrs.isStageInProgress();
+
       let title: string | undefined;
       if (isStageInProgress) {
         title = `Can not select jobs for rerun as the current stage is still in progress.`;
       }
 
-      const jobDetailsPageLink = `/go/tab/build/detail/${vnode.attrs.pipelineName}/${vnode.attrs.pipelineCounter}/${vnode.attrs.stageName}/${vnode.attrs.stageCounter}/${job.name}`;
+      const jobDetailsPageLink = `/go/tab/build/detail/${attrs.pipelineName}/${attrs.pipelineCounter}/${attrs.stageName}/${attrs.stageCounter}/${job.name}`;
       return <div class={styles.tableRow} data-test-id={`table-row-for-job-${job.name}`}>
         <div class={styles.checkboxCell} data-test-id={`checkbox-for-${job.name}`}>
           <CheckboxField title={title} readonly={isStageInProgress} property={checkboxStream}/>
@@ -116,7 +120,7 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
       <div id="scrollable-jobs-table-body" class={styles.tableBody} data-test-id="table-body">
         {jobsVM.getJobs().map((job, index) => {
           const checkboxStream = vnode.attrs.jobsVM().checkedState.get(job.name)!;
-          return vnode.state.getTableRowForJob(job, vnode.attrs.lastPassedStageInstance, vnode.attrs.agents, checkboxStream, duration[index], longestTotalTime, vnode.attrs.isStageInProgress(), vnode.attrs.jobsVM);
+          return vnode.state.getTableRowForJob(vnode.attrs, job, checkboxStream, duration[index], longestTotalTime);
         })}
       </div>
     </div>;

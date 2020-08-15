@@ -103,6 +103,7 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
 
     if (!vnode.attrs.stageOverviewVM()) {
       return <div data-test-id="stage-overview-container-spinner" class={`${styles.stageOverviewContainer} ${status}`}>
+        <div className={`${status} ${styles.stageOverviewStatus}`}/>
         <Spinner/>
       </div>;
     }

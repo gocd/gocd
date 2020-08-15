@@ -61,13 +61,14 @@ public class ExecTaskTest {
     }
 
     @Test
-    public void shouldAddErrorsOfEachArgumentToTheParent() {
-        Argument argument = new Argument("invalid-argument");
-        argument.addError(ExecTask.ARG_LIST_STRING, "Invalid argument");
-        ExecTask execTask = new ExecTask("echo", new Arguments(argument), null);
+    public void shouldValidateEachArgumentAndAddErrorsToTask() {
+        ExecTask execTask = new ExecTask("echo", new Arguments(new Argument(null)), null);
+
         execTask.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
-        assertThat(execTask.errors().on(ExecTask.ARG_LIST_STRING), is("Invalid argument"));
+
+        assertThat(execTask.errors().on(ExecTask.ARG_LIST_STRING), is("Invalid argument, cannot be null."));
     }
+
 
     @Test
     public void shouldBeValid() throws Exception {

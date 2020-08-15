@@ -17,9 +17,11 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ConfigErrors;
 
+import static com.thoughtworks.go.config.ExecTask.ARG_LIST_STRING;
+
 @ConfigTag(value = "arg", label = "arg")
 public class Argument implements Validatable{
-    @ConfigValue @ValidationErrorKey(value = ExecTask.ARG_LIST_STRING) private String value;
+    @ConfigValue @ValidationErrorKey(value = ARG_LIST_STRING) private String value;
     private final ConfigErrors configErrors = new ConfigErrors();
 
     public Argument() {
@@ -64,6 +66,9 @@ public class Argument implements Validatable{
 
     @Override
     public void validate(ValidationContext validationContext) {
+        if (null == value) {
+            configErrors.add("arg", "Invalid argument, cannot be null.");
+        }
     }
 
     @Override

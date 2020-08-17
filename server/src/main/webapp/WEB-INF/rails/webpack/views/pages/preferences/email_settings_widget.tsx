@@ -22,14 +22,16 @@ import {CurrentUser} from "models/new_preferences/current_user";
 import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";
 import {CheckboxField, TextField} from "views/components/forms/input_fields";
-import {EmailSettingsAttrs} from "views/pages/new_preferences";
+import {EmailSettingsAttrs, SMTPAttrs} from "views/pages/new_preferences";
 import {OperationState} from "views/pages/page_operations";
 import styles from "views/pages/server-configuration/index.scss";
 
-export class EmailSettingsWidget extends MithrilViewComponent<EmailSettingsAttrs> {
+type Attrs = EmailSettingsAttrs & SMTPAttrs;
+
+export class EmailSettingsWidget extends MithrilViewComponent<Attrs> {
   private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
 
-  view(vnode: m.Vnode<EmailSettingsAttrs, this>): m.Children | void | null {
+  view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
     const currentUser           = vnode.attrs.currentUserVM().entity();
     const disabledActionButtons = !vnode.attrs.currentUserVM().isModified();
 
@@ -47,6 +49,8 @@ export class EmailSettingsWidget extends MithrilViewComponent<EmailSettingsAttrs
                        placeholder={"Email not set"}/>
             <CheckboxField dataTestId="enable-email-notification"
                            property={currentUser.emailMe}
+                           readonly={!vnode.attrs.isSMTPConfigured}
+                           title={vnode.attrs.isSMTPConfigured ? "" : "SMTP settings are not configured!"}
                            label={"Enable email notification"}/>
           </Form>
         </div>

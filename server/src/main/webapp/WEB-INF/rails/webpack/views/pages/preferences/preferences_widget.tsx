@@ -77,7 +77,8 @@ class PreferencesRightPanel extends MithrilViewComponent<PreferencesState> {
       case Sections.EMAIL_SETTINGS:
         return <EmailSettingsWidget currentUserVM={vnode.attrs.currentUserVM}
                                     onCancel={vnode.attrs.onCancel}
-                                    onSaveEmailSettings={vnode.attrs.onSaveEmailSettings}/>;
+                                    onSaveEmailSettings={vnode.attrs.onSaveEmailSettings}
+                                    isSMTPConfigured={vnode.attrs.isSMTPConfigured}/>;
     }
   }
 }

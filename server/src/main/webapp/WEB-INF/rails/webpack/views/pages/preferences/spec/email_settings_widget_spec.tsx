@@ -37,6 +37,7 @@ describe('EmailSettingsWidgetSpec', () => {
 
     expect(helper.byTestId('form-field-input-email')).toBeInDOM();
     expect(helper.byTestId('form-field-label-enable-email-notification')).toBeInDOM();
+    expect(helper.byTestId('enable-email-notification')).toBeInDOM();
     expect(helper.byTestId('form-field-input-my-check-in-aliases')).toBeInDOM();
 
     expect(helper.byTestId('cancel')).toBeInDOM();
@@ -57,10 +58,18 @@ describe('EmailSettingsWidgetSpec', () => {
     expect(onCancelSpy).toHaveBeenCalled();
   });
 
-  function mount() {
+  it('should disable checkbox for email notifications when smtp is not configured', () => {
+    mount(false);
+
+    expect(helper.byTestId('enable-email-notification')).toBeInDOM();
+    expect(helper.byTestId('enable-email-notification')).toBeDisabled();
+    expect(helper.byTestId('enable-email-notification')).toHaveAttr('title', 'SMTP settings are not configured!');
+  });
+
+  function mount(isSMTPConfigured: boolean = true) {
     helper.mount(() => <EmailSettingsWidget currentUserVM={Stream(user)}
                                             onCancel={onCancelSpy}
-                                            onSaveEmailSettings={onSaveSpy}/>);
+                                            onSaveEmailSettings={onSaveSpy} isSMTPConfigured={isSMTPConfigured}/>);
   }
 
   function helpText(dataTestId: string) {

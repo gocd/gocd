@@ -241,4 +241,37 @@ export class TestData {
       }]
     }];
   }
+
+  static jobWithNoPreparingTime(): JobJSON {
+    return {
+        name:                  "waiting-job",
+        state:                 "Building",
+        result:                "Unknown",
+        scheduled_date:        1597384671236,
+        rerun:                 false,
+        original_job_id:       null,
+        agent_uuid:            null,
+        // @ts-ignore
+        pipeline_name:         null,
+        pipeline_counter:      null,
+        stage_name:            null,
+        stage_counter:         null,
+        job_state_transitions: [{
+          state:             "Scheduled",
+          state_change_time: 1597384671236
+        }, {
+          state:             "Assigned",
+          state_change_time: 1597384799431
+        }, {
+          state:             "Preparing",
+          state_change_time: 1597384809477
+        }, {
+          state:             "Building",
+          state_change_time: 1597384809477
+        }, {
+          state:             "Completing",
+          state_change_time: 1597384812057
+        }]
+      };
+  }
 }

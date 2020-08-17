@@ -163,6 +163,46 @@ describe("Job Progress Bar Widget", () => {
       expect(tooltip).toContainText("Completed At");
       expect(tooltip).toContainText(TestData.unixTime((json.job_state_transitions[5].state_change_time as number) / 1000));
     });
+
+    it('should not render state as unknown when it is completed in 0 seconds', () => {
+      helper.unmount();
+      mount(TestData.jobWithNoPreparingTime());
+
+      const progressBar = helper.byTestId('progress-bar-container-div');
+      const tooltip = helper.byTestId('progress-bar-tooltip');
+      progressBar.dispatchEvent(new MouseEvent('mouseover'));
+
+      expect(tooltip).toContainText("Building");
+      expect(tooltip).toContainText("00s");
+
+      const transitionCircles = helper.qa('[data-test-id="transition-circle"]');
+      expect(transitionCircles[1]).toHaveClass(styles.preparing);
+      expect(transitionCircles[1]).toHaveClass(styles.completed);
+    });
+
+    it('should render transition circle as completed when the state is completed in 0 seconds', () => {
+      helper.unmount();
+      mount(TestData.jobWithNoPreparingTime());
+
+      const progressBar = helper.byTestId('progress-bar-container-div');
+      progressBar.dispatchEvent(new MouseEvent('mouseover'));
+
+      const transitionCircles = helper.qa('[data-test-id="transition-circle"]');
+      expect(transitionCircles[1]).toHaveClass(styles.preparing);
+      expect(transitionCircles[1]).toHaveClass(styles.completed);
+    });
+
+    it('should render scheduled transition circle as in progress when preparing takes 0 seconds to complete', () => {
+      helper.unmount();
+      mount(TestData.jobWithNoPreparingTime());
+
+      const progressBar = helper.byTestId('progress-bar-container-div');
+      progressBar.dispatchEvent(new MouseEvent('mouseover'));
+
+      const transitionCircles = helper.qa('[data-test-id="transition-circle"]');
+      expect(transitionCircles[0]).toHaveClass(styles.waiting);
+      expect(transitionCircles[0]).toHaveClass(styles.completed);
+    });
   });
 
   function mount(job: JobJSON) {

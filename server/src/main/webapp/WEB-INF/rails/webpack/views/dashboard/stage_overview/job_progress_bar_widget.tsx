@@ -102,10 +102,10 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
         {
           Object.keys(stateTransitionItems).map((key, index) => {
             const value = (stateTransitionItems as any)[key];
-            const isUnknownProperty = isUnknown(value, isJobInProgress);
+            const isUnknownProperty = isUnknown(key, isJobInProgress, vnode.attrs.job);
             const valueForDisplay = isUnknownProperty ? "unknown" : value;
             const isLastItem = Object.keys(stateTransitionItems).length - 1 === index;
-            const isNextUnknownProperty = isLastItem ? isJobInProgress : isUnknown((stateTransitionItems as any)[Object.keys(stateTransitionItems)[index + 1]], isJobInProgress);
+            const isNextUnknownProperty = isLastItem ? isJobInProgress : isUnknown(Object.keys(stateTransitionItems)[index + 1], isJobInProgress, vnode.attrs.job);
 
             let stateTransitionLine: m.Child;
             if (!isLastItem) {
@@ -121,7 +121,7 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
 
             return [
               <div class={`${styles.tooltipKeyValuePair} ${styles.stateTransitionItem}`}>
-                <span className={transitionCircleClass}/>
+                <span data-test-id="transition-circle" className={transitionCircleClass}/>
                 <div className={styles.tooltipKey}>{key} :</div>
                 <div className={classnames({[styles.unknownProperty]: isUnknownProperty})}>{valueForDisplay}</div>
               </div>,
@@ -132,7 +132,7 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
         {
           Object.keys(tooltipItems).map(key => {
             const value = (tooltipItems as any)[key];
-            const isUnknownProperty = isUnknown(value, isJobInProgress);
+            const isUnknownProperty = isUnknown(key, isJobInProgress, vnode.attrs.job);
             const valueForDisplay = isUnknownProperty ? "unknown" : value;
             return (
               <div class={`${styles.tooltipKeyValuePair} ${styles.tooltipItem}`}>
@@ -147,6 +147,16 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
   }
 }
 
-function isUnknown(val: string, isJobInProgress: boolean) {
-  return isJobInProgress && (val.toLowerCase() === "00s" || val.toLowerCase() === "unknown");
+function isUnknown(key: string, isJobInProgress: boolean, job: JobJSON) {
+  const originalKeyMapping = {
+    'Waiting':             'Scheduled',
+    'Preparing':           'Preparing',
+    'Building':            'Building',
+    'Uploading Artifacts': 'Completing',
+    'Total Time':          'Completed',
+    'Scheduled At':        'Scheduled',
+    'Completed At':        'Completed',
+  } as any;
+
+  return isJobInProgress && !job.job_state_transitions.find(t => t.state === originalKeyMapping[key]);
 }

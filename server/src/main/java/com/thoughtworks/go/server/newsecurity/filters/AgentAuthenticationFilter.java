@@ -103,7 +103,9 @@ public class AgentAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    String hmacOf(String string) {
+    /*Fixes:#8427 HMAC generation is not thread safe, if multiple agents try to authenticate at the same time the hmac
+    generated using the Agent UUID would not match the actual token.*/
+    synchronized String hmacOf(String string) {
         return encodeBase64String(hmac().doFinal(string.getBytes()));
     }
 

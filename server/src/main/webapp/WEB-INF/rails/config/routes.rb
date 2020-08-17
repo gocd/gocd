@@ -54,18 +54,6 @@ Rails.application.routes.draw do
   get "pipelines/value_stream_map/:pipeline_name/:pipeline_counter(.:format)" => "value_stream_map#show", constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}, defaults: {:format => :html}, as: :vsm_show
   get "materials/value_stream_map/:material_fingerprint/:revision(.:format)" => "value_stream_map#show_material", defaults: {:format => :html}, constraints: {:revision => /[^\/]+(?=\.html\z|\.json\z)|[^\/]+/}, as: :vsm_show_material
 
-  {'application/vnd.go.cd.v1+json' => :apiv1, 'application/vnd.go.cd+json' => :latest}.each do |header, as|
-    scope :api, as: as, format: false do
-      api_version(:module => 'ApiV1', header: {name: 'Accept', value: header}) do
-        get 'version_infos/stale', controller: :version_infos, action: :stale, as: :stale_version_info
-        get 'version_infos/latest_version', controller: :version_infos, action: :latest_version, as: :latest_version_info
-        patch 'version_infos/go_server', controller: :version_infos, action: :update_server, as: :update_server_version_info
-
-        match '*url', via: :all, to: 'errors#not_found'
-      end
-    end
-  end
-
   namespace :admin do
     namespace :security do
       resources :auth_configs, only: [:index], controller: :auth_configs, as: :auth_configs

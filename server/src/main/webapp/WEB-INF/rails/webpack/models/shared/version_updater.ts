@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Routes from "gen/ts-routes";
 import $ from "jquery";
 import _ from "lodash";
 import {SystemNotifications} from "models/notifications/system_notifications";
 
 import {mrequest} from "helpers/mrequest";
+import {SparkRoutes} from "helpers/spark_routes";
 
 interface VersionCheckInfo {
   last_updated_at: number;
@@ -69,7 +69,7 @@ export class VersionUpdater {
   private static fetchStaleVersionInfo() {
     return $.ajax({
       method: "GET",
-      url: Routes.apiv1StaleVersionInfoPath(),
+      url: SparkRoutes.staleVersionInfoPath(),
       beforeSend: mrequest.xhrConfig.forVersion("v1")
     });
   }
@@ -117,7 +117,7 @@ export class VersionUpdater {
     $.ajax({
       method: "PATCH",
       beforeSend: mrequest.xhrConfig.forVersion("v1"),
-      url: Routes.apiv1UpdateServerVersionInfoPath(),
+      url: SparkRoutes.updateServerVersionInfoPath(),
       data: JSON.stringify(data)
     }).then(VersionUpdater.markUpdateDoneAndNotify);
   }
@@ -128,7 +128,7 @@ export class VersionUpdater {
 
       const jqXHR = $.ajax({
         method: "GET",
-        url: Routes.apiv1LatestVersionInfoPath(),
+        url: SparkRoutes.latestVersionInfoPath(),
         timeout: mrequest.timeout,
         beforeSend: mrequest.xhrConfig.forVersion("v1"),
         contentType: false

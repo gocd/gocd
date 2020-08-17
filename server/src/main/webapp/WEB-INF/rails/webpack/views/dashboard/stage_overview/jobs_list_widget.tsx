@@ -84,14 +84,15 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
 
   view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
     const jobsVM = vnode.attrs.jobsVM();
+    const durationMap = {} as any;
 
     let longestTotalTime: number = 0;
-    const duration: JobDuration[] = jobsVM.getJobs().map((job) => {
+    jobsVM.getJobs().forEach((job) => {
       const duration = JobDurationStrategyHelper.getDuration(job, vnode.attrs.lastPassedStageInstance());
       if (duration.totalTime > longestTotalTime) {
         longestTotalTime = duration.totalTime.valueOf();
       }
-      return duration;
+      durationMap[job.name] = duration;
     });
 
     return <div data-test-id="jobs-list-widget" class={styles.jobListContainer}>
@@ -118,9 +119,9 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         </div>
       </div>
       <div id="scrollable-jobs-table-body" class={styles.tableBody} data-test-id="table-body">
-        {jobsVM.getJobs().map((job, index) => {
+        {jobsVM.getJobs().map((job) => {
           const checkboxStream = vnode.attrs.jobsVM().checkedState.get(job.name)!;
-          return vnode.state.getTableRowForJob(vnode.attrs, job, checkboxStream, duration[index], longestTotalTime);
+          return vnode.state.getTableRowForJob(vnode.attrs, job, checkboxStream, durationMap[job.name], longestTotalTime);
         })}
       </div>
     </div>;

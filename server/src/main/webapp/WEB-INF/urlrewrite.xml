@@ -44,8 +44,7 @@
   <rule>
     <name>Update Check URLs</name>
     <from>^/(api/version_infos/.*)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="versionInfoAPIs"/>
-    <to last="true">/%{attribute:sparkOrRails}/$1</to>
+    <to last="true">/spark/$1</to>
   </rule>
 
   <rule>

@@ -30,8 +30,4 @@ public class SparkOrRailsToggle {
             request.setAttribute("sparkOrRails", "spark");
         }
     }
-
-    public void versionInfoAPIs(HttpServletRequest request, HttpServletResponse response) {
-        basedOnToggle(Toggles.USE_RAILS_VERSION_INFOS_API, request);
-    }
 }

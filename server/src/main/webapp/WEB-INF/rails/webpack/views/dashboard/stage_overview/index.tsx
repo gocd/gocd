@@ -72,8 +72,8 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
       }
 
       //the stage width container value changes based on whether the stage is manual or not.
-      // if the stage is manual, width will be stage_width (45px) + manual_gate(18px).
-      const possibleStageWithManualGateWidth = stage.isManual() ? 63 : 45;
+      // if the stage is manual, width will be stage_width (45px) + manual_gate(18px) + margin(5px).
+      const possibleStageWithManualGateWidth = stage.isManual() ? 68 : 45;
 
       // the pipeline tile in which stages are rendered in a row is of width is 235 px,
       // so, when the sum of the stage width reaches the row width, the stage is rendered in the next row

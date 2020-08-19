@@ -106,7 +106,7 @@ describe("Job Progress Bar Widget", () => {
       const tooltip = helper.byTestId('progress-bar-tooltip');
       progressBar.dispatchEvent(new MouseEvent('mouseover'));
 
-      expect(tooltip).toContainText("Waiting");
+      expect(tooltip).toContainText("Waiting for an Agent");
       expect(tooltip).toContainText("03m 00s");
     });
 
@@ -115,7 +115,7 @@ describe("Job Progress Bar Widget", () => {
       const tooltip = helper.byTestId('progress-bar-tooltip');
       progressBar.dispatchEvent(new MouseEvent('mouseover'));
 
-      expect(tooltip).toContainText("Preparing");
+      expect(tooltip).toContainText("Checking out Materials");
       expect(tooltip).toContainText("02m 00s");
     });
 
@@ -124,7 +124,7 @@ describe("Job Progress Bar Widget", () => {
       const tooltip = helper.byTestId('progress-bar-tooltip');
       progressBar.dispatchEvent(new MouseEvent('mouseover'));
 
-      expect(tooltip).toContainText("Building");
+      expect(tooltip).toContainText("Building Job");
       expect(tooltip).toContainText("03m 00s");
     });
 
@@ -200,7 +200,7 @@ describe("Job Progress Bar Widget", () => {
       progressBar.dispatchEvent(new MouseEvent('mouseover'));
 
       const transitionCircles = helper.qa('[data-test-id="transition-circle"]');
-      expect(transitionCircles[0]).toHaveClass(styles.waiting);
+      expect(transitionCircles[0]).toHaveClass(styles.scheduled);
       expect(transitionCircles[0]).toHaveClass(styles.completed);
     });
   });

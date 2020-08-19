@@ -73,11 +73,21 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
     };
 
     const stateTransitionItems = {
-      'Waiting':             jobDuration.waitTimeForDisplay,
-      'Preparing':           jobDuration.preparingTimeForDisplay,
-      'Building':            jobDuration.buildTimeForDisplay,
+      'Waiting for an Agent':   jobDuration.waitTimeForDisplay,
+      'Checking out Materials': jobDuration.preparingTimeForDisplay,
+      'Building Job':           jobDuration.buildTimeForDisplay,
       'Uploading Artifacts': jobDuration.uploadingArtifactTimeForDisplay
     };
+
+    const originalKeyMapping = {
+      'Waiting for an Agent':   'Scheduled',
+      'Checking out Materials': 'Preparing',
+      'Building Job':           'Building',
+      'Uploading Artifacts':    'Completing',
+      'Total Time':             'Completed',
+      'Scheduled At':           'Scheduled',
+      'Completed At':           'Completed',
+    } as any;
 
     const innerBars = [
       {className: styles.waiting, duration: jobDuration.waitTimePercentage},
@@ -102,19 +112,19 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
         {
           Object.keys(stateTransitionItems).map((key, index) => {
             const value = (stateTransitionItems as any)[key];
-            const isUnknownProperty = isUnknown(key, isJobInProgress, vnode.attrs.job);
+            const isUnknownProperty = isUnknown(key, isJobInProgress, vnode.attrs.job, originalKeyMapping);
             const valueForDisplay = isUnknownProperty ? "unknown" : value;
             const isLastItem = Object.keys(stateTransitionItems).length - 1 === index;
-            const isNextUnknownProperty = isLastItem ? isJobInProgress : isUnknown(Object.keys(stateTransitionItems)[index + 1], isJobInProgress, vnode.attrs.job);
+            const isNextUnknownProperty = isLastItem ? isJobInProgress : isUnknown(Object.keys(stateTransitionItems)[index + 1], isJobInProgress, vnode.attrs.job, originalKeyMapping);
 
             let stateTransitionLine: m.Child;
             if (!isLastItem) {
               stateTransitionLine = <div class={styles.transitionLine}/>;
             }
 
-            let transitionCircleClass = `${styles.transitionCircle} ${styles.completed} ${(styles as any)[key.replace(' ', '').toLowerCase()]}`;
+            let transitionCircleClass = `${styles.transitionCircle} ${styles.completed} ${(styles as any)[(originalKeyMapping[key] as string).toLowerCase()]}`;
             if (isUnknownProperty) {
-              transitionCircleClass = `${styles.transitionCircle} ${(styles as any)[key.replace(' ', '').toLowerCase()]}`;
+              transitionCircleClass = `${styles.transitionCircle} ${(styles as any)[(originalKeyMapping[key] as string).toLowerCase()]}`;
             } else if (isNextUnknownProperty) {
               transitionCircleClass = styles.inProgress;
             }
@@ -122,8 +132,8 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
             return [
               <div class={`${styles.tooltipKeyValuePair} ${styles.stateTransitionItem}`}>
                 <span data-test-id="transition-circle" className={transitionCircleClass}/>
-                <div className={styles.tooltipKey}>{key} :</div>
-                <div className={classnames({[styles.unknownProperty]: isUnknownProperty})}>{valueForDisplay}</div>
+                <div class={`${styles.tooltipKey} ${styles.transitionItemTooltipKey}`}>{key} :</div>
+                <div class={classnames({[styles.unknownProperty]: isUnknownProperty})}>{valueForDisplay}</div>
               </div>,
               stateTransitionLine
             ];
@@ -132,7 +142,7 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
         {
           Object.keys(tooltipItems).map(key => {
             const value = (tooltipItems as any)[key];
-            const isUnknownProperty = isUnknown(key, isJobInProgress, vnode.attrs.job);
+            const isUnknownProperty = isUnknown(key, isJobInProgress, vnode.attrs.job, originalKeyMapping);
             const valueForDisplay = isUnknownProperty ? "unknown" : value;
             return (
               <div class={`${styles.tooltipKeyValuePair} ${styles.tooltipItem}`}>
@@ -147,16 +157,6 @@ export class JobProgressBarWidget extends MithrilComponent<Attrs> {
   }
 }
 
-function isUnknown(key: string, isJobInProgress: boolean, job: JobJSON) {
-  const originalKeyMapping = {
-    'Waiting':             'Scheduled',
-    'Preparing':           'Preparing',
-    'Building':            'Building',
-    'Uploading Artifacts': 'Completing',
-    'Total Time':          'Completed',
-    'Scheduled At':        'Scheduled',
-    'Completed At':        'Completed',
-  } as any;
-
+function isUnknown(key: string, isJobInProgress: boolean, job: JobJSON, originalKeyMapping: any) {
   return isJobInProgress && !job.job_state_transitions.find(t => t.state === originalKeyMapping[key]);
 }

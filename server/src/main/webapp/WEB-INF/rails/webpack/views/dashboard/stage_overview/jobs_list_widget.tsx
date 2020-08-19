@@ -64,7 +64,9 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         <div class={styles.nameCell} data-test-id={`job-name-for-${job.name}`}>
           <div className={`${(styles as any)[job.result.toString().toLowerCase() as string]} ${styles.jobResult}`}/>
           <span title={job.name} className={styles.jobName}>{job.name}</span>
-          <Icons.ConsoleLog onclick={() => window.open(jobDetailsPageLink)} target={"_blank"} iconOnly={true}/>
+        </div>
+        <div class={styles.consoleLogIconCell}  data-test-id={`console-log-icon-for-${job.name}`}>
+          <Icons.ConsoleLog title="Go to Job Console Log" onclick={() => window.open(jobDetailsPageLink)} target={"_blank"} iconOnly={true}/>
         </div>
         <div class={styles.stateCell} data-test-id={`state-for-${job.name}`}>
           <JobStateWidget job={job}/>
@@ -102,12 +104,13 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
           Job Name
           <span onclick={() => jobsVM.updateSort(SortableColumn.NAME)} class={(styles as any)[jobsVM.getSortType(SortableColumn.NAME)]}/>
         </div>
+        <div className={styles.consoleLogIconCell} data-test-id="console-log-icon-header"/>
         <div class={styles.stateCell} data-test-id="state-header">
           State
           <span onclick={() => jobsVM.updateSort(SortableColumn.STATE)} class={(styles as any)[jobsVM.getSortType(SortableColumn.STATE)]}/>
         </div>
         <div class={styles.statusCell} data-test-id="status-header">
-          Status
+          Timeline
         </div>
         <div class={styles.durationCell} data-test-id="duration-header">
           Duration

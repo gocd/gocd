@@ -18,6 +18,9 @@
 $global-icon-size:        16px;
 $btn-group-border-radius: $global-border-radius;
 
+$console-icon-background: #474747;
+$console-icon-color: #fff;
+
 .btn-icon {
   border:        1px solid $border-color;
   border-radius: $global-border-radius;
@@ -196,7 +199,22 @@ $btn-group-border-radius: $global-border-radius;
 }
 
 .console-log {
-  @include icon-before($type: $fa-var-file-text-o);
+  @include icon-before($type: $fa-var-terminal);
+
+  &:before {
+    border:        1px solid $console-icon-background;
+    padding:       3px;
+    border-radius: 3px;
+    background:    $console-icon-background;
+    color:         $console-icon-color;
+    font-weight:   800;
+  }
+
+  &:hover:before {
+    transition: 0.4s;
+    background: $console-icon-color;
+    color:      $console-icon-background;
+  }
 }
 
 .list {

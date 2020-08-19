@@ -300,19 +300,14 @@ $building: #ffc11b;
   }
 
   .name-cell {
-    width:         160px;
+    width:         145px;
     display:       flex;
     overflow:      hidden;
     text-overflow: ellipsis;
+  }
 
-    i {
-      color:       $link-color;
-      margin-left: 2px;
-
-      &:hover {
-        font-size: 14px;
-      }
-    }
+  .console-log-icon-cell {
+    width: 15px;
   }
 
   .state-cell {
@@ -413,10 +408,9 @@ $building: #ffc11b;
   border:        0.5px solid $border-color;
   border-radius: 3px;
   overflow:      hidden;
-  cursor:        pointer;
   margin-top:    9px;
 
-  .waiting {
+  .waiting, .scheduled {
     background: $progress-bar-waiting;
   }
 
@@ -428,7 +422,7 @@ $building: #ffc11b;
     background: $progress-bar-building;
   }
 
-  .uploading-artifacts {
+  .uploading-artifacts, .completing {
     background: $progress-bar-uploading-artifacts;
   }
 
@@ -517,7 +511,7 @@ $building: #ffc11b;
       margin-top:    3px;
     }
 
-    .waiting {
+    .waiting, .scheduled {
       background: $progress-bar-waiting;
     }
 
@@ -529,7 +523,7 @@ $building: #ffc11b;
       background: $progress-bar-building;
     }
 
-    .uploadingartifacts {
+    .uploadingartifacts, .completing {
       background: $progress-bar-uploading-artifacts;
     }
   }
@@ -544,6 +538,12 @@ $building: #ffc11b;
   .tooltip-key {
     font-weight:  700;
     margin-right: 7px;
+  }
+
+  .transition-item-tooltip-key {
+    min-width:     150px;
+    align-content: flex-start;
+    display:       flex;
   }
 }
 

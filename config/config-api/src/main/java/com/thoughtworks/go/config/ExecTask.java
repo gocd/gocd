@@ -163,6 +163,7 @@ public class ExecTask extends AbstractTask implements CommandTask {
         }
 
         for (Argument argument : getArgList()) {
+            argument.validate(ctx);
             if (!argument.errors().isEmpty()) {
                 errors.add(ARG_LIST_STRING, argument.errors().asString());
             }

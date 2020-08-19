@@ -99,6 +99,15 @@ public class PartialConfigHelper {
     }
 
     private String hash(PartialConfig partial) {
-        return hashes.digestPartial(partial);
+        // hashes.digestPartial method is responsible to serialize domain config entity into xml and then compute hex
+        // in case of a deserialization bug, a plugin may return an invalid config which might fail during serializing into xml
+        // hence, in case of a serialization error, return null has hash
+        //
+        // it is safe to return null on a structurally invalid config, as once a the config is fixed, a hash will be computed.
+        try {
+            return hashes.digestPartial(partial);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

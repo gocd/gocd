@@ -72,6 +72,7 @@ public class AgentRegistrationController {
     private final InputStreamSrc tfsImplSrc;
     private final EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
     private final InputStreamSrc agentPluginsZipSrc;
+    private static final Object HMAC_GENERATION_MUTEX = new Object();
 
     @Autowired
     public AgentRegistrationController(AgentService agentService, GoConfigService goConfigService, SystemEnvironment systemEnvironment,
@@ -331,7 +332,12 @@ public class AgentRegistrationController {
                     CONFLICT, message, agentInstance.isPending(), uuid);
             return new ResponseEntity<>(message, CONFLICT);
         }
-        return new ResponseEntity<>(encodeBase64String(hmac().doFinal(uuid.getBytes())), OK);
+        String token;
+        synchronized (HMAC_GENERATION_MUTEX) {
+            token = encodeBase64String(hmac().doFinal(uuid.getBytes()));
+        }
+
+        return new ResponseEntity<>(token, OK);
     }
 
     private Agent createAgentFromRequest(String uuid, String hostname, String ip, String elasticAgentId, String elasticPluginId) {

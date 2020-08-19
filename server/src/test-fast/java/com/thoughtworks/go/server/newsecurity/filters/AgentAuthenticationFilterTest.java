@@ -28,18 +28,14 @@ import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mock;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -49,7 +45,6 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 @EnableRuleMigrationSupport
 public class AgentAuthenticationFilterTest {
@@ -59,24 +54,14 @@ public class AgentAuthenticationFilterTest {
     @Rule
     public final ClearSingleton clearSingleton = new ClearSingleton();
 
-    @Mock
-    private FeatureToggleService featureToggleService;
-
     private final MockHttpServletResponse response = new MockHttpServletResponse();
     private final FilterChain filterChain = mock(FilterChain.class);
     private final TestingClock clock = new TestingClock();
 
     @BeforeEach
     void setUp() throws IOException {
-        initMocks(this);
         temporaryFolder = new TemporaryFolder(tempDir);
         temporaryFolder.create();
-        Toggles.initializeWith(featureToggleService);
-    }
-
-    @AfterEach
-    void tearDown() {
-        Toggles.deinitialize();
     }
 
     @Nested

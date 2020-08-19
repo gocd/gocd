@@ -34,11 +34,6 @@
       "key": "show_materials_spa",
       "description": "Show materials spa in menu as well allow users to visit it. Default is false.",
       "value": false
-    },
-    {
-      "key": "log_agent_token",
-      "description": "Temporary toggle to log agent token, debugging issue #8427",
-      "value": false
     }
   ]
 }

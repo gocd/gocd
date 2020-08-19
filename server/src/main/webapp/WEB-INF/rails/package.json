@@ -31,7 +31,7 @@
     "foundation-sites": "=6.3.0",
     "hack-font": "^3.3.0",
     "jquery": "^2.2.4",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.20",
     "lodash-inflection": "^1.5.0",
     "lorem-ipsum": "^2.0.3",
     "lru-cache": "^6.0.0",

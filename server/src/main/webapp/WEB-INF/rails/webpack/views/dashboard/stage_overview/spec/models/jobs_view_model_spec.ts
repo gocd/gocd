@@ -36,7 +36,7 @@ describe('Jobs View Model', () => {
 
   it('should provide sorted list of jobs by job state in descending order', () => {
     const sortedJobNames: string[] = jobsVM.getJobs().map((j) => j.name);
-    const expected: string[] = ['another-failed-job', 'failed-job', 'cancelled-job', 'passing-job', 'running-job', 'waiting-job'];
+    const expected: string[] = ['another-failed-job', 'failed-job', 'cancelled-job', 'running-job', 'waiting-job', 'passing-job'];
 
     expect(sortedJobNames).toEqual(expected);
   });

@@ -160,8 +160,8 @@ export class JobsViewModel {
       const priority = [
         Result[Result.Failed],
         Result[Result.Cancelled],
-        Result[Result.Passed],
-        Result[Result.Unknown]
+        Result[Result.Unknown],
+        Result[Result.Passed]
       ];
 
       const firstPriority = priority.indexOf(first.result as string);

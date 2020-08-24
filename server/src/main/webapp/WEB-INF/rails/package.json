@@ -111,7 +111,7 @@
     "karma-jasmine-seed-reporter": "^0.2.0",
     "karma-junit-reporter": "^2.0.1",
     "karma-safari-launcher": "^1.0.0",
-    "karma-sourcemap-loader": "^0.3.7",
+    "karma-sourcemap-loader": "^0.3.8",
     "license-checker": "^25.0.1",
     "mini-css-extract-plugin": "^0.9.0",
     "optimize-css-assets-webpack-plugin": "^5.0.3",

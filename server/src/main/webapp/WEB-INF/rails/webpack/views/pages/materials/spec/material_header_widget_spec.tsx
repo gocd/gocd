@@ -38,14 +38,15 @@ describe('MaterialHeaderWidgetSpec', () => {
 
     expect(helper.byTestId("material-type")).toBeInDOM();
     expect(helper.textByTestId("material-type")).toBe('some-name');
-    expect(helper.textByTestId("material-display-name")).toBe(material.config.displayName()!);
+    expect(helper.textByTestId("material-display-name")).toBe('git@github.com:sample_repo/example.git [ master ]');
   });
 
-  it('should display the type if name is not provided', () => {
+  it('should display the name as attributes if name is not provided', () => {
     material.config.attributes().name(undefined);
     mount();
 
-    expect(helper.textByTestId("material-type")).toBe('Git');
+    expect(helper.textByTestId("material-type")).toBe('git@github.com:sample_repo/example.git');
+    expect(helper.textByTestId("material-display-name")).toBe('');
   });
 
   [

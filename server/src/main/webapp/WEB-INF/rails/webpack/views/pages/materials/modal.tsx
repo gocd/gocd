@@ -180,7 +180,7 @@ export class ShowUsagesModal extends Modal {
   constructor(material: MaterialWithFingerprint, usages: MaterialUsages) {
     super(Size.small);
     this.usages = usages;
-    this.name   = material.name() || material.displayName() || material.typeForDisplay();
+    this.name   = material.displayName();
   }
 
   title(): string {

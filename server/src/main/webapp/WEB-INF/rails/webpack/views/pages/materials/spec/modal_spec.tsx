@@ -50,7 +50,7 @@ describe('ShowModificationsModalSpec', () => {
     material.attributes().name(undefined);
     mount();
 
-    expect(modal.title()).toBe("Show Modifications for 'git@github.com:sample_repo/example.git [ master ]'");
+    expect(modal.title()).toBe("Show Modifications for 'git@github.com:sample_repo/example.git'");
   });
 
   it('should show a spinner and search box if modal state is loading', () => {
@@ -208,7 +208,7 @@ describe('ShowUsagesSpec', () => {
   it('should render message with attributes when no usages are present and name is not defined', () => {
     material.attributes().name(undefined);
     mount();
-    expect(helper.textByTestId('modal-body')).toBe("No usages for material 'git@github.com:sample_repo/example.git [ master ]' found.");
+    expect(helper.textByTestId('modal-body')).toBe("No usages for material 'git@github.com:sample_repo/example.git' found.");
   });
 
   it('should render usages with link to materials tab', () => {

@@ -22,7 +22,7 @@ import {stringOrUndefined} from "models/compare/pipeline_instance_json";
 import {MaterialModificationJSON} from "models/config_repos/serialization";
 import {humanizedMaterialAttributeName, MaterialModification} from "models/config_repos/types";
 import {Filter} from "models/maintenance_mode/material";
-import {DependencyMaterialAttributes, mapTypeToDisplayType} from "./types";
+import {mapTypeToDisplayType} from "./types";
 
 interface BaseAttributesJSON {
   name: string;
@@ -268,6 +268,25 @@ export class MaterialWithFingerprint {
   }
 
   displayName() {
+    const name = this.name();
+    if (name.length > 0) {
+      return name;
+    }
+    if (this.type() === "package") {
+      const attrs = this.attributes() as PackageMaterialAttributes;
+      return `${attrs.packageRepoName()}_${attrs.packageName()}`;
+    }
+    if (this.type() === "plugin") {
+      return (this.attributes() as PluggableScmMaterialAttributes).scmName();
+    }
+    if (this.type() === "p4") {
+      return (this.attributes() as P4MaterialAttributes).port();
+    }
+    // @ts-ignore
+    return this.attributes()!.url();
+  }
+
+  attributesAsString() {
     switch (this.type()) {
       case "git":
         // @ts-ignore
@@ -320,25 +339,6 @@ export class MaterialWithFingerprint {
     return map;
   }
 
-  materialUrl(): string {
-    switch (this.type()) {
-      case "p4":
-        return (this.attributes() as P4MaterialAttributes).port()!;
-      case "dependency":
-        const attrs = (this.attributes() as DependencyMaterialAttributes);
-        return `${attrs.pipeline()} / ${attrs.stage()}`;
-      case "package":
-      case "plugin":
-        return "";
-      case "git":
-        // @ts-ignore
-        return `${this.attributes()!.url()} [ ${this.attributes()!.branch()} ]`;
-      default:
-        // @ts-ignore
-        return this.attributes()!.url();
-    }
-  }
-
   private static resolveKeyValueForAttribute(accumulator: Map<string, string>, value: any, key: string) {
     if (key.startsWith("__") || ["name"].includes(key)) {
       return accumulator;
@@ -387,7 +387,7 @@ export class MaterialWithModification {
     const searchableStrings = [
       this.config.type(),
       this.config.name(),
-      this.config.materialUrl()
+      this.config.attributesAsString()
     ];
     const modification      = this.modification;
     if (modification !== null) {

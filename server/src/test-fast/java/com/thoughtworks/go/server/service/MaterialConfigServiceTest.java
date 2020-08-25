@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import java.util.List;
-import java.util.Map;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -124,19 +123,17 @@ class MaterialConfigServiceTest {
     void shouldReturnUsagesOfAGivenMaterial() {
         GitMaterialConfig material = git("http://test.com");
 
-        Map<String, List<String>> usages = materialConfigService.getUsagesForMaterial(user, material.getFingerprint());
+        List<String> usages = materialConfigService.getUsagesForMaterial(user, material.getFingerprint());
 
         assertThat(usages.size()).isEqualTo(2);
-        assertThat(usages.keySet()).isSubsetOf("group1", "group3");
-        assertThat(usages.get("group1")).containsExactly("pipeline1");
-        assertThat(usages.get("group3")).containsExactly("pipeline3");
+        assertThat(usages).containsExactly("pipeline1", "pipeline3");
     }
 
     @Test
     void shouldReturnEmptyMapIfNotUsagesFound() {
         GitMaterialConfig material = git("http://example.com");
 
-        Map<String, List<String>> usages = materialConfigService.getUsagesForMaterial(user, material.getFingerprint());
+        List<String> usages = materialConfigService.getUsagesForMaterial(user, material.getFingerprint());
 
         assertThat(usages).isEmpty();
     }

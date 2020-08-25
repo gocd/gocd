@@ -17,29 +17,16 @@
 package com.thoughtworks.go.apiv1.internalmaterials.representers;
 
 import com.thoughtworks.go.api.base.OutputLinkWriter;
-import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
-import static java.util.Collections.emptyList;
-
 public class UsagesRepresenter {
-    public static void toJSON(OutputWriter outputWriter, String fingerprint, Map<String, List<String>> usages) {
-        outputWriter.addLinks(links(fingerprint));
-        if (usages.isEmpty()) {
-            outputWriter.addChildList("usages", emptyList());
-            return;
-        }
-        outputWriter.addChildList("usages", usagesWriter -> usages.forEach((grp, pipelines) -> addGrpUsages(usagesWriter, grp, pipelines)));
-    }
-
-    private static void addGrpUsages(OutputListWriter usagesWriter, String group, List<String> pipelines) {
-        usagesWriter.addChild(childWriter -> childWriter.add("group", group)
-                .addChildList("pipelines", pipelines));
+    public static void toJSON(OutputWriter outputWriter, String fingerprint, List<String> usages) {
+        outputWriter.addLinks(links(fingerprint))
+                .addChildList("usages", usages);
     }
 
     private static Consumer<OutputLinkWriter> links(String fingerprint) {

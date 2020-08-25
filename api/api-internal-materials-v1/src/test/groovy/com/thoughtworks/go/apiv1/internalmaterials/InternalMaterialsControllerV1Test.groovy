@@ -78,8 +78,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
     @Test
     void 'should return 200 with usages'() {
-      def usages = new HashMap<>()
-      usages.put("grp", ["pipeline1", "pipeline2"])
+      def usages = ["pipeline1", "pipeline2"]
       when(materialConfigService.getUsagesForMaterial(anyString(), anyString())).thenReturn(usages)
 
       getWithApiHeader(controller.controllerBasePath() + "/some-fingerprint/usages")

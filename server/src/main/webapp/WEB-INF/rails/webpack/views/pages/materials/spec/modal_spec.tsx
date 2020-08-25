@@ -17,11 +17,11 @@
 import {timeFormatter} from "helpers/time_formatter";
 import {stringOrUndefined} from "models/compare/pipeline_instance_json";
 import {MaterialModification} from "models/config_repos/types";
-import {MaterialModifications, MaterialWithFingerprint} from "models/materials/materials";
+import {MaterialModifications, MaterialUsages, MaterialWithFingerprint} from "models/materials/materials";
 import {ModalState} from "views/components/modal";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";
-import {ApiService, ShowModificationsModal} from "../modal";
+import {ApiService, ShowModificationsModal, ShowUsagesModal} from "../modal";
 import {git} from "./materials_widget_spec";
 
 describe('ShowModificationsModalSpec', () => {
@@ -177,3 +177,47 @@ class DummyService implements ApiService {
     onSuccess(this.materialMods);
   }
 }
+
+describe('ShowUsagesSpec', () => {
+  const helper = new TestHelper();
+  let material: MaterialWithFingerprint;
+  let modal: ShowUsagesModal;
+  let materialUsages: MaterialUsages;
+
+  beforeEach(() => {
+    material       = MaterialWithFingerprint.fromJSON(git());
+    materialUsages = new MaterialUsages();
+  });
+  afterEach((done) => helper.unmount(done));
+
+  function mount() {
+    modal = new ShowUsagesModal(material, materialUsages);
+    helper.mount(modal.view.bind(modal));
+  }
+
+  it('should render title', () => {
+    mount();
+    expect(modal.title()).toBe("Usages");
+  });
+
+  it('should render message when no usages are present', () => {
+    mount();
+    expect(helper.textByTestId('modal-body')).toBe("No usages for material 'some-name' found.");
+  });
+
+  it('should render message with attributes when no usages are present and name is not defined', () => {
+    material.attributes().name(undefined);
+    mount();
+    expect(helper.textByTestId('modal-body')).toBe("No usages for material 'git@github.com:sample_repo/example.git [ master ]' found.");
+  });
+
+  it('should render usages with link to materials tab', () => {
+    materialUsages.push("pipeline1");
+    mount();
+
+    expect(helper.q('thead').textContent).toBe('PipelineMaterial Setting');
+    expect(helper.qa('td').length).toBe(2);
+    expect(helper.qa('td')[0].textContent).toBe('pipeline1');
+    expect(helper.byTestId('material-link-0')).toHaveAttr('title', 'Pipeline Material Setting');
+  });
+});

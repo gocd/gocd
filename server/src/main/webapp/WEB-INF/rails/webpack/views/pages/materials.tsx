@@ -14,28 +14,29 @@
  * limitations under the License.
  */
 
+import {ErrorResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {MaterialAPIs, MaterialWithFingerprint, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
+import {MaterialAPIs, Materials, MaterialWithFingerprint, MaterialWithModification, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {MaterialsWidget} from "views/pages/materials/materials_widget";
-import {MaterialVM, MaterialVMs} from "views/pages/materials/models/material_view_model";
 import {Page, PageState} from "views/pages/page";
 import configRepoStyles from "./config_repos/index.scss";
-import {ShowModificationsModal} from "./materials/modal";
+import {ShowModificationsModal, ShowUsagesModal} from "./materials/modal";
 
 export interface AdditionalInfoAttrs {
   onEdit: (material: MaterialWithFingerprint, e: MouseEvent) => void;
+  showUsages: (material: MaterialWithFingerprint, e: MouseEvent) => void;
   showModifications: (material: MaterialWithFingerprint, e: MouseEvent) => void;
   shouldShowPackageOrScmLink: boolean;
 }
 
 export interface MaterialsAttrs extends AdditionalInfoAttrs {
-  materialVMs: Stream<MaterialVMs>;
+  materials: Stream<Materials>;
 }
 
 interface State extends MaterialsAttrs {
@@ -47,8 +48,8 @@ export class MaterialsPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
 
-    vnode.state.materialVMs = Stream();
-    vnode.state.searchText  = Stream();
+    vnode.state.materials  = Stream();
+    vnode.state.searchText = Stream();
 
     vnode.state.onEdit = (material: MaterialWithFingerprint, e: MouseEvent) => {
       e.stopPropagation();
@@ -65,6 +66,19 @@ export class MaterialsPage extends Page<null, State> {
       }
     };
 
+    vnode.state.showUsages = (material: MaterialWithFingerprint, e: MouseEvent) => {
+      e.stopPropagation();
+      MaterialAPIs.usages(material.fingerprint())
+                  .then((result) => {
+                    result.do(
+                      (successResponse) => {
+                        new ShowUsagesModal(material, successResponse.body).render();
+                      },
+                      this.onOperationError(vnode)
+                    );
+                  });
+    };
+
     vnode.state.showModifications = (material: MaterialWithFingerprint, e: MouseEvent) => {
       e.stopPropagation();
       new ShowModificationsModal(material).render();
@@ -72,9 +86,9 @@ export class MaterialsPage extends Page<null, State> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    const filteredMaterials: Stream<MaterialVMs> = Stream(vnode.state.materialVMs());
+    const filteredMaterials: Stream<Materials> = Stream(vnode.state.materials());
     if (vnode.state.searchText()) {
-      const results = _.filter(filteredMaterials(), (vm: MaterialVM) => vm.matches(vnode.state.searchText()));
+      const results = _.filter(filteredMaterials(), (vm: MaterialWithModification) => vm.matches(vnode.state.searchText()));
 
       if (_.isEmpty(results)) {
         return <div>
@@ -82,11 +96,12 @@ export class MaterialsPage extends Page<null, State> {
             string: <em>{vnode.state.searchText()}</em></FlashMessage>
         </div>;
       }
-      filteredMaterials(new MaterialVMs(...results));
+      filteredMaterials(new Materials(...results));
     }
-    return [<MaterialsWidget key={filteredMaterials().length} materialVMs={filteredMaterials}
+    return [<MaterialsWidget key={filteredMaterials().length} materials={filteredMaterials}
                              shouldShowPackageOrScmLink={Page.isUserAnAdmin() || Page.isUserAGroupAdmin()}
-                             onEdit={vnode.state.onEdit} showModifications={vnode.state.showModifications}/>];
+                             onEdit={vnode.state.onEdit} showModifications={vnode.state.showModifications}
+                             showUsages={vnode.state.showUsages}/>];
   }
 
   pageName(): string {
@@ -98,8 +113,8 @@ export class MaterialsPage extends Page<null, State> {
     return Promise.all([MaterialAPIs.all()]).then((result) => {
       result[0].do((successResponse) => {
         this.pageState = PageState.OK;
-        vnode.state.materialVMs(MaterialVMs.fromMaterials(successResponse.body));
-        vnode.state.materialVMs().sortOnType();
+        vnode.state.materials(successResponse.body);
+        vnode.state.materials().sortOnType();
       }, this.setErrorState);
     });
   }
@@ -110,7 +125,7 @@ export class MaterialsPage extends Page<null, State> {
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {
     const buttons = [];
-    if (!_.isEmpty(vnode.state.materialVMs())) {
+    if (!_.isEmpty(vnode.state.materials())) {
       const searchBox = <div className={configRepoStyles.wrapperForSearchBox}>
         <SearchField property={vnode.state.searchText} dataTestId={"search-box"}
                      placeholder="Search for a material name or url"/>
@@ -118,5 +133,11 @@ export class MaterialsPage extends Page<null, State> {
       buttons.push(searchBox);
     }
     return <HeaderPanel title={this.pageName()} buttons={buttons} help={this.helpText()}/>;
+  }
+
+  private onOperationError(vnode: m.Vnode<null, State>): (errorResponse: ErrorResponse) => void {
+    return (errorResponse: ErrorResponse) => {
+      this.flashMessage.alert(JSON.parse(errorResponse.body!).message);
+    };
   }
 }

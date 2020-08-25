@@ -20,21 +20,24 @@ import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {MaterialModification} from "models/config_repos/types";
-import {MaterialWithFingerprint, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
+import {
+  MaterialWithFingerprint,
+  MaterialWithModification,
+  PackageMaterialAttributes,
+  PluggableScmMaterialAttributes
+} from "models/materials/materials";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {Edit, IconGroup, List} from "views/components/icons";
+import {Edit, IconGroup, List, Usage} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import headerStyles from "views/pages/config_repos/index.scss";
 import {AdditionalInfoAttrs} from "views/pages/materials";
 import styles from "./index.scss";
 import {MaterialHeaderWidget} from "./material_header_widget";
-import {MaterialUsageWidget} from "./material_usage_widget";
-import {MaterialVM} from "./models/material_view_model";
 
 export interface MaterialAttrs {
-  materialVM: MaterialVM;
+  material: MaterialWithModification;
 }
 
 interface MaterialWithInfoAttrs extends MaterialAttrs, AdditionalInfoAttrs {
@@ -55,8 +58,7 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
   }
 
   view(vnode: m.Vnode<MaterialWithInfoAttrs, this>): m.Children | void | null {
-    const vm                  = vnode.attrs.materialVM;
-    const material            = vm.material;
+    const material            = vnode.attrs.material;
     const config              = material.config;
     const modificationDetails = material.modification === null
       ? <FlashMessage type={MessageType.info}>This material was never parsed</FlashMessage>
@@ -71,14 +73,13 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
     }
     const actionButtons = <IconGroup>
       {maybeEditButton}
+      <Usage data-test-id={"show-usages"} title={"Show Usages"} onclick={vnode.attrs.showUsages.bind(this, config)}/>
       <List data-test-id={"show-modifications-material"} title={"Show Modifications"}
             onclick={vnode.attrs.showModifications.bind(this, config)}/>
     </IconGroup>;
 
     return <CollapsiblePanel header={<MaterialHeaderWidget {...vnode.attrs} />}
-                             actions={actionButtons}
-                             onexpand={() => vm.notify("expand")}>
-      <MaterialUsageWidget materialVM={vm}/>
+                             actions={actionButtons}>
       <h3>Latest Modification Details</h3>
       <div data-test-id="latest-modification-details" className={headerStyles.configRepoProperties}>
         {modificationDetails}

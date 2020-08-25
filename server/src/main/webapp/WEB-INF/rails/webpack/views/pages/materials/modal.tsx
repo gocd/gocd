@@ -21,12 +21,14 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {stringOrUndefined} from "models/compare/pipeline_instance_json";
 import {MaterialModification} from "models/config_repos/types";
-import {MaterialAPIs, MaterialModifications, MaterialWithFingerprint} from "models/materials/materials";
+import {MaterialAPIs, MaterialModifications, MaterialUsages, MaterialWithFingerprint} from "models/materials/materials";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
+import {Edit} from "views/components/icons";
 import {Link} from "views/components/link";
 import linkStyles from "views/components/link/index.scss";
 import {Modal, ModalState, Size} from "views/components/modal";
+import {Table} from "views/components/table";
 import headerStyles from "views/pages/config_repos/index.scss";
 import styles from "./index.scss";
 import {MaterialWidget} from "./material_widget";
@@ -169,4 +171,41 @@ class FetchHistoryService implements ApiService {
     });
   }
 
+}
+
+export class ShowUsagesModal extends Modal {
+  private usages: MaterialUsages;
+  private readonly name: string;
+
+  constructor(material: MaterialWithFingerprint, usages: MaterialUsages) {
+    super(Size.small);
+    this.usages = usages;
+    this.name   = material.name() || material.displayName() || material.typeForDisplay();
+  }
+
+  title(): string {
+    return 'Usages';
+  }
+
+  body(): m.Children {
+    if (this.usages.length <= 0) {
+      return (<i> No usages for material '{this.name}' found.</i>);
+    }
+
+    const data: m.Child[][] = [];
+    data.push(...this.usages
+                     .map((pipeline: string, index) => {
+                       return [
+                         <span>{pipeline}</span>,
+                         <Edit data-test-id={`material-link-${index}`} title={"Pipeline Material Setting"} iconOnly={true}
+                               onclick={(e: MouseEvent) => {
+                                 e.stopPropagation();
+                                 window.open(SparkRoutes.pipelineEditPath('pipelines', pipeline, 'materials'));
+                               }}/>
+                       ];
+                     }));
+    return <div class={styles.usages}>
+      <Table headers={["Pipeline", "Material Setting"]} data={data}/>
+    </div>;
+  }
 }

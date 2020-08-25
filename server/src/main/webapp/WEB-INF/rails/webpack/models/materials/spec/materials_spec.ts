@@ -16,20 +16,8 @@
 
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {
-  GitMaterialAttributes,
-  HgMaterialAttributes,
-  MaterialAPIs,
-  MaterialModifications,
-  Materials,
-  MaterialWithFingerprint,
-  MaterialWithModification,
-  P4MaterialAttributes,
-  PackageMaterialAttributes,
-  PluggableScmMaterialAttributes,
-  SvnMaterialAttributes,
-  TfsMaterialAttributes
-} from "../materials";
+import {MaterialModification} from "models/config_repos/types";
+import {GitMaterialAttributes, HgMaterialAttributes, MaterialAPIs, MaterialModifications, Materials, MaterialUsages, MaterialWithFingerprint, MaterialWithModification, P4MaterialAttributes, PackageMaterialAttributes, PluggableScmMaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "../materials";
 
 describe('MaterialsAPISpec', () => {
   beforeEach(() => jasmine.Ajax.install());
@@ -100,6 +88,27 @@ describe('MaterialsAPISpec', () => {
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
+  it('should get the usages for a given material', (done) => {
+    const url = SparkRoutes.getMaterialUsages("fingerprint");
+    jasmine.Ajax.stubRequest(url).andReturn(usagesResponse());
+
+    const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
+      const responseJSON  = response.unwrap() as SuccessResponse<any>;
+      const modifications = (responseJSON.body as MaterialUsages);
+
+      expect(modifications).toHaveLength(2);
+      expect(modifications).toEqual(['pipeline1', 'pipeline2']);
+      done();
+    });
+
+    MaterialAPIs.usages("fingerprint").then(onResponse);
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(url);
+    expect(request.method).toEqual("GET");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
+  });
+
   function materialsResponse() {
     const data = {
       materials: [{
@@ -150,6 +159,19 @@ describe('MaterialsAPISpec', () => {
         comment:       "Dummy commit",
         modified_time: "2019-12-23T10:25:52Z"
       }]
+    };
+    return {
+      status:          200,
+      responseHeaders: {
+        "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+      },
+      responseText:    JSON.stringify(data)
+    };
+  }
+
+  function usagesResponse() {
+    const data = {
+      usages: ["pipeline1", "pipeline2"]
     };
     return {
       status:          200,
@@ -257,7 +279,7 @@ describe('MaterialWithFingerPrintSpec', () => {
   });
 });
 
-describe('MaterialsWithModificationsSpec', () => {
+describe('MaterialsSpec', () => {
   it('should sort based on type', () => {
     const materials = new Materials();
     materials.push(new MaterialWithModification(new MaterialWithFingerprint("git", "some", new GitMaterialAttributes()), null));
@@ -277,5 +299,36 @@ describe('MaterialsWithModificationsSpec', () => {
     expect(materials[4].config.type()).toBe('plugin');
     expect(materials[5].config.type()).toBe('svn');
     expect(materials[6].config.type()).toBe('tfs');
+  });
+});
+
+describe('MaterialsWithModificationSpec', () => {
+  it('should return true if search string matches name, type or display url of the config', () => {
+    const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("some-name", false, "http://svn.com/gocd/gocd", "master"));
+    const withMod  = new MaterialWithModification(material, null);
+
+    expect(withMod.matches("git")).toBeTrue();
+    expect(withMod.matches("name")).toBeTrue();
+    expect(withMod.matches("gocd")).toBeTrue();
+    expect(withMod.matches("mas")).toBeTrue();
+    expect(withMod.matches("abc")).toBeFalse();
+  });
+
+  it('should return true if search string matches username, revision or comment for the latest modification', () => {
+    const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("", false, "some-url", "master"));
+    const withMod  = new MaterialWithModification(material, new MaterialModification("username", "email_address", "some-revision", "a very very long comment with abc", ""));
+
+    expect(withMod.matches("revision")).toBeTrue();
+    expect(withMod.matches("comment")).toBeTrue();
+    expect(withMod.matches("name")).toBeTrue();
+    expect(withMod.matches("abc")).toBeTrue();
+    expect(withMod.matches("123")).toBeFalse();
+  });
+
+  it('should return type as config.type', () => {
+    const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("some-name", false, "http://svn.com/gocd/gocd", "master"));
+    const withMod  = new MaterialWithModification(material, null);
+
+    expect(withMod.type()).toBe(material.type());
   });
 });

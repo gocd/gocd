@@ -32,7 +32,7 @@ export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
   private static readonly MAX_REVISION_LENGTH: number   = 40;
 
   view(vnode: m.Vnode<MaterialAttrs, this>): m.Children | void | null {
-    const material = vnode.attrs.materialVM.material;
+    const material = vnode.attrs.material;
     return [
       MaterialHeaderWidget.getIcon(material),
       <div className={headerStyles.headerTitle}>

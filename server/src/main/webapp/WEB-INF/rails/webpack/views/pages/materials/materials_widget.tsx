@@ -33,7 +33,7 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
   }
 
   view(vnode: m.Vnode<MaterialsAttrs>) {
-    if (vnode.attrs.materialVMs().length === 0) {
+    if (vnode.attrs.materials().length === 0) {
       return <div>
         <FlashMessage type={MessageType.info}>
           Either no pipelines have been set up or you are not authorized to view the same.&nbsp;
@@ -46,9 +46,10 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
       </div>;
     }
     return <div data-test-id="materials-widget">
-      {vnode.attrs.materialVMs().map((materialVM) => <MaterialWidget materialVM={materialVM}
-                                                                     shouldShowPackageOrScmLink={vnode.attrs.shouldShowPackageOrScmLink}
-                                                                     onEdit={vnode.attrs.onEdit} showModifications={vnode.attrs.showModifications}/>)}
+      {vnode.attrs.materials().map((material) => <MaterialWidget material={material}
+                                                                 shouldShowPackageOrScmLink={vnode.attrs.shouldShowPackageOrScmLink}
+                                                                 onEdit={vnode.attrs.onEdit} showModifications={vnode.attrs.showModifications}
+                                                                 showUsages={vnode.attrs.showUsages}/>)}
     </div>;
   }
 }

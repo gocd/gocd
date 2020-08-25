@@ -18,3 +18,4 @@ export const searchBoxWrapper: string;
 export const subversion: string;
 export const tfs: string;
 export const unknown: string;
+export const usages: string;

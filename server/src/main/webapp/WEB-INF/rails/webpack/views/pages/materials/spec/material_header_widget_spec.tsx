@@ -17,18 +17,11 @@
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {MaterialModification} from "models/config_repos/types";
-import {
-  MaterialWithFingerprint,
-  MaterialWithModification,
-  P4MaterialAttributes,
-  PackageMaterialAttributes,
-  PluggableScmMaterialAttributes
-} from "models/materials/materials";
+import {MaterialWithFingerprint, MaterialWithModification, P4MaterialAttributes, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
 import headerStyles from "views/pages/config_repos/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";
 import {MaterialHeaderWidget} from "../material_header_widget";
-import {MaterialVM} from "../models/material_view_model";
 import {git} from "./materials_widget_spec";
 
 describe('MaterialHeaderWidgetSpec', () => {
@@ -140,6 +133,6 @@ describe('MaterialHeaderWidgetSpec', () => {
   });
 
   function mount() {
-    helper.mount(() => <MaterialHeaderWidget materialVM={new MaterialVM(material)}/>);
+    helper.mount(() => <MaterialHeaderWidget material={material}/>);
   }
 });

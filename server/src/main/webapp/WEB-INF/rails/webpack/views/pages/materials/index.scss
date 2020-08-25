@@ -126,3 +126,9 @@ $button_color: #2d6ca2;
   word-break: break-all;
   max-width:  630px;
 }
+
+.usages {
+  table td:last-child {
+    min-width: 70px;
+  }
+}

@@ -386,10 +386,6 @@ api/api-internal-pipeline-structure-v1/out/
 api/api-internal-pipeline-structure-v1/target/
 api/api-internal-pipeline-structure-v1/logs/
 api/api-internal-pipeline-structure-v1/config/
-api/api-agents-v6/out/
-api/api-agents-v6/target/
-api/api-agents-v6/logs/
-api/api-agents-v6/config/
 api/api-feature-toggles-v1/out/
 api/api-feature-toggles-v1/target/
 api/api-feature-toggles-v1/logs/

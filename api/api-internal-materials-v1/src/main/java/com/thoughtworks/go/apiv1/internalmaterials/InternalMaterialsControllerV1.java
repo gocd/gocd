@@ -83,7 +83,7 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
 
     public String usages(Request request, Response response) throws Exception {
         String fingerprint = request.params(FINGERPRINT);
-        Map<String, List<String>> usagesForMaterial = materialConfigService.getUsagesForMaterial(currentUsernameString(), fingerprint);
+        List<String> usagesForMaterial = materialConfigService.getUsagesForMaterial(currentUsernameString(), fingerprint);
         return writerForTopLevelObject(request, response, writer -> UsagesRepresenter.toJSON(writer, fingerprint, usagesForMaterial));
     }
 

@@ -69,8 +69,12 @@ $button_color: #2d6ca2;
 .modification-modal {
   background-color: $primary-bg;
   // fill the whole modal
-  margin:           -20px -30px;
-  padding:          20px 30px;
+  margin:           0 -30px -20px;
+  padding:          5px 30px 20px;
+
+  header {
+    top: 50px
+  }
 }
 
 .modification {
@@ -101,8 +105,7 @@ $button_color: #2d6ca2;
 }
 
 .search-box-wrapper {
-  margin-bottom: 8px;
-  text-align:    right;
+  text-align: right;
 
   input {
     width: 350px;
@@ -125,4 +128,20 @@ $button_color: #2d6ca2;
   font-size:  13px;
   word-break: break-all;
   max-width:  630px;
+}
+
+.usages {
+  table td:last-child {
+    width: 35%;
+  }
+}
+
+.spinner-wrapper {
+  display:         flex;
+  justify-content: center;
+  flex-direction:  column;
+}
+
+.modification-wrapper {
+  margin-top: 30px;
 }

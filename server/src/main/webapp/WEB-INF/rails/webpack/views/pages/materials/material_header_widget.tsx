@@ -32,12 +32,12 @@ export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
   private static readonly MAX_REVISION_LENGTH: number   = 40;
 
   view(vnode: m.Vnode<MaterialAttrs, this>): m.Children | void | null {
-    const material = vnode.attrs.materialVM.material;
+    const material = vnode.attrs.material;
     return [
       MaterialHeaderWidget.getIcon(material),
       <div className={headerStyles.headerTitle}>
-        <h4 data-test-id="material-type" className={headerStyles.headerTitleText}>{material.config.name() || material.config.typeForDisplay()}</h4>
-        <span data-test-id="material-display-name" className={headerStyles.headerTitleUrl}>{material.config.displayName()}</span>
+        <h4 data-test-id="material-type" className={headerStyles.headerTitleText}>{material.config.displayName()}</h4>
+        <span data-test-id="material-display-name" className={headerStyles.headerTitleUrl}>{material.config.attributesAsString()}</span>
       </div>,
       <div data-test-id="latest-mod-in-header">
         {MaterialHeaderWidget.showLatestModificationDetails(material.config.fingerprint(), material.modification)}

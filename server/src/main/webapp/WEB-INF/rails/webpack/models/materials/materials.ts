@@ -22,7 +22,7 @@ import {stringOrUndefined} from "models/compare/pipeline_instance_json";
 import {MaterialModificationJSON} from "models/config_repos/serialization";
 import {humanizedMaterialAttributeName, MaterialModification} from "models/config_repos/types";
 import {Filter} from "models/maintenance_mode/material";
-import {DependencyMaterialAttributes, mapTypeToDisplayType} from "./types";
+import {mapTypeToDisplayType} from "./types";
 
 interface BaseAttributesJSON {
   name: string;
@@ -268,6 +268,25 @@ export class MaterialWithFingerprint {
   }
 
   displayName() {
+    const name = this.name();
+    if (name.length > 0) {
+      return name;
+    }
+    if (this.type() === "package") {
+      const attrs = this.attributes() as PackageMaterialAttributes;
+      return `${attrs.packageRepoName()}_${attrs.packageName()}`;
+    }
+    if (this.type() === "plugin") {
+      return (this.attributes() as PluggableScmMaterialAttributes).scmName();
+    }
+    if (this.type() === "p4") {
+      return (this.attributes() as P4MaterialAttributes).port();
+    }
+    // @ts-ignore
+    return this.attributes()!.url();
+  }
+
+  attributesAsString() {
     switch (this.type()) {
       case "git":
         // @ts-ignore
@@ -320,25 +339,6 @@ export class MaterialWithFingerprint {
     return map;
   }
 
-  materialUrl(): string {
-    switch (this.type()) {
-      case "p4":
-        return (this.attributes() as P4MaterialAttributes).port()!;
-      case "dependency":
-        const attrs = (this.attributes() as DependencyMaterialAttributes);
-        return `${attrs.pipeline()} / ${attrs.stage()}`;
-      case "package":
-      case "plugin":
-        return "";
-      case "git":
-        // @ts-ignore
-        return `${this.attributes()!.url()} [ ${this.attributes()!.branch()} ]`;
-      default:
-        // @ts-ignore
-        return this.attributes()!.url();
-    }
-  }
-
   private static resolveKeyValueForAttribute(accumulator: Map<string, string>, value: any, key: string) {
     if (key.startsWith("__") || ["name"].includes(key)) {
       return accumulator;
@@ -379,6 +379,26 @@ export class MaterialWithModification {
     const mod = data.modification === null ? null : MaterialModification.fromJSON(data.modification);
     return new MaterialWithModification(MaterialWithFingerprint.fromJSON(data.config), mod);
   }
+
+  matches(query: string) {
+    if (!query) {
+      return true;
+    }
+    const searchableStrings = [
+      this.config.type(),
+      this.config.name(),
+      this.config.attributesAsString()
+    ];
+    const modification      = this.modification;
+    if (modification !== null) {
+      searchableStrings.push(modification.username, modification.revision, modification.comment);
+    }
+    return searchableStrings.some((value) => value ? value.toLowerCase().includes(query.trim().toLowerCase()) : false);
+  }
+
+  type() {
+    return this.config.type();
+  }
 }
 
 export class Materials extends Array<MaterialWithModification> {
@@ -392,7 +412,7 @@ export class Materials extends Array<MaterialWithModification> {
   }
 
   sortOnType() {
-    this.sort((m1, m2) => m1.config.type()!.localeCompare(m2.config.type()!));
+    this.sort((m1, m2) => m1.type()!.localeCompare(m2.type()!));
   }
 }
 
@@ -448,5 +468,28 @@ export class MaterialAPIs {
                               const parse = JSON.parse(body) as ModificationsJSON;
                               return MaterialModifications.fromJSON(parse);
                             }));
+  }
+
+  static usages(fingerprint: string) {
+    return ApiRequestBuilder.GET(SparkRoutes.getMaterialUsages(fingerprint), this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => result.map((body) => {
+                              const parse = JSON.parse(body) as MaterialUsagesJSON;
+                              return MaterialUsages.fromJSON(parse);
+                            }));
+  }
+}
+
+interface MaterialUsagesJSON {
+  usages: string[];
+}
+
+export class MaterialUsages extends Array<string> {
+  constructor(...vals: string[]) {
+    super(...vals);
+    Object.setPrototypeOf(this, Object.create(MaterialUsages.prototype));
+  }
+
+  static fromJSON(data: MaterialUsagesJSON): MaterialUsages {
+    return new MaterialUsages(...data.usages);
   }
 }

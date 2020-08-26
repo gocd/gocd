@@ -25,7 +25,11 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * @understands providing services around a pipeline configuration
@@ -89,21 +93,15 @@ public class MaterialConfigService {
         return materialConfig;
     }
 
-    public Map<String, List<String>> getUsagesForMaterial(String username, String fingerprint) {
-        Map<String, List<String>> usages = new HashMap<>();
-        goConfigService.groups().stream()
+    public List<String> getUsagesForMaterial(String username, String fingerprint) {
+        return goConfigService.groups()
+                .stream()
                 .filter((grp) -> securityService.hasViewPermissionForGroup(username, grp.getGroup()))
-                .forEach((grp) -> grp.getPipelines()
+                .flatMap((grp) -> grp.getPipelines()
                         .stream()
-                        .filter((pipeline -> pipeline.materialConfigs().getByMaterialFingerPrint(fingerprint) != null))
-                        .forEach((pipeline) -> {
-                            if (!usages.containsKey(grp.getGroup())) {
-                                usages.put(grp.getGroup(), new ArrayList<>());
-                            }
-                            usages.get(grp.getGroup()).add(pipeline.name().toString());
-                        })
-                );
-        return usages;
+                        .filter((pipeline) -> pipeline.materialConfigs().getByMaterialFingerPrint(fingerprint) != null))
+                .map((pipeline) -> pipeline.name().toString())
+                .collect(toList());
     }
 
 }

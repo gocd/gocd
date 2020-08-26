@@ -16,20 +16,8 @@
 
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {
-  GitMaterialAttributes,
-  HgMaterialAttributes,
-  MaterialAPIs,
-  MaterialModifications,
-  Materials,
-  MaterialWithFingerprint,
-  MaterialWithModification,
-  P4MaterialAttributes,
-  PackageMaterialAttributes,
-  PluggableScmMaterialAttributes,
-  SvnMaterialAttributes,
-  TfsMaterialAttributes
-} from "../materials";
+import {MaterialModification} from "models/config_repos/types";
+import {GitMaterialAttributes, HgMaterialAttributes, MaterialAPIs, MaterialModifications, Materials, MaterialUsages, MaterialWithFingerprint, MaterialWithModification, P4MaterialAttributes, PackageMaterialAttributes, PluggableScmMaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "../materials";
 
 describe('MaterialsAPISpec', () => {
   beforeEach(() => jasmine.Ajax.install());
@@ -100,6 +88,27 @@ describe('MaterialsAPISpec', () => {
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
+  it('should get the usages for a given material', (done) => {
+    const url = SparkRoutes.getMaterialUsages("fingerprint");
+    jasmine.Ajax.stubRequest(url).andReturn(usagesResponse());
+
+    const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
+      const responseJSON  = response.unwrap() as SuccessResponse<any>;
+      const modifications = (responseJSON.body as MaterialUsages);
+
+      expect(modifications).toHaveLength(2);
+      expect(modifications).toEqual(['pipeline1', 'pipeline2']);
+      done();
+    });
+
+    MaterialAPIs.usages("fingerprint").then(onResponse);
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(url);
+    expect(request.method).toEqual("GET");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
+  });
+
   function materialsResponse() {
     const data = {
       materials: [{
@@ -150,6 +159,19 @@ describe('MaterialsAPISpec', () => {
         comment:       "Dummy commit",
         modified_time: "2019-12-23T10:25:52Z"
       }]
+    };
+    return {
+      status:          200,
+      responseHeaders: {
+        "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+      },
+      responseText:    JSON.stringify(data)
+    };
+  }
+
+  function usagesResponse() {
+    const data = {
+      usages: ["pipeline1", "pipeline2"]
     };
     return {
       status:          200,
@@ -215,33 +237,43 @@ describe('MaterialWithFingerPrintSpec', () => {
   });
 
   describe('DisplayNameSpec', () => {
-    it('should show url and branch as display name for git', () => {
+    it('should show name or url as display name for git', () => {
       const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("name", false, "some-url", "master"));
-      expect(material.displayName()).toBe("some-url [ master ]");
+      expect(material.displayName()).toBe("name");
+
+      material.attributes().name(undefined);
+      expect(material.displayName()).toBe("some-url");
     });
 
-    it('should show url and branch as display name for hg', () => {
+    it('should show name or url as display name for hg', () => {
       const material = new MaterialWithFingerprint("hg", "fingerprint", new HgMaterialAttributes("name", false, "some-url", "branch"));
-      expect(material.displayName()).toBe("some-url [ branch ]");
-    });
+      expect(material.displayName()).toBe("name");
 
-    it('should show only url as display name for hg when branch is not set', () => {
-      const material = new MaterialWithFingerprint("hg", "fingerprint", new HgMaterialAttributes("name", false, "some-url"));
+      material.attributes().name(undefined);
       expect(material.displayName()).toBe("some-url");
     });
 
-    it('should show url as display name for svn', () => {
+    it('should show name or url as display name for svn', () => {
       const material = new MaterialWithFingerprint("svn", "fingerprint", new SvnMaterialAttributes("name", false, "some-url"));
+      expect(material.displayName()).toBe("name");
+
+      material.attributes().name(undefined);
       expect(material.displayName()).toBe("some-url");
     });
 
-    it('should show port and view as display name for p4', () => {
+    it('should show name or port as display name for p4', () => {
       const material = new MaterialWithFingerprint("p4", "fingerprint", new P4MaterialAttributes("name", false, "some-url", false, "view"));
-      expect(material.displayName()).toBe("some-url [ view ]");
+      expect(material.displayName()).toBe("name");
+
+      material.attributes().name(undefined);
+      expect(material.displayName()).toBe("some-url");
     });
 
-    it('should show url as display name for tfs', () => {
+    it('should show name or url as display name for tfs', () => {
       const material = new MaterialWithFingerprint("tfs", "fingerprint", new TfsMaterialAttributes("name", false, "some-url", "domain", "view"));
+      expect(material.displayName()).toBe("name");
+
+      material.attributes().name(undefined);
       expect(material.displayName()).toBe("some-url");
     });
 
@@ -255,9 +287,51 @@ describe('MaterialWithFingerPrintSpec', () => {
       expect(material.displayName()).toBe("scm-name");
     });
   });
+
+  describe('AttributesAsStringSpec', () => {
+    it('should show name or url and branch for attributes as string for git', () => {
+      const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("", false, "some-url", "master"));
+      expect(material.attributesAsString()).toBe("some-url [ master ]");
+    });
+
+    it('should show url and branch for attributes as string for hg', () => {
+      const material = new MaterialWithFingerprint("hg", "fingerprint", new HgMaterialAttributes("", false, "some-url", "branch"));
+      expect(material.attributesAsString()).toBe("some-url [ branch ]");
+    });
+
+    it('should show only url for attributes as string for hg when branch is not set', () => {
+      const material = new MaterialWithFingerprint("hg", "fingerprint", new HgMaterialAttributes("", false, "some-url"));
+      expect(material.attributesAsString()).toBe("some-url");
+    });
+
+    it('should show url for attributes as string for svn', () => {
+      const material = new MaterialWithFingerprint("svn", "fingerprint", new SvnMaterialAttributes("", false, "some-url"));
+      expect(material.attributesAsString()).toBe("some-url");
+    });
+
+    it('should show port and view for attributes as string for p4', () => {
+      const material = new MaterialWithFingerprint("p4", "fingerprint", new P4MaterialAttributes("", false, "some-url", false, "view"));
+      expect(material.attributesAsString()).toBe("some-url [ view ]");
+    });
+
+    it('should show url for attributes as string for tfs', () => {
+      const material = new MaterialWithFingerprint("tfs", "fingerprint", new TfsMaterialAttributes("", false, "some-url", "domain", "view"));
+      expect(material.attributesAsString()).toBe("some-url");
+    });
+
+    it('should show repo and package name for attributes as string for package', () => {
+      const material = new MaterialWithFingerprint("package", "fingerprint", new PackageMaterialAttributes(undefined, true, "some-ref", "package_name", "pkg-repo-name"));
+      expect(material.attributesAsString()).toBe("pkg-repo-name_package_name");
+    });
+
+    it('should show scm name for attributes as string for plugin', () => {
+      const material = new MaterialWithFingerprint("plugin", "fingerprint", new PluggableScmMaterialAttributes(undefined, true, "some-ref", "scm-name"));
+      expect(material.attributesAsString()).toBe("scm-name");
+    });
+  });
 });
 
-describe('MaterialsWithModificationsSpec', () => {
+describe('MaterialsSpec', () => {
   it('should sort based on type', () => {
     const materials = new Materials();
     materials.push(new MaterialWithModification(new MaterialWithFingerprint("git", "some", new GitMaterialAttributes()), null));
@@ -277,5 +351,36 @@ describe('MaterialsWithModificationsSpec', () => {
     expect(materials[4].config.type()).toBe('plugin');
     expect(materials[5].config.type()).toBe('svn');
     expect(materials[6].config.type()).toBe('tfs');
+  });
+});
+
+describe('MaterialsWithModificationSpec', () => {
+  it('should return true if search string matches name, type or display url of the config', () => {
+    const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("some-name", false, "http://svn.com/gocd/gocd", "master"));
+    const withMod  = new MaterialWithModification(material, null);
+
+    expect(withMod.matches("git")).toBeTrue();
+    expect(withMod.matches("name")).toBeTrue();
+    expect(withMod.matches("gocd")).toBeTrue();
+    expect(withMod.matches("mas")).toBeTrue();
+    expect(withMod.matches("abc")).toBeFalse();
+  });
+
+  it('should return true if search string matches username, revision or comment for the latest modification', () => {
+    const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("", false, "some-url", "master"));
+    const withMod  = new MaterialWithModification(material, new MaterialModification("username", "email_address", "some-revision", "a very very long comment with abc", ""));
+
+    expect(withMod.matches("revision")).toBeTrue();
+    expect(withMod.matches("comment")).toBeTrue();
+    expect(withMod.matches("name")).toBeTrue();
+    expect(withMod.matches("abc")).toBeTrue();
+    expect(withMod.matches("123")).toBeFalse();
+  });
+
+  it('should return type as config.type', () => {
+    const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("some-name", false, "http://svn.com/gocd/gocd", "master"));
+    const withMod  = new MaterialWithModification(material, null);
+
+    expect(withMod.type()).toBe(material.type());
   });
 });

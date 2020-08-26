@@ -25,10 +25,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 class UsagesRepresenterTest {
   @Test
   void 'should represent usages'() {
-    def usages = new HashMap<>()
-    usages.put("grp", ["pipeline1", "pipeline2"])
-
-    def actualJson = toObjectString({ UsagesRepresenter.toJSON(it, "fingerprint", usages) })
+    def actualJson = toObjectString({ UsagesRepresenter.toJSON(it, "fingerprint", ["pipeline1", "pipeline2"]) })
 
     def expectedJson = [
       _links: [
@@ -39,12 +36,7 @@ class UsagesRepresenterTest {
           href: apiDocsUrl("#materials")
         ]
       ],
-      usages: [
-        [
-          group   : "grp",
-          pipelines: ["pipeline1", "pipeline2"]
-        ]
-      ]
+      usages: ["pipeline1", "pipeline2"]
     ]
 
     assertThatJson(actualJson).isEqualTo(expectedJson)
@@ -53,7 +45,7 @@ class UsagesRepresenterTest {
   @Test
   void 'should represent empty usages as well'() {
     def actualJson = toObjectString({
-      UsagesRepresenter.toJSON(it, "fingerprint", new HashMap<String, List<String>>())
+      UsagesRepresenter.toJSON(it, "fingerprint", [])
     })
 
     def expectedJson = [

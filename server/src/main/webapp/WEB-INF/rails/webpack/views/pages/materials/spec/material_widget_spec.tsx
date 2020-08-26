@@ -17,21 +17,16 @@
 import {timeFormatter} from "helpers/time_formatter";
 import m from "mithril";
 import {MaterialModification} from "models/config_repos/types";
-import {
-  MaterialWithFingerprint,
-  MaterialWithModification,
-  PackageMaterialAttributes,
-  PluggableScmMaterialAttributes
-} from "models/materials/materials";
+import {MaterialWithFingerprint, MaterialWithModification, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialWidget} from "../material_widget";
-import {MaterialVM} from "../models/material_view_model";
 import {git} from "./materials_widget_spec";
 
 describe('MaterialWidgetSpec', () => {
   const helper     = new TestHelper();
   const showModSpy = jasmine.createSpy("showModifications");
   const onEditSpy  = jasmine.createSpy("onEdit");
+  const showUsagesSpy = jasmine.createSpy("showUsages");
   let material: MaterialWithModification;
 
   afterEach((done) => helper.unmount(done));
@@ -206,7 +201,7 @@ describe('MaterialWidgetSpec', () => {
   });
 
   function mount(shouldShowPackageOrScmLink: boolean = true) {
-    helper.mount(() => <MaterialWidget materialVM={new MaterialVM(material)} shouldShowPackageOrScmLink={shouldShowPackageOrScmLink}
-                                       onEdit={onEditSpy} showModifications={showModSpy}/>);
+    helper.mount(() => <MaterialWidget material={material} shouldShowPackageOrScmLink={shouldShowPackageOrScmLink}
+                                       onEdit={onEditSpy} showModifications={showModSpy} showUsages={showUsagesSpy}/>);
   }
 });

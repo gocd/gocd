@@ -17,18 +17,11 @@
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {MaterialModification} from "models/config_repos/types";
-import {
-  MaterialWithFingerprint,
-  MaterialWithModification,
-  P4MaterialAttributes,
-  PackageMaterialAttributes,
-  PluggableScmMaterialAttributes
-} from "models/materials/materials";
+import {MaterialWithFingerprint, MaterialWithModification, P4MaterialAttributes, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
 import headerStyles from "views/pages/config_repos/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 import styles from "../index.scss";
 import {MaterialHeaderWidget} from "../material_header_widget";
-import {MaterialVM} from "../models/material_view_model";
 import {git} from "./materials_widget_spec";
 
 describe('MaterialHeaderWidgetSpec', () => {
@@ -45,14 +38,15 @@ describe('MaterialHeaderWidgetSpec', () => {
 
     expect(helper.byTestId("material-type")).toBeInDOM();
     expect(helper.textByTestId("material-type")).toBe('some-name');
-    expect(helper.textByTestId("material-display-name")).toBe(material.config.displayName()!);
+    expect(helper.textByTestId("material-display-name")).toBe('git@github.com:sample_repo/example.git [ master ]');
   });
 
-  it('should display the type if name is not provided', () => {
+  it('should display the name as attributes if name is not provided', () => {
     material.config.attributes().name(undefined);
     mount();
 
-    expect(helper.textByTestId("material-type")).toBe('Git');
+    expect(helper.textByTestId("material-type")).toBe('git@github.com:sample_repo/example.git');
+    expect(helper.textByTestId("material-display-name")).toBe('git@github.com:sample_repo/example.git [ master ]');
   });
 
   [
@@ -140,6 +134,6 @@ describe('MaterialHeaderWidgetSpec', () => {
   });
 
   function mount() {
-    helper.mount(() => <MaterialHeaderWidget materialVM={new MaterialVM(material)}/>);
+    helper.mount(() => <MaterialHeaderWidget material={material}/>);
   }
 });

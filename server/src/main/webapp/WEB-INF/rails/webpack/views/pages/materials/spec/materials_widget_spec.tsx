@@ -16,18 +16,17 @@
 import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {MaterialWithFingerprintJSON} from "models/materials/materials";
+import {Materials, MaterialWithFingerprintJSON} from "models/materials/materials";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialsWidget} from "../materials_widget";
-import {MaterialVMs} from "../models/material_view_model";
 
 describe('MaterialsWidgetSpec', () => {
   const helper = new TestHelper();
-  let materialVMs: MaterialVMs;
+  let materials: Materials;
 
   afterEach((done) => helper.unmount(done));
   beforeEach(() => {
-    materialVMs = new MaterialVMs();
+    materials = new Materials();
   });
 
   it('should display help text when no materials have been defined', () => {
@@ -45,8 +44,9 @@ describe('MaterialsWidgetSpec', () => {
   });
 
   function mount() {
-    helper.mount(() => <MaterialsWidget materialVMs={Stream(materialVMs)} shouldShowPackageOrScmLink={false}
-                                        onEdit={jasmine.createSpy("onEdit")} showModifications={jasmine.createSpy("showModifications")}/>);
+    helper.mount(() => <MaterialsWidget materials={Stream(materials)} shouldShowPackageOrScmLink={false}
+                                        onEdit={jasmine.createSpy("onEdit")} showModifications={jasmine.createSpy("showModifications")}
+                                        showUsages={jasmine.createSpy("showUsages")}/>);
   }
 });
 

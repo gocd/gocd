@@ -21,12 +21,16 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {stringOrUndefined} from "models/compare/pipeline_instance_json";
 import {MaterialModification} from "models/config_repos/types";
-import {MaterialAPIs, MaterialModifications, MaterialWithFingerprint} from "models/materials/materials";
+import {MaterialAPIs, MaterialModifications, MaterialUsages, MaterialWithFingerprint} from "models/materials/materials";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
+import {HeaderPanel} from "views/components/header_panel";
 import {Link} from "views/components/link";
 import linkStyles from "views/components/link/index.scss";
-import {Modal, ModalState, Size} from "views/components/modal";
+import {Modal, Size} from "views/components/modal";
+import {Spinner} from "views/components/spinner";
+import {Table} from "views/components/table";
+import spinnerCss from "views/pages/agents/spinner.scss";
 import headerStyles from "views/pages/config_repos/index.scss";
 import styles from "./index.scss";
 import {MaterialWidget} from "./material_widget";
@@ -37,6 +41,7 @@ export class ShowModificationsModal extends Modal {
   private modifications: Stream<MaterialModifications> = Stream();
   private service: ApiService;
   private searchQuery: Stream<string>                  = Stream("");
+  private operationInProgress: Stream<boolean>         = Stream();
 
   constructor(material: MaterialWithFingerprint, service: ApiService = new FetchHistoryService()) {
     super(Size.large);
@@ -46,50 +51,66 @@ export class ShowModificationsModal extends Modal {
   }
 
   body(): m.Children {
-    const onPatternChange = () => {
-      if (_.isEmpty(this.searchQuery()) || this.searchQuery().length < 2) {
-        return;
-      }
-      _.throttle(() => this.fetchModifications(), 500, {trailing: true})();
-    };
-
+    const title     = `${this.material.typeForDisplay()} : ${this.material.displayName()}`;
     const searchBox = <div className={styles.searchBoxWrapper}>
-      <SearchField property={this.searchQuery} dataTestId={"search-box"}
-                   oninput={onPatternChange}
+      <SearchField property={this.searchQuery} dataTestId={"search-box"} name={"some-name"}
+                   oninput={this.onPatternChange.bind(this)}
                    placeholder="Search in revision, comment or username"/>
     </div>;
-    if (this.isLoading()) {
-      return <div>{searchBox}</div>;
-    }
+    const header    = <HeaderPanel title={title} buttons={searchBox}/>;
 
     if (this.errorMessage()) {
-      return <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>;
+      return <div data-test-id="modifications-modal" class={styles.modificationModal}>
+        {header}
+        <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
+      </div>;
     }
 
-    const onPageChange = (link: string) => {
-      this.fetchModifications(link);
-    };
+    if (this.operationInProgress() || this.isLoading()) {
+      return <div data-test-id="modifications-modal" class={styles.modificationModal}>
+        {header}
+        <div class={classnames(styles.modificationWrapper, styles.spinnerWrapper)}>
+          <Spinner css={spinnerCss}/>
+        </div>
+      </div>;
+    }
+
+    if (_.isEmpty(this.modifications())) {
+      const msg = _.isEmpty(this.searchQuery())
+        ? "This material has not been parsed yet!"
+        : <span>No modifications found for query: <i>{this.searchQuery()}</i></span>;
+      return <div data-test-id="modifications-modal"
+                  className={styles.modificationModal}>
+        {header}
+        <div className={styles.modificationWrapper}>
+          {msg}
+        </div>
+      </div>;
+    }
+
     return <div data-test-id="modifications-modal" class={styles.modificationModal}>
-      {searchBox}
-      {this.modifications().map((mod, index) => {
-        const details = MaterialWidget.showModificationDetails(mod);
-        ShowModificationsModal.updateWithVsmLink(details, mod, this.material.fingerprint());
-        return <div data-test-id={`modification-${index}`} class={styles.modification}>
-          <div data-test-id="modification-comment" class={headerStyles.comment}>{details.get("Comment")}</div>
-          <div data-test-id="committer-info">
+      {header}
+      <div class={styles.modificationWrapper}>
+        {this.modifications().map((mod, index) => {
+          const details = MaterialWidget.showModificationDetails(mod);
+          ShowModificationsModal.updateWithVsmLink(details, mod, this.material.fingerprint());
+          return <div data-test-id={`modification-${index}`} class={styles.modification}>
+            <div data-test-id="modification-comment" class={headerStyles.comment}>{details.get("Comment")}</div>
+            <div data-test-id="committer-info">
             <span class={headerStyles.committer}>
               By {details.get("Username")} on {details.get("Modified Time")}
             </span> | {details.get("Revision")}
-          </div>
-        </div>;
-      })}
+            </div>
+          </div>;
+        })}
+      </div>
       <PaginationWidget previousLink={this.modifications().previousLink} nextLink={this.modifications().nextLink}
-                        onPageChange={onPageChange}/>
+                        onPageChange={this.onPageChange.bind(this)}/>
     </div>;
   }
 
   title(): string {
-    return `Show Modifications for '${this.material.name() || this.material.displayName() || this.material.typeForDisplay()}'`;
+    return 'Modifications';
   }
 
   private static updateWithVsmLink(details: Map<string, m.Children>, mod: MaterialModification, fingerprint: string) {
@@ -98,17 +119,33 @@ export class ShowModificationsModal extends Modal {
     details.set("Revision", <span>{details.get("Revision")} | {vsmLink}</span>);
   }
 
+  private onPageChange(link: string) {
+    this.fetchModifications(link);
+  }
+
+  private onPatternChange() {
+    _.throttle(() => this.fetchModifications(), 500, {trailing: true})();
+  }
+
   private fetchModifications(link?: string) {
-    this.modalState = ModalState.LOADING;
+    this.operationInProgress(true);
     this.service.fetchHistory(this.material.fingerprint(), this.searchQuery(), link,
                               (mods) => {
                                 this.modifications(mods);
-                                this.modalState = ModalState.OK;
+                                this.operationInProgress(false);
+                                this.focusOnSearchBox();
                               },
                               (errMsg) => {
                                 this.errorMessage(errMsg);
-                                this.modalState = ModalState.OK;
+                                this.operationInProgress(false);
                               });
+
+  }
+
+  private focusOnSearchBox() {
+    if (!_.isEmpty(this.searchQuery())) {
+      document.getElementsByTagName('input')[1].focus();
+    }
   }
 }
 
@@ -169,4 +206,38 @@ class FetchHistoryService implements ApiService {
     });
   }
 
+}
+
+export class ShowUsagesModal extends Modal {
+  private usages: MaterialUsages;
+  private readonly name: string;
+
+  constructor(material: MaterialWithFingerprint, usages: MaterialUsages) {
+    super();
+    this.usages = usages;
+    this.name   = material.displayName();
+  }
+
+  title(): string {
+    return 'Usages';
+  }
+
+  body(): m.Children {
+    if (this.usages.length <= 0) {
+      return (<i> No usages for material '{this.name}' found.</i>);
+    }
+
+    const data: m.Child[][] = [];
+    data.push(...this.usages
+                     .map((pipeline: string, index) => {
+                       return [
+                         <span>{pipeline}</span>,
+                         <Link href={SparkRoutes.pipelineEditPath('pipelines', pipeline, 'materials')} target={"_blank"}
+                               dataTestId={`material-link-${index}`}>View/Edit Material</Link>
+                       ];
+                     }));
+    return <div class={styles.usages}>
+      <Table headers={["Pipeline", "Material Setting"]} data={data}/>
+    </div>;
+  }
 }

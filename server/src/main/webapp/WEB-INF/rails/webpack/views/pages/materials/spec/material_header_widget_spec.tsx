@@ -46,7 +46,7 @@ describe('MaterialHeaderWidgetSpec', () => {
     mount();
 
     expect(helper.textByTestId("material-type")).toBe('git@github.com:sample_repo/example.git');
-    expect(helper.textByTestId("material-display-name")).toBe('');
+    expect(helper.textByTestId("material-display-name")).toBe('git@github.com:sample_repo/example.git [ master ]');
   });
 
   [

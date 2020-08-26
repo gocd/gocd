@@ -25,7 +25,6 @@ import {MaterialAPIs, MaterialModifications, MaterialUsages, MaterialWithFingerp
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
-import {Edit} from "views/components/icons";
 import {Link} from "views/components/link";
 import linkStyles from "views/components/link/index.scss";
 import {Modal, Size} from "views/components/modal";
@@ -214,7 +213,7 @@ export class ShowUsagesModal extends Modal {
   private readonly name: string;
 
   constructor(material: MaterialWithFingerprint, usages: MaterialUsages) {
-    super(Size.small);
+    super();
     this.usages = usages;
     this.name   = material.displayName();
   }
@@ -233,11 +232,8 @@ export class ShowUsagesModal extends Modal {
                      .map((pipeline: string, index) => {
                        return [
                          <span>{pipeline}</span>,
-                         <Edit data-test-id={`material-link-${index}`} title={"Pipeline Material Setting"} iconOnly={true}
-                               onclick={(e: MouseEvent) => {
-                                 e.stopPropagation();
-                                 window.open(SparkRoutes.pipelineEditPath('pipelines', pipeline, 'materials'));
-                               }}/>
+                         <Link href={SparkRoutes.pipelineEditPath('pipelines', pipeline, 'materials')} target={"_blank"}
+                               dataTestId={`material-link-${index}`}>View/Edit Material</Link>
                        ];
                      }));
     return <div class={styles.usages}>

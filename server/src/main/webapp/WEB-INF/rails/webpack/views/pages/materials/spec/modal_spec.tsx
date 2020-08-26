@@ -227,6 +227,6 @@ describe('ShowUsagesSpec', () => {
     expect(helper.q('thead').textContent).toBe('PipelineMaterial Setting');
     expect(helper.qa('td').length).toBe(2);
     expect(helper.qa('td')[0].textContent).toBe('pipeline1');
-    expect(helper.byTestId('material-link-0')).toHaveAttr('title', 'Pipeline Material Setting');
+    expect(helper.byTestId('material-link-0')).toHaveAttr('href', '/go/admin/pipelines/pipeline1/edit#!pipeline1/materials');
   });
 });

@@ -23,9 +23,9 @@ import {MaterialWidget} from "../material_widget";
 import {git} from "./materials_widget_spec";
 
 describe('MaterialWidgetSpec', () => {
-  const helper     = new TestHelper();
-  const showModSpy = jasmine.createSpy("showModifications");
-  const onEditSpy  = jasmine.createSpy("onEdit");
+  const helper        = new TestHelper();
+  const showModSpy    = jasmine.createSpy("showModifications");
+  const onEditSpy     = jasmine.createSpy("onEdit");
   const showUsagesSpy = jasmine.createSpy("showUsages");
   let material: MaterialWithModification;
 
@@ -198,6 +198,22 @@ describe('MaterialWidgetSpec', () => {
     helper.clickByTestId("ellipse-action-more");
 
     expect(attrs[3].textContent).toBe("CommentA very long comment to be shown as part of the panel body.\n Which should be trimmed and rest part should not be shown by default. less");
+  });
+
+  it('should render only the first line even if the length is less than min length', () => {
+    material.modification
+      = new MaterialModification("GoCD Test User <devnull@example.com>", null, "b9b4f4b758e91117d70121a365ba0f8e37f89a9d", "A very small comment\n total length < 80 ", "2019-12-23T10:25:52Z");
+    mount();
+
+    const attrs = helper.qa('li', helper.byTestId('latest-modification-details'));
+
+    expect(attrs.length).toBe(5);
+    expect(attrs[3].textContent).toBe("CommentA very small comment...more");
+
+    expect(helper.byTestId("ellipse-action-more", attrs[3])).toBeInDOM();
+    helper.clickByTestId("ellipse-action-more");
+
+    expect(attrs[3].textContent).toBe("CommentA very small comment\n total length < 80 less");
   });
 
   function mount(shouldShowPackageOrScmLink: boolean = true) {

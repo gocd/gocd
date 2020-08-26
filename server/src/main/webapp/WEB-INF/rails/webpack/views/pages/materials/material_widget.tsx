@@ -20,12 +20,7 @@ import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {MaterialModification} from "models/config_repos/types";
-import {
-  MaterialWithFingerprint,
-  MaterialWithModification,
-  PackageMaterialAttributes,
-  PluggableScmMaterialAttributes
-} from "models/materials/materials";
+import {MaterialWithFingerprint, MaterialWithModification, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Edit, IconGroup, List, Usage} from "views/components/icons";
@@ -141,7 +136,7 @@ class EllipseText extends MithrilComponent<EllipseAttrs, EllipseState> {
 
   view(vnode: m.Vnode<EllipseAttrs, EllipseState>): m.Children | void | null {
     const charactersToShow = Math.min(this.getCharCountToShow(vnode), vnode.attrs.text.length);
-    if (vnode.attrs.text.length <= EllipseText.MIN_CHAR_COUNT) {
+    if (this.shouldRenderWithoutEllipse(vnode)) {
       return <span>{vnode.attrs.text}</span>;
     }
     return <span class={styles.ellipseWrapper}
@@ -162,5 +157,9 @@ class EllipseText extends MithrilComponent<EllipseAttrs, EllipseState> {
 
   private getCharCountToShow(vnode: m.Vnode<EllipseAttrs, EllipseState>) {
     return (vnode.attrs.text.includes('\n') ? vnode.attrs.text.indexOf('\n') : EllipseText.MIN_CHAR_COUNT);
+  }
+
+  private shouldRenderWithoutEllipse(vnode: m.Vnode<EllipseAttrs, EllipseState>) {
+    return vnode.attrs.text.length <= EllipseText.MIN_CHAR_COUNT && !vnode.attrs.text.includes('\n');
   }
 }

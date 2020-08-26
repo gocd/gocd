@@ -31,7 +31,6 @@ import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import {Table} from "views/components/table";
 import spinnerCss from "views/pages/agents/spinner.scss";
-import headerStyles from "views/pages/config_repos/index.scss";
 import styles from "./index.scss";
 import {MaterialWidget} from "./material_widget";
 
@@ -79,10 +78,9 @@ export class ShowModificationsModal extends Modal {
       const msg = _.isEmpty(this.searchQuery())
         ? "This material has not been parsed yet!"
         : <span>No modifications found for query: <i>{this.searchQuery()}</i></span>;
-      return <div data-test-id="modifications-modal"
-                  className={styles.modificationModal}>
+      return <div data-test-id="modifications-modal" class={styles.modificationModal}>
         {header}
-        <div className={styles.modificationWrapper}>
+        <div class={styles.modificationWrapper}>
           {msg}
         </div>
       </div>;
@@ -94,13 +92,13 @@ export class ShowModificationsModal extends Modal {
         {this.modifications().map((mod, index) => {
           const details = MaterialWidget.showModificationDetails(mod);
           ShowModificationsModal.updateWithVsmLink(details, mod, this.material.fingerprint());
-          return <div data-test-id={`modification-${index}`} class={styles.modification}>
-            <div data-test-id="modification-comment" class={headerStyles.comment}>{details.get("Comment")}</div>
-            <div data-test-id="committer-info">
-            <span class={headerStyles.committer}>
-              By {details.get("Username")} on {details.get("Modified Time")}
-            </span> | {details.get("Revision")}
+          return <div data-test-id={`mod-${index}`} class={styles.modification}>
+            <div class={styles.user}>
+              <div class={styles.username} data-test-id="mod-username">{details.get("Username")}</div>
+              <div class={styles.username} data-test-id="mod-modified-time">{details.get("Modified Time")}</div>
             </div>
+            <div class={styles.comment} data-test-id="mod-comment">{details.get("Comment")}</div>
+            <div class={styles.rev} data-test-id="mod-rev">{details.get("Revision")}</div>
           </div>;
         })}
       </div>
@@ -116,7 +114,7 @@ export class ShowModificationsModal extends Modal {
   private static updateWithVsmLink(details: Map<string, m.Children>, mod: MaterialModification, fingerprint: string) {
     const vsmLink = <Link dataTestId={"vsm-link"} href={SparkRoutes.materialsVsmLink(fingerprint, mod.revision)}
                           title={"Value Stream Map"}>VSM</Link>;
-    details.set("Revision", <span>{details.get("Revision")} | {vsmLink}</span>);
+    details.set("Revision", <div><span class={styles.revision}>{details.get("Revision")} </span>| {vsmLink}</div>);
   }
 
   private onPageChange(link: string) {

@@ -97,7 +97,7 @@ export class ShowModificationsModal extends Modal {
               <div class={styles.username} data-test-id="mod-username">{details.get("Username")}</div>
               <div class={styles.username} data-test-id="mod-modified-time">{details.get("Modified Time")}</div>
             </div>
-            <div class={styles.comment} data-test-id="mod-comment">{details.get("Comment")}</div>
+            <div class={styles.commentWrapper} data-test-id="mod-comment">{details.get("Comment")}</div>
             <div class={styles.rev} data-test-id="mod-rev">{details.get("Revision")}</div>
           </div>;
         })}

@@ -155,26 +155,6 @@ describe('ShowModificationsModalSpec', () => {
     helper.click(helper.q("a[title='Next']", pageDiv));
     expect(spy.calls.mostRecent().args).toEqual([material.fingerprint(), "some-link"]);
   });
-
-  it('should truncate comment if it exceeds the limit', () => {
-    materialMods.push(new MaterialModification("GoCD Test User <devnull@example.com>", null, "b9b4f4b758e91117d70121a365ba0f8e37f89a9d", "A very long comment to be shown as part of the panel body which should be trimmed and rest part should not be shown by default. ", "2019-12-23T10:25:52Z"));
-    mount();
-
-    expect(helper.textByTestId('mod-comment')).toBe('A very long comment to be shown as part of the panel body which should be trimme...more');
-    helper.clickByTestId("ellipse-action-more");
-
-    expect(helper.textByTestId('mod-comment')).toBe('A very long comment to be shown as part of the panel body which should be trimmed and rest part should not be shown by default. less');
-  });
-
-  it('should render the first line in modification comment as truncated text', () => {
-    materialMods.push(new MaterialModification("GoCD Test User <devnull@example.com>", null, "b9b4f4b758e91117d70121a365ba0f8e37f89a9d", "A very long comment to be shown as part of the panel body.\n Which should be trimmed and rest part should not be shown by default.", "2019-12-23T10:25:52Z"));
-    mount();
-
-    expect(helper.textByTestId('mod-comment')).toBe('A very long comment to be shown as part of the panel body....more');
-    helper.clickByTestId("ellipse-action-more");
-
-    expect(helper.textByTestId('mod-comment')).toBe('A very long comment to be shown as part of the panel body.\n Which should be trimmed and rest part should not be shown by default.less');
-  });
 });
 
 class DummyService implements ApiService {

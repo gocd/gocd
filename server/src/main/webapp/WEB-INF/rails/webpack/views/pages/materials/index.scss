@@ -182,21 +182,8 @@ $button_color: #2d6ca2;
 }
 
 .comment {
-  white-space: pre-line;
-  max-height:  150px;
+  white-space: pre-wrap;
+  max-height:  160px;
   overflow-y:  scroll;
-
-  $scrollbar_color: rgba(0, 0, 0, 0.4);
-  $scrollbar_shadow_color: rgba(255, 255, 255, 0.5);
-
-  &::-webkit-scrollbar {
-    -webkit-appearance: none;
-    width:              7px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    border-radius:      5px;
-    background-color:   $scrollbar_color;
-    -webkit-box-shadow: 0 0 1px $scrollbar_shadow_color;
-  }
+  width:       100%;
 }

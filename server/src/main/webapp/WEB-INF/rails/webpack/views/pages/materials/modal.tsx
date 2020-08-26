@@ -15,7 +15,7 @@
  */
 import classnames from "classnames";
 import {SparkRoutes} from "helpers/spark_routes";
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -97,7 +97,9 @@ export class ShowModificationsModal extends Modal {
               <div class={styles.username} data-test-id="mod-username">{details.get("Username")}</div>
               <div class={styles.username} data-test-id="mod-modified-time">{details.get("Modified Time")}</div>
             </div>
-            <div class={styles.commentWrapper} data-test-id="mod-comment">{details.get("Comment")}</div>
+            <div class={styles.commentWrapper} data-test-id="mod-comment">
+              <EllipseText text={details.get("Comment")}/>
+            </div>
             <div class={styles.rev} data-test-id="mod-rev">{details.get("Revision")}</div>
           </div>;
         })}
@@ -237,5 +239,56 @@ export class ShowUsagesModal extends Modal {
     return <div class={styles.usages}>
       <Table headers={["Pipeline", "Material Setting"]} data={data}/>
     </div>;
+  }
+}
+
+interface EllipseAttrs {
+  text: string;
+}
+
+interface EllipseState {
+  expanded: Stream<boolean>;
+  setExpandedTo: (state: boolean, e: MouseEvent) => void;
+}
+
+class EllipseText extends MithrilComponent<EllipseAttrs, EllipseState> {
+  private static MIN_CHAR_COUNT = 80;
+
+  oninit(vnode: m.Vnode<EllipseAttrs, EllipseState>): any {
+    vnode.state.expanded = Stream();
+    vnode.state.expanded(false);
+
+    vnode.state.setExpandedTo = (state: boolean) => {
+      vnode.state.expanded(state);
+    };
+  }
+
+  view(vnode: m.Vnode<EllipseAttrs, EllipseState>): m.Children | void | null {
+    const charactersToShow = Math.min(this.getCharCountToShow(vnode), vnode.attrs.text.length);
+    if (this.shouldRenderWithoutEllipse(vnode)) {
+      return <span>{vnode.attrs.text}</span>;
+    }
+    return <span class={classnames(styles.ellipseWrapper, styles.comment)}
+                 data-test-id="ellipsized-content">
+      {vnode.state.expanded() ? vnode.attrs.text : EllipseText.getEllipsizedString(vnode, charactersToShow)}
+      {vnode.state.expanded() ? EllipseText.element(vnode, "less", false) : EllipseText.element(vnode, "more", true)}
+      </span>;
+  }
+
+  private static getEllipsizedString(vnode: m.Vnode<EllipseAttrs, EllipseState>, charactersToShow: number) {
+    return vnode.attrs.text.substr(0, charactersToShow).concat("...");
+  }
+
+  private static element(vnode: m.Vnode<EllipseAttrs, EllipseState>, text: string, state: boolean) {
+    return <span data-test-id={`ellipse-action-${text}`} class={styles.ellipsisActionButton}
+                 onclick={vnode.state.setExpandedTo.bind(this, state)}>{text}</span>;
+  }
+
+  private getCharCountToShow(vnode: m.Vnode<EllipseAttrs, EllipseState>) {
+    return (vnode.attrs.text.includes('\n') ? vnode.attrs.text.indexOf('\n') : EllipseText.MIN_CHAR_COUNT);
+  }
+
+  private shouldRenderWithoutEllipse(vnode: m.Vnode<EllipseAttrs, EllipseState>) {
+    return vnode.attrs.text.length <= EllipseText.MIN_CHAR_COUNT && !vnode.attrs.text.includes('\n');
   }
 }

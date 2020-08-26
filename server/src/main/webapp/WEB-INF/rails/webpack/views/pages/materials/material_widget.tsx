@@ -44,7 +44,7 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
     attrs.set("Username", modification.username);
     attrs.set("Email", modification.emailAddress);
     attrs.set("Revision", modification.revision);
-    attrs.set("Comment", <div class={styles.comment}>{modification.comment}</div>);
+    attrs.set("Comment", modification.comment);
     attrs.set("Modified Time", <span
       title={timeFormatter.formatInServerTime(modification.modifiedTime)}>{timeFormatter.format(modification.modifiedTime)}</span>);
 
@@ -52,11 +52,14 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
   }
 
   view(vnode: m.Vnode<MaterialWithInfoAttrs, this>): m.Children | void | null {
-    const material            = vnode.attrs.material;
-    const config              = material.config;
-    const modificationDetails = material.modification === null
-      ? <FlashMessage type={MessageType.info}>This material was never parsed</FlashMessage>
-      : <KeyValuePair data={MaterialWidget.showModificationDetails(material.modification)}/>;
+    const material          = vnode.attrs.material;
+    const config            = material.config;
+    let modificationDetails = <FlashMessage type={MessageType.info}>This material was never parsed</FlashMessage>;
+    if (material.modification !== null) {
+      const modDetails = MaterialWidget.showModificationDetails(material.modification);
+      modDetails.set('Comment', <div class={styles.comment}>{modDetails.get('Comment')}</div>);
+      modificationDetails = <KeyValuePair data={modDetails}/>;
+    }
 
     let maybeEditButton;
 

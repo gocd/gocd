@@ -16,16 +16,10 @@
 
 import {SparkRoutes} from "helpers/spark_routes";
 import {timeFormatter} from "helpers/time_formatter";
-import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import m from "mithril";
-import Stream from "mithril/stream";
 import {MaterialModification} from "models/config_repos/types";
-import {
-  MaterialWithFingerprint,
-  MaterialWithModification,
-  PackageMaterialAttributes,
-  PluggableScmMaterialAttributes
-} from "models/materials/materials";
+import {MaterialWithFingerprint, MaterialWithModification, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Edit, IconGroup, List, Usage} from "views/components/icons";
@@ -50,7 +44,7 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
     attrs.set("Username", modification.username);
     attrs.set("Email", modification.emailAddress);
     attrs.set("Revision", modification.revision);
-    attrs.set("Comment", <EllipseText text={modification.comment}/>);
+    attrs.set("Comment", modification.comment);
     attrs.set("Modified Time", <span
       title={timeFormatter.formatInServerTime(modification.modifiedTime)}>{timeFormatter.format(modification.modifiedTime)}</span>);
 
@@ -58,11 +52,14 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
   }
 
   view(vnode: m.Vnode<MaterialWithInfoAttrs, this>): m.Children | void | null {
-    const material            = vnode.attrs.material;
-    const config              = material.config;
-    const modificationDetails = material.modification === null
-      ? <FlashMessage type={MessageType.info}>This material was never parsed</FlashMessage>
-      : <KeyValuePair data={MaterialWidget.showModificationDetails(material.modification)}/>;
+    const material          = vnode.attrs.material;
+    const config            = material.config;
+    let modificationDetails = <FlashMessage type={MessageType.info}>This material was never parsed</FlashMessage>;
+    if (material.modification !== null) {
+      const modDetails = MaterialWidget.showModificationDetails(material.modification);
+      modDetails.set('Comment', <div class={styles.comment}>{modDetails.get('Comment')}</div>);
+      modificationDetails = <KeyValuePair data={modDetails}/>;
+    }
 
     let maybeEditButton;
 
@@ -115,52 +112,5 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
       map = material.attributesAsMap();
     }
     return map;
-  }
-}
-
-interface EllipseAttrs {
-  text: string;
-}
-
-interface EllipseState {
-  expanded: Stream<boolean>;
-  setExpandedTo: (state: boolean, e: MouseEvent) => void;
-}
-
-class EllipseText extends MithrilComponent<EllipseAttrs, EllipseState> {
-  private static MIN_CHAR_COUNT = 80;
-
-  oninit(vnode: m.Vnode<EllipseAttrs, EllipseState>): any {
-    vnode.state.expanded = Stream();
-    vnode.state.expanded(false);
-
-    vnode.state.setExpandedTo = (state: boolean) => {
-      vnode.state.expanded(state);
-    };
-  }
-
-  view(vnode: m.Vnode<EllipseAttrs, EllipseState>): m.Children | void | null {
-    const charactersToShow = Math.min(this.getCharCountToShow(vnode), vnode.attrs.text.length);
-    if (vnode.attrs.text.length <= EllipseText.MIN_CHAR_COUNT) {
-      return <span>{vnode.attrs.text}</span>;
-    }
-    return <span class={styles.ellipseWrapper}
-                 data-test-id="ellipsized-content">
-      {vnode.state.expanded() ? vnode.attrs.text : EllipseText.getEllipsizedString(vnode, charactersToShow)}
-      {vnode.state.expanded() ? EllipseText.element(vnode, "less", false) : EllipseText.element(vnode, "more", true)}
-      </span>;
-  }
-
-  private static getEllipsizedString(vnode: m.Vnode<EllipseAttrs, EllipseState>, charactersToShow: number) {
-    return vnode.attrs.text.substr(0, charactersToShow).concat("...");
-  }
-
-  private static element(vnode: m.Vnode<EllipseAttrs, EllipseState>, text: string, state: boolean) {
-    return <span data-test-id={`ellipse-action-${text}`} class={styles.ellipsisActionButton}
-                 onclick={vnode.state.setExpandedTo.bind(this, state)}>{text}</span>;
-  }
-
-  private getCharCountToShow(vnode: m.Vnode<EllipseAttrs, EllipseState>) {
-    return (vnode.attrs.text.includes('\n') ? vnode.attrs.text.indexOf('\n') : EllipseText.MIN_CHAR_COUNT);
   }
 }

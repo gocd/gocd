@@ -15,7 +15,7 @@
  */
 import classnames from "classnames";
 import {SparkRoutes} from "helpers/spark_routes";
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -31,7 +31,6 @@ import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import {Table} from "views/components/table";
 import spinnerCss from "views/pages/agents/spinner.scss";
-import headerStyles from "views/pages/config_repos/index.scss";
 import styles from "./index.scss";
 import {MaterialWidget} from "./material_widget";
 
@@ -79,10 +78,9 @@ export class ShowModificationsModal extends Modal {
       const msg = _.isEmpty(this.searchQuery())
         ? "This material has not been parsed yet!"
         : <span>No modifications found for query: <i>{this.searchQuery()}</i></span>;
-      return <div data-test-id="modifications-modal"
-                  className={styles.modificationModal}>
+      return <div data-test-id="modifications-modal" class={styles.modificationModal}>
         {header}
-        <div className={styles.modificationWrapper}>
+        <div class={styles.modificationWrapper}>
           {msg}
         </div>
       </div>;
@@ -94,13 +92,15 @@ export class ShowModificationsModal extends Modal {
         {this.modifications().map((mod, index) => {
           const details = MaterialWidget.showModificationDetails(mod);
           ShowModificationsModal.updateWithVsmLink(details, mod, this.material.fingerprint());
-          return <div data-test-id={`modification-${index}`} class={styles.modification}>
-            <div data-test-id="modification-comment" class={headerStyles.comment}>{details.get("Comment")}</div>
-            <div data-test-id="committer-info">
-            <span class={headerStyles.committer}>
-              By {details.get("Username")} on {details.get("Modified Time")}
-            </span> | {details.get("Revision")}
+          return <div data-test-id={`mod-${index}`} class={styles.modification}>
+            <div class={styles.user}>
+              <div class={styles.username} data-test-id="mod-username">{details.get("Username")}</div>
+              <div class={styles.username} data-test-id="mod-modified-time">{details.get("Modified Time")}</div>
             </div>
+            <div class={styles.commentWrapper} data-test-id="mod-comment">
+              <EllipseText text={details.get("Comment")}/>
+            </div>
+            <div class={styles.rev} data-test-id="mod-rev">{details.get("Revision")}</div>
           </div>;
         })}
       </div>
@@ -116,7 +116,7 @@ export class ShowModificationsModal extends Modal {
   private static updateWithVsmLink(details: Map<string, m.Children>, mod: MaterialModification, fingerprint: string) {
     const vsmLink = <Link dataTestId={"vsm-link"} href={SparkRoutes.materialsVsmLink(fingerprint, mod.revision)}
                           title={"Value Stream Map"}>VSM</Link>;
-    details.set("Revision", <span>{details.get("Revision")} | {vsmLink}</span>);
+    details.set("Revision", <div><span class={styles.revision}>{details.get("Revision")} </span>| {vsmLink}</div>);
   }
 
   private onPageChange(link: string) {
@@ -239,5 +239,56 @@ export class ShowUsagesModal extends Modal {
     return <div class={styles.usages}>
       <Table headers={["Pipeline", "Material Setting"]} data={data}/>
     </div>;
+  }
+}
+
+interface EllipseAttrs {
+  text: string;
+}
+
+interface EllipseState {
+  expanded: Stream<boolean>;
+  setExpandedTo: (state: boolean, e: MouseEvent) => void;
+}
+
+class EllipseText extends MithrilComponent<EllipseAttrs, EllipseState> {
+  private static MIN_CHAR_COUNT = 80;
+
+  oninit(vnode: m.Vnode<EllipseAttrs, EllipseState>): any {
+    vnode.state.expanded = Stream();
+    vnode.state.expanded(false);
+
+    vnode.state.setExpandedTo = (state: boolean) => {
+      vnode.state.expanded(state);
+    };
+  }
+
+  view(vnode: m.Vnode<EllipseAttrs, EllipseState>): m.Children | void | null {
+    const charactersToShow = Math.min(this.getCharCountToShow(vnode), vnode.attrs.text.length);
+    if (this.shouldRenderWithoutEllipse(vnode)) {
+      return <span>{vnode.attrs.text}</span>;
+    }
+    return <span class={classnames(styles.ellipseWrapper, styles.comment)}
+                 data-test-id="ellipsized-content">
+      {vnode.state.expanded() ? vnode.attrs.text : EllipseText.getEllipsizedString(vnode, charactersToShow)}
+      {vnode.state.expanded() ? EllipseText.element(vnode, "less", false) : EllipseText.element(vnode, "more", true)}
+      </span>;
+  }
+
+  private static getEllipsizedString(vnode: m.Vnode<EllipseAttrs, EllipseState>, charactersToShow: number) {
+    return vnode.attrs.text.substr(0, charactersToShow).concat("...");
+  }
+
+  private static element(vnode: m.Vnode<EllipseAttrs, EllipseState>, text: string, state: boolean) {
+    return <span data-test-id={`ellipse-action-${text}`} class={styles.ellipsisActionButton}
+                 onclick={vnode.state.setExpandedTo.bind(this, state)}>{text}</span>;
+  }
+
+  private getCharCountToShow(vnode: m.Vnode<EllipseAttrs, EllipseState>) {
+    return (vnode.attrs.text.includes('\n') ? vnode.attrs.text.indexOf('\n') : EllipseText.MIN_CHAR_COUNT);
+  }
+
+  private shouldRenderWithoutEllipse(vnode: m.Vnode<EllipseAttrs, EllipseState>) {
+    return vnode.attrs.text.length <= EllipseText.MIN_CHAR_COUNT && !vnode.attrs.text.includes('\n');
   }
 }

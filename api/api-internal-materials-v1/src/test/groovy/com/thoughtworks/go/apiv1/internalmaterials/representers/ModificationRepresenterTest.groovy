@@ -16,22 +16,23 @@
 
 package com.thoughtworks.go.apiv1.internalmaterials.representers
 
-import com.thoughtworks.go.helper.ModificationsMother
+import com.thoughtworks.go.domain.materials.Modification
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.ModificationsMother.TWO_DAYS_AGO_CHECKIN
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class ModificationRepresenterTest {
   @Test
   void 'should render modification'() {
-    def mod = ModificationsMother.withModifiedFileWhoseNameLengthIsOneK()
+    def mod = new Modification("", "Fixing the not checked in files", "foo@bar.com", TWO_DAYS_AGO_CHECKIN, "rev_1")
 
     def actualJson = toObjectString({ ModificationRepresenter.toJSON(it, mod) })
 
     def expectedJson = [
-      "username"     : "lgao",
+      "username"     : "anonymous",
       "email_address": "foo@bar.com",
       "revision"     : mod.revision,
       "modified_time": jsonDate(mod.modifiedTime),

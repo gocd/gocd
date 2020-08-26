@@ -83,6 +83,26 @@ $button_color: #2d6ca2;
   margin-bottom:    10px;
   border:           1px solid $line-color;
   border-radius:    3px;
+
+  display:          flex;
+  justify-content:  space-between;
+  width:            100%;
+
+  .user {
+    width:           25%;
+    display:         flex;
+    flex-direction:  column;
+    justify-content: space-between;
+  }
+
+  .commentWrapper {
+    width:   55%;
+    padding: 0 5px;
+  }
+
+  .rev {
+    width: 15%;
+  }
 }
 
 .pagination {
@@ -144,4 +164,26 @@ $button_color: #2d6ca2;
 
 .modification-wrapper {
   margin-top: 30px;
+}
+
+.revision {
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  display:       inline-block;
+  max-width:     70%;
+  float:         left;
+}
+
+.username {
+  width:         100%;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
+}
+
+.comment {
+  white-space: pre-wrap;
+  max-height:  160px;
+  overflow-y:  scroll;
+  width:       100%;
 }

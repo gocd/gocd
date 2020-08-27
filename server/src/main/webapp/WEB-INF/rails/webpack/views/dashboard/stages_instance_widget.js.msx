@@ -128,6 +128,7 @@ export const StagesInstanceWidget = {
                                                stageName={stage.name}
                                                stageCounter={stage.counter}
                                                stages={stages}
+                                               templateName={vnode.attrs.pipeline.templateName}
                                                stageInstanceFromDashboard={stage}
                                                stageOverviewVM={vnode.attrs.stageOverview.model}
                                                stageStatus={stage.status}/>;

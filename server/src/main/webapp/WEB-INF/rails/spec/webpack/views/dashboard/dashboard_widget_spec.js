@@ -394,6 +394,10 @@ describe("Dashboard Widget", () => {
             "last_updated_timestamp": 1510299695473,
             "locked":                 false,
             "can_pause":              true,
+            "template_info": {
+              "is_using_template": false,
+              "template_name":     null
+            },
             "pause_info":             {
               "paused":       false,
               "paused_by":    null,
@@ -451,6 +455,10 @@ describe("Dashboard Widget", () => {
             "locked":                 true,
             "can_unlock":             true,
             "can_pause":              true,
+            "template_info": {
+              "is_using_template": false,
+              "template_name":     null
+            },
             "pause_info":             {
               "paused":       false,
               "paused_by":    null,

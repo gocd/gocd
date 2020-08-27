@@ -31,6 +31,7 @@ interface StageHeaderAttrs {
   pipelineCounter: string | number;
   stageInstanceFromDashboard: any;
   canAdminister: boolean;
+  templateName: string | undefined | null;
   flashMessage: FlashMessageModelWithTimeout;
   stageInstance: Stream<StageInstance>;
   inProgressStageFromPipeline: Stream<any | undefined>;
@@ -69,10 +70,14 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
                       type={vnode.attrs.flashMessage.type}/>);
     }
 
+    const stageSettingsUrl = vnode.attrs.templateName
+      ? `/go/admin/templates/${vnode.attrs.templateName}/edit#!${vnode.attrs.templateName}/${vnode.attrs.stageName}/stage_settings`
+      : `/go/admin/pipelines/${vnode.attrs.pipelineName}/edit#!${vnode.attrs.pipelineName}/${vnode.attrs.stageName}/stage_settings`;
+
     let stageSettings: m.Child;
     if (vnode.attrs.canAdminister) {
       stageSettings = (<div className={styles.stageSettings}>
-        <Icons.Settings iconOnly={true} onclick={() => window.open(stageSettingsUrl)}/>
+        <Icons.Settings iconOnly={true} data-test-url={stageSettingsUrl} onclick={() => window.open(stageSettingsUrl)}/>
       </div>);
     } else {
       const disabledEditMessage = `You dont have permissions to edit the stage.`;
@@ -83,8 +88,6 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
           class={`${styles.tooltipMessage} ${!vnode.state.isSettingsHover() && styles.hidden}`}>{disabledEditMessage}</span>
       </div>);
     }
-
-    const stageSettingsUrl = `/go/admin/pipelines/${vnode.attrs.pipelineName}/edit#!${vnode.attrs.pipelineName}/${vnode.attrs.stageName}/stage_settings`;
 
     return <div data-test-id="stage-overview-header" class={styles.stageHeaderContainer}>
       {optionalFlashMessage}

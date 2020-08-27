@@ -78,6 +78,10 @@ class PipelineRepresenterTest {
         pause_reason: null,
         paused_at   : null
       ],
+      template_info: [
+        is_using_template: false,
+        template_name: null
+      ],
       can_operate           : false,
       can_administer        : false,
       can_unlock            : false,
@@ -216,6 +220,10 @@ class PipelineRepresenterTest {
         paused_by   : null,
         pause_reason: null,
         paused_at   : null
+      ],
+      template_info: [
+        is_using_template: false,
+        template_name: null
       ],
       can_operate           : false,
       can_administer        : false,

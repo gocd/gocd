@@ -41,6 +41,7 @@ public class PipelineRepresenter {
                 .add("last_updated_timestamp", model.getLastUpdatedTimeStamp())
                 .add("locked", model.model().getLatestPipelineInstance().isCurrentlyLocked())
                 .addChild("pause_info", getPauseInfoNEW(model))
+                .addChild("template_info", getTemplateInfo(model))
                 .add("can_operate", model.isPipelineOperator(usernameString))
                 .add("can_administer", model.canBeAdministeredBy(usernameString))
                 .add("can_unlock", model.canBeOperatedBy(usernameString))
@@ -86,6 +87,13 @@ public class PipelineRepresenter {
             writer.add("paused_by", StringUtils.isBlank(pausedInfo.getPauseBy()) ? null : pausedInfo.getPauseBy());
             writer.add("pause_reason", StringUtils.isBlank(pausedInfo.getPauseCause()) ? null : pausedInfo.getPauseCause());
             writer.add("paused_at", pausedInfo.getPausedAt());
+        };
+    }
+
+    private static Consumer<OutputWriter> getTemplateInfo(GoDashboardPipeline model) {
+        return writer -> {
+            writer.add("is_using_template", model.isUsingTemplate());
+            writer.add("template_name", model.getTemplateName());
         };
     }
 

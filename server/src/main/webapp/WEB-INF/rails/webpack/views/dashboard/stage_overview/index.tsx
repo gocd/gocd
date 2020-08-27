@@ -32,6 +32,7 @@ export interface Attrs {
   stageCounter: string | number;
   stageStatus: StageState | string;
   stages: any[];
+  templateName: string | undefined | null;
   canAdminister: boolean;
   stageInstanceFromDashboard: any;
   stageOverviewVM: Stream<StageOverviewViewModel | undefined>;
@@ -119,6 +120,7 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
                          stageCounter={vnode.attrs.stageCounter}
                          pipelineName={vnode.attrs.pipelineName}
                          pipelineCounter={vnode.attrs.pipelineCounter}
+                         templateName={vnode.attrs.templateName}
                          stageInstanceFromDashboard={vnode.attrs.stageInstanceFromDashboard}
                          inProgressStageFromPipeline={inProgressStageFromPipeline}
                          flashMessage={vnode.attrs.stageOverviewVM()!.flashMessage}

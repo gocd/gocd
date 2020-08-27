@@ -62,6 +62,7 @@ describe("Stage Overview Widget", () => {
                             pipelineCounter={pipelineCounter}
                             canAdminister={false}
                             stages={[]}
+                            templateName={undefined}
                             stageName={stageName}
                             stageCounter={stageCounter}
                             stageInstanceFromDashboard={stageInstanceFromDashboard}

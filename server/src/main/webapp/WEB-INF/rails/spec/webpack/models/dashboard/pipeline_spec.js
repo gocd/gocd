@@ -98,6 +98,16 @@ describe("Dashboard", () => {
       expect(instanceCounters).toEqual([1]);
     });
 
+    it("should answer whether pipeline is defined using template", () => {
+      const pipeline         = new Pipeline(pipelineJson);
+      expect(pipeline.isUsingTemplate).toEqual(true);
+    });
+
+    it("should return template name", () => {
+      const pipeline         = new Pipeline(pipelineJson);
+      expect(pipeline.templateName).toEqual("build-project");
+    });
+
     it("should return the trigger tooltip text when first stage is building", () => {
       pipelineJson.pause_info.paused                                 = false;
       pipelineJson._embedded.instances[0]._embedded.stages[0].status = "Building";
@@ -301,6 +311,10 @@ describe("Dashboard", () => {
       "locked":                   false,
       "can_unlock":               true,
       "pause_info":               pauseInfo,
+      "template_info": {
+        "is_using_template": true,
+        "template_name":     "build-project"
+      },
       "can_administer":           true,
       "can_operate":              canOperate,
       "can_pause":                canPause,

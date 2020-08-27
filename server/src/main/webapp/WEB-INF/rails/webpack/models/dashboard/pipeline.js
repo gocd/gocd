@@ -37,6 +37,8 @@ export const Pipeline = function (info) {
   this.pausedAt    = info.pause_info.paused_at;
   this.canPause    = info.can_pause;
 
+  this.isUsingTemplate = info.template_info.is_using_template;
+  this.templateName = info.template_info.template_name;
 
   this.isLocked  = info.locked;
   this.canUnlock = info.can_unlock;

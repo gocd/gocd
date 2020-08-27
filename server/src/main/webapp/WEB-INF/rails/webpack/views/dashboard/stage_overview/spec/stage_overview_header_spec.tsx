@@ -145,7 +145,20 @@ describe('Stage Overview Header', () => {
     expect(helper.byTestId('stage-overview-flash-message')).toBeInDOM();
   });
 
-  function mount() {
+  it('should link settings icon to pipelines page stage settings tab', () => {
+    const expectedUrl = "/go/admin/pipelines/up42/edit#!up42/up42_stage/stage_settings";
+    expect(helper.byTestId('Settings-icon').getAttribute('data-test-url')).toEqual(expectedUrl);
+  });
+
+  it('should link settings icon to templates page stage settings tab when pipeline is defined using template', () => {
+    helper.unmount();
+    mount("build-project");
+
+    const expectedUrl = "/go/admin/templates/build-project/edit#!build-project/up42_stage/stage_settings";
+    expect(helper.byTestId('Settings-icon').getAttribute('data-test-url')).toEqual(expectedUrl);
+  });
+
+  function mount(templateName?: string) {
     helper.mount(() => {
       const stageInstanceFromDashboard = {
         canOperate: true
@@ -156,6 +169,7 @@ describe('Stage Overview Header', () => {
                                 stageInstanceFromDashboard={stageInstanceFromDashboard}
                                 pipelineCounter={pipelineCounter}
                                 inProgressStageFromPipeline={Stream()}
+                                templateName={templateName}
                                 stageName={stageName}
                                 stageCounter={stageCounter}
                                 flashMessage={flashMessage}

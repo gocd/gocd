@@ -53,6 +53,10 @@ describe("Dashboard", () => {
           "paused_by":    null,
           "pause_reason": null
         },
+        "template_info": {
+          "is_using_template": false,
+          "template_name":     null
+        },
         "_embedded":              {
           "instances": [
             {

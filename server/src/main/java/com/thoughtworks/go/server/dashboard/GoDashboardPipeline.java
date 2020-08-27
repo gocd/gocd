@@ -153,4 +153,15 @@ public class GoDashboardPipeline {
         StageConfig stage = this.pipelineConfig.getStage(stageName);
         return stage != null && stage.getApproval().isAllowOnlyOnSuccess();
     }
+
+    public boolean isUsingTemplate() {
+        return this.pipelineConfig.hasTemplate();
+    }
+
+    public String getTemplateName() {
+        if (this.pipelineConfig.hasTemplate()) {
+            return this.pipelineConfig.getTemplateName().toString();
+        }
+        return null;
+    }
 }

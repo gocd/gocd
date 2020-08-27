@@ -31,7 +31,7 @@ describe('MaterialWidgetSpec', () => {
 
   afterEach((done) => helper.unmount(done));
   beforeEach(() => {
-    material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), null);
+    material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), true, null);
   });
 
   it('should display the header and action buttons', () => {
@@ -160,6 +160,14 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.qa('li', attrsElement).length).toBe(1);
     expect(helper.textByTestId('key-value-value-ref')).toBe("pkg-name");
     expect(helper.q('a', helper.byTestId('key-value-value-ref'))).not.toBeInDOM();
+  });
+
+  it('should display inprogress bar if material update is in progress', () => {
+    material.materialUpdateInProgress = true;
+    mount();
+
+    expect(helper.byTestId("material-update-in-progress")).toBeInDOM();
+    expect(helper.byTestId("material-update-in-progress")).toHaveClass(headerStyles.configRepoUpdateInProgress);
   });
 
   function mount(shouldShowPackageOrScmLink: boolean = true) {

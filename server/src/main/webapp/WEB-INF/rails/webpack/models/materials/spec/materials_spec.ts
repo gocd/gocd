@@ -39,6 +39,7 @@ describe('MaterialsAPISpec', () => {
       expect(material.config.fingerprint()).toBe('4879d548d34a4f3ba7ed4a532bc1b02');
 
       expect(material.config.attributes()).toBeInstanceOf(GitMaterialAttributes);
+      expect(material.materialUpdateInProgress).toBe(true);
 
       expect(material.modification).not.toBeNull();
       expect(material.modification!.modifiedTime).toBe("2019-12-23T10:25:52Z");
@@ -112,7 +113,7 @@ describe('MaterialsAPISpec', () => {
   function materialsResponse() {
     const data = {
       materials: [{
-        config:       {
+        config:                      {
           type:        "git",
           fingerprint: "4879d548d34a4f3ba7ed4a532bc1b02",
           attributes:  {
@@ -127,7 +128,8 @@ describe('MaterialsAPISpec', () => {
             shallow_clone:    false
           }
         },
-        modification: {
+        material_update_in_progress: true,
+        modification:                {
           username:      "GoCD test user",
           email_address: "gocd@test.com",
           revision:      "abcd1234",
@@ -334,13 +336,13 @@ describe('MaterialWithFingerPrintSpec', () => {
 describe('MaterialsSpec', () => {
   it('should sort based on type', () => {
     const materials = new Materials();
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("git", "some", new GitMaterialAttributes()), null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("hg", "some", new HgMaterialAttributes()), null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("svn", "some", new SvnMaterialAttributes()), null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("p4", "some", new P4MaterialAttributes()), null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("tfs", "some", new TfsMaterialAttributes()), null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("package", "some", new PackageMaterialAttributes()), null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("plugin", "some", new PluggableScmMaterialAttributes(undefined, undefined, "", "scm_name")), null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("git", "some", new GitMaterialAttributes()), false, null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("hg", "some", new HgMaterialAttributes()), false, null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("svn", "some", new SvnMaterialAttributes()), false, null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("p4", "some", new P4MaterialAttributes()), false, null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("tfs", "some", new TfsMaterialAttributes()), false, null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("package", "some", new PackageMaterialAttributes()), false, null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("plugin", "some", new PluggableScmMaterialAttributes(undefined, undefined, "", "scm_name")), false, null));
 
     materials.sortOnType();
 

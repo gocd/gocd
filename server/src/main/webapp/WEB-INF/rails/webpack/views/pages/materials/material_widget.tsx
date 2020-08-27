@@ -75,8 +75,12 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
             onclick={vnode.attrs.showModifications.bind(this, config)}/>
     </IconGroup>;
 
+    const inProgressIcon = material.materialUpdateInProgress
+      ? <span className={headerStyles.configRepoUpdateInProgress} data-test-id="material-update-in-progress"/>
+      : undefined;
+
     return <CollapsiblePanel header={<MaterialHeaderWidget {...vnode.attrs} />}
-                             actions={actionButtons}>
+                             actions={[inProgressIcon, actionButtons]}>
       <h3>Latest Modification Details</h3>
       <div data-test-id="latest-modification-details" className={headerStyles.configRepoProperties}>
         {modificationDetails}

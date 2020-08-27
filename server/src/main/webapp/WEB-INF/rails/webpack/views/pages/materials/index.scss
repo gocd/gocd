@@ -66,6 +66,12 @@ $button_color: #2d6ca2;
   }
 }
 
+.truncate {
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
+}
+
 .modification-modal {
   background-color: $primary-bg;
   // fill the whole modal

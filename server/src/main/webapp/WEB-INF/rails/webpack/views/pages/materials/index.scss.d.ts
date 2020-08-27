@@ -23,6 +23,7 @@ export const searchBoxWrapper: string;
 export const spinnerWrapper: string;
 export const subversion: string;
 export const tfs: string;
+export const truncate: string;
 export const unknown: string;
 export const usages: string;
 export const user: string;

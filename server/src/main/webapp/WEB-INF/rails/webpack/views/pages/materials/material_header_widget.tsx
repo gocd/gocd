@@ -36,7 +36,10 @@ export class MaterialHeaderWidget extends MithrilViewComponent<MaterialAttrs> {
     return [
       MaterialHeaderWidget.getIcon(material),
       <div className={headerStyles.headerTitle}>
-        <h4 data-test-id="material-type" className={headerStyles.headerTitleText}>{material.config.displayName()}</h4>
+        <h4 data-test-id="material-type" className={classnames(headerStyles.headerTitleText, styles.truncate)}
+            title={material.config.displayName()}>
+          {material.config.displayName()}
+        </h4>
         <span data-test-id="material-display-name" className={headerStyles.headerTitleUrl}>{material.config.attributesAsString()}</span>
       </div>,
       <div data-test-id="latest-mod-in-header">

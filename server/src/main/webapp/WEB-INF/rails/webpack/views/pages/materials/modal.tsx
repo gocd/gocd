@@ -98,7 +98,7 @@ export class ShowModificationsModal extends Modal {
               <div class={styles.username} data-test-id="mod-modified-time">{details.get("Modified Time")}</div>
             </div>
             <div class={styles.commentWrapper} data-test-id="mod-comment">
-              <EllipseText text={details.get("Comment")}/>
+              <CommentRenderer text={details.get("Comment")}/>
             </div>
             <div class={styles.rev} data-test-id="mod-rev">{details.get("Revision")}</div>
           </div>;
@@ -251,12 +251,11 @@ interface EllipseState {
   setExpandedTo: (state: boolean, e: MouseEvent) => void;
 }
 
-class EllipseText extends MithrilComponent<EllipseAttrs, EllipseState> {
-  private static MIN_CHAR_COUNT = 80;
+class CommentRenderer extends MithrilComponent<EllipseAttrs, EllipseState> {
+  private static MIN_CHAR_COUNT = 73;
 
   oninit(vnode: m.Vnode<EllipseAttrs, EllipseState>): any {
-    vnode.state.expanded = Stream();
-    vnode.state.expanded(false);
+    vnode.state.expanded = Stream<boolean>(false);
 
     vnode.state.setExpandedTo = (state: boolean) => {
       vnode.state.expanded(state);
@@ -270,8 +269,8 @@ class EllipseText extends MithrilComponent<EllipseAttrs, EllipseState> {
     }
     return <span class={classnames(styles.ellipseWrapper, styles.comment)}
                  data-test-id="ellipsized-content">
-      {vnode.state.expanded() ? vnode.attrs.text : EllipseText.getEllipsizedString(vnode, charactersToShow)}
-      {vnode.state.expanded() ? EllipseText.element(vnode, "less", false) : EllipseText.element(vnode, "more", true)}
+      {vnode.state.expanded() ? vnode.attrs.text : CommentRenderer.getEllipsizedString(vnode, charactersToShow)}
+      {vnode.state.expanded() ? CommentRenderer.element(vnode, "less", false) : CommentRenderer.element(vnode, "more", true)}
       </span>;
   }
 
@@ -285,10 +284,12 @@ class EllipseText extends MithrilComponent<EllipseAttrs, EllipseState> {
   }
 
   private getCharCountToShow(vnode: m.Vnode<EllipseAttrs, EllipseState>) {
-    return (vnode.attrs.text.includes('\n') ? vnode.attrs.text.indexOf('\n') : EllipseText.MIN_CHAR_COUNT);
+    return (vnode.attrs.text.includes('\n')
+      ? Math.min(vnode.attrs.text.indexOf('\n'), CommentRenderer.MIN_CHAR_COUNT)
+      : CommentRenderer.MIN_CHAR_COUNT);
   }
 
   private shouldRenderWithoutEllipse(vnode: m.Vnode<EllipseAttrs, EllipseState>) {
-    return vnode.attrs.text.length <= EllipseText.MIN_CHAR_COUNT && !vnode.attrs.text.includes('\n');
+    return vnode.attrs.text.length <= CommentRenderer.MIN_CHAR_COUNT && !vnode.attrs.text.includes('\n');
   }
 }

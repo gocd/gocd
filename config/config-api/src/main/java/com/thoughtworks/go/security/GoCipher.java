@@ -28,11 +28,11 @@ public class GoCipher implements Serializable {
     final Encrypter aesEncrypter;
 
     public GoCipher() {
-        this(new SystemEnvironment());
+        this(Encrypter.from(new SystemEnvironment()));
     }
 
-    public GoCipher(SystemEnvironment systemEnvironment) {
-        this.aesEncrypter = new AESEncrypter(new AESCipherProvider(systemEnvironment));
+    public GoCipher(Encrypter encrypter) {
+        this.aesEncrypter = encrypter;
     }
 
     public String encrypt(String plainText) throws CryptoException {

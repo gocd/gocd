@@ -17,36 +17,61 @@ package com.thoughtworks.go.config.plugin;
 
 import com.thoughtworks.go.config.ConfigRepoPlugin;
 import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
-import org.junit.Test;
+import com.thoughtworks.go.security.Encrypter;
+import com.thoughtworks.go.security.GoCipher;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ConfigRepoPluginTest {
+
+    private final GoCipher cipher = new GoCipher(new ReversingEncrypter());
+
     @Test
-    public void shouldGetCRConfigurationFromConfigurationWhenInsecureValue() {
+    void shouldGetCRConfigurationFromConfigurationWhenInsecureValue() {
         Configuration configuration = new Configuration();
-        configuration.addNewConfigurationWithValue("key1", "value1", false);
+        configuration.add(new ConfigurationProperty(cipher).withKey("key1").withValue("value1"));
 
         List<CRConfigurationProperty> crConfigurations = ConfigRepoPlugin.getCrConfigurations(configuration);
-        assertThat(crConfigurations.size(), is(1));
+        assertEquals(1, crConfigurations.size());
         CRConfigurationProperty prop = crConfigurations.get(0);
-        assertThat(prop.getKey(), is("key1"));
-        assertThat(prop.getValue(), is("value1"));
+        assertEquals("key1", prop.getKey());
+        assertEquals("value1", prop.getValue());
     }
 
     @Test
-    public void shouldGetCRConfigurationFromConfigurationWhenSecureValue() {
+    void shouldGetCRConfigurationFromConfigurationWhenSecureValue() {
         Configuration configuration = new Configuration();
-        configuration.addNewConfigurationWithValue("key1", "@$$%^1234", true);
+        configuration.add(new ConfigurationProperty(cipher).withKey("key1").withEncryptedValue("terces"));
 
         List<CRConfigurationProperty> crConfigurations = ConfigRepoPlugin.getCrConfigurations(configuration);
-        assertThat(crConfigurations.size(), is(1));
+        assertEquals(1, crConfigurations.size());
         CRConfigurationProperty prop = crConfigurations.get(0);
-        assertThat(prop.getKey(), is("key1"));
-        assertThat(prop.getEncryptedValue(), is("@$$%^1234"));
+        assertEquals("key1", prop.getKey());
+        assertEquals("secret", prop.getValue());
+    }
+
+    /**
+     * A silly encrypter that just reverses the plaintext. Great for tests.
+     */
+    private static class ReversingEncrypter implements Encrypter {
+        @Override
+        public boolean canDecrypt(String cipherText) {
+            return true;
+        }
+
+        @Override
+        public String encrypt(String plainText) {
+            return new StringBuilder(plainText).reverse().toString();
+        }
+
+        @Override
+        public String decrypt(String cipherText) {
+            return new StringBuilder(cipherText).reverse().toString();
+        }
     }
 }

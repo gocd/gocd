@@ -277,6 +277,20 @@ $building: #ffc11b;
   background: transparent url('../../../../app/assets/images/building.gif') repeat-x;
 }
 
+.rerun-wrapper {
+  position:    absolute;
+  transform:   rotate(150deg);
+  margin-top:  10px;
+  margin-left: 10px;
+  font-weight: 900;
+  font-size:   14px;
+  color:       $dark-gray;
+
+  i {
+    cursor: auto;
+  }
+}
+
 .job-list-container {
   font-size:  13px;
   margin-top: 10px;

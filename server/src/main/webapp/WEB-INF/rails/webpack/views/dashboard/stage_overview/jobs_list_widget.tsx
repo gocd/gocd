@@ -56,12 +56,14 @@ export class JobsListWidget extends MithrilComponent<Attrs, State> {
         title = `Can not select jobs for rerun as the current stage is still in progress.`;
       }
 
+      const rerunIcon: m.Children = job.rerun ? <div class={styles.rerunWrapper}><Icons.Repeat iconOnly={true}/></div> : undefined;
       const jobDetailsPageLink = `/go/tab/build/detail/${attrs.pipelineName}/${attrs.pipelineCounter}/${attrs.stageName}/${attrs.stageCounter}/${job.name}`;
       return <div class={styles.tableRow} data-test-id={`table-row-for-job-${job.name}`}>
         <div class={styles.checkboxCell} data-test-id={`checkbox-for-${job.name}`}>
           <CheckboxField title={title} readonly={isStageInProgress} property={checkboxStream}/>
         </div>
         <div class={styles.nameCell} data-test-id={`job-name-for-${job.name}`}>
+          {rerunIcon}
           <div className={`${(styles as any)[job.result.toString().toLowerCase() as string]} ${styles.jobResult}`}/>
           <span title={job.name} className={styles.jobName}>{job.name}</span>
         </div>

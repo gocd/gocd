@@ -36,6 +36,7 @@ export const passedStage: string;
 export const preparing: string;
 export const progressBarContainer: string;
 export const progressBarTooltip: string;
+export const rerunWrapper: string;
 export const rotate: string;
 export const scheduled: string;
 export const spin: string;

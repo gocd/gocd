@@ -55,10 +55,14 @@ public class ConfigurationProperty implements Serializable, Validatable {
     private EncryptedConfigurationValue encryptedValue;
 
     private final GoCipher cipher;
-    private ConfigErrors configErrors = new ConfigErrors();
+    private final ConfigErrors configErrors = new ConfigErrors();
 
     public ConfigurationProperty() {
-        this.cipher = new GoCipher();
+        this(new GoCipher());
+    }
+
+    public ConfigurationProperty(GoCipher cipher) {
+        this.cipher = cipher;
     }
 
     public ConfigurationProperty(ConfigurationKey configurationKey, ConfigurationValue configurationValue) {
@@ -79,6 +83,21 @@ public class ConfigurationProperty implements Serializable, Validatable {
         this.configurationKey = configurationKey;
         this.configurationValue = configurationValue;
         this.encryptedValue = encryptedValue;
+    }
+
+    public ConfigurationProperty withKey(String key) {
+        setConfigurationKey(new ConfigurationKey(key));
+        return this;
+    }
+
+    public ConfigurationProperty withValue(String value) {
+        setConfigurationValue(new ConfigurationValue(value));
+        return this;
+    }
+
+    public ConfigurationProperty withEncryptedValue(String value) {
+        setEncryptedValue(value);
+        return this;
     }
 
     public ConfigurationKey getConfigurationKey() {
@@ -127,10 +146,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
         if (configurationValue != null ? !configurationValue.equals(that.configurationValue) : that.configurationValue != null) {
             return false;
         }
-        if (!cipher.passwordEquals(encryptedValue, that.encryptedValue)) {
-            return false;
-        }
-        return true;
+        return cipher.passwordEquals(encryptedValue, that.encryptedValue);
     }
 
     @Override

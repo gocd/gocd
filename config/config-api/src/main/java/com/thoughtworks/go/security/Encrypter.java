@@ -15,7 +15,13 @@
  */
 package com.thoughtworks.go.security;
 
-interface Encrypter {
+import com.thoughtworks.go.util.SystemEnvironment;
+
+public interface Encrypter {
+    static Encrypter from(SystemEnvironment env) {
+        return new AESEncrypter(new AESCipherProvider(env));
+    }
+
     boolean canDecrypt(String cipherText);
 
     String encrypt(String plainText) throws CryptoException;

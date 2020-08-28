@@ -52,7 +52,7 @@ public class GoCipherTest {
         assertThat(desCipherFile.exists()).isFalse();
         assertThat(aesCipherFile.exists()).isFalse();
 
-        GoCipher goCipher = new GoCipher(systemEnvironment);
+        GoCipher goCipher = new GoCipher(Encrypter.from(systemEnvironment));
         assertThat(desCipherFile.exists()).isFalse();
         assertThat(aesCipherFile.exists()).isTrue();
 
@@ -67,7 +67,7 @@ public class GoCipherTest {
         resetCipher.setupAESCipherFile();
         resetCipher.setupDESCipherFile();
 
-        GoCipher goCipher = new GoCipher(systemEnvironment);
+        GoCipher goCipher = new GoCipher(Encrypter.from(systemEnvironment));
 
         FileUtils.deleteQuietly(desCipherFile);
         FileUtils.deleteQuietly(aesCipherFile);

@@ -38,7 +38,7 @@ public class PurgeSettings implements Validatable {
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     @EqualsAndHashCode.Exclude
-    private ConfigErrors errors = new ConfigErrors();
+    private final ConfigErrors errors = new ConfigErrors();
 
     @Override
     public void validate(ValidationContext validationContext) {

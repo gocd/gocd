@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.helper.JobIdentifierMother;
 import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.dao.StageDao;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.ReflectionUtil;
@@ -44,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipInputStream;
@@ -284,6 +286,78 @@ public class ArtifactsServiceTest {
 
         assertThat(new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job/cruise-output/console.log").exists()).isTrue();
         assertThat(new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job/cruise-output/md5.checksum").exists()).isTrue();
+
+        verify(stageService).markArtifactsDeletedFor(stage);
+    }
+
+    @Test
+    void shouldPurgeOldArtifactsForAGivenStage() throws IOException {
+        File artifactsRoot = temporaryFolder.newFolder();
+        assumeArtifactsRoot(artifactsRoot);
+        willCleanUp(artifactsRoot);
+        File jobDir = new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job");
+        jobDir.mkdirs();
+        File aFile = new File(jobDir, "foo");
+        FileUtils.writeStringToFile(aFile, "hello world", UTF_8);
+        aFile.setLastModified(28800000);
+        File aDirectory = new File(jobDir, "bar");
+        aDirectory.mkdir();
+        File anotherFile = new File(aDirectory, "baz");
+        FileUtils.writeStringToFile(anotherFile, "quux", UTF_8);
+        aDirectory.setLastModified(System.currentTimeMillis());
+        anotherFile.setLastModified(System.currentTimeMillis());
+
+        File cruiseOutputDir = new File(jobDir, "cruise-output");
+        cruiseOutputDir.mkdir();
+        File consoleLog = new File(cruiseOutputDir, "console.log");
+        FileUtils.writeStringToFile(consoleLog, "Build Logs", UTF_8);
+        File checksumFile = new File(cruiseOutputDir, "md5.checksum");
+        FileUtils.writeStringToFile(checksumFile, "foo:25463254625346", UTF_8);
+
+
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
+        artifactsService.initialize();
+
+        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", new Date());
+        when(stageService.oldestStagesHavingArtifacts()).thenReturn(Arrays.asList(stage));
+        artifactsService.purgeOldArtifacts(2, new HttpLocalizedOperationResult());
+
+        assertThat(jobDir.exists()).isTrue();
+        assertThat(aFile.exists()).isFalse();
+        assertThat(anotherFile.exists()).isTrue();
+        assertThat(aDirectory.exists()).isTrue();
+
+        verify(stageService, never()).markArtifactsDeletedFor(stage);
+    }
+
+    @Test
+    void shouldMarkStageAsCleanedIfAllArtifactsArePurged() throws IOException {
+        File artifactsRoot = temporaryFolder.newFolder();
+        assumeArtifactsRoot(artifactsRoot);
+        willCleanUp(artifactsRoot);
+        File jobDir = new File(artifactsRoot, "pipelines/pipeline/10/stage/20/job");
+        jobDir.mkdirs();
+        File aFile = new File(jobDir, "foo");
+        FileUtils.writeStringToFile(aFile, "hello world", UTF_8);
+        aFile.setLastModified(28800000);
+
+        File cruiseOutputDir = new File(jobDir, "cruise-output");
+        cruiseOutputDir.mkdir();
+        File consoleLog = new File(cruiseOutputDir, "console.log");
+        FileUtils.writeStringToFile(consoleLog, "Build Logs", UTF_8);
+        File checksumFile = new File(cruiseOutputDir, "md5.checksum");
+        FileUtils.writeStringToFile(checksumFile, "foo:25463254625346", UTF_8);
+
+
+        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil);
+        artifactsService.initialize();
+
+        Stage stage = StageMother.createPassedStage("pipeline", 10, "stage", 20, "job", new Date());
+        when(stageService.oldestStagesHavingArtifacts()).thenReturn(Arrays.asList(stage));
+        artifactsService.purgeOldArtifacts(2, new HttpLocalizedOperationResult());
+
+        assertThat(jobDir.exists()).isTrue();
+        assertThat(aFile.exists()).isFalse();
 
         verify(stageService).markArtifactsDeletedFor(stage);
     }

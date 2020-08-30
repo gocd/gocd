@@ -243,9 +243,15 @@
   </rule>
 
   <rule>
-    <name>artifacts API</name>
+    <name>artifact config API</name>
     <from>^/api/admin/config/server/artifact_config$</from>
     <to last="true">/spark/api/admin/config/server/artifact_config</to>
+  </rule>
+
+  <rule>
+    <name>Spark Artifacts API</name>
+    <from>^/api/admin/artifacts/purge$</from>
+    <to last="true">/spark/api/admin/artifacts/purge</to>
   </rule>
 
   <rule>

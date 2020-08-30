@@ -534,3 +534,6 @@ api/api-pipeline-config-v11/out/
 api/api-pipeline-config-v11/target/
 api/api-pipeline-config-v11/logs/
 api/api-pipeline-config-v11/config/
+api/api-artifacts-v1/target/
+api/api-artifacts-v1/logs/
+api/api-artifacts-v1/config/

@@ -148,7 +148,7 @@ public class ServerConfigService implements BaseUrlProvider {
         goConfigService.updateConfig(new CreateOrUpdateDefaultJobTimeoutCommand(defaultJobTimeout), currentUsername());
     }
 
-    public ArtifactConfig getArtifactsConfig() {
+    public ArtifactConfig getArtifactConfig() {
         return serverConfig().getArtifactConfig();
     }
 

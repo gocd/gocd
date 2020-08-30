@@ -21,12 +21,14 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.dao.StageDao;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
 import com.thoughtworks.go.server.view.artifacts.PathBasedArtifactsLocator;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.zip.ZipInputStream;
 
 import static java.lang.String.format;
@@ -158,6 +161,31 @@ public class ArtifactsService implements ArtifactUrlReader {
         }
     }
 
+    public void purgeOldArtifacts(int purgeThreshold, HttpLocalizedOperationResult result) {
+        List<Stage> stages = stageDao.oldestStagesHavingArtifacts();
+        for (Stage stage : stages) {
+            purgeOldArtifactsForStage(purgeThreshold, stage, result);
+        }
+        if (result.isSuccessful()) {
+            result.setMessage("eligible artifacts purged");
+        }
+    }
+
+    private void purgeOldArtifactsForStage(int purgeThreshold, Stage stage, HttpLocalizedOperationResult result) {
+        StageIdentifier stageIdentifier = stage.getIdentifier();
+        try {
+            File stageRoot = chooser.findArtifact(stageIdentifier, "");
+            int existing = deleteOldArtifacts(purgeThreshold, stageIdentifier, stageRoot);
+            if (existing == 0) {
+                stageDao.markArtifactsDeletedFor(stage);
+                LOGGER.debug("Marked stage '{}' as artifacts deleted.", stageIdentifier.entityLocator());
+            }
+        } catch (Exception e) {
+            result.internalServerError(String.format("Error occurred while clearing old artifacts for stage %s: %s. Check the logs for more information.", stage.getIdentifier(), e.getMessage()));
+            LOGGER.error("Error occurred while clearing artifacts for '{}'. Error: '{}'", stageIdentifier.entityLocator(), e.getMessage(), e);
+        }
+    }
+
     public void purgeArtifactsForStage(Stage stage) {
         StageIdentifier stageIdentifier = stage.getIdentifier();
         try {
@@ -174,6 +202,42 @@ public class ArtifactsService implements ArtifactUrlReader {
         }
         stageDao.markArtifactsDeletedFor(stage);
         LOGGER.debug("Marked stage '{}' as artifacts deleted.", stageIdentifier.entityLocator());
+    }
+
+    private int deleteOldArtifacts(int purgeThreshold, StageIdentifier stageIdentifier, File stageRoot) throws IOException {
+        File[] jobs = stageRoot.listFiles();
+        if (jobs == null) {  // null if security restricted
+            throw new IOException("Failed to list contents of " + stageRoot);
+        }
+        int deleted = 0;
+        int userArtifacts = 0;
+
+        for (File jobRoot : jobs) {
+            File[] artifacts = jobRoot.listFiles();
+            if (artifacts == null) {  // null if security restricted
+                throw new IOException("Failed to list contents of " + stageRoot);
+            }
+
+            for (File artifact : artifacts) {
+                if (artifact.isDirectory() && (artifact.getName().equals(ArtifactLogUtil.CRUISE_OUTPUT_FOLDER) || artifact.getName().equals(ArtifactLogUtil.PLUGGABLE_ARTIFACT_METADATA_FOLDER))) {
+                    continue;
+                }
+
+                userArtifacts++;
+
+                var lastModified = new DateTime(artifact.lastModified());
+                if (lastModified.isAfter(new DateTime().minusHours(purgeThreshold))) {
+                    continue;
+                }
+                if (deleteFile(artifact)) {
+                 deleted++;
+                } else {
+                    LOGGER.error("An old artifact for stage '{}' at path '{}' was not deleted", stageIdentifier.entityLocator(), stageRoot.getAbsolutePath());
+                }
+            }
+
+        }
+        return userArtifacts - deleted;
     }
 
     private boolean deleteArtifactsExceptCruiseOutputAndPluggableArtifactMetadata(File stageRoot) throws IOException {

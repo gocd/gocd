@@ -914,6 +914,12 @@ public class Routes {
         public static final String BASE = "/materials";
     }
 
+    public class Artifacts {
+        public static final String BASE = "/api/admin/artifacts";
+        public static final String PURGE_PATH = "/purge";
+
+    }
+
     public static class InternalMaterialConfig {
         public static final String INTERNAL_BASE = "/api/internal/materials";
         public static final String USAGES = "/:fingerprint/usages";

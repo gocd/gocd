@@ -80,7 +80,7 @@ public class ArtifactConfigControllerV1 extends ApiController implements SparkSp
     public String update(Request request, Response response) throws IOException {
         ArtifactConfig modifiedArtifactConfig = buildEntityFromRequestBody(request);
 
-        if (isPutRequestStale(request, serverConfigService.getArtifactsConfig())) {
+        if (isPutRequestStale(request, serverConfigService.getArtifactConfig())) {
             throw haltBecauseEtagDoesNotMatch();
         }
 
@@ -96,7 +96,7 @@ public class ArtifactConfigControllerV1 extends ApiController implements SparkSp
     }
 
     public String show(Request request, Response response) throws IOException {
-        ArtifactConfig artifactsConfig = serverConfigService.getArtifactsConfig();
+        ArtifactConfig artifactsConfig = serverConfigService.getArtifactConfig();
         setEtagHeader(response, etagFor(artifactsConfig));
         return writerForTopLevelObject(request, response, jsonWriter(artifactsConfig));
     }

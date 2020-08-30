@@ -90,7 +90,7 @@ class ArtifactConfigControllerV1Test implements SecurityServiceTrait, Controller
 
             @Test
             void 'should get artifact configs'() {
-                when(serverConfigService.getArtifactsConfig()).thenReturn(artifactConfig)
+                when(serverConfigService.getArtifactConfig()).thenReturn(artifactConfig)
 
                 getWithApiHeader(controller.controllerBasePath())
 
@@ -98,7 +98,7 @@ class ArtifactConfigControllerV1Test implements SecurityServiceTrait, Controller
                         .isOk()
                         .hasBodyWithJson(toObjectString({ toJSON(it, artifactConfig) }))
 
-                verify(serverConfigService, times(1)).getArtifactsConfig()
+                verify(serverConfigService, times(1)).getArtifactConfig()
                 verifyNoMoreInteractions(serverConfigService)
 
             }
@@ -148,7 +148,7 @@ class ArtifactConfigControllerV1Test implements SecurityServiceTrait, Controller
                 purgeSettings.setPurgeUpto(new PurgeUpto(20.0))
                 updatedArtifactConfig.setPurgeSettings(purgeSettings)
 
-                when(serverConfigService.getArtifactsConfig()).thenReturn(artifactConfig, updatedArtifactConfig)
+                when(serverConfigService.getArtifactConfig()).thenReturn(artifactConfig, updatedArtifactConfig)
                 when(entityHashingService.hashForEntity(artifactConfig)).thenReturn('some-digest')
                 when(entityHashingService.hashForEntity(updatedArtifactConfig)).thenReturn('some-another-digest')
 
@@ -172,7 +172,7 @@ class ArtifactConfigControllerV1Test implements SecurityServiceTrait, Controller
                 def updatedArtifactConfig = new ArtifactConfig()
                 updatedArtifactConfig.setArtifactsDir(new ArtifactDirectory("updated-dir"))
 
-                when(serverConfigService.getArtifactsConfig()).thenReturn(artifactConfig)
+                when(serverConfigService.getArtifactConfig()).thenReturn(artifactConfig)
                 when(entityHashingService.hashForEntity(artifactConfig)).thenReturn('some-digest')
 
                 def jsonPayload = [
@@ -192,7 +192,7 @@ class ArtifactConfigControllerV1Test implements SecurityServiceTrait, Controller
 
             @Test
             void 'should return 422 for validation errors'() {
-                when(serverConfigService.getArtifactsConfig()).thenReturn(artifactConfig)
+                when(serverConfigService.getArtifactConfig()).thenReturn(artifactConfig)
                 when(entityHashingService.hashForEntity(artifactConfig)).thenReturn('some-digest')
 
                 def jsonPayload = [

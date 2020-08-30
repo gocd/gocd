@@ -90,6 +90,7 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                 .addAuthorityFilterChain("/pipelines.json", apiAccessDeniedHandler, ROLE_USER)
 
                 // new controllers, so we say `ROLE_USER`, and let the controller handle authorization
+                .addAuthorityFilterChain("/api/admin/artifacts/*", apiAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/api/admin/internal/*", apiAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/api/admin/pipelines/**", apiAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/api/admin/pipeline_groups/**", apiAccessDeniedHandler, ROLE_USER)

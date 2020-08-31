@@ -44,6 +44,7 @@ describe('Stage Instance', () => {
   describe("Stage Duration", () => {
     it("should provide stage duration as in progress when some of the jobs from the stage are still in progress", () => {
       stageInstanceJson.jobs[0].result = Result[Result.Unknown];
+      stageInstanceJson.jobs[0].job_state_transitions.pop();
       const json = StageInstance.fromJSON(stageInstanceJson);
       expect(json.stageDuration()).toBe('in progress');
     });
@@ -71,5 +72,11 @@ describe('Stage Instance', () => {
     stageInstanceJson.cancelled_by = 'admin';
     const json = StageInstance.fromJSON(stageInstanceJson);
     expect(json.cancelledBy()).toBe('admin');
+  });
+
+  it('should answer whether the stage is in progress', () => {
+    stageInstanceJson.jobs.push(TestData.failedJobWhenUploadingArtifacts());
+    const json = StageInstance.fromJSON(stageInstanceJson);
+    expect(json.stageDuration()).toBe('in progress');
   });
 });

@@ -632,6 +632,10 @@ export class SparkRoutes {
     return `/go/api/internal/materials/${fingerprint}/usages`;
   }
 
+  static getMaterialTriggerPath(fingerprint: string) {
+    return `/go/api/internal/materials/${fingerprint}/trigger_update`;
+  }
+
   static materialsVsmLink(fingerprint: string, revision: string) {
     return `/go/materials/value_stream_map/${fingerprint}/${revision}`;
   }

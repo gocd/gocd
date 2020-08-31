@@ -124,6 +124,18 @@ describe('MaterialsAPISpec', () => {
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
+  it("should make a trigger update request", () => {
+    const api = SparkRoutes.getMaterialTriggerPath("fingerprint");
+    jasmine.Ajax.stubRequest(api).andReturn(triggerUpdateResponse());
+
+    MaterialAPIs.triggerUpdate("fingerprint");
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(api);
+    expect(request.method).toEqual("POST");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
+  });
+
   function materialsResponse() {
     const data = {
       materials: [{
@@ -195,6 +207,17 @@ describe('MaterialsAPISpec', () => {
         "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
       },
       responseText:    JSON.stringify(data)
+    };
+  }
+
+  function triggerUpdateResponse() {
+    return {
+      status:          200,
+      responseHeaders: {
+        "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+        "ETag":         "some-etag"
+      },
+      responseText:    JSON.stringify({message: "OK"})
     };
   }
 });
@@ -350,13 +373,13 @@ describe('MaterialWithFingerPrintSpec', () => {
 describe('MaterialsSpec', () => {
   it('should sort based on type', () => {
     const materials = new Materials();
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("git", "some", new GitMaterialAttributes()), false, null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("hg", "some", new HgMaterialAttributes()), false, null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("svn", "some", new SvnMaterialAttributes()), false, null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("p4", "some", new P4MaterialAttributes()), false, null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("tfs", "some", new TfsMaterialAttributes()), false, null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("package", "some", new PackageMaterialAttributes()), false, null));
-    materials.push(new MaterialWithModification(new MaterialWithFingerprint("plugin", "some", new PluggableScmMaterialAttributes(undefined, undefined, "", "scm_name")), false, null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("git", "some", new GitMaterialAttributes()), false, undefined, null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("hg", "some", new HgMaterialAttributes()), false, undefined, null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("svn", "some", new SvnMaterialAttributes()), false, undefined, null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("p4", "some", new P4MaterialAttributes()), false, undefined, null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("tfs", "some", new TfsMaterialAttributes()), false, undefined, null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("package", "some", new PackageMaterialAttributes()), false, undefined, null));
+    materials.push(new MaterialWithModification(new MaterialWithFingerprint("plugin", "some", new PluggableScmMaterialAttributes(undefined, undefined, "", "scm_name")), false, undefined, null));
 
     materials.sortOnType();
 
@@ -373,7 +396,7 @@ describe('MaterialsSpec', () => {
 describe('MaterialsWithModificationSpec', () => {
   it('should return true if search string matches name, type or display url of the config', () => {
     const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("some-name", false, "http://svn.com/gocd/gocd", "master"));
-    const withMod  = new MaterialWithModification(material, false, null);
+    const withMod  = new MaterialWithModification(material, false, undefined, null);
 
     expect(withMod.matches("git")).toBeTrue();
     expect(withMod.matches("name")).toBeTrue();
@@ -384,7 +407,7 @@ describe('MaterialsWithModificationSpec', () => {
 
   it('should return true if search string matches username, revision or comment for the latest modification', () => {
     const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("", false, "some-url", "master"));
-    const withMod  = new MaterialWithModification(material, true, new MaterialModification("username", "email_address", "some-revision", "a very very long comment with abc", ""));
+    const withMod  = new MaterialWithModification(material, true, undefined, new MaterialModification("username", "email_address", "some-revision", "a very very long comment with abc", ""));
 
     expect(withMod.matches("revision")).toBeTrue();
     expect(withMod.matches("comment")).toBeTrue();
@@ -395,7 +418,7 @@ describe('MaterialsWithModificationSpec', () => {
 
   it('should return type as config.type', () => {
     const material = new MaterialWithFingerprint("git", "fingerprint", new GitMaterialAttributes("some-name", false, "http://svn.com/gocd/gocd", "master"));
-    const withMod  = new MaterialWithModification(material, true, null);
+    const withMod  = new MaterialWithModification(material, true, undefined, null);
 
     expect(withMod.type()).toBe(material.type());
   });

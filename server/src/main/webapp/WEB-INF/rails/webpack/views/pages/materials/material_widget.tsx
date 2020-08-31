@@ -22,7 +22,7 @@ import {MaterialModification} from "models/config_repos/types";
 import {MaterialWithFingerprint, MaterialWithModification, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {Edit, IconGroup, List, Usage} from "views/components/icons";
+import {Edit, IconGroup, List, Refresh, Usage} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Link} from "views/components/link";
 import headerStyles from "views/pages/config_repos/index.scss";
@@ -69,7 +69,12 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
                               onclick={vnode.attrs.onEdit.bind(this, config)}/>;
     }
 
+    const refreshTitle  = material.materialUpdateInProgress
+      ? `Update in progress since ${timeFormatter.format(material.materialUpdateStartTime)}`
+      : "Trigger Update";
     const actionButtons = <IconGroup>
+      <Refresh data-test-id={"trigger-update"} title={refreshTitle}
+               disabled={material.materialUpdateInProgress} onclick={vnode.attrs.triggerUpdate.bind(this, config)}/>
       {maybeEditButton}
       <Usage data-test-id={"show-usages"} title={"Show Usages"} onclick={vnode.attrs.showUsages.bind(this, config)}/>
       <List data-test-id={"show-modifications-material"} title={"Show Modifications"}

@@ -24,15 +24,16 @@ import {MaterialWidget} from "../material_widget";
 import {git} from "./materials_widget_spec";
 
 describe('MaterialWidgetSpec', () => {
-  const helper        = new TestHelper();
-  const showModSpy    = jasmine.createSpy("showModifications");
-  const onEditSpy     = jasmine.createSpy("onEdit");
-  const showUsagesSpy = jasmine.createSpy("showUsages");
+  const helper           = new TestHelper();
+  const showModSpy       = jasmine.createSpy("showModifications");
+  const triggerUpdateSpy = jasmine.createSpy("triggerUpdate");
+  const onEditSpy        = jasmine.createSpy("onEdit");
+  const showUsagesSpy    = jasmine.createSpy("showUsages");
   let material: MaterialWithModification;
 
   afterEach((done) => helper.unmount(done));
   beforeEach(() => {
-    material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), true, null);
+    material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), true, "2019-12-23T10:15:52Z", null);
   });
 
   it('should display the header and action buttons', () => {
@@ -173,6 +174,7 @@ describe('MaterialWidgetSpec', () => {
 
   function mount(shouldShowPackageOrScmLink: boolean = true) {
     helper.mount(() => <MaterialWidget material={material} shouldShowPackageOrScmLink={shouldShowPackageOrScmLink}
-                                       onEdit={onEditSpy} showModifications={showModSpy} showUsages={showUsagesSpy}/>);
+                                       triggerUpdate={triggerUpdateSpy} onEdit={onEditSpy} showModifications={showModSpy}
+                                       showUsages={showUsagesSpy}/>);
   }
 });

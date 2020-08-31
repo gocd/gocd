@@ -45,8 +45,8 @@ describe('MaterialsWidgetSpec', () => {
 
   function mount() {
     helper.mount(() => <MaterialsWidget materials={Stream(materials)} shouldShowPackageOrScmLink={false}
-                                        onEdit={jasmine.createSpy("onEdit")} showModifications={jasmine.createSpy("showModifications")}
-                                        showUsages={jasmine.createSpy("showUsages")}/>);
+                                        triggerUpdate={jasmine.createSpy("triggerUpdate")} onEdit={jasmine.createSpy("onEdit")}
+                                        showModifications={jasmine.createSpy("showModifications")} showUsages={jasmine.createSpy("showUsages")}/>);
   }
 });
 

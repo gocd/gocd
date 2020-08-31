@@ -30,7 +30,7 @@ describe('MaterialHeaderWidgetSpec', () => {
 
   afterEach((done) => helper.unmount(done));
   beforeEach(() => {
-    material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), false, null);
+    material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), false, undefined, null);
   });
 
   it('should display the name of the material with attributes', () => {

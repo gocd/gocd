@@ -22,11 +22,18 @@ import com.thoughtworks.go.apiv1.internalmaterials.models.MaterialInfo
 import com.thoughtworks.go.apiv1.internalmaterials.representers.MaterialWithModificationsRepresenter
 import com.thoughtworks.go.apiv1.internalmaterials.representers.UsagesRepresenter
 import com.thoughtworks.go.config.materials.MaterialConfigs
+import com.thoughtworks.go.domain.materials.Material
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.helper.ModificationsMother
+import com.thoughtworks.go.server.materials.MaterialUpdateService
 import com.thoughtworks.go.server.service.MaintenanceModeService
+import com.thoughtworks.go.server.service.MaterialConfigConverter
 import com.thoughtworks.go.server.service.MaterialConfigService
 import com.thoughtworks.go.server.service.MaterialService
+import com.thoughtworks.go.server.service.result.HttpOperationResult
+import com.thoughtworks.go.server.service.result.OperationResult
+import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -34,10 +41,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.invocation.InvocationOnMock
 
 import static java.util.Collections.emptyMap
-import static org.mockito.ArgumentMatchers.anyString
-import static org.mockito.Mockito.when
+import static org.mockito.ArgumentMatchers.*
+import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class InternalMaterialsControllerV1Test implements SecurityServiceTrait, ControllerTrait<InternalMaterialsControllerV1> {
@@ -47,6 +55,10 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
   private MaterialService materialService
   @Mock
   private MaintenanceModeService maintenanceModeService
+  @Mock
+  private MaterialUpdateService materialUpdateService
+  @Mock
+  private MaterialConfigConverter materialConfigConverter
 
   @BeforeEach
   void setUp() {
@@ -55,7 +67,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
   @Override
   InternalMaterialsControllerV1 createControllerInstance() {
-    new InternalMaterialsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), materialConfigService, materialService, maintenanceModeService)
+    new InternalMaterialsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), materialConfigService, materialService, maintenanceModeService, materialUpdateService, materialConfigConverter)
   }
 
   @Nested
@@ -208,6 +220,75 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
       assertThatResponse()
         .isOk()
         .hasBodyWithJsonObject(MaterialWithModificationsRepresenter.class, resultMap)
+    }
+  }
+
+  @Nested
+  class TriggerUpdate {
+    def material = mock(Material.class)
+    def git = MaterialConfigsMother.git("http://example.com")
+
+    @BeforeEach
+    void setUp() {
+      loginAsUser()
+      when(materialConfigConverter.toMaterial(any(MaterialConfig.class))).thenReturn(material)
+    }
+
+    @Nested
+    class Security implements SecurityTestTrait, NormalUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "triggerUpdate"
+      }
+
+      @Override
+      void makeHttpCall() {
+        postWithApiHeader(controller.controllerBasePath() + "/some-fingerprint/trigger_update", [:])
+      }
+    }
+
+    @Test
+    void 'should return ok when trigger is successful'() {
+      when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).thenReturn(git)
+      when(materialUpdateService.updateMaterial(any(Material.class))).thenReturn(true)
+
+      postWithApiHeader("/api/internal/materials/abc123/trigger_update", [])
+
+      verify(materialUpdateService).updateMaterial(eq(material))
+      assertThatResponse()
+        .isCreated()
+        .hasJsonMessage("OK")
+    }
+
+    @Test
+    void 'should not trigger update if update is already in progress'() {
+      when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).thenReturn(git)
+      when(materialUpdateService.updateMaterial(any(Material.class))).thenReturn(false)
+
+      postWithApiHeader("/api/internal/materials/abc123/trigger_update", [])
+
+      verify(materialUpdateService).updateMaterial(eq(material))
+      assertThatResponse()
+        .isConflict()
+        .hasJsonMessage("Update already in progress.")
+    }
+
+    @Test
+    void 'should return 404 value if material does not exist'() {
+      when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).then({
+        InvocationOnMock invocation ->
+          HttpOperationResult result = (HttpOperationResult) invocation.arguments.last()
+          result.notFound("Material not found", "Some message", HealthStateType.notFound())
+      })
+
+      postWithApiHeader("/api/internal/materials/abc123/trigger_update", [])
+
+      verifyNoInteractions(materialUpdateService)
+
+      assertThatResponse()
+        .isNotFound()
+        .hasJsonMessage("Material not found { Some message }")
     }
   }
 }

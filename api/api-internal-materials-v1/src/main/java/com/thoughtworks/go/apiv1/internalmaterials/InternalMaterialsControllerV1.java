@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.internalmaterials;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.internalmaterials.models.MaterialInfo;
 import com.thoughtworks.go.apiv1.internalmaterials.representers.MaterialWithModificationsRepresenter;
 import com.thoughtworks.go.apiv1.internalmaterials.representers.UsagesRepresenter;
@@ -26,12 +27,16 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
+import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.MaterialConfigService;
 import com.thoughtworks.go.server.service.MaterialService;
+import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
@@ -52,14 +57,18 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
     private final MaterialConfigService materialConfigService;
     private final MaterialService materialService;
     private final MaintenanceModeService maintenanceModeService;
+    private final MaterialUpdateService materialUpdateService;
+    private final MaterialConfigConverter materialConfigConverter;
 
     @Autowired
-    public InternalMaterialsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, MaterialConfigService materialConfigService, MaterialService materialService, MaintenanceModeService maintenanceModeService) {
+    public InternalMaterialsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, MaterialConfigService materialConfigService, MaterialService materialService, MaintenanceModeService maintenanceModeService, MaterialUpdateService materialUpdateService, MaterialConfigConverter materialConfigConverter) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.materialConfigService = materialConfigService;
         this.materialService = materialService;
         this.maintenanceModeService = maintenanceModeService;
+        this.materialUpdateService = materialUpdateService;
+        this.materialConfigConverter = materialConfigConverter;
     }
 
     @Override
@@ -77,6 +86,7 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
             before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
             get(Routes.InternalMaterialConfig.USAGES, mimeType, this::usages);
+            post(Routes.InternalMaterialConfig.TRIGGER_UPDATE, mimeType, this::triggerUpdate);
             get("", mimeType, this::index);
         });
     }
@@ -101,6 +111,22 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
         String fingerprint = request.params(FINGERPRINT);
         List<String> usagesForMaterial = materialConfigService.getUsagesForMaterial(currentUsernameString(), fingerprint);
         return writerForTopLevelObject(request, response, writer -> UsagesRepresenter.toJSON(writer, fingerprint, usagesForMaterial));
+    }
+
+    public String triggerUpdate(Request request, Response response) throws Exception {
+        String fingerprint = request.params(FINGERPRINT);
+        HttpOperationResult result = new HttpOperationResult();
+        MaterialConfig materialConfig = materialConfigService.getMaterialConfig(currentUsernameString(), fingerprint, result);
+        if (!result.isSuccess()) {
+            return renderHTTPOperationResult(result, request, response);
+        }
+        if (materialUpdateService.updateMaterial(materialConfigConverter.toMaterial(materialConfig))) {
+            response.status(HttpStatus.CREATED.value());
+            return MessageJson.create("OK");
+        } else {
+            response.status(HttpStatus.CONFLICT.value());
+            return MessageJson.create("Update already in progress.");
+        }
     }
 
     private Map<MaterialConfig, MaterialInfo> createMergedMap(MaterialConfigs materialConfigs, Map<String, Modification> modificationsMap, Collection<MaintenanceModeService.MaterialPerformingMDU> runningMDUs) {

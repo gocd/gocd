@@ -917,6 +917,7 @@ public class Routes {
     public static class InternalMaterialConfig {
         public static final String INTERNAL_BASE = "/api/internal/materials";
         public static final String USAGES = "/:fingerprint/usages";
+        public static final String TRIGGER_UPDATE = "/:fingerprint/trigger_update";
 
         public static final String INTERNAL_BASE_MODIFICATIONS = "/api/internal/materials/:fingerprint/modifications";
 

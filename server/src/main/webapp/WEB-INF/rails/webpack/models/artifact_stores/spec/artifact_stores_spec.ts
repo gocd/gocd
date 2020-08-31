@@ -47,6 +47,7 @@ describe("ArtifactStoreModal", () => {
 
   it("should validate presence of plugin id", () => {
     const dockerJSON = ArtifactStoreTestData.dockerArtifactStore();
+    // @ts-ignore
     delete dockerJSON.plugin_id;
     const artifactStores = ArtifactStores.fromJSON(ArtifactStoreTestData.artifactStoreList(dockerJSON));
 
@@ -59,6 +60,7 @@ describe("ArtifactStoreModal", () => {
 
   it("should validate presence of id", () => {
     const dockerJSON = ArtifactStoreTestData.dockerArtifactStore();
+    // @ts-ignore
     delete dockerJSON.id;
     const artifactStores = ArtifactStores.fromJSON(ArtifactStoreTestData.artifactStoreList(dockerJSON));
 

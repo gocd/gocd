@@ -206,6 +206,7 @@ describe("Environments Model - Environments", () => {
 
   it("should set origins as GoCD origin if not exist", () => {
     const env = data.environment_json();
+    // @ts-ignore
     delete env.origins;
     const envWithOrigin = EnvironmentWithOrigin.fromJSON(env);
 

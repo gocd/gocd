@@ -22,6 +22,7 @@ describe('PackageRepositoriesModelSpec', () => {
   describe('PackageModelSpec', () => {
     it("should validate presence of repo id", () => {
       const packageJSON = getPackage();
+      // @ts-ignore
       delete packageJSON.package_repo.id;
       const pkg = Package.fromJSON(packageJSON);
 
@@ -34,6 +35,7 @@ describe('PackageRepositoriesModelSpec', () => {
 
     it("should validate presence of name", () => {
       const packageJSON = getPackage();
+      // @ts-ignore
       delete packageJSON.name;
       const pkg = Package.fromJSON(packageJSON);
 
@@ -78,6 +80,7 @@ describe('PackageRepositoriesModelSpec', () => {
 
   it("should validate presence of plugin id", () => {
     const packageRepositoryJSON = getPackageRepository();
+    // @ts-ignore
     delete packageRepositoryJSON.plugin_metadata.id;
     const packageRepository = PackageRepository.fromJSON(packageRepositoryJSON);
 
@@ -90,6 +93,7 @@ describe('PackageRepositoriesModelSpec', () => {
 
   it("should validate presence of name", () => {
     const packageRepositoryJSON = getPackageRepository();
+    // @ts-ignore
     delete packageRepositoryJSON.name;
     const packageRepository = PackageRepository.fromJSON(packageRepositoryJSON);
 

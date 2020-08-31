@@ -55,6 +55,7 @@ describe("SecretConfigsModelSpec", () => {
   describe("Validate", () => {
     it("should validate presence of id", () => {
       const secretConfigJson = secretConfigTestData();
+      // @ts-ignore
       delete secretConfigJson.id;
       const secretConfig = SecretConfig.fromJSON(secretConfigJson);
       secretConfig.isValid();
@@ -78,6 +79,7 @@ describe("SecretConfigsModelSpec", () => {
 
     it("should validate presence of plugin id", () => {
       const secretConfigJson = secretConfigTestData();
+      // @ts-ignore
       delete secretConfigJson.plugin_id;
       const secretConfig = SecretConfig.fromJSON(secretConfigJson);
       secretConfig.isValid();

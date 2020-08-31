@@ -63,6 +63,7 @@ export class CodeScroller extends MithrilComponent<{}, State> {
         innerCodePane.style.maxHeight = (availHeight - offset - paddingTop - paddingBottom) + "px";
       } else {
         spacer.style.height = "0";
+        // @ts-ignore
         delete innerCodePane.style.maxHeight;
       }
     });
@@ -78,6 +79,7 @@ export class CodeScroller extends MithrilComponent<{}, State> {
     vnode.state.teardown = () => {
       pane.removeChild(spacer);
       observer.disconnect();
+      // @ts-ignore
       delete innerCodePane.style.maxHeight;
     };
 

@@ -54,7 +54,8 @@ class MaterialWithModificationsRepresenterTest {
     def map = new HashMap();
     def git = MaterialConfigsMother.git("http://example.com", "main")
     def modification = ModificationsMother.withModifiedFileWhoseNameLengthIsOneK()
-    map.put(git, new MaterialInfo(modification, true))
+    def timestamp = new Date().toTimestamp()
+    map.put(git, new MaterialInfo(modification, true, timestamp))
 
     def actualJson = toObjectString({ MaterialWithModificationsRepresenter.toJSON(it, map) })
 
@@ -71,6 +72,7 @@ class MaterialWithModificationsRepresenterTest {
         [
           "config"                     : toObject(MaterialsRepresenter.toJSON(git)),
           "material_update_in_progress": true,
+          "material_update_start_time" : jsonDate(timestamp),
           "modification"               : [
             "username"     : "lgao",
             "email_address": "foo@bar.com",
@@ -87,6 +89,37 @@ class MaterialWithModificationsRepresenterTest {
 
   @Test
   void 'should render modification as null'() {
+    def map = new HashMap();
+    def git = MaterialConfigsMother.git("http://example.com", "main")
+    def timestamp = new Date().toTimestamp()
+    map.put(git, new MaterialInfo(null, true, timestamp))
+
+    def actualJson = toObjectString({ MaterialWithModificationsRepresenter.toJSON(it, map) })
+
+    def expectedJson = [
+      _links   : [
+        self: [
+          href: "http://test.host/go/api/internal/materials"
+        ],
+        doc : [
+          href: apiDocsUrl("#materials")
+        ]
+      ],
+      materials: [
+        [
+          "config"                     : toObject(MaterialsRepresenter.toJSON(git)),
+          "material_update_in_progress": true,
+          "material_update_start_time" : jsonDate(timestamp),
+          "modification"               : null
+        ]
+      ]
+    ]
+
+    assertThatJson(actualJson).isEqualTo(expectedJson)
+  }
+
+  @Test
+  void 'should not render material update start time if null'() {
     def map = new HashMap();
     def git = MaterialConfigsMother.git("http://example.com", "main")
     map.put(git, new MaterialInfo(null, false))
@@ -110,7 +143,5 @@ class MaterialWithModificationsRepresenterTest {
         ]
       ]
     ]
-
-    assertThatJson(actualJson).isEqualTo(expectedJson)
   }
 }

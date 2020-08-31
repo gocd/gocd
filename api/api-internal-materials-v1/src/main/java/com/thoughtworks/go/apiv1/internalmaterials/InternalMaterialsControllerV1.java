@@ -41,13 +41,13 @@ import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
-import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
 @Component
@@ -134,12 +134,16 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
         if (materialConfigs.isEmpty()) {
             return map;
         }
-        List<String> mdus = runningMDUs.stream().map((mdu) -> mdu.getMaterial().getFingerprint()).collect(toList());
         for (MaterialConfig materialConfig : materialConfigs) {
             if (!materialConfig.getType().equals(DependencyMaterialConfig.TYPE)) {
                 Modification mod = modificationsMap.getOrDefault(materialConfig.getFingerprint(), null);
-                boolean isMDUInProgress = mdus.contains(materialConfig.getFingerprint());
-                map.put(materialConfig, new MaterialInfo(mod, isMDUInProgress));
+                MaintenanceModeService.MaterialPerformingMDU mduInfo = runningMDUs.stream()
+                        .filter((mdu) -> mdu.getMaterial().getFingerprint().equals(materialConfig.getFingerprint()))
+                        .findFirst()
+                        .orElse(null);
+                boolean isMDUInProgress = mduInfo != null;
+                Timestamp updateStartTime = isMDUInProgress ? mduInfo.getTimestamp() : null;
+                map.put(materialConfig, new MaterialInfo(mod, isMDUInProgress, updateStartTime));
             }
         }
         return map;

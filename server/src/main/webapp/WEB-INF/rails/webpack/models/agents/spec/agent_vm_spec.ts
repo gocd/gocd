@@ -194,6 +194,7 @@ describe("AgentVM", () => {
 
     it("should filter skip agent if property is not defined", () => {
       const agentOneJson = AgentsTestData.withHostname("Hostname-AAA");
+      // @ts-ignore
       delete agentOneJson.hostname;
 
       const agentOne       = Agent.fromJSON(agentOneJson),

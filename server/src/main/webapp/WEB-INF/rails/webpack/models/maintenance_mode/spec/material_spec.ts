@@ -79,6 +79,7 @@ describe("Material specs", () => {
     const materialJSON   = TestData.git();
     const attributesJSON = materialJSON.attributes as ScmAttributesJSON;
 
+    // @ts-ignore
     delete attributesJSON.url;
     const material = Material.fromJSON(materialJSON);
 
@@ -92,6 +93,7 @@ describe("Material specs", () => {
       const materialJSON   = TestData.p4();
       const attributesJSON = materialJSON.attributes as P4MaterialAttributesJSON;
 
+      // @ts-ignore
       delete attributesJSON.view;
       const material = Material.fromJSON(materialJSON);
 
@@ -104,6 +106,7 @@ describe("Material specs", () => {
       const materialJSON   = TestData.p4();
       const attributesJSON = materialJSON.attributes as P4MaterialAttributesJSON;
 
+      // @ts-ignore
       delete attributesJSON.port;
       const material = Material.fromJSON(materialJSON);
 
@@ -118,6 +121,7 @@ describe("Material specs", () => {
       const materialJSON   = TestData.tfs();
       const attributesJSON = materialJSON.attributes as TfsMaterialAttributesJSON;
 
+      // @ts-ignore
       delete attributesJSON.project_path;
       const material = Material.fromJSON(materialJSON);
 
@@ -130,6 +134,7 @@ describe("Material specs", () => {
       const materialJSON   = TestData.tfs();
       const attributesJSON = materialJSON.attributes as TfsMaterialAttributesJSON;
 
+      // @ts-ignore
       delete attributesJSON.username;
       const material = Material.fromJSON(materialJSON);
 
@@ -142,6 +147,7 @@ describe("Material specs", () => {
       const materialJSON   = TestData.tfs();
       const attributesJSON = materialJSON.attributes as TfsMaterialAttributesJSON;
 
+      // @ts-ignore
       delete attributesJSON.password;
       const material = Material.fromJSON(materialJSON);
 

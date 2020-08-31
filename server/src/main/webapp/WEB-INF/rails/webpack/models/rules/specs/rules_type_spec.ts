@@ -34,6 +34,7 @@ describe("RulesModelSpec", () => {
 
     it("should validate directive", () => {
       const ruleJSON = ruleTestData();
+      // @ts-ignore
       delete ruleJSON.directive;
 
       const rule = Rule.fromJSON(ruleJSON);
@@ -46,6 +47,7 @@ describe("RulesModelSpec", () => {
 
     it("should validate action", () => {
       const ruleJSON = ruleTestData();
+      // @ts-ignore
       delete ruleJSON.action;
 
       const rule = Rule.fromJSON(ruleJSON);
@@ -58,6 +60,7 @@ describe("RulesModelSpec", () => {
 
     it("should validate type", () => {
       const ruleJSON = ruleTestData();
+      // @ts-ignore
       delete ruleJSON.type;
 
       const rule = Rule.fromJSON(ruleJSON);

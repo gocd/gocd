@@ -20,7 +20,7 @@ import m from "mithril";
 import {TextField, TextFieldAttrs} from "views/components/forms/input_fields";
 
 export interface LiveInputAttrs extends TextFieldAttrs {
-  validator: (value: string) => string | undefined;
+  validator?: (value: string) => string | undefined;
 }
 
 interface State {

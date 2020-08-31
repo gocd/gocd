@@ -52,6 +52,7 @@ describe("RoleModel", () => {
 
   it("should validate the presence of name", () => {
     const goCDRoleJSON = RolesTestData.GoCDRoleJSON();
+    // @ts-ignore
     delete goCDRoleJSON.name;
     const goCDRole = Role.fromJSON(goCDRoleJSON);
 
@@ -102,9 +103,13 @@ describe("RoleModel", () => {
 
   it('should validate policy for presence of permissions', () => {
     const goCDRoleJSON = RolesTestData.GoCDRoleJSON();
+    // @ts-ignore
     delete goCDRoleJSON.policy[0].permission;
+    // @ts-ignore
     delete goCDRoleJSON.policy[0].action;
+    // @ts-ignore
     delete goCDRoleJSON.policy[0].type;
+    // @ts-ignore
     delete goCDRoleJSON.policy[0].resource;
     const goCDRole = Role.fromJSON(goCDRoleJSON) as GoCDRole;
 

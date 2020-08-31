@@ -43,6 +43,7 @@ describe("AuthorizationConfigurationModel", () => {
 
   it("should validate presence of plugin id", () => {
     const ldapAuthConfigJSON = TestData.ldapAuthConfig();
+    // @ts-ignore
     delete ldapAuthConfigJSON.plugin_id;
     const authConfigs = AuthConfigs.fromJSON(TestData.authConfigList(ldapAuthConfigJSON));
 
@@ -55,6 +56,7 @@ describe("AuthorizationConfigurationModel", () => {
 
   it("should validate presence of id", () => {
     const ldapAuthConfigJSON = TestData.ldapAuthConfig();
+    // @ts-ignore
     delete ldapAuthConfigJSON.id;
     const authConfigs = AuthConfigs.fromJSON(TestData.authConfigList(ldapAuthConfigJSON));
 

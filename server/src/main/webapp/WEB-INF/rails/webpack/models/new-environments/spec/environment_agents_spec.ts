@@ -34,6 +34,7 @@ describe("Environments Model - Agents", () => {
 
   it("should return empty list if input is undefined", () => {
     const env = data.environment_json();
+    // @ts-ignore
     delete env.agents;
     const agents = Agents.fromJSON(env.agents);
 

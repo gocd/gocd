@@ -120,7 +120,12 @@ export class StageInstance {
 
   private isStageInProgress(): boolean {
     //stage result is marked as failed even before all the jobs are completed.
-    // hence check the status of all the jobs instead of the top level stage.
-    return this.jobs().some(job => job.result === Result[Result.Unknown]);
+    //hence check the status of all the jobs instead of the top level stage.
+    //
+    //job state is marked as failed even before uploading artifacts,
+    //hence rely upon checking if all jobs are in completed state
+    return this.jobs().some(job => {
+      return !job.job_state_transitions.find(t => t.state === "Completed");
+    });
   }
 }

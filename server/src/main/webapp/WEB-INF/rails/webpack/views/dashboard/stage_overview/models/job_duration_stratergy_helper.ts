@@ -50,7 +50,7 @@ export class JobDurationStrategyHelper {
   }
 
   static getJobDuration(job: JobJSON): any {
-    const isJobInProgress = job.result === Result[Result.Unknown];
+    const isJobInProgress = this.isJobInProgress(job);
     if (isJobInProgress) {
       return undefined;
     }
@@ -82,7 +82,7 @@ export class JobDurationStrategyHelper {
   }
 
   private static getCompletedJobDuration(job: JobJSON, passedStageInstance: StageInstance | undefined) {
-    const isJobInProgress = job.result === Result[Result.Unknown];
+    const isJobInProgress = this.isJobInProgress(job);
 
     const end = moment.unix(this.getJobStateTime(job, "Completed"));
     const completing = moment.unix(this.getJobStateTime(job, "Completing"));
@@ -122,7 +122,7 @@ export class JobDurationStrategyHelper {
     const buildTimePercentage = this.calculatePercentage(totalTime, buildTime);
     const uploadingArtifactTimePercentage = this.calculatePercentage(totalTime, uploadingArtifactTime);
 
-    // math.round may result into total perentage being 99, example 33.3 + 33.3 + 33.4 is 100,
+    // math.round may result into total percentage being 99, example 33.3 + 33.3 + 33.4 is 100,
     // but Math.round(33.3) + Math.round(33.3) + Math.round(33.4) is 99 :/
     // showing 99 percentage on the bar sometimes causes an empty space on the bar for a completed job
     if (waitTimePercentage + preparingTimePercentage + buildTimePercentage + uploadingArtifactTimePercentage !== 100) {
@@ -176,5 +176,9 @@ export class JobDurationStrategyHelper {
 
   private static findJobFromLastCompletedStage(jobName: string, passedStageInstance: StageInstance | undefined): JobJSON | undefined {
     return passedStageInstance?.jobs().find(j => j.name === jobName);
+  }
+
+  private static isJobInProgress(job: JobJSON): boolean {
+    return !(job.job_state_transitions.find(t => t.state === "Completed"));
   }
 }

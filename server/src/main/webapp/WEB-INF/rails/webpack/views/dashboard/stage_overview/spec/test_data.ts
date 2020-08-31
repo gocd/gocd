@@ -274,4 +274,38 @@ export class TestData {
         }]
       };
   }
+
+  //for github issue #8502
+  static failedJobWhenUploadingArtifacts(): JobJSON {
+    return {
+      name:                  "job1",
+      state:                 "Completing",
+      result:                "Failed",
+      scheduled_date:        1598853338897,
+      rerun:                 false,
+      original_job_id:       null,
+      agent_uuid:            "5c2ef605-58ce-42d3-ac15-b8bbcc60c81c",
+      // @ts-ignore
+      pipeline_name:         null,
+      pipeline_counter:      null,
+      stage_name:            null,
+      stage_counter:         null,
+      job_state_transitions: [{
+        state:             "Scheduled",
+        state_change_time: 1598853338897
+      }, {
+        state:             "Assigned",
+        state_change_time: 1598853375247
+      }, {
+        state:             "Preparing",
+        state_change_time: 1598853385927
+      }, {
+        state:             "Building",
+        state_change_time: 1598853387734
+      }, {
+        state:             "Completing",
+        state_change_time: 1598853394727
+      }]
+    };
+  }
 }

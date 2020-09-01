@@ -24,7 +24,6 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.internalscms.representers.SCMRepresenter;
 import com.thoughtworks.go.apiv1.internalscms.representers.VerifyConnectionResultRepresenter;
 import com.thoughtworks.go.domain.scm.SCM;
-import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
@@ -63,7 +62,7 @@ public class InternalSCMsControllerV1 extends ApiController implements SparkSpri
             before(Routes.SCM.VERIFY_CONNECTION, mimeType, this::setContentType);
             before(Routes.SCM.VERIFY_CONNECTION, mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
 
-            post(Routes.Packages.VERIFY_CONNECTION, mimeType, this::verifyConnection);
+            post(Routes.SCM.VERIFY_CONNECTION, mimeType, this::verifyConnection);
         });
     }
 

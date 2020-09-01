@@ -96,6 +96,7 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                 .addAuthorityFilterChain("/api/admin/export/**", apiAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/api/admin/encrypt", apiAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/api/admin/scms/**", apiAccessDeniedHandler, ROLE_USER)
+                .addAuthorityFilterChain("/api/admin/internal/scms/**", apiAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/api/admin/repositories/**", apiAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/api/admin/packages/**", apiAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/api/admin/plugin_info/**", apiAccessDeniedHandler, ROLE_USER)

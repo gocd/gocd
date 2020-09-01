@@ -19,10 +19,14 @@ import com.thoughtworks.go.utils.Timeout;
 import org.joda.time.DateTime;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import static java.time.Instant.ofEpochMilli;
+import static java.time.ZoneId.systemDefault;
 
 public class TestingClock implements Clock {
     private Date currentTime;
@@ -49,6 +53,11 @@ public class TestingClock implements Clock {
     @Override
     public Timestamp currentTimestamp() {
         return new Timestamp(currentTimeMillis());
+    }
+
+    @Override
+    public LocalDateTime currentLocalDateTime() {
+        return LocalDateTime.ofInstant(ofEpochMilli(currentTimeMillis()), systemDefault());
     }
 
     @Override

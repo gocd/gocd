@@ -19,6 +19,7 @@ import com.thoughtworks.go.utils.Timeout;
 import org.joda.time.DateTime;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public interface Clock {
@@ -27,6 +28,8 @@ public interface Clock {
     DateTime currentDateTime();
 
     Timestamp currentTimestamp();
+
+    LocalDateTime currentLocalDateTime();
 
     long currentTimeMillis();
 

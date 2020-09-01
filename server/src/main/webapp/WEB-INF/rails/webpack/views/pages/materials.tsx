@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {ErrorResponse} from "helpers/api_request_builder";
+import {AjaxPoller} from "helpers/ajax_poller";
+import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import _ from "lodash";
 import m from "mithril";
@@ -44,6 +45,7 @@ interface State extends MaterialsAttrs {
 }
 
 export class MaterialsPage extends Page<null, State> {
+  etag: Stream<string> = Stream();
 
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
@@ -83,6 +85,8 @@ export class MaterialsPage extends Page<null, State> {
       e.stopPropagation();
       new ShowModificationsModal(material).render();
     };
+
+    new AjaxPoller({repeaterFn: this.refreshMaterials.bind(this, vnode), initialIntervalSeconds: 10}).start();
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
@@ -98,10 +102,13 @@ export class MaterialsPage extends Page<null, State> {
       }
       filteredMaterials(new Materials(...results));
     }
-    return [<MaterialsWidget key={filteredMaterials().length} materials={filteredMaterials}
-                             shouldShowPackageOrScmLink={Page.isUserAnAdmin() || Page.isUserAGroupAdmin()}
-                             onEdit={vnode.state.onEdit} showModifications={vnode.state.showModifications}
-                             showUsages={vnode.state.showUsages}/>];
+    return [
+      <FlashMessage key={this.flashMessage.type} type={this.flashMessage.type} message={this.flashMessage.message}/>
+      , <MaterialsWidget key={filteredMaterials().length} materials={filteredMaterials}
+                         shouldShowPackageOrScmLink={Page.isUserAnAdmin() || Page.isUserAGroupAdmin()}
+                         onEdit={vnode.state.onEdit} showModifications={vnode.state.showModifications}
+                         showUsages={vnode.state.showUsages}/>
+    ];
   }
 
   pageName(): string {
@@ -110,13 +117,8 @@ export class MaterialsPage extends Page<null, State> {
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     this.pageState = PageState.LOADING;
-    return Promise.all([MaterialAPIs.all()]).then((result) => {
-      result[0].do((successResponse) => {
-        this.pageState = PageState.OK;
-        vnode.state.materials(successResponse.body);
-        vnode.state.materials().sortOnType();
-      }, this.setErrorState);
-    });
+    return Promise.resolve(MaterialAPIs.all(this.etag()))
+                  .then((args) => this.onMaterialsAPIResponse(args, vnode));
   }
 
   helpText(): m.Children {
@@ -139,5 +141,31 @@ export class MaterialsPage extends Page<null, State> {
     return (errorResponse: ErrorResponse) => {
       this.flashMessage.alert(JSON.parse(errorResponse.body!).message);
     };
+  }
+
+  private refreshMaterials(vnode: m.Vnode<null, State>) {
+    return Promise.resolve(MaterialAPIs.all(this.etag()))
+                  .then((args) => this.onMaterialsAPIResponse(args, vnode));
+  }
+
+  private onMaterialsAPIResponse(apiResult: ApiResult<Materials>, vnode: m.Vnode<null, State>) {
+    if (apiResult.getStatusCode() === 304) {
+      return;
+    }
+    if (apiResult.getEtag()) {
+      this.etag(apiResult.getEtag()!);
+    }
+
+    apiResult.do((successResponse) => {
+      this.pageState = PageState.OK;
+      vnode.state.materials(successResponse.body);
+      vnode.state.materials().sortOnType();
+    }, (errorResponse: ErrorResponse) => {
+      this.flashMessage.alert(errorResponse.message);
+      if (errorResponse.body) {
+        this.flashMessage.alert(JSON.parse(errorResponse.body).message);
+      }
+      this.pageState = PageState.OK;
+    });
   }
 }

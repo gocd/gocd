@@ -18,6 +18,7 @@ import {timeFormatter} from "helpers/time_formatter";
 import m from "mithril";
 import {MaterialModification} from "models/config_repos/types";
 import {MaterialWithFingerprint, MaterialWithModification, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
+import headerStyles from "views/pages/config_repos/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialWidget} from "../material_widget";
 import {git} from "./materials_widget_spec";
@@ -31,7 +32,7 @@ describe('MaterialWidgetSpec', () => {
 
   afterEach((done) => helper.unmount(done));
   beforeEach(() => {
-    material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), null);
+    material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), true, null);
   });
 
   it('should display the header and action buttons', () => {
@@ -160,6 +161,14 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.qa('li', attrsElement).length).toBe(1);
     expect(helper.textByTestId('key-value-value-ref')).toBe("pkg-name");
     expect(helper.q('a', helper.byTestId('key-value-value-ref'))).not.toBeInDOM();
+  });
+
+  it('should display inprogress bar if material update is in progress', () => {
+    material.materialUpdateInProgress = true;
+    mount();
+
+    expect(helper.byTestId("material-update-in-progress")).toBeInDOM();
+    expect(helper.byTestId("material-update-in-progress")).toHaveClass(headerStyles.configRepoUpdateInProgress);
   });
 
   function mount(shouldShowPackageOrScmLink: boolean = true) {

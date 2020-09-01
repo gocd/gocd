@@ -68,6 +68,7 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
       maybeEditButton = <Edit data-test-id={"edit-material"} title={"Edit package"}
                               onclick={vnode.attrs.onEdit.bind(this, config)}/>;
     }
+
     const actionButtons = <IconGroup>
       {maybeEditButton}
       <Usage data-test-id={"show-usages"} title={"Show Usages"} onclick={vnode.attrs.showUsages.bind(this, config)}/>
@@ -75,8 +76,12 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
             onclick={vnode.attrs.showModifications.bind(this, config)}/>
     </IconGroup>;
 
+    const inProgressIcon = material.materialUpdateInProgress
+      ? <span className={headerStyles.configRepoUpdateInProgress} data-test-id="material-update-in-progress"/>
+      : undefined;
+
     return <CollapsiblePanel header={<MaterialHeaderWidget {...vnode.attrs} />}
-                             actions={actionButtons}>
+                             actions={[inProgressIcon, actionButtons]}>
       <h3>Latest Modification Details</h3>
       <div data-test-id="latest-modification-details" className={headerStyles.configRepoProperties}>
         {modificationDetails}

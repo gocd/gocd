@@ -84,6 +84,7 @@ export interface MaterialWithFingerprintJSON {
 
 interface MaterialWithModificationJSON {
   config: MaterialWithFingerprintJSON;
+  material_update_in_progress: boolean;
   modification: MaterialModificationJSON;
 }
 
@@ -368,16 +369,18 @@ export class MaterialWithFingerprint {
 
 export class MaterialWithModification {
   config: MaterialWithFingerprint;
+  materialUpdateInProgress: boolean;
   modification: MaterialModification | null;
 
-  constructor(config: MaterialWithFingerprint, modification: MaterialModification | null) {
-    this.config       = config;
-    this.modification = modification;
+  constructor(config: MaterialWithFingerprint, materialUpdateInProgress: boolean, modification: MaterialModification | null) {
+    this.config                   = config;
+    this.materialUpdateInProgress = materialUpdateInProgress;
+    this.modification             = modification;
   }
 
   static fromJSON(data: MaterialWithModificationJSON): MaterialWithModification {
     const mod = data.modification === null ? null : MaterialModification.fromJSON(data.modification);
-    return new MaterialWithModification(MaterialWithFingerprint.fromJSON(data.config), mod);
+    return new MaterialWithModification(MaterialWithFingerprint.fromJSON(data.config), data.material_update_in_progress, mod);
   }
 
   matches(query: string) {
@@ -450,8 +453,8 @@ export class MaterialModifications extends Array<MaterialModification> {
 export class MaterialAPIs {
   private static API_VERSION_HEADER = ApiVersion.latest;
 
-  static all() {
-    return ApiRequestBuilder.GET(SparkRoutes.getAllMaterials(), this.API_VERSION_HEADER)
+  static all(etag?: string) {
+    return ApiRequestBuilder.GET(SparkRoutes.getAllMaterials(), this.API_VERSION_HEADER, {etag})
                             .then((result: ApiResult<string>) => result.map((body) => {
                               const data = JSON.parse(body) as MaterialsJSON;
                               return Materials.fromJSON(data.materials);

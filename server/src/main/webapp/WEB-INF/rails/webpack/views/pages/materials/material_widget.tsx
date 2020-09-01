@@ -69,12 +69,9 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
                               onclick={vnode.attrs.onEdit.bind(this, config)}/>;
     }
 
-    const refreshTitle  = material.materialUpdateInProgress
-      ? `Update in progress since ${timeFormatter.format(material.materialUpdateStartTime)}`
-      : "Trigger Update";
     const actionButtons = <IconGroup>
-      <Refresh data-test-id={"trigger-update"} title={refreshTitle}
-               disabled={material.materialUpdateInProgress} onclick={vnode.attrs.triggerUpdate.bind(this, config)}/>
+      <Refresh data-test-id={"trigger-update"} title={this.getTriggerUpdateTitle(material)}
+               disabled={!material.canTriggerUpdate || material.materialUpdateInProgress} onclick={vnode.attrs.triggerUpdate.bind(this, config)}/>
       {maybeEditButton}
       <Usage data-test-id={"show-usages"} title={"Show Usages"} onclick={vnode.attrs.showUsages.bind(this, config)}/>
       <List data-test-id={"show-modifications-material"} title={"Show Modifications"}
@@ -94,6 +91,14 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
       <h3>Material Attributes</h3>
       <KeyValuePair data-test-id={"material-attributes"} data={this.getMaterialData(material.config, vnode.attrs.shouldShowPackageOrScmLink)}/>
     </CollapsiblePanel>;
+  }
+
+  private getTriggerUpdateTitle(material: MaterialWithModification) {
+    return material.canTriggerUpdate
+      ? material.materialUpdateInProgress
+        ? `Update in progress since ${timeFormatter.format(material.materialUpdateStartTime)}`
+        : "Trigger Update"
+      : "You do not have permission to trigger an update for this material";
   }
 
   private getMaterialData(material: MaterialWithFingerprint, shouldShowPackageOrScmLink: boolean): Map<string, m.Children> {

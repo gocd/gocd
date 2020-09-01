@@ -29,9 +29,8 @@ $stage-status-bar-z-index:  2;
 $stage-action-icon-z-index: 1;
 
 .pipeline-activity {
-  display:    flex;
-  overflow-x: auto;
-  width:      100%;
+  display: flex;
+  width:   100%;
 }
 
 .pipeline-activity-table {
@@ -122,27 +121,19 @@ $stage-action-icon-z-index: 1;
   color: $disabled-text-color;
 }
 
-.stage {
+.stage-box-pipeline-activity {
   max-width:       $stage-width + 50px;
   height:          100%;
   display:         flex;
   align-items:     center;
   justify-content: center;
 
-  span {
+  .stage-status {
     display:       block;
     width:         82px;
     height:        12px;
     border-radius: 2px;
     z-index:       $stage-status-bar-z-index;
-  }
-
-  i {
-    display:         flex;
-    height:          100%;
-    width:           50px;
-    justify-content: center;
-    align-items:     center;
   }
 }
 

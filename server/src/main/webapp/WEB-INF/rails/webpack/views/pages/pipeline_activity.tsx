@@ -27,16 +27,20 @@ import {HeaderPanel} from "views/components/header_panel";
 import {Link} from "views/components/link";
 import {PaginationWidget} from "views/components/pagination";
 import {Pagination} from "views/components/pagination/models/pagination";
+// @ts-ignore
+import state from "views/dashboard/models/stage_overview_state";
 import {Page, PageState} from "views/pages/page";
 import {ResultAwarePage} from "views/pages/page_operations";
 import {PipelinePauseHeader} from "views/pages/pipeline_activity/common/pipeline_pause_header";
 import {PipelineActivityWidget} from "views/pages/pipeline_activity/pipeline_activity_widget";
+import {StageOverviewViewModel} from "../dashboard/stage_overview/models/stage_overview_view_model";
 import {ConfirmationDialog} from "./pipeline_activity/confirmation_modal";
 import styles from "./pipeline_activity/index.scss";
 
 interface PageMeta {
   pipelineName: string;
   canOperatePipeline: boolean;
+  canAdministerPipeline: boolean;
 }
 
 interface State {
@@ -45,6 +49,7 @@ interface State {
   showCommentFor: Stream<string>;
   filterText: Stream<string>;
   meta: PageMeta;
+  showStageOverview?: (pipelineName: string, pipelineCounter: string | number | any, stageName: string, stageCounter: string | number | any, status: any, e: any) => void;
 }
 
 export class PipelineActivityPage extends Page<null, State> implements ResultAwarePage<PipelineActivity>, State {
@@ -56,6 +61,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   filterText                                 = Stream<string>();
   meta                                       = this.getMeta() as PageMeta;
   private poller: AjaxPoller<void>;
+  private stageOverviewState = state.StageOverviewState;
 
   constructor() {
     super();
@@ -68,6 +74,18 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
     this.startPolling();
+
+    vnode.state.showStageOverview = (pipelineName, pipelineCounter, stageName, stageCounter, stageStatus, e) => {
+      this.stageOverviewState.show(pipelineName, pipelineCounter, stageName, stageCounter);
+      StageOverviewViewModel.initialize(pipelineName, pipelineCounter, stageName, stageCounter, stageStatus).then((result) => this.stageOverviewState.model(result));
+      e.stopPropagation();
+    };
+
+    // close changes popup when clicked outside.
+    document.body.onclick = () => {
+      vnode.state.showBuildCaseFor("");
+      this.stageOverviewState.hide();
+    };
   }
 
   runPipeline() {
@@ -119,7 +137,11 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
                               showCommentFor={vnode.state.showCommentFor}
                               runPipeline={this.runPipeline.bind(this)}
                               runStage={this.runStage.bind(this)}
+                              stageOverviewState={this.stageOverviewState}
+                              //@ts-ignore
+                              showStageOverview={vnode.state.showStageOverview}
                               canOperatePipeline={this.meta.canOperatePipeline}
+                              canAdministerPipeline={this.meta.canAdministerPipeline}
                               addOrUpdateComment={this.addOrUpdateComment.bind(this)}
                               cancelStageInstance={this.cancelStageInstance.bind(this)}/>,
       <div class={styles.paginationWrapper}>

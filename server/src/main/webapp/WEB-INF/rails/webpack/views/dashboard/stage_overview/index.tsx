@@ -25,6 +25,10 @@ import {StageOverviewViewModel} from "./models/stage_overview_view_model";
 import {StageState} from "./models/types";
 import {StageHeaderWidget} from "./stage_overview_header";
 
+interface State {
+  shouldAlignLeft: Stream<boolean>;
+}
+
 export interface Attrs {
   pipelineName: string;
   pipelineCounter: string | number;
@@ -35,11 +39,16 @@ export interface Attrs {
   templateName: string | undefined | null;
   canAdminister: boolean;
   stageInstanceFromDashboard: any;
+  isDisplayedOnPipelineActivityPage?: boolean;
   stageOverviewVM: Stream<StageOverviewViewModel | undefined>;
 }
 
-export class StageOverview extends MithrilComponent<Attrs, {}> {
-  oncreate(vnode: m.Vnode<Attrs, {}>) {
+export class StageOverview extends MithrilComponent<Attrs, State> {
+  oninit(vnode: m.Vnode<Attrs, State>) {
+    vnode.state.shouldAlignLeft = Stream<boolean>(false);
+  }
+
+  oncreate(vnode: m.Vnode<Attrs, State>) {
     // @ts-ignore
     vnode.dom.onclick = (e: any) => {
       e.stopPropagation();
@@ -54,8 +63,28 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
 
     // add an extra class which aligns the caret to right.
     if (shouldAlignLeft) {
+      vnode.state.shouldAlignLeft(true);
+    }
+
+    if (vnode.attrs.isDisplayedOnPipelineActivityPage) {
+      let top = 36;
+      let left = -6;
+
+      // for a user with no operate permission, the add comment feature is not available, making the stage overview mis-positioned,
+      // hence, position stage overview a little above for read only users.
+      if(!vnode.attrs.stageInstanceFromDashboard.canOperate) {
+        top = 27;
+      }
+
+      if(shouldAlignLeft) {
+        left = -655;
+      }
+
       // @ts-ignore
-      vnode.dom.classList.add(styles.alignLeft);
+      vnode.dom.style.top = `${top}px`;
+      // @ts-ignore
+      vnode.dom.style.left = `${left}px`;
+      return;
     }
 
     //   // horizontal left alignment
@@ -102,19 +131,31 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
     vnode.dom.style.left = `${leftAlign}px`;
   }
 
-  view(vnode: m.Vnode<Attrs, {}>): m.Children | void | null {
+  view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
     // @ts-ignore
     const status = styles[`${vnode.attrs.stageInstanceFromDashboard.status.toLowerCase()}-stage`];
 
+    let classNames = `${styles.stageOverviewContainer} ${status}`;
+    if(vnode.attrs.isDisplayedOnPipelineActivityPage) {
+      classNames = `${classNames} ${styles.pipelineActivityClass}`;
+      if(vnode.state.shouldAlignLeft()) {
+        classNames = `${classNames} ${styles.pipelineActivityAlignLeft}`;
+      } else {
+        classNames = `${classNames} ${styles.pipelineActivityAlignRight}`;
+      }
+    } else if(vnode.state.shouldAlignLeft()) {
+      classNames = `${classNames} ${styles.alignLeft}`;
+    }
+
     if (!vnode.attrs.stageOverviewVM()) {
-      return <div data-test-id="stage-overview-container-spinner" class={`${styles.stageOverviewContainer} ${status}`}>
+      return <div data-test-id="stage-overview-container-spinner" class={classNames}>
         <div className={`${status} ${styles.stageOverviewStatus}`}/>
         <Spinner/>
       </div>;
     }
 
     const inProgressStageFromPipeline = Stream(vnode.attrs.stages.find((s) => s.isBuilding()));
-    return <div data-test-id="stage-overview-container" class={`${styles.stageOverviewContainer} ${status}`}>
+    return <div data-test-id="stage-overview-container" class={classNames}>
       <div class={`${status} ${styles.stageOverviewStatus}`}/>
       <StageHeaderWidget stageName={vnode.attrs.stageName}
                          stageCounter={vnode.attrs.stageCounter}

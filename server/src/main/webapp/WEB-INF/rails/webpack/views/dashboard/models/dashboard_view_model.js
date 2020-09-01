@@ -16,6 +16,7 @@
 import m from "mithril";
 import _ from "lodash";
 import Stream from "mithril/stream";
+import state from "./stage_overview_state";
 
 function FilterMixin() {
   const self = this;
@@ -112,7 +113,6 @@ export function DashboardViewModel(dashboard) {
   FilterMixin.call(this);
 
   let dropdownPipelineName, dropdownPipelineCounter;
-  let stageOverviewPipelineName, stageOverviewPipelineCounter, stageOverviewStageName, stageOverviewStageCounter;
 
   const self = this;
 
@@ -137,33 +137,7 @@ export function DashboardViewModel(dashboard) {
       }
     },
 
-    stageOverview: {
-      model: Stream(),
-
-      isOpen: (pipeline, pCounter, stage, sCounter) => ((pipeline === stageOverviewPipelineName) && (pCounter === stageOverviewPipelineCounter) && (stage === stageOverviewStageName) && (sCounter === stageOverviewStageCounter)),
-
-      show: (pipeline, pCounter, stage, sCounter) => {
-        self.stageOverview.hide();
-        stageOverviewPipelineName = pipeline;
-        stageOverviewPipelineCounter = pCounter;
-        stageOverviewStageName = stage;
-        stageOverviewStageCounter = sCounter;
-      },
-
-      hide: () => {
-        if(self.stageOverview.model()) {
-          self.stageOverview.model().stopRepeater();
-          self.stageOverview.model(undefined);
-        }
-
-        stageOverviewPipelineName = undefined;
-        stageOverviewPipelineCounter = undefined;
-        stageOverviewStageName = undefined;
-        stageOverviewStageCounter = undefined;
-      },
-
-      matchesPipelineAndStage: (pipeline, stage) => (pipeline === stageOverviewPipelineName) && (stage === stageOverviewStageName)
-    },
+    stageOverview: state.StageOverviewState,
 
     buildCause: Stream()
   });

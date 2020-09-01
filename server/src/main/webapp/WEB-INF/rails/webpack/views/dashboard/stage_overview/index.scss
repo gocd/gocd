@@ -36,6 +36,7 @@ $tooltip-border-color: #ccc;
 
 $tooltip-message-background: #333;
 
+$black: #0a0a0a;
 $white: #fff;
 $gray: #808080;
 $dark-gray: #2f4f4f;
@@ -68,6 +69,78 @@ $building: #ffc11b;
     left:          12px;
     top:           -13px;
     transform:     rotate(90deg);
+  }
+}
+
+.pipeline-activity-align-left {
+  &:before {
+    left: 685px;
+  }
+}
+
+.pipeline-activity-align-right {
+  &:before {
+    left: 34.5px;
+  }
+}
+
+
+.pipeline-activity-class {
+  color: $black;
+
+  .stage-name-container {
+    i {
+      font-size:   17px;
+      margin:      13px 10px 0 10px;
+      font-weight: 400;
+
+      &:before {
+        margin: 0;
+      }
+    }
+  }
+
+  i {
+    display: block;
+
+    &:hover {
+      display: block;
+    }
+
+    &:before {
+      margin: 0;
+    }
+  }
+
+  .triggered-by-container {
+    display: flex;
+  }
+
+  .triggered-by-and-on {
+    width:  auto;
+    margin: 0 5px 0 5px;
+  }
+
+  .duration-separator {
+    width: auto;
+  }
+
+  .job-name {
+    height: auto;
+  }
+
+  .stage-operation-button-group div {
+    margin: 2px;
+  }
+
+  .tooltip-message {
+    margin-top:  12px;
+    margin-left: -78px;
+  }
+
+  .rerun-wrapper {
+    margin-top:  20px;
+    margin-left: 17px;
   }
 }
 

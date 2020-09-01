@@ -21,6 +21,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.internalmaterials.models.MaterialInfo
 import com.thoughtworks.go.apiv1.internalmaterials.representers.MaterialWithModificationsRepresenter
 import com.thoughtworks.go.apiv1.internalmaterials.representers.UsagesRepresenter
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.domain.materials.Material
 import com.thoughtworks.go.domain.materials.MaterialConfig
@@ -31,9 +32,6 @@ import com.thoughtworks.go.server.service.MaintenanceModeService
 import com.thoughtworks.go.server.service.MaterialConfigConverter
 import com.thoughtworks.go.server.service.MaterialConfigService
 import com.thoughtworks.go.server.service.MaterialService
-import com.thoughtworks.go.server.service.result.HttpOperationResult
-import com.thoughtworks.go.server.service.result.OperationResult
-import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -41,7 +39,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.invocation.InvocationOnMock
 
 import static java.util.Collections.emptyMap
 import static org.mockito.ArgumentMatchers.*
@@ -129,22 +126,22 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
     @Test
     void 'should return 200 with materials and their info: modifications and mdu progress'() {
-      MaterialConfigs materialConfigs = new MaterialConfigs()
+      Map<MaterialConfig, Boolean> materialConfigs = new HashMap<>()
       def git = MaterialConfigsMother.git("http://example.com")
-      materialConfigs.add(git)
+      materialConfigs.put(git, true)
       def modifications = ModificationsMother.withModifiedFileWhoseNameLengthIsOneK()
 
       def map = new HashMap<>()
       map.put(git.getFingerprint(), modifications)
 
-      when(materialConfigService.getMaterialConfigs(anyString())).thenReturn(materialConfigs)
+      when(materialConfigService.getMaterialConfigsWithPermissions(anyString())).thenReturn(materialConfigs)
       when(materialService.getLatestModificationForEachMaterial()).thenReturn(map)
       when(maintenanceModeService.getRunningMDUs()).thenReturn([])
 
       getWithApiHeader(controller.controllerBasePath())
 
       def resultMap = new HashMap<>()
-      resultMap.put(git, new MaterialInfo(modifications, false))
+      resultMap.put(git, new MaterialInfo(modifications, true, false, null))
 
       assertThatResponse()
         .isOk()
@@ -177,18 +174,18 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
     @Test
     void 'should return 200 with materials with empty modifications'() {
-      MaterialConfigs materialConfigs = new MaterialConfigs()
+      Map<MaterialConfig, Boolean> materialConfigs = new HashMap<>()
       def git = MaterialConfigsMother.git("http://example.com")
-      materialConfigs.add(git)
+      materialConfigs.put(git, false)
 
-      when(materialConfigService.getMaterialConfigs(anyString())).thenReturn(materialConfigs)
+      when(materialConfigService.getMaterialConfigsWithPermissions(anyString())).thenReturn(materialConfigs)
       when(materialService.getLatestModificationForEachMaterial()).thenReturn(emptyMap())
       when(maintenanceModeService.getRunningMDUs()).thenReturn([])
 
       getWithApiHeader(controller.controllerBasePath())
 
       def resultMap = new HashMap<>()
-      resultMap.put(git, new MaterialInfo(null, false))
+      resultMap.put(git, new MaterialInfo(null, false, false, null))
 
       assertThatResponse()
         .isOk()
@@ -197,25 +194,25 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
     @Test
     void 'should not include dependency materials'() {
-      MaterialConfigs materialConfigs = new MaterialConfigs()
+      Map<MaterialConfig, Boolean> materialConfigs = new HashMap<>()
       def dependencyConfig = MaterialConfigsMother.dependencyMaterialConfig("pipeline", "stage")
       def git = MaterialConfigsMother.git("http://example.com")
-      materialConfigs.add(dependencyConfig)
-      materialConfigs.add(git)
+      materialConfigs.put(dependencyConfig, false)
+      materialConfigs.put(git, false)
       def modifications = ModificationsMother.withModifiedFileWhoseNameLengthIsOneK()
 
       def map = new HashMap<>()
       map.put(git.getFingerprint(), modifications)
       map.put(dependencyConfig.getFingerprint(), modifications)
 
-      when(materialConfigService.getMaterialConfigs(anyString())).thenReturn(materialConfigs)
+      when(materialConfigService.getMaterialConfigsWithPermissions(anyString())).thenReturn(materialConfigs)
       when(materialService.getLatestModificationForEachMaterial()).thenReturn(map)
       when(maintenanceModeService.getRunningMDUs()).thenReturn([])
 
       getWithApiHeader(controller.controllerBasePath())
 
       def resultMap = new HashMap<>()
-      resultMap.put(git, new MaterialInfo(modifications, false))
+      resultMap.put(git, new MaterialInfo(modifications, false, false, null))
 
       assertThatResponse()
         .isOk()
@@ -250,7 +247,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
     @Test
     void 'should return ok when trigger is successful'() {
-      when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).thenReturn(git)
+      when(materialConfigService.getMaterialConfig(anyString(), anyString())).thenReturn(git)
       when(materialUpdateService.updateMaterial(any(Material.class))).thenReturn(true)
 
       postWithApiHeader("/api/internal/materials/abc123/trigger_update", [])
@@ -263,7 +260,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
     @Test
     void 'should not trigger update if update is already in progress'() {
-      when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).thenReturn(git)
+      when(materialConfigService.getMaterialConfig(anyString(), anyString())).thenReturn(git)
       when(materialUpdateService.updateMaterial(any(Material.class))).thenReturn(false)
 
       postWithApiHeader("/api/internal/materials/abc123/trigger_update", [])
@@ -276,11 +273,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
     @Test
     void 'should return 404 value if material does not exist'() {
-      when(materialConfigService.getMaterialConfig(anyString(), anyString(), any(OperationResult.class))).then({
-        InvocationOnMock invocation ->
-          HttpOperationResult result = (HttpOperationResult) invocation.arguments.last()
-          result.notFound("Material not found", "Some message", HealthStateType.notFound())
-      })
+      when(materialConfigService.getMaterialConfig(anyString(), anyString())).thenThrow(new RecordNotFoundException("Material not found!!"))
 
       postWithApiHeader("/api/internal/materials/abc123/trigger_update", [])
 
@@ -288,7 +281,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
       assertThatResponse()
         .isNotFound()
-        .hasJsonMessage("Material not found { Some message }")
+        .hasJsonMessage("Material not found!!")
     }
   }
 }

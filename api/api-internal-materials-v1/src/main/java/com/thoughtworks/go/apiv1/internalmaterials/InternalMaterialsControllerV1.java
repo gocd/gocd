@@ -23,7 +23,6 @@ import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.internalmaterials.models.MaterialInfo;
 import com.thoughtworks.go.apiv1.internalmaterials.representers.MaterialWithModificationsRepresenter;
 import com.thoughtworks.go.apiv1.internalmaterials.representers.UsagesRepresenter;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -32,7 +31,6 @@ import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.MaterialConfigService;
 import com.thoughtworks.go.server.service.MaterialService;
-import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +90,7 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
     }
 
     public String index(Request request, Response response) throws Exception {
-        MaterialConfigs materialConfigs = materialConfigService.getMaterialConfigs(currentUsernameString());
+        Map<MaterialConfig, Boolean> materialConfigs = materialConfigService.getMaterialConfigsWithPermissions(currentUsernameString());
         Map<String, Modification> modifications = materialService.getLatestModificationForEachMaterial();
         Collection<MaintenanceModeService.MaterialPerformingMDU> runningMDUs = maintenanceModeService.getRunningMDUs();
         Map<MaterialConfig, MaterialInfo> mergedMap = createMergedMap(materialConfigs, modifications, runningMDUs);
@@ -115,11 +113,7 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
 
     public String triggerUpdate(Request request, Response response) throws Exception {
         String fingerprint = request.params(FINGERPRINT);
-        HttpOperationResult result = new HttpOperationResult();
-        MaterialConfig materialConfig = materialConfigService.getMaterialConfig(currentUsernameString(), fingerprint, result);
-        if (!result.isSuccess()) {
-            return renderHTTPOperationResult(result, request, response);
-        }
+        MaterialConfig materialConfig = materialConfigService.getMaterialConfig(currentUsernameString(), fingerprint);
         if (materialUpdateService.updateMaterial(materialConfigConverter.toMaterial(materialConfig))) {
             response.status(HttpStatus.CREATED.value());
             return MessageJson.create("OK");
@@ -129,12 +123,13 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
         }
     }
 
-    private Map<MaterialConfig, MaterialInfo> createMergedMap(MaterialConfigs materialConfigs, Map<String, Modification> modificationsMap, Collection<MaintenanceModeService.MaterialPerformingMDU> runningMDUs) {
+    private Map<MaterialConfig, MaterialInfo> createMergedMap(Map<MaterialConfig, Boolean> materialConfigs, Map<String, Modification> modificationsMap, Collection<MaintenanceModeService.MaterialPerformingMDU> runningMDUs) {
         HashMap<MaterialConfig, MaterialInfo> map = new HashMap<>();
         if (materialConfigs.isEmpty()) {
             return map;
         }
-        for (MaterialConfig materialConfig : materialConfigs) {
+
+        materialConfigs.forEach((materialConfig, hasOperatePermission) -> {
             if (!materialConfig.getType().equals(DependencyMaterialConfig.TYPE)) {
                 Modification mod = modificationsMap.getOrDefault(materialConfig.getFingerprint(), null);
                 MaintenanceModeService.MaterialPerformingMDU mduInfo = runningMDUs.stream()
@@ -143,9 +138,9 @@ public class InternalMaterialsControllerV1 extends ApiController implements Spar
                         .orElse(null);
                 boolean isMDUInProgress = mduInfo != null;
                 Timestamp updateStartTime = isMDUInProgress ? mduInfo.getTimestamp() : null;
-                map.put(materialConfig, new MaterialInfo(mod, isMDUInProgress, updateStartTime));
+                map.put(materialConfig, new MaterialInfo(mod, hasOperatePermission, isMDUInProgress, updateStartTime));
             }
-        }
+        });
         return map;
     }
 

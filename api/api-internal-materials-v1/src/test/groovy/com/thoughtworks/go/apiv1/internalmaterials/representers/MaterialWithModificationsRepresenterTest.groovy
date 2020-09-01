@@ -55,7 +55,7 @@ class MaterialWithModificationsRepresenterTest {
     def git = MaterialConfigsMother.git("http://example.com", "main")
     def modification = ModificationsMother.withModifiedFileWhoseNameLengthIsOneK()
     def timestamp = new Date().toTimestamp()
-    map.put(git, new MaterialInfo(modification, true, timestamp))
+    map.put(git, new MaterialInfo(modification, true, true, timestamp))
 
     def actualJson = toObjectString({ MaterialWithModificationsRepresenter.toJSON(it, map) })
 
@@ -71,6 +71,7 @@ class MaterialWithModificationsRepresenterTest {
       materials: [
         [
           "config"                     : toObject(MaterialsRepresenter.toJSON(git)),
+          "can_trigger_update"         : true,
           "material_update_in_progress": true,
           "material_update_start_time" : jsonDate(timestamp),
           "modification"               : [
@@ -92,7 +93,7 @@ class MaterialWithModificationsRepresenterTest {
     def map = new HashMap();
     def git = MaterialConfigsMother.git("http://example.com", "main")
     def timestamp = new Date().toTimestamp()
-    map.put(git, new MaterialInfo(null, true, timestamp))
+    map.put(git, new MaterialInfo(null, false, true, timestamp))
 
     def actualJson = toObjectString({ MaterialWithModificationsRepresenter.toJSON(it, map) })
 
@@ -108,6 +109,7 @@ class MaterialWithModificationsRepresenterTest {
       materials: [
         [
           "config"                     : toObject(MaterialsRepresenter.toJSON(git)),
+          "can_trigger_update"         : false,
           "material_update_in_progress": true,
           "material_update_start_time" : jsonDate(timestamp),
           "modification"               : null
@@ -122,7 +124,7 @@ class MaterialWithModificationsRepresenterTest {
   void 'should not render material update start time if null'() {
     def map = new HashMap();
     def git = MaterialConfigsMother.git("http://example.com", "main")
-    map.put(git, new MaterialInfo(null, false))
+    map.put(git, new MaterialInfo(null, false, false, null))
 
     def actualJson = toObjectString({ MaterialWithModificationsRepresenter.toJSON(it, map) })
 
@@ -138,6 +140,7 @@ class MaterialWithModificationsRepresenterTest {
       materials: [
         [
           "config"                     : toObject(MaterialsRepresenter.toJSON(git)),
+          "can_trigger_update"         : true,
           "material_update_in_progress": false,
           "modification"               : null
         ]

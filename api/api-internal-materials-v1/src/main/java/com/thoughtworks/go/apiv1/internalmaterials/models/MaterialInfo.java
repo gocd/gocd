@@ -28,11 +28,7 @@ import java.sql.Timestamp;
 @EqualsAndHashCode
 public class MaterialInfo {
     private Modification modification;
+    private boolean hasOperatePermission;
     private boolean isUpdateInProgress;
     private Timestamp updateStartTime;
-
-    public MaterialInfo(Modification modification, boolean isUpdateInProgress) {
-        this.modification = modification;
-        this.isUpdateInProgress = isUpdateInProgress;
-    }
 }

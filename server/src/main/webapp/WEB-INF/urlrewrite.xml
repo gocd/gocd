@@ -37,8 +37,8 @@
 
   <rule>
     <name>Internal Materials URL for usages</name>
-    <from>^/api/internal/materials/([^/]+)/usages(/?)$</from>
-    <to last="true">/spark/api/internal/materials/${escape:$1}/usages</to>
+    <from>^/api/internal/materials/([^/]+)/(usages|trigger_update)(/?)$</from>
+    <to last="true">/spark/api/internal/materials/${escape:$1}/${escape:$2}</to>
   </rule>
 
   <rule>

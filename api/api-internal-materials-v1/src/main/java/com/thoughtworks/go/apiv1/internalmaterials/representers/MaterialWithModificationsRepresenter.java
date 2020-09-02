@@ -35,9 +35,11 @@ public class MaterialWithModificationsRepresenter {
             return;
         }
         outputWriter.addChildList("materials", materialWriter -> {
-            modificationsMap.forEach((config, info) -> materialWriter.addChild(childWriter -> {
-                childWriter.addChild("config", MaterialsRepresenter.toJSON(config))
-                        .add("material_update_in_progress", info.isUpdateInProgress());
+            modificationsMap.forEach((material, info) -> materialWriter.addChild(childWriter -> {
+                childWriter.addChild("config", MaterialsRepresenter.toJSON(material))
+                        .add("can_trigger_update", info.isHasOperatePermission())
+                        .add("material_update_in_progress", info.isUpdateInProgress())
+                        .addIfNotNull("material_update_start_time", info.getUpdateStartTime());
                 if (info.getModification() == null) {
                     childWriter.renderNull("modification");
                 } else {

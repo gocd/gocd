@@ -24,21 +24,24 @@ import {MaterialWidget} from "../material_widget";
 import {git} from "./materials_widget_spec";
 
 describe('MaterialWidgetSpec', () => {
-  const helper        = new TestHelper();
-  const showModSpy    = jasmine.createSpy("showModifications");
-  const onEditSpy     = jasmine.createSpy("onEdit");
-  const showUsagesSpy = jasmine.createSpy("showUsages");
+  const helper           = new TestHelper();
+  const showModSpy       = jasmine.createSpy("showModifications");
+  const triggerUpdateSpy = jasmine.createSpy("triggerUpdate");
+  const onEditSpy        = jasmine.createSpy("onEdit");
+  const showUsagesSpy    = jasmine.createSpy("showUsages");
   let material: MaterialWithModification;
 
   afterEach((done) => helper.unmount(done));
   beforeEach(() => {
-    material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), true, null);
+    material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), true, true, "2019-12-23T10:15:52Z");
   });
 
   it('should display the header and action buttons', () => {
     mount();
 
     expect(helper.byTestId("material-icon")).toBeInDOM();
+    expect(helper.byTestId("trigger-update")).toBeInDOM();
+    expect(helper.byTestId("show-usages")).toBeInDOM();
     expect(helper.byTestId("show-modifications-material")).toBeInDOM();
   });
 
@@ -163,16 +166,28 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.q('a', helper.byTestId('key-value-value-ref'))).not.toBeInDOM();
   });
 
-  it('should display inprogress bar if material update is in progress', () => {
+  it('should display inprogress bar if material update is in progress and disable the trigger button', () => {
     material.materialUpdateInProgress = true;
     mount();
 
     expect(helper.byTestId("material-update-in-progress")).toBeInDOM();
     expect(helper.byTestId("material-update-in-progress")).toHaveClass(headerStyles.configRepoUpdateInProgress);
+
+    expect(helper.byTestId("trigger-update")).toBeDisabled();
+    expect(helper.byTestId("trigger-update")).toHaveAttr('title', `Update in progress since ${timeFormatter.format(material.materialUpdateStartTime)}`);
+  });
+
+  it('should disable trigger button when canTriggerValue is false', () => {
+    material.canTriggerUpdate = false;
+    mount();
+
+    expect(helper.byTestId("trigger-update")).toBeDisabled();
+    expect(helper.byTestId("trigger-update")).toHaveAttr('title', 'You do not have permission to trigger an update for this material');
   });
 
   function mount(shouldShowPackageOrScmLink: boolean = true) {
     helper.mount(() => <MaterialWidget material={material} shouldShowPackageOrScmLink={shouldShowPackageOrScmLink}
-                                       onEdit={onEditSpy} showModifications={showModSpy} showUsages={showUsagesSpy}/>);
+                                       triggerUpdate={triggerUpdateSpy} onEdit={onEditSpy} showModifications={showModSpy}
+                                       showUsages={showUsagesSpy}/>);
   }
 });

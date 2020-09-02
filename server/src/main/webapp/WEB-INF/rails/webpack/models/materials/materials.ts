@@ -84,7 +84,9 @@ export interface MaterialWithFingerprintJSON {
 
 interface MaterialWithModificationJSON {
   config: MaterialWithFingerprintJSON;
+  can_trigger_update: boolean;
   material_update_in_progress: boolean;
+  material_update_start_time?: string;
   modification: MaterialModificationJSON;
 }
 
@@ -369,18 +371,23 @@ export class MaterialWithFingerprint {
 
 export class MaterialWithModification {
   config: MaterialWithFingerprint;
+  canTriggerUpdate: boolean;
   materialUpdateInProgress: boolean;
+  materialUpdateStartTime: stringOrUndefined;
   modification: MaterialModification | null;
 
-  constructor(config: MaterialWithFingerprint, materialUpdateInProgress: boolean, modification: MaterialModification | null) {
+  constructor(config: MaterialWithFingerprint, canTriggerUpdate: boolean = false, materialUpdateInProgress: boolean = false, materialUpdateStartTime?: stringOrUndefined, modification: MaterialModification | null = null) {
     this.config                   = config;
+    this.canTriggerUpdate         = canTriggerUpdate;
     this.materialUpdateInProgress = materialUpdateInProgress;
+    this.materialUpdateStartTime  = materialUpdateStartTime;
     this.modification             = modification;
   }
 
   static fromJSON(data: MaterialWithModificationJSON): MaterialWithModification {
     const mod = data.modification === null ? null : MaterialModification.fromJSON(data.modification);
-    return new MaterialWithModification(MaterialWithFingerprint.fromJSON(data.config), data.material_update_in_progress, mod);
+    return new MaterialWithModification(MaterialWithFingerprint.fromJSON(data.config), data.can_trigger_update
+      , data.material_update_in_progress, data.material_update_start_time, mod);
   }
 
   matches(query: string) {
@@ -479,6 +486,10 @@ export class MaterialAPIs {
                               const parse = JSON.parse(body) as MaterialUsagesJSON;
                               return MaterialUsages.fromJSON(parse);
                             }));
+  }
+
+  static triggerUpdate(fingerprint: string) {
+    return ApiRequestBuilder.POST(SparkRoutes.getMaterialTriggerPath(fingerprint), this.API_VERSION_HEADER);
   }
 }
 

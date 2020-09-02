@@ -21,10 +21,14 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import java.sql.Timestamp;
+
 @Getter
 @AllArgsConstructor
 @EqualsAndHashCode
 public class MaterialInfo {
     private Modification modification;
+    private boolean hasOperatePermission;
     private boolean isUpdateInProgress;
+    private Timestamp updateStartTime;
 }

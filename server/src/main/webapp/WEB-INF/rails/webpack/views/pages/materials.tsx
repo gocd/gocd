@@ -30,6 +30,7 @@ import configRepoStyles from "./config_repos/index.scss";
 import {ShowModificationsModal, ShowUsagesModal} from "./materials/modal";
 
 export interface AdditionalInfoAttrs {
+  triggerUpdate: (material: MaterialWithFingerprint, e: MouseEvent) => void;
   onEdit: (material: MaterialWithFingerprint, e: MouseEvent) => void;
   showUsages: (material: MaterialWithFingerprint, e: MouseEvent) => void;
   showModifications: (material: MaterialWithFingerprint, e: MouseEvent) => void;
@@ -52,6 +53,19 @@ export class MaterialsPage extends Page<null, State> {
 
     vnode.state.materials  = Stream();
     vnode.state.searchText = Stream();
+
+    vnode.state.triggerUpdate = (material: MaterialWithFingerprint, e: MouseEvent) => {
+      e.stopPropagation();
+      MaterialAPIs.triggerUpdate(material.fingerprint())
+                  .then((result) => {
+                    result.do(() => {
+                      this.flashMessage.success(`An update was scheduled for '${material.displayName()}' material.`);
+                      this.fetchData(vnode);
+                    }, (err) => {
+                      this.flashMessage.alert(`Unable to schedule an update for '${material.displayName()}' material. ${err.message}`);
+                    });
+                  });
+    };
 
     vnode.state.onEdit = (material: MaterialWithFingerprint, e: MouseEvent) => {
       e.stopPropagation();
@@ -106,8 +120,8 @@ export class MaterialsPage extends Page<null, State> {
       <FlashMessage key={this.flashMessage.type} type={this.flashMessage.type} message={this.flashMessage.message}/>
       , <MaterialsWidget key={filteredMaterials().length} materials={filteredMaterials}
                          shouldShowPackageOrScmLink={Page.isUserAnAdmin() || Page.isUserAGroupAdmin()}
-                         onEdit={vnode.state.onEdit} showModifications={vnode.state.showModifications}
-                         showUsages={vnode.state.showUsages}/>
+                         triggerUpdate={vnode.state.triggerUpdate} onEdit={vnode.state.onEdit}
+                         showModifications={vnode.state.showModifications} showUsages={vnode.state.showUsages}/>
     ];
   }
 

@@ -48,7 +48,8 @@ export class MaterialsWidget extends MithrilViewComponent<MaterialsAttrs> {
     return <div data-test-id="materials-widget">
       {vnode.attrs.materials().map((material) => <MaterialWidget material={material}
                                                                  shouldShowPackageOrScmLink={vnode.attrs.shouldShowPackageOrScmLink}
-                                                                 onEdit={vnode.attrs.onEdit} showModifications={vnode.attrs.showModifications}
+                                                                 triggerUpdate={vnode.attrs.triggerUpdate} onEdit={vnode.attrs.onEdit}
+                                                                 showModifications={vnode.attrs.showModifications}
                                                                  showUsages={vnode.attrs.showUsages}/>)}
     </div>;
   }

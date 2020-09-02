@@ -17,11 +17,13 @@
 package com.thoughtworks.go.apiv1.internalmaterials.models;
 
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -31,4 +33,5 @@ public class MaterialInfo {
     private boolean hasOperatePermission;
     private boolean isUpdateInProgress;
     private Timestamp updateStartTime;
+    private List<ServerHealthState> logs;
 }

@@ -193,3 +193,19 @@ $button_color: #2d6ca2;
   overflow-y:  scroll;
   width:       100%;
 }
+
+.warnings {
+  color: $warning-txt;
+
+  p {
+    padding-left: 10px;
+  }
+}
+
+.errors {
+  color: $failed;
+
+  p {
+    padding-left: 10px;
+  }
+}

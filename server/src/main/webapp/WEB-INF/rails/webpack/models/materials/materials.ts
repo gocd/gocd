@@ -82,16 +82,54 @@ export interface MaterialWithFingerprintJSON {
   attributes: MaterialAttributesJSON;
 }
 
+interface MaterialMessageJSON {
+  level: string;
+  message: string;
+  description: string;
+}
+
 interface MaterialWithModificationJSON {
   config: MaterialWithFingerprintJSON;
   can_trigger_update: boolean;
   material_update_in_progress: boolean;
   material_update_start_time?: string;
   modification: MaterialModificationJSON;
+  messages: MaterialMessageJSON[];
 }
 
 interface MaterialsJSON {
   materials: MaterialWithModificationJSON[];
+}
+
+export class MaterialMessage {
+  level: string;
+  message: string;
+  description: string;
+
+  constructor(level: string, message: string, description: string) {
+    this.level       = level;
+    this.message     = message;
+    this.description = description;
+  }
+
+  static fromJSON(data: MaterialMessageJSON): MaterialMessage {
+    return new MaterialMessage(data.level, data.message, data.description);
+  }
+}
+
+export class MaterialMessages extends Array<MaterialMessage> {
+  constructor(...vals: MaterialMessage[]) {
+    super(...vals);
+    Object.setPrototypeOf(this, Object.create(MaterialMessages.prototype));
+  }
+
+  static fromJSON(data: MaterialMessageJSON[]): MaterialMessages {
+    return new MaterialMessages(...data.map((a) => MaterialMessage.fromJSON(a)));
+  }
+
+  hasMessages = () => this.length > 0;
+  errors      = () => _.filter(this, {level: "ERROR"});
+  warnings    = () => _.filter(this, {level: "WARNING"});
 }
 
 abstract class MaterialAttributes {
@@ -375,19 +413,21 @@ export class MaterialWithModification {
   materialUpdateInProgress: boolean;
   materialUpdateStartTime: stringOrUndefined;
   modification: MaterialModification | null;
+  messages: MaterialMessages;
 
-  constructor(config: MaterialWithFingerprint, canTriggerUpdate: boolean = false, materialUpdateInProgress: boolean = false, materialUpdateStartTime?: stringOrUndefined, modification: MaterialModification | null = null) {
+  constructor(config: MaterialWithFingerprint, canTriggerUpdate: boolean = false, materialUpdateInProgress: boolean = false, materialUpdateStartTime?: stringOrUndefined, modification: MaterialModification | null = null, messages: MaterialMessages = new MaterialMessages()) {
     this.config                   = config;
     this.canTriggerUpdate         = canTriggerUpdate;
     this.materialUpdateInProgress = materialUpdateInProgress;
     this.materialUpdateStartTime  = materialUpdateStartTime;
     this.modification             = modification;
+    this.messages                 = messages;
   }
 
   static fromJSON(data: MaterialWithModificationJSON): MaterialWithModification {
     const mod = data.modification === null ? null : MaterialModification.fromJSON(data.modification);
     return new MaterialWithModification(MaterialWithFingerprint.fromJSON(data.config), data.can_trigger_update
-      , data.material_update_in_progress, data.material_update_start_time, mod);
+      , data.material_update_in_progress, data.material_update_start_time, mod, MaterialMessages.fromJSON(data.messages));
   }
 
   matches(query: string) {

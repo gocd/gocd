@@ -17,7 +17,8 @@
 import {timeFormatter} from "helpers/time_formatter";
 import m from "mithril";
 import {MaterialModification} from "models/config_repos/types";
-import {MaterialWithFingerprint, MaterialWithModification, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
+import {MaterialMessages, MaterialWithFingerprint, MaterialWithModification, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
+import {materialMessages} from "models/materials/spec/materials_spec";
 import headerStyles from "views/pages/config_repos/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialWidget} from "../material_widget";
@@ -183,6 +184,17 @@ describe('MaterialWidgetSpec', () => {
 
     expect(helper.byTestId("trigger-update")).toBeDisabled();
     expect(helper.byTestId("trigger-update")).toHaveAttr('title', 'You do not have permission to trigger an update for this material');
+  });
+
+  it('should render the messages', () => {
+    material.messages = MaterialMessages.fromJSON(materialMessages());
+    mount();
+
+    expect(helper.byTestId('messages')).toBeInDOM();
+    expect(helper.byTestId('warnings')).toBeInDOM();
+    expect(helper.byTestId('message-0', helper.byTestId('warnings'))).toBeInDOM();
+    expect(helper.byTestId('errors')).toBeInDOM();
+    expect(helper.byTestId('message-0', helper.byTestId('errors'))).toBeInDOM();
   });
 
   function mount(shouldShowPackageOrScmLink: boolean = true) {

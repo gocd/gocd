@@ -17,9 +17,10 @@
 import {SparkRoutes} from "helpers/spark_routes";
 import {timeFormatter} from "helpers/time_formatter";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import _ from "lodash";
 import m from "mithril";
 import {MaterialModification} from "models/config_repos/types";
-import {MaterialWithFingerprint, MaterialWithModification, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
+import {MaterialMessage, MaterialMessages, MaterialWithFingerprint, MaterialWithModification, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Edit, IconGroup, List, Refresh, Usage} from "views/components/icons";
@@ -82,8 +83,12 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
       ? <span className={headerStyles.configRepoUpdateInProgress} data-test-id="material-update-in-progress"/>
       : undefined;
 
+    const hasErrors   = !_.isEmpty(material.messages.errors());
+    const hasWarnings = hasErrors ? false : !_.isEmpty(material.messages.warnings());
     return <CollapsiblePanel header={<MaterialHeaderWidget {...vnode.attrs} />}
-                             actions={[inProgressIcon, actionButtons]}>
+                             actions={[inProgressIcon, actionButtons]}
+                             error={hasErrors} warning={hasWarnings} expanded={hasErrors}>
+      {this.renderMessages(material.messages)}
       <h3>Latest Modification Details</h3>
       <div data-test-id="latest-modification-details" className={headerStyles.configRepoProperties}>
         {modificationDetails}
@@ -93,7 +98,7 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
     </CollapsiblePanel>;
   }
 
-  private getTriggerUpdateTitle(material: MaterialWithModification) {
+  private getTriggerUpdateTitle(material: MaterialWithModification): string {
     return material.canTriggerUpdate
       ? material.materialUpdateInProgress
         ? `Update in progress since ${timeFormatter.format(material.materialUpdateStartTime)}`
@@ -127,5 +132,31 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
       map = material.attributesAsMap();
     }
     return map;
+  }
+
+  private renderMessages(messages: MaterialMessages): m.Children {
+    if (!messages.hasMessages()) {
+      return;
+    }
+    const data: Map<string, m.Children> = new Map<string, m.Children>();
+    if (!_.isEmpty(messages.warnings())) {
+      const warningsData = messages.warnings().map(this.renderMessage);
+      data.set("Warnings", <div data-test-id="warnings" class={styles.warnings}>{warningsData}</div>);
+    }
+    if (!_.isEmpty(messages.errors())) {
+      const errorsData = messages.errors().map(this.renderMessage);
+      data.set("Errors", <div data-test-id="errors" class={styles.errors}>{errorsData}</div>);
+    }
+    return [
+      <h3>Messages</h3>,
+      <KeyValuePair data-test-id={"messages"} data={data}/>
+    ];
+  }
+
+  private renderMessage(msg: MaterialMessage, index: number) {
+    return <div data-test-id={`message-${index}`}>
+      <span>{msg.message}</span>
+      <p>{msg.description}</p>
+    </div>;
   }
 }

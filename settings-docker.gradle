@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-import com.thoughtworks.go.build.docker.Distro
-import com.thoughtworks.go.build.docker.DistroVersion
+// As of Gradle 6 we can no longer allows settings.gradle to use the `buildSrc` project
+// we need to manually import the Distro class.
+//
+// See:
+//   https://docs.gradle.org/current/userguide/upgrading_version_5.html#classes_from_buildsrc_are_no_longer_visible_to_settings_scripts
+def Distro = new GroovyScriptEngine(file('buildSrc/src/main/groovy').absolutePath).with {
+  loadScriptByName("com/thoughtworks/go/build/docker/Distro.groovy")
+}
 
 enableFeaturePreview('GROOVY_COMPILATION_AVOIDANCE')
 
-Distro.values().each { Distro distro ->
-  distro.supportedVersions.each { DistroVersion version ->
+Distro.values().each { distro ->
+  distro.supportedVersions.each { version ->
     include ":docker:gocd-agent:${distro.projectName(version)}"
   }
 }

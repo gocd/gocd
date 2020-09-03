@@ -289,7 +289,7 @@ dependencies {
     exclude(module: 'commons-lang')
     exclude(module: 'commons-collections')
   }
-  compile group: 'velocity-tools', name: 'velocity-tools-view', version: project.versions.velocityToolsView
+  compile files("vendor/velocity-tools-view-${project.versions.velocityToolsView}.jar")
   // old digester version required by velocity-tools-view
   compile group: 'commons-digester', name: 'commons-digester', version: project.versions.commonsDigester
 

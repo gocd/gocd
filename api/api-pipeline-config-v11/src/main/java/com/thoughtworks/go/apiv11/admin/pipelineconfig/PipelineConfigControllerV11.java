@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv10.admin.pipelineconfig;
+package com.thoughtworks.go.apiv11.admin.pipelineconfig;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
@@ -22,8 +22,8 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.apiv10.admin.shared.representers.PipelineConfigRepresenter;
-import com.thoughtworks.go.apiv10.admin.shared.representers.stages.ConfigHelperOptions;
+import com.thoughtworks.go.apiv11.admin.shared.representers.PipelineConfigRepresenter;
+import com.thoughtworks.go.apiv11.admin.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
@@ -36,7 +36,6 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.apache.commons.lang3.StringUtils;
@@ -53,8 +52,7 @@ import static java.lang.String.format;
 import static spark.Spark.*;
 
 @Component
-@DeprecatedAPI(deprecatedApiVersion = ApiVersion.v10, successorApiVersion = ApiVersion.v11, deprecatedIn = "20.8.0", removalIn = "20.11.0", entityName = "PipelineConfig")
-public class PipelineConfigControllerV10 extends ApiController implements SparkSpringController, CrudController<PipelineConfig> {
+public class PipelineConfigControllerV11 extends ApiController implements SparkSpringController, CrudController<PipelineConfig> {
     private final PipelineConfigService pipelineConfigService;
     private final PipelinePauseService pipelinePauseService;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
@@ -64,14 +62,14 @@ public class PipelineConfigControllerV10 extends ApiController implements SparkS
     private GoCache goCache;
 
     @Autowired
-    public PipelineConfigControllerV10(PipelineConfigService pipelineConfigService,
+    public PipelineConfigControllerV11(PipelineConfigService pipelineConfigService,
                                        PipelinePauseService pipelinePauseService,
                                        ApiAuthenticationHelper apiAuthenticationHelper,
                                        EntityHashingService entityHashingService,
                                        PasswordDeserializer passwordDeserializer,
                                        GoConfigService goConfigService,
                                        GoCache goCache) {
-        super(ApiVersion.v10);
+        super(ApiVersion.v11);
         this.pipelineConfigService = pipelineConfigService;
         this.pipelinePauseService = pipelinePauseService;
         this.apiAuthenticationHelper = apiAuthenticationHelper;

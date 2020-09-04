@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv10.pipelineconfig
+package com.thoughtworks.go.apiv11.pipelineconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.apiv10.admin.pipelineconfig.PipelineConfigControllerV10
-import com.thoughtworks.go.apiv10.admin.shared.representers.PipelineConfigRepresenter
+import com.thoughtworks.go.apiv11.admin.pipelineconfig.PipelineConfigControllerV11
+import com.thoughtworks.go.apiv11.admin.shared.representers.PipelineConfigRepresenter
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.exceptions.EntityType
@@ -42,7 +42,6 @@ import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResul
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
 import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.DeprecatedApiTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
@@ -60,7 +59,7 @@ import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
-class PipelineConfigControllerV10Test implements SecurityServiceTrait, ControllerTrait<PipelineConfigControllerV10>, DeprecatedApiTrait {
+class PipelineConfigControllerV11Test implements SecurityServiceTrait, ControllerTrait<PipelineConfigControllerV11> {
   @Mock
   private FeatureToggleService featureToggleService;
 
@@ -87,8 +86,8 @@ class PipelineConfigControllerV10Test implements SecurityServiceTrait, Controlle
   PipelinePauseChecker pipelinePauseChecker
 
   @Override
-  PipelineConfigControllerV10 createControllerInstance() {
-    return new PipelineConfigControllerV10(pipelineConfigService, pipelinePauseService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, passwordDeserializer, goConfigService, goCache)
+  PipelineConfigControllerV11 createControllerInstance() {
+    return new PipelineConfigControllerV11(pipelineConfigService, pipelinePauseService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, passwordDeserializer, goConfigService, goCache)
   }
 
   @Nested

@@ -395,7 +395,7 @@ public class ConfigConverter {
 
         return new PluggableSCMMaterialConfig(toMaterialName(crPluggableScmMaterial.getName()),
                 scmConfig, crPluggableScmMaterial.getDestination(),
-                toFilter(crPluggableScmMaterial.getFilterList()), false);
+                toFilter(crPluggableScmMaterial.getFilterList()), crPluggableScmMaterial.isWhitelist());
     }
 
     private SCMs getSCMs() {
@@ -972,7 +972,7 @@ public class ConfigConverter {
 
         return new CRPluggableScmMaterial(pluggableScmMaterialConfig.getName().toString(),
                 id, pluggableScmMaterialConfig.getFolder(),
-                pluggableScmMaterialConfig.filter().ignoredFileNames());
+                pluggableScmMaterialConfig.filter().ignoredFileNames(), pluggableScmMaterialConfig.isInvertFilter());
     }
 
     private CRPackageMaterial packageMaterialToCRPackageMaterial(PackageMaterialConfig packageMaterialConfig) {

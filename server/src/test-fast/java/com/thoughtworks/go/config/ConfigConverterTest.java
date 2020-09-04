@@ -51,6 +51,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
+import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -604,7 +605,6 @@ class ConfigConverterTest {
         assertThat(pluggableSCMMaterialConfig.getFilterAsString()).isEqualTo("");
     }
 
-
     @Test
     void shouldFailToConvertConfigMaterialWhenPluggableScmMaterialWithWhitelist() {
         SCM myscm = new SCM("scmid", new PluginConfiguration(), new Configuration());
@@ -825,7 +825,26 @@ class ConfigConverterTest {
         cruiseConfig.setSCMs(scms);
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
-        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter);
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, true);
+
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
+                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
+
+
+        assertThat(pluggableSCMMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertTrue(pluggableSCMMaterialConfig.isInvertFilter());
+    }
+
+    @Test
+    void shouldConvertPluggableScmMaterialWithIncludelist() {
+        SCM myscm = new SCM("scmid", new PluginConfiguration(), new Configuration());
+        SCMs scms = new SCMs(myscm);
+
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setSCMs(scms);
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
+
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
 
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
                 (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
@@ -846,7 +865,7 @@ class ConfigConverterTest {
         config.addNewConfigurationWithValue("url", "url", false);
         SCM myscm = new SCM("scmid", new PluginConfiguration("plugin_id", "1.0"), config);
 
-        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter);
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
         crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
         crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
 
@@ -873,7 +892,7 @@ class ConfigConverterTest {
         cruiseConfig.setSCMs(scms);
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
-        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter);
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
         crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
         crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
 
@@ -889,7 +908,7 @@ class ConfigConverterTest {
         cruiseConfig.setSCMs(new SCMs());
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
-        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", null, "directory", filter);
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", null, "directory", filter, false);
         crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
 
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
@@ -906,7 +925,7 @@ class ConfigConverterTest {
         cruiseConfig.setSCMs(scms);
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
-        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter);
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
         crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
         crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
 
@@ -929,7 +948,7 @@ class ConfigConverterTest {
         SCM myscm = new SCM("scmid", new PluginConfiguration("plugin_id", ""), config);
         myscm.setName("name");
 
-        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter);
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
         crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", null));
         crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
 

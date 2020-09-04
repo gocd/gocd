@@ -52,14 +52,14 @@ public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMate
     private Collection<CRConfigurationProperty> configuration = new ArrayList<>();
 
     public CRPluggableScmMaterial() {
-        this(null, null, null, null);
+        this(null, null, null, null, false);
     }
 
-    public CRPluggableScmMaterial(String name, String scmId, String directory, List<String> filter) {
+    public CRPluggableScmMaterial(String name, String scmId, String directory, List<String> filter, boolean isFilterInverted) {
         super(TYPE_NAME, name);
         this.scmId = scmId;
         this.destination = directory;
-        this.filter = new CRFilter(filter, false);
+        this.filter = new CRFilter(filter, isFilterInverted);
     }
 
     @Override
@@ -75,6 +75,12 @@ public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMate
 
     public void setFilterIgnore(List<String> filter) {
         this.filter.setIgnore(filter);
+    }
+
+    public boolean isWhitelist() {
+        if (this.filter != null)
+            return this.filter.isIncluded();
+        return false;
     }
 
     @Override

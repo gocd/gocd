@@ -31,6 +31,7 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
     public static final String SCM_ID = "scmId";
     public static final String FOLDER = "folder";
     public static final String FILTER = "filterAsString";
+    public static final String INVERT_FILTER = "invertFilter";
 
     @ConfigAttribute(value = "ref")
     private String scmId;
@@ -45,6 +46,9 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
     @ConfigSubtag
     private Filter filter;
 
+    @ConfigAttribute(value = "invertFilter", optional = true)
+    private boolean invertFilter = false;
+
     public PluggableSCMMaterialConfig() {
         super(TYPE);
     }
@@ -54,13 +58,14 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
         this.scmId = scmId;
     }
 
-    public PluggableSCMMaterialConfig(CaseInsensitiveString name, SCM scmConfig, String folder, Filter filter) {
+    public PluggableSCMMaterialConfig(CaseInsensitiveString name, SCM scmConfig, String folder, Filter filter, boolean invertFilter) {
         super(TYPE);
         this.name = name;
         this.scmId = scmConfig == null ? null : scmConfig.getSCMId();
         this.scmConfig = scmConfig;
         this.folder = folder;
         this.filter = filter;
+        this.invertFilter = invertFilter;
     }
 
     public String getScmId() {
@@ -110,7 +115,7 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
 
     @Override
     public boolean isInvertFilter() {
-        return false;
+        return invertFilter;
     }
 
     // most of the material such as git, hg, p4 all print the file from the root without '/'. but svn print it with '/', we standardize it here.
@@ -197,6 +202,7 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
                 this.setFilter(null);
             }
         }
+        this.setInvertFilter("true".equals(map.get(INVERT_FILTER)));
     }
 
     private boolean nameIsEmpty() {
@@ -344,5 +350,13 @@ public class PluggableSCMMaterialConfig extends AbstractMaterialConfig {
     @Override
     public String toString() {
         return String.format("'PluggableSCMMaterial{%s}'", getLongDescription());
+    }
+
+    public boolean getInvertFilter() {
+        return invertFilter;
+    }
+
+    public void setInvertFilter(boolean invertFilter) {
+        this.invertFilter = invertFilter;
     }
 }

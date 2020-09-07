@@ -49,7 +49,7 @@ class PluggableScmMaterialRepresenterTest {
     when(scmConfig.getConfigForDisplay()).thenReturn("k1:v1")
     when(scmConfig.getPluginConfiguration()).thenReturn(mock(PluginConfiguration.class))
 
-    def pluggableScmMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString(''), scmConfig, '/dest', null)
+    def pluggableScmMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString(''), scmConfig, '/dest', null, false)
     def materialConfigs = new MaterialConfigs(pluggableScmMaterial)
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
 

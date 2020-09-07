@@ -42,6 +42,7 @@ import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResul
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
 import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.DeprecatedApiTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
@@ -59,7 +60,7 @@ import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
-class PipelineConfigControllerV10Test implements SecurityServiceTrait, ControllerTrait<PipelineConfigControllerV10> {
+class PipelineConfigControllerV10Test implements SecurityServiceTrait, ControllerTrait<PipelineConfigControllerV10>, DeprecatedApiTrait {
   @Mock
   private FeatureToggleService featureToggleService;
 

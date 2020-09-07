@@ -4479,6 +4479,49 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(approval.isAllowOnlyOnSuccess()).isEqualTo(true);
     }
 
+    @Test
+    void shouldLoadInvertFilterForScmMaterial() throws Exception {
+        String content = config(
+                "<scms>"
+                        + "<scm id=\"abcd\" name=\"scm_name\">"
+                        + "  <pluginConfiguration id=\"GitPathMaterial\" version=\"1\" />"
+                        + "  <configuration>"
+                        + "    <property>"
+                        + "      <key>url</key>"
+                        + "      <value>git@github.com:gocd/gocd.git</value>"
+                        + "    </property>"
+                        + "  </configuration>"
+                        + "</scm>"
+                        + "</scms>"
+                        + "<pipelines group=\"first\">"
+                        + "<pipeline name=\"pipeline\">"
+                        + "  <materials>"
+                        + "    <scm ref=\"abcd\" invertFilter=\"true\"/>"
+                        + "  </materials>"
+                        + "  <stage name=\"stage\">"
+                        + "    <jobs>"
+                        + "        <job name=\"functional\">"
+                        + "            <tasks>\n"
+                        + "              <exec command=\"echo\">\n"
+                        + "                <runif status=\"passed\" />\n"
+                        + "              </exec>\n"
+                        + "            </tasks>"
+                        + "        </job>\n"
+                        + "    </jobs>"
+                        + "  </stage>"
+                        + "</pipeline>"
+                        + "</pipelines>", CONFIG_SCHEMA_VERSION);
+
+        CruiseConfig config = xmlLoader.loadConfigHolder(goConfigMigration.upgradeIfNecessary(content)).config;
+
+        MaterialConfig materialConfig = config
+                .getPipelineConfigByName(new CaseInsensitiveString("pipeline"))
+                .materialConfigs().get(0);
+        
+        assertThat(materialConfig).isInstanceOf(PluggableSCMMaterialConfig.class);
+        assertThat(materialConfig.isInvertFilter()).isTrue();
+    }
+
     private void assertConfigProperty(Configuration configuration, String name, String plainTextValue, boolean shouldBeEncrypted) {
         assertThat(configuration.getProperty(name).getValue()).isEqualTo(plainTextValue);
         if (shouldBeEncrypted) {

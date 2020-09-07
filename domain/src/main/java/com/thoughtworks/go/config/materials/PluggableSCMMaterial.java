@@ -58,6 +58,7 @@ public class PluggableSCMMaterial extends AbstractMaterial {
     private String folder;
 
     private Filter filter;
+    protected boolean invertFilter = false;
 
     public PluggableSCMMaterial() {
         super(TYPE);
@@ -75,11 +76,12 @@ public class PluggableSCMMaterial extends AbstractMaterial {
         this.scmConfig = config.getSCMConfig();
         this.folder = config.getFolder();
         this.filter = config.filter();
+        this.invertFilter = config.getInvertFilter();
     }
 
     @Override
     public MaterialConfig config() {
-        return new PluggableSCMMaterialConfig(name, scmConfig, folder, filter);
+        return new PluggableSCMMaterialConfig(name, scmConfig, folder, filter, invertFilter);
     }
 
     @Override
@@ -332,6 +334,18 @@ public class PluggableSCMMaterial extends AbstractMaterial {
     @Override
     public void updateFromConfig(MaterialConfig materialConfig) {
         super.updateFromConfig(materialConfig);
-        this.getScmConfig().setConfiguration(((PluggableSCMMaterialConfig)materialConfig).getSCMConfig().getConfiguration());
+        this.getScmConfig().setConfiguration(((PluggableSCMMaterialConfig) materialConfig).getSCMConfig().getConfiguration());
+    }
+
+    public boolean isInvertFilter() {
+        return invertFilter;
+    }
+
+    public boolean getInvertFilter() {
+        return invertFilter;
+    }
+
+    public void setInvertFilter(boolean value) {
+        invertFilter = value;
     }
 }

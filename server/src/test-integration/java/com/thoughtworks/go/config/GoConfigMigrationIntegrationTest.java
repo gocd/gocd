@@ -2154,6 +2154,41 @@ public class GoConfigMigrationIntegrationTest {
         XmlAssert.assertThat(migratedXml).and(expectedConfig).ignoreWhitespace().areIdentical();
     }
 
+    @Test
+    public void shouldMigrateEverythingAsItIs_Migration137To138() {
+        String originalConfig = "<pipelines group=\"first\">" +
+                "    <pipeline name=\"Test\" template=\"test_template\">" +
+                "      <materials>" +
+                "          <git url=\"http://\" dest=\"dest_dir14\" />" +
+                "      </materials>" +
+                "     </pipeline>" +
+                "  </pipelines>" +
+                "  <templates>" +
+                "    <pipeline name=\"test_template\">" +
+                "      <stage name=\"Functional\">" +
+                "        <jobs>" +
+                "          <job name=\"Functional\">" +
+                "            <tasks>" +
+                "              <exec command=\"echo\" args=\"Hello World!!!\" />" +
+                "            </tasks>" +
+                "           </job>" +
+                "        </jobs>" +
+                "      </stage>" +
+                "    </pipeline>" +
+                "  </templates>";
+
+        String configXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"137\">" + originalConfig + "</cruise>";
+
+        String expectedConfig =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"138\">" + originalConfig + "</cruise>";
+
+        final String migratedXml = ConfigMigrator.migrate(configXml, 137, 138);
+        XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
+    }
+
     private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {
         assertThat(actual.replaceAll("\\r", "")).contains(substring.replaceAll("\\r", ""));
     }

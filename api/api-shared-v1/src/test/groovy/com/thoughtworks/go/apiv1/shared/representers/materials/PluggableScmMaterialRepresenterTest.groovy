@@ -94,7 +94,7 @@ class PluggableScmMaterialRepresenterTest {
 
   @Test
   void "should render errors"() {
-    def pluggableScmMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString(''), null, '/dest', null)
+    def pluggableScmMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString(''), null, '/dest', null, false)
     def materialConfigs = new MaterialConfigs(pluggableScmMaterial);
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
 

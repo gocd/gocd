@@ -665,7 +665,7 @@ public abstract class CruiseConfigTestBase {
         SCM scmConfigTwo = SCMMother.create("scm-id-2");
         cruiseConfig.getSCMs().addAll(Arrays.asList(scmConfigOne, scmConfigTwo));
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline");
-        pipeline.addMaterialConfig(new PluggableSCMMaterialConfig(null, scmConfigOne, null, null));
+        pipeline.addMaterialConfig(new PluggableSCMMaterialConfig(null, scmConfigOne, null, null, false));
         cruiseConfig.addPipeline("existing_group", pipeline);
 
         assertThat(cruiseConfig.canDeletePluggableSCMMaterial(scmConfigOne), is(false));

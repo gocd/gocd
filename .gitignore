@@ -382,6 +382,10 @@ api/api-shared-v10/out/
 api/api-shared-v10/target/
 api/api-shared-v10/logs/
 api/api-shared-v10/config/
+api/api-shared-v11/out/
+api/api-shared-v11/target/
+api/api-shared-v11/logs/
+api/api-shared-v11/config/
 api/api-internal-pipeline-structure-v1/out/
 api/api-internal-pipeline-structure-v1/target/
 api/api-internal-pipeline-structure-v1/logs/
@@ -526,3 +530,7 @@ api/api-internal-materials-v1/out/
 api/api-internal-materials-v1/target/
 api/api-internal-materials-v1/logs/
 api/api-internal-materials-v1/config/
+api/api-pipeline-config-v11/out/
+api/api-pipeline-config-v11/target/
+api/api-pipeline-config-v11/logs/
+api/api-pipeline-config-v11/config/

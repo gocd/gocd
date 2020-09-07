@@ -24,6 +24,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertTrue;
 
 public class CRPluggableScmMaterialTest extends AbstractCRTest<CRPluggableScmMaterial> {
 
@@ -37,9 +38,9 @@ public class CRPluggableScmMaterialTest extends AbstractCRTest<CRPluggableScmMat
 
     public CRPluggableScmMaterialTest()
     {
-        pluggableGit = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", null);
-        pluggableGitWithFilter = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", Arrays.asList("mydir"));
-        pluggableGitWith2Filters = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", Arrays.asList("dir1", "dir2"));
+        pluggableGit = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", null, false);
+        pluggableGitWithFilter = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", Arrays.asList("mydir"), false);
+        pluggableGitWith2Filters = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", Arrays.asList("dir1", "dir2"), false);
 
         simplePluggableGit = new CRPluggableScmMaterial();
         simplePluggableGit.setScmId("mygit-id");
@@ -83,5 +84,11 @@ public class CRPluggableScmMaterialTest extends AbstractCRTest<CRPluggableScmMat
                 deserializedValue,is(value));
     }
 
+    @Test
+    public void isWhiteList_shouldBeTrueInPresenceOfIncludesFilter() {
+        CRPluggableScmMaterial pluggableScmMaterial = new CRPluggableScmMaterial("myPluggableGit", "someScmGitRepositoryId",
+                "destinationDir", Arrays.asList("mydir"), true);
 
+        assertTrue(pluggableScmMaterial.isWhitelist());
+    }
 }

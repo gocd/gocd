@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv1.secretconfigs;
+package com.thoughtworks.go.apiv2.secretconfigs;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
@@ -21,15 +21,14 @@ import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigRepresenter;
-import com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigsRepresenter;
+import com.thoughtworks.go.apiv2.secretconfigs.representers.SecretConfigRepresenter;
+import com.thoughtworks.go.apiv2.secretconfigs.representers.SecretConfigsRepresenter;
 import com.thoughtworks.go.config.SecretConfig;
 import com.thoughtworks.go.config.SecretConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecretConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.apache.commons.lang3.StringUtils;
@@ -45,8 +44,7 @@ import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
 
 @Component
-@DeprecatedAPI(entityName = "Secret Configs", deprecatedApiVersion = ApiVersion.v1, successorApiVersion = ApiVersion.v2, deprecatedIn = "20.8.0", removalIn = "20.11.0")
-public class SecretConfigsControllerV1 extends ApiController implements SparkSpringController, CrudController<SecretConfig> {
+public class SecretConfigsControllerV2 extends ApiController implements SparkSpringController, CrudController<SecretConfig> {
 
     public static final String CONFIG_ID_PARAM = "config_id";
     public final ApiAuthenticationHelper apiAuthenticationHelper;
@@ -54,8 +52,8 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
     private final EntityHashingService entityHashingService;
 
     @Autowired
-    public SecretConfigsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, SecretConfigService configService, EntityHashingService entityHashingService) {
-        super(ApiVersion.v1);
+    public SecretConfigsControllerV2(ApiAuthenticationHelper apiAuthenticationHelper, SecretConfigService configService, EntityHashingService entityHashingService) {
+        super(ApiVersion.v2);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.configService = configService;
         this.entityHashingService = entityHashingService;

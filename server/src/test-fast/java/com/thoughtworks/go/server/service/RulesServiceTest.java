@@ -30,7 +30,6 @@ import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.domain.builder.NullBuilder;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.remote.work.BuildAssignment;
@@ -215,10 +214,8 @@ class RulesServiceTest {
         @Test
         void shouldErrorOutIfScmDoesNotHavePermissionToReferASecretConfig() {
             PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
-            SCM scmConfig = material.getScmConfig();
-            scmConfig.getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
-            scmConfig.getConfiguration().get(1).handleSecureValueConfiguration(true);
-            material.setSCMConfig(scmConfig);
+            material.getScmConfig().getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            material.getScmConfig().getConfiguration().get(1).handleSecureValueConfiguration(true);
 
             Rules rules = new Rules(new Allow("refer", "pluggable_scm", "scm-*"));
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
@@ -241,10 +238,8 @@ class RulesServiceTest {
         @Test
         void shouldValidateIfScmHasPermissionToReferASecretConfig() {
             PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
-            SCM scmConfig = material.getScmConfig();
-            scmConfig.getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
-            scmConfig.getConfiguration().get(1).handleSecureValueConfiguration(true);
-            material.setSCMConfig(scmConfig);
+            material.getScmConfig().getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            material.getScmConfig().getConfiguration().get(1).handleSecureValueConfiguration(true);
 
             Rules rules = new Rules(new Allow("refer", "pluggable_scm", "scm-*"));
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
@@ -269,10 +264,8 @@ class RulesServiceTest {
         @Test
         void shouldErrorOutWhenScmIsReferringToNoneExistingSecretConfig() {
             PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
-            SCM scmConfig = material.getScmConfig();
-            scmConfig.getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
-            scmConfig.getConfiguration().get(1).handleSecureValueConfiguration(true);
-            material.setSCMConfig(scmConfig);
+            material.getScmConfig().getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            material.getScmConfig().getConfiguration().get(1).handleSecureValueConfiguration(true);
 
             PipelineConfig up42 = PipelineConfigMother.pipelineConfig("up42", new MaterialConfigs(material.config()));
             PipelineConfigs defaultGroup = PipelineConfigMother.createGroup("default", up42);
@@ -311,11 +304,8 @@ class RulesServiceTest {
         @Test
         void shouldAddErrorForASecretConfigIdOnlyOnce() {
             PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
-            SCM scmConfig = material.getScmConfig();
-            scmConfig.getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
-            scmConfig.getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
-            scmConfig.getConfiguration().get(1).handleSecureValueConfiguration(true);
-            material.setSCMConfig(scmConfig);
+            material.getScmConfig().getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            material.getScmConfig().getConfiguration().get(1).handleSecureValueConfiguration(true);
 
             PipelineConfig up42 = PipelineConfigMother.pipelineConfig("up42", new MaterialConfigs(material.config()));
             PipelineConfigs defaultGroup = PipelineConfigMother.createGroup("default", up42);
@@ -329,17 +319,15 @@ class RulesServiceTest {
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
                     .isInstanceOf(RulesViolationException.class)
-                    .hasMessage("Pluggable SCM 'scm-name' is referring to none-existent secret config 'secret_config_id'.");
+                    .hasMessage("Pipeline 'up42' is referring to none-existent secret config 'secret_config_id'.");
         }
 
         @Test
         void shouldConcatenateMultipleErrorsWithNewLineChar() {
             PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
-            SCM scmConfig = material.getScmConfig();
-            scmConfig.getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[unknown_id][password]}}"));
-            scmConfig.getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
-            scmConfig.getConfiguration().get(1).handleSecureValueConfiguration(true);
-            material.setSCMConfig(scmConfig);
+            material.getScmConfig().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[unknown_id][password]}}"));
+            material.getScmConfig().getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            material.getScmConfig().getConfiguration().get(1).handleSecureValueConfiguration(true);
 
             Rules rules = new Rules(new Allow("refer", "pluggable_scm", "scm-*"));
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);

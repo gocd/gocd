@@ -40,7 +40,6 @@ import com.thoughtworks.go.server.service.CheckConnectionSubprocessExecutionCont
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.SecretParamResolver;
-import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.lang3.StringUtils;
 import spark.Request;
@@ -90,9 +89,7 @@ public abstract class AbstractMaterialTestController extends ApiController {
             return MessageJson.create(String.format("There was an error with the material configuration.\n%s", StringUtils.join(errorsList, "\n")), jsonWriter(scmMaterialConfig));
         }
 
-        if (isNotBlank(pipelineName)) {
-            performParamExpansion(scmMaterialConfig, pipelineName);
-        }
+        performParamExpansion(scmMaterialConfig, pipelineName);
         Material material = materialConfigConverter.toMaterial(scmMaterialConfig);
         resolveSecrets(pipelineGroupName, material);
         ValidationBean validationBean = material.checkConnection(new CheckConnectionSubprocessExecutionContext(systemEnvironment));
@@ -126,12 +123,18 @@ public abstract class AbstractMaterialTestController extends ApiController {
     }
 
     private void performParamExpansion(ScmMaterialConfig scmMaterialConfig, String pipelineName) {
-        PipelineConfig existingPipeline = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-        PipelineConfig pipelineConfig = new PipelineConfig(existingPipeline.name(), new MaterialConfigs());
+        PipelineConfig pipelineConfig;
+        // If the pipeline name is provided, find the pipeline and add the params to the new pipeline config object
+        if (isNotBlank(pipelineName)) {
+            PipelineConfig existingPipeline = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+            pipelineConfig = new PipelineConfig(existingPipeline.name(), new MaterialConfigs());
 
-        GoConfigCloner goConfigCloner = new GoConfigCloner();
-        pipelineConfig.setParams(goConfigCloner.deepClone(existingPipeline.getParams()));
-
+            GoConfigCloner goConfigCloner = new GoConfigCloner();
+            pipelineConfig.setParams(goConfigCloner.deepClone(existingPipeline.getParams()));
+        } else {
+            // If the pipeline name is not provided, this means that the pipeline is still in creation nd hence no params exist
+            pipelineConfig = new PipelineConfig(new CaseInsensitiveString(""), new MaterialConfigs());
+        }
         pipelineConfig.addMaterialConfig(scmMaterialConfig);
 
         ConfigParamPreprocessor configParamPreprocessor = new ConfigParamPreprocessor();

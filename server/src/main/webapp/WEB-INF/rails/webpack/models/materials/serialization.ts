@@ -82,6 +82,7 @@ export interface PackageMaterialAttributesJSON extends BaseAttributesJSON {
 export interface PluggableScmMaterialAttributesJSON extends BaseAttributesJSON {
   ref: string;
   filter?: FilterJSON;
+  invert_filter: boolean;
   destination: string;
 }
 

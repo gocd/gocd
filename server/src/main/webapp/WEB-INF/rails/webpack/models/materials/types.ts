@@ -639,17 +639,19 @@ export class PackageMaterialAttributes extends MaterialAttributes {
 export class PluggableScmMaterialAttributes extends MaterialAttributes {
   ref: Stream<string>;
   filter: Stream<Filter>;
+  invertFilter: Stream<boolean>;
   destination: Stream<string>;
 
-  constructor(name: string | undefined, autoUpdate: boolean | undefined, ref: string, destination: string, filter: Filter) {
+  constructor(name: string | undefined, autoUpdate: boolean | undefined, ref: string, destination: string, filter: Filter, invertFilter: boolean = false) {
     super(name, autoUpdate);
-    this.ref         = Stream(ref);
-    this.filter      = Stream(filter);
-    this.destination = Stream(destination);
+    this.ref          = Stream(ref);
+    this.filter       = Stream(filter);
+    this.invertFilter = Stream(invertFilter);
+    this.destination  = Stream(destination);
   }
 
   static fromJSON(data: PluggableScmMaterialAttributesJSON): PluggableScmMaterialAttributes {
-    const attrs = new PluggableScmMaterialAttributes(data.name, data.auto_update, data.ref, data.destination, Filter.fromJSON(data.filter));
+    const attrs = new PluggableScmMaterialAttributes(data.name, data.auto_update, data.ref, data.destination, Filter.fromJSON(data.filter), data.invert_filter);
     attrs.errors(new Errors(data.errors));
     return attrs;
   }

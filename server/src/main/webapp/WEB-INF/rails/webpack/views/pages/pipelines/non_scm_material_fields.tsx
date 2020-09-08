@@ -34,7 +34,7 @@ import {PackageRepositories, PackageRepository} from "models/package_repositorie
 import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
-import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {CheckboxField, Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";
 import {SwitchBtn} from "views/components/switch";
 import * as Tooltip from "views/components/tooltip";
@@ -462,9 +462,12 @@ export class PluginFields extends MithrilComponent<PluginAttrs, PluginState> {
       return <AdvancedSettings forceOpen={forceOpen}>
         <TextField label={labelForDestination} property={attrs.destination} readonly={vnodeAttrs.readonly}
                    errorText={attrs.errors().errorsForDisplay("destination")}/>
-        <TextField label="Denylist" helpText={DENYLIST_HELP_MESSAGE}
+        <TextField label="Denylist" helpText={DENYLIST_HELP_MESSAGE} readonly={vnodeAttrs.readonly}
                    property={this.filterValue} onchange={this.filterProxy.bind(this, attrs)}
                    errorText={attrs.errors().errorsForDisplay("filter")}/>
+        <CheckboxField property={attrs.invertFilter} readonly={vnodeAttrs.readonly}
+                       label="Invert the file filter, e.g. a Denylist becomes an Allowlist instead."
+                       errorText={attrs.errors().errorsForDisplay("invertFilter")}/>
       </AdvancedSettings>;
     }
   }

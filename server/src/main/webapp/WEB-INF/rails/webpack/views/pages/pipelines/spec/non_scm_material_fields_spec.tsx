@@ -380,8 +380,9 @@ describe('PluginFieldsSpec', () => {
     helper.mount(() => <PluginFields material={material} pluginInfos={pluginInfos} scms={scms} showLocalWorkingCopyOptions={true}/>);
 
     assertLabelledInputsPresent(helper, {
-      "alternate-checkout-path": "Alternate Checkout Path",
-      "denylist":                "Denylist"
+      "alternate-checkout-path":                                             "Alternate Checkout Path",
+      "denylist":                                                            "Denylist",
+      "invert-the-file-filter-e-g-a-denylist-becomes-an-allowlist-instead":  "Invert the file filter, e.g. a Denylist becomes an Allowlist instead."
     });
   });
 

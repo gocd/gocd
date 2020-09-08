@@ -32,6 +32,8 @@ import com.thoughtworks.go.server.service.MaintenanceModeService
 import com.thoughtworks.go.server.service.MaterialConfigConverter
 import com.thoughtworks.go.server.service.MaterialConfigService
 import com.thoughtworks.go.server.service.MaterialService
+import com.thoughtworks.go.serverhealth.ServerHealthService
+import com.thoughtworks.go.serverhealth.ServerHealthStates
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -56,6 +58,8 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
   private MaterialUpdateService materialUpdateService
   @Mock
   private MaterialConfigConverter materialConfigConverter
+  @Mock
+  private ServerHealthService serverHealthService
 
   @BeforeEach
   void setUp() {
@@ -64,7 +68,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
   @Override
   InternalMaterialsControllerV1 createControllerInstance() {
-    new InternalMaterialsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), materialConfigService, materialService, maintenanceModeService, materialUpdateService, materialConfigConverter)
+    new InternalMaterialsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), materialConfigService, materialService, maintenanceModeService, materialUpdateService, materialConfigConverter, serverHealthService)
   }
 
   @Nested
@@ -104,10 +108,13 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
 
   @Nested
   class Index {
+    def material = mock(Material.class)
 
     @BeforeEach
     void setUp() {
       loginAsUser()
+      when(materialConfigConverter.toMaterial(any(MaterialConfig.class))).thenReturn(material)
+      when(serverHealthService.logs()).thenReturn(new ServerHealthStates())
     }
 
     @Nested
@@ -141,7 +148,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
       getWithApiHeader(controller.controllerBasePath())
 
       def resultMap = new HashMap<>()
-      resultMap.put(git, new MaterialInfo(modifications, true, false, null))
+      resultMap.put(git, new MaterialInfo(modifications, true, false, null, []))
 
       assertThatResponse()
         .isOk()
@@ -185,7 +192,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
       getWithApiHeader(controller.controllerBasePath())
 
       def resultMap = new HashMap<>()
-      resultMap.put(git, new MaterialInfo(null, false, false, null))
+      resultMap.put(git, new MaterialInfo(null, false, false, null, []))
 
       assertThatResponse()
         .isOk()
@@ -212,7 +219,7 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
       getWithApiHeader(controller.controllerBasePath())
 
       def resultMap = new HashMap<>()
-      resultMap.put(git, new MaterialInfo(modifications, false, false, null))
+      resultMap.put(git, new MaterialInfo(modifications, false, false, null, []))
 
       assertThatResponse()
         .isOk()

@@ -21,9 +21,11 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.apiv1.internalmaterials.models.MaterialInfo;
 import com.thoughtworks.go.apiv1.internalmaterials.representers.materials.MaterialsRepresenter;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -45,7 +47,20 @@ public class MaterialWithModificationsRepresenter {
                 } else {
                     childWriter.addChild("modification", modWriter -> ModificationRepresenter.toJSON(modWriter, info.getModification()));
                 }
+                renderLogs(childWriter, info.getLogs());
             }));
+        });
+    }
+
+    private static void renderLogs(OutputWriter outputWriter, List<ServerHealthState> logs) {
+        outputWriter.addChildList("messages", writer -> {
+            for (ServerHealthState log : logs) {
+                writer.addChild(childWriter -> {
+                    childWriter.add("level", log.getLogLevel().name())
+                            .add("message", log.getMessage())
+                            .add("description", log.getDescription());
+                });
+            }
         });
     }
 

@@ -17,7 +17,7 @@
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
 import {MaterialModification} from "models/config_repos/types";
-import {GitMaterialAttributes, HgMaterialAttributes, MaterialAPIs, MaterialModifications, Materials, MaterialUsages, MaterialWithFingerprint, MaterialWithModification, P4MaterialAttributes, PackageMaterialAttributes, PluggableScmMaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "../materials";
+import {GitMaterialAttributes, HgMaterialAttributes, MaterialAPIs, MaterialMessages, MaterialModifications, Materials, MaterialUsages, MaterialWithFingerprint, MaterialWithModification, P4MaterialAttributes, PackageMaterialAttributes, PluggableScmMaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "../materials";
 
 describe('MaterialsAPISpec', () => {
   beforeEach(() => jasmine.Ajax.install());
@@ -49,6 +49,14 @@ describe('MaterialsAPISpec', () => {
       expect(material.modification!.comment).toBe("Dummy commit");
       expect(material.modification!.emailAddress).toBe("gocd@test.com");
       expect(material.modification!.revision).toBe("abcd1234");
+
+      expect(material.messages.length).toBe(2);
+      expect(material.messages[0].level).toBe('WARNING');
+      expect(material.messages[0].message).toBe('Some warning message');
+      expect(material.messages[0].description).toBe('Some long description about the warning');
+      expect(material.messages[1].level).toBe('ERROR');
+      expect(material.messages[1].message).toBe('Some error message');
+      expect(material.messages[1].description).toBe('Some long description about the error');
       done();
     });
 
@@ -164,7 +172,8 @@ describe('MaterialsAPISpec', () => {
           revision:      "abcd1234",
           comment:       "Dummy commit",
           modified_time: "2019-12-23T10:25:52Z"
-        }
+        },
+        messages:                    materialMessages()
       }]
     };
     return {
@@ -426,3 +435,48 @@ describe('MaterialsWithModificationSpec', () => {
     expect(withMod.type()).toBe(material.type());
   });
 });
+
+describe('MaterialMessagesSpec', () => {
+  let messages: MaterialMessages;
+  beforeEach(() => {
+    messages = MaterialMessages.fromJSON(materialMessages());
+  });
+
+  it('should return true if it has messages', () => {
+    expect(messages.hasMessages()).toBeTrue();
+
+    messages = new MaterialMessages();
+
+    expect(messages.hasMessages()).toBeFalse();
+  });
+
+  it('should filter out the warnings', () => {
+    const warnings = messages.warnings();
+
+    expect(warnings.length).toBe(1);
+    expect(warnings[0].level).toBe('WARNING');
+    expect(warnings[0].message).toBe('Some warning message');
+  });
+
+  it('should filter out the errors', () => {
+    const errors = messages.errors();
+
+    expect(errors.length).toBe(1);
+    expect(errors[0].level).toBe('ERROR');
+    expect(errors[0].message).toBe('Some error message');
+  });
+});
+
+export function materialMessages() {
+  return [
+    {
+      level:       "WARNING",
+      message:     "Some warning message",
+      description: "Some long description about the warning"
+    }, {
+      level:       "ERROR",
+      message:     "Some error message",
+      description: "Some long description about the error"
+    }
+  ];
+}

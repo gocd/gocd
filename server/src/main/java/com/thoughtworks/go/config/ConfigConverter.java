@@ -52,6 +52,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+
 /**
  * Helper to transform config repo classes to config-api classes
  */
@@ -321,21 +323,19 @@ public class ConfigConverter {
         } else if (crMaterial instanceof CRConfigMaterial) {
             CRConfigMaterial crConfigMaterial = (CRConfigMaterial) crMaterial;
             MaterialConfig repoMaterial = cloner.deepClone(context.configMaterial());
-            if (StringUtils.isNotEmpty(crConfigMaterial.getName()))
+            if (isNotEmpty(crConfigMaterial.getName()))
                 repoMaterial.setName(new CaseInsensitiveString(crConfigMaterial.getName()));
-            if (StringUtils.isNotEmpty(crConfigMaterial.getDestination()))
+            if (isNotEmpty(crConfigMaterial.getDestination()))
                 setDestination(repoMaterial, crConfigMaterial.getDestination());
             if (crConfigMaterial.getFilter() != null && !crConfigMaterial.getFilter().isEmpty()) {
                 if (repoMaterial instanceof ScmMaterialConfig) {
                     ScmMaterialConfig scmMaterialConfig = (ScmMaterialConfig) repoMaterial;
                     scmMaterialConfig.setFilter(toFilter(crConfigMaterial.getFilter().getList()));
                     scmMaterialConfig.setInvertFilter(crConfigMaterial.getFilter().isIncluded());
-                } else //must be a pluggable SCM
-                {
+                } else { //must be a pluggable SCM
                     PluggableSCMMaterialConfig pluggableSCMMaterial = (PluggableSCMMaterialConfig) repoMaterial;
                     pluggableSCMMaterial.setFilter(toFilter(crConfigMaterial.getFilter().getList()));
-                    if (crConfigMaterial.getFilter().isIncluded())
-                        throw new ConfigConvertionException("Pluggable SCMs do not support includes");
+                    pluggableSCMMaterial.setInvertFilter(crConfigMaterial.getFilter().isIncluded());
                 }
             }
             return repoMaterial;

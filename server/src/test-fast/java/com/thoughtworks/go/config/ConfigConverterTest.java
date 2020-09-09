@@ -606,22 +606,21 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldFailToConvertConfigMaterialWhenPluggableScmMaterialWithWhitelist() {
+    void shouldConvertConfigMaterialWhenPluggableScmMaterialWithWhitelist() {
         SCM myscm = new SCM("scmid", new PluginConfiguration(), new Configuration());
         SCMs scms = new SCMs(myscm);
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setSCMs(scms);
+        PluggableSCMMaterialConfig configRepoMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString("scmid"), myscm, null, null, true);
+
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
-        PluggableSCMMaterialConfig configRepoMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString("scmid"), myscm, null, null, false);
         when(context.configMaterial()).thenReturn(configRepoMaterial);
+
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1", new CRFilter(filter, true));
 
-        try {
-            configConverter.toMaterialConfig(crConfigMaterial, context);
-            fail("should have thrown");
-        } catch (ConfigConvertionException ex) {
-            assertThat(ex.getMessage()).isEqualTo("Pluggable SCMs do not support includes");
-        }
+        MaterialConfig pluggableMaterial = configConverter.toMaterialConfig(crConfigMaterial, context);
+
+        assertTrue(pluggableMaterial.isInvertFilter());
     }
 
     @Test

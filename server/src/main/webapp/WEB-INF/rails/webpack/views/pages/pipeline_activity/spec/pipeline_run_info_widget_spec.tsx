@@ -27,6 +27,8 @@ import {
   PipelineActivityData,
   unknown
 } from "models/pipeline_activity/spec/test_data";
+// @ts-ignore
+import state from "views/dashboard/models/stage_overview_state";
 import {TestHelper} from "../../spec/test_helper";
 import styles from "../index.scss";
 import {PipelineRunWidget} from "../pipeline_run_info_widget";
@@ -331,75 +333,6 @@ describe("PipelineRunInfoWidget", () => {
     });
   });
 
-  describe("Stage actions", () => {
-    it("should not have any action when it is not scheduled", () => {
-      const unitTestStage     = passed("unit", 2);
-      unitTestStage.scheduled = false;
-      const pipelineRunInfo   = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(unitTestStage));
-      mount(pipelineRunInfo);
-
-      const unitStageContainer = stageContainer(pipelineRunInfo.label(), "unit");
-      expect(helper.byTestId("stage-info-icon", unitStageContainer)).not.toBeInDOM();
-      expect(helper.byTestId("rerun-stage-icon", unitStageContainer)).not.toBeInDOM();
-      expect(helper.byTestId("cancel-stage-icon", unitStageContainer)).not.toBeInDOM();
-    });
-
-    it("should have only info action when it is scheduled but can not perform rerun or cancel", () => {
-      const unitTestStage        = passed("unit", 2);
-      unitTestStage.scheduled    = true;
-      unitTestStage.getCanRun    = false;
-      unitTestStage.getCanCancel = false;
-      const pipelineRunInfo      = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(unitTestStage));
-
-      mount(pipelineRunInfo);
-
-      const unitStageContainer = stageContainer(pipelineRunInfo.label(), "unit");
-      const infoActionIcon     = helper.byTestId("stage-info-icon", unitStageContainer);
-      expect(infoActionIcon).toBeInDOM();
-      expect(infoActionIcon).toBeHidden();
-      expect(infoActionIcon.parentElement).toHaveAttr("href", `/go/pipelines/${unitTestStage.stageLocator}`);
-
-      expect(helper.byTestId("rerun-stage-icon", unitStageContainer)).not.toBeInDOM();
-      expect(helper.byTestId("cancel-stage-icon", unitStageContainer)).not.toBeInDOM();
-    });
-
-    it("should have only info and cancel action when it is scheduled and user can cancel", () => {
-      const unitTestStage        = passed("unit", 2);
-      unitTestStage.scheduled    = true;
-      unitTestStage.getCanRun    = false;
-      unitTestStage.getCanCancel = true;
-      const pipelineRunInfo      = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(unitTestStage));
-      mount(pipelineRunInfo);
-
-      const unitStageContainer = stageContainer(pipelineRunInfo.label(), "unit");
-      expect(helper.byTestId("stage-info-icon", unitStageContainer)).toBeInDOM();
-      expect(helper.byTestId("stage-info-icon", unitStageContainer)).toBeHidden();
-
-      expect(helper.byTestId("cancel-stage-icon", unitStageContainer)).toBeInDOM();
-      expect(helper.byTestId("cancel-stage-icon", unitStageContainer)).toBeHidden();
-
-      expect(helper.byTestId("rerun-stage-icon", unitStageContainer)).not.toBeInDOM();
-    });
-
-    it("should have only info and rerun action when it is scheduled and user can rerun ", () => {
-      const unitTestStage        = passed("unit", 2);
-      unitTestStage.scheduled    = true;
-      unitTestStage.getCanRun    = true;
-      unitTestStage.getCanCancel = false;
-      const pipelineRunInfo      = PipelineRunInfo.fromJSON(PipelineActivityData.pipelineRunInfo(unitTestStage));
-      mount(pipelineRunInfo);
-
-      const unitStageContainer = stageContainer(pipelineRunInfo.label(), "unit");
-      expect(helper.byTestId("stage-info-icon", unitStageContainer)).toBeInDOM();
-      expect(helper.byTestId("stage-info-icon", unitStageContainer)).toBeHidden();
-
-      expect(helper.byTestId("rerun-stage-icon", unitStageContainer)).toBeInDOM();
-      expect(helper.byTestId("rerun-stage-icon", unitStageContainer)).toBeHidden();
-
-      expect(helper.byTestId("cancel-stage-icon", unitStageContainer)).not.toBeInDOM();
-    });
-  });
-
   function mount(pipelineRunInfo: PipelineRunInfo, stageConfigs?: StageConfigs) {
     helper.mount(() => <PipelineRunWidget pipelineRunInfo={pipelineRunInfo}
                                           pipelineName={"up42"}
@@ -408,7 +341,11 @@ describe("PipelineRunInfoWidget", () => {
                                           stageConfigs={stageConfigs ? stageConfigs : toStageConfigs(pipelineRunInfo.stages())}
                                           cancelStageInstance={cancelStageInstance}
                                           addOrUpdateComment={addOrUpdateComment}
+                                          stageOverviewState={state.StageOverviewState}
+                                          // @ts-ignore
+                                          showStageOverview={() => null}
                                           canOperatePipeline={false}
+                                          canAdministerPipeline={false}
                                           runStage={runStage}/>);
   }
 

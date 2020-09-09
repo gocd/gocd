@@ -231,6 +231,10 @@ export class Stage {
   pipelineCounter() {
     return this.stageLocator().split("/")[1];
   }
+
+  isBuilding(): boolean {
+    return this.stageStatus() === "Building";
+  }
 }
 
 export class Stages extends Array<Stage> {

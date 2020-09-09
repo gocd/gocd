@@ -27,11 +27,15 @@ const classnames = bind(styles);
 
 interface Attrs {
   canOperatePipeline: boolean;
+  canAdministerPipeline: boolean;
+  pipelineUsingTemplate?: string;
   pipelineActivity: Stream<PipelineActivity>;
   showBuildCaseFor: Stream<string>;
   showCommentFor: Stream<string>;
   runPipeline: (name: string) => void;
   runStage: (stage: Stage) => void;
+  stageOverviewState: any;
+  showStageOverview: (pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number, status: any, e: any) => void;
   cancelStageInstance: (stage: Stage) => void;
   addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void;
 }
@@ -55,7 +59,11 @@ export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
                            showBuildCaseFor={vnode.attrs.showBuildCaseFor}
                            showCommentFor={vnode.attrs.showCommentFor}
                            runStage={vnode.attrs.runStage}
+                           stageOverviewState={vnode.attrs.stageOverviewState}
+                           showStageOverview={vnode.attrs.showStageOverview}
                            canOperatePipeline={vnode.attrs.canOperatePipeline}
+                           canAdministerPipeline={vnode.attrs.canAdministerPipeline}
+                           pipelineUsingTemplate={vnode.attrs.pipelineUsingTemplate}
                            addOrUpdateComment={vnode.attrs.addOrUpdateComment}
                            cancelStageInstance={vnode.attrs.cancelStageInstance}/>];
           })
@@ -78,9 +86,13 @@ interface GroupAttrs {
   group: Group;
   pipelineName: string;
   canOperatePipeline: boolean;
+  canAdministerPipeline: boolean;
+  pipelineUsingTemplate?: string;
   showBuildCaseFor: Stream<string>;
   showCommentFor: Stream<string>;
   runStage: (stage: Stage) => void;
+  stageOverviewState: any;
+  showStageOverview: (pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number, status: any, e: any) => void;
   cancelStageInstance: (stage: Stage) => void;
   addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void;
 }
@@ -94,7 +106,11 @@ class GroupWidget extends MithrilViewComponent<GroupAttrs> {
                                 showBuildCaseFor={vnode.attrs.showBuildCaseFor}
                                 showCommentFor={vnode.attrs.showCommentFor}
                                 runStage={vnode.attrs.runStage}
+                                stageOverviewState={vnode.attrs.stageOverviewState}
+                                showStageOverview={vnode.attrs.showStageOverview}
                                 canOperatePipeline={vnode.attrs.canOperatePipeline}
+                                canAdministerPipeline={vnode.attrs.canAdministerPipeline}
+                                pipelineUsingTemplate={vnode.attrs.pipelineUsingTemplate}
                                 addOrUpdateComment={vnode.attrs.addOrUpdateComment}
                                 cancelStageInstance={vnode.attrs.cancelStageInstance}/>;
     });

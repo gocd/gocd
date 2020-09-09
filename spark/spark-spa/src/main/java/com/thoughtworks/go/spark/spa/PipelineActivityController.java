@@ -15,6 +15,8 @@
  */
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.Routes;
@@ -68,11 +70,19 @@ public class PipelineActivityController implements SparkController {
     }
 
     private Map<String, Object> meta(String pipelineName) {
+        CaseInsensitiveString name = new CaseInsensitiveString(pipelineName);
+
         final Map<String, Object> meta = new HashMap<>();
 
         meta.put("isEditableFromUI", goConfigService.isPipelineEditable(pipelineName));
         meta.put("pipelineName", pipelineName);
         meta.put("canOperatePipeline", securityService.hasOperatePermissionForPipeline(currentUserLoginName(), pipelineName));
+        meta.put("canAdministerPipeline", securityService.hasAdminPermissionsForPipeline(currentUsername(), name));
+
+        PipelineConfig found = goConfigService.findPipelineByName(name);
+        if(found != null && found.hasTemplate()) {
+            meta.put("pipelineUsingTemplate", found.getTemplateName().toString());
+        }
 
         return meta;
     }

@@ -18,6 +18,8 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineActivity} from "models/pipeline_activity/pipeline_activity";
 import {PipelineActivityData} from "models/pipeline_activity/spec/test_data";
+// @ts-ignore
+import state from "views/dashboard/models/stage_overview_state";
 import {TestHelper} from "../../spec/test_helper";
 import {PipelineActivityWidget} from "../pipeline_activity_widget";
 
@@ -56,6 +58,9 @@ describe("PipelineActivityWidget", () => {
                                                cancelStageInstance={cancelStageInstance}
                                                addOrUpdateComment={addOrUpdateComment}
                                                canOperatePipeline={false}
+                                               canAdministerPipeline={false}
+                                               stageOverviewState={state.StageOverviewState}
+                                               showStageOverview={() => null}
                                                runPipeline={runPipeline}/>);
   }
 });

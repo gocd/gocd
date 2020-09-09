@@ -41,6 +41,7 @@ interface PageMeta {
   pipelineName: string;
   canOperatePipeline: boolean;
   canAdministerPipeline: boolean;
+  pipelineUsingTemplate?: string;
 }
 
 interface State {
@@ -142,6 +143,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
                               showStageOverview={vnode.state.showStageOverview}
                               canOperatePipeline={this.meta.canOperatePipeline}
                               canAdministerPipeline={this.meta.canAdministerPipeline}
+                              pipelineUsingTemplate={this.meta.pipelineUsingTemplate}
                               addOrUpdateComment={this.addOrUpdateComment.bind(this)}
                               cancelStageInstance={this.cancelStageInstance.bind(this)}/>,
       <div class={styles.paginationWrapper}>

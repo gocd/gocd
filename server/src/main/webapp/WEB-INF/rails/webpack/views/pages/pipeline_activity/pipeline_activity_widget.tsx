@@ -28,6 +28,7 @@ const classnames = bind(styles);
 interface Attrs {
   canOperatePipeline: boolean;
   canAdministerPipeline: boolean;
+  pipelineUsingTemplate?: string;
   pipelineActivity: Stream<PipelineActivity>;
   showBuildCaseFor: Stream<string>;
   showCommentFor: Stream<string>;
@@ -62,6 +63,7 @@ export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
                            showStageOverview={vnode.attrs.showStageOverview}
                            canOperatePipeline={vnode.attrs.canOperatePipeline}
                            canAdministerPipeline={vnode.attrs.canAdministerPipeline}
+                           pipelineUsingTemplate={vnode.attrs.pipelineUsingTemplate}
                            addOrUpdateComment={vnode.attrs.addOrUpdateComment}
                            cancelStageInstance={vnode.attrs.cancelStageInstance}/>];
           })
@@ -85,6 +87,7 @@ interface GroupAttrs {
   pipelineName: string;
   canOperatePipeline: boolean;
   canAdministerPipeline: boolean;
+  pipelineUsingTemplate?: string;
   showBuildCaseFor: Stream<string>;
   showCommentFor: Stream<string>;
   runStage: (stage: Stage) => void;
@@ -107,6 +110,7 @@ class GroupWidget extends MithrilViewComponent<GroupAttrs> {
                                 showStageOverview={vnode.attrs.showStageOverview}
                                 canOperatePipeline={vnode.attrs.canOperatePipeline}
                                 canAdministerPipeline={vnode.attrs.canAdministerPipeline}
+                                pipelineUsingTemplate={vnode.attrs.pipelineUsingTemplate}
                                 addOrUpdateComment={vnode.attrs.addOrUpdateComment}
                                 cancelStageInstance={vnode.attrs.cancelStageInstance}/>;
     });

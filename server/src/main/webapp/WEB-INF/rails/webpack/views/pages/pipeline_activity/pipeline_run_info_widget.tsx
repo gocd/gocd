@@ -33,6 +33,7 @@ const classnames = bind(styles);
 interface PipelineRunAttrs {
   canOperatePipeline: boolean;
   canAdministerPipeline: boolean;
+  pipelineUsingTemplate?: string;
   pipelineRunInfo: PipelineRunInfo;
   pipelineName: string;
   showBuildCaseFor: Stream<string>;
@@ -136,7 +137,7 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
                                                    stageName={stageName}
                                                    stageCounter={stageCounter}
                                                    stages={pipelineRunInfo.stages()}
-                                                   templateName={undefined}
+                                                   templateName={vnode.attrs.pipelineUsingTemplate}
                                                    stageInstanceFromDashboard={stage}
                                                    stageOverviewVM={vnode.attrs.stageOverviewState.model}
                                                    stageStatus={stage.stageStatus()}/>;

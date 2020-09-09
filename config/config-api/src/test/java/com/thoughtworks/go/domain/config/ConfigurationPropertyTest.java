@@ -16,11 +16,12 @@
 package com.thoughtworks.go.domain.config;
 
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
+import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
 public class ConfigurationPropertyTest {
@@ -168,7 +170,7 @@ public class ConfigurationPropertyTest {
         metadata.addConfiguration(new PackageConfiguration("fooKey", null));
         attributes.put(Configuration.METADATA, metadata);
 
-        configurationProperty.setConfigAttributes(attributes,null);
+        configurationProperty.setConfigAttributes(attributes, null);
 
         assertThat(configurationProperty.getConfigurationKey().getName()).isEqualTo("fooKey");
         assertThat(configurationProperty.getConfigurationValue().getValue()).isEqualTo("fooValue");
@@ -201,7 +203,7 @@ public class ConfigurationPropertyTest {
         attributes.put(ConfigurationProperty.CONFIGURATION_VALUE, valueMap);
         attributes.put(ConfigurationProperty.IS_CHANGED, "0");
 
-        configurationProperty.setConfigAttributes(attributes,new SecureKeyInfoProvider() {
+        configurationProperty.setConfigAttributes(attributes, new SecureKeyInfoProvider() {
             @Override
             public boolean isSecure(String key) {
                 return secureKey.equals(key);
@@ -230,7 +232,7 @@ public class ConfigurationPropertyTest {
         encryptedValueMap.put("value", "encryptedValue");
         attributes.put(ConfigurationProperty.ENCRYPTED_VALUE, encryptedValueMap);
 
-        configurationProperty.setConfigAttributes(attributes,new SecureKeyInfoProvider() {
+        configurationProperty.setConfigAttributes(attributes, new SecureKeyInfoProvider() {
             @Override
             public boolean isSecure(String key) {
                 return secureKey.equals(key);
@@ -253,7 +255,7 @@ public class ConfigurationPropertyTest {
         valueMap.put("value", "fooValue");
         attributes.put(ConfigurationProperty.CONFIGURATION_VALUE, valueMap);
 
-        configurationProperty.setConfigAttributes(attributes,null);
+        configurationProperty.setConfigAttributes(attributes, null);
 
         assertThat(configurationProperty.getConfigurationKey().getName()).isEqualTo("fooKey");
         assertThat(configurationProperty.getConfigurationValue().getValue()).isEqualTo("fooValue");
@@ -303,7 +305,7 @@ public class ConfigurationPropertyTest {
     }
 
     @Test
-    void shouldValidateKeyUniqueness(){
+    void shouldValidateKeyUniqueness() {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue());
         HashMap<String, ConfigurationProperty> map = new HashMap<>();
         ConfigurationProperty original = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue());
@@ -319,5 +321,63 @@ public class ConfigurationPropertyTest {
     void shouldGetMaskedStringIfConfigurationPropertyIsSecure() {
         assertThat(new ConfigurationProperty(new ConfigurationKey("key"), new EncryptedConfigurationValue("value")).getDisplayValue()).isEqualTo("****");
         assertThat(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")).getDisplayValue()).isEqualTo("value");
+    }
+
+    @Nested
+    class WithSecretParams {
+        @Test
+        void shouldParseForSecretsInTheValue() {
+            ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("{{SECRET:[secret_config_id][lookup_key]}}"));
+
+            assertThat(property.hasSecretParams()).isTrue();
+            assertThat(property.getSecretParams().size()).isEqualTo(1);
+            assertThat(property.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_key"));
+        }
+
+        @Test
+        void shouldParseForSecretsInTheEncryptedValue() throws CryptoException {
+            String encrypted = "encrypted";
+            String decrypted = "{{SECRET:[secret_config_id][lookup_key]}}";
+            when(cipher.decrypt(encrypted)).thenReturn(decrypted);
+            ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("name"), null, new EncryptedConfigurationValue(encrypted), cipher);
+
+            assertThat(property.hasSecretParams()).isTrue();
+            assertThat(property.getSecretParams().size()).isEqualTo(1);
+            assertThat(property.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_key"));
+        }
+
+        @Test
+        void shouldNotThrowExceptionWhileParsingForSecrets() throws CryptoException {
+            String encrypted = "encrypted";
+            when(cipher.decrypt(encrypted)).thenThrow(new RuntimeException("Some exception message"));
+            final ConfigurationProperty[] property = new ConfigurationProperty[1];
+            assertThatCode(() -> property[0] = new ConfigurationProperty(new ConfigurationKey("name"), null, new EncryptedConfigurationValue(encrypted), cipher)).doesNotThrowAnyException();
+
+            assertThat(property[0].hasSecretParams()).isFalse();
+        }
+
+        @Test
+        void shouldReturnMaskIfSecretParamsArePresent() {
+            ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("{{SECRET:[secret_config_id][lookup_key]}}"));
+
+            assertThat(property.getDisplayValue()).isEqualTo("****");
+        }
+
+        @Test
+        void shouldReturnResolvedValue() {
+            ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("{{SECRET:[secret_config_id][lookup_key]}}"));
+            property.getSecretParams().get(0).setValue("some-dummy-value");
+
+            assertThat(property.getResolvedValue()).isEqualTo("some-dummy-value");
+        }
+
+        @Test
+        void shouldThrowErrorIfSecretHasNotBeenResolved() {
+            ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("{{SECRET:[secret_config_id][lookup_key]}}"));
+
+            assertThatCode(property::getResolvedValue)
+                    .isInstanceOf(UnresolvedSecretParamException.class)
+                    .hasMessage("SecretParam 'lookup_key' is used before it is resolved.");
+        }
     }
 }

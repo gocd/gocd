@@ -29,11 +29,8 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -178,23 +175,9 @@ public class PackageMaterial extends AbstractMaterial {
         HashMap<String, String> additionalData = materialRevision.getLatestModification().getAdditionalDataMap();
         if (additionalData != null) {
             for (Map.Entry<String, String> entry : additionalData.entrySet()) {
-                boolean isSecure = false;
-                for (EnvironmentVariableContext.EnvironmentVariable secureEnvironmentVariable : context.getSecureEnvironmentVariables()) {
-                    String urlEncodedValue = null;
-                    try {
-                        urlEncodedValue = URLEncoder.encode(secureEnvironmentVariable.value(), "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                    }
-                    boolean isSecureEnvironmentVariableEncoded = !StringUtils.isBlank(urlEncodedValue) && !secureEnvironmentVariable.value().equals(urlEncodedValue);
-                    if (isSecureEnvironmentVariableEncoded && entry.getValue().contains(urlEncodedValue)) {
-                        isSecure = true;
-                        break;
-                    }
-                }
-
                 String key = entry.getKey();
                 String value = entry.getValue();
-                context.setProperty(getEnvironmentVariableKey("GO_PACKAGE_%s_%s", key), value, isSecure);
+                context.setProperty(getEnvironmentVariableKey("GO_PACKAGE_%s_%s", key), value, dataHasSecureValue(context, entry));
             }
         }
     }
@@ -266,8 +249,8 @@ public class PackageMaterial extends AbstractMaterial {
     @Override
     public void updateFromConfig(MaterialConfig materialConfig) {
         super.updateFromConfig(materialConfig);
-        this.getPackageDefinition().setConfiguration(((PackageMaterialConfig)materialConfig).getPackageDefinition().getConfiguration());
-        this.getPackageDefinition().getRepository().setConfiguration(((PackageMaterialConfig)materialConfig).getPackageDefinition().getRepository().getConfiguration());
+        this.getPackageDefinition().setConfiguration(((PackageMaterialConfig) materialConfig).getPackageDefinition().getConfiguration());
+        this.getPackageDefinition().getRepository().setConfiguration(((PackageMaterialConfig) materialConfig).getPackageDefinition().getRepository().getConfiguration());
     }
 
     @Override
@@ -281,11 +264,7 @@ public class PackageMaterial extends AbstractMaterial {
 
         PackageMaterial that = (PackageMaterial) o;
 
-        if (this.getFingerprint() != null ? !this.getFingerprint().equals(that.getFingerprint()) : that.getFingerprint() != null) {
-            return false;
-        }
-
-        return true;
+        return this.getFingerprint() != null ? this.getFingerprint().equals(that.getFingerprint()) : that.getFingerprint() == null;
     }
 
     @Override

@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.materials.scm;
 import com.google.gson.Gson;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -40,9 +41,10 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -52,62 +54,61 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static com.thoughtworks.go.util.command.EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class PluggableSCMMaterialTest {
-    @Before
-    public void setUp() {
+class PluggableSCMMaterialTest {
+
+    @BeforeEach
+    void setUp() {
         SCMMetadataStore.getInstance().clear();
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         SCMMetadataStore.getInstance().clear();
     }
 
     @Test
-    public void shouldCreatePluggableSCMMaterialInstance() {
+    void shouldCreatePluggableSCMMaterialInstance() {
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
         PluggableSCMMaterialInstance materialInstance = (PluggableSCMMaterialInstance) material.createMaterialInstance();
 
-        assertThat(materialInstance, is(notNullValue()));
-        assertThat(materialInstance.getFlyweightName(), is(notNullValue()));
-        assertThat(materialInstance.getConfiguration(), is(JsonHelper.toJsonString(material)));
+        assertThat(materialInstance).isNotNull();
+        assertThat(materialInstance.getFlyweightName()).isNotNull();
+        assertThat(materialInstance.getConfiguration()).isEqualTo(JsonHelper.toJsonString(material));
     }
 
     @Test
-    public void shouldGetMaterialInstanceType() {
-        assertThat(new PluggableSCMMaterial().getInstanceType().equals(PluggableSCMMaterialInstance.class), is(true));
+    void shouldGetMaterialInstanceType() {
+        assertThat(new PluggableSCMMaterial().getInstanceType().equals(PluggableSCMMaterialInstance.class)).isTrue();
     }
 
     @Test
-    public void shouldGetSqlCriteria() {
+    void shouldGetSqlCriteria() {
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
 
         Map<String, Object> criteria = material.getSqlCriteria();
-        assertThat(criteria.get("type"), is(PluggableSCMMaterial.class.getSimpleName()));
-        assertThat(criteria.get("fingerprint"), is(material.getFingerprint()));
+        assertThat(criteria.get("type")).isEqualTo(PluggableSCMMaterial.class.getSimpleName());
+        assertThat(criteria.get("fingerprint")).isEqualTo(material.getFingerprint());
     }
 
     @Test
-    public void shouldGetFingerprintForMaterial() {
+    void shouldGetFingerprintForMaterial() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         ConfigurationProperty k2 = ConfigurationPropertyMother.create("secure-key", true, "secure-value");
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "pluginid", "version", new Configuration(k1, k2));
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
 
-        assertThat(material.getFingerprint(), is(CachedDigestUtils.sha256Hex("plugin-id=pluginid<|>k1=v1<|>secure-key=secure-value")));
+        assertThat(material.getFingerprint()).isEqualTo(CachedDigestUtils.sha256Hex("plugin-id=pluginid<|>k1=v1<|>secure-key=secure-value"));
     }
 
     @Test
-    public void shouldGetDifferentFingerprintWhenPluginIdChanges() {
+    void shouldGetDifferentFingerprintWhenPluginIdChanges() {
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-1", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
@@ -116,37 +117,37 @@ public class PluggableSCMMaterialTest {
         PluggableSCMMaterial anotherMaterial = new PluggableSCMMaterial();
         anotherMaterial.setSCMConfig(anotherSCMConfig);
 
-        assertThat(material.getFingerprint().equals(anotherMaterial.getFingerprint()), is(false));
+        assertThat(material.getFingerprint().equals(anotherMaterial.getFingerprint())).isFalse();
     }
 
     @Test
-    public void shouldGetDescription() {
+    void shouldGetDescription() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "pluginid", "version", new Configuration(k1));
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
 
-        assertThat(material.getDescription(), is("scm-name"));
+        assertThat(material.getDescription()).isEqualTo("scm-name");
     }
 
     @Test
-    public void shouldGetDisplayName() {
+    void shouldGetDisplayName() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "pluginid", "version", new Configuration(k1));
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
 
-        assertThat(material.getDisplayName(), is("scm-name"));
+        assertThat(material.getDisplayName()).isEqualTo("scm-name");
     }
 
     @Test
-    public void shouldTypeForDisplay() {
+    void shouldTypeForDisplay() {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
-        assertThat(material.getTypeForDisplay(), is("SCM"));
+        assertThat(material.getTypeForDisplay()).isEqualTo("SCM");
     }
 
     @Test
-    public void shouldGetAttributesForXml() {
+    void shouldGetAttributesForXml() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "pluginid", "version", new Configuration(k1));
         PluggableSCMMaterial material = new PluggableSCMMaterial();
@@ -154,12 +155,12 @@ public class PluggableSCMMaterialTest {
 
         Map<String, Object> attributesForXml = material.getAttributesForXml();
 
-        assertThat(attributesForXml.get("type").toString(), is(PluggableSCMMaterial.class.getSimpleName()));
-        assertThat(attributesForXml.get("scmName").toString(), is("scm-name"));
+        assertThat(attributesForXml.get("type").toString()).isEqualTo(PluggableSCMMaterial.class.getSimpleName());
+        assertThat(attributesForXml.get("scmName").toString()).isEqualTo("scm-name");
     }
 
     @Test
-    public void shouldConvertPluggableSCMMaterialToJsonFormatToBeStoredInDb() throws CryptoException {
+    void shouldConvertPluggableSCMMaterialToJsonFormatToBeStoredInDb() throws CryptoException {
         GoCipher cipher = new GoCipher();
         String encryptedPassword = cipher.encrypt("password");
         ConfigurationProperty secureSCMProperty = new ConfigurationProperty(new ConfigurationKey("secure-key"), null, new EncryptedConfigurationValue(encryptedPassword), cipher);
@@ -172,12 +173,12 @@ public class PluggableSCMMaterialTest {
         String json = JsonHelper.toJsonString(pluggableSCMMaterial);
 
         String expected = "{\"scm\":{\"plugin\":{\"id\":\"plugin-id\",\"version\":\"1.0\"},\"config\":[{\"configKey\":{\"name\":\"secure-key\"},\"encryptedConfigValue\":{\"value\":" + new Gson().toJson(encryptedPassword) + "}},{\"configKey\":{\"name\":\"non-secure-key\"},\"configValue\":{\"value\":\"value\"}}]}}";
-        assertThat(json, is(expected));
-        assertThat(JsonHelper.fromJson(expected, PluggableSCMMaterial.class), is(pluggableSCMMaterial));
+        assertThat(json).isEqualTo(expected);
+        assertThat(JsonHelper.fromJson(expected, PluggableSCMMaterial.class)).isEqualTo(pluggableSCMMaterial);
     }
 
     @Test
-    public void shouldGetJsonRepresentationForPluggableSCMMaterial() {
+    void shouldGetJsonRepresentationForPluggableSCMMaterial() {
         ConfigurationProperty k1 = create("k1", false, "v1");
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "pluginid", "version", new Configuration(k1));
         PluggableSCMMaterial material = new PluggableSCMMaterial();
@@ -186,15 +187,15 @@ public class PluggableSCMMaterialTest {
         Map<String, String> jsonMap = new LinkedHashMap<>();
         material.toJson(jsonMap, new PluggableSCMMaterialRevision("rev123", new Date()));
 
-        assertThat(jsonMap.get("scmType"), is("SCM"));
-        assertThat(jsonMap.get("materialName"), is("scm-name"));
-        assertThat(jsonMap.get("location"), is(material.getUriForDisplay()));
-        assertThat(jsonMap.get("folder"), is("folder"));
-        assertThat(jsonMap.get("action"), is("Modified"));
+        assertThat(jsonMap.get("scmType")).isEqualTo("SCM");
+        assertThat(jsonMap.get("materialName")).isEqualTo("scm-name");
+        assertThat(jsonMap.get("location")).isEqualTo(material.getUriForDisplay());
+        assertThat(jsonMap.get("folder")).isEqualTo("folder");
+        assertThat(jsonMap.get("action")).isEqualTo("Modified");
     }
 
     @Test
-    public void shouldGetEmailContentForPluggableSCMMaterial() {
+    void shouldGetEmailContentForPluggableSCMMaterial() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "pluginid", "version", new Configuration(k1));
         PluggableSCMMaterial material = new PluggableSCMMaterial();
@@ -204,17 +205,17 @@ public class PluggableSCMMaterialTest {
         Date date = new Date(1367472329111L);
         material.emailContent(content, new Modification(null, "comment", null, date, "rev123"));
 
-        assertThat(content.toString(), is(String.format("SCM : scm-name\nrevision: rev123, completed on %s\ncomment", date.toString())));
+        assertThat(content.toString()).isEqualTo(String.format("SCM : scm-name\nrevision: rev123, completed on %s\ncomment", date.toString()));
     }
 
     @Test
-    public void shouldReturnFalseForIsUsedInFetchArtifact() {
+    void shouldReturnFalseForIsUsedInFetchArtifact() {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
-        assertThat(material.isUsedInFetchArtifact(new PipelineConfig()), is(false));
+        assertThat(material.isUsedInFetchArtifact(new PipelineConfig())).isFalse();
     }
 
     @Test
-    public void shouldReturnMatchedRevisionForPluggableSCMMaterial() {
+    void shouldReturnMatchedRevisionForPluggableSCMMaterial() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "pluginid", "version", new Configuration(k1));
         PluggableSCMMaterial material = new PluggableSCMMaterial();
@@ -223,25 +224,25 @@ public class PluggableSCMMaterialTest {
         Date timestamp = new Date();
         MatchedRevision matchedRevision = material.createMatchedRevision(new Modification("go", "comment", null, timestamp, "rev123"), "rev");
 
-        assertThat(matchedRevision.getShortRevision(), is("rev123"));
-        assertThat(matchedRevision.getLongRevision(), is("rev123"));
-        assertThat(matchedRevision.getCheckinTime(), is(timestamp));
-        assertThat(matchedRevision.getUser(), is("go"));
-        assertThat(matchedRevision.getComment(), is("comment"));
+        assertThat(matchedRevision.getShortRevision()).isEqualTo("rev123");
+        assertThat(matchedRevision.getLongRevision()).isEqualTo("rev123");
+        assertThat(matchedRevision.getCheckinTime()).isEqualTo(timestamp);
+        assertThat(matchedRevision.getUser()).isEqualTo("go");
+        assertThat(matchedRevision.getComment()).isEqualTo("comment");
     }
 
     @Test
-    public void shouldGetNameFromSCMName() {
+    void shouldGetNameFromSCMName() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         SCM scmConfig = SCMMother.create("scm-id", "scm-name", "pluginid", "version", new Configuration(k1));
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
 
-        assertThat(material.getName().toString(), is("scm-name"));
+        assertThat(material.getName().toString()).isEqualTo("scm-name");
     }
 
     @Test
-    public void shouldPopulateEnvironmentContext() {
+    void shouldPopulateEnvironmentContext() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         ConfigurationProperty k2 = ConfigurationPropertyMother.create("scm-secure", true, "value");
         SCM scmConfig = SCMMother.create("scm-id", "tw-dev", "pluginid", "version", new Configuration(k1, k2));
@@ -252,14 +253,14 @@ public class PluggableSCMMaterialTest {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         material.populateEnvironmentContext(environmentVariableContext, new MaterialRevision(material, modifications), null);
 
-        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_K1"), is("v1"));
-        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_SCM_SECURE"), is("value"));
-        assertThat(environmentVariableContext.getPropertyForDisplay("GO_SCM_TW_DEV_GO_AGENT_SCM_SECURE"), is(EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE));
-        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_LABEL"), is("revision-123"));
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_K1")).isEqualTo("v1");
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_SCM_SECURE")).isEqualTo("value");
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_SCM_TW_DEV_GO_AGENT_SCM_SECURE")).isEqualTo(MASK_VALUE);
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_LABEL")).isEqualTo("revision-123");
     }
 
     @Test
-    public void shouldPopulateEnvironmentContextWithEnvironmentVariablesCreatedOutOfAdditionalDataFromModification() {
+    void shouldPopulateEnvironmentContextWithEnvironmentVariablesCreatedOutOfAdditionalDataFromModification() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         SCM scmConfig = SCMMother.create("scm-id", "tw-dev", "pluginid", "version", new Configuration(k1));
         PluggableSCMMaterial material = new PluggableSCMMaterial();
@@ -274,13 +275,13 @@ public class PluggableSCMMaterialTest {
 
         material.populateEnvironmentContext(environmentVariableContext, new MaterialRevision(material, modifications), null);
 
-        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_LABEL"), is("revision-123"));
-        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_K1"), is("v1"));
-        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_MY_NEW_KEY"), is("my_value"));
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_LABEL")).isEqualTo("revision-123");
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_K1")).isEqualTo("v1");
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_MY_NEW_KEY")).isEqualTo("my_value");
     }
 
     @Test
-    public void shouldMarkEnvironmentContextCreatedForAdditionalDataAsSecureIfTheValueContainsAnySpecialCharacters() throws UnsupportedEncodingException {
+    void shouldMarkEnvironmentContextCreatedForAdditionalDataAsSecureIfTheValueContainsAnySpecialCharacters() throws UnsupportedEncodingException {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", true, "!secure_value:with_special_chars");
         SCM scmConfig = SCMMother.create("scm-id", "tw-dev", "pluginid", "version", new Configuration(k1, k2));
@@ -298,19 +299,19 @@ public class PluggableSCMMaterialTest {
 
         material.populateEnvironmentContext(environmentVariableContext, new MaterialRevision(material, modifications), null);
 
-        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_LABEL"), is("revision-123"));
-        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_K1"), is("v1"));
-        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_K2"), is("!secure_value:with_special_chars"));
-        assertThat(environmentVariableContext.getPropertyForDisplay("GO_SCM_TW_DEV_GO_AGENT_K2"), is(EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE));
-        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_ADDITIONAL_DATA_ONE"), is("foobar:!secure_value:with_special_chars"));
-        assertThat(environmentVariableContext.getPropertyForDisplay("GO_SCM_TW_DEV_GO_AGENT_ADDITIONAL_DATA_ONE"), is("foobar:!secure_value:with_special_chars"));
-        assertThat(environmentVariableContext.getPropertyForDisplay("GO_SCM_TW_DEV_GO_AGENT_ADDITIONAL_DATA_TWO"), is("foobar:secure_value_with_regular_chars"));
-        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_ADDITIONAL_DATA_URL_ENCODED"), is("something:%21secure_value%3Awith_special_chars"));
-        assertThat(environmentVariableContext.getPropertyForDisplay("GO_SCM_TW_DEV_GO_AGENT_ADDITIONAL_DATA_URL_ENCODED"), is(EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE));
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_LABEL")).isEqualTo("revision-123");
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_K1")).isEqualTo("v1");
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_K2")).isEqualTo("!secure_value:with_special_chars");
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_SCM_TW_DEV_GO_AGENT_K2")).isEqualTo(MASK_VALUE);
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_ADDITIONAL_DATA_ONE")).isEqualTo("foobar:!secure_value:with_special_chars");
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_SCM_TW_DEV_GO_AGENT_ADDITIONAL_DATA_ONE")).isEqualTo("foobar:!secure_value:with_special_chars");
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_SCM_TW_DEV_GO_AGENT_ADDITIONAL_DATA_TWO")).isEqualTo("foobar:secure_value_with_regular_chars");
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_ADDITIONAL_DATA_URL_ENCODED")).isEqualTo("something:%21secure_value%3Awith_special_chars");
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_SCM_TW_DEV_GO_AGENT_ADDITIONAL_DATA_URL_ENCODED")).isEqualTo(MASK_VALUE);
     }
 
     @Test
-    public void shouldNotThrowUpWhenAdditionalDataIsNull() {
+    void shouldNotThrowUpWhenAdditionalDataIsNull() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         SCM scmConfig = SCMMother.create("scm-id", "tw-dev", "pluginid", "version", new Configuration(k1));
         PluggableSCMMaterial material = new PluggableSCMMaterial();
@@ -321,12 +322,12 @@ public class PluggableSCMMaterialTest {
 
         material.populateEnvironmentContext(environmentVariableContext, new MaterialRevision(material, modifications), null);
 
-        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_LABEL"), is("revision-123"));
-        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_K1"), is("v1"));
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_LABEL")).isEqualTo("revision-123");
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_K1")).isEqualTo("v1");
     }
 
     @Test
-    public void shouldNotThrowUpWhenAdditionalDataIsRandomJunkAndNotJSON() {
+    void shouldNotThrowUpWhenAdditionalDataIsRandomJunkAndNotJSON() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         SCM scmConfig = SCMMother.create("scm-id", "tw-dev", "pluginid", "version", new Configuration(k1));
         PluggableSCMMaterial material = new PluggableSCMMaterial();
@@ -337,12 +338,12 @@ public class PluggableSCMMaterialTest {
 
         material.populateEnvironmentContext(environmentVariableContext, new MaterialRevision(material, modifications), null);
 
-        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_LABEL"), is("revision-123"));
-        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_K1"), is("v1"));
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_LABEL")).isEqualTo("revision-123");
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_K1")).isEqualTo("v1");
     }
 
     @Test
-    public void shouldGetUriForDisplay() {
+    void shouldGetUriForDisplay() {
         SCMMetadataStore.getInstance().addMetadataFor("some-plugin", new SCMConfigurations(), null);
 
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "scm-v1");
@@ -352,22 +353,22 @@ public class PluggableSCMMaterialTest {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
 
-        assertThat(material.getUriForDisplay(), is("[k1=scm-v1, k2=scm-v2]"));
+        assertThat(material.getUriForDisplay()).isEqualTo("[k1=scm-v1, k2=scm-v2]");
     }
 
     @Test
-    public void shouldGetUriForDisplayNameIfNameIsNull() {
+    void shouldGetUriForDisplayNameIfNameIsNull() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "scm-v1");
         ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "scm-v2");
         SCM scmConfig = SCMMother.create("scm-id", null, "pluginid", "version", new Configuration(k1, k2));
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
 
-        assertThat(material.getDisplayName(), is(material.getUriForDisplay()));
+        assertThat(material.getDisplayName()).isEqualTo(material.getUriForDisplay());
     }
 
     @Test
-    public void shouldGetLongDescription() {
+    void shouldGetLongDescription() {
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "scm-v1");
         ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "scm-v2");
         Configuration configuration = new Configuration(k1, k2);
@@ -375,138 +376,199 @@ public class PluggableSCMMaterialTest {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
 
-        assertThat(material.getLongDescription(), is(material.getUriForDisplay()));
+        assertThat(material.getLongDescription()).isEqualTo(material.getUriForDisplay());
     }
 
     @Test
-    public void shouldPassEqualsCheckIfFingerprintIsSame() {
+    void shouldPassEqualsCheckIfFingerprintIsSame() {
         PluggableSCMMaterial material1 = MaterialsMother.pluggableSCMMaterial();
         material1.setName(new CaseInsensitiveString("name1"));
         PluggableSCMMaterial material2 = MaterialsMother.pluggableSCMMaterial();
         material2.setName(new CaseInsensitiveString("name2"));
 
-        assertThat(material1.equals(material2), is(true));
+        assertThat(material1.equals(material2)).isTrue();
     }
 
     @Test
-    public void shouldFailEqualsCheckIfFingerprintDiffers() {
+    void shouldFailEqualsCheckIfFingerprintDiffers() {
         PluggableSCMMaterial material1 = MaterialsMother.pluggableSCMMaterial();
         material1.getScmConfig().getConfiguration().first().setConfigurationValue(new ConfigurationValue("new-url"));
         PluggableSCMMaterial material2 = MaterialsMother.pluggableSCMMaterial();
 
-        assertThat(material1.equals(material2), is(false));
+        assertThat(material1.equals(material2)).isFalse();
     }
 
     @Test
-    public void shouldReturnSomethingMoreSaneForToString() throws Exception {
+    void shouldReturnSomethingMoreSaneForToString() throws Exception {
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
 
         SCMMetadataStore.getInstance().addMetadataFor(material.getPluginId(), new SCMConfigurations(), null);
 
-        assertThat(material.toString(), is("'PluggableSCMMaterial{[k1=v1, k2=v2]}'"));
+        assertThat(material.toString()).isEqualTo("'PluggableSCMMaterial{[k1=v1, k2=v2]}'");
     }
 
     @Test
-    public void shouldReturnNameAsNullIfSCMConfigIsNotSet() {
-        assertThat(new PluggableSCMMaterial().getName(), is(nullValue()));
+    void shouldReturnNameAsNullIfSCMConfigIsNotSet() {
+        assertThat(new PluggableSCMMaterial().getName()).isNull();
     }
 
     @Test
-    public void shouldNotCalculateFingerprintWhenAvailable() {
+    void shouldNotCalculateFingerprintWhenAvailable() {
         String fingerprint = "fingerprint";
         SCM scmConfig = mock(SCM.class);
+        when(scmConfig.getConfiguration()).thenReturn(new Configuration());
+
         PluggableSCMMaterial pluggableSCMMaterial = new PluggableSCMMaterial();
         pluggableSCMMaterial.setSCMConfig(scmConfig);
         pluggableSCMMaterial.setFingerprint(fingerprint);
 
-        assertThat(pluggableSCMMaterial.getFingerprint(), is(fingerprint));
+        assertThat(pluggableSCMMaterial.getFingerprint()).isEqualTo(fingerprint);
         verify(scmConfig, never()).getFingerprint();
     }
 
     @Test
-    public void shouldTakeValueOfIsAutoUpdateFromSCMConfig() throws Exception {
+    void shouldTakeValueOfIsAutoUpdateFromSCMConfig() throws Exception {
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
 
         material.getScmConfig().setAutoUpdate(true);
-        assertThat(material.isAutoUpdate(), is(true));
+        assertThat(material.isAutoUpdate()).isTrue();
 
         material.getScmConfig().setAutoUpdate(false);
-        assertThat(material.isAutoUpdate(), is(false));
+        assertThat(material.isAutoUpdate()).isFalse();
     }
 
     @Test
-    public void shouldReturnWorkingDirectoryCorrectly() {
+    void shouldReturnWorkingDirectoryCorrectly() {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setFolder("dest");
         String baseFolder = new File(System.getProperty("java.io.tmpdir")).getAbsolutePath();
         String workingFolder = new File(baseFolder, "dest").getAbsolutePath();
-        assertThat(material.workingDirectory(new File(baseFolder)).getAbsolutePath(), is(workingFolder));
+        assertThat(material.workingDirectory(new File(baseFolder)).getAbsolutePath()).isEqualTo(workingFolder);
         material.setFolder(null);
-        assertThat(material.workingDirectory(new File(baseFolder)).getAbsolutePath(), is(baseFolder));
+        assertThat(material.workingDirectory(new File(baseFolder)).getAbsolutePath()).isEqualTo(baseFolder);
     }
 
     @Test
-    public void shouldGetAttributesWithSecureFields() {
+    void shouldGetAttributesWithSecureFields() {
         PluggableSCMMaterial material = createPluggableSCMMaterialWithSecureConfiguration();
         Map<String, Object> attributes = material.getAttributes(true);
 
-        assertThat(attributes.get("type"), is("scm"));
-        assertThat(attributes.get("plugin-id"), is("pluginid"));
+        assertThat(attributes.get("type")).isEqualTo("scm");
+        assertThat(attributes.get("plugin-id")).isEqualTo("pluginid");
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("scm-configuration");
-        assertThat(configuration.get("k1"), is("v1"));
-        assertThat(configuration.get("k2"), is("v2"));
+        assertThat(configuration.get("k1")).isEqualTo("v1");
+        assertThat(configuration.get("k2")).isEqualTo("v2");
     }
 
     @Test
-    public void shouldGetAttributesWithoutSecureFields() {
+    void shouldGetAttributesWithoutSecureFields() {
         PluggableSCMMaterial material = createPluggableSCMMaterialWithSecureConfiguration();
         Map<String, Object> attributes = material.getAttributes(false);
 
-        assertThat(attributes.get("type"), is("scm"));
-        assertThat(attributes.get("plugin-id"), is("pluginid"));
+        assertThat(attributes.get("type")).isEqualTo("scm");
+        assertThat(attributes.get("plugin-id")).isEqualTo("pluginid");
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("scm-configuration");
-        assertThat(configuration.get("k1"), is("v1"));
-        assertThat(configuration.get("k2"), is(nullValue()));
+        assertThat(configuration.get("k1")).isEqualTo("v1");
+        assertThat(configuration.get("k2")).isNull();
     }
 
     @Test
-    public void shouldCorrectlyGetTypeDisplay() {
+    void shouldCorrectlyGetTypeDisplay() {
         PluggableSCMMaterial pluggableSCMMaterial = new PluggableSCMMaterial("scm-id");
-        assertThat(pluggableSCMMaterial.getTypeForDisplay(), is("SCM"));
+        assertThat(pluggableSCMMaterial.getTypeForDisplay()).isEqualTo("SCM");
 
         pluggableSCMMaterial.setSCMConfig(SCMMother.create("scm-id"));
-        assertThat(pluggableSCMMaterial.getTypeForDisplay(), is("SCM"));
+        assertThat(pluggableSCMMaterial.getTypeForDisplay()).isEqualTo("SCM");
 
         SCMMetadataStore.getInstance().addMetadataFor("plugin", null, null);
-        assertThat(pluggableSCMMaterial.getTypeForDisplay(), is("SCM"));
+        assertThat(pluggableSCMMaterial.getTypeForDisplay()).isEqualTo("SCM");
 
         SCMView scmView = mock(SCMView.class);
         when(scmView.displayValue()).thenReturn("scm-name");
         SCMMetadataStore.getInstance().addMetadataFor("plugin", null, scmView);
-        assertThat(pluggableSCMMaterial.getTypeForDisplay(), is("scm-name"));
+        assertThat(pluggableSCMMaterial.getTypeForDisplay()).isEqualTo("scm-name");
     }
 
     @Test
-    public void shouldReturnTrueForPluggableScmMaterial_supportsDestinationFolder() throws Exception {
+    void shouldReturnTrueForPluggableScmMaterial_supportsDestinationFolder() throws Exception {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
-        assertThat(material.supportsDestinationFolder(), is(true));
+        assertThat(material.supportsDestinationFolder()).isTrue();
     }
 
     @Test
-    public void shouldUpdateMaterialFromMaterialConfig(){
+    void shouldUpdateMaterialFromMaterialConfig() {
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
         PluggableSCMMaterialConfig materialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig();
         Configuration configuration = new Configuration(new ConfigurationProperty(new ConfigurationKey("new_key"), new ConfigurationValue("new_value")));
         materialConfig.getSCMConfig().setConfiguration(configuration);
 
         material.updateFromConfig(materialConfig);
-        assertThat(material.getScmConfig().getConfiguration().equals(materialConfig.getSCMConfig().getConfiguration()), is(true));
+        assertThat(material.getScmConfig().getConfiguration().equals(materialConfig.getSCMConfig().getConfiguration())).isTrue();
     }
-
 
     private PluggableSCMMaterial createPluggableSCMMaterialWithSecureConfiguration() {
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
         material.getScmConfig().getConfiguration().get(1).handleSecureValueConfiguration(true);
         return material;
+    }
+
+    @Nested
+    class HasSecretParams {
+        @Test
+        void shouldBeTrueIfScmConfigHasSecretParam() {
+            PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+            material.getScmConfig().getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][lookup_password]}}"));
+            material.getScmConfig().getConfiguration().get(1).handleSecureValueConfiguration(true);
+
+            assertThat(material.hasSecretParams()).isTrue();
+        }
+
+        @Test
+        void shouldBeFalseIfScmCOnfigDoesNotHaveSecretParams() {
+            PluggableSCMMaterial material = createPluggableSCMMaterialWithSecureConfiguration();
+
+            assertThat(material.hasSecretParams()).isFalse();
+        }
+    }
+
+    @Nested
+    class GetSecretParams {
+        @Test
+        void shouldReturnAListOfSecretParams() {
+            PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+            material.getScmConfig().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][lookup_username]}}"));
+            material.getScmConfig().getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][lookup_password]}}"));
+            material.getScmConfig().getConfiguration().get(1).handleSecureValueConfiguration(true);
+
+            assertThat(material.getSecretParams().size()).isEqualTo(2);
+            assertThat(material.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_username"));
+            assertThat(material.getSecretParams().get(1)).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
+        }
+
+        @Test
+        void shouldBeAnEmptyListInAbsenceOfSecretParamsInScmConfig() {
+            PluggableSCMMaterial material = createPluggableSCMMaterialWithSecureConfiguration();
+
+            assertThat(material.getSecretParams()).isEmpty();
+        }
+    }
+
+    @Test
+    void shouldPopulateEnvironmentContextWithConfigurationWithSecretParamsAsSecure() {
+        ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+        k1.getSecretParams().get(0).setValue("some-resolved-value");
+        ConfigurationProperty k2 = ConfigurationPropertyMother.create("scm-secure", true, "value");
+        PluggableSCMMaterial material = new PluggableSCMMaterial();
+        material.setSCMConfig(SCMMother.create("scm-id", "tw-dev", "pluginid", "version", new Configuration(k1, k2)));
+        material.setName(new CaseInsensitiveString("tw-dev:go-agent"));
+        Modifications modifications = new Modifications(new Modification(null, null, null, new Date(), "revision-123"));
+        EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+        material.populateEnvironmentContext(environmentVariableContext, new MaterialRevision(material, modifications), null);
+
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_K1")).isEqualTo("some-resolved-value");
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_SCM_TW_DEV_GO_AGENT_K1")).isEqualTo(MASK_VALUE);
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_SCM_SECURE")).isEqualTo("value");
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_SCM_TW_DEV_GO_AGENT_SCM_SECURE")).isEqualTo(MASK_VALUE);
+        assertThat(environmentVariableContext.getProperty("GO_SCM_TW_DEV_GO_AGENT_LABEL")).isEqualTo("revision-123");
     }
 }

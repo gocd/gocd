@@ -19,6 +19,8 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.SecretParamAware;
+import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -30,11 +32,8 @@ import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +44,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
 
-public class PluggableSCMMaterial extends AbstractMaterial {
+public class PluggableSCMMaterial extends AbstractMaterial implements SecretParamAware {
     public static final String TYPE = "PluggableSCMMaterial";
 
     @SuppressWarnings("PMD.UnusedPrivateField")
@@ -73,7 +72,7 @@ public class PluggableSCMMaterial extends AbstractMaterial {
         this();
         this.name = config.getName();
         this.scmId = config.getScmId();
-        this.scmConfig = config.getSCMConfig();
+        this.setSCMConfig(config.getSCMConfig());
         this.folder = config.getFolder();
         this.filter = config.filter();
         this.invertFilter = config.getInvertFilter();
@@ -270,28 +269,14 @@ public class PluggableSCMMaterial extends AbstractMaterial {
         context.setProperty(getEnvironmentVariableKey("GO_SCM_%s_%s", "LABEL"), materialRevision.getRevision().getRevision(), false);
         for (ConfigurationProperty configurationProperty : scmConfig.getConfiguration()) {
             context.setProperty(getEnvironmentVariableKey("GO_SCM_%s_%s", configurationProperty.getConfigurationKey().getName()),
-                    configurationProperty.getValue(), configurationProperty.isSecure());
+                    configurationProperty.getResolvedValue(), configurationProperty.isSecure() || configurationProperty.hasSecretParams());
         }
         HashMap<String, String> additionalData = materialRevision.getLatestModification().getAdditionalDataMap();
         if (additionalData != null) {
             for (Map.Entry<String, String> entry : additionalData.entrySet()) {
-                boolean isSecure = false;
-                for (EnvironmentVariableContext.EnvironmentVariable secureEnvironmentVariable : context.getSecureEnvironmentVariables()) {
-                    String urlEncodedValue = null;
-                    try {
-                        urlEncodedValue = URLEncoder.encode(secureEnvironmentVariable.value(), "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                    }
-                    boolean isSecureEnvironmentVariableEncoded = !StringUtils.isBlank(urlEncodedValue) && !secureEnvironmentVariable.value().equals(urlEncodedValue);
-                    if (isSecureEnvironmentVariableEncoded && entry.getValue().contains(urlEncodedValue)) {
-                        isSecure = true;
-                        break;
-                    }
-                }
-
                 String key = entry.getKey();
                 String value = entry.getValue();
-                context.setProperty(getEnvironmentVariableKey("GO_SCM_%s_%s", key), value, isSecure);
+                context.setProperty(getEnvironmentVariableKey("GO_SCM_%s_%s", key), value, dataHasSecureValue(context, entry));
             }
         }
     }
@@ -307,11 +292,7 @@ public class PluggableSCMMaterial extends AbstractMaterial {
 
         PluggableSCMMaterial that = (PluggableSCMMaterial) o;
 
-        if (this.getFingerprint() != null ? !this.getFingerprint().equals(that.getFingerprint()) : that.getFingerprint() != null) {
-            return false;
-        }
-
-        return true;
+        return this.getFingerprint() != null ? this.getFingerprint().equals(that.getFingerprint()) : that.getFingerprint() == null;
     }
 
     @Override
@@ -347,5 +328,28 @@ public class PluggableSCMMaterial extends AbstractMaterial {
 
     public void setInvertFilter(boolean value) {
         invertFilter = value;
+    }
+
+    @Override
+    public boolean hasSecretParams() {
+        if (this.scmConfig == null) {
+            return false;
+        }
+        return this.scmConfig
+                .getConfiguration()
+                .stream()
+                .anyMatch(ConfigurationProperty::hasSecretParams);
+    }
+
+    @Override
+    public SecretParams getSecretParams() {
+        if (this.scmConfig == null) {
+            return new SecretParams();
+        }
+        return this.scmConfig.getConfiguration()
+                .stream()
+                .map(ConfigurationProperty::getSecretParams)
+                .filter((secrets) -> !secrets.isEmpty())
+                .collect(SecretParams.toFlatSecretParams());
     }
 }

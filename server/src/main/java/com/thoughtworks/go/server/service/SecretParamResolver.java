@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
@@ -52,6 +53,12 @@ public class SecretParamResolver {
         rulesService.validateSecretConfigReferences(scmMaterial);
 
         resolve(scmMaterial.getSecretParams());
+    }
+
+    public void resolve(PluggableSCMMaterial material) {
+        rulesService.validateSecretConfigReferences(material);
+
+        resolve(material.getSecretParams());
     }
 
     // Method used for check_connection in new pipeline flow

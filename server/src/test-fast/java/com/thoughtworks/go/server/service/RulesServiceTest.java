@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.rules.Allow;
@@ -27,7 +28,10 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.domain.builder.NullBuilder;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.server.domain.Username;
@@ -47,6 +51,7 @@ import static com.thoughtworks.go.helper.GoConfigMother.configWithSecretConfig;
 import static com.thoughtworks.go.helper.GoConfigMother.defaultCruiseConfig;
 import static com.thoughtworks.go.helper.MaterialsMother.gitMaterial;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
@@ -65,7 +70,7 @@ class RulesServiceTest {
     }
 
     @Nested
-    class ForMaterials {
+    class ForScmMaterials {
         @Test
         void shouldErrorOutIfMaterialDoesNotHavePermissionToReferASecretConfig() {
             GitMaterial gitMaterial = new GitMaterial("http://example.com");
@@ -177,7 +182,7 @@ class RulesServiceTest {
             cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
             when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
-            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(Collections.singletonList(new CaseInsensitiveString("up42")));
+            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(singletonList(new CaseInsensitiveString("up42")));
             when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
             when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
 
@@ -202,6 +207,156 @@ class RulesServiceTest {
             when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
 
             assertThat(rulesService.validateSecretConfigReferences(gitMaterial)).isEqualTo(true);
+        }
+    }
+
+    @Nested
+    class ForPluggableScmMaterials {
+        @Test
+        void shouldErrorOutIfScmDoesNotHavePermissionToReferASecretConfig() {
+            PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+            SCM scmConfig = material.getScmConfig();
+            scmConfig.getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            scmConfig.getConfiguration().get(1).handleSecureValueConfiguration(true);
+            material.setSCMConfig(scmConfig);
+
+            Rules rules = new Rules(new Allow("refer", "pluggable_scm", "scm-*"));
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
+
+            PipelineConfig up42 = PipelineConfigMother.pipelineConfig("up42", new MaterialConfigs(material.config()));
+            PipelineConfigs defaultGroup = PipelineConfigMother.createGroup("some_group", up42);
+            CruiseConfig cruiseConfig = configWithSecretConfig(secretConfig);
+            cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
+
+            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+            when(goConfigService.pipelinesWithMaterial(material.getFingerprint())).thenReturn(asList(new CaseInsensitiveString("up42")));
+            when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
+            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
+                    .isInstanceOf(RulesViolationException.class)
+                    .hasMessage("Pluggable SCM 'scm-name' is referring to none-existent secret config 'secret_config_id'.");
+        }
+
+        @Test
+        void shouldValidateIfScmHasPermissionToReferASecretConfig() {
+            PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+            SCM scmConfig = material.getScmConfig();
+            scmConfig.getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            scmConfig.getConfiguration().get(1).handleSecureValueConfiguration(true);
+            material.setSCMConfig(scmConfig);
+
+            Rules rules = new Rules(new Allow("refer", "pluggable_scm", "scm-*"));
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
+
+            PipelineConfig up42 = PipelineConfigMother.pipelineConfig("up42", new MaterialConfigs(material.config()));
+            PipelineConfigs defaultGroup = PipelineConfigMother.createGroup("default", up42);
+            CruiseConfig cruiseConfig = configWithSecretConfig(secretConfig);
+            cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
+
+            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+            when(goConfigService.pipelinesWithMaterial(material.getFingerprint())).thenReturn(singletonList(new CaseInsensitiveString("up42")));
+            when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
+            when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
+            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
+                    .doesNotThrowAnyException();
+
+            verify(goConfigService, times(1)).getSecretConfigById(anyString());
+        }
+
+        @Test
+        void shouldErrorOutWhenScmIsReferringToNoneExistingSecretConfig() {
+            PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+            SCM scmConfig = material.getScmConfig();
+            scmConfig.getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            scmConfig.getConfiguration().get(1).handleSecureValueConfiguration(true);
+            material.setSCMConfig(scmConfig);
+
+            PipelineConfig up42 = PipelineConfigMother.pipelineConfig("up42", new MaterialConfigs(material.config()));
+            PipelineConfigs defaultGroup = PipelineConfigMother.createGroup("default", up42);
+            CruiseConfig cruiseConfig = defaultCruiseConfig();
+            cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
+
+            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+            when(goConfigService.pipelinesWithMaterial(material.getFingerprint())).thenReturn(Collections.singletonList(new CaseInsensitiveString("up42")));
+            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
+            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
+                    .isInstanceOf(RulesViolationException.class)
+                    .hasMessage("Pluggable SCM 'scm-name' is referring to none-existent secret config 'secret_config_id'.");
+        }
+
+        @Test
+        void shouldBeValidIfScmConfigIsNotDefinedUsingSecretParams() {
+            PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+            material.getScmConfig().getConfiguration().get(1).handleSecureValueConfiguration(true);
+
+            PipelineConfig up42 = PipelineConfigMother.pipelineConfig("up42", new MaterialConfigs(material.config()));
+            PipelineConfigs defaultGroup = PipelineConfigMother.createGroup("default", up42);
+            CruiseConfig cruiseConfig = defaultCruiseConfig();
+            cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
+
+            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+            when(goConfigService.pipelinesWithMaterial(material.getFingerprint())).thenReturn(singletonList(new CaseInsensitiveString("up42")));
+            when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
+            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
+                    .doesNotThrowAnyException();
+        }
+
+        @Test
+        void shouldAddErrorForASecretConfigIdOnlyOnce() {
+            PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+            SCM scmConfig = material.getScmConfig();
+            scmConfig.getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            scmConfig.getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            scmConfig.getConfiguration().get(1).handleSecureValueConfiguration(true);
+            material.setSCMConfig(scmConfig);
+
+            PipelineConfig up42 = PipelineConfigMother.pipelineConfig("up42", new MaterialConfigs(material.config()));
+            PipelineConfigs defaultGroup = PipelineConfigMother.createGroup("default", up42);
+            CruiseConfig cruiseConfig = defaultCruiseConfig();
+            cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
+
+            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+            when(goConfigService.pipelinesWithMaterial(material.getFingerprint())).thenReturn(Collections.singletonList(new CaseInsensitiveString("up42")));
+            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
+            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
+                    .isInstanceOf(RulesViolationException.class)
+                    .hasMessage("Pluggable SCM 'scm-name' is referring to none-existent secret config 'secret_config_id'.");
+        }
+
+        @Test
+        void shouldConcatenateMultipleErrorsWithNewLineChar() {
+            PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+            SCM scmConfig = material.getScmConfig();
+            scmConfig.getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[unknown_id][password]}}"));
+            scmConfig.getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            scmConfig.getConfiguration().get(1).handleSecureValueConfiguration(true);
+            material.setSCMConfig(scmConfig);
+
+            Rules rules = new Rules(new Allow("refer", "pluggable_scm", "scm-*"));
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
+
+            PipelineConfig up42 = PipelineConfigMother.pipelineConfig("up42", new MaterialConfigs(material.config()));
+            PipelineConfigs defaultGroup = PipelineConfigMother.createGroup("default", up42);
+            CruiseConfig cruiseConfig = configWithSecretConfig(secretConfig);
+            cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
+
+            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+            when(goConfigService.pipelinesWithMaterial(material.getFingerprint())).thenReturn(Collections.singletonList(new CaseInsensitiveString("up42")));
+            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
+            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
+                    .isInstanceOf(RulesViolationException.class)
+                    .hasMessage("Pluggable SCM 'scm-name' is referring to none-existent secret config 'secret_config_id'.\nPluggable SCM 'scm-name' is referring to none-existent secret config 'unknown_id'.");
         }
     }
 

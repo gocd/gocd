@@ -160,7 +160,11 @@ public class MaterialService {
 
     private void resolveSecretParams(Material material) {
         if ((material instanceof SecretParamAware) && ((SecretParamAware) material).hasSecretParams()) {
-            this.secretParamResolver.resolve((ScmMaterial) material);
+            if (material instanceof ScmMaterial) {
+                this.secretParamResolver.resolve((ScmMaterial) material);
+            } else if (material instanceof PluggableSCMMaterial) {
+                this.secretParamResolver.resolve((PluggableSCMMaterial) material);
+            }
         }
     }
 

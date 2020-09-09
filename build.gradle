@@ -245,7 +245,7 @@ rootProject.ext.versions = [
   xmlUnit               : '2.6.3',
 
   seleniumDrivers       : [
-    chromedriver  : '86.0.4240.22',
+    chromedriver  : '85.0.4183.83',
     geckodriver   : '0.21.0',
     iedriverserver: '3.14.0'
   ],

@@ -30,18 +30,19 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.SecretParamResolver;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -61,6 +62,8 @@ public class PluggableScmServiceTest {
     private GoConfigService goConfigService;
     @Mock
     private EntityHashingService entityHashingService;
+    @Mock
+    private SecretParamResolver secretParamResolver;
 
     private PluggableScmService pluggableScmService;
     private SCMConfigurations scmConfigurations;
@@ -71,7 +74,7 @@ public class PluggableScmServiceTest {
     public void setUp() throws Exception {
         initMocks(this);
 
-        pluggableScmService = new PluggableScmService(scmExtension, goConfigService, entityHashingService);
+        pluggableScmService = new PluggableScmService(scmExtension, goConfigService, entityHashingService, secretParamResolver);
 
         SCMPropertyConfiguration scmConfig = new SCMPropertyConfiguration();
         scmConfig.add(new SCMProperty("KEY1").with(Property.REQUIRED, true));
@@ -169,7 +172,7 @@ public class PluggableScmServiceTest {
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1"));
         SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
         Result resultFromPlugin = new Result();
-        resultFromPlugin.withSuccessMessages(Arrays.asList("message"));
+        resultFromPlugin.withSuccessMessages(singletonList("message"));
 
         when(scmExtension.checkConnectionToSCM(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(resultFromPlugin);
 
@@ -288,7 +291,77 @@ public class PluggableScmServiceTest {
         verify(scmConfig).addError("url", "URL is a required field");
     }
 
+    @Test
+    public void shouldSendResolvedValueToPluginDuringValidateSCM() {
+        SCMConfiguration scmConfig = new SCMConfiguration(new SCMProperty("KEY2").with(Property.REQUIRED, false));
+        scmConfigurations.add(scmConfig);
 
+        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1", "{{SECRET:[secret_config_id][lookup_username]}}"));
+        SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
+        ValidationResult validationResult = new ValidationResult();
+        validationResult.addError(new ValidationError("KEY1", "error message"));
+        when(scmExtension.isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), any(SCMPropertyConfiguration.class))).thenReturn(validationResult);
+        doAnswer(invocation -> {
+            SCM config = invocation.getArgument(0);
+            config.getSecretParams().get(0).setValue("resolved-value");
+            return config;
+        }).when(secretParamResolver).resolve(modifiedSCM);
+
+        pluggableScmService.validate(modifiedSCM);
+
+        verify(secretParamResolver).resolve(modifiedSCM);
+        assertFalse(modifiedSCM.getConfiguration().getProperty("KEY1").errors().isEmpty());
+        assertThat(modifiedSCM.getConfiguration().getProperty("KEY1").errors().firstError(), is("error message"));
+        ArgumentCaptor<SCMPropertyConfiguration> captor = ArgumentCaptor.forClass(SCMPropertyConfiguration.class);
+        verify(scmExtension).isSCMConfigurationValid(eq(modifiedSCM.getPluginConfiguration().getId()), captor.capture());
+        assertThat(captor.getValue().list().get(0).getValue(), is("resolved-value"));
+    }
+
+    @Test
+    public void shouldSendResolvedValueToPluginDuringIsValidCall() {
+        PluginConfiguration pluginConfiguration = new PluginConfiguration("plugin_id", "version");
+        Configuration configuration = new Configuration();
+        configuration.add(ConfigurationPropertyMother.create("url", false, "url"));
+        configuration.add(ConfigurationPropertyMother.create("username", false, "{{SECRET:[secret_config_id][username]}}"));
+
+        SCM scmConfig = mock(SCM.class);
+
+        when(scmConfig.doesPluginExist()).thenReturn(true);
+        when(scmConfig.getPluginConfiguration()).thenReturn(pluginConfiguration);
+        when(scmConfig.getConfiguration()).thenReturn(configuration);
+        when(scmExtension.isSCMConfigurationValid(any(String.class), any(SCMPropertyConfiguration.class))).thenReturn(new ValidationResult());
+        doAnswer(invocation -> {
+            configuration.get(1).getSecretParams().get(0).setValue("resolved-value");
+            return scmConfig;
+        }).when(secretParamResolver).resolve(any(SCM.class));
+
+        assertTrue(pluggableScmService.isValid(scmConfig));
+
+        ArgumentCaptor<SCMPropertyConfiguration> captor = ArgumentCaptor.forClass(SCMPropertyConfiguration.class);
+        verify(scmExtension).isSCMConfigurationValid(anyString(), captor.capture());
+        assertThat(captor.getValue().list().get(1).getValue(), is("resolved-value"));
+    }
+
+    @Test
+    public void shouldCallPluginAndSendResolvedValuesToCheckConnectionForTheGivenSCMConfiguration() {
+        Configuration configuration = new Configuration(ConfigurationPropertyMother.create("KEY1", "{{SECRET:[secret_config_id][value]}}"));
+        SCM modifiedSCM = new SCM("scm-id", new PluginConfiguration(pluginId, "1"), configuration);
+        Result resultFromPlugin = new Result();
+        resultFromPlugin.withSuccessMessages(singletonList("message"));
+
+        ArgumentCaptor<SCMPropertyConfiguration> captor = ArgumentCaptor.forClass(SCMPropertyConfiguration.class);
+        when(scmExtension.checkConnectionToSCM(eq(modifiedSCM.getPluginConfiguration().getId()), captor.capture())).thenReturn(resultFromPlugin);
+        doAnswer(invocation -> {
+            configuration.get(0).getSecretParams().get(0).setValue("resolved-value");
+            return modifiedSCM;
+        }).when(secretParamResolver).resolve(any(SCM.class));
+
+        HttpLocalizedOperationResult result = pluggableScmService.checkConnection(modifiedSCM);
+
+        assertTrue(result.isSuccessful());
+        assertThat(result.message(), is("Connection OK. message"));
+        assertThat(captor.getValue().list().get(0).getValue(), is("resolved-value"));
+    }
 
     private ValidationError getValidationErrorFor(List<ValidationError> validationErrors, final String key) {
         return validationErrors.stream().filter(new Predicate<ValidationError>() {

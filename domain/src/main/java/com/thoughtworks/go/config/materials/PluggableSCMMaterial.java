@@ -335,10 +335,7 @@ public class PluggableSCMMaterial extends AbstractMaterial implements SecretPara
         if (this.scmConfig == null) {
             return false;
         }
-        return this.scmConfig
-                .getConfiguration()
-                .stream()
-                .anyMatch(ConfigurationProperty::hasSecretParams);
+        return this.scmConfig.hasSecretParams();
     }
 
     @Override
@@ -346,10 +343,6 @@ public class PluggableSCMMaterial extends AbstractMaterial implements SecretPara
         if (this.scmConfig == null) {
             return new SecretParams();
         }
-        return this.scmConfig.getConfiguration()
-                .stream()
-                .map(ConfigurationProperty::getSecretParams)
-                .filter((secrets) -> !secrets.isEmpty())
-                .collect(SecretParams.toFlatSecretParams());
+        return this.scmConfig.getSecretParams();
     }
 }

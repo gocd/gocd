@@ -24,7 +24,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.server.exceptions.RulesViolationException;
-import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +32,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.server.exceptions.RulesViolationException.throwCannotRefer;
 import static com.thoughtworks.go.server.exceptions.RulesViolationException.throwSecretConfigNotFound;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.join;
 
 @Service
 public class RulesService {
@@ -50,7 +52,7 @@ public class RulesService {
     public boolean validateSecretConfigReferences(ScmMaterial scmMaterial) {
         List<CaseInsensitiveString> pipelines = goConfigService.pipelinesWithMaterial(scmMaterial.getFingerprint());
 
-        HashMap<CaseInsensitiveString, StringBuilder> pipelinesWithErrors = new HashMap<>();
+        Map<CaseInsensitiveString, StringBuilder> pipelinesWithErrors = new HashMap<>();
         pipelines.forEach(pipelineName -> {
             MaterialConfig materialConfig = goConfigService
                     .findPipelineByName(pipelineName)
@@ -69,42 +71,21 @@ public class RulesService {
                 }
             });
         });
-        StringBuilder errorMessage = new StringBuilder();
         if (!pipelinesWithErrors.isEmpty()) {
-            errorMessage.append(StringUtils.join(pipelinesWithErrors.values(), '\n').trim());
-            LOGGER.error("[Material Update] Failure: {}", errorMessage.toString());
+            LOGGER.debug("[Material Update] Failure: {}", errorString(pipelinesWithErrors));
         }
         if (pipelines.size() == pipelinesWithErrors.size()) {
-            throw new RulesViolationException(errorMessage.toString());
+            throw new RulesViolationException(errorString(pipelinesWithErrors));
         }
+
         return true;
     }
 
     public void validateSecretConfigReferences(PluggableSCMMaterial pluggableSCMMaterial) {
-        SCM scmConfig = pluggableSCMMaterial.getScmConfig();
-        SecretParams secretParams = pluggableSCMMaterial.getSecretParams();
-        if (secretParams.isEmpty()) {
-            LOGGER.debug("No secret params available in pluggable SCM {}.", pluggableSCMMaterial.getDisplayName());
-            return;
-        }
-        HashMap<CaseInsensitiveString, StringBuilder> pipelinesWithErrors = new HashMap<>();
-        String scmConfigName = scmConfig.getName();
+        Map<CaseInsensitiveString, StringBuilder> errors = validate(pluggableSCMMaterial.getScmConfig());
 
-        secretParams.groupBySecretConfigId()
-                .forEach((secretConfigId, secretParamsToResolve) -> {
-                    SecretConfig secretConfig = goConfigService.getSecretConfigById(secretConfigId);
-                    if (secretConfig == null) {
-                        addError(pipelinesWithErrors, new CaseInsensitiveString(scmConfigName), format("Pluggable SCM '%s' is referring to none-existent secret config '%s'.", scmConfigName, secretConfigId));
-                    } else if (!secretConfig.canRefer(scmConfig.getClass(), scmConfigName)) {
-                        addError(pipelinesWithErrors, new CaseInsensitiveString(scmConfigName), format("Pluggable SCM '%s' does not have permission to refer to secrets using secret config '%s'", scmConfigName, secretConfigId));
-                    }
-                });
-
-        StringBuilder errorMessage = new StringBuilder();
-        if (!pipelinesWithErrors.isEmpty()) {
-            errorMessage.append(StringUtils.join(pipelinesWithErrors.values(), '\n').trim());
-            LOGGER.error("[Material Update] Failure: {}", errorMessage.toString());
-            throw new RulesViolationException(errorMessage.toString());
+        if (!errors.isEmpty()) {
+            throw new RulesViolationException(errorString(errors));
         }
     }
 
@@ -116,15 +97,18 @@ public class RulesService {
 
     public void validateSecretConfigReferences(BuildAssignment buildAssignment) {
         SecretParams secretParams = buildAssignment.getSecretParams();
-        if (secretParams.isEmpty()) {
-            LOGGER.debug("No secret params available in build assignment {}.", buildAssignment.getJobIdentifier());
-            return;
-        }
-
         JobIdentifier jobIdentifier = buildAssignment.getJobIdentifier();
         PipelineConfigs group = goConfigService.findGroupByPipeline(new CaseInsensitiveString(jobIdentifier.getPipelineName()));
         String errorMessagePrefix = format("Job: '%s' in Pipeline: '%s' and Pipeline Group:", jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
         validateSecretConfigReferences(secretParams, group.getClass(), group.getGroup(), errorMessagePrefix);
+    }
+
+    public void validateSecretConfigReferences(SCM scmConfig) {
+        Map<CaseInsensitiveString, StringBuilder> ruleViolationErrors = validate(scmConfig);
+
+        if (!ruleViolationErrors.isEmpty()) {
+            throw new RulesViolationException(errorString(ruleViolationErrors));
+        }
     }
 
     protected void validateSecretConfigReferences(SecretParams secretParams, Class<? extends Validatable> entityClass, String entityName, String entityNameOrErrorMessagePrefix) {
@@ -141,7 +125,7 @@ public class RulesService {
         });
     }
 
-    private void addError(HashMap<CaseInsensitiveString, StringBuilder> pipelinesWithErrors, CaseInsensitiveString pipelineName, String message) {
+    private void addError(Map<CaseInsensitiveString, StringBuilder> pipelinesWithErrors, CaseInsensitiveString pipelineName, String message) {
         if (pipelinesWithErrors == null) {
             pipelinesWithErrors = new HashMap<>();
         }
@@ -150,5 +134,26 @@ public class RulesService {
         }
         StringBuilder stringBuilder = pipelinesWithErrors.get(pipelineName).append(message).append('\n');
         pipelinesWithErrors.put(pipelineName, stringBuilder);
+    }
+
+    @NotNull
+    private HashMap<CaseInsensitiveString, StringBuilder> validate(SCM scmConfig) {
+        String scmConfigName = scmConfig.getName();
+        HashMap<CaseInsensitiveString, StringBuilder> pipelinesWithErrors = new HashMap<>();
+        scmConfig.getSecretParams()
+                .groupBySecretConfigId()
+                .forEach((secretConfigId, secretParamsToResolve) -> {
+                    SecretConfig secretConfig = goConfigService.getSecretConfigById(secretConfigId);
+                    if (secretConfig == null) {
+                        addError(pipelinesWithErrors, new CaseInsensitiveString(scmConfigName), format("Pluggable SCM '%s' is referring to none-existent secret config '%s'.", scmConfigName, secretConfigId));
+                    } else if (!secretConfig.canRefer(scmConfig.getClass(), scmConfigName)) {
+                        addError(pipelinesWithErrors, new CaseInsensitiveString(scmConfigName), format("Pluggable SCM '%s' does not have permission to refer to secrets using secret config '%s'.", scmConfigName, secretConfigId));
+                    }
+                });
+        return pipelinesWithErrors;
+    }
+
+    private String errorString(Map<CaseInsensitiveString, StringBuilder> errors) {
+        return join(errors.values(), '\n').trim();
     }
 }

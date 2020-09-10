@@ -15,7 +15,9 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.GoConfigWatchList;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -212,7 +214,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
 
         allUniquePostCommitSchedulableMaterials.stream()
                 .filter(material -> material instanceof SvnMaterial)
-                .forEach(material -> secretParamResolver.resolve((SvnMaterial) material));
+                .forEach(secretParamResolver::resolve);
     }
 
     public void registerMaterialSources(MaterialSource materialSource) {

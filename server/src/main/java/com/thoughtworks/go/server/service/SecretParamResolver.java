@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
 import com.thoughtworks.go.remote.work.BuildAssignment;
@@ -52,50 +53,76 @@ public class SecretParamResolver {
 
     public void resolve(List<Material> materials) {
         materials.stream()
-                .filter((material) -> material instanceof SecretParamAware && ((SecretParamAware) material).hasSecretParams())
-                .forEach((material) -> {
-                    if (material instanceof ScmMaterial) {
-                        this.resolve((ScmMaterial) material);
-                    } else if (material instanceof PluggableSCMMaterial) {
-                        this.resolve((PluggableSCMMaterial) material);
-                    }
-                });
+                .filter((material) -> material instanceof SecretParamAware)
+                .forEach(this::resolve);
     }
 
-    public void resolve(ScmMaterial scmMaterial) {
-        rulesService.validateSecretConfigReferences(scmMaterial);
-
-        resolve(scmMaterial.getSecretParams());
+    public void resolve(Material material) {
+        if (material instanceof ScmMaterial) {
+            this.resolve((ScmMaterial) material);
+        } else if (material instanceof PluggableSCMMaterial) {
+            this.resolve((PluggableSCMMaterial) material);
+        }
     }
 
-    public void resolve(PluggableSCMMaterial material) {
-        rulesService.validateSecretConfigReferences(material);
+    private void resolve(ScmMaterial scmMaterial) {
+        if (scmMaterial.hasSecretParams()) {
+            rulesService.validateSecretConfigReferences(scmMaterial);
 
-        resolve(material.getSecretParams());
+            resolve(scmMaterial.getSecretParams());
+        } else {
+            LOGGER.debug("No secret params to resolve in SCM material {}.", scmMaterial.getDisplayName());
+        }
+    }
+
+    private void resolve(PluggableSCMMaterial material) {
+        if (material.hasSecretParams()) {
+            rulesService.validateSecretConfigReferences(material);
+
+            resolve(material.getSecretParams());
+        } else {
+            LOGGER.debug("No secret params to resolve in pluggable SCM material {}.", material.getDisplayName());
+        }
     }
 
     // Method used for check_connection in new pipeline flow
     public void resolve(ScmMaterial scmMaterial, String pipelineGroupName) {
-        rulesService.validateSecretConfigReferences(scmMaterial.getSecretParams(), PipelineConfigs.class, pipelineGroupName, format("Material with url: '%s' in Pipeline Group:", scmMaterial.getUriForDisplay()));
-        resolve(scmMaterial.getSecretParams());
+        if (scmMaterial.hasSecretParams()) {
+            rulesService.validateSecretConfigReferences(scmMaterial.getSecretParams(), PipelineConfigs.class, pipelineGroupName, format("Material with url: '%s' in Pipeline Group:", scmMaterial.getUriForDisplay()));
+            resolve(scmMaterial.getSecretParams());
+        } else {
+            LOGGER.debug("No secret params to resolve in SCM material {}.", scmMaterial.getDisplayName());
+        }
     }
 
     public void resolve(BuildAssignment buildAssignment) {
-        rulesService.validateSecretConfigReferences(buildAssignment);
-        resolve(buildAssignment.getSecretParams());
+        if (buildAssignment.hasSecretParams()) {
+            rulesService.validateSecretConfigReferences(buildAssignment);
+            resolve(buildAssignment.getSecretParams());
+        } else {
+            LOGGER.debug("No secret params available in build assignment {}.", buildAssignment.getJobIdentifier());
+        }
     }
 
     public void resolve(EnvironmentConfig environmentConfig) {
-        rulesService.validateSecretConfigReferences(environmentConfig);
-        resolve(environmentConfig.getSecretParams());
+        if (environmentConfig.hasSecretParams()) {
+            rulesService.validateSecretConfigReferences(environmentConfig);
+            resolve(environmentConfig.getSecretParams());
+        } else {
+            LOGGER.debug("No secret params available in environment {}.", environmentConfig.name());
+        }
+    }
+
+    public void resolve(SCM scmConfig) {
+        if (scmConfig.hasSecretParams()) {
+            rulesService.validateSecretConfigReferences(scmConfig);
+            resolve(scmConfig.getSecretParams());
+        } else {
+            LOGGER.debug("No secret params available in pluggable SCM {}.", scmConfig.getName());
+        }
     }
 
     protected void resolve(SecretParams secretParams) {
-        if (secretParams == null || secretParams.isEmpty()) {
-            LOGGER.debug("No secret params to resolve.");
-            return;
-        }
-
         secretParams.groupBySecretConfigId().forEach(lookupAndUpdateSecretParamsValue());
     }
 

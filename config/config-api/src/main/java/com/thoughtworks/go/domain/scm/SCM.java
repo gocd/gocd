@@ -24,11 +24,11 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.ConfigurationDisplayUtil;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
-import com.thoughtworks.go.domain.ConfigurationDisplayUtil;
 import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
 import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
@@ -46,7 +46,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @ConfigTag("scm")
 @ConfigReferenceCollection(collectionName = "scms", idFieldName = "id")
-public class SCM implements Serializable, Validatable, ConfigOriginTraceable {
+public class SCM implements Serializable, Validatable, ConfigOriginTraceable, SecretParamAware {
     public static final String SCM_ID = "scmId";
     public static final String NAME = "name";
     public static final String AUTO_UPDATE = "autoUpdate";
@@ -142,9 +142,8 @@ public class SCM implements Serializable, Validatable, ConfigOriginTraceable {
             SCMConfigurations scmConfigurations = SCMMetadataStore.getInstance().getConfigurationMetadata(getPluginId());
             if (isValidPluginConfiguration(property.getConfigKeyName(), scmConfigurations)) {
                 configuration.add(builder.create(property.getConfigKeyName(), property.getConfigValue(), property.getEncryptedValue(),
-                                                 scmConfigurationFor(property.getConfigKeyName(), scmConfigurations).getOption(SCMConfiguration.SECURE)));
-            }
-            else {
+                        scmConfigurationFor(property.getConfigKeyName(), scmConfigurations).getOption(SCMConfiguration.SECURE)));
+            } else {
                 configuration.add(property);
             }
         }
@@ -241,7 +240,7 @@ public class SCM implements Serializable, Validatable, ConfigOriginTraceable {
         return pluginConfiguration.getId();
     }
 
-    public Boolean doesPluginExist(){
+    public Boolean doesPluginExist() {
         return SCMMetadataStore.getInstance().hasPlugin(getPluginId());
     }
 
@@ -352,5 +351,20 @@ public class SCM implements Serializable, Validatable, ConfigOriginTraceable {
     @Override
     public void setOrigins(ConfigOrigin origin) {
         this.origin = origin;
+    }
+
+    @Override
+    public boolean hasSecretParams() {
+        return this.getConfiguration()
+                .stream()
+                .anyMatch(ConfigurationProperty::hasSecretParams);
+    }
+
+    @Override
+    public SecretParams getSecretParams() {
+        return this.getConfiguration().stream()
+                .map(ConfigurationProperty::getSecretParams)
+                .filter((params) -> !params.isEmpty())
+                .collect(SecretParams.toFlatSecretParams());
     }
 }

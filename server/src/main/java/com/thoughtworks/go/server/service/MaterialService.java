@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.SecretParamAware;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
-import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -159,12 +158,8 @@ public class MaterialService {
     }
 
     private void resolveSecretParams(Material material) {
-        if ((material instanceof SecretParamAware) && ((SecretParamAware) material).hasSecretParams()) {
-            if (material instanceof ScmMaterial) {
-                this.secretParamResolver.resolve((ScmMaterial) material);
-            } else if (material instanceof PluggableSCMMaterial) {
-                this.secretParamResolver.resolve((PluggableSCMMaterial) material);
-            }
+        if ((material instanceof SecretParamAware)) {
+            this.secretParamResolver.resolve(material);
         }
     }
 

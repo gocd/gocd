@@ -31,6 +31,7 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.SecretParamResolver;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.apache.commons.lang3.StringUtils;
@@ -47,15 +48,18 @@ public class PluggableScmService {
     private GoConfigService goConfigService;
     private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PluggableScmService.class);
     private EntityHashingService entityHashingService;
+    private final SecretParamResolver secretParamResolver;
 
     @Autowired
-    public PluggableScmService(SCMExtension scmExtension, GoConfigService goConfigService, EntityHashingService entityHashingService) {
+    public PluggableScmService(SCMExtension scmExtension, GoConfigService goConfigService, EntityHashingService entityHashingService, SecretParamResolver secretParamResolver) {
         this.scmExtension = scmExtension;
         this.goConfigService = goConfigService;
         this.entityHashingService = entityHashingService;
+        this.secretParamResolver = secretParamResolver;
     }
 
     public void validate(final SCM scmConfig) {
+        secretParamResolver.resolve(scmConfig);
         final String pluginId = scmConfig.getPluginConfiguration().getId();
         final SCMPropertyConfiguration configuration = getScmPropertyConfiguration(scmConfig);
         ValidationResult validationResult = scmExtension.isSCMConfigurationValid(pluginId, configuration);
@@ -85,7 +89,7 @@ public class PluggableScmService {
         if (!scmConfig.doesPluginExist()) {
             throw new RuntimeException(format("Plugin with id '%s' is not found.", scmConfig.getPluginConfiguration().getId()));
         }
-
+        secretParamResolver.resolve(scmConfig);
         ValidationResult validationResult = scmExtension.isSCMConfigurationValid(scmConfig.getPluginConfiguration().getId(), getScmPropertyConfiguration(scmConfig));
         addErrorsToConfiguration(validationResult, scmConfig);
 
@@ -110,16 +114,15 @@ public class PluggableScmService {
     }
 
     public SCM findPluggableScmMaterial(String materialName) {
-        SCMs scms = listAllScms();
-        for(SCM scm : scms){
-            if(materialName.equals(scm.getName()))  {
-                return scm;
-            }
-        }
-        return null;
+        return listAllScms()
+                .stream()
+                .filter((scm) -> materialName.equals(scm.getName()))
+                .findFirst()
+                .orElse(null);
     }
 
     public HttpLocalizedOperationResult checkConnection(final SCM scmConfig) {
+        secretParamResolver.resolve(scmConfig);
         final String pluginId = scmConfig.getPluginConfiguration().getId();
         final SCMPropertyConfiguration configuration = getScmPropertyConfiguration(scmConfig);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -148,7 +151,7 @@ public class PluggableScmService {
     }
 
     public void deletePluggableSCM(final Username currentUser, final SCM globalScmConfig, final LocalizedOperationResult result) {
-        DeleteSCMConfigCommand command = new DeleteSCMConfigCommand(globalScmConfig, this,  result, currentUser, goConfigService);
+        DeleteSCMConfigCommand command = new DeleteSCMConfigCommand(globalScmConfig, this, result, currentUser, goConfigService);
         update(currentUser, result, command);
         if (result.isSuccessful()) {
             result.setMessage(EntityType.SCM.deleteSuccessful(globalScmConfig.getName()));
@@ -167,7 +170,7 @@ public class PluggableScmService {
     private SCMPropertyConfiguration getScmPropertyConfiguration(SCM scmConfig) {
         final SCMPropertyConfiguration configuration = new SCMPropertyConfiguration();
         for (ConfigurationProperty configurationProperty : scmConfig.getConfiguration()) {
-            configuration.add(new SCMProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getValue()));
+            configuration.add(new SCMProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getResolvedValue()));
         }
         return configuration;
     }

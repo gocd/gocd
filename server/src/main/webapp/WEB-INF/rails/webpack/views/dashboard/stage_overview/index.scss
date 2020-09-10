@@ -139,8 +139,7 @@ $building: #ffc11b;
   }
 
   .rerun-wrapper {
-    margin-top:  20px;
-    margin-left: 17px;
+    left: 36px;
   }
 }
 
@@ -351,12 +350,14 @@ $building: #ffc11b;
 }
 
 .rerun-wrapper {
-  position:    absolute;
   transform:   rotate(150deg);
-  margin-top:  10px;
-  margin-left: 10px;
   font-weight: 900;
   font-size:   14px;
+  position:    relative;
+  left:        38px;
+  top:         29px;
+  width:       0;
+  height:      0;
   color:       $dark-gray;
 
   i {

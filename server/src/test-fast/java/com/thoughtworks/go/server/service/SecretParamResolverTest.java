@@ -16,8 +16,10 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -26,9 +28,7 @@ import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.domain.builder.NullBuilder;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
 import com.thoughtworks.go.remote.work.BuildAssignment;
@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import static com.thoughtworks.go.helper.MaterialsMother.gitMaterial;
+import static com.thoughtworks.go.helper.MaterialsMother.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
@@ -106,11 +106,9 @@ class SecretParamResolverTest {
     class ResolveSecretsForPluggableScmMaterials {
         @Test
         void shouldResolveSecretParams_IfAMaterialCanReferToASecretConfig() {
-            PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
-            SCM scmConfig = material.getScmConfig();
-            scmConfig.getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
-            scmConfig.getConfiguration().get(1).handleSecureValueConfiguration(true);
-            material.setSCMConfig(scmConfig);
+            PluggableSCMMaterial material = pluggableSCMMaterial();
+            material.getScmConfig().getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+            material.getScmConfig().getConfiguration().get(1).handleSecureValueConfiguration(true);
 
             SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
             when(goConfigService.cruiseConfig())
@@ -129,7 +127,7 @@ class SecretParamResolverTest {
 
         @Test
         void shouldErrorOut_IfMaterialsDoNotHavePermissionToReferToASecretConfig() {
-            PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
+            PluggableSCMMaterial material = pluggableSCMMaterial();
             material.getScmConfig().getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
             material.getScmConfig().getConfiguration().get(1).handleSecureValueConfiguration(true);
 
@@ -278,6 +276,52 @@ class SecretParamResolverTest {
         assertThat(allSecretParams).hasSize(2);
         assertThat(allSecretParams.get(0).getValue()).isEqualTo("some-username");
         assertThat(allSecretParams.get(1).getValue()).isEqualTo("some-username");
+    }
+
+    @Nested
+    class ResolveForList {
+        @Test
+        void shouldResolveListOfMaterials() {
+            GitMaterial gitMaterial = new GitMaterial("http://example.com");
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
+            PluggableSCMMaterial pluggableSCMMaterial = pluggableSCMMaterial();
+            pluggableSCMMaterial.getScmConfig().getConfiguration().get(1).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][token]}}"));
+
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
+            when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password")))).thenReturn(singletonList(new Secret("password", "some-password")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("token")))).thenReturn(singletonList(new Secret("token", "some-token")));
+
+            secretParamResolver.resolve(asList(gitMaterial, pluggableSCMMaterial));
+
+            verify(rulesService).validateSecretConfigReferences(gitMaterial);
+            verify(rulesService).validateSecretConfigReferences(pluggableSCMMaterial);
+
+            assertThat(gitMaterial.passwordForCommandLine()).isEqualTo("some-password");
+            assertThat(pluggableSCMMaterial.getSecretParams().get(0).getValue()).isEqualTo("some-token");
+        }
+
+        @Test
+        void shouldOnlyResolveScmAndPluggableScmMaterials() {
+            GitMaterial gitMaterial = new GitMaterial("http://example.com");
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
+            DependencyMaterial dependencyMaterial = dependencyMaterial("{{SECRET:[secret_id][pipeline]}}", "defaultStage");
+            PackageMaterial packageMaterial = packageMaterial();
+            packageMaterial.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[another_secret_id][package_token]}}"));
+            PluggableSCMMaterial pluggableSCMMaterial = pluggableSCMMaterial();
+            pluggableSCMMaterial.getScmConfig().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][token]}}"));
+
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
+            when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password")))).thenReturn(singletonList(new Secret("password", "some-password")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("token")))).thenReturn(singletonList(new Secret("token", "some-token")));
+
+            secretParamResolver.resolve(asList(gitMaterial, dependencyMaterial, packageMaterial, pluggableSCMMaterial));
+
+            verify(rulesService).validateSecretConfigReferences(gitMaterial);
+            verify(rulesService).validateSecretConfigReferences(pluggableSCMMaterial);
+            verifyNoMoreInteractions(rulesService);
+        }
     }
 
     private JobPlan defaultJobPlan(EnvironmentVariables variables, EnvironmentVariables triggerVariables) {

@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
+import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
 import com.thoughtworks.go.remote.work.BuildAssignment;
@@ -47,6 +48,18 @@ public class SecretParamResolver {
         this.secretsExtension = secretsExtension;
         this.goConfigService = goConfigService;
         this.rulesService = rulesService;
+    }
+
+    public void resolve(List<Material> materials) {
+        materials.stream()
+                .filter((material) -> material instanceof SecretParamAware && ((SecretParamAware) material).hasSecretParams())
+                .forEach((material) -> {
+                    if (material instanceof ScmMaterial) {
+                        this.resolve((ScmMaterial) material);
+                    } else if (material instanceof PluggableSCMMaterial) {
+                        this.resolve((PluggableSCMMaterial) material);
+                    }
+                });
     }
 
     public void resolve(ScmMaterial scmMaterial) {

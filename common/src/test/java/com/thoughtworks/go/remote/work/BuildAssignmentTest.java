@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.SecretParams;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
@@ -29,8 +30,10 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.domain.builder.NullBuilder;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.TestRepo;
@@ -264,7 +267,6 @@ public class BuildAssignmentTest {
                             new SecretParam("secret_config_id", "GIT_PASSWORD"));
         }
 
-
         @Test
         void shouldIgnoreIfMaterialHasNoSecretParam() {
             EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
@@ -277,6 +279,26 @@ public class BuildAssignmentTest {
             BuildAssignment buildAssigment = createAssignment(environmentVariableContext, buildCause);
 
             assertThat(buildAssigment.hasSecretParams()).isFalse();
+        }
+
+        @Test
+        void shouldIgnoreTheSecretParamsInPluggableMaterial() {
+            EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+            environmentVariableContext.setProperty("Token", "{{SECRET:[secret_config_id][token]}}", false);
+
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][token]}}");
+            k1.getSecretParams().get(0).setValue("resolved-value");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            PluggableSCMMaterial pluggableSCMMaterial = pluggableSCMMaterial("scm-id", "scm-name", k1, k2);
+            MaterialRevision gitRevision = new MaterialRevision(pluggableSCMMaterial, new Modification());
+            BuildCause buildCause = BuildCause.createManualForced(new MaterialRevisions(gitRevision), Username.ANONYMOUS);
+
+            BuildAssignment buildAssigment = createAssignment(environmentVariableContext, buildCause);
+
+            assertThat(buildAssigment.hasSecretParams()).isTrue();
+            assertThat(buildAssigment.getSecretParams())
+                    .hasSize(1)
+                    .contains(new SecretParam("secret_config_id", "token"));
         }
     }
 

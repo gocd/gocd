@@ -319,7 +319,7 @@ class RulesServiceTest {
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(material))
                     .isInstanceOf(RulesViolationException.class)
-                    .hasMessage("Pipeline 'up42' is referring to none-existent secret config 'secret_config_id'.");
+                    .hasMessage("Pluggable SCM 'scm-name' is referring to none-existent secret config 'secret_config_id'.");
         }
 
         @Test

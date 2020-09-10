@@ -173,13 +173,13 @@ public class BackupService implements BackupStatusProvider {
                 }
                 backupVersion(destDir, backupUpdateListeners);
                 backupConfig(destDir, backupUpdateListeners);
-                backupWrapperConfig(destDir, backupUpdateListeners);
+                boolean backedUpWrapperConfig = backupWrapperConfig(destDir, backupUpdateListeners);
                 backupConfigRepo(backupUpdateListeners, destDir);
                 backupDb(destDir, backupUpdateListeners);
                 boolean passed = executePostBackupScript(backup.getUsername(), initiatedBy, backup, backupUpdateListeners);
                 if (passed) {
                     sendBackupSuccessEmail(backup.getUsername(), mailSender, destDir);
-                    notifyCompletionToListeners(backupUpdateListeners);
+                    notifyCompletionToListeners(backupUpdateListeners, backedUpWrapperConfig);
                     LOGGER.debug("Backup Completed Successfully");
                 }
             } catch (Exception e) {
@@ -224,8 +224,11 @@ public class BackupService implements BackupStatusProvider {
         listeners.forEach(backupUpdateListener -> backupUpdateListener.error(message));
     }
 
-    private void notifyCompletionToListeners(List<BackupUpdateListener> listeners) {
-        listeners.forEach(BackupUpdateListener::completed);
+    private void notifyCompletionToListeners(List<BackupUpdateListener> listeners, boolean backedupWrapperConfig) {
+        String message = backedupWrapperConfig
+                ? "Backup was generated successfully."
+                : "Backup was generated successfully. Backup of wrapper configuration was skipped as the wrapper configuration directory path is unknown.";
+        listeners.forEach(listener -> listener.completed(message));
     }
 
     private File getBackupDir(DateTime backupTime) {
@@ -292,14 +295,21 @@ public class BackupService implements BackupStatusProvider {
         FileUtils.writeStringToFile(versionFile, CurrentGoCDVersion.getInstance().formatted(), UTF_8);
     }
 
-    private void backupWrapperConfig(File backupDir, List<BackupUpdateListener> backupUpdateListeners) throws IOException {
-        notifyUpdateToListeners(backupUpdateListeners, BackupProgressStatus.BACKUP_WRAPPER_CONFIG);
-        var wrapperConfigDirPath = systemEnvironment.wrapperConfigDirPath()
-                .orElseThrow(() -> new RuntimeException("Could not find wrapper-config directory"));
+    private boolean backupWrapperConfig(File backupDir, List<BackupUpdateListener> backupUpdateListeners) throws IOException {
+        Optional<String> wrapperConfigDirPath = systemEnvironment.wrapperConfigDirPath();
 
-        try (ZipOutputStream configZip = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(new File(backupDir, WRAPPER_CONFIG_BACKUP_ZIP))))) {
-            new DirectoryStructureWalker(wrapperConfigDirPath, configZip).walk();
+        if (wrapperConfigDirPath.isEmpty()) {
+            notifyErrorToListeners(backupUpdateListeners, "Skipping wrapper config backups.");
+            LOGGER.warn("[Backup] Not backing up Wrapper Config dir as `WRAPPER_CONF_DIR` env variable not set.");
+
+            return false;
         }
+
+        notifyUpdateToListeners(backupUpdateListeners, BackupProgressStatus.BACKUP_WRAPPER_CONFIG);
+        try (ZipOutputStream configZip = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(new File(backupDir, WRAPPER_CONFIG_BACKUP_ZIP))))) {
+            new DirectoryStructureWalker(wrapperConfigDirPath.get(), configZip).walk();
+        }
+        return true;
     }
 
     private void backupConfig(File backupDir, List<BackupUpdateListener> backupUpdateListeners) throws IOException {

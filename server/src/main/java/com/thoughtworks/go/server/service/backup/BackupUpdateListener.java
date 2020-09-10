@@ -22,5 +22,5 @@ public interface BackupUpdateListener {
 
     void error(String message);
 
-    void completed();
+    void completed(String message);
 }

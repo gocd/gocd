@@ -69,7 +69,7 @@ public class BackupStatusUpdaterTest {
         ServerBackup serverBackup = new ServerBackup("path", new Date(), "admin", "a message");
         BackupStatusUpdater backupStatusUpdater = new BackupStatusUpdater(serverBackup, serverBackupRepository);
 
-        backupStatusUpdater.completed();
+        backupStatusUpdater.completed("Backup was generated successfully.");
 
         verify(serverBackupRepository).update(serverBackup);
         assertThat(serverBackup.getMessage()).isEqualTo("Backup was generated successfully.");

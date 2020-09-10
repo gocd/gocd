@@ -41,9 +41,9 @@ public class BackupStatusUpdater implements BackupUpdateListener {
     }
 
     @Override
-    public void completed() {
+    public void completed(String message) {
         serverBackup.markCompleted();
-        serverBackup.setMessage("Backup was generated successfully.");
+        serverBackup.setMessage(message);
         this.serverBackupRepository.update(serverBackup);
     }
 }

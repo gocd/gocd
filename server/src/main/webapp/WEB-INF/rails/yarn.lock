@@ -1136,10 +1136,10 @@
   resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-2.0.3.tgz#f24a764515d9b17095845838b12f2444757d93fa"
   integrity sha512-cZHOdO2IiXYeyjeDYdbOisSdfaJRzfmRo3zVzgu33IWTMA0KEQObp9fdvqcuYdPz93iJ1yCl19GcEjo/9yv+yA==
 
-"@types/node@*", "@types/node@^14.6.3":
-  version "14.6.3"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.6.3.tgz#cc4f979548ca4d8e7b90bc0180052ab99ee64224"
-  integrity sha512-pC/hkcREG6YfDfui1FBmj8e20jFU5Exjw4NYDm8kEdrW+mOh0T1Zve8DWKnS7ZIZvgncrctcNCXF4Q2I+loyww==
+"@types/node@*", "@types/node@^14.10.0":
+  version "14.10.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.10.0.tgz#15815dff82c8dc30827f6b1286f865902945095a"
+  integrity sha512-SOIyrdADB4cq6eY1F+9iU48iIomFAPltu11LCvA9PKcyEwHadjCFzNVPotAR+oEJA0bCP4Xvvgy+vwu1ZjVh8g==
 
 "@types/optimize-css-assets-webpack-plugin@^5.0.1":
   version "5.0.1"

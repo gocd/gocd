@@ -35,8 +35,6 @@ export const run: string;
 export const scheduleInfo: string;
 export const spin: string;
 export const stageBoxPipelineActivity: string;
-export const stageInfoIconContainer: string;
-export const stageInfoIconWrapper: string;
 export const stageName: string;
 export const stageStatus: string;
 export const stageStatusWrapper: string;

@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.*;
 
+import static java.lang.Double.parseDouble;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class SystemEnvironment implements Serializable, ConfigDirProvider {
@@ -202,6 +203,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Boolean> HSTS_HEADER_INCLUDE_SUBDOMAINS = new GoBooleanSystemProperty("gocd.hsts.header.include.subdomains", false);
     public static GoSystemProperty<Boolean> HSTS_HEADER_PRELOAD = new GoBooleanSystemProperty("gocd.hsts.header.preload", false);
     public static GoSystemProperty<Long> EPHEMERAL_AUTO_REGISTER_KEY_EXPIRY = new GoLongSystemProperty("gocd.ephemeral.auto.register.key.expiry.millis", 30 * 60 *1000L);
+    public static GoSystemProperty<Double> MDU_EXPONENTIAL_BACKOFF_MULTIPLIER = new GoDoubleSystemProperty("gocd.mdu.exponential.backoff.multiplier", 1.5);
 
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
@@ -793,6 +795,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return EPHEMERAL_AUTO_REGISTER_KEY_EXPIRY.getValue();
     }
 
+    public double getMDUExponentialBackOffMultiplier() {
+        return MDU_EXPONENTIAL_BACKOFF_MULTIPLIER.getValue();
+    }
 
     public static abstract class GoSystemProperty<T> {
         private String propertyName;
@@ -840,6 +845,21 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
             try {
                 return Long.parseLong(propertyValueFromSystem);
             } catch (NumberFormatException e) {
+                return defaultValue;
+            }
+        }
+    }
+
+    private static class GoDoubleSystemProperty extends GoSystemProperty<Double> {
+        public GoDoubleSystemProperty(String propertyName, Double defaultValue) {
+            super(propertyName, defaultValue);
+        }
+
+        @Override
+        protected Double convertValue(String propertyValueFromSystem, Double defaultValue) {
+            try {
+                return parseDouble(propertyValueFromSystem);
+            } catch (Exception e) {
                 return defaultValue;
             }
         }

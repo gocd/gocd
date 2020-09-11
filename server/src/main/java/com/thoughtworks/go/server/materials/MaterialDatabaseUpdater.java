@@ -124,7 +124,7 @@ public class MaterialDatabaseUpdater {
             String finalMessage = message + affectedPipelinesMessage;
             String errorDescription = e.getMessage() == null ? "Unknown error" : escapeHtml4(e.getMessage());
             healthService.update(ServerHealthState.errorWithHtml(finalMessage, errorDescription, HealthStateType.general(scope)));
-            LOGGER.warn("[Material Update] {}", message, e);
+            LOGGER.debug("[Material Update] {}", message, e);
             throw e;
         }
     }

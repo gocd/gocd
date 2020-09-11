@@ -20,7 +20,10 @@ import org.joda.time.DateTime;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
+
+import static java.time.LocalDateTime.now;
 
 public class SystemTimeClock implements Clock, Serializable {
     @Override
@@ -36,6 +39,11 @@ public class SystemTimeClock implements Clock, Serializable {
     @Override
     public Timestamp currentTimestamp() {
         return new Timestamp(currentTimeMillis());
+    }
+
+    @Override
+    public LocalDateTime currentLocalDateTime() {
+        return now();
     }
 
     @Override

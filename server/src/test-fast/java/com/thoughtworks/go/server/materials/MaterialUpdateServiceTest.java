@@ -51,62 +51,71 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.*;
 import java.util.stream.Stream;
 
 import static com.thoughtworks.go.helper.MaterialUpdateMessageMatcher.matchMaterialUpdateMessage;
+import static com.thoughtworks.go.helper.MaterialsMother.gitMaterial;
+import static com.thoughtworks.go.server.materials.BackOffResult.DENY;
+import static com.thoughtworks.go.server.materials.BackOffResult.PERMIT;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class MaterialUpdateServiceTest {
     private MaterialUpdateService service;
     private static final SvnMaterial svnMaterial = MaterialsMother.svnMaterial();
     private static final DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial();
+    @Mock
     private SCMMaterialSource scmMaterialSource;
+    @Mock
     private DependencyMaterialUpdateNotifier dependencyMaterialUpdateNotifier;
+    @Mock
     private MaterialUpdateQueue queue;
+    @Mock
     private MaterialUpdateCompletedTopic completed;
+    @Mock
     private ConfigMaterialUpdateQueue configQueue;
+    @Mock
     private GoConfigWatchList watchList;
+    @Mock
     private GoConfigService goConfigService;
+    @Mock
+    private ServerHealthService serverHealthService;
+    @Mock
+    private PostCommitHookMaterialTypeResolver postCommitHookMaterialType;
+    @Mock
+    private MaterialConfigConverter materialConfigConverter;
+    @Mock
+    private DependencyMaterialUpdateQueue dependencyMaterialUpdateQueue;
+    @Mock
+    private MaintenanceModeService maintenanceModeService;
+    @Mock
+    private SecretParamResolver secretParamResolver;
+    @Mock
+    private MDUPerformanceLogger mduPerformanceLogger;
+    @Mock
+    private ExponentialBackoffService exponentialBackoffService;
+
     private static final SvnMaterialConfig MATERIAL_CONFIG = MaterialConfigsMother.svnMaterialConfig();
     private Username username;
     private HttpLocalizedOperationResult result;
-    private PostCommitHookMaterialTypeResolver postCommitHookMaterialType;
     private PostCommitHookMaterialType validMaterialType;
     private PostCommitHookMaterialType invalidMaterialType;
-    private ServerHealthService serverHealthService;
-    private SystemEnvironment systemEnvironment;
-    private MaterialConfigConverter materialConfigConverter;
-    private DependencyMaterialUpdateQueue dependencyMaterialUpdateQueue;
-    private MaintenanceModeService maintenanceModeService;
-    private SecretParamResolver secretParamResolver;
+    private SystemEnvironment systemEnvironment = new SystemEnvironment();
 
     @BeforeEach
     void setUp() {
-        queue = mock(MaterialUpdateQueue.class);
-        configQueue = mock(ConfigMaterialUpdateQueue.class);
-        watchList = mock(GoConfigWatchList.class);
-        completed = mock(MaterialUpdateCompletedTopic.class);
-        goConfigService = mock(GoConfigService.class);
-        postCommitHookMaterialType = mock(PostCommitHookMaterialTypeResolver.class);
-        serverHealthService = mock(ServerHealthService.class);
-        systemEnvironment = new SystemEnvironment();
-        scmMaterialSource = mock(SCMMaterialSource.class);
-        dependencyMaterialUpdateNotifier = mock(DependencyMaterialUpdateNotifier.class);
-        materialConfigConverter = mock(MaterialConfigConverter.class);
-        MDUPerformanceLogger mduPerformanceLogger = mock(MDUPerformanceLogger.class);
-        dependencyMaterialUpdateQueue = mock(DependencyMaterialUpdateQueue.class);
-        maintenanceModeService = mock(MaintenanceModeService.class);
-        secretParamResolver = mock(SecretParamResolver.class);
-
+        initMocks(this);
         service = new MaterialUpdateService(queue, configQueue, completed, watchList, goConfigService, systemEnvironment,
                 serverHealthService, postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter,
-                dependencyMaterialUpdateQueue, maintenanceModeService, secretParamResolver);
+                dependencyMaterialUpdateQueue, maintenanceModeService, secretParamResolver, exponentialBackoffService);
 
         service.registerMaterialSources(scmMaterialSource);
         service.registerMaterialUpdateCompleteListener(scmMaterialSource);
@@ -127,27 +136,46 @@ public class MaterialUpdateServiceTest {
     }
 
     @AfterEach
-    void teardown() throws Exception {
+    void teardown() {
         systemEnvironment.reset(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT);
     }
 
-    @Test
-    void shouldSendMaterialUpdateMessageForAllSchedulableMaterials_onTimer() throws Exception {
-        when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(Arrays.asList(svnMaterial)));
+    @Nested
+    class onTimer {
+        @Test
+        void shouldSendMaterialUpdateMessageForAllSchedulableMaterials() {
+            when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(asList(svnMaterial)));
+            when(exponentialBackoffService.shouldBackOff(any())).thenReturn(PERMIT);
 
-        service.onTimer();
+            service.onTimer();
 
-        Mockito.verify(queue).post(matchMaterialUpdateMessage(svnMaterial));
-    }
+            verify(queue).post(matchMaterialUpdateMessage(svnMaterial));
+        }
 
-    @Test
-    void shouldNotSendMaterialUpdateMessageForAllSchedulableMaterials_onTimerWhenServerIsInMaintenanceMode() throws Exception {
-        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
-        when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(Arrays.asList(svnMaterial)));
+        @Test
+        void shouldNotSendMaterialUpdateMessageForAllSchedulableMaterials_whenServerIsInMaintenanceMode() {
+            when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
+            when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(asList(svnMaterial)));
+            when(exponentialBackoffService.shouldBackOff(any())).thenReturn(PERMIT);
 
-        service.onTimer();
+            service.onTimer();
 
-        Mockito.verifyZeroInteractions(queue);
+            verifyNoInteractions(queue);
+        }
+
+        @Test
+        void shouldNotUpdateMaterialsWhichNeedsToBeBackedOffDueToFailures() {
+            GitMaterial gitMaterial = gitMaterial("test");
+
+            when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(asList(svnMaterial, gitMaterial)));
+            when(exponentialBackoffService.shouldBackOff(svnMaterial)).thenReturn(DENY);
+            when(exponentialBackoffService.shouldBackOff(gitMaterial)).thenReturn(PERMIT);
+
+            service.onTimer();
+
+            verify(queue, never()).post(matchMaterialUpdateMessage(svnMaterial));
+            verify(queue).post(matchMaterialUpdateMessage(gitMaterial));
+        }
     }
 
     @Nested
@@ -338,7 +366,7 @@ public class MaterialUpdateServiceTest {
             when(postCommitHookMaterialType.toType("svn")).thenReturn(validMaterialType);
             final PostCommitHookImplementer svnPostCommitHookImplementer = mock(PostCommitHookImplementer.class);
             final Material svnMaterial = mock(Material.class);
-            when(svnPostCommitHookImplementer.prune(anySet(), eq(params))).thenReturn(new HashSet(Arrays.asList(svnMaterial)));
+            when(svnPostCommitHookImplementer.prune(anySet(), eq(params))).thenReturn(new HashSet(asList(svnMaterial)));
             when(validMaterialType.getImplementer()).thenReturn(svnPostCommitHookImplementer);
 
             service.notifyMaterialsForUpdate(username, params, result);
@@ -448,7 +476,8 @@ public class MaterialUpdateServiceTest {
 
     @Test
     void shouldRemoveFromInProgressOnMaterialUpdateSkippedMessage() {
-        when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(Arrays.asList(svnMaterial)));
+        when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(asList(svnMaterial)));
+        when(exponentialBackoffService.shouldBackOff(any())).thenReturn(PERMIT);
         service.onTimer();
 
         assertThat(service.isInProgress(svnMaterial)).isTrue();

@@ -123,4 +123,6 @@ ${collaborators.join(", ")}
   }
 }
 
-assemble.dependsOn(':installers:releaseNotes')
+if ("true".equalsIgnoreCase(System.env.BUILD_RELEASE_NOTES ?: "")) {
+  assemble.dependsOn(':installers:releaseNotes')
+}

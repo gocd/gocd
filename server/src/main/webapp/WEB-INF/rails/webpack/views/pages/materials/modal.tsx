@@ -61,7 +61,9 @@ export class ShowModificationsModal extends Modal {
     if (this.errorMessage()) {
       return <div data-test-id="modifications-modal" class={styles.modificationModal}>
         {header}
-        <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
+        <div className={styles.modificationWrapper}>
+          <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
+        </div>
       </div>;
     }
 

@@ -22,12 +22,12 @@ import Stream from "mithril/stream";
 import {stringOrUndefined} from "models/compare/pipeline_instance_json";
 import {MaterialModification} from "models/config_repos/types";
 import {MaterialAPIs, MaterialModifications, MaterialUsages, MaterialWithFingerprint} from "models/materials/materials";
-import {FlashMessage, MessageType} from "views/components/flash_message";
+import {FlashMessage, FlashMessageModel, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {Link} from "views/components/link";
 import linkStyles from "views/components/link/index.scss";
-import {Modal, Size} from "views/components/modal";
+import {Modal, ModalState, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import {Table} from "views/components/table";
 import spinnerCss from "views/pages/agents/spinner.scss";
@@ -209,13 +209,19 @@ class FetchHistoryService implements ApiService {
 }
 
 export class ShowUsagesModal extends Modal {
-  private usages: MaterialUsages;
+  usages?: MaterialUsages;
   private readonly name: string;
+  private message: FlashMessageModel = new FlashMessageModel();
 
-  constructor(material: MaterialWithFingerprint, usages: MaterialUsages) {
+  constructor(material: MaterialWithFingerprint, usages?: MaterialUsages) {
     super();
-    this.usages = usages;
-    this.name   = material.displayName();
+    this.name = material.displayName();
+    // used for testing
+    if (usages) {
+      this.usages = usages;
+    } else {
+      this.fetchUsages(material);
+    }
   }
 
   title(): string {
@@ -223,22 +229,42 @@ export class ShowUsagesModal extends Modal {
   }
 
   body(): m.Children {
-    if (this.usages.length <= 0) {
+    if (this.isLoading()) {
+      return;
+    }
+    if (this.message.hasMessage()) {
+      return <FlashMessage type={this.message.type} message={this.message.message}/>;
+    }
+    if (this.usages !== undefined && this.usages.length <= 0) {
       return (<i> No usages for material '{this.name}' found.</i>);
     }
 
     const data: m.Child[][] = [];
-    data.push(...this.usages
-                     .map((pipeline: string, index) => {
-                       return [
-                         <span>{pipeline}</span>,
-                         <Link href={SparkRoutes.pipelineEditPath('pipelines', pipeline, 'materials')} target={"_blank"}
-                               dataTestId={`material-link-${index}`}>View/Edit Material</Link>
-                       ];
-                     }));
+    if (this.usages !== undefined) {
+      data.push(...this.usages
+                       .map((pipeline: string, index) => {
+                         return [
+                           <span>{pipeline}</span>,
+                           <Link href={SparkRoutes.pipelineEditPath('pipelines', pipeline, 'materials')} target={"_blank"}
+                                 dataTestId={`material-link-${index}`}>View/Edit Material</Link>
+                         ];
+                       }));
+    }
     return <div class={styles.usages}>
       <Table headers={["Pipeline", "Material Setting"]} data={data}/>
     </div>;
+  }
+
+  private fetchUsages(material: MaterialWithFingerprint) {
+    this.modalState = ModalState.LOADING;
+    MaterialAPIs.usages(material.fingerprint())
+                .then((result) => {
+                  result.do((successResponse) => {
+                    this.usages = successResponse.body;
+                  }, (errorResponse) => {
+                    this.message.alert(JSON.parse(errorResponse.body!).message);
+                  });
+                }).finally(() => this.modalState = ModalState.OK);
   }
 }
 

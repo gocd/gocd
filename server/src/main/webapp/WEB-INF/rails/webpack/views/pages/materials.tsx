@@ -89,15 +89,7 @@ export class MaterialsPage extends Page<null, State> {
 
     vnode.state.showUsages = (material: MaterialWithFingerprint, e: MouseEvent) => {
       e.stopPropagation();
-      MaterialAPIs.usages(material.fingerprint())
-                  .then((result) => {
-                    result.do(
-                      (successResponse) => {
-                        new ShowUsagesModal(material, successResponse.body).render();
-                      },
-                      this.onOperationError(vnode)
-                    );
-                  });
+      new ShowUsagesModal(material).render();
     };
 
     vnode.state.showModifications = (material: MaterialWithFingerprint, e: MouseEvent) => {
@@ -154,12 +146,6 @@ export class MaterialsPage extends Page<null, State> {
       buttons.push(searchBox);
     }
     return <HeaderPanel title={this.pageName()} buttons={buttons} help={this.helpText()}/>;
-  }
-
-  private onOperationError(vnode: m.Vnode<null, State>): (errorResponse: ErrorResponse) => void {
-    return (errorResponse: ErrorResponse) => {
-      this.flashMessage.alert(JSON.parse(errorResponse.body!).message);
-    };
   }
 
   private refreshMaterials(vnode: m.Vnode<null, State>) {

@@ -34,7 +34,7 @@ describe('MaterialWidgetSpec', () => {
 
   afterEach((done) => helper.unmount(done));
   beforeEach(() => {
-    material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), true, true, "2019-12-23T10:15:52Z");
+    material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), true, false, "2019-12-23T10:15:52Z");
   });
 
   it('should display the header and action buttons', () => {
@@ -195,6 +195,24 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.byTestId('message-0', helper.byTestId('warnings'))).toBeInDOM();
     expect(helper.byTestId('errors')).toBeInDOM();
     expect(helper.byTestId('message-0', helper.byTestId('errors'))).toBeInDOM();
+  });
+
+  it('should not show material mdu start time if undefined', () => {
+    material.materialUpdateInProgress = true;
+    material.materialUpdateStartTime  = undefined;
+    mount();
+
+    expect(helper.byTestId("trigger-update")).toBeDisabled();
+    expect(helper.byTestId("trigger-update")).toHaveAttr('title', 'Update in progress');
+  });
+
+  it('should send a callback to trigger update method', () => {
+    mount();
+
+    helper.clickByTestId("trigger-update");
+
+    expect(triggerUpdateSpy).toHaveBeenCalled();
+    expect(triggerUpdateSpy).toHaveBeenCalledWith(material, jasmine.any(MouseEvent));
   });
 
   function mount(shouldShowPackageOrScmLink: boolean = true) {

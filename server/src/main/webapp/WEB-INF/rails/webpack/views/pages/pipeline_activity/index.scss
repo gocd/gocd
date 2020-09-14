@@ -155,6 +155,7 @@ $stage-action-icon-z-index: 1;
 
 .unknown, .building, .cancelled, .failed, .passed, .waiting, .failing {
   color: $white;
+  cursor: pointer;
 
   &:before {
     position: absolute;
@@ -165,6 +166,7 @@ $stage-action-icon-z-index: 1;
 .unknown {
   background: $stage-status-unknown;
   border:     1px solid $border-color;
+  cursor:     auto;
 }
 
 .building {

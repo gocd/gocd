@@ -124,6 +124,8 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
             }
           }
 
+          const isScheduled: boolean = stage.scheduled();
+
           if (isModelOpen) {
             // @ts-ignore
             stage.status = stage.stageStatus();
@@ -149,7 +151,11 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
             {this.getStageGateIcon(index, stage, vnode)}
             <div class={styles.stageStatusWrapper}>
               <span data-test-id={this.dataTestId("stage-status", stage.stageName())}
-                    onclick={(e: any) => vnode.attrs.showStageOverview(pipelineName, pipelineCounter, stageName, stageCounter, stage.stageStatus(), e)}
+                    onclick={(e: any) => {
+                      if (isScheduled) {
+                        return vnode.attrs.showStageOverview(pipelineName, pipelineCounter, stageName, stageCounter, stage.stageStatus(), e);
+                      }
+                    }}
                     class={classnames(styles.stageStatus, PipelineRunWidget.stageStatusClass(stage.stageStatus()))}/>
               {optionalStageOverview}
             </div>

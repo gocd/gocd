@@ -58,7 +58,7 @@ export class ShowModificationsModal extends Modal {
     </div>;
     const header    = <HeaderPanel title={title} buttons={searchBox}/>;
 
-    if (this.errorMessage()) {
+    if (!_.isEmpty(this.errorMessage())) {
       return <div data-test-id="modifications-modal" class={styles.modificationModal}>
         {header}
         <div className={styles.modificationWrapper}>
@@ -125,22 +125,27 @@ export class ShowModificationsModal extends Modal {
     this.fetchModifications(link);
   }
 
-  private onPatternChange() {
+  private onPatternChange(e: InputEvent) {
+    // @ts-ignore
+    this.searchQuery(e.target!.value);  // this needs to be done as the oninput method is called before the property stream gets updated
     _.throttle(() => this.fetchModifications(), 500, {trailing: true})();
   }
 
   private fetchModifications(link?: string) {
-    this.operationInProgress(true);
-    this.service.fetchHistory(this.material.fingerprint(), this.searchQuery(), link,
-                              (mods) => {
-                                this.modifications(mods);
-                                this.operationInProgress(false);
-                                this.focusOnSearchBox();
-                              },
-                              (errMsg) => {
-                                this.errorMessage(errMsg);
-                                this.operationInProgress(false);
-                              });
+    if (this.operationInProgress() !== true) {
+      this.operationInProgress(true);
+      this.errorMessage("");
+      this.service.fetchHistory(this.material.fingerprint(), this.searchQuery(), link,
+                                (mods) => {
+                                  this.modifications(mods);
+                                  this.operationInProgress(false);
+                                  this.focusOnSearchBox();
+                                },
+                                (errMsg) => {
+                                  this.errorMessage(errMsg);
+                                  this.operationInProgress(false);
+                                });
+    }
 
   }
 

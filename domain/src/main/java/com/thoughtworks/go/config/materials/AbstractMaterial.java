@@ -25,9 +25,11 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.net.URLEncoder;
 import java.util.*;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * @understands material configuration
@@ -240,5 +242,19 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
 
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         throw new UnsupportedOperationException(String.format("'checkConnection' cannot be performed on material of type %s", type));
+    }
+
+    boolean dataHasSecureValue(EnvironmentVariableContext context, Map.Entry<String, String> dataEntry) {
+        boolean isSecure = false;
+        for (EnvironmentVariableContext.EnvironmentVariable secureEnvironmentVariable : context.getSecureEnvironmentVariables()) {
+            String urlEncodedValue;
+            urlEncodedValue = URLEncoder.encode(secureEnvironmentVariable.value(), UTF_8);
+            boolean isSecureEnvironmentVariableEncoded = !StringUtils.isBlank(urlEncodedValue) && !secureEnvironmentVariable.value().equals(urlEncodedValue);
+            if (isSecureEnvironmentVariableEncoded && dataEntry.getValue().contains(urlEncodedValue)) {
+                isSecure = true;
+                break;
+            }
+        }
+        return isSecure;
     }
 }

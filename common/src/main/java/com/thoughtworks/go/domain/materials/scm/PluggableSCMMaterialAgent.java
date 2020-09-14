@@ -85,7 +85,7 @@ public class PluggableSCMMaterialAgent implements MaterialAgent {
     private void populateConfiguration(Configuration configuration,
                                        com.thoughtworks.go.plugin.api.config.Configuration pluginConfiguration) {
         for (ConfigurationProperty configurationProperty : configuration) {
-            pluginConfiguration.add(new SCMProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getValue()));
+            pluginConfiguration.add(new SCMProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getResolvedValue()));
         }
     }
 }

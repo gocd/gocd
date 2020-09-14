@@ -32,7 +32,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.*;
 
 @ConfigTag("property")
-public class ConfigurationProperty implements Serializable, Validatable {
+public class ConfigurationProperty implements Serializable, Validatable, SecretParamAware {
 
     public static final String CONFIGURATION_KEY = "configurationKey";
     public static final String CONFIGURATION_VALUE = "configurationValue";
@@ -56,6 +56,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
 
     private final GoCipher cipher;
     private final ConfigErrors configErrors = new ConfigErrors();
+    private SecretParams secretParamsForValue = new SecretParams();
 
     public ConfigurationProperty() {
         this(new GoCipher());
@@ -68,21 +69,21 @@ public class ConfigurationProperty implements Serializable, Validatable {
     public ConfigurationProperty(ConfigurationKey configurationKey, ConfigurationValue configurationValue) {
         this();
         this.configurationKey = configurationKey;
-        this.configurationValue = configurationValue;
+        this.setConfigurationValue(configurationValue);
     }
 
     public ConfigurationProperty(ConfigurationKey configurationKey, EncryptedConfigurationValue encryptedValue) {
         this();
         this.configurationKey = configurationKey;
-        this.encryptedValue = encryptedValue;
+        this.setEncryptedValue(encryptedValue);
     }
 
     //for tests only
     public ConfigurationProperty(ConfigurationKey configurationKey, ConfigurationValue configurationValue, EncryptedConfigurationValue encryptedValue, GoCipher cipher) {
         this.cipher = cipher == null ? new GoCipher() : cipher;
         this.configurationKey = configurationKey;
-        this.configurationValue = configurationValue;
-        this.encryptedValue = encryptedValue;
+        this.setConfigurationValue(configurationValue);
+        this.setEncryptedValue(encryptedValue);
     }
 
     public ConfigurationProperty withKey(String key) {
@@ -110,19 +111,16 @@ public class ConfigurationProperty implements Serializable, Validatable {
 
     public void setConfigurationValue(ConfigurationValue configurationValue) {
         this.configurationValue = configurationValue;
+        parseSecretParams();
     }
 
     public void setConfigurationKey(ConfigurationKey configurationKey) {
         this.configurationKey = configurationKey;
     }
 
-    @Deprecated
-    public void setEncryptedConfigurationValue(EncryptedConfigurationValue encryptedValue) {
-        setEncryptedValue(encryptedValue);
-    }
-
     public void setEncryptedValue(EncryptedConfigurationValue encryptedValue) {
         this.encryptedValue = encryptedValue;
+        parseSecretParams();
     }
 
     public boolean isSecure() {
@@ -184,6 +182,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
         } else {
             encryptedValue = null;
         }
+        parseSecretParams();
     }
 
     public String getValue() {
@@ -270,7 +269,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
                 handleSecureValueConfiguration(true);
             }
         }
-
+        parseSecretParams();
     }
 
     @Override
@@ -318,7 +317,7 @@ public class ConfigurationProperty implements Serializable, Validatable {
     }
 
     public String getDisplayValue() {
-        if (isSecure()) {
+        if (isSecure() || hasSecretParams()) {
             return "****";
         }
         return getValue();
@@ -348,5 +347,30 @@ public class ConfigurationProperty implements Serializable, Validatable {
             setConfigurationValue(new ConfigurationValue(value));
         }
         return this;
+    }
+
+    private void parseSecretParams() {
+        try {
+            this.secretParamsForValue = SecretParams.parse(getValue());
+        } catch (Exception ignored) {
+        }
+    }
+
+    @Override
+    public boolean hasSecretParams() {
+        return !this.secretParamsForValue.isEmpty();
+    }
+
+    @Override
+    public SecretParams getSecretParams() {
+        return this.secretParamsForValue;
+    }
+
+    public String getResolvedValue() {
+        if (hasSecretParams()) {
+            return getSecretParams().substitute(getValue());
+        }
+
+        return getValue();
     }
 }

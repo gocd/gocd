@@ -31,11 +31,13 @@ import com.thoughtworks.go.plugin.access.scm.revision.ModifiedAction;
 import com.thoughtworks.go.plugin.access.scm.revision.ModifiedFile;
 import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
@@ -43,15 +45,13 @@ import java.io.File;
 import java.util.*;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class PluggableSCMMaterialPollerTest {
+class PluggableSCMMaterialPollerTest {
     @Mock
     private MaterialRepository materialRepository;
     @Mock
@@ -64,8 +64,8 @@ public class PluggableSCMMaterialPollerTest {
     private PluggableSCMMaterialPoller poller;
     private String flyweightFolderPath;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         initMocks(this);
         ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
         ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", true, "v2");
@@ -88,7 +88,7 @@ public class PluggableSCMMaterialPollerTest {
     }
 
     @Test
-    public void shouldTalkToPlugInToGetLatestModifications() {
+    void shouldTalkToPlugInToGetLatestModifications() {
         Date timestamp = new Date();
         SCMRevision scmRevision = new SCMRevision("revision-123", timestamp, "user", "comment", null, null);
         MaterialPollResult materialPollResult = new MaterialPollResult(null, scmRevision);
@@ -96,28 +96,28 @@ public class PluggableSCMMaterialPollerTest {
 
         List<Modification> modifications = poller.latestModification(material, new File(flyweightFolderPath), null);
 
-        assertThat(modifications.get(0).getRevision(), is("revision-123"));
-        assertThat(modifications.get(0).getModifiedTime(), is(timestamp));
-        assertThat(modifications.get(0).getUserName(), is("user"));
-        assertThat(modifications.get(0).getComment(), is("comment"));
+        assertThat(modifications.get(0).getRevision()).isEqualTo("revision-123");
+        assertThat(modifications.get(0).getModifiedTime()).isEqualTo(timestamp);
+        assertThat(modifications.get(0).getUserName()).isEqualTo("user");
+        assertThat(modifications.get(0).getComment()).isEqualTo("comment");
         assertConfiguration(scmConfiguration.getValue(), "k1", "v1");
         assertConfiguration(scmConfiguration.getValue(), "k2", "v2");
-        assertThat(materialData.getValue().size(), is(1));
-        assertThat(materialData.getValue().get("mk-1"), is("mv-1"));
+        assertThat(materialData.getValue().size()).isEqualTo(1);
+        assertThat(materialData.getValue().get("mk-1")).isEqualTo("mv-1");
     }
 
     @Test
-    public void shouldReturnEmptyModificationWhenSCMRevisionIsNull_latestModification() {
+    void shouldReturnEmptyModificationWhenSCMRevisionIsNull_latestModification() {
         when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), materialData.capture(), eq(flyweightFolderPath))).thenReturn(new MaterialPollResult());
 
         List<Modification> modifications = poller.latestModification(material, new File(flyweightFolderPath), null);
 
-        assertThat(modifications, is(notNullValue()));
-        assertThat(modifications.isEmpty(), is(true));
+        assertThat(modifications).isNotNull();
+        assertThat(modifications.isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldGetLatestModificationAlongWithAdditionalDataFromTheSCMRevision() {
+    void shouldGetLatestModificationAlongWithAdditionalDataFromTheSCMRevision() {
         Date timestamp = new Date();
         Map<String, String> data = new HashMap<>();
         String dataKey = "revision_data";
@@ -130,23 +130,23 @@ public class PluggableSCMMaterialPollerTest {
 
         List<Modification> modifications = poller.latestModification(material, new File(flyweightFolderPath), null);
 
-        assertThat(modifications.get(0).getRevision(), is("revision-123"));
-        assertThat(modifications.get(0).getModifiedTime(), is(timestamp));
-        assertThat(modifications.get(0).getUserName(), is("user"));
-        assertThat(modifications.get(0).getComment(), is("comment"));
-        assertThat(modifications.get(0).getAdditionalData(), is(JsonHelper.toJsonString(data)));
-        assertThat(modifications.get(0).getModifiedFiles().size(), is(3));
+        assertThat(modifications.get(0).getRevision()).isEqualTo("revision-123");
+        assertThat(modifications.get(0).getModifiedTime()).isEqualTo(timestamp);
+        assertThat(modifications.get(0).getUserName()).isEqualTo("user");
+        assertThat(modifications.get(0).getComment()).isEqualTo("comment");
+        assertThat(modifications.get(0).getAdditionalData()).isEqualTo(JsonHelper.toJsonString(data));
+        assertThat(modifications.get(0).getModifiedFiles().size()).isEqualTo(3);
         com.thoughtworks.go.domain.materials.ModifiedFile f1 = new com.thoughtworks.go.domain.materials.ModifiedFile("f1", null, com.thoughtworks.go.domain.materials.ModifiedAction.added);
         com.thoughtworks.go.domain.materials.ModifiedFile f2 = new com.thoughtworks.go.domain.materials.ModifiedFile("f2", null, com.thoughtworks.go.domain.materials.ModifiedAction.modified);
         com.thoughtworks.go.domain.materials.ModifiedFile f3 = new com.thoughtworks.go.domain.materials.ModifiedFile("f3", null, com.thoughtworks.go.domain.materials.ModifiedAction.deleted);
-        assertThat(new HashSet(modifications.get(0).getModifiedFiles()), is(new HashSet(asList(f1, f2, f3))));
+        assertThat(new HashSet(modifications.get(0).getModifiedFiles())).isEqualTo(new HashSet(asList(f1, f2, f3)));
         assertConfiguration(scmConfiguration.getValue(), material.getScmConfig().getConfiguration());
-        assertThat(materialData.getValue().size(), is(1));
-        assertThat(materialData.getValue().get("mk-1"), is("mv-1"));
+        assertThat(materialData.getValue().size()).isEqualTo(1);
+        assertThat(materialData.getValue().get("mk-1")).isEqualTo("mv-1");
     }
 
     @Test
-    public void shouldTalkToPlugInToGetModificationsSinceAGivenRevision() {
+    void shouldTalkToPlugInToGetModificationsSinceAGivenRevision() {
         Date timestamp = new Date();
         PluggableSCMMaterialRevision knownRevision = new PluggableSCMMaterialRevision("rev-122", timestamp);
         ArgumentCaptor<SCMRevision> knownSCMRevision = ArgumentCaptor.forClass(SCMRevision.class);
@@ -156,32 +156,32 @@ public class PluggableSCMMaterialPollerTest {
 
         List<Modification> modifications = poller.modificationsSince(material, new File(flyweightFolderPath), knownRevision, null);
 
-        assertThat(modifications.get(0).getRevision(), is("rev-123"));
-        assertThat(modifications.get(0).getModifiedTime(), is(timestamp));
-        assertThat(modifications.get(0).getUserName(), is("user"));
-        assertThat(modifications.get(0).getComment(), is(nullValue()));
+        assertThat(modifications.get(0).getRevision()).isEqualTo("rev-123");
+        assertThat(modifications.get(0).getModifiedTime()).isEqualTo(timestamp);
+        assertThat(modifications.get(0).getUserName()).isEqualTo("user");
+        assertThat(modifications.get(0).getComment()).isNull();
         assertConfiguration(scmConfiguration.getValue(), "k1", "v1");
         assertConfiguration(scmConfiguration.getValue(), "k2", "v2");
-        assertThat(knownSCMRevision.getValue().getRevision(), is("rev-122"));
-        assertThat(knownSCMRevision.getValue().getTimestamp(), is(timestamp));
-        assertThat(materialData.getValue().size(), is(1));
-        assertThat(materialData.getValue().get("mk-1"), is("mv-1"));
+        assertThat(knownSCMRevision.getValue().getRevision()).isEqualTo("rev-122");
+        assertThat(knownSCMRevision.getValue().getTimestamp()).isEqualTo(timestamp);
+        assertThat(materialData.getValue().size()).isEqualTo(1);
+        assertThat(materialData.getValue().get("mk-1")).isEqualTo("mv-1");
     }
 
     @Test
-    public void shouldReturnEmptyModificationWhenSCMRevisionIsNullFor_latestModificationSince() {
+    void shouldReturnEmptyModificationWhenSCMRevisionIsNullFor_latestModificationSince() {
         PluggableSCMMaterialRevision knownRevision = new PluggableSCMMaterialRevision("rev-122", new Date());
         ArgumentCaptor<SCMRevision> knownSCMRevision = ArgumentCaptor.forClass(SCMRevision.class);
         when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), materialData.capture(), eq(flyweightFolderPath), knownSCMRevision.capture())).thenReturn(new MaterialPollResult());
 
         List<Modification> modifications = poller.modificationsSince(material, new File(flyweightFolderPath), knownRevision, null);
 
-        assertThat(modifications, is(notNullValue()));
-        assertThat(modifications.isEmpty(), is(true));
+        assertThat(modifications).isNotNull();
+        assertThat(modifications.isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldGetModificationsSinceAGivenRevisionAlongWithAdditionalDataFromTheSCMRevision() {
+    void shouldGetModificationsSinceAGivenRevisionAlongWithAdditionalDataFromTheSCMRevision() {
         String previousRevision = "rev-122";
         Date timestamp = new Date();
         Map<String, String> dataInPreviousRevision = new HashMap<>();
@@ -200,36 +200,126 @@ public class PluggableSCMMaterialPollerTest {
 
         List<Modification> modifications = poller.modificationsSince(material, new File(flyweightFolderPath), knownRevision, null);
 
-        assertThat(knownSCMRevision.getValue().getRevision(), is(previousRevision));
-        assertThat(knownSCMRevision.getValue().getTimestamp(), is(timestamp));
-        assertThat(knownSCMRevision.getValue().getData(), is(notNullValue()));
-        assertThat(knownSCMRevision.getValue().getData().size(), is(dataInPreviousRevision.size()));
-        assertThat(knownSCMRevision.getValue().getData().get("1"), is(dataInPreviousRevision.get("1")));
+        assertThat(knownSCMRevision.getValue().getRevision()).isEqualTo(previousRevision);
+        assertThat(knownSCMRevision.getValue().getTimestamp()).isEqualTo(timestamp);
+        assertThat(knownSCMRevision.getValue().getData()).isNotNull();
+        assertThat(knownSCMRevision.getValue().getData().size()).isEqualTo(dataInPreviousRevision.size());
+        assertThat(knownSCMRevision.getValue().getData().get("1")).isEqualTo(dataInPreviousRevision.get("1"));
 
         HashMap<String, String> expected = new HashMap<>();
         expected.put(dataKey, dataValue);
 
         Modification firstModification = modifications.get(0);
-        assertThat(firstModification.getRevision(), is("rev-123"));
-        assertThat(firstModification.getModifiedTime(), is(timestamp));
-        assertThat(firstModification.getUserName(), is("user"));
-        assertThat(firstModification.getComment(), is("comment-123"));
-        assertThat(firstModification.getAdditionalData(), is(JsonHelper.toJsonString(expected)));
-        assertThat(firstModification.getModifiedFiles().isEmpty(), is(true));
-        assertThat(materialData.getValue().size(), is(1));
-        assertThat(materialData.getValue().get("mk-1"), is("mv-1"));
+        assertThat(firstModification.getRevision()).isEqualTo("rev-123");
+        assertThat(firstModification.getModifiedTime()).isEqualTo(timestamp);
+        assertThat(firstModification.getUserName()).isEqualTo("user");
+        assertThat(firstModification.getComment()).isEqualTo("comment-123");
+        assertThat(firstModification.getAdditionalData()).isEqualTo(JsonHelper.toJsonString(expected));
+        assertThat(firstModification.getModifiedFiles().isEmpty()).isTrue();
+        assertThat(materialData.getValue().size()).isEqualTo(1);
+        assertThat(materialData.getValue().get("mk-1")).isEqualTo("mv-1");
+    }
+
+    @Nested
+    class ShouldReplaceSecrets {
+        @Test
+        void forLatestModification() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", true, "{{SECRET:[secret_config_id][lookup_password]}}");
+            k2.getSecretParams().get(0).setValue("some-dummy-value");
+            SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(k1, k2));
+            material = new PluggableSCMMaterial();
+            material.setSCMConfig(scmConfig);
+
+            MaterialInstance materialInstance = material.createMaterialInstance();
+            Map<String, String> data = new HashMap<>();
+            data.put("mk-1", "mv-1");
+            materialInstance.setAdditionalData(JsonHelper.toJsonString(data));
+            when(materialRepository.findMaterialInstance(material)).thenReturn(materialInstance);
+
+            Date timestamp = new Date();
+            SCMRevision scmRevision = new SCMRevision("revision-123", timestamp, "user", "comment", null, null);
+            MaterialPollResult materialPollResult = new MaterialPollResult(null, scmRevision);
+            when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), materialData.capture(), eq(flyweightFolderPath))).thenReturn(materialPollResult);
+
+            List<Modification> modifications = poller.latestModification(material, new File(flyweightFolderPath), null);
+
+            assertConfiguration(scmConfiguration.getValue(), "k1", "v1");
+            assertConfiguration(scmConfiguration.getValue(), "k2", "some-dummy-value");
+        }
+
+        @Test
+        void forModificationsSince() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", true, "{{SECRET:[secret_config_id][lookup_password]}}");
+            k2.getSecretParams().get(0).setValue("some-dummy-value");
+            SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(k1, k2));
+            material = new PluggableSCMMaterial();
+            material.setSCMConfig(scmConfig);
+
+            MaterialInstance materialInstance = material.createMaterialInstance();
+            Map<String, String> data = new HashMap<>();
+            data.put("mk-1", "mv-1");
+            materialInstance.setAdditionalData(JsonHelper.toJsonString(data));
+            when(materialRepository.findMaterialInstance(material)).thenReturn(materialInstance);
+
+            Date timestamp = new Date();
+            SCMRevision scmRevision = new SCMRevision("revision-123", timestamp, "user", "comment", null, null);
+            MaterialPollResult materialPollResult = new MaterialPollResult(null, scmRevision);
+
+            ArgumentCaptor<SCMRevision> knownSCMRevision = ArgumentCaptor.forClass(SCMRevision.class);
+
+            when(scmExtension.latestModificationSince(eq(material.getPluginId()), scmConfiguration.capture(), materialData.capture(), eq(flyweightFolderPath), knownSCMRevision.capture())).thenReturn(materialPollResult);
+
+            PluggableSCMMaterialRevision knownRevision = new PluggableSCMMaterialRevision("rev-122", timestamp);
+
+            List<Modification> modifications = poller.modificationsSince(material, new File(flyweightFolderPath), knownRevision, null);
+
+            assertConfiguration(scmConfiguration.getValue(), "k1", "v1");
+            assertConfiguration(scmConfiguration.getValue(), "k2", "some-dummy-value");
+        }
+
+        @Test
+        void forCheckout() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", true, "{{SECRET:[secret_config_id][lookup_password]}}");
+            k2.getSecretParams().get(0).setValue("some-dummy-value");
+            SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(k1, k2));
+            material = new PluggableSCMMaterial();
+            material.setSCMConfig(scmConfig);
+
+            MaterialInstance materialInstance = material.createMaterialInstance();
+            Map<String, String> data = new HashMap<>();
+            data.put("mk-1", "mv-1");
+            materialInstance.setAdditionalData(JsonHelper.toJsonString(data));
+            when(materialRepository.findMaterialInstance(material)).thenReturn(materialInstance);
+
+            ArgumentCaptor<SCMRevision> knownSCMRevision = ArgumentCaptor.forClass(SCMRevision.class);
+
+            Result result = mock(Result.class);
+            when(result.isSuccessful()).thenReturn(true);
+
+            when(scmExtension.checkout(eq(material.getPluginId()), scmConfiguration.capture(), eq(flyweightFolderPath), knownSCMRevision.capture())).thenReturn(result);
+
+            PluggableSCMMaterialRevision knownRevision = new PluggableSCMMaterialRevision("rev-122", new Date());
+
+            poller.checkout(material, new File(flyweightFolderPath), knownRevision, null);
+
+            assertConfiguration(scmConfiguration.getValue(), "k1", "v1");
+            assertConfiguration(scmConfiguration.getValue(), "k2", "some-dummy-value");
+        }
     }
 
     private void assertConfiguration(com.thoughtworks.go.plugin.api.config.Configuration configurationsSentToPlugin, Configuration configurationInMaterial) {
-        assertThat(configurationsSentToPlugin.size(), is(configurationInMaterial.size()));
+        assertThat(configurationsSentToPlugin.size()).isEqualTo(configurationInMaterial.size());
         for (ConfigurationProperty property : configurationInMaterial) {
             Property configuration = configurationsSentToPlugin.get(property.getConfigurationKey().getName());
-            assertThat(configuration.getValue(), is(property.getValue()));
+            assertThat(configuration.getValue()).isEqualTo(property.getValue());
         }
     }
 
     private void assertConfiguration(com.thoughtworks.go.plugin.api.config.Configuration actualSCMConfiguration, String key, String value) {
-        assertThat(actualSCMConfiguration.get(key), is(notNullValue()));
-        assertThat(actualSCMConfiguration.get(key).getValue(), is(value));
+        assertThat(actualSCMConfiguration.get(key)).isNotNull();
+        assertThat(actualSCMConfiguration.get(key).getValue()).isEqualTo(value);
     }
 }

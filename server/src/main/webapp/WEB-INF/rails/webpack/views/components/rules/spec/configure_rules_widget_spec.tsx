@@ -41,7 +41,7 @@ describe('ConfigureRulesWidgetSpec', () => {
       rules={rules}
       resourceAutocompleteHelper={resourceAutocompleteHelper}
       infoMsg={infoMsg}
-      types={[RulesType.ENVIRONMENT, RulesType.PIPELINE_GROUP]}
+      types={[RulesType.ENVIRONMENT, RulesType.PIPELINE_GROUP, RulesType.PLUGGABLE_SCM]}
       actions={actions}/>);
   }
 
@@ -75,7 +75,7 @@ describe('ConfigureRulesWidgetSpec', () => {
     expect(helper.byTestId('rule-type')).toBeInDOM();
     expect(helper.byTestId('rule-resource')).toBeInDOM();
     expect(helper.byTestId('rule-directive').textContent).toBe('SelectDenyAllow');
-    expect(helper.byTestId('rule-type').textContent).toBe('SelectAllEnvironmentPipeline Group');
+    expect(helper.byTestId('rule-type').textContent).toBe('SelectAllEnvironmentPipeline GroupPluggable SCM');
     expect((helper.byTestId('rule-directive') as HTMLSelectElement).value).toBe('allow');
     expect((helper.byTestId('rule-type') as HTMLSelectElement).value).toBe('pipeline_group');
     expect((helper.byTestId('rule-resource') as HTMLInputElement).value).toBe('DeployPipelines');

@@ -17,9 +17,11 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
+import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
@@ -48,6 +50,7 @@ import java.util.Set;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.collections4.CollectionUtils.forAllDo;
 
 
@@ -298,7 +301,9 @@ public class BuildAssignmentService implements ConfigChangedListener {
                         // Users relying on this env. var. can test for its existence rather than checking for an empty string
                         environmentVariableContext.setProperty(GO_AGENT_RESOURCES, agent.getResourceConfigs().getCommaSeparatedResourceNames(), false);
                     }
-
+                    // Reason to resolve them separately: the rules for pluggable scm material verifies `SCM` based rules
+                    // whereas the assignment considers `PipelineGroup` based rules
+                    resolveSecretsForMaterials(pipeline.getBuildCause().getMaterialRevisions());
                     final ArtifactStores requiredArtifactStores = goConfigService.artifactStores().getArtifactStores(getArtifactStoreIdsRequiredByArtifactPlans(job.getArtifactPlans()));
                     BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder(), environmentVariableContext, requiredArtifactStores);
 
@@ -325,6 +330,10 @@ public class BuildAssignmentService implements ConfigChangedListener {
         }
     }
 
+    /*
+     * This method will build the initial environment variable context as well as add the environment related variables.
+     * It will also resolve secrets, if any wrt environment config
+     */
     EnvironmentVariableContext buildEnvVarContext(String pipelineName) {
         String pipelineGroupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext(GO_PIPELINE_GROUP_NAME, pipelineGroupName);
@@ -374,5 +383,14 @@ public class BuildAssignmentService implements ConfigChangedListener {
 
     List<JobPlan> jobPlans() {
         return jobPlans;
+    }
+
+    // This method will resolve secrets in all the pluggable scm materials if any
+    private void resolveSecretsForMaterials(MaterialRevisions materialRevisions) {
+        List<Material> materials = stream(materialRevisions.spliterator(), true)
+                .map(MaterialRevision::getMaterial)
+                .filter((material) -> material instanceof PluggableSCMMaterial)
+                .collect(toList());
+        secretParamResolver.resolve(materials);
     }
 }

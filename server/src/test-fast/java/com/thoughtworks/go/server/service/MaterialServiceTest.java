@@ -55,6 +55,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.materials.GitPoller;
 import com.thoughtworks.go.server.service.materials.MaterialPoller;
+import com.thoughtworks.go.server.service.materials.PluggableSCMMaterialPoller;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
@@ -620,4 +621,51 @@ public class MaterialServiceTest {
         }
     }
 
+    @Test
+    public void latestModification_shouldResolveSecretsForPluggableScmMaterial() {
+        PluggableSCMMaterial pluggableSCMMaterial = spy(new PluggableSCMMaterial());
+        MaterialService serviceSpy = spy(materialService);
+        PluggableSCMMaterialPoller poller = mock(PluggableSCMMaterialPoller.class);
+
+        doReturn(PluggableSCMMaterial.class).when(serviceSpy).getMaterialClass(pluggableSCMMaterial);
+        doReturn(true).when(pluggableSCMMaterial).hasSecretParams();
+        doReturn(poller).when(serviceSpy).getPollerImplementation(pluggableSCMMaterial);
+        when(poller.latestModification(any(), any(), any())).thenReturn(new ArrayList<>());
+
+        serviceSpy.latestModification(pluggableSCMMaterial, null, null);
+
+        verify(secretParamResolver).resolve(pluggableSCMMaterial);
+    }
+
+    @Test
+    public void modificationsSince_shouldResolveSecretsForPluggableScmMaterial() {
+        PluggableSCMMaterial pluggableSCMMaterial = spy(new PluggableSCMMaterial());
+        MaterialService serviceSpy = spy(materialService);
+        PluggableSCMMaterialPoller poller = mock(PluggableSCMMaterialPoller.class);
+
+        doReturn(PluggableSCMMaterial.class).when(serviceSpy).getMaterialClass(pluggableSCMMaterial);
+        doReturn(true).when(pluggableSCMMaterial).hasSecretParams();
+        doReturn(poller).when(serviceSpy).getPollerImplementation(pluggableSCMMaterial);
+        when(poller.latestModification(any(), any(), any())).thenReturn(new ArrayList<>());
+
+        serviceSpy.modificationsSince(pluggableSCMMaterial, null, null, null);
+
+        verify(secretParamResolver).resolve(pluggableSCMMaterial);
+    }
+
+    @Test
+    public void checkout_shouldResolveSecretsForPluggableScmMaterial() {
+        PluggableSCMMaterial pluggableSCMMaterial = spy(new PluggableSCMMaterial());
+        MaterialService serviceSpy = spy(materialService);
+        PluggableSCMMaterialPoller poller = mock(PluggableSCMMaterialPoller.class);
+
+        doReturn(PluggableSCMMaterial.class).when(serviceSpy).getMaterialClass(pluggableSCMMaterial);
+        doReturn(true).when(pluggableSCMMaterial).hasSecretParams();
+        doReturn(poller).when(serviceSpy).getPollerImplementation(pluggableSCMMaterial);
+        when(poller.latestModification(any(), any(), any())).thenReturn(new ArrayList<>());
+
+        serviceSpy.checkout(pluggableSCMMaterial, null, null, null);
+
+        verify(secretParamResolver).resolve(pluggableSCMMaterial);
+    }
 }

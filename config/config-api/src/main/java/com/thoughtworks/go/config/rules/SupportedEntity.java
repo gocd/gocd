@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.domain.scm.SCM;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +32,7 @@ public enum SupportedEntity {
     PIPELINE("pipeline", PipelineConfig.class),
     PIPELINE_GROUP("pipeline_group", PipelineConfigs.class),
     ENVIRONMENT("environment", EnvironmentConfig.class),
+    PLUGGABLE_SCM("pluggable_scm", SCM.class),
     UNKNOWN(null, null);
 
     private final String type;

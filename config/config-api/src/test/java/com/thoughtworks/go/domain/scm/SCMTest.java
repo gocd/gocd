@@ -17,6 +17,8 @@ package com.thoughtworks.go.domain.scm;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
+import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.scm.SCMConfiguration;
 import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
@@ -24,66 +26,55 @@ import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMPreference;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.DataStructureUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-
-import com.thoughtworks.go.domain.config.PluginConfiguration;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationKey;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
-import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
-
 import static com.thoughtworks.go.plugin.access.scm.SCMConfiguration.PART_OF_IDENTITY;
 import static com.thoughtworks.go.plugin.access.scm.SCMConfiguration.SECURE;
-import static org.junit.Assert.fail;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SCMTest {
-    @Before
-    public void setup() throws Exception {
+class SCMTest {
+    @BeforeEach
+    void setup() {
         SCMMetadataStore.getInstance().clear();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() {
         SCMMetadataStore.getInstance().clear();
     }
 
     @Test
-    public void shouldCheckEqualityOfSCM() {
+    void shouldCheckEqualityOfSCM() {
         Configuration configuration = new Configuration();
         SCM scm = SCMMother.create("id", "name", "plugin-id", "version", configuration);
-        assertThat(scm, is(SCMMother.create("id", "name", "plugin-id", "version", configuration)));
+        assertThat(scm).isEqualTo(SCMMother.create("id", "name", "plugin-id", "version", configuration));
     }
 
     @Test
-    public void shouldCheckForFieldAssignments() {
+    void shouldCheckForFieldAssignments() {
         Configuration configuration = new Configuration();
         SCM scm = SCMMother.create("id", "name", "plugin-id", "version", configuration);
-        assertThat(scm.getId(), is("id"));
-        assertThat(scm.getName(), is("name"));
-        assertThat(scm.getPluginConfiguration().getId(), is("plugin-id"));
-        assertThat(scm.getPluginConfiguration().getVersion(), is("version"));
-        assertThat(scm.getConfiguration().listOfConfigKeys().isEmpty(), is(true));
+        assertThat(scm.getId()).isEqualTo("id");
+        assertThat(scm.getName()).isEqualTo("name");
+        assertThat(scm.getPluginConfiguration().getId()).isEqualTo("plugin-id");
+        assertThat(scm.getPluginConfiguration().getVersion()).isEqualTo("version");
+        assertThat(scm.getConfiguration().listOfConfigKeys().isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldOnlyDisplayFieldsWhichAreNonSecureAndPartOfIdentityInGetConfigForDisplayWhenPluginExists() throws Exception {
+    void shouldOnlyDisplayFieldsWhichAreNonSecureAndPartOfIdentityInGetConfigForDisplayWhenPluginExists() {
         SCMConfigurations scmConfiguration = new SCMConfigurations();
         scmConfiguration.add(new SCMConfiguration("key1").with(PART_OF_IDENTITY, true).with(SECURE, false));
         scmConfiguration.add(new SCMConfiguration("key2").with(PART_OF_IDENTITY, false).with(SECURE, false));
@@ -95,39 +86,39 @@ public class SCMTest {
         Configuration configuration = new Configuration(create("key1", false, "value1"), create("key2", false, "value2"), create("key3", true, "value3"), create("key4", true, "value4"), create("key5", false, "value5"));
         SCM scm = SCMMother.create("scm", "scm-name", "plugin-id", "1.0", configuration);
 
-        assertThat(scm.getConfigForDisplay(), is("[key1=value1, key5=value5]"));
+        assertThat(scm.getConfigForDisplay()).isEqualTo("[key1=value1, key5=value5]");
     }
 
     @Test
-    public void shouldConvertKeysToLowercaseInGetConfigForDisplay() throws Exception {
+    void shouldConvertKeysToLowercaseInGetConfigForDisplay() {
         SCMMetadataStore.getInstance().addMetadataFor("plugin-id", new SCMConfigurations(), null);
 
         Configuration configuration = new Configuration(create("kEY1", false, "vALue1"), create("KEY_MORE_2", false, "VALUE_2"), create("key_3", false, "value3"));
         SCM scm = SCMMother.create("scm", "scm-name", "plugin-id", "1.0", configuration);
 
-        assertThat(scm.getConfigForDisplay(), is("[key1=vALue1, key_more_2=VALUE_2, key_3=value3]"));
+        assertThat(scm.getConfigForDisplay()).isEqualTo("[key1=vALue1, key_more_2=VALUE_2, key_3=value3]");
     }
 
     @Test
-    public void shouldNotDisplayEmptyValuesInGetConfigForDisplay() throws Exception {
+    void shouldNotDisplayEmptyValuesInGetConfigForDisplay() {
         SCMMetadataStore.getInstance().addMetadataFor("plugin-id", new SCMConfigurations(), null);
 
         Configuration configuration = new Configuration(create("rk1", false, ""), create("rk2", false, "some-non-empty-value"), create("rk3", false, null));
         SCM scm = SCMMother.create("scm", "scm-name", "plugin-id", "1.0", configuration);
 
-        assertThat(scm.getConfigForDisplay(), is("[rk2=some-non-empty-value]"));
+        assertThat(scm.getConfigForDisplay()).isEqualTo("[rk2=some-non-empty-value]");
     }
 
     @Test
-    public void shouldDisplayAllNonSecureFieldsInGetConfigForDisplayWhenPluginDoesNotExist() {
+    void shouldDisplayAllNonSecureFieldsInGetConfigForDisplayWhenPluginDoesNotExist() {
         Configuration configuration = new Configuration(create("key1", false, "value1"), create("key2", true, "value2"), create("key3", false, "value3"));
         SCM scm = SCMMother.create("scm", "scm-name", "some-plugin-which-does-not-exist", "1.0", configuration);
 
-        assertThat(scm.getConfigForDisplay(), is("WARNING! Plugin missing. [key1=value1, key3=value3]"));
+        assertThat(scm.getConfigForDisplay()).isEqualTo("WARNING! Plugin missing. [key1=value1, key3=value3]");
     }
 
     @Test
-    public void shouldMakeConfigurationSecureBasedOnMetadata() throws Exception {
+    void shouldMakeConfigurationSecureBasedOnMetadata() throws Exception {
         GoCipher goCipher = new GoCipher();
 
         //meta data of SCM
@@ -144,16 +135,16 @@ public class SCMTest {
         scm.applyPluginMetadata();
 
         //assert SCM properties
-        assertThat(secureProperty.isSecure(), is(true));
-        assertThat(secureProperty.getEncryptedConfigurationValue(), is(notNullValue()));
-        assertThat(secureProperty.getEncryptedValue(), is(goCipher.encrypt("value1")));
+        assertThat(secureProperty.isSecure()).isTrue();
+        assertThat(secureProperty.getEncryptedConfigurationValue()).isNotNull();
+        assertThat(secureProperty.getEncryptedValue()).isEqualTo(goCipher.encrypt("value1"));
 
-        assertThat(nonSecureProperty.isSecure(), is(false));
-        assertThat(nonSecureProperty.getValue(), is("value2"));
+        assertThat(nonSecureProperty.isSecure()).isFalse();
+        assertThat(nonSecureProperty.getValue()).isEqualTo("value2");
     }
 
     @Test
-    public void shouldNotUpdateSecurePropertyWhenPluginIsMissing() {
+    void shouldNotUpdateSecurePropertyWhenPluginIsMissing() {
         GoCipher goCipher = new GoCipher();
 
         ConfigurationProperty secureProperty = new ConfigurationProperty(new ConfigurationKey("key1"), null, new EncryptedConfigurationValue("value"), goCipher);
@@ -162,28 +153,28 @@ public class SCMTest {
 
         scm.applyPluginMetadata();
 
-        assertThat(secureProperty.getEncryptedConfigurationValue(), is(notNullValue()));
-        assertThat(secureProperty.getConfigurationValue(), is(nullValue()));
+        assertThat(secureProperty.getEncryptedConfigurationValue()).isNotNull();
+        assertThat(secureProperty.getConfigurationValue()).isNull();
 
-        assertThat(nonSecureProperty.getConfigurationValue(), is(notNullValue()));
-        assertThat(nonSecureProperty.getEncryptedConfigurationValue(), is(nullValue()));
+        assertThat(nonSecureProperty.getConfigurationValue()).isNotNull();
+        assertThat(nonSecureProperty.getEncryptedConfigurationValue()).isNull();
     }
 
     @Test
-    public void shouldThrowUpOnSetConfigAttributesIfPluginIsNotAvailable() throws Exception {
+    void shouldThrowUpOnSetConfigAttributesIfPluginIsNotAvailable() {
         try {
             Map<String, String> attributeMap = DataStructureUtils.m(SCM.SCM_ID, "scm-id", SCM.NAME, "scm-name", SCM.AUTO_UPDATE, "false", "url", "http://localhost");
             SCM scm = new SCM(null, new PluginConfiguration("plugin-id", "1"), new Configuration());
             scm.setConfigAttributes(attributeMap);
             fail("should have thrown exception");
         } catch (Exception e) {
-            assertThat(e, instanceOf(RuntimeException.class));
-            assertThat(e.getMessage(), is("metadata unavailable for plugin: plugin-id"));
+            assertThat(e).isInstanceOf(RuntimeException.class);
+            assertThat(e.getMessage()).isEqualTo("metadata unavailable for plugin: plugin-id");
         }
     }
 
     @Test
-    public void shouldSetConfigAttributesAsAvailable() throws Exception {
+    void shouldSetConfigAttributesAsAvailable() {
         SCMConfigurations scmConfigurations = new SCMConfigurations();
         scmConfigurations.add(new SCMConfiguration("url"));
         scmConfigurations.add(new SCMConfiguration("username"));
@@ -194,21 +185,21 @@ public class SCMTest {
         SCM scm = new SCM(null, new PluginConfiguration("plugin-id", "1"), new Configuration());
         scm.setConfigAttributes(attributeMap);
 
-        assertThat(scm.getId(), is("scm-id"));
-        assertThat(scm.getName(), is("scm-name"));
-        assertThat(scm.isAutoUpdate(), is(false));
-        assertThat(scm.getPluginConfiguration().getId(), is("plugin-id"));
+        assertThat(scm.getId()).isEqualTo("scm-id");
+        assertThat(scm.getName()).isEqualTo("scm-name");
+        assertThat(scm.isAutoUpdate()).isFalse();
+        assertThat(scm.getPluginConfiguration().getId()).isEqualTo("plugin-id");
 
-        assertThat(scm.getConfigAsMap().get("url").get(SCM.VALUE_KEY), is("http://localhost"));
-        assertThat(scm.getConfigAsMap().get("username").get(SCM.VALUE_KEY), is("user"));
-        assertThat(scm.getConfigAsMap().get("password").get(SCM.VALUE_KEY), is("pass"));
+        assertThat(scm.getConfigAsMap().get("url").get(SCM.VALUE_KEY)).isEqualTo("http://localhost");
+        assertThat(scm.getConfigAsMap().get("username").get(SCM.VALUE_KEY)).isEqualTo("user");
+        assertThat(scm.getConfigAsMap().get("password").get(SCM.VALUE_KEY)).isEqualTo("pass");
 
-        assertThat(scm.getConfiguration().getProperty("password").getConfigurationValue(), is(nullValue()));
-        assertThat(scm.getConfiguration().getProperty("password").getEncryptedConfigurationValue(), is(not(nullValue())));
+        assertThat(scm.getConfiguration().getProperty("password").getConfigurationValue()).isNull();
+        assertThat(scm.getConfiguration().getProperty("password").getEncryptedConfigurationValue()).isNotNull();
     }
 
     @Test
-    public void shouldPopulateItselfFromConfigAttributesMap() throws Exception {
+    void shouldPopulateItselfFromConfigAttributesMap() {
         SCMConfigurations scmConfigurations = new SCMConfigurations();
         scmConfigurations.add(new SCMConfiguration("KEY1"));
         scmConfigurations.add(new SCMConfiguration("Key2"));
@@ -223,12 +214,12 @@ public class SCMTest {
         Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
         scm.setConfigAttributes(attributeMap);
 
-        assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY), is("value1"));
-        assertThat(scm.getConfigAsMap().get("Key2").get(SCM.VALUE_KEY), is("value2"));
+        assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY)).isEqualTo("value1");
+        assertThat(scm.getConfigAsMap().get("Key2").get(SCM.VALUE_KEY)).isEqualTo("value2");
     }
 
     @Test
-    public void shouldNotOverwriteValuesIfTheyAreNotAvailableInConfigAttributesMap() throws Exception {
+    void shouldNotOverwriteValuesIfTheyAreNotAvailableInConfigAttributesMap() {
         SCMConfigurations scmConfigurations = new SCMConfigurations();
         scmConfigurations.add(new SCMConfiguration("KEY1"));
         scmConfigurations.add(new SCMConfiguration("Key2"));
@@ -243,12 +234,12 @@ public class SCMTest {
         Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1");
         scm.setConfigAttributes(attributeMap);
 
-        assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY), is("value1"));
-        assertThat(scm.getConfigAsMap().get("Key2").get(SCM.VALUE_KEY), is(nullValue()));
+        assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY)).isEqualTo("value1");
+        assertThat(scm.getConfigAsMap().get("Key2").get(SCM.VALUE_KEY)).isNull();
     }
 
     @Test
-    public void shouldIgnoreKeysPresentInConfigAttributesMapButNotPresentInConfigStore() throws Exception {
+    void shouldIgnoreKeysPresentInConfigAttributesMapButNotPresentInConfigStore() {
         SCMConfigurations scmConfigurations = new SCMConfigurations();
         scmConfigurations.add(new SCMConfiguration("KEY1"));
 
@@ -262,12 +253,12 @@ public class SCMTest {
         Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
         scm.setConfigAttributes(attributeMap);
 
-        assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY), is("value1"));
-        assertFalse(scm.getConfigAsMap().containsKey("Key2"));
+        assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY)).isEqualTo("value1");
+        assertThat(scm.getConfigAsMap().containsKey("Key2")).isFalse();
     }
 
     @Test
-    public void shouldAddPropertyComingFromAttributesMapIfPresentInConfigStoreEvenIfItISNotPresentInCurrentConfiguration() throws Exception {
+    void shouldAddPropertyComingFromAttributesMapIfPresentInConfigStoreEvenIfItISNotPresentInCurrentConfiguration() {
         SCMConfigurations scmConfigurations = new SCMConfigurations();
         scmConfigurations.add(new SCMConfiguration("KEY1"));
         scmConfigurations.add(new SCMConfiguration("Key2"));
@@ -282,20 +273,20 @@ public class SCMTest {
         Map<String, String> attributeMap = DataStructureUtils.m("KEY1", "value1", "Key2", "value2");
         scm.setConfigAttributes(attributeMap);
 
-        assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY), is("value1"));
-        assertThat(scm.getConfigAsMap().get("Key2").get(SCM.VALUE_KEY), is("value2"));
+        assertThat(scm.getConfigAsMap().get("KEY1").get(SCM.VALUE_KEY)).isEqualTo("value1");
+        assertThat(scm.getConfigAsMap().get("Key2").get(SCM.VALUE_KEY)).isEqualTo("value2");
     }
 
     @Test
-    public void shouldValidateIfNameIsMissing() {
+    void shouldValidateIfNameIsMissing() {
         SCM scm = new SCM();
         scm.validate(new ConfigSaveValidationContext(new BasicCruiseConfig(), null));
 
-        assertThat(scm.errors().getAllOn(SCM.NAME), is(asList("Please provide name")));
+        assertThat(scm.errors().getAllOn(SCM.NAME)).isEqualTo(asList("Please provide name"));
     }
 
     @Test
-    public void shouldClearConfigurationsWhichAreEmptyAndNoErrors() throws Exception {
+    void shouldClearConfigurationsWhichAreEmptyAndNoErrors() {
         SCM scm = new SCM();
         scm.getConfiguration().add(new ConfigurationProperty(new ConfigurationKey("name-one"), new ConfigurationValue()));
         scm.getConfiguration().add(new ConfigurationProperty(new ConfigurationKey("name-two"), new EncryptedConfigurationValue()));
@@ -307,24 +298,23 @@ public class SCMTest {
 
         scm.clearEmptyConfigurations();
 
-        assertThat(scm.getConfiguration().size(), is(1));
-        assertThat(scm.getConfiguration().get(0).getConfigurationKey().getName(), is("name-four"));
+        assertThat(scm.getConfiguration().size()).isEqualTo(1);
+        assertThat(scm.getConfiguration().get(0).getConfigurationKey().getName()).isEqualTo("name-four");
     }
 
     @Test
-    public void shouldValidateName() throws Exception {
+    void shouldValidateName() {
         SCM scm = new SCM();
         scm.setName("some name");
 
         scm.validate(new ConfigSaveValidationContext(null));
 
-        assertThat(scm.errors().isEmpty(), is(false));
-        assertThat(scm.errors().getAllOn(SCM.NAME).get(0),
-                is("Invalid SCM name 'some name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(scm.errors().isEmpty()).isFalse();
+        assertThat(scm.errors().getAllOn(SCM.NAME).get(0)).isEqualTo("Invalid SCM name 'some name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
-    public void shouldValidateUniqueKeysInConfiguration() {
+    void shouldValidateUniqueKeysInConfiguration() {
         ConfigurationProperty one = create("one", false, "value1");
         ConfigurationProperty duplicate1 = create("ONE", false, "value2");
         ConfigurationProperty duplicate2 = create("ONE", false, "value3");
@@ -336,17 +326,17 @@ public class SCMTest {
 
         scm.validate(null);
 
-        assertThat(one.errors().isEmpty(), is(false));
-        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for SCM 'git'"), is(true));
-        assertThat(duplicate1.errors().isEmpty(), is(false));
-        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for SCM 'git'"), is(true));
-        assertThat(duplicate2.errors().isEmpty(), is(false));
-        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for SCM 'git'"), is(true));
-        assertThat(two.errors().isEmpty(), is(true));
+        assertThat(one.errors().isEmpty()).isFalse();
+        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for SCM 'git'")).isTrue();
+        assertThat(duplicate1.errors().isEmpty()).isFalse();
+        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for SCM 'git'")).isTrue();
+        assertThat(duplicate2.errors().isEmpty()).isFalse();
+        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for SCM 'git'")).isTrue();
+        assertThat(two.errors().isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldGetConfigAsMap() throws Exception {
+    void shouldGetConfigAsMap() throws Exception {
         PluginConfiguration pluginConfiguration = new PluginConfiguration("test-plugin-id", "13.4");
 
         GoCipher cipher = new GoCipher();
@@ -364,45 +354,87 @@ public class SCMTest {
 
         Map<String, Map<String, String>> configMap = scm.getConfigAsMap();
 
-        assertThat(configMap.keySet().size(), is(keys.size()));
-        assertThat(configMap.values().size(), is(values.size()));
-        assertThat(configMap.keySet().containsAll(keys), is(true));
+        assertThat(configMap.keySet().size()).isEqualTo(keys.size());
+        assertThat(configMap.values().size()).isEqualTo(values.size());
+        assertThat(configMap.keySet().containsAll(keys)).isTrue();
         for (int i = 0; i < keys.size(); i++) {
-            assertThat(configMap.get(keys.get(i)).get(SCM.VALUE_KEY), is(values.get(i)));
+            assertThat(configMap.get(keys.get(i)).get(SCM.VALUE_KEY)).isEqualTo(values.get(i));
         }
     }
 
     @Test
-    public void shouldGenerateIdIfNotAssigned() {
+    void shouldGenerateIdIfNotAssigned() {
         SCM scm = new SCM();
         scm.ensureIdExists();
-        assertThat(scm.getId(), is(notNullValue()));
+        assertThat(scm.getId()).isNotNull();
 
         scm = new SCM();
         scm.setId("id");
         scm.ensureIdExists();
-        assertThat(scm.getId(), is("id"));
+        assertThat(scm.getId()).isEqualTo("id");
     }
 
     @Test
-    public void shouldAddConfigurationPropertiesForAnyPlugin() {
+    void shouldAddConfigurationPropertiesForAnyPlugin() {
         List<ConfigurationProperty> configurationProperties = Arrays.asList(ConfigurationPropertyMother.create("key", "value", "encValue"));
         Configuration configuration = new Configuration();
         SCM scm = SCMMother.create("id", "name", "does_not_exist", "1.1", configuration);
 
-        assertThat(configuration.size(), is(0));
+        assertThat(configuration.size()).isEqualTo(0);
 
         scm.addConfigurations(configurationProperties);
 
-        assertThat(configuration.size(), is(1));
+        assertThat(configuration.size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldGetSCMTypeCorrectly() {
+    void shouldGetSCMTypeCorrectly() {
         SCM scm = SCMMother.create("scm-id");
-        assertThat(scm.getSCMType(), is("pluggable_material_plugin"));
+        assertThat(scm.getSCMType()).isEqualTo("pluggable_material_plugin");
 
         scm.setPluginConfiguration(new PluginConfiguration("plugin-id-2", "1"));
-        assertThat(scm.getSCMType(), is("pluggable_material_plugin_id_2"));
+        assertThat(scm.getSCMType()).isEqualTo("pluggable_material_plugin_id_2");
+    }
+
+    @Nested
+    class HasSecretParams {
+        @Test
+        void shouldBeTrueIfScmConfigHasSecretParam() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            SCM scm = new SCM("scm-id", "scm-name");
+            scm.getConfiguration().addAll(asList(k1, k2));
+
+            assertThat(scm.hasSecretParams()).isTrue();
+        }
+
+        @Test
+        void shouldBeFalseIfScmCOnfigDoesNotHaveSecretParams() {
+            SCM scm = new SCM("scm-id", "scm-name");
+
+            assertThat(scm.hasSecretParams()).isFalse();
+        }
+    }
+
+    @Nested
+    class GetSecretParams {
+        @Test
+        void shouldReturnAListOfSecretParams() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            SCM scm = new SCM("scm-id", "scm-name");
+            scm.getConfiguration().addAll(asList(k1, k2));
+
+            assertThat(scm.getSecretParams().size()).isEqualTo(2);
+            assertThat(scm.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_username"));
+            assertThat(scm.getSecretParams().get(1)).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
+        }
+
+        @Test
+        void shouldBeAnEmptyListInAbsenceOfSecretParamsInScmConfig() {
+            SCM scm = new SCM("scm-id", "scm-name");
+
+            assertThat(scm.getSecretParams()).isEmpty();
+        }
     }
 }

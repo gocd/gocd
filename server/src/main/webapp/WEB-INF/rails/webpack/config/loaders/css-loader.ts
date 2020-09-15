@@ -38,12 +38,12 @@ export function getMiniCssExtractLoader(configOptions: ConfigOptions): webpack.R
         options: {
           modules: {
             mode: "local",
-            localIdentName: "[name]__[local]___[hash:base64:5]"
+            localIdentName: "[name]__[local]___[hash:base64:5]",
+            exportLocalsConvention: "camelCase",
+            exportOnlyLocals: false
           },
           sourceMap: true,
-          importLoaders: 1,
-          localsConvention: "camelCase",
-          onlyLocals: false
+          importLoaders: 1
         }
       },
       {

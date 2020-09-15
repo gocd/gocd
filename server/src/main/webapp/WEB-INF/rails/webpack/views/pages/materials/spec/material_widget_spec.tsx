@@ -117,8 +117,22 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.q('span span', attrs[4])).toHaveAttr('title', '23 Dec, 2019 at 10:25:52 +00:00 Server Time');
   });
 
-  it('should send a callback to showModifications method', () => {
+  it('should disable modifications icon when modification is null', () => {
     mount();
+
+    expect(helper.byTestId("show-modifications-material")).toBeInDOM();
+    expect(helper.byTestId("show-modifications-material")).toBeDisabled();
+    expect(helper.byTestId("show-modifications-material")).toHaveAttr('title', 'No modifications to show');
+  });
+
+  it('should send a callback to showModifications method', () => {
+    material.modification
+      = new MaterialModification("GoCD Test User <devnull@example.com>", null, "b9b4f4b758e91117d70121a365ba0f8e37f89a9d", "Initial commit", "2019-12-23T10:25:52Z");
+    mount();
+
+    expect(helper.byTestId("show-modifications-material")).toBeInDOM();
+    expect(helper.byTestId("show-modifications-material")).not.toBeDisabled();
+    expect(helper.byTestId("show-modifications-material")).toHaveAttr('title', 'Show Modifications');
 
     helper.clickByTestId("show-modifications-material");
 

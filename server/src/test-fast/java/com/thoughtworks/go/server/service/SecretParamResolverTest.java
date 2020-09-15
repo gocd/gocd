@@ -32,6 +32,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
 import com.thoughtworks.go.remote.work.BuildAssignment;
@@ -346,12 +347,12 @@ class SecretParamResolverTest {
         }
 
         @Test
-        void shouldOnlyResolveScmAndPluggableScmMaterials() {
+        void shouldOnlyResolveScmAndPluggableScmAndPackageMaterials() {
             GitMaterial gitMaterial = new GitMaterial("http://example.com");
             gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
             DependencyMaterial dependencyMaterial = dependencyMaterial("{{SECRET:[secret_id][pipeline]}}", "defaultStage");
             PackageMaterial packageMaterial = packageMaterial();
-            packageMaterial.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[another_secret_id][package_token]}}"));
+            packageMaterial.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][package_token]}}"));
             PluggableSCMMaterial pluggableSCMMaterial = pluggableSCMMaterial();
             pluggableSCMMaterial.getScmConfig().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][token]}}"));
 
@@ -359,12 +360,50 @@ class SecretParamResolverTest {
             when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
             when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password")))).thenReturn(singletonList(new Secret("password", "some-password")));
             when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("token")))).thenReturn(singletonList(new Secret("token", "some-token")));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("package_token")))).thenReturn(singletonList(new Secret("package_token", "some-package-token")));
 
             secretParamResolver.resolve(asList(gitMaterial, dependencyMaterial, packageMaterial, pluggableSCMMaterial));
 
             verify(rulesService).validateSecretConfigReferences(gitMaterial);
             verify(rulesService).validateSecretConfigReferences(pluggableSCMMaterial);
+            verify(rulesService).validateSecretConfigReferences(packageMaterial);
             verifyNoMoreInteractions(rulesService);
+        }
+    }
+
+    @Nested
+    class ResolveSecretsForPackageMaterials {
+        @Test
+        void shouldResolveSecretParams_IfAMaterialCanReferToASecretConfig() {
+            PackageMaterial material = MaterialsMother.packageMaterial();
+            material.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
+
+            when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password")))).thenReturn(singletonList(new Secret("password", "some-password")));
+
+            assertThat(material.getSecretParams().get(0).isUnresolved()).isTrue();
+
+            secretParamResolver.resolve(material);
+
+            verify(rulesService).validateSecretConfigReferences(material);
+            assertThat(material.getSecretParams().get(0).isUnresolved()).isFalse();
+            assertThat(material.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+        }
+
+        @Test
+        void shouldErrorOut_IfMaterialsDoNotHavePermissionToReferToASecretConfig() {
+            PackageMaterial material = MaterialsMother.packageMaterial();
+            material.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][password]}}"));
+
+            doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(material);
+
+            assertThatCode(() -> secretParamResolver.resolve(material))
+                    .isInstanceOf(RuntimeException.class);
+
+            verifyNoInteractions(goConfigService);
+            verifyNoInteractions(secretsExtension);
         }
     }
 

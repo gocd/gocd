@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.domain.materials.Material;
@@ -62,6 +63,8 @@ public class SecretParamResolver {
             this.resolve((ScmMaterial) material);
         } else if (material instanceof PluggableSCMMaterial) {
             this.resolve((PluggableSCMMaterial) material);
+        } else if (material instanceof PackageMaterial) {
+            this.resolve((PackageMaterial) material);
         }
     }
 
@@ -82,6 +85,15 @@ public class SecretParamResolver {
             resolve(material.getSecretParams());
         } else {
             LOGGER.debug("No secret params to resolve in pluggable SCM material {}.", material.getDisplayName());
+        }
+    }
+
+    public void resolve(PackageMaterial material) {
+        if (material.hasSecretParams()) {
+            rulesService.validateSecretConfigReferences(material);
+            resolve(material.getSecretParams());
+        } else {
+            LOGGER.debug("No secret params to resolve in package material {}.", material.getDisplayName());
         }
     }
 

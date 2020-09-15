@@ -19,6 +19,8 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.SecretParamAware;
+import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -40,7 +42,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.upperCase;
 
-public class PackageMaterial extends AbstractMaterial {
+public class PackageMaterial extends AbstractMaterial implements SecretParamAware {
     public static final String TYPE = "PackageMaterial";
 
     private String packageId;
@@ -166,11 +168,11 @@ public class PackageMaterial extends AbstractMaterial {
         context.setProperty(upperCase(format("GO_PACKAGE_%s_LABEL", escapeEnvironmentVariable(getName().toString()))), materialRevision.getRevision().getRevision(), false);
         for (ConfigurationProperty configurationProperty : getPackageDefinition().getRepository().getConfiguration()) {
             context.setProperty(getEnvironmentVariableKey("GO_REPO_%s_%s", configurationProperty.getConfigurationKey().getName()),
-                    configurationProperty.getValue(), configurationProperty.isSecure());
+                    configurationProperty.getResolvedValue(), configurationProperty.isSecure() || configurationProperty.hasSecretParams());
         }
         for (ConfigurationProperty configurationProperty : getPackageDefinition().getConfiguration()) {
             context.setProperty(getEnvironmentVariableKey("GO_PACKAGE_%s_%s", configurationProperty.getConfigurationKey().getName()),
-                    configurationProperty.getValue(), configurationProperty.isSecure());
+                    configurationProperty.getResolvedValue(), configurationProperty.isSecure() || configurationProperty.hasSecretParams());
         }
         HashMap<String, String> additionalData = materialRevision.getLatestModification().getAdditionalDataMap();
         if (additionalData != null) {
@@ -276,5 +278,21 @@ public class PackageMaterial extends AbstractMaterial {
 
     public void setFingerprint(String fingerprint) {
         this.fingerprint = fingerprint;
+    }
+
+    @Override
+    public boolean hasSecretParams() {
+        if (this.packageDefinition == null) {
+            return false;
+        }
+        return this.packageDefinition.hasSecretParams();
+    }
+
+    @Override
+    public SecretParams getSecretParams() {
+        if (this.packageDefinition == null) {
+            return new SecretParams();
+        }
+        return this.packageDefinition.getSecretParams();
     }
 }

@@ -15,11 +15,12 @@
  */
 package com.thoughtworks.go.domain.config;
 
-
+import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -148,7 +149,7 @@ class ConfigurationTest {
     }
 
     @Test
-    public void shouldReturnConfigWithErrorsAsMap() {
+    void shouldReturnConfigWithErrorsAsMap() {
         ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("key", false, "value");
         configurationProperty.addError("key", "invalid key");
         Configuration configuration = new Configuration(configurationProperty);
@@ -165,7 +166,7 @@ class ConfigurationTest {
     }
 
     @Test
-    public void shouldReturnConfigWithMetadataAsMap() throws CryptoException {
+    void shouldReturnConfigWithMetadataAsMap() throws CryptoException {
         ConfigurationProperty configurationProperty1 = ConfigurationPropertyMother.create("property1", false, "value");
         ConfigurationProperty configurationProperty2 = ConfigurationPropertyMother.create("property2", false, null);
         String password = new GoCipher().encrypt("password");
@@ -179,6 +180,48 @@ class ConfigurationTest {
         expectedMap.put("property3", buildPropertyMap(true, password, "****"));
 
         assertThat(metadataAndValuesAsMap).isEqualTo(expectedMap);
+    }
+
+
+    @Nested
+    class HasSecretParams {
+        @Test
+        void shouldBeTrueIfAnyOfThePropertyHasSecretParam() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            Configuration configuration = new Configuration(k1, k2);
+
+            assertThat(configuration.hasSecretParams()).isTrue();
+        }
+
+        @Test
+        void shouldBeFalseIfNoneOfThePropertyDoesNotHaveSecretParams() {
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            Configuration configuration = new Configuration(k2);
+
+            assertThat(configuration.hasSecretParams()).isFalse();
+        }
+    }
+
+    @Nested
+    class GetSecretParams {
+        @Test
+        void shouldReturnAListOfSecretParams() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "k1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            Configuration configuration = new Configuration(k1, k2);
+
+            assertThat(configuration.getSecretParams().size()).isEqualTo(1);
+            assertThat(configuration.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
+        }
+
+        @Test
+        void shouldBeAnEmptyListInAbsenceOfSecretParamsInConfigs() {
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            Configuration configuration = new Configuration(k2);
+
+            assertThat(configuration.getSecretParams()).isEmpty();
+        }
     }
 
     private Map<String, Object> buildPropertyMap(boolean isSecure, String value, String displayValue) {

@@ -15,10 +15,7 @@
  */
 package com.thoughtworks.go.domain.config;
 
-import com.thoughtworks.go.config.ConfigCollection;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.Validatable;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +27,7 @@ import static java.util.stream.Collectors.toList;
 
 @ConfigTag("configuration")
 @ConfigCollection(value = ConfigurationProperty.class)
-public class Configuration extends BaseCollection<ConfigurationProperty> implements Validatable {
+public class Configuration extends BaseCollection<ConfigurationProperty> implements Validatable, SecretParamAware {
 
     public static final String CONFIGURATION = "configuration";
     public static final String METADATA = "metadata";
@@ -204,5 +201,19 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
             configMap.put(property.getConfigKeyName(), mapValue);
         }
         return configMap;
+    }
+
+    @Override
+    public boolean hasSecretParams() {
+        return this.stream()
+                .anyMatch(ConfigurationProperty::hasSecretParams);
+    }
+
+    @Override
+    public SecretParams getSecretParams() {
+        return this.stream()
+                .map(ConfigurationProperty::getSecretParams)
+                .filter((params) -> !params.isEmpty())
+                .collect(SecretParams.toFlatSecretParams());
     }
 }

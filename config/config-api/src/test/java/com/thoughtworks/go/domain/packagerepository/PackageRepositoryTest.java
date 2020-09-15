@@ -17,6 +17,7 @@ package com.thoughtworks.go.domain.packagerepository;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
+import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.helper.ConfigurationHolder;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
@@ -24,8 +25,9 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
 import com.thoughtworks.go.security.GoCipher;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,50 +36,45 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration.PART_OF_IDENTITY;
 import static com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration.SECURE;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class PackageRepositoryTest extends PackageMaterialTestBase {
+class PackageRepositoryTest extends PackageMaterialTestBase {
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         RepositoryMetadataStoreHelper.clear();
     }
 
     @Test
-    public void shouldCheckEqualityOfPackageRepository() {
+    void shouldCheckEqualityOfPackageRepository() {
         Configuration configuration = new Configuration();
         Packages packages = new Packages(new PackageDefinition());
         PackageRepository packageRepository = createPackageRepository("plugin-id", "version", "id", "name", configuration, packages);
-        assertThat(packageRepository, is(createPackageRepository("plugin-id", "version", "id", "name", configuration, packages)));
+        assertThat(packageRepository).isEqualTo(createPackageRepository("plugin-id", "version", "id", "name", configuration, packages));
     }
 
     @Test
-    public void shouldCheckForFieldAssignments() {
+    void shouldCheckForFieldAssignments() {
         Configuration configuration = new Configuration();
         Packages packages = new Packages(new PackageDefinition());
         PackageRepository packageRepository = createPackageRepository("plugin-id", "version", "id", "name", configuration, packages);
-        assertThat(packageRepository.getPluginConfiguration().getId(), is("plugin-id"));
-        assertThat(packageRepository.getPluginConfiguration().getVersion(), is("version"));
-        assertThat(packageRepository.getId(), is("id"));
-        assertThat(packageRepository.getName(), is("name"));
+        assertThat(packageRepository.getPluginConfiguration().getId()).isEqualTo("plugin-id");
+        assertThat(packageRepository.getPluginConfiguration().getVersion()).isEqualTo("version");
+        assertThat(packageRepository.getId()).isEqualTo("id");
+        assertThat(packageRepository.getName()).isEqualTo("name");
     }
 
     @Test
-    public void shouldSetRepositoryOnAllAssociatedPackages() {
+    void shouldSetRepositoryOnAllAssociatedPackages() {
         Configuration configuration = new Configuration();
         PackageDefinition packageDefinition = new PackageDefinition();
         PackageRepository packageRepository = createPackageRepository("plugin-id", "version", "id", "name", configuration, new Packages(packageDefinition));
         packageRepository.setRepositoryReferenceOnPackages();
-        assertThat(packageDefinition.getRepository(), is(packageRepository));
+        assertThat(packageDefinition.getRepository()).isEqualTo(packageRepository);
     }
 
     @Test
-    public void shouldOnlyDisplayFieldsWhichAreNonSecureAndPartOfIdentityInGetConfigForDisplayWhenPluginExists() throws Exception {
+    void shouldOnlyDisplayFieldsWhichAreNonSecureAndPartOfIdentityInGetConfigForDisplayWhenPluginExists() throws Exception {
         PackageConfigurations repositoryConfiguration = new PackageConfigurations();
         repositoryConfiguration.addConfiguration(new PackageConfiguration("key1").with(PART_OF_IDENTITY, true).with(SECURE, false));
         repositoryConfiguration.addConfiguration(new PackageConfiguration("key2").with(PART_OF_IDENTITY, false).with(SECURE, false));
@@ -89,41 +86,41 @@ public class PackageRepositoryTest extends PackageMaterialTestBase {
         Configuration configuration = new Configuration(create("key1", false, "value1"), create("key2", false, "value2"), create("key3", true, "value3"), create("key4", true, "value4"), create("key5", false, "value5"));
         PackageRepository repository = PackageRepositoryMother.create("repo1", "repo1-name", "plugin1", "1", configuration);
 
-        assertThat(repository.getConfigForDisplay(), is("Repository: [key1=value1, key5=value5]"));
+        assertThat(repository.getConfigForDisplay()).isEqualTo("Repository: [key1=value1, key5=value5]");
     }
 
     @Test
-    public void shouldConvertKeysToLowercaseInGetConfigForDisplay() throws Exception {
+    void shouldConvertKeysToLowercaseInGetConfigForDisplay() throws Exception {
         RepositoryMetadataStore.getInstance().addMetadataFor("some-plugin", new PackageConfigurations());
         PackageMetadataStore.getInstance().addMetadataFor("some-plugin", new PackageConfigurations());
 
         Configuration configuration = new Configuration(create("kEY1", false, "vALue1"), create("KEY_MORE_2", false, "VALUE_2"), create("key_3", false, "value3"));
         PackageRepository repository = PackageRepositoryMother.create("repo1", "repo1-name", "some-plugin", "1", configuration);
 
-        assertThat(repository.getConfigForDisplay(), is("Repository: [key1=vALue1, key_more_2=VALUE_2, key_3=value3]"));
+        assertThat(repository.getConfigForDisplay()).isEqualTo("Repository: [key1=vALue1, key_more_2=VALUE_2, key_3=value3]");
     }
 
     @Test
-    public void shouldNotDisplayEmptyValuesInGetConfigForDisplay() throws Exception {
+    void shouldNotDisplayEmptyValuesInGetConfigForDisplay() throws Exception {
         RepositoryMetadataStore.getInstance().addMetadataFor("some-plugin", new PackageConfigurations());
         PackageMetadataStore.getInstance().addMetadataFor("some-plugin", new PackageConfigurations());
 
         Configuration configuration = new Configuration(create("rk1", false, ""), create("rk2", false, "some-non-empty-value"), create("rk3", false, null));
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", "some-plugin", "version", configuration);
 
-        assertThat(repository.getConfigForDisplay(), is("Repository: [rk2=some-non-empty-value]"));
+        assertThat(repository.getConfigForDisplay()).isEqualTo("Repository: [rk2=some-non-empty-value]");
     }
 
     @Test
-    public void shouldDisplayAllNonSecureFieldsInGetConfigForDisplayWhenPluginDoesNotExist() {
+    void shouldDisplayAllNonSecureFieldsInGetConfigForDisplayWhenPluginDoesNotExist() {
         Configuration configuration = new Configuration(create("key1", false, "value1"), create("key2", true, "value2"), create("key3", false, "value3"));
         PackageRepository repository = PackageRepositoryMother.create("repo1", "repo1-name", "some-plugin-which-does-not-exist", "1", configuration);
 
-        assertThat(repository.getConfigForDisplay(), is("WARNING! Plugin missing for Repository: [key1=value1, key3=value3]"));
+        assertThat(repository.getConfigForDisplay()).isEqualTo("WARNING! Plugin missing for Repository: [key1=value1, key3=value3]");
     }
 
     @Test
-    public void shouldMakeConfigurationSecureBasedOnMetadata() throws Exception {
+    void shouldMakeConfigurationSecureBasedOnMetadata() throws Exception {
         GoCipher goCipher = new GoCipher();
 
         /*secure property is set based on metadata*/
@@ -156,24 +153,24 @@ public class PackageRepositoryTest extends PackageMaterialTestBase {
 
 
         //assert package properties
-        assertThat(secureProperty.isSecure(), is(true));
-        assertThat(secureProperty.getEncryptedConfigurationValue(), is(notNullValue()));
-        assertThat(secureProperty.getEncryptedValue(), is(goCipher.encrypt("value1")));
+        assertThat(secureProperty.isSecure()).isTrue();
+        assertThat(secureProperty.getEncryptedConfigurationValue()).isNotNull();
+        assertThat(secureProperty.getEncryptedValue()).isEqualTo(goCipher.encrypt("value1"));
 
-        assertThat(nonSecureProperty.isSecure(), is(false));
-        assertThat(nonSecureProperty.getValue(), is("value2"));
+        assertThat(nonSecureProperty.isSecure()).isFalse();
+        assertThat(nonSecureProperty.getValue()).isEqualTo("value2");
 
         //assert repository properties
-        assertThat(secureRepoProperty.isSecure(), is(true));
-        assertThat(secureRepoProperty.getEncryptedConfigurationValue(), is(notNullValue()));
-        assertThat(secureRepoProperty.getEncryptedValue(), is(goCipher.encrypt("value1")));
+        assertThat(secureRepoProperty.isSecure()).isTrue();
+        assertThat(secureRepoProperty.getEncryptedConfigurationValue()).isNotNull();
+        assertThat(secureRepoProperty.getEncryptedValue()).isEqualTo(goCipher.encrypt("value1"));
 
-        assertThat(nonSecureRepoProperty.isSecure(), is(false));
-        assertThat(nonSecureRepoProperty.getValue(), is("value2"));
+        assertThat(nonSecureRepoProperty.isSecure()).isFalse();
+        assertThat(nonSecureRepoProperty.getValue()).isEqualTo("value2");
     }
 
     @Test
-    public void shouldNotUpdateSecurePropertyWhenPluginIsMissing() {
+    void shouldNotUpdateSecurePropertyWhenPluginIsMissing() {
         GoCipher goCipher = new GoCipher();
         ConfigurationProperty secureProperty = new ConfigurationProperty(new ConfigurationKey("key1"), null, new EncryptedConfigurationValue("value"), goCipher);
         ConfigurationProperty nonSecureProperty = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, goCipher);
@@ -186,21 +183,21 @@ public class PackageRepositoryTest extends PackageMaterialTestBase {
 
         packageRepository.applyPackagePluginMetadata();
 
-        assertThat(secureProperty.getEncryptedConfigurationValue(), is(notNullValue()));
-        assertThat(secureProperty.getConfigurationValue(), is(nullValue()));
+        assertThat(secureProperty.getEncryptedConfigurationValue()).isNotNull();
+        assertThat(secureProperty.getConfigurationValue()).isNull();
 
-        assertThat(nonSecureProperty.getConfigurationValue(), is(notNullValue()));
-        assertThat(nonSecureProperty.getEncryptedConfigurationValue(), is(nullValue()));
+        assertThat(nonSecureProperty.getConfigurationValue()).isNotNull();
+        assertThat(nonSecureProperty.getEncryptedConfigurationValue()).isNull();
 
-        assertThat(secureRepoProperty.getEncryptedConfigurationValue(), is(notNullValue()));
-        assertThat(secureRepoProperty.getConfigurationValue(), is(nullValue()));
+        assertThat(secureRepoProperty.getEncryptedConfigurationValue()).isNotNull();
+        assertThat(secureRepoProperty.getConfigurationValue()).isNull();
 
-        assertThat(nonSecureRepoProperty.getConfigurationValue(), is(notNullValue()));
-        assertThat(nonSecureRepoProperty.getEncryptedConfigurationValue(), is(nullValue()));
+        assertThat(nonSecureRepoProperty.getConfigurationValue()).isNotNull();
+        assertThat(nonSecureRepoProperty.getEncryptedConfigurationValue()).isNull();
     }
 
     @Test
-    public void shouldSetConfigAttributesAsAvailable() throws Exception {
+    void shouldSetConfigAttributesAsAvailable() throws Exception {
         //metadata setup
         PackageConfigurations repositoryConfiguration = new PackageConfigurations();
         repositoryConfiguration.add(new PackageConfiguration("url"));
@@ -226,59 +223,59 @@ public class PackageRepositoryTest extends PackageMaterialTestBase {
 
         packageRepository.setConfigAttributes(attributes);
 
-        assertThat(packageRepository.getName(), is(name));
-        assertThat(packageRepository.getId(), is(repoId));
-        assertThat(packageRepository.getPluginConfiguration().getId(), is(pluginId));
+        assertThat(packageRepository.getName()).isEqualTo(name);
+        assertThat(packageRepository.getId()).isEqualTo(repoId);
+        assertThat(packageRepository.getPluginConfiguration().getId()).isEqualTo(pluginId);
 
-        assertThat(packageRepository.getConfiguration().get(0).getConfigurationKey().getName(), is(url.name));
-        assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().getValue(), is(url.value));
+        assertThat(packageRepository.getConfiguration().get(0).getConfigurationKey().getName()).isEqualTo(url.name);
+        assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().getValue()).isEqualTo(url.value);
 
-        assertThat(packageRepository.getConfiguration().get(1).getConfigurationKey().getName(), is(username.name));
-        assertThat(packageRepository.getConfiguration().get(1).getConfigurationValue().getValue(), is(username.value));
+        assertThat(packageRepository.getConfiguration().get(1).getConfigurationKey().getName()).isEqualTo(username.name);
+        assertThat(packageRepository.getConfiguration().get(1).getConfigurationValue().getValue()).isEqualTo(username.value);
 
-        assertThat(packageRepository.getConfiguration().get(2).getConfigurationKey().getName(), is(password.name));
-        assertThat(packageRepository.getConfiguration().get(2).getEncryptedValue(), is(new GoCipher().encrypt(password.value)));
-        assertThat(packageRepository.getConfiguration().get(2).getConfigurationValue(), is(nullValue()));
+        assertThat(packageRepository.getConfiguration().get(2).getConfigurationKey().getName()).isEqualTo(password.name);
+        assertThat(packageRepository.getConfiguration().get(2).getEncryptedValue()).isEqualTo(new GoCipher().encrypt(password.value));
+        assertThat(packageRepository.getConfiguration().get(2).getConfigurationValue()).isNull();
 
-        assertThat(packageRepository.getConfiguration().get(3).getConfigurationKey().getName(), is(secureKeyNotChanged.name));
-        assertThat(packageRepository.getConfiguration().get(3).getEncryptedValue(), is(oldEncryptedValue));
-        assertThat(packageRepository.getConfiguration().get(3).getConfigurationValue(), is(nullValue()));
+        assertThat(packageRepository.getConfiguration().get(3).getConfigurationKey().getName()).isEqualTo(secureKeyNotChanged.name);
+        assertThat(packageRepository.getConfiguration().get(3).getEncryptedValue()).isEqualTo(oldEncryptedValue);
+        assertThat(packageRepository.getConfiguration().get(3).getConfigurationValue()).isNull();
 
-        assertSame(packageRepository.getPackages(), packages);
+        assertThat(packages).isSameAs(packageRepository.getPackages());
     }
 
     @Test
-    public void shouldValidateIfNameIsMissing() {
+    void shouldValidateIfNameIsMissing() {
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.validate(new ConfigSaveValidationContext(new BasicCruiseConfig(), null));
-        assertThat(packageRepository.errors().getAllOn("name"), is(asList("Please provide name")));
+        assertThat(packageRepository.errors().getAllOn("name")).isEqualTo(asList("Please provide name"));
     }
 
     @Test
-    public void shouldAddPackageDefinitionToRepo() {
+    void shouldAddPackageDefinitionToRepo() {
         PackageRepository repository = PackageRepositoryMother.create("repo1");
         String existingPackageId = repository.getPackages().get(0).getId();
         PackageDefinition pkg = PackageDefinitionMother.create("pkg");
 
         repository.addPackage(pkg);
 
-        assertThat(repository.getPackages().size(), is(2));
-        assertThat(repository.getPackages().get(0).getId(), is(existingPackageId));
-        assertThat(repository.getPackages().get(1).getId(), is(pkg.getId()));
+        assertThat(repository.getPackages().size()).isEqualTo(2);
+        assertThat(repository.getPackages().get(0).getId()).isEqualTo(existingPackageId);
+        assertThat(repository.getPackages().get(1).getId()).isEqualTo(pkg.getId());
     }
 
     @Test
-    public void shouldFindPackageById() throws Exception {
+    void shouldFindPackageById() throws Exception {
         PackageRepository repository = PackageRepositoryMother.create("repo-id2", "repo2", "plugin-id", "1.0", null);
         PackageDefinition p1 = PackageDefinitionMother.create("id1", "pkg1", null, repository);
         PackageDefinition p2 = PackageDefinitionMother.create("id2", "pkg2", null, repository);
         Packages packages = new Packages(p1, p2);
         repository.setPackages(packages);
-        assertThat(repository.findPackage("id2"), is(p2));
+        assertThat(repository.findPackage("id2")).isEqualTo(p2);
     }
 
     @Test
-    public void shouldClearConfigurationsWhichAreEmptyAndNoErrors() throws Exception {
+    void shouldClearConfigurationsWhichAreEmptyAndNoErrors() throws Exception {
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.getConfiguration().add(new ConfigurationProperty(new ConfigurationKey("name-one"), new ConfigurationValue()));
         packageRepository.getConfiguration().add(new ConfigurationProperty(new ConfigurationKey("name-two"), new EncryptedConfigurationValue()));
@@ -290,23 +287,22 @@ public class PackageRepositoryTest extends PackageMaterialTestBase {
 
         packageRepository.clearEmptyConfigurations();
 
-        assertThat(packageRepository.getConfiguration().size(), is(1));
-        assertThat(packageRepository.getConfiguration().get(0).getConfigurationKey().getName(), is("name-four"));
+        assertThat(packageRepository.getConfiguration().size()).isEqualTo(1);
+        assertThat(packageRepository.getConfiguration().get(0).getConfigurationKey().getName()).isEqualTo("name-four");
 
     }
 
     @Test
-    public void shouldValidateName() throws Exception {
+    void shouldValidateName() throws Exception {
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setName("some name");
         packageRepository.validate(new ConfigSaveValidationContext(null));
-        assertThat(packageRepository.errors().isEmpty(), is(false));
-        assertThat(packageRepository.errors().getAllOn(PackageRepository.NAME).get(0),
-                is("Invalid PackageRepository name 'some name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(packageRepository.errors().isEmpty()).isFalse();
+        assertThat(packageRepository.errors().getAllOn(PackageRepository.NAME).get(0)).isEqualTo("Invalid PackageRepository name 'some name'. This must be alphanumeric and can contain underscores, hyphens and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     }
 
     @Test
-    public void shouldRemoveGivenPackageFromTheRepository() throws Exception {
+    void shouldRemoveGivenPackageFromTheRepository() throws Exception {
         PackageDefinition packageDefinitionOne = new PackageDefinition("pid1", "pname1", null);
         PackageDefinition packageDefinitionTwo = new PackageDefinition("pid2", "pname2", null);
         PackageRepository packageRepository = new PackageRepository();
@@ -314,22 +310,22 @@ public class PackageRepositoryTest extends PackageMaterialTestBase {
         packageRepository.addPackage(packageDefinitionTwo);
         packageRepository.removePackage("pid1");
 
-        assertThat(packageRepository.getPackages().size(), is(1));
-        assertThat(packageRepository.getPackages(), hasItems(packageDefinitionTwo));
+        assertThat(packageRepository.getPackages().size()).isEqualTo(1);
+        assertThat(packageRepository.getPackages()).contains(packageDefinitionTwo);
     }
 
     @Test
-    public void shouldThrowErrorWhenGivenPackageNotFoundDuringRemove() throws Exception {
+    void shouldThrowErrorWhenGivenPackageNotFoundDuringRemove() throws Exception {
         PackageRepository packageRepository = new PackageRepository();
         try {
             packageRepository.removePackage("invalid");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("Could not find package with id:[invalid]"));
+            assertThat(e.getMessage()).isEqualTo("Could not find package with id:[invalid]");
         }
     }
 
     @Test
-    public void shouldFindPackageDefinitionBasedOnParams() throws Exception {
+    void shouldFindPackageDefinitionBasedOnParams() throws Exception {
         PackageRepository packageRepository = PackageRepositoryMother.create("repo-id1", "packageRepository", "plugin-id", "1.0", null);
         PackageDefinition packageDefinitionOne = PackageDefinitionMother.create("pid1", packageRepository);
         PackageDefinition packageDefinitionTwo = PackageDefinitionMother.create("pid2", packageRepository);
@@ -339,23 +335,23 @@ public class PackageRepositoryTest extends PackageMaterialTestBase {
         attributes.put("packageId", "pid1");
 
         PackageDefinition actualPackageDefinition = packageRepository.findOrCreatePackageDefinition(attributes);
-        assertThat(actualPackageDefinition, is(packageDefinitionOne));
+        assertThat(actualPackageDefinition).isEqualTo(packageDefinitionOne);
     }
 
     @Test
-    public void shouldCreatePackageBasedOnParams() throws Exception {
+    void shouldCreatePackageBasedOnParams() throws Exception {
         PackageRepository packageRepository = PackageRepositoryMother.create("repo-id1", "packageRepository", "plugin-id", "1.0", null);
         Map packageDefAttr = createPackageDefinitionConfiguration("package_name", "pluginId", new ConfigurationHolder("key1", "value1"), new ConfigurationHolder("key2", "value2"));
         Map map = new HashMap();
         map.put("package_definition", packageDefAttr);
         PackageDefinition actualPackageDefinition = packageRepository.findOrCreatePackageDefinition(map);
-        assertThat(actualPackageDefinition, is(PackageDefinitionMother.create(null, "package_name",
-                new Configuration(create("key1", false, "value1"), create("key2", false, "value2")), packageRepository)));
-        assertThat(actualPackageDefinition.getRepository(), is(packageRepository));
+        assertThat(actualPackageDefinition).isEqualTo(PackageDefinitionMother.create(null, "package_name",
+                new Configuration(create("key1", false, "value1"), create("key2", false, "value2")), packageRepository));
+        assertThat(actualPackageDefinition.getRepository()).isEqualTo(packageRepository);
     }
 
     @Test
-    public void shouldValidateUniqueNames() {
+    void shouldValidateUniqueNames() {
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.setName("REPO");
         HashMap<String, PackageRepository> nameMap = new HashMap<>();
@@ -363,15 +359,12 @@ public class PackageRepositoryTest extends PackageMaterialTestBase {
         original.setName("repo");
         nameMap.put("repo", original);
         packageRepository.validateNameUniqueness(nameMap);
-        assertThat(
-                packageRepository.errors().getAllOn(PackageRepository.NAME).contains("You have defined multiple repositories called 'REPO'. Repository names are case-insensitive and must be unique."),
-                is(true));
-        assertThat(original.errors().getAllOn(PackageRepository.NAME).contains("You have defined multiple repositories called 'REPO'. Repository names are case-insensitive and must be unique."),
-                is(true));
+        assertThat(packageRepository.errors().getAllOn(PackageRepository.NAME).contains("You have defined multiple repositories called 'REPO'. Repository names are case-insensitive and must be unique.")).isTrue();
+        assertThat(original.errors().getAllOn(PackageRepository.NAME).contains("You have defined multiple repositories called 'REPO'. Repository names are case-insensitive and must be unique.")).isTrue();
     }
 
     @Test
-    public void shouldValidateUniqueKeysInConfiguration() {
+    void shouldValidateUniqueKeysInConfiguration() {
         ConfigurationProperty one = new ConfigurationProperty(new ConfigurationKey("one"), new ConfigurationValue("value1"));
         ConfigurationProperty duplicate1 = new ConfigurationProperty(new ConfigurationKey("ONE"), new ConfigurationValue("value2"));
         ConfigurationProperty duplicate2 = new ConfigurationProperty(new ConfigurationKey("ONE"), new ConfigurationValue("value3"));
@@ -381,25 +374,65 @@ public class PackageRepositoryTest extends PackageMaterialTestBase {
         repository.setName("yum");
 
         repository.validate(null);
-        assertThat(one.errors().isEmpty(), is(false));
-        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Repository 'yum'"), is(true));
-        assertThat(duplicate1.errors().isEmpty(), is(false));
-        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Repository 'yum'"), is(true));
-        assertThat(duplicate2.errors().isEmpty(), is(false));
-        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Repository 'yum'"), is(true));
-        assertThat(two.errors().isEmpty(), is(true));
+        assertThat(one.errors().isEmpty()).isFalse();
+        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Repository 'yum'")).isTrue();
+        assertThat(duplicate1.errors().isEmpty()).isFalse();
+        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Repository 'yum'")).isTrue();
+        assertThat(duplicate2.errors().isEmpty()).isFalse();
+        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Repository 'yum'")).isTrue();
+        assertThat(two.errors().isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldGenerateIdIfNotAssigned(){
+    void shouldGenerateIdIfNotAssigned() {
         PackageRepository packageRepository = new PackageRepository();
         packageRepository.ensureIdExists();
-        assertThat(packageRepository.getId(), is(notNullValue()));
+        assertThat(packageRepository.getId()).isNotNull();
 
         packageRepository = new PackageRepository();
         packageRepository.setId("id");
         packageRepository.ensureIdExists();
-        assertThat(packageRepository.getId(), is("id"));
+        assertThat(packageRepository.getId()).isEqualTo("id");
+    }
+
+    @Nested
+    class HasSecretParams {
+        @Test
+        void shouldBeTrueIfPkgRepoHasSecretParam() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            PackageRepository pkgRepo = new PackageRepository("pkg-repo-id", "pkg-repo-name", new PluginConfiguration(), new Configuration(k1, k2));
+
+            assertThat(pkgRepo.hasSecretParams()).isTrue();
+        }
+
+        @Test
+        void shouldBeFalseIfPkgRepoDoesNotHaveSecretParams() {
+            PackageRepository pkgRepo = new PackageRepository();
+
+            assertThat(pkgRepo.hasSecretParams()).isFalse();
+        }
+    }
+
+    @Nested
+    class GetSecretParams {
+        @Test
+        void shouldReturnAListOfSecretParams() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            PackageRepository pkgRepo = new PackageRepository("pkg-repo-id", "pkg-repo-name", new PluginConfiguration(), new Configuration(k1, k2));
+
+            assertThat(pkgRepo.getSecretParams().size()).isEqualTo(2);
+            assertThat(pkgRepo.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_username"));
+            assertThat(pkgRepo.getSecretParams().get(1)).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
+        }
+
+        @Test
+        void shouldBeAnEmptyListInAbsenceOfSecretParamsInPkgRepo() {
+            PackageRepository pkgRepo = new PackageRepository();
+
+            assertThat(pkgRepo.getSecretParams()).isEmpty();
+        }
     }
 
     private PackageRepository createPackageRepository(String pluginId, String version, String id, String name, Configuration configuration, Packages packages) {

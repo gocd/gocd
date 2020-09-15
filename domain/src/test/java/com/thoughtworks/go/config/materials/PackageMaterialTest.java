@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.materials;
 import com.google.gson.Gson;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.materials.MatchedRevision;
@@ -35,6 +36,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.json.JsonHelper;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.UnsupportedEncodingException;
@@ -44,6 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother.create;
+import static com.thoughtworks.go.util.command.EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -225,10 +228,10 @@ class PackageMaterialTest {
         material.populateEnvironmentContext(environmentVariableContext, new MaterialRevision(material, modifications), null);
         assertThat(environmentVariableContext.getProperty("GO_REPO_TW_DEV_GO_AGENT_K1")).isEqualTo("v1");
         assertThat(environmentVariableContext.getProperty("GO_REPO_TW_DEV_GO_AGENT_REPO_SECURE")).isEqualTo("value");
-        assertThat(environmentVariableContext.getPropertyForDisplay("GO_REPO_TW_DEV_GO_AGENT_REPO_SECURE")).isEqualTo(EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE);
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_REPO_TW_DEV_GO_AGENT_REPO_SECURE")).isEqualTo(MASK_VALUE);
         assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_K2")).isEqualTo("v2");
         assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_PKG_SECURE")).isEqualTo("value");
-        assertThat(environmentVariableContext.getPropertyForDisplay("GO_PACKAGE_TW_DEV_GO_AGENT_PKG_SECURE")).isEqualTo(EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE);
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_PACKAGE_TW_DEV_GO_AGENT_PKG_SECURE")).isEqualTo(MASK_VALUE);
         assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_LABEL")).isEqualTo("revision-123");
     }
 
@@ -389,7 +392,7 @@ class PackageMaterialTest {
         packageMaterial.setPackageDefinition(packageDefinition);
         packageMaterial.setFingerprint(fingerprint);
         assertThat(packageMaterial.getFingerprint()).isEqualTo(fingerprint);
-        verify(packageDefinition,never()).getFingerprint(anyString());
+        verify(packageDefinition, never()).getFingerprint(anyString());
     }
 
     @Test
@@ -445,5 +448,70 @@ class PackageMaterialTest {
     void shouldReturnFalseForPackageMaterial_supportsDestinationFolder() throws Exception {
         PackageMaterial material = new PackageMaterial();
         assertThat(material.supportsDestinationFolder()).isFalse();
+    }
+
+    @Nested
+    class HasSecretParams {
+        @Test
+        void shouldBeTrueIfPkgMaterialHasSecretParam() {
+            PackageMaterial material = MaterialsMother.packageMaterial();
+            material.getPackageDefinition().getRepository().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][lookup_token]}}"));
+            material.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][lookup_password]}}"));
+
+            assertThat(material.hasSecretParams()).isTrue();
+        }
+
+        @Test
+        void shouldBeFalseIfPkgMaterialDoesNotHaveSecretParams() {
+            PackageMaterial material = createPackageMaterialWithSecureConfiguration();
+
+            assertThat(material.hasSecretParams()).isFalse();
+        }
+    }
+
+    @Nested
+    class GetSecretParams {
+        @Test
+        void shouldReturnAListOfSecretParams() {
+            PackageMaterial material = MaterialsMother.packageMaterial();
+            material.getPackageDefinition().getRepository().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][lookup_username]}}"));
+            material.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][lookup_password]}}"));
+
+            assertThat(material.getSecretParams().size()).isEqualTo(2);
+            assertThat(material.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_username"));
+            assertThat(material.getSecretParams().get(1)).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
+        }
+
+        @Test
+        void shouldBeAnEmptyListInAbsenceOfSecretParamsInPkgMaterial() {
+            PackageMaterial material = createPackageMaterialWithSecureConfiguration();
+
+            assertThat(material.getSecretParams()).isEmpty();
+        }
+    }
+
+    @Test
+    void shouldPopulateEnvironmentContextWithConfigurationWithSecretParamsAsSecure() {
+        ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+        k1.getSecretParams().get(0).setValue("some-resolved-value");
+        ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+        k2.getSecretParams().get(0).setValue("some-resolved-password");
+        PackageDefinition pkgDef = new PackageDefinition("id", "name", new Configuration(k2));
+        PackageRepository pkgRepo = new PackageRepository("pkg-repo-id", "pkg-repo-name", new PluginConfiguration(), new Configuration(k1));
+        pkgDef.setRepository(pkgRepo);
+        PackageMaterial material = new PackageMaterial();
+        material.setPackageDefinition(pkgDef);
+
+        material.setName(new CaseInsensitiveString("tw-dev:go-agent"));
+        Modifications modifications = new Modifications(new Modification(null, null, null, new Date(), "revision-123"));
+        EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+        material.populateEnvironmentContext(environmentVariableContext, new MaterialRevision(material, modifications), null);
+
+        assertThat(environmentVariableContext.getProperties().size()).isEqualTo(3);
+        assertThat(environmentVariableContext.getProperty("GO_REPO_TW_DEV_GO_AGENT_K1")).isEqualTo("some-resolved-value");
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_REPO_TW_DEV_GO_AGENT_K1")).isEqualTo(MASK_VALUE);
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_K2")).isEqualTo("some-resolved-password");
+        assertThat(environmentVariableContext.getPropertyForDisplay("GO_PACKAGE_TW_DEV_GO_AGENT_K2")).isEqualTo(MASK_VALUE);
+        assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_LABEL")).isEqualTo("revision-123");
     }
 }

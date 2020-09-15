@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {reset, set} from "mockdate";
 import {timeFormatter} from "../../../../../helpers/time_formatter";
 import {JobDurationStrategyHelper} from "../../models/job_duration_stratergy_helper";
 import {StageInstance} from "../../models/stage_instance";
@@ -24,6 +25,17 @@ const moment = require('moment');
 
 describe("Job Duration Strategy Helper", () => {
   describe("Without Last Passed Stage Instance", () => {
+    beforeEach(() => {
+      // must mock time because we internally ask moment() for the current date
+      // and tests running on virtualized infra can otherwise introduce flakiness
+      // of a millisecond or so, leading to random failures
+      set("2015-10-15T04:29:00.000Z"); // Back to the Future 2, because, hey, why not?
+    });
+
+    afterEach(() => {
+      reset();
+    });
+
     it("should return job duration strategy when job is scheduled", () => {
       const job = TestData.stageInstanceJSON().jobs[0];
       const currentTime = new Date();
@@ -310,6 +322,17 @@ describe("Job Duration Strategy Helper", () => {
   });
 
   describe("With Last Passed Stage Instance", () => {
+    beforeEach(() => {
+      // must mock time because we internally ask moment() for the current date
+      // and tests running on virtualized infra can otherwise introduce flakiness
+      // of a millisecond or so, leading to random failures
+      set("2015-10-15T04:29:00.000Z"); // Back to the Future 2, because, hey, why not?
+    });
+
+    afterEach(() => {
+      reset();
+    });
+
     it("should return job duration strategy when job is scheduled", () => {
       const job = TestData.stageInstanceJSON().jobs[0];
       const currentTime = new Date();

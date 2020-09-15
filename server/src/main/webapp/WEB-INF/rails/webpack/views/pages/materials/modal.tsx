@@ -22,12 +22,12 @@ import Stream from "mithril/stream";
 import {stringOrUndefined} from "models/compare/pipeline_instance_json";
 import {MaterialModification} from "models/config_repos/types";
 import {MaterialAPIs, MaterialModifications, MaterialUsages, MaterialWithFingerprint} from "models/materials/materials";
-import {FlashMessage, MessageType} from "views/components/flash_message";
+import {FlashMessage, FlashMessageModel, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {Link} from "views/components/link";
 import linkStyles from "views/components/link/index.scss";
-import {Modal, Size} from "views/components/modal";
+import {Modal, ModalState, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import {Table} from "views/components/table";
 import spinnerCss from "views/pages/agents/spinner.scss";
@@ -58,10 +58,12 @@ export class ShowModificationsModal extends Modal {
     </div>;
     const header    = <HeaderPanel title={title} buttons={searchBox}/>;
 
-    if (this.errorMessage()) {
+    if (!_.isEmpty(this.errorMessage())) {
       return <div data-test-id="modifications-modal" class={styles.modificationModal}>
         {header}
-        <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
+        <div className={styles.modificationWrapper}>
+          <FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
+        </div>
       </div>;
     }
 
@@ -92,10 +94,11 @@ export class ShowModificationsModal extends Modal {
         {this.modifications().map((mod, index) => {
           const details = MaterialWidget.showModificationDetails(mod);
           ShowModificationsModal.updateWithVsmLink(details, mod, this.material.fingerprint());
+          const username = details.get("Username");
           return <div data-test-id={`mod-${index}`} class={styles.modification}>
             <div class={styles.user}>
-              <div class={styles.username} data-test-id="mod-username">{details.get("Username")}</div>
-              <div class={styles.username} data-test-id="mod-modified-time">{details.get("Modified Time")}</div>
+              <div className={styles.truncate} data-test-id="mod-username" title={username}>{username}</div>
+              <div className={styles.truncate} data-test-id="mod-modified-time">{details.get("Modified Time")}</div>
             </div>
             <div class={styles.commentWrapper} data-test-id="mod-comment">
               <CommentRenderer text={details.get("Comment")}/>
@@ -114,31 +117,37 @@ export class ShowModificationsModal extends Modal {
   }
 
   private static updateWithVsmLink(details: Map<string, m.Children>, mod: MaterialModification, fingerprint: string) {
-    const vsmLink = <Link dataTestId={"vsm-link"} href={SparkRoutes.materialsVsmLink(fingerprint, mod.revision)}
-                          title={"Value Stream Map"}>VSM</Link>;
-    details.set("Revision", <div><span class={styles.revision}>{details.get("Revision")} </span>| {vsmLink}</div>);
+    const vsmLink  = <Link dataTestId={"vsm-link"} href={SparkRoutes.materialsVsmLink(fingerprint, mod.revision)}
+                           title={"Value Stream Map"}>VSM</Link>;
+    const revision = details.get("Revision");
+    details.set("Revision", <div><span class={styles.revision} title={revision}>{revision} </span>| {vsmLink}</div>);
   }
 
   private onPageChange(link: string) {
     this.fetchModifications(link);
   }
 
-  private onPatternChange() {
+  private onPatternChange(e: InputEvent) {
+    // @ts-ignore
+    this.searchQuery(e.target!.value);  // this needs to be done as the oninput method is called before the property stream gets updated
     _.throttle(() => this.fetchModifications(), 500, {trailing: true})();
   }
 
   private fetchModifications(link?: string) {
-    this.operationInProgress(true);
-    this.service.fetchHistory(this.material.fingerprint(), this.searchQuery(), link,
-                              (mods) => {
-                                this.modifications(mods);
-                                this.operationInProgress(false);
-                                this.focusOnSearchBox();
-                              },
-                              (errMsg) => {
-                                this.errorMessage(errMsg);
-                                this.operationInProgress(false);
-                              });
+    if (this.operationInProgress() !== true) {
+      this.operationInProgress(true);
+      this.errorMessage("");
+      this.service.fetchHistory(this.material.fingerprint(), this.searchQuery(), link,
+                                (mods) => {
+                                  this.modifications(mods);
+                                  this.operationInProgress(false);
+                                  this.focusOnSearchBox();
+                                },
+                                (errMsg) => {
+                                  this.errorMessage(errMsg);
+                                  this.operationInProgress(false);
+                                });
+    }
 
   }
 
@@ -209,13 +218,19 @@ class FetchHistoryService implements ApiService {
 }
 
 export class ShowUsagesModal extends Modal {
-  private usages: MaterialUsages;
+  usages?: MaterialUsages;
   private readonly name: string;
+  private message: FlashMessageModel = new FlashMessageModel();
 
-  constructor(material: MaterialWithFingerprint, usages: MaterialUsages) {
+  constructor(material: MaterialWithFingerprint, usages?: MaterialUsages) {
     super();
-    this.usages = usages;
-    this.name   = material.displayName();
+    this.name = material.displayName();
+    // used for testing
+    if (usages) {
+      this.usages = usages;
+    } else {
+      this.fetchUsages(material);
+    }
   }
 
   title(): string {
@@ -223,22 +238,42 @@ export class ShowUsagesModal extends Modal {
   }
 
   body(): m.Children {
-    if (this.usages.length <= 0) {
+    if (this.isLoading()) {
+      return;
+    }
+    if (this.message.hasMessage()) {
+      return <FlashMessage type={this.message.type} message={this.message.message}/>;
+    }
+    if (this.usages !== undefined && this.usages.length <= 0) {
       return (<i> No usages for material '{this.name}' found.</i>);
     }
 
     const data: m.Child[][] = [];
-    data.push(...this.usages
-                     .map((pipeline: string, index) => {
-                       return [
-                         <span>{pipeline}</span>,
-                         <Link href={SparkRoutes.pipelineEditPath('pipelines', pipeline, 'materials')} target={"_blank"}
-                               dataTestId={`material-link-${index}`}>View/Edit Material</Link>
-                       ];
-                     }));
+    if (this.usages !== undefined) {
+      data.push(...this.usages
+                       .map((pipeline: string, index) => {
+                         return [
+                           <span>{pipeline}</span>,
+                           <Link href={SparkRoutes.pipelineEditPath('pipelines', pipeline, 'materials')} target={"_blank"}
+                                 dataTestId={`material-link-${index}`}>View/Edit Material</Link>
+                         ];
+                       }));
+    }
     return <div class={styles.usages}>
       <Table headers={["Pipeline", "Material Setting"]} data={data}/>
     </div>;
+  }
+
+  private fetchUsages(material: MaterialWithFingerprint) {
+    this.modalState = ModalState.LOADING;
+    MaterialAPIs.usages(material.fingerprint())
+                .then((result) => {
+                  result.do((successResponse) => {
+                    this.usages = successResponse.body;
+                  }, (errorResponse) => {
+                    this.message.alert(JSON.parse(errorResponse.body!).message);
+                  });
+                }).finally(() => this.modalState = ModalState.OK);
   }
 }
 

@@ -34,7 +34,7 @@ describe('MaterialWidgetSpec', () => {
 
   afterEach((done) => helper.unmount(done));
   beforeEach(() => {
-    material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), true, true, "2019-12-23T10:15:52Z");
+    material = new MaterialWithModification(MaterialWithFingerprint.fromJSON(git()), true, false, "2019-12-23T10:15:52Z");
   });
 
   it('should display the header and action buttons', () => {
@@ -117,8 +117,22 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.q('span span', attrs[4])).toHaveAttr('title', '23 Dec, 2019 at 10:25:52 +00:00 Server Time');
   });
 
-  it('should send a callback to showModifications method', () => {
+  it('should disable modifications icon when modification is null', () => {
     mount();
+
+    expect(helper.byTestId("show-modifications-material")).toBeInDOM();
+    expect(helper.byTestId("show-modifications-material")).toBeDisabled();
+    expect(helper.byTestId("show-modifications-material")).toHaveAttr('title', 'No modifications to show');
+  });
+
+  it('should send a callback to showModifications method', () => {
+    material.modification
+      = new MaterialModification("GoCD Test User <devnull@example.com>", null, "b9b4f4b758e91117d70121a365ba0f8e37f89a9d", "Initial commit", "2019-12-23T10:25:52Z");
+    mount();
+
+    expect(helper.byTestId("show-modifications-material")).toBeInDOM();
+    expect(helper.byTestId("show-modifications-material")).not.toBeDisabled();
+    expect(helper.byTestId("show-modifications-material")).toHaveAttr('title', 'Show Modifications');
 
     helper.clickByTestId("show-modifications-material");
 
@@ -195,6 +209,24 @@ describe('MaterialWidgetSpec', () => {
     expect(helper.byTestId('message-0', helper.byTestId('warnings'))).toBeInDOM();
     expect(helper.byTestId('errors')).toBeInDOM();
     expect(helper.byTestId('message-0', helper.byTestId('errors'))).toBeInDOM();
+  });
+
+  it('should not show material mdu start time if undefined', () => {
+    material.materialUpdateInProgress = true;
+    material.materialUpdateStartTime  = undefined;
+    mount();
+
+    expect(helper.byTestId("trigger-update")).toBeDisabled();
+    expect(helper.byTestId("trigger-update")).toHaveAttr('title', 'Update in progress');
+  });
+
+  it('should send a callback to trigger update method', () => {
+    mount();
+
+    helper.clickByTestId("trigger-update");
+
+    expect(triggerUpdateSpy).toHaveBeenCalled();
+    expect(triggerUpdateSpy).toHaveBeenCalledWith(material, jasmine.any(MouseEvent));
   });
 
   function mount(shouldShowPackageOrScmLink: boolean = true) {

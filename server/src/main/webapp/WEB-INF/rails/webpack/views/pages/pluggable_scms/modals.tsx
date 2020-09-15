@@ -60,9 +60,8 @@ abstract class PluggableScmModal extends EntityModal<Scm> {
       this.errorMessage(JSON.parse(errorResponse.body).message);
     } else if (errorResponse.data) {
       this.entity(Scm.fromJSON(errorResponse.data));
-    } else {
-      this.errorMessage(errorResponse.message);
     }
+    this.errorMessage(errorResponse.message);
   }
 
   buttons(): any[] {

@@ -70,12 +70,15 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
                               onclick={vnode.attrs.onEdit.bind(this, config)}/>;
     }
 
-    const actionButtons = <IconGroup>
+    const modificationIconTitle = material.modification === null
+      ? "No modifications to show"
+      : "Show Modifications";
+    const actionButtons         = <IconGroup>
       <Refresh data-test-id={"trigger-update"} title={this.getTriggerUpdateTitle(material)}
-               disabled={!material.canTriggerUpdate || material.materialUpdateInProgress} onclick={vnode.attrs.triggerUpdate.bind(this, config)}/>
+               disabled={!material.canTriggerUpdate || material.materialUpdateInProgress} onclick={vnode.attrs.triggerUpdate.bind(this, material)}/>
       {maybeEditButton}
       <Usage data-test-id={"show-usages"} title={"Show Usages"} onclick={vnode.attrs.showUsages.bind(this, config)}/>
-      <List data-test-id={"show-modifications-material"} title={"Show Modifications"}
+      <List data-test-id={"show-modifications-material"} title={modificationIconTitle} disabled={material.modification === null}
             onclick={vnode.attrs.showModifications.bind(this, config)}/>
     </IconGroup>;
 
@@ -101,7 +104,9 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
   private getTriggerUpdateTitle(material: MaterialWithModification): string {
     return material.canTriggerUpdate
       ? material.materialUpdateInProgress
-        ? `Update in progress since ${timeFormatter.format(material.materialUpdateStartTime)}`
+        ? material.materialUpdateStartTime
+          ? `Update in progress since ${timeFormatter.format(material.materialUpdateStartTime)}`
+          : "Update in progress"
         : "Trigger Update"
       : "You do not have permission to trigger an update for this material";
   }

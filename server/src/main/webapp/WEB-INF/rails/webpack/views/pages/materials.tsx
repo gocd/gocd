@@ -30,7 +30,7 @@ import configRepoStyles from "./config_repos/index.scss";
 import {ShowModificationsModal, ShowUsagesModal} from "./materials/modal";
 
 export interface AdditionalInfoAttrs {
-  triggerUpdate: (material: MaterialWithFingerprint, e: MouseEvent) => void;
+  triggerUpdate: (material: MaterialWithModification, e: MouseEvent) => void;
   onEdit: (material: MaterialWithFingerprint, e: MouseEvent) => void;
   showUsages: (material: MaterialWithFingerprint, e: MouseEvent) => void;
   showModifications: (material: MaterialWithFingerprint, e: MouseEvent) => void;
@@ -54,16 +54,21 @@ export class MaterialsPage extends Page<null, State> {
     vnode.state.materials  = Stream();
     vnode.state.searchText = Stream();
 
-    vnode.state.triggerUpdate = (material: MaterialWithFingerprint, e: MouseEvent) => {
+    vnode.state.triggerUpdate = (materialWithMod: MaterialWithModification, e: MouseEvent) => {
       e.stopPropagation();
+      materialWithMod.materialUpdateInProgress = true;
+      const material                           = materialWithMod.config;
       MaterialAPIs.triggerUpdate(material.fingerprint())
                   .then((result) => {
                     result.do(() => {
                       this.flashMessage.success(`An update was scheduled for '${material.displayName()}' material.`);
-                      this.fetchData(vnode);
                     }, (err) => {
                       this.flashMessage.alert(`Unable to schedule an update for '${material.displayName()}' material. ${err.message}`);
+                      materialWithMod.materialUpdateInProgress = false;
                     });
+                  })
+                  .finally(() => {
+                    this.etag = Stream();  // flush etag so that the next API call re-renders the page
                   });
     };
 
@@ -84,15 +89,7 @@ export class MaterialsPage extends Page<null, State> {
 
     vnode.state.showUsages = (material: MaterialWithFingerprint, e: MouseEvent) => {
       e.stopPropagation();
-      MaterialAPIs.usages(material.fingerprint())
-                  .then((result) => {
-                    result.do(
-                      (successResponse) => {
-                        new ShowUsagesModal(material, successResponse.body).render();
-                      },
-                      this.onOperationError(vnode)
-                    );
-                  });
+      new ShowUsagesModal(material).render();
     };
 
     vnode.state.showModifications = (material: MaterialWithFingerprint, e: MouseEvent) => {
@@ -149,12 +146,6 @@ export class MaterialsPage extends Page<null, State> {
       buttons.push(searchBox);
     }
     return <HeaderPanel title={this.pageName()} buttons={buttons} help={this.helpText()}/>;
-  }
-
-  private onOperationError(vnode: m.Vnode<null, State>): (errorResponse: ErrorResponse) => void {
-    return (errorResponse: ErrorResponse) => {
-      this.flashMessage.alert(JSON.parse(errorResponse.body!).message);
-    };
   }
 
   private refreshMaterials(vnode: m.Vnode<null, State>) {

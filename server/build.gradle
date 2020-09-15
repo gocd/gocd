@@ -1028,6 +1028,19 @@ task licenseReportAggregate {
       ]
     ],
     [
+      moduleName    : 'velocity-tools:velocity-tools-view',
+      moduleVersion : project.versions.velocityToolsView,
+      moduleUrls    : [
+        "https://velocity.apache.org"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'Apache-2.0',
+          moduleLicenseUrl: "https://spdx.org/licenses/Apache-2.0.html"
+        ]
+      ]
+    ],
+    [
       moduleName    : 'org.hibernate.javax.persistence:hibernate-jpa-2.0-api',
       moduleVersion : '1.0.1.Final',
       moduleUrls    : [

@@ -19,13 +19,13 @@ import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
-import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.security.AESCipherProvider;
 import com.thoughtworks.go.security.DESCipherProvider;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.domain.BackupProgressStatus;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.domain.Username;
@@ -66,7 +66,9 @@ import java.util.zip.ZipInputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -193,6 +195,25 @@ public class BackupServiceIntegrationTest {
             assertThat(fileContents(wrapperConfigZip, FilenameUtils.separatorsToSystem("hello/world/file")), is("hello world!"));
         } finally {
             deleteWrapperConfigFileIfExists("foo", "bar", "baz", "hello", "some_dir");
+        }
+    }
+
+    @Test
+    public void shouldNotBackupWrapperConfigsIfWrapperConfigDirEnvVariableNotSet() throws Exception {
+        try {
+            createWrapperConfigFile("foo", "foo_foo");
+            createWrapperConfigFile("bar", "bar_bar");
+
+            when(systemEnvSpy.wrapperConfigDirPath()).thenReturn(Optional.ofNullable(null));
+
+            ServerBackup backup = backupService.startBackup(admin);
+
+            assertThat(backup.isSuccessful(), is(true));
+            assertThat(backup.getMessage(), is("Backup was generated successfully. Backup of wrapper configuration was skipped as the wrapper configuration directory path is unknown."));
+
+            assertFalse(fileExists("wrapper-config-dir.zip"));
+        } finally {
+            deleteWrapperConfigFileIfExists("foo", "bar");
         }
     }
 
@@ -366,7 +387,7 @@ public class BackupServiceIntegrationTest {
             }
 
             @Override
-            public void completed() {
+            public void completed(String message) {
             }
         };
 
@@ -412,7 +433,7 @@ public class BackupServiceIntegrationTest {
             }
 
             @Override
-            public void completed() {
+            public void completed(String message) {
             }
         };
 
@@ -485,6 +506,10 @@ public class BackupServiceIntegrationTest {
         for (String fileName : fileNames) {
             FileUtils.deleteQuietly(new File(WRAPPER_CONFIG_DIR, fileName));
         }
+    }
+
+    private boolean fileExists(String fileName) {
+        return !FileUtils.listFiles(backupsDirectory, new NameFileFilter(fileName), TrueFileFilter.TRUE).isEmpty();
     }
 
     private void deleteConfigFileIfExists(String ...fileNames) {
@@ -608,7 +633,7 @@ public class BackupServiceIntegrationTest {
         }
 
         @Override
-        public void completed() {
+        public void completed(String message) {
             backupComplete.release();
         }
     }

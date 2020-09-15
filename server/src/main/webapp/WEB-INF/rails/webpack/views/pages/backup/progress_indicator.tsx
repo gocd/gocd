@@ -64,7 +64,7 @@ export class ProgressIndicator extends MithrilViewComponent<Attrs> {
                       status={this.getStatus(BackupProgressStatus.POST_BACKUP_SCRIPT_START, currentStatus, status)}>
             Executing Post Backup Script</BackupStep>
         </ul>
-        {this.backupComplete(status)}
+        {this.backupComplete(status, vnode.attrs.message)}
       </div>
     );
   }
@@ -90,9 +90,9 @@ export class ProgressIndicator extends MithrilViewComponent<Attrs> {
     }
   }
 
-  private backupComplete(backupStatus: BackupStatus) {
+  private backupComplete(backupStatus: BackupStatus, message: string) {
     if (backupStatus === BackupStatus.COMPLETED) {
-      return <p class={styles.backupMessage}>Backup Completed</p>;
+      return <p class={styles.backupMessage}>{message}</p>;
     }
   }
 }

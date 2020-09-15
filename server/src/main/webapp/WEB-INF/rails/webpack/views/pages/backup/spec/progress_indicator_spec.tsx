@@ -51,7 +51,7 @@ describe("Backup Progress Indicator Widget", () => {
   });
 
   it("should render status after backup is complete", () => {
-    mount(BackupStatus.COMPLETED, "", BackupProgressStatus.POST_BACKUP_SCRIPT_COMPLETE);
+    mount(BackupStatus.COMPLETED, "Backup Completed", BackupProgressStatus.POST_BACKUP_SCRIPT_COMPLETE);
 
     for (let key = BackupProgressStatus.CREATING_DIR; key < BackupProgressStatus.POST_BACKUP_SCRIPT_COMPLETE; key++) {
       expect(helper.byTestId(`step-${key}`)).toHaveClass(styles.backedUp);

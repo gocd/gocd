@@ -29,10 +29,14 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.domain.builder.NullBuilder;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -681,6 +685,143 @@ class RulesServiceTest {
             assertThatCode(() -> rulesService.validateSecretConfigReferences(environmentConfig))
                     .isInstanceOf(RulesViolationException.class)
                     .hasMessage("Environment 'dev' is referring to none-existent secret config 'secret_config_id'.");
+        }
+    }
+
+    @Nested
+    class ForPackageRepository {
+        @Test
+        void shouldErrorOutIfItDoesNotHavePermissionToReferASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            PackageRepository repository = new PackageRepository("repo-id", "repo-name", new PluginConfiguration(), new Configuration(k1, k2));
+
+            Rules rules = new Rules(new Allow("refer", "package_repository", "abc-*"));
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
+
+            when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(repository))
+                    .isInstanceOf(RulesViolationException.class)
+                    .hasMessage("Package Repository 'repo-name' does not have permission to refer to secrets using secret config 'secret_config_id'.");
+        }
+
+        @Test
+        void shouldValidateHasPermissionToReferASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            PackageRepository repository = new PackageRepository("repo-id", "repo-name", new PluginConfiguration(), new Configuration(k1, k2));
+
+            Rules rules = new Rules(new Allow("refer", "package_repository", "repo-*"));
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
+
+            when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(repository))
+                    .doesNotThrowAnyException();
+
+            verify(goConfigService, times(1)).getSecretConfigById(anyString());
+        }
+
+        @Test
+        void shouldErrorOutWhenReferringToNoneExistingSecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            PackageRepository repository = new PackageRepository("repo-id", "repo-name", new PluginConfiguration(), new Configuration(k1, k2));
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(repository))
+                    .isInstanceOf(RulesViolationException.class)
+                    .hasMessage("Package Repository 'repo-name' is referring to none-existent secret config 'secret_config_id'.");
+        }
+
+        @Test
+        void shouldBeValidIfNotDefinedUsingSecretParams() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            PackageRepository repository = new PackageRepository("repo-id", "repo-name", new PluginConfiguration(), new Configuration(k1, k2));
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(repository))
+                    .doesNotThrowAnyException();
+
+            verify(goConfigService, never()).getSecretConfigById(anyString());
+        }
+
+        @Test
+        void shouldAddErrorForASecretConfigIdOnlyOnce() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            PackageRepository repository = new PackageRepository("repo-id", "repo-name", new PluginConfiguration(), new Configuration(k1, k2));
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(repository))
+                    .isInstanceOf(RulesViolationException.class)
+                    .hasMessage("Package Repository 'repo-name' is referring to none-existent secret config 'secret_config_id'.");
+        }
+    }
+
+    @Nested
+    class ForPackageDefinition {
+        @Test
+        void shouldErrorOutIfItDoesNotHavePermissionToReferASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            PackageRepository repository = new PackageRepository("repo-id", "repo-name", new PluginConfiguration(), new Configuration(k1));
+            PackageDefinition packageDefinition = new PackageDefinition("pkg-id", "pkg-name", new Configuration(k2));
+            packageDefinition.setRepository(repository);
+
+            Rules rules = new Rules(new Allow("refer", "package_repository", "abc-*"));
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
+
+            when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(packageDefinition))
+                    .isInstanceOf(RulesViolationException.class)
+                    .hasMessage("Package Repository 'repo-name' does not have permission to refer to secrets using secret config 'secret_config_id'.");
+        }
+
+        @Test
+        void shouldValidateHasPermissionToReferASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            PackageRepository repository = new PackageRepository("repo-id", "repo-name", new PluginConfiguration(), new Configuration(k1));
+            PackageDefinition packageDefinition = new PackageDefinition("pkg-id", "pkg-name", new Configuration(k2));
+            packageDefinition.setRepository(repository);
+
+            Rules rules = new Rules(new Allow("refer", "package_repository", "repo-*"));
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
+
+            when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(packageDefinition))
+                    .doesNotThrowAnyException();
+
+            verify(goConfigService, times(1)).getSecretConfigById(anyString());
+        }
+
+        @Test
+        void shouldErrorOutWhenReferringToNoneExistingSecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            PackageRepository repository = new PackageRepository("repo-id", "repo-name", new PluginConfiguration(), new Configuration(k1));
+            PackageDefinition packageDefinition = new PackageDefinition("pkg-id", "pkg-name", new Configuration(k2));
+            packageDefinition.setRepository(repository);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(repository))
+                    .isInstanceOf(RulesViolationException.class)
+                    .hasMessage("Package Repository 'repo-name' is referring to none-existent secret config 'secret_config_id'.");
+        }
+
+        @Test
+        void shouldBeValidIfNotDefinedUsingSecretParams() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            PackageRepository repository = new PackageRepository("repo-id", "repo-name", new PluginConfiguration(), new Configuration(k1));
+            PackageDefinition packageDefinition = new PackageDefinition("pkg-id", "pkg-name", new Configuration(k2));
+            packageDefinition.setRepository(repository);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(repository))
+                    .doesNotThrowAnyException();
+
+            verify(goConfigService, never()).getSecretConfigById(anyString());
         }
     }
 

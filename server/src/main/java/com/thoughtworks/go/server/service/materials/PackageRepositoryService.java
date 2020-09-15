@@ -16,13 +16,12 @@
 package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.update.*;
-import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.config.update.CreatePackageRepositoryCommand;
+import com.thoughtworks.go.config.update.DeletePackageRepositoryCommand;
+import com.thoughtworks.go.config.update.UpdatePackageRepositoryCommand;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
@@ -41,6 +40,7 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.SecretParamResolver;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -50,12 +50,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import static com.thoughtworks.go.config.update.ErrorCollector.collectFieldErrors;
-import static com.thoughtworks.go.config.update.ErrorCollector.collectGlobalErrors;
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -66,6 +60,7 @@ public class PackageRepositoryService {
     private GoConfigService goConfigService;
     private SecurityService securityService;
     private EntityHashingService entityHashingService;
+    private final SecretParamResolver secretParamResolver;
     private RepositoryMetadataStore repositoryMetadataStore;
     private PackageRepositoryExtension packageRepositoryExtension;
 
@@ -73,17 +68,19 @@ public class PackageRepositoryService {
 
     @Autowired
     public PackageRepositoryService(PluginManager pluginManager, PackageRepositoryExtension packageRepositoryExtension, GoConfigService goConfigService, SecurityService securityService,
-                                    EntityHashingService entityHashingService) {
+                                    EntityHashingService entityHashingService, SecretParamResolver secretParamResolver) {
         this.pluginManager = pluginManager;
         this.packageRepositoryExtension = packageRepositoryExtension;
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
+        this.secretParamResolver = secretParamResolver;
         repositoryMetadataStore = RepositoryMetadataStore.getInstance();
     }
 
     public void checkConnection(final PackageRepository packageRepository, final LocalizedOperationResult result) {
         try {
+            secretParamResolver.resolve(packageRepository);
             Result checkConnectionResult = packageRepositoryExtension.checkConnectionToRepository(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
             String messages = checkConnectionResult.getMessagesForDisplay();
             if (!checkConnectionResult.isSuccessful()) {
@@ -121,7 +118,7 @@ public class PackageRepositoryService {
         if (!packageRepository.doesPluginExist()) {
             throw new RuntimeException(String.format("Plugin with id '%s' is not found.", packageRepository.getPluginConfiguration().getId()));
         }
-
+        secretParamResolver.resolve(packageRepository);
         ValidationResult validationResult = packageRepositoryExtension.isRepositoryConfigurationValid(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
         addErrorsToConfiguration(validationResult, packageRepository);
 
@@ -208,8 +205,7 @@ public class PackageRepositoryService {
     private RepositoryConfiguration populateConfiguration(Configuration configuration) {
         RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration();
         for (ConfigurationProperty configurationProperty : configuration) {
-            String value = configurationProperty.getValue();
-            repositoryConfiguration.add(new PackageMaterialProperty(configurationProperty.getConfigurationKey().getName(), value));
+            repositoryConfiguration.add(new PackageMaterialProperty(configurationProperty.getConfigurationKey().getName(), configurationProperty.getResolvedValue()));
         }
         return repositoryConfiguration;
     }

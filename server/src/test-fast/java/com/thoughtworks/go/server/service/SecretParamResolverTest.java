@@ -26,10 +26,14 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.domain.builder.NullBuilder;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialsMother;
@@ -400,6 +404,84 @@ class SecretParamResolverTest {
             doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(material);
 
             assertThatCode(() -> secretParamResolver.resolve(material))
+                    .isInstanceOf(RuntimeException.class);
+
+            verifyNoInteractions(goConfigService);
+            verifyNoInteractions(secretsExtension);
+        }
+    }
+
+    @Nested
+    class ResolveSecretsForPackageRepository {
+        @Test
+        void shouldResolveSecretParams_IfConfigCanReferToASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][password]}}");
+            PackageRepository repository = new PackageRepository("repo-id", "repo-name", new PluginConfiguration(), new Configuration(k1, k2));
+
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
+            when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password")))).thenReturn(singletonList(new Secret("password", "some-password")));
+
+            assertThat(repository.getSecretParams().get(0).isUnresolved()).isTrue();
+
+            secretParamResolver.resolve(repository);
+
+            verify(rulesService).validateSecretConfigReferences(repository);
+            assertThat(repository.getSecretParams().get(0).isUnresolved()).isFalse();
+            assertThat(repository.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+        }
+
+        @Test
+        void shouldErrorOut_IfConfigDoesNotHavePermissionToReferToASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            PackageRepository repository = new PackageRepository("repo-id", "repo-name", new PluginConfiguration(), new Configuration(k1, k2));
+
+            doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(repository);
+
+            assertThatCode(() -> secretParamResolver.resolve(repository))
+                    .isInstanceOf(RuntimeException.class);
+
+            verifyNoInteractions(goConfigService);
+            verifyNoInteractions(secretsExtension);
+        }
+    }
+
+    @Nested
+    class ResolveSecretsForPackageDefinition {
+        @Test
+        void shouldResolveSecretParams_IfConfigCanReferToASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][password]}}");
+            PackageRepository repository = new PackageRepository("repo-id", "repo-name", new PluginConfiguration(), new Configuration(k1));
+            PackageDefinition packageDefinition = new PackageDefinition("pkg-id", "pkg-name", new Configuration(k2));
+            packageDefinition.setRepository(repository);
+
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
+            when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password")))).thenReturn(singletonList(new Secret("password", "some-password")));
+
+            assertThat(packageDefinition.getSecretParams().get(0).isUnresolved()).isTrue();
+
+            secretParamResolver.resolve(packageDefinition);
+
+            verify(rulesService).validateSecretConfigReferences(packageDefinition);
+            assertThat(packageDefinition.getSecretParams().get(0).isUnresolved()).isFalse();
+            assertThat(packageDefinition.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+        }
+
+        @Test
+        void shouldErrorOut_IfConfigDoesNotHavePermissionToReferToASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            PackageRepository repository = new PackageRepository("repo-id", "repo-name", new PluginConfiguration(), new Configuration(k1));
+            PackageDefinition packageDefinition = new PackageDefinition("pkg-id", "pkg-name", new Configuration(k2));
+            packageDefinition.setRepository(repository);
+
+            doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(packageDefinition);
+
+            assertThatCode(() -> secretParamResolver.resolve(packageDefinition))
                     .isInstanceOf(RuntimeException.class);
 
             verifyNoInteractions(goConfigService);

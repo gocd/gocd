@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
@@ -131,6 +133,24 @@ public class SecretParamResolver {
             resolve(scmConfig.getSecretParams());
         } else {
             LOGGER.debug("No secret params available in pluggable SCM {}.", scmConfig.getName());
+        }
+    }
+
+    public void resolve(PackageRepository packageRepository) {
+        if (packageRepository.hasSecretParams()) {
+            rulesService.validateSecretConfigReferences(packageRepository);
+            resolve(packageRepository.getSecretParams());
+        } else {
+            LOGGER.debug("No secret params available in package repository {}.", packageRepository.getName());
+        }
+    }
+
+    public void resolve(PackageDefinition packageDefinition) {
+        if (packageDefinition.hasSecretParams()) {
+            rulesService.validateSecretConfigReferences(packageDefinition);
+            resolve(packageDefinition.getSecretParams());
+        } else {
+            LOGGER.debug("No secret params available in package definition {}.", packageDefinition.getName());
         }
     }
 

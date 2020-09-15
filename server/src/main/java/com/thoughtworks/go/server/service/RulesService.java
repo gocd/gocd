@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.remote.work.BuildAssignment;
@@ -115,6 +116,22 @@ public class RulesService {
 
         if (!ruleViolationErrors.isEmpty()) {
             throw new RulesViolationException(errorString(ruleViolationErrors));
+        }
+    }
+
+    public void validateSecretConfigReferences(PackageRepository packageRepository) {
+        Map<CaseInsensitiveString, StringBuilder> errors = validate(packageRepository.getSecretParams(), packageRepository.getClass(), packageRepository.getName(), "Package Repository");
+
+        if (!errors.isEmpty()) {
+            throw new RulesViolationException(errorString(errors));
+        }
+    }
+
+    public void validateSecretConfigReferences(PackageDefinition packageDefinition) {
+        Map<CaseInsensitiveString, StringBuilder> errors = validate(packageDefinition.getSecretParams(), packageDefinition.getRepository().getClass(), packageDefinition.getRepository().getName(), "Package Repository");
+
+        if (!errors.isEmpty()) {
+            throw new RulesViolationException(errorString(errors));
         }
     }
 

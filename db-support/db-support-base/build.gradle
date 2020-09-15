@@ -17,7 +17,7 @@
 dependencies {
     compile group: 'org.apache.commons', name: 'commons-dbcp2', version: project.versions.commonsDbcp
     compile group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
-    compile(group: 'org.zeroturnaround', name: 'zt-exec', version: '1.11')
+    compile(group: 'org.zeroturnaround', name: 'zt-exec', version: '1.12')
     compile(group: 'org.apache.ant', name: 'ant', version: project.versions.apacheAnt) {
         transitive = false
     }

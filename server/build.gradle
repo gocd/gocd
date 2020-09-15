@@ -904,7 +904,7 @@ task verifyWar(type: VerifyJarTask) {
         "util-${project.version}.jar",
         "velocity-1.7.jar",
         "velocity-tools-view-${project.versions.velocityToolsView}.jar",
-        "zt-exec-1.11.jar",
+        "zt-exec-1.12.jar",
       ])
   ]
 }

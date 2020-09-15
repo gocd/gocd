@@ -94,10 +94,11 @@ export class ShowModificationsModal extends Modal {
         {this.modifications().map((mod, index) => {
           const details = MaterialWidget.showModificationDetails(mod);
           ShowModificationsModal.updateWithVsmLink(details, mod, this.material.fingerprint());
+          const username = details.get("Username");
           return <div data-test-id={`mod-${index}`} class={styles.modification}>
             <div class={styles.user}>
-              <div class={styles.username} data-test-id="mod-username">{details.get("Username")}</div>
-              <div class={styles.username} data-test-id="mod-modified-time">{details.get("Modified Time")}</div>
+              <div className={styles.truncate} data-test-id="mod-username" title={username}>{username}</div>
+              <div className={styles.truncate} data-test-id="mod-modified-time">{details.get("Modified Time")}</div>
             </div>
             <div class={styles.commentWrapper} data-test-id="mod-comment">
               <CommentRenderer text={details.get("Comment")}/>
@@ -116,9 +117,10 @@ export class ShowModificationsModal extends Modal {
   }
 
   private static updateWithVsmLink(details: Map<string, m.Children>, mod: MaterialModification, fingerprint: string) {
-    const vsmLink = <Link dataTestId={"vsm-link"} href={SparkRoutes.materialsVsmLink(fingerprint, mod.revision)}
-                          title={"Value Stream Map"}>VSM</Link>;
-    details.set("Revision", <div><span class={styles.revision}>{details.get("Revision")} </span>| {vsmLink}</div>);
+    const vsmLink  = <Link dataTestId={"vsm-link"} href={SparkRoutes.materialsVsmLink(fingerprint, mod.revision)}
+                           title={"Value Stream Map"}>VSM</Link>;
+    const revision = details.get("Revision");
+    details.set("Revision", <div><span class={styles.revision} title={revision}>{revision} </span>| {vsmLink}</div>);
   }
 
   private onPageChange(link: string) {

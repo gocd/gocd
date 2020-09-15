@@ -33,6 +33,5 @@ export const truncate: string;
 export const unknown: string;
 export const usages: string;
 export const user: string;
-export const username: string;
 export const version: string;
 export const warnings: string;

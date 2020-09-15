@@ -1,2 +1,2 @@
 # For building GoCD in docker see https://github.com/kudulab/docker-gocd-dojo
-DOJO_DOCKER_IMAGE=kudulab/gocd-dojo:2.1.0
+DOJO_DOCKER_IMAGE=kudulab/gocd-dojo:2.2.0

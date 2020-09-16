@@ -55,7 +55,6 @@ import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
 import static java.util.stream.Collectors.toCollection;
 import static spark.Spark.*;
 
-@ToggleRegisterLatest(controllerPath = Routes.ConfigRepos.BASE, apiVersion = ApiVersion.v4, as = "branch_support")
 @Component
 public class ConfigReposControllerV4 extends ApiController implements SparkSpringController, CrudController<ConfigRepoConfig> {
     private final ApiAuthenticationHelper authHelper;

@@ -289,7 +289,7 @@ dependencies {
     exclude(module: 'commons-lang')
     exclude(module: 'commons-collections')
   }
-  compile group: 'velocity-tools', name: 'velocity-tools-view', version: project.versions.velocityToolsView
+  compile files("vendor/velocity-tools-view-${project.versions.velocityToolsView}.jar")
   // old digester version required by velocity-tools-view
   compile group: 'commons-digester', name: 'commons-digester', version: project.versions.commonsDigester
 
@@ -1024,6 +1024,19 @@ task licenseReportAggregate {
         [
           moduleLicense   : 'MIT',
           moduleLicenseUrl: "https://spdx.org/licenses/MIT.html"
+        ]
+      ]
+    ],
+    [
+      moduleName    : 'velocity-tools:velocity-tools-view',
+      moduleVersion : project.versions.velocityToolsView,
+      moduleUrls    : [
+        "https://velocity.apache.org"
+      ],
+      moduleLicenses: [
+        [
+          moduleLicense   : 'Apache-2.0',
+          moduleLicenseUrl: "https://spdx.org/licenses/Apache-2.0.html"
         ]
       ]
     ],

@@ -47,7 +47,6 @@ import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
 import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
-@ToggleRegisterLatest(controllerPath = ConfigRepos.INTERNAL_BASE, apiVersion = ApiVersion.v4, as = "branch_support")
 @Component
 public class ConfigReposInternalControllerV4 extends AbstractMaterialTestController implements SparkSpringController {
 

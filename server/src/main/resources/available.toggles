@@ -17,10 +17,6 @@
       "value": false
     },
     {
-      "key": "branch_support",
-      "value": false
-    },
-    {
       "key": "use_rails_template_authorization_page",
       "description": "Use rails based templates authorization page in the UI. Default is false.",
       "value": false

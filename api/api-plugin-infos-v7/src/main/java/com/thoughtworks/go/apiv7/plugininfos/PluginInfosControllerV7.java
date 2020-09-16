@@ -46,7 +46,6 @@ import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage;
 import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
-@ToggleRegisterLatest(controllerPath = Routes.PluginInfoAPI.BASE, apiVersion = ApiVersion.v7, as = "branch_support")
 @Component
 public class PluginInfosControllerV7 extends ApiController implements SparkSpringController {
 

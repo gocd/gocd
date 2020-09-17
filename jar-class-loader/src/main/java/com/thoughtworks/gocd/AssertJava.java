@@ -24,7 +24,8 @@ public class AssertJava {
             JavaVersion.VERSION_11,
             JavaVersion.VERSION_12,
             JavaVersion.VERSION_13,
-            JavaVersion.VERSION_14
+            JavaVersion.VERSION_14,
+            JavaVersion.VERSION_15
     ));
 
     public static void assertVMVersion() {

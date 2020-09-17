@@ -1,14 +1,8 @@
-$mod=($env:GO_PIPELINE_COUNTER % 2)
-
 function use_jdk() {
     jabba use "$($args[0])"
 }
 
-if ($mod -eq "0") {
-    use_jdk "openjdk@1.11"
-} else {
-    use_jdk "openjdk@1.12"
-}
+use_jdk "openjdk@1.$($env:BUILD_ON_JDK ?? "14")"
 
 $command = "$($args[0])"
 

@@ -1,8 +1,10 @@
+$jdk = if ($env:BUILD_ON_JDK) { $env:BUILD_ON_JDK } else { "14" }
+
 function use_jdk() {
     jabba use "$($args[0])"
 }
 
-use_jdk "openjdk@1.$($env:BUILD_ON_JDK ?? "14")"
+use_jdk "openjdk@1.$($jdk)"
 
 $command = "$($args[0])"
 

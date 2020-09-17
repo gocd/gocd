@@ -19,11 +19,17 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.update.*;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.Task;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -66,6 +72,9 @@ public class PipelineConfigService {
         this.pluggableTaskService = pluggableTaskService;
         this.entityHashingService = entityHashingService;
         this.externalArtifactsService = externalArtifactsService;
+        goConfigService.register(scmConfigChangeListener());
+        goConfigService.register(packageChangeListener());
+        goConfigService.register(packageRespositoryChangeListener());
     }
 
     public Map<CaseInsensitiveString, CanDeleteResult> canDeletePipelines() {
@@ -247,4 +256,52 @@ public class PipelineConfigService {
         goConfigService.updateConfig(new ExtractTemplateFromPipelineEntityConfigUpdateCommand(securityService, pipelineName, templateName, currentUser), currentUser);
     }
 
+    protected EntityConfigChangedListener<PackageDefinition> packageChangeListener() {
+        return new EntityConfigChangedListener<>() {
+            @Override
+            public void onEntityConfigChange(PackageDefinition packageDefinition) {
+                goConfigService.getAllPipelineConfigs().forEach(pipeline -> pipeline.materialConfigs().forEach(material -> {
+                    if (material instanceof PackageMaterialConfig) {
+                        PackageMaterialConfig packageMaterial = (PackageMaterialConfig) material;
+                        if (packageMaterial.getPackageId().equalsIgnoreCase(packageDefinition.getId())) {
+                            packageMaterial.setPackageDefinition(packageDefinition);
+                        }
+                    }
+                }));
+            }
+        };
+    }
+
+    protected EntityConfigChangedListener<PackageRepository> packageRespositoryChangeListener() {
+        return new EntityConfigChangedListener<>() {
+            @Override
+            public void onEntityConfigChange(PackageRepository packageRepository) {
+                goConfigService.getAllPipelineConfigs().forEach(pipeline -> pipeline.materialConfigs().forEach(material -> {
+                    if (material instanceof PackageMaterialConfig) {
+                        PackageMaterialConfig packageMaterial = (PackageMaterialConfig) material;
+                        if (packageMaterial.getPackageDefinition().getRepository().getId().equalsIgnoreCase(packageRepository.getId())) {
+                            PackageDefinition packageDefinition = packageMaterial.getPackageDefinition();
+                            packageDefinition.setRepository(packageRepository);
+                        }
+                    }
+                }));
+            }
+        };
+    }
+
+    protected EntityConfigChangedListener<SCM> scmConfigChangeListener() {
+        return new EntityConfigChangedListener<>() {
+            @Override
+            public void onEntityConfigChange(SCM scm) {
+                goConfigService.getAllPipelineConfigs().forEach(pipeline -> pipeline.materialConfigs().forEach(material -> {
+                    if (material instanceof PluggableSCMMaterialConfig) {
+                        PluggableSCMMaterialConfig pluggableMaterial = (PluggableSCMMaterialConfig) material;
+                        if (pluggableMaterial.getScmId().equalsIgnoreCase(scm.getId())) {
+                            pluggableMaterial.setSCMConfig(scm);
+                        }
+                    }
+                }));
+            }
+        };
+    }
 }

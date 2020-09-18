@@ -141,7 +141,6 @@ export interface Attrs {
   isUserAdmin: boolean;
   canViewAdminPage: boolean;
   showAnalytics: boolean;
-  showMaterialsSpa: boolean;
 }
 
 export class SiteMenu extends MithrilViewComponent<Attrs> {
@@ -149,9 +148,6 @@ export class SiteMenu extends MithrilViewComponent<Attrs> {
 
     const analyticsMenu: m.Children = vnode.attrs.showAnalytics ?
       <SiteNavItem href="/go/analytics" text="Analytics"/> : null;
-
-    const materialsMenu: m.Children = vnode.attrs.showMaterialsSpa ?
-      <SiteNavItem href="/go/materials" text="Materials"/> : null;
 
     let adminMenu = null;
     if (vnode.attrs.canViewAdminPage) {
@@ -237,7 +233,7 @@ export class SiteMenu extends MithrilViewComponent<Attrs> {
       <ul class={styles.siteNav}>
         <SiteNavItem href="/go/pipelines" text="Dashboard"/>
         <SiteNavItem href="/go/agents" text="Agents"/>
-        {materialsMenu}
+        <SiteNavItem href="/go/materials" text="Materials"/>
         {analyticsMenu}
         {adminMenu}
       </ul>

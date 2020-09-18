@@ -17,4 +17,3 @@
 [#-- @ftlvariable name="spaTimeout" type="int" --]
 [#-- @ftlvariable name="spaRefreshInterval" type="int" --]
 [#-- @ftlvariable name="serverTimezoneUTCOffset" type="int" --]
-[#-- @ftlvariable name="show_materials_spa" type="boolean" --]

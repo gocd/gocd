@@ -559,10 +559,6 @@ module ApplicationHelper
     end
   end
 
-  def show_materials_spa?
-    Toggles.isToggleOn(Toggles.SHOW_MATERIALS_SPA)
-  end
-
   def stage_width_percent(total_number_of_stages, is_last_running_stage,total_width)
     last_running_width = is_last_running_stage ? 0 : 0
     round_to(((total_width / total_number_of_stages) - last_running_width), 4).to_s + "%"

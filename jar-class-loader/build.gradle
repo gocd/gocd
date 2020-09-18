@@ -14,3 +14,9 @@
  * limitations under the License.
  */
 
+java {
+    // build to be compatible with JDK 8 so that the error message can be read if starting GoCD with a version
+    // lower than its minimum supported version
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}

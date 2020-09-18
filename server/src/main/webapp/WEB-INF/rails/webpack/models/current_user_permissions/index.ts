@@ -70,7 +70,6 @@ function computeHeaderMeta() {
   const canViewTemplates       = flagAttr(body, "data-can-user-view-templates");
   const isAnonymous            = flagAttr(body, "data-user-anonymous");
   const userDisplayName        = body.getAttribute("data-user-display-name") || "";
-  const showMaterialsSpa       = flagAttr(body, "data-show-materials-spa");
 
   _headerMeta = {
     showAnalyticsDashboard,
@@ -79,7 +78,6 @@ function computeHeaderMeta() {
     isGroupAdmin,
     canViewTemplates,
     userDisplayName,
-    isAnonymous,
-    showMaterialsSpa
+    isAnonymous
   };
 }

@@ -33,33 +33,31 @@ describe("Site Header", () => {
 
   it("should display the user menu when a user is logged in", () => {
     mount({
-            isAnonymous: false,
-            userDisplayName: "Jon Doe",
-            canViewTemplates: false,
-            isGroupAdmin: false,
-            isUserAdmin: false,
-            canViewAdminPage: false,
-            showAnalyticsDashboard: false,
-            showMaterialsSpa: false
+            isAnonymous:            false,
+            userDisplayName:        "Jon Doe",
+            canViewTemplates:       false,
+            isGroupAdmin:           false,
+            isUserAdmin:            false,
+            canViewAdminPage:       false,
+            showAnalyticsDashboard: false
           });
     expect(helper.text(`.${styles.userLink}`)).toBe("Jon Doe");
     expect(findMenuItem("/go/preferences/notifications")).toHaveText("Preferences");
     expect(findMenuItem("/go/access_tokens")).toHaveText("Personal Access Tokens");
     expect(findMenuItem("/go/auth/logout")).toHaveText("Sign out");
-    expect(findMenuItem("/go/materials")).toBeFalsy();
+    expect(findMenuItem("/go/materials")).toHaveText("Materials");
     expect(findMenuItem("https://gocd.org/help")).toHaveText("Need Help?");
   });
 
   it("should not display the user menu when logged in as anonymous", () => {
     mount({
-            isAnonymous: true,
-            userDisplayName: "",
-            canViewTemplates: false,
-            isGroupAdmin: false,
-            isUserAdmin: false,
-            canViewAdminPage: false,
-            showAnalyticsDashboard: false,
-            showMaterialsSpa: true
+            isAnonymous:            true,
+            userDisplayName:        "",
+            canViewTemplates:       false,
+            isGroupAdmin:           false,
+            isUserAdmin:            false,
+            canViewAdminPage:       false,
+            showAnalyticsDashboard: false
           });
     expect(helper.q(`.${styles.userLink}`)).toBeFalsy();
     expect(findMenuItem("/go/preferences/notifications")).toBeFalsy();

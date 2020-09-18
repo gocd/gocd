@@ -51,15 +51,8 @@ public class MaterialsController implements SparkController {
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             before("", authenticationHelper::checkUserAnd403);
-            before("", this::showIfEnabled);
             get("", this::index, engine);
         });
-    }
-
-    private void showIfEnabled(Request request, Response response) {
-        if (!featureToggleService.isToggleOn(Toggles.SHOW_MATERIALS_SPA)) {
-            throw authenticationHelper.renderNotFoundResponse("Not Found");
-        }
     }
 
     public ModelAndView index(Request request, Response response) {

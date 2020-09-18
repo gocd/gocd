@@ -15,31 +15,26 @@
  */
 package com.thoughtworks.go.domain.packagerepository;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
+import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.helper.ConfigurationHolder;
 import com.thoughtworks.go.config.materials.AbstractMaterial;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
-import com.thoughtworks.go.domain.config.PluginConfiguration;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationKey;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
-import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
-import com.thoughtworks.go.domain.config.RepositoryMetadataStoreHelper;
-import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.CachedDigestUtils;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
-import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
+import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
+import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
+import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.CachedDigestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static java.util.Arrays.asList;
@@ -380,5 +375,67 @@ class PackageDefinitionTest extends PackageMaterialTestBase {
         packageDefinition.validateFingerprintUniqueness(map);
 
         assertThat(packageDefinition.errors().getAllOn(PackageDefinition.ID)).isEmpty();
+    }
+
+    @Nested
+    class HasSecretParams {
+        @Test
+        void shouldBeTrueIfPkgHasSecretParam() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            PackageDefinition pkgDef = new PackageDefinition("pkg-id", "pkg-name", new Configuration(k1, k2));
+            pkgDef.setRepository(new PackageRepository());
+
+            assertThat(pkgDef.hasSecretParams()).isTrue();
+        }
+
+        @Test
+        void shouldBeTrueIfPkgRepoHasSecretParam() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            PackageDefinition pkgDef = new PackageDefinition("pkg-id", "pkg-name", new Configuration(k2));
+            PackageRepository pkgRepo = new PackageRepository("pkg-repo-id", "pkg-repo-name", new PluginConfiguration(), new Configuration(k1));
+            pkgDef.setRepository(pkgRepo);
+
+            assertThat(pkgDef.hasSecretParams()).isTrue();
+        }
+
+        @Test
+        void shouldBeFalseIfPkgAndPkgRepoDoesNotHaveSecretParams() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            PackageDefinition pkgDef = new PackageDefinition("id", "name", new Configuration(k2));
+            PackageRepository pkgRepo = new PackageRepository("pkg-repo-id", "pkg-repo-name", new PluginConfiguration(), new Configuration(k1));
+            pkgDef.setRepository(pkgRepo);
+
+            assertThat(pkgDef.hasSecretParams()).isFalse();
+        }
+    }
+
+    @Nested
+    class GetSecretParams {
+        @Test
+        void shouldReturnAListOfSecretParamsFromBothPkgAndPkgRepo() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            PackageDefinition pkgDef = new PackageDefinition("id", "name", new Configuration(k2));
+            PackageRepository pkgRepo = new PackageRepository("pkg-repo-id", "pkg-repo-name", new PluginConfiguration(), new Configuration(k1));
+            pkgDef.setRepository(pkgRepo);
+
+            assertThat(pkgDef.getSecretParams().size()).isEqualTo(2);
+            assertThat(pkgDef.getSecretParams().get(0)).isEqualTo(new SecretParam("secret_config_id", "lookup_username"));
+            assertThat(pkgDef.getSecretParams().get(1)).isEqualTo(new SecretParam("secret_config_id", "lookup_password"));
+        }
+
+        @Test
+        void shouldBeAnEmptyListInAbsenceOfSecretParamsInPkgAndPkgRepo() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            PackageDefinition pkgDef = new PackageDefinition("id", "name", new Configuration(k2));
+            PackageRepository pkgRepo = new PackageRepository("pkg-repo-id", "pkg-repo-name", new PluginConfiguration(), new Configuration(k1));
+            pkgDef.setRepository(pkgRepo);
+
+            assertThat(pkgDef.hasSecretParams()).isFalse();
+        }
     }
 }

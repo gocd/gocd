@@ -40,7 +40,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigTag("package")
 @ConfigReferenceCollection(collectionName = "packages", idFieldName = "id")
-public class PackageDefinition implements Serializable, Validatable, ParamsAttributeAware {
+public class PackageDefinition implements Serializable, Validatable, ParamsAttributeAware, SecretParamAware {
     public static final String NAME = "name";
     public static final String ID = "id";
     public static final String CONFIGURATION = "configuration";
@@ -121,17 +121,13 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
 
         PackageDefinition that = (PackageDefinition) o;
 
-        if (configuration != null ? !configuration.equals(that.configuration) : that.configuration != null) {
+        if (!Objects.equals(configuration, that.configuration)) {
             return false;
         }
-        if (id != null ? !id.equals(that.id) : that.id != null) {
+        if (!Objects.equals(id, that.id)) {
             return false;
         }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(name, that.name);
     }
 
     @Override
@@ -325,5 +321,15 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
         if (isBlank(getId())) {
             setId(UUID.randomUUID().toString());
         }
+    }
+
+    @Override
+    public boolean hasSecretParams() {
+        return this.getRepository().hasSecretParams() || this.getConfiguration().hasSecretParams();
+    }
+
+    @Override
+    public SecretParams getSecretParams() {
+        return SecretParams.union(this.getRepository().getSecretParams(), this.getConfiguration().getSecretParams());
     }
 }

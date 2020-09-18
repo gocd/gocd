@@ -151,8 +151,8 @@ public class SecretConfigTest extends AbstractRuleAwarePluginProfileTest {
                     .contains("refer");
 
             assertThat(rulesValidationContext.getAllowedTypes())
-                    .hasSize(3)
-                    .contains("pipeline_group", "environment", "pluggable_scm");
+                    .hasSize(4)
+                    .contains("pipeline_group", "environment", "pluggable_scm", "package_repository");
         }
 
         @Test

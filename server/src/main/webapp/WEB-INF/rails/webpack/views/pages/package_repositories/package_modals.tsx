@@ -55,9 +55,8 @@ abstract class PackageModal extends EntityModalWithCheckConnection<Package> {
   operationError(errorResponse: any, statusCode: number) {
     if (errorResponse.data) {
       this.entity(this.parseJsonToEntity(errorResponse.data));
-    } else {
-      this.errorMessage(errorResponse.message);
     }
+    this.errorMessage(errorResponse.message);
   }
 
   protected modalBody(): m.Children {

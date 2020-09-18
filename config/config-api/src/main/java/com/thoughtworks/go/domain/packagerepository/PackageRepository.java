@@ -15,48 +15,40 @@
  */
 package com.thoughtworks.go.domain.packagerepository;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.PostConstruct;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.thoughtworks.go.config.ConfigAttribute;
-import com.thoughtworks.go.config.ConfigSubtag;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.Validatable;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.ConfigurationDisplayUtil;
-import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
-import com.thoughtworks.go.plugin.api.config.Property;
-import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.AbstractMetaDataStore;
-import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
+import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
+import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
+
+import javax.annotation.PostConstruct;
+import java.io.Serializable;
+import java.util.*;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @ConfigTag("repository")
-public class PackageRepository implements Serializable, Validatable {
+public class PackageRepository implements Serializable, Validatable, SecretParamAware {
 
     @ConfigAttribute(value = "id", allowNull = true)
     private String id;
 
     @ConfigAttribute(value = "name", allowNull = false)
     private String name;
-
 
     @Expose
     @SerializedName("plugin")
@@ -133,8 +125,7 @@ public class PackageRepository implements Serializable, Validatable {
             if (isValidPluginConfiguration(property.getConfigKeyName(), repositoryMetadata)) {
                 configuration.add(builder.create(property.getConfigKeyName(), property.getConfigValue(), property.getEncryptedValue(),
                         repositoryPropertyFor(property.getConfigKeyName(), repositoryMetadata).getOption(Property.SECURE)));
-            }
-            else {
+            } else {
                 configuration.add(property);
             }
         }
@@ -171,23 +162,19 @@ public class PackageRepository implements Serializable, Validatable {
 
         PackageRepository that = (PackageRepository) o;
 
-        if (configuration != null ? !configuration.equals(that.configuration) : that.configuration != null) {
+        if (!Objects.equals(configuration, that.configuration)) {
             return false;
         }
-        if (id != null ? !id.equals(that.id) : that.id != null) {
+        if (!Objects.equals(id, that.id)) {
             return false;
         }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (!Objects.equals(name, that.name)) {
             return false;
         }
-        if (packages != null ? !packages.equals(that.packages) : that.packages != null) {
+        if (!Objects.equals(packages, that.packages)) {
             return false;
         }
-        if (pluginConfiguration != null ? !pluginConfiguration.equals(that.pluginConfiguration) : that.pluginConfiguration != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(pluginConfiguration, that.pluginConfiguration);
     }
 
     @Override
@@ -236,7 +223,7 @@ public class PackageRepository implements Serializable, Validatable {
         return prefix + "Repository: " + configuration.forDisplay(propertiesToBeUsedForDisplay);
     }
 
-    public boolean doesPluginExist(){
+    public boolean doesPluginExist() {
         return RepositoryMetadataStore.getInstance().hasPlugin(pluginConfiguration.getId());
     }
 
@@ -276,7 +263,7 @@ public class PackageRepository implements Serializable, Validatable {
     private SecureKeyInfoProvider getSecureKeyInfoProvider() {
         final RepositoryMetadataStore repositoryMetadataStore = RepositoryMetadataStore.getInstance();
         final PackageConfigurations metadata = repositoryMetadataStore.getMetadata(pluginConfiguration.getId());
-        if(metadata==null){
+        if (metadata == null) {
             return null;
         }
         return key -> {
@@ -343,5 +330,15 @@ public class PackageRepository implements Serializable, Validatable {
         if (isBlank(getId())) {
             setId(UUID.randomUUID().toString());
         }
+    }
+
+    @Override
+    public boolean hasSecretParams() {
+        return this.getConfiguration().hasSecretParams();
+    }
+
+    @Override
+    public SecretParams getSecretParams() {
+        return this.getConfiguration().getSecretParams();
     }
 }

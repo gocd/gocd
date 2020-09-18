@@ -105,7 +105,6 @@ module JavaSpecImports
   java_import com.thoughtworks.go.plugins.presentation.PluggableTaskViewModelFactory unless defined? PluggableTaskViewModelFactory
   java_import com.thoughtworks.go.plugin.api.task.TaskView unless defined? TaskView
   java_import com.thoughtworks.go.domain.TaskViewStub unless defined? TaskViewStub
-  java_import com.thoughtworks.go.server.service.StubPackageDefinitionService unless defined? StubPackageDefinitionService
   java_import com.thoughtworks.go.server.domain.helper.FeatureToggleMother unless defined? FeatureToggleMother
   java_import com.thoughtworks.go.helper.EnvironmentVariablesConfigMother unless defined? EnvironmentVariablesConfigMother
   java_import com.thoughtworks.go.config.validation.FilePathTypeValidator unless defined? FilePathTypeValidator

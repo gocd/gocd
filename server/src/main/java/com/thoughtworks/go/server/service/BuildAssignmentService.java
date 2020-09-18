@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.Builder;
@@ -389,7 +390,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private void resolveSecretsForMaterials(MaterialRevisions materialRevisions) {
         List<Material> materials = stream(materialRevisions.spliterator(), true)
                 .map(MaterialRevision::getMaterial)
-                .filter((material) -> material instanceof PluggableSCMMaterial)
+                .filter((material) -> material instanceof PluggableSCMMaterial || material instanceof PackageMaterial)
                 .collect(toList());
         secretParamResolver.resolve(materials);
     }

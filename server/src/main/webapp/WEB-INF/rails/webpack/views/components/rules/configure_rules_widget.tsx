@@ -34,10 +34,11 @@ interface RuleInfo {
 }
 
 export let RulesType = {
-  ENVIRONMENT:    {text: 'Environment', id: 'environment'} as RuleInfo,
-  PIPELINE:       {text: 'Pipeline', id: 'pipeline'} as RuleInfo,
-  PIPELINE_GROUP: {text: 'Pipeline Group', id: 'pipeline_group'} as RuleInfo,
-  PLUGGABLE_SCM: {text: 'Pluggable SCM', id: 'pluggable_scm'} as RuleInfo,
+  ENVIRONMENT:        {text: 'Environment', id: 'environment'} as RuleInfo,
+  PIPELINE:           {text: 'Pipeline', id: 'pipeline'} as RuleInfo,
+  PIPELINE_GROUP:     {text: 'Pipeline Group', id: 'pipeline_group'} as RuleInfo,
+  PLUGGABLE_SCM:      {text: 'Pluggable SCM', id: 'pluggable_scm'} as RuleInfo,
+  PACKAGE_REPOSITORY: {text: 'Package Repository', id: 'package_repository'} as RuleInfo,
 };
 
 export let RuleActions = {

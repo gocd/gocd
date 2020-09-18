@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -51,10 +52,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import static com.thoughtworks.go.helper.MaterialsMother.packageMaterial;
 import static com.thoughtworks.go.helper.MaterialsMother.pluggableSCMMaterial;
 import static com.thoughtworks.go.server.service.BuildAssignmentService.GO_AGENT_RESOURCES;
 import static com.thoughtworks.go.server.service.BuildAssignmentService.GO_PIPELINE_GROUP_NAME;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -421,15 +424,18 @@ class BuildAssignmentServiceTest {
         }
 
         @Test
-        void shouldResolveSecretsInPluggableScmMaterialBeforeCreatingAssignment() {
+        void shouldResolveSecretsInPluggableScmMaterialAndPackageMaterialBeforeCreatingAssignment() {
             final GitMaterial gitMaterial = MaterialsMother.gitMaterial("http://foo.com");
             gitMaterial.setUserName("bob");
             gitMaterial.setPassword("{{SECRET:[secret_config_id][GIT_PASSWORD]}}");
             PluggableSCMMaterial pluggableSCMMaterial = pluggableSCMMaterial();
             pluggableSCMMaterial.getScmConfig().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][SCM_PASSWORD]}}"));
+            PackageMaterial packageMaterial = packageMaterial();
+            packageMaterial.getPackageDefinition().getConfiguration().get(0).setConfigurationValue(new ConfigurationValue("{{SECRET:[secret_config_id][PKG_PASSWORD]}}"));
             final Modification modification = new Modification("user", null, null, null, "rev1");
             final MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(gitMaterial, modification));
             materialRevisions.addRevision(new MaterialRevision(pluggableSCMMaterial, new Modification("user2", null, null, null, "rev")));
+            materialRevisions.addRevision(new MaterialRevision(packageMaterial, new Modification("user3", null, null, null, "rev-pkg")));
 
             final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
             pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
@@ -455,14 +461,15 @@ class BuildAssignmentServiceTest {
             doAnswer(invocation -> {
                 List<Material> materials = invocation.getArgument(0);
                 ((PluggableSCMMaterial) materials.get(0)).getScmConfig().getConfiguration().get(0).getSecretParams().get(0).setValue("some-scm-password");
+                ((PackageMaterial) materials.get(1)).getPackageDefinition().getConfiguration().get(0).getSecretParams().get(0).setValue("some-pkg-password");
                 return materials;
-            }).when(secretParamResolver).resolve(singletonList(pluggableSCMMaterial));
+            }).when(secretParamResolver).resolve(anyList());
 
             InOrder inOrder = inOrder(goConfigService, secretParamResolver);
 
             BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agentInstance);
 
-            inOrder.verify(secretParamResolver).resolve(singletonList(pluggableSCMMaterial));
+            inOrder.verify(secretParamResolver).resolve(asList(pluggableSCMMaterial, packageMaterial));
             inOrder.verify(goConfigService).artifactStores();
             inOrder.verify(secretParamResolver).resolve(any(BuildAssignment.class));
 
@@ -471,6 +478,8 @@ class BuildAssignmentServiceTest {
             assertThat(material.passwordForCommandLine()).isEqualTo("some-password");
             PluggableSCMMaterial material1 = (PluggableSCMMaterial) work.getAssignment().materialRevisions().getMaterialRevision(1).getMaterial();
             assertThat(material1.getScmConfig().getConfiguration().get(0).getResolvedValue()).isEqualTo("some-scm-password");
+            PackageMaterial material2 = (PackageMaterial) work.getAssignment().materialRevisions().getMaterialRevision(2).getMaterial();
+            assertThat(material2.getPackageDefinition().getConfiguration().get(0).getResolvedValue()).isEqualTo("some-pkg-password");
         }
     }
 

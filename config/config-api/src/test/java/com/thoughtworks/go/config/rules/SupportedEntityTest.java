@@ -15,9 +15,14 @@
  */
 package com.thoughtworks.go.config.rules;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.BasicEnvironmentConfig;
+import com.thoughtworks.go.config.BasicPipelineConfigs;
+import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.scm.SCM;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -44,6 +49,18 @@ class SupportedEntityTest {
 
         assertThat(ENVIRONMENT.getEntityType().isAssignableFrom(BasicEnvironmentConfig.class)).isTrue();
         assertThat(ENVIRONMENT.getEntityType().isAssignableFrom(MergeEnvironmentConfig.class)).isTrue();
+    }
+
+    @Test
+    void shouldSupportPluggableSCM() {
+        assertThat(PLUGGABLE_SCM.getType()).isEqualTo("pluggable_scm");
+        assertThat(PLUGGABLE_SCM.getEntityType()).isEqualTo(SCM.class);
+    }
+
+    @Test
+    void shouldSupportPackageRepository() {
+        assertThat(PACKAGE_REPOSITORY.getType()).isEqualTo("package_repository");
+        assertThat(PACKAGE_REPOSITORY.getEntityType()).isEqualTo(PackageRepository.class);
     }
 
     @Test

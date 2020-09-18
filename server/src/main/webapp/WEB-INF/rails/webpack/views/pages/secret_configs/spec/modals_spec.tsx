@@ -75,6 +75,21 @@ describe("SecretConfigModal", () => {
     helper.unmount();
   });
 
+  it('should support 4 different entities for rules', () => {
+    const modal = new TestSecretConfigModal(Stream(secretConfigs),
+                                            SecretConfig.fromJSON(secretConfigTestData()),
+                                            pluginInfos,
+                                            onSuccessfulSave);
+    helper.mount(modal.body.bind(modal));
+
+    expect(helper.byTestId("rules-widget")).toBeInDOM();
+    helper.clickByTestId('add-rule-button');
+
+    expect(helper.qa('option', helper.byTestId('rule-type')).length).toBe(6);
+    expect(helper.byTestId('rule-type').textContent).toBe('SelectAllPipeline GroupEnvironmentPluggable SCMPackage Repository');
+    helper.unmount();
+  });
+
   describe("EditModal", () => {
     it("should disable id while editing secret config", () => {
       const modal = new TestSecretConfigModal(Stream(secretConfigs),

@@ -355,16 +355,11 @@ public class SCM implements Serializable, Validatable, ConfigOriginTraceable, Se
 
     @Override
     public boolean hasSecretParams() {
-        return this.getConfiguration()
-                .stream()
-                .anyMatch(ConfigurationProperty::hasSecretParams);
+        return this.getConfiguration().hasSecretParams();
     }
 
     @Override
     public SecretParams getSecretParams() {
-        return this.getConfiguration().stream()
-                .map(ConfigurationProperty::getSecretParams)
-                .filter((params) -> !params.isEmpty())
-                .collect(SecretParams.toFlatSecretParams());
+        return this.getConfiguration().getSecretParams();
     }
 }

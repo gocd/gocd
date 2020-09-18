@@ -26,6 +26,7 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
@@ -35,6 +36,7 @@ import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecretParamResolver;
@@ -123,7 +125,11 @@ public class PackageDefinitionService {
             }
             result.setMessage("OK. " + messages);
         } catch (Exception e) {
-            result.internalServerError("Package check Failed. Reason(s): " + e.getMessage());
+            if (e instanceof RulesViolationException || e instanceof SecretResolutionFailureException) {
+                result.unprocessableEntity("Package check Failed. Reason(s): " + e.getMessage());
+            } else {
+                result.internalServerError("Package check Failed. Reason(s): " + e.getMessage());
+            }
         }
     }
 
@@ -139,6 +145,8 @@ public class PackageDefinitionService {
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException && !result.hasMessage()) {
                 result.unprocessableEntity(entityConfigValidationFailed(packageDeinition.getClass().getAnnotation(ConfigTag.class).value(), packageDeinition.getId(), e.getMessage()));
+            } else if (e instanceof RulesViolationException || e instanceof SecretResolutionFailureException) {
+                result.unprocessableEntity(saveFailedWithReason(e.getMessage()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);

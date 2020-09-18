@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.SecretParams;
+import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -291,6 +292,26 @@ public class BuildAssignmentTest {
             ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
             PluggableSCMMaterial pluggableSCMMaterial = pluggableSCMMaterial("scm-id", "scm-name", k1, k2);
             MaterialRevision gitRevision = new MaterialRevision(pluggableSCMMaterial, new Modification());
+            BuildCause buildCause = BuildCause.createManualForced(new MaterialRevisions(gitRevision), Username.ANONYMOUS);
+
+            BuildAssignment buildAssigment = createAssignment(environmentVariableContext, buildCause);
+
+            assertThat(buildAssigment.hasSecretParams()).isTrue();
+            assertThat(buildAssigment.getSecretParams())
+                    .hasSize(1)
+                    .contains(new SecretParam("secret_config_id", "token"));
+        }
+
+        @Test
+        void shouldIgnoreTheSecretParamsInPackageMaterial() {
+            EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+            environmentVariableContext.setProperty("Token", "{{SECRET:[secret_config_id][token]}}", false);
+
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][token]}}");
+            k1.getSecretParams().get(0).setValue("resolved-value");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            PackageMaterial packageMaterial = packageMaterial();
+            MaterialRevision gitRevision = new MaterialRevision(packageMaterial, new Modification());
             BuildCause buildCause = BuildCause.createManualForced(new MaterialRevisions(gitRevision), Username.ANONYMOUS);
 
             BuildAssignment buildAssigment = createAssignment(environmentVariableContext, buildCause);

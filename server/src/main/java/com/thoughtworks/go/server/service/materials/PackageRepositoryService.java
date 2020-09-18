@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
@@ -38,6 +39,7 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecretParamResolver;
@@ -90,7 +92,11 @@ public class PackageRepositoryService {
             result.setMessage("Connection OK. " + messages);
             return;
         } catch (Exception e) {
-            result.internalServerError("Could not connect to package repository. Reason(s): " + e.getMessage());
+            if (e instanceof RulesViolationException || e instanceof SecretResolutionFailureException) {
+                result.unprocessableEntity("Could not connect to package repository. Reason(s): " + e.getMessage());
+            } else {
+                result.internalServerError("Could not connect to package repository. Reason(s): " + e.getMessage());
+            }
         }
     }
 
@@ -170,6 +176,8 @@ public class PackageRepositoryService {
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException && !result.hasMessage()) {
                 result.unprocessableEntity(entityConfigValidationFailed(repository.getClass().getAnnotation(ConfigTag.class).value(), repository.getId(), e.getMessage()));
+            } else if (e instanceof RulesViolationException || e instanceof SecretResolutionFailureException) {
+                result.unprocessableEntity(saveFailedWithReason(e.getMessage()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);

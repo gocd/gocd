@@ -18,6 +18,7 @@ package com.thoughtworks.go.remote.work;
 import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.SecretParamAware;
 import com.thoughtworks.go.config.SecretParams;
+import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -192,7 +193,7 @@ public class BuildAssignment implements Serializable, SecretParamAware {
                 .map(MaterialRevision::getMaterial).collect(toList());
 
         return materials.stream()
-                .filter(material -> material instanceof SecretParamAware && !(material instanceof PluggableSCMMaterial))
+                .filter(material -> material instanceof SecretParamAware && !(material instanceof PluggableSCMMaterial || material instanceof PackageMaterial))
                 .filter(material -> ((SecretParamAware) material).hasSecretParams())
                 .map(material -> ((SecretParamAware) material).getSecretParams())
                 .collect(SecretParams.toFlatSecretParams());

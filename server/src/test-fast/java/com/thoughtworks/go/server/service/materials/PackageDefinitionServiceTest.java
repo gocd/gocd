@@ -16,17 +16,22 @@
 package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.ClearSingleton;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.packagerepository.*;
+import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.plugin.access.packagematerial.*;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecretParamResolver;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import org.apache.http.HttpStatus;
 import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -254,6 +259,62 @@ public class PackageDefinitionServiceTest {
         verify(packageRepositoryExtension).checkConnectionToPackage(anyString(), packageConfigurationsCaptor.capture(), packageRepositoryConfigurationsCaptor.capture());
         assertPackageConfiguration(packageRepositoryConfigurationsCaptor.getValue().list(), packageRepository.getConfiguration());
         assertThat(packageConfigurationsCaptor.getValue().list().get(0).getValue()).isEqualTo("resolved-value");
+    }
+
+    @Test
+    void shouldSetResultAsUnprocessableEntityIfRulesViolationForUpdate() {
+        PackageDefinition packageDefinition = PackageDefinitionMother.create("1", "name", new Configuration(), packageRepository);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        doThrow(new RulesViolationException("some rule violation message")).when(goConfigService).updateConfig(any(EntityConfigUpdateCommand.class), any(Username.class));
+
+        service.createPackage(packageDefinition, packageRepository.getId(), new Username("user"), result);
+
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+        assertThat(result.message()).isEqualTo("Save failed. some rule violation message");
+    }
+
+    @Test
+    void shouldSetResultAsUnprocessableEntityIfSecretResolutionFailsForUpdate() {
+        PackageDefinition packageDefinition = PackageDefinitionMother.create("1", "name", new Configuration(), packageRepository);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        doThrow(new SecretResolutionFailureException("some secret resolution message")).when(goConfigService).updateConfig(any(EntityConfigUpdateCommand.class), any(Username.class));
+
+        service.createPackage(packageDefinition, packageRepository.getId(), new Username("user"), result);
+
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+        assertThat(result.message()).isEqualTo("Save failed. some secret resolution message");
+    }
+
+    @Test
+    void shouldSetResultAsUnprocessableEntityIfRulesViolationForCheckConnection() {
+        PackageDefinition packageDefinition = PackageDefinitionMother.create("1", "name", new Configuration(), packageRepository);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        doThrow(new RulesViolationException("some rule violation message")).when(secretParamResolver).resolve(packageDefinition);
+
+        service.checkConnection(packageDefinition, result);
+
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+        assertThat(result.message()).isEqualTo("Package check Failed. Reason(s): some rule violation message");
+    }
+
+    @Test
+    void shouldSetResultAsUnprocessableEntityIfSecretResolutionFailsForCheckConnection() {
+        PackageDefinition packageDefinition = PackageDefinitionMother.create("1", "name", new Configuration(), packageRepository);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        doThrow(new SecretResolutionFailureException("some secret resolution failure")).when(secretParamResolver).resolve(packageDefinition);
+
+        service.checkConnection(packageDefinition, result);
+
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+        assertThat(result.message()).isEqualTo("Package check Failed. Reason(s): some secret resolution failure");
     }
 }
 

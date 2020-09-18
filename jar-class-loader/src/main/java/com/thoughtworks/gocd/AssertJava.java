@@ -15,27 +15,16 @@
  */
 package com.thoughtworks.gocd;
 
-
-import java.util.Arrays;
-import java.util.TreeSet;
-
 public class AssertJava {
-    private static TreeSet<JavaVersion> SUPPORTED_VERSIONS = new TreeSet<>(Arrays.asList(
-            JavaVersion.VERSION_11,
-            JavaVersion.VERSION_12,
-            JavaVersion.VERSION_13,
-            JavaVersion.VERSION_14,
-            JavaVersion.VERSION_15
-    ));
+    private static final JavaVersion MINIMUM_SUPPORTED_VERSION = JavaVersion.VERSION_11;
 
     public static void assertVMVersion() {
         checkSupported(JavaVersion.current());
     }
 
     private static void checkSupported(JavaVersion currentJavaVersion) {
-        if (!SUPPORTED_VERSIONS.contains(currentJavaVersion)) {
-            System.err.println("Running GoCD requires Java version >= " + SUPPORTED_VERSIONS.first().name() +
-                    " and <= " + SUPPORTED_VERSIONS.last() +
+        if (currentJavaVersion.compareTo(MINIMUM_SUPPORTED_VERSION) < 0) {
+            System.err.println("Running GoCD requires Java version >= " + MINIMUM_SUPPORTED_VERSION +
                     ". You are currently running with Java version " + currentJavaVersion + ". GoCD will now exit!");
             System.exit(1);
         }

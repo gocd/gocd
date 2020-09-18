@@ -36,10 +36,11 @@ describe("ServerBackupAPI", () => {
     });
     ServerBackupAPI.get("/go/api/backups/12").then(onResponse);
 
-    const request = jasmine.Ajax.requests.mostRecent();
-    expect(request.url).toEqual("/go/api/backups/12");
-    expect(request.method).toEqual("GET");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+    expect(() => {
+      const request = requestByUrl(jasmine.Ajax.requests, "/go/api/backups/12");
+      expect(request.method).toEqual("GET");
+      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+    }).not.toThrow();
   });
 
   it("should call onError when backup fails to start", (done) => {
@@ -51,13 +52,14 @@ describe("ServerBackupAPI", () => {
     ServerBackupAPI.start(onProgress, onCompletion, onError);
 
     setTimeout(() => {
-      const request = jasmine.Ajax.requests.mostRecent();
-      expect(request.url).toEqual("/go/api/backups");
-      expect(request.method).toEqual("POST");
-      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
-      expect(onProgress.calls.count()).toEqual(0);
-      expect(onCompletion.calls.count()).toEqual(0);
-      expect(onError.calls.count()).toEqual(1);
+      expect(() => {
+        const request = requestByUrl(jasmine.Ajax.requests, "/go/api/backups");
+        expect(request.method).toEqual("POST");
+        expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+        expect(onProgress.calls.count()).toEqual(0);
+        expect(onCompletion.calls.count()).toEqual(0);
+        expect(onError.calls.count()).toEqual(1);
+      }).not.toThrow();
       done();
 
     }, 200);
@@ -72,13 +74,14 @@ describe("ServerBackupAPI", () => {
     ServerBackupAPI.checkBackupProgress("/go/api/backups/12", onProgress, onCompletion, onError);
 
     setTimeout(() => {
-      const request = jasmine.Ajax.requests.mostRecent();
-      expect(request.url).toEqual("/go/api/backups/12");
-      expect(request.method).toEqual("GET");
-      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
-      expect(onProgress.calls.count()).toEqual(0);
-      expect(onCompletion.calls.count()).toEqual(1);
-      expect(onError.calls.count()).toEqual(0);
+      expect(() => {
+        const request = requestByUrl(jasmine.Ajax.requests, "/go/api/backups/12");
+        expect(request.method).toEqual("GET");
+        expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+        expect(onProgress.calls.count()).toEqual(0);
+        expect(onCompletion.calls.count()).toEqual(1);
+        expect(onError.calls.count()).toEqual(0);
+      }).not.toThrow();
       done();
 
     }, 200);
@@ -93,13 +96,14 @@ describe("ServerBackupAPI", () => {
     ServerBackupAPI.checkBackupProgress("/go/api/backups/12", onProgress, onCompletion, onError);
 
     setTimeout(() => {
-      const request = jasmine.Ajax.requests.mostRecent();
-      expect(request.url).toEqual("/go/api/backups/12");
-      expect(request.method).toEqual("GET");
-      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
-      expect(onProgress.calls.count()).toEqual(0);
-      expect(onCompletion.calls.count()).toEqual(1);
-      expect(onError.calls.count()).toEqual(0);
+      expect(() => {
+        const request = requestByUrl(jasmine.Ajax.requests, "/go/api/backups/12");
+        expect(request.method).toEqual("GET");
+        expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+        expect(onProgress.calls.count()).toEqual(0);
+        expect(onCompletion.calls.count()).toEqual(1);
+        expect(onError.calls.count()).toEqual(0);
+      }).not.toThrow();
       done();
 
     }, 200);
@@ -114,13 +118,14 @@ describe("ServerBackupAPI", () => {
     ServerBackupAPI.checkBackupProgress("/go/api/backups/12", onProgress, onCompletion, onError);
 
     setTimeout(() => {
-      const request = jasmine.Ajax.requests.mostRecent();
-      expect(request.url).toEqual("/go/api/backups/12");
-      expect(request.method).toEqual("GET");
-      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
-      expect(onProgress.calls.count()).toEqual(0);
-      expect(onCompletion.calls.count()).toEqual(0);
-      expect(onError.calls.count()).toEqual(1);
+      expect(() => {
+        const request = requestByUrl(jasmine.Ajax.requests, "/go/api/backups/12");
+        expect(request.method).toEqual("GET");
+        expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+        expect(onProgress.calls.count()).toEqual(0);
+        expect(onCompletion.calls.count()).toEqual(0);
+        expect(onError.calls.count()).toEqual(1);
+      }).not.toThrow();
       done();
 
     }, 200);
@@ -135,17 +140,27 @@ describe("ServerBackupAPI", () => {
     ServerBackupAPI.checkBackupProgress("/go/api/backups/12", onProgress, onCompletion, onError);
 
     setTimeout(() => {
-      const request = jasmine.Ajax.requests.mostRecent();
-      expect(request.url).toEqual("/go/api/backups/12");
-      expect(request.method).toEqual("GET");
-      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
-      expect(onProgress.calls.count()).toEqual(1);
-      expect(onCompletion.calls.count()).toEqual(0);
-      expect(onError.calls.count()).toEqual(0);
+      expect(() => {
+        const request = requestByUrl(jasmine.Ajax.requests, "/go/api/backups/12");
+        expect(request.method).toEqual("GET");
+        expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+        expect(onProgress.calls.count()).toEqual(1);
+        expect(onCompletion.calls.count()).toEqual(0);
+        expect(onError.calls.count()).toEqual(0);
+      }).not.toThrow();
       done();
 
     }, 200);
   });
+
+  function requestByUrl(requests: JasmineAjaxRequestTracker, url: string) {
+    const matches = requests.filter(url);
+    if (!matches.length) {
+      throw new Error(`Failed to find jasmine mock ajax request with url: ${url}`);
+    }
+
+    return matches[0];
+  }
 
   function getCompletedServerBackupResponse() {
     return getServerBackupResponse("COMPLETED");

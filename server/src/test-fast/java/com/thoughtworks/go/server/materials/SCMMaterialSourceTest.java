@@ -17,18 +17,11 @@ package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.materials.git.GitMaterial;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
-import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
-import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -38,12 +31,12 @@ import org.joda.time.DateTimeUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -77,10 +70,10 @@ public class SCMMaterialSourceTest {
 
     @Test
     public void shouldListAllSchedulableSCMMaterials_schedulableMaterials() {
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(singleton(svnMaterial.config()));
+        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Collections.singleton(svnMaterial.config()));
 
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
-        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(singleton(svnMaterial)));
+        when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(Collections.singleton(svnMaterial)));
 
         Set<Material> materials = source.materialsForUpdate();
 
@@ -111,116 +104,15 @@ public class SCMMaterialSourceTest {
 
     @Test
     public void shouldListenToConfigChange() {
+        EntityConfigChangedListener entityConfigChangedListener = mock(EntityConfigChangedListener.class);
         source = spy(source);
+
+        when(source.pipelineConfigChangedListener()).thenReturn(entityConfigChangedListener);
 
         source.initialize();
 
         verify(goConfigService).register(source);
-    }
-
-    @Test
-    public void shouldRefreshMaterialCacheOnPipelineConfigChange() {
-        GitMaterialConfig gitMaterial = new GitMaterialConfig();
-        gitMaterial.setUrl("http://github.com/gocd/gocd");
-        ArgumentCaptor<EntityConfigChangedListener> captor = ArgumentCaptor.forClass(EntityConfigChangedListener.class);
-
-        doNothing().when(goConfigService).register(captor.capture());
-        when(goConfigService.getSchedulableSCMMaterials())
-                .thenReturn(emptySet())
-                .thenReturn(singleton(gitMaterial));
-
-        source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService);
-        source.initialize();
-
-        EntityConfigChangedListener entityConfigChangedListener = captor.getAllValues().get(1);
-
-        assertTrue(entityConfigChangedListener.shouldCareAbout(new PipelineConfig()));
-        assertThat(source.materialsForUpdate().size(), is(0));
-
-        entityConfigChangedListener.onEntityConfigChange(new PipelineConfig());
-
-        Set<Material> materials = source.materialsForUpdate();
-        assertThat(materials.size(), is(1));
-        assertThat(materials.iterator().next().getFingerprint(), is(gitMaterial.getFingerprint()));
-    }
-
-    @Test
-    public void shouldRefreshMaterialCacheOnPackageDefinitionChange() {
-        GitMaterialConfig gitMaterial = new GitMaterialConfig();
-        gitMaterial.setUrl("http://github.com/gocd/gocd");
-        ArgumentCaptor<EntityConfigChangedListener> captor = ArgumentCaptor.forClass(EntityConfigChangedListener.class);
-
-        doNothing().when(goConfigService).register(captor.capture());
-        when(goConfigService.getSchedulableSCMMaterials())
-                .thenReturn(emptySet())
-                .thenReturn(singleton(gitMaterial));
-
-
-        source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService);
-        source.initialize();
-
-        EntityConfigChangedListener entityConfigChangedListener = captor.getAllValues().get(1);
-
-        assertTrue(entityConfigChangedListener.shouldCareAbout(new PackageDefinition()));
-        assertThat(source.materialsForUpdate().size(), is(0));
-
-        entityConfigChangedListener.onEntityConfigChange(new PackageDefinition());
-
-        Set<Material> materials = source.materialsForUpdate();
-        assertThat(materials.size(), is(1));
-        assertThat(materials.iterator().next().getFingerprint(), is(gitMaterial.getFingerprint()));
-    }
-
-    @Test
-    public void shouldRefreshMaterialCacheOnPackageRepositoryChange() {
-        GitMaterialConfig gitMaterial = new GitMaterialConfig();
-        gitMaterial.setUrl("http://github.com/gocd/gocd");
-        ArgumentCaptor<EntityConfigChangedListener> captor = ArgumentCaptor.forClass(EntityConfigChangedListener.class);
-
-        doNothing().when(goConfigService).register(captor.capture());
-        when(goConfigService.getSchedulableSCMMaterials())
-                .thenReturn(emptySet())
-                .thenReturn(singleton(gitMaterial));
-
-        source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService);
-        source.initialize();
-
-        EntityConfigChangedListener entityConfigChangedListener = captor.getAllValues().get(1);
-
-        assertTrue(entityConfigChangedListener.shouldCareAbout(new PackageRepository()));
-        assertThat(source.materialsForUpdate().size(), is(0));
-
-        entityConfigChangedListener.onEntityConfigChange(new PackageRepository());
-
-        Set<Material> materials = source.materialsForUpdate();
-        assertThat(materials.size(), is(1));
-        assertThat(materials.iterator().next().getFingerprint(), is(gitMaterial.getFingerprint()));
-    }
-
-    @Test
-    public void shouldRefreshMaterialCacheOnSCMChange() {
-        GitMaterialConfig gitMaterial = new GitMaterialConfig();
-        gitMaterial.setUrl("http://github.com/gocd/gocd");
-        ArgumentCaptor<EntityConfigChangedListener> captor = ArgumentCaptor.forClass(EntityConfigChangedListener.class);
-
-        doNothing().when(goConfigService).register(captor.capture());
-        when(goConfigService.getSchedulableSCMMaterials())
-                .thenReturn(emptySet())
-                .thenReturn(singleton(gitMaterial));
-
-        source = new SCMMaterialSource(goConfigService, systemEnvironment, new MaterialConfigConverter(), materialUpdateService);
-        source.initialize();
-
-        EntityConfigChangedListener entityConfigChangedListener = captor.getAllValues().get(1);
-
-        assertTrue(entityConfigChangedListener.shouldCareAbout(new SCM()));
-        assertThat(source.materialsForUpdate().size(), is(0));
-
-        entityConfigChangedListener.onEntityConfigChange(new SCM());
-
-        Set<Material> materials = source.materialsForUpdate();
-        assertThat(materials.size(), is(1));
-        assertThat(materials.iterator().next().getFingerprint(), is(gitMaterial.getFingerprint()));
+        verify(goConfigService).register(entityConfigChangedListener);
     }
 
     @Test

@@ -17,19 +17,12 @@ package com.thoughtworks.go.server.service;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.PackageMaterialConfig;
-import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.packagerepository.*;
-import com.thoughtworks.go.domain.scm.SCM;
-import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.JobConfigMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
@@ -42,10 +35,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
-import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
-import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
@@ -65,7 +56,7 @@ public class PipelineConfigServiceTest {
         downstream(configs);
         cruiseConfig = new BasicCruiseConfig(configs);
         cruiseConfig.addEnvironment(environment("foo", "in_env"));
-        PipelineConfig remotePipeline = pipelineConfig("remote");
+        PipelineConfig remotePipeline = PipelineConfigMother.pipelineConfig("remote");
         remotePipeline.setOrigin(new RepoConfigOrigin(ConfigRepoConfig.createConfigRepoConfig(git("url"), "plugin", "id"), "1234"));
         cruiseConfig.addPipeline("group", remotePipeline);
 
@@ -100,7 +91,7 @@ public class PipelineConfigServiceTest {
     }
 
     private void downstream(PipelineConfigs configs) {
-        PipelineConfig down = pipelineConfig("down");
+        PipelineConfig down = PipelineConfigMother.pipelineConfig("down");
         down.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("mingle")));
         configs.add(down);
     }
@@ -116,7 +107,7 @@ public class PipelineConfigServiceTest {
         job1.addTask(xUnit);
         job2.addTask(docker);
 
-        PipelineConfig pipeline = pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
                 new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
 
         pipelineConfigService.updatePipelineConfig(null, pipeline, "group", null, null);
@@ -136,7 +127,7 @@ public class PipelineConfigServiceTest {
         job1.addTask(xUnit);
         job2.addTask(docker);
 
-        PipelineConfig pipeline = pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
                 new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
 
         pipelineConfigService.createPipelineConfig(null, pipeline, null, null);
@@ -154,7 +145,7 @@ public class PipelineConfigServiceTest {
     public void pipelineCountShouldIncludeConfigRepoPipelinesAsWell() {
         CruiseConfig mergedCruiseConfig = new Cloner().deepClone(cruiseConfig);
         ReflectionUtil.setField(mergedCruiseConfig, "allPipelineConfigs", null);
-        mergedCruiseConfig.addPipeline("default", pipelineConfig(UUID.randomUUID().toString()));
+        mergedCruiseConfig.addPipeline("default", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
         when(goConfigService.cruiseConfig()).thenReturn(mergedCruiseConfig);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(mergedCruiseConfig.getAllPipelineConfigs());
@@ -166,9 +157,9 @@ public class PipelineConfigServiceTest {
     public void shouldGetAllViewableMergePipelineConfigs() throws Exception {
         CruiseConfig mergedCruiseConfig = new Cloner().deepClone(cruiseConfig);
         ReflectionUtil.setField(mergedCruiseConfig, "allPipelineConfigs", null);
-        mergedCruiseConfig.addPipeline("group1", pipelineConfig(UUID.randomUUID().toString()));
-        mergedCruiseConfig.addPipeline("group2", pipelineConfig(UUID.randomUUID().toString()));
-        mergedCruiseConfig.addPipeline("group3", pipelineConfig(UUID.randomUUID().toString()));
+        mergedCruiseConfig.addPipeline("group1", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
+        mergedCruiseConfig.addPipeline("group2", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
+        mergedCruiseConfig.addPipeline("group3", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
 
         when(goConfigService.getMergedConfigForEditing()).thenReturn(mergedCruiseConfig);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(mergedCruiseConfig.getAllPipelineConfigs());
@@ -191,8 +182,8 @@ public class PipelineConfigServiceTest {
     public void shouldGetAllViewableGroups() throws Exception {
         CruiseConfig cruiseConfig = new Cloner().deepClone(this.cruiseConfig);
         ReflectionUtil.setField(cruiseConfig, "allPipelineConfigs", null);
-        cruiseConfig.addPipeline("group1", pipelineConfig(UUID.randomUUID().toString()));
-        cruiseConfig.addPipeline("group2", pipelineConfig(UUID.randomUUID().toString()));
+        cruiseConfig.addPipeline("group1", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
+        cruiseConfig.addPipeline("group2", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
 
         when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(cruiseConfig.getAllPipelineConfigs());
@@ -206,81 +197,5 @@ public class PipelineConfigServiceTest {
 
         assertThat(pipelineConfigs.size(), is(1));
         assertThat(pipelineConfigs.get(0).getGroup(), is("group1"));
-    }
-
-    @Test
-    public void onSCMConfigChange_shouldUpdateAllPipelinesWithReferenceToTheSCM() {
-        PluggableSCMMaterialConfig pluggableMaterial1 = pluggableSCMMaterialConfig("scm-id1", "key1", "key2");
-        PluggableSCMMaterialConfig pluggableMaterial2 = pluggableSCMMaterialConfig("scm-id2", "key1", "key2");
-
-        PipelineConfig pipelineConfig1 = pipelineConfig("pipe1", new MaterialConfigs(git("http://localhost"), pluggableMaterial1));
-        PipelineConfig pipelineConfig2 = pipelineConfig("pipe2", new MaterialConfigs(pluggableMaterial1));
-        PipelineConfig pipelineConfig3 = pipelineConfig("pipe3", new MaterialConfigs(pluggableMaterial2));
-
-        when(goConfigService.getAllPipelineConfigs()).thenReturn(asList(pipelineConfig1, pipelineConfig2, pipelineConfig3));
-
-        SCM updatedSCM = SCMMother.create("scm-id1", "key3");
-        pipelineConfigService.scmConfigChangeListener().onEntityConfigChange(updatedSCM);
-
-        assertThat(pipelineConfig1.materialConfigs().getSCMMaterial().getSCMConfig(), is(updatedSCM));
-        assertThat(pipelineConfig2.materialConfigs().getSCMMaterial().getSCMConfig(), is(updatedSCM));
-        assertThat(pipelineConfig3.materialConfigs().getSCMMaterial().getSCMConfig(), is(SCMMother.create("scm-id2", "key1", "key2")));
-    }
-
-    @Test
-    public void onPackageDefinitionChange_shouldUpdateAllPipelinesWithReferenceToThePackage() {
-        ConfigurationProperty property1 = ConfigurationPropertyMother.create("key1", "value1");
-        ConfigurationProperty property2 = ConfigurationPropertyMother.create("key2", "value2");
-        ConfigurationProperty property3 = ConfigurationPropertyMother.create("key3", "value3");
-
-        PackageDefinition packageDefinition1 = PackageDefinitionMother.create("pack-id-1", "pack-1", new Configuration(property1, property2), null);
-        PackageDefinition packageDefinition2 = PackageDefinitionMother.create("pack-id-1", "pack-1", new Configuration(property3), null);
-
-        PackageMaterialConfig material1 = new PackageMaterialConfig(new CaseInsensitiveString("material1"), "pack-id-1", packageDefinition1);
-        PackageMaterialConfig material2 = new PackageMaterialConfig(new CaseInsensitiveString("material2"), "pack-id-2", packageDefinition2);
-
-        PipelineConfig pipelineConfig1 = pipelineConfig("pipe1", new MaterialConfigs(git("http://localhost"), material1));
-        PipelineConfig pipelineConfig2 = pipelineConfig("pipe2", new MaterialConfigs(material1));
-        PipelineConfig pipelineConfig3 = pipelineConfig("pipe3", new MaterialConfigs(material2));
-
-        when(goConfigService.getAllPipelineConfigs()).thenReturn(asList(pipelineConfig1, pipelineConfig2, pipelineConfig3));
-
-        PackageDefinition updatedPackage = PackageDefinitionMother.create("pack-id-1", "pack-1", new Configuration(property2), null);
-
-        pipelineConfigService.packageChangeListener().onEntityConfigChange(updatedPackage);
-
-        assertThat(pipelineConfig1.materialConfigs().getPackageMaterial().getPackageDefinition(), is(updatedPackage));
-        assertThat(pipelineConfig2.materialConfigs().getPackageMaterial().getPackageDefinition(), is(updatedPackage));
-        assertThat(pipelineConfig3.materialConfigs().getPackageMaterial().getPackageDefinition(), is(packageDefinition2));
-    }
-
-    @Test
-    public void onPackageRepositoryChange_shouldUpdateAllPipelinesWithReferenceToThePackage() {
-        ConfigurationProperty property1 = ConfigurationPropertyMother.create("key1", "value1");
-        ConfigurationProperty property2 = ConfigurationPropertyMother.create("key2", "value2");
-        ConfigurationProperty property3 = ConfigurationPropertyMother.create("key3", "value3");
-
-        PackageRepository packageRepository1 = PackageRepositoryMother.create("repo-1", "repo-1", "plugin1", "0.1", new Configuration(property1, property2));
-        PackageRepository packageRepository2 = PackageRepositoryMother.create("repo-2", "repo-2", "plugin1", "0.1", new Configuration(property3));
-
-        PackageDefinition packageDefinition1 = PackageDefinitionMother.create("pack-id-1", "pack-1", new Configuration(), packageRepository1);
-        PackageDefinition packageDefinition2 = PackageDefinitionMother.create("pack-id-1", "pack-1", new Configuration(), packageRepository2);
-
-        PackageMaterialConfig material1 = new PackageMaterialConfig(new CaseInsensitiveString("material1"), "pack-id-1", packageDefinition1);
-        PackageMaterialConfig material2 = new PackageMaterialConfig(new CaseInsensitiveString("material2"), "pack-id-2", packageDefinition2);
-
-        PipelineConfig pipelineConfig1 = pipelineConfig("pipe1", new MaterialConfigs(git("http://localhost"), material1));
-        PipelineConfig pipelineConfig2 = pipelineConfig("pipe2", new MaterialConfigs(material1));
-        PipelineConfig pipelineConfig3 = pipelineConfig("pipe3", new MaterialConfigs(material2));
-
-        when(goConfigService.getAllPipelineConfigs()).thenReturn(asList(pipelineConfig1, pipelineConfig2, pipelineConfig3));
-
-        PackageRepository updatedPackageRepository = PackageRepositoryMother.create("repo-1", "repo-1", "plugin1", "0.1", new Configuration(property2));
-
-        pipelineConfigService.packageRespositoryChangeListener().onEntityConfigChange(updatedPackageRepository);
-
-        assertThat(pipelineConfig1.materialConfigs().getPackageMaterial().getPackageDefinition().getRepository(), is(updatedPackageRepository));
-        assertThat(pipelineConfig2.materialConfigs().getPackageMaterial().getPackageDefinition().getRepository(), is(updatedPackageRepository));
-        assertThat(pipelineConfig3.materialConfigs().getPackageMaterial().getPackageDefinition().getRepository(), is(packageRepository2));
     }
 }

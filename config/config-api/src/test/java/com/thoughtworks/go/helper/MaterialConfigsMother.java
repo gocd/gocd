@@ -282,11 +282,14 @@ public class MaterialConfigsMother {
     }
 
     public static PluggableSCMMaterialConfig pluggableSCMMaterialConfigWithConfigProperties(String... properties) {
-        return new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id", properties), "des-folder", null, false);
-    }
-
-    public static PluggableSCMMaterialConfig pluggableSCMMaterialConfig(String scmId, String... properties) {
-        return new PluggableSCMMaterialConfig(null, SCMMother.create(scmId, properties), "des-folder", null, false);
+        SCM scmConfig = SCMMother.create("scm-id");
+        Configuration configuration = new Configuration();
+        for (String property : properties) {
+            ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey(property), new ConfigurationValue(property + "-value"));
+            configuration.add(configurationProperty);
+        }
+        scmConfig.setConfiguration(configuration);
+        return new PluggableSCMMaterialConfig(null, scmConfig, "des-folder", null, false);
     }
 
     public static PluggableSCMMaterialConfig pluggableSCMMaterialConfig(String scmId, String destinationFolder, Filter filter) {

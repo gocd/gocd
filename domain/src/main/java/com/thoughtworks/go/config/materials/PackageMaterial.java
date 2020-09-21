@@ -252,6 +252,7 @@ public class PackageMaterial extends AbstractMaterial implements SecretParamAwar
     public void updateFromConfig(MaterialConfig materialConfig) {
         super.updateFromConfig(materialConfig);
         this.getPackageDefinition().setConfiguration(((PackageMaterialConfig) materialConfig).getPackageDefinition().getConfiguration());
+        this.getPackageDefinition().getRepository().setName(((PackageMaterialConfig) materialConfig).getPackageDefinition().getRepository().getName());
         this.getPackageDefinition().getRepository().setConfiguration(((PackageMaterialConfig) materialConfig).getPackageDefinition().getRepository().getConfiguration());
     }
 

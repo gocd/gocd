@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInstance;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
 import com.thoughtworks.go.domain.packagerepository.*;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
@@ -513,5 +514,18 @@ class PackageMaterialTest {
         assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_K2")).isEqualTo("some-resolved-password");
         assertThat(environmentVariableContext.getPropertyForDisplay("GO_PACKAGE_TW_DEV_GO_AGENT_K2")).isEqualTo(MASK_VALUE);
         assertThat(environmentVariableContext.getProperty("GO_PACKAGE_TW_DEV_GO_AGENT_LABEL")).isEqualTo("revision-123");
+    }
+
+    @Test
+    void shouldUpdateMaterialFromMaterialConfig() {
+        PackageMaterial material = MaterialsMother.packageMaterial();
+        PackageMaterialConfig materialConfig = MaterialConfigsMother.packageMaterialConfig("pkg-repo-name", "pkg-name");
+        Configuration configuration = new Configuration(new ConfigurationProperty(new ConfigurationKey("new_key"), new ConfigurationValue("new_value")));
+        materialConfig.getPackageDefinition().setConfiguration(configuration);
+
+        material.updateFromConfig(materialConfig);
+        assertThat(material.getPackageDefinition().getConfiguration()).isEqualTo(materialConfig.getPackageDefinition().getConfiguration());
+        assertThat(material.getPackageDefinition().getRepository().getConfiguration()).isEqualTo(materialConfig.getPackageDefinition().getRepository().getConfiguration());
+        assertThat(material.getPackageDefinition().getRepository().getName()).isEqualTo(materialConfig.getPackageDefinition().getRepository().getName());
     }
 }

@@ -315,6 +315,7 @@ public class PluggableSCMMaterial extends AbstractMaterial implements SecretPara
     @Override
     public void updateFromConfig(MaterialConfig materialConfig) {
         super.updateFromConfig(materialConfig);
+        this.getScmConfig().setName(((PluggableSCMMaterialConfig) materialConfig).getSCMConfig().getName());
         this.getScmConfig().setConfiguration(((PluggableSCMMaterialConfig) materialConfig).getSCMConfig().getConfiguration());
     }
 

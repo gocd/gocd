@@ -498,7 +498,7 @@ class PluggableSCMMaterialTest {
     @Test
     void shouldUpdateMaterialFromMaterialConfig() {
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
-        PluggableSCMMaterialConfig materialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig("some-scm-name");
+        PluggableSCMMaterialConfig materialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig();
         Configuration configuration = new Configuration(new ConfigurationProperty(new ConfigurationKey("new_key"), new ConfigurationValue("new_value")));
         materialConfig.getSCMConfig().setConfiguration(configuration);
 

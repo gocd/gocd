@@ -66,7 +66,12 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
   private static maintenanceModeOrLegacyBrowserBanner(vnode: m.Vnode<Attrs>) {
     if (vnode.attrs.isServerInMaintenanceMode) {
       const updatedOnLocalTime = TimeFormatter.format(vnode.attrs.maintenanceModeUpdatedOn);
-      const updatedByMessage   = `${vnode.attrs.maintenanceModeUpdatedBy} turned on maintenance mode at ${updatedOnLocalTime}.`;
+
+      let updatedByMessage   = `${vnode.attrs.maintenanceModeUpdatedBy} turned on maintenance mode at ${updatedOnLocalTime}.`;
+      if(vnode.attrs.maintenanceModeUpdatedBy === "GoCD") {
+        updatedByMessage   = `GoCD Server is started in maintenance mode at ${updatedOnLocalTime}.`;
+      }
+
       return (<div data-test-id="maintenance-mode-banner" class={styles.footerWarningBanner}>
         {updatedByMessage}
         &nbsp;

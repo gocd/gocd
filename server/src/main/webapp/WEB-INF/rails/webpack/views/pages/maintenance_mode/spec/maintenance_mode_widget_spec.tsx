@@ -19,16 +19,19 @@ import m from "mithril";
 import {MaintenanceModeWidget} from "views/pages/maintenance_mode/maintenance_mode_widget";
 import {TestData} from "views/pages/maintenance_mode/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
+import {MaintenanceModeInfo} from "../../../../models/maintenance_mode/types";
 
 describe("Maintenance Mode Widget", () => {
   const toggleMaintenanceMode = jasmine.createSpy("onToggle");
-  const onCancelStage         = jasmine.createSpy("onCancelStage");
-  const helper                = new TestHelper();
+  const onCancelStage = jasmine.createSpy("onCancelStage");
+  const helper = new TestHelper();
 
+  let info: MaintenanceModeInfo;
   beforeEach(() => {
+    info = TestData.info();
     helper.mount(() => <MaintenanceModeWidget toggleMaintenanceMode={toggleMaintenanceMode}
                                               onCancelStage={onCancelStage}
-                                              maintenanceModeInfo={TestData.info()}/>);
+                                              maintenanceModeInfo={info}/>);
   });
 
   afterEach(helper.unmount.bind(helper));
@@ -47,8 +50,17 @@ describe("Maintenance Mode Widget", () => {
   });
 
   it("should provide the maintenance mode updated information", () => {
-    const updatedOn             = timeFormatter.format(TestData.UPDATED_ON);
+    const updatedOn = timeFormatter.format(TestData.UPDATED_ON);
     const expectedUpdatedByInfo = `${TestData.info().metdata.updatedBy} changed the maintenance mode state on ${updatedOn}.`;
+    expect(helper.textByTestId("maintenance-mode-updated-by-info")).toContain(expectedUpdatedByInfo);
+  });
+
+  it("should provide the maintenance mode updated information when GoCD Server is started in maintenance mode", () => {
+    info.metdata.updatedBy = "GoCD";
+    helper.redraw();
+
+    const updatedOn = timeFormatter.format(TestData.UPDATED_ON);
+    const expectedUpdatedByInfo = `GoCD Server is started in maintenance mode at ${updatedOn}.`;
     expect(helper.textByTestId("maintenance-mode-updated-by-info")).toContain(expectedUpdatedByInfo);
   });
 });

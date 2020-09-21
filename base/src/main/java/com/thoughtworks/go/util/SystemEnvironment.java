@@ -205,6 +205,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Long> EPHEMERAL_AUTO_REGISTER_KEY_EXPIRY = new GoLongSystemProperty("gocd.ephemeral.auto.register.key.expiry.millis", 30 * 60 *1000L);
     public static GoSystemProperty<Double> MDU_EXPONENTIAL_BACKOFF_MULTIPLIER = new GoDoubleSystemProperty("gocd.mdu.exponential.backoff.multiplier", 1.5);
 
+    public static GoSystemProperty<Boolean> START_IN_MAINTENANCE_MODE = new GoBooleanSystemProperty("gocd.server.start.in.maintenance.mode", false);
+
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
     static {
@@ -797,6 +799,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public double getMDUExponentialBackOffMultiplier() {
         return MDU_EXPONENTIAL_BACKOFF_MULTIPLIER.getValue();
+    }
+
+    public boolean shouldStartServerInMaintenanceMode() {
+        return START_IN_MAINTENANCE_MODE.getValue();
     }
 
     public static abstract class GoSystemProperty<T> {

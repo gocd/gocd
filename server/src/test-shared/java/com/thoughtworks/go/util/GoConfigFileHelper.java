@@ -116,7 +116,7 @@ public class GoConfigFileHelper {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         try {
 
-            MaintenanceModeService maintenanceModeService = new MaintenanceModeService(new TimeProvider());
+            MaintenanceModeService maintenanceModeService = new MaintenanceModeService(new TimeProvider(), systemEnvironment);
             ServerHealthService serverHealthService = new ServerHealthService();
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();

@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.server.domain.ServerMaintenanceMode;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +39,13 @@ public class MaintenanceModeService {
     private TimeProvider timeProvider;
 
     @Autowired
-    public MaintenanceModeService(TimeProvider timeProvider) {
+    public MaintenanceModeService(TimeProvider timeProvider, SystemEnvironment systemEnvironment) {
         this.timeProvider = timeProvider;
-        this.serverMaintenanceMode = new ServerMaintenanceMode();
+        if (systemEnvironment.shouldStartServerInMaintenanceMode()) {
+            this.serverMaintenanceMode = new ServerMaintenanceMode(true, "GoCD", timeProvider.currentTime());
+        } else {
+            this.serverMaintenanceMode = new ServerMaintenanceMode();
+        }
     }
 
     public ServerMaintenanceMode get() {

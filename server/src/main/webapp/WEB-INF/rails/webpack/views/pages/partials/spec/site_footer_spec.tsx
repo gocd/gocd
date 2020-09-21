@@ -64,6 +64,26 @@ describe("SiteFooter", () => {
     expect(helper.root).not.toContainText("unsupported browser");
   });
 
+  it("should render maintenance mode banner when GoCD Server is started in maintenance mode", () => {
+    const attrs = {
+      copyrightYear: "2000",
+      formattedVersion: "x.y.z-1234-sha",
+      fullVersion: "x.y.z-1234",
+      goVersion: "x.y.z",
+      isServerInMaintenanceMode: true,
+      isSupportedBrowser: true,
+      maintenanceModeUpdatedOn: "2019-06-18T14:30:15Z",
+      maintenanceModeUpdatedBy: "GoCD"
+    };
+    mount(attrs);
+
+    expect(helper.byTestId("maintenance-mode-banner")).toBeInDOM();
+    const expectedMsg = `GoCD Server is started in maintenance mode at ${timeFormatter.format(attrs.maintenanceModeUpdatedOn)}`;
+    expect(helper.textByTestId("maintenance-mode-banner")).toContain(expectedMsg);
+    expect(helper.root).toContainText("maintenance");
+    expect(helper.root).not.toContainText("unsupported browser");
+  });
+
   it("should render old browser message on IE11", () => {
     const attrs = {
       copyrightYear: "2000",

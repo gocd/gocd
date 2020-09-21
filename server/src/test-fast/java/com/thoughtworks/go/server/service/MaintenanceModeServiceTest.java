@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.domain.ServerMaintenanceMode;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -32,16 +33,28 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 public class MaintenanceModeServiceTest {
     private TimeProvider timeProvider;
     private MaintenanceModeService maintenanceModeService;
+    private SystemEnvironment systemEnvironment;
 
     @BeforeEach
     void setUp() {
+        System.setProperty(SystemEnvironment.START_IN_MAINTENANCE_MODE.propertyName(), "false");
         timeProvider = new TimeProvider();
-        maintenanceModeService = new MaintenanceModeService(timeProvider);
+        systemEnvironment = new SystemEnvironment();
+        maintenanceModeService = new MaintenanceModeService(timeProvider, systemEnvironment);
     }
 
     @Test
     void shouldSetMaintenanceModeServiceToFalseOnStartup() {
         assertThat(maintenanceModeService.isMaintenanceMode()).isFalse();
+    }
+
+    @Test
+    void shouldSetMaintenanceModeServiceToTrueWhenServerIsStartedInMaintenanceMode() {
+        System.setProperty(SystemEnvironment.START_IN_MAINTENANCE_MODE.propertyName(), "true");
+        maintenanceModeService = new MaintenanceModeService(timeProvider, systemEnvironment);
+
+        assertThat(maintenanceModeService.isMaintenanceMode()).isTrue();
+        assertThat(maintenanceModeService.updatedBy()).isEqualTo("GoCD");
     }
 
     @Test

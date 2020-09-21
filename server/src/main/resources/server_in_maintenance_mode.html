@@ -80,7 +80,7 @@
     <div class="header clear_float">
       <a href="#" id="application_logo">&nbsp;</a>
       <div class="message">
-        <span id="message_text">%updatedBy% turned on maintenance mode at %updatedOn%.</span>
+        <span id="message_text"/>
         &nbsp;
         <a target="_blank" href="%docsBaseUrl%/advanced_usage/maintenance_mode.html">Learn more..</a>
       </div>
@@ -91,6 +91,9 @@
 <script type="application/javascript">
   (function () {
     var message = "%updatedBy% turned on maintenance mode at " + new Date("%updatedOn%").toString();
+    if("%updatedBy%" === 'GoCD') {
+      message = "GoCD Server is started in maintenance mode at " + new Date("%updatedOn%").toString();
+    }
     document.getElementById("message_text").innerText = message;
   })();
 </script>

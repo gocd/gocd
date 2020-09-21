@@ -15,13 +15,11 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
-import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -33,7 +31,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -63,12 +63,7 @@ public class SCMMaterialSource extends EntityConfigChangedListener<ConfigRepoCon
 
     public void initialize() {
         goConfigService.register(this);
-        goConfigService.register(new InternalConfigChangeListener() {
-            @Override
-            public void onEntityConfigChange(Object entity) {
-                updateSchedulableMaterials(true);
-            }
-        });
+        goConfigService.register(pipelineConfigChangedListener());
         materialUpdateService.registerMaterialSources(this);
         materialUpdateService.registerMaterialUpdateCompleteListener(this);
     }
@@ -137,20 +132,6 @@ public class SCMMaterialSource extends EntityConfigChangedListener<ConfigRepoCon
     private void updateSchedulableMaterials(boolean forceLoad) {
         if (forceLoad || schedulableMaterials == null) {
             schedulableMaterials = materialConfigConverter.toMaterials(goConfigService.getSchedulableSCMMaterials());
-        }
-    }
-
-    private abstract class InternalConfigChangeListener extends EntityConfigChangedListener<Object> {
-        private final List<Class<?>> securityConfigClasses = Arrays.asList(
-                PipelineConfig.class,
-                PackageDefinition.class,
-                PackageRepository.class,
-                SCM.class
-        );
-
-        @Override
-        public boolean shouldCareAbout(Object entity) {
-            return securityConfigClasses.stream().anyMatch(aClass -> aClass.isAssignableFrom(entity.getClass()));
         }
     }
 }

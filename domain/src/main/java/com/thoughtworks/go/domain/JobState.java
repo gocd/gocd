@@ -69,4 +69,8 @@ public enum JobState implements ViewableStatus {
     public String cctrayActivity() {
         return isActive() ? "Building" : "Sleeping";
     }
+
+    public boolean isScheduled() {
+        return this == Scheduled;
+    }
 }

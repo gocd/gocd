@@ -18,6 +18,8 @@ import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {EnvironmentCRUD} from "models/environments/environment_crud";
+import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
+import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
 import {PipelineGroupCRUD} from "models/pipeline_configs/pipeline_groups_cache";
 import {Rules} from "models/rules/rules";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
@@ -30,18 +32,8 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Page, PageState} from "views/pages/page";
-import {
-  AddOperation,
-  CloneOperation,
-  DeleteOperation,
-  EditOperation,
-  RequiresPluginInfos, SaveOperation
-} from "views/pages/page_operations";
-import {
-  CloneSecretConfigModal,
-  CreateSecretConfigModal,
-  EditSecretConfigModal
-} from "views/pages/secret_configs/modals";
+import {AddOperation, CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
+import {CloneSecretConfigModal, CreateSecretConfigModal, EditSecretConfigModal} from "views/pages/secret_configs/modals";
 import {SecretConfigsWidget} from "views/pages/secret_configs/secret_configs_widget";
 
 interface State extends RequiresPluginInfos, AddOperation<SecretConfig>, EditOperation<SecretConfig>, CloneOperation<SecretConfig>, DeleteOperation<SecretConfig>, SaveOperation {
@@ -135,7 +127,7 @@ export class SecretConfigsPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.SECRETS}), SecretConfigsCRUD.all(), PipelineGroupCRUD.all(), EnvironmentCRUD.all()])
+    return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.SECRETS}), SecretConfigsCRUD.all(), PipelineGroupCRUD.all(), EnvironmentCRUD.all(), PluggableScmCRUD.all(), PackageRepositoriesCRUD.all()])
                   .then((results) => {
                     results[0].do((successResponse) => {
                       vnode.state.pluginInfos = Stream(successResponse.body);
@@ -155,6 +147,16 @@ export class SecretConfigsPage extends Page<null, State> {
                     results[3].do((successResponse) => {
                       vnode.state.resourceAutocompleteHelper()
                            .set("environment", ["*"].concat(successResponse.body.map((env) => env.name())));
+                    }, () => this.setErrorState());
+
+                    results[4].do((successResponse) => {
+                      vnode.state.resourceAutocompleteHelper()
+                           .set("pluggable_scm", ["*"].concat(successResponse.body.map((scm) => scm.name())));
+                    }, () => this.setErrorState());
+
+                    results[5].do((successResponse) => {
+                      vnode.state.resourceAutocompleteHelper()
+                           .set("package_repository", ["*"].concat(successResponse.body.map((pkgRepo) => pkgRepo.name())));
                     }, () => this.setErrorState());
                   });
   }

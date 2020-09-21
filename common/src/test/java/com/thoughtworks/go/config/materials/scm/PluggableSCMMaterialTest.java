@@ -498,12 +498,13 @@ class PluggableSCMMaterialTest {
     @Test
     void shouldUpdateMaterialFromMaterialConfig() {
         PluggableSCMMaterial material = MaterialsMother.pluggableSCMMaterial();
-        PluggableSCMMaterialConfig materialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig();
+        PluggableSCMMaterialConfig materialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig("some-scm-name");
         Configuration configuration = new Configuration(new ConfigurationProperty(new ConfigurationKey("new_key"), new ConfigurationValue("new_value")));
         materialConfig.getSCMConfig().setConfiguration(configuration);
 
         material.updateFromConfig(materialConfig);
-        assertThat(material.getScmConfig().getConfiguration().equals(materialConfig.getSCMConfig().getConfiguration())).isTrue();
+        assertThat(material.getScmConfig().getConfiguration()).isEqualTo(materialConfig.getSCMConfig().getConfiguration());
+        assertThat(material.getScmConfig().getName()).isEqualTo(materialConfig.getSCMConfig().getName());
     }
 
     private PluggableSCMMaterial createPluggableSCMMaterialWithSecureConfiguration() {

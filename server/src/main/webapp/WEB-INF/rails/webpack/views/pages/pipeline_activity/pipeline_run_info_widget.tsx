@@ -132,6 +132,9 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
             // @ts-ignore
             stage.canOperate = vnode.attrs.canOperatePipeline;
 
+            //@ts-ignore
+            pipelineRunInfo.stages().forEach((s: Stage) => s.name = s.stageName());
+
             optionalStageOverview = <StageOverview pipelineName={stage.pipelineName()}
                                                    isDisplayedOnPipelineActivityPage={true}
                                                    canAdminister={vnode.attrs.canAdministerPipeline}

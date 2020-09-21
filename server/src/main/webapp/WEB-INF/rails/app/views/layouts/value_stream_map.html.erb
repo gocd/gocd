@@ -4,6 +4,9 @@
 
 <head>
   <%= render :partial => "shared/head" %>
+  <%= javascript_include_tag *webpack_assets_service.getJSAssetPathsFor("single_page_apps/polyfill", "single_page_apps/stage_overview_shim_for_vsm") %>
+  <%= stylesheet_link_tag *webpack_assets_service.getCSSAssetPathsFor("single_page_apps/new_dashboard") %>
+  <%= stylesheet_link_tag *webpack_assets_service.getCSSAssetPathsFor("single_page_apps/stage_overview_shim_for_vsm") %>
 </head>
 <body id="<%= page_name %>" class="<%= page_name %>" <%= render "shared/body_data_attrs" %>>
 <div class="page-wrap">

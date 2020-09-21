@@ -436,7 +436,7 @@ Graph_Renderer = function (container) {
             if (node.instances != undefined && node.instances.length > 0 && node.instances[0].stages) {
                 gui += '<ul class="instances">';
                 for (var i = 0; i < node.instances.length; i++) {
-                    gui += renderPipelineInstance(node.id, node.instances[i])
+                    gui += renderPipelineInstance(node.id, node.instances[i], node)
                 }
                 gui += '</ul>';
             }
@@ -485,7 +485,7 @@ Graph_Renderer = function (container) {
         return gui;
     }
 
-    function renderPipelineInstance(node_id, instance) {
+    function renderPipelineInstance(node_id, instance, node) {
         var gui = '';
         var stagesCount = 0;
         gui += '<li class="instance">';
@@ -515,7 +515,15 @@ Graph_Renderer = function (container) {
                   if(_.toInteger(instance.stages[i].duration) > 0){
                     stageTitle += ' (took ' + moment.duration(instance.stages[i].duration, 's').humanizeForGoCD() + ')';
                   }
-                  gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + stageTitle + '"><a href="' + instance.stages[i].locator + '"></a></li>'
+
+                  var stageLocatorSplit = instance.stages[i].locator.split('/');
+                  var stageCounter = stageLocatorSplit.pop();
+                  var stageName = stageLocatorSplit.pop();
+                  var pipelineCounter = stageLocatorSplit.pop();
+                  var pipelineName = stageLocatorSplit.pop();
+
+                  gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + stageTitle + '"><a href="#" onclick="window.getStageOverviewFor(\''+ pipelineName + '\',\'' + pipelineCounter + '\',\'' + stageName + '\',\'' + stageCounter + '\',\'' + instance.stages[i].status + '\',\'' + i + '\',\'' + instance.stages.length + '\',\'' + node.can_edit  + '\',\'' + node.template_name +'\')"></a></li>';
+                  gui += '<div id="stage-overview-container-for-pipeline-'+ pipelineName + '-' + pipelineCounter + '-stage-' + stageName + '-' + stageCounter +'"/>'
                 }
             }
             gui += '</ul>';

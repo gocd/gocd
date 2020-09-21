@@ -39,12 +39,12 @@ export class StageOverviewViewModel {
   constructor(pipelineName: string, pipelineCounter: string | number,
               stageName: string, stageCounter: string | number,
               stageInstance: StageInstance, agents: Agents,
-              lastPassedStageInstance?: StageInstance) {
+              lastPassedStageInstance?: StageInstance, pollingInterval?: number) {
     this.stageInstance = Stream(stageInstance);
     this.lastPassedStageInstance = Stream(lastPassedStageInstance);
     this.jobsVM = Stream(new JobsViewModel(stageInstance.jobs(), agents));
     this.agents = Stream(agents);
-    this.repeater = Stream(this.createRepeater(pipelineName, pipelineCounter, stageName, stageCounter));
+    this.repeater = Stream(this.createRepeater(pipelineName, pipelineCounter, stageName, stageCounter, pollingInterval));
   }
 
   /*
@@ -89,12 +89,13 @@ export class StageOverviewViewModel {
                     pipelineCounter: string | number,
                     stageName: string,
                     stageCounter: string | number,
-                    stageStatus: StageState) {
+                    stageStatus: StageState,
+                    pollingInterval?: number) {
     // @ts-ignore
     const isCompleted = stageStatus === StageState[StageState.Cancelled] || stageStatus === StageState[StageState.Passed] || stageStatus === StageState[StageState.Failed];
 
     if (isCompleted) {
-      return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter);
+      return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter, undefined, pollingInterval);
     }
 
     return this.getLastPastStageHistoryInstance(pipelineName, stageName)
@@ -109,12 +110,12 @@ export class StageOverviewViewModel {
             return this.fetchStageInstance(passedStagePipelineName, passedStagePipelineCounter, passedStageName, passedStageCounter)
               .then((result) => {
                 return result.do((successResponse) => {
-                  return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter, successResponse.body);
+                  return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter, successResponse.body, pollingInterval);
                 });
               });
           }
 
-          return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter);
+          return this.initializeCurrentStageInstance(pipelineName, pipelineCounter, stageName, stageCounter, undefined, pollingInterval);
         });
       });
   }
@@ -125,11 +126,11 @@ export class StageOverviewViewModel {
 
   private static initializeCurrentStageInstance(pipelineName: string, pipelineCounter: string | number,
                                                 stageName: string, stageCounter: string | number,
-                                                latestStageInstance?: StageInstance) {
+                                                latestStageInstance?: StageInstance, pollingInterval?: number) {
     return Promise.all([this.fetchStageInstance(pipelineName, pipelineCounter, stageName, stageCounter), AgentsCRUD.all()]).then((result) => {
       return result[0].do((stageInstanceResponse) => {
         return result[1].do((agentsResponse) => {
-          return new StageOverviewViewModel(pipelineName, pipelineCounter, stageName, stageCounter, stageInstanceResponse.body, agentsResponse.body, latestStageInstance);
+          return new StageOverviewViewModel(pipelineName, pipelineCounter, stageName, stageCounter, stageInstanceResponse.body, agentsResponse.body, latestStageInstance, pollingInterval);
         });
       });
     });
@@ -154,7 +155,7 @@ export class StageOverviewViewModel {
   }
 
   private createRepeater(pipelineName: string, pipelineCounter: string | number,
-                         stageName: string, stageCounter: string | number) {
+                         stageName: string, stageCounter: string | number, pollingInterval?: number) {
     const repeaterFn = () => {
       return Promise.all([StageOverviewViewModel.fetchStageInstance(pipelineName, pipelineCounter, stageName, stageCounter), AgentsCRUD.all()]).then(result => {
         result[0].do((jobsSuccessResponse) => {
@@ -168,10 +169,12 @@ export class StageOverviewViewModel {
       });
     };
 
+    const interval = pollingInterval ? pollingInterval : StageOverviewViewModel.POLLING_INTERVAL_IN_SECONDS;
+
     const poller = new AjaxPoller({
       repeaterFn,
-      initialIntervalSeconds: StageOverviewViewModel.POLLING_INTERVAL_IN_SECONDS,
-      intervalSeconds:        StageOverviewViewModel.POLLING_INTERVAL_IN_SECONDS
+      initialIntervalSeconds: interval,
+      intervalSeconds:        interval
     });
 
     poller.start();

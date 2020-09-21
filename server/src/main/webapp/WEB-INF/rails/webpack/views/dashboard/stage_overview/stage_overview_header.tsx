@@ -241,7 +241,7 @@ class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCa
         disabledMessage = `Can not rerun current stage. Stage '${vnode.attrs.inProgressStageFromPipeline().name}' from the pipeline is still in progress.`;
       }
 
-      return <div data-test-id="rerun-stage">
+      return <div class={styles.cancelOrRerunStageIcon} data-test-id="rerun-stage">
         <Icons.Repeat iconOnly={true} disabled={disabled}
                       title="Rerun stage"
                       onmouseover={() => vnode.state.isTriggerHover(true)}
@@ -254,7 +254,7 @@ class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCa
     }
 
     const disabledMessage = `You dont have permissions to cancel the stage.`;
-    return <div data-test-id="cancel-stage">
+    return <div class={styles.cancelOrRerunStageIcon} data-test-id="cancel-stage">
       <Icons.CancelStage iconOnly={true} disabled={disabled}
                          title="Cancel stage"
                          onmouseover={() => vnode.state.isTriggerHover(true)}

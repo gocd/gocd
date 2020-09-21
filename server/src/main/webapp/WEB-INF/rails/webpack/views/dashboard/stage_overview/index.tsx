@@ -40,6 +40,8 @@ export interface Attrs {
   canAdminister: boolean;
   stageInstanceFromDashboard: any;
   isDisplayedOnPipelineActivityPage?: boolean;
+  isDisplayedOnVSMPage?: boolean;
+  leftPositionForVSMStageOverview?: number;
   stageOverviewVM: Stream<StageOverviewViewModel | undefined>;
 }
 
@@ -71,6 +73,9 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
       } else {
         classNames = `${classNames} ${styles.pipelineActivityAlignRight}`;
       }
+    } else if (vnode.attrs.isDisplayedOnVSMPage) {
+      classNames = `${classNames} ${styles.vsmClass}`;
+      classNames = `${classNames} ${styles.pipelineActivityAlignRight}`;
     } else if(shouldAlignLeft) {
       classNames = `${classNames} ${styles.alignLeft}`;
     }
@@ -84,13 +89,22 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
 
       // for a user with no operate permission, the add comment feature is not available, making the stage overview mis-positioned,
       // hence, position stage overview a little above for read only users.
-      if(!vnode.attrs.stageInstanceFromDashboard.canOperate) {
+      if (!vnode.attrs.stageInstanceFromDashboard.canOperate) {
         top = 27;
       }
 
-      if(shouldAlignLeft) {
+      if (shouldAlignLeft) {
         left = -655;
       }
+
+      // @ts-ignore
+      vnode.dom.style.top = `${top}px`;
+      // @ts-ignore
+      vnode.dom.style.left = `${left}px`;
+      return;
+    } else if (vnode.attrs.isDisplayedOnVSMPage) {
+      const top = 76;
+      const left = vnode.attrs.leftPositionForVSMStageOverview!;
 
       // @ts-ignore
       vnode.dom.style.top = `${top}px`;

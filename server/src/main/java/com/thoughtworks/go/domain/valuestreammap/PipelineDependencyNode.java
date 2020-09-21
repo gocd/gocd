@@ -23,6 +23,7 @@ public class PipelineDependencyNode extends Node {
     private Set<Revision> revisions = new HashSet<>();
     private String message;
     private boolean canEdit;
+    private String templateName;
 
     public PipelineDependencyNode(CaseInsensitiveString nodeId, String nodeName) {
         super(DependencyNodeType.PIPELINE, nodeId, nodeName);
@@ -52,6 +53,14 @@ public class PipelineDependencyNode extends Node {
 
     public void setCanEdit(boolean canEdit) {
         this.canEdit = canEdit;
+    }
+
+    public String getTemplateName() {
+        return templateName;
+    }
+
+    public void setTemplateName(String templateName) {
+        this.templateName = templateName;
     }
 
     @Override

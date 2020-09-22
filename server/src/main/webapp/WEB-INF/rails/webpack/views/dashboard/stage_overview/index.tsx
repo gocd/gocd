@@ -25,6 +25,10 @@ import {StageOverviewViewModel} from "./models/stage_overview_view_model";
 import {StageState} from "./models/types";
 import {StageHeaderWidget} from "./stage_overview_header";
 
+interface State {
+  userSelectedStageCounter: Stream<number | string>;
+}
+
 export interface Attrs {
   pipelineName: string;
   pipelineCounter: string | number;
@@ -39,8 +43,12 @@ export interface Attrs {
   stageOverviewVM: Stream<StageOverviewViewModel | undefined>;
 }
 
-export class StageOverview extends MithrilComponent<Attrs, {}> {
-  oncreate(vnode: m.Vnode<Attrs, {}>) {
+export class StageOverview extends MithrilComponent<Attrs, State> {
+  oninit(vnode: m.Vnode<Attrs, State>) {
+    vnode.state.userSelectedStageCounter = Stream<string | number>(vnode.attrs.stageCounter);
+  }
+
+  oncreate(vnode: m.Vnode<Attrs, State>) {
     // @ts-ignore
     vnode.dom.onclick = (e: any) => {
       e.stopPropagation();
@@ -135,7 +143,7 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
     vnode.dom.style.left = `${leftAlign}px`;
   }
 
-  view(vnode: m.Vnode<Attrs, {}>): m.Children | void | null {
+  view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
     // @ts-ignore
     const status = styles[`${vnode.attrs.stageInstanceFromDashboard.status.toLowerCase()}-stage`];
 
@@ -151,16 +159,19 @@ export class StageOverview extends MithrilComponent<Attrs, {}> {
       <div class={`${status} ${styles.stageOverviewStatus}`}/>
       <StageHeaderWidget stageName={vnode.attrs.stageName}
                          stageCounter={vnode.attrs.stageCounter}
+                         userSelectedStageCounter={vnode.state.userSelectedStageCounter}
                          pipelineName={vnode.attrs.pipelineName}
                          pipelineCounter={vnode.attrs.pipelineCounter}
                          templateName={vnode.attrs.templateName}
                          stageInstanceFromDashboard={vnode.attrs.stageInstanceFromDashboard}
                          inProgressStageFromPipeline={inProgressStageFromPipeline}
+                         stageOverviewVM={vnode.attrs.stageOverviewVM as Stream<StageOverviewViewModel>}
                          flashMessage={vnode.attrs.stageOverviewVM()!.flashMessage}
                          canAdminister={vnode.attrs.canAdminister}
                          stageInstance={vnode.attrs.stageOverviewVM()!.stageInstance}/>
       <JobCountAndRerunWidget stageName={vnode.attrs.stageName}
                               stageCounter={vnode.attrs.stageCounter}
+                              userSelectedStageCounter={vnode.state.userSelectedStageCounter}
                               pipelineName={vnode.attrs.pipelineName}
                               pipelineCounter={vnode.attrs.pipelineCounter}
                               flashMessage={vnode.attrs.stageOverviewVM()!.flashMessage}

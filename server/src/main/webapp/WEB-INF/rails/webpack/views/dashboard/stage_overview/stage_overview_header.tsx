@@ -20,9 +20,12 @@ import * as Icons from "views/components/icons";
 import {ErrorResponse} from "../../../helpers/api_request_builder";
 import {MithrilComponent} from "../../../jsx/mithril-component";
 import {FlashMessage, FlashMessageModelWithTimeout, MessageType} from "../../components/flash_message";
+import {SelectField, SelectFieldOptions} from "../../components/forms/input_fields";
 import {Link} from "../../components/link";
 import * as styles from "./index.scss";
 import {StageInstance} from "./models/stage_instance";
+import {StageOverviewViewModel} from "./models/stage_overview_view_model";
+import {StageState} from "./models/types";
 
 interface StageHeaderAttrs {
   stageName: string;
@@ -35,19 +38,42 @@ interface StageHeaderAttrs {
   flashMessage: FlashMessageModelWithTimeout;
   stageInstance: Stream<StageInstance>;
   inProgressStageFromPipeline: Stream<any | undefined>;
+  stageOverviewVM: Stream<StageOverviewViewModel>;
+  userSelectedStageCounter: Stream<string | number>;
 }
 
 interface StageHeaderState {
   isSettingsHover: Stream<boolean>;
+  onStageCounterDropdownChange: (vnode: m.Vnode<StageHeaderAttrs, StageHeaderState>) => any;
+  isLoading: Stream<boolean>;
 }
 
 export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageHeaderState> {
   oninit(vnode: m.Vnode<StageHeaderAttrs, StageHeaderState>) {
     vnode.state.isSettingsHover = Stream<boolean>(false);
+    vnode.state.isLoading = Stream<boolean>(false);
+
+    vnode.state.onStageCounterDropdownChange = (vnode: m.Vnode<StageHeaderAttrs, StageHeaderState>) => {
+      vnode.state.isLoading(true);
+
+      // pass in the stage state as passed/failed, this value is just to denote whether the current stage instance has completed.
+      StageOverviewViewModel.initialize(vnode.attrs.pipelineName, vnode.attrs.pipelineCounter, vnode.attrs.stageName, vnode.attrs.userSelectedStageCounter(), StageState.Passed)
+        .then((result) => {
+          let stageResult = result.stageInstance().result();
+          if (stageResult === "Unknown") {
+            stageResult = "Building";
+          }
+          vnode.attrs.stageOverviewVM().stopRepeater();
+          vnode.attrs.stageInstanceFromDashboard.status = stageResult;
+          vnode.attrs.stageOverviewVM(result);
+        }).finally(() => {
+        vnode.state.isLoading(false);
+      });
+    };
   }
 
   view(vnode: m.Vnode<StageHeaderAttrs, StageHeaderState>): m.Children | void | null {
-    const stageDetailsPageLink = `/go/pipelines/${vnode.attrs.pipelineName}/${vnode.attrs.pipelineCounter}/${vnode.attrs.stageName}/${vnode.attrs.stageCounter}`;
+    const stageDetailsPageLink = `/go/pipelines/${vnode.attrs.pipelineName}/${vnode.attrs.pipelineCounter}/${vnode.attrs.stageName}/${vnode.attrs.userSelectedStageCounter()}`;
 
     let canceledBy: m.Child, dummyContainer;
     if (vnode.attrs.stageInstance().isCancelled()) {
@@ -56,7 +82,8 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
           Cancelled by <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().cancelledBy()}</span>
         </div>
         <div data-test-id="cancelled-on-container" className={styles.triggeredByContainer}>
-          on <span title={vnode.attrs.stageInstance().cancelledOnServerTime()} className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().cancelledOn()}</span> Local Time
+          on <span title={vnode.attrs.stageInstance().cancelledOnServerTime()}
+                   className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().cancelledOn()}</span> Local Time
         </div>
       </div>);
 
@@ -89,6 +116,31 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
       </div>);
     }
 
+    let spinner: m.Children;
+    if (vnode.state.isLoading()) {
+      spinner = <Icons.Spinner iconOnly={true}/>;
+    }
+
+    let stageCounterView: m.Children;
+    if ((+vnode.attrs.stageCounter) > 1) {
+
+      const items = [];
+      for (let i = 1; i <= (+vnode.attrs.stageCounter); i++) {
+        items.push(`${i}`);
+      }
+
+      stageCounterView = (<div class={styles.stageCounterDropdownWrapper} data-test-id="stage-counter-dropdown">
+        <SelectField property={vnode.attrs.userSelectedStageCounter as Stream<string>}
+                     onchange={vnode.state.onStageCounterDropdownChange.bind(vnode.state, vnode)}>
+          <SelectFieldOptions selected={`${vnode.attrs.userSelectedStageCounter()}`} items={items}/>
+        </SelectField>
+        {spinner}
+      </div>);
+    } else {
+      stageCounterView = (
+        <div data-test-id="stage-counter" className={styles.stageName}>{vnode.attrs.stageCounter}</div>);
+    }
+
     return <div data-test-id="stage-overview-header" class={styles.stageHeaderContainer}>
       {optionalFlashMessage}
       <div data-test-id="stage-name-and-operations-container" class={styles.flexBox}>
@@ -110,11 +162,12 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
           <Icons.AngleDoubleRight iconOnly={true}/>
           <div data-test-id="stage-instance-container">
             <div className={styles.stageNameTitle}>Instance</div>
-            <div className={styles.stageName}>{vnode.attrs.stageCounter}</div>
+            {stageCounterView}
           </div>
         </div>
         <div data-test-id="stage-operations-container" class={styles.stageOperationButtonGroup}>
           <StageTriggerOrCancelButtonWidget stageInstance={vnode.attrs.stageInstance}
+                                            userSelectedStageCounter={vnode.attrs.userSelectedStageCounter}
                                             inProgressStageFromPipeline={vnode.attrs.inProgressStageFromPipeline}
                                             flashMessage={vnode.attrs.flashMessage}
                                             stageInstanceFromDashboard={vnode.attrs.stageInstanceFromDashboard}/>
@@ -130,7 +183,8 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
             Triggered by <span class={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredBy()}</span>
           </div>
           <div data-test-id="triggered-on-container" className={styles.triggeredByContainer}>
-            on <span title={vnode.attrs.stageInstance().triggeredOnServerTime()} className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredOn()}</span> Local Time
+            on <span title={vnode.attrs.stageInstance().triggeredOnServerTime()}
+                     className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().triggeredOn()}</span> Local Time
             <span className={styles.durationSeparator}>|</span>
             Duration: <span className={styles.triggeredByAndOn}>{vnode.attrs.stageInstance().stageDuration()}</span>
           </div>
@@ -149,20 +203,24 @@ interface StageTriggerOrCancelButtonAttrs {
   stageInstanceFromDashboard: any;
   flashMessage: FlashMessageModelWithTimeout;
   inProgressStageFromPipeline: Stream<any | undefined>;
+  userSelectedStageCounter: Stream<string | number>;
 }
 
 interface StageTriggerOrCancelButtonState {
-  getResultHandler: (attrs: StageTriggerOrCancelButtonAttrs) => any;
+  getResultHandler: (attrs: StageTriggerOrCancelButtonAttrs, shouldIncrement: boolean) => any;
   isTriggerHover: Stream<boolean>;
 }
 
 class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCancelButtonAttrs, StageTriggerOrCancelButtonState> {
   oninit(vnode: m.Vnode<StageTriggerOrCancelButtonAttrs, StageTriggerOrCancelButtonState>) {
     vnode.state.isTriggerHover = Stream<boolean>(false);
-    vnode.state.getResultHandler = (attrs) => {
+    vnode.state.getResultHandler = (attrs, shouldIncrement: boolean) => {
       return (result: any) => {
         result.do((successResponse: any) => {
           attrs.flashMessage.setMessage(MessageType.success, JSON.parse(successResponse.body).message);
+          if (shouldIncrement) {
+            vnode.attrs.userSelectedStageCounter(`${(+vnode.attrs.userSelectedStageCounter()) + 1}`);
+          }
         }, (errorResponse: ErrorResponse) => {
           attrs.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
         });
@@ -177,7 +235,7 @@ class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCa
     if (vnode.attrs.stageInstance().isCompleted()) {
       let disabledMessage = `You dont have permissions to rerun the stage.`;
 
-      if(vnode.attrs.inProgressStageFromPipeline()) {
+      if (vnode.attrs.inProgressStageFromPipeline()) {
         disabled = true;
         disabledClass = (vnode.state.isTriggerHover() && disabled) ? '' : styles.hidden;
         disabledMessage = `Can not rerun current stage. Stage '${vnode.attrs.inProgressStageFromPipeline().name}' from the pipeline is still in progress.`;
@@ -188,7 +246,9 @@ class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCa
                       title="Rerun stage"
                       onmouseover={() => vnode.state.isTriggerHover(true)}
                       onmouseout={() => vnode.state.isTriggerHover(false)}
-                      onclick={() => {vnode.attrs.stageInstance().runStage().then(vnode.state.getResultHandler(vnode.attrs));}}/>
+                      onclick={() => {
+                        vnode.attrs.stageInstance().runStage().then(vnode.state.getResultHandler(vnode.attrs, true));
+                      }}/>
         <span className={`${styles.tooltipMessage} ${disabledClass}`}>{disabledMessage}</span>
       </div>;
     }
@@ -199,7 +259,9 @@ class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCa
                          title="Cancel stage"
                          onmouseover={() => vnode.state.isTriggerHover(true)}
                          onmouseout={() => vnode.state.isTriggerHover(false)}
-                         onclick={() => {vnode.attrs.stageInstance().cancelStage().then(vnode.state.getResultHandler(vnode.attrs));}}/>
+                         onclick={() => {
+                           vnode.attrs.stageInstance().cancelStage().then(vnode.state.getResultHandler(vnode.attrs, false));
+                         }}/>
       <span className={`${styles.tooltipMessage} ${disabledClass}`}>{disabledMessage}</span>
     </div>;
   }

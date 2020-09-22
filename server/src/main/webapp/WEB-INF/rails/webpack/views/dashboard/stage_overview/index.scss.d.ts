@@ -48,6 +48,7 @@ export const sourceRoot: string;
 export const sources: string;
 export const sourcesContent: string;
 export const spin: string;
+export const stageCounterDropdownWrapper: string;
 export const stageDetailsPageLink: string;
 export const stageHeaderContainer: string;
 export const stageName: string;

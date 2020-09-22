@@ -29,7 +29,7 @@ describe("Stage Overview Widget", () => {
   const pipelineName = "build-linux";
   const pipelineCounter = 123456789;
   const stageName = "build-and-run-jasmine-specs";
-  const stageCounter = 97654321;
+  const stageCounter = 1;
 
   afterEach(() => {
     helper.unmount();

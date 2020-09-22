@@ -30,6 +30,7 @@ import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.plugins.InvalidPluginTypeException
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.DeprecatedApiTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
@@ -43,7 +44,7 @@ import static com.thoughtworks.go.helpers.PluginInfoMother.createSCMPluginInfo
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
-class PluginInfosControllerV6Test implements SecurityServiceTrait, ControllerTrait<PluginInfosControllerV6> {
+class PluginInfosControllerV6Test implements SecurityServiceTrait, ControllerTrait<PluginInfosControllerV6>, DeprecatedApiTrait {
   @Mock
   private DefaultPluginInfoFinder pluginInfoFinder
 

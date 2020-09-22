@@ -91,7 +91,7 @@ $building: #ffc11b;
   .stage-name-container {
     i {
       font-size:   17px;
-      margin:      11px 10px 0 10px;
+      margin:      17px 10px 0 10px;
       font-weight: 400;
 
       &:before {
@@ -140,6 +140,16 @@ $building: #ffc11b;
 
   .rerun-wrapper {
     left: 34px;
+  }
+
+  .stage-counter-dropdown-wrapper {
+    select {
+      padding-right: 0;
+    }
+
+    i {
+      margin-top: 6px;
+    }
   }
 }
 
@@ -270,7 +280,7 @@ $building: #ffc11b;
 
   i {
     font-size:   17px;
-    margin:      13px 10px 0 10px;
+    margin:      17px 10px 0 10px;
     font-weight: 400;
     color:       $gray;
   }
@@ -282,11 +292,30 @@ $building: #ffc11b;
 }
 
 .stage-name {
-  margin-top:  -4px;
+  margin-top:  3px;
   font-size:   17px;
   font-weight: 600;
   max-width:   200px;
   word-break:  break-all;
+}
+
+.stage-counter-dropdown-wrapper {
+  display: flex;
+
+  select {
+    width:         55px !important; //sass-lint:disable-line no-important
+    padding-right: 25px;
+    height:        30px;
+    line-height:   30px;
+    margin-top:    3px;
+    margin-bottom: -30px;
+  }
+
+  i {
+    margin-top:  5px;
+    margin-left: 3px;
+    height:      24px;
+  }
 }
 
 .stage-trigger-and-timing-container {

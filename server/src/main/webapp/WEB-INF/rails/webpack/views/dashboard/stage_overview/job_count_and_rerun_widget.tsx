@@ -31,11 +31,12 @@ export interface Attrs {
   flashMessage: FlashMessageModelWithTimeout;
   jobsVM: Stream<JobsViewModel>;
   inProgressStageFromPipeline: Stream<any | undefined>;
+  userSelectedStageCounter: Stream<string | number>;
 }
 
 export interface State {
-  rerunFailed: (attrs: Attrs) => void;
-  rerunSelected: (attrs: Attrs) => void;
+  rerunFailed: (vnode: m.Vnode<Attrs, State>) => void;
+  rerunSelected: (vnode: m.Vnode<Attrs, State>) => void;
 }
 
 export class JobCountAndRerunWidget extends MithrilComponent<Attrs, State> {
@@ -44,18 +45,19 @@ export class JobCountAndRerunWidget extends MithrilComponent<Attrs, State> {
       return (result: any) => {
         result.do((successResponse: any) => {
           attrs.flashMessage.setMessage(MessageType.success, JSON.parse(successResponse.body).message);
+          vnode.attrs.userSelectedStageCounter(`${(+vnode.attrs.stageCounter) + 1}`);
         }, (errorResponse: ErrorResponse) => {
           attrs.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
         });
       };
     }
 
-    vnode.state.rerunFailed = (attrs: Attrs) => {
-      attrs.jobsVM().rerunFailedJobs(attrs.pipelineName, attrs.pipelineCounter, attrs.stageName, attrs.stageCounter).then(getResultHandler(attrs));
+    vnode.state.rerunFailed = (vnode: m.Vnode<Attrs, State>) => {
+      vnode.attrs.jobsVM().rerunFailedJobs(vnode.attrs.pipelineName, vnode.attrs.pipelineCounter, vnode.attrs.stageName, vnode.attrs.userSelectedStageCounter()).then(getResultHandler(vnode.attrs));
     };
 
-    vnode.state.rerunSelected = (attrs: Attrs) => {
-      attrs.jobsVM().rerunSelectedJobs(attrs.pipelineName, attrs.pipelineCounter, attrs.stageName, attrs.stageCounter).then(getResultHandler(attrs));
+    vnode.state.rerunSelected = (vnode: m.Vnode<Attrs, State>) => {
+      vnode.attrs.jobsVM().rerunSelectedJobs(vnode.attrs.pipelineName, vnode.attrs.pipelineCounter, vnode.attrs.stageName, vnode.attrs.userSelectedStageCounter()).then(getResultHandler(vnode.attrs));
     };
   }
 
@@ -93,9 +95,9 @@ export class JobCountAndRerunWidget extends MithrilComponent<Attrs, State> {
       <div class={styles.jobRerunContainer} data-test-id="job-rerun-container">
         <ButtonGroup>
           <Secondary title={rerunFailedTitle} disabled={disableRerunFailed} small={true}
-                     onclick={vnode.state.rerunFailed.bind(vnode.state, vnode.attrs)}>Rerun Failed</Secondary>
+                     onclick={vnode.state.rerunFailed.bind(vnode.state, vnode)}>Rerun Failed</Secondary>
           <Secondary title={rerunSelectedTitle} disabled={disableRerunSelected} small={true}
-                     onclick={vnode.state.rerunSelected.bind(vnode.state, vnode.attrs)}>Rerun Selected</Secondary>
+                     onclick={vnode.state.rerunSelected.bind(vnode.state, vnode)}>Rerun Selected</Secondary>
         </ButtonGroup>
       </div>
       <div class={styles.jobCountContainer} data-test-id="job-cont-container">

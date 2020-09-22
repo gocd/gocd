@@ -72,6 +72,10 @@ export class StageInstance {
     return this.json.result === Result[Result.Cancelled];
   }
 
+  result(): any {
+    return this.json.result;
+  }
+
   isCompleted(): boolean {
     return !this.isStageInProgress();
   }

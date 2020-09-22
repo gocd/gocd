@@ -16,9 +16,11 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
+import {Agents} from "../../../../models/agents/agents";
 import {FlashMessageModelWithTimeout, MessageType} from "../../../components/flash_message";
 import {TestHelper} from "../../../pages/spec/test_helper";
 import {StageInstance} from "../models/stage_instance";
+import {StageOverviewViewModel} from "../models/stage_overview_view_model";
 import {Result} from "../models/types";
 import {StageHeaderWidget} from "../stage_overview_header";
 import {TestData} from "./test_data";
@@ -29,11 +31,12 @@ describe('Stage Overview Header', () => {
   const pipelineName = "up42";
   const pipelineCounter = 20;
   const stageName = "up42_stage";
-  const stageCounter = 1;
+  let stageCounter: number;
 
   let stageInstance: StageInstance, flashMessage: FlashMessageModelWithTimeout;
 
   beforeEach(() => {
+    stageCounter = 1;
     flashMessage = new FlashMessageModelWithTimeout();
     stageInstance = new StageInstance(TestData.stageInstanceJSON());
     mount();
@@ -58,6 +61,29 @@ describe('Stage Overview Header', () => {
   it('should render stage instance', () => {
     expect(helper.byTestId('stage-instance-container')).toContainText('Instance');
     expect(helper.byTestId('stage-instance-container')).toContainText('1');
+  });
+
+  it('should render stage counter as plain text when stage counter is 1', () => {
+    expect(helper.byTestId('stage-counter')).toBeInDOM();
+    expect(helper.byTestId('stage-counter-dropdown')).not.toBeInDOM();
+
+    expect(helper.byTestId('stage-counter')).toContainText('1');
+  });
+
+  it('should render stage counter as dropdown when stage counter greater than 1', () => {
+    helper.unmount();
+    stageCounter = 2;
+    mount();
+
+    expect(helper.byTestId('stage-counter')).not.toBeInDOM();
+    expect(helper.byTestId('stage-counter-dropdown')).toBeInDOM();
+
+    expect((helper.q('select') as HTMLSelectElement).value).toBe("2");
+
+    const options = helper.qa('option');
+
+    expect((options[0] as HTMLOptionElement).value).toBe("1");
+    expect((options[1] as HTMLOptionElement).value).toBe("2");
   });
 
   it('should render stage operations container', () => {
@@ -172,7 +198,9 @@ describe('Stage Overview Header', () => {
                                 templateName={templateName}
                                 stageName={stageName}
                                 stageCounter={stageCounter}
+                                userSelectedStageCounter={Stream<number | string>(stageCounter)}
                                 flashMessage={flashMessage}
+                                stageOverviewVM={Stream(new StageOverviewViewModel(pipelineName, pipelineCounter, stageName, stageCounter, stageInstance, new Agents()))}
                                 stageInstance={Stream(stageInstance)}/>;
     });
   }

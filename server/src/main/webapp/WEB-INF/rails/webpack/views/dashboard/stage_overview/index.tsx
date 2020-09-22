@@ -25,10 +25,6 @@ import {StageOverviewViewModel} from "./models/stage_overview_view_model";
 import {StageState} from "./models/types";
 import {StageHeaderWidget} from "./stage_overview_header";
 
-interface State {
-  shouldAlignLeft: Stream<boolean>;
-}
-
 export interface Attrs {
   pipelineName: string;
   pipelineCounter: string | number;
@@ -43,12 +39,8 @@ export interface Attrs {
   stageOverviewVM: Stream<StageOverviewViewModel | undefined>;
 }
 
-export class StageOverview extends MithrilComponent<Attrs, State> {
-  oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.shouldAlignLeft = Stream<boolean>(false);
-  }
-
-  oncreate(vnode: m.Vnode<Attrs, State>) {
+export class StageOverview extends MithrilComponent<Attrs, {}> {
+  oncreate(vnode: m.Vnode<Attrs, {}>) {
     // @ts-ignore
     vnode.dom.onclick = (e: any) => {
       e.stopPropagation();
@@ -61,10 +53,22 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
     // align stage overview to left when the right boundry of the stage overview is outside of the window width
     const shouldAlignLeft = stageOverviewRightBoundry > windowWidth;
 
-    // add an extra class which aligns the caret to right.
-    if (shouldAlignLeft) {
-      vnode.state.shouldAlignLeft(true);
+    // @ts-ignore
+    const status = styles[`${vnode.attrs.stageInstanceFromDashboard.status.toLowerCase()}-stage`];
+    let classNames = `${styles.stageOverviewContainer} ${status}`;
+    if(vnode.attrs.isDisplayedOnPipelineActivityPage) {
+      classNames = `${classNames} ${styles.pipelineActivityClass}`;
+      if(shouldAlignLeft) {
+        classNames = `${classNames} ${styles.pipelineActivityAlignLeft}`;
+      } else {
+        classNames = `${classNames} ${styles.pipelineActivityAlignRight}`;
+      }
+    } else if(shouldAlignLeft) {
+      classNames = `${classNames} ${styles.alignLeft}`;
     }
+
+    // @ts-ignore
+    classNames.split(" ").filter(c => !!c).forEach(c => {vnode.dom.classList.add(c);});
 
     if (vnode.attrs.isDisplayedOnPipelineActivityPage) {
       let top = 36;
@@ -131,31 +135,19 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
     vnode.dom.style.left = `${leftAlign}px`;
   }
 
-  view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
+  view(vnode: m.Vnode<Attrs, {}>): m.Children | void | null {
     // @ts-ignore
     const status = styles[`${vnode.attrs.stageInstanceFromDashboard.status.toLowerCase()}-stage`];
 
-    let classNames = `${styles.stageOverviewContainer} ${status}`;
-    if(vnode.attrs.isDisplayedOnPipelineActivityPage) {
-      classNames = `${classNames} ${styles.pipelineActivityClass}`;
-      if(vnode.state.shouldAlignLeft()) {
-        classNames = `${classNames} ${styles.pipelineActivityAlignLeft}`;
-      } else {
-        classNames = `${classNames} ${styles.pipelineActivityAlignRight}`;
-      }
-    } else if(vnode.state.shouldAlignLeft()) {
-      classNames = `${classNames} ${styles.alignLeft}`;
-    }
-
     if (!vnode.attrs.stageOverviewVM()) {
-      return <div data-test-id="stage-overview-container-spinner" class={classNames}>
+      return <div data-test-id="stage-overview-container-spinner" style="width: 813px">
         <div className={`${status} ${styles.stageOverviewStatus}`}/>
         <Spinner/>
       </div>;
     }
 
     const inProgressStageFromPipeline = Stream(vnode.attrs.stages.find((s) => s.isBuilding()));
-    return <div data-test-id="stage-overview-container" class={classNames}>
+    return <div data-test-id="stage-overview-container" style="width: 813px">
       <div class={`${status} ${styles.stageOverviewStatus}`}/>
       <StageHeaderWidget stageName={vnode.attrs.stageName}
                          stageCounter={vnode.attrs.stageCounter}

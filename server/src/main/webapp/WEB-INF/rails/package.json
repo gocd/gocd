@@ -36,7 +36,7 @@
     "lorem-ipsum": "^2.0.3",
     "lru-cache": "^6.0.0",
     "mithril": "^2",
-    "moment": "^2.28.0",
+    "moment": "^2.29.0",
     "moment-duration-format": "^2.3.2",
     "normalize-scss": "^7.0.1",
     "opensans": "file:vendor/assets/fonts/opensans",

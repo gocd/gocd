@@ -29,6 +29,7 @@ import com.thoughtworks.go.plugin.infra.DefaultPluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
+import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +47,7 @@ import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
 @Component
+@DeprecatedAPI(deprecatedApiVersion = ApiVersion.v6, successorApiVersion = ApiVersion.v7, deprecatedIn = "20.8.0", removalIn = "20.11.0", entityName = "PluginInfo")
 public class PluginInfosControllerV6 extends ApiController implements SparkSpringController {
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;

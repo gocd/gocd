@@ -35,6 +35,7 @@ import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.MaterialConfigConverter
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.DeprecatedApiTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -53,7 +54,7 @@ import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 import static org.mockito.internal.verification.VerificationModeFactory.times
 
-class ConfigReposControllerV3Test implements SecurityServiceTrait, ControllerTrait<ConfigReposControllerV3> {
+class ConfigReposControllerV3Test implements SecurityServiceTrait, ControllerTrait<ConfigReposControllerV3>, DeprecatedApiTrait {
   private static final String TEST_PLUGIN_ID = "test.configrepo.plugin"
   private static final String TEST_REPO_URL = "https://fakeurl.com"
   private static final String ID_1 = "repo-01"

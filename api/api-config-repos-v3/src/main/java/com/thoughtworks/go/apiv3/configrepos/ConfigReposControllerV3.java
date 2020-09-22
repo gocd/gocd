@@ -37,6 +37,7 @@ import com.thoughtworks.go.server.service.ConfigRepoService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,7 @@ import static java.util.stream.Collectors.toCollection;
 import static spark.Spark.*;
 
 @Component
+@DeprecatedAPI(deprecatedApiVersion = ApiVersion.v3, successorApiVersion = ApiVersion.v4, deprecatedIn = "20.8.0", removalIn = "20.11.0", entityName = "Config Repo")
 public class ConfigReposControllerV3 extends ApiController implements SparkSpringController, CrudController<ConfigRepoConfig> {
     private final ApiAuthenticationHelper authHelper;
     private final ConfigRepoService service;

@@ -143,6 +143,15 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
     vnode.dom.style.left = `${leftAlign}px`;
   }
 
+  onupdate(vnode: m.VnodeDOM<Attrs, State>): any {
+    const existingClassesToRemove = [styles.buildingStage, styles.cancelledStage, styles.passedStage, styles.failedStage, styles.failingStage];
+    existingClassesToRemove.forEach((c) => vnode.dom.classList.remove(c));
+
+    // @ts-ignore
+    const status = styles[`${vnode.attrs.stageInstanceFromDashboard.status.toLowerCase()}-stage`];
+    vnode.dom.classList.add(status);
+  }
+
   view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
     // @ts-ignore
     const status = styles[`${vnode.attrs.stageInstanceFromDashboard.status.toLowerCase()}-stage`];

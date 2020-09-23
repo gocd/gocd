@@ -238,8 +238,6 @@ describe("value_stream_map_renderer", function () {
         assertEquals("label of a pipeline instance does not point to th vsm page.", "/go/pipelines/value_stream_map/current/1", jQuery("#vsm-container #current ul li h4 a").attr("href"));
         assertEquals("pipeline node does not have all instances populated correctly.", 1, jQuery("#vsm-container #current ul").find("li.instance").length);
         assertEquals("stage details for pipeline instances are not populated correctly.", 2, jQuery("#vsm-container #current ul ul").find(".stage_bar").length);
-        assertEquals("stage details for pipeline instances are not populated correctly.", "/go/pipelines/current/1/defaultStage/1",
-            jQuery("#vsm-container #current ul ul li.stage_bar.Passed a").attr("href"));
         assertEquals("stage hover message is not correctly populated", "defaultStage (took 1m 57.0s)", jQuery("#vsm-container #current ul ul li.stage_bar.Passed").attr('title'));
     });
 

@@ -16,6 +16,7 @@
 package com.thoughtworks.go.domain.config;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.lang3.StringUtils;
@@ -158,10 +159,23 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
     }
 
     public Map<String, String> getConfigurationAsMap(boolean addSecureFields) {
+        return getConfigurationAsMap(addSecureFields, false);
+    }
+
+
+    /**
+     * Returns the configuration values a map of key-value pair
+     * @param addSecureFields should add secure fields
+     * @param useResolvedValue should try to resolve any secret params found.
+     * @throws UnresolvedSecretParamException if useResolvedValue is set to true and the secrets are not resolved
+     * @return map of configs
+     */
+    public Map<String, String> getConfigurationAsMap(boolean addSecureFields, boolean useResolvedValue) {
         Map<String, String> configurationMap = new LinkedHashMap<>();
         for (ConfigurationProperty currentConfiguration : this) {
             if (addSecureFields || !currentConfiguration.isSecure()) {
-                configurationMap.put(currentConfiguration.getConfigKeyName(), currentConfiguration.getValue());
+                String value = useResolvedValue ? currentConfiguration.getResolvedValue() : currentConfiguration.getValue();
+                configurationMap.put(currentConfiguration.getConfigKeyName(), value);
             }
         }
         return configurationMap;

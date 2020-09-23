@@ -16,6 +16,8 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
@@ -129,6 +131,22 @@ public class RulesService {
 
     public void validateSecretConfigReferences(PackageDefinition packageDefinition) {
         Map<CaseInsensitiveString, StringBuilder> errors = validate(packageDefinition.getSecretParams(), packageDefinition.getRepository().getClass(), packageDefinition.getRepository().getName(), "Package Repository");
+
+        if (!errors.isEmpty()) {
+            throw new RulesViolationException(errorString(errors));
+        }
+    }
+
+    public void validateSecretConfigReferences(ClusterProfile clusterProfile) {
+        Map<CaseInsensitiveString, StringBuilder> errors = validate(clusterProfile.getSecretParams(), clusterProfile.getClass(), clusterProfile.getId(), "Cluster Profile");
+
+        if (!errors.isEmpty()) {
+            throw new RulesViolationException(errorString(errors));
+        }
+    }
+
+    public void validateSecretConfigReferences(ElasticProfile elasticProfile) {
+        Map<CaseInsensitiveString, StringBuilder> errors = validate(elasticProfile.getSecretParams(), ClusterProfile.class, elasticProfile.getClusterProfileId(), "Cluster Profile");
 
         if (!errors.isEmpty()) {
             throw new RulesViolationException(errorString(errors));

@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 
@@ -35,6 +36,7 @@ public enum SupportedEntity {
     ENVIRONMENT("environment", EnvironmentConfig.class),
     PLUGGABLE_SCM("pluggable_scm", SCM.class),
     PACKAGE_REPOSITORY("package_repository", PackageRepository.class),
+    CLUSTER_PROFILE("cluster_profile", ClusterProfile.class),
     UNKNOWN(null, null);
 
     private final String type;

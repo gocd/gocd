@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -61,6 +62,12 @@ class SupportedEntityTest {
     void shouldSupportPackageRepository() {
         assertThat(PACKAGE_REPOSITORY.getType()).isEqualTo("package_repository");
         assertThat(PACKAGE_REPOSITORY.getEntityType()).isEqualTo(PackageRepository.class);
+    }
+
+    @Test
+    void shouldSupportClusterProfile() {
+        assertThat(CLUSTER_PROFILE.getType()).isEqualTo("cluster_profile");
+        assertThat(CLUSTER_PROFILE.getEntityType()).isEqualTo(ClusterProfile.class);
     }
 
     @Test

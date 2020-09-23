@@ -16,6 +16,8 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
@@ -482,6 +484,80 @@ class SecretParamResolverTest {
             doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(packageDefinition);
 
             assertThatCode(() -> secretParamResolver.resolve(packageDefinition))
+                    .isInstanceOf(RuntimeException.class);
+
+            verifyNoInteractions(goConfigService);
+            verifyNoInteractions(secretsExtension);
+        }
+    }
+
+    @Nested
+    class ResolveSecretsForClusterProfile {
+        @Test
+        void shouldResolveSecretParams_IfConfigCanReferToASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][password]}}");
+            ClusterProfile clusterProfile = new ClusterProfile("cluster-id", "plugin-id", k1, k2);
+
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
+            when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password")))).thenReturn(singletonList(new Secret("password", "some-password")));
+
+            assertThat(clusterProfile.getSecretParams().get(0).isUnresolved()).isTrue();
+
+            secretParamResolver.resolve(clusterProfile);
+
+            verify(rulesService).validateSecretConfigReferences(clusterProfile);
+            assertThat(clusterProfile.getSecretParams().get(0).isUnresolved()).isFalse();
+            assertThat(clusterProfile.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+        }
+
+        @Test
+        void shouldErrorOut_IfConfigDoesNotHavePermissionToReferToASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            ClusterProfile clusterProfile = new ClusterProfile("cluster-id", "plugin-id", k1, k2);
+
+            doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(clusterProfile);
+
+            assertThatCode(() -> secretParamResolver.resolve(clusterProfile))
+                    .isInstanceOf(RuntimeException.class);
+
+            verifyNoInteractions(goConfigService);
+            verifyNoInteractions(secretsExtension);
+        }
+    }
+
+    @Nested
+    class ResolveSecretsForElasticProfile {
+        @Test
+        void shouldResolveSecretParams_IfConfigCanReferToASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][password]}}");
+            ElasticProfile elasticProfile = new ElasticProfile("elastic-id", "cluster-profile-id", k1, k2);
+
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
+            when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(singletonList("password")))).thenReturn(singletonList(new Secret("password", "some-password")));
+
+            assertThat(elasticProfile.getSecretParams().get(0).isUnresolved()).isTrue();
+
+            secretParamResolver.resolve(elasticProfile);
+
+            verify(rulesService).validateSecretConfigReferences(elasticProfile);
+            assertThat(elasticProfile.getSecretParams().get(0).isUnresolved()).isFalse();
+            assertThat(elasticProfile.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+        }
+
+        @Test
+        void shouldErrorOut_IfConfigDoesNotHavePermissionToReferToASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            ElasticProfile elasticProfile = new ElasticProfile("elastic-id", "cluster-profile-id", k1, k2);
+
+            doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(elasticProfile);
+
+            assertThatCode(() -> secretParamResolver.resolve(elasticProfile))
                     .isInstanceOf(RuntimeException.class);
 
             verifyNoInteractions(goConfigService);

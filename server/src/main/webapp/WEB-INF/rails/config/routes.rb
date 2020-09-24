@@ -46,30 +46,10 @@ Rails.application.routes.draw do
   put "admin/config_xml" => "admin/configuration#update", as: :config_update
   get "admin/config_xml/edit" => "admin/configuration#edit", as: :config_edit
 
-  resources :analytics, only: [:index], controller: "analytics"
-  get 'analytics/:plugin_id/:type/:id' => 'analytics#show', constraints: {plugin_id: PLUGIN_ID_FORMAT, id: PIPELINE_NAME_FORMAT}, as: :show_analytics
-
   get 'home' => 'home#index'
 
   get "pipelines/value_stream_map/:pipeline_name/:pipeline_counter(.:format)" => "value_stream_map#show", constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}, defaults: {:format => :html}, as: :vsm_show
   get "materials/value_stream_map/:material_fingerprint/:revision(.:format)" => "value_stream_map#show_material", defaults: {:format => :html}, constraints: {:revision => /[^\/]+(?=\.html\z|\.json\z)|[^\/]+/}, as: :vsm_show_material
-
-  namespace :admin do
-    namespace :security do
-      resources :auth_configs, only: [:index], controller: :auth_configs, as: :auth_configs
-      resources :roles, only: [:index], controller: :roles, as: :roles
-    end
-  end
-
-  namespace :api, as: "" do
-    defaults :no_layout => true do
-
-      defaults :format => 'xml' do
-        #job api's
-        get 'jobs/scheduled.xml' => 'jobs#scheduled'
-      end
-    end
-  end
 
   post 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/rerun-jobs' => 'stages#rerun_jobs', as: :rerun_jobs, constraints: STAGE_LOCATOR_CONSTRAINTS
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter" => "stages#overview", as: "stage_detail_tab_default", constraints: STAGE_LOCATOR_CONSTRAINTS

@@ -23,6 +23,7 @@ import com.thoughtworks.go.server.domain.ServerMaintenanceMode;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TestingClock;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.After;
 import org.junit.Before;
@@ -45,10 +46,10 @@ public class TimerSchedulerQuartzIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        maintenanceModeService = new MaintenanceModeService(new TimeProvider());
+        systemEnvironment = new SystemEnvironment();
+        maintenanceModeService = new MaintenanceModeService(new TimeProvider(), systemEnvironment);
         quartzSchedulerFactory = new StdSchedulerFactory();
         scheduler = quartzSchedulerFactory.getScheduler();
-        systemEnvironment = new SystemEnvironment();
         scheduler.start();
     }
 

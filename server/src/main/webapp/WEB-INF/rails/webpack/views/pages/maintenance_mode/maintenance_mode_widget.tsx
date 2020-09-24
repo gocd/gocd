@@ -19,8 +19,8 @@ import m from "mithril";
 import {MaintenanceModeInfo, RunningSystem, StageLocator} from "models/maintenance_mode/types";
 import {Link} from "views/components/link";
 import {SwitchBtn} from "views/components/switch";
-import {TooltipSize} from "views/components/tooltip";
 import * as Tooltip from "views/components/tooltip";
+import {TooltipSize} from "views/components/tooltip";
 import {DisabledSubsystemsWidget} from "views/pages/maintenance_mode/disabled_susbsystems_widget";
 import {JobInfoWidget} from "views/pages/maintenance_mode/running_jobs_widget.tsx";
 import {MDUInfoWidget} from "views/pages/maintenance_mode/running_mdus_widget";
@@ -54,7 +54,11 @@ export class MaintenanceModeWidget extends MithrilViewComponent<Attrs> {
 
     let updatedByMessage = "GoCD server maintenance mode is disabled by default.";
     if (maintenanceModeInfo.metdata.updatedBy !== null) {
-      updatedByMessage = `${maintenanceModeInfo.metdata.updatedBy} changed the maintenance mode state on ${maintenanceModeInfo.metdata.updatedOn}.`;
+      if (maintenanceModeInfo.metdata.updatedBy === "GoCD") {
+        updatedByMessage = `GoCD Server is started in maintenance mode at ${maintenanceModeInfo.metdata.updatedOn}.`;
+      } else {
+        updatedByMessage = `${maintenanceModeInfo.metdata.updatedBy} changed the maintenance mode state on ${maintenanceModeInfo.metdata.updatedOn}.`;
+      }
     }
 
     return (

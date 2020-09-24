@@ -19,6 +19,7 @@ import com.thoughtworks.go.helper.JobInstanceMother
 import com.thoughtworks.go.helper.MaterialsMother
 import com.thoughtworks.go.server.domain.ServerMaintenanceMode
 import com.thoughtworks.go.server.service.MaintenanceModeService
+import com.thoughtworks.go.util.SystemEnvironment
 import com.thoughtworks.go.util.TimeProvider
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -42,9 +43,12 @@ class MaintenanceModeInfoRepresenterTest {
   @Mock
   TimeProvider timeProvider
 
+  @Mock
+  SystemEnvironment systemEnvironment
+
   @Test
   void "should represent maintenance mode info"() {
-    def maintenanceModeService = new MaintenanceModeService(timeProvider)
+    def maintenanceModeService = new MaintenanceModeService(timeProvider, systemEnvironment)
 
     def gitMaterial = MaterialsMother.gitMaterial("foo/bar")
     def hgMaterial = MaterialsMother.hgMaterial()
@@ -168,7 +172,7 @@ class MaintenanceModeInfoRepresenterTest {
 
   @Test
   void 'should not add attributes if server is not in maintenance mode'() {
-    def maintenanceModeService = new MaintenanceModeService(timeProvider)
+    def maintenanceModeService = new MaintenanceModeService(timeProvider, systemEnvironment)
 
     def actualJson = toObjectString({
       MaintenanceModeInfoRepresenter.toJSON(it, maintenanceModeService.get(), false, null, null, null)

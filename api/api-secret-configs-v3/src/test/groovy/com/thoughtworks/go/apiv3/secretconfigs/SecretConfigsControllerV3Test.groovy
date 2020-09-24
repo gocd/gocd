@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv2.secretconfigs
+package com.thoughtworks.go.apiv3.secretconfigs
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.apiv2.secretconfigs.representers.SecretConfigRepresenter
-import com.thoughtworks.go.apiv2.secretconfigs.representers.SecretConfigsRepresenter
-import com.thoughtworks.go.config.SecretConfig
-import com.thoughtworks.go.config.SecretConfigs
+import com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigRepresenter
+import com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigsRepresenter
+import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.rules.Allow
 import com.thoughtworks.go.config.rules.Deny
@@ -35,7 +34,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.DeprecatedApiTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import groovy.json.JsonBuilder
 import org.junit.jupiter.api.BeforeEach
@@ -46,14 +44,14 @@ import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static com.thoughtworks.go.apiv2.secretconfigs.representers.SecretConfigRepresenter.fromJSON
-import static com.thoughtworks.go.apiv2.secretconfigs.representers.SecretConfigRepresenter.toJSON
+import static com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigRepresenter.fromJSON
+import static com.thoughtworks.go.apiv3.secretconfigs.representers.SecretConfigRepresenter.toJSON
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
-class SecretConfigsControllerV2Test implements SecurityServiceTrait, ControllerTrait<SecretConfigsControllerV2>, DeprecatedApiTrait {
+class SecretConfigsControllerV3Test implements SecurityServiceTrait, ControllerTrait<SecretConfigsControllerV3> {
 
   @Mock
   SecretConfigService secretConfigService
@@ -67,8 +65,8 @@ class SecretConfigsControllerV2Test implements SecurityServiceTrait, ControllerT
   }
 
   @Override
-  SecretConfigsControllerV2 createControllerInstance() {
-    new SecretConfigsControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), secretConfigService, entityHashingService)
+  SecretConfigsControllerV3 createControllerInstance() {
+    new SecretConfigsControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), secretConfigService, entityHashingService)
   }
 
   @Nested
@@ -440,7 +438,7 @@ class SecretConfigsControllerV2Test implements SecurityServiceTrait, ControllerT
               "encrypted_value": "0a3ecba2e196f73d07b361398cc9d08b"
             ]
           ],
-          "rules"      : [
+          "rules"      :[
             [
               "directive": "allow",
               "action"   : "refer",
@@ -548,7 +546,7 @@ class SecretConfigsControllerV2Test implements SecurityServiceTrait, ControllerT
       @Test
       void shouldReturn422WhenMalformedJSONRequestIsReceived() {
         when(secretConfigService.getAllSecretConfigs()).thenReturn(
-          new SecretConfigs(new SecretConfig("foo", "bar-plugin"))
+            new SecretConfigs(new SecretConfig("foo", "bar-plugin"))
         )
 
         putWithApiHeader(controller.controllerPath("/foo"), ['if-match': 'digest-does-not-matter'], [:])

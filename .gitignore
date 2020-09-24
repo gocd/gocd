@@ -546,3 +546,7 @@ api/api-internal-secret-config-v1/out/
 api/api-internal-secret-config-v1/target/
 api/api-internal-secret-config-v1/logs/
 api/api-internal-secret-config-v1/config/
+api/api-secret-configs-v3/out/
+api/api-secret-configs-v3/target/
+api/api-secret-configs-v3/logs/
+api/api-secret-configs-v3/config/

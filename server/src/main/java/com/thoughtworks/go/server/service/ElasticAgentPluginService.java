@@ -54,9 +54,11 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.serverhealth.HealthStateScope.forJob;
 import static java.lang.String.format;
+import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class ElasticAgentPluginService {
@@ -75,6 +77,7 @@ public class ElasticAgentPluginService {
     private final ScheduleService scheduleService;
     private ConsoleService consoleService;
     private EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
+    private final SecretParamResolver secretParamResolver;
     private JobInstanceSqlMapDao jobInstanceSqlMapDao = null;
 
     @Value("${go.elasticplugin.heartbeat.interval}")
@@ -95,11 +98,11 @@ public class ElasticAgentPluginService {
             CreateAgentQueueHandler createAgentQueue, ServerPingQueueHandler serverPingQueue,
             GoConfigService goConfigService, TimeProvider timeProvider, ClusterProfilesService clusterProfilesService,
             ServerHealthService serverHealthService, JobInstanceSqlMapDao jobInstanceSqlMapDao, ScheduleService scheduleService,
-            ConsoleService consoleService, EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService) {
+            ConsoleService consoleService, EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService, SecretParamResolver secretParamResolver) {
 
         this(pluginManager, elasticAgentPluginRegistry, agentService, environmentConfigService, createAgentQueue,
                 serverPingQueue, goConfigService, timeProvider, serverHealthService, ElasticAgentMetadataStore.instance(),
-                clusterProfilesService, jobInstanceSqlMapDao, scheduleService, consoleService, ephemeralAutoRegisterKeyService);
+                clusterProfilesService, jobInstanceSqlMapDao, scheduleService, consoleService, ephemeralAutoRegisterKeyService, secretParamResolver);
     }
 
     ElasticAgentPluginService(
@@ -109,7 +112,8 @@ public class ElasticAgentPluginService {
             GoConfigService goConfigService, TimeProvider timeProvider, ServerHealthService serverHealthService,
             ElasticAgentMetadataStore elasticAgentMetadataStore, ClusterProfilesService clusterProfilesService,
             JobInstanceSqlMapDao jobInstanceSqlMapDao, ScheduleService scheduleService, ConsoleService consoleService,
-            EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService) {
+            EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService,
+            SecretParamResolver secretParamResolver) {
         this.pluginManager = pluginManager;
         this.elasticAgentPluginRegistry = elasticAgentPluginRegistry;
         this.agentService = agentService;
@@ -125,6 +129,7 @@ public class ElasticAgentPluginService {
         this.scheduleService = scheduleService;
         this.consoleService = consoleService;
         this.ephemeralAutoRegisterKeyService = ephemeralAutoRegisterKeyService;
+        this.secretParamResolver = secretParamResolver;
     }
 
     public void heartbeat() {
@@ -134,6 +139,7 @@ public class ElasticAgentPluginService {
 
         for (PluginDescriptor descriptor : elasticAgentPluginRegistry.getPlugins()) {
             List<ClusterProfile> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(descriptor.id());
+            resolveSecrets(clusterProfiles);
             serverPingQueue.post(new ServerPingMessage(descriptor.id(), clusterProfiles), pingMessageTimeToLive);
             elasticAgentsOfMissingPlugins.remove(descriptor.id());
             serverHealthService.removeByScope(scope(descriptor.id()));
@@ -141,7 +147,7 @@ public class ElasticAgentPluginService {
 
         if (!elasticAgentsOfMissingPlugins.isEmpty()) {
             for (String pluginId : elasticAgentsOfMissingPlugins.keySet()) {
-                Collection<String> uuids = elasticAgentsOfMissingPlugins.get(pluginId).stream().map(ElasticAgentMetadata::uuid).collect(Collectors.toList());
+                Collection<String> uuids = elasticAgentsOfMissingPlugins.get(pluginId).stream().map(ElasticAgentMetadata::uuid).collect(toList());
                 String description = format("Elastic agent plugin with identifier %s has gone missing, but left behind %s agent(s) with UUIDs %s.", pluginId, elasticAgentsOfMissingPlugins.get(pluginId).size(), uuids);
                 serverHealthService.update(ServerHealthState.warning("Elastic agents with no matching plugins", description, HealthStateType.general(scope(pluginId))));
                 LOGGER.warn(description);
@@ -193,7 +199,7 @@ public class ElasticAgentPluginService {
         jobsThatRequireAgent.addAll(Sets.difference(new HashSet<>(newPlan), new HashSet<>(old)));
         jobsThatRequireAgent.addAll(starvingJobs);
 
-        List<JobPlan> plansThatRequireElasticAgent = jobsThatRequireAgent.stream().filter(isElasticAgent()).collect(Collectors.toList());
+        List<JobPlan> plansThatRequireElasticAgent = jobsThatRequireAgent.stream().filter(isElasticAgent()).collect(toList());
 //      messageTimeToLive is lesser than the starvation threshold to ensure there are no duplicate create agent message
         long messageTimeToLive = goConfigService.elasticJobStarvationThreshold() - 10000;
 
@@ -210,15 +216,16 @@ public class ElasticAgentPluginService {
                 scheduleService.cancelJob(plan.getIdentifier());
             } else if (elasticAgentPluginRegistry.has(clusterProfile.getPluginId())) {
                 String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
+                resolveSecrets(clusterProfile, elasticProfile);
                 createAgentQueue.post(new CreateAgentMessage(ephemeralAutoRegisterKeyService.autoRegisterKey(), environment, elasticProfile, clusterProfile, plan.getIdentifier()), messageTimeToLive);
-                serverHealthService.removeByScope(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()));
+                serverHealthService.removeByScope(forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()));
             } else {
                 String jobConfigIdentifier = plan.getIdentifier().jobConfigIdentifier().toString();
                 String description = format("Plugin [%s] associated with %s is missing. Either the plugin is not " +
                         "installed or could not be registered. Please check plugins tab " +
                         "and server logs for more details.", clusterProfile.getPluginId(), jobConfigIdentifier);
                 serverHealthService.update(ServerHealthState.error(format("Unable to find agent for %s",
-                        jobConfigIdentifier), description, HealthStateType.general(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()))));
+                        jobConfigIdentifier), description, HealthStateType.general(forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()))));
                 LOGGER.error(description);
             }
         }
@@ -237,13 +244,14 @@ public class ElasticAgentPluginService {
     }
 
     public boolean shouldAssignWork(ElasticAgentMetadata metadata, String environment, ElasticProfile elasticProfile, ClusterProfile clusterProfile, JobIdentifier identifier) {
-        Map<String, String> clusterProfileProperties = clusterProfile != null ? clusterProfile.getConfigurationAsMap(true) : Collections.EMPTY_MAP;
-        GoPluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorFor(metadata.elasticPluginId());
-        Map<String, String> configuration = elasticProfile.getConfigurationAsMap(true);
-
-        if (!StringUtils.equals(clusterProfile.getPluginId(), metadata.elasticPluginId())) {
+        if (clusterProfile == null || !StringUtils.equals(clusterProfile.getPluginId(), metadata.elasticPluginId())) {
             return false;
         }
+
+        resolveSecrets(clusterProfile, elasticProfile);
+        Map<String, String> clusterProfileProperties = clusterProfile.getConfigurationAsMap(true, true);
+        GoPluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorFor(metadata.elasticPluginId());
+        Map<String, String> configuration = elasticProfile.getConfigurationAsMap(true, true);
 
         return elasticAgentPluginRegistry.shouldAssignWork(pluginDescriptor, toAgentMetadata(metadata), environment, configuration, clusterProfileProperties, identifier);
     }
@@ -254,7 +262,13 @@ public class ElasticAgentPluginService {
             throw new RecordNotFoundException(String.format("Plugin with id: '%s' is not found.", pluginId));
         }
         if (pluginInfo.getCapabilities().supportsPluginStatusReport()) {
-            List<Map<String, String>> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(pluginId).stream().map(profile -> profile.getConfigurationAsMap(true)).collect(Collectors.toList());
+            List<Map<String, String>> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(pluginId)
+                    .stream()
+                    .map((profile) -> {
+                        secretParamResolver.resolve(profile);
+                        return profile.getConfigurationAsMap(true, true);
+                    })
+                    .collect(toList());
             return elasticAgentPluginRegistry.getPluginStatusReport(pluginId, clusterProfiles);
         }
 
@@ -270,7 +284,11 @@ public class ElasticAgentPluginService {
             JobPlan jobPlan = jobInstanceSqlMapDao.loadPlan(jobIdentifier.getId());
             if (jobPlan != null) {
                 ClusterProfile clusterProfile = jobPlan.getClusterProfile();
-                Map<String, String> clusterProfileConfigurations = (clusterProfile == null) ? Collections.emptyMap() : clusterProfile.getConfigurationAsMap(true);
+                Map<String, String> clusterProfileConfigurations = emptyMap();
+                if (clusterProfile != null) {
+                    secretParamResolver.resolve(clusterProfile);
+                    clusterProfileConfigurations = clusterProfile.getConfigurationAsMap(true, true);
+                }
                 return elasticAgentPluginRegistry.getAgentStatusReport(pluginId, jobIdentifier, elasticAgentId, clusterProfileConfigurations);
             }
             throw new Exception(format("Could not fetch agent status report for agent %s as either the job running on the agent has been completed or the agent has been terminated.", elasticAgentId));
@@ -289,7 +307,8 @@ public class ElasticAgentPluginService {
             if (clusterProfile == null) {
                 throw new RecordNotFoundException(String.format("Cluster profile with id: '%s' is not found.", clusterProfileId));
             }
-            return elasticAgentPluginRegistry.getClusterStatusReport(pluginId, clusterProfile.getConfigurationAsMap(true));
+            secretParamResolver.resolve(clusterProfile);
+            return elasticAgentPluginRegistry.getClusterStatusReport(pluginId, clusterProfile.getConfigurationAsMap(true, true));
         }
 
         throw new UnsupportedOperationException("Plugin does not support cluster status report.");
@@ -311,9 +330,25 @@ public class ElasticAgentPluginService {
 
         ElasticProfile elasticProfile = job.getPlan().getElasticProfile();
         ClusterProfile clusterProfile = job.getPlan().getClusterProfile();
-        Map<String, String> elasticProfileConfiguration = elasticProfile.getConfigurationAsMap(true);
-        Map<String, String> clusterProfileConfiguration = clusterProfile != null ? clusterProfile.getConfigurationAsMap(true) : Collections.EMPTY_MAP;
-
+        secretParamResolver.resolve(elasticProfile);
+        Map<String, String> elasticProfileConfiguration = elasticProfile.getConfigurationAsMap(true, true);
+        Map<String, String> clusterProfileConfiguration = emptyMap();
+        if (clusterProfile != null) {
+            secretParamResolver.resolve(clusterProfile);
+            clusterProfileConfiguration = clusterProfile.getConfigurationAsMap(true, true);
+        }
         elasticAgentPluginRegistry.reportJobCompletion(pluginId, elasticAgentId, job.getIdentifier(), elasticProfileConfiguration, clusterProfileConfiguration);
+    }
+
+    private void resolveSecrets(List<ClusterProfile> clusterProfiles) {
+        for (ClusterProfile clusterProfile : clusterProfiles) {
+            secretParamResolver.resolve(clusterProfile);
+        }
+    }
+
+    private void resolveSecrets(ClusterProfile clusterProfile, ElasticProfile elasticProfile) {
+        if (clusterProfile != null)
+            secretParamResolver.resolve(clusterProfile);
+        secretParamResolver.resolve(elasticProfile);
     }
 }

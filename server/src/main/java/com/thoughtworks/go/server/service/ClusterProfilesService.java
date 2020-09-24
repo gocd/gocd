@@ -17,23 +17,31 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.AddClusterProfileCommand;
 import com.thoughtworks.go.config.update.DeleteClusterProfileCommand;
+import com.thoughtworks.go.config.update.PluginProfileCommand;
 import com.thoughtworks.go.config.update.UpdateClusterProfileCommand;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.infra.GoPluginFrameworkException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static java.lang.String.format;
+
 @Component
 public class ClusterProfilesService extends PluginProfilesService<ClusterProfile> {
     private final ElasticAgentExtension extension;
+    private final SecretParamResolver secretParamResolver;
 
     @Autowired
-    public ClusterProfilesService(GoConfigService goConfigService, EntityHashingService hashingService, ElasticAgentExtension extension) {
+    public ClusterProfilesService(GoConfigService goConfigService, EntityHashingService hashingService, ElasticAgentExtension extension, SecretParamResolver secretParamResolver) {
         super(goConfigService, hashingService);
         this.extension = extension;
+        this.secretParamResolver = secretParamResolver;
     }
 
     @Override
@@ -56,5 +64,20 @@ public class ClusterProfilesService extends PluginProfilesService<ClusterProfile
         UpdateClusterProfileCommand updateClusterProfileCommand = new UpdateClusterProfileCommand(extension, goConfigService, newClusterProfile, currentUser, result);
         update(currentUser, newClusterProfile, result, updateClusterProfileCommand, true);
         return newClusterProfile;
+    }
+
+    @Override
+    void validatePluginProperties(PluginProfileCommand command, ClusterProfile clusterProfile) {
+        secretParamResolver.resolve(clusterProfile);
+        try {
+            ValidationResult result = command.validateUsingExtension(clusterProfile.getPluginId(), clusterProfile.getConfigurationAsMap(true, true));
+            addErrorsToConfiguration(result, clusterProfile);
+        } catch (RecordNotFoundException e) {
+            clusterProfile.addError("pluginId", format("Plugin with id `%s` is not found.", clusterProfile.getPluginId()));
+        } catch (GoPluginFrameworkException e) {
+            clusterProfile.addError("pluginId", e.getMessage());
+        } catch (Exception e) {
+            //Ignore - it will be the invalid cipher text exception for an encrypted value. This will be validated later during entity update
+        }
     }
 }

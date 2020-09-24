@@ -38,7 +38,7 @@ public class ServerPingMessage implements PluginAwareMessage {
     }
 
     public List<Map<String, String>> getClusterProfilesAsConfigList() {
-        return clusterProfiles.stream().map(profile -> profile.getConfigurationAsMap(true)).collect(Collectors.toList());
+        return clusterProfiles.stream().map(profile -> profile.getConfigurationAsMap(true, true)).collect(Collectors.toList());
     }
 
     @Override

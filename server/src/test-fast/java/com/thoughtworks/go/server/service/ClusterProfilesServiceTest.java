@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.elastic.ElasticConfig;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,8 @@ public class ClusterProfilesServiceTest {
     private EntityHashingService hashingService;
     @Mock
     private ElasticAgentExtension extension;
+    @Mock
+    private SecretParamResolver secretParamResolver;
 
     private ClusterProfilesService clusterProfilesService;
     private ClusterProfile clusterProfile;
@@ -46,8 +49,7 @@ public class ClusterProfilesServiceTest {
         initMocks(this);
 
         clusterProfile = new ClusterProfile("prod_cluster", "k8s.ea.plugin");
-
-        clusterProfilesService = new ClusterProfilesService(goConfigService, hashingService, extension);
+        clusterProfilesService = new ClusterProfilesService(goConfigService, hashingService, extension, secretParamResolver);
     }
 
     @Test
@@ -65,6 +67,7 @@ public class ClusterProfilesServiceTest {
     void shouldValidateClusterProfileUponClusterProfileCreation() {
         clusterProfilesService.create(clusterProfile, new Username("Bob"), new HttpLocalizedOperationResult());
 
+        verify(secretParamResolver).resolve(clusterProfile);
         verify(extension, times(1)).validateClusterProfile(clusterProfile.getPluginId(), clusterProfile.getConfigurationAsMap(true));
     }
 
@@ -72,6 +75,7 @@ public class ClusterProfilesServiceTest {
     void shouldNotValidateClusterProfileWhenDeletingClusterProfile() {
         clusterProfilesService.delete(clusterProfile, new Username("Bob"), new HttpLocalizedOperationResult());
 
+        verifyNoInteractions(secretParamResolver);
         verify(extension, never()).validateClusterProfile(clusterProfile.getPluginId(), clusterProfile.getConfigurationAsMap(true));
     }
 
@@ -79,6 +83,30 @@ public class ClusterProfilesServiceTest {
     void shouldValidateClusterProfileUponClusterProfileUpdate() {
         clusterProfilesService.update(clusterProfile, new Username("Bob"), new HttpLocalizedOperationResult());
 
+        verify(secretParamResolver).resolve(clusterProfile);
         verify(extension, times(1)).validateClusterProfile(clusterProfile.getPluginId(), clusterProfile.getConfigurationAsMap(true));
+    }
+
+    @Test
+    void shouldSendResolvedValueToThePluginWhileValidation() {
+        clusterProfile.addNewConfigurationWithValue("key", "{{SECRET:[config_id][key]}}", false);
+        clusterProfile.getSecretParams().get(0).setValue("some-resolved-value");
+        clusterProfilesService.update(clusterProfile, new Username("Bob"), new HttpLocalizedOperationResult());
+
+        verify(secretParamResolver).resolve(clusterProfile);
+        verify(extension, times(1)).validateClusterProfile(clusterProfile.getPluginId(), clusterProfile.getConfigurationAsMap(true, true));
+    }
+
+    @Test
+    void shouldSetResultAsUnprocessableEntityWhenRulesAreViolated() {
+        clusterProfile.addNewConfigurationWithValue("key", "{{SECRET:[config_id][key]}}", false);
+
+        doThrow(new RulesViolationException("some rules violation message")).when(secretParamResolver).resolve(clusterProfile);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        clusterProfilesService.update(clusterProfile, new Username("Bob"), result);
+
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(result.message()).isEqualTo("Validations failed for clusterProfile 'prod_cluster'. Error(s): [some rules violation message]. Please correct and resubmit.");
     }
 }

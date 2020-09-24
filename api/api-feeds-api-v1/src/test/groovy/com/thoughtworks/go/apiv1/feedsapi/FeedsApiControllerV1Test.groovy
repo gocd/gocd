@@ -256,7 +256,7 @@ class FeedsApiControllerV1Test implements SecurityServiceTrait, ControllerTrait<
     void 'should call feed service to get stage xml'() {
       getWithApiHeader(controller.controllerPath(Routes.FeedsAPI.SCHEDULED_JOB_XML))
 
-      Mockito.verify(feedService).waitingJobPlansXml("http://test.host/go")
+      Mockito.verify(feedService).waitingJobPlansXml("http://test.host/go", currentUsername())
       Mockito.verifyNoMoreInteractions(feedService)
     }
   }

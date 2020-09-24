@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.server.service.FeedService;
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -120,7 +121,7 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
     }
 
     public String scheduledJobs(Request request, Response response) throws IOException {
-        return prettyPrint(feedService.waitingJobPlansXml(baseUrl(request)));
+        return prettyPrint(feedService.waitingJobPlansXml(baseUrl(request), currentUsername()));
     }
 
     public String materialXML(Request request, Response response) throws IOException {
@@ -159,9 +160,9 @@ public class FeedsApiControllerV1 extends ApiController implements SparkSpringCo
 
         List<String> allowedTypes = List.of(APPLICATION_XML_VALUE, TEXT_XML_VALUE, APPLICATION_RSS_XML_VALUE, APPLICATION_ATOM_XML_VALUE);
         String contentType = Arrays.stream(acceptedTypes.toLowerCase().split("\\s*,\\s*"))
-            .filter(allowedTypes::contains)
-            .findFirst()
-            .orElse(this.mimeType);
+                .filter(allowedTypes::contains)
+                .findFirst()
+                .orElse(this.mimeType);
 
         res.type(contentType);
     }

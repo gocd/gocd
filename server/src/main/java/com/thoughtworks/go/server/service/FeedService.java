@@ -96,8 +96,8 @@ public class FeedService {
         return xmlApiService.write(new JobXmlRepresenter(jobInstance), baseUrl);
     }
 
-    public Document waitingJobPlansXml(String baseUrl) {
-        List<WaitingJobPlan> waitingJobPlans = jobInstanceService.waitingJobPlans();
+    public Document waitingJobPlansXml(String baseUrl, Username username) {
+        List<WaitingJobPlan> waitingJobPlans = jobInstanceService.waitingJobPlans(username);
         return xmlApiService.write(new JobPlanXmlRepresenter(waitingJobPlans), baseUrl);
     }
 

@@ -292,10 +292,54 @@ public class JobInstanceServiceIntegrationTest {
         scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), DEFAULT_APPROVED_BY);
         List<JobPlan> jobPlans = jobInstanceService.orderedScheduledBuilds();
 
-        List<WaitingJobPlan> waitingJobPlans = jobInstanceService.waitingJobPlans();
+        Username viewOnlyUser = new Username(new CaseInsensitiveString("view"));
+        configHelper.setViewPermissionForGroup(BasicPipelineConfigs.DEFAULT_GROUP, "view");
+
+        List<WaitingJobPlan> waitingJobPlans = jobInstanceService.waitingJobPlans(viewOnlyUser);
         assertThat(waitingJobPlans.size(), is(1));
         assertThat(waitingJobPlans.get(0).jobPlan(), is(jobPlans.get(0)));
         assertThat(waitingJobPlans.get(0).envName(), is("newEnv"));
+    }
+
+    @Test
+    public void waitingJobPlans_shouldOnlyReturnJobPlansForThePipelineViewablebyTheCurrentUser() {
+        configHelper.enableSecurity();
+        configHelper.addAdmins("root");
+        PipelineConfig pipelineConfig = PipelineMother.withSingleStageWithMaterials("go", "dev", withBuildPlans("unit"));
+        pipelineConfig.getFirstStageConfig().setCleanWorkingDir(true);
+        PipelineConfig pipelineConfig1 = PipelineMother.withSingleStageWithMaterials("build", "build", withBuildPlans("test"));
+        configHelper.addPipeline("go", "dev");
+        configHelper.addPipelineToGroup(pipelineConfig1, "first");
+        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), DEFAULT_APPROVED_BY);
+        scheduleHelper.schedule(pipelineConfig1, BuildCause.createWithModifications(modifyOneFile(pipelineConfig1), ""), DEFAULT_APPROVED_BY);
+
+        Username viewOnlyUser = new Username(new CaseInsensitiveString("view"));
+        configHelper.setViewPermissionForGroup("first", "view");
+
+        List<WaitingJobPlan> waitingJobPlans = jobInstanceService.waitingJobPlans(viewOnlyUser);
+        assertThat(waitingJobPlans.size(), is(1));
+        assertThat(waitingJobPlans.get(0).jobPlan().getPipelineName(), is("build"));
+    }
+
+    @Test
+    public void waitingJobPlans_shouldReturnAllJobPlansForTheAdminUser() {
+        configHelper.enableSecurity();
+        configHelper.addAdmins("root");
+        PipelineConfig pipelineConfig = PipelineMother.withSingleStageWithMaterials("go", "dev", withBuildPlans("unit"));
+        pipelineConfig.getFirstStageConfig().setCleanWorkingDir(true);
+        PipelineConfig pipelineConfig1 = PipelineMother.withSingleStageWithMaterials("build", "build", withBuildPlans("test"));
+        configHelper.addPipeline("go", "dev");
+        configHelper.addPipelineToGroup(pipelineConfig1, "first");
+        scheduleHelper.schedule(pipelineConfig, BuildCause.createWithModifications(modifyOneFile(pipelineConfig), ""), DEFAULT_APPROVED_BY);
+        scheduleHelper.schedule(pipelineConfig1, BuildCause.createWithModifications(modifyOneFile(pipelineConfig1), ""), DEFAULT_APPROVED_BY);
+
+        Username viewOnlyUser = new Username(new CaseInsensitiveString("root"));
+        configHelper.setViewPermissionForGroup("first", "view");
+
+        List<WaitingJobPlan> waitingJobPlans = jobInstanceService.waitingJobPlans(viewOnlyUser);
+        assertThat(waitingJobPlans.size(), is(2));
+        assertThat(waitingJobPlans.get(0).jobPlan().getPipelineName(), is("go"));
+        assertThat(waitingJobPlans.get(1).jobPlan().getPipelineName(), is("build"));
     }
 
     @Test

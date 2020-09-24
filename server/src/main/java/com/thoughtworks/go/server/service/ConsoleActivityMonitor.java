@@ -149,12 +149,12 @@ public class ConsoleActivityMonitor {
         return new LogMessages() {
             @Override
             public String consoleMessage(String difference) {
-                return format("Go cancelled this job as it was not assigned an agent for more than %s minute(s)", difference);
+                return format("Go cancelled this job as it has not been assigned an agent for more than %s minute(s)", difference);
             }
 
             @Override
             public String hungWarningMessage(String buildLocator, String namespacedJob, String difference) {
-                return format("Job <a href='/go/tab/build/detail/%s'>%s</a> is currently running but was not assigned an agent in the last %s minute(s). This job may be hung.", buildLocator, namespacedJob, difference);
+                return format("Job <a href='/go/tab/build/detail/%s'>%s</a> is currently running but it has not been assigned an agent in the last %s minute(s). This job may be hung.", buildLocator, namespacedJob, difference);
             }
         };
     }
@@ -163,7 +163,7 @@ public class ConsoleActivityMonitor {
         return new LogMessages() {
             @Override
             public String consoleMessage(String difference) {
-                return format("Go cancelled this job as it has not shown any console activity for more than %s minute(s)", difference);
+                return format("Go cancelled this job as it has not generated any console output for more than %s minute(s)", difference);
             }
 
             @Override

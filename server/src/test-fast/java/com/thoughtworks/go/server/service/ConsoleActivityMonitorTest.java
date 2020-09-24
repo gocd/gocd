@@ -312,7 +312,7 @@ class ConsoleActivityMonitorTest {
         when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1972, 1, 1, 1, 1, 0, 0).getMillis());
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
-        verify(consoleService).appendToConsoleLog(unresponsiveJob, "Go cancelled this job as it has not shown any console activity for more than 5 minute(s)");
+        verify(consoleService).appendToConsoleLog(unresponsiveJob, "Go cancelled this job as it has not generated any console output for more than 5 minute(s)");
     }
 
     @Test
@@ -381,20 +381,20 @@ class ConsoleActivityMonitorTest {
             consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
             verify(serverHealthService).update(ServerHealthState.warningWithHtml("Job 'foo/stage/job' is not responding",
-                    "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but was not assigned an agent in the last 2 minute(s). This job may be hung.", general(forJob("foo", "stage", "job"))));
+                    "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but it has not been assigned an agent in the last 2 minute(s). This job may be hung.", general(forJob("foo", "stage", "job"))));
 
             when(timeProvider.currentTimeMillis()).thenReturn(now.plusMinutes(4).plusSeconds(1).getMillis());//after 4 minutes
             consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
             verify(serverHealthService).update(ServerHealthState.warningWithHtml("Job 'foo/stage/job' is not responding",
-                    "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but was not assigned an agent in the last 4 minute(s). This job may be hung.", general(forJob("foo", "stage", "job"))));
+                    "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but it has not been assigned an agent in the last 4 minute(s). This job may be hung.", general(forJob("foo", "stage", "job"))));
 
             when(goConfigService.getUnresponsiveJobTerminationThreshold(any(JobIdentifier.class))).thenReturn(360 * 60 * 1000L);//6 hours
             when(timeProvider.currentTimeMillis()).thenReturn(now.plusHours(1).plusMinutes(2).plusSeconds(1).getMillis());//after 62 minutes
             consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
             verify(serverHealthService).update(ServerHealthState.warningWithHtml("Job 'foo/stage/job' is not responding",
-                    "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but was not assigned an agent in the last 62 minute(s). This job may be hung.", general(forJob("foo", "stage", "job"))));
+                    "Job <a href='/go/tab/build/detail/foo/12/stage/2/job'>foo/stage/job</a> is currently running but it has not been assigned an agent in the last 62 minute(s). This job may be hung.", general(forJob("foo", "stage", "job"))));
         }
 
         @Test
@@ -443,7 +443,7 @@ class ConsoleActivityMonitorTest {
             when(timeProvider.currentTimeMillis()).thenReturn(new DateTime(1972, 1, 1, 1, 1, 0, 0).getMillis());
             consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);
 
-            verify(consoleService).appendToConsoleLog(unresponsiveJob, "Go cancelled this job as it was not assigned an agent for more than 5 minute(s)");
+            verify(consoleService).appendToConsoleLog(unresponsiveJob, "Go cancelled this job as it has not been assigned an agent for more than 5 minute(s)");
         }
 
         @Test

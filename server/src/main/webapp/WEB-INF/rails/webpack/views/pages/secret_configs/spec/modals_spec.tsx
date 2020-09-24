@@ -75,7 +75,7 @@ describe("SecretConfigModal", () => {
     helper.unmount();
   });
 
-  it('should support 4 different entities for rules', () => {
+  it('should support different entities for rules', () => {
     const modal = new TestSecretConfigModal(Stream(secretConfigs),
                                             SecretConfig.fromJSON(secretConfigTestData()),
                                             pluginInfos,
@@ -85,8 +85,8 @@ describe("SecretConfigModal", () => {
     expect(helper.byTestId("rules-widget")).toBeInDOM();
     helper.clickByTestId('add-rule-button');
 
-    expect(helper.qa('option', helper.byTestId('rule-type')).length).toBe(6);
-    expect(helper.byTestId('rule-type').textContent).toBe('SelectAllPipeline GroupEnvironmentPluggable SCMPackage Repository');
+    expect(helper.qa('option', helper.byTestId('rule-type')).length).toBe(7);
+    expect(helper.byTestId('rule-type').textContent).toBe('SelectAllPipeline GroupEnvironmentPluggable SCMPackage RepositoryCluster Profile');
     helper.unmount();
   });
 

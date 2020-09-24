@@ -39,6 +39,7 @@ export let RulesType = {
   PIPELINE_GROUP:     {text: 'Pipeline Group', id: 'pipeline_group'} as RuleInfo,
   PLUGGABLE_SCM:      {text: 'Pluggable SCM', id: 'pluggable_scm'} as RuleInfo,
   PACKAGE_REPOSITORY: {text: 'Package Repository', id: 'package_repository'} as RuleInfo,
+  CLUSTER_PROFILE:    {text: 'Cluster Profile', id: 'cluster_profile'} as RuleInfo,
 };
 
 export let RuleActions = {

@@ -92,6 +92,8 @@ public class ValueStreamMapServiceTest {
 
         valueStreamMapService = new ValueStreamMapService(pipelineService, materialRepository, goConfigService, downstreaminstancepopulator, runStagesPopulator, unrunStagesPopulator, securityService);
         result = new HttpLocalizedOperationResult();
+
+        when(goConfigService.findPipelineByName(any())).thenReturn(PipelineConfigMother.pipelineConfig("found-pipeline"));
     }
 
     private void setupExistenceOfPipelines(String... pipelineNames) {

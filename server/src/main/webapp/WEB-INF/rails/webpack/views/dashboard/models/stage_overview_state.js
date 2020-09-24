@@ -45,7 +45,13 @@ const StageOverviewState = {
 
   matchesPipelineAndStage: (pipeline, stage) => ((pipeline === stageOverviewPipelineName) && (stage === stageOverviewStageName)),
 
-  getPipelineCounter: () => stageOverviewPipelineCounter
+  getPipelineName: () => stageOverviewPipelineName,
+
+  getPipelineCounter: () => stageOverviewPipelineCounter,
+
+  getStageName: () => stageOverviewStageName,
+
+  getStageCounter: () => stageOverviewStageCounter
 };
 
 export default {

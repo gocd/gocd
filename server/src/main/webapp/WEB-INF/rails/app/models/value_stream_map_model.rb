@@ -47,7 +47,7 @@ class ValueStreamMapModel
             level.nodes << VSMPipelineDependencyNodeModel.new(node.getId().toString(), node.getName(), node.getChildren().map { |child| child.getId().toString() },
                                                               node.getParents().map { |parent| parent.getId().toString() }, node_type,
                                                               node.getDepth(), node.revisions(), node.getMessageString(), node.getViewType(),
-                                                              node.canEdit(), vsm_path_partial, stage_detail_path_partial, pipeline_edit_path_partial)
+                                                              node.canEdit(), vsm_path_partial, stage_detail_path_partial, pipeline_edit_path_partial, node.getTemplateName())
           else
             level.nodes << VSMDependencyNodeModel.new(node.getId().toString(), node.getName(), node.getChildren().map {|child| child.getId().toString()},
                                                       node.getParents().map {|parent| parent.getId().toString()}, node_type,
@@ -80,9 +80,9 @@ class VSMDependencyNodeModel
 end
 
 class VSMPipelineDependencyNodeModel < VSMDependencyNodeModel
-  attr_accessor :name, :id, :dependents, :parents, :node_type, :depth, :instances, :locator, :message, :view_type, :edit_path, :can_edit
+  attr_accessor :name, :id, :dependents, :parents, :node_type, :depth, :instances, :locator, :message, :view_type, :edit_path, :can_edit, :template_name
 
-  def initialize(id, name, dependents, parents, node_type, depth, revisions, message, view_type, can_edit, pdg_path_partial, stage_detail_path_partial, pipeline_edit_path_partial)
+  def initialize(id, name, dependents, parents, node_type, depth, revisions, message, view_type, can_edit, pdg_path_partial, stage_detail_path_partial, pipeline_edit_path_partial, template_name)
     super(id, name, dependents, parents, node_type, depth)
 
     @instances = revisions.map { |revision| VSMPipelineInstanceModel.new(name, revision.getLabel(), revision.getCounter(), revision.getStages() || [], pdg_path_partial, stage_detail_path_partial, pipeline_edit_path_partial) } unless revisions == nil
@@ -91,6 +91,7 @@ class VSMPipelineDependencyNodeModel < VSMDependencyNodeModel
     @view_type = view_type.to_s unless view_type == nil
     @edit_path = pipeline_edit_path_partial.call name
     @can_edit = can_edit
+    @template_name = template_name
   end
 end
 

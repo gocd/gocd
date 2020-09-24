@@ -62,14 +62,6 @@ describe "/value_stream_map/show.html.erb" do
         end
       end
     end
-
-    it "should give VSM page a title with VSM of pipelineName" do
-      assign(:user, double('username', :anonymous? => true))
-      render :template => "value_stream_map/show.html.erb", :layout => 'layouts/value_stream_map'
-      page = Capybara::Node::Simple.new(response.body)
-      expect(page.title).to include("Value Stream Map of P1")
-    end
-
   end
 
 end

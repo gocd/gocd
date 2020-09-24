@@ -38,15 +38,5 @@ describe "/value_stream_map/show_material.html.erb" do
         expect(div).to have_selector("li.last", :text=> "revision")
       end
     end
-
-    it "should give VSM page a title with VSM of material-fingerprint" do
-      assign(:user, double('username', :anonymous? => true))
-      assign :material_display_name, "material_name"
-
-      render :template => "value_stream_map/show_material.html.erb", :layout => 'layouts/value_stream_map'
-
-      page = Capybara::Node::Simple.new(response.body)
-      expect(page.title).to include("Value Stream Map for material_name")
-    end
   end
 end

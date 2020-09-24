@@ -84,6 +84,35 @@ $building: #ffc11b;
   }
 }
 
+.vsm-class {
+  color: $black;
+
+  .stage-name {
+    margin-top: 8px;
+  }
+
+  .cancel-or-rerun-stage-icon, .job-rerun-container {
+    display: none;
+  }
+
+  .job-count-container {
+    margin-left: 495px;
+  }
+
+  .checkbox-cell {
+    display: none;
+  }
+
+  .table-header {
+    .name-cell {
+      padding-left: 15px
+    }
+  }
+
+  .name-cell {
+    margin-left: 15px;
+  }
+}
 
 .pipeline-activity-class {
   color: $black;

@@ -201,6 +201,7 @@ describe ValueStreamMapController do
                   "git1",
                   "git2"
                 ],
+                "template_name": null,
                 "locator": "/go/pipeline/activity/p1",
                 "depth": 1,
 
@@ -242,6 +243,7 @@ describe ValueStreamMapController do
                 "parents": [
                   "p1"
                 ],
+                "template_name": null,
                 "locator": "/go/pipeline/activity/current",
                 "depth": 1,
                 "instances": [],

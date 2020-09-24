@@ -22,47 +22,59 @@ import com.thoughtworks.go.domain.ClusterProfilesChangedStatus;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
 public class ClusterProfilesChangedPluginNotifier extends EntityConfigChangedListener<ClusterProfile> implements ConfigChangedListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClusterProfilesChangedPluginNotifier.class);
     private ClusterProfiles existingClusterProfiles;
     private ElasticAgentPluginRegistry registry;
+    private final SecretParamResolver secretParamResolver;
     private GoConfigService goConfigService;
 
     @Autowired
-    public ClusterProfilesChangedPluginNotifier(GoConfigService goConfigService, ElasticAgentPluginRegistry registry) {
+    public ClusterProfilesChangedPluginNotifier(GoConfigService goConfigService, ElasticAgentPluginRegistry registry, SecretParamResolver secretParamResolver) {
         this.goConfigService = goConfigService;
         this.existingClusterProfiles = goConfigService.getElasticConfig().getClusterProfiles();
         this.registry = registry;
+        this.secretParamResolver = secretParamResolver;
         goConfigService.register(this);
     }
 
     @Override
     public void onEntityConfigChange(ClusterProfile updatedClusterProfile) {
+        LOGGER.debug("Resolving the updated cluster profile {} for secrets", updatedClusterProfile);
+        secretParamResolver.resolve(updatedClusterProfile);
+        Map<String, String> updatedClusterConfigMap = updatedClusterProfile.getConfigurationAsMap(true, true);
         if (goConfigService.getElasticConfig().getClusterProfiles().find(updatedClusterProfile.getId()) == null) {
-            registry.notifyPluginAboutClusterProfileChanged(updatedClusterProfile.getPluginId(), ClusterProfilesChangedStatus.DELETED, updatedClusterProfile.getConfigurationAsMap(true), null);
+            registry.notifyPluginAboutClusterProfileChanged(updatedClusterProfile.getPluginId(), ClusterProfilesChangedStatus.DELETED, updatedClusterConfigMap, null);
             updateClusterProfilesCopy();
             return;
         }
 
         ClusterProfile oldClusterProfile = existingClusterProfiles.find(updatedClusterProfile.getId());
         if (oldClusterProfile == null) {
-            registry.notifyPluginAboutClusterProfileChanged(updatedClusterProfile.getPluginId(), ClusterProfilesChangedStatus.CREATED, null, updatedClusterProfile.getConfigurationAsMap(true));
+            registry.notifyPluginAboutClusterProfileChanged(updatedClusterProfile.getPluginId(), ClusterProfilesChangedStatus.CREATED, null, updatedClusterConfigMap);
             updateClusterProfilesCopy();
             return;
         }
-
+        LOGGER.debug("Resolving the older cluster profile {} for secrets", oldClusterProfile);
+        secretParamResolver.resolve(oldClusterProfile);
         //cluster profile has been updated without changing plugin id
+        Map<String, String> olderClusterConfigMap = oldClusterProfile.getConfigurationAsMap(true, true);
         if (oldClusterProfile.getPluginId().equals(updatedClusterProfile.getPluginId())) {
-            registry.notifyPluginAboutClusterProfileChanged(updatedClusterProfile.getPluginId(), ClusterProfilesChangedStatus.UPDATED, oldClusterProfile.getConfigurationAsMap(true), updatedClusterProfile.getConfigurationAsMap(true));
+            registry.notifyPluginAboutClusterProfileChanged(updatedClusterProfile.getPluginId(), ClusterProfilesChangedStatus.UPDATED, olderClusterConfigMap, updatedClusterConfigMap);
             updateClusterProfilesCopy();
         } else {
             //cluster profile has been updated including changing plugin id.
             //this internally results in deletion of a profile belonging to old plugin id and creation of the profile belonging to new plugin id
-            registry.notifyPluginAboutClusterProfileChanged(updatedClusterProfile.getPluginId(), ClusterProfilesChangedStatus.CREATED, null, updatedClusterProfile.getConfigurationAsMap(true));
-            registry.notifyPluginAboutClusterProfileChanged(oldClusterProfile.getPluginId(), ClusterProfilesChangedStatus.DELETED, oldClusterProfile.getConfigurationAsMap(true), null);
+            registry.notifyPluginAboutClusterProfileChanged(updatedClusterProfile.getPluginId(), ClusterProfilesChangedStatus.CREATED, null, updatedClusterConfigMap);
+            registry.notifyPluginAboutClusterProfileChanged(oldClusterProfile.getPluginId(), ClusterProfilesChangedStatus.DELETED, olderClusterConfigMap, null);
             updateClusterProfilesCopy();
         }
 

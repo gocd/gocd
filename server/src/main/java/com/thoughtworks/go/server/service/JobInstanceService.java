@@ -52,6 +52,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.server.service.ServiceConstants.History.validateCursor;
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class JobInstanceService implements JobPlanLoader, ConfigChangedListener {
@@ -188,14 +189,15 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         return jobInstanceDao.orderedScheduledBuilds();
     }
 
-    public List<WaitingJobPlan> waitingJobPlans() {
+    public List<WaitingJobPlan> waitingJobPlans(Username username) {
         List<JobPlan> jobPlans = orderedScheduledBuilds();
-        List<WaitingJobPlan> waitingJobPlans = new ArrayList<>();
-        for (JobPlan jobPlan : jobPlans) {
-            String envForJob = environmentConfigService.envForPipeline(jobPlan.getPipelineName());
-            waitingJobPlans.add(new WaitingJobPlan(jobPlan, envForJob));
-        }
-        return waitingJobPlans;
+        boolean isUserAdmin = securityService.isUserAdmin(username);
+        return jobPlans.stream()
+                .filter((jobPlan) -> isUserAdmin || securityService.hasViewPermissionForPipeline(username, jobPlan.getPipelineName()))
+                .map((jobPlan) -> {
+                    String envForJob = environmentConfigService.envForPipeline(jobPlan.getPipelineName());
+                    return new WaitingJobPlan(jobPlan, envForJob);
+                }).collect(toList());
     }
 
     //TODO: Performance fix - we should be using CurrentActivity here

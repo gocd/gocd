@@ -97,8 +97,8 @@ public class FeedServiceTest {
             when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("up42"))).thenReturn(false);
 
             assertThatCode(() -> feedService.stagesXml(username, "up42", null, BASE_URL))
-                .isInstanceOf(RecordNotFoundException.class)
-                .hasMessage("Pipeline with name 'up42' was not found!");
+                    .isInstanceOf(RecordNotFoundException.class)
+                    .hasMessage("Pipeline with name 'up42' was not found!");
         }
 
         @Test
@@ -108,8 +108,8 @@ public class FeedServiceTest {
             when(securityService.hasViewPermissionForPipeline(username, pipelineName)).thenReturn(false);
 
             assertThatCode(() -> feedService.stagesXml(username, pipelineName, null, BASE_URL))
-                .isInstanceOf(NotAuthorizedException.class)
-                .hasMessage("Not authorized to view pipeline");
+                    .isInstanceOf(NotAuthorizedException.class)
+                    .hasMessage("Not authorized to view pipeline");
         }
 
         @Test
@@ -209,11 +209,11 @@ public class FeedServiceTest {
     class WaitingJobsXML {
         @Test
         void shouldReturnWaitingJobXmlDocument() {
-            Document document = feedService.waitingJobPlansXml(BASE_URL);
+            Document document = feedService.waitingJobPlansXml(BASE_URL, username);
 
             assertThat(document).isNotNull();
             verify(xmlApiService).write(any(JobPlanXmlRepresenter.class), eq(BASE_URL));
-            verify(jobInstanceService).waitingJobPlans();
+            verify(jobInstanceService).waitingJobPlans(username);
             verifyNoMoreInteractions(xmlApiService);
             verifyNoMoreInteractions(jobInstanceService);
             verifyZeroInteractions(stageService);
@@ -232,8 +232,8 @@ public class FeedServiceTest {
             when(pipelineHistoryService.load(pipelineName, pipelineCounter, username)).thenReturn(model);
 
             assertThatCode(() -> feedService.materialXml(username, pipelineName, pipelineCounter, "foo", BASE_URL))
-                .isInstanceOf(RecordNotFoundException.class)
-                .hasMessage("Material with pipeline unique fingerprint 'foo' was not found for pipeline run(up42/2)!");
+                    .isInstanceOf(RecordNotFoundException.class)
+                    .hasMessage("Material with pipeline unique fingerprint 'foo' was not found for pipeline run(up42/2)!");
         }
 
         @Test

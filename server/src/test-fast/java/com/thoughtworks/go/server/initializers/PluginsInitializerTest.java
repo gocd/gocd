@@ -15,10 +15,7 @@
  */
 package com.thoughtworks.go.server.initializers;
 
-import com.thoughtworks.go.plugin.infra.ElasticAgentInformationMigrator;
-import com.thoughtworks.go.plugin.infra.PluginExtensionsAndVersionValidator;
-import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.plugin.infra.PluginPostLoadHook;
+import com.thoughtworks.go.plugin.infra.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
@@ -49,6 +46,7 @@ public class PluginsInitializerTest {
     private PluginManager pluginManager;
     private PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator;
     private ElasticAgentInformationMigrator elasticAgentInformationMigrator;
+    private ConfigRepositoryInitializer configRepositoryInitializer;
 
     @Before
     public void setUp() throws Exception {
@@ -58,7 +56,8 @@ public class PluginsInitializerTest {
         pluginManager = mock(PluginManager.class);
         pluginExtensionsAndVersionValidator = mock(PluginExtensionsAndVersionValidator.class);
         elasticAgentInformationMigrator = mock(ElasticAgentInformationMigrator.class);
-        pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, new ZipUtil(), pluginExtensionsAndVersionValidator, elasticAgentInformationMigrator) {
+        configRepositoryInitializer = mock(ConfigRepositoryInitializer.class);
+        pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, new ZipUtil(), pluginExtensionsAndVersionValidator, elasticAgentInformationMigrator, configRepositoryInitializer) {
             @Override
             public void startDaemon() {
 
@@ -79,7 +78,7 @@ public class PluginsInitializerTest {
     @Test
     public void shouldUnzipPluginsAndRegisterZipUpdaterBeforeStartingPluginsFramework() throws IOException {
         ZipUtil zipUtil = mock(ZipUtil.class);
-        pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, zipUtil, pluginExtensionsAndVersionValidator, elasticAgentInformationMigrator) {
+        pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, zipUtil, pluginExtensionsAndVersionValidator, elasticAgentInformationMigrator, configRepositoryInitializer) {
             @Override
             public void startDaemon() {
 

@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.KillAllChildProcessTask;
 import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.domain.RunIfConfigs;
@@ -316,7 +317,7 @@ public class ConfigConverter {
             return toScmMaterialConfig(crScmMaterial);
         } else if (crMaterial instanceof CRPluggableScmMaterial) {
             CRPluggableScmMaterial crPluggableScmMaterial = (CRPluggableScmMaterial) crMaterial;
-            return toPluggableScmMaterialConfig(crPluggableScmMaterial);
+            return toPluggableScmMaterialConfig(crPluggableScmMaterial, context);
         } else if (crMaterial instanceof CRPackageMaterial) {
             CRPackageMaterial crPackageMaterial = (CRPackageMaterial) crMaterial;
             return toPackageMaterial(crPackageMaterial);
@@ -366,7 +367,7 @@ public class ConfigConverter {
         return packageRepositoryHaving.findPackage(packageId);
     }
 
-    private PluggableSCMMaterialConfig toPluggableScmMaterialConfig(CRPluggableScmMaterial crPluggableScmMaterial) {
+    private PluggableSCMMaterialConfig toPluggableScmMaterialConfig(CRPluggableScmMaterial crPluggableScmMaterial, PartialConfigLoadContext context) {
         String id = crPluggableScmMaterial.getScmId();
         CRPluginConfiguration pluginConfig = crPluggableScmMaterial.getPluginConfiguration();
         SCM scmConfig;
@@ -386,6 +387,12 @@ public class ConfigConverter {
                 }
             } else {
                 scmConfig = getSCMs().findDuplicate(scmConfig);
+                if (scmConfig.getOrigin() instanceof RepoConfigOrigin) {
+                    RepoConfigOrigin origin = (RepoConfigOrigin) scmConfig.getOrigin();
+                    if (origin.getMaterial().equals(context.configMaterial())) {
+                        newSCMs.add(scmConfig);
+                    }
+                }
             }
         }
 

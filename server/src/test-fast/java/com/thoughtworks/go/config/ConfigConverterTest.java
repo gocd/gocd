@@ -26,7 +26,9 @@ import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.KillAllChildProcessTask;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.config.*;
@@ -50,6 +52,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
+import static com.thoughtworks.go.helper.GoConfigMother.defaultCruiseConfig;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
@@ -2015,5 +2018,70 @@ class ConfigConverterTest {
         assertThat(result.getStage()).isEqualTo("stage");
         assertThat(result.getArtifactId()).isEqualTo("artifactId");
         assertThat(result.getConfiguration().isEmpty()).isTrue();
+    }
+
+    @Test
+    void shouldReturnSCMSIfConfigured() {
+        CRPipeline pipeline = buildPipeline();
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
+        crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
+        crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
+        pipeline.addMaterial(crPluggableScmMaterial);
+
+        CRParseResult crPartialConfig = new CRParseResult();
+        crPartialConfig.getPipelines().add(pipeline);
+
+        when(cachedGoConfig.currentConfig()).thenReturn(defaultCruiseConfig());
+
+        PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig, context);
+        assertThat(partialConfig.getGroups().size()).isEqualTo(1);
+        assertThat(partialConfig.getEnvironments().size()).isEqualTo(0);
+        assertThat(partialConfig.getScms().size()).isEqualTo(1);
+    }
+
+    @Test
+    void shouldNotReturnSCMIfAlreadyPresent() {
+        CRPipeline pipeline = buildPipeline();
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
+        crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
+        crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
+        pipeline.addMaterial(crPluggableScmMaterial);
+
+        CRParseResult crPartialConfig = new CRParseResult();
+        crPartialConfig.getPipelines().add(pipeline);
+
+        BasicCruiseConfig config = defaultCruiseConfig();
+        config.getSCMs().add(new SCM("scmid", "name"));
+        when(cachedGoConfig.currentConfig()).thenReturn(config);
+
+        PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig, context);
+        assertThat(partialConfig.getGroups().size()).isEqualTo(1);
+        assertThat(partialConfig.getEnvironments().size()).isEqualTo(0);
+        assertThat(partialConfig.getScms().size()).isEqualTo(0);
+    }
+
+    @Test
+    void shouldReturnSCMIfTheOriginMatches() {
+        CRPipeline pipeline = buildPipeline();
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
+        crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
+        crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
+        pipeline.addMaterial(crPluggableScmMaterial);
+
+        CRParseResult crPartialConfig = new CRParseResult();
+        crPartialConfig.getPipelines().add(pipeline);
+
+        BasicCruiseConfig config = defaultCruiseConfig();
+        SCM scm = new SCM("scmid", "name");
+        ConfigRepoConfig configRepo = new ConfigRepoConfig();
+        configRepo.setRepo(git("some-url"));
+        scm.setOrigins(new RepoConfigOrigin(configRepo, "some-rev"));
+        config.getSCMs().add(scm);
+        when(cachedGoConfig.currentConfig()).thenReturn(config);
+        when(context.configMaterial()).thenReturn(configRepo.getRepo());
+
+        PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig, context);
+        assertThat(partialConfig.getScms().size()).isEqualTo(1);
+        assertThat(partialConfig.getScms().get(0)).isEqualTo(scm);
     }
 }

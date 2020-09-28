@@ -25,9 +25,9 @@ import {Clone, Delete, Edit, IconGroup, InfoCircle, Usage} from "views/component
 import {KeyValuePair} from "views/components/key_value_pair";
 import {CloneOperation, DeleteOperation, EditOperation} from "../page_operations";
 import styles from "./index.scss";
-import {PluggableSCMScrollOptions} from "./pluggable_scms_widget";
+import {OnErrorAttrs, PluggableSCMScrollOptions} from "./pluggable_scms_widget";
 
-interface Attrs extends EditOperation<Scm>, CloneOperation<Scm>, DeleteOperation<Scm> {
+interface Attrs extends EditOperation<Scm>, CloneOperation<Scm>, DeleteOperation<Scm>, OnErrorAttrs {
   scm: Scm;
   disableActions: boolean;
   showUsages: (scm: Scm, e: MouseEvent) => void;
@@ -56,20 +56,22 @@ export class PluggableScmWidget extends MithrilViewComponent<Attrs> {
                                      ...Array.from(scm.configuration().asMap())
                                    ]);
 
-    const disabled      = vnode.attrs.disableActions;
-    const warningIcon   = disabled
+    const disabled            = vnode.attrs.disableActions;
+    const warningIcon         = disabled
       ? <span className={styles.warning}><InfoCircle title={`Plugin '${scm.pluginMetadata().id()}' was not found!`} iconOnly={true}/></span>
       : undefined;
-    const actionButtons = <IconGroup>
+    const definedInConfigRepo = scm.origin().isDefinedInConfigRepo();
+    const actionButtons       = <IconGroup>
       <Edit data-test-id="pluggable-scm-edit"
-            disabled={disabled}
+            disabled={disabled || definedInConfigRepo}
             title={PluggableScmWidget.getMsgForOperation(disabled, scm, "edit")}
             onclick={vnode.attrs.onEdit.bind(this, scm)}/>
       <Clone data-test-id="pluggable-scm-clone"
-             disabled={disabled}
+             disabled={disabled || definedInConfigRepo}
              title={PluggableScmWidget.getMsgForOperation(disabled, scm, "clone")}
              onclick={vnode.attrs.onClone.bind(this, scm)}/>
       <Delete data-test-id="pluggable-scm-delete"
+              disabled={definedInConfigRepo}
               title={PluggableScmWidget.getMsgForOperation(disabled, scm, "delete")}
               onclick={vnode.attrs.onDelete.bind(this, scm)}/>
       <Usage data-test-id="pluggable-scm-usages"
@@ -79,7 +81,11 @@ export class PluggableScmWidget extends MithrilViewComponent<Attrs> {
 
     const onNavigate = () => {
       if (vnode.attrs.scrollOptions.sm.getTarget() === scm.name() && vnode.attrs.scrollOptions.shouldOpenEditView) {
-        vnode.attrs.onEdit(scm, new MouseEvent("click"));
+        if (scm.origin().isDefinedInConfigRepo()) {
+          vnode.attrs.onError(`Cannot edit '${scm.name()}' as it is defined in config repo '${scm.origin().id()}'`);
+        } else {
+          vnode.attrs.onEdit(scm, new MouseEvent("click"));
+        }
       }
       this.expanded(true);
     };
@@ -106,6 +112,8 @@ export class PluggableScmWidget extends MithrilViewComponent<Attrs> {
   private static getMsgForOperation(disabled: boolean, scm: Scm, operation: "edit" | "clone" | "delete" | "show usages for"): string {
     if (disabled && (operation === "edit" || operation === "clone")) {
       return `Plugin '${scm.pluginMetadata().id()}' not found!`;
+    } else if (scm.origin().isDefinedInConfigRepo()) {
+      return `Cannot ${operation} as '${scm.name()}' is defined in config repo '${scm.origin().id()}'`;
     }
     return `${s.capitalize(operation)} scm '${scm.name()}'`;
   }

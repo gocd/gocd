@@ -16,6 +16,7 @@
 
 import {ApiResult, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
+import {OriginType} from "models/origin";
 import {getPluggableScm} from "views/pages/pluggable_scms/spec/test_data";
 import {Scm, ScmJSON, Scms} from "../pluggable_scm";
 import {PluggableScmCRUD} from "../pluggable_scm_crud";
@@ -60,6 +61,7 @@ describe('PluggableScmCRUDSpec', () => {
 
       expect(packageRepository.id()).toBe('scm-id');
       expect(packageRepository.name()).toBe('pluggable.scm.material.name');
+      expect(packageRepository.origin().type()).toBe(OriginType.GoCD);
       expect(packageRepository.pluginMetadata().id()).toBe('scm-plugin-id');
       expect(packageRepository.pluginMetadata().version()).toBe('1');
 
@@ -130,7 +132,7 @@ describe('PluggableScmCRUDSpec', () => {
       const parsed       = responseJSON.body;
 
       expect(parsed.status).toBe('success');
-      expect(parsed.messages).toEqual(['message 1','message 2']);
+      expect(parsed.messages).toEqual(['message 1', 'message 2']);
       expect(parsed.scm).toEqual(scmJSON);
       done();
     });

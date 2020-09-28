@@ -45,6 +45,7 @@ describe('PluggableScmsWidgetSpec', () => {
                                             onClone={jasmine.createSpy("onClone")}
                                             onDelete={jasmine.createSpy("onDelete")}
                                             showUsages={jasmine.createSpy("showUsages")}
+                                            onError={jasmine.createSpy("onError")}
                                             scrollOptions={scrollOptions}/>);
   }
 

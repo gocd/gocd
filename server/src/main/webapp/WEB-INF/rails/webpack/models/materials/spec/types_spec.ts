@@ -27,6 +27,7 @@ import {
   TfsMaterialAttributes
 } from "models/materials/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {Origin, OriginType} from "models/origin";
 import {Configurations} from "../../shared/configuration";
 import {PluginMetadata, Scm} from "../pluggable_scm";
 import {DependencyMaterialAttributesJSON} from "../serialization";
@@ -248,7 +249,7 @@ describe("Material Types", () => {
     });
 
     it('should validate Scm material', () => {
-      const material = new Scm("", "", false, new PluginMetadata("", ""), new Configurations([]));
+      const material = new Scm("", "", false, new Origin(OriginType.GoCD), new PluginMetadata("", ""), new Configurations([]));
 
       const isValid = material.isValid();
 

@@ -19,6 +19,7 @@ import m from "mithril";
 import Stream from "mithril/stream";
 import {PluginMetadata, Scm, Scms} from "models/materials/pluggable_scm";
 import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
+import {Origin, OriginType} from "models/origin";
 import {Configurations} from "models/shared/configuration";
 import {ExtensionTypeString, SCMExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
@@ -65,7 +66,7 @@ export class PluggableScmsPage extends Page<null, State> {
       e.stopPropagation();
 
       const pluginId = vnode.state.pluginInfos()[0].id;
-      const scm      = new Scm("", "", true, new PluginMetadata(pluginId, "1"), new Configurations([]));
+      const scm      = new Scm("", "", true, new Origin(OriginType.GoCD), new PluginMetadata(pluginId, "1"), new Configurations([]));
 
       new CreatePluggableScmModal(scm, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
         .render();

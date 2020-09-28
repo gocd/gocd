@@ -95,7 +95,7 @@ abstract class PluggableScmModal extends EntityModal<Scm> {
   protected onPluginChange(entity: Stream<Scm>, pluginInfo: PluginInfo): void {
     const pluginMetadata = entity().pluginMetadata();
     pluginMetadata.id(pluginInfo.id);
-    entity(new Scm(entity().id(), entity().name(), entity().autoUpdate(), pluginMetadata, entity().configuration()));
+    entity(new Scm(entity().id(), entity().name(), entity().autoUpdate(), entity().origin(), pluginMetadata, entity().configuration()));
   }
 
   protected parseJsonToEntity(json: object): Scm {

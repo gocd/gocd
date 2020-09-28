@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv3.scms
+package com.thoughtworks.go.apiv4.scms
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.apiv3.scms.representers.SCMRepresenter
-import com.thoughtworks.go.apiv3.scms.representers.SCMsRepresenter
-import com.thoughtworks.go.apiv3.scms.representers.ScmUsageRepresenter
+import com.thoughtworks.go.apiv4.scms.representers.SCMRepresenter
+import com.thoughtworks.go.apiv4.scms.representers.SCMsRepresenter
+import com.thoughtworks.go.apiv4.scms.representers.ScmUsageRepresenter
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.domain.config.Configuration
@@ -35,7 +35,6 @@ import com.thoughtworks.go.server.service.materials.PluggableScmService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.DeprecatedApiTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.util.Pair
@@ -56,7 +55,7 @@ import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
-class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMControllerV3>, DeprecatedApiTrait {
+class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMControllerV4> {
   @Mock
   PluggableScmService scmService
 
@@ -69,8 +68,8 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
   }
 
   @Override
-  SCMControllerV3 createControllerInstance() {
-    return new SCMControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), scmService, entityHashingService, goConfigService)
+  SCMControllerV4 createControllerInstance() {
+    return new SCMControllerV4(new ApiAuthenticationHelper(securityService, goConfigService), scmService, entityHashingService, goConfigService)
   }
 
   @Nested
@@ -364,6 +363,9 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
             id             : "scm1",
             name           : "foobar",
             auto_update    : true,
+            "origin"       : [
+              "type": "gocd"
+            ],
             plugin_metadata: [
               "id"     : "plugin1",
               "version": "v1.0"
@@ -428,6 +430,9 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
             id               : "scm1",
             "name"           : "foobar",
             "auto_update"    : true,
+            "origin"         : [
+              "type": "gocd"
+            ],
             "plugin_metadata": [
               "id"     : "plugin1",
               "version": "v1.0"
@@ -658,6 +663,9 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
             id               : "scm1",
             "name"           : "foobar",
             "auto_update"    : true,
+            "origin"         : [
+              "type": "gocd"
+            ],
             "plugin_metadata": [
               "id"     : "plugin1",
               "version": "v1.0"

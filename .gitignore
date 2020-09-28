@@ -538,3 +538,7 @@ api/api-secret-configs-v2/out/
 api/api-secret-configs-v2/target/
 api/api-secret-configs-v2/logs/
 api/api-secret-configs-v2/config/
+api/api-scms-v4/out/
+api/api-scms-v4/target/
+api/api-scms-v4/logs/
+api/api-scms-v4/config/

@@ -116,26 +116,7 @@ class ConfigRepositoryInitializerTest {
     }
 
     @Test
-    void shouldDoNothingWhenConfigIsLoadedButAllTheInUsePluginsAreNotLoaded() {
-        ConfigRepoConfig repoConfig2 = new ConfigRepoConfig();
-        repoConfig2.setId("repo2");
-        repoConfig2.setPluginId(JSON_PLUGIN_ID);
-        repoConfig2.setRepo(MaterialConfigsMother.git("git-repo"));
-        repoConfigs.add(repoConfig2);
-
-        // initialize config
-        configRepositoryInitializer.onConfigChange(new BasicCruiseConfig());
-
-        // load yaml config plugin
-        configRepositoryInitializer.pluginLoaded(yamlPluginDescriptor);
-        // at this point the config is initialized and the yaml plugin is loaded, but the json plugin is not loaded.
-
-        verifyNoInteractions(materialRepository);
-        verifyNoInteractions(goConfigRepoConfigDataSource);
-    }
-
-    @Test
-    void shouldInitializeConfigRepositoryWhenBothCruiseConfigIsInitializedAndPluginIsLoaded() {
+    void shouldInitializeConfigRepositoryAsAndWhenPluginsAreLoaded() {
         // add another config repo using another plugin id
         ConfigRepoConfig repoConfig2 = new ConfigRepoConfig();
         repoConfig2.setId("repo2");
@@ -160,15 +141,14 @@ class ConfigRepositoryInitializerTest {
         // load yaml plugin
         configRepositoryInitializer.pluginLoaded(yamlPluginDescriptor);
 
-        // verify none of the config repositories are initialized so far
-        verifyNoInteractions(goConfigRepoConfigDataSource);
+        // verify the config repo is initialized once all the in use plugins are loaded
+        verify(goConfigRepoConfigDataSource, times(1)).onCheckoutComplete(gitMaterialConfig, folder, modification);
 
         // load json plugin
         configRepositoryInitializer.pluginLoaded(jsonPluginDescriptor);
 
         // verify the config repo is initialized once all the in use plugins are loaded
         verify(goConfigRepoConfigDataSource, times(2)).onCheckoutComplete(gitMaterialConfig, folder, modification);
-
 
         // load groovy plugin
         configRepositoryInitializer.pluginLoaded(groovyPluginDescriptor);

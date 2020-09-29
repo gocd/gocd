@@ -40,7 +40,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
@@ -58,8 +60,12 @@ public class ConfigRepositoryInitializer implements ConfigChangedListener, Plugi
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepositoryInitializer.class);
 
     private boolean isConfigLoaded = false;
-    private boolean hasConfigRepoInitializationCompleted = false;
-    private List<String> loadedConfigRepoPlugins = new ArrayList<>();
+
+    // list of config repo plugins which are loaded, but not yet processed. Once processed, these plugins will be removed from the list.
+    private final List<String> loadedConfigRepoPlugins = Collections.synchronizedList(new ArrayList<>());
+
+    // list of config repositories which are initialized.
+    private List<String> initializedConfigRepos = Collections.synchronizedList(new ArrayList<>());
 
     @Autowired
     public ConfigRepositoryInitializer(PluginManager pluginManager, ConfigRepoService configRepoService, MaterialRepository materialRepository, GoConfigRepoConfigDataSource goConfigRepoConfigDataSource, GoConfigService goConfigService) {
@@ -96,7 +102,9 @@ public class ConfigRepositoryInitializer implements ConfigChangedListener, Plugi
         boolean isConfigRepoPlugin = pluginManager.isPluginOfType(CONFIG_REPO_EXTENSION, pluginId);
 
         if (isConfigRepoPlugin) {
-            this.loadedConfigRepoPlugins.add(pluginId);
+            synchronized (this.loadedConfigRepoPlugins) {
+                this.loadedConfigRepoPlugins.add(pluginId);
+            }
             this.initializeConfigRepositories();
         }
     }
@@ -107,22 +115,29 @@ public class ConfigRepositoryInitializer implements ConfigChangedListener, Plugi
     }
 
     private void initializeConfigRepositories() {
-        // return if config repositories have already been initialized.
-        if (this.hasConfigRepoInitializationCompleted) {
-            return;
-        }
-
         // do nothing if the cruise config is not loaded yet..
         if (!this.isConfigLoaded) {
             return;
         }
 
-        List<String> inUseConfigRepoPlugins = this.configRepoService.getConfigRepos().stream().map(RuleAwarePluginProfile::getPluginId).collect(Collectors.toList());
-        if (this.loadedConfigRepoPlugins.containsAll(inUseConfigRepoPlugins)) {
-            LOGGER.info("[Config Repository Initializer] Start initializing all the config repositories");
-            this.configRepoService.getConfigRepos().forEach(this::initializeConfigRepository);
-            LOGGER.info("[Config Repository Initializer] Done initializing all the config repositories");
-            this.hasConfigRepoInitializationCompleted = true;
+        // return if config repositories have already been initialized.
+        Set<String> allConfigRepoIds = this.configRepoService.getConfigRepos().stream().map(RuleAwarePluginProfile::getId).collect(Collectors.toSet());
+        boolean hasConfigRepoInitializationCompleted = this.initializedConfigRepos.containsAll(allConfigRepoIds);
+        if (hasConfigRepoInitializationCompleted) {
+            return;
+        }
+
+        synchronized (this.loadedConfigRepoPlugins) {
+            List<String> loadedConfigRepoPlugins = this.loadedConfigRepoPlugins;
+            loadedConfigRepoPlugins.forEach(pluginId -> {
+                List<ConfigRepoConfig> configReposForPlugin = this.configRepoService.getConfigRepos().stream().filter(repo -> repo.getPluginId().equals(pluginId)).collect(Collectors.toList());
+                LOGGER.info("[Config Repository Initializer] Start initializing the config repositories for plugin '{}' ", pluginId);
+                configReposForPlugin.forEach(this::initializeConfigRepository);
+                this.initializedConfigRepos.addAll(configReposForPlugin.stream().map(ConfigRepoConfig::getId).collect(Collectors.toList()));
+                LOGGER.info("[Config Repository Initializer] Done initializing the config repositories for plugin '{}' ", pluginId);
+            });
+
+            this.loadedConfigRepoPlugins.removeAll(loadedConfigRepoPlugins);
         }
     }
 

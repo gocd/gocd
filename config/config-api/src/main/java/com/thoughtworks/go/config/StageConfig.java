@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.GoConstants;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,11 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
     @ConfigSubtag(optional = true) private Approval approval = Approval.automaticApproval();
     @ConfigSubtag private EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
     @ConfigSubtag(optional = false) private JobConfigs jobConfigs;
+
+    @ConfigAttribute(value = "elasticProfileId", optional = true, allowNull = true)
+    @Getter
+    @Setter
+    private String elasticProfileId;
 
     private ConfigErrors errors = new ConfigErrors();
 

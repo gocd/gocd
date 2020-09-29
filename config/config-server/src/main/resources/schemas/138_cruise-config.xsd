@@ -84,7 +84,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="139"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="138"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -504,7 +504,6 @@
             </xsd:simpleType>
           </xsd:attribute>
           <xsd:attribute name="template" type="nameType" use="optional"/>
-          <xsd:attribute name="elasticProfileId" type="xsd:string" use="optional"/>
         </xsd:complexType>
       </xsd:element>
     </xsd:sequence>
@@ -525,7 +524,6 @@
     <xsd:attribute name="fetchMaterials" type="xsd:boolean"/>
     <xsd:attribute name="cleanWorkingDir" type="xsd:boolean"/>
     <xsd:attribute name="artifactCleanupProhibited" type="xsd:boolean"/>
-    <xsd:attribute name="elasticProfileId" type="xsd:string" use="optional"/>
   </xsd:complexType>
   <xsd:complexType name="approvalType">
     <xsd:sequence>

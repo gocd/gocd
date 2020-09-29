@@ -36,6 +36,8 @@ import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.Node;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;
@@ -112,6 +114,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     @SkipParameterResolution
     @ConfigAttribute(value = "template", optional = true, allowNull = true)
     private CaseInsensitiveString templateName;
+
+    @ConfigAttribute(value = "elasticProfileId", optional = true, allowNull = true)
+    @Getter
+    @Setter
+    private String elasticProfileId;
 
     private ConfigOrigin origin;
     private int displayOrderWeight = -1;

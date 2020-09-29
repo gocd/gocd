@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.server.initializers;
 
-import com.thoughtworks.go.plugin.infra.*;
+import com.thoughtworks.go.plugin.infra.ElasticAgentInformationMigrator;
+import com.thoughtworks.go.plugin.infra.PluginExtensionsAndVersionValidator;
+import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.PluginPostLoadHook;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
@@ -40,14 +43,13 @@ public class PluginsInitializer implements Initializer {
     private ZipUtil zipUtil;
 
     @Autowired
-    public PluginsInitializer(PluginManager pluginManager, SystemEnvironment systemEnvironment, ZipUtil zipUtil, PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator, ElasticAgentInformationMigrator elasticAgentInformationMigrator, ConfigRepositoryInitializer configRepositoryInitializer) {
+    public PluginsInitializer(PluginManager pluginManager, SystemEnvironment systemEnvironment, ZipUtil zipUtil, PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator, ElasticAgentInformationMigrator elasticAgentInformationMigrator) {
         this.pluginManager = pluginManager;
         this.systemEnvironment = systemEnvironment;
         this.zipUtil = zipUtil;
 
         this.pluginManager.addPluginPostLoadHook(pluginExtensionsAndVersionValidator);
         this.pluginManager.addPluginPostLoadHook(elasticAgentInformationMigrator);
-        this.pluginManager.addPluginPostLoadHook(configRepositoryInitializer);
     }
 
     @Override

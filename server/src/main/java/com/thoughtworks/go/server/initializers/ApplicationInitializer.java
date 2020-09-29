@@ -87,6 +87,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private BackupService backupService;
     @Autowired private DataSource dataSource;
     @Autowired private RevokeStaleAccessTokenService revokeStaleAccessTokenService;
+    @Autowired private ConfigRepositoryInitializer configRepositoryInitializer;
 
     @Value("${cruise.daemons.enabled}")
     private boolean daemonsEnabled;
@@ -152,6 +153,8 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             dependencyMaterialUpdateNotifier.initialize();
             scmMaterialSource.initialize();
             backupService.initialize();
+
+            configRepositoryInitializer.initialize();
 
             revokeStaleAccessTokenService.initialize();
         } catch (Throwable throwable) {

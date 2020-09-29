@@ -74,6 +74,7 @@ $(() => {
                                 stageCounter={stageCounter}
                                 stages={[]}
                                 templateName={templateNameFromString}
+                                pollingInterval={repeatInterval}
                                 isDisplayedOnVSMPage={true}
                                 leftPositionForVSMStageOverview={leftPosition}
                                 stageInstanceFromDashboard={stageInstanceFromDashboard}

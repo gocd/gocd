@@ -37,6 +37,7 @@ export interface Attrs {
   stageStatus: StageState | string;
   stages: any[];
   templateName: string | undefined | null;
+  pollingInterval?: number;
   canAdminister: boolean;
   stageInstanceFromDashboard: any;
   isDisplayedOnPipelineActivityPage?: boolean;
@@ -184,6 +185,7 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
                          pipelineName={vnode.attrs.pipelineName}
                          pipelineCounter={vnode.attrs.pipelineCounter}
                          templateName={vnode.attrs.templateName}
+                         pollingInterval={vnode.attrs.pollingInterval}
                          stageInstanceFromDashboard={vnode.attrs.stageInstanceFromDashboard}
                          inProgressStageFromPipeline={inProgressStageFromPipeline}
                          stageOverviewVM={vnode.attrs.stageOverviewVM as Stream<StageOverviewViewModel>}

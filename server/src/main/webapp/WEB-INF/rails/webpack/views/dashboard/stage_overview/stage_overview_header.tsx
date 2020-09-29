@@ -35,6 +35,7 @@ interface StageHeaderAttrs {
   stageInstanceFromDashboard: any;
   canAdminister: boolean;
   templateName: string | undefined | null;
+  pollingInterval?: number;
   flashMessage: FlashMessageModelWithTimeout;
   stageInstance: Stream<StageInstance>;
   inProgressStageFromPipeline: Stream<any | undefined>;
@@ -57,7 +58,7 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
       vnode.state.isLoading(true);
 
       // pass in the stage state as passed/failed, this value is just to denote whether the current stage instance has completed.
-      StageOverviewViewModel.initialize(vnode.attrs.pipelineName, vnode.attrs.pipelineCounter, vnode.attrs.stageName, vnode.attrs.userSelectedStageCounter(), StageState.Passed)
+      StageOverviewViewModel.initialize(vnode.attrs.pipelineName, vnode.attrs.pipelineCounter, vnode.attrs.stageName, vnode.attrs.userSelectedStageCounter(), StageState.Passed, vnode.attrs.pollingInterval)
         .then((result) => {
           let stageResult = result.stageInstance().result();
           if (stageResult === "Unknown") {

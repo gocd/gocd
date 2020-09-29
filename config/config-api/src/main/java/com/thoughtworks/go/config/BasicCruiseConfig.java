@@ -1491,18 +1491,19 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public List<CaseInsensitiveString> pipelinesAssociatedWithPluggableSCM(SCM scmConfig) {
-        List<CaseInsensitiveString> pipelines = new ArrayList<>();
+    public List<PipelineConfig> pipelinesAssociatedWithPluggableSCM(SCM scmConfig) {
+        List<PipelineConfig> pipelines = new ArrayList<>();
         if (scmConfig != null) {
             for (PipelineConfig pipelineConfig : getAllPipelineConfigs()) {
                 for (PluggableSCMMaterialConfig pluggableSCMMaterialConfig : pipelineConfig.pluggableSCMMaterialConfigs()) {
                     if (pluggableSCMMaterialConfig.getScmId().equals(scmConfig.getId())) {
-                        pipelines.add(pipelineConfig.getName());
+                        pipelines.add(pipelineConfig);
                         break;
                     }
                 }
             }
         }
+
         return pipelines;
     }
 

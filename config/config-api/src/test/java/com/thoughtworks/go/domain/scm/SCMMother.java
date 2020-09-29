@@ -15,8 +15,7 @@
  */
 package com.thoughtworks.go.domain.scm;
 
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.config.*;
 
 public class SCMMother {
     public static SCM create(String id) {
@@ -31,5 +30,17 @@ public class SCMMother {
         scm.setPluginConfiguration(new PluginConfiguration(pluginId, pluginVersion));
         scm.setConfiguration(configuration);
         return scm;
+    }
+
+    public static SCM create(String scmId, String... properties) {
+        SCM scmConfig = create(scmId);
+        Configuration configuration = new Configuration();
+        for (String property : properties) {
+            ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey(property), new ConfigurationValue(property + "-value"));
+            configuration.add(configurationProperty);
+        }
+        scmConfig.setConfiguration(configuration);
+
+        return scmConfig;
     }
 }

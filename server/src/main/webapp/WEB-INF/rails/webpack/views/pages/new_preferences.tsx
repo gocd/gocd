@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {ErrorResponse} from "helpers/api_request_builder";
 import {JsonUtils} from "helpers/json_utils";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -126,24 +127,16 @@ export class NewPreferencesPage extends Page<null, PreferencesState> {
     };
     vnode.state.onDeleteFilter = (filter: NotificationFilter, e: MouseEvent) => {
       e.stopPropagation();
-      this.pageState = PageState.LOADING;
-      NotificationFiltersCRUD.delete(filter.id())
-                             .then((result) => {
-                               result.do(
-                                 () => {
-                                   this.flashMessage.success("Notification filter deleted successfully!");
-                                   this.fetchData(vnode);
-                                 },
-                                 (errorResponse) => {
-                                   if (errorResponse.body) {
-                                     const parse = JSON.parse(errorResponse.body);
-                                     this.flashMessage.alert(parse.message);
-                                   } else {
-                                     this.flashMessage.alert(errorResponse.message);
-                                   }
-                                 }
-                               );
-                             }).finally(() => this.pageState = PageState.OK);
+      const modal = new ConfirmModal("Do you want to delete the filter for " + JSON.stringify(filter.toPartialJSON()), () => {
+        NotificationFiltersCRUD.delete(filter.id())
+                               .then((result) => {
+                                 result.do(
+                                   () => vnode.state.onFilterSave("Notification filter deleted successfully!"),
+                                   (errorResponse) => this.onError(errorResponse));
+                               })
+                               .finally(modal.close.bind(modal));
+      });
+      modal.render();
     };
 
     vnode.state.onFilterSave = (msg: m.Children) => {
@@ -180,14 +173,7 @@ export class NewPreferencesPage extends Page<null, PreferencesState> {
                     results[0].do((successResponse) => {
                       this.pageState = PageState.OK;
                       vnode.state.notificationVMs().sync(successResponse.body);
-                    }, (errorResponse) => {
-                      if (errorResponse.body) {
-                        const parse = JSON.parse(errorResponse.body);
-                        this.flashMessage.setMessage(MessageType.alert, parse.message);
-                      } else {
-                        this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-                      }
-                    });
+                    }, (errorResponse) => this.onError(errorResponse));
                     results[1].do((successResponse) => {
                       this.pageState = PageState.OK;
                       vnode.state.currentUserVM().sync(successResponse.body.object);
@@ -197,5 +183,14 @@ export class NewPreferencesPage extends Page<null, PreferencesState> {
                       vnode.state.pipelineGroups(successResponse.body.groups());
                     }, this.setErrorState);
                   });
+  }
+
+  private onError(errorResponse: ErrorResponse) {
+    if (errorResponse.body) {
+      const parse = JSON.parse(errorResponse.body);
+      this.flashMessage.alert(parse.message);
+    } else {
+      this.flashMessage.alert(errorResponse.message);
+    }
   }
 }

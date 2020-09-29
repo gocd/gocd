@@ -78,6 +78,14 @@ export class NotificationFilter extends ValidatableMixin {
     };
   }
 
+  toPartialJSON() {
+    return {
+      pipeline: this.pipeline(),
+      stage:    this.stage(),
+      event:    this.event(),
+    };
+  }
+
   clone() {
     return NotificationFilter.fromJSON(this.toJSON());
   }

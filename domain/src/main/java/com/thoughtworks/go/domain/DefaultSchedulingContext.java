@@ -33,6 +33,8 @@ public class DefaultSchedulingContext implements SchedulingContext {
     private final Agents agents;
     private final Map<String, ElasticProfile> profiles;
     private final Map<String, ClusterProfile> clusterProfiles;
+    private final String elasticProfileIdAtPipelineConfig;
+    private final String elasticProfileIdAtStageConfig;
     private EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
     private boolean rerun;
 
@@ -49,14 +51,16 @@ public class DefaultSchedulingContext implements SchedulingContext {
     }
 
     public DefaultSchedulingContext(String approvedBy, Agents agents, Map<String, ElasticProfile> profiles) {
-        this(approvedBy, agents, profiles, new HashMap<>());
+        this(approvedBy, agents, profiles, new HashMap<>(), null, null);
     }
 
-    public DefaultSchedulingContext(String approvedBy, Agents agents, Map<String, ElasticProfile> profiles, Map<String, ClusterProfile> clusterProfiles) {
+    public DefaultSchedulingContext(String approvedBy, Agents agents, Map<String, ElasticProfile> profiles, Map<String, ClusterProfile> clusterProfiles, String elasticProfileIdAtPipelineConfig, String elasticProfileIdAtStageConfig) {
         this.approvedBy = approvedBy;
         this.agents = agents;
         this.profiles = profiles;
         this.clusterProfiles = clusterProfiles;
+        this.elasticProfileIdAtPipelineConfig = elasticProfileIdAtPipelineConfig;
+        this.elasticProfileIdAtStageConfig = elasticProfileIdAtStageConfig;
     }
 
     @Override
@@ -82,7 +86,7 @@ public class DefaultSchedulingContext implements SchedulingContext {
 
     @Override
     public SchedulingContext overrideEnvironmentVariables(EnvironmentVariablesConfig environmentVariablesConfig) {
-        DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, new Agents(agents), profiles, clusterProfiles);
+        DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, new Agents(agents), profiles, clusterProfiles, elasticProfileIdAtPipelineConfig, elasticProfileIdAtStageConfig);
         context.variables = variables.overrideWith(environmentVariablesConfig);
         context.rerun = rerun;
         return context;
@@ -96,7 +100,7 @@ public class DefaultSchedulingContext implements SchedulingContext {
                 permitted.add(agent);
             }
         }
-        DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, permitted, profiles, clusterProfiles);
+        DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, permitted, profiles, clusterProfiles, elasticProfileIdAtPipelineConfig, elasticProfileIdAtStageConfig);
         context.variables = variables.overrideWith(new EnvironmentVariablesConfig());
         context.rerun = rerun;
         return context;
@@ -109,7 +113,7 @@ public class DefaultSchedulingContext implements SchedulingContext {
 
     @Override
     public SchedulingContext rerunContext() {
-        DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, agents, profiles, clusterProfiles);
+        DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, agents, profiles, clusterProfiles, elasticProfileIdAtPipelineConfig, elasticProfileIdAtStageConfig);
         context.variables = variables.overrideWith(new EnvironmentVariablesConfig());
         context.rerun = true;
         return context;
@@ -123,6 +127,16 @@ public class DefaultSchedulingContext implements SchedulingContext {
     @Override
     public ClusterProfile getClusterProfile(String clusterProfileId) {
         return clusterProfiles.get(clusterProfileId);
+    }
+
+    @Override
+    public String getElasticProfileIdAtPipelineConfig() {
+        return elasticProfileIdAtPipelineConfig;
+    }
+
+    @Override
+    public String getElasticProfileIdAtStageConfig() {
+        return elasticProfileIdAtStageConfig;
     }
 
     @Override

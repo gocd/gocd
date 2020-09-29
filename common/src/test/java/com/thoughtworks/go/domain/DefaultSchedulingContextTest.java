@@ -21,56 +21,55 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.jupiter.api.Test;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
+import static java.util.Collections.emptyMap;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultSchedulingContextTest {
     @Test
-	void shouldFindNoAgentsIfNoneExist() {
+    void shouldFindNoAgentsIfNoneExist() {
         DefaultSchedulingContext context = new DefaultSchedulingContext("approved", new Agents());
-        assertThat(context.findAgentsMatching(new ResourceConfigs()), is(new Agents()));
+        assertThat(context.findAgentsMatching(new ResourceConfigs())).isEqualTo(new Agents());
     }
 
     @Test
-	void shouldFindAllAgentsIfNoResourcesAreSpecified() {
+    void shouldFindAllAgentsIfNoResourcesAreSpecified() {
         Agent linux = agent("uuid1", "linux");
         Agent windows = agent("uuid2", "windows");
         Agents matchingAgents = new Agents(linux, windows);
         DefaultSchedulingContext context = new DefaultSchedulingContext("approved", matchingAgents);
-        assertThat(context.findAgentsMatching(new ResourceConfigs()), is(matchingAgents));
+        assertThat(context.findAgentsMatching(new ResourceConfigs())).isEqualTo(matchingAgents);
     }
 
     @Test
-	void shouldOnlyFindAgentsThatMatchResourcesSpecified() {
+    void shouldOnlyFindAgentsThatMatchResourcesSpecified() {
         Agent linux = agent("uuid1", "linux");
         Agent windows = agent("uuid2", "windows");
         Agents matchingAgents = new Agents(linux, windows);
         DefaultSchedulingContext context = new DefaultSchedulingContext("approved", matchingAgents);
-        assertThat(context.findAgentsMatching(resources("linux")), is(new Agents(linux)));
+        assertThat(context.findAgentsMatching(resources("linux"))).isEqualTo(new Agents(linux));
     }
 
     @Test
-	void shouldFindNoAgentsIfNoneMatch() {
+    void shouldFindNoAgentsIfNoneMatch() {
         Agent linux = agent("uuid1", "linux");
         Agent windows = agent("uuid2", "windows");
         Agents matchingAgents = new Agents(linux, windows);
         DefaultSchedulingContext context = new DefaultSchedulingContext("approved", matchingAgents);
-        assertThat(context.findAgentsMatching(resources("macosx")), is(new Agents()));
+        assertThat(context.findAgentsMatching(resources("macosx"))).isEqualTo(new Agents());
     }
 
     @Test
-	void shouldNotMatchDeniedAgents() {
+    void shouldNotMatchDeniedAgents() {
         Agent linux = agent("uuid1", "linux");
         Agent windows = agent("uuid2", "windows");
         windows.disable();
         Agents matchingAgents = new Agents(linux, windows);
         DefaultSchedulingContext context = new DefaultSchedulingContext("approved", matchingAgents);
-        assertThat(context.findAgentsMatching(resources()), is(new Agents(linux)));
+        assertThat(context.findAgentsMatching(resources())).isEqualTo(new Agents(linux));
     }
 
     @Test
-	void shouldSetEnvironmentVariablesOnSchedulingContext() {
+    void shouldSetEnvironmentVariablesOnSchedulingContext() {
         EnvironmentVariablesConfig existing = new EnvironmentVariablesConfig();
         existing.add("firstVar", "firstVal");
         existing.add("overriddenVar", "originalVal");
@@ -85,98 +84,120 @@ public class DefaultSchedulingContextTest {
         StageConfig config = StageConfigMother.custom("test", Approval.automaticApproval());
         config.setVariables(stageLevel);
 
-		ReflectionUtil.setField(schedulingContext, "rerun", true);
+        ReflectionUtil.setField(schedulingContext, "rerun", true);
         SchedulingContext context = schedulingContext.overrideEnvironmentVariables(config.getVariables());
 
-		assertThat(context.isRerun(), is(true));
+        assertThat(context.isRerun()).isTrue();
         EnvironmentVariablesConfig environmentVariablesUsed = context.getEnvironmentVariablesConfig();
-        assertThat(environmentVariablesUsed.size(), is(3));
-        assertThat(environmentVariablesUsed, hasItem(new EnvironmentVariableConfig("firstVar", "firstVal")));
-        assertThat(environmentVariablesUsed, hasItem(new EnvironmentVariableConfig("overriddenVar", "overriddenVal")));
-        assertThat(environmentVariablesUsed, hasItem(new EnvironmentVariableConfig("stageVar", "stageVal")));
+        assertThat(environmentVariablesUsed.size()).isEqualTo(3);
+        assertThat(environmentVariablesUsed).contains(new EnvironmentVariableConfig("firstVar", "firstVal"));
+        assertThat(environmentVariablesUsed).contains(new EnvironmentVariableConfig("overriddenVar", "overriddenVal"));
+        assertThat(environmentVariablesUsed).contains(new EnvironmentVariableConfig("stageVar", "stageVal"));
     }
 
-	@Test
-	void shouldCreatePermittedAgentContextCorrectly() {
-		Agent linux = agent("uuid1", "linux");
-		Agent windows = agent("uuid2", "windows");
-		windows.disable();
-		Agents matchingAgents = new Agents(linux, windows);
+    @Test
+    void shouldCreatePermittedAgentContextCorrectly() {
+        Agent linux = agent("uuid1", "linux");
+        Agent windows = agent("uuid2", "windows");
+        windows.disable();
+        Agents matchingAgents = new Agents(linux, windows);
 
-		EnvironmentVariablesConfig existing = new EnvironmentVariablesConfig();
-		existing.add("firstVar", "firstVal");
-		existing.add("overriddenVar", "originalVal");
+        EnvironmentVariablesConfig existing = new EnvironmentVariablesConfig();
+        existing.add("firstVar", "firstVal");
+        existing.add("overriddenVar", "originalVal");
 
-		SchedulingContext schedulingContext = new DefaultSchedulingContext("approver", matchingAgents);
-		schedulingContext = schedulingContext.overrideEnvironmentVariables(existing);
+        SchedulingContext schedulingContext = new DefaultSchedulingContext("approver", matchingAgents);
+        schedulingContext = schedulingContext.overrideEnvironmentVariables(existing);
 
-		EnvironmentVariablesConfig stageLevel = new EnvironmentVariablesConfig();
-		stageLevel.add("stageVar", "stageVal");
-		stageLevel.add("overriddenVar", "overriddenVal");
+        EnvironmentVariablesConfig stageLevel = new EnvironmentVariablesConfig();
+        stageLevel.add("stageVar", "stageVal");
+        stageLevel.add("overriddenVar", "overriddenVal");
 
-		StageConfig config = StageConfigMother.custom("test", Approval.automaticApproval());
-		config.setVariables(stageLevel);
+        StageConfig config = StageConfigMother.custom("test", Approval.automaticApproval());
+        config.setVariables(stageLevel);
 
-		SchedulingContext context = schedulingContext.overrideEnvironmentVariables(config.getVariables());
-		ReflectionUtil.setField(context, "rerun", true);
-		SchedulingContext permittedAgentContext = context.permittedAgent("uuid1");
+        SchedulingContext context = schedulingContext.overrideEnvironmentVariables(config.getVariables());
+        ReflectionUtil.setField(context, "rerun", true);
+        SchedulingContext permittedAgentContext = context.permittedAgent("uuid1");
 
-		Agents agents = (Agents) ReflectionUtil.getField(permittedAgentContext, "agents");
-		assertThat(agents.size(), is(1));
-		assertThat(agents.get(0).getAgentIdentifier().getUuid(), is("uuid1"));
-		assertThat(permittedAgentContext.isRerun(), is(true));
-		assertThat(permittedAgentContext.getApprovedBy(), is("approver"));
-		EnvironmentVariablesConfig environmentVariablesUsed = permittedAgentContext.getEnvironmentVariablesConfig();
-		assertThat(environmentVariablesUsed.size(), is(3));
-		assertThat(environmentVariablesUsed, hasItem(new EnvironmentVariableConfig("firstVar", "firstVal")));
-		assertThat(environmentVariablesUsed, hasItem(new EnvironmentVariableConfig("overriddenVar", "overriddenVal")));
-		assertThat(environmentVariablesUsed, hasItem(new EnvironmentVariableConfig("stageVar", "stageVal")));
-	}
+        Agents agents = (Agents) ReflectionUtil.getField(permittedAgentContext, "agents");
+        assertThat(agents.size()).isEqualTo(1);
+        assertThat(agents.get(0).getAgentIdentifier().getUuid()).isEqualTo("uuid1");
+        assertThat(permittedAgentContext.isRerun()).isTrue();
+        assertThat(permittedAgentContext.getApprovedBy()).isEqualTo("approver");
+        EnvironmentVariablesConfig environmentVariablesUsed = permittedAgentContext.getEnvironmentVariablesConfig();
+        assertThat(environmentVariablesUsed.size()).isEqualTo(3);
+        assertThat(environmentVariablesUsed).contains(new EnvironmentVariableConfig("firstVar", "firstVal"));
+        assertThat(environmentVariablesUsed).contains(new EnvironmentVariableConfig("overriddenVar", "overriddenVal"));
+        assertThat(environmentVariablesUsed).contains(new EnvironmentVariableConfig("stageVar", "stageVal"));
+    }
 
-	@Test
-	void shouldCreateRerunSchedulingContextCorrectly() {
-		Agent linux = agent("uuid1", "linux");
-		Agent windows = agent("uuid2", "windows");
-		windows.disable();
-		Agents matchingAgents = new Agents(linux, windows);
+    @Test
+    void shouldCreateRerunSchedulingContextCorrectly() {
+        Agent linux = agent("uuid1", "linux");
+        Agent windows = agent("uuid2", "windows");
+        windows.disable();
+        Agents matchingAgents = new Agents(linux, windows);
 
-		EnvironmentVariablesConfig existing = new EnvironmentVariablesConfig();
-		existing.add("firstVar", "firstVal");
-		existing.add("overriddenVar", "originalVal");
+        EnvironmentVariablesConfig existing = new EnvironmentVariablesConfig();
+        existing.add("firstVar", "firstVal");
+        existing.add("overriddenVar", "originalVal");
 
-		SchedulingContext schedulingContext = new DefaultSchedulingContext("approver", matchingAgents);
-		schedulingContext = schedulingContext.overrideEnvironmentVariables(existing);
+        SchedulingContext schedulingContext = new DefaultSchedulingContext("approver", matchingAgents);
+        schedulingContext = schedulingContext.overrideEnvironmentVariables(existing);
 
-		EnvironmentVariablesConfig stageLevel = new EnvironmentVariablesConfig();
-		stageLevel.add("stageVar", "stageVal");
-		stageLevel.add("overriddenVar", "overriddenVal");
+        EnvironmentVariablesConfig stageLevel = new EnvironmentVariablesConfig();
+        stageLevel.add("stageVar", "stageVal");
+        stageLevel.add("overriddenVar", "overriddenVal");
 
-		StageConfig config = StageConfigMother.custom("test", Approval.automaticApproval());
-		config.setVariables(stageLevel);
+        StageConfig config = StageConfigMother.custom("test", Approval.automaticApproval());
+        config.setVariables(stageLevel);
 
-		SchedulingContext context = schedulingContext.overrideEnvironmentVariables(config.getVariables());
-		SchedulingContext rerunContext = context.rerunContext();
+        SchedulingContext context = schedulingContext.overrideEnvironmentVariables(config.getVariables());
+        SchedulingContext rerunContext = context.rerunContext();
 
-		assertThat(rerunContext.isRerun(), is(true));
-		assertThat(rerunContext.getApprovedBy(), is("approver"));
-		Agents agents = (Agents) ReflectionUtil.getField(rerunContext, "agents");
-		assertThat(agents, is(matchingAgents));
-		EnvironmentVariablesConfig environmentVariablesUsed = rerunContext.getEnvironmentVariablesConfig();
-		assertThat(environmentVariablesUsed.size(), is(3));
-		assertThat(environmentVariablesUsed, hasItem(new EnvironmentVariableConfig("firstVar", "firstVal")));
-		assertThat(environmentVariablesUsed, hasItem(new EnvironmentVariableConfig("overriddenVar", "overriddenVal")));
-		assertThat(environmentVariablesUsed, hasItem(new EnvironmentVariableConfig("stageVar", "stageVal")));
-	}
+        assertThat(rerunContext.isRerun()).isTrue();
+        assertThat(rerunContext.getApprovedBy()).isEqualTo("approver");
+        Agents agents = (Agents) ReflectionUtil.getField(rerunContext, "agents");
+        assertThat(agents).isEqualTo(matchingAgents);
+        EnvironmentVariablesConfig environmentVariablesUsed = rerunContext.getEnvironmentVariablesConfig();
+        assertThat(environmentVariablesUsed.size()).isEqualTo(3);
+        assertThat(environmentVariablesUsed).contains(new EnvironmentVariableConfig("firstVar", "firstVal"));
+        assertThat(environmentVariablesUsed).contains(new EnvironmentVariableConfig("overriddenVar", "overriddenVal"));
+        assertThat(environmentVariablesUsed).contains(new EnvironmentVariableConfig("stageVar", "stageVal"));
+    }
+
+    @Test
+    void shouldReturnElasticProfileIdSetAtPipelineConfigLevel() {
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("admin", new Agents(), emptyMap(), emptyMap(), null, null);
+
+        assertThat(schedulingContext.getElasticProfileIdAtPipelineConfig()).isNull();
+
+        schedulingContext = new DefaultSchedulingContext("admin", new Agents(), emptyMap(), emptyMap(), "some-profile-id", null);
+
+        assertThat(schedulingContext.getElasticProfileIdAtPipelineConfig()).isEqualTo("some-profile-id");
+    }
+
+    @Test
+    void shouldReturnElasticProfileIdSetAtStageConfigLevel() {
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("admin", new Agents(), emptyMap(), emptyMap(), null, null);
+
+        assertThat(schedulingContext.getElasticProfileIdAtStageConfig()).isNull();
+
+        schedulingContext = new DefaultSchedulingContext("admin", new Agents(), emptyMap(), emptyMap(), null, "some-profile-id");
+
+        assertThat(schedulingContext.getElasticProfileIdAtStageConfig()).isEqualTo("some-profile-id");
+    }
 
     private Agent agent(String uuid, String... names) {
         return new Agent(uuid, "localhost", "127.0.0.1", names == null ? null : asList(names));
     }
 
-	public static ResourceConfigs resources(String... names) {
-		ResourceConfigs resourceConfigs = new ResourceConfigs();
-		for (String name : names) {
-			resourceConfigs.add(new ResourceConfig(name));
-		}
-		return resourceConfigs;
-	}
+    public static ResourceConfigs resources(String... names) {
+        ResourceConfigs resourceConfigs = new ResourceConfigs();
+        for (String name : names) {
+            resourceConfigs.add(new ResourceConfig(name));
+        }
+        return resourceConfigs;
+    }
 }

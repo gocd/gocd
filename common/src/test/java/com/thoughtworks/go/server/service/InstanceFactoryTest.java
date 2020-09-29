@@ -33,7 +33,9 @@ import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.UUID;
 
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.domain.JobResult.Unknown;
@@ -320,7 +322,6 @@ class InstanceFactoryTest {
         assertThat(plan, is(new DefaultJobPlan(new Resources(resourceConfigs), ArtifactPlan.toArtifactPlans(artifactTypeConfigs), -1, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null)));
     }
 
-
     @Test
     void shouldAddElasticProfileOnJobPlan() {
         ElasticProfile elasticProfile = new ElasticProfile("id", "prod-cluster");
@@ -339,11 +340,39 @@ class InstanceFactoryTest {
     void shouldAddElasticProfileAndClusterProfileOnJobPlan() {
         ElasticProfile elasticProfile = new ElasticProfile("id", "clusterId");
         ClusterProfile clusterProfile = new ClusterProfile("clusterId", "pluginId");
-        DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), ImmutableMap.of("id", elasticProfile), ImmutableMap.of("clusterId", clusterProfile));
+        DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), ImmutableMap.of("id", elasticProfile), ImmutableMap.of("clusterId", clusterProfile), "pipeline-elastic-id", "stage-elastic-id");
 
         ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactTypeConfigs);
         jobConfig.setElasticProfileId("id");
+        JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
+
+        assertThat(plan.getElasticProfile(), is(elasticProfile));
+        assertThat(plan.getClusterProfile(), is(clusterProfile));
+    }
+
+    @Test
+    void shouldUseElasticProfileIdOnStageIfOneIsNotSetOnJob() {
+        ElasticProfile elasticProfile = new ElasticProfile("id", "clusterId");
+        ClusterProfile clusterProfile = new ClusterProfile("clusterId", "pluginId");
+        DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), ImmutableMap.of("id", elasticProfile), ImmutableMap.of("clusterId", clusterProfile), "some-id", "id");
+
+        ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactTypeConfigs);
+        JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
+
+        assertThat(plan.getElasticProfile(), is(elasticProfile));
+        assertThat(plan.getClusterProfile(), is(clusterProfile));
+    }
+
+    @Test
+    void shouldUseElasticProfileIdOnPipelineIfOneIsNotSetOnStageOrJob() {
+        ElasticProfile elasticProfile = new ElasticProfile("some-id", "clusterId");
+        ClusterProfile clusterProfile = new ClusterProfile("clusterId", "pluginId");
+        DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), ImmutableMap.of("some-id", elasticProfile), ImmutableMap.of("clusterId", clusterProfile), "some-id", null);
+
+        ArtifactTypeConfigs artifactTypeConfigs = new ArtifactTypeConfigs();
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactTypeConfigs);
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
 
         assertThat(plan.getElasticProfile(), is(elasticProfile));

@@ -37,11 +37,16 @@ public interface SchedulingContext {
 
     SchedulingContext permittedAgent(String permittedAgentUuid);
 
-	boolean isRerun();
+    boolean isRerun();
 
     SchedulingContext rerunContext();
 
     ElasticProfile getElasticProfile(String profileId);
 
     ClusterProfile getClusterProfile(String clusterProfileId);
+
+    String getElasticProfileIdAtPipelineConfig();
+
+    String getElasticProfileIdAtStageConfig();
+
 }

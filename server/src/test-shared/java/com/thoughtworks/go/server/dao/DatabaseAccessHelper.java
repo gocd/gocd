@@ -71,6 +71,7 @@ import java.util.*;
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
+import static java.util.Collections.emptyMap;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
@@ -572,12 +573,12 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     public Pipeline schedulePipeline(PipelineConfig pipelineConfig, BuildCause buildCause, String approvedBy, final Clock clock) {
-        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(approvedBy), md5, clock);
+        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(approvedBy, new Agents(), emptyMap(), emptyMap(), pipelineConfig.getElasticProfileId(), pipelineConfig.first().getElasticProfileId()), md5, clock);
         return scheduleJobInstancesAndSavePipeline(pipeline);
     }
 
     public Pipeline schedulePipeline(PipelineConfig pipelineConfig, BuildCause buildCause, String approvedBy, final Clock clock, Map<String, ElasticProfile> profiles, Map<String, ClusterProfile> clusterProfiles) {
-        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(approvedBy, new Agents(), profiles, clusterProfiles), md5, clock);
+        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(approvedBy, new Agents(), profiles, clusterProfiles, pipelineConfig.getElasticProfileId(), pipelineConfig.first().getElasticProfileId()), md5, clock);
         return scheduleJobInstancesAndSavePipeline(pipeline);
     }
 
@@ -630,8 +631,8 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         return revision;
     }
 
-    public void addAgent(Agent agent){
-        if(agent != null){
+    public void addAgent(Agent agent) {
+        if (agent != null) {
             agentDao.saveOrUpdate(agent);
         }
     }

@@ -62,21 +62,13 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
       modificationDetails = <KeyValuePair data={modDetails}/>;
     }
 
-    let maybeEditButton;
-
-    const materialType = config.type();
-    if (materialType === "package" || materialType === "plugin") {
-      maybeEditButton = <Edit data-test-id={"edit-material"} title={"Edit package"}
-                              onclick={vnode.attrs.onEdit.bind(this, config)}/>;
-    }
-
     const modificationIconTitle = material.modification === null
       ? "No modifications to show"
       : "Show Modifications";
     const actionButtons         = <IconGroup>
       <Refresh data-test-id={"trigger-update"} title={this.getTriggerUpdateTitle(material)}
                disabled={!material.canTriggerUpdate || material.materialUpdateInProgress} onclick={vnode.attrs.triggerUpdate.bind(this, material)}/>
-      {maybeEditButton}
+      {this.getEditButton(vnode, config)}
       <Usage data-test-id={"show-usages"} title={"Show Usages"} onclick={vnode.attrs.showUsages.bind(this, config)}/>
       <List data-test-id={"show-modifications-material"} title={modificationIconTitle} disabled={material.modification === null}
             onclick={vnode.attrs.showModifications.bind(this, config)}/>
@@ -163,5 +155,21 @@ export class MaterialWidget extends MithrilViewComponent<MaterialWithInfoAttrs> 
       <span>{msg.message}</span>
       <p>{msg.description}</p>
     </div>;
+  }
+
+  private getEditButton(vnode: m.Vnode<MaterialWithInfoAttrs, this>, config: MaterialWithFingerprint) {
+    const materialType = config.type();
+    if (materialType === "package") {
+      return <Edit data-test-id={"edit-material"} title={"Edit package"}
+                   onclick={vnode.attrs.onEdit.bind(this, config)}/>;
+    } else if (materialType === "plugin") {
+      const attrs = config.attributes() as PluggableScmMaterialAttributes;
+      const title = attrs.origin().isDefinedInConfigRepo()
+        ? `Cannot edit material as it is defined in config repo '${attrs.origin().id()}'`
+        : "Edit pluggable material";
+      return <Edit data-test-id={"edit-material"} title={title}
+                   disabled={attrs.origin().isDefinedInConfigRepo()}
+                   onclick={vnode.attrs.onEdit.bind(this, config)}/>;
+    }
   }
 }

@@ -22,6 +22,7 @@ import {stringOrUndefined} from "models/compare/pipeline_instance_json";
 import {MaterialModificationJSON} from "models/config_repos/serialization";
 import {humanizedMaterialAttributeName, MaterialModification} from "models/config_repos/types";
 import {Filter} from "models/maintenance_mode/material";
+import {Origin, OriginJSON, OriginType} from "models/origin";
 import {mapTypeToDisplayType} from "./types";
 
 interface BaseAttributesJSON {
@@ -65,6 +66,7 @@ interface PackageMaterialAttributesJSON extends BaseAttributesJSON {
 interface PluggableScmMaterialAttributesJSON extends BaseAttributesJSON {
   ref: string;
   scm_name: string;
+  origin: OriginJSON;
 }
 
 type MaterialAttributesJSON =
@@ -273,15 +275,17 @@ export class PackageMaterialAttributes extends MaterialAttributes {
 export class PluggableScmMaterialAttributes extends MaterialAttributes {
   ref: Stream<string>;
   scmName: Stream<string>;
+  origin: Stream<Origin>;
 
-  constructor(name: string | undefined, autoUpdate: boolean | undefined, ref: string, scmName: string) {
+  constructor(name: string | undefined, autoUpdate: boolean | undefined, ref: string, scmName: string, origin: Origin = new Origin(OriginType.GoCD)) {
     super(name, autoUpdate);
     this.ref     = Stream(ref);
     this.scmName = Stream(scmName);
+    this.origin  = Stream(origin);
   }
 
   static fromJSON(data: PluggableScmMaterialAttributesJSON): PluggableScmMaterialAttributes {
-    return new PluggableScmMaterialAttributes(data.name, data.auto_update, data.ref, data.scm_name);
+    return new PluggableScmMaterialAttributes(data.name, data.auto_update, data.ref, data.scm_name, Origin.fromJSON(data.origin));
   }
 }
 

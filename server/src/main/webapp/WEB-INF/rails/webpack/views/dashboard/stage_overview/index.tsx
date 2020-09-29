@@ -103,11 +103,9 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
       vnode.dom.style.left = `${left}px`;
       return;
     } else if (vnode.attrs.isDisplayedOnVSMPage) {
-      const top = 76;
       const left = vnode.attrs.leftPositionForVSMStageOverview!;
-
       // @ts-ignore
-      vnode.dom.style.top = `${top}px`;
+      vnode.dom.style.marginTop = `22px`;
       // @ts-ignore
       vnode.dom.style.left = `${left}px`;
       return;

@@ -210,32 +210,4 @@ class ConfigRepositoryInitializerTest {
 
         verifyNoMoreInteractions(goConfigRepoConfigDataSource);
     }
-
-    @Test
-    void shouldNotReInitializeConfigRepositoriesWhenPluginsAreLoadedAgain() {
-        GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) repoConfigs.get(0).getRepo();
-        Material gitMaterial = new Materials(new MaterialConfigs(gitMaterialConfig)).first();
-        TestingMaterialInstance gitMaterialInstance = new TestingMaterialInstance("git-repo", "flyweight");
-        File folder = new File("repo-folder");
-        MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(gitMaterial, oneModifiedFile("revision1")));
-        Modification modification = materialRevisions.firstModifiedMaterialRevision().getLatestModification();
-
-        when(materialRepository.findMaterialInstance(gitMaterialConfig)).thenReturn(gitMaterialInstance);
-        when(materialRepository.folderFor(gitMaterial)).thenReturn(folder);
-        when(materialRepository.findLatestModification(gitMaterial)).thenReturn(materialRevisions);
-
-        configRepositoryInitializer.onConfigChange(new BasicCruiseConfig());
-        configRepositoryInitializer.pluginLoaded(yamlPluginDescriptor);
-
-        // verify initialized once during startup..
-        verify(goConfigRepoConfigDataSource, times(1)).onCheckoutComplete(gitMaterialConfig, folder, modification);
-
-        // unload plugin
-        configRepositoryInitializer.pluginUnLoaded(yamlPluginDescriptor);
-
-        // load plugin
-        configRepositoryInitializer.pluginLoaded(yamlPluginDescriptor);
-
-        verifyNoMoreInteractions(goConfigRepoConfigDataSource);
-    }
 }

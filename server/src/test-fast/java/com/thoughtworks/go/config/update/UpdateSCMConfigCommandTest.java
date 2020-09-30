@@ -115,7 +115,7 @@ public class UpdateSCMConfigCommandTest {
         assertThat(materialConfig1.getSCMConfig(), is(updatedSCM));
 
         PluggableSCMMaterialConfig materialConfig2 = (PluggableSCMMaterialConfig) cruiseConfig
-                .getPipelineConfigByName(new CaseInsensitiveString("p1")).materialConfigs().get(0);
+                .getPipelineConfigByName(new CaseInsensitiveString("p2")).materialConfigs().get(0);
         assertThat(materialConfig2.getSCMConfig(), is(updatedSCM));
     }
 

@@ -254,6 +254,10 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     List<PipelineConfig> pipelinesAssociatedWithPluggableSCM(SCM scmConfig);
 
+    List<PipelineConfig> pipelinesAssociatedWithPackage(PackageDefinition packageDefinition);
+
+    List<PipelineConfig> pipelinesAssociatedWithPackageRepository(PackageRepository packageRepository);
+
     List<PipelineConfig> getAllLocalPipelineConfigs();
 
     void setPartials(List<PartialConfig> partials);

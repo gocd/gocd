@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.StageNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -49,11 +50,13 @@ import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.exceptions.EntityType.Pipeline;
 import static com.thoughtworks.go.config.exceptions.EntityType.Template;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 /**
@@ -1505,6 +1508,23 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
 
         return pipelines;
+    }
+
+    @Override
+    public List<PipelineConfig> pipelinesAssociatedWithPackage(PackageDefinition packageDefinition) {
+        return getAllPipelineConfigs().stream()
+                .filter(pipeline -> pipeline.packageMaterialConfigs().stream()
+                        .anyMatch(materialConfig -> materialConfig.getPackageId().equalsIgnoreCase(packageDefinition.getId())))
+                .collect(toList());
+    }
+
+    @Override
+    public List<PipelineConfig> pipelinesAssociatedWithPackageRepository(PackageRepository packageRepository) {
+        return getAllPipelineConfigs().stream()
+                .filter(pipeline -> pipeline.packageMaterialConfigs().stream()
+                        .anyMatch(materialConfig -> materialConfig.getPackageDefinition()
+                                .getRepository().getId().equalsIgnoreCase(packageRepository.getId())))
+                .collect(toList());
     }
 
     @Override

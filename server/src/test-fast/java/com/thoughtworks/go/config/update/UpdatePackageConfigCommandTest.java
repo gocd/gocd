@@ -17,12 +17,20 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.config.*;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
-import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
-import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.packagerepository.*;
+import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -32,6 +40,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
+import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
+import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -89,6 +101,39 @@ public class UpdatePackageConfigCommandTest {
         assertThat(cruiseConfig.getPackageRepositories().findPackageDefinitionWith(packageUuid), is(oldPackageDefinition));
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getPackageRepositories().findPackageDefinitionWith(packageUuid), is(newPackageDefinition));
+    }
+
+    @Test
+    public void shouldUpdatePackageConfigurationOnAssociatedPipelines() {
+        GitMaterialConfig git = git("http://example.com");
+        PackageMaterialConfig packageMaterial = packageMaterialConfig();
+        PipelineConfig p1 = pipelineConfig("p1", new MaterialConfigs(git, packageMaterial));
+        PipelineConfig p2 = pipelineConfig("p2", new MaterialConfigs(git));
+        PipelineConfig p3 = pipelineConfig("p3", new MaterialConfigs(packageMaterial));
+
+        PipelineConfigs group1 = createGroup("group1", p1, p2);
+        PipelineConfigs group2 = createGroup("group2", p3);
+
+        cruiseConfig.setGroup(new PipelineGroups(group1, group2));
+
+        Configuration updatedConfiguration = new Configuration(create("new_key1", "new_value1"), create("new_key2", "new_value2"));
+        newPackageDefinition = PackageDefinitionMother.create(packageMaterial.getPackageId(), "prettyjson", updatedConfiguration,
+                packageMaterial.getPackageDefinition().getRepository());
+
+        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, packageUuid, newPackageDefinition,
+                currentUser, "digest", this.entityHashingService, result, packageDefinitionService);
+
+        command.update(cruiseConfig);
+
+        PackageMaterialConfig materialConfig1 = cruiseConfig
+                .getPipelineConfigByName(new CaseInsensitiveString("p1")).packageMaterialConfigs().get(0);
+
+        assertThat(materialConfig1.getPackageDefinition(), is(newPackageDefinition));
+
+        PackageMaterialConfig materialConfig2 = cruiseConfig
+                .getPipelineConfigByName(new CaseInsensitiveString("p3")).packageMaterialConfigs().get(0);
+
+        assertThat(materialConfig2.getPackageDefinition(), is(newPackageDefinition));
     }
 
     @Test

@@ -16,6 +16,7 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
@@ -26,6 +27,8 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
+import java.util.List;
+
 public class UpdatePackageConfigCommand extends PackageConfigCommand {
     private final GoConfigService goConfigService;
     private final String oldPackageId;
@@ -34,7 +37,9 @@ public class UpdatePackageConfigCommand extends PackageConfigCommand {
     private EntityHashingService entityHashingService;
     private final HttpLocalizedOperationResult result;
 
-    public UpdatePackageConfigCommand(GoConfigService goConfigService, String oldPackageId, PackageDefinition newPackage, Username username, String digest, EntityHashingService entityHashingService, HttpLocalizedOperationResult result, PackageDefinitionService packageDefinitionService) {
+    public UpdatePackageConfigCommand(GoConfigService goConfigService, String oldPackageId, PackageDefinition newPackage,
+                                      Username username, String digest, EntityHashingService entityHashingService,
+                                      HttpLocalizedOperationResult result, PackageDefinitionService packageDefinitionService) {
         super(newPackage, result, packageDefinitionService, goConfigService, username);
         this.goConfigService = goConfigService;
         this.oldPackageId = oldPackageId;
@@ -56,6 +61,8 @@ public class UpdatePackageConfigCommand extends PackageConfigCommand {
 
         packageRepositories.replace(index, repository);
         modifiedConfig.setPackageRepositories(packageRepositories);
+
+        updatePackageConfigurationOnAssociatedPipelines(modifiedConfig);
     }
 
     @Override
@@ -66,6 +73,17 @@ public class UpdatePackageConfigCommand extends PackageConfigCommand {
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         return isAuthorized() && isRepositoryPresent(cruiseConfig) && isIdSame() && isRequestFresh();
+    }
+
+    private void updatePackageConfigurationOnAssociatedPipelines(CruiseConfig modifiedConfig) {
+        List<PipelineConfig> pipelinesWithPackage = modifiedConfig.pipelinesAssociatedWithPackage(newPackage);
+        pipelinesWithPackage.forEach(pipelineConfig -> {
+            pipelineConfig.packageMaterialConfigs().forEach(packageMaterialConfig -> {
+                if (packageMaterialConfig.getPackageId().equals(newPackage.getId())) {
+                    packageMaterialConfig.setPackageDefinition(newPackage);
+                }
+            });
+        });
     }
 
     private boolean isRepositoryPresent(CruiseConfig cruiseConfig) {

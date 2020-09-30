@@ -17,12 +17,15 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.config.*;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
-import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
-import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.domain.packagerepository.Packages;
+import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -33,6 +36,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.packageMaterialConfig;
+import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
+import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -102,6 +110,39 @@ public class UpdatePackageRepositoryCommandTest {
         assertThat(cruiseConfig.getPackageRepositories().find(repoId).getPackages().first(), is(nodePackage));
     }
 
+    @Test
+    public void shouldUpdatePackageRepositoryConfigurationOnAssociatedPipelines() {
+        GitMaterialConfig git = git("http://example.com");
+        PackageMaterialConfig packageMaterial = packageMaterialConfig();
+        PipelineConfig p1 = pipelineConfig("p1", new MaterialConfigs(git, packageMaterial));
+        PipelineConfig p2 = pipelineConfig("p2", new MaterialConfigs(git));
+        PipelineConfig p3 = pipelineConfig("p3", new MaterialConfigs(packageMaterial));
+
+        PipelineConfigs group1 = createGroup("group1", p1, p2);
+        PipelineConfigs group2 = createGroup("group2", p3);
+
+        cruiseConfig.setGroup(new PipelineGroups(group1, group2));
+        cruiseConfig.setPackageRepositories(new PackageRepositories(packageMaterial.getPackageDefinition().getRepository()));
+
+        Configuration updatedConfiguration = new Configuration(create("new_key1", "new_value1"), create("new_key2", "new_value2"));
+        PackageRepository updatePackageRepo = PackageRepositoryMother.create(packageMaterial.getPackageDefinition().getRepository().getId(),
+                "repo", "id", "version", updatedConfiguration);
+
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService,
+                updatePackageRepo, currentUser, "digest", entityHashingService, result, repoId);
+
+        command.update(cruiseConfig);
+
+        PackageMaterialConfig materialConfig1 = cruiseConfig
+                .getPipelineConfigByName(new CaseInsensitiveString("p1")).packageMaterialConfigs().get(0);
+
+        assertThat(materialConfig1.getPackageDefinition().getRepository(), is(updatePackageRepo));
+
+        PackageMaterialConfig materialConfig2 = cruiseConfig
+                .getPipelineConfigByName(new CaseInsensitiveString("p3")).packageMaterialConfigs().get(0);
+
+        assertThat(materialConfig2.getPackageDefinition().getRepository(), is(updatePackageRepo));
+    }
     @Test
     public void shouldNotUpdatePackageRepositoryIfTheSpecifiedPluginTypeIsInvalid() throws Exception {
         when(packageRepositoryService.validatePluginId(newPackageRepo)).thenReturn(false);

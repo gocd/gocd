@@ -24,10 +24,6 @@ import org.gradle.api.tasks.bundling.Zip
 
 class VerifyJarTask extends DefaultTask {
 
-  VerifyJarTask() {
-    onlyIf { System.getenv().containsKey("GO_SERVER_URL") }
-  }
-
   @Input
   Zip jarTask
 

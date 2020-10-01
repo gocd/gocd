@@ -33,6 +33,7 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -60,6 +61,9 @@ class ConfigRepositoryInitializerTest {
     @Mock
     private GoConfigService goConfigService;
 
+    @Mock
+    private SystemEnvironment systemEnvironment;
+
     private ConfigRepositoryInitializer configRepositoryInitializer;
 
     private GoPluginDescriptor yamlPluginDescriptor;
@@ -82,7 +86,7 @@ class ConfigRepositoryInitializerTest {
         groovyPluginDescriptor = GoPluginDescriptor.builder().id(GROOVY_PLUGIN_ID).build();
         groovyPluginDescriptor.setBundleDescriptor(new GoPluginBundleDescriptor(groovyPluginDescriptor));
 
-        configRepositoryInitializer = new ConfigRepositoryInitializer(pluginManager, configRepoService, materialRepository, goConfigRepoConfigDataSource, goConfigService);
+        configRepositoryInitializer = new ConfigRepositoryInitializer(pluginManager, configRepoService, materialRepository, goConfigRepoConfigDataSource, goConfigService, systemEnvironment);
 
         repoConfigs = new ConfigReposConfig();
         ConfigRepoConfig repoConfig1 = new ConfigRepoConfig();
@@ -209,5 +213,25 @@ class ConfigRepositoryInitializerTest {
         configRepositoryInitializer.onConfigChange(new BasicCruiseConfig());
 
         verifyNoMoreInteractions(goConfigRepoConfigDataSource);
+    }
+
+    @Test
+    void shouldRegisterConfigChangeAndPluginLoadListenersWhenInitializeConfigRepositoriesOnStartupSystemPropertyIsSet() {
+        when(systemEnvironment.shouldInitializeConfigRepositoriesOnStartup()).thenReturn(true);
+
+        configRepositoryInitializer = new ConfigRepositoryInitializer(pluginManager, configRepoService, materialRepository, goConfigRepoConfigDataSource, goConfigService, systemEnvironment);
+
+        verify(pluginManager, times(1)).addPluginChangeListener(configRepositoryInitializer);
+        verify(goConfigService, times(1)).register(configRepositoryInitializer);
+    }
+
+    @Test
+    void shouldNotRegisterConfigChangeAndPluginLoadListenersWhenInitializeConfigRepositoriesOnStartupSystemPropertyIsUnSet() {
+        when(systemEnvironment.shouldInitializeConfigRepositoriesOnStartup()).thenReturn(false);
+
+        configRepositoryInitializer = new ConfigRepositoryInitializer(pluginManager, configRepoService, materialRepository, goConfigRepoConfigDataSource, goConfigService, systemEnvironment);
+
+        verify(pluginManager, never()).addPluginChangeListener(configRepositoryInitializer);
+        verify(goConfigService, never()).register(configRepositoryInitializer);
     }
 }

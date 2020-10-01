@@ -30,8 +30,8 @@ import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,12 +46,11 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_RE
  * @understands initializing config repositories. Loads the configurations from the last checked out modification on server startup.
  */
 @Service
-public class ConfigRepositoryInitializer implements ConfigChangedListener, PluginChangeListener, Initializer {
+public class ConfigRepositoryInitializer implements ConfigChangedListener, PluginChangeListener {
     private PluginManager pluginManager;
     private final ConfigRepoService configRepoService;
     private final MaterialRepository materialRepository;
     private final GoConfigRepoConfigDataSource goConfigRepoConfigDataSource;
-    private GoConfigService goConfigService;
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepositoryInitializer.class);
 
     private boolean isConfigLoaded = false;
@@ -60,23 +59,16 @@ public class ConfigRepositoryInitializer implements ConfigChangedListener, Plugi
     private final LinkedList<String> pluginsQueue = new LinkedList<>();
 
     @Autowired
-    public ConfigRepositoryInitializer(PluginManager pluginManager, ConfigRepoService configRepoService, MaterialRepository materialRepository, GoConfigRepoConfigDataSource goConfigRepoConfigDataSource, GoConfigService goConfigService) {
+    public ConfigRepositoryInitializer(PluginManager pluginManager, ConfigRepoService configRepoService, MaterialRepository materialRepository, GoConfigRepoConfigDataSource goConfigRepoConfigDataSource, GoConfigService goConfigService, SystemEnvironment systemEnvironment) {
         this.pluginManager = pluginManager;
         this.configRepoService = configRepoService;
         this.materialRepository = materialRepository;
         this.goConfigRepoConfigDataSource = goConfigRepoConfigDataSource;
-        this.goConfigService = goConfigService;
 
-        this.pluginManager.addPluginChangeListener(this);
-    }
-
-    @Override
-    public void initialize() {
-        this.goConfigService.register(this);
-    }
-
-    @Override
-    public void startDaemon() {
+        if (systemEnvironment.shouldInitializeConfigRepositoriesOnStartup()) {
+            this.pluginManager.addPluginChangeListener(this);
+            goConfigService.register(this);
+        }
     }
 
     @Override
@@ -136,6 +128,7 @@ public class ConfigRepositoryInitializer implements ConfigChangedListener, Plugi
                 LOGGER.debug("[Config Repository Initializer] Initializing config repository '{}'. Loading the GoCD configuration from last fetched modification '{}'.", repo.getId(), modification.getRevision());
                 goConfigRepoConfigDataSource.onCheckoutComplete(materialConfig, folder, modification);
             } catch (Exception e) {
+                LOGGER.error(String.format("[Config Repository Initializer] an error occurred while initializing '%s' config repository.", repo.getId()), e);
                 // Do nothing when error occurs while initializing the config repository.
                 // The config repo initialization may fail due to config repo errors (config errors, or rules violation errors)
             }

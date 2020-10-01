@@ -11,13 +11,9 @@ mergeable:
           regex: '.+'
           message: "Milestone must be specified"
       - do: project
-        no_empty:
-          enabled: true
-          message: "Project must be specified"
         must_include:
-          # one or more chars
-          regex: '.+'
-          message: "Project must be specified"
+          regex: '([0-9]+)\.([0-9]+)\.([0-9]+)'
+          message: "Project must be specified in the format ([0-9]+)\.([0-9]+)\.([0-9]+). Example: 20.8.0"
     pass:
       - do: checks
         status: success

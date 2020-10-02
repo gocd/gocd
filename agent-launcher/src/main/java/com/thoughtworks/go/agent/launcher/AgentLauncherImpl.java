@@ -26,7 +26,6 @@ import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.JarUtil;
 import com.thoughtworks.go.logging.LogConfigurator;
 import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.SslVerificationMode;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +48,7 @@ public class AgentLauncherImpl implements AgentLauncher {
 
     public static final String GO_AGENT_BOOTSTRAP_CLASS = "Go-Agent-Bootstrap-Class";
     public static final String AGENT_BOOTSTRAPPER_LOCK_FILE = ".agent-bootstrapper.running";
-    private Lockfile lockFile = new Lockfile(new File(AGENT_BOOTSTRAPPER_LOCK_FILE));
+    private final Lockfile lockFile = new Lockfile(new File(AGENT_BOOTSTRAPPER_LOCK_FILE));
 
     private static final Logger LOG = LoggerFactory.getLogger(AgentLauncherImpl.class);
 
@@ -131,7 +130,7 @@ public class AgentLauncherImpl implements AgentLauncher {
         return CurrentGoCDVersion.getInstance().fullVersion();
     }
 
-    public static interface AgentProcessParentRunner {
+    public interface AgentProcessParentRunner {
         int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlGenerator, Map<String, String> environmentVariables, Map context);
     }
 

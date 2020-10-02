@@ -18,6 +18,7 @@ package com.thoughtworks.go.build
 
 enum NonSpdxLicense {
   EDL_1_0("EDL-1.0", "Eclipse Distribution License - v1.0", "Eclipse Distribution License v1.0", "Eclipse Distribution License (New BSD License)"),
+  CDDL_1_1_GPL_2_0('CDDL-1.1+GPL-2.0',    'CDDL+GPL License', 'Dual license consisting of the CDDL v1.1 and GPL v2', 'https://glassfish.java.net/public/CDDL+GPL_1_1.html'),
   GPL_2_0_CLASSPATH_EXCEPTION('GPL-2.0+CE', 'GPLv2 with the Classpath Exception', 'GNU GENERAL PUBLIC LICENSE, Version 2 + Classpath Exception'),
   PUBLIC_DOMAIN("Public Domain"),
 

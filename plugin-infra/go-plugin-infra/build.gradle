@@ -26,8 +26,8 @@ dependencies {
   compile project(':plugin-infra:go-plugin-activator')
   compile group: 'org.springframework', name: 'spring-context', version: project.versions.spring
   compile group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
-  compile(group: 'org.apache.commons', name: 'commons-digester3', version: project.versions.commonsDigester3)
-  compile group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
+  compile group: 'javax.xml.bind', name: 'jaxb-api', version: project.versions.jaxb
+  compile group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: project.versions.jaxb
 
   compileOnly group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok

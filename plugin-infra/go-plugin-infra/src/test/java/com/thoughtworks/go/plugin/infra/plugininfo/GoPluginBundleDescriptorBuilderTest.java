@@ -169,6 +169,7 @@ class GoPluginBundleDescriptorBuilderTest {
                                                                               String pluginJarFileLocation) {
 
         final GoPluginDescriptor descriptor1 = GoPluginDescriptor.builder()
+                .version("1")
                 .id("testplugin.multipluginbundle.plugin1")
                 .version(null)
                 .pluginJarFileLocation(pluginJarFileLocation)

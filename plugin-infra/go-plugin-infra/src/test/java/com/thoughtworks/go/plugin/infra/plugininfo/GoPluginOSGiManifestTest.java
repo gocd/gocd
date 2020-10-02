@@ -20,7 +20,6 @@ import com.thoughtworks.go.plugin.FileHelper;
 import com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -39,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.osgi.framework.Constants.*;
 
 class GoPluginOSGiManifestTest {
-    private static OSChecker WINDOWS = new OSChecker(OSChecker.WINDOWS);
+    private static final OSChecker WINDOWS = new OSChecker(OSChecker.WINDOWS);
     private File tmpDir;
     private File manifestFile;
     private File bundleLocation;
@@ -204,13 +203,6 @@ class GoPluginOSGiManifestTest {
 
         assertThat(valueFor(BUNDLE_SYMBOLICNAME)).isEqualTo("pluginId");
         assertThat(valueFor(BUNDLE_CLASSPATH)).isEqualTo("lib/go-plugin-activator.jar,.,lib/dependency.jar");
-    }
-
-    @After
-    void tearDown() {
-        if (WINDOWS.satisfy()) {
-            return;
-        }
     }
 
     private String valueFor(final String prefix) throws IOException {

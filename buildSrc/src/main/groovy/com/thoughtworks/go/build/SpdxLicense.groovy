@@ -81,7 +81,7 @@ enum SpdxLicense {
   CNRI_PYTHON_GPL_COMPATIBLE("CNRI-Python-GPL-Compatible", "CNRI Python Open Source GPL Compatible License Agreement"),
   CPOL_1_02("CPOL-1.02", "Code Project Open License 1.02"),
   CDDL_1_0("CDDL-1.0", "Common Development and Distribution License 1.0", "Common Development and Distribution License (CDDL), Version 1.0", "Common Development and Distribution License (CDDL) v1.0", "Common Development and Distribution License (CDDL) Version 1.0"),
-  CDDL_1_1("CDDL-1.1", "Common Development and Distribution License 1.1"),
+  CDDL_1_1("CDDL-1.1", "Common Development and Distribution License 1.1", "COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.1"),
   CPAL_1_0("CPAL-1.0", "Common Public Attribution License 1.0"),
   CPL_1_0("CPL-1.0", "Common Public License 1.0"),
   CATOSL_1_1("CATOSL-1.1", "Computer Associates Trusted Open Source License 1.1"),

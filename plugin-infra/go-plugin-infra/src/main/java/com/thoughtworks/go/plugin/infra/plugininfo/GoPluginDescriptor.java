@@ -17,11 +17,13 @@ package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.Accessors;
 import org.osgi.framework.Version;
 
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,25 +31,48 @@ import java.util.List;
 import static com.thoughtworks.go.plugin.infra.plugininfo.PluginStatus.State.ACTIVE;
 import static com.thoughtworks.go.plugin.infra.plugininfo.PluginStatus.State.INVALID;
 
+@XmlRootElement(name = "go-plugin")
+@XmlAccessorType(XmlAccessType.NONE)
+@NoArgsConstructor
+@AllArgsConstructor
+@Accessors(fluent = true)
 @ToString
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class GoPluginDescriptor implements PluginDescriptor {
+    @XmlAttribute
     @EqualsAndHashCode.Include
+    @Getter
     private String id;
+
+    @XmlAttribute
     @EqualsAndHashCode.Include
+    @Builder.Default
+    @Getter
+    @Setter
     private String version = "1";
+
+    @XmlElement
     @EqualsAndHashCode.Include
+    @Getter
     private About about;
 
     /*
      * Absolute path to plugin jar e.g. $GO_SERVER_DIR/plugins/bundled/foo.jar
      */
+    @Getter
+    @Setter
     private String pluginJarFileLocation;
+
     /*
      * Path to bundle directory in plugin work folder. e.g. $PLUGIN_WORK_DIR/foo.jar/
      */
+    @Getter
+    @Setter
     private File bundleLocation;
+
+    @Getter
+    @Setter
     private boolean isBundledPlugin;
 
     /*
@@ -59,23 +84,12 @@ public class GoPluginDescriptor implements PluginDescriptor {
 
     @Builder.Default
     private PluginStatus status = new PluginStatus(ACTIVE);
+
+    @XmlElementWrapper(name = "extensions")
+    @XmlElement(name = "extension")
+    @XmlJavaTypeAdapter(value = ExtensionAdapter.class)
     @Builder.Default
     private final List<String> extensionClasses = new ArrayList<>();
-
-    @Override
-    public String id() {
-        return id;
-    }
-
-    @Override
-    public String version() {
-        return version;
-    }
-
-    @Override
-    public About about() {
-        return about;
-    }
 
     public GoPluginDescriptor markAsInvalid(List<String> messages, Exception rootCause) {
         bundleDescriptor().markAsInvalid(messages, rootCause);
@@ -94,20 +108,8 @@ public class GoPluginDescriptor implements PluginDescriptor {
         status = new PluginStatus(INVALID).setMessages(messages, rootCause);
     }
 
-    public String pluginFileLocation() {
-        return pluginJarFileLocation;
-    }
-
     public String fileName() {
         return bundleLocation.getName();
-    }
-
-    public File bundleLocation() {
-        return bundleLocation;
-    }
-
-    public boolean isBundledPlugin() {
-        return isBundledPlugin;
     }
 
     public boolean isCurrentOSValidForThisPlugin(String currentOS) {
@@ -154,13 +156,22 @@ public class GoPluginDescriptor implements PluginDescriptor {
     @ToString
     @EqualsAndHashCode
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class About implements PluginDescriptor.About {
+        @XmlElement
         private String name;
+        @XmlElement
         private String version;
+        @XmlElement(name = "target-go-version")
         private String targetGoVersion;
+        @XmlElement
         private String description;
+        @XmlElement
         private Vendor vendor;
 
+        @XmlElementWrapper(name = "target-os")
+        @XmlElement(name = "value")
         @Builder.Default
         private final List<String> targetOperatingSystems = new ArrayList<>();
 
@@ -197,8 +208,11 @@ public class GoPluginDescriptor implements PluginDescriptor {
 
     @ToString
     @EqualsAndHashCode
+    @NoArgsConstructor
     public static class Vendor implements PluginDescriptor.Vendor {
+        @XmlElement
         private String name;
+        @XmlElement
         private String url;
 
         public Vendor(String name, String url) {
@@ -214,6 +228,32 @@ public class GoPluginDescriptor implements PluginDescriptor {
         @Override
         public String url() {
             return url;
+        }
+    }
+
+    /**
+     * Only used for serialization
+     */
+    @NoArgsConstructor
+    private static class Extension {
+        @XmlAttribute(name = "class")
+        String className;
+    }
+
+    private static class ExtensionAdapter extends XmlAdapter<Extension, String> {
+        @Override
+        public String unmarshal(Extension v) {
+            return v.className;
+        }
+
+        /**
+         * Not used, but included for completeness
+         */
+        @Override
+        public Extension marshal(String v) {
+            Extension extension = new Extension();
+            extension.className = v;
+            return extension;
         }
     }
 }

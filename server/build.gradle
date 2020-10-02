@@ -766,7 +766,6 @@ task war(type: Jar) {
     }
     into "/WEB-INF"
   }
-
 }
 
 task verifyWar(type: VerifyJarTask) {
@@ -775,6 +774,7 @@ task verifyWar(type: VerifyJarTask) {
     "WEB-INF/lib": (
       ((project(':api').subprojects + project(':spark').subprojects).collect { eachProject -> eachProject.jar.archivePath.name })
         + [
+        "FastInfoset-1.2.15.jar",
         "JavaEWAH-1.1.6.jar",
         "activation-1.1.jar",
         "activemq-broker-${project.versions.activeMQ}.jar",
@@ -798,7 +798,6 @@ task verifyWar(type: VerifyJarTask) {
         "commons-collections4-${project.versions.commonsCollections4}.jar",
         "commons-dbcp2-${project.versions.commonsDbcp}.jar",
         "commons-digester-${project.versions.commonsDigester}.jar",
-        "commons-digester3-${project.versions.commonsDigester3}.jar",
         "commons-fileupload-${project.versions.commonsFileUpload}.jar",
         "commons-io-${project.versions.commonsIO}.jar",
         "commons-lang-${project.versions.commonsLang}.jar",
@@ -844,6 +843,7 @@ task verifyWar(type: VerifyJarTask) {
         "httpclient-${project.versions.apacheHttpComponents}.jar",
         "httpcore-4.4.10.jar",
         "httpmime-${project.versions.apacheHttpComponents}.jar",
+        "istack-commons-runtime-3.0.7.jar",
         "j2objc-annotations-1.3.jar",
         "jackson-annotations-${project.versions.jackson}.jar",
         "jackson-core-${project.versions.jackson}.jar",
@@ -854,6 +854,7 @@ task verifyWar(type: VerifyJarTask) {
         "javax.inject-1.jar",
         "javax.servlet-api-3.1.0.jar",
         "jaxb-api-${project.versions.jaxb}.jar",
+        "jaxb-runtime-${project.versions.jaxb}.jar",
         "jaxen-${project.versions.jaxen}.jar",
         "jcl-over-slf4j-${project.versions.slf4j}.jar",
         "jdom2-${project.versions.jdom}.jar",
@@ -899,7 +900,9 @@ task verifyWar(type: VerifyJarTask) {
         "spring-tx-${project.versions.spring}.jar",
         "spring-web-${project.versions.spring}.jar",
         "spring-webmvc-${project.versions.spring}.jar",
+        "stax-ex-1.8.jar",
         "token-bucket-${project.versions.tokenBucket}.jar",
+        "txw2-${project.versions.jaxb}.jar",
         "urlrewritefilter-${project.versions.urlrewrite}.jar",
         "util-${project.version}.jar",
         "velocity-1.7.jar",

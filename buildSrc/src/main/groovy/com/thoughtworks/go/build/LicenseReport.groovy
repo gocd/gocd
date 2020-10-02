@@ -49,6 +49,7 @@ class LicenseReport {
     BSD_3_CLAUSE,
     CDDL_1_0,
     CDDL_1_1,
+    CDDL_1_1_GPL_2_0,
     EDL_1_0,
     EPL_1_0,
     GPL_2_0_CLASSPATH_EXCEPTION,

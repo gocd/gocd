@@ -19,15 +19,15 @@ apply plugin: 'maven-publish'
 description = 'Interfaces necessary for GoCD to access plugins'
 
 dependencies {
-  compile project(':plugin-infra:go-plugin-api-internal')
+  api project(':plugin-infra:go-plugin-api-internal')
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
-  testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
-  testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testCompile project(':test:test-utils')
+  testImplementation group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
+  testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
+  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testImplementation project(':test:test-utils')
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

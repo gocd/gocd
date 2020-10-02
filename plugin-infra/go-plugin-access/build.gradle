@@ -19,20 +19,27 @@ description = 'APIs to allow GoCD to communicate with GoCD Plugins'
 apply plugin: 'groovy'
 
 dependencies {
-  compile project(':plugin-infra:go-plugin-config-repo')
-  compile project(':plugin-infra:go-plugin-infra')
-  compile project(':domain')
-  compile project(':plugin-infra:plugin-metadata-store')
-  compile group: 'com.bazaarvoice.jolt', name: 'jolt-core', version: project.versions.jolt
-  compile group: 'com.bazaarvoice.jolt', name: 'json-utils', version: project.versions.jolt
-
-  testCompile localGroovy()
-  testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
-  testCompile project(':test:test-utils')
-  testCompile project(path: ':domain', configuration: 'testOutput')
+  api project(':plugin-infra:go-plugin-activator')
+  api project(':plugin-infra:go-plugin-api')
+  api project(':plugin-infra:go-plugin-config-repo')
+  api project(':plugin-infra:go-plugin-domain')
+  api project(':plugin-infra:go-plugin-infra')
+  api project(':plugin-infra:plugin-metadata-store')
+  implementation project(':domain')
+  implementation project(':base')
+  implementation project(':config:config-api')
+  exportedForPackaging group: 'com.bazaarvoice.jolt', name: 'jolt-core', version: project.versions.jolt
+  exportedForPackaging group: 'com.bazaarvoice.jolt', name: 'json-utils', version: project.versions.jolt
+  exportedForPackaging group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
+  implementation group: 'com.google.code.gson', name: 'gson', version: project.versions.gson
+  implementation group: 'org.springframework', name: 'spring-context', version: project.versions.spring
+  testImplementation localGroovy()
+  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
+  testImplementation project(':test:test-utils')
+  testImplementation project(path: ':domain', configuration: 'testOutput')
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
+  testImplementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
 }

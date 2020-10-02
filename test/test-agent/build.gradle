@@ -16,7 +16,7 @@
 
 description = 'GoCD Test Agent'
 dependencies {
-  compile project(':agent-common')
+  implementation project(':agent-common')
 }
 
 jar {
@@ -27,7 +27,7 @@ jar {
     )
   }
 
-  from(project.configurations.compile) {
+  from(project.configurations.compileClasspath) {
     into "lib"
   }
 }

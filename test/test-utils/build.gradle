@@ -23,28 +23,29 @@ configurations {
 }
 
 dependencies {
-  compile project(':util')
-  compile group: 'com.sdicons.jsontools', name: 'jsontools-core', version: '1.7'
-  compile group: 'org.springframework', name: 'spring-test', version: project.versions.spring
-  compile group: 'org.eclipse.jetty', name: 'jetty-server', version: versions.jetty
-  compile group: 'org.eclipse.jetty', name: 'jetty-plus', version: versions.jetty
-  compile group: 'org.eclipse.jetty', name: 'jetty-jmx', version: versions.jetty
-  compile group: 'org.eclipse.jetty', name: 'jetty-util', version: versions.jetty
-  compile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: versions.jetty
-  compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version: versions.jetty
-  compile group: 'com.sun.mail', name: 'mailapi', version: versions.mail
-  compile group: 'com.github.stefanbirkner', name: 'system-rules', version: project.versions.systemRules
+  implementation project(':base')
+  api project(':util')
+  exportedForPackaging group: 'com.sdicons.jsontools', name: 'jsontools-core', version: '1.7'
+  exportedForPackaging group: 'org.springframework', name: 'spring-test', version: project.versions.spring
+  implementation group: 'org.eclipse.jetty', name: 'jetty-server', version: versions.jetty
+  implementation group: 'org.eclipse.jetty', name: 'jetty-plus', version: versions.jetty
+  implementation group: 'org.eclipse.jetty', name: 'jetty-jmx', version: versions.jetty
+  implementation group: 'org.eclipse.jetty', name: 'jetty-util', version: versions.jetty
+  implementation group: 'org.eclipse.jetty', name: 'jetty-servlet', version: versions.jetty
+  exportedForPackaging group: 'org.eclipse.jetty', name: 'jetty-webapp', version: versions.jetty
+  implementation group: 'com.sun.mail', name: 'mailapi', version: versions.mail
+  exportedForPackaging group: 'com.github.stefanbirkner', name: 'system-rules', version: project.versions.systemRules
 
-  compile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
+  exportedForPackaging group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
   compileOnly group: 'junit', name: 'junit', version: project.versions.junit
   runtimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  implementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
+  exportedForPackaging group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   runtimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  compile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5
+  exportedForPackaging group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5
 
-  compile group: 'com.googlecode', name: 'junit-ext', version: '1.0'
-  compile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
-  compile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
+  exportedForPackaging group: 'com.googlecode', name: 'junit-ext', version: '1.0'
+  exportedForPackaging group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
+  exportedForPackaging group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
 
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   copyOnly project(path: ':test:test-agent')

@@ -22,8 +22,8 @@ import java.util.regex.Pattern
 task releaseNotes {
   outputs.upToDateWhen { false }
 
-  def releaseNotesMarkdownFile = file("${project.buildDir}/${project.distsDirName}/meta/release-notes.md")
-  def releaseNotesHTMLFile = file("${project.buildDir}/${project.distsDirName}/meta/release-notes.html")
+  def releaseNotesMarkdownFile = file("${project.buildDir.path}/${project.distsDirName}/meta/release-notes.md")
+  def releaseNotesHTMLFile = file("${project.buildDir.path}/${project.distsDirName}/meta/release-notes.html")
 
   inputs.property('goVersion', rootProject.goVersion)
   inputs.property('distVersion', rootProject.distVersion)

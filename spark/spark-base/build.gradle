@@ -16,22 +16,28 @@
 
 apply plugin: 'groovy'
 dependencies {
-  compile project(':server')
+  implementation project(':app-server')
+  api project(':common')
+  api project(':server')
 
-  compile(group: 'com.sparkjava', name: 'spark-core', version: project.versions.spark) {
+  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: project.versions.jackson
+  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: project.versions.jackson
+  implementation group: 'org.springframework', name: 'spring-web', version: project.versions.spring
+
+  exportedForPackaging(group: 'com.sparkjava', name: 'spark-core', version: project.versions.spark) {
     transitive = false
   }
 
-  testCompile localGroovy()
-  testCompile project(path: ':jetty9', configuration: 'testOutput')
+  testImplementation localGroovy()
+  testImplementation project(path: ':jetty9', configuration: 'testOutput')
 
-  testCompile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  testImplementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
 
-  testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
-  testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
-  testCompile group: 'org.springframework', name: 'spring-test', version: project.versions.spring
-  testCompile project(':test:http-mocks')
+  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testImplementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
+  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
+  testImplementation group: 'org.springframework', name: 'spring-test', version: project.versions.spring
+  testImplementation project(':test:http-mocks')
 }

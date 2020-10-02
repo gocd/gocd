@@ -21,25 +21,22 @@ repositories {
 }
 
 dependencies {
-  compile project(':base')
-  compile project(':util')
-  compile project(':plugin-infra:go-plugin-activator')
-  compile group: 'org.springframework', name: 'spring-context', version: project.versions.spring
-  compile group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
-  compile group: 'javax.xml.bind', name: 'jaxb-api', version: project.versions.jaxb
-  compile group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: project.versions.jaxb
+  implementation project(':base')
+  implementation project(':util')
+  implementation project(':plugin-infra:go-plugin-api')
+  implementation project(':plugin-infra:go-plugin-activator')
+  implementation group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
+  exportedForPackaging group: 'javax.xml.bind', name: 'jaxb-api', version: project.versions.jaxb
+  exportedForPackaging group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: project.versions.jaxb
 
-  compileOnly group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
 
-  testCompile group: 'com.github.sbrannen', name: 'spring-test-junit5', version: project.versions.spring4jUnit5Extension
-  testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
-  testCompile project(':test:test-utils')
-  testCompile group: 'org.ops4j.pax.tinybundles', name: 'tinybundles', version: '3.0.0'
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
+  testImplementation group: 'com.github.sbrannen', name: 'spring-test-junit5', version: project.versions.spring4jUnit5Extension
+  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testImplementation project(':test:test-utils')
+  testImplementation group: 'org.ops4j.pax.tinybundles', name: 'tinybundles', version: '3.0.0'
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
+  testRuntimeOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
 }
 

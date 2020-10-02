@@ -43,14 +43,14 @@ assemble.dependsOn(":installers:agentGenericZip", ":installers:serverGenericZip"
 def configureGenericZip(Zip zipTask, InstallerType installerType) {
   zipTask.with {
     dependsOn extractDeltaPack
-    destinationDirectory = file("${project.buildDir}/${project.distsDirName}/zip")
+    destinationDirectory = file("${project.buildDir.path}/${project.distsDirName}/zip")
     archiveBaseName = installerType.baseName
 
     into("${installerType.baseName}-${project.goVersion}")
 
     from("${rootProject.projectDir}/LICENSE")
 
-    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin/sh.script.in") {
+    from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin/sh.script.in") {
       filter({ String eachLine ->
         eachLine = eachLine
           .replaceAll('@app.name@', installerType.baseName)
@@ -82,7 +82,7 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
       fileMode = 0755
     }
 
-    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin") {
+    from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin") {
       // See https://wrapper.tanukisoftware.com/doc/english/launch-win.html#dedicated-setup
       include 'App.bat.in' // to run app as a console app
       rename 'App.bat.in', "${installerType.baseName}.bat"
@@ -129,7 +129,7 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
       filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.DOS)
     }
 
-    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/src/conf/wrapper.conf.in") {
+    from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}-st/src/conf/wrapper.conf.in") {
       filter({ String eachLine ->
         eachLine = eachLine
           .replaceAll('@app.name@', installerType.baseName)
@@ -212,12 +212,12 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
       filter(ConcatFilter, append: file("include/wrapper-properties.${installerType.baseName}.conf.example"))
     }
 
-    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/bin") {
+    from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}-st/bin") {
       include 'wrapper-*'
       into "wrapper"
     }
 
-    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/lib") {
+    from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}-st/lib") {
       into "wrapper"
       include 'libwrapper-*'
       include 'wrapper.jar'

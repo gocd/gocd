@@ -56,7 +56,7 @@ def configureOSXZip(Zip zipTask, InstallerType installerType, Zip genericZipTask
 
     dependsOn downloadOsxJre
     dependsOn genericZipTask
-    destinationDirectory = file("${project.buildDir}/${project.distsDirName}/osx")
+    destinationDirectory = file("${project.buildDir.path}/${project.distsDirName}/osx")
     archiveBaseName = installerType.baseName
     archiveClassifier = 'osx'
 

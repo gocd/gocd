@@ -140,29 +140,29 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
     doFirst {
       project.delete(buildRoot)
       project.mkdir(destDir)
-      project.mkdir(project.file("${project.convention.plugins.get("base").distsDir}/${osType}"))
+      project.mkdir(project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/${osType}"))
 
       project.copy {
         from(configuration.singleFile) {
           rename "(.*)", installerType.jarFileName
         }
-        into project.file("${buildRoot}/usr/share/${installerType.baseName}/lib")
+        into project.file("${buildRoot.path}/usr/share/${installerType.baseName}/lib")
       }
 
       installerType.directories.each { dirName, permissions ->
-        project.file("${buildRoot}/${dirName}").mkdirs()
+        project.file("${buildRoot.path}/${dirName}").mkdirs()
       }
 
       project.copy {
         from("${rootProject.projectDir}/LICENSE")
-        into "${buildRoot}/usr/share/doc/${installerType.baseName}"
+        into "${buildRoot.path}/usr/share/doc/${installerType.baseName}"
       }
 
       project.copy {
-        into "${buildRoot}/usr/share/${installerType.baseName}/bin"
+        into "${buildRoot.path}/usr/share/${installerType.baseName}/bin"
         fileMode = 0755
 
-        from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin/sh.script.in") {
+        from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin/sh.script.in") {
           filter({ String eachLine ->
             eachLine = eachLine
               .replaceAll('@app.name@', installerType.baseName)
@@ -197,7 +197,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
 
       project.copy {
         into "${buildRoot}/usr/share/${installerType.baseName}/wrapper-config"
-        from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/src/conf/wrapper.conf.in") {
+        from("${extractDeltaPack.outputs.files.singleFile.path}/wrapper-delta-pack-${project.versions.tanuki}-st/src/conf/wrapper.conf.in") {
           filter({ String eachLine ->
             eachLine = eachLine
               .replaceAll('@app.name@', installerType.baseName)
@@ -339,7 +339,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
         cmd += ['--replaces', installerType.baseName.replaceFirst(/^go-/, 'cruise-')]
         cmd += ['--force']
         cmd += ['-s', 'dir']
-        cmd += ['-C', buildRoot]
+        cmd += ['-C', buildRoot.path]
         cmd += ['--name', installerType.baseName]
         cmd += ['--description', installerType.packageDescription]
         cmd += ['--version', project.goVersion]
@@ -350,13 +350,13 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
         cmd += ['--architecture', 'all']
         cmd += ['--maintainer', 'ThoughtWorks, Inc.']
         cmd += ['--url', 'https://gocd.org']
-        cmd += ['--before-install', project.file('linux/shared/before-install.sh.erb')]
-        cmd += ['--before-upgrade', project.file("linux/${osType}/before-upgrade.sh.erb")]
-        cmd += ['--after-upgrade', project.file("linux/${osType}/after-upgrade.sh.erb")]
-        cmd += ['--after-install', project.file("linux/${osType}/after-install.sh.erb")]
-        cmd += ['--before-remove', project.file("linux/${osType}/before-remove.sh.erb")]
-        cmd += ['--rpm-posttrans', project.file("linux/rpm/post-tran.sh.erb")]
-        cmd += ['--template-value', "install_scripts_dir=${project.file('linux')}"]
+        cmd += ['--before-install', project.file('linux/shared/before-install.sh.erb').path]
+        cmd += ['--before-upgrade', project.file("linux/${osType}/before-upgrade.sh.erb").path]
+        cmd += ['--after-upgrade', project.file("linux/${osType}/after-upgrade.sh.erb").path]
+        cmd += ['--after-install', project.file("linux/${osType}/after-install.sh.erb").path]
+        cmd += ['--before-remove', project.file("linux/${osType}/before-remove.sh.erb").path]
+        cmd += ['--rpm-posttrans', project.file("linux/rpm/post-tran.sh.erb").path]
+        cmd += ['--template-value', "install_scripts_dir=${project.file('linux').path}"]
         cmd += ['--template-scripts']
 
         installerType.directories.each { dirName, permissions ->
@@ -375,7 +375,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
 
         commandLine = cmd
 
-        workingDir "${project.convention.plugins.get("base").distsDir}/${osType}"
+        workingDir "${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/${osType}"
 
         standardOutput = System.out
         errorOutput = System.err
@@ -389,7 +389,7 @@ def copyMultipleAgentsReadme(DefaultTask packageTask, File buildRoot, InstallerT
   packageTask.doFirst {
     project.copy {
       from "go-agent/release/README-running-multiple-agents.md"
-      into "${buildRoot}/usr/share/doc/${installerType.baseName}"
+      into "${buildRoot.path}/usr/share/doc/${installerType.baseName}"
     }
   }
 }
@@ -397,8 +397,8 @@ def copyMultipleAgentsReadme(DefaultTask packageTask, File buildRoot, InstallerT
 task agentPackageRpm { DefaultTask thisTask ->
   def installerType = InstallerType.agent
   def osType = OsType.rpm
-  def buildRoot = project.file("${project.buildDir}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
-  def destDir = project.file("${project.convention.plugins.get("base").distsDir}/${osType}")
+  def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
+  def destDir = project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/${osType}")
 
   copyMultipleAgentsReadme(thisTask, buildRoot, installerType)
   configureLinuxPackage(thisTask, installerType, osType, buildRoot, configurations.agentBootstrapperJar, destDir)
@@ -409,8 +409,8 @@ task agentPackageRpm { DefaultTask thisTask ->
 task agentPackageDeb { DefaultTask thisTask ->
   def installerType = InstallerType.agent
   def osType = OsType.deb
-  def buildRoot = project.file("${project.buildDir}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
-  def destDir = project.file("${project.convention.plugins.get("base").distsDir}/${osType}")
+  def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
+  def destDir = project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/${osType}")
 
   copyMultipleAgentsReadme(thisTask, buildRoot, installerType)
   configureLinuxPackage(thisTask, installerType, osType, buildRoot, configurations.agentBootstrapperJar, destDir)
@@ -419,8 +419,8 @@ task agentPackageDeb { DefaultTask thisTask ->
 task serverPackageRpm { DefaultTask thisTask ->
   def installerType = InstallerType.server
   def osType = OsType.rpm
-  def buildRoot = project.file("${project.buildDir}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
-  def destDir = project.file("${project.convention.plugins.get("base").distsDir}/${osType}")
+  def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
+  def destDir = project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/${osType}")
 
   configureLinuxPackage(thisTask, installerType, osType, buildRoot, configurations.serverJar, destDir)
 }
@@ -428,8 +428,8 @@ task serverPackageRpm { DefaultTask thisTask ->
 task serverPackageDeb { DefaultTask thisTask ->
   def installerType = InstallerType.server
   def osType = OsType.deb
-  def buildRoot = project.file("${project.buildDir}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
-  def destDir = project.file("${project.convention.plugins.get("base").distsDir}/${osType}")
+  def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
+  def destDir = project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/${osType}")
 
   configureLinuxPackage(thisTask, installerType, osType, buildRoot, configurations.serverJar, destDir)
 }

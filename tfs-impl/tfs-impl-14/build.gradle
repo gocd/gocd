@@ -19,17 +19,17 @@ import com.thoughtworks.go.build.VerifyJarTask
 description = 'GoCD TFS SDK wrapper v14'
 
 dependencies {
-  compile project(':common')
-  compile group: 'com.microsoft', name: 'tfs-sdk', version: '14.118.0'
-  // not a compile dependency, but some classloader hell
-  compile(group: 'xalan', name: 'xalan', version: '2.7.1')
+  implementation project(':common')
+  implementation group: 'com.microsoft', name: 'tfs-sdk', version: '14.118.0'
+  // not an implementation dependency, but some classloader hell
+  implementation(group: 'xalan', name: 'xalan', version: '2.7.1')
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
-  testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
+  testImplementation group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
+  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testImplementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
 }
 
 jar {
@@ -39,9 +39,9 @@ jar {
 task fatJar(type: Jar) {
   finalizedBy 'verifyJar'
   dependsOn jar
-  from(jar.archivePath) { into('lib/') }
+  from(jar.archiveFile) { into('lib/') }
 
-  from(project.configurations.compile.findAll {
+  from(project.configurations.compileClasspath.findAll {
     it.absolutePath.contains('tfs-sdk') || it.absolutePath.contains('xalan') || it.absolutePath.contains('serializer')
   }) {
     into 'lib/'
@@ -58,7 +58,7 @@ task verifyJar(type: VerifyJarTask) {
   expectedJars = [
       "lib": [
           "tfs-impl-14-${project.version}-classes.jar",
-          "tfs-sdk-14.118.0.jar"
+          "tfs-sdk-14.118.0.jar",
       ]
   ]
 }

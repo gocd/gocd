@@ -18,19 +18,22 @@ import com.thoughtworks.go.build.VerifyJarTask
 
 description = 'Agent Launcher Jar'
 
-dependencies {
-  // BC is not really a compile dep, but it's marked as `compileOnly` in other places to avoid leaking it to downstream
-  // we mark it as `compile` here so it gets packaged in the resultant jar
-  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
+configurations {
+  testRuntimeClasspath.extendsFrom(packagingOnly)
+}
 
-  compile project(':agent-common')
+dependencies {
+  packagingOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  packagingOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
+
+  implementation project(':agent-common')
+
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testCompile project(':test:test-utils')
+  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testImplementation project(':test:test-utils')
 }
 
 jar {
@@ -39,13 +42,13 @@ jar {
 
 task fatJar(type: Jar) {
   finalizedBy 'verifyJar'
-  dependsOn jar
+  dependsOn jar, project.configurations.packagingOnly
   manifest {
     attributes 'Go-Agent-Launcher-Class': 'com.thoughtworks.go.agent.launcher.AgentLauncherImpl'
     attributes 'Go-Agent-Launcher-Lib-Dir': 'libs'
   }
 
-  from(configurations.compile + jar.archivePath) { into "libs/" }
+  from(configurations.compileClasspath + configurations.packagingOnly + jar.archiveFile) { into "libs/" }
 }
 
 task verifyJar(type: VerifyJarTask) {
@@ -55,12 +58,12 @@ task verifyJar(type: VerifyJarTask) {
           "agent-common-${project.version}.jar",
           "agent-launcher-${project.version}-classes.jar",
           "ant-${project.versions.apacheAnt}.jar",
+          "base-${project.version}.jar",
           "bcpkix-jdk15on-${project.versions.bouncyCastle}.jar",
           "bcprov-jdk15on-${project.versions.bouncyCastle}.jar",
-          "base-${project.version}.jar",
+          "commons-codec-${project.versions.commonsCodec}.jar",
           "commons-io-${project.versions.commonsIO}.jar",
           "commons-lang3-${project.versions.commonsLang3}.jar",
-          "commons-codec-${project.versions.commonsCodec}.jar",
           "httpclient-${project.versions.apacheHttpComponents}.jar",
           "httpcore-4.4.10.jar",
           "jcl-over-slf4j-${project.versions.slf4j}.jar",

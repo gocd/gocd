@@ -27,8 +27,8 @@ sourceSets {
       srcDirs = [file('src/test-functional/resources')]
     }
 
-    compileClasspath = sourceSets.main.output + sourceSets.test.output + configurations.functionalTestCompile
-    runtimeClasspath = output + compileClasspath + configurations.functionalTestRuntime
+    compileClasspath = sourceSets.main.output + sourceSets.test.output + configurations.functionalTestCompileClasspath
+    runtimeClasspath = output + compileClasspath + configurations.functionalTestRuntimeClasspath
   }
 }
 
@@ -54,32 +54,30 @@ idea {
 }
 
 configurations {
-  functionalTestCompile.extendsFrom testCompile
-  functionalTestRuntime.extendsFrom testRuntime
+  functionalTestCompileClasspath.extendsFrom testCompileClasspath
+  functionalTestRuntimeClasspath.extendsFrom testRuntimeClasspath
 }
 
 dependencies {
-  // BC is not really a compile dep, but it's marked as `compileOnly` in other places to avoid leaking it to downstream
-  // we mark it as `compile` here so it gets packaged in the resultant jar
-  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
+  packagingOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  packagingOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
 
-  compile project(':agent-common')
-  compile project(':common')
-  compile group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
-  compile group: 'org.apache.commons', name: 'commons-configuration2', version: project.versions.commonsConfiguration
+  implementation project(':agent-common')
+  implementation project(':common')
+  implementation group: 'javax.annotation', name: 'javax.annotation-api', version: project.versions.javaxAnnotation
+  implementation group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
+  implementation group: 'org.apache.commons', name: 'commons-configuration2', version: project.versions.commonsConfiguration
+  implementation group: 'org.nanohttpd', name: 'nanohttpd', version: versions.nanohttpd
 
-  compile group: 'org.nanohttpd', name: 'nanohttpd', version: versions.nanohttpd
-
-  testCompile project(path: ':common', configuration: 'testOutput')
-  testCompile project(path: ':config:config-api', configuration: 'testOutput')
-  testCompile project(':test:test-utils')
+  testImplementation project(path: ':common', configuration: 'testOutput')
+  testImplementation project(path: ':config:config-api', configuration: 'testOutput')
+  testImplementation project(':test:test-utils')
 
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
 
   extractedAtTopLevel project(':agent-process-launcher')
   extractedAtTopLevel project(':jar-class-loader')
@@ -102,7 +100,7 @@ clean {
 
 task fatJar(type: Jar) {
   finalizedBy 'verifyJar'
-  dependsOn jar, project.configurations.extractedAtTopLevel
+  dependsOn jar, project.configurations.extractedAtTopLevel, project.configurations.packagingOnly
 
   manifest {
     attributes 'Main-Class': 'com.thoughtworks.gocd.Boot'
@@ -110,7 +108,7 @@ task fatJar(type: Jar) {
     attributes 'Go-Agent-Bootstrap-Class': 'com.thoughtworks.go.agent.AgentProcessParentImpl'
   }
 
-  from(configurations.compile + jar.archivePath) {
+  from(configurations.compileClasspath + project.configurations.packagingOnly + jar.archiveFile) {
     into "lib/"
     rename "go-plugin-activator-${project.version}.jar", "go-plugin-activator.jar"
   }
@@ -131,6 +129,7 @@ task verifyJar(type: VerifyJarTask) {
       "base-${project.version}.jar",
       "bcpkix-jdk15on-${project.versions.bouncyCastle}.jar",
       "bcprov-jdk15on-${project.versions.bouncyCastle}.jar",
+      "checker-qual-2.11.1.jar",
       "cloning-${project.versions.cloning}.jar",
       "commandline-${project.version}.jar",
       "common-${project.version}.jar",
@@ -144,13 +143,8 @@ task verifyJar(type: VerifyJarTask) {
       "db-${project.version}.jar",
       "dom4j-1.6.1.jar",
       "domain-${project.version}.jar",
-      "guava-${project.versions.guava}.jar",
-      "checker-qual-2.11.1.jar",
       "error_prone_annotations-2.3.4.jar",
       "failureaccess-1.0.1.jar",
-      "j2objc-annotations-1.3.jar",
-      "jsr305-3.0.2.jar",
-      "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
       "go-plugin-access-${project.version}.jar",
       "go-plugin-activator.jar",
       "go-plugin-api-${project.version}.jar",
@@ -159,10 +153,12 @@ task verifyJar(type: VerifyJarTask) {
       "go-plugin-domain-${project.version}.jar",
       "go-plugin-infra-${project.version}.jar",
       "gson-${project.versions.gson}.jar",
+      "guava-${project.versions.guava}.jar",
       "httpclient-${project.versions.apacheHttpComponents}.jar",
       "httpcore-4.4.10.jar",
       "httpmime-${project.versions.apacheHttpComponents}.jar",
       "istack-commons-runtime-3.0.7.jar",
+      "j2objc-annotations-1.3.jar",
       "jackson-annotations-${project.versions.jackson}.jar",
       "jackson-core-${project.versions.jackson}.jar",
       "jackson-databind-${project.versions.jackson}.jar",
@@ -178,6 +174,8 @@ task verifyJar(type: VerifyJarTask) {
       "joda-time-${project.versions.jodaTime}.jar",
       "jolt-core-${project.versions.jolt}.jar",
       "json-utils-${project.versions.jolt}.jar",
+      "jsr305-3.0.2.jar",
+      "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
       "logback-classic-${project.versions.logback}.jar",
       "logback-core-${project.versions.logback}.jar",
       "nanohttpd-2.3.1.jar",

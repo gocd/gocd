@@ -17,11 +17,11 @@
 apply plugin: 'groovy'
 
 dependencies {
-  compile project(':api:api-base')
-  compile project(':config:config-api')
+  implementation project(':api:api-base')
+  implementation project(':config:config-api')
 
-  testCompile project(path: ':api:api-base', configuration: 'testOutput')
-  testCompile project(path: ':config:config-api', configuration: 'testOutput')
+  testImplementation project(path: ':api:api-base', configuration: 'testOutput')
+  testImplementation project(path: ':config:config-api', configuration: 'testOutput')
 
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5

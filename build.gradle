@@ -223,7 +223,6 @@ rootProject.ext.versions = [
   mysql                 : '8.0.19',
   nanohttpd             : '2.3.1',
   objenesis             : '2.6',
-  oro                   : '2.0.8',
   postgresql            : '42.2.10',
   quartz                : '2.3.1',
   rack                  : '1.1.21',
@@ -278,6 +277,64 @@ allprojects {
   group = 'com.thoughtworks.go'
   version = project.fullVersion
   buildDir = "${projectDir}/target"
+
+  configurations {
+    providedAtPackageTime {
+      transitive = true
+      canBeConsumed = true
+      canBeResolved = true
+    }
+
+    // Ensure that we use the jar artifacts from even `java-library` modules; by default they
+    // resolve to the classes directory instead
+    compileClasspath {
+      attributes {
+        attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.class, LibraryElements.JAR))
+      }
+    }
+
+    // it's rather convenient to allow compile and runtime classpaths for tests inherit from the main compile classpath
+    testImplementation.extendsFrom compileClasspath
+
+    // Functionally equivalent to `api` but semantically distinct in name to communicate intent/role of dependencies;
+    // `api` is meant to represent a module/library's public interface. `exportedForPackaging` signifies that
+    // we just need to export and pass along these dependencies for the purposes of packaging, but aren't related to the
+    // public interface of a module (though will still be available on the public interface because of how gradle's
+    // configurations are modeled).
+    //
+    // The only difference from `api`, other than naming, is that this configuration can be used without applying the
+    // `java-library` plugin.
+    exportedForPackaging {
+      transitive = true
+      canBeConsumed = true
+      canBeResolved = false
+    }
+
+    // puts dependencies on compile and runtime classpaths of the owning module
+    implementation.extendsFrom exportedForPackaging
+
+    // causes dependencies to be exported to consumer modules
+    apiElements.extendsFrom exportedForPackaging
+
+    // make these available to compilation and test compilation
+    compileOnly.extendsFrom providedAtPackageTime
+
+    // this is a sensible default so we don't need to specify an annotation processor dependency twice
+    compileOnly.extendsFrom annotationProcessor
+
+    // Use this to resolve dependencies from `compileOnly` when excluding from packaging during fat jar assembly;
+    // `compileOnly` is prohibited for resolution as of Gradle 7.0
+    //
+    // Use only for resolution, not consumption; instead, use `compileOnly`, `providedAtPackageTime`, or `annotationProcessor`
+    // for consumption to mark a dependency for package exclusion
+    doNotPackage {
+      extendsFrom compileOnly
+
+      transitive = true
+      canBeConsumed = false
+      canBeResolved = true
+    }
+  }
 
   repositories {
     mavenCentral()
@@ -395,10 +452,33 @@ subprojects {
     }
   }
 
-  if (!project.fileTree("src/main/java").files.isEmpty()) {
-    apply plugin: 'java'
-    apply plugin: 'pmd'
+  final List<String> includeInLicensing = [':server-launcher']
+  final boolean hasJavaSources = !project.fileTree("src/main/java").files.isEmpty()
+
+  if (includeInLicensing.contains(project.path) || hasJavaSources) {
     apply plugin: 'com.github.jk1.dependency-license-report'
+
+    licenseReport {
+      renderers = [new JsonReportRenderer("index.json", false)]
+      excludeGroups = ["com.thoughtworks.go"]
+      filters = [new LicenseBundleNormalizer()]
+      outputDir = file("${project.buildDir}/reports/dependency-license")
+      configurations = ['compileClasspath', 'packagingInLibDir']
+    }
+
+    tasks.withType(ReportTask) { ReportTask reportTask ->
+      reportTask.outputs.cacheIf { true }
+      project.configurations.each { config ->
+        if (config.name in project.licenseReport.configurations) {
+          reportTask.inputs.files(config)
+        }
+      }
+    }
+  }
+
+  if (hasJavaSources) {
+    apply plugin: 'java-library'
+    apply plugin: 'pmd'
 
     dependencyUpdates.resolutionStrategy {
       componentSelection { rules ->
@@ -423,39 +503,8 @@ subprojects {
       fatJarConfig
 
       testOutput {
-        extendsFrom testRuntime
+        extendsFrom testRuntimeClasspath
         transitive = true
-      }
-    }
-
-    sourceSets {
-      main {
-        java {
-          compileClasspath += configurations.compileOnly
-        }
-      }
-      test {
-        java {
-          compileClasspath += configurations.compileOnly
-          runtimeClasspath += configurations.compileOnly
-        }
-      }
-    }
-
-    licenseReport {
-      renderers = [new JsonReportRenderer("index.json", false)]
-      excludeGroups = ["com.thoughtworks.go"]
-      filters = [new LicenseBundleNormalizer()]
-      outputDir = file("${project.buildDir}/reports/dependency-license")
-      configurations = ['compile', 'compileOnly', 'packagingInLibDir']
-    }
-
-    tasks.withType(ReportTask) { ReportTask reportTask ->
-      reportTask.outputs.cacheIf { true }
-      project.configurations.each { config ->
-        if (config.name in project.licenseReport.configurations) {
-          reportTask.inputs.files(config)
-        }
       }
     }
 
@@ -672,7 +721,8 @@ subprojects {
       "com.fasterxml.jackson.core:jackson-annotations": project.versions.jackson,
       "com.fasterxml.jackson.core:jackson-core"       : project.versions.jackson,
       "com.fasterxml.jackson.core:jackson-databind"   : project.versions.jackson,
-      "commons-beanutils:commons-beanutils"           : project.versions.commonsBeanutils
+      "commons-beanutils:commons-beanutils"           : project.versions.commonsBeanutils,
+      "org.apache.commons:commons-pool2"              : project.versions.commonsPool,
     ]
 
 
@@ -1073,9 +1123,9 @@ task newApi {
           apply plugin: 'groovy'
 
           dependencies {
-            compile project(':api:api-base')
+            implementation project(':api:api-base')
 
-            testCompile project(path: ':api:api-base', configuration: 'testOutput')
+            testImplementation project(path: ':api:api-base', configuration: 'testOutput')
 
             testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
             testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5

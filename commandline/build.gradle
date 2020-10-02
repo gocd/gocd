@@ -17,19 +17,19 @@
 description = 'GoCD commandline Module'
 
 dependencies {
-  compile project(':base')
-  compile project(':config:config-api')
-  compileOnly group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+  implementation project(':base')
+  implementation project(':util')
+  implementation project(':config:config-api')
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
 
-  testCompile project(':test:test-utils')
-  testCompile group: 'com.googlecode', name: 'junit-ext', version: '1.0'
+  testImplementation project(':test:test-utils')
+  testImplementation group: 'com.googlecode', name: 'junit-ext', version: '1.0'
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
-  testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
-  testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
+  testImplementation group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
+  testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
+  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
 }

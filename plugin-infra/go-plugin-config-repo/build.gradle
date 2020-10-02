@@ -17,14 +17,16 @@
 description = 'GoCD Model Contract for (de)Serializing GoCD data structures'
 
 dependencies {
-  compile project(':domain')
-  compileOnly group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+  implementation project(':base')
+  implementation project(':config:config-api')
+  implementation project(':domain')
+  implementation group: 'com.google.code.gson', name: 'gson', version: project.versions.gson
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
-  testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
-  testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testCompile project(':test:test-utils')
+  testImplementation group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
+  testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
+  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testImplementation project(':test:test-utils')
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

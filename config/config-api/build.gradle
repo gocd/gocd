@@ -23,18 +23,18 @@ dependencies {
   implementation project(':plugin-infra:go-plugin-domain')
   implementation project(':plugin-infra:go-plugin-api')
   implementation project(':db')
-  exportedForPackaging group: 'javax.annotation', name: 'javax.annotation-api', version: project.versions.javaxAnnotation
+  api group: 'javax.annotation', name: 'javax.annotation-api', version: project.versions.javaxAnnotation
 
   implementation group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
   implementation group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
-  exportedForPackaging(group: 'org.quartz-scheduler', name: 'quartz', version: project.versions.quartz) {
+  api(group: 'org.quartz-scheduler', name: 'quartz', version: project.versions.quartz) {
     transitive = false
   }
-  exportedForPackaging group: 'uk.com.robust-it', name: 'cloning', version: project.versions.cloning
-  exportedForPackaging group: 'org.jdom', name: 'jdom2', version: project.versions.jdom
+  api group: 'uk.com.robust-it', name: 'cloning', version: project.versions.cloning
+  api group: 'org.jdom', name: 'jdom2', version: project.versions.jdom
   implementation group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
   implementation group: 'org.apache.felix', name: 'org.apache.felix.framework', version: project.versions.felix
-  exportedForPackaging group: 'com.google.guava', name: 'guava', version: project.versions.guava
+  api group: 'com.google.guava', name: 'guava', version: project.versions.guava
   implementation group: 'joda-time', name: 'joda-time', version: project.versions.jodaTime
   providedAtPackageTime group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok

@@ -248,7 +248,7 @@ dependencies {
   copyOnlyTestData project(':test:test-agent')
 
   implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: project.versions.commonsDbcp
-  exportedForPackaging(group: 'org.hibernate', name: 'hibernate-ehcache', version: project.versions.hibernate) {
+  api(group: 'org.hibernate', name: 'hibernate-ehcache', version: project.versions.hibernate) {
     exclude(module: 'ehcache-core')
     exclude(module: 'commons-collections')
   }
@@ -270,9 +270,9 @@ dependencies {
   implementation group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
 
   implementation group: 'org.springframework', name: 'spring-orm', version: project.versions.spring
-  exportedForPackaging group: 'org.springframework', name: 'spring-web', version: project.versions.spring
-  exportedForPackaging group: 'org.springframework', name: 'spring-context-support', version: project.versions.spring
-  exportedForPackaging(group: 'org.springframework.security', name: 'spring-security-web', version: project.versions.springSecurity) {
+  api group: 'org.springframework', name: 'spring-web', version: project.versions.spring
+  api group: 'org.springframework', name: 'spring-context-support', version: project.versions.spring
+  api(group: 'org.springframework.security', name: 'spring-security-web', version: project.versions.springSecurity) {
     exclude(group: 'org.springframework')
   }
   implementation(group: 'org.springframework.security', name: 'spring-security-config', version: project.versions.springSecurity)

@@ -16,9 +16,9 @@
 
 dependencies {
     implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: project.versions.commonsDbcp
-    exportedForPackaging group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
-    exportedForPackaging(group: 'org.zeroturnaround', name: 'zt-exec', version: '1.12')
-    exportedForPackaging(group: 'org.apache.ant', name: 'ant', version: project.versions.apacheAnt) {
+    api group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
+    api group: 'org.zeroturnaround', name: 'zt-exec', version: '1.12'
+    api(group: 'org.apache.ant', name: 'ant', version: project.versions.apacheAnt) {
         transitive = false
     }
 

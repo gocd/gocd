@@ -24,7 +24,7 @@ dependencies {
   implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: project.versions.jackson
   implementation group: 'org.springframework', name: 'spring-web', version: project.versions.spring
 
-  exportedForPackaging(group: 'com.sparkjava', name: 'spark-core', version: project.versions.spark) {
+  api(group: 'com.sparkjava', name: 'spark-core', version: project.versions.spark) {
     transitive = false
   }
 

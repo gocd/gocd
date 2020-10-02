@@ -29,7 +29,7 @@ dependencies {
   implementation group: 'org.jdom', name: 'jdom2', version: project.versions.jdom
   implementation group: 'joda-time', name: 'joda-time', version: project.versions.jodaTime
   implementation group: 'org.springframework', name: 'spring-tx', version: project.versions.spring
-  exportedForPackaging group: 'de.skuzzle', name: 'semantic-version', version: project.versions.semanticVersion
+  api group: 'de.skuzzle', name: 'semantic-version', version: project.versions.semanticVersion
   compileOnly group: 'org.jetbrains', name: 'annotations', version: project.versions.jetBrainsAnnotations
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')
   testImplementation project(':test:test-utils')

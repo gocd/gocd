@@ -28,9 +28,9 @@ dependencies {
   implementation project(':domain')
   implementation project(':base')
   implementation project(':config:config-api')
-  exportedForPackaging group: 'com.bazaarvoice.jolt', name: 'jolt-core', version: project.versions.jolt
-  exportedForPackaging group: 'com.bazaarvoice.jolt', name: 'json-utils', version: project.versions.jolt
-  exportedForPackaging group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
+  api group: 'com.bazaarvoice.jolt', name: 'jolt-core', version: project.versions.jolt
+  api group: 'com.bazaarvoice.jolt', name: 'json-utils', version: project.versions.jolt
+  api group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
   implementation group: 'com.google.code.gson', name: 'gson', version: project.versions.gson
   implementation group: 'org.springframework', name: 'spring-context', version: project.versions.spring
   testImplementation localGroovy()

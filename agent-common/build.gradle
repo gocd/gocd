@@ -20,7 +20,7 @@ dependencies {
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
 
   api project(':base')
-  exportedForPackaging group: 'com.beust', name: 'jcommander', version: project.versions.jcommander
+  api group: 'com.beust', name: 'jcommander', version: project.versions.jcommander
 
   testRuntimeOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   testRuntimeOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle

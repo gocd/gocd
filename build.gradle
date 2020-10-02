@@ -296,26 +296,6 @@ allprojects {
     // it's rather convenient to allow compile and runtime classpaths for tests inherit from the main compile classpath
     testImplementation.extendsFrom compileClasspath
 
-    // Functionally equivalent to `api` but semantically distinct in name to communicate intent/role of dependencies;
-    // `api` is meant to represent a module/library's public interface. `exportedForPackaging` signifies that
-    // we just need to export and pass along these dependencies for the purposes of packaging, but aren't related to the
-    // public interface of a module (though will still be available on the public interface because of how gradle's
-    // configurations are modeled).
-    //
-    // The only difference from `api`, other than naming, is that this configuration can be used without applying the
-    // `java-library` plugin.
-    exportedForPackaging {
-      transitive = true
-      canBeConsumed = true
-      canBeResolved = false
-    }
-
-    // puts dependencies on compile and runtime classpaths of the owning module
-    implementation.extendsFrom exportedForPackaging
-
-    // causes dependencies to be exported to consumer modules
-    apiElements.extendsFrom exportedForPackaging
-
     // make these available to compilation and test compilation
     compileOnly.extendsFrom providedAtPackageTime
 

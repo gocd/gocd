@@ -20,19 +20,19 @@ dependencies {
   providedAtPackageTime group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   providedAtPackageTime group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
 
-  exportedForPackaging(group: 'org.apache.ant', name: 'ant', version: project.versions.apacheAnt)  {
+  api(group: 'org.apache.ant', name: 'ant', version: project.versions.apacheAnt)  {
     transitive = false
   }
-  exportedForPackaging group: 'commons-io', name: 'commons-io', version: project.versions.commonsIO
-  exportedForPackaging group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
-  exportedForPackaging group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
-  exportedForPackaging(group: 'org.apache.httpcomponents', name: 'httpclient', version: project.versions.apacheHttpComponents) {
+  api group: 'commons-io', name: 'commons-io', version: project.versions.commonsIO
+  api group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
+  api group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
+  api(group: 'org.apache.httpcomponents', name: 'httpclient', version: project.versions.apacheHttpComponents) {
     exclude(module: 'commons-codec')
     exclude(module: 'commons-logging')
   }
-  exportedForPackaging group: 'joda-time', name: 'joda-time', version: project.versions.jodaTime
-  exportedForPackaging group: 'org.slf4j', name: 'jcl-over-slf4j', version: project.versions.slf4j
-  exportedForPackaging group: 'ch.qos.logback', name: 'logback-classic', version: project.versions.logback
+  api group: 'joda-time', name: 'joda-time', version: project.versions.jodaTime
+  api group: 'org.slf4j', name: 'jcl-over-slf4j', version: project.versions.slf4j
+  api group: 'ch.qos.logback', name: 'logback-classic', version: project.versions.logback
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5

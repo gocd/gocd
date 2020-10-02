@@ -23,10 +23,10 @@ dependencies {
   api project(':util')
   api project(':domain')
   api project(':plugin-infra:go-plugin-access')
-  exportedForPackaging group: 'dom4j', name: 'dom4j', version: '1.6.1'
-  exportedForPackaging group: 'org.apache.httpcomponents', name: 'httpmime', version: project.versions.apacheHttpComponents
-  exportedForPackaging group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
-  exportedForPackaging group: 'org.springframework', name: 'spring-tx', version: project.versions.spring
+  api group: 'dom4j', name: 'dom4j', version: '1.6.1'
+  api group: 'org.apache.httpcomponents', name: 'httpmime', version: project.versions.apacheHttpComponents
+  api group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
+  api group: 'org.springframework', name: 'spring-tx', version: project.versions.spring
   implementation group: 'joda-time', name: 'joda-time', version: project.versions.jodaTime
 
   testImplementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle

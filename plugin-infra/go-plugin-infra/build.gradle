@@ -26,8 +26,8 @@ dependencies {
   implementation project(':plugin-infra:go-plugin-api')
   implementation project(':plugin-infra:go-plugin-activator')
   implementation group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
-  exportedForPackaging group: 'javax.xml.bind', name: 'jaxb-api', version: project.versions.jaxb
-  exportedForPackaging group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: project.versions.jaxb
+  api group: 'javax.xml.bind', name: 'jaxb-api', version: project.versions.jaxb
+  api group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: project.versions.jaxb
 
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
 

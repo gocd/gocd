@@ -17,8 +17,8 @@
 package com.thoughtworks.go.build
 
 enum NonSpdxLicense {
-
   EDL_1_0("EDL-1.0", "Eclipse Distribution License - v1.0", "Eclipse Distribution License v1.0", "Eclipse Distribution License (New BSD License)"),
+  GPL_2_0_CLASSPATH_EXCEPTION('GPL-2.0+CE', 'GPLv2 with the Classpath Exception', 'GNU GENERAL PUBLIC LICENSE, Version 2 + Classpath Exception'),
   PUBLIC_DOMAIN("Public Domain"),
 
   public final Set<String> names
@@ -34,13 +34,13 @@ enum NonSpdxLicense {
       return null
     }
 
+    final String normalized = license.toLowerCase().trim().replaceAll(~/\s+/, ' ')
     for (NonSpdxLicense eachLicense : values()) {
-      if (license == eachLicense.id || eachLicense.names.contains(license.toLowerCase())) {
+      if (license == eachLicense.id || eachLicense.names.contains(normalized)) {
         return eachLicense.id
       }
     }
 
     return null
   }
-
 }

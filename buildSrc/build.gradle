@@ -27,9 +27,10 @@ repositories {
 }
 
 dependencies {
-  compile localGroovy()
-  compile gradleApi()
-  compile 'de.undercouch:gradle-download-task:3.2.0'
-  compile 'org.ysb33r.gradle:grolifant:0.8'
-  compile group: 'org.freemarker', name: 'freemarker', version: '2.3.28'
+  implementation localGroovy()
+  implementation gradleApi()
+  implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'
+  implementation group: 'de.undercouch', name: 'gradle-download-task', version: '4.1.1'
+  implementation group: 'org.ysb33r.gradle', name: 'grolifant', version: '0.17.0'
+  implementation group: 'org.freemarker', name: 'freemarker', version: '2.3.28'
 }

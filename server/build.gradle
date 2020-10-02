@@ -15,7 +15,7 @@
  */
 
 
-import com.github.jk1.license.ReportTask
+import com.github.jk1.license.task.ReportTask
 import com.thoughtworks.go.build.ExecuteUnderRailsTask
 import com.thoughtworks.go.build.LicenseReport
 import com.thoughtworks.go.build.VerifyJarTask

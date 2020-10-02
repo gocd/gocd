@@ -15,7 +15,7 @@
  */
 
 
-import com.github.jk1.license.ReportTask
+import com.github.jk1.license.task.ReportTask
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
 import groovy.io.FileType
@@ -36,7 +36,7 @@ buildscript {
     classpath 'org.owasp:dependency-check-gradle:6.0.2'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.25.0'
     classpath 'gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.15.0'
-    classpath 'com.github.jk1:gradle-license-report:1.7'
+    classpath 'com.github.jk1:gradle-license-report:1.14'
     classpath "com.github.jruby-gradle:jruby-gradle-core-plugin:2.0.0-alpha.7"
   }
 }

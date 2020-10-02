@@ -58,7 +58,7 @@ enum SpdxLicense {
   BSD_2_CLAUSE("BSD-2-Clause", "BSD 2-clause \"Simplified\" License", "The 2-Clause BSD License"),
   BSD_2_CLAUSE_FREEBSD("BSD-2-Clause-FreeBSD", "BSD 2-clause FreeBSD License"),
   BSD_2_CLAUSE_NETBSD("BSD-2-Clause-NetBSD", "BSD 2-clause NetBSD License"),
-  BSD_3_CLAUSE("BSD-3-Clause", "BSD 3-clause \"New\" or \"Revised\" License", "BSD 3-Clause", "The BSD 3-Clause License"),
+  BSD_3_CLAUSE("BSD-3-Clause", "BSD 3-clause \"New\" or \"Revised\" License", "BSD 3-Clause", "The BSD 3-Clause License", "The 3-Clause BSD License"),
   BSD_3_CLAUSE_CLEAR("BSD-3-Clause-Clear", "BSD 3-clause Clear License"),
   BSD_4_ClAUSE("BSD-4-Clause", "BSD 4-clause \"Original\" or \"Old\" License"),
   BSD_PROTECTION("BSD-Protection", "BSD Protection License"),
@@ -161,9 +161,9 @@ enum SpdxLicense {
   GPL_1_0("GPL-1.0", "GNU General Public License v1.0 only"),
   GPL_2_0("GPL-2.0", "GNU General Public License v2.0 only"),
   GPL_3_0("GPL-3.0", "GNU General Public License v3.0 only"),
-  LGPL_2_1("LGPL-2.1", "GNU Lesser General Public License v2.1 only", "LGPL 2.1"),
+  LGPL_2_1("LGPL-2.1", "GNU Lesser General Public License v2.1 only", "LGPL 2.1", 'GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1'),
   LGPL_3_0_ONLY("LGPL-3.0-only", "GNU Lesser General Public License v3.0 only", "GNU Lesser General Public License"),
-  LGPL_3_0("LGPL-3.0", "GNU Lesser General Public License v3.0"),
+  LGPL_3_0("LGPL-3.0", "GNU Lesser General Public License v3.0", "GNU LESSER GENERAL PUBLIC LICENSE, Version 3"),
   LGPL_2_0("LGPL-2.0", "GNU Library General Public License v2 only"),
   GNUPLOT("gnuplot", "gnuplot License"),
   GSOAP_1_3B("gSOAP-1.3b", "gSOAP Public License v1.3b"),
@@ -208,7 +208,7 @@ enum SpdxLicense {
   MS_RL("MS-RL", "Microsoft Reciprocal License"),
   MIROS("MirOS", "MirOS Licence"),
   MITNFA("MITNFA", "MIT +no-false-attribs license"),
-  MIT("MIT", "MIT License"),
+  MIT("MIT", "MIT License", "The MIT License (MIT)"),
   MOTOSOTO("Motosoto", "Motosoto License"),
   MPL_1_0("MPL-1.0", "Mozilla Public License 1.0", "MPL 1.0"),
   MPL_1_1("MPL-1.1", "Mozilla Public License 1.1", "MPL 1.1"),
@@ -350,8 +350,9 @@ enum SpdxLicense {
       return null
     }
 
+    final String normalized = license.toLowerCase().trim().replaceAll(~/\s+/, ' ')
     for (SpdxLicense eachLicense : values()) {
-      if (license == eachLicense.id || eachLicense.names.contains(license.toLowerCase())) {
+      if (license == eachLicense.id || eachLicense.names.contains(normalized)) {
         return eachLicense.id
       }
     }

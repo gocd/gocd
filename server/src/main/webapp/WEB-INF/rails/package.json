@@ -113,7 +113,7 @@
     "karma-safari-launcher": "^1.0.0",
     "karma-sourcemap-loader": "^0.3.8",
     "license-checker": "^25.0.1",
-    "mini-css-extract-plugin": "^0.11.2",
+    "mini-css-extract-plugin": "^0.11.3",
     "mockdate": "^3.0.2",
     "optimize-css-assets-webpack-plugin": "^5.0.4",
     "sass": "^1.26.11",

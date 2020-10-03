@@ -15,18 +15,18 @@
  */
 
 dependencies {
-    implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: project.versions.commonsDbcp
-    api group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
-    api group: 'org.zeroturnaround', name: 'zt-exec', version: '1.12'
-    api(group: 'org.apache.ant', name: 'ant', version: project.versions.apacheAnt) {
+    implementation project.deps.commonsDbcp
+    api project.deps.commonsLang3
+    api project.deps.ztExec
+    api(project.deps.apacheAnt) {
         transitive = false
     }
 
-    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+    annotationProcessor project.deps.lombok
 
-    testImplementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
+    testImplementation project.deps.assertJ
 
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+    testImplementation project.deps.junit5
+    testRuntimeOnly project.deps.junit5Engine
 }
 

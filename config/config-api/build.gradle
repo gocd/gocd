@@ -23,30 +23,30 @@ dependencies {
   implementation project(':plugin-infra:go-plugin-domain')
   implementation project(':plugin-infra:go-plugin-api')
   implementation project(':db')
-  api group: 'javax.annotation', name: 'javax.annotation-api', version: project.versions.javaxAnnotation
+  api project.deps.javaxAnnotation
 
-  implementation group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
-  implementation group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
-  api(group: 'org.quartz-scheduler', name: 'quartz', version: project.versions.quartz) {
+  implementation project.deps.commonsCodec
+  implementation project.deps.commonsCollections4
+  api(project.deps.quartz) {
     transitive = false
   }
-  api group: 'uk.com.robust-it', name: 'cloning', version: project.versions.cloning
-  api group: 'org.jdom', name: 'jdom2', version: project.versions.jdom
-  implementation group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
-  implementation group: 'org.apache.felix', name: 'org.apache.felix.framework', version: project.versions.felix
-  api group: 'com.google.guava', name: 'guava', version: project.versions.guava
-  implementation group: 'joda-time', name: 'joda-time', version: project.versions.jodaTime
-  providedAtPackageTime group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+  api project.deps.cloning
+  api project.deps.jdom
+  implementation project.deps.slf4j
+  implementation project.deps.felix
+  api project.deps.guava
+  implementation project.deps.jodaTime
+  providedAtPackageTime project.deps.bouncyCastle
+  annotationProcessor project.deps.lombok
 
   testImplementation project(':test:test-utils')
-  testImplementation group: 'jaxen', name: 'jaxen', version: project.versions.jaxen
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
+  testImplementation project.deps.jaxen
+  testCompileOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Vintage
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.mockito
+  testImplementation project.deps.hamcrestLibrary
+  testImplementation project.deps.junit5Params
+  testImplementation project.deps.junit5Migration
 }

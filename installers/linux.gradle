@@ -107,10 +107,10 @@ private File destFile(String url) {
 task downloadLinuxJreChecksum(type: DownloadFile) {
   def srcUrl = AdoptOpenJDKUrlHelper.sha256sumURL(
     com.thoughtworks.go.build.OperatingSystem.linux,
-    project.versions.adoptOpenjdk.featureVersion,
-    project.versions.adoptOpenjdk.interimVersion,
-    project.versions.adoptOpenjdk.updateVersion,
-    project.versions.adoptOpenjdk.buildVersion
+    project.packaging.adoptOpenjdk.featureVersion,
+    project.packaging.adoptOpenjdk.interimVersion,
+    project.packaging.adoptOpenjdk.updateVersion,
+    project.packaging.adoptOpenjdk.buildVersion
   )
   src srcUrl
   dest destFile(srcUrl)
@@ -121,10 +121,10 @@ task downloadLinuxJre(type: DownloadFile) {
   dependsOn downloadLinuxJreChecksum
   def srcUrl = AdoptOpenJDKUrlHelper.downloadURL(
     com.thoughtworks.go.build.OperatingSystem.linux,
-    project.versions.adoptOpenjdk.featureVersion,
-    project.versions.adoptOpenjdk.interimVersion,
-    project.versions.adoptOpenjdk.updateVersion,
-    project.versions.adoptOpenjdk.buildVersion
+    project.packaging.adoptOpenjdk.featureVersion,
+    project.packaging.adoptOpenjdk.interimVersion,
+    project.packaging.adoptOpenjdk.updateVersion,
+    project.packaging.adoptOpenjdk.buildVersion
   )
   src srcUrl
   dest destFile(srcUrl)

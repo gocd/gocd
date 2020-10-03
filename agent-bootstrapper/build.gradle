@@ -20,19 +20,19 @@ description = 'GoCD Agent Bootstrapper'
 
 dependencies {
   implementation project(':agent-common')
-  implementation group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
+  implementation project.deps.commonsCodec
 
-  testRuntimeOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  testRuntimeOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
+  testRuntimeOnly project.deps.bouncyCastle
+  testRuntimeOnly project.deps.bouncyCastlePkix
   testImplementation project(':test:test-utils')
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
+  testImplementation project.deps.mockito
+  testImplementation project.deps.hamcrestLibrary
   packagingOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   extractedAtTopLevel project(':jar-class-loader')
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+  testCompileOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Vintage
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
 }
 
 jar {

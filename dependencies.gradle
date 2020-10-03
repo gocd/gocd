@@ -1,0 +1,238 @@
+/*
+ * Copyright 2020 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/** Parses a version from a dependency declaration string */
+static String versionOf(String dependencySpec) {
+  return dependencySpec.split(':').last()
+}
+
+final Map<String, String> libraries = [
+  // Dependabot will parse these dependencies.
+  // Keep all of these as uninterpolated string literals so that Dependabot can parse the versions and create PRs for
+  // upgrades.
+  //
+  // DO NOT interpolate version variables here because Dependabot is not smart enough to understand those. Dependabot's
+  // version parsing is simply regex matching and never actually evaluates a gradle script.
+  activeMQ            : 'org.apache.activemq:activemq-broker:5.15.10',
+  apacheAnt           : 'org.apache.ant:ant:1.10.7',
+  apacheHttpComponents: 'org.apache.httpcomponents:httpclient:4.5.6',
+  aspectj             : 'org.aspectj:aspectjrt:1.9.5',
+  assertJ             : 'org.assertj:assertj-core:3.12.2',
+  assertJ_DB          : 'org.assertj:assertj-db:1.3.0',
+  bouncyCastle        : 'org.bouncycastle:bcprov-jdk15on:1.67', // This version of BC is not compatible with the jruby-opensssl version, since we are not using jruby-opensssl going ahead with the upgrade.
+  bundler             : 'rubygems:bundler:2.1.1',
+  cglib               : 'cglib:cglib:3.3.0',
+  cloning             : 'uk.com.robust-it:cloning:1.9.11',
+  commonsCodec        : 'commons-codec:commons-codec:1.15',
+  commonsCollections  : 'commons-collections:commons-collections:3.2.2',
+  commonsCollections4 : 'org.apache.commons:commons-collections4:4.4',
+  commonsConfiguration: 'org.apache.commons:commons-configuration2:2.6',
+  commonsDbcp         : 'org.apache.commons:commons-dbcp2:2.7.0',
+  commonsDigester     : 'commons-digester:commons-digester:2.1',
+  commonsFileUpload   : 'commons-fileupload:commons-fileupload:1.4',
+  commonsIO           : 'commons-io:commons-io:2.6',
+  commonsLang         : 'commons-lang:commons-lang:2.6',
+  commonsLang3        : 'org.apache.commons:commons-lang3:3.9',
+  commonsPool         : 'org.apache.commons:commons-pool2:2.8.0',
+  dbunit              : 'org.dbunit:dbunit:2.7.0',
+  dom4j               : 'dom4j:dom4j:1.6.1',
+  ehcache             : 'net.sf.ehcache:ehcache:2.10.6',
+  felix               : 'org.apache.felix:org.apache.felix.framework:5.6.10',
+  freemarker          : 'org.freemarker:freemarker:2.3.29',
+  gradleDownload      : 'de.undercouch:gradle-download-task:4.1.1',
+  grolifant           : 'org.ysb33r.gradle:grolifant:0.17.0',
+  gson                : 'com.google.code.gson:gson:2.8.6',
+  guava               : 'com.google.guava:guava:29.0-jre',
+  h2                  : 'com.h2database:h2:1.4.200',
+  hamcrest            : 'org.hamcrest:hamcrest-core:2.2',
+  hibernate           : 'org.hibernate:hibernate-ehcache:3.6.10.Final',
+  httpClientMock      : 'com.github.paweladamski:HttpClientMock:1.0.4',
+  jackson             : 'com.fasterxml.jackson.core:jackson-core:2.9.9',
+  javaAssist          : 'javassist:javassist:3.12.1.GA',
+  javaxAnnotation     : 'javax.annotation:javax.annotation-api:1.3.2',
+  jaxb                : 'javax.xml.bind:jaxb-api:2.3.1',
+  jaxen               : 'jaxen:jaxen:1.2.0',
+  jcommander          : 'com.beust:jcommander:1.78',
+  jdom                : 'org.jdom:jdom2:2.0.6',
+  jetBrainsAnnotations: 'org.jetbrains:annotations:19.0.0',
+  jetty               : 'org.eclipse.jetty:jetty-server:9.4.27.v20200227',
+  jgit                : 'org.eclipse.jgit:org.eclipse.jgit:5.1.3.201810200350-r',
+  jodaTime            : 'joda-time:joda-time:2.9.9', // joda-time version has to be compatible with the jruby version
+  jolt                : 'com.bazaarvoice.jolt:jolt-core:0.1.1',
+  jruby               : 'org.jruby:jruby-complete:9.2.0.0',
+  jsonUnit            : 'net.javacrumbs.json-unit:json-unit-fluent:2.14.0',
+  jsontools           : 'com.sdicons.jsontools:jsontools-core:1.7',
+  jsoup               : 'org.jsoup:jsoup:1.13.1',
+  junit4              : 'junit:junit:4.13',
+  junit5              : 'org.junit.jupiter:junit-jupiter-api:5.6.0',
+  junitExt            : 'com.googlecode:junit-ext:1.0',
+  liquibase           : 'org.liquibase:liquibase-core:3.9.0',
+  logback             : 'ch.qos.logback:logback-classic:1.2.3',
+  lombok              : 'org.projectlombok:lombok:1.18.12',
+  mail                : 'com.sun.mail:mailapi:1.6.1',
+  mockito             : 'org.mockito:mockito-core:3.3.0',
+  mybatis             : 'org.mybatis:mybatis:3.4.6',
+  mybatisSpring       : 'org.mybatis:mybatis-spring:1.3.2',
+  mysql               : 'mysql:mysql-connector-java:8.0.19',
+  nanohttpd           : 'org.nanohttpd:nanohttpd:2.3.1',
+  objenesis           : 'org.objenesis:objenesis:2.6',
+  oscache             : 'opensymphony:oscache:2.4.1',
+  postgresql          : 'org.postgresql:postgresql:42.2.10',
+  quartz              : 'org.quartz-scheduler:quartz:2.3.1',
+  rack                : 'org.jruby.rack:jruby-rack:1.1.21',
+  semanticVersion     : 'de.skuzzle:semantic-version:2.1.0',
+  servletApi          : 'javax.servlet:javax.servlet-api:3.1.0',
+  slf4j               : 'org.slf4j:slf4j-api:1.7.30',
+  spark               : 'com.sparkjava:spark-core:2.7.2',
+  spring              : 'org.springframework:spring-core:4.3.29.RELEASE',
+  springSecurity      : 'org.springframework.security:spring-security-config:4.2.19.RELEASE',
+  springTestJunit5    : 'com.github.sbrannen:spring-test-junit5:1.5.0',
+  systemRules         : 'com.github.stefanbirkner:system-rules:1.19.0',
+  testcontainers      : 'org.testcontainers:testcontainers:1.14.3',
+  tfsSdk              : 'com.microsoft:tfs-sdk:14.118.0',
+  tinybundles         : 'org.ops4j.pax.tinybundles:tinybundles:3.0.0',
+  tokenBucket         : 'org.isomorphism:token-bucket:1.7',
+  urlrewrite          : 'org.tuckey:urlrewritefilter:3.2.0',
+  velocity            : 'org.apache.velocity:velocity:1.7',
+  xalan               : 'xalan:xalan:2.7.1',
+  xmlUnit             : 'org.xmlunit:xmlunit-assertj:2.6.3',
+  ztExec              : 'org.zeroturnaround:zt-exec:1.12',
+]
+
+// Export versions that are needed outside of this file (and elsewhere within)
+final Map<String, String> v = [
+  activeMQ            : versionOf(libraries.activeMQ),
+  apacheAnt           : versionOf(libraries.apacheAnt),
+  apacheHttpComponents: versionOf(libraries.apacheHttpComponents),
+  aspectj             : versionOf(libraries.aspectj),
+  bouncyCastle        : versionOf(libraries.bouncyCastle),
+  cglib               : versionOf(libraries.cglib),
+  cloning             : versionOf(libraries.cloning),
+  commonsCodec        : versionOf(libraries.commonsCodec),
+  commonsCollections  : versionOf(libraries.commonsCollections),
+  commonsCollections4 : versionOf(libraries.commonsCollections4),
+  commonsConfiguration: versionOf(libraries.commonsConfiguration),
+  commonsDbcp         : versionOf(libraries.commonsDbcp),
+  commonsDigester     : versionOf(libraries.commonsDigester),
+  commonsFileUpload   : versionOf(libraries.commonsFileUpload),
+  commonsIO           : versionOf(libraries.commonsIO),
+  commonsLang         : versionOf(libraries.commonsLang),
+  commonsLang3        : versionOf(libraries.commonsLang3),
+  commonsPool         : versionOf(libraries.commonsPool),
+  dom4j               : versionOf(libraries.dom4j),
+  ehcache             : versionOf(libraries.ehcache),
+  felix               : versionOf(libraries.felix),
+  freemarker          : versionOf(libraries.freemarker),
+  gson                : versionOf(libraries.gson),
+  guava               : versionOf(libraries.guava),
+  h2                  : versionOf(libraries.h2),
+  hamcrest            : versionOf(libraries.hamcrest),
+  hibernate           : versionOf(libraries.hibernate),
+  jackson             : versionOf(libraries.jackson),
+  javaAssist          : versionOf(libraries.javaAssist),
+  javaxAnnotation     : versionOf(libraries.javaxAnnotation),
+  jaxb                : versionOf(libraries.jaxb),
+  jaxen               : versionOf(libraries.jaxen),
+  jcommander          : versionOf(libraries.jcommander),
+  jdom                : versionOf(libraries.jdom),
+  jetty               : versionOf(libraries.jetty),
+  jgit                : versionOf(libraries.jgit),
+  jodaTime            : versionOf(libraries.jodaTime),
+  jolt                : versionOf(libraries.jolt),
+  jruby               : versionOf(libraries.jruby),
+  junit5              : versionOf(libraries.junit5),
+  liquibase           : versionOf(libraries.liquibase),
+  logback             : versionOf(libraries.logback),
+  mail                : versionOf(libraries.mail),
+  mybatis             : versionOf(libraries.mybatis),
+  mybatisSpring       : versionOf(libraries.mybatisSpring),
+  mysql               : versionOf(libraries.mysql),
+  nanohttpd           : versionOf(libraries.nanohttpd),
+  objenesis           : versionOf(libraries.objenesis),
+  oscache             : versionOf(libraries.oscache),
+  postgresql          : versionOf(libraries.postgresql),
+  quartz              : versionOf(libraries.quartz),
+  rack                : versionOf(libraries.rack),
+  semanticVersion     : versionOf(libraries.semanticVersion),
+  servletApi          : versionOf(libraries.servletApi),
+  slf4j               : versionOf(libraries.slf4j),
+  spark               : versionOf(libraries.spark),
+  spring              : versionOf(libraries.spring),
+  springSecurity      : versionOf(libraries.springSecurity),
+  testcontainers      : versionOf(libraries.testcontainers),
+  tfsSdk              : versionOf(libraries.tfsSdk),
+  tokenBucket         : versionOf(libraries.tokenBucket),
+  urlrewrite          : versionOf(libraries.urlrewrite),
+  velocity            : versionOf(libraries.velocity),
+  xmlUnit             : versionOf(libraries.xmlUnit),
+  ztExec              : versionOf(libraries.ztExec),
+
+  // misc
+  commonsBeanutils    : '1.9.3',
+  tanuki              : '3.5.41',
+  tini                : '0.18.0',
+  velocityToolsView   : '1.4',
+]
+
+// While Dependabot won't be able to parse these deps, these will get upgraded for free anyway since they share versions
+// with dependencies declared above that are parseable by Dependabot. This is just a workaround to be DRY while still
+// benefiting from Dependabot's automatic PR upgrades.
+final Map<String, String> related = [
+  apacheHttpMime          : "org.apache.httpcomponents:httpmime:${v.apacheHttpComponents}",
+  aspectjWeaver           : "org.aspectj:aspectjweaver:${v.aspectj}",
+  bouncyCastlePkix        : "org.bouncycastle:bcpkix-jdk15on:${v.bouncyCastle}",
+  hamcrestLibrary         : "org.hamcrest:hamcrest-library:${v.hamcrest}",
+  jacksonDatabind         : "com.fasterxml.jackson.core:jackson-databind:${v.jackson}",
+  jaxbRuntime             : "org.glassfish.jaxb:jaxb-runtime:${v.jaxb}",
+  jettyDeploy             : "org.eclipse.jetty:jetty-deploy:${v.jetty}",
+  jettyJmx                : "org.eclipse.jetty:jetty-jmx:${v.jetty}",
+  jettyPlus               : "org.eclipse.jetty:jetty-plus:${v.jetty}",
+  jettyServlet            : "org.eclipse.jetty:jetty-servlet:${v.jetty}",
+  jettyServlets           : "org.eclipse.jetty:jetty-servlets:${v.jetty}",
+  jettyUtil               : "org.eclipse.jetty:jetty-util:${v.jetty}",
+  jettyWebapp             : "org.eclipse.jetty:jetty-webapp:${v.jetty}",
+  jettyWebsocket          : "org.eclipse.jetty.websocket:websocket-server:${v.jetty}",
+  jgitServer              : "org.eclipse.jgit:org.eclipse.jgit.http.server:${v.jgit}",
+  joltJsonUtils           : "com.bazaarvoice.jolt:json-utils:${v.jolt}",
+  junit5Engine            : "org.junit.jupiter:junit-jupiter-engine:${v.junit5}",
+  junit5Migration         : "org.junit.jupiter:junit-jupiter-migrationsupport:${v.junit5}",
+  junit5Params            : "org.junit.jupiter:junit-jupiter-params:${v.junit5}",
+  junit5Vintage           : "org.junit.vintage:junit-vintage-engine:${v.junit5}",
+  mailSmtp                : "com.sun.mail:smtp:${v.mail}",
+  slf4jJcl                : "org.slf4j:jcl-over-slf4j:${v.slf4j}",
+  slf4jJul                : "org.slf4j:jul-to-slf4j:${v.slf4j}",
+  slf4jLog4j              : "org.slf4j:log4j-over-slf4j:${v.slf4j}",
+  springContext           : "org.springframework:spring-context:${v.spring}",
+  springContextSupport    : "org.springframework:spring-context-support:${v.spring}",
+  springOrm               : "org.springframework:spring-orm:${v.spring}",
+  springSecurityWeb       : "org.springframework.security:spring-security-web:${v.springSecurity}",
+  springTest              : "org.springframework:spring-test:${v.spring}",
+  springTx                : "org.springframework:spring-tx:${v.spring}",
+  springWeb               : "org.springframework:spring-web:${v.spring}",
+  springWebmvc            : "org.springframework:spring-webmvc:${v.spring}",
+  testcontainersJdbc      : "org.testcontainers:jdbc:${v.testcontainers}",
+  testcontainersJunit     : "org.testcontainers:junit-jupiter:${v.testcontainers}",
+  testcontainersMysql     : "org.testcontainers:mysql:${v.testcontainers}",
+  testcontainersPostgresql: "org.testcontainers:postgresql:${v.testcontainers}",
+  xmlUnitMatchers         : "org.xmlunit:xmlunit-matchers:${v.xmlUnit}",
+]
+
+ext {
+  //noinspection GroovyAssignabilityCheck
+  deps = libraries + related
+  //noinspection GroovyAssignabilityCheck
+  versions = v
+}

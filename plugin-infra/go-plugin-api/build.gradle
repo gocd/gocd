@@ -20,13 +20,13 @@ description = 'Interfaces necessary for GoCD to access plugins'
 
 dependencies {
   api project(':plugin-infra:go-plugin-api-internal')
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testImplementation group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
-  testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testCompileOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Vintage
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.hamcrest
+  testImplementation project.deps.hamcrestLibrary
+  testImplementation project.deps.mockito
   testImplementation project(':test:test-utils')
 }
 

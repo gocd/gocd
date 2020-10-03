@@ -23,23 +23,23 @@ dependencies {
   api project(':util')
   api project(':domain')
   api project(':plugin-infra:go-plugin-access')
-  api group: 'dom4j', name: 'dom4j', version: '1.6.1'
-  api group: 'org.apache.httpcomponents', name: 'httpmime', version: project.versions.apacheHttpComponents
-  api group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
-  api group: 'org.springframework', name: 'spring-tx', version: project.versions.spring
-  implementation group: 'joda-time', name: 'joda-time', version: project.versions.jodaTime
+  api project.deps.dom4j
+  api project.deps.apacheHttpMime
+  api project.deps.commonsCollections4
+  api project.deps.springTx
+  implementation project.deps.jodaTime
 
-  testImplementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  testImplementation group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
+  testImplementation project.deps.bouncyCastle
+  testImplementation project.deps.bouncyCastlePkix
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')
   testImplementation project(path: ':domain', configuration: 'testOutput')
-  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
+  testImplementation project.deps.jsonUnit
   testImplementation project(':test:test-utils')
-  testImplementation group: 'com.google.guava', name: 'guava', version: project.versions.guava
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5
+  testImplementation project.deps.guava
+  testCompileOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Vintage
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.junit5Params
 }
 

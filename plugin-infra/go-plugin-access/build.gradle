@@ -28,18 +28,18 @@ dependencies {
   implementation project(':domain')
   implementation project(':base')
   implementation project(':config:config-api')
-  api group: 'com.bazaarvoice.jolt', name: 'jolt-core', version: project.versions.jolt
-  api group: 'com.bazaarvoice.jolt', name: 'json-utils', version: project.versions.jolt
-  api group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
-  implementation group: 'com.google.code.gson', name: 'gson', version: project.versions.gson
-  implementation group: 'org.springframework', name: 'spring-context', version: project.versions.spring
+  api project.deps.jolt
+  api project.deps.joltJsonUtils
+  api project.deps.commonsCollections4
+  implementation project.deps.gson
+  implementation project.deps.springContext
   testImplementation localGroovy()
-  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
+  testImplementation project.deps.jsonUnit
   testImplementation project(':test:test-utils')
   testImplementation project(path: ':domain', configuration: 'testOutput')
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testImplementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
+  testCompileOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Vintage
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.assertJ
 }

@@ -26,25 +26,25 @@ dependencies {
   implementation project(':server')
   implementation project(':api').subprojects
   implementation project(':spark').subprojects
-  implementation group: 'org.eclipse.jetty', name: 'jetty-server', version: versions.jetty
-  implementation group: 'org.eclipse.jetty', name: 'jetty-plus', version: versions.jetty
-  implementation group: 'org.eclipse.jetty', name: 'jetty-jmx', version: versions.jetty
-  implementation group: 'org.eclipse.jetty', name: 'jetty-servlets', version: versions.jetty
-  implementation group: 'org.eclipse.jetty', name: 'jetty-util', version: versions.jetty
-  implementation group: 'org.eclipse.jetty', name: 'jetty-deploy', version: versions.jetty
-  implementation group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
+  implementation project.deps.jetty
+  implementation project.deps.jettyPlus
+  implementation project.deps.jettyJmx
+  implementation project.deps.jettyServlets
+  implementation project.deps.jettyUtil
+  implementation project.deps.jettyDeploy
+  implementation project.deps.jettyWebsocket
 
-  implementation(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: project.versions.jgit) {
+  implementation(project.deps.jgitServer) {
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
   }
   implementation project(':jetty9')
-  implementation group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
-  implementation group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
-  implementation group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
-  implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  implementation group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
-  implementation group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
+  implementation project.deps.servletApi
+  implementation project.deps.jruby
+  implementation project.deps.rack
+  implementation project.deps.bouncyCastle
+  implementation project.deps.bouncyCastlePkix
+  implementation project.deps.slf4j
 
   copyOnly project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
   copyOnly project(':plugin-infra:go-plugin-activator')

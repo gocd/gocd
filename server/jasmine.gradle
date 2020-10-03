@@ -1,5 +1,5 @@
-import com.thoughtworks.go.build.ExecuteUnderRailsTask
 import com.thoughtworks.go.build.DownloaderTask
+import com.thoughtworks.go.build.ExecuteUnderRailsTask
 import org.gradle.internal.os.OperatingSystem
 
 import java.util.regex.Pattern
@@ -20,7 +20,12 @@ import java.util.regex.Pattern
  * limitations under the License.
  */
 
-org.gradle.internal.os.OperatingSystem currentOS = org.gradle.internal.os.OperatingSystem.current()
+OperatingSystem currentOS = OperatingSystem.current()
+
+final Map<String, String> seleniumDrivers = [
+  chromedriver: '86.0.4240.22',
+  geckodriver : '0.27.0',
+]
 
 def execute = { String path, String... argv ->
   ByteArrayOutputStream stdout = new ByteArrayOutputStream()
@@ -92,20 +97,19 @@ def driverImpl = { ->
   }
 }
 
-
 task downloadGeckoDriver(type: DownloaderTask) { thisTask ->
   executable = 'geckodriver'
   packageName = 'geckodriver'
-  packageVersion = project.versions.seleniumDrivers.geckodriver
+  packageVersion = seleniumDrivers.geckodriver
 
   String osURIPart;
   String archiveExtension  = currentOS.isWindows() ? 'zip' : 'tar.gz';
 
   switch (currentOS) {
-    case org.gradle.internal.os.OperatingSystem.MacOs:
+    case OperatingSystem.MacOs:
       osURIPart = 'macos';
       break
-    case org.gradle.internal.os.OperatingSystem.Windows:
+    case OperatingSystem.Windows:
       osURIPart = 'win64'
       break
     default:
@@ -118,15 +122,15 @@ task downloadGeckoDriver(type: DownloaderTask) { thisTask ->
 task downloadChromeDriver(type: DownloaderTask) { thisTask ->
   executable = 'chromedriver'
   packageName = 'chromedriver'
-  packageVersion = project.versions.seleniumDrivers.chromedriver
+  packageVersion = seleniumDrivers.chromedriver
 
   String osURIPart;
 
   switch (currentOS) {
-    case org.gradle.internal.os.OperatingSystem.MacOs:
+    case OperatingSystem.MacOs:
       osURIPart = 'mac64';
       break
-    case org.gradle.internal.os.OperatingSystem.Windows:
+    case OperatingSystem.Windows:
       osURIPart = 'win32'
       break
     default:

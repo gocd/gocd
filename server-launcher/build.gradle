@@ -55,19 +55,19 @@ dependencies {
   packagingInLibDir(project(path: ':plugin-infra:go-plugin-activator')) {
     transitive = false
   }
-  packagingInLibDir group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
-  packagingInLibDir group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  packagingInLibDir group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
-  packagingInLibDir group: 'commons-io', name: 'commons-io', version: project.versions.commonsIO
-  packagingInLibDir group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
-  packagingInLibDir group: 'joda-time', name: 'joda-time', version: project.versions.jodaTime
+  packagingInLibDir project.deps.servletApi
+  packagingInLibDir project.deps.bouncyCastle
+  packagingInLibDir project.deps.bouncyCastlePkix
+  packagingInLibDir project.deps.commonsIO
+  packagingInLibDir project.deps.commonsLang3
+  packagingInLibDir project.deps.jodaTime
 
   // Not needed for compilation, but we want to centralize all logging using logback
-  packagingInLibDir group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
-  packagingInLibDir group: 'org.slf4j', name: 'log4j-over-slf4j', version: project.versions.slf4j
-  packagingInLibDir group: 'org.slf4j', name: 'jcl-over-slf4j', version: project.versions.slf4j
-  packagingInLibDir group: 'org.slf4j', name: 'jul-to-slf4j', version: project.versions.slf4j
-  packagingInLibDir group: 'ch.qos.logback', name: 'logback-classic', version: project.versions.logback
+  packagingInLibDir project.deps.slf4j
+  packagingInLibDir project.deps.slf4jLog4j
+  packagingInLibDir project.deps.slf4jJcl
+  packagingInLibDir project.deps.slf4jJul
+  packagingInLibDir project.deps.logback
 
   pluginsZip project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
 
@@ -202,23 +202,23 @@ task verifyFatJar(type: VerifyJarTask) {
       "commons-io-${project.versions.commonsIO}.jar",
       "commons-lang3-${project.versions.commonsLang3}.jar",
       "go-plugin-activator.jar",
-      "javax.servlet-api-3.1.0.jar",
+      "javax.servlet-api-${project.versions.servletApi}.jar",
       "jcl-over-slf4j-${project.versions.slf4j}.jar",
-      "jetty-client-${versions.jetty}.jar",
-      "jetty-continuation-${versions.jetty}.jar",
-      "jetty-deploy-${versions.jetty}.jar",
-      "jetty-http-${versions.jetty}.jar",
-      "jetty-io-${versions.jetty}.jar",
-      "jetty-jmx-${versions.jetty}.jar",
-      "jetty-jndi-${versions.jetty}.jar",
-      "jetty-plus-${versions.jetty}.jar",
-      "jetty-security-${versions.jetty}.jar",
-      "jetty-server-${versions.jetty}.jar",
-      "jetty-servlet-${versions.jetty}.jar",
-      "jetty-servlets-${versions.jetty}.jar",
-      "jetty-util-${versions.jetty}.jar",
-      "jetty-webapp-${versions.jetty}.jar",
-      "jetty-xml-${versions.jetty}.jar",
+      "jetty-client-${project.versions.jetty}.jar",
+      "jetty-continuation-${project.versions.jetty}.jar",
+      "jetty-deploy-${project.versions.jetty}.jar",
+      "jetty-http-${project.versions.jetty}.jar",
+      "jetty-io-${project.versions.jetty}.jar",
+      "jetty-jmx-${project.versions.jetty}.jar",
+      "jetty-jndi-${project.versions.jetty}.jar",
+      "jetty-plus-${project.versions.jetty}.jar",
+      "jetty-security-${project.versions.jetty}.jar",
+      "jetty-server-${project.versions.jetty}.jar",
+      "jetty-servlet-${project.versions.jetty}.jar",
+      "jetty-servlets-${project.versions.jetty}.jar",
+      "jetty-util-${project.versions.jetty}.jar",
+      "jetty-webapp-${project.versions.jetty}.jar",
+      "jetty-xml-${project.versions.jetty}.jar",
       "joda-time-${project.versions.jodaTime}.jar",
       "jul-to-slf4j-${project.versions.slf4j}.jar",
       "log4j-over-slf4j-${project.versions.slf4j}.jar",
@@ -227,11 +227,11 @@ task verifyFatJar(type: VerifyJarTask) {
       "server-launcher-${project.version}-main.jar",
       "slf4j-api-${project.versions.slf4j}.jar",
       "tfs-impl-14.jar",
-      "websocket-api-${versions.jetty}.jar",
-      "websocket-client-${versions.jetty}.jar",
-      "websocket-common-${versions.jetty}.jar",
-      "websocket-server-${versions.jetty}.jar",
-      "websocket-servlet-${versions.jetty}.jar",
+      "websocket-api-${project.versions.jetty}.jar",
+      "websocket-client-${project.versions.jetty}.jar",
+      "websocket-common-${project.versions.jetty}.jar",
+      "websocket-server-${project.versions.jetty}.jar",
+      "websocket-servlet-${project.versions.jetty}.jar",
     ]
   ]
 }

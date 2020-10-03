@@ -17,18 +17,18 @@
 description = 'GoCD Agent Common Utilities'
 
 dependencies {
-  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+  annotationProcessor project.deps.lombok
 
   api project(':base')
-  api group: 'com.beust', name: 'jcommander', version: project.versions.jcommander
+  api project.deps.jcommander
 
-  testRuntimeOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  testRuntimeOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
+  testRuntimeOnly project.deps.bouncyCastle
+  testRuntimeOnly project.deps.bouncyCastlePkix
+  testImplementation project.deps.mockito
+  testImplementation project.deps.hamcrestLibrary
   testImplementation project(':test:test-utils')
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+  testCompileOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Vintage
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
 }

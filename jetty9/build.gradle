@@ -22,28 +22,28 @@ dependencies {
   implementation project(':config:config-server')
   implementation project(':common')
   implementation project(':rack_hack')
-  implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: project.versions.commonsDbcp
-  implementation group: 'org.apache.commons', name: 'commons-pool2', version: project.versions.commonsPool
-  implementation group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
+  implementation project.deps.commonsDbcp
+  implementation project.deps.commonsPool
+  implementation project.deps.slf4j
 
-  providedAtPackageTime group: 'org.eclipse.jetty', name: 'jetty-server', version: versions.jetty
-  providedAtPackageTime group: 'org.eclipse.jetty', name: 'jetty-plus', version: versions.jetty
-  providedAtPackageTime group: 'org.eclipse.jetty', name: 'jetty-jmx', version: versions.jetty
-  providedAtPackageTime group: 'org.eclipse.jetty', name: 'jetty-servlets', version: versions.jetty
-  providedAtPackageTime group: 'org.eclipse.jetty', name: 'jetty-util', version: versions.jetty
-  providedAtPackageTime group: 'org.eclipse.jetty', name: 'jetty-deploy', version: versions.jetty
-  providedAtPackageTime group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
+  providedAtPackageTime project.deps.jetty
+  providedAtPackageTime project.deps.jettyPlus
+  providedAtPackageTime project.deps.jettyJmx
+  providedAtPackageTime project.deps.jettyServlets
+  providedAtPackageTime project.deps.jettyUtil
+  providedAtPackageTime project.deps.jettyDeploy
+  providedAtPackageTime project.deps.jettyWebsocket
 
   testImplementation project(':common')
   testImplementation project(':config:config-api')
   testImplementation project(':config:config-server')
   testImplementation project(':test:http-mocks')
   testImplementation project(':test:test-utils')
-  testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
+  testImplementation project.deps.hamcrestLibrary
+  testImplementation project.deps.junit5
+  testImplementation project.deps.junit5Params
+  testImplementation project.deps.mockito
+  testCompileOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Engine
+  testRuntimeOnly project.deps.junit5Vintage
 }

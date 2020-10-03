@@ -20,16 +20,16 @@ description = 'GoCD TFS SDK wrapper v14'
 
 dependencies {
   implementation project(':common')
-  implementation group: 'com.microsoft', name: 'tfs-sdk', version: '14.118.0'
+  implementation project.deps.tfsSdk
   // not an implementation dependency, but some classloader hell
-  implementation(group: 'xalan', name: 'xalan', version: '2.7.1')
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testImplementation group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testImplementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
+  implementation project.deps.xalan
+  testCompileOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Vintage
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.hamcrest
+  testImplementation project.deps.mockito
+  testImplementation project.deps.assertJ
 }
 
 jar {
@@ -58,7 +58,7 @@ task verifyJar(type: VerifyJarTask) {
   expectedJars = [
       "lib": [
           "tfs-impl-14-${project.version}-classes.jar",
-          "tfs-sdk-14.118.0.jar",
+          "tfs-sdk-${project.versions.tfsSdk}.jar",
       ]
   ]
 }

@@ -17,24 +17,24 @@
 apply plugin: 'java'
 
 dependencies {
-    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+    annotationProcessor project.deps.lombok
 
-    implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: project.versions.commonsDbcp
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
-    implementation group: 'com.google.code.gson', name: 'gson', version: project.versions.gson
-    implementation group: 'org.springframework', name: 'spring-context', version: project.versions.spring
-    implementation group: 'javax.annotation', name: 'javax.annotation-api', version: project.versions.javaxAnnotation
+    implementation project.deps.commonsDbcp
+    implementation project.deps.commonsLang3
+    implementation project.deps.gson
+    implementation project.deps.springContext
+    implementation project.deps.javaxAnnotation
 
-    implementation group: 'org.liquibase', name: 'liquibase-core', version: project.versions.liquibase
-    implementation group: 'javax.xml.bind', name: 'jaxb-api', version: project.versions.jaxb
+    implementation project.deps.liquibase
+    implementation project.deps.jaxb
 
-    testImplementation group: 'org.testcontainers', name: 'jdbc', version: project.versions.testcontainersJdbc
+    testImplementation project.deps.testcontainersJdbc
 
-    testImplementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
-    testImplementation group: 'org.assertj', name: 'assertj-db', version: project.versions.assertJ_DB
+    testImplementation project.deps.assertJ
+    testImplementation project.deps.assertJ_DB
 
-    testImplementation group: 'com.h2database', name: 'h2', version: project.versions.h2
+    testImplementation project.deps.h2
 
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+    testImplementation project.deps.junit5
+    testRuntimeOnly project.deps.junit5Engine
 }

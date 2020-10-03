@@ -20,12 +20,12 @@ dependencies {
   implementation project(':base')
   implementation project(':config:config-api')
   implementation project(':domain')
-  implementation group: 'com.google.code.gson', name: 'gson', version: project.versions.gson
-  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testImplementation group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
-  testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  implementation project.deps.gson
+  annotationProcessor project.deps.lombok
+  testCompileOnly project.deps.junit4
+  testImplementation project.deps.hamcrest
+  testImplementation project.deps.hamcrestLibrary
+  testImplementation project.deps.mockito
   testImplementation project(':test:test-utils')
 }
 

@@ -15,13 +15,13 @@
  */
 
 dependencies {
-  implementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
-  implementation group: 'junit', name: 'junit', version: project.versions.junit
-  implementation group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
-  implementation group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
-  implementation group: 'com.google.code.gson', name: 'gson', version: project.versions.gson
-  implementation group: 'org.apache.httpcomponents', name: 'httpmime', version: project.versions.apacheHttpComponents
-  implementation group: 'org.springframework', name: 'spring-core', version: project.versions.spring
-  implementation group: 'org.springframework', name: 'spring-web', version: project.versions.spring
-  implementation group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
+  implementation project.deps.assertJ
+  implementation project.deps.junit4
+  implementation project.deps.commonsLang3
+  implementation project.deps.servletApi
+  implementation project.deps.gson
+  implementation project.deps.apacheHttpMime
+  implementation project.deps.spring
+  implementation project.deps.springWeb
+  implementation project.deps.jsonUnit
 }

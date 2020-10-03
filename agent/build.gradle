@@ -60,25 +60,25 @@ configurations {
 }
 
 dependencies {
-  packagingOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  packagingOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
+  packagingOnly project.deps.bouncyCastle
+  packagingOnly project.deps.bouncyCastlePkix
 
   implementation project(':agent-common')
   implementation project(':common')
-  implementation group: 'javax.annotation', name: 'javax.annotation-api', version: project.versions.javaxAnnotation
-  implementation group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
-  implementation group: 'org.apache.commons', name: 'commons-configuration2', version: project.versions.commonsConfiguration
-  implementation group: 'org.nanohttpd', name: 'nanohttpd', version: versions.nanohttpd
+  implementation project.deps.javaxAnnotation
+  implementation project.deps.objenesis
+  implementation project.deps.commonsConfiguration
+  implementation project.deps.nanohttpd
 
   testImplementation project(path: ':common', configuration: 'testOutput')
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')
   testImplementation project(':test:test-utils')
 
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
+  testCompileOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Vintage
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.junit5Migration
 
   extractedAtTopLevel project(':agent-process-launcher')
   extractedAtTopLevel project(':jar-class-loader')
@@ -142,7 +142,7 @@ task verifyJar(type: VerifyJarTask) {
       "commons-text-1.8.jar",
       "config-api-${project.version}.jar",
       "db-${project.version}.jar",
-      "dom4j-1.6.1.jar",
+      "dom4j-${project.versions.dom4j}.jar",
       "domain-${project.version}.jar",
       "error_prone_annotations-2.3.4.jar",
       "failureaccess-1.0.1.jar",
@@ -166,7 +166,7 @@ task verifyJar(type: VerifyJarTask) {
       "javax.activation-api-1.2.0.jar",
       "javax.annotation-api-${project.versions.javaxAnnotation}.jar",
       "javax.inject-1.jar",
-      "javax.servlet-api-3.1.0.jar",
+      "javax.servlet-api-${project.versions.servletApi}.jar",
       "jaxb-api-${project.versions.jaxb}.jar",
       "jaxb-runtime-${project.versions.jaxb}.jar",
       "jcl-over-slf4j-${project.versions.slf4j}.jar",
@@ -179,7 +179,7 @@ task verifyJar(type: VerifyJarTask) {
       "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar",
       "logback-classic-${project.versions.logback}.jar",
       "logback-core-${project.versions.logback}.jar",
-      "nanohttpd-2.3.1.jar",
+      "nanohttpd-${project.versions.nanohttpd}.jar",
       "objenesis-${project.versions.objenesis}.jar",
       "org.apache.felix.framework-${project.versions.felix}.jar",
       "plugin-metadata-store-${project.version}.jar",

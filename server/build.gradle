@@ -36,8 +36,8 @@ buildscript {
   }
 
   dependencies {
-    classpath group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
-    classpath group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: project.versions.jgit
+    classpath project.deps.jruby
+    classpath project.deps.jgit
   }
 }
 apply plugin: 'com.github.jruby-gradle.core'
@@ -222,8 +222,8 @@ props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemPro
 project.ext.testSystemProperties = props
 
 dependencies {
-  jrubyGems group: 'rubygems', name: 'bundler', version: project.versions.bundler
-  compileOnly group: 'org.jetbrains', name: 'annotations', version: project.versions.jetBrainsAnnotations
+  jrubyGems project.deps.bundler
+  compileOnly project.deps.jetBrainsAnnotations
 
   apiBase project(':api:api-base')
   allApis project(':api').subprojects
@@ -240,68 +240,68 @@ dependencies {
   implementation project(':db-support:db-support-mysql')
 
   packagingOnly project(':base')
-  packagingOnly group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
+  packagingOnly project.deps.servletApi
 
   copyOnly project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent', configuration: 'fatJarConfig')
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   copyOnlyTestData project(':test:test-agent')
 
-  implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: project.versions.commonsDbcp
-  api(group: 'org.hibernate', name: 'hibernate-ehcache', version: project.versions.hibernate) {
+  implementation project.deps.commonsDbcp
+  api(project.deps.hibernate) {
     exclude(module: 'ehcache-core')
     exclude(module: 'commons-collections')
   }
 
-  implementation group: 'commons-fileupload', name: 'commons-fileupload', version: project.versions.commonsFileUpload
+  implementation project.deps.commonsFileUpload
 
-  implementation group: 'javassist', name: 'javassist', version: project.versions.javaAssist
-  implementation group: 'org.mybatis', name: 'mybatis', version: project.versions.mybatis
-  implementation group: 'org.mybatis', name: 'mybatis-spring', version: project.versions.mybatisSpring
-  implementation group: 'net.sf.ehcache', name: 'ehcache', version: project.versions.ehcache
-  implementation(group: 'opensymphony', name: 'oscache', version: '2.4.1') {
+  implementation project.deps.javaAssist
+  implementation project.deps.mybatis
+  implementation project.deps.mybatisSpring
+  implementation project.deps.ehcache
+  implementation(project.deps.oscache) {
     exclude(module: 'jms')
     exclude(module: 'servlet-api')
   }
 
-  implementation group: 'org.apache.activemq', name: 'activemq-broker', version: project.versions.activeMQ
+  implementation project.deps.activeMQ
 
-  implementation group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
-  implementation group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
+  implementation project.deps.jruby
+  implementation project.deps.rack
 
-  implementation group: 'org.springframework', name: 'spring-orm', version: project.versions.spring
-  api group: 'org.springframework', name: 'spring-web', version: project.versions.spring
-  api group: 'org.springframework', name: 'spring-context-support', version: project.versions.spring
-  api(group: 'org.springframework.security', name: 'spring-security-web', version: project.versions.springSecurity) {
+  implementation project.deps.springOrm
+  api project.deps.springWeb
+  api project.deps.springContextSupport
+  api(project.deps.springSecurityWeb) {
     exclude(group: 'org.springframework')
   }
-  implementation(group: 'org.springframework.security', name: 'spring-security-config', version: project.versions.springSecurity)
-  implementation group: 'org.aspectj', name: 'aspectjrt', version: project.versions.aspectj
-  implementation group: 'org.aspectj', name: 'aspectjweaver', version: project.versions.aspectj
-  implementation group: 'org.tuckey', name: 'urlrewritefilter', version: project.versions.urlrewrite
-  implementation(group: 'org.apache.velocity', name: 'velocity', version: '1.7') {
+  implementation(project.deps.springSecurity)
+  implementation project.deps.aspectj
+  implementation project.deps.aspectjWeaver
+  implementation project.deps.urlrewrite
+  implementation(project.deps.velocity) {
     exclude(module: 'commons-lang')
     exclude(module: 'commons-collections')
   }
   implementation files("vendor/velocity-tools-view-${project.versions.velocityToolsView}.jar")
   // old digester version required by velocity-tools-view
-  implementation group: 'commons-digester', name: 'commons-digester', version: project.versions.commonsDigester
+  implementation project.deps.commonsDigester
 
   // this is needed by velocity tools view
-  implementation group: 'commons-lang', name: 'commons-lang', version: project.versions.commonsLang
-  implementation group: 'commons-collections', name: 'commons-collections', version: project.versions.commonsCollections
-  implementation group: 'com.google.guava', name: 'guava', version: project.versions.guava
-  implementation group: 'com.sun.mail', name: 'mailapi', version: project.versions.mail
-  implementation group: 'com.sun.mail', name: 'smtp', version: project.versions.mail
-  implementation group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
+  implementation project.deps.commonsLang
+  implementation project.deps.commonsCollections
+  implementation project.deps.guava
+  implementation project.deps.mail
+  implementation project.deps.mailSmtp
+  implementation project.deps.objenesis
 
   // needed by jdom2 for some XPATH stuff
-  implementation(group: 'jaxen', name: 'jaxen', version: project.versions.jaxen) {
+  implementation(project.deps.jaxen) {
     exclude(module: 'xom')
     exclude(module: 'jdom')
   }
-  implementation group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
-  implementation(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: project.versions.jgit) {
+  implementation project.deps.slf4j
+  implementation(project.deps.jgitServer) {
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
   }
@@ -310,13 +310,13 @@ dependencies {
     // these artifacts from packaging; this happens in the `war` task when excluding `doNotPackage` configurations
     transitive = false
   }
-  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
-  providedAtPackageTime group: 'ch.qos.logback', name: 'logback-classic', version: project.versions.logback
-  providedAtPackageTime group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  providedAtPackageTime group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
-  providedAtPackageTime group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
+  annotationProcessor project.deps.lombok
+  providedAtPackageTime project.deps.logback
+  providedAtPackageTime project.deps.bouncyCastle
+  providedAtPackageTime project.deps.bouncyCastlePkix
+  providedAtPackageTime project.deps.jettyWebsocket
 
-  testImplementation(group: 'org.dbunit', name: 'dbunit', version: project.versions.dbunit) {
+  testImplementation(project.deps.dbunit) {
     exclude(group: 'postgresql')
   }
   testImplementation project(path: ':common', configuration: 'testOutput')
@@ -324,23 +324,23 @@ dependencies {
   testImplementation project(path: ':config:config-api', configuration: 'testOutput')
   testImplementation project(path: ':test:test-utils')
   testImplementation project(':jetty9')
-  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
-  testImplementation group: 'org.jsoup', name: 'jsoup', version: project.versions.jsoup
-  testImplementation group: 'org.xmlunit', name: 'xmlunit-matchers', version: project.versions.xmlUnit
-  testImplementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
-  testImplementation group: 'org.xmlunit', name: 'xmlunit-assertj', version: project.versions.xmlUnit
+  testImplementation project.deps.jsonUnit
+  testImplementation project.deps.jsoup
+  testImplementation project.deps.xmlUnitMatchers
+  testImplementation project.deps.assertJ
+  testImplementation project.deps.xmlUnit
 
   testImplementation project(':test:http-mocks')
 
-  testImplementation group: 'com.github.paweladamski', name: 'HttpClientMock', version: '1.0.4'
+  testImplementation project.deps.httpClientMock
 
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  integrationTestImplementation group: 'com.github.sbrannen', name: 'spring-test-junit5', version: project.versions.spring4jUnit5Extension
+  testCompileOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Vintage
+  testImplementation project.deps.junit5Params
+  testImplementation project.deps.junit5Migration
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
+  integrationTestImplementation project.deps.springTestJunit5
 }
 
 jar {
@@ -826,7 +826,7 @@ task verifyWar(type: VerifyJarTask) {
         "db-support-h2-${project.version}.jar",
         "db-support-mysql-${project.version}.jar",
         "db-support-postgresql-${project.version}.jar",
-        "dom4j-1.6.1.jar",
+        "dom4j-${project.versions.dom4j}.jar",
         "domain-${project.version}.jar",
         "ehcache-${project.versions.ehcache}.jar",
         "error_prone_annotations-2.3.4.jar",
@@ -861,7 +861,7 @@ task verifyWar(type: VerifyJarTask) {
         "javax.activation-api-1.2.0.jar",
         "javax.annotation-api-${project.versions.javaxAnnotation}.jar",
         "javax.inject-1.jar",
-        "javax.servlet-api-3.1.0.jar",
+        "javax.servlet-api-${project.versions.servletApi}.jar",
         "jaxb-api-${project.versions.jaxb}.jar",
         "jaxb-runtime-${project.versions.jaxb}.jar",
         "jaxen-${project.versions.jaxen}.jar",
@@ -870,7 +870,7 @@ task verifyWar(type: VerifyJarTask) {
         "joda-time-${project.versions.jodaTime}.jar",
         "jolt-core-${project.versions.jolt}.jar",
         "jruby-complete-${project.versions.jruby}.jar",
-        "jruby-rack-${versions.rack}.jar",
+        "jruby-rack-${project.versions.rack}.jar",
         "json-utils-${project.versions.jolt}.jar",
         "jsr305-3.0.2.jar",
         "jta-1.1.jar",
@@ -884,7 +884,7 @@ task verifyWar(type: VerifyJarTask) {
         "org.apache.felix.framework-${project.versions.felix}.jar",
         "org.eclipse.jgit-${project.versions.jgit}.jar",
         "org.eclipse.jgit.http.server-${project.versions.jgit}.jar",
-        "oscache-2.4.1.jar",
+        "oscache-${project.versions.oscache}.jar",
         "plugin-metadata-store-${project.version}.jar",
         "postgresql-${project.versions.postgresql}.jar",
         "protobuf-java-3.6.1.jar",
@@ -913,9 +913,9 @@ task verifyWar(type: VerifyJarTask) {
         "txw2-${project.versions.jaxb}.jar",
         "urlrewritefilter-${project.versions.urlrewrite}.jar",
         "util-${project.version}.jar",
-        "velocity-1.7.jar",
+        "velocity-${project.versions.velocity}.jar",
         "velocity-tools-view-${project.versions.velocityToolsView}.jar",
-        "zt-exec-1.12.jar",
+        "zt-exec-${project.versions.ztExec}.jar",
       ])
   ]
 }

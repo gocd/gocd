@@ -207,6 +207,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static GoSystemProperty<Boolean> START_IN_MAINTENANCE_MODE = new GoBooleanSystemProperty("gocd.server.start.in.maintenance.mode", false);
 
+    public static GoSystemProperty<Boolean> INITIALIZE_CONFIG_REPOSITORIES_ON_STARTUP = new GoBooleanSystemProperty("gocd.initialize.config.repositories.on.startup", true);
+
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
     static {
@@ -803,6 +805,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean shouldStartServerInMaintenanceMode() {
         return START_IN_MAINTENANCE_MODE.getValue();
+    }
+
+    public boolean shouldInitializeConfigRepositoriesOnStartup() {
+        return INITIALIZE_CONFIG_REPOSITORIES_ON_STARTUP.getValue();
     }
 
     public static abstract class GoSystemProperty<T> {

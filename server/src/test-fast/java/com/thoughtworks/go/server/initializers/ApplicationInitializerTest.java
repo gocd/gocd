@@ -134,6 +134,8 @@ public class ApplicationInitializerTest {
     private ResourceMonitoring resourceMonitoring;
     @Mock
     private PipelineLabelCorrector pipelineLabelCorrector;
+    @Mock
+    private ConfigRepositoryInitializer configRepositoryInitializer;
     @InjectMocks
     ApplicationInitializer initializer = new ApplicationInitializer();
 

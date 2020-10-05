@@ -1020,10 +1020,10 @@
   resolved "https://registry.yarnpkg.com/@types/awesomplete/-/awesomplete-1.1.10.tgz#402ba293273b3d3a40c3569f123e2fa0d2681bdf"
   integrity sha512-rNtfXy5pkneFI7zeMOiZ6ES9NgLt8PVuCtEH/K1QCsB6CSRrKjEbrbqWH1MizJ3zyfJH7dfEfRdkP+CyqaHMHQ==
 
-"@types/chart.js@^2.9.24":
-  version "2.9.24"
-  resolved "https://registry.yarnpkg.com/@types/chart.js/-/chart.js-2.9.24.tgz#f044fde90c928cb054e2ea582eb68d9945d84bc6"
-  integrity sha512-AQI7X+ow3SaONl44JrHoL/5B+lCsJyG31UHZ5RP98Uh15hI/zjEkDsAb4EIm4P9TGfNhZLXw/nMc5w0u10+/fQ==
+"@types/chart.js@^2.9.25":
+  version "2.9.25"
+  resolved "https://registry.yarnpkg.com/@types/chart.js/-/chart.js-2.9.25.tgz#a22d18f6f7cb5b4499f39de600c4c520f635a58f"
+  integrity sha512-SPgPISpaGM42WL9Dezms4+8fInHxAXDzTs8DwPxhGuJT+jETXlVITTbe8bvK1n+sMmyyelR9B4w0lwMkA24oJg==
   dependencies:
     moment "^2.10.2"
 

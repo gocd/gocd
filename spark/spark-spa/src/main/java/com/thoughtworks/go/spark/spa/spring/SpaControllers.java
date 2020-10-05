@@ -62,6 +62,7 @@ public class SpaControllers implements SparkSpringController {
         LayoutTemplateProvider componentTemplate = () -> COMPONENT_LAYOUT_PATH;
         LayoutTemplateProvider railsCompatibleTemplate = () -> RAILS_COMPATIBLE_PAGE_LAYOUT_PATH;
 
+        sparkControllers.add(new NewPreferencesController(authenticationHelper, templateEngineFactory.create(NewPreferencesController.class, () -> COMPONENT_LAYOUT_PATH), goConfigService));
 		sparkControllers.add(new MaterialsController(authenticationHelper, featureToggleService, templateEngineFactory.create(MaterialsController.class, () -> COMPONENT_LAYOUT_PATH)));
 		sparkControllers.add(new TemplateConfigController(authenticationHelper, templateEngineFactory.create(TemplateConfigController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new PluggableScmsController(authenticationHelper, templateEngineFactory.create(PluggableScmsController.class, () -> COMPONENT_LAYOUT_PATH)));

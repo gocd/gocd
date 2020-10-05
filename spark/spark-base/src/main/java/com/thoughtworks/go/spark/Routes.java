@@ -947,4 +947,8 @@ public class Routes {
             return link;
         }
     }
+
+    public class Preferences {
+        public static final String SPA_BASE = "/preferences/notifications";
+    }
 }

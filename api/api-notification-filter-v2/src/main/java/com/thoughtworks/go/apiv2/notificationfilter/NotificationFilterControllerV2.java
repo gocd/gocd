@@ -79,12 +79,12 @@ public class NotificationFilterControllerV2 extends ApiController implements Spa
             before("", mimeType, this::setContentType);
             before("", mimeType, this::verifyContentType);
             before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
-            before("", mimeType, this::canConfigureNotificationFilters);
+            before("", mimeType, onlyOn(this::canConfigureNotificationFilters, "POST"));
 
             before("/*", mimeType, this::verifyContentType);
             before("/*", mimeType, this::setContentType);
             before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
-            before("/*", mimeType, this::canConfigureNotificationFilters);
+            before("/*", mimeType, onlyOn(this::canConfigureNotificationFilters, "PATCH"));
 
             get("", mimeType, this::index);
             get(Routes.NotificationFilterAPI.ID, mimeType, this::show);

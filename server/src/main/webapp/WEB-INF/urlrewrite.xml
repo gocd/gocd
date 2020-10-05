@@ -23,6 +23,14 @@
 -->
 
 <urlrewrite>
+
+  <rule>
+    <name>Preference SPA</name>
+    <from>^/preferences/notifications(/?)$</from>
+    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="preferenceSPA"/>
+    <to last="true">/%{attribute:sparkOrRails}/preferences/notifications</to>
+  </rule>
+
   <rule>
     <name>Internal Materials URL for listing modifications</name>
     <from>^/api/internal/materials/([^/]+)/modifications(/?)$</from>
@@ -1036,7 +1044,7 @@
       (currently RackFilter passes a request to Rails only if Java returns a 40* HTTP response
     </note>
     <from>
-      ^/((jasmine-specs)|(jasmine-specs/*)|(preferences)|(preferences/.*)|(agents)|(agents/.*)|(agents\..*)|(environments)|(admin/environments)|(admin/environments/.*)|(admin/environments\..*)|(environments/.*)|(environments\..*)|(pipelines/.*)|(pipelines\.json)|(materials/.*)|(pipelines)|(history/.*)|(server)|(server/.*)|(admin/config/.*)|(admin/users)|(admin/users/.*)|(failures/.*)|(compare/.*)|(admin/pipelines/.*)|(admin/pipeline/.*)|(admin/templates/.*)|(admin/commands)|(admin/commands/.*)|(admin/plugins)|(admin/plugins/.*)|(admin/config_change/.*)|(admin/config_xml)|(admin/config_xml/.*)|(admin/package_repositories)|(admin/package_repositories/.*)|(config_view/.*)|(admin/package_definitions)|(admin/package_definitions/.*)|(admin/materials)|(admin/materials/.*)|(assets/.*)|(errors/inactive)|(internal/pipelines/.*))$
+      ^/((jasmine-specs)|(jasmine-specs/*)|(agents)|(agents/.*)|(agents\..*)|(environments)|(admin/environments)|(admin/environments/.*)|(admin/environments\..*)|(environments/.*)|(environments\..*)|(pipelines/.*)|(pipelines\.json)|(materials/.*)|(pipelines)|(history/.*)|(server)|(server/.*)|(admin/config/.*)|(admin/users)|(admin/users/.*)|(failures/.*)|(compare/.*)|(admin/pipelines/.*)|(admin/pipeline/.*)|(admin/templates/.*)|(admin/commands)|(admin/commands/.*)|(admin/plugins)|(admin/plugins/.*)|(admin/config_change/.*)|(admin/config_xml)|(admin/config_xml/.*)|(admin/package_repositories)|(admin/package_repositories/.*)|(config_view/.*)|(admin/package_definitions)|(admin/package_definitions/.*)|(admin/materials)|(admin/materials/.*)|(assets/.*)|(errors/inactive)|(internal/pipelines/.*))$
     </from>
     <to last="true">/rails/$1</to>
     <set name="rails_bound">true</set>

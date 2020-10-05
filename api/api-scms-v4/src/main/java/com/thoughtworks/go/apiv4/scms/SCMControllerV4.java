@@ -144,6 +144,7 @@ public class SCMControllerV4 extends ApiController implements SparkSpringControl
             throw haltBecauseRenameOfEntityIsNotSupported(getEntityType().getEntityNameLowerCase());
         }
 
+        haltIfEntityIsDefinedRemotely(existingSCM);
         if (isPutRequestStale(request, existingSCM)) {
             throw haltBecauseEtagDoesNotMatch(getEntityType().getEntityNameLowerCase(), existingSCM.getId());
         }
@@ -157,6 +158,7 @@ public class SCMControllerV4 extends ApiController implements SparkSpringControl
     public String destroy(Request request, Response response) throws IOException {
         final String materialName = request.params(MATERIAL_NAME);
         SCM scm = fetchEntityFromConfig(materialName);
+        haltIfEntityIsDefinedRemotely(scm);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         pluggableScmService.deletePluggableSCM(currentUsername(), scm, result);
 
@@ -228,4 +230,11 @@ public class SCMControllerV4 extends ApiController implements SparkSpringControl
     private boolean isRenameAttempt(String profileIdFromRequestParam, String profileIdFromRequestBody) {
         return !StringUtils.equals(profileIdFromRequestBody, profileIdFromRequestParam);
     }
+
+    private void haltIfEntityIsDefinedRemotely(SCM existingSCM) {
+        if (!existingSCM.isLocal()) {
+            throw haltBecauseOfReason(format("Can not operate on SCM '%s' as it is defined remotely in '%s'.", existingSCM.getName(), existingSCM.getOrigin().displayName()));
+        }
+    }
+
 }

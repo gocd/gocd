@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv3.scms
+package com.thoughtworks.go.apiv4.scms
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.apiv3.scms.representers.SCMRepresenter
-import com.thoughtworks.go.apiv3.scms.representers.SCMsRepresenter
-import com.thoughtworks.go.apiv3.scms.representers.ScmUsageRepresenter
+import com.thoughtworks.go.apiv4.scms.representers.SCMRepresenter
+import com.thoughtworks.go.apiv4.scms.representers.SCMsRepresenter
+import com.thoughtworks.go.apiv4.scms.representers.ScmUsageRepresenter
 import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.remote.RepoConfigOrigin
 import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
@@ -35,7 +36,6 @@ import com.thoughtworks.go.server.service.materials.PluggableScmService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.DeprecatedApiTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.util.Pair
@@ -49,6 +49,8 @@ import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
 import static com.thoughtworks.go.api.util.HaltApiMessages.renameOfEntityIsNotSupportedMessage
+import static com.thoughtworks.go.config.remote.ConfigRepoConfig.createConfigRepoConfig
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static java.util.Collections.emptyList
 import static java.util.Collections.emptyMap
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
@@ -56,7 +58,7 @@ import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
-class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMControllerV3>, DeprecatedApiTrait {
+class SCMControllerV4Test implements SecurityServiceTrait, ControllerTrait<SCMControllerV4> {
   @Mock
   PluggableScmService scmService
 
@@ -69,8 +71,8 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
   }
 
   @Override
-  SCMControllerV3 createControllerInstance() {
-    return new SCMControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), scmService, entityHashingService, goConfigService)
+  SCMControllerV4 createControllerInstance() {
+    return new SCMControllerV4(new ApiAuthenticationHelper(securityService, goConfigService), scmService, entityHashingService, goConfigService)
   }
 
   @Nested
@@ -364,6 +366,9 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
             id             : "scm1",
             name           : "foobar",
             auto_update    : true,
+            "origin"       : [
+              "type": "gocd"
+            ],
             plugin_metadata: [
               "id"     : "plugin1",
               "version": "v1.0"
@@ -428,6 +433,9 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
             id               : "scm1",
             "name"           : "foobar",
             "auto_update"    : true,
+            "origin"         : [
+              "type": "gocd"
+            ],
             "plugin_metadata": [
               "id"     : "plugin1",
               "version": "v1.0"
@@ -658,6 +666,9 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
             id               : "scm1",
             "name"           : "foobar",
             "auto_update"    : true,
+            "origin"         : [
+              "type": "gocd"
+            ],
             "plugin_metadata": [
               "id"     : "plugin1",
               "version": "v1.0"
@@ -679,6 +690,43 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonBody(new JsonBuilder(expectedResponseBody).toString())
+      }
+
+      @Test
+      void 'should not update when the scm is defined remotely'() {
+        SCM scm = SCMMother.create("1", "foobar", "plugin1", "v1.0", new Configuration(
+          ConfigurationPropertyMother.create("key1", false, "value1"),
+          ConfigurationPropertyMother.create("key2", true, "secret"),
+        ))
+        def origin = new RepoConfigOrigin(createConfigRepoConfig(git("https://github.com/config-repos/repo", "master"), "json-plugin", "id"), "revision1")
+        scm.setOrigins(origin)
+
+        def jsonPayload = [
+          "id"             : "1",
+          "name"           : "foobar",
+          "auto_update"    : true,
+          "plugin_metadata": [
+            "id"     : "plugin1",
+            "version": "v1.0"
+          ],
+          "configuration"  : [
+            [
+              "key"  : "key1",
+              "value": "updated_value"
+            ], [
+              "key"            : "key3",
+              "encrypted_value": new GoCipher().encrypt("secret")
+            ]
+          ]
+        ]
+
+        when(scmService.findPluggableScmMaterial("foobar")).thenReturn(scm)
+
+        putWithApiHeader(controller.controllerPath("/foobar"), jsonPayload)
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Can not operate on SCM 'foobar' as it is defined remotely in 'https://github.com/config-repos/repo at revision1'.")
       }
     }
   }
@@ -765,6 +813,24 @@ class SCMControllerV3Test implements SecurityServiceTrait, ControllerTrait<SCMCo
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonBody(new JsonBuilder(expectedResponseBody).toString())
+      }
+
+      @Test
+      void 'should not delete if scm is defined remotely'() {
+        SCM existingSCM = SCMMother.create("scm1", "foobar", "plugin1", "v1.0", new Configuration(
+          ConfigurationPropertyMother.create("key1", false, "value1"),
+          ConfigurationPropertyMother.create("key2", true, "secret"),
+        ))
+        def origin = new RepoConfigOrigin(createConfigRepoConfig(git("https://github.com/config-repos/repo", "master"), "json-plugin", "id"), "revision1")
+        existingSCM.setOrigins(origin)
+
+        when(scmService.findPluggableScmMaterial("foobar")).thenReturn(existingSCM)
+
+        deleteWithApiHeader(controller.controllerPath("/foobar"))
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Can not operate on SCM 'foobar' as it is defined remotely in 'https://github.com/config-repos/repo at revision1'.")
       }
     }
   }

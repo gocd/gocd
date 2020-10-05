@@ -21,6 +21,9 @@ export function getPluggableScm() {
   return {
     id:              "scm-id",
     name:            "pluggable.scm.material.name",
+    origin:          {
+      type: "gocd"
+    },
     plugin_metadata: {
       id:      "scm-plugin-id",
       version: "1"

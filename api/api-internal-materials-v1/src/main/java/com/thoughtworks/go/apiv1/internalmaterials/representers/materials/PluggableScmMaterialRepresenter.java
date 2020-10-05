@@ -17,6 +17,9 @@ package com.thoughtworks.go.apiv1.internalmaterials.representers.materials;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 
 import java.util.function.Consumer;
 
@@ -27,7 +30,17 @@ public class PluggableScmMaterialRepresenter implements MaterialRepresenter<Plug
         return jsonWriter -> {
             jsonWriter.add("ref", pluggableSCMMaterialConfig.getScmId())
                     .add("auto_update", pluggableSCMMaterialConfig.isAutoUpdate())
-                    .add("scm_name", pluggableSCMMaterialConfig.getSCMConfig().getName());
+                    .add("scm_name", pluggableSCMMaterialConfig.getSCMConfig().getName())
+                    .addChild("origin", (writer) -> renderOrigin(writer, pluggableSCMMaterialConfig.getSCMConfig().getOrigin()));
         };
+    }
+
+    private void renderOrigin(OutputWriter outputWriter, ConfigOrigin origin) {
+        if (origin instanceof FileConfigOrigin || origin == null) {
+            outputWriter.add("type", "gocd");
+        } else if (origin instanceof RepoConfigOrigin) {
+            outputWriter.add("type", "config_repo")
+                    .add("id", ((RepoConfigOrigin) origin).getConfigRepo().getId());
+        }
     }
 }

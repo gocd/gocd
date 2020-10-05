@@ -17,6 +17,7 @@
 import Stream from "mithril/stream";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {Origin, OriginJSON} from "models/origin";
 import {Configurations, PropertyJSON} from "models/shared/configuration";
 
 export interface ScmsJSON {
@@ -31,6 +32,7 @@ export interface ScmJSON {
   id: string;
   name: string;
   auto_update: boolean;
+  origin: OriginJSON;
   plugin_metadata: PluginMetadataJSON;
   configuration: PropertyJSON[];
   errors?: ErrorsJSON;
@@ -72,15 +74,17 @@ export class Scm extends ValidatableMixin {
   id: Stream<string>;
   name: Stream<string>;
   autoUpdate: Stream<boolean>;
+  origin = Stream<Origin>();
   pluginMetadata: Stream<PluginMetadata>;
   configuration: Stream<Configurations>;
 
-  constructor(id: string, name: string, autoUpdate: boolean, pluginMetadata: PluginMetadata, configuration: Configurations) {
+  constructor(id: string, name: string, autoUpdate: boolean, origin: Origin, pluginMetadata: PluginMetadata, configuration: Configurations) {
     super();
 
     this.id             = Stream(id);
     this.name           = Stream(name);
     this.autoUpdate     = Stream(autoUpdate);
+    this.origin         = Stream(origin);
     this.pluginMetadata = Stream(pluginMetadata);
     this.configuration  = Stream(configuration);
 
@@ -93,7 +97,7 @@ export class Scm extends ValidatableMixin {
   }
 
   static fromJSON(data: ScmJSON): Scm {
-    const scm = new Scm(data.id, data.name, data.auto_update, PluginMetadata.fromJSON(data.plugin_metadata), Configurations.fromJSON(data.configuration));
+    const scm = new Scm(data.id, data.name, data.auto_update, Origin.fromJSON(data.origin), PluginMetadata.fromJSON(data.plugin_metadata), Configurations.fromJSON(data.configuration));
     scm.errors(new Errors(data.errors));
     return scm;
   }

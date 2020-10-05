@@ -27,7 +27,7 @@ import styles from "views/pages/package_repositories/index.scss";
 import {CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos} from "views/pages/page_operations";
 import {PluggableScmWidget} from "./pluggable_scm_widget";
 
-interface Attrs extends RequiresPluginInfos, EditOperation<Scm>, CloneOperation<Scm>, DeleteOperation<Scm> {
+interface Attrs extends RequiresPluginInfos, EditOperation<Scm>, CloneOperation<Scm>, DeleteOperation<Scm>, OnErrorAttrs {
   scms: Stream<Scms>;
   showUsages: (scm: Scm, e: MouseEvent) => void;
   scrollOptions: PluggableSCMScrollOptions;
@@ -36,6 +36,10 @@ interface Attrs extends RequiresPluginInfos, EditOperation<Scm>, CloneOperation<
 export interface PluggableSCMScrollOptions {
   sm: ScrollManager;
   shouldOpenEditView: boolean;
+}
+
+export interface OnErrorAttrs {
+  onError: (msg: m.Children) => void;
 }
 
 export class PluggableScmsWidget extends MithrilViewComponent<Attrs> {

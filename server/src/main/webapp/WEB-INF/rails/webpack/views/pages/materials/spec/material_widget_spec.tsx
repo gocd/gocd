@@ -19,6 +19,7 @@ import m from "mithril";
 import {MaterialModification} from "models/config_repos/types";
 import {MaterialMessages, MaterialWithFingerprint, MaterialWithModification, PackageMaterialAttributes, PluggableScmMaterialAttributes} from "models/materials/materials";
 import {materialMessages} from "models/materials/spec/materials_spec";
+import {Origin, OriginType} from "models/origin";
 import headerStyles from "views/pages/config_repos/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialWidget} from "../material_widget";
@@ -227,6 +228,16 @@ describe('MaterialWidgetSpec', () => {
 
     expect(triggerUpdateSpy).toHaveBeenCalled();
     expect(triggerUpdateSpy).toHaveBeenCalledWith(material, jasmine.any(MouseEvent));
+  });
+
+  it('should disable edit button for plugin material if defined in config repo', () => {
+    material.config
+      = new MaterialWithFingerprint("plugin", "fingerprint", new PluggableScmMaterialAttributes(undefined, true, "scm-id", "scm_name", new Origin(OriginType.ConfigRepo, "config-repo-id")));
+    mount();
+
+    expect(helper.byTestId('edit-material')).toBeInDOM();
+    expect(helper.byTestId('edit-material')).toBeDisabled();
+    expect(helper.byTestId('edit-material')).toHaveAttr('title', "Cannot edit material as it is defined in config repo 'config-repo-id'");
   });
 
   function mount(shouldShowPackageOrScmLink: boolean = true) {

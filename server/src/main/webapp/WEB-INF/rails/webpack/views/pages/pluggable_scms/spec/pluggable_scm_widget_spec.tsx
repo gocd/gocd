@@ -16,6 +16,7 @@
 
 import m from "mithril";
 import {Scm} from "models/materials/pluggable_scm";
+import {OriginType} from "models/origin";
 import {stubAllMethods, TestHelper} from "views/pages/spec/test_helper";
 import {PluggableScmWidget} from "../pluggable_scm_widget";
 import {getPluggableScm} from "./test_data";
@@ -42,8 +43,7 @@ describe('PluggableScmWidgetSpec', () => {
     };
     helper.mount(() => <PluggableScmWidget scm={scm} disableActions={disableActions}
                                            onEdit={editSpy} onClone={cloneSpy} onDelete={deleteSpy}
-                                           showUsages={usagesSpy}
-                                           scrollOptions={scrollOptions}/>);
+                                           showUsages={usagesSpy} scrollOptions={scrollOptions} onError={jasmine.createSpy("onError")}/>);
   }
 
   it('should render scm details and action buttons', () => {
@@ -107,5 +107,19 @@ describe('PluggableScmWidgetSpec', () => {
     const warningIcon = helper.byTestId('Info Circle-icon');
     expect(warningIcon).toBeInDOM();
     expect(warningIcon).toHaveAttr('title', "Plugin 'scm-plugin-id' was not found!");
+  });
+
+  it('should disable action buttons if scm defined in config repo', () => {
+    scm.origin().type(OriginType.ConfigRepo);
+    scm.origin().id("config-repo-id");
+    mount();
+
+    expect(helper.byTestId('pluggable-scm-edit')).toBeDisabled();
+    expect(helper.byTestId('pluggable-scm-edit')).toHaveAttr('title', "Cannot edit as 'pluggable.scm.material.name' is defined in config repo 'config-repo-id'");
+    expect(helper.byTestId('pluggable-scm-clone')).toBeDisabled();
+    expect(helper.byTestId('pluggable-scm-clone')).toHaveAttr('title', "Cannot clone as 'pluggable.scm.material.name' is defined in config repo 'config-repo-id'");
+    expect(helper.byTestId('pluggable-scm-delete')).toBeDisabled();
+    expect(helper.byTestId('pluggable-scm-delete')).toHaveAttr('title', "Cannot delete as 'pluggable.scm.material.name' is defined in config repo 'config-repo-id'");
+    expect(helper.byTestId('pluggable-scm-usages')).not.toBeDisabled();
   });
 });

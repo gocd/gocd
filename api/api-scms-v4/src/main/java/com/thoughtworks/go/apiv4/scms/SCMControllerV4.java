@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv3.scms;
+package com.thoughtworks.go.apiv4.scms;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
@@ -22,9 +22,9 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.apiv3.scms.representers.SCMRepresenter;
-import com.thoughtworks.go.apiv3.scms.representers.SCMsRepresenter;
-import com.thoughtworks.go.apiv3.scms.representers.ScmUsageRepresenter;
+import com.thoughtworks.go.apiv4.scms.representers.SCMRepresenter;
+import com.thoughtworks.go.apiv4.scms.representers.SCMsRepresenter;
+import com.thoughtworks.go.apiv4.scms.representers.ScmUsageRepresenter;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
@@ -34,7 +34,6 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.Pair;
@@ -55,8 +54,7 @@ import static java.util.Collections.emptyList;
 import static spark.Spark.*;
 
 @Component
-@DeprecatedAPI(deprecatedApiVersion = ApiVersion.v3, successorApiVersion = ApiVersion.v4, deprecatedIn = "20.9.0", removalIn = "21.1.0", entityName = "SCM")
-public class SCMControllerV3 extends ApiController implements SparkSpringController, CrudController<SCM> {
+public class SCMControllerV4 extends ApiController implements SparkSpringController, CrudController<SCM> {
 
     public static final String MATERIAL_NAME = "material_name";
     private final ApiAuthenticationHelper apiAuthenticationHelper;
@@ -65,8 +63,8 @@ public class SCMControllerV3 extends ApiController implements SparkSpringControl
     private final GoConfigService goConfigService;
 
     @Autowired
-    public SCMControllerV3(ApiAuthenticationHelper apiAuthenticationHelper, PluggableScmService pluggableScmService, EntityHashingService entityHashingService, GoConfigService goConfigService) {
-        super(ApiVersion.v3);
+    public SCMControllerV4(ApiAuthenticationHelper apiAuthenticationHelper, PluggableScmService pluggableScmService, EntityHashingService entityHashingService, GoConfigService goConfigService) {
+        super(ApiVersion.v4);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.pluggableScmService = pluggableScmService;
         this.entityHashingService = entityHashingService;
@@ -146,6 +144,7 @@ public class SCMControllerV3 extends ApiController implements SparkSpringControl
             throw haltBecauseRenameOfEntityIsNotSupported(getEntityType().getEntityNameLowerCase());
         }
 
+        haltIfEntityIsDefinedRemotely(existingSCM);
         if (isPutRequestStale(request, existingSCM)) {
             throw haltBecauseEtagDoesNotMatch(getEntityType().getEntityNameLowerCase(), existingSCM.getId());
         }
@@ -159,6 +158,7 @@ public class SCMControllerV3 extends ApiController implements SparkSpringControl
     public String destroy(Request request, Response response) throws IOException {
         final String materialName = request.params(MATERIAL_NAME);
         SCM scm = fetchEntityFromConfig(materialName);
+        haltIfEntityIsDefinedRemotely(scm);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         pluggableScmService.deletePluggableSCM(currentUsername(), scm, result);
 
@@ -230,4 +230,11 @@ public class SCMControllerV3 extends ApiController implements SparkSpringControl
     private boolean isRenameAttempt(String profileIdFromRequestParam, String profileIdFromRequestBody) {
         return !StringUtils.equals(profileIdFromRequestBody, profileIdFromRequestParam);
     }
+
+    private void haltIfEntityIsDefinedRemotely(SCM existingSCM) {
+        if (!existingSCM.isLocal()) {
+            throw haltBecauseOfReason(format("Can not operate on SCM '%s' as it is defined remotely in '%s'.", existingSCM.getName(), existingSCM.getOrigin().displayName()));
+        }
+    }
+
 }

@@ -44,9 +44,9 @@ export class ConfirmModal extends Modal {
 
   buttons(): m.ChildArray {
     return [
-      <Danger ajaxOperationMonitor={this.operationState} data-test-id='button-no-cancel' onclick={this.close.bind(this)}
-      >No</Danger>,
-      <Cancel data-test-id='button-cancel' onclick={this.oncancel} ajaxOperationMonitor={this.operationState}>Yes</Cancel>
+      <Danger data-test-id='button-cancel' onclick={this.oncancel} ajaxOperationMonitor={this.operationState}>Yes</Danger>,
+      <Cancel ajaxOperationMonitor={this.operationState} data-test-id='button-no-cancel' onclick={this.close.bind(this)}
+      >No</Cancel>
     ];
   }
 }

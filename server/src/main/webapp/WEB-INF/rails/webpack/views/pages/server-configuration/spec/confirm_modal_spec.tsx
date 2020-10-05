@@ -40,7 +40,7 @@ describe("ConfirmModal", () => {
 
   it("should render", () => {
     expect(modal).toContainTitle("Some modal title");
-    expect(modal).toContainButtons(["Yes", "No"]);
+    expect(modal).toContainButtons(["No", "Yes"]);
     expect(modal).toContainBody("Do you want to cancel?");
   });
 

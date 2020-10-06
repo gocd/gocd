@@ -139,6 +139,8 @@ describe("Job Count And Rerun Widget", () => {
                                      pipelineCounter={1}
                                      stageName="up42_stage"
                                      stageCounter={1}
+                                     shouldSelectLatestStageCounterOnUpdate={Stream<boolean>(false)}
+                                     isLoading={Stream<boolean>(false)}
                                      userSelectedStageCounter={Stream<string | number>(1)}
                                      flashMessage={new FlashMessageModelWithTimeout()}
                                      jobsVM={Stream(jobs)} inProgressStageFromPipeline={Stream()}/>;

@@ -26,7 +26,11 @@ import {StageState} from "./models/types";
 import {StageHeaderWidget} from "./stage_overview_header";
 
 interface State {
+  status: Stream<string>;
   userSelectedStageCounter: Stream<number | string>;
+  shouldSelectLatestStageCounterOnUpdate: Stream<boolean>;
+  latestStageCounter: Stream<string>;
+  isLoading: Stream<boolean>;
 }
 
 export interface Attrs {
@@ -37,6 +41,7 @@ export interface Attrs {
   stageStatus: StageState | string;
   stages: any[];
   templateName: string | undefined | null;
+  pollingInterval?: number;
   canAdminister: boolean;
   stageInstanceFromDashboard: any;
   isDisplayedOnPipelineActivityPage?: boolean;
@@ -47,7 +52,12 @@ export interface Attrs {
 
 export class StageOverview extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
+    vnode.state.status = Stream(vnode.attrs.stageInstanceFromDashboard.status.toLowerCase());
     vnode.state.userSelectedStageCounter = Stream<string | number>(vnode.attrs.stageCounter);
+
+    vnode.state.isLoading = Stream<boolean>(false);
+    vnode.state.shouldSelectLatestStageCounterOnUpdate = Stream<boolean>(false);
+    vnode.state.latestStageCounter = Stream<string>(vnode.attrs.stageInstanceFromDashboard.counter);
   }
 
   oncreate(vnode: m.Vnode<Attrs, State>) {
@@ -66,9 +76,9 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
     // @ts-ignore
     const status = styles[`${vnode.attrs.stageInstanceFromDashboard.status.toLowerCase()}-stage`];
     let classNames = `${styles.stageOverviewContainer} ${status}`;
-    if(vnode.attrs.isDisplayedOnPipelineActivityPage) {
+    if (vnode.attrs.isDisplayedOnPipelineActivityPage) {
       classNames = `${classNames} ${styles.pipelineActivityClass}`;
-      if(shouldAlignLeft) {
+      if (shouldAlignLeft) {
         classNames = `${classNames} ${styles.pipelineActivityAlignLeft}`;
       } else {
         classNames = `${classNames} ${styles.pipelineActivityAlignRight}`;
@@ -76,7 +86,7 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
     } else if (vnode.attrs.isDisplayedOnVSMPage) {
       classNames = `${classNames} ${styles.vsmClass}`;
       classNames = `${classNames} ${styles.pipelineActivityAlignRight}`;
-    } else if(shouldAlignLeft) {
+    } else if (shouldAlignLeft) {
       classNames = `${classNames} ${styles.alignLeft}`;
     }
 
@@ -103,11 +113,9 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
       vnode.dom.style.left = `${left}px`;
       return;
     } else if (vnode.attrs.isDisplayedOnVSMPage) {
-      const top = 76;
       const left = vnode.attrs.leftPositionForVSMStageOverview!;
-
       // @ts-ignore
-      vnode.dom.style.top = `${top}px`;
+      vnode.dom.style.marginTop = `22px`;
       // @ts-ignore
       vnode.dom.style.left = `${left}px`;
       return;
@@ -158,17 +166,21 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
   }
 
   onupdate(vnode: m.VnodeDOM<Attrs, State>): any {
+    if (vnode.attrs.stageInstanceFromDashboard.counter === vnode.state.userSelectedStageCounter()) {
+      vnode.state.status(vnode.attrs.stageInstanceFromDashboard.status.toLowerCase());
+    }
+
     const existingClassesToRemove = [styles.buildingStage, styles.cancelledStage, styles.passedStage, styles.failedStage, styles.failingStage];
     existingClassesToRemove.forEach((c) => vnode.dom.classList.remove(c));
 
     // @ts-ignore
-    const status = styles[`${vnode.attrs.stageInstanceFromDashboard.status.toLowerCase()}-stage`];
+    const status = styles[`${vnode.state.status()}-stage`];
     vnode.dom.classList.add(status);
   }
 
   view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
     // @ts-ignore
-    const status = styles[`${vnode.attrs.stageInstanceFromDashboard.status.toLowerCase()}-stage`];
+    const status = styles[`${vnode.state.status()}-stage`];
 
     if (!vnode.attrs.stageOverviewVM()) {
       return <div data-test-id="stage-overview-container-spinner" style="width: 813px">
@@ -186,6 +198,11 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
                          pipelineName={vnode.attrs.pipelineName}
                          pipelineCounter={vnode.attrs.pipelineCounter}
                          templateName={vnode.attrs.templateName}
+                         pollingInterval={vnode.attrs.pollingInterval}
+                         status={vnode.state.status}
+                         shouldSelectLatestStageCounterOnUpdate={vnode.state.shouldSelectLatestStageCounterOnUpdate}
+                         latestStageCounter={vnode.state.latestStageCounter}
+                         isLoading={vnode.state.isLoading}
                          stageInstanceFromDashboard={vnode.attrs.stageInstanceFromDashboard}
                          inProgressStageFromPipeline={inProgressStageFromPipeline}
                          stageOverviewVM={vnode.attrs.stageOverviewVM as Stream<StageOverviewViewModel>}
@@ -198,6 +215,8 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
                               pipelineName={vnode.attrs.pipelineName}
                               pipelineCounter={vnode.attrs.pipelineCounter}
                               flashMessage={vnode.attrs.stageOverviewVM()!.flashMessage}
+                              shouldSelectLatestStageCounterOnUpdate={vnode.state.shouldSelectLatestStageCounterOnUpdate}
+                              isLoading={vnode.state.isLoading}
                               inProgressStageFromPipeline={inProgressStageFromPipeline}
                               jobsVM={vnode.attrs.stageOverviewVM()!.jobsVM}/>
       <JobsListWidget stageName={vnode.attrs.stageName}

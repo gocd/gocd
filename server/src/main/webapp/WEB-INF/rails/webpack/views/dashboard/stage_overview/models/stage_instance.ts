@@ -56,6 +56,12 @@ export class StageInstance {
       return `in progress`;
     }
 
+    // Prototype JS has overridden the original array reduce method. Use reduceRight instead.
+    // This fix is only required for the VSM page
+    // Do not change Array.prototype.reduce, as it will affect all the arrays from VSM page
+    // @ts-ignore
+    this.json.jobs.reduce = Array.prototype.reduceRight;
+
     // @ts-ignore
     const highestJobTime = this.json.jobs.reduce((first: number, next: JobJSON) => {
       const completed = next.job_state_transitions.find(t => t.state === "Completed")!;

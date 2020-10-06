@@ -112,6 +112,12 @@ $building: #ffc11b;
   .name-cell {
     margin-left: 15px;
   }
+
+  .stage-name-container {
+    i {
+      margin: 12px 10px 0 10px;
+    }
+  }
 }
 
 .pipeline-activity-class {

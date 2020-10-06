@@ -10,10 +10,6 @@ mergeable:
           # one or more chars
           regex: '.+'
           message: "Milestone must be specified"
-      - do: project
-        must_include:
-          regex: '20\.9\.0|20\.10\.0'
-          message: "Project must be specified in the semvar versioning format. Example: 20.9.0"
 
     pass:
       - do: checks

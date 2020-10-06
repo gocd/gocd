@@ -159,6 +159,10 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
   }
 
   onupdate(vnode: m.VnodeDOM<Attrs, State>): any {
+    if (vnode.attrs.stageInstanceFromDashboard.counter === vnode.state.userSelectedStageCounter()) {
+      vnode.state.status(vnode.attrs.stageInstanceFromDashboard.status.toLowerCase());
+    }
+
     const existingClassesToRemove = [styles.buildingStage, styles.cancelledStage, styles.passedStage, styles.failedStage, styles.failingStage];
     existingClassesToRemove.forEach((c) => vnode.dom.classList.remove(c));
 

@@ -45,7 +45,6 @@ export class JobCountAndRerunWidget extends MithrilComponent<Attrs, State> {
       return (result: any) => {
         result.do((successResponse: any) => {
           attrs.flashMessage.setMessage(MessageType.success, JSON.parse(successResponse.body).message);
-          vnode.attrs.userSelectedStageCounter(`${(+vnode.attrs.stageCounter) + 1}`);
         }, (errorResponse: ErrorResponse) => {
           attrs.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);
         });

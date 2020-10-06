@@ -292,6 +292,10 @@ public class MaterialConfigsMother {
         return new PluggableSCMMaterialConfig(null, scmConfig, "des-folder", null, false);
     }
 
+    public static PluggableSCMMaterialConfig pluggableSCMMaterialConfig(String scmId, String... properties) {
+        return new PluggableSCMMaterialConfig(null, SCMMother.create(scmId, properties), "des-folder", null, false);
+    }
+
     public static PluggableSCMMaterialConfig pluggableSCMMaterialConfig(String scmId, String destinationFolder, Filter filter) {
         return new PluggableSCMMaterialConfig(null, SCMMother.create(scmId), destinationFolder, filter, false);
     }

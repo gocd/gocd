@@ -17,11 +17,19 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.domain.config.*;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -33,10 +41,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.gitMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.pluggableSCMMaterialConfig;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -47,7 +58,6 @@ public class UpdateSCMConfigCommandTest {
     private SCM scm;
     private SCMs scms;
     private HttpLocalizedOperationResult result;
-
 
     @Mock
     private PluggableScmService pluggableScmService;
@@ -60,7 +70,6 @@ public class UpdateSCMConfigCommandTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-
 
     @Before
     public void setup() throws Exception {
@@ -83,6 +92,31 @@ public class UpdateSCMConfigCommandTest {
         assertThat(cruiseConfig.getSCMs().contains(scm), is(true));
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getSCMs().contains(updatedScm), is(true));
+    }
+
+    @Test
+    public void shouldUpdateSCMConfigurationOnAssociatedPipelines() {
+        SCM updatedSCM = SCMMother.create("id", "prop3", "prop4");
+        cruiseConfig.addPipelineWithoutValidation("group1", PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(
+                pluggableSCMMaterialConfig("id", "prop1", "prop2"))
+        ));
+        cruiseConfig.addPipelineWithoutValidation("group2", PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(
+                pluggableSCMMaterialConfig("id", "prop1", "prop2"))
+        ));
+
+        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedSCM, pluggableScmService, goConfigService,
+                currentUser, result, "digest", entityHashingService);
+
+        command.update(cruiseConfig);
+
+        PluggableSCMMaterialConfig materialConfig1 = (PluggableSCMMaterialConfig) cruiseConfig
+                .getPipelineConfigByName(new CaseInsensitiveString("p1")).materialConfigs().get(0);
+
+        assertThat(materialConfig1.getSCMConfig(), is(updatedSCM));
+
+        PluggableSCMMaterialConfig materialConfig2 = (PluggableSCMMaterialConfig) cruiseConfig
+                .getPipelineConfigByName(new CaseInsensitiveString("p2")).materialConfigs().get(0);
+        assertThat(materialConfig2.getSCMConfig(), is(updatedSCM));
     }
 
     @Test

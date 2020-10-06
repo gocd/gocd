@@ -20,7 +20,9 @@ import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
 import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.PipelineGroups;
@@ -28,6 +30,7 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
@@ -54,8 +57,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
-import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
+import static com.thoughtworks.go.helper.PipelineConfigMother.*;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -125,7 +128,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
 
     @Test
     public void shouldSetOriginInPipelines() {
-        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("pipe1"));
+        pipelines = new BasicPipelineConfigs("group_main", new Authorization(), pipelineConfig("pipe1"));
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
         PipelineConfig pipe = pipelines.get(0);
         mainCruiseConfig.setOrigins(new FileConfigOrigin());
@@ -172,8 +175,8 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
     @Test
     public void shouldIncludeRemotePipelinesAsPartOfCachedPipelineConfigs() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
-        ConfigRepoConfig repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin", "id-1");
-        ConfigRepoConfig repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), "plugin", "id-1");
+        ConfigRepoConfig repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(gitMaterialConfig("url1"), "plugin", "id-1");
+        ConfigRepoConfig repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(gitMaterialConfig("url2"), "plugin", "id-1");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig1, repoConfig2));
         PartialConfig partialConfigInRepo1 = PartialConfigMother.withPipeline("pipeline_in_repo1", new RepoConfigOrigin(repoConfig1, "repo1_r1"));
         PartialConfig partialConfigInRepo2 = PartialConfigMother.withPipeline("pipeline_in_repo2", new RepoConfigOrigin(repoConfig2, "repo2_r1"));
@@ -186,8 +189,8 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
     @Test
     public void shouldRejectRemotePipelinesNotOriginatingFromRegisteredConfigReposFromCachedPipelineConfigs() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
-        ConfigRepoConfig repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin", "id-1");
-        ConfigRepoConfig repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), "plugin", "id-1");
+        ConfigRepoConfig repoConfig1 = ConfigRepoConfig.createConfigRepoConfig(gitMaterialConfig("url1"), "plugin", "id-1");
+        ConfigRepoConfig repoConfig2 = ConfigRepoConfig.createConfigRepoConfig(gitMaterialConfig("url2"), "plugin", "id-1");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig2));
         PartialConfig partialConfigInRepo1 = PartialConfigMother.withPipeline("pipeline_in_repo1", new RepoConfigOrigin(repoConfig1, "repo1_r1"));
         PartialConfig partialConfigInRepo2 = PartialConfigMother.withPipeline("pipeline_in_repo2", new RepoConfigOrigin(repoConfig2, "repo2_r1"));
@@ -472,7 +475,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         child.addParam(new ParamConfig("UPSTREAM_STAGE", "stage1"));
         child.addParam(new ParamConfig("UPSTREAM_JOB", "job1"));
         child.addParam(new ParamConfig("ARTIFACT_ID", "art_1"));
-        child.setMaterialConfigs(new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig("parent", "stage1")));
+        child.setMaterialConfigs(new MaterialConfigs(dependencyMaterialConfig("parent", "stage1")));
         child.add(StageConfigMother.stageConfig("stage1", new JobConfigs(new JobConfig("job1"))));
         FetchPluggableArtifactTask fetchFromAncestor = new FetchPluggableArtifactTask(
                 new CaseInsensitiveString("#{UPSTREAM_PIPELINE}"),
@@ -561,5 +564,47 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
 
         assertThat(config.getGroups().isEmpty(), is(false));
         config.deletePipelineGroup("group");
+    }
+
+    @Test
+    public void shouldListAllPipelinesAssociatedWithThePackage() {
+        GitMaterialConfig git = git("http://example.com");
+        PackageMaterialConfig packageMaterialConfig = packageMaterialConfig();
+        PipelineConfig p1 = pipelineConfig("p1", new MaterialConfigs(git, packageMaterialConfig));
+        PipelineConfig p2 = pipelineConfig("p2", new MaterialConfigs(git));
+        PipelineConfig p3 = pipelineConfig("p3", new MaterialConfigs(packageMaterialConfig));
+
+        PipelineConfigs group1 = createGroup("group1", p1, p2);
+        PipelineConfigs group2 = createGroup("group2", p3);
+
+        CruiseConfig config = createCruiseConfig();
+        config.setGroup(new PipelineGroups(group1, group2));
+
+        List<PipelineConfig> pipelineConfigs = config.pipelinesAssociatedWithPackage(packageMaterialConfig.getPackageDefinition());
+
+        assertThat(pipelineConfigs.size(), is(2));
+        assertThat(pipelineConfigs.get(0).getName(), is(new CaseInsensitiveString("p1")));
+        assertThat(pipelineConfigs.get(1).getName(), is(new CaseInsensitiveString("p3")));
+    }
+
+    @Test
+    public void shouldListAllPipelinesAssociatedWithThePackageRepository() {
+        GitMaterialConfig git = git("http://example.com");
+        PackageMaterialConfig packageMaterialConfig = packageMaterialConfig();
+        PipelineConfig p1 = pipelineConfig("p1", new MaterialConfigs(git, packageMaterialConfig));
+        PipelineConfig p2 = pipelineConfig("p2", new MaterialConfigs(git));
+        PipelineConfig p3 = pipelineConfig("p3", new MaterialConfigs(packageMaterialConfig));
+
+        PipelineConfigs group1 = createGroup("group1", p1, p2);
+        PipelineConfigs group2 = createGroup("group2", p3);
+
+        CruiseConfig config = createCruiseConfig();
+        config.setGroup(new PipelineGroups(group1, group2));
+
+        List<PipelineConfig> pipelineConfigs = config.pipelinesAssociatedWithPackageRepository(packageMaterialConfig.getPackageDefinition().getRepository());
+
+        assertThat(pipelineConfigs.size(), is(2));
+        assertThat(pipelineConfigs.get(0).getName(), is(new CaseInsensitiveString("p1")));
+        assertThat(pipelineConfigs.get(1).getName(), is(new CaseInsensitiveString("p3")));
     }
 }

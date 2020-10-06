@@ -16,6 +16,7 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -24,6 +25,8 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageRepositoryService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+
+import java.util.List;
 
 public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
     private final GoConfigService goConfigService;
@@ -50,6 +53,8 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
         PackageRepositories repositories = modifiedConfig.getPackageRepositories();
         repositories.replace(oldRepo, newRepo);
         modifiedConfig.setPackageRepositories(repositories);
+
+        updatePackageRepositoryConfigurationOnAssociatedPipelines(modifiedConfig);
     }
 
     @Override
@@ -57,9 +62,20 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
         return super.canContinue(cruiseConfig) && isIdSame() && isRequestFresh();
     }
 
+    private void updatePackageRepositoryConfigurationOnAssociatedPipelines(CruiseConfig modifiedConfig) {
+        List<PipelineConfig> pipelinesWithPackageRepo = modifiedConfig.pipelinesAssociatedWithPackageRepository(newRepo);
+        pipelinesWithPackageRepo.forEach(pipelineConfig -> {
+            pipelineConfig.packageMaterialConfigs().forEach(packageMaterialConfig -> {
+                if (packageMaterialConfig.getPackageDefinition().getRepository().getId().equals(newRepo.getId())) {
+                    packageMaterialConfig.getPackageDefinition().setRepository(newRepo);
+                }
+            });
+        });
+    }
+
     private boolean isIdSame() {
         boolean isRepoIdSame = newRepo.getRepoId().equals(oldRepoId);
-        if(!isRepoIdSame) {
+        if (!isRepoIdSame) {
             result.unprocessableEntity("Changing the repository id is not supported by this API.");
         }
         return isRepoIdSame;

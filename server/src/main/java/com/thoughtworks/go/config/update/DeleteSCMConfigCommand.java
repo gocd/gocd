@@ -17,6 +17,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
@@ -26,8 +27,11 @@ import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.config.CaseInsensitiveString.toStringList;
 import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
+import static java.util.stream.Collectors.toList;
 
 public class DeleteSCMConfigCommand extends SCMConfigCommand {
 
@@ -47,9 +51,10 @@ public class DeleteSCMConfigCommand extends SCMConfigCommand {
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedGlobalScmConfig = globalScmConfig;
         if (!preprocessedConfig.canDeletePluggableSCMMaterial(globalScmConfig)) {
-            List<CaseInsensitiveString> pipelinesWithPluggableScm = preprocessedConfig.pipelinesAssociatedWithPluggableSCM(globalScmConfig);
-            result.unprocessableEntity(cannotDeleteResourceBecauseOfDependentPipelines("pluggable_scm", globalScmConfig.getName(), CaseInsensitiveString.toStringList(pipelinesWithPluggableScm)));
-            throw new GoConfigInvalidException(preprocessedConfig, String.format("The scm '%s' is being referenced by pipeline(s): %s", globalScmConfig.getName(), pipelinesWithPluggableScm));
+            List<PipelineConfig> pipelinesWithPluggableScm = preprocessedConfig.pipelinesAssociatedWithPluggableSCM(globalScmConfig);
+            List<CaseInsensitiveString> pipelines = pipelinesWithPluggableScm.stream().map(PipelineConfig::name).collect(toList());
+            result.unprocessableEntity(cannotDeleteResourceBecauseOfDependentPipelines("pluggable_scm", globalScmConfig.getName(), toStringList(pipelines)));
+            throw new GoConfigInvalidException(preprocessedConfig, String.format("The scm '%s' is being referenced by pipeline(s): %s", globalScmConfig.getName(), pipelines));
         }
 
         return true;

@@ -36,6 +36,7 @@ interface StageHeaderAttrs {
   canAdminister: boolean;
   templateName: string | undefined | null;
   pollingInterval?: number;
+  status: Stream<string>;
   flashMessage: FlashMessageModelWithTimeout;
   stageInstance: Stream<StageInstance>;
   inProgressStageFromPipeline: Stream<any | undefined>;
@@ -65,7 +66,7 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
             stageResult = "Building";
           }
           vnode.attrs.stageOverviewVM().stopRepeater();
-          vnode.attrs.stageInstanceFromDashboard.status = stageResult;
+          vnode.attrs.status(stageResult.toLowerCase());
           vnode.attrs.stageOverviewVM(result);
         }).finally(() => {
         vnode.state.isLoading(false);

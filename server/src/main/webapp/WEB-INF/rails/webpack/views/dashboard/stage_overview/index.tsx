@@ -28,6 +28,9 @@ import {StageHeaderWidget} from "./stage_overview_header";
 interface State {
   status: Stream<string>;
   userSelectedStageCounter: Stream<number | string>;
+  shouldSelectLatestStageCounterOnUpdate: Stream<boolean>;
+  latestStageCounter: Stream<string>;
+  isLoading: Stream<boolean>;
 }
 
 export interface Attrs {
@@ -51,6 +54,10 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
     vnode.state.status = Stream(vnode.attrs.stageInstanceFromDashboard.status.toLowerCase());
     vnode.state.userSelectedStageCounter = Stream<string | number>(vnode.attrs.stageCounter);
+
+    vnode.state.isLoading = Stream<boolean>(false);
+    vnode.state.shouldSelectLatestStageCounterOnUpdate = Stream<boolean>(false);
+    vnode.state.latestStageCounter = Stream<string>(vnode.attrs.stageInstanceFromDashboard.counter);
   }
 
   oncreate(vnode: m.Vnode<Attrs, State>) {
@@ -193,6 +200,9 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
                          templateName={vnode.attrs.templateName}
                          pollingInterval={vnode.attrs.pollingInterval}
                          status={vnode.state.status}
+                         shouldSelectLatestStageCounterOnUpdate={vnode.state.shouldSelectLatestStageCounterOnUpdate}
+                         latestStageCounter={vnode.state.latestStageCounter}
+                         isLoading={vnode.state.isLoading}
                          stageInstanceFromDashboard={vnode.attrs.stageInstanceFromDashboard}
                          inProgressStageFromPipeline={inProgressStageFromPipeline}
                          stageOverviewVM={vnode.attrs.stageOverviewVM as Stream<StageOverviewViewModel>}
@@ -205,6 +215,8 @@ export class StageOverview extends MithrilComponent<Attrs, State> {
                               pipelineName={vnode.attrs.pipelineName}
                               pipelineCounter={vnode.attrs.pipelineCounter}
                               flashMessage={vnode.attrs.stageOverviewVM()!.flashMessage}
+                              shouldSelectLatestStageCounterOnUpdate={vnode.state.shouldSelectLatestStageCounterOnUpdate}
+                              isLoading={vnode.state.isLoading}
                               inProgressStageFromPipeline={inProgressStageFromPipeline}
                               jobsVM={vnode.attrs.stageOverviewVM()!.jobsVM}/>
       <JobsListWidget stageName={vnode.attrs.stageName}

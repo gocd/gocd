@@ -42,21 +42,22 @@ interface StageHeaderAttrs {
   inProgressStageFromPipeline: Stream<any | undefined>;
   stageOverviewVM: Stream<StageOverviewViewModel>;
   userSelectedStageCounter: Stream<string | number>;
+  shouldSelectLatestStageCounterOnUpdate: Stream<boolean>;
+  latestStageCounter: Stream<string>;
+  isLoading: Stream<boolean>;
 }
 
 interface StageHeaderState {
   isSettingsHover: Stream<boolean>;
   onStageCounterDropdownChange: (vnode: m.Vnode<StageHeaderAttrs, StageHeaderState>) => any;
-  isLoading: Stream<boolean>;
 }
 
 export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageHeaderState> {
   oninit(vnode: m.Vnode<StageHeaderAttrs, StageHeaderState>) {
     vnode.state.isSettingsHover = Stream<boolean>(false);
-    vnode.state.isLoading = Stream<boolean>(false);
 
     vnode.state.onStageCounterDropdownChange = (vnode: m.Vnode<StageHeaderAttrs, StageHeaderState>) => {
-      vnode.state.isLoading(true);
+      vnode.attrs.isLoading(true);
 
       // pass in the stage state as passed/failed, this value is just to denote whether the current stage instance has completed.
       StageOverviewViewModel.initialize(vnode.attrs.pipelineName, vnode.attrs.pipelineCounter, vnode.attrs.stageName, vnode.attrs.userSelectedStageCounter(), StageState.Passed, vnode.attrs.pollingInterval)
@@ -69,7 +70,7 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
           vnode.attrs.status(stageResult.toLowerCase());
           vnode.attrs.stageOverviewVM(result);
         }).finally(() => {
-        vnode.state.isLoading(false);
+        vnode.attrs.isLoading(false);
       });
     };
   }
@@ -118,17 +119,25 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
       </div>);
     }
 
-    let spinner: m.Children;
-    if (vnode.state.isLoading()) {
-      spinner = <Icons.Spinner iconOnly={true}/>;
-    }
-
     let stageCounterView: m.Children;
     if ((+vnode.attrs.stageCounter) > 1) {
 
       const items = [];
       for (let i = 1; i <= (+vnode.attrs.stageCounter); i++) {
         items.push(`${i}`);
+      }
+
+      if (vnode.attrs.shouldSelectLatestStageCounterOnUpdate() && items[items.length - 1] !== vnode.attrs.latestStageCounter()) {
+        vnode.attrs.userSelectedStageCounter(items[items.length - 1]);
+        vnode.attrs.shouldSelectLatestStageCounterOnUpdate(false);
+        vnode.attrs.isLoading(false);
+      }
+
+      vnode.attrs.latestStageCounter(items[items.length - 1]);
+
+      let spinner: m.Children;
+      if (vnode.attrs.isLoading()) {
+        spinner = <Icons.Spinner iconOnly={true}/>;
       }
 
       stageCounterView = (<div class={styles.stageCounterDropdownWrapper} data-test-id="stage-counter-dropdown">
@@ -171,6 +180,8 @@ export class StageHeaderWidget extends MithrilComponent<StageHeaderAttrs, StageH
           <StageTriggerOrCancelButtonWidget stageInstance={vnode.attrs.stageInstance}
                                             userSelectedStageCounter={vnode.attrs.userSelectedStageCounter}
                                             inProgressStageFromPipeline={vnode.attrs.inProgressStageFromPipeline}
+                                            shouldSelectLatestStageCounterOnUpdate={vnode.attrs.shouldSelectLatestStageCounterOnUpdate}
+                                            isLoading={vnode.attrs.isLoading}
                                             flashMessage={vnode.attrs.flashMessage}
                                             stageInstanceFromDashboard={vnode.attrs.stageInstanceFromDashboard}/>
           {stageSettings}
@@ -205,7 +216,8 @@ interface StageTriggerOrCancelButtonAttrs {
   stageInstanceFromDashboard: any;
   flashMessage: FlashMessageModelWithTimeout;
   inProgressStageFromPipeline: Stream<any | undefined>;
-  userSelectedStageCounter: Stream<string | number>;
+  shouldSelectLatestStageCounterOnUpdate: Stream<boolean>;
+  isLoading: Stream<boolean>;
 }
 
 interface StageTriggerOrCancelButtonState {
@@ -221,7 +233,8 @@ class StageTriggerOrCancelButtonWidget extends MithrilComponent<StageTriggerOrCa
         result.do((successResponse: any) => {
           attrs.flashMessage.setMessage(MessageType.success, JSON.parse(successResponse.body).message);
           if (shouldIncrement) {
-            vnode.attrs.userSelectedStageCounter(`${(+vnode.attrs.userSelectedStageCounter()) + 1}`);
+            vnode.attrs.shouldSelectLatestStageCounterOnUpdate(true);
+            vnode.attrs.isLoading(true);
           }
         }, (errorResponse: ErrorResponse) => {
           attrs.flashMessage.setMessage(MessageType.alert, JSON.parse(errorResponse.body!).message);

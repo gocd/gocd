@@ -27,22 +27,25 @@ import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
+import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
+import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingQueueHandler;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +59,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forJob;
+import static com.thoughtworks.go.serverhealth.HealthStateType.general;
+import static com.thoughtworks.go.serverhealth.ServerHealthState.error;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
@@ -138,10 +143,11 @@ public class ElasticAgentPluginService {
         long pingMessageTimeToLive = elasticPluginHeartBeatInterval - 10000L;
 
         for (PluginDescriptor descriptor : elasticAgentPluginRegistry.getPlugins()) {
-            List<ClusterProfile> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(descriptor.id());
-            resolveSecrets(clusterProfiles);
-            serverPingQueue.post(new ServerPingMessage(descriptor.id(), clusterProfiles), pingMessageTimeToLive);
             elasticAgentsOfMissingPlugins.remove(descriptor.id());
+            List<ClusterProfile> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(descriptor.id());
+            boolean secretsResolved = resolveSecrets(descriptor.id(), clusterProfiles);
+            if (!secretsResolved) continue;
+            serverPingQueue.post(new ServerPingMessage(descriptor.id(), clusterProfiles), pingMessageTimeToLive);
             serverHealthService.removeByScope(scope(descriptor.id()));
         }
 
@@ -149,7 +155,7 @@ public class ElasticAgentPluginService {
             for (String pluginId : elasticAgentsOfMissingPlugins.keySet()) {
                 Collection<String> uuids = elasticAgentsOfMissingPlugins.get(pluginId).stream().map(ElasticAgentMetadata::uuid).collect(toList());
                 String description = format("Elastic agent plugin with identifier %s has gone missing, but left behind %s agent(s) with UUIDs %s.", pluginId, elasticAgentsOfMissingPlugins.get(pluginId).size(), uuids);
-                serverHealthService.update(ServerHealthState.warning("Elastic agents with no matching plugins", description, HealthStateType.general(scope(pluginId))));
+                serverHealthService.update(ServerHealthState.warning("Elastic agents with no matching plugins", description, general(scope(pluginId))));
                 LOGGER.warn(description);
             }
         }
@@ -171,10 +177,6 @@ public class ElasticAgentPluginService {
     // for test only
     protected void setEphemeralAutoRegisterKeyService(EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService) {
         this.ephemeralAutoRegisterKeyService = ephemeralAutoRegisterKeyService;
-    }
-
-    private HealthStateScope scope(String pluginId) {
-        return HealthStateScope.aboutPlugin(pluginId, "missingPlugin");
     }
 
     public static AgentMetadata toAgentMetadata(ElasticAgentMetadata obj) {
@@ -207,40 +209,31 @@ public class ElasticAgentPluginService {
             jobCreationTimeMap.put(plan.getJobId(), timeProvider.currentTimeMillis());
             ElasticProfile elasticProfile = plan.getElasticProfile();
             ClusterProfile clusterProfile = plan.getClusterProfile();
+            JobIdentifier jobIdentifier = plan.getIdentifier();
             if (clusterProfile == null) {
                 String cancellationMessage = "\nThis job was cancelled by GoCD. The version of your GoCD server requires elastic profiles to be associated with a cluster(required from Version 19.3.0). " +
                         "This job is configured to run on an Elastic Agent, but the associated elastic profile does not have information about the cluster.  \n\n" +
                         "The possible reason for the missing cluster information on the elastic profile could be, an upgrade of the GoCD server to a version >= 19.3.0 before the completion of the job.\n\n" +
                         "A re-run of this job should fix this issue.";
-                logToJobConsole(plan.getIdentifier(), cancellationMessage);
-                scheduleService.cancelJob(plan.getIdentifier());
+                logToJobConsole(jobIdentifier, cancellationMessage);
+                scheduleService.cancelJob(jobIdentifier);
             } else if (elasticAgentPluginRegistry.has(clusterProfile.getPluginId())) {
                 String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
-                resolveSecrets(clusterProfile, elasticProfile);
-                createAgentQueue.post(new CreateAgentMessage(ephemeralAutoRegisterKeyService.autoRegisterKey(), environment, elasticProfile, clusterProfile, plan.getIdentifier()), messageTimeToLive);
-                serverHealthService.removeByScope(forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()));
+                boolean secretsResolved = resolveSecrets(jobIdentifier, clusterProfile, elasticProfile);
+                if (secretsResolved) {
+                    createAgentQueue.post(new CreateAgentMessage(ephemeralAutoRegisterKeyService.autoRegisterKey(), environment, elasticProfile, clusterProfile, jobIdentifier), messageTimeToLive);
+                    serverHealthService.removeByScope(scopeForJob(jobIdentifier));
+                }
             } else {
-                String jobConfigIdentifier = plan.getIdentifier().jobConfigIdentifier().toString();
+                String jobConfigIdentifier = jobIdentifier.jobConfigIdentifier().toString();
                 String description = format("Plugin [%s] associated with %s is missing. Either the plugin is not " +
                         "installed or could not be registered. Please check plugins tab " +
                         "and server logs for more details.", clusterProfile.getPluginId(), jobConfigIdentifier);
-                serverHealthService.update(ServerHealthState.error(format("Unable to find agent for %s",
-                        jobConfigIdentifier), description, HealthStateType.general(forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()))));
+                serverHealthService.update(error(format("Unable to find agent for %s",
+                        jobConfigIdentifier), description, general(scopeForJob(jobIdentifier))));
                 LOGGER.error(description);
             }
         }
-    }
-
-    private void logToJobConsole(JobIdentifier identifier, String message) {
-        try {
-            consoleService.appendToConsoleLog(identifier, message);
-        } catch (IllegalArtifactLocationException | IOException e) {
-            LOGGER.error(format("Failed to add message(%s) to the job(%s) console", message, identifier), e);
-        }
-    }
-
-    private Predicate<JobPlan> isElasticAgent() {
-        return JobPlan::requiresElasticAgent;
     }
 
     public boolean shouldAssignWork(ElasticAgentMetadata metadata, String environment, ElasticProfile elasticProfile, ClusterProfile clusterProfile, JobIdentifier identifier) {
@@ -248,7 +241,10 @@ public class ElasticAgentPluginService {
             return false;
         }
 
-        resolveSecrets(clusterProfile, elasticProfile);
+        boolean secretsResolved = resolveSecrets(identifier, clusterProfile, elasticProfile);
+        if (!secretsResolved) {
+            return false;
+        }
         Map<String, String> clusterProfileProperties = clusterProfile.getConfigurationAsMap(true, true);
         GoPluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorFor(metadata.elasticPluginId());
         Map<String, String> configuration = elasticProfile.getConfigurationAsMap(true, true);
@@ -259,7 +255,7 @@ public class ElasticAgentPluginService {
     public String getPluginStatusReport(String pluginId) {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
         if (pluginInfo == null) {
-            throw new RecordNotFoundException(String.format("Plugin with id: '%s' is not found.", pluginId));
+            throw new RecordNotFoundException(format("Plugin with id: '%s' is not found.", pluginId));
         }
         if (pluginInfo.getCapabilities().supportsPluginStatusReport()) {
             List<Map<String, String>> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(pluginId)
@@ -278,7 +274,7 @@ public class ElasticAgentPluginService {
     public String getAgentStatusReport(String pluginId, JobIdentifier jobIdentifier, String elasticAgentId) throws Exception {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
         if (pluginInfo == null) {
-            throw new RecordNotFoundException(String.format("Plugin with id: '%s' is not found.", pluginId));
+            throw new RecordNotFoundException(format("Plugin with id: '%s' is not found.", pluginId));
         }
         if (pluginInfo.getCapabilities().supportsAgentStatusReport()) {
             JobPlan jobPlan = jobInstanceSqlMapDao.loadPlan(jobIdentifier.getId());
@@ -300,12 +296,12 @@ public class ElasticAgentPluginService {
     public String getClusterStatusReport(String pluginId, String clusterProfileId) {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
         if (pluginInfo == null) {
-            throw new RecordNotFoundException(String.format("Plugin with id: '%s' is not found.", pluginId));
+            throw new RecordNotFoundException(format("Plugin with id: '%s' is not found.", pluginId));
         }
         if (pluginInfo.getCapabilities().supportsClusterStatusReport()) {
             ClusterProfile clusterProfile = clusterProfilesService.getPluginProfiles().findByPluginIdAndProfileId(pluginId, clusterProfileId);
             if (clusterProfile == null) {
-                throw new RecordNotFoundException(String.format("Cluster profile with id: '%s' is not found.", clusterProfileId));
+                throw new RecordNotFoundException(format("Cluster profile with id: '%s' is not found.", clusterProfileId));
             }
             secretParamResolver.resolve(clusterProfile);
             return elasticAgentPluginRegistry.getClusterStatusReport(pluginId, clusterProfile.getConfigurationAsMap(true, true));
@@ -327,28 +323,73 @@ public class ElasticAgentPluginService {
 
         String pluginId = agentInstance.elasticAgentMetadata().elasticPluginId();
         String elasticAgentId = agentInstance.elasticAgentMetadata().elasticAgentId();
-
+        JobIdentifier jobIdentifier = job.getIdentifier();
         ElasticProfile elasticProfile = job.getPlan().getElasticProfile();
         ClusterProfile clusterProfile = job.getPlan().getClusterProfile();
-        secretParamResolver.resolve(elasticProfile);
-        Map<String, String> elasticProfileConfiguration = elasticProfile.getConfigurationAsMap(true, true);
-        Map<String, String> clusterProfileConfiguration = emptyMap();
-        if (clusterProfile != null) {
-            secretParamResolver.resolve(clusterProfile);
-            clusterProfileConfiguration = clusterProfile.getConfigurationAsMap(true, true);
+        try {
+            secretParamResolver.resolve(elasticProfile);
+            Map<String, String> elasticProfileConfiguration = elasticProfile.getConfigurationAsMap(true, true);
+            Map<String, String> clusterProfileConfiguration = emptyMap();
+            if (clusterProfile != null) {
+                secretParamResolver.resolve(clusterProfile);
+                clusterProfileConfiguration = clusterProfile.getConfigurationAsMap(true, true);
+            }
+            elasticAgentPluginRegistry.reportJobCompletion(pluginId, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
+        } catch (RulesViolationException | SecretResolutionFailureException e) {
+            String description = format("The job completion call to the plugin for the job identifier [%s] failed for secrets resolution: %s ", jobIdentifier.toString(), e.getMessage());
+            ServerHealthState healthState = error("Failed to notify plugin", description, general(scopeForJob(jobIdentifier)));
+            healthState.setTimeout(Timeout.FIVE_MINUTES);
+            serverHealthService.update(healthState);
+            LOGGER.error(description);
         }
-        elasticAgentPluginRegistry.reportJobCompletion(pluginId, elasticAgentId, job.getIdentifier(), elasticProfileConfiguration, clusterProfileConfiguration);
     }
 
-    private void resolveSecrets(List<ClusterProfile> clusterProfiles) {
-        for (ClusterProfile clusterProfile : clusterProfiles) {
-            secretParamResolver.resolve(clusterProfile);
+    private void logToJobConsole(JobIdentifier identifier, String message) {
+        try {
+            consoleService.appendToConsoleLog(identifier, message);
+        } catch (IllegalArtifactLocationException | IOException e) {
+            LOGGER.error(format("Failed to add message(%s) to the job(%s) console", message, identifier), e);
         }
     }
 
-    private void resolveSecrets(ClusterProfile clusterProfile, ElasticProfile elasticProfile) {
-        if (clusterProfile != null)
-            secretParamResolver.resolve(clusterProfile);
-        secretParamResolver.resolve(elasticProfile);
+    private Predicate<JobPlan> isElasticAgent() {
+        return JobPlan::requiresElasticAgent;
+    }
+
+    private HealthStateScope scope(String pluginId) {
+        return HealthStateScope.aboutPlugin(pluginId, "missingPlugin");
+    }
+
+    @NotNull
+    private HealthStateScope scopeForJob(JobIdentifier jobIdentifier) {
+        return forJob(jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName());
+    }
+
+    private boolean resolveSecrets(String pluginId, List<ClusterProfile> clusterProfiles) {
+        try {
+            for (ClusterProfile clusterProfile : clusterProfiles) {
+                secretParamResolver.resolve(clusterProfile);
+            }
+        } catch (RulesViolationException | SecretResolutionFailureException e) {
+            String description = format("Secrets resolution failed for cluster profile associated with plugin [%s]: %s ", pluginId, e.getMessage());
+            serverHealthService.update(error(format("Ping failed for '%s' plugin", pluginId), description, general(scope(pluginId))));
+            LOGGER.error(description);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean resolveSecrets(JobIdentifier jobIdentifier, ClusterProfile clusterProfile, ElasticProfile elasticProfile) {
+        try {
+            if (clusterProfile != null)
+                secretParamResolver.resolve(clusterProfile);
+            secretParamResolver.resolve(elasticProfile);
+        } catch (RulesViolationException | SecretResolutionFailureException e) {
+            String cancellationMessage = format("\nThis job was cancelled by GoCD. This job is configured to run on an elastic agent, but the associated elastic configurations failed for secrets resolution: %s", e.getMessage());
+            logToJobConsole(jobIdentifier, cancellationMessage);
+            scheduleService.cancelJob(jobIdentifier);
+            return false;
+        }
+        return true;
     }
 }

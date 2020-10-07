@@ -33,13 +33,14 @@ import styles from "./index.scss";
 import {PluggableScmModalBody} from "./pluggable_scm_modal_body";
 
 abstract class PluggableScmModal extends EntityModal<Scm> {
+  private static readonly TEST_CONNECTION_TEXT = "Check Connection";
+  protected message: FlashMessageModel         = new FlashMessageModel();
   protected readonly originalEntityId: string;
   protected readonly originalEntityName: string;
-  protected message: FlashMessageModel = new FlashMessageModel();
   private readonly disableId: boolean;
-  private readonly disablePluginId: boolean;
 
-  private testConnectionButtonText: string = "Check Connection";
+  private readonly disablePluginId: boolean;
+  private testConnectionButtonText: string = PluggableScmModal.TEST_CONNECTION_TEXT;
   private testConnectionButtonIcon: string | undefined;
 
   constructor(entity: Scm,
@@ -143,7 +144,7 @@ abstract class PluggableScmModal extends EntityModal<Scm> {
                                }
                              });
                            })
-                           .finally(() => this.testConnectionButtonText = "Test Connection");
+                           .finally(() => this.testConnectionButtonText = PluggableScmModal.TEST_CONNECTION_TEXT);
   }
 
   private testConnectionInProgress() {

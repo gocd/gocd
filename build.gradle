@@ -282,7 +282,7 @@ allprojects {
     providedAtPackageTime {
       transitive = true
       canBeConsumed = true
-      canBeResolved = true
+      canBeResolved = false
     }
 
     // Ensure that we use the jar artifacts from even `java-library` modules; by default they

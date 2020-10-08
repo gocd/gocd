@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.*;
@@ -47,6 +48,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -352,7 +354,7 @@ class BuildAssignmentServiceTest {
             BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agentInstance);
 
             assertThat(gitMaterial.hasSecretParams()).isTrue();
-            verify(scheduleService, never()).failJob(any());
+            verify(scheduleService, never()).failJob(any(JobInstance.class));
             verifyZeroInteractions(consoleService);
             verifyZeroInteractions(jobStatusTopic);
             ScmMaterial material = (ScmMaterial) work.getAssignment().materialRevisions().getMaterialRevision(0).getMaterial();
@@ -518,6 +520,62 @@ class BuildAssignmentServiceTest {
 
         assertThat(context.getProperties().size()).isEqualTo(1);
         assertThat(context.getProperty(GO_ENVIRONMENT_NAME)).isNullOrEmpty();
+    }
+
+    @Test
+    void shouldFailTheJobWhenRulesViolationErrorOccursForElasticConfiguration() throws IOException, IllegalArtifactLocationException {
+        PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
+        JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.first().getJobs().first(), schedulingContext);
+        jobPlans.add(jobPlan);
+        JobInstance jobInstance = mock(JobInstance.class);
+
+        doThrow(new RulesViolationException("some rules related violation message"))
+                .when(elasticAgentPluginService).shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), null, jobPlan.getElasticProfile(), jobPlan.getClusterProfile(), jobPlan.getIdentifier());
+        when(jobInstance.getState()).thenReturn(JobState.Scheduled);
+        when(jobInstanceService.buildById(anyLong())).thenReturn(jobInstance);
+
+        buildAssignmentService.onTimer();
+
+        assertThatCode(() -> {
+            JobPlan matchingJob = buildAssignmentService.findMatchingJob(elasticAgentInstance);
+
+            assertThat(matchingJob).isNull();
+            assertThat(buildAssignmentService.jobPlans()).containsExactly(jobPlan);
+        }).doesNotThrowAnyException();
+
+        InOrder inOrder = inOrder(jobInstanceService, scheduleService, consoleService, jobStatusTopic);
+        inOrder.verify(jobInstanceService).buildById(jobPlan.getJobId());
+        inOrder.verify(consoleService).appendToConsoleLog(jobPlan.getIdentifier(), "\nThis job was failed by GoCD. This job is configured to run on an elastic agent, but the associated elastic configurations failed for secrets resolution: some rules related violation message");
+        inOrder.verify(scheduleService).failJob(jobInstance);
+        inOrder.verify(jobStatusTopic).post(new JobStatusMessage(jobPlan.getIdentifier(), JobState.Scheduled, elasticAgentInstance.getUuid()));
+    }
+
+    @Test
+    void shouldFailTheJobWhenSecretResolutionErrorOccursForElasticConfiguration() throws IOException, IllegalArtifactLocationException {
+        PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
+        JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.first().getJobs().first(), schedulingContext);
+        jobPlans.add(jobPlan);
+        JobInstance jobInstance = mock(JobInstance.class);
+
+        doThrow(new SecretResolutionFailureException("some secret resolution related failure message"))
+                .when(elasticAgentPluginService).shouldAssignWork(elasticAgentInstance.elasticAgentMetadata(), null, jobPlan.getElasticProfile(), jobPlan.getClusterProfile(), jobPlan.getIdentifier());
+        when(jobInstance.getState()).thenReturn(JobState.Scheduled);
+        when(jobInstanceService.buildById(anyLong())).thenReturn(jobInstance);
+
+        buildAssignmentService.onTimer();
+
+        assertThatCode(() -> {
+            JobPlan matchingJob = buildAssignmentService.findMatchingJob(elasticAgentInstance);
+
+            assertThat(matchingJob).isNull();
+            assertThat(buildAssignmentService.jobPlans()).containsExactly(jobPlan);
+        }).doesNotThrowAnyException();
+
+        InOrder inOrder = inOrder(jobInstanceService, scheduleService, consoleService, jobStatusTopic);
+        inOrder.verify(jobInstanceService).buildById(jobPlan.getJobId());
+        inOrder.verify(consoleService).appendToConsoleLog(jobPlan.getIdentifier(), "\nThis job was failed by GoCD. This job is configured to run on an elastic agent, but the associated elastic configurations failed for secrets resolution: some secret resolution related failure message");
+        inOrder.verify(scheduleService).failJob(jobInstance);
+        inOrder.verify(jobStatusTopic).post(new JobStatusMessage(jobPlan.getIdentifier(), JobState.Scheduled, elasticAgentInstance.getUuid()));
     }
 
     private JobPlan getJobPlan(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName, JobConfig job) {

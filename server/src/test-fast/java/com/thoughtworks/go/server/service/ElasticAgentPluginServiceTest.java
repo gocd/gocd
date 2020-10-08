@@ -41,6 +41,7 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.exceptions.RulesViolationException;
+import com.thoughtworks.go.server.messaging.JobStatusTopic;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
@@ -99,6 +100,8 @@ class ElasticAgentPluginServiceTest {
     private EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
     @Mock
     private SecretParamResolver secretParamResolver;
+    @Mock
+    private JobStatusTopic jobStatusTopic;
 
     private TimeProvider timeProvider;
     private String autoRegisterKey = "key";
@@ -126,7 +129,7 @@ class ElasticAgentPluginServiceTest {
         jobInstanceSqlMapDao = mock(JobInstanceSqlMapDao.class);
         service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService,
                 createAgentQueue, serverPingQueue, goConfigService, timeProvider, serverHealthService, elasticAgentMetadataStore,
-                clusterProfilesService, jobInstanceSqlMapDao, scheduleService, consoleService, ephemeralAutoRegisterKeyService, secretParamResolver);
+                clusterProfilesService, jobInstanceSqlMapDao, scheduleService, consoleService, ephemeralAutoRegisterKeyService, secretParamResolver, jobStatusTopic);
         when(goConfigService.serverConfig()).thenReturn(GoConfigMother.configWithAutoRegisterKey(autoRegisterKey).server());
     }
 
@@ -646,28 +649,31 @@ class ElasticAgentPluginServiceTest {
         }
 
         @Test
-        void shouldCancelJobIfSecretResolutionFails_createAgentsFor() throws IOException, IllegalArtifactLocationException {
+        void shouldFailIfSecretResolutionFails_createAgentsFor() throws IOException, IllegalArtifactLocationException {
             ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", "{{SECRET:[config_id][key]}}");
             JobPlan plan1 = plan(1, "docker");
             JobPlan plan2 = plan(2, "docker");
             plan2.getElasticProfile().add(k1);
             String ephemeralKey = randomUUID().toString();
+            JobInstance jobInstance = mock(JobInstance.class);
 
+            when(jobInstance.getState()).thenReturn(JobState.Scheduled);
             when(ephemeralAutoRegisterKeyService.autoRegisterKey()).thenReturn(ephemeralKey);
             when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
             ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
             when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
-
+            when(jobInstanceSqlMapDao.buildById(anyLong())).thenReturn(jobInstance);
             when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
             doThrow(new RulesViolationException("some-rules-violation-message")).when(secretParamResolver).resolve(any(ElasticProfile.class));
 
             service.createAgentsFor(singletonList(plan1), asList(plan1, plan2));
 
-            InOrder inOrder = inOrder(secretParamResolver, secretParamResolver, consoleService, scheduleService);
+            InOrder inOrder = inOrder(secretParamResolver, secretParamResolver, jobInstanceSqlMapDao, consoleService, scheduleService);
             inOrder.verify(secretParamResolver).resolve(plan2.getClusterProfile());
             inOrder.verify(secretParamResolver).resolve(plan2.getElasticProfile());
+            inOrder.verify(jobInstanceSqlMapDao).buildById(plan2.getJobId());
             inOrder.verify(consoleService).appendToConsoleLog(eq(plan2.getIdentifier()), anyString());
-            inOrder.verify(scheduleService).cancelJob(plan2.getIdentifier());
+            inOrder.verify(scheduleService).failJob(jobInstance);
             verifyNoInteractions(createAgentQueue);
         }
 
@@ -692,7 +698,7 @@ class ElasticAgentPluginServiceTest {
         }
 
         @Test
-        void shouldCancelJobIfSecretResolutionFails_shouldAssignWork() {
+        void shouldThrowErrorIfSecretResolutionFails_shouldAssignWork() {
             ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", "{{SECRET:[config_id][key]}}");
             String uuid = randomUUID().toString();
             String elasticPluginId = "plugin-1";
@@ -703,12 +709,16 @@ class ElasticAgentPluginServiceTest {
             doThrow(new RulesViolationException("some-message")).when(secretParamResolver).resolve(any(ClusterProfile.class));
             when(registry.shouldAssignWork(any(), any(), any(), any(), any(), any())).thenReturn(true);
 
-
-            assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, clusterProfile, null)).isFalse();
+            assertThatCode(() -> service.shouldAssignWork(agentMetadata, null, elasticProfile, clusterProfile, null))
+                    .isInstanceOf(RulesViolationException.class)
+                    .hasMessage("some-message");
             verify(secretParamResolver).resolve(clusterProfile);
             verifyNoMoreInteractions(secretParamResolver);
             verifyNoInteractions(pluginManager);
             verifyNoInteractions(registry);
+            verifyNoInteractions(jobInstanceSqlMapDao);
+            verifyNoInteractions(scheduleService);
+            verifyNoInteractions(consoleService);
         }
 
         @Test

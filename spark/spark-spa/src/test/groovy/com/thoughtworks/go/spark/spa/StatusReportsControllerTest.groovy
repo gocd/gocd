@@ -117,7 +117,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
     }
 
     @Test
-    void 'should return 422 in case of rules violation exception'() {
+    void 'should return 500 in case of rules violation exception'() {
       loginAsAdmin()
       def errorMessage = "Some rules violation message"
       when(elasticAgentPluginService.getPluginStatusReport("pluginId")).thenThrow(new RulesViolationException(errorMessage))
@@ -127,7 +127,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
       def expectedBody = new StubTemplateEngine().render(new ModelAndView([message: errorMessage, viewTitle: "Plugin Status Report"],
         "status_reports/error.ftlh"))
       assertThatResponse()
-        .isUnprocessableEntity()
+        .isInternalServerError()
         .hasContentType("text/html; charset=utf-8")
         .hasBody(expectedBody)
     }
@@ -249,7 +249,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
     }
 
     @Test
-    void 'should return 422 when rules related exception occurs'() {
+    void 'should return 500 when rules related exception occurs'() {
       loginAsAdmin()
       def errorMessage = "Some rules violation message"
       def jobInstance = new JobInstance()
@@ -263,7 +263,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
                                                                            viewTitle: "Agent Status Report"],
         "status_reports/error.ftlh"))
       assertThatResponse()
-        .isUnprocessableEntity()
+        .isInternalServerError()
         .hasContentType("text/html; charset=utf-8")
         .hasBody(expectedBody)
     }
@@ -351,7 +351,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
     }
 
     @Test
-    void 'should return 422 when rules related exception occurs'() {
+    void 'should return 500 when rules related exception occurs'() {
       loginAsAdmin()
       def errorMessage = "Some error message"
       when(elasticAgentPluginService.getClusterStatusReport("pluginId", "clusterId"))
@@ -362,7 +362,7 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
       def expectedBody = new StubTemplateEngine().render(new ModelAndView([message: errorMessage, viewTitle: "Cluster Status Report"],
         "status_reports/error.ftlh"))
       assertThatResponse()
-        .isUnprocessableEntity()
+        .isInternalServerError()
         .hasContentType("text/html; charset=utf-8")
         .hasBody(expectedBody)
     }

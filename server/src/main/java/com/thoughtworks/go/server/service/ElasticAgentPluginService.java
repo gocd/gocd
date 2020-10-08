@@ -35,6 +35,8 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.exceptions.RulesViolationException;
+import com.thoughtworks.go.server.messaging.JobStatusMessage;
+import com.thoughtworks.go.server.messaging.JobStatusTopic;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
@@ -84,6 +86,7 @@ public class ElasticAgentPluginService {
     private EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
     private final SecretParamResolver secretParamResolver;
     private JobInstanceSqlMapDao jobInstanceSqlMapDao = null;
+    private JobStatusTopic jobStatusTopic;
 
     @Value("${go.elasticplugin.heartbeat.interval}")
     private long elasticPluginHeartBeatInterval;
@@ -103,11 +106,12 @@ public class ElasticAgentPluginService {
             CreateAgentQueueHandler createAgentQueue, ServerPingQueueHandler serverPingQueue,
             GoConfigService goConfigService, TimeProvider timeProvider, ClusterProfilesService clusterProfilesService,
             ServerHealthService serverHealthService, JobInstanceSqlMapDao jobInstanceSqlMapDao, ScheduleService scheduleService,
-            ConsoleService consoleService, EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService, SecretParamResolver secretParamResolver) {
+            ConsoleService consoleService, EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService, SecretParamResolver secretParamResolver,
+            JobStatusTopic jobStatusTopic) {
 
         this(pluginManager, elasticAgentPluginRegistry, agentService, environmentConfigService, createAgentQueue,
                 serverPingQueue, goConfigService, timeProvider, serverHealthService, ElasticAgentMetadataStore.instance(),
-                clusterProfilesService, jobInstanceSqlMapDao, scheduleService, consoleService, ephemeralAutoRegisterKeyService, secretParamResolver);
+                clusterProfilesService, jobInstanceSqlMapDao, scheduleService, consoleService, ephemeralAutoRegisterKeyService, secretParamResolver, jobStatusTopic);
     }
 
     ElasticAgentPluginService(
@@ -118,7 +122,7 @@ public class ElasticAgentPluginService {
             ElasticAgentMetadataStore elasticAgentMetadataStore, ClusterProfilesService clusterProfilesService,
             JobInstanceSqlMapDao jobInstanceSqlMapDao, ScheduleService scheduleService, ConsoleService consoleService,
             EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService,
-            SecretParamResolver secretParamResolver) {
+            SecretParamResolver secretParamResolver, JobStatusTopic jobStatusTopic) {
         this.pluginManager = pluginManager;
         this.elasticAgentPluginRegistry = elasticAgentPluginRegistry;
         this.agentService = agentService;
@@ -135,6 +139,7 @@ public class ElasticAgentPluginService {
         this.consoleService = consoleService;
         this.ephemeralAutoRegisterKeyService = ephemeralAutoRegisterKeyService;
         this.secretParamResolver = secretParamResolver;
+        this.jobStatusTopic = jobStatusTopic;
     }
 
     public void heartbeat() {
@@ -219,10 +224,16 @@ public class ElasticAgentPluginService {
                 scheduleService.cancelJob(jobIdentifier);
             } else if (elasticAgentPluginRegistry.has(clusterProfile.getPluginId())) {
                 String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
-                boolean secretsResolved = resolveSecrets(jobIdentifier, clusterProfile, elasticProfile);
-                if (secretsResolved) {
+                try {
+                    resolveSecrets(clusterProfile, elasticProfile);
                     createAgentQueue.post(new CreateAgentMessage(ephemeralAutoRegisterKeyService.autoRegisterKey(), environment, elasticProfile, clusterProfile, jobIdentifier), messageTimeToLive);
                     serverHealthService.removeByScope(scopeForJob(jobIdentifier));
+                } catch (RulesViolationException | SecretResolutionFailureException e) {
+                    JobInstance jobInstance = jobInstanceSqlMapDao.buildById(plan.getJobId());
+                    String failureMessage = format("\nThis job was failed by GoCD. This job is configured to run on an elastic agent, but the associated elastic configurations failed for secrets resolution: %s", e.getMessage());
+                    logToJobConsole(jobIdentifier, failureMessage);
+                    scheduleService.failJob(jobInstance);
+                    jobStatusTopic.post(new JobStatusMessage(jobIdentifier, jobInstance.getState(), plan.getAgentUuid()));
                 }
             } else {
                 String jobConfigIdentifier = jobIdentifier.jobConfigIdentifier().toString();
@@ -241,10 +252,7 @@ public class ElasticAgentPluginService {
             return false;
         }
 
-        boolean secretsResolved = resolveSecrets(identifier, clusterProfile, elasticProfile);
-        if (!secretsResolved) {
-            return false;
-        }
+        resolveSecrets(clusterProfile, elasticProfile);
         Map<String, String> clusterProfileProperties = clusterProfile.getConfigurationAsMap(true, true);
         GoPluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorFor(metadata.elasticPluginId());
         Map<String, String> configuration = elasticProfile.getConfigurationAsMap(true, true);
@@ -379,17 +387,9 @@ public class ElasticAgentPluginService {
         return true;
     }
 
-    private boolean resolveSecrets(JobIdentifier jobIdentifier, ClusterProfile clusterProfile, ElasticProfile elasticProfile) {
-        try {
-            if (clusterProfile != null)
-                secretParamResolver.resolve(clusterProfile);
-            secretParamResolver.resolve(elasticProfile);
-        } catch (RulesViolationException | SecretResolutionFailureException e) {
-            String cancellationMessage = format("\nThis job was cancelled by GoCD. This job is configured to run on an elastic agent, but the associated elastic configurations failed for secrets resolution: %s", e.getMessage());
-            logToJobConsole(jobIdentifier, cancellationMessage);
-            scheduleService.cancelJob(jobIdentifier);
-            return false;
-        }
-        return true;
+    private void resolveSecrets(ClusterProfile clusterProfile, ElasticProfile elasticProfile) {
+        if (clusterProfile != null)
+            secretParamResolver.resolve(clusterProfile);
+        secretParamResolver.resolve(elasticProfile);
     }
 }

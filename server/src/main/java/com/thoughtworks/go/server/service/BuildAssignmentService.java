@@ -202,9 +202,18 @@ public class BuildAssignmentService implements ConfigChangedListener {
             match = agent.firstMatching(filteredJobPlans);
         } else {
             for (JobPlan jobPlan : filteredJobPlans) {
-                if (jobPlan.requiresElasticAgent() && elasticAgentPluginService.shouldAssignWork(agent.elasticAgentMetadata(), environmentConfigService.envForPipeline(jobPlan.getPipelineName()), jobPlan.getElasticProfile(), jobPlan.getClusterProfile(), jobPlan.getIdentifier())) {
-                    match = jobPlan;
-                    break;
+                try {
+                    if (jobPlan.requiresElasticAgent() && elasticAgentPluginService.shouldAssignWork(agent.elasticAgentMetadata(), environmentConfigService.envForPipeline(jobPlan.getPipelineName()), jobPlan.getElasticProfile(), jobPlan.getClusterProfile(), jobPlan.getIdentifier())) {
+                        match = jobPlan;
+                        break;
+                    }
+                } catch (RulesViolationException | SecretResolutionFailureException e) {
+                    JobInstance instance = jobInstanceService.buildById(jobPlan.getJobId());
+                    JobIdentifier jobIdentifier = jobPlan.getIdentifier();
+                    String failureMessage = format("\nThis job was failed by GoCD. This job is configured to run on an elastic agent, but the associated elastic configurations failed for secrets resolution: %s", e.getMessage());
+                    logToJobConsole(jobIdentifier, failureMessage);
+                    scheduleService.failJob(instance);
+                    jobStatusTopic.post(new JobStatusMessage(jobIdentifier, instance.getState(), agent.getUuid()));
                 }
             }
         }
@@ -369,6 +378,14 @@ public class BuildAssignmentService implements ConfigChangedListener {
             consoleService.appendToConsoleLog(jobIdentifier, description);
         } catch (IllegalArtifactLocationException | IOException e1) {
             LOGGER.error(e1.getMessage(), e1);
+        }
+    }
+
+    private void logToJobConsole(JobIdentifier jobIdentifier, String errorMessage) {
+        try {
+            consoleService.appendToConsoleLog(jobIdentifier, errorMessage);
+        } catch (IllegalArtifactLocationException | IOException e) {
+            LOGGER.error(format("Failed to add message(%s) to the job(%s) console", errorMessage, jobIdentifier), e);
         }
     }
 

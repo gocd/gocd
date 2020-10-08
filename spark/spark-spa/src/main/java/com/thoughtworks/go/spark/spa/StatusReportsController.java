@@ -95,7 +95,7 @@ public class StatusReportsController implements SparkController {
             return errorPage(response, 404, "Plugin Status Report", message);
         } catch (RulesViolationException | SecretResolutionFailureException e) {
             LOGGER.error(e.getMessage(), e);
-            return errorPage(response, 422, "Plugin Status Report", e.getMessage());
+            return errorPage(response, 500, "Plugin Status Report", e.getMessage());
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return errorPage(response, 500, "Plugin Status Report", UNKNOWN_ERROR_MESSAGE);
@@ -127,7 +127,7 @@ public class StatusReportsController implements SparkController {
             return errorPage(response, 404, "Agent Status Report", message);
         } catch (RulesViolationException | SecretResolutionFailureException e) {
             LOGGER.error(e.getMessage(), e);
-            return errorPage(response, 422, "Agent Status Report", e.getMessage());
+            return errorPage(response, 500, "Agent Status Report", e.getMessage());
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return errorPage(response, 500, "Agent Status Report", UNKNOWN_ERROR_MESSAGE);
@@ -151,7 +151,7 @@ public class StatusReportsController implements SparkController {
             return errorPage(response, 404, "Cluster Status Report", message);
         } catch (RulesViolationException | SecretResolutionFailureException e) {
             LOGGER.error(e.getMessage(), e);
-            return errorPage(response, 422, "Cluster Status Report", e.getMessage());
+            return errorPage(response, 500, "Cluster Status Report", e.getMessage());
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return errorPage(response, 500, "Cluster Status Report", UNKNOWN_ERROR_MESSAGE);

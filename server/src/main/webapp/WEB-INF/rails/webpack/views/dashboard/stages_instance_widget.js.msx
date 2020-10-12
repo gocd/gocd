@@ -122,16 +122,17 @@ export const StagesInstanceWidget = {
       }
 
       if (isModelOpen) {
-        optionalStageOverview = <StageOverview pipelineName={stage.pipelineName()}
+        optionalStageOverview = [<StageOverview pipelineName={stage.pipelineName()}
                                                canAdminister={vnode.attrs.canAdminister}
                                                pipelineCounter={stage.pipelineCounter()}
                                                stageName={stage.name}
                                                stageCounter={stage.counter}
                                                stages={stages}
+                                               key={vnode.attrs.stageOverview.modelId()}
                                                templateName={vnode.attrs.pipeline.templateName}
                                                stageInstanceFromDashboard={stage}
                                                stageOverviewVM={vnode.attrs.stageOverview.model}
-                                               stageStatus={stage.status}/>;
+                                               stageStatus={stage.status}/>];
       }
 
       if (stage.isBuildingOrCompleted()) {

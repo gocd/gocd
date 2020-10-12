@@ -72,6 +72,7 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
         return styles.unknown;
     }
   }
+
   view(vnode: m.Vnode<PipelineRunAttrs>): m.Children | void | null {
     const pipelineRunInfo = vnode.attrs.pipelineRunInfo;
 
@@ -130,22 +131,25 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
             // @ts-ignore
             stage.status = stage.stageStatus();
             // @ts-ignore
+            stage.counter = stage.stageCounter();
+            // @ts-ignore
             stage.canOperate = vnode.attrs.canOperatePipeline;
 
             //@ts-ignore
             pipelineRunInfo.stages().forEach((s: Stage) => s.name = s.stageName());
 
-            optionalStageOverview = <StageOverview pipelineName={stage.pipelineName()}
+            optionalStageOverview = [<StageOverview pipelineName={stage.pipelineName()}
                                                    isDisplayedOnPipelineActivityPage={true}
                                                    canAdminister={vnode.attrs.canAdministerPipeline}
                                                    pipelineCounter={stage.pipelineCounter()}
                                                    stageName={stageName}
                                                    stageCounter={stageCounter}
                                                    stages={pipelineRunInfo.stages()}
+                                                   key={vnode.attrs.stageOverviewState.modelId()}
                                                    templateName={vnode.attrs.pipelineUsingTemplate}
                                                    stageInstanceFromDashboard={stage}
                                                    stageOverviewVM={vnode.attrs.stageOverviewState.model}
-                                                   stageStatus={stage.stageStatus()}/>;
+                                                   stageStatus={stage.stageStatus()}/>];
           }
 
           return <div

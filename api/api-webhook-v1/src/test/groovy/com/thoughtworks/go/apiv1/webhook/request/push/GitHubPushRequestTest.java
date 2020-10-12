@@ -24,8 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.util.MimeType;
+import spark.QueryParamsMap;
 import spark.Request;
 
+import static com.thoughtworks.go.apiv1.webhook.request.WebhookRequest.KEY_SCM_NAME;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -102,6 +104,26 @@ class GitHubPushRequestTest {
                         "ssh://github.com/gocd/spaceship.git",
                         "ssh://github.com/gocd/spaceship.git/"
                 );
+    }
+
+    @ParameterizedTest
+    @FileSource(files = "/github-payload.json")
+    void shouldReturnScmNamesIfAny(String body) {
+        Request request = newRequest("push", "", body, APPLICATION_JSON);
+
+        QueryParamsMap map = mock(QueryParamsMap.class);
+        when(request.queryMap()).thenReturn(map);
+        when(map.hasKey(KEY_SCM_NAME)).thenReturn(false);
+        GitHubPushRequest request1 = new GitHubPushRequest(request);
+        assertThat(request1.getScmNames()).isEmpty();
+
+        when(request.queryMap()).thenReturn(map);
+        when(map.hasKey(KEY_SCM_NAME)).thenReturn(true);
+
+        QueryParamsMap value = mock(QueryParamsMap.class);
+        when(map.get(KEY_SCM_NAME)).thenReturn(value);
+        when(value.values()).thenReturn(new String[]{"scm1"});
+        assertThat(request1.getScmNames()).containsExactly("scm1");
     }
 
     @Nested

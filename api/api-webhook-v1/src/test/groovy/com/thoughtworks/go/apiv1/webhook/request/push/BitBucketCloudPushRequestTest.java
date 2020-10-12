@@ -23,10 +23,12 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import spark.QueryParamsMap;
 import spark.Request;
 
 import java.util.Base64;
 
+import static com.thoughtworks.go.apiv1.webhook.request.WebhookRequest.KEY_SCM_NAME;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -91,6 +93,26 @@ class BitBucketCloudPushRequestTest {
                         "ssh://bitbucket.org/gocd/spaceship.git",
                         "ssh://bitbucket.org/gocd/spaceship.git/"
                 );
+    }
+
+    @ParameterizedTest
+    @FileSource(files = "/bitbucket-payload.json")
+    void shouldReturnScmNameIfAny(String body) {
+        Request request = newRequestWithAuthorizationHeader("repo:push", "", body);
+
+        BitBucketCloudPushRequest bitBucketCloudPushRequest = new BitBucketCloudPushRequest(request);
+        QueryParamsMap map = mock(QueryParamsMap.class);
+        when(request.queryMap()).thenReturn(map);
+        when(map.hasKey(KEY_SCM_NAME)).thenReturn(false);
+        assertThat(bitBucketCloudPushRequest.getScmNames()).isEmpty();
+
+        when(request.queryMap()).thenReturn(map);
+        when(map.hasKey(KEY_SCM_NAME)).thenReturn(true);
+
+        QueryParamsMap value = mock(QueryParamsMap.class);
+        when(map.get(KEY_SCM_NAME)).thenReturn(value);
+        when(value.values()).thenReturn(new String[]{"scm1"});
+        assertThat(bitBucketCloudPushRequest.getScmNames()).containsExactly("scm1");
     }
 
     @Nested

@@ -24,13 +24,18 @@ import com.thoughtworks.go.config.exceptions.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.MimeType;
+import spark.QueryParamsMap;
 import spark.Request;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.List;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 
 public abstract class WebhookRequest<T extends Payload> implements ValidatingRequest, RequestContents {
+    public static final String KEY_SCM_NAME = "SCM_NAME";
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     private final Request request;
@@ -76,6 +81,11 @@ public abstract class WebhookRequest<T extends Payload> implements ValidatingReq
     protected Class<T> getParameterClass() {
         return ((Class<T>) ((ParameterizedType) getClass().getGenericSuperclass())
                 .getActualTypeArguments()[0]);
+    }
+
+    public List<String> getScmNames() {
+        QueryParamsMap queryMap = this.request.queryMap();
+        return queryMap.hasKey(KEY_SCM_NAME) ? asList(queryMap.get(KEY_SCM_NAME).values()) : emptyList();
     }
 
 }

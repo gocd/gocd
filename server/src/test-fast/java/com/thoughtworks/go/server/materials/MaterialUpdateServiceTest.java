@@ -15,7 +15,11 @@
  */
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.GoConfigWatchList;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -62,6 +66,8 @@ import static com.thoughtworks.go.helper.MaterialsMother.gitMaterial;
 import static com.thoughtworks.go.server.materials.BackOffResult.DENY;
 import static com.thoughtworks.go.server.materials.BackOffResult.PERMIT;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -518,5 +524,25 @@ public class MaterialUpdateServiceTest {
         }
         Map<Material, Date> inProgress = (Map<Material, Date>) ReflectionUtil.getField(service, "inProgress");
         assertThat(inProgress.containsKey(svnMaterial)).isFalse();
+    }
+
+    @Nested
+    class UpdateGitMaterial {
+        @Test
+        void shouldUpdatePluggableScmMaterialIfNamesMatch() {
+            PluggableSCMMaterial pluggableSCMMaterial = MaterialsMother.pluggableSCMMaterial();
+            Set<Material> allUniquePostCommitSchedulableMaterials = Stream.of(svnMaterial, pluggableSCMMaterial).collect(toSet());
+
+            when(goConfigService.currentCruiseConfig()).thenReturn(mock(CruiseConfig.class));
+            when(materialConfigConverter.toMaterials(anySet())).thenReturn(allUniquePostCommitSchedulableMaterials);
+
+            boolean materialUpdated = service.updateGitMaterial("master", emptyList(), singletonList("scm-name"));
+
+            assertThat(materialUpdated).isTrue();
+            verify(mduPerformanceLogger).materialSentToUpdateQueue(pluggableSCMMaterial);
+            verify(queue).post(matchMaterialUpdateMessage(pluggableSCMMaterial));
+            verifyNoMoreInteractions(mduPerformanceLogger);
+            verifyNoMoreInteractions(queue);
+        }
     }
 }

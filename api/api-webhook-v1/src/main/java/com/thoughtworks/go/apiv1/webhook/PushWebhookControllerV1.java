@@ -79,20 +79,20 @@ public class PushWebhookControllerV1 extends ApiController implements SparkSprin
             return renderMessage(response, HttpStatus.ACCEPTED.value(), PING_RESPONSE);
         }
 
-        return notify(response, push.webhookUrls(), push.getPayload());
+        return notify(response, push.webhookUrls(), push.getPayload(), push.getScmNames());
     }
 
     protected String bitbucketCloud(Request request, Response response) {
         BitBucketCloudPushRequest push = new BitBucketCloudPushRequest(request);
         push.validate(serverConfigService.getWebhookSecret());
-        return notify(response, push.webhookUrls(), push.getPayload());
+        return notify(response, push.webhookUrls(), push.getPayload(), push.getScmNames());
     }
 
     protected String gitlab(Request request, Response response) {
         GitLabPushRequest push = new GitLabPushRequest(request);
         push.validate(serverConfigService.getWebhookSecret());
 
-        return notify(response, push.webhookUrls(), push.getPayload());
+        return notify(response, push.webhookUrls(), push.getPayload(), push.getScmNames());
     }
 
     protected String github(Request request, Response response) {
@@ -103,13 +103,13 @@ public class PushWebhookControllerV1 extends ApiController implements SparkSprin
             return renderMessage(response, HttpStatus.ACCEPTED.value(), PING_RESPONSE);
         }
 
-        return notify(response, push.webhookUrls(), push.getPayload());
+        return notify(response, push.webhookUrls(), push.getPayload(), push.getScmNames());
     }
 
-    private String notify(Response response, List<String> webhookUrls, PushPayload payload) {
-        LOGGER.info("[WebHook] Noticed a git push to {} on branch {}.", payload.getFullName(), payload.getBranch());
+    private String notify(Response response, List<String> webhookUrls, PushPayload payload, List<String> scmNames) {
+        LOGGER.info("[WebHook] Noticed a git push to {} on branch {} with scm names {}.", payload.getFullName(), payload.getBranch(), scmNames);
 
-        if (materialUpdateService.updateGitMaterial(payload.getBranch(), webhookUrls)) {
+        if (materialUpdateService.updateGitMaterial(payload.getBranch(), webhookUrls, scmNames)) {
             return renderMessage(response, HttpStatus.ACCEPTED.value(), "OK!");
         }
         return renderMessage(response, HttpStatus.ACCEPTED.value(), "No matching materials!");

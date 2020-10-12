@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+import { v4 as uuid } from 'uuid';
 import Stream from "mithril/stream";
 let stageOverviewPipelineName, stageOverviewPipelineCounter, stageOverviewStageName, stageOverviewStageCounter;
 
 
 const StageOverviewState = {
   model: Stream(),
+
+  modelId: Stream(),
 
   isOpen: (pipeline, pCounter, stage, sCounter) => ((pipeline === stageOverviewPipelineName) && (pCounter === stageOverviewPipelineCounter) && (stage === stageOverviewStageName) && (sCounter === stageOverviewStageCounter)),
 
@@ -29,6 +32,7 @@ const StageOverviewState = {
     stageOverviewPipelineCounter = pCounter;
     stageOverviewStageName = stage;
     stageOverviewStageCounter = sCounter;
+    StageOverviewState.modelId(uuid());
   },
 
   hide: () => {
@@ -41,6 +45,8 @@ const StageOverviewState = {
     stageOverviewPipelineCounter = undefined;
     stageOverviewStageName = undefined;
     stageOverviewStageCounter = undefined;
+
+    StageOverviewState.modelId(undefined);
   },
 
   matchesPipelineAndStage: (pipeline, stage) => ((pipeline === stageOverviewPipelineName) && (stage === stageOverviewStageName)),

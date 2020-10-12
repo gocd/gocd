@@ -73,7 +73,7 @@ public class ElasticAgentInformationMigratorImpl implements ElasticAgentInformat
             return true;
         }
 
-        LOG.debug("Migrating elastic agent information for {} plugin", pluginId);
+        LOG.debug("Migrating elastic agent configurations for plugin with id: '{}'", pluginId);
         Plugin plugin = pluginSqlMapDao.findPlugin(pluginId);
         String pluginConfiguration = plugin.getConfiguration();
         HashMap<String, String> pluginSettings = (pluginConfiguration == null) ? new HashMap<>() : JsonHelper.fromJson(pluginConfiguration, HashMap.class);
@@ -82,17 +82,15 @@ public class ElasticAgentInformationMigratorImpl implements ElasticAgentInformat
         boolean updated = update(command, pluginDescriptor);
 
         if (updated) {
-            LOG.debug("Done Migrating elastic agent information for {} plugin", pluginId);
+            LOG.debug("Done migrating elastic agent configurations for plugin with id: '{}'", pluginId);
 
             // all the plugins implementing elastic agent extension v5, does not use plugin settings and hence delete them after successful migration
             if (!pluginManager.resolveExtensionVersion(pluginId, ELASTIC_AGENT_EXTENSION, ElasticAgentExtension.SUPPORTED_VERSIONS).equals(ElasticAgentExtensionV4.VERSION)) {
-                LOG.debug("Deleting stale plugin settings for {} plugin, after successful plugin config migration", pluginId);
+                LOG.debug("Deleting stale plugin settings for plugin with id '{}' after successfully migrating elastic agent configurations", pluginId);
                 pluginSqlMapDao.deletePluginIfExists(pluginId);
             } else {
-                LOG.debug("Skip deleting plugin settings for {} plugin, as the plugin implements elastic agent v4 extension which uses plugin settings", pluginId);
+                LOG.debug("Skip deleting plugin settings for plugin with id '{}', as the plugin implements elastic agent v4 extension which uses plugin settings", pluginId);
             }
-        } else {
-            LOG.debug("Failed migrating elastic agent information for {} plugin", pluginId);
         }
 
         return updated;
@@ -103,6 +101,8 @@ public class ElasticAgentInformationMigratorImpl implements ElasticAgentInformat
             goConfigService.updateConfig(command);
             return true;
         } catch (Exception e) {
+            LOG.error(String.format("Failed migrating elastic agent information for plugin with id '%s'", pluginDescriptor.id()), e);
+
             String pluginId = pluginDescriptor.id();
             String pluginAPIRequest = "cd.go.elastic-agent.migrate-config";
             String reason = e.getMessage();

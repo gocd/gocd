@@ -117,6 +117,37 @@ public class PluginSqlMapDaoIntegrationTest {
     }
 
     @Test
+    public void shouldDoNothingWhenAPluginToDeleteDoesNotExists() {
+        String pluginId = "my.fancy.plugin.id";
+
+        assertThat(goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings(pluginId)), is(nullValue()));
+        assertThat(pluginSqlMapDao.getAllPlugins().size(), is(0));
+
+        pluginSqlMapDao.deletePluginIfExists(pluginId);
+
+        assertThat(goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings(pluginId)), is(nullValue()));
+        assertThat(pluginSqlMapDao.getAllPlugins().size(), is(0));
+    }
+
+    @Test
+    public void shouldDeleteAPlugin() {
+        String pluginId = "my.fancy.plugin.id";
+
+        Plugin plugin = savePlugin(pluginId);
+
+        Plugin pluginInDB = pluginSqlMapDao.findPlugin(pluginId);
+        assertThat(pluginInDB, is(plugin));
+
+        assertThat(goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings(pluginId)), is(plugin));
+        assertThat(pluginSqlMapDao.getAllPlugins().size(), is(1));
+
+        pluginSqlMapDao.deletePluginIfExists(pluginId);
+
+        assertThat(goCache.get(pluginSqlMapDao.cacheKeyForPluginSettings(pluginId)), is(nullValue()));
+        assertThat(pluginSqlMapDao.getAllPlugins().size(), is(0));
+    }
+
+    @Test
     public void shouldDeleteAllPlugins() {
         savePlugin("plugin-id-1");
         savePlugin("plugin-id-2");

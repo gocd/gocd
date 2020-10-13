@@ -136,6 +136,17 @@ describe("GeneralOptionsTag", () => {
     expect(runMultipleInstance).not.toBeChecked();
   });
 
+  it('should render input for elastic profile', () => {
+    const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());
+    mount(pipelineConfig);
+
+    expect(helper.byTestId("elastic-agent-id-input")).toHaveValue("");
+
+    helper.oninput(helper.byTestId("elastic-agent-id-input"), "some-value");
+
+    expect(pipelineConfig.elasticProfileId()).toEqual("some-value");
+  });
+
   describe("Read Only", () => {
     beforeEach(() => {
       const pipelineConfig = PipelineConfig.fromJSON(PipelineConfigTestData.withTwoStages());

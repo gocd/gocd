@@ -15,15 +15,26 @@
  */
 
 import m from "mithril";
+import Stream from "mithril/stream";
+import {ElasticAgentProfilesCRUD} from "models/elastic_profiles/elastic_agent_profiles_crud";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
+import {AutocompleteField} from "views/components/forms/autocomplete";
 import {Form} from "views/components/forms/form";
 import {CheckboxField, RadioField, TextField} from "views/components/forms/input_fields";
 import {TabContent} from "views/pages/clicky_pipeline_config/tabs/tab_content";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
+import {ElasticAgentSuggestionsProvider} from "../job/job_settings_tab_content";
 
 export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {
+  private readonly elasticAgentIds: Stream<string[]> = Stream([] as string[]);
+
+  constructor() {
+    super();
+    this.fetchElasticAgents();
+  }
+
   static tabName(): string {
     return "General";
   }
@@ -31,7 +42,8 @@ export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {
   getPipelineSchedulingCheckBox(entity: PipelineConfig, templateConfig: TemplateConfig) {
     let additionalHelpText: string = ";";
     if (entity.isUsingTemplate()) {
-      additionalHelpText = ` Since this pipeline is based on '${entity.template()}' template, automatic/manual behaviour of the pipeline is determined by the template's first stage.`;
+      additionalHelpText
+        = ` Since this pipeline is based on '${entity.template()}' template, automatic/manual behaviour of the pipeline is determined by the template's first stage.`;
     }
 
     const stage: Stage = entity.template() ? templateConfig.firstStage() : entity.firstStage();
@@ -76,24 +88,35 @@ export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {
                        property={entity.timer().onlyOnChanges}/>
       </Form>
 
+      <AutocompleteField label="Elastic Agent Profile Id"
+                         dataTestId={"elastic-agent-id-input"}
+                         errorText={entity.errors().errorsForDisplay("elasticProfileId")}
+                         readonly={entity.isDefinedInConfigRepo()}
+                         autoEvaluate={this.isElasticAgentIdInputOnFocus()}
+                         provider={new ElasticAgentSuggestionsProvider(this.elasticAgentIds)}
+                         helpText={<div>The Elastic Agent Profile that the current job requires to run. Visit <a
+                           href="/go/admin/elastic_agent_configurations" title="Elastic Agents Configurations">Elastic Agent Configurations</a> page
+                           to manage elastic agent profiles.</div>}
+                         property={entity.elasticProfileId}/>
+
       <h3>Pipeline locking behavior</h3>
       <Form compactForm={true}>
         <RadioField property={entity.lockBehavior}
                     readonly={entity.isDefinedInConfigRepo()}
                     possibleValues={[
                       {
-                        label: "Run single instance of pipeline at a time",
-                        value: "unlockWhenFinished",
+                        label:    "Run single instance of pipeline at a time",
+                        value:    "unlockWhenFinished",
                         helpText: "Only a single instance of the pipeline will be run at a time and the pipeline will NOT be locked upon failure. The pipeline will only be locked to ensure a single instance, but will be unlocked if the pipeline finishes (irrespective of status) or reaches a manual stage."
                       },
                       {
-                        label: "Run single instance of pipeline and lock on failure",
-                        value: "lockOnFailure",
+                        label:    "Run single instance of pipeline and lock on failure",
+                        value:    "lockOnFailure",
                         helpText: "Only a single instance of the pipeline will be run at a time and the pipeline will be locked upon failure. The pipeline can be unlocked manually and will be unlocked if it reaches the final stage, irrespective of the status of that stage. This is particularly useful in deployment scenarios."
                       },
                       {
-                        label: "Run multiple instances (default)",
-                        value: "none",
+                        label:    "Run multiple instances (default)",
+                        value:    "none",
                         helpText: "This pipeline will not be locked and multiple instances of this pipeline will be allowed to run (default)."
                       },
                     ]}>
@@ -104,5 +127,17 @@ export class GeneralOptionsTabContent extends TabContent<PipelineConfig> {
 
   protected selectedEntity(pipelineConfig: PipelineConfig, routeParams: PipelineConfigRouteParams): PipelineConfig {
     return pipelineConfig;
+  }
+
+  private isElasticAgentIdInputOnFocus(): boolean {
+    return document.activeElement?.getAttribute("data-test-id") === "elastic-agent-id-input";
+  }
+
+  private fetchElasticAgents() {
+    ElasticAgentProfilesCRUD.all().then((elasticProfilesResponse) => {
+      elasticProfilesResponse.do((successResponse) => {
+        this.elasticAgentIds(successResponse.body.all()().map(p => p.id()) as string[]);
+      });
+    });
   }
 }

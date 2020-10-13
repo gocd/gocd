@@ -15,6 +15,7 @@
  */
 
 import {JsonUtils} from "helpers/json_utils";
+import _ from "lodash";
 import Stream from "mithril/stream";
 import {AuthorizationUsersAndRolesJSON, AuthorizedUsersAndRoles} from "models/authorization/authorization";
 import {EnvironmentVariableJSON, EnvironmentVariables} from "models/environment_variables/types";
@@ -34,6 +35,7 @@ export interface StageJSON {
   clean_working_directory: boolean;
   never_cleanup_artifacts: boolean;
   approval: ApprovalJSON;
+  elastic_profile_id?: string;
   environment_variables: EnvironmentVariableJSON[];
   jobs: JobJSON[];
 }
@@ -92,9 +94,9 @@ class Approval extends ValidatableMixin {
 
   toJSON() {
     return {
-      type: this.typeAsString(),
+      type:                  this.typeAsString(),
       allow_only_on_success: this.allowOnlyOnSuccess(),
-      authorization: JsonUtils.toSnakeCasedObject(this.authorization)
+      authorization:         JsonUtils.toSnakeCasedObject(this.authorization)
     };
   }
 }
@@ -102,6 +104,7 @@ class Approval extends ValidatableMixin {
 export class Stage extends ValidatableMixin {
   readonly name                  = Stream<string>();
   readonly approval              = Stream(new Approval());
+  readonly elasticProfileId      = Stream<string>();
   readonly jobs                  = Stream<NameableSet<Job>>();
   readonly fetchMaterials        = Stream<boolean>();
   readonly cleanWorkingDirectory = Stream<boolean>();
@@ -141,6 +144,7 @@ export class Stage extends ValidatableMixin {
     stage.cleanWorkingDirectory(json.clean_working_directory);
     stage.neverCleanupArtifacts(json.never_cleanup_artifacts);
     stage.approval(Approval.fromJSON(json.approval));
+    stage.elasticProfileId(json.elastic_profile_id!);
     stage.environmentVariables(EnvironmentVariables.fromJSON(json.environment_variables || []));
     stage.jobs(new NameableSet(Job.fromJSONArray(json.jobs || [])));
     return stage;
@@ -155,6 +159,10 @@ export class Stage extends ValidatableMixin {
   }
 
   toApiPayload() {
-    return JsonUtils.toSnakeCasedObject(this);
+    const json = JsonUtils.toSnakeCasedObject(this);
+    if (_.isEmpty(json.elastic_profile_id)) {
+      delete json.elastic_profile_id;
+    }
+    return json;
   }
 }

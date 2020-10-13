@@ -263,7 +263,7 @@ describe("PipelineConfig model", () => {
 
   it('should validate env variables', () => {
     const pip = new PipelineConfig("some-name", defaultMaterials, defaultStages).withGroup("foo");
-    pip.environmentVariables().push(new EnvironmentVariable("","some-value"));
+    pip.environmentVariables().push(new EnvironmentVariable("", "some-value"));
 
     expect(pip.isValid()).toBe(false);
     expect(pip.errors().count()).toBe(1);
@@ -273,6 +273,19 @@ describe("PipelineConfig model", () => {
     expect(envVar.errors().count()).toBe(1);
     expect(envVar.errors().keys()).toEqual(["name"]);
     expect(envVar.errors().errorsForDisplay("name")).toBe("Name must be present.");
+  });
+
+  it('should serialize elastic profile id only when not blank', () => {
+    const config = new PipelineConfig();
+    config.elasticProfileId("some-value");
+
+    expect(config.toApiPayload().pipeline.elastic_profile_id).toBe('some-value');
+    expect(config.toPutApiPayload().elastic_profile_id).toBe('some-value');
+
+    config.elasticProfileId("");
+
+    expect(config.toApiPayload().pipeline.elastic_profile_id).toBeUndefined();
+    expect(config.toPutApiPayload().elastic_profile_id).toBeUndefined();
   });
 });
 

@@ -145,4 +145,13 @@ describe("Stage model", () => {
     expect(envVar.errors().keys()).toEqual(["name"]);
     expect(envVar.errors().errorsForDisplay("name")).toBe("Name must be present.");
   });
+
+  it('should not serialize empty elastic profile id', () => {
+    const stage = new Stage("stage_name");
+    stage.elasticProfileId("some-value");
+    expect(stage.toApiPayload().elastic_profile_id).toBe('some-value');
+
+    stage.elasticProfileId("");
+    expect(stage.toApiPayload().elastic_profile_id).toBeUndefined();
+  });
 });

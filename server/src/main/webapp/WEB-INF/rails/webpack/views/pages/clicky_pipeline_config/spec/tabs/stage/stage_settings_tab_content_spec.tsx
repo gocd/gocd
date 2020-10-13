@@ -21,10 +21,7 @@ import {PipelineConfigTestData} from "models/pipeline_configs/spec/test_data";
 import {Stage} from "models/pipeline_configs/stage";
 import {TemplateConfig} from "models/pipeline_configs/template_config";
 import {FlashMessageModelWithTimeout} from "views/components/flash_message";
-import {
-  StageSettingsTabContent,
-  StageSettingsWidget
-} from "views/pages/clicky_pipeline_config/tabs/stage/stage_settings_tab_content";
+import {StageSettingsTabContent, StageSettingsWidget} from "views/pages/clicky_pipeline_config/tabs/stage/stage_settings_tab_content";
 import {PipelineConfigRouteParams} from "views/pages/clicky_pipeline_config/tab_handler";
 import {OperationState} from "views/pages/page_operations";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -41,6 +38,18 @@ describe("StageSettingsTab", () => {
 
     expect(helper.byTestId("stage-name-input")).toBeInDOM();
     expect(helper.byTestId("stage-name-input")).toHaveValue("Test");
+  });
+
+  it("should render elastic profile id", () => {
+    const stage = Stage.fromJSON(PipelineConfigTestData.stage("Test"));
+    stage.elasticProfileId("some-value");
+    mount(stage);
+
+    expect(helper.byTestId("elastic-agent-id-input")).toBeInDOM();
+    expect(helper.byTestId("elastic-agent-id-input")).toHaveValue("some-value");
+
+    helper.oninput(helper.byTestId("elastic-agent-id-input"), "some-other-value");
+    expect(stage.elasticProfileId()).toEqual("some-other-value");
   });
 
   it("should change the stage name when textfield value is changed", () => {
@@ -178,6 +187,10 @@ describe("StageSettingsTab", () => {
 
     it("should render disabled clean working directory checkbox", () => {
       expect(helper.byTestId("clean-working-directory-checkbox")).toBeDisabled();
+    });
+
+    it("should render disabled elastic profile id", () => {
+      expect(helper.byTestId("elastic-agent-id-input")).toBeDisabled();
     });
   });
 

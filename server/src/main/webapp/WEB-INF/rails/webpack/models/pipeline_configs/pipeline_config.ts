@@ -21,12 +21,7 @@ import _ from "lodash";
 import Stream from "mithril/stream";
 import {EnvironmentVariableJSON, EnvironmentVariables} from "models/environment_variables/types";
 import {MaterialJSON} from "models/materials/serialization";
-import {
-  Material,
-  MaterialAttributes,
-  PluggableScmMaterialAttributes,
-  ScmMaterialAttributes
-} from "models/materials/types";
+import {Material, MaterialAttributes, PluggableScmMaterialAttributes, ScmMaterialAttributes} from "models/materials/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Origin, OriginJSON} from "models/origin";
 import {NameableSet} from "./nameable_set";
@@ -47,6 +42,7 @@ export interface PipelineConfigJSON {
   template: string;
   group: string;
   origin: OriginJSON;
+  elastic_profile_id?: string;
   parameters: ParameterJSON[];
   environment_variables: EnvironmentVariableJSON[];
   materials: MaterialJSON[];
@@ -104,7 +100,7 @@ export class Timer extends ValidatableMixin {
     }
 
     return {
-      spec: this.spec(),
+      spec:            this.spec(),
       only_on_changes: this.onlyOnChanges()
     };
   }
@@ -148,10 +144,10 @@ export class TrackingTool extends ValidatableMixin {
     }
 
     return {
-      type: "generic",
+      type:       "generic",
       attributes: {
         url_pattern: this.urlPattern(),
-        regex: this.regex()
+        regex:       this.regex()
       }
     };
   }
@@ -164,6 +160,7 @@ export class PipelineConfig extends ValidatableMixin {
   readonly template             = Stream<string | undefined>();
   readonly group                = Stream<string>();
   readonly origin               = Stream<Origin>();
+  readonly elasticProfileId     = Stream<string>();
   readonly parameters           = Stream<PipelineParameter[]>([]);
   readonly environmentVariables = Stream<EnvironmentVariables>();
   readonly materials            = Stream(new Materials());
@@ -208,6 +205,7 @@ export class PipelineConfig extends ValidatableMixin {
     pipelineConfig.template(json.template);
     pipelineConfig.group(json.group);
     pipelineConfig.origin(Origin.fromJSON(json.origin));
+    pipelineConfig.elasticProfileId(json.elastic_profile_id!);
     pipelineConfig.parameters(PipelineParameter.fromJSONArray(json.parameters || []));
     pipelineConfig.environmentVariables(EnvironmentVariables.fromJSON(json.environment_variables || []));
     pipelineConfig.materials(Materials.fromJSONArray(json.materials));
@@ -260,7 +258,9 @@ export class PipelineConfig extends ValidatableMixin {
     const raw   = JsonUtils.toSnakeCasedObject(this);
     const group = raw.group;
     delete raw.group;
-
+    if (_.isEmpty(raw.elastic_profile_id)) {
+      delete raw.elastic_profile_id;
+    }
     return {group, pipeline: raw};
   }
 
@@ -268,6 +268,9 @@ export class PipelineConfig extends ValidatableMixin {
     const json = JsonUtils.toSnakeCasedObject(this);
     if (_.isEmpty(json.label_template)) {
       delete json.label_template;
+    }
+    if (_.isEmpty(json.elastic_profile_id)) {
+      delete json.elastic_profile_id;
     }
 
     return json;

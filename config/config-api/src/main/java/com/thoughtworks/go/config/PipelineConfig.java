@@ -46,14 +46,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.config.JobConfig.ELASTIC_PROFILE_ID;
 import static com.thoughtworks.go.domain.label.PipelineLabel.COUNT;
 import static com.thoughtworks.go.domain.label.PipelineLabel.ENV_VAR_PREFIX;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.substringsBetween;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * @understands how a cruise pipeline is configured by the user
@@ -219,6 +219,18 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         validateLockBehaviorValues();
         if (!hasTemplate() && isEmpty()) {
             addError("pipeline", format("Pipeline '%s' does not have any stages configured. A pipeline must have at least one stage.", name()));
+        }
+        validateElasticProfileId(validationContext);
+    }
+
+    private void validateElasticProfileId(ValidationContext validationContext) {
+        if (!isBlank(this.elasticProfileId)) {
+            if (!validationContext.isValidProfileId(this.elasticProfileId)) {
+                errors().add(ELASTIC_PROFILE_ID, String.format("No profile defined corresponding to profile_id '%s'", this.elasticProfileId));
+            }
+        }
+        if (this.elasticProfileId != null && isBlank(this.elasticProfileId)) {
+            errors().add(ELASTIC_PROFILE_ID, "Must not be a blank string");
         }
     }
 
@@ -560,22 +572,13 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
                 Objects.equals(variables, that.variables) &&
                 Objects.equals(materialConfigs, that.materialConfigs) &&
                 Objects.equals(lockBehavior, that.lockBehavior) &&
-                Objects.equals(templateName, that.templateName);
+                Objects.equals(templateName, that.templateName) &&
+                Objects.equals(elasticProfileId, that.elasticProfileId);
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + name.hashCode();
-        result = 31 * result + (labelTemplate != null ? labelTemplate.hashCode() : 0);
-        result = 31 * result + (trackingTool != null ? trackingTool.hashCode() : 0);
-        result = 31 * result + (materialConfigs != null ? materialConfigs.hashCode() : 0);
-        result = 31 * result + (timer != null ? timer.hashCode() : 0);
-        result = 31 * result + (params != null ? params.hashCode() : 0);
-        result = 31 * result + (variables != null ? variables.hashCode() : 0);
-        result = 31 * result + (lockBehavior != null ? lockBehavior.hashCode() : 0);
-        result = 31 * result + (templateName != null ? templateName.hashCode() : 0);
-        return result;
+        return Objects.hash(super.hashCode(), name, labelTemplate, params, trackingTool, timer, variables, materialConfigs, lockBehavior, templateName, elasticProfileId);
     }
 
     public TimerConfig getTimer() {

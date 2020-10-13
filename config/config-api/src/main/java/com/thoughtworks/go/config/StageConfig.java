@@ -25,6 +25,10 @@ import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
+import static com.thoughtworks.go.config.JobConfig.ELASTIC_PROFILE_ID;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * @understands the configuration for a stage
@@ -139,50 +143,22 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         StageConfig that = (StageConfig) o;
-
-        if (fetchMaterials != that.fetchMaterials) {
-            return false;
-        }
-        if (artifactCleanupProhibited != that.artifactCleanupProhibited) {
-            return false;
-        }
-        if (cleanWorkingDir != that.cleanWorkingDir) {
-            return false;
-        }
-        if (approval != null ? !approval.equals(that.approval) : that.approval != null) {
-            return false;
-        }
-        if (jobConfigs != null ? !jobConfigs.equals(that.jobConfigs) : that.jobConfigs != null) {
-            return false;
-        }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (variables != null ? !variables.equals(that.variables) : that.variables != null) {
-            return false;
-        }
-
-        return true;
+        return fetchMaterials == that.fetchMaterials &&
+                artifactCleanupProhibited == that.artifactCleanupProhibited &&
+                cleanWorkingDir == that.cleanWorkingDir &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(approval, that.approval) &&
+                Objects.equals(variables, that.variables) &&
+                Objects.equals(jobConfigs, that.jobConfigs) &&
+                Objects.equals(elasticProfileId, that.elasticProfileId);
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (fetchMaterials ? 1 : 0);
-        result = 31 * result + (artifactCleanupProhibited ? 1 : 0);
-        result = 31 * result + (cleanWorkingDir ? 1 : 0);
-        result = 31 * result + (approval != null ? approval.hashCode() : 0);
-        result = 31 * result + (variables != null ? variables.hashCode() : 0);
-        result = 31 * result + (jobConfigs != null ? jobConfigs.hashCode() : 0);
-        return result;
+        return Objects.hash(name, fetchMaterials, artifactCleanupProhibited, cleanWorkingDir, approval, variables, jobConfigs, elasticProfileId);
     }
 
     public boolean requiresApproval() {
@@ -281,6 +257,18 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
     @Override
     public void validate(ValidationContext validationContext) {
         isNameValid();
+        validateElasticProfileId(validationContext);
+    }
+
+    private void validateElasticProfileId(ValidationContext validationContext) {
+        if (!isBlank(this.elasticProfileId)) {
+            if (!validationContext.isWithinTemplates() && !validationContext.isValidProfileId(this.elasticProfileId)) {
+                errors().add(ELASTIC_PROFILE_ID, String.format("No profile defined corresponding to profile_id '%s'", this.elasticProfileId));
+            }
+        }
+        if (elasticProfileId != null && isBlank(elasticProfileId)) {
+            errors().add(ELASTIC_PROFILE_ID, "Must not be a blank string");
+        }
     }
 
     private boolean isNameValid() {

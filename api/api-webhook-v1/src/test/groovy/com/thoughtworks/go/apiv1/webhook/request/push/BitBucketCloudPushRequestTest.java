@@ -161,11 +161,10 @@ class BitBucketCloudPushRequestTest {
         void shouldBeValidWhenTokenMatches() {
             String body = "{ \"repository\": { \"scm\": \"git\" } }";
 
-            Request request = newRequestWithAuthorizationHeader("repo:push", "021757dde54540ff083dcf680688c4c9676e5c44", body);
+            Request request = newRequestWithAuthorizationHeader("repo:push", "021757dde54540ff083dcf680688c4c9676e5c44:x", body);
 
             assertThatCode(() -> new BitBucketCloudPushRequest(request).validate("021757dde54540ff083dcf680688c4c9676e5c44"))
                     .doesNotThrowAnyException();
-
         }
     }
 

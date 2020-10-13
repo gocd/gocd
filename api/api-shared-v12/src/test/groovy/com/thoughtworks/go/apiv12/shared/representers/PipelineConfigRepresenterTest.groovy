@@ -75,6 +75,16 @@ class PipelineConfigRepresenterTest {
       assertThatJson(actualJson).isEqualTo(pipelineWithTemplateHash)
     }
 
+    @Test
+    void 'should add elastic profile id when not null'() {
+      def config = getPipelineConfig()
+      config.setElasticProfileId("test-id")
+
+      def actualJson = toObject({ PipelineConfigRepresenter.toJSON(it, config, 'default') })
+
+      assertEquals('test-id', actualJson['elastic_profile_id'])
+    }
+
     def pipelineWithTemplateHash =
       [
         _links               : [
@@ -136,6 +146,17 @@ class PipelineConfigRepresenterTest {
       assertEquals('wunderbar', pipelineConfig.getName().toString())
       assertTrue(pipelineConfig.getParams().isEmpty())
       assertTrue(pipelineConfig.getVariables().isEmpty())
+    }
+
+    @Test
+    void 'should deserialize elastic profile id when present'() {
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom([
+        "elastic_profile_id": "some-test-profile"
+      ])
+      def map = new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer)
+      def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, map)
+
+      assertEquals('some-test-profile', pipelineConfig.getElasticProfileId())
     }
 
     def pipelineHashBasic =
@@ -234,7 +255,7 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void 'should convert pipeline hash with empty parmas to PipelineConfig'() {
+    void 'should convert pipeline hash with empty params to PipelineConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         parameters: null
       ])
@@ -579,7 +600,7 @@ class PipelineConfigRepresenterTest {
           errors: [destination: ['Destination directory is required when a pipeline has multiple SCM materials.'], url: ['URL cannot be blank']]
         ]
       ],
-      stages: [[name: 'stage1', fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: [type: 'success', allow_only_on_success: false, authorization: [roles: [], users: []]], environment_variables: [], jobs: []]],
+      stages               : [[name: 'stage1', fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: [type: 'success', allow_only_on_success: false, authorization: [roles: [], users: []]], environment_variables: [], jobs: []]],
       timer                : [spec: '0 0 22 ? * MON-FRI', only_on_changes: true],
       tracking_tool        : [
         type  : 'generic', attributes: [url_pattern: '', regex: ''],
@@ -593,7 +614,6 @@ class PipelineConfigRepresenterTest {
         label_template: ["You have defined a label template in pipeline 'wunderbar' that refers to a material called 'svn', but no material with this name is defined."]
       ]
     ]
-
 
   static def getInvalidPipelineConfig() {
     def materialConfigs = MaterialConfigsMother.defaultMaterialConfigs()
@@ -610,7 +630,6 @@ class PipelineConfigRepresenterTest {
 
     return pipelineConfig
   }
-
 
   static def getPipelineConfig() {
     def materialConfigs = MaterialConfigsMother.defaultMaterialConfigs()

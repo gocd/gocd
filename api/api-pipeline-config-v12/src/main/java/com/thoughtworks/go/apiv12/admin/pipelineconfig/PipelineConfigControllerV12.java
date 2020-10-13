@@ -28,7 +28,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
-import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -59,7 +58,6 @@ public class PipelineConfigControllerV12 extends ApiController implements SparkS
     private final EntityHashingService entityHashingService;
     private final PasswordDeserializer passwordDeserializer;
     private GoConfigService goConfigService;
-    private GoCache goCache;
 
     @Autowired
     public PipelineConfigControllerV12(PipelineConfigService pipelineConfigService,
@@ -67,8 +65,7 @@ public class PipelineConfigControllerV12 extends ApiController implements SparkS
                                        ApiAuthenticationHelper apiAuthenticationHelper,
                                        EntityHashingService entityHashingService,
                                        PasswordDeserializer passwordDeserializer,
-                                       GoConfigService goConfigService,
-                                       GoCache goCache) {
+                                       GoConfigService goConfigService) {
         super(ApiVersion.v12);
         this.pipelineConfigService = pipelineConfigService;
         this.pipelinePauseService = pipelinePauseService;
@@ -76,7 +73,6 @@ public class PipelineConfigControllerV12 extends ApiController implements SparkS
         this.entityHashingService = entityHashingService;
         this.passwordDeserializer = passwordDeserializer;
         this.goConfigService = goConfigService;
-        this.goCache = goCache;
     }
 
     @Override

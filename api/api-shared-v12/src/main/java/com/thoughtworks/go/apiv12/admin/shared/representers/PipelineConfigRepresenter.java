@@ -56,15 +56,16 @@ public class PipelineConfigRepresenter {
             });
         }
 
-        jsonWriter.add("label_template", pipelineConfig.getLabelTemplate());
-        jsonWriter.add("lock_behavior", pipelineConfig.getLockBehavior());
-        jsonWriter.add("name", pipelineConfig.name());
-        jsonWriter.add("template", pipelineConfig.getTemplateName());
-        jsonWriter.add("group", groupName);
+        jsonWriter.add("label_template", pipelineConfig.getLabelTemplate())
+                .add("lock_behavior", pipelineConfig.getLockBehavior())
+                .add("name", pipelineConfig.name())
+                .add("template", pipelineConfig.getTemplateName())
+                .add("group", groupName)
+                .addIfNotNull("elastic_profile_id", pipelineConfig.getElasticProfileId());
         writeOrigin(jsonWriter, pipelineConfig.getOrigin());
-        jsonWriter.addChildList("parameters", paramsWriter -> ParamRepresenter.toJSONArray(paramsWriter, pipelineConfig.getParams()));
-        jsonWriter.addChildList("environment_variables", envVarsWriter -> EnvironmentVariableRepresenter.toJSON(envVarsWriter, pipelineConfig.getVariables()));
-        jsonWriter.addChildList("materials", materialsWriter -> MaterialsRepresenter.toJSONArray(materialsWriter, pipelineConfig.materialConfigs()));
+        jsonWriter.addChildList("parameters", paramsWriter -> ParamRepresenter.toJSONArray(paramsWriter, pipelineConfig.getParams()))
+                .addChildList("environment_variables", envVarsWriter -> EnvironmentVariableRepresenter.toJSON(envVarsWriter, pipelineConfig.getVariables()))
+                .addChildList("materials", materialsWriter -> MaterialsRepresenter.toJSONArray(materialsWriter, pipelineConfig.materialConfigs()));
         writeStages(jsonWriter, pipelineConfig);
         writeTrackingTool(jsonWriter, pipelineConfig);
         writeTimer(jsonWriter, pipelineConfig.getTimer());
@@ -109,6 +110,7 @@ public class PipelineConfigRepresenter {
         jsonReader.readStringIfPresent("lock_behavior", pipelineConfig::setLockBehaviorIfNecessary);
         jsonReader.readStringIfPresent("name", pipelineConfig::setName);
         jsonReader.readCaseInsensitiveStringIfPresent("template", pipelineConfig::setTemplateName);
+        jsonReader.readStringIfPresent("elastic_profile_id", pipelineConfig::setElasticProfileId);
         pipelineConfig.setOrigin(new FileConfigOrigin());
         pipelineConfig.setParams(ParamRepresenter.fromJSONArray(jsonReader));
         pipelineConfig.setVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));

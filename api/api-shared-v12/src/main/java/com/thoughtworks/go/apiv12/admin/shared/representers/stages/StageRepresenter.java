@@ -42,13 +42,14 @@ public class StageRepresenter {
             });
         }
 
-        jsonWriter.addIfNotNull("name", stageConfig.name());
-        jsonWriter.add("fetch_materials", stageConfig.isFetchMaterials());
-        jsonWriter.add("clean_working_directory", stageConfig.isCleanWorkingDir());
-        jsonWriter.add("never_cleanup_artifacts", stageConfig.isArtifactCleanupProhibited());
-        jsonWriter.addChild("approval", approvalWriter -> ApprovalRepresenter.toJSON(approvalWriter, stageConfig.getApproval()));
-        jsonWriter.addChildList("environment_variables", envVarsWriter -> EnvironmentVariableRepresenter.toJSON(envVarsWriter, stageConfig.getVariables()));
-        jsonWriter.addChildList("jobs", getJobs(stageConfig));
+        jsonWriter.addIfNotNull("name", stageConfig.name())
+                .add("fetch_materials", stageConfig.isFetchMaterials())
+                .add("clean_working_directory", stageConfig.isCleanWorkingDir())
+                .add("never_cleanup_artifacts", stageConfig.isArtifactCleanupProhibited())
+                .addIfNotNull("elastic_profile_id", stageConfig.getElasticProfileId())
+                .addChild("approval", approvalWriter -> ApprovalRepresenter.toJSON(approvalWriter, stageConfig.getApproval()))
+                .addChildList("environment_variables", envVarsWriter -> EnvironmentVariableRepresenter.toJSON(envVarsWriter, stageConfig.getVariables()))
+                .addChildList("jobs", getJobs(stageConfig));
 
     }
 
@@ -66,6 +67,7 @@ public class StageRepresenter {
         jsonReader.optBoolean("fetch_materials").ifPresent(stageConfig::setFetchMaterials);
         jsonReader.optBoolean("clean_working_directory").ifPresent(stageConfig::setCleanWorkingDir);
         jsonReader.optBoolean("never_cleanup_artifacts").ifPresent(stageConfig::setArtifactCleanupProhibited);
+        jsonReader.readStringIfPresent("elastic_profile_id", stageConfig::setElasticProfileId);
         stageConfig.setVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));
         setJobs(jsonReader, stageConfig);
         jsonReader.optJsonObject("approval").ifPresent(approvalReader -> {

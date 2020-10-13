@@ -51,12 +51,12 @@ public class JobRepresenter {
         jsonWriter.addIfNotNull("name", jobConfig.name());
         addRunInstanceCount(jsonWriter, jobConfig);
         addTimeout(jsonWriter, jobConfig);
-        jsonWriter.addIfNotNull("elastic_profile_id", jobConfig.getElasticProfileId());
-        jsonWriter.addChildList("environment_variables", envVarsWriter -> EnvironmentVariableRepresenter.toJSON(envVarsWriter, jobConfig.getVariables()));
-        jsonWriter.addChildList("resources", getResourceNames(jobConfig));
-        jsonWriter.addChildList("tasks", tasksWriter -> TaskRepresenter.toJSONArray(tasksWriter, jobConfig.getTasks()));
-        jsonWriter.addChildList("tabs", tabsWriter -> TabConfigRepresenter.toJSONArray(tabsWriter, jobConfig.getTabs()));
-        jsonWriter.addChildList("artifacts", getArtifacts(jobConfig));
+        jsonWriter.addIfNotNull("elastic_profile_id", jobConfig.getElasticProfileId())
+                .addChildList("environment_variables", envVarsWriter -> EnvironmentVariableRepresenter.toJSON(envVarsWriter, jobConfig.getVariables()))
+                .addChildList("resources", getResourceNames(jobConfig))
+                .addChildList("tasks", tasksWriter -> TaskRepresenter.toJSONArray(tasksWriter, jobConfig.getTasks()))
+                .addChildList("tabs", tabsWriter -> TabConfigRepresenter.toJSONArray(tabsWriter, jobConfig.getTabs()))
+                .addChildList("artifacts", getArtifacts(jobConfig));
     }
 
     private static Consumer<OutputListWriter> getArtifacts(JobConfig jobConfig) {

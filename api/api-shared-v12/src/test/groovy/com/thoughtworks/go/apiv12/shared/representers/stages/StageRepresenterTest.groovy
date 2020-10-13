@@ -30,7 +30,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
 
-class StageRepresenterTest  {
+class StageRepresenterTest {
 
   @Nested
   class Serialize {
@@ -42,34 +42,48 @@ class StageRepresenterTest  {
       assertThatJson(actualJson).isEqualTo(stageHash)
     }
 
+    @Test
+    void 'should render elastic profile id if not null'() {
+      def config = getStageConfig()
+      config.setElasticProfileId("test-profile-id")
+
+      def actualJson = toObject({ StageRepresenter.toJSON(it, config) })
+
+      assertEquals('test-profile-id', actualJson['elastic_profile_id'])
+    }
+
     def stageHash =
-    [
-      name:                    'stage1',
-      fetch_materials:         true,
-      clean_working_directory: false,
-      never_cleanup_artifacts: false,
-      approval:                [
-        type                 : 'success',
-        allow_only_on_success: false,
-        authorization        : [
-          roles: [],
-          users: []
-        ]
-      ],
-      environment_variables:   [
-        [
-          secure:          true,
-          name:            'MULTIPLE_LINES',
-          encrypted_value: getStageConfig().variables.get(0).getEncryptedValue()
+      [
+        name                   : 'stage1',
+        fetch_materials        : true,
+        clean_working_directory: false,
+        never_cleanup_artifacts: false,
+        approval               : [
+          type                 : 'success',
+          allow_only_on_success: false,
+          authorization        : [
+            roles: [],
+            users: []
+          ]
         ],
-        [
-          secure: false,
-          name:   'COMPLEX',
-          value:  'This has very <complex> data'
-        ]
-      ],
-      jobs: getStageConfig().getJobs().collect { eachJob -> toObject({JobRepresenter.toJSON(it, eachJob)}) }
-    ]
+        environment_variables  : [
+          [
+            secure         : true,
+            name           : 'MULTIPLE_LINES',
+            encrypted_value: getStageConfig().variables.get(0).getEncryptedValue()
+          ],
+          [
+            secure: false,
+            name  : 'COMPLEX',
+            value : 'This has very <complex> data'
+          ]
+        ],
+        jobs                   : getStageConfig().getJobs().collect { eachJob ->
+          toObject({
+            JobRepresenter.toJSON(it, eachJob)
+          })
+        }
+      ]
   }
 
   @Nested
@@ -94,20 +108,20 @@ class StageRepresenterTest  {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         approval:
           [
-            type: "manual",
+            type         : "manual",
             authorization:
-            [
-              roles:
-              ["role1", "role2"],
-              users:
-              ["user1", "user2"]
-            ]
+              [
+                roles:
+                  ["role1", "role2"],
+                users:
+                  ["user1", "user2"]
+              ]
           ]
       ])
       def stageConfig = StageRepresenter.fromJSON(jsonReader)
 
       def authConfig = new AuthConfig(new AdminRole(new CaseInsensitiveString("role1")), new AdminRole(new CaseInsensitiveString("role2")),
-      new AdminUser(new CaseInsensitiveString("user1")), new AdminUser(new CaseInsensitiveString("user2")))
+        new AdminUser(new CaseInsensitiveString("user1")), new AdminUser(new CaseInsensitiveString("user2")))
       def approval = new Approval(authConfig)
 
       assertEquals(approval, stageConfig.getApproval())
@@ -117,19 +131,19 @@ class StageRepresenterTest  {
     void 'should convert basic hash with Environment variables to StageConfig'() {
       def environmentVariables = [
         environment_variables:
-        [
           [
-            secure: true,
-            name: 'MULTIPLE_LINES',
-            encrypted_value:
-            getStageConfig().variables.get(0).getEncryptedValue()
-          ],
-          [
-            secure: false,
-            name: 'COMPLEX',
-            value: 'This has very <complex> data'
+            [
+              secure         : true,
+              name           : 'MULTIPLE_LINES',
+              encrypted_value:
+                getStageConfig().variables.get(0).getEncryptedValue()
+            ],
+            [
+              secure: false,
+              name  : 'COMPLEX',
+              value : 'This has very <complex> data'
+            ]
           ]
-        ]
       ]
 
       def jsonReader = GsonTransformer.instance.jsonReaderFrom(environmentVariables)
@@ -160,31 +174,41 @@ class StageRepresenterTest  {
       assertEquals(stageConfig.getJobs().size(), 2)
     }
 
-    def jobHash =
-    [
-      name:                  'defaultJob',
-      run_on_all_agents:     false,
-      run_instance_count:    3,
-      timeout:               100,
-      environment_variables: [
-        [secure: true, name: 'MULTIPLE_LINES', encrypted_value: JobConfigMother.jobConfig().variables.get(0).getEncryptedValue()],
-        [secure: false, name: 'COMPLEX', value: 'This has very <complex> data']
-      ],
-      resources:             ['Linux', 'Java'],
-      tasks:                 [
-        [type: 'ant', attributes: [working_directory: 'working-directory', build_file: 'build-file', target: 'target']]
-      ],
-      tabs:                  [
-        [name: 'coverage', path: 'Jcoverage/index.html'],
-        [name: 'something', path: 'something/path.html']
-      ],
-      artifacts:             [
-        [source: 'target/dist.jar', destination: 'pkg', type: 'build'],
-        [source: 'target/reports/**/*Test.xml', destination: 'reports', type: 'test']
-      ],
+    @Test
+    void 'should deserialize elastic profile id when present'() {
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom([
+        elastic_profile_id: "some-elastic-profile"
+      ])
 
-      properties:            [[name: 'coverage.class', source: 'target/emma/coverage.xml', xpath: "substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')"]]
-    ]
+      def stageConfig = StageRepresenter.fromJSON(jsonReader)
+      assertEquals("some-elastic-profile", stageConfig.getElasticProfileId())
+    }
+
+    def jobHash =
+      [
+        name                 : 'defaultJob',
+        run_on_all_agents    : false,
+        run_instance_count   : 3,
+        timeout              : 100,
+        environment_variables: [
+          [secure: true, name: 'MULTIPLE_LINES', encrypted_value: JobConfigMother.jobConfig().variables.get(0).getEncryptedValue()],
+          [secure: false, name: 'COMPLEX', value: 'This has very <complex> data']
+        ],
+        resources            : ['Linux', 'Java'],
+        tasks                : [
+          [type: 'ant', attributes: [working_directory: 'working-directory', build_file: 'build-file', target: 'target']]
+        ],
+        tabs                 : [
+          [name: 'coverage', path: 'Jcoverage/index.html'],
+          [name: 'something', path: 'something/path.html']
+        ],
+        artifacts            : [
+          [source: 'target/dist.jar', destination: 'pkg', type: 'build'],
+          [source: 'target/reports/**/*Test.xml', destination: 'reports', type: 'test']
+        ],
+
+        properties           : [[name: 'coverage.class', source: 'target/emma/coverage.xml', xpath: "substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')"]]
+      ]
 
   }
 
@@ -201,43 +225,43 @@ class StageRepresenterTest  {
 
   static def stageHashWithErrors(stageConfig) {
     return [
-      name: "stage#1",
-      fetch_materials: true,
+      name                   : "stage#1",
+      fetch_materials        : true,
       clean_working_directory: false,
       never_cleanup_artifacts: false,
-      approval:
-      [
-        type                 : "success",
-        allow_only_on_success: false,
-        authorization        :
+      approval               :
         [
-          roles:
-          [],
-          users:
-          []
-        ]
-      ],
-      environment_variables:
-      [
-        [
-          secure: true,
-          name: "MULTIPLE_LINES",
-          encrypted_value:
-          stageConfig.variables.get(0).getEncryptedValue()
+          type                 : "success",
+          allow_only_on_success: false,
+          authorization        :
+            [
+              roles:
+                [],
+              users:
+                []
+            ]
         ],
+      environment_variables  :
         [
-          secure: false,
-          name: "COMPLEX",
-          value: "This has very <complex> data"
+          [
+            secure         : true,
+            name           : "MULTIPLE_LINES",
+            encrypted_value:
+              stageConfig.variables.get(0).getEncryptedValue()
+          ],
+          [
+            secure: false,
+            name  : "COMPLEX",
+            value : "This has very <complex> data"
+          ]
+        ],
+      jobs                   :
+        stageConfig.getJobs().collect { eachJob -> toObject({ JobRepresenter.toJSON(it, eachJob) }) },
+      errors                 :
+        [
+          name:
+            ["Invalid stage name"]
         ]
-      ],
-      jobs:
-      stageConfig.getJobs().collect {eachJob -> toObject({ JobRepresenter.toJSON(it, eachJob)})},
-      errors:
-      [
-        name:
-        ["Invalid stage name"]
-      ]
     ]
   }
 

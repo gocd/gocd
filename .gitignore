@@ -550,3 +550,7 @@ api/api-pipeline-config-v12/out/
 api/api-pipeline-config-v12/target/
 api/api-pipeline-config-v12/logs/
 api/api-pipeline-config-v12/config/
+api/api-template-config-v8/out/
+api/api-template-config-v8/target/
+api/api-template-config-v8/logs/
+api/api-template-config-v8/config/

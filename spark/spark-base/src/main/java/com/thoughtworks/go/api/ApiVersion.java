@@ -34,7 +34,8 @@ public enum ApiVersion {
     v8(),
     v9(),
     v10(),
-    v11();
+    v11(),
+    v12();
 
     public static final String LATEST_VERSION_MIMETYPE = "application/vnd.go.cd+json";
 

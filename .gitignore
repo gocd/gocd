@@ -542,3 +542,11 @@ api/api-scms-v4/out/
 api/api-scms-v4/target/
 api/api-scms-v4/logs/
 api/api-scms-v4/config/
+api/api-shared-v12/out/
+api/api-shared-v12/target/
+api/api-shared-v12/logs/
+api/api-shared-v12/config/
+api/api-pipeline-config-v12/out/
+api/api-pipeline-config-v12/target/
+api/api-pipeline-config-v12/logs/
+api/api-pipeline-config-v12/config/

@@ -63,7 +63,7 @@ public interface BitBucketCloudAuth extends HasAuth {
             }
 
             String encodedCredentials = new String(Base64.getDecoder().decode(credentials), UTF_8);
-            return encodedCredentials.contains(":") ? split(encodedCredentials, ":", 2)[1] : encodedCredentials;
+            return encodedCredentials.contains(":") ? split(encodedCredentials, ":", 2)[0] : encodedCredentials;
         }
         return null;
     }

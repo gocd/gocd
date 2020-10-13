@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.materials;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigWatchList;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -170,11 +171,11 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         }
     }
 
-    public boolean updateGitMaterial(String branchName, Collection<String> possibleUrls) {
+    public boolean updateGitMaterial(String branchName, Collection<String> possibleUrls, List<String> scmNames) {
         final CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
         Set<Material> allUniquePostCommitSchedulableMaterials = materialConfigConverter.toMaterials(cruiseConfig.getAllUniquePostCommitSchedulableMaterials());
 
-        Predicate<Material> predicate = new MaterialPredicate(branchName, possibleUrls);
+        Predicate<Material> predicate = scmNames.isEmpty() ? new MaterialPredicate(branchName, possibleUrls) : new PluggableScmPredicate(scmNames);
         Set<Material> allGitMaterials = allUniquePostCommitSchedulableMaterials.stream().filter(predicate).collect(Collectors.toSet());
 
         allGitMaterials.forEach(MaterialUpdateService.this::updateMaterial);
@@ -320,6 +321,20 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             return material instanceof GitMaterial &&
                     ((GitMaterial) material).getBranch().equals(branchName) &&
                     possibleUrls.contains(((GitMaterial) material).getUrlArgument().withoutCredentials());
+        }
+    }
+
+    private static class PluggableScmPredicate implements Predicate<Material> {
+        private final List<String> scmNames;
+
+        public PluggableScmPredicate(List<String> scmNames) {
+            this.scmNames = scmNames;
+        }
+
+        @Override
+        public boolean test(Material material) {
+            return material instanceof PluggableSCMMaterial &&
+                    scmNames.contains(((PluggableSCMMaterial) material).getScmConfig().getName());
         }
     }
 }

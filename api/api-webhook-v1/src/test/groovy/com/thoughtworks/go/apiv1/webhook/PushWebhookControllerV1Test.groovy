@@ -25,10 +25,10 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 
-import static org.mockito.ArgumentMatchers.anyCollection
-import static org.mockito.ArgumentMatchers.eq
+import static org.mockito.ArgumentMatchers.*
+import static org.mockito.Mockito.verify
+import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
 class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTrait<PushWebhookControllerV1> {
@@ -77,7 +77,7 @@ class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTra
         "X-Hub-Signature": "foobar",
         "X-GitHub-Event" : "push"
       ]
-      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+      when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
 
       postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITHUB), headers, payload)
 
@@ -91,7 +91,7 @@ class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTra
         "X-Hub-Signature": "sha1=c699381b869f24e74db3ee95609c52ee1aad1a48",
         "X-GitHub-Event" : "ping"
       ]
-      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+      when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
 
       postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITHUB), headers, payload)
 
@@ -106,8 +106,8 @@ class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTra
         "X-Hub-Signature": "sha1=c699381b869f24e74db3ee95609c52ee1aad1a48",
         "X-GitHub-Event" : "push"
       ]
-      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
-      Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(false)
+      when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+      when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection(), any(String[].class))).thenReturn(false)
 
       postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITHUB), headers, payload)
 
@@ -122,11 +122,28 @@ class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTra
         "X-Hub-Signature": "sha1=c699381b869f24e74db3ee95609c52ee1aad1a48",
         "X-GitHub-Event" : "push"
       ]
-      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
-      Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(true)
+      when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+      when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection(), anyList())).thenReturn(true)
 
       postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITHUB), headers, payload)
 
+      assertThatResponse()
+        .isAccepted()
+        .hasJsonMessage("OK!")
+    }
+
+    @Test
+    void 'should pass in the scm names to the service'() {
+      def headers = [
+        "X-Hub-Signature": "sha1=c699381b869f24e74db3ee95609c52ee1aad1a48",
+        "X-GitHub-Event" : "push"
+      ]
+      when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+      when(materialUpdateService.updateGitMaterial(anyString(), anyCollection(), anyList())).thenReturn(true)
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITHUB) + "?SCM_NAME=abc", headers, payload)
+
+      verify(materialUpdateService).updateGitMaterial(eq("release"), anyCollection(), eq(["abc"]))
       assertThatResponse()
         .isAccepted()
         .hasJsonMessage("OK!")
@@ -162,7 +179,7 @@ class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTra
         "X-Gitlab-Token": "foobar",
         "X-Gitlab-Event": "Push Hook"
       ]
-      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+      when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
 
       postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITLAB), headers, payload)
 
@@ -176,8 +193,8 @@ class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTra
         "X-Gitlab-Token": "c699381b869f24e74db3ee95609c52ee1aad1a48",
         "X-Gitlab-Event": "Push Hook"
       ]
-      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
-      Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(false)
+      when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
+      when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection(), anyList())).thenReturn(false)
 
       postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITLAB), headers, payload)
 
@@ -192,11 +209,28 @@ class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTra
         "X-Gitlab-Token": "c699381b869f24e74db3ee95609c52ee1aad1a48",
         "X-Gitlab-Event": "Push Hook"
       ]
-      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
-      Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(true)
+      when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
+      when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection(), anyList())).thenReturn(true)
 
       postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITLAB), headers, payload)
 
+      assertThatResponse()
+        .isAccepted()
+        .hasJsonMessage("OK!")
+    }
+
+    @Test
+    void 'should pass in the scm names to the service'() {
+      def headers = [
+        "X-Gitlab-Token": "c699381b869f24e74db3ee95609c52ee1aad1a48",
+        "X-Gitlab-Event": "Push Hook"
+      ]
+      when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
+      when(materialUpdateService.updateGitMaterial(anyString(), anyCollection(), anyList())).thenReturn(true)
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.GITLAB) + "?SCM_NAME=abc", headers, payload)
+
+      verify(materialUpdateService).updateGitMaterial(eq("release"), anyCollection(), eq(["abc"]))
       assertThatResponse()
         .isAccepted()
         .hasJsonMessage("OK!")
@@ -237,7 +271,7 @@ class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTra
         "Authorization": "Basic ${encodeToBase64("c699381b869f24e74db3ee95609c52ee1aad1a48")}",
         "X-Event-Key"  : "repo:push"
       ]
-      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+      when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
 
       postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_CLOUD), headers, payload)
 
@@ -251,8 +285,8 @@ class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTra
         "Authorization": "Basic ${encodeToBase64("c699381b869f24e74db3ee95609c52ee1aad1a48")}",
         "X-Event-Key"  : "repo:push"
       ]
-      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
-      Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(false)
+      when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
+      when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection(), anyList())).thenReturn(false)
 
       postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_CLOUD), headers, payload)
 
@@ -267,11 +301,28 @@ class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTra
         "Authorization": "Basic ${encodeToBase64("c699381b869f24e74db3ee95609c52ee1aad1a48")}",
         "X-Event-Key"  : "repo:push"
       ]
-      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
-      Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(true)
+      when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
+      when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection(), anyList())).thenReturn(true)
 
       postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_CLOUD), headers, payload)
 
+      assertThatResponse()
+        .isAccepted()
+        .hasJsonMessage("OK!")
+    }
+
+    @Test
+    void 'should send in the scm names to the service'() {
+      def headers = [
+        "Authorization": "Basic ${encodeToBase64("c699381b869f24e74db3ee95609c52ee1aad1a48")}",
+        "X-Event-Key"  : "repo:push"
+      ]
+      when(serverConfigService.getWebhookSecret()).thenReturn("c699381b869f24e74db3ee95609c52ee1aad1a48")
+      when(materialUpdateService.updateGitMaterial(anyString(), anyCollection(), anyList())).thenReturn(true)
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_CLOUD) + "?SCM_NAME=abc", headers, payload)
+
+      verify(materialUpdateService).updateGitMaterial(eq("release"), anyCollection(), eq(["abc"]))
       assertThatResponse()
         .isAccepted()
         .hasJsonMessage("OK!")
@@ -312,7 +363,7 @@ class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTra
         "X-Hub-Signature": "sha256=invalid-signature",
         "X-Event-Key"    : "repo:refs_changed"
       ]
-      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+      when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
 
       postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_SERVER), headers, payload)
 
@@ -326,8 +377,8 @@ class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTra
         "X-Hub-Signature": "sha256=5b421defd19aacb4772fa869beb40ad1518b76774c61e85d70552e2ec9169204",
         "X-Event-Key"    : "repo:refs_changed"
       ]
-      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
-      Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(false)
+      when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+      when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection(), anyList())).thenReturn(false)
 
       postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_SERVER), headers, payload)
 
@@ -342,11 +393,28 @@ class PushWebhookControllerV1Test implements SecurityServiceTrait, ControllerTra
         "X-Hub-Signature": "sha256=5b421defd19aacb4772fa869beb40ad1518b76774c61e85d70552e2ec9169204",
         "X-Event-Key"    : "repo:refs_changed"
       ]
-      Mockito.when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
-      Mockito.when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection())).thenReturn(true)
+      when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+      when(materialUpdateService.updateGitMaterial(eq("release"), anyCollection(), anyList())).thenReturn(true)
 
       postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_SERVER), headers, payload)
 
+      assertThatResponse()
+        .isAccepted()
+        .hasJsonMessage("OK!")
+    }
+
+    @Test
+    void 'should pass in the scm names to the service'() {
+      def headers = [
+        "X-Hub-Signature": "sha256=5b421defd19aacb4772fa869beb40ad1518b76774c61e85d70552e2ec9169204",
+        "X-Event-Key"    : "repo:refs_changed"
+      ]
+      when(serverConfigService.getWebhookSecret()).thenReturn("webhook-secret")
+      when(materialUpdateService.updateGitMaterial(anyString(), anyCollection(), anyList())).thenReturn(true)
+
+      postWithApiHeader(controller.controllerPath(Routes.Webhook.Push.BIT_BUCKET_SERVER) + "?SCM_NAME=abc", headers, payload)
+
+      verify(materialUpdateService).updateGitMaterial(eq("release"), anyCollection(), eq(["abc"]))
       assertThatResponse()
         .isAccepted()
         .hasJsonMessage("OK!")

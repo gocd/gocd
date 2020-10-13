@@ -18,14 +18,14 @@
 apply plugin: 'groovy'
 
 dependencies {
-  compile project(':config:config-api')
-  compile project(':api:api-base')
+  implementation project(':config:config-api')
+  implementation project(':api:api-base')
 
-  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle)
+  providedAtPackageTime(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle)
 
-  testCompile project(path: ':api:api-base', configuration: 'testOutput')
-  testCompile project(path: ':config:config-api', configuration: 'testOutput')
-  testCompile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  testImplementation project(path: ':api:api-base', configuration: 'testOutput')
+  testImplementation project(path: ':config:config-api', configuration: 'testOutput')
+  testImplementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
 }

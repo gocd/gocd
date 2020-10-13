@@ -44,7 +44,7 @@ public class PluginInfoRepresenter {
                         statusWriter.addChildList("messages", descriptor.getStatus().getMessages());
                     }
                 })
-                .add("plugin_file_location", descriptor.pluginFileLocation())
+                .add("plugin_file_location", descriptor.pluginJarFileLocation())
                 .add("bundled_plugin", descriptor.isBundledPlugin());
 
         if (descriptor.about() != null) {

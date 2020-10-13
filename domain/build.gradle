@@ -17,16 +17,25 @@
 description = 'GoCD Domain Module'
 
 dependencies {
-  compile project(':db')
-  compile project(':commandline')
-  compile group: 'org.springframework', name: 'spring-tx', version: project.versions.spring
-  compile group: 'de.skuzzle', name: 'semantic-version', version: project.versions.semanticVersion
+  implementation project(':base')
+  implementation project(':util')
+  api project(':db')
+  implementation project(':config:config-api')
+  implementation project(':commandline')
+  implementation project(':plugin-infra:plugin-metadata-store')
+  implementation group: 'javax.annotation', name: 'javax.annotation-api', version: project.versions.javaxAnnotation
+  implementation group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
+  implementation group: 'uk.com.robust-it', name: 'cloning', version: project.versions.cloning
+  implementation group: 'org.jdom', name: 'jdom2', version: project.versions.jdom
+  implementation group: 'joda-time', name: 'joda-time', version: project.versions.jodaTime
+  implementation group: 'org.springframework', name: 'spring-tx', version: project.versions.spring
+  api group: 'de.skuzzle', name: 'semantic-version', version: project.versions.semanticVersion
   compileOnly group: 'org.jetbrains', name: 'annotations', version: project.versions.jetBrainsAnnotations
-  testCompile project(path: ':config:config-api', configuration: 'testOutput')
-  testCompile project(':test:test-utils')
+  testImplementation project(path: ':config:config-api', configuration: 'testOutput')
+  testImplementation project(':test:test-utils')
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
 }

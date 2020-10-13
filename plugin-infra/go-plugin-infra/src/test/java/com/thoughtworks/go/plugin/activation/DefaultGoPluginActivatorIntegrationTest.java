@@ -34,7 +34,7 @@ import lib.test.DummyTestPluginInLibDirectory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.felix.framework.util.FelixConstants;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -312,7 +312,7 @@ class DefaultGoPluginActivatorIntegrationTest {
         assertThatPluginWithThisExtensionClassLoadsSuccessfully(ClassWhichUsesSomeClassesInOrgW3CDomPackage.class);
     }
 
-    @After
+    @AfterEach
     void tearDown() {
         framework.stop();
     }

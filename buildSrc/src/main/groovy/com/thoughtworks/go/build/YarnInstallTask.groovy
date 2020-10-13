@@ -17,10 +17,7 @@
 package com.thoughtworks.go.build
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.gradle.api.tasks.incremental.IncrementalTaskInputs
 import org.gradle.internal.os.OperatingSystem
 
@@ -42,8 +39,8 @@ class YarnInstallTask extends DefaultTask {
     }
   }
 
-  @Input
-  // not an @InputFile, because we don't care about the contents of the workingDir itself
+  @InputDirectory
+  @PathSensitive(value = PathSensitivity.ABSOLUTE)
   File getWorkingDir() {
     return workingDir
   }

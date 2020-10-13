@@ -17,25 +17,25 @@
 description = 'API to configure/access cruise-config.xml'
 
 dependencies {
-  compile project(':config:config-api')
-  compile project(':common')
-  compile(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: project.versions.jgit) {
+  implementation project(':config:config-api')
+  implementation project(':common')
+  implementation(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: project.versions.jgit) {
     exclude(group: 'org.apache.httpcomponents')
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
   }
-  compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
-  compile group: 'cglib', name: 'cglib', version: project.versions.cglib
-  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle)
-  testCompile project(path: ':config:config-api', configuration: 'testOutput')
-  testCompile project(':test:test-utils')
+  implementation group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
+  implementation group: 'cglib', name: 'cglib', version: project.versions.cglib
+  providedAtPackageTime(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle)
+  testImplementation project(path: ':config:config-api', configuration: 'testOutput')
+  testImplementation project(':test:test-utils')
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
+  testImplementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
+  testImplementation group: 'org.xmlunit', name: 'xmlunit-assertj', version: project.versions.xmlUnit
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
-  testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
-  testCompile group: 'org.xmlunit', name: 'xmlunit-assertj', version: project.versions.xmlUnit
 
 }
 

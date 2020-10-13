@@ -31,28 +31,28 @@ class LicenseReport {
   private static Set<String> LICENSE_EXCEPTIONS = [
     'Apple License',
     'Bouncy Castle Licence',
-    'The MIT License (MIT)',
     'BSD',
     'Custom: https://raw.github.com/bjoerge/deferred.js/master/dist/dfrrd.js',
     'dom4j BSD license',
     'Similar to Apache License but with the acknowledgment clause removed',
     'The OpenSymphony Software License 1.1',
     '(OFL-1.1 AND MIT)',
-    "GPLv2 with the Classpath Exception",
-    "GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1",
-    "MPL 2.0 or EPL 1.0",
+    'MPL 2.0 or EPL 1.0',
   ]
 
   private static Set<String> ALLOWED_LICENSES = (LICENSE_EXCEPTIONS + [
     APACHE_1_1,
     APACHE_2_0,
+    BSD_0,
     BSD_2_CLAUSE,
     BSD_2_CLAUSE_FREEBSD,
     BSD_3_CLAUSE,
     CDDL_1_0,
     CDDL_1_1,
+    CDDL_1_1_GPL_2_0,
     EDL_1_0,
     EPL_1_0,
+    GPL_2_0_CLASSPATH_EXCEPTION,
     LGPL_2_1,
     LGPL_3_0,
     LGPL_3_0_ONLY,
@@ -174,7 +174,7 @@ class LicenseReport {
             p {
               strong("Manifest license URL(s):")
               moduleLicenseData.moduleLicenses.each { license ->
-                a(href: license.moduleLicenseUrl, normalizeLicense(license.moduleLicense, moduleName))
+                a(href: license.moduleLicenseUrl, normalizeLicense(license.moduleLicense))
               }
             }
           } else {
@@ -199,14 +199,14 @@ class LicenseReport {
     }
   }
 
-  private String normalizeLicense(String license, String moduleName) {
+  private static String normalizeLicense(String license) {
     return SpdxLicense.normalizedLicense(license) ?: NonSpdxLicense.normalizedLicense(license) ?: license
   }
 
   private checkIfLicensesAreAllowed(List<Map<String, String>> moduleLicenses, String moduleName, String moduleVersion) {
     Set<String> licenseNames = moduleLicenses.collect { it.moduleLicense }
     Set<String> normalizedLicenseNames = licenseNames
-      .collect { normalizeLicense(it, moduleName) }
+      .collect { normalizeLicense(it) }
       .findAll { it != null }
 
     def intersect = ALLOWED_LICENSES.intersect(normalizedLicenseNames, new Comparator<String>() {
@@ -217,7 +217,7 @@ class LicenseReport {
     })
 
     if (intersect.isEmpty()) {
-      throw new GradleException("License '${licenseNames}' (normalized to '${normalizedLicenseNames}') used by '${moduleName}:${moduleVersion}' are not approved! Allowed licenses are:\n ${ALLOWED_LICENSES.collect{"  - ${it}"}.join("\n")}")
+      throw new GradleException("License '${licenseNames}' (normalized to '${normalizedLicenseNames}') used by '${moduleName}:${moduleVersion}' are not approved! Allowed licenses are:\n${ALLOWED_LICENSES.collect{"  - ${it}"}.join("\n")}")
     } else {
       project.getLogger().debug("License '${licenseNames}' (normalized to '${normalizedLicenseNames}') used by '${moduleName}:${moduleVersion}' is approved because of ${intersect}")
     }

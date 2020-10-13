@@ -17,25 +17,29 @@
 description = 'GoCD Common Module'
 
 dependencies {
-  compile project(':config:config-api')
-  compile project(':commandline')
-  compile project(':domain')
-  compile project(':plugin-infra:go-plugin-access')
-  compile project(':plugin-infra:go-plugin-config-repo')
-  compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
-  compile(group: 'org.apache.httpcomponents', name: 'httpmime', version: project.versions.apacheHttpComponents)
+  api project(':config:config-api')
+  api project(':commandline')
+  api project(':base')
+  api project(':util')
+  api project(':domain')
+  api project(':plugin-infra:go-plugin-access')
+  api group: 'dom4j', name: 'dom4j', version: '1.6.1'
+  api group: 'org.apache.httpcomponents', name: 'httpmime', version: project.versions.apacheHttpComponents
+  api group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
+  api group: 'org.springframework', name: 'spring-tx', version: project.versions.spring
+  implementation group: 'joda-time', name: 'joda-time', version: project.versions.jodaTime
 
-  testCompile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  testCompile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
-  testCompile project(path: ':config:config-api', configuration: 'testOutput')
-  testCompile project(path: ':domain', configuration: 'testOutput')
-  testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
-  testCompile project(':test:test-utils')
-  testCompile group: 'com.google.guava', name: 'guava', version: project.versions.guava
+  testImplementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  testImplementation group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
+  testImplementation project(path: ':config:config-api', configuration: 'testOutput')
+  testImplementation project(path: ':domain', configuration: 'testOutput')
+  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
+  testImplementation project(':test:test-utils')
+  testImplementation group: 'com.google.guava', name: 'guava', version: project.versions.guava
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5
 }
 

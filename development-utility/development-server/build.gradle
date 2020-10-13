@@ -23,28 +23,28 @@ configurations {
 }
 
 dependencies {
-  compile project(':server')
-  compile project(':api').subprojects
-  compile project(':spark').subprojects
-  compile group: 'org.eclipse.jetty', name: 'jetty-server', version: versions.jetty
-  compile group: 'org.eclipse.jetty', name: 'jetty-plus', version: versions.jetty
-  compile group: 'org.eclipse.jetty', name: 'jetty-jmx', version: versions.jetty
-  compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version: versions.jetty
-  compile group: 'org.eclipse.jetty', name: 'jetty-util', version: versions.jetty
-  compile group: 'org.eclipse.jetty', name: 'jetty-deploy', version: versions.jetty
-  compile group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
+  implementation project(':server')
+  implementation project(':api').subprojects
+  implementation project(':spark').subprojects
+  implementation group: 'org.eclipse.jetty', name: 'jetty-server', version: versions.jetty
+  implementation group: 'org.eclipse.jetty', name: 'jetty-plus', version: versions.jetty
+  implementation group: 'org.eclipse.jetty', name: 'jetty-jmx', version: versions.jetty
+  implementation group: 'org.eclipse.jetty', name: 'jetty-servlets', version: versions.jetty
+  implementation group: 'org.eclipse.jetty', name: 'jetty-util', version: versions.jetty
+  implementation group: 'org.eclipse.jetty', name: 'jetty-deploy', version: versions.jetty
+  implementation group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
 
-  compile(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: project.versions.jgit) {
+  implementation(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: project.versions.jgit) {
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
   }
-  compile project(':jetty9')
-  compile group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
-  compile group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
-  compile group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
-  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
-  compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
+  implementation project(':jetty9')
+  implementation group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
+  implementation group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
+  implementation group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
+  implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  implementation group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
+  implementation group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
 
   copyOnly project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')
   copyOnly project(':plugin-infra:go-plugin-activator')

@@ -17,16 +17,6 @@
 description = 'GoCD AppServer Module'
 
 dependencies {
-
-  compile project(':base')
-  compile group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
-  compile group: 'ch.qos.logback', name: 'logback-classic', version: project.versions.logback
-  compile group: 'org.apache.commons', name: 'commons-dbcp2', version: project.versions.commonsDbcp
-  compile group: 'org.apache.commons', name: 'commons-pool2', version: project.versions.commonsPool
-  compile group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
-  compile group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
-  testCompile project(':common')
-  testCompile project(':config:config-server')
-  testCompile project(':config:config-api')
-  testCompile project(':test:test-utils')
+  implementation project(':base')
+  implementation group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
 }

@@ -16,35 +16,32 @@
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import org.junit.jupiter.api.Test;
-import org.xml.sax.SAXException;
 
+import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
 import static com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptorParser.parseXML;
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Fail.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 class GoPluginBundleDescriptorParserTest {
     @Test
-    void shouldParseValidVersionOfPluginBundleXML() throws IOException, SAXException {
+    void shouldParseValidVersionOfPluginBundleXML() throws Exception {
         InputStream pluginXml = getClass().getClassLoader().getResourceAsStream("defaultFiles/valid-gocd-bundle.xml");
-        final GoPluginBundleDescriptor bundleDescriptor = parseXML(pluginXml, "/tmp/a.jar", new File("/tmp/"), true);
+        final GoPluginBundleDescriptor bundle = parseXML(pluginXml, "/tmp/a.jar", new File("/tmp/"), true);
+        assertEquals(2, bundle.descriptors().size());
 
-        assertThat(bundleDescriptor.descriptors().size()).isEqualTo(2);
-
-        final GoPluginDescriptor pluginDescriptor1 = bundleDescriptor.descriptors().get(0);
+        final GoPluginDescriptor pluginDescriptor1 = bundle.descriptors().get(0);
         assertPluginDescriptor(pluginDescriptor1, "testplugin.multipluginbundle.plugin1",
                 "Plugin 1", "1.0.0", "19.5",
                 "Example plugin 1", "ThoughtWorks GoCD Team", "www.thoughtworks.com", asList("Linux", "Windows"),
                 asList("cd.go.contrib.package1.TaskExtension", "cd.go.contrib.package1.ElasticAgentExtension"));
 
-
-        final GoPluginDescriptor pluginDescriptor2 = bundleDescriptor.descriptors().get(1);
+        final GoPluginDescriptor pluginDescriptor2 = bundle.descriptors().get(1);
         assertPluginDescriptor(pluginDescriptor2, "testplugin.multipluginbundle.plugin2",
                 "Plugin 2", "2.0.0", "19.5",
                 "Example plugin 2", "Some other org", "www.example.com", singletonList("Linux"),
@@ -52,17 +49,15 @@ class GoPluginBundleDescriptorParserTest {
     }
 
     @Test
-    void shouldNotAllowPluginWithEmptyListOfExtensionsInABundle() throws IOException {
+    void shouldNotAllowPluginWithEmptyListOfExtensionsInABundle() {
         InputStream pluginXml = getClass().getClassLoader().getResourceAsStream("defaultFiles/gocd-bundle-with-no-extension-classes.xml");
 
-        try {
-            GoPluginBundleDescriptorParser.parseXML(pluginXml, "/tmp/a.jar", new File("/tmp/"), true);
-            fail("Expected this to throw an exception");
-        } catch (SAXException e) {
-            assertThat(e.getCause().getMessage()).isEqualTo("cvc-complex-type.2.4.b: The content of element 'extensions' is not complete. One of '{extension}' is expected.");
-        }
+        final JAXBException e = assertThrows(JAXBException.class, () ->
+                parseXML(pluginXml, "/tmp/a.jar", new File("/tmp/"), true));
+        assertTrue(e.getCause().getMessage().contains("The content of element 'extensions' is not complete. One of '{extension}' is expected"), format("Message not correct: [%s]", e.getCause().getMessage()));
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void assertPluginDescriptor(GoPluginDescriptor pluginDescriptor,
                                         String pluginID,
                                         String pluginName,
@@ -73,17 +68,17 @@ class GoPluginBundleDescriptorParserTest {
                                         String vendorURL,
                                         List<String> targetOSes,
                                         List<String> extensionClasses) {
-        assertThat(pluginDescriptor.id()).isEqualTo(pluginID);
-        assertThat(pluginDescriptor.pluginFileLocation()).isEqualTo("/tmp/a.jar");
-        assertThat(pluginDescriptor.fileName()).isEqualTo("tmp");
-        assertThat(pluginDescriptor.about().name()).isEqualTo(pluginName);
-        assertThat(pluginDescriptor.about().version()).isEqualTo(pluginVersion);
-        assertThat(pluginDescriptor.about().targetGoVersion()).isEqualTo(targetGoVersion);
-        assertThat(pluginDescriptor.about().description()).isEqualTo(description);
-        assertThat(pluginDescriptor.about().vendor().name()).isEqualTo(vendorName);
-        assertThat(pluginDescriptor.about().vendor().url()).isEqualTo(vendorURL);
-        assertThat(pluginDescriptor.about().targetOperatingSystems()).isEqualTo(targetOSes);
-        assertThat(pluginDescriptor.extensionClasses()).isEqualTo(extensionClasses);
+        assertEquals(pluginID, pluginDescriptor.id());
+        assertEquals("/tmp/a.jar", pluginDescriptor.pluginJarFileLocation());
+        assertEquals("tmp", pluginDescriptor.fileName());
+        assertEquals(pluginName, pluginDescriptor.about().name());
+        assertEquals(pluginVersion, pluginDescriptor.about().version());
+        assertEquals(targetGoVersion, pluginDescriptor.about().targetGoVersion());
+        assertEquals(description, pluginDescriptor.about().description());
+        assertEquals(vendorName, pluginDescriptor.about().vendor().name());
+        assertEquals(vendorURL, pluginDescriptor.about().vendor().url());
+        assertEquals(targetOSes, pluginDescriptor.about().targetOperatingSystems());
+        assertEquals(extensionClasses, pluginDescriptor.extensionClasses());
     }
 
 }

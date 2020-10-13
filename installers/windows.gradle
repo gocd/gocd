@@ -61,7 +61,7 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
 
     doFirst {
       project.delete(buildRoot)
-      project.mkdir(project.file("${project.convention.plugins.get("base").distsDir}/win"))
+      project.mkdir(project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/win"))
 
       def genericZipTree = zipTree(genericZipTask.archiveFile)
 
@@ -125,14 +125,14 @@ def executeNSIS(InstallerType installerType, File buildRoot, File destDir) {
 
   def flavor = "64bit"
 
-  def outputFile = project.file("${destDir}/${installerType.baseName}-${project.fullVersion}-jre-${flavor}-setup.exe")
+  def outputFile = project.file("${destDir.path}/${installerType.baseName}-${project.fullVersion}-jre-${flavor}-setup.exe")
 
   // pad enough zeros to be able to convert the version string using simple numbers, instead of version numbers
   def registryVersionString = "${project.goVersion.split(/\./).collect { it.padLeft(2, '0') }.join()}${project.distVersion.padRight(5, '0')}"
 
-  def installerContents = project.file("${buildRoot}/${installerType.baseName}-${project.goVersion}")
+  def installerContents = project.file("${buildRoot.path}/${installerType.baseName}-${project.goVersion}")
 
-  def unInstallManifestFile = project.file("${buildRoot}/uninstall-manifest.nsi")
+  def unInstallManifestFile = project.file("${buildRoot.path}/uninstall-manifest.nsi")
 
   unInstallManifestFile.withWriter { out ->
     project.fileTree(installerContents).forEach({ File eachFile ->
@@ -150,16 +150,16 @@ def executeNSIS(InstallerType installerType, File buildRoot, File destDir) {
     "-DENABLE_LOGGING=true",
     "-DGOCD_ICON=${project.file('windows/gocd.ico')}",
     "-DGOCD_LICENSE_FILE=${rootProject.file("LICENSE")}",
-    "-DINSTALLER_CONTENTS=${installerContents}",
-    "-DOUTPUT_FILE=${outputFile}",
-    "-DUNINSTALL_MANIFEST_FILE=${unInstallManifestFile}",
+    "-DINSTALLER_CONTENTS=${installerContents.path}",
+    "-DOUTPUT_FILE=${outputFile.path}",
+    "-DUNINSTALL_MANIFEST_FILE=${unInstallManifestFile.path}",
     "-DWINDOWS_PRODUCT_VERSION=${project.goVersion}.${project.distVersion}",
   ]
 
   cmdArgs += ["-V4"] // verbose
 
   project.exec { ExecSpec execSpec ->
-    commandLine = (["makensis"] + cmdArgs + [project.file("windows/${installerType.baseName}.nsi")])
+    commandLine = (["makensis"] + cmdArgs + [project.file("windows/${installerType.baseName}.nsi").path])
 
     standardOutput = System.out
     errorOutput = System.err
@@ -170,8 +170,8 @@ def executeNSIS(InstallerType installerType, File buildRoot, File destDir) {
 
 task agentWindows64bitExe { DefaultTask thisTask ->
   def installerType = InstallerType.agent
-  def buildRoot = project.file("${project.buildDir}/${installerType.baseName}/win/BUILD_ROOT")
-  def destDir = project.file("${project.convention.plugins.get("base").distsDir}/win")
+  def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/win/BUILD_ROOT")
+  def destDir = project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/win")
 
   configureWindowsFilesystem(thisTask, installerType, agentGenericZip, buildRoot)
 
@@ -186,8 +186,8 @@ task agentWindows64bitExe { DefaultTask thisTask ->
 
 task serverWindows64bitExe { DefaultTask thisTask ->
   def installerType = InstallerType.server
-  def buildRoot = project.file("${project.buildDir}/${installerType.baseName}/win/BUILD_ROOT")
-  def destDir = project.file("${project.convention.plugins.get("base").distsDir}/win")
+  def buildRoot = project.file("${project.buildDir.path}/${installerType.baseName}/win/BUILD_ROOT")
+  def destDir = project.file("${project.convention.plugins.get("base").distsDirectory.get().asFile.path}/win")
 
   configureWindowsFilesystem(thisTask, installerType, serverGenericZip, buildRoot)
 

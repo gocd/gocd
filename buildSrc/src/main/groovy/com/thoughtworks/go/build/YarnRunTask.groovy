@@ -41,7 +41,8 @@ class YarnRunTask extends DefaultTask {
     })
   }
 
-  @Input
+  @InputDirectory
+  @PathSensitive(value = PathSensitivity.ABSOLUTE)
   File getWorkingDir() {
     return workingDir
   }

@@ -17,12 +17,12 @@
 apply plugin: 'groovy'
 
 dependencies {
-  compile project(':server')
-  compile project(':spark:spark-base')
-  testCompile localGroovy()
-  testCompile project(path: ':server', configuration: 'testOutput')
-  testCompile project(path: ':spark:spark-base', configuration: 'testOutput')
-  testCompile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  api project(':config:config-server')
+  api project(':spark:spark-base')
+  testImplementation localGroovy()
+  testImplementation project(path: ':server', configuration: 'testOutput')
+  testImplementation project(path: ':spark:spark-base', configuration: 'testOutput')
+  testImplementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
 }

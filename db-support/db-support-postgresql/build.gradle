@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-
-apply plugin: 'java'
-
 dependencies {
-    compile group: 'org.postgresql', name: 'postgresql', version: project.versions.postgresql
-    compile project(':db-support:db-support-base')
+    implementation group: 'org.postgresql', name: 'postgresql', version: project.versions.postgresql
+    api project(':db-support:db-support-base')
 
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
 
-    testCompile project(path: ':db-support:db-migration', configuration: 'testOutput')
+    testImplementation project(path: ':db-support:db-migration', configuration: 'testOutput')
 
-    testCompile group: 'org.testcontainers', name: 'junit-jupiter', version: '1.14.3'
-    testCompile group: 'org.testcontainers', name: 'testcontainers', version: '1.14.3'
-    testCompile group: 'org.testcontainers', name: 'postgresql', version: '1.14.3'
+    testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.14.3'
+    testImplementation group: 'org.testcontainers', name: 'testcontainers', version: '1.14.3'
+    testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.14.3'
 
-    testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
+    testImplementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
 }

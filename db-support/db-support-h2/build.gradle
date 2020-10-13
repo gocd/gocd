@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-
-apply plugin: 'java'
-
 dependencies {
-    compile group: 'com.h2database', name: 'h2', version: project.versions.h2
-    compile project(':db-support:db-support-base')
+    implementation group: 'com.h2database', name: 'h2', version: project.versions.h2
+    api project(':db-support:db-support-base')
 
-    testCompile project(path: ':db-support:db-migration', configuration: 'testOutput')
+    testImplementation project(path: ':db-support:db-migration', configuration: 'testOutput')
 
-    testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
+    testImplementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
 }

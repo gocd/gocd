@@ -24,6 +24,7 @@ import java.util.List;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNullElse;
 
 @Slf4j
 @Component
@@ -37,6 +38,7 @@ public class GoPluginBundleDescriptorBuilder {
 
         String defaultId = bundleOrPluginJarFile.file().getName();
         GoPluginBundleDescriptor goPluginBundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder()
+                .version("1")
                 .id(defaultId)
                 .bundleLocation(bundleOrPluginJarFile.extractionLocation())
                 .pluginJarFileLocation(bundleOrPluginJarFile.file().getAbsolutePath())
@@ -55,7 +57,8 @@ public class GoPluginBundleDescriptorBuilder {
             goPluginBundleDescriptor.markAsInvalid(List.of(format("Plugin with ID (%s) is not valid. The plugin does not seem to contain plugin.xml or gocd-bundle.xml", defaultId)), new RuntimeException("The plugin does not seem to contain plugin.xml or gocd-bundle.xml"));
         } catch (Exception e) {
             log.warn("Unable to load the jar file {}", bundleOrPluginJarFile.file(), e);
-            String cause = e.getCause() != null ? format("%s. Cause: %s", e.getMessage(), e.getCause().getMessage()) : e.getMessage();
+            final String message = requireNonNullElse(e.getMessage(), e.getClass().getCanonicalName());
+            String cause = e.getCause() != null ? format("%s. Cause: %s", message, e.getCause().getMessage()) : message;
             goPluginBundleDescriptor.markAsInvalid(singletonList(format("Plugin with ID (%s) is not valid: %s", defaultId, cause)), e);
         }
 

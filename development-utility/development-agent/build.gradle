@@ -23,8 +23,9 @@ configurations {
 }
 
 dependencies {
-  compile project(':agent')
-  compile project(':util')
+  implementation project(':agent')
+  implementation project(':base')
+  implementation project(':util')
   copyOnly project(':plugin-infra:go-plugin-activator')
 }
 

@@ -16,16 +16,17 @@
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import com.thoughtworks.go.plugin.infra.monitor.BundleOrPluginFileDetails;
-import org.apache.commons.digester3.Digester;
-import org.xml.sax.*;
+import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
+import javax.xml.bind.*;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.validation.SchemaFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 
 public final class GoPluginDescriptorParser {
 /*
@@ -48,113 +49,44 @@ public final class GoPluginDescriptorParser {
     </go-plugin>
 */
 
-    private GoPluginDescriptor.Vendor vendor;
-    private GoPluginDescriptor.About about;
-    private GoPluginBundleDescriptor descriptor;
-    private File pluginBundleLocation;
-    private boolean isBundledPlugin;
-    private List<String> targetOperatingSystems = new ArrayList<>();
-    private String pluginJarFileLocation;
-
-    private GoPluginDescriptorParser(String pluginJarFileLocation, File pluginBundleLocation, boolean isBundledPlugin) {
-        this.pluginJarFileLocation = pluginJarFileLocation;
-        this.pluginBundleLocation = pluginBundleLocation;
-        this.isBundledPlugin = isBundledPlugin;
+    private GoPluginDescriptorParser() {
     }
 
     public static GoPluginBundleDescriptor parseXML(InputStream pluginXml,
-                                                    BundleOrPluginFileDetails bundleOrPluginJarFile) throws IOException, SAXException {
+                                                    BundleOrPluginFileDetails bundleOrPluginJarFile) throws IOException, JAXBException, XMLStreamException, SAXException {
         return parseXML(pluginXml, bundleOrPluginJarFile.file().getAbsolutePath(), bundleOrPluginJarFile.extractionLocation(), bundleOrPluginJarFile.isBundledPlugin());
     }
 
     static GoPluginBundleDescriptor parseXML(InputStream pluginXML,
                                              String pluginJarFileLocation,
                                              File pluginBundleLocation,
-                                             boolean isBundledPlugin) throws IOException, SAXException {
-        Digester digester = initDigester();
-        GoPluginDescriptorParser parserForThisXML = new GoPluginDescriptorParser(pluginJarFileLocation, pluginBundleLocation, isBundledPlugin);
-        digester.push(parserForThisXML);
-
-        digester.addCallMethod("go-plugin", "createPlugin", 2);
-        digester.addCallParam("go-plugin", 0, "id");
-        digester.addCallParam("go-plugin", 1, "version");
-
-        digester.addCallMethod("go-plugin/about", "createAbout", 4);
-        digester.addCallParam("go-plugin/about/name", 0);
-        digester.addCallParam("go-plugin/about/version", 1);
-        digester.addCallParam("go-plugin/about/target-go-version", 2);
-        digester.addCallParam("go-plugin/about/description", 3);
-
-        digester.addCallMethod("go-plugin/about/vendor", "createVendor", 2);
-        digester.addCallParam("go-plugin/about/vendor/name", 0);
-        digester.addCallParam("go-plugin/about/vendor/url", 1);
-
-        digester.addCallMethod("go-plugin/about/target-os/value", "addTargetOS", 1);
-        digester.addCallParam("go-plugin/about/target-os/value", 0);
-
-        digester.parse(pluginXML);
-
-        return parserForThisXML.descriptor;
+                                             boolean isBundledPlugin) throws IOException, JAXBException, XMLStreamException, SAXException {
+        GoPluginDescriptor plugin = deserializeXML(pluginXML, GoPluginDescriptor.class);
+        plugin.pluginJarFileLocation(pluginJarFileLocation);
+        plugin.bundleLocation(pluginBundleLocation);
+        plugin.isBundledPlugin(isBundledPlugin);
+        return new GoPluginBundleDescriptor(plugin);
     }
 
-    private static Digester initDigester() throws SAXNotRecognizedException, SAXNotSupportedException {
-        Digester digester = new Digester();
-        digester.setValidating(true);
-        digester.setErrorHandler(new ErrorHandler() {
-            @Override
-            public void warning(SAXParseException exception) throws SAXException {
-                throw new SAXException("XML Schema validation of Plugin Descriptor(plugin.xml) failed", exception);
+    @SuppressWarnings("SameParameterValue")
+    private static <T> T deserializeXML(InputStream pluginXML, Class<T> klass) throws JAXBException, XMLStreamException, SAXException {
+        JAXBContext ctx = JAXBContext.newInstance(klass);
+        XMLStreamReader data = XMLInputFactory.newInstance().createXMLStreamReader(pluginXML);
+        final Unmarshaller unmarshaller = ctx.createUnmarshaller();
+        unmarshaller.setSchema(SchemaFactory.
+                newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).
+                newSchema(GoPluginDescriptorParser.class.getResource("/plugin-descriptor.xsd")));
+
+        try {
+            final JAXBElement<T> result = unmarshaller.unmarshal(data, klass);
+            return result.getValue();
+        } catch (UnmarshalException e) {
+            // there is no non-frustrating way to customize error messages (without other pitfalls anyway),
+            // and `UnmarshalException` instances are rarely informative; assume a validation error.
+            if (null == e.getMessage()) {
+                throw new ValidationException("XML Schema validation of Plugin Descriptor(plugin.xml) failed", e.getCause());
             }
-
-            @Override
-            public void error(SAXParseException exception) throws SAXException {
-                throw new SAXException("XML Schema validation of Plugin Descriptor(plugin.xml) failed", exception);
-            }
-
-            @Override
-            public void fatalError(SAXParseException exception) throws SAXException {
-                throw new SAXException("XML Schema validation of Plugin Descriptor(plugin.xml) failed", exception);
-            }
-        });
-        digester.setProperty("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-                XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        digester.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource",
-                GoPluginDescriptorParser.class.getResourceAsStream("/plugin-descriptor.xsd"));
-        return digester;
-    }
-
-
-    //used by digester
-    public void createPlugin(String id, String version) {
-        descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.builder()
-                .id(id)
-                .version(version)
-                .about(about)
-                .pluginJarFileLocation(pluginJarFileLocation)
-                .bundleLocation(pluginBundleLocation)
-                .isBundledPlugin(isBundledPlugin)
-                .build());
-    }
-
-    //used by digester
-    public void createVendor(String name, String url) {
-        vendor = new GoPluginDescriptor.Vendor(name, url);
-    }
-
-    //used by digester
-    public void createAbout(String name, String version, String targetGoVersion, String description) {
-        about = GoPluginDescriptor.About.builder()
-                .name(name)
-                .version(version)
-                .targetGoVersion(targetGoVersion)
-                .description(description)
-                .vendor(vendor)
-                .targetOperatingSystems(targetOperatingSystems)
-                .build();
-    }
-
-    //used by digester
-    public void addTargetOS(String os) {
-        targetOperatingSystems.add(os);
+            throw e;
+        }
     }
 }

@@ -17,10 +17,10 @@
 apply plugin: 'groovy'
 
 dependencies {
-    compile project(':api:api-base')
-    compile project(':api:api-shared-v10')
+    implementation project(':api:api-base')
+    implementation project(':api:api-shared-v10')
 
-    testCompile project(path: ':api:api-base', configuration: 'testOutput')
+    testImplementation project(path: ':api:api-base', configuration: 'testOutput')
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5

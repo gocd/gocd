@@ -15,30 +15,47 @@
  */
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.Accessors;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.osgi.framework.Bundle;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Getter
+@NoArgsConstructor
 @ToString
 @EqualsAndHashCode
+@Accessors(fluent = true)
+@Getter
+@XmlRootElement(name = "gocd-bundle")
 public class GoPluginBundleDescriptor {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @Getter
     private Bundle bundle;
 
+    @Getter
+    @Setter
+    @XmlAttribute
+    private String version = "1";
+
+    @XmlElementWrapper(name = "plugins")
+    @XmlElement(name = "plugin")
     private List<GoPluginDescriptor> pluginDescriptors;
 
     public GoPluginBundleDescriptor(GoPluginDescriptor... pluginDescriptors) {
         this.pluginDescriptors = List.of(pluginDescriptors);
-        this.pluginDescriptors.forEach(descriptor -> descriptor.setBundleDescriptor(this));
+        this.pluginDescriptors.forEach(descriptor -> {
+            descriptor.setBundleDescriptor(this);
+            descriptor.version(this.version);
+        });
     }
 
     public List<GoPluginDescriptor> descriptors() {
@@ -55,7 +72,7 @@ public class GoPluginBundleDescriptor {
     }
 
     public String bundleJARFileLocation() {
-        return first().pluginFileLocation();
+        return first().pluginJarFileLocation();
     }
 
     public boolean isInvalid() {
@@ -69,10 +86,6 @@ public class GoPluginBundleDescriptor {
     public GoPluginBundleDescriptor setBundle(Bundle bundle) {
         this.bundle = bundle;
         return this;
-    }
-
-    public Bundle bundle() {
-        return bundle;
     }
 
     public List<String> getMessages() {

@@ -26,6 +26,9 @@ export function getMiniCssExtractLoader(configOptions: ConfigOptions): webpack.R
     use: [
       {
         loader: configOptions.production ? MiniCssExtractPlugin.loader : "style-loader",
+        options: {
+          esModule: false // we need CommonJS modules
+        }
       },
       {
         loader: path.resolve(__dirname, "type-declarations-for-css-modules.js"),

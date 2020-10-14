@@ -16,8 +16,8 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
-import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
-import {SecretConfigsJSON} from "models/secret_configs/secret_configs_json";
+import {SecretConfig, SecretConfigs, SecretConfigsWithSuggestions} from "models/secret_configs/secret_configs";
+import {SecretConfigsJSON, SecretConfigsWithSuggestionsJSON} from "models/secret_configs/secret_configs_json";
 
 export class SecretConfigsCRUD {
   private static API_VERSION_HEADER = ApiVersion.v1;
@@ -27,6 +27,15 @@ export class SecretConfigsCRUD {
                             .then((result: ApiResult<string>) => {
                               return result.map((body) => {
                                 return SecretConfigs.fromJSON(JSON.parse(body) as SecretConfigsJSON);
+                              });
+                            });
+  }
+
+  static allWithAutocompleteSuggestions() {
+    return ApiRequestBuilder.GET(SparkRoutes.apiSecretConfigsWithAutocompleteSuggestionsPath(), this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => {
+                              return result.map((body) => {
+                                return SecretConfigsWithSuggestions.fromJSON(JSON.parse(body) as SecretConfigsWithSuggestionsJSON);
                               });
                             });
   }
@@ -59,7 +68,7 @@ export class SecretConfigsCRUD {
       const parsedSecretConfig = JSON.parse(body);
       return {
         object: SecretConfig.fromJSON(parsedSecretConfig),
-        etag: response.getEtag()
+        etag:   response.getEtag()
       } as ObjectWithEtag<SecretConfig>;
     });
   }

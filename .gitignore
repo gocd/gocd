@@ -542,3 +542,7 @@ api/api-scms-v4/out/
 api/api-scms-v4/target/
 api/api-scms-v4/logs/
 api/api-scms-v4/config/
+api/api-internal-secret-config-v1/out/
+api/api-internal-secret-config-v1/target/
+api/api-internal-secret-config-v1/logs/
+api/api-internal-secret-config-v1/config/

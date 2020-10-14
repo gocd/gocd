@@ -47,6 +47,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -362,7 +363,7 @@ class ConfigConverterTest {
     void shouldConvertDependencyMaterial() {
         CRDependencyMaterial crDependencyMaterial = new CRDependencyMaterial("name", "pipe", "stage", true);
         DependencyMaterialConfig dependencyMaterialConfig =
-                (DependencyMaterialConfig) configConverter.toMaterialConfig(crDependencyMaterial, context);
+                (DependencyMaterialConfig) configConverter.toMaterialConfig(crDependencyMaterial, context, new SCMs());
 
         assertThat(dependencyMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(dependencyMaterialConfig.getPipelineName().toLower()).isEqualTo("pipe");
@@ -375,7 +376,7 @@ class ConfigConverterTest {
         CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true, false, null, filter, "url", "branch", true);
 
         GitMaterialConfig gitMaterialConfig =
-                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context);
+                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context, new SCMs());
 
         assertThat(gitMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(gitMaterialConfig.getFolder()).isEqualTo("folder");
@@ -391,7 +392,7 @@ class ConfigConverterTest {
         CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true, true, null, filter, "url", "branch", true);
 
         GitMaterialConfig gitMaterialConfig =
-                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context);
+                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context, new SCMs());
 
         assertThat(gitMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(gitMaterialConfig.getFolder()).isEqualTo("folder");
@@ -407,7 +408,7 @@ class ConfigConverterTest {
         CRHgMaterial crHgMaterial = new CRHgMaterial("name", "folder", true, true, null, filter, "url", "feature");
 
         HgMaterialConfig hgMaterialConfig =
-                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context);
+                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context, new SCMs());
 
         assertThat(hgMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(hgMaterialConfig.getFolder()).isEqualTo("folder");
@@ -424,7 +425,7 @@ class ConfigConverterTest {
         crGitMaterial.setUrl("url");
 
         GitMaterialConfig gitMaterialConfig =
-                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context);
+                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context, new SCMs());
 
         assertThat(crGitMaterial.getName()).isNull();
         assertThat(crGitMaterial.getDestination()).isNull();
@@ -441,7 +442,7 @@ class ConfigConverterTest {
         crGitMaterial.setPassword("secret");
 
         GitMaterialConfig gitMaterialConfig =
-                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context);
+                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context, new SCMs());
 
         assertThat(gitMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(gitMaterialConfig.getFolder()).isEqualTo("folder");
@@ -459,7 +460,7 @@ class ConfigConverterTest {
         crGitMaterial.setEncryptedPassword(new GoCipher().encrypt("secret"));
 
         GitMaterialConfig gitMaterialConfig =
-                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context);
+                (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context, new SCMs());
 
         assertThat(gitMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(gitMaterialConfig.getFolder()).isEqualTo("folder");
@@ -478,7 +479,7 @@ class ConfigConverterTest {
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial();
 
-        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context);
+        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context, new SCMs());
         assertThat(materialConfig.getName()).as("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode").isNull();
 
         GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) materialConfig;
@@ -501,7 +502,7 @@ class ConfigConverterTest {
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial();
         crConfigMaterial.setFilter(new CRFilter(filter, false));
 
-        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context);
+        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context, new SCMs());
         assertThat(materialConfig.getName()).as("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode").isNull();
 
         GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) materialConfig;
@@ -523,7 +524,7 @@ class ConfigConverterTest {
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial(null, null, new CRFilter(filter, true));
 
-        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context);
+        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context, new SCMs());
         assertThat(materialConfig.getName()).as("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode").isNull();
 
         HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) materialConfig;
@@ -542,7 +543,7 @@ class ConfigConverterTest {
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial(null, null, new CRFilter(new ArrayList<>(), true));
 
-        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context);
+        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context, new SCMs());
         assertThat(materialConfig.getName()).as("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode").isNull();
 
         HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) materialConfig;
@@ -560,7 +561,7 @@ class ConfigConverterTest {
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", null, null);
 
-        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context);
+        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context, new SCMs());
         assertThat(materialConfig.getName().toLower()).as("shouldSetMaterialNameAsInConfigRepoSourceCode").isEqualTo("example");
         assertThat(materialConfig.getFolder()).as("shouldUseFolderFromXMLWhenConfigRepoHasNone").isEqualTo("folder");
 
@@ -577,7 +578,7 @@ class ConfigConverterTest {
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1", null);
 
-        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context);
+        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context, new SCMs());
         assertThat(materialConfig.getName().toLower()).as("shouldSetMaterialNameAsInConfigRepoSourceCode").isEqualTo("example");
         assertThat(materialConfig.getFolder()).as("shouldUseFolderFromConfigRepoWhenSpecified").isEqualTo("dest1");
 
@@ -599,7 +600,7 @@ class ConfigConverterTest {
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1", null);
 
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
-                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crConfigMaterial, context);
+                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crConfigMaterial, context, scms);
 
         assertThat(pluggableSCMMaterialConfig.getName().toLower()).isEqualTo("example");
         assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(myscm);
@@ -621,7 +622,7 @@ class ConfigConverterTest {
 
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1", new CRFilter(filter, true));
 
-        MaterialConfig pluggableMaterial = configConverter.toMaterialConfig(crConfigMaterial, context);
+        MaterialConfig pluggableMaterial = configConverter.toMaterialConfig(crConfigMaterial, context, scms);
 
         assertTrue(pluggableMaterial.isInvertFilter());
     }
@@ -631,7 +632,7 @@ class ConfigConverterTest {
         CRHgMaterial crHgMaterial = new CRHgMaterial("name", "folder", true, false, null, filter, "url", null);
 
         HgMaterialConfig hgMaterialConfig =
-                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context);
+                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context, new SCMs());
 
         assertThat(hgMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(hgMaterialConfig.getFolder()).isEqualTo("folder");
@@ -645,7 +646,7 @@ class ConfigConverterTest {
         CRHgMaterial crHgMaterial = new CRHgMaterial(null, "folder", true, false, null, filter, "url", null);
 
         HgMaterialConfig hgMaterialConfig =
-                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context);
+                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context, new SCMs());
 
         assertThat(hgMaterialConfig.getName()).isNull();
         assertThat(hgMaterialConfig.getFolder()).isEqualTo("folder");
@@ -661,7 +662,7 @@ class ConfigConverterTest {
         CRHgMaterial crHgMaterial = new CRHgMaterial(null, "folder", true, false, null, filter, "url", null);
         crHgMaterial.setPassword("secret");
 
-        HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context);
+        HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context, new SCMs());
 
         assertThat(hgMaterialConfig.getName()).isNull();
         assertThat(hgMaterialConfig.getFolder()).isEqualTo("folder");
@@ -677,7 +678,7 @@ class ConfigConverterTest {
         CRHgMaterial crHgMaterial = new CRHgMaterial(null, "folder", true, false, null, filter, "url", null);
         crHgMaterial.setEncryptedPassword(new GoCipher().encrypt("some password"));
 
-        HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context);
+        HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context, new SCMs());
 
         assertThat(hgMaterialConfig.getName()).isNull();
         assertThat(hgMaterialConfig.getFolder()).isEqualTo("folder");
@@ -693,7 +694,7 @@ class ConfigConverterTest {
         CRHgMaterial crHgMaterial = new CRHgMaterial("", "folder", true, false, null, filter, "url", null);
 
         HgMaterialConfig hgMaterialConfig =
-                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context);
+                (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context, new SCMs());
 
         assertThat(hgMaterialConfig.getName()).isNull();
         assertThat(hgMaterialConfig.getFolder()).isEqualTo("folder");
@@ -710,7 +711,7 @@ class ConfigConverterTest {
         CRP4Material crp4Material = crp4Material1;
 
         P4MaterialConfig p4MaterialConfig =
-                (P4MaterialConfig) configConverter.toMaterialConfig(crp4Material, context);
+                (P4MaterialConfig) configConverter.toMaterialConfig(crp4Material, context, new SCMs());
 
         assertThat(p4MaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(p4MaterialConfig.getFolder()).isEqualTo("folder");
@@ -729,7 +730,7 @@ class ConfigConverterTest {
         CRP4Material crp4Material = new CRP4Material("name", "folder", false, false, "user", filter, "server:port", "view", true);
         crp4Material.setPassword("secret");
 
-        P4MaterialConfig p4MaterialConfig = (P4MaterialConfig) configConverter.toMaterialConfig(crp4Material, context);
+        P4MaterialConfig p4MaterialConfig = (P4MaterialConfig) configConverter.toMaterialConfig(crp4Material, context, new SCMs());
 
         assertThat(p4MaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(p4MaterialConfig.getFolder()).isEqualTo("folder");
@@ -749,7 +750,7 @@ class ConfigConverterTest {
         CRSvnMaterial crSvnMaterial = new CRSvnMaterial("name", "folder", true, false, "username", filter, "url", true);
         crSvnMaterial.setEncryptedPassword(encryptedPassword);
 
-        SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) configConverter.toMaterialConfig(crSvnMaterial, context);
+        SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) configConverter.toMaterialConfig(crSvnMaterial, context, new SCMs());
 
         assertThat(svnMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(svnMaterialConfig.getFolder()).isEqualTo("folder");
@@ -767,7 +768,7 @@ class ConfigConverterTest {
         crSvnMaterial.setPassword("password");
 
         SvnMaterialConfig svnMaterialConfig =
-                (SvnMaterialConfig) configConverter.toMaterialConfig(crSvnMaterial, context);
+                (SvnMaterialConfig) configConverter.toMaterialConfig(crSvnMaterial, context, new SCMs());
 
         assertThat(svnMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(svnMaterialConfig.getFolder()).isEqualTo("folder");
@@ -784,7 +785,7 @@ class ConfigConverterTest {
         CRTfsMaterial crTfsMaterial = new CRTfsMaterial("name", "folder", false, false, "user", filter, "url", "project", "domain");
         crTfsMaterial.setPassword("secret");
 
-        TfsMaterialConfig tfsMaterialConfig = (TfsMaterialConfig) configConverter.toMaterialConfig(crTfsMaterial, context);
+        TfsMaterialConfig tfsMaterialConfig = (TfsMaterialConfig) configConverter.toMaterialConfig(crTfsMaterial, context, new SCMs());
 
         assertThat(tfsMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(tfsMaterialConfig.getFolder()).isEqualTo("folder");
@@ -804,7 +805,7 @@ class ConfigConverterTest {
         CRTfsMaterial crTfsMaterial = new CRTfsMaterial("name", "folder", false, false, "user", filter, "url", "project", "domain");
         crTfsMaterial.setEncryptedPassword(encryptedPassword);
 
-        TfsMaterialConfig tfsMaterialConfig = (TfsMaterialConfig) configConverter.toMaterialConfig(crTfsMaterial, context);
+        TfsMaterialConfig tfsMaterialConfig = (TfsMaterialConfig) configConverter.toMaterialConfig(crTfsMaterial, context, new SCMs());
 
         assertThat(tfsMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(tfsMaterialConfig.getFolder()).isEqualTo("folder");
@@ -830,7 +831,7 @@ class ConfigConverterTest {
         CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, true);
 
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
-                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
+                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context, scms);
 
 
         assertThat(pluggableSCMMaterialConfig.getFilterAsString()).isEqualTo("filter");
@@ -849,7 +850,7 @@ class ConfigConverterTest {
         CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
 
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
-                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
+                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context, scms);
 
         assertThat(pluggableSCMMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(myscm);
@@ -872,7 +873,7 @@ class ConfigConverterTest {
         crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
 
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
-                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
+                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context, new SCMs());
 
         assertThat(pluggableSCMMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(pluggableSCMMaterialConfig.getSCMConfig().getName()).isEqualTo("name");
@@ -899,7 +900,7 @@ class ConfigConverterTest {
         crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
 
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
-                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
+                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context, scms);
 
         assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(scm);
     }
@@ -914,7 +915,7 @@ class ConfigConverterTest {
         crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
 
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
-                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
+                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context, new SCMs());
         assertThat(pluggableSCMMaterialConfig.getScmId()).isNotNull();
     }
 
@@ -932,7 +933,7 @@ class ConfigConverterTest {
         crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
 
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
-                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
+                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context, scms);
 
         assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(scm);
     }
@@ -955,7 +956,7 @@ class ConfigConverterTest {
         crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
 
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
-                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
+                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context, scms);
 
         assertThat(pluggableSCMMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(myscm);
@@ -979,7 +980,7 @@ class ConfigConverterTest {
         CRPackageMaterial crPackageMaterial = new CRPackageMaterial("name", "package-id");
 
         PackageMaterialConfig packageMaterialConfig =
-                (PackageMaterialConfig) configConverter.toMaterialConfig(crPackageMaterial, context);
+                (PackageMaterialConfig) configConverter.toMaterialConfig(crPackageMaterial, context, new SCMs());
 
         assertThat(packageMaterialConfig.getName().toLower()).isEqualTo("name");
         assertThat(packageMaterialConfig.getPackageId()).isEqualTo("package-id");
@@ -1153,7 +1154,7 @@ class ConfigConverterTest {
         CRPipeline crPipeline = buildPipeline();
         crPipeline.setDisplayOrderWeight(10);
 
-        PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline, context);
+        PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline, context, new SCMs());
         assertThat(pipelineConfig.name().toLower()).isEqualTo("pipeline");
         assertThat(pipelineConfig.materialConfigs().first() instanceof GitMaterialConfig).isTrue();
         assertThat(pipelineConfig.first().name().toLower()).isEqualTo("stagename");
@@ -1188,7 +1189,7 @@ class ConfigConverterTest {
         min_materials.add(crSvnMaterial);
         crPipeline.setMaterials(min_materials);
 
-        PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline, context);
+        PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline, context, new SCMs());
         assertThat(pipelineConfig.name().toLower()).isEqualTo("p1");
         assertThat(pipelineConfig.materialConfigs().first() instanceof SvnMaterialConfig).isTrue();
         assertThat(pipelineConfig.first().name().toLower()).isEqualTo("build");
@@ -1202,7 +1203,7 @@ class ConfigConverterTest {
         Map<String, List<CRPipeline>> map = new HashMap<>();
         map.put("group", pipelines);
         Map.Entry<String, List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
-        PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup, context);
+        PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup, context, new SCMs());
         assertThat(pipelineConfigs.getGroup()).isEqualTo("group");
         assertThat(pipelineConfigs.getPipelines().size()).isEqualTo(1);
     }
@@ -1216,7 +1217,7 @@ class ConfigConverterTest {
         Map<String, List<CRPipeline>> map = new HashMap<>();
         map.put(null, pipelines);
         Map.Entry<String, List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
-        PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup, context);
+        PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup, context, new SCMs());
         assertThat(pipelineConfigs.getGroup()).isEqualTo(PipelineConfigs.DEFAULT_GROUP);
         assertThat(pipelineConfigs.getPipelines().size()).isEqualTo(1);
     }
@@ -1230,7 +1231,7 @@ class ConfigConverterTest {
         Map<String, List<CRPipeline>> map = new HashMap<>();
         map.put("", pipelines);
         Map.Entry<String, List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
-        PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup, context);
+        PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup, context, new SCMs());
         assertThat(pipelineConfigs.getGroup()).isEqualTo(PipelineConfigs.DEFAULT_GROUP);
         assertThat(pipelineConfigs.getPipelines().size()).isEqualTo(1);
     }
@@ -1284,7 +1285,7 @@ class ConfigConverterTest {
     void shouldConvertParametersWhenPassed() throws Exception {
         CRPipeline crPipeline = buildPipeline();
         crPipeline.addParameter(new CRParameter("param", "value"));
-        PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context);
+        PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context, new SCMs());
 
         assertThat(pipeline.getParams()).isEqualTo(new ParamsConfig(new ParamConfig("param", "value")));
     }
@@ -1294,7 +1295,7 @@ class ConfigConverterTest {
         CRPipeline crPipeline = buildPipeline();
         crPipeline.setTemplate("template");
 
-        PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context);
+        PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context, new SCMs());
 
         assertThat(pipeline.isEmpty()).isTrue();
         assertThat(pipeline.getTemplateName()).isEqualTo(new CaseInsensitiveString("template"));
@@ -2020,68 +2021,128 @@ class ConfigConverterTest {
         assertThat(result.getConfiguration().isEmpty()).isTrue();
     }
 
-    @Test
-    void shouldReturnSCMSIfConfigured() {
-        CRPipeline pipeline = buildPipeline();
-        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
-        crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
-        crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
-        pipeline.addMaterial(crPluggableScmMaterial);
+    @Nested
+    class PartialConfigWithSCMs {
+        @Test
+        void shouldReturnSCMsIfConfigured() {
+            CRPipeline pipeline = buildPipeline();
+            CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
+            crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
+            crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
+            pipeline.addMaterial(crPluggableScmMaterial);
 
-        CRParseResult crPartialConfig = new CRParseResult();
-        crPartialConfig.getPipelines().add(pipeline);
+            CRParseResult crPartialConfig = new CRParseResult();
+            crPartialConfig.getPipelines().add(pipeline);
 
-        when(cachedGoConfig.currentConfig()).thenReturn(defaultCruiseConfig());
+            when(cachedGoConfig.currentConfig()).thenReturn(defaultCruiseConfig());
 
-        PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig, context);
-        assertThat(partialConfig.getGroups().size()).isEqualTo(1);
-        assertThat(partialConfig.getEnvironments().size()).isEqualTo(0);
-        assertThat(partialConfig.getScms().size()).isEqualTo(1);
-    }
+            PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig, context);
+            assertThat(partialConfig.getGroups().size()).isEqualTo(1);
+            assertThat(partialConfig.getEnvironments().size()).isEqualTo(0);
+            assertThat(partialConfig.getScms().size()).isEqualTo(1);
+        }
 
-    @Test
-    void shouldNotReturnSCMIfAlreadyPresent() {
-        CRPipeline pipeline = buildPipeline();
-        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
-        crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
-        crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
-        pipeline.addMaterial(crPluggableScmMaterial);
+        @Test
+        void shouldNotReturnSCMsWhichAreDefinedInConfigXML() {
+            CRPipeline pipeline = buildPipeline();
+            CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
+            crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
+            crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
+            pipeline.addMaterial(crPluggableScmMaterial);
 
-        CRParseResult crPartialConfig = new CRParseResult();
-        crPartialConfig.getPipelines().add(pipeline);
+            CRParseResult crPartialConfig = new CRParseResult();
+            crPartialConfig.getPipelines().add(pipeline);
 
-        BasicCruiseConfig config = defaultCruiseConfig();
-        config.getSCMs().add(new SCM("scmid", "name"));
-        when(cachedGoConfig.currentConfig()).thenReturn(config);
+            BasicCruiseConfig config = defaultCruiseConfig();
+            config.getSCMs().add(new SCM("scmid", "name"));
+            when(cachedGoConfig.currentConfig()).thenReturn(config);
 
-        PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig, context);
-        assertThat(partialConfig.getGroups().size()).isEqualTo(1);
-        assertThat(partialConfig.getEnvironments().size()).isEqualTo(0);
-        assertThat(partialConfig.getScms().size()).isEqualTo(0);
-    }
+            PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig, context);
+            assertThat(partialConfig.getGroups().size()).isEqualTo(1);
+            assertThat(partialConfig.getEnvironments().size()).isEqualTo(0);
+            assertThat(partialConfig.getScms().size()).isEqualTo(0);
+        }
 
-    @Test
-    void shouldReturnSCMIfTheOriginMatches() {
-        CRPipeline pipeline = buildPipeline();
-        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
-        crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
-        crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
-        pipeline.addMaterial(crPluggableScmMaterial);
+        @Test
+        void shouldReturnSCMsWhichAreListedInBasicCruiseConfigAndIfTheOriginMatches() {
+            CRPipeline pipeline = buildPipeline();
+            CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
+            crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
+            crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
+            pipeline.addMaterial(crPluggableScmMaterial);
 
-        CRParseResult crPartialConfig = new CRParseResult();
-        crPartialConfig.getPipelines().add(pipeline);
+            CRParseResult crPartialConfig = new CRParseResult();
+            crPartialConfig.getPipelines().add(pipeline);
 
-        BasicCruiseConfig config = defaultCruiseConfig();
-        SCM scm = new SCM("scmid", "name");
-        ConfigRepoConfig configRepo = new ConfigRepoConfig();
-        configRepo.setRepo(git("some-url"));
-        scm.setOrigins(new RepoConfigOrigin(configRepo, "some-rev"));
-        config.getSCMs().add(scm);
-        when(cachedGoConfig.currentConfig()).thenReturn(config);
-        when(context.configMaterial()).thenReturn(configRepo.getRepo());
+            BasicCruiseConfig config = defaultCruiseConfig();
+            SCM scm = new SCM("scmid", "name");
+            ConfigRepoConfig configRepo = new ConfigRepoConfig();
+            configRepo.setRepo(git("some-url"));
+            scm.setOrigins(new RepoConfigOrigin(configRepo, "some-rev"));
+            config.getSCMs().add(scm);
+            when(cachedGoConfig.currentConfig()).thenReturn(config);
+            when(context.configMaterial()).thenReturn(configRepo.getRepo());
 
-        PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig, context);
-        assertThat(partialConfig.getScms().size()).isEqualTo(1);
-        assertThat(partialConfig.getScms().get(0)).isEqualTo(scm);
+            PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig, context);
+            assertThat(partialConfig.getScms().size()).isEqualTo(1);
+            assertThat(partialConfig.getScms().get(0)).isEqualTo(scm);
+        }
+
+        @Test
+        void shouldEnsureUniqueSCMsIfMultiplePipelinesDefineTheSameSCMConfig_withSCMsListedInBasicCruiseConfig() {
+            CRPipeline pipeline1 = buildPipeline();
+            pipeline1.setName("pipeline1");
+            CRPipeline pipeline2 = buildPipeline();
+            pipeline2.setName("pipeline2");
+
+            CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
+            crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
+            crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
+            pipeline1.addMaterial(crPluggableScmMaterial);
+            pipeline2.addMaterial(crPluggableScmMaterial);
+
+            CRParseResult crPartialConfig = new CRParseResult();
+            crPartialConfig.getPipelines().add(pipeline1);
+            crPartialConfig.getPipelines().add(pipeline2);
+
+            BasicCruiseConfig config = defaultCruiseConfig();
+            SCM scm = new SCM("scmid", "name");
+            ConfigRepoConfig configRepo = new ConfigRepoConfig();
+            configRepo.setRepo(git("some-url"));
+            scm.setOrigins(new RepoConfigOrigin(configRepo, "some-rev"));
+            config.getSCMs().add(scm);
+            when(cachedGoConfig.currentConfig()).thenReturn(config);
+            when(context.configMaterial()).thenReturn(configRepo.getRepo());
+
+            PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig, context);
+            assertThat(partialConfig.getGroups().size()).isEqualTo(1);
+            assertThat(partialConfig.getEnvironments().size()).isEqualTo(0);
+            assertThat(partialConfig.getScms().size()).isEqualTo(1);
+        }
+
+        @Test
+        void shouldEnsureUniqueSCMsIfMultiplePipelinesDefineTheSameSCMConfig_whenSCMsAreNotListedInBasicCruiseConfig() {
+            CRPipeline pipeline1 = buildPipeline();
+            pipeline1.setName("pipeline1");
+            CRPipeline pipeline2 = buildPipeline();
+            pipeline2.setName("pipeline2");
+
+            CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter, false);
+            crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
+            crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
+            pipeline1.addMaterial(crPluggableScmMaterial);
+            pipeline2.addMaterial(crPluggableScmMaterial);
+
+            CRParseResult crPartialConfig = new CRParseResult();
+            crPartialConfig.getPipelines().add(pipeline1);
+            crPartialConfig.getPipelines().add(pipeline2);
+
+            when(cachedGoConfig.currentConfig()).thenReturn(defaultCruiseConfig());
+
+            PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig, context);
+            assertThat(partialConfig.getGroups().size()).isEqualTo(1);
+            assertThat(partialConfig.getEnvironments().size()).isEqualTo(0);
+            assertThat(partialConfig.getScms().size()).isEqualTo(1);
+        }
     }
 }

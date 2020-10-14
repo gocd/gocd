@@ -58,9 +58,9 @@ class CRResultCache extends AbstractObjCache<DefinedStructures> {
     }).catch(rejectAsString(reject));
   }
 
-  empty() {
-    // don't dump contents, just force a fresh set of data
-    this.etag = Stream();
+  markStale() {
+    // don't dump old contents, just overwrite on next fetch; this eliminates the flicker
+    // caused by redraw (data quickly cycles from full -> empty -> full) on each poll
   }
 }
 

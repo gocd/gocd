@@ -19,7 +19,9 @@ import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {ObjectCache} from "models/base/cache";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
+import {DefinedStructures} from "models/config_repos/defined_structures";
 import {ConfigRepo, ConfigRepos} from "models/config_repos/types";
 import {Permissions, SupportedEntity} from "models/shared/permissions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
@@ -53,6 +55,7 @@ const sm: ScrollManager = new AnchorVM();
 
 export class ConfigReposPage extends Page<null, State> {
   etag: Stream<string> = Stream();
+  resultCaches = new Map<string, ObjectCache<DefinedStructures>>();
 
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.pluginInfos      = Stream();
@@ -188,7 +191,15 @@ export class ConfigReposPage extends Page<null, State> {
           });
         }, onError);
         this.pageState = PageState.OK;
-        const models   = _.map(successResponse.body.configRepos, (repo) => new ConfigRepoVM(repo, vnode.state));
+        const reusedCaches = new Map<string, ObjectCache<DefinedStructures>>();
+        const models = _.map(successResponse.body.configRepos, (repo) => {
+          const vm = new ConfigRepoVM(repo, vnode.state, this.resultCaches.get(repo.id()!));
+          vm.results.invalidate(); // always refresh definitions when getting new config repo data
+          // persist results cache to the next poll; this eliminates the flicker when pulling new data after the first load
+          reusedCaches.set(repo.id()!, vm.results);
+          return vm;
+        });
+        this.resultCaches = reusedCaches; // release any unused caches for garbage collection
         vnode.state.unfilteredModels(models);
 
         successResponse.body.autoCompletion.forEach((suggestion) => {

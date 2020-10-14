@@ -17,8 +17,9 @@
 import Stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {AutoSuggestions} from "models/roles/auto_suggestion";
 import {Rules} from "models/rules/rules";
-import {SecretConfigJSON, SecretConfigsJSON} from "models/secret_configs/secret_configs_json";
+import {SecretConfigJSON, SecretConfigsJSON, SecretConfigsWithSuggestionsJSON} from "models/secret_configs/secret_configs_json";
 import {Configurations} from "models/shared/configuration";
 
 export class SecretConfig extends ValidatableMixin {
@@ -56,11 +57,11 @@ export class SecretConfig extends ValidatableMixin {
 
   toJSON(): object {
     return {
-      id: this.id,
+      id:          this.id,
       description: this.description,
-      plugin_id: this.pluginId,
-      properties: this.properties,
-      rules: this.rules
+      plugin_id:   this.pluginId,
+      properties:  this.properties,
+      rules:       this.rules
     };
   }
 }
@@ -79,5 +80,19 @@ export class SecretConfigs extends Array<Stream<SecretConfig>> {
       .map((secretConfigJson) => Stream(SecretConfig.fromJSON(secretConfigJson)));
 
     return new SecretConfigs(...secretConfigs);
+  }
+}
+
+export class SecretConfigsWithSuggestions {
+  secretConfigs: SecretConfigs;
+  autoCompletion: AutoSuggestions;
+
+  constructor(secretConfigs: SecretConfigs, autoCompletion: AutoSuggestions) {
+    this.secretConfigs  = secretConfigs;
+    this.autoCompletion = autoCompletion;
+  }
+
+  static fromJSON(data: SecretConfigsWithSuggestionsJSON): SecretConfigsWithSuggestions {
+    return new SecretConfigsWithSuggestions(SecretConfigs.fromJSON(data), AutoSuggestions.fromJSON(data.auto_completion));
   }
 }

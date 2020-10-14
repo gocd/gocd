@@ -359,6 +359,10 @@ export class SparkRoutes {
     return `/go/api/admin/secret_configs`;
   }
 
+  static apiSecretConfigsWithAutocompleteSuggestionsPath() {
+    return `/go/api/admin/internal/secret_configs`;
+  }
+
   static apiEnvironmentPath(name?: string) {
     if (name) {
       return `/go/api/admin/environments/${name}`;

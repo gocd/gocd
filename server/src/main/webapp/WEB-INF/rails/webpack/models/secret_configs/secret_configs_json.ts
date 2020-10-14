@@ -15,6 +15,7 @@
  */
 
 import {ErrorsJSON} from "models/mixins/errors";
+import {AutoSuggestionJSON} from "models/roles/auto_suggestion";
 import {RuleJSON} from "models/rules/rules";
 import {PropertyJSON} from "models/shared/configuration";
 
@@ -33,4 +34,8 @@ export interface SecretConfigJSON {
   properties: PropertyJSON[];
   rules: RuleJSON[];
   errors?: ErrorsJSON;
+}
+
+export interface SecretConfigsWithSuggestionsJSON extends SecretConfigsJSON {
+  auto_completion: AutoSuggestionJSON[];
 }

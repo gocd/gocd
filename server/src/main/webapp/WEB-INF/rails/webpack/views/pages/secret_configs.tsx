@@ -17,10 +17,6 @@
 import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {EnvironmentCRUD} from "models/environments/environment_crud";
-import {PluggableScmCRUD} from "models/materials/pluggable_scm_crud";
-import {PackageRepositoriesCRUD} from "models/package_repositories/package_repositories_crud";
-import {PipelineGroupCRUD} from "models/pipeline_configs/pipeline_groups_cache";
 import {Rules} from "models/rules/rules";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
 import {SecretConfigsCRUD} from "models/secret_configs/secret_configs_crud";
@@ -127,7 +123,7 @@ export class SecretConfigsPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.SECRETS}), SecretConfigsCRUD.all(), PipelineGroupCRUD.all(), EnvironmentCRUD.all(), PluggableScmCRUD.all(), PackageRepositoriesCRUD.all()])
+    return Promise.all([PluginInfoCRUD.all({type: ExtensionTypeString.SECRETS}), SecretConfigsCRUD.allWithAutocompleteSuggestions()])
                   .then((results) => {
                     results[0].do((successResponse) => {
                       vnode.state.pluginInfos = Stream(successResponse.body);
@@ -136,27 +132,10 @@ export class SecretConfigsPage extends Page<null, State> {
 
                     results[1].do((successResponse) => {
                       this.pageState            = PageState.OK;
-                      vnode.state.secretConfigs = Stream(successResponse.body);
-                    }, () => this.setErrorState());
-
-                    results[2].do((successResponse) => {
-                      vnode.state.resourceAutocompleteHelper()
-                           .set("pipeline_group", ["*"].concat(successResponse.body.map((group) => group.name)));
-                    }, () => this.setErrorState());
-
-                    results[3].do((successResponse) => {
-                      vnode.state.resourceAutocompleteHelper()
-                           .set("environment", ["*"].concat(successResponse.body.map((env) => env.name())));
-                    }, () => this.setErrorState());
-
-                    results[4].do((successResponse) => {
-                      vnode.state.resourceAutocompleteHelper()
-                           .set("pluggable_scm", ["*"].concat(successResponse.body.map((scm) => scm.name())));
-                    }, () => this.setErrorState());
-
-                    results[5].do((successResponse) => {
-                      vnode.state.resourceAutocompleteHelper()
-                           .set("package_repository", ["*"].concat(successResponse.body.map((pkgRepo) => pkgRepo.name())));
+                      vnode.state.secretConfigs = Stream(successResponse.body.secretConfigs);
+                      successResponse.body.autoCompletion.forEach((suggestion) => {
+                        vnode.state.resourceAutocompleteHelper().set(suggestion.key, ["*"].concat(suggestion.value));
+                      });
                     }, () => this.setErrorState());
                   });
   }

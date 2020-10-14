@@ -25,6 +25,12 @@
 <urlrewrite>
 
   <rule>
+    <name>Internal Secret Configs API</name>
+    <from>^/api/admin/internal/secret_configs$</from>
+    <to last="true">/spark/api/admin/internal/secret_configs</to>
+  </rule>
+
+  <rule>
     <name>Preference SPA</name>
     <from>^/preferences/notifications(/?)$</from>
     <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="preferenceSPA"/>

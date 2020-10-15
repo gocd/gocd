@@ -56,6 +56,7 @@ idea {
 configurations {
   functionalTestCompileClasspath.extendsFrom testCompileClasspath
   functionalTestRuntimeClasspath.extendsFrom testRuntimeClasspath
+  runtimeElements.extendsFrom packagingOnly
 }
 
 dependencies {

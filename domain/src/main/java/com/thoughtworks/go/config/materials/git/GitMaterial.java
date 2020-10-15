@@ -56,7 +56,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
     public static final String GO_MATERIAL_BRANCH = "GO_MATERIAL_BRANCH";
     //TODO: use iBatis to set the type for us, and we can get rid of this field.
     public static final String TYPE = "GitMaterial";
-    public static final String ERR_GIT_OLD_VERSION = "Please install Git-core 1.6 or above. ";
+    public static final String ERR_GIT_OLD_VERSION = "Please install Git-core 1.9 or above. Currently installed version is ";
     private static final Logger LOG = LoggerFactory.getLogger(GitMaterial.class);
     private static final String ERR_GIT_NOT_FOUND = "Failed to find 'git' on your PATH. Please ensure 'git' is executable by the Go Server and on the Go Agents where this material will be used.";
     private final UrlArgument url;
@@ -176,7 +176,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         ValidationBean defaultResponse = ValidationBean.notValid(e.getMessage());
         try {
             if (!gitVersion.isMinimumSupportedVersionOrHigher()) {
-                return ValidationBean.notValid(ERR_GIT_OLD_VERSION + gitVersion.toString());
+                return ValidationBean.notValid(ERR_GIT_OLD_VERSION + gitVersion.getVersion().toString());
             } else {
                 return defaultResponse;
             }

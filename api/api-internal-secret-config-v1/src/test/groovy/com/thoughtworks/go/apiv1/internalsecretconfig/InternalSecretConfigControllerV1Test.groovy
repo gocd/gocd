@@ -22,12 +22,15 @@ import com.thoughtworks.go.apiv1.internalsecretconfig.models.SecretConfigsViewMo
 import com.thoughtworks.go.apiv1.internalsecretconfig.representers.SecretConfigsViewModelRepresenter
 import com.thoughtworks.go.config.SecretConfig
 import com.thoughtworks.go.config.SecretConfigs
+import com.thoughtworks.go.config.elastic.ClusterProfile
+import com.thoughtworks.go.config.elastic.ClusterProfiles
 import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories
 import com.thoughtworks.go.domain.scm.SCMMother
 import com.thoughtworks.go.domain.scm.SCMs
 import com.thoughtworks.go.server.domain.Username
+import com.thoughtworks.go.server.service.ClusterProfilesService
 import com.thoughtworks.go.server.service.EnvironmentConfigService
 import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.server.service.SecretConfigService
@@ -58,6 +61,8 @@ class InternalSecretConfigControllerV1Test implements SecurityServiceTrait, Cont
   private PluggableScmService pluggableScmService
   @Mock
   private PackageRepositoryService packageRepositoryService
+  @Mock
+  private ClusterProfilesService clusterProfilesService
 
   @BeforeEach
   void setUp() {
@@ -67,7 +72,7 @@ class InternalSecretConfigControllerV1Test implements SecurityServiceTrait, Cont
   @Override
   InternalSecretConfigControllerV1 createControllerInstance() {
     new InternalSecretConfigControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), secretConfigService,
-      pipelineConfigService, environmentConfigService, pluggableScmService, packageRepositoryService)
+      pipelineConfigService, environmentConfigService, pluggableScmService, packageRepositoryService, clusterProfilesService)
   }
 
   @Nested
@@ -98,16 +103,19 @@ class InternalSecretConfigControllerV1Test implements SecurityServiceTrait, Cont
 
         def groups = new PipelineGroups()
         groups.addPipeline("group1", pipelineConfig("pipeline1"))
+        def clusterProfile = new ClusterProfile("docker", "cd.go.docker")
         when(pipelineConfigService.viewableGroupsFor(any(Username.class))).thenReturn(groups)
         when(environmentConfigService.getEnvironmentNames()).thenReturn(["env1"])
         when(pluggableScmService.listAllScms()).thenReturn(new SCMs(SCMMother.create("scm1")))
         when(packageRepositoryService.getPackageRepositories()).thenReturn(new PackageRepositories(create("pkg-repo1")))
+        when(clusterProfilesService.getPluginProfiles()).thenReturn(new ClusterProfiles(clusterProfile))
 
         model = new SecretConfigsViewModel()
         model.getAutoSuggestions().put("pipeline_group", ["group1"])
         model.getAutoSuggestions().put("environment", ["env1"])
         model.getAutoSuggestions().put("pluggable_scm", ["scm-scm1"])
         model.getAutoSuggestions().put("package_repository", ["repo-pkg-repo1"])
+        model.getAutoSuggestions().put("cluster_profile", ["docker"])
       }
 
       @Test
@@ -135,8 +143,9 @@ class InternalSecretConfigControllerV1Test implements SecurityServiceTrait, Cont
         when(environmentConfigService.getEnvironmentNames()).thenReturn([])
         when(pluggableScmService.listAllScms()).thenReturn(new SCMs())
         when(packageRepositoryService.getPackageRepositories()).thenReturn(new PackageRepositories())
+        when(clusterProfilesService.getPluginProfiles()).thenReturn(new ClusterProfiles())
 
-        getWithApiHeader(controller.controllerPath(), ['if-none-match': '"4366029eac9405b2e8cfbf9f2c328ff11cd1a6056b3f7acdc3fba8d7b2244e78"'])
+        getWithApiHeader(controller.controllerPath(), ['if-none-match': '"10e16149a06f90e170a8f423969ad9c995cf075b260de12df0814c651d8a2da3"'])
 
         assertThatResponse()
           .isNotModified()

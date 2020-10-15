@@ -22,9 +22,11 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.internalsecretconfig.models.SecretConfigsViewModel;
 import com.thoughtworks.go.apiv1.internalsecretconfig.representers.SecretConfigsViewModelRepresenter;
 import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.PluginProfile;
 import com.thoughtworks.go.config.SecretConfigs;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.SecretConfigService;
@@ -51,11 +53,13 @@ public class InternalSecretConfigControllerV1 extends ApiController implements S
     private final EnvironmentConfigService environmentConfigService;
     private final PluggableScmService pluggableScmService;
     private final PackageRepositoryService packageRepositoryService;
+    private final ClusterProfilesService clusterProfilesService;
 
     @Autowired
     public InternalSecretConfigControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, SecretConfigService secretConfigService,
                                             PipelineConfigService pipelineConfigService, EnvironmentConfigService environmentConfigService,
-                                            PluggableScmService pluggableScmService, PackageRepositoryService packageRepositoryService) {
+                                            PluggableScmService pluggableScmService, PackageRepositoryService packageRepositoryService,
+                                            ClusterProfilesService clusterProfilesService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.secretConfigService = secretConfigService;
@@ -63,6 +67,7 @@ public class InternalSecretConfigControllerV1 extends ApiController implements S
         this.environmentConfigService = environmentConfigService;
         this.pluggableScmService = pluggableScmService;
         this.packageRepositoryService = packageRepositoryService;
+        this.clusterProfilesService = clusterProfilesService;
     }
 
     @Override
@@ -90,11 +95,13 @@ public class InternalSecretConfigControllerV1 extends ApiController implements S
         List<String> envNames = environmentConfigService.getEnvironmentNames();
         List<String> scms = pluggableScmService.listAllScms().stream().map(SCM::getName).collect(toList());
         List<String> pkgRepos = packageRepositoryService.getPackageRepositories().stream().map(PackageRepository::getName).collect(toList());
+        List<String> clusterProfiles = clusterProfilesService.getPluginProfiles().stream().map(PluginProfile::getId).collect(toList());
 
         configsViewModel.getAutoSuggestions().put("pipeline_group", groups);
         configsViewModel.getAutoSuggestions().put("environment", envNames);
         configsViewModel.getAutoSuggestions().put("pluggable_scm", scms);
         configsViewModel.getAutoSuggestions().put("package_repository", pkgRepos);
+        configsViewModel.getAutoSuggestions().put("cluster_profile", clusterProfiles);
 
         final String etag = etagFor(configsViewModel);
 

@@ -428,7 +428,7 @@ public class GitMaterialTest {
     void shouldReturnInvalidBeanWithRootCauseAsLowerVersionInstalled() {
         ValidationBean validationBean = new GitMaterial("http://0.0.0.0").handleException(new Exception(), GIT_VERSION_1_5);
         assertThat(validationBean.isValid()).isFalse();
-        assertThat(validationBean.getError()).contains(GitMaterial.ERR_GIT_OLD_VERSION);
+        assertThat(validationBean.getError()).isEqualTo("Please install Git-core 1.9 or above. Currently installed version is 1.5.4");
     }
 
     @Test

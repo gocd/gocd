@@ -125,7 +125,10 @@ export class StageInstance {
   }
 
   stageScheduledTime(): number {
-    return this.json.jobs[0].scheduled_date / 1000;
+    return this.json.jobs.reduce((minTime, next) => {
+      const jobScheduledTime = next.scheduled_date / 1000;
+      return minTime < jobScheduledTime ? minTime : jobScheduledTime;
+    }, Infinity);
   }
 
   private isStageInProgress(): boolean {

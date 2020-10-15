@@ -65,7 +65,6 @@ public class ConfigConverter {
     private final CachedGoConfig cachedGoConfig;
     private AgentService agentService;
     private Cloner cloner = new Cloner();
-    private SCMs newSCMs = new SCMs();
 
     public ConfigConverter(GoCipher goCipher, CachedGoConfig cachedGoConfig, AgentService agentService) {
         this.cipher = goCipher;
@@ -74,7 +73,7 @@ public class ConfigConverter {
     }
 
     public PartialConfig toPartialConfig(CRParseResult crPartialConfig, PartialConfigLoadContext context) {
-        newSCMs = new SCMs();
+        SCMs newSCMs = new SCMs();
         PartialConfig partialConfig = new PartialConfig();
         for (CREnvironment crEnvironment : crPartialConfig.getEnvironments()) {
             EnvironmentConfig environment = toEnvironmentConfig(crEnvironment);
@@ -83,7 +82,7 @@ public class ConfigConverter {
         validatePartialConfigEnvironments(partialConfig);
         Map<String, List<CRPipeline>> pipesByGroup = groupPipelinesByGroupName(crPartialConfig.getPipelines());
         for (Map.Entry<String, List<CRPipeline>> crPipelineGroup : pipesByGroup.entrySet()) {
-            BasicPipelineConfigs pipelineConfigs = toBasicPipelineConfigs(crPipelineGroup, context);
+            BasicPipelineConfigs pipelineConfigs = toBasicPipelineConfigs(crPipelineGroup, context, newSCMs);
             partialConfig.getGroups().add(pipelineConfigs);
         }
         partialConfig.setScms(newSCMs);
@@ -109,12 +108,12 @@ public class ConfigConverter {
         return map;
     }
 
-    public BasicPipelineConfigs toBasicPipelineConfigs(Map.Entry<String, List<CRPipeline>> crPipelineGroup, PartialConfigLoadContext context) {
+    public BasicPipelineConfigs toBasicPipelineConfigs(Map.Entry<String, List<CRPipeline>> crPipelineGroup, PartialConfigLoadContext context, SCMs newSCMs) {
         String name = crPipelineGroup.getKey();
         BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs();
         pipelineConfigs.setGroup(name);
         for (CRPipeline crPipeline : crPipelineGroup.getValue()) {
-            pipelineConfigs.add(toPipelineConfig(crPipeline, context));
+            pipelineConfigs.add(toPipelineConfig(crPipeline, context, newSCMs));
         }
         return pipelineConfigs;
     }
@@ -306,7 +305,7 @@ public class ConfigConverter {
         materialConfig.setName(toMaterialName(crMaterial.getName()));
     }
 
-    public MaterialConfig toMaterialConfig(CRMaterial crMaterial, PartialConfigLoadContext context) {
+    public MaterialConfig toMaterialConfig(CRMaterial crMaterial, PartialConfigLoadContext context, SCMs newSCMs) {
         if (crMaterial == null)
             throw new ConfigConvertionException("material cannot be null");
 
@@ -317,7 +316,7 @@ public class ConfigConverter {
             return toScmMaterialConfig(crScmMaterial);
         } else if (crMaterial instanceof CRPluggableScmMaterial) {
             CRPluggableScmMaterial crPluggableScmMaterial = (CRPluggableScmMaterial) crMaterial;
-            return toPluggableScmMaterialConfig(crPluggableScmMaterial, context);
+            return toPluggableScmMaterialConfig(crPluggableScmMaterial, context, newSCMs);
         } else if (crMaterial instanceof CRPackageMaterial) {
             CRPackageMaterial crPackageMaterial = (CRPackageMaterial) crMaterial;
             return toPackageMaterial(crPackageMaterial);
@@ -367,7 +366,7 @@ public class ConfigConverter {
         return packageRepositoryHaving.findPackage(packageId);
     }
 
-    private PluggableSCMMaterialConfig toPluggableScmMaterialConfig(CRPluggableScmMaterial crPluggableScmMaterial, PartialConfigLoadContext context) {
+    private PluggableSCMMaterialConfig toPluggableScmMaterialConfig(CRPluggableScmMaterial crPluggableScmMaterial, PartialConfigLoadContext context, SCMs newSCMs) {
         String id = crPluggableScmMaterial.getScmId();
         CRPluginConfiguration pluginConfig = crPluggableScmMaterial.getPluginConfiguration();
         SCM scmConfig;
@@ -389,7 +388,7 @@ public class ConfigConverter {
                 scmConfig = getSCMs().findDuplicate(scmConfig);
                 if (scmConfig.getOrigin() instanceof RepoConfigOrigin) {
                     RepoConfigOrigin origin = (RepoConfigOrigin) scmConfig.getOrigin();
-                    if (origin.getMaterial().equals(context.configMaterial())) {
+                    if (origin.getMaterial().equals(context.configMaterial()) && (newSCMs.findDuplicate(scmConfig) == null)) {
                         newSCMs.add(scmConfig);
                     }
                 }
@@ -623,10 +622,10 @@ public class ConfigConverter {
         return jobConfigs;
     }
 
-    public PipelineConfig toPipelineConfig(CRPipeline crPipeline, PartialConfigLoadContext context) {
+    public PipelineConfig toPipelineConfig(CRPipeline crPipeline, PartialConfigLoadContext context, SCMs newSCMs) {
         MaterialConfigs materialConfigs = new MaterialConfigs();
         for (CRMaterial crMaterial : crPipeline.getMaterials()) {
-            materialConfigs.add(toMaterialConfig(crMaterial, context));
+            materialConfigs.add(toMaterialConfig(crMaterial, context, newSCMs));
         }
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(crPipeline.getName()), materialConfigs);

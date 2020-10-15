@@ -27,4 +27,6 @@ public interface PluginDao {
     List<Plugin> getAllPlugins();
 
     void deleteAllPlugins();
+
+    void deletePluginIfExists(String pluginId);
 }

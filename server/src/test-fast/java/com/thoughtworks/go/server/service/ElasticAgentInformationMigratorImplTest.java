@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.update.ReplaceElasticAgentInformationCommand;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
+import com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentExtensionV4;
+import com.thoughtworks.go.plugin.access.elastic.v5.ElasticAgentExtensionV5;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginPostLoadHook;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
@@ -80,6 +82,7 @@ class ElasticAgentInformationMigratorImplTest {
 
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
         when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, JsonHelper.toJsonString(configuration)));
+        when(pluginManager.resolveExtensionVersion(goPluginDescriptor.id(), ELASTIC_AGENT_EXTENSION, ElasticAgentExtension.SUPPORTED_VERSIONS)).thenReturn(ElasticAgentExtensionV5.VERSION);
 
         PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor, new HashMap<>());
 
@@ -91,6 +94,7 @@ class ElasticAgentInformationMigratorImplTest {
     void shouldPerformReplaceElasticAgentInformationCommandToMigrateElasticAgentInformationWhenNoPluginSettingsAreConfigured() {
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
         when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, null));
+        when(pluginManager.resolveExtensionVersion(goPluginDescriptor.id(), ELASTIC_AGENT_EXTENSION, ElasticAgentExtension.SUPPORTED_VERSIONS)).thenReturn(ElasticAgentExtensionV5.VERSION);
 
         PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor, new HashMap<>());
 
@@ -115,5 +119,57 @@ class ElasticAgentInformationMigratorImplTest {
         assertThat(result.getMessage()).isEqualTo(expectedErrorMessage);
         assertThat(goPluginDescriptor.isInvalid()).isTrue();
         assertThat(goPluginDescriptor.getStatus().getMessages().get(0)).isEqualTo(expectedErrorMessage);
+    }
+
+    @Test
+    void shouldDeletePluginSettingsOnASuccessfulMigrateConfigCall() {
+        when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
+        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, null));
+        when(pluginManager.resolveExtensionVersion(goPluginDescriptor.id(), ELASTIC_AGENT_EXTENSION, ElasticAgentExtension.SUPPORTED_VERSIONS)).thenReturn(ElasticAgentExtensionV5.VERSION);
+
+        PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor, new HashMap<>());
+
+        assertThat(result.isAFailure()).isFalse();
+        assertThat(result.getMessage()).isEqualTo("Success");
+        verify(goConfigService, times(1)).updateConfig(any(ReplaceElasticAgentInformationCommand.class));
+
+        verify(pluginSqlMapDao, times(1)).deletePluginIfExists(goPluginDescriptor.id());
+    }
+
+    @Test
+    void shouldNotDeletePluginSettingsOnWhenMigrateConfigCallFails() {
+        when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
+        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, null));
+        when(goConfigService.updateConfig(any())).thenThrow(new RuntimeException("Boom!"));
+        when(pluginManager.resolveExtensionVersion(goPluginDescriptor.id(), ELASTIC_AGENT_EXTENSION, ElasticAgentExtension.SUPPORTED_VERSIONS)).thenReturn(ElasticAgentExtensionV5.VERSION);
+
+        assertThat(goPluginDescriptor.isInvalid()).isFalse();
+
+        String expectedErrorMessage = "Plugin 'plugin-id' failed to perform 'cd.go.elastic-agent.migrate-config' call. Plugin sent an invalid config. Reason: Boom!.\n Please fix the errors and restart GoCD server.";
+
+        PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor, new HashMap<>());
+
+        assertThat(result.isAFailure()).isTrue();
+        assertThat(result.getMessage()).isEqualTo(expectedErrorMessage);
+        assertThat(goPluginDescriptor.isInvalid()).isTrue();
+        assertThat(goPluginDescriptor.getStatus().getMessages().get(0)).isEqualTo(expectedErrorMessage);
+
+        verify(goConfigService, times(1)).updateConfig(any(ReplaceElasticAgentInformationCommand.class));
+        verify(pluginSqlMapDao, never()).deletePluginIfExists(goPluginDescriptor.id());
+    }
+
+    @Test
+    void shouldNotDeletePluginSettingsOnASuccessfulMigrateConfigCallWhenPluginIsUsingElasticAgentExtensionV4() {
+        when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
+        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, null));
+        when(pluginManager.resolveExtensionVersion(goPluginDescriptor.id(), ELASTIC_AGENT_EXTENSION, ElasticAgentExtension.SUPPORTED_VERSIONS)).thenReturn(ElasticAgentExtensionV4.VERSION);
+
+        PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor, new HashMap<>());
+
+        assertThat(result.isAFailure()).isFalse();
+        assertThat(result.getMessage()).isEqualTo("Success");
+        verify(goConfigService, times(1)).updateConfig(any(ReplaceElasticAgentInformationCommand.class));
+
+        verify(pluginSqlMapDao, never()).deletePluginIfExists(goPluginDescriptor.id());
     }
 }

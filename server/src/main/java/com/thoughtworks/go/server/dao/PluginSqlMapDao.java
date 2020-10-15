@@ -113,4 +113,27 @@ public class PluginSqlMapDao extends HibernateDaoSupport implements PluginDao {
             }
         });
     }
+
+    @Override
+    public void deletePluginIfExists(String pluginId) {
+        String cacheKey = cacheKeyForPluginSettings(pluginId);
+        Plugin plugin = this.findPlugin(pluginId);
+        if (plugin instanceof NullPlugin) {
+            return;
+        }
+
+        synchronized (cacheKey) {
+            Plugin found = this.findPlugin(pluginId);
+            if (found instanceof NullPlugin) {
+                return;
+            }
+
+            transactionTemplate.execute(transactionStatus -> {
+                sessionFactory.getCurrentSession().delete(plugin);
+                return Boolean.TRUE;
+            });
+
+            goCache.remove(cacheKey);
+        }
+    }
 }

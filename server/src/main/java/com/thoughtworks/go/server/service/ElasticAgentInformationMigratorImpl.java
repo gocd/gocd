@@ -19,12 +19,15 @@ import com.thoughtworks.go.config.UpdateConfigCommand;
 import com.thoughtworks.go.config.update.ReplaceElasticAgentInformationCommand;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
+import com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentExtensionV4;
 import com.thoughtworks.go.plugin.infra.ElasticAgentInformationMigrator;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginPostLoadHook;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.util.json.JsonHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -43,6 +46,8 @@ public class ElasticAgentInformationMigratorImpl implements ElasticAgentInformat
     private PluginManager pluginManager;
     private GoConfigService goConfigService;
     private PluginSqlMapDao pluginSqlMapDao;
+
+    private static final Logger LOG = LoggerFactory.getLogger(ElasticAgentInformationMigratorImpl.class);
 
     @Autowired
     public ElasticAgentInformationMigratorImpl(PluginSqlMapDao pluginSqlMapDao, ClusterProfilesService clusterProfilesService, ElasticProfileService elasticProfileService, ElasticAgentExtension elasticAgentExtension, PluginManager pluginManager, GoConfigService goConfigService) {
@@ -68,12 +73,27 @@ public class ElasticAgentInformationMigratorImpl implements ElasticAgentInformat
             return true;
         }
 
+        LOG.debug("Migrating elastic agent configurations for plugin with id: '{}'", pluginId);
         Plugin plugin = pluginSqlMapDao.findPlugin(pluginId);
         String pluginConfiguration = plugin.getConfiguration();
         HashMap<String, String> pluginSettings = (pluginConfiguration == null) ? new HashMap<>() : JsonHelper.fromJson(pluginConfiguration, HashMap.class);
         ReplaceElasticAgentInformationCommand command = new ReplaceElasticAgentInformationCommand(clusterProfilesService, elasticProfileService, elasticAgentExtension, pluginDescriptor, pluginSettings);
 
-        return update(command, pluginDescriptor);
+        boolean updated = update(command, pluginDescriptor);
+
+        if (updated) {
+            LOG.debug("Done migrating elastic agent configurations for plugin with id: '{}'", pluginId);
+
+            // all the plugins implementing elastic agent extension v5, does not use plugin settings and hence delete them after successful migration
+            if (!pluginManager.resolveExtensionVersion(pluginId, ELASTIC_AGENT_EXTENSION, ElasticAgentExtension.SUPPORTED_VERSIONS).equals(ElasticAgentExtensionV4.VERSION)) {
+                LOG.debug("Deleting stale plugin settings for plugin with id '{}' after successfully migrating elastic agent configurations", pluginId);
+                pluginSqlMapDao.deletePluginIfExists(pluginId);
+            } else {
+                LOG.debug("Skip deleting plugin settings for plugin with id '{}', as the plugin implements elastic agent v4 extension which uses plugin settings", pluginId);
+            }
+        }
+
+        return updated;
     }
 
     private boolean update(UpdateConfigCommand command, GoPluginDescriptor pluginDescriptor) {
@@ -81,6 +101,8 @@ public class ElasticAgentInformationMigratorImpl implements ElasticAgentInformat
             goConfigService.updateConfig(command);
             return true;
         } catch (Exception e) {
+            LOG.error(String.format("Failed migrating elastic agent information for plugin with id '%s'", pluginDescriptor.id()), e);
+
             String pluginId = pluginDescriptor.id();
             String pluginAPIRequest = "cd.go.elastic-agent.migrate-config";
             String reason = e.getMessage();

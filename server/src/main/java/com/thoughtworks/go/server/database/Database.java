@@ -20,6 +20,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.database.migration.DatabaseMigrator;
 import com.thoughtworks.go.server.database.migration.DbDeploySchemaVerifier;
 import com.thoughtworks.go.util.SystemEnvironment;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -31,15 +32,23 @@ import java.sql.SQLException;
 import java.util.function.Function;
 
 @Component
+@Slf4j
 public class Database {
 
     private final ConnectionManager connectionManager;
     private SystemEnvironment systemEnvironment;
+    private DatabaseMigrator databaseMigrator;
 
     @Autowired
     public Database(SystemEnvironment systemEnvironment) {
-        this.connectionManager = new ConnectionManager(System.getProperties(), systemEnvironment.configDir(), decryptionFunction());
+        this(systemEnvironment, new ConnectionManager(System.getProperties(), systemEnvironment.configDir(), decryptionFunction()),
+                new DatabaseMigrator());
+    }
+
+    public Database(SystemEnvironment systemEnvironment, ConnectionManager connectionManager, DatabaseMigrator databaseMigrator) {
+        this.connectionManager = connectionManager;
         this.systemEnvironment = systemEnvironment;
+        this.databaseMigrator = databaseMigrator;
     }
 
     private static Function<String, String> decryptionFunction() {
@@ -59,8 +68,12 @@ public class Database {
             new DbDeploySchemaVerifier().verify(connection, systemEnvironment.getConfigDir());
         }
 
-        try (Connection connection = dataSource.getConnection()) {
-            new DatabaseMigrator().migrate(connection);
+        if (!systemEnvironment.isServerInStandbyMode()) {
+            try (Connection connection = dataSource.getConnection()) {
+                databaseMigrator.migrate(connection);
+            }
+        } else {
+            log.info("Skipping database upgrade as the server is running in Standby mode.");
         }
 
         return dataSource;

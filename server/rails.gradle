@@ -185,7 +185,7 @@ task compileAssetsDev(type: YarnRunTask) {
   workingDir = project.railsRoot
   destinationDir = project.file("${project.railsRoot}/public/assets/webpack")
 
-  yarnCommand = ['webpack-dev', "--env.outputDir=${destinationDir.toPath().toString()}", "--env.licenseReportFile=${ext.licenseReportFile}"]
+  yarnCommand = ['webpack-dev', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.licenseReportFile}"]
 
   source(project.file("${project.railsRoot}/webpack"))
   source(project.file("${project.railsRoot}/vendor/assets"))
@@ -207,7 +207,7 @@ task compileAssetsWebpackProd(type: YarnRunTask) {
 
   workingDir = project.railsRoot
   destinationDir = project.file("${project.buildDir}/webpack-assets")
-  yarnCommand = ['webpack-prod', "--env.outputDir=${destinationDir.toPath().toString()}", "--env.licenseReportFile=${ext.licenseReportFile}"]
+  yarnCommand = ['webpack-prod', '--env', "outputDir=${destinationDir.toPath().toString()}", '--env', "licenseReportFile=${ext.licenseReportFile}"]
 }
 
 task compileRailsAssets(type: ExecuteUnderRailsTask) {

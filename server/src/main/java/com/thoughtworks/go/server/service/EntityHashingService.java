@@ -21,6 +21,8 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.ConfigReposConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.NotificationFilter;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -53,12 +55,14 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
 
     private final GoConfigService goConfigService;
     private final GoCache goCache;
+    private final PartialConfigHelper partials;
     private final EntityHashes hashes;
 
     @Autowired
-    public EntityHashingService(GoConfigService goConfigService, GoCache goCache, EntityHashes hashes) {
+    public EntityHashingService(GoConfigService goConfigService, GoCache goCache, PartialConfigHelper partials, EntityHashes hashes) {
         this.goConfigService = goConfigService;
         this.goCache = goCache;
+        this.partials = partials;
         this.hashes = hashes;
     }
 
@@ -248,7 +252,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     }
 
     public String hashForEntity(List<EnvironmentConfig> envs) {
-        return hashes.digestMany(Stream.concat(
+        return hashes.digest(Stream.concat(
                 Stream.of(envs.getClass().getSimpleName()),
                 envs.stream().map(this::hashForEntity)
         ).toArray(String[]::new));
@@ -275,6 +279,10 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     public String hashForEntity(ConfigRepoConfig config) {
         String cacheKey = cacheKey(config, config.getId());
         return getConfigEntityDigestFromCache(cacheKey, config);
+    }
+
+    public String hashForEntity(ConfigReposConfig entities) {
+        return compound(entities, this::hashForEntity);
     }
 
     public String hashForEntity(ElasticProfile config) {
@@ -359,7 +367,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     public String hashForEntity(PipelineConfig pipelineConfig, String groupName) {
         return getFromCache(
                 cacheKey(pipelineConfig, pipelineConfig.name()),
-                () -> hashes.digestMany(
+                () -> hashes.digest(
                         hashes.digestDomainConfigEntity(pipelineConfig),
                         groupName
                 )
@@ -367,7 +375,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     }
 
     public String hashForEntity(PipelineConfig pipelineConfig, String groupName, String pluginId) {
-        return hashes.digestMany(
+        return hashes.digest(
                 hashes.digestDomainConfigEntity(pipelineConfig),
                 groupName,
                 pluginId
@@ -397,6 +405,30 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return getFromCache(cacheKey, () -> String.valueOf(Objects.hash(artifactConfig)));
     }
 
+    public String hashForEntity(PartialConfig entity) {
+        return partials.hash(entity);
+    }
+
+    /**
+     * This hash should not be cached because it is hard to know how/when to invalidate the cache; the {@link com.thoughtworks.go.config.remote.PartialConfig}
+     * structure can change as a result of branch support, even if the {@link ConfigRepoConfig} and the
+     * {@link com.thoughtworks.go.domain.materials.Modification} objects stay the same.
+     *
+     * @param entity a {@link PartialConfigParseResult}
+     * @return the calculated hash
+     */
+    public String hashForEntity(PartialConfigParseResult entity) {
+        if (null == entity) {
+            return null;
+        }
+
+        return hashes.digest(
+                partials.hash(entity.lastGoodPartialConfig()),
+                hashes.digestDomainNonConfigEntity(entity.getGoodModification()),
+                hashes.digestDomainNonConfigEntity(entity.getLatestParsedModification())
+        );
+    }
+
     public void removeFromCache(Object domainObject, CaseInsensitiveString name) {
         removeFromCache(domainObject, name.toLower());
     }
@@ -406,8 +438,8 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     }
 
     /**
-     * Creates a compound digest over a set of entities. While similar to {@link EntityHashes#digestMany(Collection)},
-     * the advantage of abstracting over {@link EntityHashes#digestMany(String...)} is that we can specify a digest
+     * Creates a compound digest over a set of entities. While similar to {@link EntityHashes#digest(Collection)},
+     * the advantage of abstracting over {@link EntityHashes#digest(String...)} is that we can specify a digest
      * function that takes advantage of fragment caching, such as the various {@code hashForEntity(T entity)} methods
      * in this class. Simply use the {@code this::hashForEntity} method reference as the {@code hashFn} parameter.
      *
@@ -417,7 +449,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
      * @return a single digest representing the contents of the collection
      */
     private <T> String compound(Collection<T> entities, Function<T, String> hashFn) {
-        return hashes.digestMany(entities.stream().
+        return hashes.digest(entities.stream().
                 map(hashFn).
                 toArray(String[]::new));
     }

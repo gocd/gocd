@@ -55,7 +55,7 @@ public class EntityHashingServiceTest {
         this.goConfigService = mock(GoConfigService.class);
         this.goCache = mock(GoCache.class);
         digests = new EntityHashes(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
-        this.service = new EntityHashingService(this.goConfigService, this.goCache, digests);
+        this.service = new EntityHashingService(this.goConfigService, this.goCache, mock(PartialConfigHelper.class), digests);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class EntityHashingServiceTest {
         final String actual = service.hashForEntity(many);
         assertTrue(actual.matches("[a-f0-9]{64}"));
 
-        assertEquals(digests.digestMany(
+        assertEquals(digests.digest(
                 service.hashForEntity(info1),
                 service.hashForEntity(info2)
         ), actual);
@@ -194,7 +194,7 @@ public class EntityHashingServiceTest {
                 thenReturn("bar");
 
         final String type = MergeEnvironmentConfig.class.getSimpleName();
-        assertEquals(digests.digestMany(type, "foo", "bar"), service.hashForEntity(merged));
+        assertEquals(digests.digest(type, "foo", "bar"), service.hashForEntity(merged));
 
         verify(goCache, times(2)).get(ETAG_CACHE_KEY, "com.thoughtworks.go.config.BasicEnvironmentConfig.env");
         verifyNoMoreInteractions(goCache);

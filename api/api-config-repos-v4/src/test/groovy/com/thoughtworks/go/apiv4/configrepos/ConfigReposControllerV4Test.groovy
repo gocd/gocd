@@ -225,6 +225,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
       def repoConfig = repo(ID_1)
       def userSpecificRepos = new ConfigReposConfig(repoConfig)
+      when(entityHashingService.hashForEntity(userSpecificRepos)).thenReturn('digest')
       ConfigReposConfig repos = new ConfigReposConfig(repoConfig, repo(ID_2))
       when(service.getConfigRepos()).thenReturn(repos)
 
@@ -232,7 +233,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
       assertThatResponse().
         isOk().
-        hasHeader('ETag', "\"${userSpecificRepos.etag()}\"").
+        hasHeader('ETag', '"digest"').
         hasJsonBody([
           _links   : [
             self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
@@ -254,13 +255,15 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
       when(goConfigService.rolesForUser(any())).thenReturn([roleConfig])
 
       ConfigReposConfig repos = new ConfigReposConfig(repo(ID_1), repo(ID_2))
+      when(entityHashingService.hashForEntity(repos)).thenReturn('shouldn\'t get here')
+      when(entityHashingService.hashForEntity(new ConfigReposConfig())).thenReturn('empty')
       when(service.getConfigRepos()).thenReturn(repos)
 
       getWithApiHeader(controller.controllerBasePath())
 
       assertThatResponse().
         isOk().
-        hasHeader('ETag', "\"${new ConfigReposConfig().etag()}\"").
+        hasHeader('ETag', '"empty"').
         hasJsonBody([
           _links   : [
             self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
@@ -508,7 +511,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
 
       ConfigRepoConfig existing = repo(id)
       when(service.getConfigRepo(id)).thenReturn(existing)
-      when(entityHashingService.hashForEntity(existing)).thenReturn("unknown-etag")
+      when(entityHashingService.hashForEntity(existing)).thenReturn("digest")
 
       Map payload = [
         id           : id,
@@ -524,7 +527,7 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
         configuration: []
       ]
 
-      putWithApiHeader(controller.controllerPath(id), ['If-Match': existing.etag()], payload)
+      putWithApiHeader(controller.controllerPath(id), ['If-Match': 'not-matching'], payload)
 
       verify(service, never()).
         updateConfigRepo(any() as String, any() as ConfigRepoConfig, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
@@ -818,15 +821,9 @@ class ConfigReposControllerV4Test implements SecurityServiceTrait, ControllerTra
   }
 
   static ConfigRepoConfig repo(String id) {
-    def configRepo = new ConfigRepoConfig() {
-      @Override
-      String etag() {
-        return "etag-for-${id}"
-      }
-    }.setRepo(hg("${TEST_REPO_URL}/$id", ""))
+    return new ConfigRepoConfig()
+      .setRepo(hg("${TEST_REPO_URL}/$id", ""))
       .setId(id)
-      .setPluginId(TEST_PLUGIN_ID)
-    return configRepo as ConfigRepoConfig
+      .setPluginId(TEST_PLUGIN_ID) as ConfigRepoConfig
   }
-
 }

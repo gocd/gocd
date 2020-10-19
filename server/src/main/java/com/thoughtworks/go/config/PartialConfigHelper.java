@@ -74,7 +74,7 @@ public class PartialConfigHelper {
      * @return whether or not the structures are identical
      */
     private boolean isStructurallyEquivalent(PartialConfig previous, PartialConfig incoming) {
-        return hash(incoming).equals(hash(previous));
+        return Objects.equals(hash(incoming), hash(previous));
     }
 
     /**
@@ -98,16 +98,37 @@ public class PartialConfigHelper {
         );
     }
 
-    private String hash(PartialConfig partial) {
-        // hashes.digestPartial method is responsible to serialize domain config entity into xml and then compute hex
+    public String hash(PartialConfig partial) {
         // in case of a deserialization bug, a plugin may return an invalid config which might fail during serializing into xml
         // hence, in case of a serialization error, return null has hash
         //
         // it is safe to return null on a structurally invalid config, as once a the config is fixed, a hash will be computed.
         try {
-            return hashes.digestPartial(partial);
+            return digestPartial(partial);
         } catch (Exception e) {
             return null;
         }
     }
+
+    /**
+     * Computes a digest of a {@link PartialConfig}.
+     * <p>
+     * NOTE: Don't move this to EntityHashingService; it will create a cyclic dependency. The dependency graph leading
+     * here is pretty deep. Your head may explode.
+     *
+     * @param partial a {@link PartialConfig} to hash
+     * @return a cryptographic digest that can be used for comparison.
+     */
+    protected String digestPartial(PartialConfig partial) {
+        if (null == partial) {
+            return null;
+        }
+
+        return hashes.digest(
+                hashes.digest(partial.getGroups()),
+                hashes.digest(partial.getEnvironments()),
+                hashes.digest(partial.getScms())
+        );
+    }
+
 }

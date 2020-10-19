@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv4.configrepos;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.abstractmaterialtest.AbstractMaterialTestController;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.api.spring.ToggleRegisterLatest;
 import com.thoughtworks.go.apiv4.configrepos.representers.ConfigRepoWithResultListRepresenter;
 import com.thoughtworks.go.config.GoConfigRepoConfigDataSource;
 import com.thoughtworks.go.config.PartialConfigParseResult;
@@ -43,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.config.policy.SupportedEntity.CONFIG_REPO;
-import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
+import static com.thoughtworks.go.server.util.DigestMixin.digestMany;
 import static java.util.stream.Collectors.toList;
 import static spark.Spark.*;
 
@@ -57,10 +56,11 @@ public class ConfigReposInternalControllerV4 extends AbstractMaterialTestControl
     private final MaterialConfigConverter converter;
     private final EnvironmentConfigService environmentConfigService;
     private final PipelineConfigsService pipelineConfigsService;
+    private final EntityHashingService entityHashingService;
 
     @Autowired
     public ConfigReposInternalControllerV4(ApiAuthenticationHelper authHelper, ConfigRepoService service, GoConfigRepoConfigDataSource dataSource, MaterialUpdateService mus, MaterialConfigConverter converter, EnvironmentConfigService environmentConfigService, PipelineConfigsService pipelineConfigsService,
-                                           GoConfigService goConfigService, PasswordDeserializer passwordDeserializer, MaterialConfigConverter materialConfigConverter, SystemEnvironment systemEnvironment, SecretParamResolver secretParamResolver) {
+                                           GoConfigService goConfigService, PasswordDeserializer passwordDeserializer, MaterialConfigConverter materialConfigConverter, SystemEnvironment systemEnvironment, SecretParamResolver secretParamResolver, EntityHashingService entityHashingService) {
         super(ApiVersion.v4, goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment, secretParamResolver);
         this.service = service;
         this.dataSource = dataSource;
@@ -69,6 +69,7 @@ public class ConfigReposInternalControllerV4 extends AbstractMaterialTestControl
         this.converter = converter;
         this.environmentConfigService = environmentConfigService;
         this.pipelineConfigsService = pipelineConfigsService;
+        this.entityHashingService = entityHashingService;
     }
 
     @Override
@@ -120,8 +121,15 @@ public class ConfigReposInternalControllerV4 extends AbstractMaterialTestControl
         return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultListRepresenter.toJSON(w, userSpecificRepos, autoSuggestions));
     }
 
-    private String etagFor(Object entity) {
-        return sha512_256Hex(Integer.toString(entity.hashCode()));
+    private String etagFor(List<ConfigRepoWithResult> entity) {
+        return digestMany(entity.stream().map(this::etagFor).toArray(String[]::new));
+    }
+
+    private String etagFor(ConfigRepoWithResult entity) {
+        return digestMany(
+                entityHashingService.hashForEntity(entity.repo()),
+                entityHashingService.hashForEntity(entity.result())
+        );
     }
 
     private List<ConfigRepoWithResult> allRepos() {

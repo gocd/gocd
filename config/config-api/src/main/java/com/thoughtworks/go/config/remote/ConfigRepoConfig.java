@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.config.remote;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.ConfigSubtag;
+import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.rules.RuleAwarePluginProfile;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -27,7 +30,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +40,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
 
 /**
- * Defines single source of remote configuration and name of plugin to interpet it.
+ * Defines single source of remote configuration and name of plugin to interpret it.
  * This goes to standard static xml configuration.
  */
 @Getter
@@ -47,7 +49,7 @@ import static java.util.Objects.isNull;
 @Accessors(chain = true)
 @ConfigTag("config-repo")
 @NoArgsConstructor
-public class ConfigRepoConfig extends RuleAwarePluginProfile implements Cacheable {
+public class ConfigRepoConfig extends RuleAwarePluginProfile {
     private List<String> allowedActions = singletonList("refer");
     private List<String> allowedTypes = unmodifiableListOf(PIPELINE, PIPELINE_GROUP, ENVIRONMENT);
     // defines source of configuration. Any will fit
@@ -154,9 +156,7 @@ public class ConfigRepoConfig extends RuleAwarePluginProfile implements Cacheabl
             return "";
         }
         StringBuilder builder = new StringBuilder();
-        pipelinesWithThisMaterial.forEach((key, value) -> {
-            builder.append(format("%s (%s), ", key, getAutoUpdateStatus(value)));
-        });
+        pipelinesWithThisMaterial.forEach((key, value) -> builder.append(format("%s (%s), ", key, getAutoUpdateStatus(value))));
 
         return builder.delete(builder.lastIndexOf(","), builder.length()).toString();
     }

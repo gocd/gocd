@@ -48,9 +48,9 @@ import static java.lang.String.format;
 public class ConfigRepoService {
     public static final Logger LOGGER = LoggerFactory.getLogger(PackageDefinitionService.class);
     private final GoConfigService goConfigService;
-    private SecurityService securityService;
-    private EntityHashingService entityHashingService;
-    private ConfigRepoExtension configRepoExtension;
+    private final SecurityService securityService;
+    private final EntityHashingService entityHashingService;
+    private final ConfigRepoExtension configRepoExtension;
 
     @Autowired
     public ConfigRepoService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService, ConfigRepoExtension configRepoExtension,
@@ -82,7 +82,6 @@ public class ConfigRepoService {
     }
 
     public GoConfigService getGoConfigService() {
-
         return goConfigService;
     }
 
@@ -109,7 +108,7 @@ public class ConfigRepoService {
     }
 
     public Boolean hasConfigRepoByFingerprint(String fingerprint) {
-       return null != findByFingerprint(fingerprint);
+        return null != findByFingerprint(fingerprint);
     }
 
     public ConfigRepoConfig findByFingerprint(String fingerprint) {
@@ -119,10 +118,10 @@ public class ConfigRepoService {
 
     }
 
-    public void updateConfigRepo(String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String md5OfExistingConfigRepo,
+    public void updateConfigRepo(String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String digestOfExistingConfigRepo,
                                  Username username, HttpLocalizedOperationResult result) {
         UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, repoIdToUpdate,
-                newConfigRepo, md5OfExistingConfigRepo, username, result, configRepoExtension);
+                newConfigRepo, digestOfExistingConfigRepo, username, result, configRepoExtension);
 
         update(username, newConfigRepo.getId(), result, command);
         if (result.isSuccessful()) {
@@ -130,7 +129,7 @@ public class ConfigRepoService {
         }
     }
 
-    private void update(Username username, String repoId, HttpLocalizedOperationResult result, EntityConfigUpdateCommand command) {
+    private void update(Username username, String repoId, HttpLocalizedOperationResult result, EntityConfigUpdateCommand<ConfigRepoConfig> command) {
         try {
             goConfigService.updateConfig(command, username);
         } catch (Exception e) {

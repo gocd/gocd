@@ -44,18 +44,14 @@ class ConfigRepoServiceTest {
     @Mock
     private MaterialConfigConverter converter;
 
-    private String repoId;
-    private String pluginId;
     private ConfigRepoConfig configRepo;
 
     @BeforeEach
     void setUp() {
         initMocks(this);
 
-        this.repoId = "repo-1";
-        this.pluginId = "json-config-repo-plugin";
         MaterialConfig repoMaterial = git("https://foo.git", "master");
-        this.configRepo = ConfigRepoConfig.createConfigRepoConfig(repoMaterial, pluginId, repoId);
+        this.configRepo = ConfigRepoConfig.createConfigRepoConfig(repoMaterial, "json-config-repo-plugin", "repo-1");
     }
 
     @Test
@@ -72,14 +68,15 @@ class ConfigRepoServiceTest {
 
         new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension, materialUpdateService, converter);
 
-        ArgumentCaptor<EntityConfigChangedListener> listenerCaptor = ArgumentCaptor.forClass(EntityConfigChangedListener.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<EntityConfigChangedListener<ConfigRepoConfig>> listenerCaptor = ArgumentCaptor.forClass(EntityConfigChangedListener.class);
 
         verify(goConfigService).register(listenerCaptor.capture());
-        EntityConfigChangedListener listner = listenerCaptor.getValue();
+        EntityConfigChangedListener<ConfigRepoConfig> listener = listenerCaptor.getValue();
 
         verify(materialUpdateService, never()).updateMaterial(any());
 
-        listner.onEntityConfigChange(configRepo);
+        listener.onEntityConfigChange(configRepo);
 
         verify(materialUpdateService, times(1)).updateMaterial(any());
     }

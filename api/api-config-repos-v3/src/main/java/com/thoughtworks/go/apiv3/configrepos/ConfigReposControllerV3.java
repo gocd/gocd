@@ -125,7 +125,7 @@ public class ConfigReposControllerV3 extends ApiController implements SparkSprin
                 .filter(configRepoConfig -> authHelper.doesUserHasPermissions(currentUsername(), getAction(req), CONFIG_REPO, configRepoConfig.getId()))
                 .collect(toCollection(ConfigReposConfig::new));
 
-        String etag = userSpecificRepos.etag();
+        String etag = entityHashingService.hashForEntity(userSpecificRepos);
 
         setEtagHeader(res, etag);
 

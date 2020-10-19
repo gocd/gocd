@@ -20,11 +20,11 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Arguments;
+import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.server.service.EntityHashes;
+import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.stubbing.Answer;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,25 +34,16 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.gitMaterialConfig
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static com.thoughtworks.go.helper.PartialConfigMother.withPipeline;
 import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.junit.jupiter.api.Assertions.*;
 
 class PartialConfigHelperTest {
-    @Mock
-    private EntityHashes hasher;
     private PartialConfigHelper helper;
+    private EntityHashes hashes;
 
     @BeforeEach
     void setup() {
-        initMocks(this);
-        helper = new PartialConfigHelper(hasher);
-        when(hasher.digestPartial(any(PartialConfig.class))).thenAnswer((Answer<String>) invocation -> {
-            final PartialConfig partial = invocation.getArgument(0);
-            return Integer.toString(partial.hashCode());
-        });
+        hashes = new EntityHashes(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
+        helper = new PartialConfigHelper(hashes);
     }
 
     @Test
@@ -91,7 +82,12 @@ class PartialConfigHelperTest {
 
     @Test
     void isEquivalent_CollectionPartialConfig_shouldNotFailWhenSerializationToXMLFails() {
-        when(hasher.digestPartial(any(PartialConfig.class))).thenThrow(new RuntimeException());
+        helper = new PartialConfigHelper(hashes) {
+            @Override
+            protected String digestPartial(PartialConfig partial) {
+                throw new RuntimeException("oh no I'm dead!");
+            }
+        };
 
         ExecTask invalidExecTask = new ExecTask("docker", new Arguments(new Argument(null)));
         JobConfig invalidJob = new JobConfig("up42_job");
@@ -104,8 +100,35 @@ class PartialConfigHelperTest {
         List<PartialConfig> a = asList(partialConfig, git("git"));
         List<PartialConfig> b = Collections.emptyList();
 
-        assertFalse(helper.isEquivalent(a, b));
+        final Boolean result = assertDoesNotThrow(() -> helper.isEquivalent(a, b));
+        assertFalse(result);
     }
+
+    @Test
+    void hash() {
+        assertEquals(
+                helper.hash(PartialConfigMother.withPipeline("foo")),
+                helper.hash(PartialConfigMother.withPipeline("foo")),
+                "Given structurally equal partials, digestPartial() should output the same digest"
+        );
+
+        assertNotEquals(
+                helper.hash(PartialConfigMother.withPipeline("foo")),
+                helper.hash(PartialConfigMother.withPipeline("bar")),
+                "Given structurally different partials, digestPartial() should output different digests"
+        );
+
+        PartialConfig a = PartialConfigMother.withPipeline("foo");
+        PartialConfig b = PartialConfigMother.withPipeline("foo");
+        b.setOrigin(new RepoConfigOrigin(((RepoConfigOrigin) b.getOrigin()).getConfigRepo(), "something-else"));
+
+        assertEquals(
+                helper.hash(a),
+                helper.hash(b),
+                "digestPartial() should only consider structure and not metadata (e.g., origin)"
+        );
+    }
+
 
     private PartialConfig git(String name) {
         ConfigRepoConfig repo = createConfigRepoConfig(gitMaterialConfig(), "plugin", "id" + name);

@@ -15,14 +15,14 @@
  */
 
 import {AjaxPoller} from "helpers/ajax_poller";
-import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
+import {ApiResult} from "helpers/api_request_builder";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {ObjectCache} from "models/base/cache";
+import {AbstractObjCache, ObjectCache} from "models/base/cache";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {DefinedStructures} from "models/config_repos/defined_structures";
-import {ConfigRepo, ConfigRepos} from "models/config_repos/types";
+import {ConfigRepo} from "models/config_repos/types";
 import {Permissions, SupportedEntity} from "models/shared/permissions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -46,15 +46,64 @@ interface SearchOperation {
   resourceAutocompleteHelper: Stream<Map<string, string[]>>;
 }
 
-interface State extends AddOperation<ConfigRepo>, SaveOperation, SearchOperation, RequiresPluginInfos, FlashContainer {
-  flushEtag: () => void;
-}
+type State = AddOperation<ConfigRepo> & SaveOperation & SearchOperation & RequiresPluginInfos & FlashContainer;
 
 // This instance will be shared with all config repo widgets and never changes
 const sm: ScrollManager = new AnchorVM();
 
-export class ConfigReposPage extends Page<null, State> {
+class ConfigReposCache extends AbstractObjCache<ConfigRepo[]> {
   etag: Stream<string> = Stream();
+  autocompleteSuggestions = Stream(new Map<string, string[]>());
+
+  doFetch(resolve: (data: ConfigRepo[]) => void, reject: (error: string) => void) {
+    ConfigReposCRUD.all(this.etag()).then((apiResult) => {
+      if (304 === apiResult.getStatusCode()) {
+        return resolve(this.contents());
+      }
+
+      apiResult.do((successResponse) => {
+        if (apiResult.getEtag()) {
+          this.etag(apiResult.getEtag()!);
+        }
+
+        this.autocompleteSuggestions(
+          _.reduce(successResponse.body.autoCompletion, (map, s) => {
+              map.set(s.key, ["*"].concat(s.value));
+              return map;
+            }, new Map<string, string[]>()
+          )
+        );
+
+        resolve(successResponse.body.configRepos);
+      }, errorResponse => {
+        reject(errorResponse.body!);
+      });
+    });
+  }
+
+  markStale() {
+    // don't dump the old contents, just allow overwrite
+  }
+
+  flushEtag() {
+    this.etag = Stream();
+  }
+
+  promise(): Promise<ConfigRepo[]> {
+    this.invalidate();
+
+    return new Promise((res, rej) => {
+      if (this.ready()) { // shouldn't get here because we just invalidated, but just in case
+        return res(this.contents());
+      }
+
+      this.prime(() => res(this.contents()), () => rej(this.failureReason()));
+    });
+  }
+}
+
+export class ConfigReposPage extends Page<null, State> {
+  cache = new ConfigReposCache();
   resultCaches = new Map<string, ObjectCache<DefinedStructures>>();
 
   oninit(vnode: m.Vnode<null, State>) {
@@ -62,12 +111,9 @@ export class ConfigReposPage extends Page<null, State> {
     vnode.state.unfilteredModels = Stream();
     vnode.state.searchText       = Stream();
     vnode.state.flash            = this.flashMessage;
-    this.updateFilterText(vnode);
-    vnode.state.resourceAutocompleteHelper = Stream(new Map());
-    vnode.state.flushEtag = () => {
-      this.etag = Stream();
-    };
+    vnode.state.resourceAutocompleteHelper = this.cache.autocompleteSuggestions;
 
+    this.updateFilterText(vnode);
     this.fetchData(vnode);
 
     vnode.state.onError = (msg) => {
@@ -106,7 +152,7 @@ export class ConfigReposPage extends Page<null, State> {
     return <div>
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       <ConfigReposWidget models={vnode.state.filteredModels}
-                         flushEtag={vnode.state.flushEtag}
+                         flushEtag={() => this.cache.flushEtag()}
                          pluginInfos={vnode.state.pluginInfos}
                          sm={sm}
       />
@@ -132,7 +178,7 @@ export class ConfigReposPage extends Page<null, State> {
 
     return Promise.all([
                          PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO}),
-                         ConfigReposCRUD.all(this.etag()),
+                         this.cache.promise(),
                          Permissions.all([SupportedEntity.config_repo])
                        ]).then((args) => {
       const pluginInfosResponse: ApiResult<PluginInfos> = args[0];
@@ -146,14 +192,13 @@ export class ConfigReposPage extends Page<null, State> {
           this.pageState = PageState.FAILED;
         }
       );
-      const apiResponse: ApiResult<ConfigRepos> = args[1];
-      const permissionsResponse: ApiResult<Permissions> = args[2];
-      this.onConfigReposAPIResponse(apiResponse, permissionsResponse, vnode);
+      const [,configRepos, permissionsResponse] = args;
+      this.onConfigReposAPIResponse(configRepos, permissionsResponse, vnode);
     });
   }
 
   refreshConfigRepos(vnode: m.Vnode<null, State>) {
-    return Promise.all([ConfigReposCRUD.all(), Permissions.all([SupportedEntity.config_repo])])
+    return Promise.all([this.cache.promise(), Permissions.all([SupportedEntity.config_repo])])
                   .then((args) => this.onConfigReposAPIResponse(args[0], args[1], vnode));
   }
 
@@ -169,42 +214,32 @@ export class ConfigReposPage extends Page<null, State> {
     return ConfigReposWidget.helpText();
   }
 
-  private onConfigReposAPIResponse(apiResponse: ApiResult<ConfigRepos>, permissionsResponse: ApiResult<Permissions>, vnode: m.Vnode<null, State>) {
-    if (304 === apiResponse.getStatusCode() && 304 === permissionsResponse.getStatusCode()) {
-      return;
-    }
-
-    if (apiResponse.getEtag()) {
-      this.etag(apiResponse.getEtag()!);
-    }
-
-    const onError = (errorResponse: ErrorResponse) => {
-      vnode.state.onError(JSON.parse(errorResponse.body!).message);
+  private onConfigReposAPIResponse(configRepos: ConfigRepo[], permissionsResponse: ApiResult<Permissions>, vnode: m.Vnode<null, State>) {
+    const onError = (errorBody: string) => {
+      vnode.state.onError(JSON.parse(errorBody).message);
       this.pageState = PageState.FAILED;
     };
 
-    apiResponse.do((successResponse) => {
-        permissionsResponse.do((permissions) => {
-          const repoPermissions = permissions.body.for(SupportedEntity.config_repo);
-          successResponse.body.configRepos.map((repo) => {
-            repo.canAdminister(repoPermissions.canAdminister(repo.id()!));
-          });
-        }, onError);
-        this.pageState = PageState.OK;
-        const reusedCaches = new Map<string, ObjectCache<DefinedStructures>>();
-        const models = _.map(successResponse.body.configRepos, (repo) => {
-          const vm = new ConfigRepoVM(repo, vnode.state, this.resultCaches.get(repo.id()!));
-          vm.results.invalidate(); // always refresh definitions when getting new config repo data
-          // persist results cache to the next poll; this eliminates the flicker when pulling new data after the first load
-          reusedCaches.set(repo.id()!, vm.results);
-          return vm;
-        });
-        this.resultCaches = reusedCaches; // release any unused caches for garbage collection
-        vnode.state.unfilteredModels(models);
+    if (this.cache.failed()) {
+      return onError(this.cache.failureReason()!);
+    }
 
-        successResponse.body.autoCompletion.forEach((suggestion) => {
-          vnode.state.resourceAutocompleteHelper().set(suggestion.key, ["*"].concat(suggestion.value));
-        });
-      }, onError);
+    this.pageState = PageState.OK;
+
+    permissionsResponse.do((permissions) => {
+      const repoPermissions = permissions.body.for(SupportedEntity.config_repo);
+      configRepos.forEach((repo) => repo.canAdminister(repoPermissions.canAdminister(repo.id()!)));
+    }, (e) => onError(e.body!));
+
+    const reusedCaches = new Map<string, ObjectCache<DefinedStructures>>();
+    const models = _.map(configRepos, (repo) => {
+      const vm = new ConfigRepoVM(repo, vnode.state, this.resultCaches.get(repo.id()!));
+      vm.results.invalidate(); // always refresh definitions when getting new config repo data
+      // persist results cache to the next poll; this eliminates the flicker when pulling new data after the first load
+      reusedCaches.set(repo.id()!, vm.results);
+      return vm;
+    });
+    this.resultCaches = reusedCaches; // release any unused caches for garbage collection
+    vnode.state.unfilteredModels(models);
   }
 }

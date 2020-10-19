@@ -783,7 +783,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
         for (ConfigRepoConfig configRepo : this.configRepos) {
             MaterialConfig materialConfig = configRepo.getRepo();
-            if (!uniqueMaterials.contains(materialConfig.getFingerprint())) {
+            if (!materialConfig.isAutoUpdate() && !uniqueMaterials.contains(materialConfig.getFingerprint())) {
                 materialConfigs.add(materialConfig);
                 uniqueMaterials.add(materialConfig.getFingerprint());
             }
@@ -1100,7 +1100,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         if (!ignoreConfigRepos) {
             for (ConfigRepoConfig configRepo : this.configRepos) {
                 MaterialConfig materialConfig = configRepo.getRepo();
-                if (!uniqueMaterials.contains(materialConfig.getSqlCriteria())) {
+                if (materialConfig.isAutoUpdate() && !uniqueMaterials.contains(materialConfig.getSqlCriteria())) {
                     materialConfigs.add(materialConfig);
                     uniqueMaterials.add(materialConfig.getSqlCriteria());
                 }

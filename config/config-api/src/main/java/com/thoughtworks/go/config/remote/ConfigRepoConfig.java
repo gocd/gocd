@@ -67,8 +67,7 @@ public class ConfigRepoConfig extends RuleAwarePluginProfile {
         this.validateRepoIsSet();
         this.validateMaterial(validationContext);
         if (isValidMaterial()) {
-            this.validateAutoUpdateEnabled();
-            this.validateAutoUpdateState(validationContext);
+            this.validateAutoUpdateIsConsistentAmongSimilarMaterials(validationContext);
             this.validateMaterialUniqueness(validationContext);
         }
     }
@@ -106,15 +105,6 @@ public class ConfigRepoConfig extends RuleAwarePluginProfile {
         return materialConfig.errors().isEmpty();
     }
 
-    private void validateAutoUpdateEnabled() {
-        if (getRepo() != null) {
-            if (!getRepo().isAutoUpdate())
-                getRepo().errors().add("autoUpdate", format(
-                        "Configuration repository material '%s' must have autoUpdate enabled.",
-                        getRepo().getDisplayName()));
-        }
-    }
-
     private void validateRepoIsSet() {
         if (getRepo() == null) {
             this.errors.add("material", "Configuration repository material not specified.");
@@ -129,15 +119,15 @@ public class ConfigRepoConfig extends RuleAwarePluginProfile {
         return getRepo().getFingerprint().equals(fingerprint);
     }
 
-    private void validateAutoUpdateState(ValidationContext validationContext) {
+    private void validateAutoUpdateIsConsistentAmongSimilarMaterials(ValidationContext validationContext) {
         if (validationContext == null)
             return;
 
         MaterialConfig material = getRepo();
         if (material != null) {
             MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(material.getFingerprint());
-            if (allMaterialsByFingerPrint.stream().anyMatch(m -> !m.isAutoUpdate())) {
-                String message = format("The material of type %s (%s) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). All copies of this material must have autoUpdate enabled or configuration repository must be removed.\n Config Repository: %s (%s).\n", material.getTypeForDisplay(), material.getDescription(), getId(), getAutoUpdateStatus(material.isAutoUpdate()));
+            if (allMaterialsByFingerPrint.stream().anyMatch(m -> material.isAutoUpdate() ^ m.isAutoUpdate() /* i.e., find any that don't match */)) {
+                String message = format("The material of type %s (%s) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). All copies of this material must have the same autoUpdate setting or configuration repository must be removed.\n Config Repository: %s (%s).\n", material.getTypeForDisplay(), material.getDescription(), getId(), getAutoUpdateStatus(material.isAutoUpdate()));
                 Map<CaseInsensitiveString, Boolean> pipelinesWithMaterial = validationContext.getPipelineToMaterialAutoUpdateMapByFingerprint(material.getFingerprint());
                 if (!pipelinesWithMaterial.isEmpty()) {
                     message = message.concat(format(" Pipelines: %s", join(pipelinesWithMaterial)));

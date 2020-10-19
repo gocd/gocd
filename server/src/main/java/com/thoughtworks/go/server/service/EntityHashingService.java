@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
-import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.NotificationFilter;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -403,10 +402,6 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     public String hashForEntity(ArtifactConfig artifactConfig) {
         String cacheKey = cacheKey(artifactConfig, "cacheKey");
         return getFromCache(cacheKey, () -> String.valueOf(Objects.hash(artifactConfig)));
-    }
-
-    public String hashForEntity(PartialConfig entity) {
-        return partials.hash(entity);
     }
 
     /**

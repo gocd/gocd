@@ -89,6 +89,7 @@ export abstract class AbstractObjCache<T> implements ObjectCache<T> {
 
   invalidate() {
     this.markStale();
+    this.error = Stream();
     this.primed = false;
   }
 

@@ -49,6 +49,7 @@ class InitialContextProviderTest {
     private DefaultPluginInfoFinder pluginInfoFinder;
     private FeatureToggleService featureToggleService;
     private MaintenanceModeService maintenanceModeService;
+    private ServerConfigService serverConfigService;
 
     @BeforeEach
     void setup() {
@@ -59,9 +60,10 @@ class InitialContextProviderTest {
         pluginInfoFinder = mock(DefaultPluginInfoFinder.class);
         featureToggleService = mock(FeatureToggleService.class);
         maintenanceModeService = mock(MaintenanceModeService.class);
+        serverConfigService = mock(ServerConfigService.class);
         Toggles.initializeWith(featureToggleService);
         initialContextProvider = new InitialContextProvider(railsAssetsService, webpackAssetsService, securityService,
-                versionInfoService, pluginInfoFinder, maintenanceModeService);
+                versionInfoService, pluginInfoFinder, maintenanceModeService, serverConfigService);
         SessionUtils.setCurrentUser(new GoUserPrinciple("bob", "Bob"));
     }
 

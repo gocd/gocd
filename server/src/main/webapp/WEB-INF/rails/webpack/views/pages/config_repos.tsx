@@ -23,6 +23,7 @@ import {AbstractObjCache, ObjectCache} from "models/base/cache";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {DefinedStructures} from "models/config_repos/defined_structures";
 import {ConfigRepo} from "models/config_repos/types";
+import {SiteUrls} from "models/server-configuration/server_configuration";
 import {Permissions, SupportedEntity} from "models/shared/permissions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
@@ -105,6 +106,7 @@ class ConfigReposCache extends AbstractObjCache<ConfigRepo[]> {
 export class ConfigReposPage extends Page<null, State> {
   cache = new ConfigReposCache();
   resultCaches = new Map<string, ObjectCache<DefinedStructures>>();
+  siteUrls: Stream<SiteUrls> = Stream();
 
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.pluginInfos      = Stream();
@@ -132,6 +134,13 @@ export class ConfigReposPage extends Page<null, State> {
     };
 
     new AjaxPoller({repeaterFn: this.refreshConfigRepos.bind(this, vnode), initialIntervalSeconds: 10}).start();
+  }
+
+  oncreate(vnode: m.Vnode<null, State>) {
+    const el = document.querySelector("[data-server-site-urls]");
+    if (el) {
+      this.siteUrls(JSON.parse(el.getAttribute("data-server-site-urls")!));
+    }
   }
 
   updateFilterText(vnode: m.Vnode<null, State>) {

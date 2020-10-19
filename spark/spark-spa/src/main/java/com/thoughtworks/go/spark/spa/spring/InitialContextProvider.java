@@ -16,7 +16,12 @@
 package com.thoughtworks.go.spark.spa.spring;
 
 import com.google.common.base.CaseFormat;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializer;
 import com.thoughtworks.go.CurrentGoCDVersion;
+import com.thoughtworks.go.config.SiteUrls;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
@@ -28,6 +33,7 @@ import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import spark.utils.StringUtils;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -37,23 +43,38 @@ import java.util.TimeZone;
 @Component
 public class InitialContextProvider {
 
+    private static final Gson GSON = new GsonBuilder().
+            registerTypeAdapter(SiteUrls.class, (JsonSerializer<SiteUrls>) (src, t, c) -> {
+                final JsonObject json = new JsonObject();
+                if (StringUtils.isNotBlank(src.getSiteUrl().getUrl())) {
+                    json.addProperty("site_url", src.getSecureSiteUrl().getUrl());
+                }
+                if (StringUtils.isNotBlank(src.getSecureSiteUrl().getUrl())) {
+                    json.addProperty("secure_site_url", src.getSecureSiteUrl().getUrl());
+                }
+                return json;
+            }).
+            create();
+
     private final RailsAssetsService railsAssetsService;
     private final WebpackAssetsService webpackAssetsService;
     private final SecurityService securityService;
     private final VersionInfoService versionInfoService;
     private final DefaultPluginInfoFinder pluginInfoFinder;
-    private MaintenanceModeService maintenanceModeService;
+    private final MaintenanceModeService maintenanceModeService;
+    private final ServerConfigService serverConfigService;
 
     @Autowired
     public InitialContextProvider(RailsAssetsService railsAssetsService, WebpackAssetsService webpackAssetsService,
                                   SecurityService securityService, VersionInfoService versionInfoService, DefaultPluginInfoFinder pluginInfoFinder,
-                                  MaintenanceModeService maintenanceModeService) {
+                                  MaintenanceModeService maintenanceModeService, ServerConfigService serverConfigService) {
         this.railsAssetsService = railsAssetsService;
         this.webpackAssetsService = webpackAssetsService;
         this.securityService = securityService;
         this.versionInfoService = versionInfoService;
         this.pluginInfoFinder = pluginInfoFinder;
         this.maintenanceModeService = maintenanceModeService;
+        this.serverConfigService = serverConfigService;
     }
 
     public Map<String, Object> getContext(Map<String, Object> modelMap, Class<? extends SparkController> controller, String viewName) {
@@ -75,6 +96,7 @@ public class InitialContextProvider {
         context.put("spaTimeout", SystemEnvironment.goSpaTimeout());
         context.put("showAnalyticsDashboard", showAnalyticsDashboard());
         context.put("devMode", !new SystemEnvironment().useCompressedJs());
+        context.put("serverSiteUrls", GSON.toJson(serverConfigService.getServerSiteUrls()));
         return context;
     }
 

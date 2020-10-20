@@ -1095,10 +1095,10 @@
   resolved "https://registry.yarnpkg.com/@types/lru-cache/-/lru-cache-5.1.0.tgz#57f228f2b80c046b4a1bd5cac031f81f207f4f03"
   integrity sha512-RaE0B+14ToE4l6UqdarKPnXwVDuigfFv+5j9Dze/Nqr23yyuqdNvzcZi3xB+3Agvi5R4EOgAksfv3lXX4vBt9w==
 
-"@types/mini-css-extract-plugin@^0.9.1":
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/@types/mini-css-extract-plugin/-/mini-css-extract-plugin-0.9.1.tgz#d4bdde5197326fca039d418f4bdda03dc74dc451"
-  integrity sha512-+mN04Oszdz9tGjUP/c1ReVwJXxSniLd7lF++sv+8dkABxVNthg6uccei+4ssKxRHGoMmPxdn7uBdJWONSJGTGQ==
+"@types/mini-css-extract-plugin@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/mini-css-extract-plugin/-/mini-css-extract-plugin-1.0.0.tgz#614485048f783443f3725ccacddc9909997a1106"
+  integrity sha512-RPwytnqlrfxPvTbASoGr+mVMeGIw8rw2XuyUUFZ8ba+TOAODQLP5E2+4X7VZLB4eV106pJtnBhagOP57hrY5uw==
   dependencies:
     "@types/webpack" "*"
 

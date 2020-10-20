@@ -15,9 +15,9 @@
  */
 package com.thoughtworks.go.config;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -164,7 +164,7 @@ public abstract class EnvironmentConfigTestBase {
 
     @Test
     void shouldNotUpdateAnythingForNullAttributes() {
-        EnvironmentConfig beforeUpdate = new Cloner().deepClone(environmentConfig);
+        EnvironmentConfig beforeUpdate = ClonerFactory.instance().deepClone(environmentConfig);
         environmentConfig.setConfigAttributes(null);
         assertThat(environmentConfig).isEqualTo(beforeUpdate);
     }

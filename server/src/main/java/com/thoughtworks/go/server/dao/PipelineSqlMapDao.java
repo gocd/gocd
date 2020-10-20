@@ -38,6 +38,7 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import net.sf.ehcache.Cache;
@@ -80,7 +81,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     private TransactionTemplate transactionTemplate;
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private final GoConfigDao configFileDao;
-    private final Cloner cloner = new Cloner();
+    private final Cloner cloner = ClonerFactory.instance();
     private Clock timeProvider;
     private final ReadWriteLock activePipelineRWLock = new ReentrantReadWriteLock();
     private final Lock activePipelineReadLock = activePipelineRWLock.readLock();

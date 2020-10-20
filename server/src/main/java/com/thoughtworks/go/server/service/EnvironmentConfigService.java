@@ -39,10 +39,14 @@ import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.ui.EnvironmentViewModel;
+import com.thoughtworks.go.util.ClonerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
@@ -62,7 +66,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
 
     private EnvironmentsConfig environments;
     private EnvironmentPipelineMatchers matchers;
-    private static final Cloner cloner = new Cloner();
+    private static final Cloner cloner = ClonerFactory.instance();
 
     public EnvironmentConfigService() {
     }

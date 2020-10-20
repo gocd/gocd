@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.common.collect.ImmutableMap;
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -29,6 +28,7 @@ import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,12 +46,9 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 class EnvironmentConfigServiceTest {
@@ -116,7 +113,7 @@ class EnvironmentConfigServiceTest {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         BasicEnvironmentConfig env = (BasicEnvironmentConfig) environmentConfigService.getEnvironmentConfig(uat).getLocal();
         cruiseConfig.addEnvironment(env);
-        BasicEnvironmentConfig expectedToEdit = new Cloner().deepClone(env);
+        BasicEnvironmentConfig expectedToEdit = ClonerFactory.instance().deepClone(env);
 
         when(mockGoConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
 
@@ -143,7 +140,7 @@ class EnvironmentConfigServiceTest {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         BasicEnvironmentConfig env = (BasicEnvironmentConfig) environmentConfigService.getEnvironmentConfig(uat).getLocal();
         cruiseConfig.addEnvironment(env);
-        List<BasicEnvironmentConfig> expectedToEdit = singletonList(new Cloner().deepClone(env));
+        List<BasicEnvironmentConfig> expectedToEdit = singletonList(ClonerFactory.instance().deepClone(env));
 
         when(mockGoConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
 

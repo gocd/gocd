@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config;
 
 import ch.qos.logback.classic.Level;
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.ConfigMergeException;
@@ -614,7 +613,7 @@ public class GoFileConfigDataSourceIntegrationTest {
 
     private void updateConfigOnFileSystem(UpdateConfig updateConfig) throws Exception {
         String cruiseConfigFile = systemEnvironment.getCruiseConfigFile();
-        CruiseConfig updatedConfig = new Cloner().deepClone(goConfigService.getConfigForEditing());
+        CruiseConfig updatedConfig = ClonerFactory.instance().deepClone(goConfigService.getConfigForEditing());
         updateConfig.update(updatedConfig);
         File configFile = new File(cruiseConfigFile);
         FileOutputStream outputStream = new FileOutputStream(configFile);

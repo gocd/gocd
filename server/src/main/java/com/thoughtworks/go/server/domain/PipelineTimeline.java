@@ -22,6 +22,7 @@ import com.thoughtworks.go.listener.TimelineUpdateListener;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.ClonerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,7 @@ public class PipelineTimeline {
     private TimelineUpdateListener[] listeners;
     private final ReadWriteLock naturalOrderLock = new ReentrantReadWriteLock();
     private final ReadWriteLock scheduleOrderLock = new ReentrantReadWriteLock();
-    private final Cloner cloner = new Cloner();
+    private final Cloner cloner = ClonerFactory.instance();
 
     @Autowired
     public PipelineTimeline(PipelineRepository pipelineRepository, TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager,

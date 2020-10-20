@@ -45,6 +45,7 @@ import com.thoughtworks.go.plugin.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.command.CommandLine;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -64,7 +65,7 @@ public class ConfigConverter {
     private final GoCipher cipher;
     private final CachedGoConfig cachedGoConfig;
     private AgentService agentService;
-    private Cloner cloner = new Cloner();
+    private Cloner cloner = ClonerFactory.instance();
 
     public ConfigConverter(GoCipher goCipher, CachedGoConfig cachedGoConfig, AgentService agentService) {
         this.cipher = goCipher;

@@ -35,6 +35,7 @@ import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.service.TaskFactory;
+import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.Node;
 import org.apache.commons.lang3.StringUtils;
 
@@ -60,7 +61,7 @@ import static org.apache.commons.lang3.StringUtils.substringsBetween;
 @ConfigCollection(StageConfig.class)
 public class PipelineConfig extends BaseCollection<StageConfig> implements ParamScope, ParamsAttributeAware,
         Validatable, EnvironmentVariableScope, ConfigOriginTraceable {
-    private static final Cloner CLONER = new Cloner();
+    private static final Cloner CLONER = ClonerFactory.instance();
 
     public static final String LABEL_TEMPLATE = "labelTemplate";
     public static final String TRACKING_TOOL = "trackingTool";

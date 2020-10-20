@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.StageNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -39,10 +38,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.DFSCycleDetector;
-import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.Node;
-import com.thoughtworks.go.util.PipelineDependencyState;
+import com.thoughtworks.go.util.*;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -50,7 +46,6 @@ import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.exceptions.EntityType.Pipeline;
 import static com.thoughtworks.go.config.exceptions.EntityType.Template;
@@ -499,7 +494,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public CruiseConfig cloneForValidation() {
-        Cloner cloner = new Cloner();
+        Cloner cloner = ClonerFactory.instance();
         BasicCruiseConfig configForValidation = cloner.deepClone(BasicCruiseConfig.this);
         // This needs to be done clear the cached fields else the cloned object will all get them.
         configForValidation.resetAllPipelineConfigsCache();

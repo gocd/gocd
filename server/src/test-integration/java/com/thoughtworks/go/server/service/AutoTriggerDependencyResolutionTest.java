@@ -41,6 +41,7 @@ import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.dd.MaxBackTrackLimitReachedException;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
@@ -68,7 +69,7 @@ import static org.mockito.Mockito.when;
 })
 public class AutoTriggerDependencyResolutionTest {
     public static final String STAGE_NAME = "s";
-    public static final Cloner CLONER = new Cloner();
+    public static final Cloner CLONER = ClonerFactory.instance();
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private GoCache goCache;
     @Autowired private GoConfigDao goConfigDao;

@@ -15,11 +15,11 @@
  */
 package com.thoughtworks.go.config;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.IpAddress;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.util.ClonerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -233,7 +233,7 @@ public class Agent extends PersistentObject {
     }
 
     public Agent deepClone() {
-        return new Cloner().deepClone(this);
+        return ClonerFactory.instance().deepClone(this);
     }
 
     public boolean isFromLocalHost() {

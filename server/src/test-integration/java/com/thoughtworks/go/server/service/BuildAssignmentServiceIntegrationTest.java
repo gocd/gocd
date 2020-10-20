@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -301,7 +300,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();
 
         PipelineConfig originalPipelineConfig = configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName));
-        PipelineConfig pipelineConfig = new Cloner().deepClone(originalPipelineConfig);
+        PipelineConfig pipelineConfig = ClonerFactory.instance().deepClone(originalPipelineConfig);
         String md5 = entityHashingService.hashForEntity(originalPipelineConfig, fixture.groupName);
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
         pipelineConfig.remove(devStage);
@@ -328,7 +327,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();
 
         PipelineConfig originalPipelineConfig = configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName));
-        PipelineConfig pipelineConfig = new Cloner().deepClone(originalPipelineConfig);
+        PipelineConfig pipelineConfig = ClonerFactory.instance().deepClone(originalPipelineConfig);
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
         String md5 = entityHashingService.hashForEntity(originalPipelineConfig, fixture.groupName);
         StageConfig devStage = pipelineConfig.findBy(new CaseInsensitiveString(fixture.devStage));
@@ -358,7 +357,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         buildAssignmentService.onTimer();
 
-        PipelineConfig pipelineConfig = new Cloner().deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
+        PipelineConfig pipelineConfig = ClonerFactory.instance().deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
 
         pipelineConfigService.deletePipelineConfig(loserUser, pipelineConfig, new HttpLocalizedOperationResult());
 

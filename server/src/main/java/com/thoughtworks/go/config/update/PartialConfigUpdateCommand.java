@@ -18,9 +18,10 @@ package com.thoughtworks.go.config.update;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.util.ClonerFactory;
 
 public class PartialConfigUpdateCommand implements UpdateConfigCommand {
-    private static final Cloner CLONER = new Cloner();
+    private static final Cloner CLONER = ClonerFactory.instance();
 
     private final PartialConfig partial;
     private final String fingerprint;

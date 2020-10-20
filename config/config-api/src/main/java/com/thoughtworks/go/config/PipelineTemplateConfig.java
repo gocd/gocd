@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.Task;
+import com.thoughtworks.go.util.ClonerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +40,7 @@ import static com.thoughtworks.go.config.Authorization.ALLOW_GROUP_ADMINS;
 @ConfigCollection(value = StageConfig.class)
 public class PipelineTemplateConfig extends BaseCollection<StageConfig> implements Validatable, ParamsAttributeAware {
     private static final ClassAttributeCache.FieldCache FIELD_CACHE = new ClassAttributeCache.FieldCache();
-    private static final Cloner CLONER = new Cloner();
+    private static final Cloner CLONER = ClonerFactory.instance();
 
     public static final String NAME = "name";
 

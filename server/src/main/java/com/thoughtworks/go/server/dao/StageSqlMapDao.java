@@ -37,6 +37,7 @@ import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
+import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.DynamicReadWriteLock;
 import com.thoughtworks.go.util.IBatisUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -68,7 +69,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     private JobInstanceSqlMapDao buildInstanceDao;
     private Cache cache;
     private TransactionSynchronizationManager transactionSynchronizationManager;
-    private Cloner cloner = new Cloner();
+    private Cloner cloner = ClonerFactory.instance();
     private DynamicReadWriteLock readWriteLock = new DynamicReadWriteLock();
 
     @Autowired

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -55,10 +54,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import org.apache.commons.io.FileUtils;
@@ -889,7 +885,7 @@ public class CachedGoConfigIntegrationTest {
         String remoteDownstream = "remote-downstream";
         setupExternalConfigRepoWithDependencyMaterialOnPipelineInMainXml(upstream, remoteDownstream);
 
-        PartialConfig partialWithStageRenamed = new Cloner().deepClone(cachedGoPartials.lastValidPartials().get(0));
+        PartialConfig partialWithStageRenamed = ClonerFactory.instance().deepClone(cachedGoPartials.lastValidPartials().get(0));
         PipelineConfig pipelineInRemoteConfigRepo = partialWithStageRenamed.getGroups().get(0).getPipelines().get(0);
         pipelineInRemoteConfigRepo.materialConfigs().getDependencyMaterial().setStageName(new CaseInsensitiveString("new_name"));
         partialWithStageRenamed.setOrigin(new RepoConfigOrigin(configRepo, "r2"));
@@ -941,7 +937,7 @@ public class CachedGoConfigIntegrationTest {
         cachedGoPartials.clear();
         PartialConfig invalidPartial = PartialConfigMother.invalidPartial("invalid", new RepoConfigOrigin(configRepo, "revision1"));
         partialConfigService.onSuccessPartialConfig(configRepo, invalidPartial);
-        CruiseConfig updatedConfig = new Cloner().deepClone(goConfigService.getConfigForEditing());
+        CruiseConfig updatedConfig = ClonerFactory.instance().deepClone(goConfigService.getConfigForEditing());
         updatedConfig.server().setCommandRepositoryLocation("foo");
         String updatedXml = goFileConfigDataSource.configAsXml(updatedConfig, false);
         FileUtils.writeStringToFile(new File(goConfigDao.fileLocation()), updatedXml, UTF_8);
@@ -1068,7 +1064,7 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoPartials.lastValidPartials().contains(validPartial)).isTrue();
         assertThat(cachedGoPartials.lastKnownPartials().contains(validPartial)).isTrue();
 
-        CruiseConfig config = new Cloner().deepClone(cachedGoConfig.loadForEditing());
+        CruiseConfig config = ClonerFactory.instance().deepClone(cachedGoConfig.loadForEditing());
 
         config.addEnvironment(UUID.randomUUID().toString());
 
@@ -1096,7 +1092,7 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoPartials.lastValidPartials().isEmpty()).isTrue();
         assertThat(cachedGoPartials.lastKnownPartials().contains(invalidPartial)).isTrue();
 
-        CruiseConfig config = new Cloner().deepClone(cachedGoConfig.loadForEditing());
+        CruiseConfig config = ClonerFactory.instance().deepClone(cachedGoConfig.loadForEditing());
 
         config.addEnvironment(UUID.randomUUID().toString());
 
@@ -1126,7 +1122,7 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoPartials.lastValidPartials().contains(validPartial)).isTrue();
         assertThat(cachedGoPartials.lastKnownPartials().contains(invalidPartial)).isTrue();
 
-        CruiseConfig config = new Cloner().deepClone(cachedGoConfig.loadForEditing());
+        CruiseConfig config = ClonerFactory.instance().deepClone(cachedGoConfig.loadForEditing());
 
         config.addEnvironment(UUID.randomUUID().toString());
 
@@ -1150,7 +1146,7 @@ public class CachedGoConfigIntegrationTest {
         setupExternalConfigRepoWithDependencyMaterialOnPipelineInMainXml("upstream", "downstream");
         String gitShaBeforeSave = configRepository.getCurrentRevCommit().getName();
         CruiseConfig originalConfig = cachedGoConfig.loadForEditing();
-        CruiseConfig editedConfig = new Cloner().deepClone(originalConfig);
+        CruiseConfig editedConfig = ClonerFactory.instance().deepClone(originalConfig);
 
         editedConfig.getGroups().remove(editedConfig.findGroup("default"));
 
@@ -1181,7 +1177,7 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoPartials.lastValidPartials().isEmpty()).isTrue();
 
         CruiseConfig originalConfig = cachedGoConfig.loadForEditing();
-        CruiseConfig editedConfig = new Cloner().deepClone(originalConfig);
+        CruiseConfig editedConfig = ClonerFactory.instance().deepClone(originalConfig);
 
         editedConfig.addPipeline("default", upstream);
         ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(editedConfig, goConfigService.configFileMd5()));

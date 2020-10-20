@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
@@ -26,6 +25,7 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
+import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -143,7 +143,7 @@ public class PipelineConfigServiceTest {
 
     @Test
     public void pipelineCountShouldIncludeConfigRepoPipelinesAsWell() {
-        CruiseConfig mergedCruiseConfig = new Cloner().deepClone(cruiseConfig);
+        CruiseConfig mergedCruiseConfig = ClonerFactory.instance().deepClone(cruiseConfig);
         ReflectionUtil.setField(mergedCruiseConfig, "allPipelineConfigs", null);
         mergedCruiseConfig.addPipeline("default", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
         when(goConfigService.cruiseConfig()).thenReturn(mergedCruiseConfig);
@@ -155,7 +155,7 @@ public class PipelineConfigServiceTest {
 
     @Test
     public void shouldGetAllViewableMergePipelineConfigs() throws Exception {
-        CruiseConfig mergedCruiseConfig = new Cloner().deepClone(cruiseConfig);
+        CruiseConfig mergedCruiseConfig = ClonerFactory.instance().deepClone(cruiseConfig);
         ReflectionUtil.setField(mergedCruiseConfig, "allPipelineConfigs", null);
         mergedCruiseConfig.addPipeline("group1", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
         mergedCruiseConfig.addPipeline("group2", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
@@ -180,7 +180,7 @@ public class PipelineConfigServiceTest {
 
     @Test
     public void shouldGetAllViewableGroups() throws Exception {
-        CruiseConfig cruiseConfig = new Cloner().deepClone(this.cruiseConfig);
+        CruiseConfig cruiseConfig = ClonerFactory.instance().deepClone(this.cruiseConfig);
         ReflectionUtil.setField(cruiseConfig, "allPipelineConfigs", null);
         cruiseConfig.addPipeline("group1", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));
         cruiseConfig.addPipeline("group2", PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString()));

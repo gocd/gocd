@@ -27,7 +27,7 @@ import java.util.Properties;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SystemEnvironmentTest {
-    private static final Cloner CLONER = new Cloner();
+    private static final Cloner CLONER = ClonerFactory.instance();
     private Properties original;
     private SystemEnvironment systemEnvironment;
 

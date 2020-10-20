@@ -22,11 +22,22 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class GoConfigClonerTest {
+    @Test
+    public void fixesApplied_canCloneList12() {
+        final List<String> original = List.of("single element list");
+        final List<String> dupe = new GoConfigCloner().deepClone(original);
+        assertEquals(1, dupe.size());
+        assertEquals("single element list", dupe.get(0));
+        assertEquals(dupe, original);
+    }
+
     @Test
     public void shouldNotCloneAllPipelineConfigs() {
         BasicCruiseConfig config = GoConfigMother.configWithPipelines("p1", "p2");

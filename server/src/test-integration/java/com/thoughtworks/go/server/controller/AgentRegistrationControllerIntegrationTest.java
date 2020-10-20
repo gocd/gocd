@@ -24,6 +24,7 @@ import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.EphemeralAutoRegisterKeyService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.util.UuidGenerator;
+import com.thoughtworks.go.util.ClonerFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,7 +71,7 @@ public class AgentRegistrationControllerIntegrationTest {
     @Autowired
     EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
 
-    static final Cloner CLONER = new Cloner();
+    static final Cloner CLONER = ClonerFactory.instance();
     private Properties original;
 
     @BeforeEach

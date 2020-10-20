@@ -15,13 +15,13 @@
  */
 package com.thoughtworks.go.helper;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.ClonerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -127,7 +127,7 @@ public class PipelineConfigMother {
     }
 
     public static PipelineConfig renamePipeline(PipelineConfig oldConfig, String newPipelineName) {
-        PipelineConfig newConfig = new Cloner().deepClone(oldConfig);
+        PipelineConfig newConfig = ClonerFactory.instance().deepClone(oldConfig);
         HashMap attributes = new HashMap();
         attributes.put(PipelineConfig.NAME, newPipelineName);
         newConfig.setConfigAttributes(attributes);

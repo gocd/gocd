@@ -15,12 +15,14 @@
  */
 package com.thoughtworks.go.config;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ClonerFactory;
+import com.thoughtworks.go.util.DFSCycleDetector;
+import com.thoughtworks.go.util.Node;
+import com.thoughtworks.go.util.PipelineDependencyState;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -99,7 +101,7 @@ public class PipelineConfigTreeValidator {
             if (dependencyNode.getPipelineName().equals(pipelineConfig.name())) {
                 for (MaterialConfig materialConfig : downstreamPipeline.materialConfigs()) {
                     if (materialConfig instanceof DependencyMaterialConfig) {
-                        DependencyMaterialConfig dependencyMaterialConfig = new Cloner().deepClone((DependencyMaterialConfig) materialConfig);
+                        DependencyMaterialConfig dependencyMaterialConfig = ClonerFactory.instance().deepClone((DependencyMaterialConfig) materialConfig);
                         dependencyMaterialConfig.validate(validationContext.withParent(downstreamPipeline));
                         List<String> allErrors = dependencyMaterialConfig.errors().getAll();
                         for (String error : allErrors) {
@@ -118,7 +120,7 @@ public class PipelineConfigTreeValidator {
                     if (task instanceof FetchTask) {
                         FetchTask fetchTask = (FetchTask) task;
                         if (fetchTask.getPipelineNamePathFromAncestor() != null && !StringUtils.isBlank(CaseInsensitiveString.str(fetchTask.getPipelineNamePathFromAncestor().getPath())) && fetchTask.getPipelineNamePathFromAncestor().pathIncludingAncestor().contains(pipelineConfig.name())) {
-                            fetchTask = new Cloner().deepClone(fetchTask);
+                            fetchTask = ClonerFactory.instance().deepClone(fetchTask);
                             fetchTask.validateTask(validationContext.withParent(downstreamPipeline).withParent(stageConfig).withParent(jobConfig));
                             List<String> allErrors = fetchTask.errors().getAll();
                             for (String error : allErrors) {

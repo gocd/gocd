@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.rits.cloning.Cloner;
+import com.thoughtworks.go.util.ClonerFactory;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,6 +28,6 @@ class ResourceTest {
         existingResource.setBuildId(10);
 
         assertThat(existingResource).isEqualTo(new Resource(existingResource));
-        assertThat(existingResource).isEqualTo(new Cloner().deepClone(existingResource));
+        assertThat(existingResource).isEqualTo(ClonerFactory.instance().deepClone(existingResource));
     }
 }

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.gson.Gson;
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
@@ -29,6 +28,7 @@ import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.support.ServerStatusService;
+import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -248,7 +248,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
             public void run() {
                 try {
                     CruiseConfig cruiseConfig = cachedGoConfig.loadForEditing();
-                    CruiseConfig cruiseConfig1 = new Cloner().deepClone(cruiseConfig);
+                    CruiseConfig cruiseConfig1 = ClonerFactory.instance().deepClone(cruiseConfig);
                     cruiseConfig1.addEnvironment(UUID.randomUUID().toString());
 
                     goConfigDao.updateFullConfig(new FullConfigUpdateCommand(cruiseConfig1, cruiseConfig.getMd5()));

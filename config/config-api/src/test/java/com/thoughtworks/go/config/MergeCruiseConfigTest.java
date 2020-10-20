@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.util.ClonerFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -356,7 +357,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("pipeline-1", "g2");
         partialConfig.setOrigin(new RepoConfigOrigin());
         CruiseConfig config = new BasicCruiseConfig(mainCruiseConfig, partialConfig);
-        Cloner CLONER = new Cloner();
+        Cloner CLONER = ClonerFactory.instance();
         CruiseConfig cloned = CLONER.deepClone(config);
 
         List<ConfigErrors> allErrors = cloned.validateAfterPreprocess();

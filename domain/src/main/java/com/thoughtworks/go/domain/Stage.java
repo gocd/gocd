@@ -18,9 +18,10 @@ package com.thoughtworks.go.domain;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.util.Clock;
-import org.slf4j.Logger;
+import com.thoughtworks.go.util.ClonerFactory;
 import org.joda.time.DateTimeUtils;
 import org.joda.time.Duration;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
@@ -50,7 +51,7 @@ public class Stage extends PersistentObject {
     private boolean artifactsDeleted;
 
     private static final StageResult DEFAULT_RESULT = StageResult.Unknown;
-    private static final Cloner CLONER = new Cloner();
+    private static final Cloner CLONER = ClonerFactory.instance();
     private String configVersion = null;
     private StageIdentifier previousStage;
 

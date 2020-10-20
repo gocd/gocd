@@ -33,6 +33,7 @@ import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.SortOrder;
+import com.thoughtworks.go.util.ClonerFactory;
 import com.thoughtworks.go.util.SystemEnvironment;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -65,7 +66,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     private TransactionTemplate transactionTemplate;
     private EnvironmentVariableDao environmentVariableDao;
     private JobAgentMetadataDao jobAgentMetadataDao;
-    private Cloner cloner = new Cloner();
+    private Cloner cloner = ClonerFactory.instance();
     private ResourceRepository resourceRepository;
     private ArtifactPlanRepository artifactPlanRepository;
     private final ClusterProfilesService clusterProfilesService;

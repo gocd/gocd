@@ -32,11 +32,7 @@ import com.thoughtworks.go.domain.materials.ValidationBean
 import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.materials.MaterialUpdateService
-import com.thoughtworks.go.server.service.ConfigRepoService
-import com.thoughtworks.go.server.service.EnvironmentConfigService
-import com.thoughtworks.go.server.service.MaterialConfigConverter
-import com.thoughtworks.go.server.service.PipelineConfigsService
-import com.thoughtworks.go.server.service.SecretParamResolver
+import com.thoughtworks.go.server.service.*
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.Routes
@@ -49,9 +45,9 @@ import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
+import static com.thoughtworks.go.server.util.DigestMixin.digestMany
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.anyString
-import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
@@ -92,6 +88,9 @@ class ConfigReposInternalControllerV4Test implements SecurityServiceTrait, Contr
     @Mock
     private SecretParamResolver secretParamResolver
 
+    @Mock
+    private EntityHashingService entityHashingService
+
     @BeforeEach
     void setUp() {
         initMocks(this)
@@ -100,7 +99,7 @@ class ConfigReposInternalControllerV4Test implements SecurityServiceTrait, Contr
         RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("role"), new Users(), directives)
 
         when(goConfigService.rolesForUser(any())).then({ InvocationOnMock invocation ->
-            CaseInsensitiveString username = invocation.getArguments()[0]
+            CaseInsensitiveString username = invocation.getArguments()[0] as CaseInsensitiveString
             if (username == Username.ANONYMOUS.username) {
                 return []
             }
@@ -112,7 +111,7 @@ class ConfigReposInternalControllerV4Test implements SecurityServiceTrait, Contr
 
     @Override
     ConfigReposInternalControllerV4 createControllerInstance() {
-        new ConfigReposInternalControllerV4(new ApiAuthenticationHelper(securityService, goConfigService), service, dataSource, materialUpdateService, converter, environmentConfigService, pipelineConfigsService, goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment, secretParamResolver)
+        new ConfigReposInternalControllerV4(new ApiAuthenticationHelper(securityService, goConfigService), service, dataSource, materialUpdateService, converter, environmentConfigService, pipelineConfigsService, goConfigService, passwordDeserializer, materialConfigConverter, systemEnvironment, secretParamResolver, entityHashingService)
     }
 
     @Nested
@@ -139,6 +138,7 @@ class ConfigReposInternalControllerV4Test implements SecurityServiceTrait, Contr
         @Test
         void 'should list only those existing config repos, with associated parse results, for which the user has permission'() {
             Modification modification = new Modification()
+            //noinspection GrDeprecatedAPIUsage
             modification.setRevision("abc")
 
             PartialConfig partialConfig = new PartialConfig()
@@ -193,7 +193,7 @@ class ConfigReposInternalControllerV4Test implements SecurityServiceTrait, Contr
             ]
             assertThatResponse()
                     .isOk()
-                    .hasEtag("\"${new ConfigReposConfig().etag()}\"")
+                    .hasEtag("\"${digestMany([] as String[])}\"")
                     .hasJsonBody(expectedJson)
         }
 

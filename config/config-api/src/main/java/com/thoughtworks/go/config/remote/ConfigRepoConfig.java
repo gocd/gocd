@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.config.remote;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.ConfigSubtag;
+import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.rules.RuleAwarePluginProfile;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -27,7 +30,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +40,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
 
 /**
- * Defines single source of remote configuration and name of plugin to interpet it.
+ * Defines single source of remote configuration and name of plugin to interpret it.
  * This goes to standard static xml configuration.
  */
 @Getter
@@ -47,7 +49,7 @@ import static java.util.Objects.isNull;
 @Accessors(chain = true)
 @ConfigTag("config-repo")
 @NoArgsConstructor
-public class ConfigRepoConfig extends RuleAwarePluginProfile implements Cacheable {
+public class ConfigRepoConfig extends RuleAwarePluginProfile {
     private List<String> allowedActions = singletonList("refer");
     private List<String> allowedTypes = unmodifiableListOf(PIPELINE, PIPELINE_GROUP, ENVIRONMENT);
     // defines source of configuration. Any will fit
@@ -65,8 +67,7 @@ public class ConfigRepoConfig extends RuleAwarePluginProfile implements Cacheabl
         this.validateRepoIsSet();
         this.validateMaterial(validationContext);
         if (isValidMaterial()) {
-            this.validateAutoUpdateEnabled();
-            this.validateAutoUpdateState(validationContext);
+            this.validateAutoUpdateIsConsistentAmongSimilarMaterials(validationContext);
             this.validateMaterialUniqueness(validationContext);
         }
     }
@@ -104,15 +105,6 @@ public class ConfigRepoConfig extends RuleAwarePluginProfile implements Cacheabl
         return materialConfig.errors().isEmpty();
     }
 
-    private void validateAutoUpdateEnabled() {
-        if (getRepo() != null) {
-            if (!getRepo().isAutoUpdate())
-                getRepo().errors().add("autoUpdate", format(
-                        "Configuration repository material '%s' must have autoUpdate enabled.",
-                        getRepo().getDisplayName()));
-        }
-    }
-
     private void validateRepoIsSet() {
         if (getRepo() == null) {
             this.errors.add("material", "Configuration repository material not specified.");
@@ -127,15 +119,15 @@ public class ConfigRepoConfig extends RuleAwarePluginProfile implements Cacheabl
         return getRepo().getFingerprint().equals(fingerprint);
     }
 
-    private void validateAutoUpdateState(ValidationContext validationContext) {
+    private void validateAutoUpdateIsConsistentAmongSimilarMaterials(ValidationContext validationContext) {
         if (validationContext == null)
             return;
 
         MaterialConfig material = getRepo();
         if (material != null) {
             MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(material.getFingerprint());
-            if (allMaterialsByFingerPrint.stream().anyMatch(m -> !m.isAutoUpdate())) {
-                String message = format("The material of type %s (%s) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). All copies of this material must have autoUpdate enabled or configuration repository must be removed.\n Config Repository: %s (%s).\n", material.getTypeForDisplay(), material.getDescription(), getId(), getAutoUpdateStatus(material.isAutoUpdate()));
+            if (allMaterialsByFingerPrint.stream().anyMatch(m -> material.isAutoUpdate() ^ m.isAutoUpdate() /* i.e., find any that don't match */)) {
+                String message = format("The material of type %s (%s) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). All copies of this material must have the same autoUpdate setting or configuration repository must be removed.\n Config Repository: %s (%s).\n", material.getTypeForDisplay(), material.getDescription(), getId(), getAutoUpdateStatus(material.isAutoUpdate()));
                 Map<CaseInsensitiveString, Boolean> pipelinesWithMaterial = validationContext.getPipelineToMaterialAutoUpdateMapByFingerprint(material.getFingerprint());
                 if (!pipelinesWithMaterial.isEmpty()) {
                     message = message.concat(format(" Pipelines: %s", join(pipelinesWithMaterial)));
@@ -154,9 +146,7 @@ public class ConfigRepoConfig extends RuleAwarePluginProfile implements Cacheabl
             return "";
         }
         StringBuilder builder = new StringBuilder();
-        pipelinesWithThisMaterial.forEach((key, value) -> {
-            builder.append(format("%s (%s), ", key, getAutoUpdateStatus(value)));
-        });
+        pipelinesWithThisMaterial.forEach((key, value) -> builder.append(format("%s (%s), ", key, getAutoUpdateStatus(value))));
 
         return builder.delete(builder.lastIndexOf(","), builder.length()).toString();
     }

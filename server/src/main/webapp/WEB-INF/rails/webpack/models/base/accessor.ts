@@ -51,6 +51,25 @@ export function basicAccessor<T>(initial?: T): Accessor<T> {
 }
 
 /**
+ * Higher order function that returns a new {@link Accessor} that bidirectionally (i.e., on both get and set) transforms
+ * data to and from an underlying {@link Accessor}. In other words, the resulting {@link Accessor} does not store a datum
+ * itself, but rather transforms it into a compatible value for the backing {@link Accessor} and stores it there. Likewise,
+ * a "get" operation retrieves the value from the backing {@link Accessor} and converts its value.
+ *
+ * @param backing the underlying {@link Accessor} that holds the true value
+ * @param to a function that transforms data destined to be set in the backing {@link Accessor}
+ * @param from a function that transforms data fetched from the backing {@link Accessor} to the desired output
+ */
+export function bidirectionalTransform<I,O>(backing: Accessor<O>, to: (v: I) => O, from: (v: O) => I): Accessor<I> {
+  return function(val?: I) { // tslint:disable-line only-arrow-functions
+    if (arguments.length) {
+      backing(to(val!));
+    }
+    return from(backing());
+  };
+}
+
+/**
  * Calls `toJSON()` on a given object if defined and returns its value.
  * Returns the original object when `toJSON()` is absent. Convenient when
  * we want to call an object's custom serializer

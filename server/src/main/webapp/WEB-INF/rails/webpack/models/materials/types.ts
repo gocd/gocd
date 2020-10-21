@@ -104,7 +104,7 @@ export class Material extends ValidatableMixin {
       if (this.type() !== newType) {
         this.attributes(MaterialAttributes.deserialize({
                                                          type:       newType,
-                                                         attributes: ({} as MaterialAttributesJSON)
+                                                         attributes: ({ auto_update: true } as MaterialAttributesJSON)
                                                        }));
       }
       this.type(newType);
@@ -399,7 +399,7 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
     this.validateWith(new BranchOrRefspecValidator(), "branch");
   }
 
-  static fromJSON(json: GitMaterialAttributesJSON) {
+  static fromJSON(json: Partial<GitMaterialAttributesJSON>) {
     const attrs = new GitMaterialAttributes(
       json.name,
       json.auto_update,
@@ -440,7 +440,7 @@ export class SvnMaterialAttributes extends ScmMaterialAttributes {
     this.validatePresenceOf("url");
   }
 
-  static fromJSON(json: SvnMaterialAttributesJSON) {
+  static fromJSON(json: Partial<SvnMaterialAttributesJSON>) {
     const attrs = new SvnMaterialAttributes(
       json.name,
       json.auto_update,
@@ -479,7 +479,7 @@ export class HgMaterialAttributes extends ScmMaterialAttributes {
     this.validateWith(new AuthNotSetInUrlAndUserPassFieldsValidator(), "url");
   }
 
-  static fromJSON(json: HgMaterialAttributesJSON) {
+  static fromJSON(json: Partial<HgMaterialAttributesJSON>) {
     const attrs = new HgMaterialAttributes(
       json.name,
       json.auto_update,
@@ -523,7 +523,7 @@ export class P4MaterialAttributes extends ScmMaterialAttributes {
     this.validatePresenceOf("port", {message: ErrorMessages.mustBePresent("Host and Port")});
   }
 
-  static fromJSON(json: P4MaterialAttributesJSON) {
+  static fromJSON(json: Partial<P4MaterialAttributesJSON>) {
     const attrs = new P4MaterialAttributes(
       json.name,
       json.auto_update,
@@ -570,7 +570,7 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
     this.validatePresenceOf("username");
   }
 
-  static fromJSON(json: TfsMaterialAttributesJSON) {
+  static fromJSON(json: Partial<TfsMaterialAttributesJSON>) {
     const attrs = new TfsMaterialAttributes(
       json.name,
       json.auto_update,
@@ -608,7 +608,7 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
     this.validatePresenceOf("stage");
   }
 
-  static fromJSON(json: DependencyMaterialAttributesJSON) {
+  static fromJSON(json: Partial<DependencyMaterialAttributesJSON>) {
     const attrs = new DependencyMaterialAttributes(
       json.name,
       json.auto_update,
@@ -629,7 +629,7 @@ export class PackageMaterialAttributes extends MaterialAttributes {
     this.ref = Stream(ref);
   }
 
-  static fromJSON(data: PackageMaterialAttributesJSON): PackageMaterialAttributes {
+  static fromJSON(data: Partial<PackageMaterialAttributesJSON>): PackageMaterialAttributes {
     const attrs = new PackageMaterialAttributes(data.name, data.auto_update, data.ref);
     attrs.errors(new Errors(data.errors));
     return attrs;

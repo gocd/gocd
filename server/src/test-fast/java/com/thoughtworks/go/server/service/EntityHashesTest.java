@@ -20,9 +20,6 @@ import com.thoughtworks.go.config.AdminUser;
 import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.config.remote.PartialConfig;
-import com.thoughtworks.go.config.remote.RepoConfigOrigin;
-import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -35,7 +32,6 @@ import java.util.Collections;
 import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,33 +45,8 @@ class EntityHashesTest {
     }
 
     @Test
-    void digestPartial() {
-        assertEquals(
-                hashes.digestPartial(PartialConfigMother.withPipeline("foo")),
-                hashes.digestPartial(PartialConfigMother.withPipeline("foo")),
-                "Given structurally equal partials, digestPartial() should output the same digest"
-        );
-
-        assertNotEquals(
-                hashes.digestPartial(PartialConfigMother.withPipeline("foo")),
-                hashes.digestPartial(PartialConfigMother.withPipeline("bar")),
-                "Given structurally different partials, digestPartial() should output different digests"
-        );
-
-        PartialConfig a = PartialConfigMother.withPipeline("foo");
-        PartialConfig b = PartialConfigMother.withPipeline("foo");
-        b.setOrigin(new RepoConfigOrigin(((RepoConfigOrigin) b.getOrigin()).getConfigRepo(), "something-else"));
-
-        assertEquals(
-                hashes.digestPartial(a),
-                hashes.digestPartial(b),
-                "digestPartial() should only consider structure and not metadata (e.g., origin)"
-        );
-    }
-
-    @Test
-    void digestMany_Strings() {
-        assertEquals(sha512_256Hex("a/b/c"), hashes.digestMany("a", "b", "c"));
+    void digest_Strings() {
+        assertEquals(sha512_256Hex("a/b/c"), hashes.digest("a", "b", "c"));
     }
 
     @Test
@@ -104,13 +75,13 @@ class EntityHashesTest {
         }
 
         @Test
-        void digestMany_Entities() {
+        void digest_Entities() {
             final String expected = sha512_256Hex(format("%s/%s",
                     sha512_256Hex("bilbo"),
                     sha512_256Hex("baggins")
             ));
 
-            assertEquals(expected, hashes.digestMany(
+            assertEquals(expected, hashes.digest(
                     Arrays.asList(
                             new AdminUser("bilbo"),
                             new AdminUser("baggins")

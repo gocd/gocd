@@ -21,7 +21,6 @@ import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.api.spring.ToggleRegisterLatest;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv4.configrepos.representers.ConfigRepoConfigRepresenterV4;
@@ -124,7 +123,7 @@ public class ConfigReposControllerV4 extends ApiController implements SparkSprin
                 .filter(configRepoConfig -> authHelper.doesUserHasPermissions(currentUsername(), getAction(req), CONFIG_REPO, configRepoConfig.getId()))
                 .collect(toCollection(ConfigReposConfig::new));
 
-        String etag = userSpecificRepos.etag();
+        String etag = entityHashingService.hashForEntity(userSpecificRepos);
 
         setEtagHeader(res, etag);
 

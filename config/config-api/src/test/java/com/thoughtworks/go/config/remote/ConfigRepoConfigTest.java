@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
-    private ConfigRepoMetadataStore store = ConfigRepoMetadataStore.instance();
+    private final ConfigRepoMetadataStore store = ConfigRepoMetadataStore.instance();
 
     @AfterEach
     void tearDown() {
@@ -48,23 +48,6 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
         ConfigRepoConfig config = new ConfigRepoConfig();
         config.setPluginId("myplugin");
         assertThat(config.getPluginId()).isEqualTo("myplugin");
-    }
-
-    @Test
-    public void validate_shouldNotAllowDisabledAutoUpdate() {
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
-
-        SvnMaterialConfig svn = svn("url", false);
-        svn.setAutoUpdate(false);
-
-        ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(svn, "plug", "id");
-        cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
-
-        ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(cruiseConfig);
-        configRepoConfig.validate(validationContext);
-
-        assertThat(svn.errors().isEmpty()).isFalse();
-        assertThat(svn.errors().on("autoUpdate")).isEqualTo("Configuration repository material 'url' must have autoUpdate enabled.");
     }
 
     @Test
@@ -141,8 +124,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
     @Test
     public void validateTree_configRepoShouldBeInvalidIfMaterialConfigHasErrors() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
-        MaterialConfig materialConfig = mock(MaterialConfig.class);
-        when(materialConfig.errors()).thenReturn(new ConfigErrors());
+        MaterialConfig materialConfig = new GitMaterialConfig(); // should be invalid since URL is not set
 
         ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(materialConfig, "plug", "id");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
@@ -154,15 +136,15 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
     }
 
     @Test
-    public void validate_shouldNotAllowPipelineWithSameRepositoryAndDisabledAutoUpdate() {
+    public void validate_shouldNotAllowPipelineWithSameRepositoryAndDifferentAutoUpdate() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         GoConfigMother mother = new GoConfigMother();
 
         MaterialConfigs materialConfigs = new MaterialConfigs();
         SvnMaterialConfig svnInConfigRepo = svn("url", false);
         SvnMaterialConfig svnInPipelineConfig = svn("url", false);
-        svnInConfigRepo.setAutoUpdate(true);
-        svnInPipelineConfig.setAutoUpdate(false);
+        svnInConfigRepo.setAutoUpdate(false);
+        svnInPipelineConfig.setAutoUpdate(true);
         materialConfigs.add(svnInPipelineConfig);
 
         ConfigRepoConfig configRepoConfig = ConfigRepoConfig.createConfigRepoConfig(svnInConfigRepo, "plug", "id");
@@ -173,7 +155,7 @@ public class ConfigRepoConfigTest extends AbstractRuleAwarePluginProfileTest {
         configRepoConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig, new BasicPipelineConfigs(), pipeline1));
 
         assertThat(svnInConfigRepo.errors().isEmpty()).isFalse();
-        assertThat(svnInConfigRepo.errors().on("autoUpdate")).isEqualTo("The material of type Subversion (url) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). All copies of this material must have autoUpdate enabled or configuration repository must be removed.\n Config Repository: id (auto update enabled).\n Pipelines: badpipe (auto update disabled)");
+        assertThat(svnInConfigRepo.errors().on("autoUpdate")).isEqualTo("The material of type Subversion (url) is used elsewhere with a different value for autoUpdate (\"Poll for changes\"). All copies of this material must have the same autoUpdate setting or configuration repository must be removed.\n Config Repository: id (auto update disabled).\n Pipelines: badpipe (auto update enabled)");
     }
 
     @Test

@@ -13,12 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.config;
+
+package com.thoughtworks.go.server.util;
 
 import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
+import static org.apache.commons.lang3.StringUtils.join;
 
-public interface Cacheable {
-    default String etag() {
-        return sha512_256Hex(Integer.toString(hashCode()));
+public interface DigestMixin {
+    String SEP_CHAR = "/";
+
+    static String digestHex(String datum) {
+        return sha512_256Hex(datum);
+    }
+
+    static String digestMany(String... data) {
+        return digestHex(join(data, SEP_CHAR));
+    }
+
+    default String digest(String datum) {
+        return digestHex(datum);
+    }
+
+    default String digest(String... data) {
+        return digestMany(data);
     }
 }

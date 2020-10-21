@@ -24,21 +24,21 @@ import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class CreateConfigRepoCommandTest {
+    private static final String REPO_1 = "repo-1";
+
     private Username currentUser;
     private BasicCruiseConfig cruiseConfig;
     private ConfigRepoConfig configRepo;
-    private String repoId = "repo-1";
 
     private HttpLocalizedOperationResult result;
 
@@ -47,28 +47,27 @@ public class CreateConfigRepoCommandTest {
     @Mock
     private ConfigRepoExtension configRepoExtension;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
         result = new HttpLocalizedOperationResult();
 
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        configRepo = ConfigRepoConfig.createConfigRepoConfig(git("https://foo.git", "master"), "json-plugin", repoId);
+        configRepo = ConfigRepoConfig.createConfigRepoConfig(git("https://foo.git", "master"), "json-plugin", REPO_1);
     }
 
     @Test
-    public void shouldAddTheSpecifiedConfigRepo() throws Exception {
+    public void shouldAddTheSpecifiedConfigRepo() {
         CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
-        assertNull(cruiseConfig.getConfigRepos().getConfigRepo(repoId));
+        assertNull(cruiseConfig.getConfigRepos().getConfigRepo(REPO_1));
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.getConfigRepos().getConfigRepo(repoId), is(configRepo));
+        assertEquals(configRepo, cruiseConfig.getConfigRepos().getConfigRepo(REPO_1));
     }
 
     @Test
     public void isValid_shouldValidateConfigRepo() {
-        GitMaterialConfig material = git("https://foo.git", "master");
-        material.setAutoUpdate(false);
+        GitMaterialConfig material = git("", "master");
         configRepo.setRepo(material);
         when(configRepoExtension.canHandlePlugin(configRepo.getPluginId())).thenReturn(true);
 
@@ -76,7 +75,7 @@ public class CreateConfigRepoCommandTest {
         command.update(cruiseConfig);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(configRepo.getRepo().errors().on("autoUpdate"), is("Configuration repository material 'https://foo.git' must have autoUpdate enabled."));
+        assertEquals("URL cannot be blank", configRepo.getRepo().errors().on("url"));
     }
 
     @Test
@@ -87,7 +86,7 @@ public class CreateConfigRepoCommandTest {
         CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(configRepo.errors().on("id"), is("Configuration repository id not specified"));
+        assertEquals("Configuration repository id not specified", configRepo.errors().on("id"));
     }
 
     @Test
@@ -97,6 +96,6 @@ public class CreateConfigRepoCommandTest {
         CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(configRepo.errors().on("plugin_id"), is("Invalid plugin id: json-plugin"));
+        assertEquals("Invalid plugin id: json-plugin", configRepo.errors().on("plugin_id"));
     }
 }

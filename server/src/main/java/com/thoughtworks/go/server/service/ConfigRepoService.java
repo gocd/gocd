@@ -27,6 +27,7 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.CreateConfigRepoCommand;
 import com.thoughtworks.go.config.update.DeleteConfigRepoCommand;
 import com.thoughtworks.go.config.update.UpdateConfigRepoCommand;
+import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
@@ -48,9 +49,9 @@ import static java.lang.String.format;
 public class ConfigRepoService {
     public static final Logger LOGGER = LoggerFactory.getLogger(PackageDefinitionService.class);
     private final GoConfigService goConfigService;
-    private SecurityService securityService;
-    private EntityHashingService entityHashingService;
-    private ConfigRepoExtension configRepoExtension;
+    private final SecurityService securityService;
+    private final EntityHashingService entityHashingService;
+    private final ConfigRepoExtension configRepoExtension;
 
     @Autowired
     public ConfigRepoService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService, ConfigRepoExtension configRepoExtension,
@@ -82,7 +83,6 @@ public class ConfigRepoService {
     }
 
     public GoConfigService getGoConfigService() {
-
         return goConfigService;
     }
 
@@ -109,7 +109,7 @@ public class ConfigRepoService {
     }
 
     public Boolean hasConfigRepoByFingerprint(String fingerprint) {
-       return null != findByFingerprint(fingerprint);
+        return null != findByFingerprint(fingerprint);
     }
 
     public ConfigRepoConfig findByFingerprint(String fingerprint) {
@@ -119,10 +119,10 @@ public class ConfigRepoService {
 
     }
 
-    public void updateConfigRepo(String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String md5OfExistingConfigRepo,
+    public void updateConfigRepo(String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String digestOfExistingConfigRepo,
                                  Username username, HttpLocalizedOperationResult result) {
         UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, repoIdToUpdate,
-                newConfigRepo, md5OfExistingConfigRepo, username, result, configRepoExtension);
+                newConfigRepo, digestOfExistingConfigRepo, username, result, configRepoExtension);
 
         update(username, newConfigRepo.getId(), result, command);
         if (result.isSuccessful()) {
@@ -130,7 +130,7 @@ public class ConfigRepoService {
         }
     }
 
-    private void update(Username username, String repoId, HttpLocalizedOperationResult result, EntityConfigUpdateCommand command) {
+    private void update(Username username, String repoId, HttpLocalizedOperationResult result, EntityConfigUpdateCommand<ConfigRepoConfig> command) {
         try {
             goConfigService.updateConfig(command, username);
         } catch (Exception e) {

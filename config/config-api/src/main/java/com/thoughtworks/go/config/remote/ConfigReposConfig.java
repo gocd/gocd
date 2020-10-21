@@ -15,12 +15,18 @@
  */
 package com.thoughtworks.go.config.remote;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ConfigCollection;
+import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -28,9 +34,9 @@ import java.util.stream.Collectors;
  */
 @ConfigTag("config-repos")
 @ConfigCollection(value = ConfigRepoConfig.class)
-public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implements Validatable, Cacheable {
+public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implements Validatable {
 
-    private ConfigErrors errors = new ConfigErrors();
+    private final ConfigErrors errors = new ConfigErrors();
 
     public ConfigReposConfig() {
     }
@@ -133,10 +139,7 @@ public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implemen
     }
 
     public boolean isReferenceAllowed(ConfigOrigin from, ConfigOrigin to) {
-        if (isLocal(from) && !isLocal(to)) {
-            return false;
-        }
-        return true;
+        return !isLocal(from) || isLocal(to);
     }
 
     public boolean hasConfigRepo(String configRepoId) {

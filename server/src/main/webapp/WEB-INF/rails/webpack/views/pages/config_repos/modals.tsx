@@ -21,6 +21,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
+import {Accessor, bidirectionalTransform} from "models/base/accessor";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {ConfigRepo, humanizedMaterialAttributeName, humanizedMaterialNameForMaterialType} from "models/config_repos/types";
 import {GitMaterialAttributes, HgMaterialAttributes, Material, P4MaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "models/materials/types";
@@ -32,7 +33,7 @@ import {KeyValEditor} from "views/components/encryptable_key_value/editor";
 import {EntriesVM} from "views/components/encryptable_key_value/vms";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormBody, FormHeader} from "views/components/forms/form";
-import {CheckboxField, Option, PasswordField, SelectField, SelectFieldOptions, TextAreaField, TextField} from "views/components/forms/input_fields";
+import {CheckboxField, Option, PasswordField, RadioField, SelectField, SelectFieldOptions, TextAreaField, TextField} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";
 import {TestConnection} from "views/components/materials/test_connection";
 import {Modal, Size} from "views/components/modal";
@@ -50,9 +51,17 @@ type EditableMaterial = SaveOperation
   & { error?: m.Children }
   & { resourceAutocompleteHelper: Map<string, string[]> };
 
+type AutoUpdateRadioOptions = "auto" | "manual";
+
 class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
   view(vnode: m.Vnode<EditableMaterial>) {
     const { repo, userProps, isNew, error, pluginInfos, resourceAutocompleteHelper } = vnode.attrs;
+
+    const pollingMode = bidirectionalTransform<AutoUpdateRadioOptions, boolean>(
+      repo.material()!.attributes()!.autoUpdate as Accessor<boolean>,
+      (v) => (v || "").toLowerCase() === "auto",
+      (v) => (v === void 0 || v) ? "auto" : "manual"
+    );
 
     const pluginList = _.map(pluginInfos(), (p) => ({ id: p.id, text: p.about.name }));
     const allowUserProperties = !!pluginInfos().
@@ -99,6 +108,13 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
               {vnode.children}
             </Form>
           </FormBody>
+          <RadioField
+            label={<strong>Repository polling behavior</strong>}
+            property={pollingMode as Accessor<string>}
+            possibleValues={[
+              {label: "Regularly fetch updates to this repository", value: "auto"},
+              {label: "Fetch updates to this repository only on webhook or manual trigger", value: "manual"},
+            ]}/>
           <TestConnection material={repo.material()!} configRepo={repo}/>
         </div>
         <div class={styles.pluginFilePatternConfigWrapper}>
@@ -429,7 +445,7 @@ export class NewConfigRepoModal extends ConfigRepoModal {
 
     this.repo(
       this.initProperties(
-        new ConfigRepo(undefined, defaultPlugin.id, new Material("git", new GitMaterialAttributes()))
+        new ConfigRepo(undefined, defaultPlugin.id, new Material("git", GitMaterialAttributes.fromJSON({ auto_update: true })))
       )
     );
     this.isNew = true;

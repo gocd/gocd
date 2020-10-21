@@ -26,7 +26,9 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.*;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.Task;
+import com.thoughtworks.go.domain.TaskConfigVisitor;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -37,6 +39,7 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.FunctionalUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.hamcrest.Matchers;
@@ -51,7 +54,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
-public abstract class CruiseConfigTestBase {
+public abstract class CruiseConfigTestBase implements FunctionalUtils {
     public GoConfigMother goConfigMother;
     protected BasicPipelineConfigs pipelines;
     protected CruiseConfig cruiseConfig;
@@ -811,24 +814,27 @@ public abstract class CruiseConfigTestBase {
     }
 
     @Test
-    public void getAllUniquePostCommitSchedulableMaterials_shouldReturnMaterialsWithAutoUpdateFalseAndConfigRepos() {
-        GitMaterialConfig gitAutoMaterial = MaterialConfigsMother.gitMaterialConfig("url");
-        PipelineConfig pipelineAuto = pipelineConfig("pipelineAuto", new MaterialConfigs(gitAutoMaterial));
-        GitMaterialConfig gitNonAutoMaterial = git(new UrlArgument("other-url"), null, null, "master", "dest", false, null, false, null, new CaseInsensitiveString("git"), false);
-        PipelineConfig pipelineTriggerable = pipelineConfig("pipelineTriggerable", new MaterialConfigs(gitNonAutoMaterial));
+    public void getAllUniquePostCommitSchedulableMaterials_shouldReturnMaterialsAndConfigReposWithAutoUpdateFalse() {
+        GitMaterialConfig gitMaterialAuto = MaterialConfigsMother.gitMaterialConfig("url");
+        PipelineConfig pipelineAuto = pipelineConfig("pipelineAuto", new MaterialConfigs(gitMaterialAuto));
+        GitMaterialConfig gitMaterialManual = git(new UrlArgument("other-url"), null, null, "master", "dest", false, null, false, null, new CaseInsensitiveString("git"), false);
+        PipelineConfig pipelineTriggerable = pipelineConfig("pipelineTriggerable", new MaterialConfigs(gitMaterialManual));
         PipelineConfigs defaultGroup = createGroup("defaultGroup", pipelineAuto, pipelineTriggerable);
 
         cruiseConfig = new BasicCruiseConfig(defaultGroup);
         ConfigReposConfig reposConfig = new ConfigReposConfig();
-        GitMaterialConfig configRepoMaterial = git("http://git");
-        reposConfig.add(ConfigRepoConfig.createConfigRepoConfig(configRepoMaterial, "myplug", "id"));
+        GitMaterialConfig configRepoMaterialAutoUpdate = git("http://git");
+        GitMaterialConfig configRepoMaterialManual = tap(git("http://git2"), g -> g.setAutoUpdate(false));
+        reposConfig.add(ConfigRepoConfig.createConfigRepoConfig(configRepoMaterialAutoUpdate, "myplug", "exclude"));
+        reposConfig.add(ConfigRepoConfig.createConfigRepoConfig(configRepoMaterialManual, "myplug", "include"));
         cruiseConfig.setConfigRepos(reposConfig);
 
 
         Set<MaterialConfig> materials = cruiseConfig.getAllUniquePostCommitSchedulableMaterials();
         assertThat(materials.size(), is(2));
-        assertThat(materials, hasItem(gitNonAutoMaterial));
-        assertThat(materials, hasItem(configRepoMaterial));
+        assertThat(materials, hasItem(gitMaterialManual));
+        assertThat(materials, hasItem(configRepoMaterialManual));
+        assertThat(materials, not(hasItem(configRepoMaterialAutoUpdate)));
     }
 
     @Test

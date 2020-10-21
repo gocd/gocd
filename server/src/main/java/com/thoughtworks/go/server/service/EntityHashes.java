@@ -24,26 +24,23 @@ import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
+import com.thoughtworks.go.server.util.DigestMixin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.util.CachedDigestUtils.sha512_256Hex;
-import static org.apache.commons.lang3.StringUtils.join;
-
 @Component
-public class EntityHashes {
-    public static final String SEP_CHAR = "/";
-
+public class EntityHashes implements DigestMixin {
     private static final Gson GSON = new GsonBuilder().
             registerTypeAdapter(ConfigurationProperty.class, Serializers.CONFIGURATION_PROPERTY).
             registerTypeAdapter(EnvironmentVariableConfig.class, Serializers.ENVIRONMENT_VARIABLE).
             registerTypeAdapter(PluginInfo.class, Serializers.PLUGIN_INFO).
+            registerTypeAdapter(Modification.class, Serializers.MODIFICATION).
             create();
 
     private final MagicalGoConfigXmlWriter xmlSerializer;
@@ -53,54 +50,28 @@ public class EntityHashes {
         xmlSerializer = new MagicalGoConfigXmlWriter(configCache, registry);
     }
 
-    private static String digestHex(String data) {
-        return sha512_256Hex(data);
-    }
-
-    /**
-     * Computes a digest of a {@link PartialConfig}.
-     *
-     * @param partial a {@link PartialConfig} to hash
-     * @return a cryptographic digest that can be used for comparison.
-     */
-    public String digestPartial(PartialConfig partial) {
-        if (null == partial) {
-            return null;
-        }
-
-        return digestMany(
-                digestMany(partial.getGroups()),
-                digestMany(partial.getEnvironments()),
-                digestMany(partial.getScms())
-        );
-    }
-
-    public String digestMany(String... data) {
-        return digestHex(join(data, SEP_CHAR));
-    }
-
     /**
      * Computes a cryptographic digest of a collection's contents
      *
      * @param entities any {@link Collection} of config entities
      * @return a cryptographic hex digest ({@link String})
      */
-    public String digestMany(Collection<?> entities) {
+    public String digest(Collection<?> entities) {
         if (null == entities) {
             return null;
         }
 
-        return digestHex(entities.stream().
+        return digest(entities.stream().
                 map(this::digestDomainConfigEntity).
                 collect(Collectors.joining(SEP_CHAR)));
     }
 
     public String digestDomainConfigEntity(Object entity) {
-        return digestHex(serializeDomainEntity(entity));
+        return digest(serializeDomainEntity(entity));
     }
 
     public String digestDomainNonConfigEntity(Object entity) {
-        return digestHex(GSON.toJson(entity));
+        return digest(GSON.toJson(entity));
     }
 
     protected String serializeDomainEntity(Object domainObject) {
@@ -115,7 +86,7 @@ public class EntityHashes {
         JsonSerializer<ConfigurationProperty> CONFIGURATION_PROPERTY = (src, typeOfSrc, context) -> {
             final JsonObject result = new JsonObject();
             result.addProperty("key", src.getConfigKeyName());
-            result.addProperty("value", sha512_256Hex(src.getValue()));
+            result.addProperty("value", DigestMixin.digestHex(src.getValue()));
             return result;
         };
 
@@ -126,7 +97,7 @@ public class EntityHashes {
         JsonSerializer<EnvironmentVariableConfig> ENVIRONMENT_VARIABLE = (src, typeOfSrc, context) -> {
             final JsonObject result = new JsonObject();
             result.addProperty("key", src.getName());
-            result.addProperty("value", sha512_256Hex(src.getValue()));
+            result.addProperty("value", DigestMixin.digestHex(src.getValue()));
             return result;
         };
 
@@ -138,6 +109,19 @@ public class EntityHashes {
             result.addProperty("id", src.getDescriptor().id());
             result.addProperty("extension", src.getExtensionName());
             result.add("settings", context.serialize(src.getPluginSettings()));
+            return result;
+        };
+
+        /**
+         * Custom serializer for modifications
+         */
+        JsonSerializer<Modification> MODIFICATION = (src, typeOfSrc, context) -> {
+            final JsonObject result = new JsonObject();
+            result.addProperty("username", src.getUserName());
+            result.addProperty("email_address", src.getEmailAddress());
+            result.addProperty("revision", src.getRevision());
+            result.addProperty("comment", src.getComment());
+            result.add("modified_time", context.serialize(src.getModifiedTime()));
             return result;
         };
     }

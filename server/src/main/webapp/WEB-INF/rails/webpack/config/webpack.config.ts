@@ -80,7 +80,7 @@ function configuration(env: any, argv: any): webpack.Configuration {
       filename: configOptions.production ? "[name]-[chunkhash].js" : "[name].js"
     },
     cache: true,
-    bail: true,
+    bail: !argv.watch,
     devtool: configOptions.production ? "source-map" : "eval-source-map",
     optimization,
     resolve: {

@@ -144,7 +144,6 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [
-        new DistroVersion(version: '6', releaseName: '6', eolDate: parseDate('2020-11-01'), continueToBuild: true),
         new DistroVersion(version: '7', releaseName: '7', eolDate: parseDate('2024-06-01')),
         new DistroVersion(version: '8', releaseName: '8', eolDate: parseDate('2029-05-01'), installPrerequisitesCommands: ['yum install --assumeyes glibc-langpack-en'])
       ]

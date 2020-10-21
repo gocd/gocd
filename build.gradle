@@ -248,10 +248,10 @@ rootProject.ext.versions = [
     geckodriver   : '0.27.0',
   ],
   adoptOpenjdk          : [
-    featureVersion: 14,
-    interimVersion: 0, // set to `null` for the first release
-    updateVersion : 2, // set to `null` for the first release
-    buildVersion  : 12
+    featureVersion: 15,
+    interimVersion: null, // set to `null` for the first release
+    updateVersion : null, // set to `null` for the first release
+    buildVersion  : 36
   ]
 ]
 

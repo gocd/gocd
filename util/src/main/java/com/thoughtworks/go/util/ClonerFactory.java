@@ -45,15 +45,8 @@ public class ClonerFactory {
         private static final Cloner INSTANCE = create(new Cloner());
 
         private static Cloner create(final Cloner cloner) {
-            cloner.registerFastCloner(LIST_1_2.getClass(), (t, _1, _2) -> {
-                final Object[] a = ((List<?>) t).toArray();
-                return (1 == a.length) ? List.of(a[0]) : List.of(a[0], a[1]);
-            });
-
-            cloner.registerFastCloner(SET_1_2.getClass(), (t, _1, _2) -> {
-                final Object[] a = ((Set<?>) t).toArray();
-                return (1 == a.length) ? Set.of(a[0]) : Set.of(a[0], a[1]);
-            });
+            cloner.registerFastCloner(LIST_1_2.getClass(), (t, _1, _2) -> List.of(((List<?>) t).toArray()));
+            cloner.registerFastCloner(SET_1_2.getClass(), (t, _1, _2) -> Set.of(((Set<?>) t).toArray()));
 
             return cloner;
         }

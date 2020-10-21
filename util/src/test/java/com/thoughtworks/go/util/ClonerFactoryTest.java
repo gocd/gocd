@@ -34,8 +34,8 @@ class ClonerFactoryTest {
     }
 
     @Test
-    void cloningList12() {
-        final List<Boolean> list = List.of(true);
+    void cloningList12_one_item() {
+        final List<Boolean> list = List.of(true); // JDK 15 has an issue cloning List.of() with exactly one element
         final List<Boolean> dupe = cloner.deepClone(list);
 
         assertEquals(1, dupe.size());
@@ -55,8 +55,8 @@ class ClonerFactoryTest {
     }
 
     @Test
-    void cloningSet12() {
-        final Set<Boolean> set = Set.of(true);
+    void cloningSet12_one_item() {
+        final Set<Boolean> set = Set.of(true); // JDK 15 has an issue cloning Set.of() with exactly one element
         final Set<Boolean> dupe = cloner.deepClone(set);
 
         assertEquals(1, dupe.size());

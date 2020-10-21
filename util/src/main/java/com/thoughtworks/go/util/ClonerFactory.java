@@ -38,8 +38,8 @@ public class ClonerFactory {
 
     private static class Builder {
 
-        private static final List<?> LIST_1_2 = List.of("");
-        private static final Set<?> SET_1_2 = Set.of("");
+        private static final List<?> LIST_1_2 = List.of("exactly one element"); // only certain outputs of List.of()
+        private static final Set<?> SET_1_2 = Set.of("exactly one element");  // only certain outputs of Set.of()
 
         // Lazy-init, thread-safe singleton
         private static final Cloner INSTANCE = create(new Cloner());

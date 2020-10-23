@@ -31,7 +31,7 @@ public class ElasticAgentProfileConfigurationValidator {
 
     public void validate(ElasticProfile elasticAgentProfile, String pluginId) {
         try {
-            ValidationResult result = elasticAgentExtension.validate(pluginId, elasticAgentProfile.getConfigurationAsMap(true));
+            ValidationResult result = elasticAgentExtension.validate(pluginId, elasticAgentProfile.getConfigurationAsMap(true, true));
 
             if (!result.isSuccessful()) {
                 for (ValidationError error : result.getErrors()) {

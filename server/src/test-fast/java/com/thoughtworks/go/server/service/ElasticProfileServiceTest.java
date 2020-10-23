@@ -28,6 +28,7 @@ import com.thoughtworks.go.config.update.ElasticAgentProfileUpdateCommand;
 import com.thoughtworks.go.domain.ElasticProfileUsage;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.service.plugins.validators.elastic.ElasticAgentProfileConfigurationValidator;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,6 +47,7 @@ class ElasticProfileServiceTest {
     private GoConfigService goConfigService;
     private ElasticProfileService elasticProfileService;
     private ElasticAgentExtension elasticAgentExtension;
+    private SecretParamResolver secretParamResolver;
     private String clusterProfileId;
     private String pluginId;
     private ElasticAgentProfileConfigurationValidator validator;
@@ -57,7 +59,8 @@ class ElasticProfileServiceTest {
         elasticAgentExtension = mock(ElasticAgentExtension.class);
         EntityHashingService hashingService = mock(EntityHashingService.class);
         goConfigService = mock(GoConfigService.class);
-        elasticProfileService = new ElasticProfileService(goConfigService, hashingService, elasticAgentExtension);
+        secretParamResolver = mock(SecretParamResolver.class);
+        elasticProfileService = new ElasticProfileService(goConfigService, hashingService, elasticAgentExtension, secretParamResolver);
         validator = mock(ElasticAgentProfileConfigurationValidator.class);
         elasticProfileService.setProfileConfigurationValidator(validator);
         ElasticConfig elasticConfig = new ElasticConfig();
@@ -131,6 +134,7 @@ class ElasticProfileServiceTest {
         Username username = new Username("username");
         elasticProfileService.create(username, elasticProfile, new HttpLocalizedOperationResult());
 
+        verify(secretParamResolver).resolve(elasticProfile);
         verify(validator).validate(elasticProfile, pluginId);
     }
 
@@ -151,6 +155,7 @@ class ElasticProfileServiceTest {
         Username username = new Username("username");
         elasticProfileService.update(username, "md5", elasticProfile, new HttpLocalizedOperationResult());
 
+        verify(secretParamResolver).resolve(elasticProfile);
         validator.validate(elasticProfile, pluginId);
     }
 
@@ -171,6 +176,7 @@ class ElasticProfileServiceTest {
         Username username = new Username("username");
         elasticProfileService.delete(username, elasticProfile, new HttpLocalizedOperationResult());
 
+        verifyNoInteractions(secretParamResolver);
         verify(validator, never()).validate(eq(elasticProfile), anyString());
     }
 
@@ -232,6 +238,21 @@ class ElasticProfileServiceTest {
 
             assertThat(recordNotFoundException.getMessage()).isEqualTo(EntityType.ElasticProfile.notFoundMessage("unknown-profile-id"));
         }
+    }
+
+    @Test
+    void shouldReturn422WhenExceptionRelatedToRulesOccur() {
+        ElasticProfile elasticProfile = new ElasticProfile("ldap", clusterProfileId, create("key", false, "{{SECRET:[id][key]}}"));
+        Username username = new Username("username");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        doThrow(new RulesViolationException("some rules violation message")).when(secretParamResolver).resolve(elasticProfile);
+
+        elasticProfileService.create(username, elasticProfile, result);
+
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(result.message()).isEqualTo("Validations failed for agentProfile 'ldap'. Error(s): [some rules violation message]. Please correct and resubmit.");
+        verifyNoInteractions(validator);
     }
 }
 

@@ -121,7 +121,7 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
       <ConfigureRulesWidget
         infoMsg={"The default rule is to deny access to this secret configuration for all GoCD entities. Configure rules below to override that behavior."}
         rules={this.entity().rules}
-        types={[RulesType.PIPELINE_GROUP, RulesType.ENVIRONMENT, RulesType.PLUGGABLE_SCM, RulesType.PACKAGE_REPOSITORY]}
+        types={[RulesType.PIPELINE_GROUP, RulesType.ENVIRONMENT, RulesType.PLUGGABLE_SCM, RulesType.PACKAGE_REPOSITORY, RulesType.CLUSTER_PROFILE]}
         resourceAutocompleteHelper={this.resourceAutocompleteHelper}/>
     </div>;
   }

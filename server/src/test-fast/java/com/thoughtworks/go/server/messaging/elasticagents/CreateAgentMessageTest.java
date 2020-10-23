@@ -20,26 +20,45 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
-import org.junit.Test;
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class CreateAgentMessageTest {
+class CreateAgentMessageTest {
     @Test
-    public void shouldGetPluginId() {
-        List<ConfigurationProperty> properties = Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
+    void shouldGetPluginId() {
+        List<ConfigurationProperty> properties = singletonList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
         ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster", properties);
         ClusterProfile clusterProfile = new ClusterProfile("foo", "plugin-id", properties);
-        CreateAgentMessage message = new CreateAgentMessage("key", "env", elasticProfile, clusterProfile, null);
-        assertThat(message.pluginId(), is(clusterProfile.getPluginId()));
-        Map<String, String> configurationAsMap = elasticProfile.getConfigurationAsMap(true);
-        assertThat(message.configuration(), is(configurationAsMap));
+
         Map<String, String> clusterProfileConfigurations = clusterProfile.getConfigurationAsMap(true);
-        assertThat(message.getClusterProfileConfiguration(), is(clusterProfileConfigurations));
+        Map<String, String> configurationAsMap = elasticProfile.getConfigurationAsMap(true);
+        CreateAgentMessage message = new CreateAgentMessage("key", "env", elasticProfile, clusterProfile, null);
+
+        assertThat(message.pluginId()).isEqualTo(clusterProfile.getPluginId());
+        assertThat(message.getClusterProfileConfiguration()).isEqualTo(clusterProfileConfigurations);
+        assertThat(message.configuration()).isEqualTo(configurationAsMap);
+    }
+
+    @Test
+    void shouldReturnResolvedValues() {
+        ConfigurationProperty k1 = ConfigurationPropertyMother.create("key", "value");
+        ConfigurationProperty k2 = ConfigurationPropertyMother.create("key1", false, "{{SECRET:[config_id][lookup_key]}}");
+        k2.getSecretParams().get(0).setValue("some-resolved-value");
+        ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster", k1, k2);
+        ClusterProfile clusterProfile = new ClusterProfile("foo", "plugin-id", k1, k2);
+
+        Map<String, String> clusterProfileConfigurations = clusterProfile.getConfigurationAsMap(true, true);
+        Map<String, String> configurationAsMap = elasticProfile.getConfigurationAsMap(true, true);
+        CreateAgentMessage message = new CreateAgentMessage("key", "env", elasticProfile, clusterProfile, null);
+
+        assertThat(message.pluginId()).isEqualTo(clusterProfile.getPluginId());
+        assertThat(message.getClusterProfileConfiguration()).isEqualTo(clusterProfileConfigurations);
+        assertThat(message.configuration()).isEqualTo(configurationAsMap);
     }
 }

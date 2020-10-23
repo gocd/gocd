@@ -30,7 +30,9 @@ import com.thoughtworks.go.config.update.ElasticAgentProfileDeleteCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileUpdateCommand;
 import com.thoughtworks.go.domain.ElasticProfileUsage;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
+import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.service.plugins.validators.elastic.ElasticAgentProfileConfigurationValidator;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.apache.commons.lang3.StringUtils;
@@ -53,13 +55,15 @@ public class ElasticProfileService {
     private final EntityHashingService hashingService;
     private final ElasticAgentExtension elasticAgentExtension;
     private ElasticAgentProfileConfigurationValidator profileConfigurationValidator;
+    private final SecretParamResolver secretParamResolver;
 
     @Autowired
-    public ElasticProfileService(GoConfigService goConfigService, EntityHashingService hashingService, ElasticAgentExtension elasticAgentExtension) {
+    public ElasticProfileService(GoConfigService goConfigService, EntityHashingService hashingService, ElasticAgentExtension elasticAgentExtension, SecretParamResolver secretParamResolver) {
         this.goConfigService = goConfigService;
         this.hashingService = hashingService;
         this.elasticAgentExtension = elasticAgentExtension;
         this.profileConfigurationValidator = new ElasticAgentProfileConfigurationValidator(elasticAgentExtension);
+        this.secretParamResolver = secretParamResolver;
     }
 
     public ElasticProfiles getPluginProfiles() {
@@ -67,37 +71,20 @@ public class ElasticProfileService {
     }
 
     public void update(Username currentUser, String md5, ElasticProfile newProfile, LocalizedOperationResult result) {
-        validatePluginProfileMetadata(newProfile);
         ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(goConfigService, newProfile, elasticAgentExtension, currentUser, result, hashingService, md5);
-        update(currentUser, newProfile, result, command);
+        update(command, newProfile, currentUser, result, true);
     }
 
     public void delete(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result) {
-        update(currentUser, elasticProfile, result, new ElasticAgentProfileDeleteCommand(goConfigService, elasticProfile, elasticAgentExtension, currentUser, result));
+        update(new ElasticAgentProfileDeleteCommand(goConfigService, elasticProfile, elasticAgentExtension, currentUser, result), elasticProfile, currentUser, result, false);
         if (result.isSuccessful()) {
             result.setMessage(EntityType.ElasticProfile.deleteSuccessful(elasticProfile.getId()));
         }
     }
 
     public void create(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result) {
-        validatePluginProfileMetadata(elasticProfile);
         ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(goConfigService, elasticProfile, elasticAgentExtension, currentUser, result);
-        update(currentUser, elasticProfile, result, command);
-    }
-
-    private void validatePluginProfileMetadata(ElasticProfile elasticProfile) {
-        String pluginId = getPluginIdForElasticAgentProfile(elasticProfile);
-
-        if (pluginId == null) {
-            return;
-        }
-
-        profileConfigurationValidator.validate(elasticProfile, pluginId);
-    }
-
-    private String getPluginIdForElasticAgentProfile(ElasticProfile elasticProfile) {
-        ClusterProfile clusterProfile = this.goConfigService.getElasticConfig().getClusterProfiles().find(elasticProfile.getClusterProfileId());
-        return (clusterProfile != null) ? clusterProfile.getPluginId() : null;
+        update(command, elasticProfile, currentUser, result, true);
     }
 
     public Collection<ElasticProfileUsage> getUsageInformation(String profileId) {
@@ -147,27 +134,6 @@ public class ElasticProfileService {
         return null;
     }
 
-    private String getTagName(Class<?> clazz) {
-        return clazz.getAnnotation(ConfigTag.class).value();
-    }
-
-    protected void update(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result, EntityConfigUpdateCommand<ElasticProfile> command) {
-        try {
-            goConfigService.updateConfig(command, currentUser);
-        } catch (Exception e) {
-            if (result.hasMessage()) {
-                LOGGER.error(e.getMessage(), e);
-                return;
-            }
-
-            if (e instanceof GoConfigInvalidException) {
-                result.unprocessableEntity(entityConfigValidationFailed(getTagName(elasticProfile.getClass()), elasticProfile.getId(), ((GoConfigInvalidException) e).getAllErrorMessages()));
-            } else {
-                result.internalServerError(saveFailedWithReason("An error occurred while saving the elastic agent profile. Please check the logs for more information."));
-            }
-        }
-    }
-
     public Map<String, ElasticProfile> listAll() {
         return getPluginProfiles().stream()
                 .collect(Collectors.toMap(ElasticProfile::getId, elasticAgentProfile -> elasticAgentProfile, (a, b) -> b, HashMap::new));
@@ -184,5 +150,45 @@ public class ElasticProfileService {
         return getPluginProfiles().stream()
                 .filter(profile -> allClusterProfiles.find(profile.getClusterProfileId()).getPluginId().equals(pluginId))
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private void validatePluginProfileMetadata(ElasticProfile elasticProfile) {
+        String pluginId = getPluginIdForElasticAgentProfile(elasticProfile);
+
+        if (pluginId == null) {
+            return;
+        }
+        secretParamResolver.resolve(elasticProfile);
+        profileConfigurationValidator.validate(elasticProfile, pluginId);
+    }
+
+    private String getPluginIdForElasticAgentProfile(ElasticProfile elasticProfile) {
+        ClusterProfile clusterProfile = this.goConfigService.getElasticConfig().getClusterProfiles().find(elasticProfile.getClusterProfileId());
+        return (clusterProfile != null) ? clusterProfile.getPluginId() : null;
+    }
+
+    private String getTagName(Class<?> clazz) {
+        return clazz.getAnnotation(ConfigTag.class).value();
+    }
+
+    protected void update(EntityConfigUpdateCommand<ElasticProfile> command, ElasticProfile elasticProfile, Username currentUser, LocalizedOperationResult result, boolean validatePluginProperties) {
+        try {
+            if (validatePluginProperties) {
+                validatePluginProfileMetadata(elasticProfile);
+            }
+            goConfigService.updateConfig(command, currentUser);
+        } catch (Exception e) {
+            if (result.hasMessage()) {
+                LOGGER.error(e.getMessage(), e);
+                return;
+            }
+            if (e instanceof GoConfigInvalidException) {
+                result.unprocessableEntity(entityConfigValidationFailed(getTagName(elasticProfile.getClass()), elasticProfile.getId(), ((GoConfigInvalidException) e).getAllErrorMessages()));
+            } else if (e instanceof RulesViolationException || e instanceof SecretResolutionFailureException) {
+                result.unprocessableEntity(entityConfigValidationFailed(elasticProfile.getClass().getAnnotation(ConfigTag.class).value(), elasticProfile.getId(), e.getMessage()));
+            } else {
+                result.internalServerError(saveFailedWithReason("An error occurred while saving the elastic agent profile. Please check the logs for more information."));
+            }
+        }
     }
 }

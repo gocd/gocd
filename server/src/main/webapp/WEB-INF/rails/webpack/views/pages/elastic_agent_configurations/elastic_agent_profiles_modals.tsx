@@ -76,9 +76,11 @@ abstract class BaseElasticProfileModal extends Modal {
 
   showErrors(apiResult: ApiResult<ObjectWithEtag<ElasticAgentProfile>>, errorResponse: ErrorResponse) {
     if (apiResult.getStatusCode() === 422 && errorResponse.body) {
-      const profile = ElasticAgentProfile.fromJSON(JSON.parse(errorResponse.body).data);
+      const json    = JSON.parse(errorResponse.body);
+      const profile = ElasticAgentProfile.fromJSON(json.data);
       profile.pluginId(this.clusterProfiles.findCluster(profile.clusterProfileId()!).pluginId());
       this.elasticProfile(profile);
+      this.errorMessage = json.message;
     } else {
       this.noClusterProfileError = JSON.parse(errorResponse.body!).message;
     }
@@ -92,8 +94,9 @@ abstract class BaseElasticProfileModal extends Modal {
   }
 
   body() {
+    let errorSection;
     if (this.errorMessage) {
-      return (<FlashMessage type={MessageType.alert} message={this.errorMessage}/>);
+      errorSection = (<FlashMessage type={MessageType.alert} message={this.errorMessage}/>);
     }
 
     if (!this.elasticProfile()) {
@@ -111,7 +114,8 @@ abstract class BaseElasticProfileModal extends Modal {
     });
 
     if (clustersBelongingToPlugin.length === 0) {
-      this.noClusterProfileError = `Can not create Elastic Agent Profile for plugin '${selectedPluginId}'. A Cluster Profile must be configured first in order to define a new Elastic Agent Profile.`;
+      this.noClusterProfileError
+        = `Can not create Elastic Agent Profile for plugin '${selectedPluginId}'. A Cluster Profile must be configured first in order to define a new Elastic Agent Profile.`;
     } else {
       this.elasticProfile()
           .clusterProfileId(this.elasticProfile().clusterProfileId() || clustersBelongingToPlugin[0].id());
@@ -144,9 +148,9 @@ abstract class BaseElasticProfileModal extends Modal {
               </SelectField>
             </Form>
           </FormHeader>
-
         </div>
         <div class={styles.elasticProfileModalFormBody}>
+          {errorSection}
           <div class="row collapse">
             <AngularPluginNew
               pluginInfoSettings={Stream(elasticProfileConfigurations)}

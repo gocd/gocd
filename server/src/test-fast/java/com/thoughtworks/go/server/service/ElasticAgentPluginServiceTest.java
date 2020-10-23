@@ -26,11 +26,13 @@ import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
+import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
@@ -38,6 +40,8 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
+import com.thoughtworks.go.server.exceptions.RulesViolationException;
+import com.thoughtworks.go.server.messaging.JobStatusTopic;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
@@ -52,6 +56,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.springframework.util.LinkedMultiValueMap;
 
@@ -61,10 +66,9 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
+import static java.util.Collections.*;
 import static java.util.UUID.randomUUID;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -94,6 +98,10 @@ class ElasticAgentPluginServiceTest {
     private ConsoleService consoleService;
     @Mock
     private EphemeralAutoRegisterKeyService ephemeralAutoRegisterKeyService;
+    @Mock
+    private SecretParamResolver secretParamResolver;
+    @Mock
+    private JobStatusTopic jobStatusTopic;
 
     private TimeProvider timeProvider;
     private String autoRegisterKey = "key";
@@ -121,7 +129,7 @@ class ElasticAgentPluginServiceTest {
         jobInstanceSqlMapDao = mock(JobInstanceSqlMapDao.class);
         service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService,
                 createAgentQueue, serverPingQueue, goConfigService, timeProvider, serverHealthService, elasticAgentMetadataStore,
-                clusterProfilesService, jobInstanceSqlMapDao, scheduleService, consoleService, ephemeralAutoRegisterKeyService);
+                clusterProfilesService, jobInstanceSqlMapDao, scheduleService, consoleService, ephemeralAutoRegisterKeyService, secretParamResolver, jobStatusTopic);
         when(goConfigService.serverConfig()).thenReturn(GoConfigMother.configWithAutoRegisterKey(autoRegisterKey).server());
     }
 
@@ -546,6 +554,320 @@ class ElasticAgentPluginServiceTest {
                     "The possible reason for the missing cluster information on the elastic profile could be, an upgrade of the GoCD server to a version >= 19.3.0 before the completion of the job.\n" +
                     "\n" +
                     "A re-run of this job should fix this issue.");
+        }
+    }
+
+    @Nested
+    class WithSecrets {
+        @Test
+        void shouldResolveSecretsAndSendResolvedValue_heartbeat() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[config_id][lookup_key]}}");
+            ClusterProfile clusterProfile = new ClusterProfile("id1", "p1", k1);
+            ClusterProfiles allClusterProfiles = new ClusterProfiles();
+            allClusterProfiles.add(clusterProfile);
+
+            when(clusterProfilesService.getPluginProfiles()).thenReturn(allClusterProfiles);
+            doAnswer(invocation -> {
+                k1.getSecretParams().get(0).setValue("some-resolved-value");
+                return null;
+            }).when(secretParamResolver).resolve(any(ClusterProfile.class));
+
+            service.heartbeat();
+
+            verify(secretParamResolver).resolve(clusterProfile);
+            ArgumentCaptor<ServerPingMessage> captor = ArgumentCaptor.forClass(ServerPingMessage.class);
+            ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
+            verify(serverPingQueue, times(3)).post(captor.capture(), ttl.capture());
+            List<ServerPingMessage> messages = captor.getAllValues();
+            assertThat(messages).hasSize(3)
+                    .containsExactly(
+                            new ServerPingMessage("p1", singletonList(clusterProfile)),
+                            new ServerPingMessage("p2", emptyList()),
+                            new ServerPingMessage("docker", emptyList())
+                    );
+        }
+
+        @Test
+        void shouldNotCallPluginIfSecretResolutionFails_heartbeat() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[config_id][lookup_key]}}");
+            ClusterProfile clusterProfile = new ClusterProfile("id1", "p1", k1);
+            ClusterProfiles allClusterProfiles = new ClusterProfiles();
+            allClusterProfiles.add(clusterProfile);
+
+            when(clusterProfilesService.getPluginProfiles()).thenReturn(allClusterProfiles);
+            doThrow(new RulesViolationException("some-rules-violation-message")).when(secretParamResolver).resolve(any(ClusterProfile.class));
+
+            assertThatCode(() -> service.heartbeat())
+                    .doesNotThrowAnyException();
+
+            verify(secretParamResolver).resolve(clusterProfile);
+            verify(serverHealthService).update(any());
+            ArgumentCaptor<ServerPingMessage> captor = ArgumentCaptor.forClass(ServerPingMessage.class);
+            ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
+            verify(serverPingQueue, times(2)).post(captor.capture(), ttl.capture());
+            List<ServerPingMessage> messages = captor.getAllValues();
+            //p1 does not gets called
+            assertThat(messages)
+                    .containsExactly(
+                            new ServerPingMessage("p2", emptyList()),
+                            new ServerPingMessage("docker", emptyList())
+                    );
+        }
+
+        @Test
+        void shouldResolveSecretsAndSendResolvedValue_createAgentsFor() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", "{{SECRET:[config_id][key]}}");
+            JobPlan plan1 = plan(1, "docker");
+            JobPlan plan2 = plan(2, "docker");
+            plan2.getElasticProfile().add(k1);
+            String ephemeralKey = randomUUID().toString();
+
+            when(ephemeralAutoRegisterKeyService.autoRegisterKey()).thenReturn(ephemeralKey);
+            when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
+            ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
+            when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
+
+            ArgumentCaptor<CreateAgentMessage> createAgentMessageArgumentCaptor = ArgumentCaptor.forClass(CreateAgentMessage.class);
+            ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
+            when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
+            doAnswer(invocation -> {
+                k1.getSecretParams().get(0).setValue("some-resolve-value");
+                return null;
+            }).when(secretParamResolver).resolve(any(ElasticProfile.class));
+
+            service.createAgentsFor(singletonList(plan1), asList(plan1, plan2));
+
+            verify(secretParamResolver).resolve(plan2.getClusterProfile());
+            verify(secretParamResolver).resolve(plan2.getElasticProfile());
+            verify(createAgentQueue).post(createAgentMessageArgumentCaptor.capture(), ttl.capture());
+            CreateAgentMessage createAgentMessage = createAgentMessageArgumentCaptor.getValue();
+            assertThat(createAgentMessage.autoregisterKey()).isEqualTo(ephemeralKey);
+            assertThat(createAgentMessage.pluginId()).isEqualTo(plan2.getClusterProfile().getPluginId());
+            assertThat(createAgentMessage.configuration()).isEqualTo(plan2.getElasticProfile().getConfigurationAsMap(true, true));
+            assertThat(createAgentMessage.environment()).isEqualTo("env-2");
+            assertThat(createAgentMessage.jobIdentifier()).isEqualTo(plan2.getIdentifier());
+        }
+
+        @Test
+        void shouldFailIfSecretResolutionFails_createAgentsFor() throws IOException, IllegalArtifactLocationException {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", "{{SECRET:[config_id][key]}}");
+            JobPlan plan1 = plan(1, "docker");
+            JobPlan plan2 = plan(2, "docker");
+            plan2.getElasticProfile().add(k1);
+            String ephemeralKey = randomUUID().toString();
+            JobInstance jobInstance = mock(JobInstance.class);
+
+            when(jobInstance.getState()).thenReturn(JobState.Scheduled);
+            when(ephemeralAutoRegisterKeyService.autoRegisterKey()).thenReturn(ephemeralKey);
+            when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
+            ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
+            when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
+            when(jobInstanceSqlMapDao.buildById(anyLong())).thenReturn(jobInstance);
+            when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
+            doThrow(new RulesViolationException("some-rules-violation-message")).when(secretParamResolver).resolve(any(ElasticProfile.class));
+
+            service.createAgentsFor(singletonList(plan1), asList(plan1, plan2));
+
+            InOrder inOrder = inOrder(secretParamResolver, secretParamResolver, jobInstanceSqlMapDao, consoleService, scheduleService);
+            inOrder.verify(secretParamResolver).resolve(plan2.getClusterProfile());
+            inOrder.verify(secretParamResolver).resolve(plan2.getElasticProfile());
+            inOrder.verify(jobInstanceSqlMapDao).buildById(plan2.getJobId());
+            inOrder.verify(consoleService).appendToConsoleLog(plan2.getIdentifier(), "\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: some-rules-violation-message");
+            inOrder.verify(scheduleService).failJob(jobInstance);
+            verifyNoInteractions(createAgentQueue);
+        }
+
+        @Test
+        void shouldResolveSecretsAndSendResolvedValue_shouldAssignWork() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", "{{SECRET:[config_id][key]}}");
+            String uuid = randomUUID().toString();
+            String elasticPluginId = "plugin-1";
+            ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
+            ElasticProfile elasticProfile = new ElasticProfile("1", "clusterProfileId", k1);
+
+            doAnswer(invocation -> {
+                k1.getSecretParams().get(0).setValue("some-resolve-value");
+                return null;
+            }).when(secretParamResolver).resolve(any(ClusterProfile.class));
+            when(registry.shouldAssignWork(any(), any(), any(), any(), any(), any())).thenReturn(true);
+
+            assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, new ClusterProfile("clusterProfileId", elasticPluginId), null)).isTrue();
+            verify(secretParamResolver).resolve(elasticProfile);
+            verify(registry).shouldAssignWork(eq(null), any(AgentMetadata.class), eq(null),
+                    eq(elasticProfile.getConfigurationAsMap(true, true)), eq(emptyMap()), eq(null));
+        }
+
+        @Test
+        void shouldThrowErrorIfSecretResolutionFails_shouldAssignWork() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", "{{SECRET:[config_id][key]}}");
+            String uuid = randomUUID().toString();
+            String elasticPluginId = "plugin-1";
+            ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
+            ClusterProfile clusterProfile = new ClusterProfile("clusterProfileId", elasticPluginId);
+            ElasticProfile elasticProfile = new ElasticProfile("1", "clusterProfileId", k1);
+
+            doThrow(new RulesViolationException("some-message")).when(secretParamResolver).resolve(any(ClusterProfile.class));
+            when(registry.shouldAssignWork(any(), any(), any(), any(), any(), any())).thenReturn(true);
+
+            assertThatCode(() -> service.shouldAssignWork(agentMetadata, null, elasticProfile, clusterProfile, null))
+                    .isInstanceOf(RulesViolationException.class)
+                    .hasMessage("some-message");
+            verify(secretParamResolver).resolve(clusterProfile);
+            verifyNoMoreInteractions(secretParamResolver);
+            verifyNoInteractions(pluginManager);
+            verifyNoInteractions(registry);
+            verifyNoInteractions(jobInstanceSqlMapDao);
+            verifyNoInteractions(scheduleService);
+            verifyNoInteractions(consoleService);
+        }
+
+        @Test
+        void shouldResolveSecretsAndSendResolvedValue_getPluginStatusReport() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", "{{SECRET:[config_id][key]}}");
+            final Capabilities capabilities = new Capabilities(true);
+            final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
+            elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
+            ClusterProfile clusterProfile = new ClusterProfile("cluster-id", "cd.go.example.plugin", k1);
+
+
+            when(clusterProfilesService.getPluginProfiles()).thenReturn(new ClusterProfiles(clusterProfile));
+            when(registry.getPluginStatusReport(eq("cd.go.example.plugin"), anyList())).thenReturn("<div>This is a plugin status report snippet.</div>");
+            doAnswer(invocation -> {
+                k1.getSecretParams().get(0).setValue("some-resolve-value");
+                return null;
+            }).when(secretParamResolver).resolve(any(ClusterProfile.class));
+
+            final String pluginStatusReport = service.getPluginStatusReport("cd.go.example.plugin");
+
+            verify(secretParamResolver).resolve(clusterProfile);
+            verify(registry).getPluginStatusReport("cd.go.example.plugin", singletonList(clusterProfile.getConfigurationAsMap(true, true)));
+            assertThat(pluginStatusReport).isEqualTo("<div>This is a plugin status report snippet.</div>");
+        }
+
+        @Test
+        void shouldResolveSecretsAndSendResolvedValue_getAgentStatusReport() throws Exception {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", "{{SECRET:[config_id][key]}}");
+            final Capabilities capabilities = new Capabilities(false, true);
+            final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
+            elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
+
+            JobIdentifier jobIdentifier = mock(JobIdentifier.class);
+            JobPlan jobPlan = plan(1, "cd.go.example.plugin");
+            ClusterProfile clusterProfile = jobPlan.getClusterProfile();
+            clusterProfile.add(k1);
+
+            when(jobIdentifier.getId()).thenReturn(2L);
+            when(jobInstanceSqlMapDao.loadPlan(jobIdentifier.getId())).thenReturn(jobPlan);
+            doAnswer(invocation -> {
+                k1.getSecretParams().get(0).setValue("some-resolve-value");
+                return null;
+            }).when(secretParamResolver).resolve(any(ClusterProfile.class));
+            when(registry.getAgentStatusReport(anyString(), any(), anyString(), anyMap())).thenReturn("<div>This is a agent status report snippet.</div>");
+
+            final String agentStatusReport = service.getAgentStatusReport("cd.go.example.plugin", jobIdentifier, "some-id");
+
+            verify(secretParamResolver).resolve(clusterProfile);
+            verify(registry).getAgentStatusReport("cd.go.example.plugin", jobIdentifier, "some-id", clusterProfile.getConfigurationAsMap(true, true));
+            assertThat(agentStatusReport).isEqualTo("<div>This is a agent status report snippet.</div>");
+        }
+
+        @Test
+        void shouldResolveSecretsAndSendResolvedValue_getClusterStatusReport() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", "{{SECRET:[config_id][key]}}");
+            final Capabilities capabilities = new Capabilities(false, true, false);
+            final GoPluginDescriptor descriptor = GoPluginDescriptor.builder().id("cd.go.example.plugin").build();
+            elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
+
+            ClusterProfile clusterProfile = new ClusterProfile("cluster-profile-id", "cd.go.example.plugin", k1);
+            clusterProfile.addNewConfigurationWithValue("go-server-url", "server-url", false);
+
+            PluginProfiles<ClusterProfile> clusterProfiles = new ClusterProfiles(clusterProfile);
+            when(clusterProfilesService.getPluginProfiles()).thenReturn(clusterProfiles);
+            doAnswer(invocation -> {
+                k1.getSecretParams().get(0).setValue("some-resolve-value");
+                return null;
+            }).when(secretParamResolver).resolve(any(ClusterProfile.class));
+            when(registry.getClusterStatusReport(anyString(), anyMap())).thenReturn("<div>This is a cluster status report snippet.</div>");
+
+            final String clusterStatusReport = service.getClusterStatusReport("cd.go.example.plugin", "cluster-profile-id");
+
+            assertThat(clusterStatusReport).isEqualTo("<div>This is a cluster status report snippet.</div>");
+            verify(secretParamResolver).resolve(clusterProfile);
+            verify(registry).getClusterStatusReport("cd.go.example.plugin", clusterProfile.getConfigurationAsMap(true, true));
+        }
+
+        @Test
+        void shouldResolveSecretsAndSendResolvedValue_jobCompleted() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", "{{SECRET:[config_id][key1]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", "{{SECRET:[config_id][key2]}}");
+            ClusterProfile clusterProfile = new ClusterProfile("clusterId", "docker", k1);
+            ElasticProfile elasticProfile = new ElasticProfile("foo", "clusterId", k2);
+
+            String elasticAgentId = "i-123456";
+            String elasticPluginId = "com.example.aws";
+
+            AgentInstance agentInstance = AgentInstanceMother.idle();
+            Agent agent = new Agent(agentInstance.getUuid(), agentInstance.getHostname(), agentInstance.getIpAddress());
+            agent.setElasticAgentId(elasticAgentId);
+            agent.setElasticPluginId(elasticPluginId);
+            agentInstance.syncAgentFrom(agent);
+
+            JobInstance up42_job = JobInstanceMother.completed("up42_job");
+            up42_job.setAgentUuid(agentInstance.getUuid());
+            DefaultJobPlan plan = new DefaultJobPlan(null, new ArrayList<>(), -1, null, null, null, new EnvironmentVariables(), elasticProfile, clusterProfile);
+            up42_job.setPlan(plan);
+
+            when(agentService.findAgent(agentInstance.getUuid())).thenReturn(agentInstance);
+            when(clusterProfilesService.findProfile("clusterId")).thenReturn(clusterProfile);
+            doAnswer(invocation -> {
+                k1.getSecretParams().get(0).setValue("some-resolve-value");
+                return null;
+            }).when(secretParamResolver).resolve(any(ClusterProfile.class));
+            doAnswer(invocation -> {
+                k2.getSecretParams().get(0).setValue("some-resolve-value");
+                return null;
+            }).when(secretParamResolver).resolve(any(ElasticProfile.class));
+
+            service.jobCompleted(up42_job);
+
+            Map<String, String> elasticProfileConfiguration = elasticProfile.getConfigurationAsMap(true, true);
+            Map<String, String> clusterProfileConfiguration = clusterProfile.getConfigurationAsMap(true, true);
+            verify(secretParamResolver).resolve(clusterProfile);
+            verify(secretParamResolver).resolve(elasticProfile);
+            verify(registry, times(1)).reportJobCompletion(elasticPluginId, elasticAgentId, up42_job.getIdentifier(), elasticProfileConfiguration, clusterProfileConfiguration);
+        }
+
+        @Test
+        void shouldNotCallPluginIfSecretResolutionFails_jobCompleted() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", "{{SECRET:[config_id][key1]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", "{{SECRET:[config_id][key2]}}");
+            ClusterProfile clusterProfile = new ClusterProfile("clusterId", "docker", k1);
+            ElasticProfile elasticProfile = new ElasticProfile("foo", "clusterId", k2);
+
+            String elasticAgentId = "i-123456";
+            String elasticPluginId = "com.example.aws";
+
+            AgentInstance agentInstance = AgentInstanceMother.idle();
+            Agent agent = new Agent(agentInstance.getUuid(), agentInstance.getHostname(), agentInstance.getIpAddress());
+            agent.setElasticAgentId(elasticAgentId);
+            agent.setElasticPluginId(elasticPluginId);
+            agentInstance.syncAgentFrom(agent);
+
+            JobInstance up42_job = JobInstanceMother.completed("up42_job");
+            up42_job.setAgentUuid(agentInstance.getUuid());
+            DefaultJobPlan plan = new DefaultJobPlan(null, new ArrayList<>(), -1, null, null, null, new EnvironmentVariables(), elasticProfile, clusterProfile);
+            up42_job.setPlan(plan);
+
+            when(agentService.findAgent(agentInstance.getUuid())).thenReturn(agentInstance);
+            when(clusterProfilesService.findProfile("clusterId")).thenReturn(clusterProfile);
+            doThrow(new RulesViolationException("some-rules-violation")).when(secretParamResolver).resolve(any(ElasticProfile.class));
+
+            service.jobCompleted(up42_job);
+
+            verify(secretParamResolver).resolve(elasticProfile);
+            verifyNoMoreInteractions(secretParamResolver);
+            verify(serverHealthService).update(any());
+            verifyNoInteractions(registry);
         }
     }
 

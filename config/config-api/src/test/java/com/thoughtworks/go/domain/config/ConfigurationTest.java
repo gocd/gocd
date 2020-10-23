@@ -16,6 +16,7 @@
 package com.thoughtworks.go.domain.config;
 
 import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.security.CryptoException;
@@ -28,6 +29,7 @@ import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
 class ConfigurationTest {
@@ -182,7 +184,6 @@ class ConfigurationTest {
         assertThat(metadataAndValuesAsMap).isEqualTo(expectedMap);
     }
 
-
     @Nested
     class HasSecretParams {
         @Test
@@ -221,6 +222,88 @@ class ConfigurationTest {
             Configuration configuration = new Configuration(k2);
 
             assertThat(configuration.getSecretParams()).isEmpty();
+        }
+    }
+
+    @Nested
+    class GetConfigurationAsMap {
+        @Test
+        void shouldReturnConfigAsMapWithoutSecureFields() throws CryptoException {
+            ConfigurationProperty configurationProperty1 = ConfigurationPropertyMother.create("property1", false, "value");
+            ConfigurationProperty configurationProperty2 = ConfigurationPropertyMother.create("property2", false, null);
+            String password = new GoCipher().encrypt("password");
+            ConfigurationProperty configurationProperty3 = ConfigurationPropertyMother.create("property3");
+            configurationProperty3.setEncryptedValue(new EncryptedConfigurationValue(password));
+
+            Map<String, String> configMap = new Configuration(configurationProperty1, configurationProperty2, configurationProperty3)
+                    .getConfigurationAsMap(false);
+            assertThat(configMap.size()).isEqualTo(2);
+            assertThat(configMap.keySet()).containsExactly("property1", "property2");
+            assertThat(configMap.get("property1")).isEqualTo("value");
+        }
+
+        @Test
+        void shouldReturnConfigAsMapWithSecureFields() throws CryptoException {
+            ConfigurationProperty configurationProperty1 = ConfigurationPropertyMother.create("property1", false, "value");
+            ConfigurationProperty configurationProperty2 = ConfigurationPropertyMother.create("property2", false, null);
+            String password = new GoCipher().encrypt("password");
+            ConfigurationProperty configurationProperty3 = ConfigurationPropertyMother.create("property3");
+            configurationProperty3.setEncryptedValue(new EncryptedConfigurationValue(password));
+
+            Map<String, String> configMap = new Configuration(configurationProperty1, configurationProperty2, configurationProperty3)
+                    .getConfigurationAsMap(true);
+            assertThat(configMap.size()).isEqualTo(3);
+            assertThat(configMap.keySet()).containsExactly("property1", "property2", "property3");
+            assertThat(configMap.get("property1")).isEqualTo("value");
+            assertThat(configMap.get("property3")).isEqualTo("password");
+        }
+
+        @Test
+        void shouldReturnConfigAsMapWithoutResolvingSecrets() throws CryptoException {
+            ConfigurationProperty configurationProperty1 = ConfigurationPropertyMother.create("property1", false, "{{SECRET:[config_id][lookup_key]}}");
+            ConfigurationProperty configurationProperty2 = ConfigurationPropertyMother.create("property2", false, null);
+            String password = new GoCipher().encrypt("{{SECRET:[config_id][password]}}");
+            ConfigurationProperty configurationProperty3 = ConfigurationPropertyMother.create("property3");
+            configurationProperty3.setEncryptedValue(new EncryptedConfigurationValue(password));
+
+            Map<String, String> configMap = new Configuration(configurationProperty1, configurationProperty2, configurationProperty3)
+                    .getConfigurationAsMap(true);
+            assertThat(configMap.size()).isEqualTo(3);
+            assertThat(configMap.keySet()).containsExactly("property1", "property2", "property3");
+            assertThat(configMap.get("property1")).isEqualTo("{{SECRET:[config_id][lookup_key]}}");
+            assertThat(configMap.get("property3")).isEqualTo("{{SECRET:[config_id][password]}}");
+        }
+
+        @Test
+        void shouldReturnConfigAsMapWithSecretsResolved() throws CryptoException {
+            ConfigurationProperty configurationProperty1 = ConfigurationPropertyMother.create("property1", false, "{{SECRET:[config_id][lookup_key]}}");
+            configurationProperty1.getSecretParams().get(0).setValue("some-value");
+            ConfigurationProperty configurationProperty2 = ConfigurationPropertyMother.create("property2", false, null);
+            String password = new GoCipher().encrypt("{{SECRET:[config_id][password]}}");
+            ConfigurationProperty configurationProperty3 = ConfigurationPropertyMother.create("property3");
+            configurationProperty3.setEncryptedValue(new EncryptedConfigurationValue(password));
+            configurationProperty3.getSecretParams().get(0).setValue("some-password");
+
+            Map<String, String> configMap = new Configuration(configurationProperty1, configurationProperty2, configurationProperty3)
+                    .getConfigurationAsMap(true, true);
+            assertThat(configMap.size()).isEqualTo(3);
+            assertThat(configMap.keySet()).containsExactly("property1", "property2", "property3");
+            assertThat(configMap.get("property1")).isEqualTo("some-value");
+            assertThat(configMap.get("property3")).isEqualTo("some-password");
+        }
+
+        @Test
+        void shouldThrowExceptionIfSecretsAreNotResolved() throws CryptoException {
+            ConfigurationProperty configurationProperty1 = ConfigurationPropertyMother.create("property1", false, "{{SECRET:[config_id][lookup_key]}}");
+            ConfigurationProperty configurationProperty2 = ConfigurationPropertyMother.create("property2", false, null);
+            String password = new GoCipher().encrypt("password");
+            ConfigurationProperty configurationProperty3 = ConfigurationPropertyMother.create("property3");
+            configurationProperty3.setEncryptedValue(new EncryptedConfigurationValue(password));
+
+            assertThatCode(() -> new Configuration(configurationProperty1, configurationProperty2, configurationProperty3)
+                    .getConfigurationAsMap(true, true))
+                    .isInstanceOf(UnresolvedSecretParamException.class)
+                    .hasMessage("SecretParam 'lookup_key' is used before it is resolved.");
         }
     }
 

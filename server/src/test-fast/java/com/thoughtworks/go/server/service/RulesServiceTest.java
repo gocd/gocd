@@ -16,6 +16,8 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
@@ -819,6 +821,124 @@ class RulesServiceTest {
             packageDefinition.setRepository(repository);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(repository))
+                    .doesNotThrowAnyException();
+
+            verify(goConfigService, never()).getSecretConfigById(anyString());
+        }
+    }
+
+    @Nested
+    class ForClusterProfile {
+        @Test
+        void shouldErrorOutIfItDoesNotHavePermissionToReferASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            ClusterProfile clusterProfile = new ClusterProfile("cluster-id", "plugin-id", k1, k2);
+
+            Rules rules = new Rules(new Allow("refer", "cluster_profile", "abc-*"));
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
+
+            when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(clusterProfile))
+                    .isInstanceOf(RulesViolationException.class)
+                    .hasMessage("Cluster Profile 'cluster-id' does not have permission to refer to secrets using secret config 'secret_config_id'.");
+        }
+
+        @Test
+        void shouldValidateHasPermissionToReferASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            ClusterProfile clusterProfile = new ClusterProfile("cluster-id", "plugin-id", k1, k2);
+
+            Rules rules = new Rules(new Allow("refer", "cluster_profile", "cluster-*"));
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
+
+            when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(clusterProfile))
+                    .doesNotThrowAnyException();
+
+            verify(goConfigService, times(1)).getSecretConfigById(anyString());
+        }
+
+        @Test
+        void shouldErrorOutWhenReferringToNoneExistingSecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            ClusterProfile clusterProfile = new ClusterProfile("cluster-id", "plugin-id", k1, k2);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(clusterProfile))
+                    .isInstanceOf(RulesViolationException.class)
+                    .hasMessage("Cluster Profile 'cluster-id' is referring to none-existent secret config 'secret_config_id'.");
+        }
+
+        @Test
+        void shouldBeValidIfNotDefinedUsingSecretParams() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            ClusterProfile clusterProfile = new ClusterProfile("cluster-id", "plugin-id", k1, k2);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(clusterProfile))
+                    .doesNotThrowAnyException();
+
+            verify(goConfigService, never()).getSecretConfigById(anyString());
+        }
+    }
+
+    @Nested
+    class ForElasticProfile {
+        @Test
+        void shouldErrorOutIfItDoesNotHavePermissionToReferASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            ElasticProfile elasticProfile = new ElasticProfile("elastic-id", "cluster-profile-id", k1, k2);
+
+            Rules rules = new Rules(new Allow("refer", "cluster_profile", "abc-*"));
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
+
+            when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(elasticProfile))
+                    .isInstanceOf(RulesViolationException.class)
+                    .hasMessage("Cluster Profile 'cluster-profile-id' does not have permission to refer to secrets using secret config 'secret_config_id'.");
+        }
+
+        @Test
+        void shouldValidateHasPermissionToReferASecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            ElasticProfile elasticProfile = new ElasticProfile("elastic-id", "cluster-profile-id", k1, k2);
+
+            Rules rules = new Rules(new Allow("refer", "cluster_profile", "cluster-*"));
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
+
+            when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(elasticProfile))
+                    .doesNotThrowAnyException();
+
+            verify(goConfigService, times(1)).getSecretConfigById(anyString());
+        }
+
+        @Test
+        void shouldErrorOutWhenReferringToNoneExistingSecretConfig() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "{{SECRET:[secret_config_id][lookup_username]}}");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "{{SECRET:[secret_config_id][lookup_password]}}");
+            ElasticProfile elasticProfile = new ElasticProfile("elastic-id", "cluster-profile-id", k1, k2);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(elasticProfile))
+                    .isInstanceOf(RulesViolationException.class)
+                    .hasMessage("Cluster Profile 'cluster-profile-id' is referring to none-existent secret config 'secret_config_id'.");
+        }
+
+        @Test
+        void shouldBeValidIfNotDefinedUsingSecretParams() {
+            ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", false, "v1");
+            ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", false, "v2");
+            ElasticProfile elasticProfile = new ElasticProfile("elastic-id", "cluster-profile-id", k1, k2);
+
+            assertThatCode(() -> rulesService.validateSecretConfigReferences(elasticProfile))
                     .doesNotThrowAnyException();
 
             verify(goConfigService, never()).getSecretConfigById(anyString());

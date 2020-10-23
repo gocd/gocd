@@ -17,6 +17,7 @@ package com.thoughtworks.go.spark.spa
 
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.domain.JobInstance
+import com.thoughtworks.go.server.exceptions.RulesViolationException
 import com.thoughtworks.go.server.service.ElasticAgentPluginService
 import com.thoughtworks.go.server.service.JobInstanceService
 import com.thoughtworks.go.spark.AdminUserSecurity
@@ -111,6 +112,22 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
         "status_reports/error.ftlh"))
       assertThatResponse()
         .isNotFound()
+        .hasContentType("text/html; charset=utf-8")
+        .hasBody(expectedBody)
+    }
+
+    @Test
+    void 'should return 500 in case of rules violation exception'() {
+      loginAsAdmin()
+      def errorMessage = "Some rules violation message"
+      when(elasticAgentPluginService.getPluginStatusReport("pluginId")).thenThrow(new RulesViolationException(errorMessage))
+
+      get(controller.controllerPath("/pluginId"))
+
+      def expectedBody = new StubTemplateEngine().render(new ModelAndView([message: errorMessage, viewTitle: "Plugin Status Report"],
+        "status_reports/error.ftlh"))
+      assertThatResponse()
+        .isInternalServerError()
         .hasContentType("text/html; charset=utf-8")
         .hasBody(expectedBody)
     }
@@ -230,6 +247,26 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
         .hasContentType("text/html; charset=utf-8")
         .hasBodyContaining("Agent Status Report View From Plugin")
     }
+
+    @Test
+    void 'should return 500 when rules related exception occurs'() {
+      loginAsAdmin()
+      def errorMessage = "Some rules violation message"
+      def jobInstance = new JobInstance()
+      when(jobInstanceService.buildById(1)).thenReturn(jobInstance)
+      when(elasticAgentPluginService.getAgentStatusReport("pluginId", jobInstance.getIdentifier(), "elasticAgentId"))
+        .thenThrow(new RulesViolationException(errorMessage))
+
+      get(controller.controllerPath("/pluginId/agent/elasticAgentId?job_id=1"))
+
+      def expectedBody = new StubTemplateEngine().render(new ModelAndView([message  : errorMessage,
+                                                                           viewTitle: "Agent Status Report"],
+        "status_reports/error.ftlh"))
+      assertThatResponse()
+        .isInternalServerError()
+        .hasContentType("text/html; charset=utf-8")
+        .hasBody(expectedBody)
+    }
   }
 
   @Nested
@@ -309,6 +346,23 @@ class StatusReportsControllerTest implements ControllerTrait<StatusReportsContro
         "status_reports/error.ftlh"))
       assertThatResponse()
         .isNotFound()
+        .hasContentType("text/html; charset=utf-8")
+        .hasBody(expectedBody)
+    }
+
+    @Test
+    void 'should return 500 when rules related exception occurs'() {
+      loginAsAdmin()
+      def errorMessage = "Some error message"
+      when(elasticAgentPluginService.getClusterStatusReport("pluginId", "clusterId"))
+        .thenThrow(new RulesViolationException(errorMessage))
+
+      get(controller.controllerPath("/pluginId/cluster/clusterId"))
+
+      def expectedBody = new StubTemplateEngine().render(new ModelAndView([message: errorMessage, viewTitle: "Cluster Status Report"],
+        "status_reports/error.ftlh"))
+      assertThatResponse()
+        .isInternalServerError()
         .hasContentType("text/html; charset=utf-8")
         .hasBody(expectedBody)
     }

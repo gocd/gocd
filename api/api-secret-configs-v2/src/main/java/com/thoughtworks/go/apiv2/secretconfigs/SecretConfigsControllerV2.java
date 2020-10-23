@@ -29,6 +29,7 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecretConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +45,7 @@ import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
 
 @Component
+@DeprecatedAPI(entityName = "Secret Configs", deprecatedApiVersion = ApiVersion.v2, successorApiVersion = ApiVersion.v3, deprecatedIn = "20.9.0", removalIn = "21.1.0")
 public class SecretConfigsControllerV2 extends ApiController implements SparkSpringController, CrudController<SecretConfig> {
 
     public static final String CONFIG_ID_PARAM = "config_id";

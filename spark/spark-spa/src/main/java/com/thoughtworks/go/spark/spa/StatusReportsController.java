@@ -18,6 +18,8 @@ package com.thoughtworks.go.spark.spa;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.policy.SupportedEntity;
 import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
+import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.service.ElasticAgentPluginService;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.spark.Routes;
@@ -91,6 +93,9 @@ public class StatusReportsController implements SparkController {
         } catch (UnsupportedOperationException e) {
             String message = String.format("Status Report for plugin with id: '%s' is not found.", pluginId);
             return errorPage(response, 404, "Plugin Status Report", message);
+        } catch (RulesViolationException | SecretResolutionFailureException e) {
+            LOGGER.error(e.getMessage(), e);
+            return errorPage(response, 500, "Plugin Status Report", e.getMessage());
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return errorPage(response, 500, "Plugin Status Report", UNKNOWN_ERROR_MESSAGE);
@@ -120,6 +125,9 @@ public class StatusReportsController implements SparkController {
         } catch (DataRetrievalFailureException | UnsupportedOperationException e) {
             String message = String.format("Status Report for plugin with id: '%s' for agent '%s' is not found.", pluginId, elasticAgentId);
             return errorPage(response, 404, "Agent Status Report", message);
+        } catch (RulesViolationException | SecretResolutionFailureException e) {
+            LOGGER.error(e.getMessage(), e);
+            return errorPage(response, 500, "Agent Status Report", e.getMessage());
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return errorPage(response, 500, "Agent Status Report", UNKNOWN_ERROR_MESSAGE);
@@ -141,9 +149,12 @@ public class StatusReportsController implements SparkController {
         } catch (DataRetrievalFailureException | UnsupportedOperationException e) {
             String message = String.format("Status Report for plugin with id: '%s' for cluster '%s' is not found.", pluginId, clusterId);
             return errorPage(response, 404, "Cluster Status Report", message);
+        } catch (RulesViolationException | SecretResolutionFailureException e) {
+            LOGGER.error(e.getMessage(), e);
+            return errorPage(response, 500, "Cluster Status Report", e.getMessage());
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
-            return errorPage(response, 500, "Agent Status Report", UNKNOWN_ERROR_MESSAGE);
+            return errorPage(response, 500, "Cluster Status Report", UNKNOWN_ERROR_MESSAGE);
         }
     }
 

@@ -23,7 +23,9 @@ import com.thoughtworks.go.domain.ClusterProfilesChangedStatus;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -39,6 +41,10 @@ class ClusterProfilesChangedPluginNotifierTest {
     private GoConfigService goConfigService;
     @Mock
     private ElasticAgentPluginRegistry registry;
+    @Mock
+    private SecretParamResolver secretParamResolver;
+    @Mock
+    private ServerHealthService serverHealthService;
 
     private ClusterProfilesChangedPluginNotifier notifier;
     private ClusterProfile newClusterProfile;
@@ -56,7 +62,7 @@ class ClusterProfilesChangedPluginNotifierTest {
         oldClusterProfile = new ClusterProfile("profile1", pluginId, properties);
         newClusterProfile = new ClusterProfile("profile1", pluginId, properties);
 
-        notifier = new ClusterProfilesChangedPluginNotifier(goConfigService, registry);
+        notifier = new ClusterProfilesChangedPluginNotifier(goConfigService, registry, secretParamResolver, serverHealthService);
     }
 
     @Test
@@ -66,6 +72,8 @@ class ClusterProfilesChangedPluginNotifierTest {
         elasticConfig.getClusterProfiles().add(newClusterProfile);
         when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
         notifier.onEntityConfigChange(newClusterProfile);
+
+        verify(secretParamResolver).resolve(newClusterProfile);
         verify(registry, times(1)).notifyPluginAboutClusterProfileChanged(pluginId, ClusterProfilesChangedStatus.CREATED, null, newClusterProfile.getConfigurationAsMap(true));
         verifyNoMoreInteractions(registry);
         verify(goConfigService, times(2)).getElasticConfig();
@@ -76,6 +84,8 @@ class ClusterProfilesChangedPluginNotifierTest {
         reset(goConfigService);
         when(goConfigService.getElasticConfig()).thenReturn(new ElasticConfig());
         notifier.onEntityConfigChange(oldClusterProfile);
+
+        verify(secretParamResolver).resolve(oldClusterProfile);
         verify(registry, times(1)).notifyPluginAboutClusterProfileChanged(pluginId, ClusterProfilesChangedStatus.DELETED, oldClusterProfile.getConfigurationAsMap(true), null);
         verifyNoMoreInteractions(registry);
         verify(goConfigService, times(2)).getElasticConfig();
@@ -87,9 +97,11 @@ class ClusterProfilesChangedPluginNotifierTest {
         ElasticConfig elasticConfig = new ElasticConfig();
         elasticConfig.getClusterProfiles().add(oldClusterProfile);
         when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
-        notifier = new ClusterProfilesChangedPluginNotifier(goConfigService, registry);
+        notifier = new ClusterProfilesChangedPluginNotifier(goConfigService, registry, secretParamResolver, serverHealthService);
 
         notifier.onEntityConfigChange(newClusterProfile);
+
+        verify(secretParamResolver, times(2)).resolve(any(ClusterProfile.class));
         verify(registry, times(1)).notifyPluginAboutClusterProfileChanged(pluginId, ClusterProfilesChangedStatus.UPDATED, oldClusterProfile.getConfigurationAsMap(true), newClusterProfile.getConfigurationAsMap(true));
         verifyNoMoreInteractions(registry);
         verify(goConfigService, times(3)).getElasticConfig();
@@ -104,10 +116,11 @@ class ClusterProfilesChangedPluginNotifierTest {
         ElasticConfig elasticConfig = new ElasticConfig();
         elasticConfig.getClusterProfiles().add(oldClusterProfile);
         when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
-        notifier = new ClusterProfilesChangedPluginNotifier(goConfigService, registry);
+        notifier = new ClusterProfilesChangedPluginNotifier(goConfigService, registry, secretParamResolver, serverHealthService);
 
         notifier.onEntityConfigChange(newClusterProfile);
 
+        verify(secretParamResolver, times(2)).resolve(any(ClusterProfile.class));
         verify(registry, times(1)).notifyPluginAboutClusterProfileChanged(this.pluginId, ClusterProfilesChangedStatus.DELETED, oldClusterProfile.getConfigurationAsMap(true), null);
         verify(registry, times(1)).notifyPluginAboutClusterProfileChanged(newPluginId, ClusterProfilesChangedStatus.CREATED, null, newClusterProfile.getConfigurationAsMap(true));
         verifyNoMoreInteractions(registry);
@@ -124,5 +137,39 @@ class ClusterProfilesChangedPluginNotifierTest {
         notifier.onConfigChange(newCruiseConfig);
         assertThat(notifier.getExistingClusterProfiles()).isEqualTo(new ClusterProfiles(newClusterProfile, oldClusterProfile));
         verifyNoMoreInteractions(registry);
+    }
+
+    @Test
+    void shouldSendResolveConfigValuesForBothClusterProfile() {
+        ConfigurationProperty k1 = ConfigurationPropertyMother.create("k1", "{{SECRET:[id][key1]}}");
+        ConfigurationProperty k2 = ConfigurationPropertyMother.create("k2", "{{SECRET:[id][key2]}}");
+        String newPluginId = "updated-plugin-id";
+        newClusterProfile = new ClusterProfile("profile1", newPluginId, properties);
+        oldClusterProfile.add(k1);
+        newClusterProfile.add(k2);
+
+        reset(goConfigService);
+        ElasticConfig elasticConfig = new ElasticConfig();
+        elasticConfig.getClusterProfiles().add(oldClusterProfile);
+        when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
+        doAnswer(invocation -> {
+            k2.getSecretParams().get(0).setValue("new-resolved-value");
+            return null;
+        }).when(secretParamResolver).resolve(newClusterProfile);
+        doAnswer(invocation -> {
+            k1.getSecretParams().get(0).setValue("old-resolved-value");
+            return null;
+        }).when(secretParamResolver).resolve(oldClusterProfile);
+
+        notifier = new ClusterProfilesChangedPluginNotifier(goConfigService, registry, secretParamResolver, serverHealthService);
+        notifier.onEntityConfigChange(newClusterProfile);
+
+        verify(secretParamResolver).resolve(newClusterProfile);
+        verify(secretParamResolver).resolve(oldClusterProfile);
+        verify(registry).notifyPluginAboutClusterProfileChanged(this.pluginId, ClusterProfilesChangedStatus.DELETED, oldClusterProfile.getConfigurationAsMap(true, true), null);
+        verify(registry).notifyPluginAboutClusterProfileChanged(newPluginId, ClusterProfilesChangedStatus.CREATED, null, newClusterProfile.getConfigurationAsMap(true, true));
+        verifyNoMoreInteractions(registry);
+        verify(goConfigService, times(3)).getElasticConfig();
+        verifyNoInteractions(serverHealthService);
     }
 }

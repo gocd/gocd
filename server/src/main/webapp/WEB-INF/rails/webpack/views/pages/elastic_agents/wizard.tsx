@@ -323,6 +323,7 @@ class ClusterProfileStep extends Step {
       const json = JSON.parse(errorResponse.body);
       this.clusterProfile(ClusterProfile.fromJSON(json.data));
       this.footerError("Please fix the validation errors above before proceeding.");
+      this.errMessage(json.message);
     } else {
       this.footerError("Save Failed!");
       const message = JSON.parse(errorResponse.body!).message;
@@ -510,6 +511,7 @@ class ElasticProfileStep extends Step {
       const json = JSON.parse(errorResponse.body);
       this.elasticProfile(ElasticAgentProfile.fromJSON(json.data));
       this.footerError("Please fix the validation errors above before proceeding.");
+      this.errMessage(json.message);
     } else {
       this.footerError("Save Failed!");
       const msg = JSON.parse(errorResponse.body!).message;
@@ -558,6 +560,7 @@ class EditElasticProfileStep extends ElasticProfileStep {
                                      elasticProfile={this.elasticProfile}
                                      clusterProfile={this.clusterProfile}
                                      readonly={false}
+                                     errMessage={this.errMessage()}
                                      etag={this.etag}/>;
       case PageState.FAILED:
         return <PageLoadError message="There was a problem fetching the Elastic Profile"/>;

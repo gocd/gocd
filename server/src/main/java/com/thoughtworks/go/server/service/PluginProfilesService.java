@@ -22,9 +22,11 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.PluginProfileCommand;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.GoPluginFrameworkException;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +61,7 @@ public abstract class PluginProfilesService<M extends PluginProfile> {
         return result;
     }
 
-    void validatePluginProperties(PluginProfileCommand command, PluginProfile newPluginProfile) {
+    void validatePluginProperties(PluginProfileCommand command, M newPluginProfile) {
         try {
             ValidationResult result = command.validateUsingExtension(newPluginProfile.getPluginId(), newPluginProfile.getConfigurationAsMap(true));
             addErrorsToConfiguration(result, newPluginProfile);
@@ -72,7 +74,7 @@ public abstract class PluginProfilesService<M extends PluginProfile> {
         }
     }
 
-    private void addErrorsToConfiguration(ValidationResult result, PluginProfile newSecurityAuthConfig) {
+    protected void addErrorsToConfiguration(ValidationResult result, PluginProfile newSecurityAuthConfig) {
         if (!result.isSuccessful()) {
             for (com.thoughtworks.go.plugin.api.response.validation.ValidationError validationError : result.getErrors()) {
                 ConfigurationProperty property = newSecurityAuthConfig.getProperty(validationError.getKey());
@@ -93,7 +95,7 @@ public abstract class PluginProfilesService<M extends PluginProfile> {
             }
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
-            if (e instanceof GoConfigInvalidException) {
+            if (e instanceof GoConfigInvalidException || e instanceof RulesViolationException || e instanceof SecretResolutionFailureException) {
                 result.unprocessableEntity(entityConfigValidationFailed(pluginProfile.getClass().getAnnotation(ConfigTag.class).value(), pluginProfile.getId(), e.getMessage()));
             } else {
                 if (!result.hasMessage()) {

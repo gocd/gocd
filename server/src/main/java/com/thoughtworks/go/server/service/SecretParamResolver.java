@@ -16,6 +16,8 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
@@ -151,6 +153,24 @@ public class SecretParamResolver {
             resolve(packageDefinition.getSecretParams());
         } else {
             LOGGER.debug("No secret params available in package definition {}.", packageDefinition.getName());
+        }
+    }
+
+    public void resolve(ClusterProfile clusterProfile) {
+        if (clusterProfile.hasSecretParams()) {
+            rulesService.validateSecretConfigReferences(clusterProfile);
+            resolve(clusterProfile.getSecretParams());
+        } else {
+            LOGGER.debug("No secret params available in cluster profile {}.", clusterProfile.getId());
+        }
+    }
+
+    public void resolve(ElasticProfile elasticProfile) {
+        if (elasticProfile.hasSecretParams()) {
+            rulesService.validateSecretConfigReferences(elasticProfile);
+            resolve(elasticProfile.getSecretParams());
+        } else {
+            LOGGER.debug("No secret params available in elastic profile {} in cluster profile {}.", elasticProfile.getId(), elasticProfile.getClusterProfileId());
         }
     }
 

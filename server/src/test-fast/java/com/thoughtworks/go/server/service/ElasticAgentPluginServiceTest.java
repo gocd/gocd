@@ -672,7 +672,7 @@ class ElasticAgentPluginServiceTest {
             inOrder.verify(secretParamResolver).resolve(plan2.getClusterProfile());
             inOrder.verify(secretParamResolver).resolve(plan2.getElasticProfile());
             inOrder.verify(jobInstanceSqlMapDao).buildById(plan2.getJobId());
-            inOrder.verify(consoleService).appendToConsoleLog(eq(plan2.getIdentifier()), anyString());
+            inOrder.verify(consoleService).appendToConsoleLog(plan2.getIdentifier(), "\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: some-rules-violation-message");
             inOrder.verify(scheduleService).failJob(jobInstance);
             verifyNoInteractions(createAgentQueue);
         }

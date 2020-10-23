@@ -210,7 +210,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 } catch (RulesViolationException | SecretResolutionFailureException e) {
                     JobInstance instance = jobInstanceService.buildById(jobPlan.getJobId());
                     JobIdentifier jobIdentifier = jobPlan.getIdentifier();
-                    String failureMessage = format("\nThis job was failed by GoCD. This job is configured to run on an elastic agent, but the associated elastic configurations failed for secrets resolution: %s", e.getMessage());
+                    String failureMessage = format("\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: %s", e.getMessage());
                     logToJobConsole(jobIdentifier, failureMessage);
                     scheduleService.failJob(instance);
                     jobStatusTopic.post(new JobStatusMessage(jobIdentifier, instance.getState(), agent.getUuid()));

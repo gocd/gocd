@@ -545,7 +545,7 @@ class BuildAssignmentServiceTest {
 
         InOrder inOrder = inOrder(jobInstanceService, scheduleService, consoleService, jobStatusTopic);
         inOrder.verify(jobInstanceService).buildById(jobPlan.getJobId());
-        inOrder.verify(consoleService).appendToConsoleLog(jobPlan.getIdentifier(), "\nThis job was failed by GoCD. This job is configured to run on an elastic agent, but the associated elastic configurations failed for secrets resolution: some rules related violation message");
+        inOrder.verify(consoleService).appendToConsoleLog(jobPlan.getIdentifier(), "\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: some rules related violation message");
         inOrder.verify(scheduleService).failJob(jobInstance);
         inOrder.verify(jobStatusTopic).post(new JobStatusMessage(jobPlan.getIdentifier(), JobState.Scheduled, elasticAgentInstance.getUuid()));
     }
@@ -573,7 +573,7 @@ class BuildAssignmentServiceTest {
 
         InOrder inOrder = inOrder(jobInstanceService, scheduleService, consoleService, jobStatusTopic);
         inOrder.verify(jobInstanceService).buildById(jobPlan.getJobId());
-        inOrder.verify(consoleService).appendToConsoleLog(jobPlan.getIdentifier(), "\nThis job was failed by GoCD. This job is configured to run on an elastic agent, but the associated elastic configurations failed for secrets resolution: some secret resolution related failure message");
+        inOrder.verify(consoleService).appendToConsoleLog(jobPlan.getIdentifier(), "\nThis job was failed by GoCD. This job is configured to run on an elastic agent, there were errors while resolving secrets for the the associated elastic configurations.\nReasons: some secret resolution related failure message");
         inOrder.verify(scheduleService).failJob(jobInstance);
         inOrder.verify(jobStatusTopic).post(new JobStatusMessage(jobPlan.getIdentifier(), JobState.Scheduled, elasticAgentInstance.getUuid()));
     }

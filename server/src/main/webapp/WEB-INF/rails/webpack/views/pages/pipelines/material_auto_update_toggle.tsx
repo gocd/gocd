@@ -61,7 +61,7 @@ export class DependencyIgnoreSchedulingToggle extends MithrilViewComponent<Omit<
     const ignoreForScheduling = this.radioState(toggle);
 
     return <RadioField<AutoUpdateRadioOptions>
-      label={["Whenever the ", <em>upstream pipeline</em>, " passes:"]}
+      label={["Whenever the ", <em>upstream pipeline stage</em>, " passes:"]}
       property={ignoreForScheduling}
       readonly={!!vnode.attrs.disabled}
       errorText={errors?.errorsForDisplay("ignoreForScheduling")}

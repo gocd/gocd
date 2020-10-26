@@ -228,12 +228,12 @@ export class ConfigReposPage extends Page<null, State> {
 
     permissionsResponse.do((permissions) => {
       const repoPermissions = permissions.body.for(SupportedEntity.config_repo);
-      configRepos.forEach((repo) => repo.canAdminister(repoPermissions.canAdminister(repo.id()!)));
+      configRepos.forEach((repo) => repo.canAdminister(repoPermissions.canAdminister(repo.id())));
     }, (e) => onError(e.body!));
 
     const reusedCaches = new Map<string, ObjectCache<DefinedStructures>>();
     const models = _.map(configRepos, (repo) => {
-      const vm = new ConfigRepoVM(repo, vnode.state, this.resultCaches.get(repo.id()!));
+      const vm = new ConfigRepoVM(repo, vnode.state, this.resultCaches.get(repo.id()));
       vm.results.invalidate(); // always refresh definitions when getting new config repo data
       // persist results cache to the next poll; this eliminates the flicker when pulling new data after the first load
       reusedCaches.set(repo.id()!, vm.results);

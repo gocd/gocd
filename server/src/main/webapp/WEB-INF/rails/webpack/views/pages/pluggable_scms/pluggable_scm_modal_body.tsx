@@ -25,7 +25,7 @@ import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_inf
 import {FlashMessage, FlashMessageModel} from "views/components/flash_message";
 import {Form, FormHeader} from "views/components/forms/form";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
-import {SwitchBtn} from "views/components/switch";
+import {MaterialAutoUpdateToggle} from "views/pages/pipelines/material_auto_update_toggle";
 import styles from "./index.scss";
 
 const AngularPluginNew = require("views/shared/angular_plugin_new").AngularPluginNew;
@@ -53,40 +53,38 @@ export class PluggableScmModalBody extends MithrilViewComponent<Attrs> {
       ? <FlashMessage type={vnode.attrs.message.type} message={vnode.attrs.message.message}/>
       : undefined;
     const settings = (selectedPluginInfo.extensionOfType(ExtensionTypeString.SCM) as ScmExtension).scmSettings;
+
+    const scm = vnode.attrs.scm;
+
     return <div>
       <FormHeader>
         {mayBeMsg}
         <Form>
           <TextField label="Name"
                      readonly={vnode.attrs.disableId}
-                     property={vnode.attrs.scm.name}
+                     property={scm.name}
                      placeholder={"Enter the pluggable scm name"}
-                     errorText={vnode.attrs.scm.errors().errorsForDisplay("name") || vnode.attrs.scm.errors().errorsForDisplay("scmId")}
+                     errorText={scm.errors().errorsForDisplay("name") || scm.errors().errorsForDisplay("scmId")}
                      required={true}/>
 
           <SelectField label="Plugin"
                        property={vnode.attrs.pluginIdProxy.bind(this)}
                        required={true} readonly={vnode.attrs.disablePluginId}
-                       errorText={vnode.attrs.scm.errors().errorsForDisplay("pluginId")}>
-            <SelectFieldOptions selected={vnode.attrs.scm.pluginMetadata().id()}
+                       errorText={scm.errors().errorsForDisplay("pluginId")}>
+            <SelectFieldOptions selected={scm.pluginMetadata().id()}
                                 items={pluginList}/>
           </SelectField>
         </Form>
       </FormHeader>
 
       <div className={styles.switchWrapper}>
-        <SwitchBtn label="Poll for new changes"
-                   helpText="By default, GoCD polls the repository for changes automatically. If turned off, then GoCD will not poll the repository for changes"
-                   dataTestId="auto-update-scm"
-                   small={true}
-                   field={vnode.attrs.scm.autoUpdate}
-                   errorText={vnode.attrs.scm.errors().errorsForDisplay("autoUpdate")}/>
+        <MaterialAutoUpdateToggle toggle={scm.autoUpdate} errors={scm.errors()}/>
       </div>
 
       <div className="row collapse">
         <AngularPluginNew
           pluginInfoSettings={Stream(settings)}
-          configuration={vnode.attrs.scm.configuration()}
+          configuration={scm.configuration()}
           key={selectedPluginInfo.id}/>
       </div>
     </div>;

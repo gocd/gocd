@@ -44,14 +44,14 @@ export class ConfigReposCRUD {
   }
 
   static update(response: ObjectWithEtag<ConfigRepo>) {
-    return ApiRequestBuilder.PUT(SparkRoutes.ApiConfigRepoPath(response.object.id()!), this.API_VERSION_HEADER,
+    return ApiRequestBuilder.PUT(SparkRoutes.ApiConfigRepoPath(response.object.id()), this.API_VERSION_HEADER,
                                  {payload: configRepoToSnakeCaseJSON(response.object), etag: response.etag})
     .then(this.extractObjectWithEtag());
 
   }
 
   static delete(repo: ConfigRepo) {
-    return ApiRequestBuilder.DELETE(SparkRoutes.ApiConfigRepoPath(repo.id()!), this.API_VERSION_HEADER)
+    return ApiRequestBuilder.DELETE(SparkRoutes.ApiConfigRepoPath(repo.id()), this.API_VERSION_HEADER)
     .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
   }
 

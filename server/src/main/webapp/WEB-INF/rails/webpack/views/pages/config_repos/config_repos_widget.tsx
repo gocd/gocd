@@ -54,7 +54,7 @@ class HeaderWidget extends MithrilViewComponent<SingleAttrs> {
 
   view(vnode: m.Vnode<SingleAttrs>): m.Children | void | null {
     const repo        = vnode.attrs.vm.repo;
-    const materialUrl = repo.material()!.materialUrl();
+    const materialUrl = repo.material().materialUrl();
     return [
       this.pluginIcon(vnode.attrs.pluginInfo),
       <div class={styles.headerTitle}>
@@ -197,7 +197,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
 
     const title = !repo.canAdminister() ? "You are not authorised to perform this action!" : "";
 
-    return <Anchor id={repo.id()!} sm={sm} onnavigate={() => this.expanded(true)}>
+    return <Anchor id={repo.id()} sm={sm} onnavigate={() => this.expanded(true)}>
       <CollapsiblePanel error={configRepoHasErrors}
                         header={<HeaderWidget {...vnode.attrs}/>}
                         dataTestId={"config-repo-details-panel"}
@@ -214,7 +214,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
         {this.renderedConfigs(parseInfo, vm)}
         {this.latestModificationDetails(parseInfo)}
         {this.lastGoodModificationDetails(parseInfo)}
-        {this.configRepoMetaConfigDetails(repo.id()!, repo.pluginId()!)}
+        {this.configRepoMetaConfigDetails(repo.id(), repo.pluginId())}
         {this.materialConfigDetails(repo)}
         {this.userPropertiesDetails(repo)}
         <ShowRulesWidget rules={repo.rules}/>

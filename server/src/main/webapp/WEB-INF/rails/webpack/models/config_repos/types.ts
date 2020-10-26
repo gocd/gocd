@@ -39,11 +39,11 @@ export class ConfigRepo extends ValidatableMixin implements ConfigurationPropert
   static readonly YAML_PLUGIN_ID               = "yaml.config.plugin";
   static readonly GROOVY_PLUGIN_ID             = "cd.go.contrib.plugins.configrepo.groovy";
 
-  id: Accessor<string | undefined>;
-  pluginId: Accessor<string | undefined>;
-  material: Accessor<Material | undefined>;
+  id: Accessor<string>;
+  pluginId: Accessor<string>;
+  material: Accessor<Material>;
   canAdminister: Accessor<boolean>;
-  lastParse: Accessor<ParseInfo | null | undefined>;
+  lastParse: Accessor<ParseInfo | undefined>;
   jsonPipelinesPattern: Accessor<string>;
   jsonEnvPattern: Accessor<string>;
   yamlPattern: Accessor<string>;
@@ -55,14 +55,14 @@ export class ConfigRepo extends ValidatableMixin implements ConfigurationPropert
               material?: Material,
               canAdminister?: boolean,
               configuration?: PropertyLike[],
-              lastParse?: ParseInfo | null,
+              lastParse?: ParseInfo,
               materialUpdateInProgress?: boolean,
               rules?: Rules) {
     super();
 
-    this.id                       = Stream(id);
-    this.pluginId                 = Stream(pluginId);
-    this.material                 = Stream(material);
+    this.id                       = Stream(id!);
+    this.pluginId                 = Stream(pluginId!);
+    this.material                 = Stream(material!);
     this.canAdminister            = Stream(canAdminister || false);
     this.lastParse                = Stream(lastParse);
     this.materialUpdateInProgress = Stream(materialUpdateInProgress || false);
@@ -113,9 +113,9 @@ export class ConfigRepo extends ValidatableMixin implements ConfigurationPropert
     }
 
     const id             = this.id();
-    const goodRevision   = this.lastParse() && this.lastParse()!.goodRevision();
-    const latestRevision = this.lastParse() && this.lastParse()!.latestRevision();
-    const materialUrl    = this.material()!.materialUrl();
+    const goodRevision   = this.lastParse()?.goodRevision();
+    const latestRevision = this.lastParse()?.latestRevision();
+    const materialUrl    = this.material().materialUrl();
     return [
       id,
       goodRevision,
@@ -168,14 +168,20 @@ export class MaterialModification {
   }
 }
 
-export class ParseInfo {
-  error: Accessor<string | null | undefined>;
-  readonly latestParsedModification: MaterialModification | null;
-  readonly goodModification: MaterialModification | null;
+function toModification(data: ParseInfoJSON["good_modification" | "latest_parsed_modification"]) {
+  if (data) {
+    return MaterialModification.fromJSON(data);
+  }
+}
 
-  constructor(latestParsedModification: MaterialModification | null,
-              goodModification: MaterialModification | null,
-              error: string | undefined | null) {
+export class ParseInfo {
+  error: Accessor<string | undefined>;
+  readonly latestParsedModification?: MaterialModification;
+  readonly goodModification?: MaterialModification;
+
+  constructor(latestParsedModification?: MaterialModification,
+              goodModification?: MaterialModification,
+              error?: string) {
     this.latestParsedModification = latestParsedModification;
     this.goodModification         = goodModification;
     this.error                    = Stream(error);
@@ -183,23 +189,16 @@ export class ParseInfo {
 
   static fromJSON(json: ParseInfoJSON) {
     if (!_.isEmpty(json)) {
-      const latestParsedModification = json.latest_parsed_modification ? MaterialModification.fromJSON(json.latest_parsed_modification) : null;
-      const goodModification         = json.good_modification ? MaterialModification.fromJSON(json.good_modification) : null;
-
-      return new ParseInfo(latestParsedModification, goodModification, json.error);
+      return new ParseInfo(toModification(json.latest_parsed_modification), toModification(json.good_modification), json.error);
     }
   }
 
   goodRevision() {
-    if (this.goodModification) {
-      return this.goodModification.revision;
-    }
+    return this.goodModification?.revision;
   }
 
   latestRevision() {
-    if (this.latestParsedModification) {
-      return this.latestParsedModification.revision;
-    }
+    return this.latestParsedModification?.revision;
   }
 }
 

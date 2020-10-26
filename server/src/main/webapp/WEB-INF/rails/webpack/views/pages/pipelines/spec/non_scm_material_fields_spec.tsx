@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {docsUrl} from "gen/gocd_version";
 import {SparkRoutes} from "helpers/spark_routes";
 import m from "mithril";
 import {Filter} from "models/maintenance_mode/material";
@@ -42,7 +41,7 @@ describe("AddPipeline: Non-SCM Material Fields", () => {
       "upstream-stage":    "Upstream Stage*",
       "material-name":     "Material Name",
     });
-    assertIgnoreForSchedulingSwitchPresent(helper);
+    assertIgnoreForSchedulingControlPresent(helper);
   });
 
   it("does not display advanced settings when `showLocalWorkingCopyOptions` === false", () => {
@@ -58,7 +57,7 @@ describe("AddPipeline: Non-SCM Material Fields", () => {
     assertLabelledInputsAbsent(helper,
                                "material-name",
     );
-    assertIgnoreForSchedulingSwitchAbsent(helper);
+    assertIgnoreForSchedulingControlAbsent(helper);
   });
 });
 
@@ -268,16 +267,16 @@ function assertLabelledInputsAbsent(helper: TestHelper, ...keys: string[]) {
   }
 }
 
-function assertIgnoreForSchedulingSwitchPresent(helper: TestHelper) {
-  const helpTextElement = helper.q('#switch-btn-help-text');
+function assertIgnoreForSchedulingControlPresent(helper: TestHelper) {
+  const control = helper.byTestId('material-ignore-for-scheduling');
 
-  expect(helper.byTestId('material-ignore-for-scheduling')).toBeInDOM();
-  expect(helper.textByTestId('switch-label')).toBe('Do not schedule the pipeline when this material is updated');
-  expect(helpTextElement.textContent!.startsWith("When set to true, the pipeline will not be automatically scheduled for changes to this material.")).toBeTrue();
-  expect(helper.q('a', helpTextElement)).toHaveAttr('href', docsUrl("configuration/configuration_reference.html#pipeline-1"));
+  expect(control).toBeInDOM();
+  expect(helper.textByTestId('form-field-label', control)).toBe('Whenever the upstream pipeline passes:');
+  expect(helper.textByTestId('input-field-for-auto', control)).toBe('Run this pipeline');
+  expect(helper.textByTestId('input-field-for-manual', control)).toBe('Do not run this pipeline');
 }
 
-function assertIgnoreForSchedulingSwitchAbsent(helper: TestHelper) {
+function assertIgnoreForSchedulingControlAbsent(helper: TestHelper) {
   expect(helper.byTestId('material-ignore-for-scheduling')).not.toBeInDOM();
 }
 

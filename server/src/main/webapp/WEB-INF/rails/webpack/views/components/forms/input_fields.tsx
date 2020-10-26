@@ -655,57 +655,67 @@ export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
   }
 }
 
-interface RadioData {
+interface RadioData<T> {
   label: m.Children;
-  value: string;
+  value: T;
   helpText?: string;
   tooltip?: m.Child;
 }
 
-export interface RadioButtonAttrs extends RestyleAttrs<Styles> {
+export interface RadioButtonAttrs<T> extends RestyleAttrs<Styles> {
   label?: m.Children;
   errorText?: string;
   readonly?: boolean;
   required?: boolean;
   inline?: boolean;
-  property: (newValue?: string) => string;
-  possibleValues: RadioData[];
-  onchange?: (newValue: string) => void;
+  property: (newValue?: T) => T;
+  possibleValues: Array<RadioData<T>>;
+  onchange?: (newValue: T) => void;
   dataTestId?: string;
 }
 
-export class RadioField extends RestyleViewComponent<Styles, RadioButtonAttrs> {
+export class RadioField<T extends string = string> extends RestyleViewComponent<Styles, RadioButtonAttrs<T>> {
   css = defaultStyles;
 
   protected readonly id: string = `input-${uuid()}`;
 
-  view(vnode: m.Vnode<RadioButtonAttrs>) {
-    const maybeRequired = this.isRequiredField(vnode) ?
-      <span className={this.css.formLabelRequired}>*</span> : undefined;
-    const maybeLabel    = vnode.attrs.label ? <label for={this.id}
-                                                     className={this.css.formLabel}
-                                                     data-test-id="form-field-label">
-      {vnode.attrs.label}{maybeRequired}:</label> : undefined;
-    return (
-      <li className={classnames(this.css.formGroup, {[this.css.formHasError]: this.hasErrorText(vnode)})}
-          data-test-id={vnode.attrs.dataTestId}>
-        {maybeLabel}
-        <div class={vnode.attrs.inline ? this.css.inlineRadioBtns : undefined}>
-          {this.renderInputField(vnode)}
-        </div>
-      </li>
-    );
+  view(vnode: m.Vnode<RadioButtonAttrs<T>>) {
+    const classes = classnames(this.css.formGroup, {[this.css.formHasError]: this.hasErrorText(vnode)});
+
+    return <li class={classes} data-test-id={vnode.attrs.dataTestId}>
+      {this.label(vnode.attrs)}
+      <div class={this.inlined(vnode.attrs.inline)}>
+        {this.renderInputField(vnode)}
+      </div>
+    </li>;
   }
 
-  protected isRequiredField(vnode: m.Vnode<RadioButtonAttrs>) {
-    return vnode.attrs.required;
+  private inlined(flag?: boolean) {
+    if (flag) {
+      return this.css.inlineRadioBtns;
+    }
   }
 
-  protected hasErrorText(vnode: m.Vnode<RadioButtonAttrs>) {
+  private label({ label, required }: RadioButtonAttrs<T>) {
+    if (label) {
+      return <label for={this.id} class={this.css.formLabel} data-test-id="form-field-label">
+        {label}{this.requiredMarker(required)}
+      </label>;
+    }
+    return undefined;
+  }
+
+  private requiredMarker(required?: boolean) {
+    if (required) {
+      return <span class={this.css.formLabelRequired}>*</span>;
+    }
+  }
+
+  private hasErrorText(vnode: m.Vnode<RadioButtonAttrs<T>>) {
     return !_.isEmpty(vnode.attrs.errorText);
   }
 
-  private renderInputField(vnode: m.Vnode<RadioButtonAttrs>) {
+  private renderInputField(vnode: m.Vnode<RadioButtonAttrs<T>>) {
     const result: m.Children[] = [];
 
     vnode.attrs.possibleValues.forEach((radioData) => {

@@ -101,6 +101,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     if (!scmOnly) {
       options.push({id: "dependency", text: "Another Pipeline"});
     }
+
     if (showExtraMaterials) {
       options.push({id: "package", text: "Package Materials"});
       options.push({id: "plugin", text: "Plugin Materials"});

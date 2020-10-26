@@ -21,7 +21,6 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {Accessor, bidirectionalTransform} from "models/base/accessor";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {ConfigRepo, humanizedMaterialAttributeName, humanizedMaterialNameForMaterialType} from "models/config_repos/types";
 import {GitMaterialAttributes, HgMaterialAttributes, Material, P4MaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "models/materials/types";
@@ -33,7 +32,7 @@ import {KeyValEditor} from "views/components/encryptable_key_value/editor";
 import {EntriesVM} from "views/components/encryptable_key_value/vms";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormBody, FormHeader} from "views/components/forms/form";
-import {CheckboxField, Option, PasswordField, RadioField, SelectField, SelectFieldOptions, TextAreaField, TextField} from "views/components/forms/input_fields";
+import {CheckboxField, Option, PasswordField, SelectField, SelectFieldOptions, TextAreaField, TextField} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";
 import {TestConnection} from "views/components/materials/test_connection";
 import {Modal, Size} from "views/components/modal";
@@ -41,6 +40,7 @@ import {ConfigureRulesWidget, RulesType} from "views/components/rules/configure_
 import {Spinner} from "views/components/spinner";
 import styles from "views/pages/config_repos/index.scss";
 import {OperationState, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
+import {MaterialAutoUpdateToggle} from "views/pages/pipelines/material_auto_update_toggle";
 import materialStyles from "./materials.scss";
 
 type EditableMaterial = SaveOperation
@@ -51,22 +51,15 @@ type EditableMaterial = SaveOperation
   & { error?: m.Children }
   & { resourceAutocompleteHelper: Map<string, string[]> };
 
-type AutoUpdateRadioOptions = "auto" | "manual";
-
 class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
   view(vnode: m.Vnode<EditableMaterial>) {
     const { repo, userProps, isNew, error, pluginInfos, resourceAutocompleteHelper } = vnode.attrs;
-
-    const pollingMode = bidirectionalTransform<AutoUpdateRadioOptions, boolean>(
-      repo.material()!.attributes()!.autoUpdate as Accessor<boolean>,
-      (v) => (v || "").toLowerCase() === "auto",
-      (v) => (v === void 0 || v) ? "auto" : "manual"
-    );
+    const attributes = repo.material().attributes()!;
 
     const pluginList = _.map(pluginInfos(), (p) => ({ id: p.id, text: p.about.name }));
     const allowUserProperties = !!pluginInfos().
       configRepoPluginsWhich("supportsUserDefinedProperties").
-      findByPluginId(repo.pluginId()!);
+      findByPluginId(repo.pluginId());
 
     const infoMsg = <span>Configure rules to allow which environment/pipeline group/pipeline the config repository can refer to. By default, the config repository cannot refer to an entity unless explicitly allowed. <Link
       href={docsUrl("advanced_usage/pipelines_as_code.html")} target="_blank" externalLinkIcon={true}>Learn More</Link></span>;
@@ -93,10 +86,10 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
         <Form>
           <SelectField label={"Material type"}
                        css={styles}
-                       property={repo.material()!.typeProxy.bind(repo.material()!)}
+                       property={repo.material().typeProxy.bind(repo.material())}
                        required={true}
                        errorText={repo.errors().errorsForDisplay("material")}>
-            <SelectFieldOptions selected={repo.material()!.type()}
+            <SelectFieldOptions selected={repo.material().type()}
                                 items={this.materialSelectOptions()}/>
           </SelectField>
         </Form>
@@ -108,14 +101,8 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
               {vnode.children}
             </Form>
           </FormBody>
-          <RadioField
-            label={<strong>Repository polling behavior</strong>}
-            property={pollingMode as Accessor<string>}
-            possibleValues={[
-              {label: "Regularly fetch updates to this repository", value: "auto"},
-              {label: "Fetch updates to this repository only on webhook or manual trigger", value: "manual"},
-            ]}/>
-          <TestConnection material={repo.material()!} configRepo={repo}/>
+          <MaterialAutoUpdateToggle toggle={attributes.autoUpdate} errors={attributes.errors()}/>
+          <TestConnection material={repo.material()} configRepo={repo}/>
         </div>
         <div class={styles.pluginFilePatternConfigWrapper}>
           <FormBody>
@@ -181,7 +168,7 @@ const NewMaterialComponent = {
 const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableMaterial> } = {
   git: {
     view(vnode: m.Vnode<EditableMaterial>) {
-      const materialAttributes = vnode.attrs.repo.material()!.attributes() as GitMaterialAttributes;
+      const materialAttributes = vnode.attrs.repo.material().attributes() as GitMaterialAttributes;
 
       return <MaterialEditWidget {...vnode.attrs}>
         <div>
@@ -209,7 +196,7 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
   svn: {
     view(vnode: m.Vnode<EditableMaterial>) {
-      const materialAttributes = vnode.attrs.repo.material()!.attributes() as SvnMaterialAttributes;
+      const materialAttributes = vnode.attrs.repo.material().attributes() as SvnMaterialAttributes;
 
       return <MaterialEditWidget {...vnode.attrs}>
         <div>
@@ -237,7 +224,7 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
   hg: {
     view(vnode: m.Vnode<EditableMaterial>) {
-      const materialAttributes = vnode.attrs.repo.material()!.attributes() as HgMaterialAttributes;
+      const materialAttributes = vnode.attrs.repo.material().attributes() as HgMaterialAttributes;
 
       return <MaterialEditWidget {...vnode.attrs}>
         <div>
@@ -267,7 +254,7 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
   p4: {
     view(vnode: m.Vnode<EditableMaterial>) {
-      const materialAttributes = vnode.attrs.repo.material()!.attributes() as P4MaterialAttributes;
+      const materialAttributes = vnode.attrs.repo.material().attributes() as P4MaterialAttributes;
       return <MaterialEditWidget {...vnode.attrs}>
         <TextField label={humanizedMaterialAttributeName("port")}
                    property={materialAttributes.port}
@@ -295,7 +282,7 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
   tfs: {
     view(vnode: m.Vnode<EditableMaterial>) {
-      const materialAttributes = vnode.attrs.repo.material()!.attributes() as TfsMaterialAttributes;
+      const materialAttributes = vnode.attrs.repo.material().attributes() as TfsMaterialAttributes;
 
       return <MaterialEditWidget {...vnode.attrs}>
         <TextField label={humanizedMaterialAttributeName("url")}
@@ -359,7 +346,7 @@ export abstract class ConfigRepoModal extends Modal {
     }
     let materialtocomponentmapElement: MithrilViewComponent<EditableMaterial>;
 
-    const material = this.getRepo().material()!;
+    const material = this.getRepo().material();
     if (!material.type()) {
       materialtocomponentmapElement = NewMaterialComponent;
     } else {
@@ -404,7 +391,7 @@ export abstract class ConfigRepoModal extends Modal {
   protected abstract performSave(): Promise<any>;
 
   protected handleAutoUpdateError() {
-    const errors = this.getRepo().material()!.attributes()!.errors();
+    const errors = this.getRepo().material().attributes()!.errors();
     if (errors.hasErrors("autoUpdate")) {
       this.error = errors.errorsForDisplay("autoUpdate");
     }

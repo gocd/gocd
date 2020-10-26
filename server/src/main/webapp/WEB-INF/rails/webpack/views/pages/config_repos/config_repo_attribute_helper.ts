@@ -31,8 +31,8 @@ export function resolveHumanReadableAttributes(obj: object) {
 }
 
 export function allAttributes(repo: ConfigRepo): Map<string, string> {
-  const initial            = new Map([["Type", repo.material()!.type()!]]);
-  const filteredAttributes = _.reduce(repo.material()!.attributes(),
+  const initial            = new Map([["Type", repo.material().type()!]]);
+  const filteredAttributes = _.reduce(repo.material().attributes(),
     resolveKeyValueForAttribute,
     initial);
   return _.reduce(repo.knownProps(),

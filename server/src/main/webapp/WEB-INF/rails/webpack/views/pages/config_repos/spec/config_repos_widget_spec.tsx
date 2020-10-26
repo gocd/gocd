@@ -267,8 +267,8 @@ describe("ConfigReposWidget", () => {
     expect(helper.byTestId("plugin-icon"))
       .toHaveAttr("src", "http://localhost:8153/go/api/plugin_images/json.config.plugin/f787");
 
-    expect(repoIds[0]).toContainText(repo1.id()!);
-    expect(repoIds[1]).toContainText(repo2.id()!);
+    expect(repoIds[0]).toContainText(repo1.id());
+    expect(repoIds[1]).toContainText(repo2.id());
   });
 
   it("should render config repo's plugin-id, material url, commit-message, username and revision in header", () => {
@@ -326,7 +326,7 @@ describe("ConfigReposWidget", () => {
 
   it("should render a warning message when parsing did not finish", () => {
     const repo = createConfigRepoParsedWithError();
-    repo.lastParse(null);
+    repo.lastParse(void 0);
     models([vm(repo)]);
     pluginInfos(new PluginInfos(configRepoPluginInfo()));
     helper.redraw();
@@ -372,9 +372,8 @@ describe("ConfigReposWidget", () => {
 
   it("should not render top border and keep the widget collapsed when there is no error", () => {
     const repo = createConfigRepoParsedWithError({});
-    if (repo.lastParse()) {
-      repo.lastParse()!.error(null);
-    }
+    repo.lastParse()?.error(void 0);
+
     models([vm(repo)]);
     pluginInfos(new PluginInfos(configRepoPluginInfo()));
     helper.redraw();

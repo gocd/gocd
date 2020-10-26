@@ -36,11 +36,11 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {CheckboxField, Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {Link} from "views/components/link";
-import {SwitchBtn} from "views/components/switch";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
 import {ConfigurationDetailsWidget} from "views/pages/package_repositories/configuration_details_widget";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
+import {DependencyIgnoreSchedulingToggle} from "views/pages/pipelines/material_auto_update_toggle";
 import styles from "./advanced_settings.scss";
 import {DENYLIST_HELP_MESSAGE, DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
@@ -118,7 +118,7 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
     vnode.state.stages    = Stream(EMPTY);
 
     vnode.state.provider = new DependencySuggestionProvider(vnode.attrs.cache, vnode.attrs.parentPipelineName);
-    vnode.state.stages   = () => mat.pipeline() ? EMPTY.concat(cache.stages(mat.pipeline()!)) : [];
+    vnode.state.stages   = () => mat.pipeline() ? EMPTY.concat(cache.stages(mat.pipeline())) : [];
   }
 
   view(vnode: m.Vnode<Attrs, State>): m.Children {
@@ -154,15 +154,7 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
         <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} readonly={attrs.readonly}
                    placeholder="A human-friendly label for this material" property={mat.name}/>
 
-        <SwitchBtn label="Do not schedule the pipeline when this material is updated"
-                   helpText="When set to true, the pipeline will not be automatically scheduled for changes to this material."
-                   docLink={"/configuration/configuration_reference.html#pipeline-1"}
-                   dataTestId="material-ignore-for-scheduling"
-                   small={true}
-                   css={styles}
-                   disabled={attrs.readonly}
-                   field={mat.ignoreForScheduling}
-                   errorText={this.errs(mat, "ignoreForScheduling")}/>
+        <DependencyIgnoreSchedulingToggle toggle={mat.ignoreForScheduling} errors={mat.errors()} disabled={attrs.disabled}/>
       </AdvancedSettings>;
     }
   }

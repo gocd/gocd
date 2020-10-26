@@ -23,8 +23,8 @@ import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_inf
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormHeader} from "views/components/forms/form";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
-import {SwitchBtn} from "views/components/switch";
 import {PluginView} from "views/pages/package_repositories/package_repo_plugin_view";
+import {MaterialAutoUpdateToggle} from "views/pages/pipelines/material_auto_update_toggle";
 
 interface Attrs {
   pluginInfos: PluginInfos;
@@ -77,12 +77,7 @@ export class PackageModalBody extends MithrilViewComponent<Attrs> {
         </Form>
       </FormHeader>
 
-      <SwitchBtn label="Poll for new changes"
-                 helpText="By default, GoCD polls the package for changes automatically. If turned off, then GoCD will not poll the package for changes"
-                 dataTestId="auto-update-package"
-                 small={true}
-                 field={vnode.attrs.package.autoUpdate}
-                 errorText={vnode.attrs.package.errors().errorsForDisplay("autoUpdate")}/>
+      <MaterialAutoUpdateToggle noun="package" toggle={vnode.attrs.package.autoUpdate} errors={vnode.attrs.package.errors()}/>
 
       <PluginView pluginSettings={(pluginInfo.extensions[0] as PackageRepoExtension).packageSettings}
                   configurations={vnode.attrs.package.configuration()}/>

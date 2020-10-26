@@ -30,11 +30,10 @@ import {
 } from "models/materials/types";
 import {CheckboxField, FormField, PasswordField, TextField} from "views/components/forms/input_fields";
 import {TestConnection} from "views/components/materials/test_connection";
-import {SwitchBtn} from "views/components/switch";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
-import styles from "./advanced_settings.scss";
+import {MaterialAutoUpdateToggle} from "views/pages/pipelines/material_auto_update_toggle";
 import {DENYLIST_HELP_MESSAGE, DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
 interface Attrs {
@@ -124,14 +123,7 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
                    placeholder="A human-friendly label for this material" property={mattrs.name}
                    errorText={this.errs(mattrs, "name")}/>,
 
-        <SwitchBtn label="Poll for new changes"
-                   helpText="By default GoCD polls the repository for changes automatically. If set to false, then GoCD will not poll the repository for changes"
-                   dataTestId="auto-update-material"
-                   small={true}
-                   css={styles}
-                   disabled={vnode.attrs.readonly}
-                   field={mattrs.autoUpdate}
-                   errorText={this.errs(mattrs, "autoUpdate")}/>,
+        <MaterialAutoUpdateToggle toggle={mattrs.autoUpdate} errors={mattrs.errors()} disabled={vnode.attrs.disabled}/>,
 
         <TextField label="Denylist" helpText={DENYLIST_HELP_MESSAGE}
                    property={this.filterValue}

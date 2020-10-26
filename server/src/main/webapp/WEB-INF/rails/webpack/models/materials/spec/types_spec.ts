@@ -265,7 +265,7 @@ describe("Material Types", () => {
 
   describe('Serialization', () => {
     it('should serialize dependency materials', () => {
-      const dependencyAttrs = new DependencyMaterialAttributes("name", false, "pipeline", "stage", false);
+      const dependencyAttrs = new DependencyMaterialAttributes("name", "pipeline", "stage", false);
 
       expect(Object.keys(dependencyAttrs.toJSON())).not.toContain('destination');
     });

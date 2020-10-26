@@ -77,7 +77,7 @@ export class ConfigRepoVM {
   showDeleteModal: (e: Propagable) => void;
 
   constructor(repo: ConfigRepo, page: PageResources, results?: ObjectCache<DefinedStructures>) {
-    const cache = results || new CRResultCache(repo.id()!);
+    const cache = results || new CRResultCache(repo.id());
 
     Object.assign(ConfigRepoVM.prototype, EventAware.prototype);
     EventAware.call(this);
@@ -92,7 +92,7 @@ export class ConfigRepoVM {
       e.stopPropagation();
       page.flash.clear();
 
-      const repoId = this.repo.id()!;
+      const repoId = this.repo.id();
 
       return ConfigReposCRUD.triggerUpdate(repoId).then((result: ApiResult<any>) => {
         repo.materialUpdateInProgress(true);
@@ -109,7 +109,7 @@ export class ConfigRepoVM {
       e.stopPropagation();
       page.flash.clear();
 
-      new EditConfigRepoModal(this.repo.id()!,
+      new EditConfigRepoModal(this.repo.id(),
                               page.onSuccessfulSave,
                               page.onError,
                               page.pluginInfos,

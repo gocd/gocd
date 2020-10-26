@@ -59,8 +59,8 @@ describe('PluggableScmModalBodySpec', () => {
     expect(helper.byTestId("form-field-input-plugin").children.length).toBe(1);
     expect(helper.byTestId("form-field-input-plugin").children[0].textContent).toBe('SCM Plugin');
 
-    expect(helper.byTestId('auto-update-scm')).toBeInDOM();
-    expect(helper.byTestId('auto-update-scm')).not.toBeDisabled();
+    expect(helper.byTestId('material-auto-update')).toBeInDOM();
+    expect(helper.byTestId('material-auto-update')).not.toBeDisabled();
   });
 
   it('should render the name as readonly', () => {

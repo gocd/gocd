@@ -63,8 +63,9 @@ describe('PackageModalBodySpec', () => {
     expect(helper.byTestId('form-field-input-package-repository')).not.toBeDisabled();
     expect(helper.byTestId("form-field-input-package-repository").children[0].textContent).toBe(pkg.packageRepo().name());
 
-    expect(helper.byTestId('auto-update-package')).toBeInDOM();
-    expect(helper.byTestId('auto-update-package')).not.toBeDisabled();
+    expect(helper.byTestId('material-auto-update')).toBeInDOM();
+    expect(helper.byTestId('material-auto-update')).not.toBeDisabled();
+    expect(helper.textByTestId('form-field-label', helper.byTestId('material-auto-update'))).toBe('Package polling behavior:');
   });
 
   it('should call the spy method on package repo change', () => {

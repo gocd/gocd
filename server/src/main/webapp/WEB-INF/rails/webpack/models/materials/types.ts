@@ -227,12 +227,12 @@ export class Material extends ValidatableMixin {
 
 export abstract class MaterialAttributes extends ValidatableMixin {
   name: Stream<string | undefined>;
-  autoUpdate: Stream<boolean | undefined>;
+  autoUpdate: Stream<boolean>;
 
   protected constructor(name?: string, autoUpdate?: boolean) {
     super();
     this.name       = Stream(name);
-    this.autoUpdate = Stream(autoUpdate);
+    this.autoUpdate = Stream(autoUpdate === void 0 || autoUpdate);
     this.validateIdFormat("name");
   }
 
@@ -594,15 +594,15 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
 }
 
 export class DependencyMaterialAttributes extends MaterialAttributes {
-  pipeline: Stream<string | undefined>;
-  stage: Stream<string | undefined>;
-  ignoreForScheduling: Stream<boolean | undefined>;
+  pipeline: Stream<string>;
+  stage: Stream<string>;
+  ignoreForScheduling = Stream<boolean>(false);
 
-  constructor(name?: string, autoUpdate?: boolean, pipeline?: string, stage?: string, ignoreForScheduling?: boolean) {
-    super(name, autoUpdate);
-    this.pipeline            = Stream(pipeline);
-    this.stage               = Stream(stage);
-    this.ignoreForScheduling = Stream(ignoreForScheduling);
+  constructor(name?: string, pipeline?: string, stage?: string, ignoreForScheduling?: boolean) {
+    super(name, true /* autoUpdate is always `true` in the backend domain model */);
+    this.pipeline            = Stream(pipeline!);
+    this.stage               = Stream(stage!);
+    this.ignoreForScheduling = Stream(!!ignoreForScheduling);
 
     this.validatePresenceOf("pipeline");
     this.validatePresenceOf("stage");
@@ -611,7 +611,6 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
   static fromJSON(json: Partial<DependencyMaterialAttributesJSON>) {
     const attrs = new DependencyMaterialAttributes(
       json.name,
-      json.auto_update,
       json.pipeline,
       json.stage,
       json.ignore_for_scheduling

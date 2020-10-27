@@ -17,22 +17,19 @@ package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.ModificationsMother;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
+import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.assertj.core.api.Assertions;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -46,9 +43,7 @@ import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 class PipelineSqlMapDaoTest {
@@ -76,10 +71,12 @@ class PipelineSqlMapDaoTest {
         int pipelineCounter = 42;
         PipelineInstanceModel expected = mock(PipelineInstanceModel.class);
         when(goCache.get(anyString())).thenReturn(expected);
+        when(expected.getBuildCause()).thenReturn(mock(BuildCause.class));
+        when(expected.getApprovedBy()).thenReturn("some-user");
 
         PipelineInstanceModel reFetch = pipelineSqlMapDao.findPipelineHistoryByNameAndCounter(pipelineName, pipelineCounter); //returned from cache
 
-        assertThat(reFetch, is(expected));
+        assertThat(reFetch).isEqualTo(expected);
         verify(goCache).get(anyString());
     }
 
@@ -91,11 +88,13 @@ class PipelineSqlMapDaoTest {
         PipelineInstanceModel expected = mock(PipelineInstanceModel.class);
         when(sqlMapClientTemplate.queryForObject("getPipelineHistoryByNameAndCounter", map)).thenReturn(expected);
         when(expected.getId()).thenReturn(1111L);
+        when(expected.getBuildCause()).thenReturn(mock(BuildCause.class));
+        when(expected.getApprovedBy()).thenReturn("some-user");
         when(materialRepository.findMaterialRevisionsForPipeline(expected.getId())).thenReturn(null);
 
         PipelineInstanceModel primed = pipelineSqlMapDao.findPipelineHistoryByNameAndCounter(pipelineName, pipelineCounter);//prime cache
 
-        assertThat(primed, is(expected));
+        assertThat(primed).isEqualTo(expected);
 
         verify(sqlMapClientTemplate, times(1)).queryForObject("getPipelineHistoryByNameAndCounter", map);
         verify(goCache, times(1)).put(anyString(), eq(expected));
@@ -124,15 +123,15 @@ class PipelineSqlMapDaoTest {
         PipelineSqlMapDao pipelineSqlMapDao = new PipelineSqlMapDao(null, null, null, null, null, null, null, new SystemEnvironment(), mock(GoConfigDao.class), mock(Database.class), timeProvider);
         ArrayList list1 = new ArrayList();
         ArrayList list2 = new ArrayList();
-        Assert.assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2), is((String) null));
+        assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2)).isEqualTo((String) null);
         Modification modification1 = new Modification(MOD_USER, MOD_COMMENT, EMAIL_ADDRESS,
                 YESTERDAY_CHECKIN, ModificationsMother.nextRevision());
         list1.add(modification1);
-        Assert.assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2), is(ModificationsMother.currentRevision()));
+        assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2)).isEqualTo(ModificationsMother.currentRevision());
         Modification modification2 = new Modification(MOD_USER_COMMITTER, MOD_COMMENT_2, EMAIL_ADDRESS,
                 TODAY_CHECKIN, ModificationsMother.nextRevision());
         list2.add(modification2);
-        Assert.assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2), is(ModificationsMother.currentRevision()));
+        assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2)).isEqualTo(ModificationsMother.currentRevision());
     }
 
     @Test
@@ -154,7 +153,7 @@ class PipelineSqlMapDaoTest {
 
         PipelineInstanceModels models = pipelineSqlMapDao.loadActivePipelineInstancesFor(new CaseInsensitiveString(pipelineName));
 
-        assertTrue(models.isEmpty());
+        assertThat(models.isEmpty()).isTrue();
     }
 
     @Test
@@ -172,13 +171,13 @@ class PipelineSqlMapDaoTest {
 
         PipelineInstanceModels models = pipelineSqlMapDao.loadActivePipelineInstancesFor(new CaseInsensitiveString(p1));
 
-        assertThat(models.size(), is(2));
+        assertThat(models.size()).isEqualTo(2);
 
-        assertThat(pimForP1_1.getName(), is(p1));
-        assertThat(pimForP1_1.getCounter(), is(1));
+        assertThat(pimForP1_1.getName()).isEqualTo(p1);
+        assertThat(pimForP1_1.getCounter()).isEqualTo(1);
 
-        assertThat(pimForP1_2.getName(), is(p1));
-        assertThat(pimForP1_2.getCounter(), is(2));
+        assertThat(pimForP1_2.getName()).isEqualTo(p1);
+        assertThat(pimForP1_2.getCounter()).isEqualTo(2);
 
         verify(sqlMapClientTemplate).queryForList("allActivePipelines");
         verify(sqlMapClientTemplate).queryForObject("getPipelineHistoryById", m("id", pimForP1_1.getId()));
@@ -187,7 +186,9 @@ class PipelineSqlMapDaoTest {
     }
 
     private PipelineInstanceModel pimFor(String p1, int counter) {
-        PipelineInstanceModel model = new PipelineInstanceModel(p1, counter, String.valueOf(counter), BuildCause.createManualForced(), new StageInstanceModels());
+        StageInstanceModels models = new StageInstanceModels();
+        models.add(new StageInstanceModel("stage", "1", new JobHistory()));
+        PipelineInstanceModel model = new PipelineInstanceModel(p1, counter, String.valueOf(counter), BuildCause.createManualForced(), models);
         model.setId(new Random().nextLong());
         return model;
     }

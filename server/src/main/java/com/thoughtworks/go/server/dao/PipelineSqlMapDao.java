@@ -795,6 +795,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         if (pipeline != null) {
             MaterialRevisions materialRevisions = materialRepository.findMaterialRevisionsForPipeline(pipeline.getId());
             pipeline.setMaterialRevisionsOnBuildCause(materialRevisions);
+            pipeline.getBuildCause().setApprover(pipeline.getApprovedBy());
         }
         return pipeline;
     }

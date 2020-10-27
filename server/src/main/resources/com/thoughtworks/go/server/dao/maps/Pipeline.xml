@@ -60,6 +60,7 @@
         <result property="name" column="pipelineName"/>
         <result property="buildCause" column="buildCauseType"/>
         <result property="label" column="label"/>
+        <result property="buildCauseMessage" column="buildCauseMessage"/>
         <result property="counter" column="pipelineCounter"/>
         <result property="naturalOrder" column="naturalOrder"/>
         <result property="comment" column="pipelineComment"/>

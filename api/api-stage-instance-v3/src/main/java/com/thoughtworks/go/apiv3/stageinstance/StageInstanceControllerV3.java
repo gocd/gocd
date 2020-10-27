@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv2.stageinstance;
+package com.thoughtworks.go.apiv3.stageinstance;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
@@ -21,8 +21,8 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
-import com.thoughtworks.go.apiv2.stageinstance.representers.StageInstancesRepresenter;
-import com.thoughtworks.go.apiv2.stageinstance.representers.StageRepresenter;
+import com.thoughtworks.go.apiv3.stageinstance.representers.StageInstancesRepresenter;
+import com.thoughtworks.go.apiv3.stageinstance.representers.StageRepresenter;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.PipelineRunIdInfo;
@@ -34,7 +34,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.spark.DeprecatedAPI;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,16 +50,15 @@ import java.util.stream.Collectors;
 import static spark.Spark.*;
 
 @Component
-@DeprecatedAPI(entityName = "Stage Instances", deprecatedApiVersion = ApiVersion.v2, successorApiVersion = ApiVersion.v3, deprecatedIn = "20.9.0", removalIn = "21.1.0")
-public class StageInstanceControllerV2 extends ApiController implements SparkSpringController {
+public class StageInstanceControllerV3 extends ApiController implements SparkSpringController {
     private final static String JOB_NAMES_PROPERTY = "jobs";
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final StageService stageService;
     private final ScheduleService scheduleService;
 
     @Autowired
-    public StageInstanceControllerV2(ApiAuthenticationHelper apiAuthenticationHelper, StageService stageService, ScheduleService scheduleService) {
-        super(ApiVersion.v2);
+    public StageInstanceControllerV3(ApiAuthenticationHelper apiAuthenticationHelper, StageService stageService, ScheduleService scheduleService) {
+        super(ApiVersion.v3);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.stageService = stageService;
         this.scheduleService = scheduleService;

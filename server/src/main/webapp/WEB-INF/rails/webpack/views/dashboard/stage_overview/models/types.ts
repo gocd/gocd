@@ -40,6 +40,8 @@ export interface StageInstanceJSON {
   counter: number;
   approval_type: string;
   approved_by: string;
+  scheduled_at: number;
+  last_transitioned_time: number;
   cancelled_by?: string;
   result: Result | string;
   rerun_of_counter: number | null;

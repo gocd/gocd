@@ -42,13 +42,13 @@ export class StageInstance {
 
   triggeredOn(): string {
     const LOCAL_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss";
-    return moment.unix(this.stageScheduledTime()).format(LOCAL_TIME_FORMAT);
+    return moment.unix(this.stageScheduledAtInSecs()).format(LOCAL_TIME_FORMAT);
   }
 
   triggeredOnServerTime(): string {
     const SERVER_TIME_FORMAT = "DD MMM, YYYY [at] HH:mm:ss Z [Server Time]";
     const utcOffsetInMinutes = CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET / 60000;
-    return moment.unix(this.stageScheduledTime()).utcOffset(utcOffsetInMinutes).format(SERVER_TIME_FORMAT);
+    return moment.unix(this.stageScheduledAtInSecs()).utcOffset(utcOffsetInMinutes).format(SERVER_TIME_FORMAT);
   }
 
   stageDuration(): string {
@@ -56,20 +56,8 @@ export class StageInstance {
       return `in progress`;
     }
 
-    // Prototype JS has overridden the original array reduce method. Use reduceRight instead.
-    // This fix is only required for the VSM page
-    // Do not change Array.prototype.reduce, as it will affect all the arrays from VSM page
-    // @ts-ignore
-    this.json.jobs.reduce = Array.prototype.reduceRight;
-
-    // @ts-ignore
-    const highestJobTime = this.json.jobs.reduce((first: number, next: JobJSON) => {
-      const completed = next.job_state_transitions.find(t => t.state === "Completed")!;
-      return first < completed.state_change_time ? completed.state_change_time : first;
-    }, 0);
-
-    const end = moment.unix(+highestJobTime / 1000);
-    const start = moment.unix(this.stageScheduledTime());
+    const end   = moment.unix(this.stageLastTransitionedTimeInSecs());
+    const start = moment.unix(this.stageScheduledAtInSecs());
 
     return JobDurationStrategyHelper.formatTimeForDisplay(moment.utc(end.diff(start)));
   }
@@ -124,11 +112,12 @@ export class StageInstance {
     return ApiRequestBuilder.POST(SparkRoutes.runStage(this.json.pipeline_name, this.json.pipeline_counter, this.json.name), ApiVersion.latest);
   }
 
-  stageScheduledTime(): number {
-    return this.json.jobs.reduce((minTime, next) => {
-      const jobScheduledTime = next.scheduled_date / 1000;
-      return minTime < jobScheduledTime ? minTime : jobScheduledTime;
-    }, Infinity);
+  stageScheduledAtInSecs(): number {
+    return this.json.scheduled_at / 1000;
+  }
+
+  stageLastTransitionedTimeInSecs(): number {
+    return this.json.last_transitioned_time / 1000;
   }
 
   private isStageInProgress(): boolean {

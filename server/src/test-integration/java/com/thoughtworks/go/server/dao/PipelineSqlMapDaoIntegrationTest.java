@@ -1730,6 +1730,20 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(pipelineInstanceModels.get(1).getId(), is(pipeline4.getId()));
     }
 
+    @Test
+    public void shouldSetApproverInBuildCause_findPipelineHistory() {
+        GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
+        u.checkinInOrder(g1, "g_1");
+
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", "s1", u.m(g1));
+        Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        dbHelper.pass(p1_1);
+        PipelineInstanceModel pim1 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper().toString(), 1);
+
+        assertThat(pim1.getBuildCause().getApprover(), is("changes"));
+        assertThat(pim1.getBuildCause().getBuildCauseMessage(), is("modified by lgao"));
+    }
+
     public static MaterialRevisions revisions(boolean changed) {
         MaterialRevisions revisions = new MaterialRevisions();
         List<Modification> modifications = new ArrayList<>();

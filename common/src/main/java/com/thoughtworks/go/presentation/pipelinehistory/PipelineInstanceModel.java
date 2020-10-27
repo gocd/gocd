@@ -73,6 +73,14 @@ public class PipelineInstanceModel implements PipelineInfo {
         this.buildCause = buildCause;
     }
 
+    // used to set the message via ibatis
+    public void setBuildCauseMessage(String msg) {
+        if (this.buildCause == null) {
+            this.buildCause = BuildCause.createManualForced();
+        }
+        this.buildCause.setMessage(msg);
+    }
+
     public long getId() {
         return id;
     }
@@ -138,12 +146,7 @@ public class PipelineInstanceModel implements PipelineInfo {
 
     @Override
     public boolean isAnyStageActive() {
-        for (StageInstanceModel stage : stageHistory) {
-            if (stage.getState().isActive()) {
-                return true;
-            }
-        }
-        return false;
+        return stageHistory.stream().anyMatch(stage -> stage.getState().isActive());
     }
 
     public boolean hasPreviousStageBeenScheduled(String stageName) {
@@ -166,10 +169,7 @@ public class PipelineInstanceModel implements PipelineInfo {
     }
 
     public boolean isScheduled() {
-        for (StageInstanceModel stageInstanceModel : stageHistory) {
-            if (stageInstanceModel.isScheduled()) { return true; }
-        }
-        return false;
+        return stageHistory.stream().anyMatch(StageInstanceModel::isScheduled);
     }
 
     public void setCanRun(boolean canRun) {
@@ -221,7 +221,7 @@ public class PipelineInstanceModel implements PipelineInfo {
     }
 
     public MaterialRevision getLatestMaterialRevision(MaterialConfig materialConfig) {
-       return findMaterialRevisionOf(materialConfig, latest);
+        return findMaterialRevisionOf(materialConfig, latest);
     }
 
     public Revision getCurrentRevision(MaterialConfig materialConfig) {
@@ -278,7 +278,7 @@ public class PipelineInstanceModel implements PipelineInfo {
     public Revision getCurrentRevision(String requestedMaterialName) {
         for (MaterialRevision materialRevision : getCurrentRevisions()) {
             String materialName = CaseInsensitiveString.str(materialRevision.getMaterial().getName());
-            if(materialName != null && materialName.equals(requestedMaterialName)) {
+            if (materialName != null && materialName.equals(requestedMaterialName)) {
                 return materialRevision.getRevision();
             }
         }
@@ -323,10 +323,7 @@ public class PipelineInstanceModel implements PipelineInfo {
     }
 
     public boolean hasNewRevisions() {
-        for (MaterialConfig materialConfig : materialConfigs) {
-            if (hasNewRevisions(materialConfig)) { return true; }
-        }
-        return false;
+        return materialConfigs.stream().anyMatch(this::hasNewRevisions);
     }
 
     public boolean hasNewRevisions(MaterialConfig materialConfig) {
@@ -345,7 +342,7 @@ public class PipelineInstanceModel implements PipelineInfo {
     }
 
     /**
-     * @depracated use the other construction methods
+     * @deprecated use the other construction methods
      */
     public static PipelineInstanceModel createEmptyModel() {
         return new PipelineInstanceModel();
@@ -455,7 +452,7 @@ public class PipelineInstanceModel implements PipelineInfo {
 
     public boolean hasStage(StageIdentifier identifier) {
         for (StageInstanceModel instanceModel : stageHistory) {
-            if(identifier.equals(instanceModel.getIdentifier())) return true;
+            if (identifier.equals(instanceModel.getIdentifier())) return true;
         }
         return false;
     }
@@ -493,7 +490,9 @@ public class PipelineInstanceModel implements PipelineInfo {
         return getMaterials().findDependencyMaterial(pipelineName);
     }
 
-    public void setComment(String comment) { this.comment = comment; }
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 
     public String getComment() {
         return comment;

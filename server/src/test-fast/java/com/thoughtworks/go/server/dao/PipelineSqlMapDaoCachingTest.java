@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
-import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -29,6 +28,7 @@ import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.StubGoCache;
 import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
@@ -38,11 +38,10 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hamcrest.Matchers;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.transaction.support.SimpleTransactionStatus;
@@ -54,12 +53,11 @@ import java.util.*;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
-public class PipelineSqlMapDaoCachingTest {
+class PipelineSqlMapDaoCachingTest {
     private GoCache goCache;
     private PipelineSqlMapDao pipelineDao;
     private TransactionTemplate transactionTemplate;
@@ -69,8 +67,8 @@ public class PipelineSqlMapDaoCachingTest {
     private MaterialRepository repository;
     private TimeProvider timeProvider;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void setup() throws Exception {
         transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         goCache.clear();
@@ -91,7 +89,7 @@ public class PipelineSqlMapDaoCachingTest {
     }
 
     @Test
-    public void buildCauseForPipelineIdentifiedByNameAndCounter_shouldUseCacheAndBeCaseInsensitive() {
+    void buildCauseForPipelineIdentifiedByNameAndCounter_shouldUseCacheAndBeCaseInsensitive() {
         Pipeline expected = PipelineMother.pipeline("pipeline");
         expected.setId(3);
 
@@ -105,29 +103,29 @@ public class PipelineSqlMapDaoCachingTest {
         verify(mockTemplate).queryForObject("findPipelineByNameAndCounter", m("name", "pipeline", "counter", 15));
         verify(repository).findMaterialRevisionsForPipeline(3);
 
-        assertThat(buildCause.getMaterialRevisions(), is(originalMaterialRevisions));
+        assertThat(buildCause.getMaterialRevisions()).isEqualTo(originalMaterialRevisions);
 
         buildCause = pipelineDao.findBuildCauseOfPipelineByNameAndCounter("pipeline".toUpperCase(), 15);
 
-        assertThat(buildCause.getMaterialRevisions(), is(originalMaterialRevisions));
+        assertThat(buildCause.getMaterialRevisions()).isEqualTo(originalMaterialRevisions);
 
         verifyNoMoreInteractions(mockTemplate, repository);
     }
 
     @Test
-    public void findPipelineIds_shouldCacheResultWhenOnlyLatestPipelineIdIsRequested() {
+    void findPipelineIds_shouldCacheResultWhenOnlyLatestPipelineIdIsRequested() {
         List<Long> expectedIds = new ArrayList<>();
         expectedIds.add(1L);
         when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn((List) expectedIds);
         pipelineDao.findPipelineIds("pipelineName", 1, 0);
         List<Long> actual = pipelineDao.findPipelineIds("pipelineName", 1, 0);
-        assertThat(actual.size(), is(1));
-        assertEquals(expectedIds.get(0), actual.get(0));
+        assertThat(actual.size()).isEqualTo(1);
+        assertThat(actual.get(0)).isEqualTo(expectedIds.get(0));
         verify(mockTemplate, times(1)).queryForList(eq("getPipelineRange"), any());
     }
 
     @Test
-    public void findPipelineIds_shouldNotCacheResultWhenMultiplePipelineIdsOrPipelineIdsFromASubsequentPageAreRequested() {
+    void findPipelineIds_shouldNotCacheResultWhenMultiplePipelineIdsOrPipelineIdsFromASubsequentPageAreRequested() {
         List<Long> expectedIds = new ArrayList<>();
         expectedIds.add(1L);
         expectedIds.add(2L);
@@ -140,7 +138,7 @@ public class PipelineSqlMapDaoCachingTest {
     }
 
     @Test
-    public void savePipeline_shouldClearLatestPipelineIdCacheCaseInsensitively() {
+    void savePipeline_shouldClearLatestPipelineIdCacheCaseInsensitively() {
         when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(Arrays.asList(99L));
         doAnswer(new Answer<Object>() {
             @Override
@@ -166,31 +164,30 @@ public class PipelineSqlMapDaoCachingTest {
     }
 
     @Test
-    public void loadHistory_shouldCacheResult() {
+    void loadHistory_shouldCacheResult() {
         PipelineInstanceModel pipeline = new PipelineInstanceModel("pipeline", -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
         when(mockTemplate.queryForObject(eq("getPipelineHistoryById"), any())).thenReturn(pipeline);
         PipelineInstanceModel loaded;
         loaded = pipelineDao.loadHistory(99);
         loaded = pipelineDao.loadHistory(99);
-        assertTrue(EqualsBuilder.reflectionEquals(loaded, pipeline));
+        assertThat(EqualsBuilder.reflectionEquals(loaded, pipeline)).isTrue();
         verify(mockTemplate, times(1)).queryForObject(eq("getPipelineHistoryById"), any());
     }
 
     @Test
-    public void loadHistory_shouldCloneResultSoThatModificationsDoNotAffectTheCachedObjects() {
+    void loadHistory_shouldCloneResultSoThatModificationsDoNotAffectTheCachedObjects() {
         PipelineInstanceModel pipeline = new PipelineInstanceModel("pipeline", -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
         when(mockTemplate.queryForObject(eq("getPipelineHistoryById"), any())).thenReturn(pipeline);
         PipelineInstanceModel loaded;
         loaded = pipelineDao.loadHistory(99);
         loaded = pipelineDao.loadHistory(99);
-        assertNotSame(pipeline, loaded);
-        assertTrue(ToStringBuilder.reflectionToString(loaded) + " not equal to\n" + ToStringBuilder.reflectionToString(pipeline),
-                EqualsBuilder.reflectionEquals(loaded, pipeline));
+        assertThat(loaded).isNotSameAs(pipeline);
+        assertThat(EqualsBuilder.reflectionEquals(loaded, pipeline)).as(ToStringBuilder.reflectionToString(loaded) + " not equal to\n" + ToStringBuilder.reflectionToString(pipeline)).isTrue();
         verify(mockTemplate, times(1)).queryForObject(eq("getPipelineHistoryById"), any());
     }
 
     @Test
-    public void loadActivePipelines_shouldCacheResult() {
+    void loadActivePipelines_shouldCacheResult() {
         final String pipelineName = "pipeline";
         CruiseConfig mockCruiseConfig = mock(BasicCruiseConfig.class);
         GoConfigDao mockconfigFileDao = mock(GoConfigDao.class);
@@ -202,16 +199,17 @@ public class PipelineSqlMapDaoCachingTest {
                 transactionSynchronizationManager, null, mockconfigFileDao, null, timeProvider);
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
 
-        PipelineInstanceModel pipeline = new PipelineInstanceModel(pipelineName, -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
+        StageInstanceModels models = new StageInstanceModels();
+        models.add(new StageInstanceModel("stage", "1", new JobHistory()));
+        PipelineInstanceModel pipeline = new PipelineInstanceModel(pipelineName, -2, "label", BuildCause.createManualForced(), models);
         PipelineInstanceModels pims = PipelineInstanceModels.createPipelineInstanceModels(pipeline);
         when(mockTemplate.queryForList("allActivePipelines")).thenReturn((List) pims);
         when(mockTemplate.queryForObject(eq("getPipelineHistoryById"), any())).thenReturn(pipeline);
         PipelineInstanceModels loaded;
         loaded = pipelineDao.loadActivePipelines();
         loaded = pipelineDao.loadActivePipelines();
-        assertNotSame(pipeline, loaded);
-        assertTrue(ToStringBuilder.reflectionToString(loaded) + " not equal to\n" + ToStringBuilder.reflectionToString(pipeline),
-                EqualsBuilder.reflectionEquals(loaded, pims));
+        assertThat(loaded).isNotSameAs(pipeline);
+        assertThat(EqualsBuilder.reflectionEquals(loaded, pims)).as(ToStringBuilder.reflectionToString(loaded) + " not equal to\n" + ToStringBuilder.reflectionToString(pipeline)).isTrue();
         verify(mockTemplate, times(1)).queryForList("allActivePipelines");
         verify(mockTemplate, times(1)).queryForObject(eq("getPipelineHistoryById"), any());
         verify(mockconfigFileDao, times(2)).load();
@@ -236,7 +234,7 @@ public class PipelineSqlMapDaoCachingTest {
     }
 
     @Test
-    public void shouldClearCachedPipelineHistoryWhenStageStatusChanges() {
+    void shouldClearCachedPipelineHistoryWhenStageStatusChanges() {
         PipelineInstanceModel pipeline = new PipelineInstanceModel("pipeline", -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
         when(mockTemplate.queryForObject(eq("getPipelineHistoryById"), any())).thenReturn(pipeline);
 
@@ -246,18 +244,18 @@ public class PipelineSqlMapDaoCachingTest {
         changeStageStatus();
 
         loaded = pipelineDao.loadHistory(99);
-        assertTrue(EqualsBuilder.reflectionEquals(loaded, pipeline));
+        assertThat(EqualsBuilder.reflectionEquals(loaded, pipeline)).isTrue();
         verify(mockTemplate, times(2)).queryForObject(eq("getPipelineHistoryById"), any());
     }
 
     @Test
-    public void shouldIgnoreStageStatusChangeWhenActivePipelineCacheIsNotYetInitialized() {
+    void shouldIgnoreStageStatusChangeWhenActivePipelineCacheIsNotYetInitialized() {
         changeStageStatus(1);
-        assertThat(goCache.get(pipelineDao.activePipelinesCacheKey()), is(nullValue()));
+        assertThat(goCache.get(pipelineDao.activePipelinesCacheKey())).isNull();
     }
 
     @Test
-    public void shouldCacheActivePipelineIdWhenStageStatusChanges() {
+    void shouldCacheActivePipelineIdWhenStageStatusChanges() {
         PipelineInstanceModel first = model(1, JobState.Building, JobResult.Unknown);
         PipelineInstanceModel second = model(2, JobState.Building, JobResult.Unknown);
         List<PipelineInstanceModel> pims = PipelineInstanceModels.createPipelineInstanceModels(first);
@@ -276,7 +274,7 @@ public class PipelineSqlMapDaoCachingTest {
     }
 
     @Test
-    public void stageStatusChanged_shouldNotRaiseErrorWhenNoPipelinesAreActive() {
+    void stageStatusChanged_shouldNotRaiseErrorWhenNoPipelinesAreActive() {
         PipelineInstanceModel first = model(1, JobState.Building, JobResult.Unknown);
         List<PipelineInstanceModel> pims = PipelineInstanceModels.createPipelineInstanceModels();
         when(mockTemplate.queryForList("allActivePipelines")).thenReturn((List) pims);
@@ -292,7 +290,7 @@ public class PipelineSqlMapDaoCachingTest {
     }
 
     @Test
-    public void shouldRemovePipelineIdFromCacheWhenStageFinishesForNonLatestPipeline() {
+    void shouldRemovePipelineIdFromCacheWhenStageFinishesForNonLatestPipeline() {
         final String pipelineName = "pipeline";
         CruiseConfig mockCruiseConfig = mock(BasicCruiseConfig.class);
         GoConfigDao mockconfigFileDao = mock(GoConfigDao.class);
@@ -324,12 +322,12 @@ public class PipelineSqlMapDaoCachingTest {
         pipelineDao.stageStatusChanged(stage);
 
         PipelineInstanceModels models = pipelineDao.loadActivePipelines();
-        assertThat(models.size(), is(1));
-        assertThat(models.get(0).getId(), is(2L));
+        assertThat(models.size()).isEqualTo(1);
+        assertThat(models.get(0).getId()).isEqualTo(2L);
     }
 
     @Test
-    public void shouldRemovePipelineIdFromCacheWhenPipelineCeasesToBeTheLatestAndIsNotActive() {
+    void shouldRemovePipelineIdFromCacheWhenPipelineCeasesToBeTheLatestAndIsNotActive() {
         final String pipelineName = "pipeline";
         CruiseConfig mockCruiseConfig = mock(BasicCruiseConfig.class);
         GoConfigDao mockconfigFileDao = mock(GoConfigDao.class);
@@ -354,12 +352,12 @@ public class PipelineSqlMapDaoCachingTest {
         changeStageStatus(2);
 
         PipelineInstanceModels models = pipelineDao.loadActivePipelines();
-        assertThat(models.size(), is(1));
-        assertThat(models.get(0).getId(), is(2L));
+        assertThat(models.size()).isEqualTo(1);
+        assertThat(models.get(0).getId()).isEqualTo(2L);
     }
 
     @Test
-    public void shouldCachePipelinePauseState() {
+    void shouldCachePipelinePauseState() {
         String pipelineName = "pipelineName";
         PipelinePauseInfo pauseInfo = new PipelinePauseInfo(true, "pause cause", "admin");
         when(mockTemplate.queryForObject("getPipelinePauseState", pipelineName)).thenReturn(pauseInfo);
@@ -368,12 +366,12 @@ public class PipelineSqlMapDaoCachingTest {
 
         PipelinePauseInfo actualPauseInfo = pipelineDao.pauseState(pipelineName);
 
-        assertThat(actualPauseInfo, is(pauseInfo));
+        assertThat(actualPauseInfo).isEqualTo(pauseInfo);
         verify(mockTemplate, times(1)).queryForObject("getPipelinePauseState", pipelineName);
     }
 
     @Test
-    public void shouldCacheLatestPassedStageForPipeline() {
+    void shouldCacheLatestPassedStageForPipeline() {
         StageIdentifier identifier = new StageIdentifier();
         long pipelineId = 10;
         String stage = "stage";
@@ -384,12 +382,12 @@ public class PipelineSqlMapDaoCachingTest {
         pipelineDao.latestPassedStageIdentifier(pipelineId, stage);
         StageIdentifier actual = pipelineDao.latestPassedStageIdentifier(pipelineId, stage);
 
-        assertThat(actual, is(identifier));
+        assertThat(actual).isEqualTo(identifier);
         verify(mockTemplate, times(1)).queryForObject("latestPassedStageForPipelineId", args);
     }
 
     @Test
-    public void shouldCacheNullStageIdentifierIfNoneOfTheRunsForStageHasEverPassed() {
+    void shouldCacheNullStageIdentifierIfNoneOfTheRunsForStageHasEverPassed() {
         long pipelineId = 10;
         String stage = "stage";
         Map<String, Object> args = arguments("id", pipelineId).and("stage", stage).asMap();
@@ -397,29 +395,29 @@ public class PipelineSqlMapDaoCachingTest {
         when(mockTemplate.queryForObject("latestPassedStageForPipelineId", args)).thenReturn(null);
 
         StageIdentifier actual = pipelineDao.latestPassedStageIdentifier(pipelineId, stage);
-        assertThat(actual, is(StageIdentifier.NULL));
+        assertThat(actual).isEqualTo(StageIdentifier.NULL);
 
-        assertThat(goCache.get(pipelineDao.cacheKeyForLatestPassedStage(pipelineId, stage)), is(StageIdentifier.NULL));
+        assertThat(goCache.get(pipelineDao.cacheKeyForLatestPassedStage(pipelineId, stage))).isEqualTo(StageIdentifier.NULL);
 
         actual = pipelineDao.latestPassedStageIdentifier(pipelineId, stage);
-        assertThat(actual, is(StageIdentifier.NULL));
+        assertThat(actual).isEqualTo(StageIdentifier.NULL);
 
         verify(mockTemplate, times(1)).queryForObject("latestPassedStageForPipelineId", args);
     }
 
     @Test
-    public void shouldRemoveLatestPassedStageForPipelineFromCacheUponStageStatusChangeCaseInsensitively() {
+    void shouldRemoveLatestPassedStageForPipelineFromCacheUponStageStatusChangeCaseInsensitively() {
         String stage = "stage";
         Stage passedStage = StageMother.passedStageInstance(stage.toUpperCase(), "job", "pipeline-name");
         passedStage.setPipelineId(10L);
 
         goCache.put(pipelineDao.cacheKeyForLatestPassedStage(passedStage.getPipelineId(), stage), new StageIdentifier());
         pipelineDao.stageStatusChanged(passedStage);
-        assertThat(goCache.get(pipelineDao.cacheKeyForLatestPassedStage(passedStage.getPipelineId(), stage)), is(nullValue()));
+        assertThat(goCache.get(pipelineDao.cacheKeyForLatestPassedStage(passedStage.getPipelineId(), stage))).isNull();
     }
 
     @Test
-    public void shouldInvalidateCacheWhenPipelineIsUnPaused() {
+    void shouldInvalidateCacheWhenPipelineIsUnPaused() {
         String pipelineName = "pipelineName";
         Map<String, Object> args = arguments("pipelineName", pipelineName).and("pauseCause", null).and("pauseBy", null).and("paused", false).asMap();
         when(mockTemplate.update("updatePipelinePauseState", args)).thenReturn(0);
@@ -430,12 +428,12 @@ public class PipelineSqlMapDaoCachingTest {
         pipelineDao.unpause(pipelineName);
 
         PipelinePauseInfo actualPauseInfo = pipelineDao.pauseState(pipelineName);
-        assertThat(actualPauseInfo, is(PipelinePauseInfo.notPaused()));
+        assertThat(actualPauseInfo).isEqualTo(PipelinePauseInfo.notPaused());
         verify(mockTemplate, times(2)).queryForObject("getPipelinePauseState", pipelineName);
     }
 
     @Test
-    public void shouldInvalidateCacheWhenPipelineIsPausedCaseInsensitively() {
+    void shouldInvalidateCacheWhenPipelineIsPausedCaseInsensitively() {
         String pipelineName = "pipelineName";
         String pauseBy = "foo";
         String pauseCause = "waiting";
@@ -448,11 +446,11 @@ public class PipelineSqlMapDaoCachingTest {
         PipelinePauseInfo pausedPipelineInfo = new PipelinePauseInfo(true, pauseCause, pauseBy);
         when(mockTemplate.queryForObject("getPipelinePauseState", pipelineName.toUpperCase())).thenReturn(pausedPipelineInfo);
 
-        assertThat(pipelineDao.pauseState(pipelineName), is(pausedPipelineInfo));
+        assertThat(pipelineDao.pauseState(pipelineName)).isEqualTo(pausedPipelineInfo);
 
         pipelineDao.pause(pipelineName.toUpperCase(), pauseCause, pauseBy);
 
-        assertThat(pipelineDao.pauseState(pipelineName), is(pausedPipelineInfo));
+        assertThat(pipelineDao.pauseState(pipelineName)).isEqualTo(pausedPipelineInfo);
 
         verify(mockTemplate, times(2)).queryForObject("getPipelinePauseState", pipelineName);
         verify(mockTemplate).queryForObject("getPipelinePauseState", pipelineName.toUpperCase());
@@ -460,7 +458,7 @@ public class PipelineSqlMapDaoCachingTest {
     }
 
     @Test
-    public void shouldCachePipelineInstancesTriggeredOutOfDependencyMaterialCaseInsensitively() {
+    void shouldCachePipelineInstancesTriggeredOutOfDependencyMaterialCaseInsensitively() {
         List<PipelineIdentifier> results = Arrays.asList(new PipelineIdentifier("p1", 1));
         when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOutOfDependencyMaterial"), any())).thenReturn((List) results);
 
@@ -473,23 +471,23 @@ public class PipelineSqlMapDaoCachingTest {
     }
 
     @Test
-    public void shouldCacheEmptyPipelineInstancesTriggeredOutOfDependencyMaterial() {
+    void shouldCacheEmptyPipelineInstancesTriggeredOutOfDependencyMaterial() {
         String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", "p", 1);
         when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOutOfDependencyMaterial"), anyString())).thenReturn(new ArrayList());
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", new PipelineIdentifier("p", 1));
-        assertThat(actual, hasSize(0));
-        assertThat(goCache.get(cacheKey), is(actual));
+        assertThat(actual).hasSize(0);
+        assertThat(goCache.get(cacheKey)).isEqualTo(actual);
     }
 
     @Test
-    public void shouldInvalidateCacheOfPipelineInstancesTriggeredWithDependencyMaterial() {
+    void shouldInvalidateCacheOfPipelineInstancesTriggeredWithDependencyMaterial() {
         String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", "p", 1);
         when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOutOfDependencyMaterial"), anyString())).thenReturn(new ArrayList());
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", new PipelineIdentifier("p", 1));
-        assertThat(actual, hasSize(0));
-        assertThat((List<PipelineIdentifier>) goCache.get(cacheKey), hasSize(0));
+        assertThat(actual).hasSize(0);
+        assertThat((List<PipelineIdentifier>) goCache.get(cacheKey)).hasSize(0);
 
 
         MaterialRevisions materialRevisions = new MaterialRevisions(
@@ -513,18 +511,18 @@ public class PipelineSqlMapDaoCachingTest {
         });
 
         pipelineDao.save(pipeline);
-        assertThat(goCache.get(cacheKey), is(Matchers.nullValue()));
+        assertThat(goCache.get(cacheKey)).isNull();
     }
 
     @Test
-    public void shouldNotInvalidateCacheOfPipelineInstancesTriggeredWithDependencyMaterial_WhenADifferentPipelineInstanceIsCreatedWithDifferentRevision() {
+    void shouldNotInvalidateCacheOfPipelineInstancesTriggeredWithDependencyMaterial_WhenADifferentPipelineInstanceIsCreatedWithDifferentRevision() {
         String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", "p", 1);
         List<PipelineIdentifier> result = Arrays.asList(new PipelineIdentifier("p1", 1, "1"));
         when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOutOfDependencyMaterial"), any())).thenReturn((List) result);
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", new PipelineIdentifier("p", 1));
-        assertThat(actual, Matchers.is(result));
-        assertThat(goCache.get(cacheKey), is(result));
+        assertThat(actual).isEqualTo(result);
+        assertThat(goCache.get(cacheKey)).isEqualTo(result);
 
 
         MaterialRevisions materialRevisions = new MaterialRevisions(
@@ -532,48 +530,48 @@ public class PipelineSqlMapDaoCachingTest {
         Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
 
         pipelineDao.save(pipeline);
-        assertThat(goCache.get(cacheKey), is(result));
+        assertThat(goCache.get(cacheKey)).isEqualTo(result);
     }
 
     @Test
-    public void shouldCachePipelineInstancesTriggeredOutOfMaterialRevision() {
+    void shouldCachePipelineInstancesTriggeredOutOfMaterialRevision() {
         GitMaterialInstance materialInstance = new GitMaterialInstance("url", null, "branch", "submodule", "flyweight");
         List<PipelineIdentifier> results = Arrays.asList(new PipelineIdentifier("p1", 1));
         String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
         when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any())).thenReturn((List) results);
 
-        assertThat(goCache.get(cacheKey), is(Matchers.nullValue()));
+        assertThat(goCache.get(cacheKey)).isNull();
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
 
         //Query second time should return from cache
         pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1".toUpperCase(), materialInstance, "r1");
-        assertThat(goCache.get(cacheKey), is(actual));
+        assertThat(goCache.get(cacheKey)).isEqualTo(actual);
 
         verify(mockTemplate, times(1)).queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any());
     }
 
     @Test
-    public void shouldCacheEmptyPipelineInstancesTriggeredOutOfMaterialRevision() {
+    void shouldCacheEmptyPipelineInstancesTriggeredOutOfMaterialRevision() {
         GitMaterialInstance materialInstance = new GitMaterialInstance("url", null, "branch", "submodule", "flyweight");
         String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
         when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any())).thenReturn(new ArrayList());
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
 
-        assertThat(actual, hasSize(0));
-        assertThat(goCache.get(cacheKey), is(actual));
+        assertThat(actual).hasSize(0);
+        assertThat(goCache.get(cacheKey)).isEqualTo(actual);
     }
 
     @Test
-    public void shouldInvalidateCacheOfPipelineInstancesTriggeredWithMaterialRevision() {
+    void shouldInvalidateCacheOfPipelineInstancesTriggeredWithMaterialRevision() {
         GitMaterialInstance materialInstance = new GitMaterialInstance("url", null, "branch", "submodule", "flyweight");
         String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
         List<PipelineIdentifier> result = Arrays.asList(new PipelineIdentifier("p1", 1, "1"));
         when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any())).thenReturn((List) result);
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
-        assertThat(actual, hasSize(1));
-        assertThat((List<PipelineIdentifier>) goCache.get(cacheKey), hasSize(1));
+        assertThat(actual).hasSize(1);
+        assertThat((List<PipelineIdentifier>) goCache.get(cacheKey)).hasSize(1);
 
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(new GitMaterial("url", "branch"), new Modification("user", "comment", "email", new Date(), "r1")));
         Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
@@ -594,25 +592,25 @@ public class PipelineSqlMapDaoCachingTest {
         });
 
         pipelineDao.save(pipeline);
-        assertThat(goCache.get(cacheKey), is(Matchers.nullValue()));
+        assertThat(goCache.get(cacheKey)).isNull();
     }
 
     @Test
-    public void shouldNotInvalidateCacheOfPipelineInstancesTriggeredWithMaterialRevision_WhenAPipelineInstanceIsCreatedWithDifferentMaterial() {
+    void shouldNotInvalidateCacheOfPipelineInstancesTriggeredWithMaterialRevision_WhenAPipelineInstanceIsCreatedWithDifferentMaterial() {
         GitMaterialInstance materialInstance = new GitMaterialInstance("url", null, "branch", "submodule", "flyweight");
         String cacheKey = pipelineDao.cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance.getFingerprint(), "r1");
         List<PipelineIdentifier> result = Arrays.asList(new PipelineIdentifier("p1", 1, "1"));
         when(mockTemplate.queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), any())).thenReturn((List) result);
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
-        assertThat(actual, Matchers.is(result));
-        assertThat(goCache.get(cacheKey), is(result));
+        assertThat(actual).isEqualTo(result);
+        assertThat(goCache.get(cacheKey)).isEqualTo(result);
 
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(new GitMaterial("url", "branch"), new Modification("user", "comment", "email", new Date(), "r2")));
         Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
 
         pipelineDao.save(pipeline);
-        assertThat(goCache.get(cacheKey), is(result));
+        assertThat(goCache.get(cacheKey)).isEqualTo(result);
     }
 
     private PipelineInstanceModel model(long id, JobState jobState, JobResult jobResult) {

@@ -18,6 +18,7 @@ import {timeFormatter} from "helpers/time_formatter";
 import m from "mithril";
 import {MaterialRevisions} from "models/compare/compare";
 import {ComparisonData} from "models/compare/spec/test_data";
+import {PipelineConfig, TrackingTool} from "models/pipeline_configs/pipeline_config";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {MaterialRevisionsWidget} from "../material_revisions_widget";
 
@@ -34,17 +35,36 @@ describe('MaterialRevisionsWidgetSpec', () => {
 
     const tableRow = helper.qa("td", helper.byTestId("table-row"));
 
-    expect(tableRow[0].innerText).toContain("some-random-sha");
-    expect(tableRow[1].innerText).toContain("username <username@github.com>");
-    expect(tableRow[2].innerText).toContain(timeFormatter.format(materialRevisions[0].modifiedAt));
-    expect(tableRow[3].innerText).toContain("some commit message");
+    expect(tableRow[0].textContent).toBe("some-random-sha");
+    expect(tableRow[1].textContent).toBe("username <username@github.com>");
+    expect(tableRow[2].textContent).toBe(timeFormatter.format(materialRevisions[0].modifiedAt));
+    expect(tableRow[3].textContent).toBe("some commit message");
+  });
+
+  it('should render comment with link wrt tracking tool', () => {
+    const pipelineConfig = new PipelineConfig();
+    pipelineConfig.trackingTool(new TrackingTool());
+    pipelineConfig.trackingTool().urlPattern("http://example.com/${ID}");
+    pipelineConfig.trackingTool().regex("##(\\d+)");
+    const materialRevisions            = defaultRevs();
+    materialRevisions[0].commitMessage = "#123 some commit message related to another issue #456";
+    mount(materialRevisions, pipelineConfig);
+
+    expect(helper.byTestId("material-revisions-widget")).toBeInDOM();
+    const tableRow = helper.qa("td", helper.byTestId("table-row"));
+
+    expect(tableRow[3].textContent).toBe("#123 some commit message related to another issue #456");
+    expect(helper.qa('a', tableRow[3])[0].textContent).toBe("#123");
+    expect(helper.qa('a', tableRow[3])[0]).toHaveAttr("href", "http://example.com/123");
+    expect(helper.qa('a', tableRow[3])[1].textContent).toBe("#456");
+    expect(helper.qa('a', tableRow[3])[1]).toHaveAttr("href", "http://example.com/456");
   });
 
   function defaultRevs() {
     return MaterialRevisions.fromJSON(ComparisonData.materialRevisions());
   }
 
-  function mount(revisions: MaterialRevisions = defaultRevs()) {
-    helper.mount(() => <MaterialRevisionsWidget result={revisions}/>);
+  function mount(revisions: MaterialRevisions = defaultRevs(), pipelineConfig = new PipelineConfig()) {
+    helper.mount(() => <MaterialRevisionsWidget result={revisions} pipelineConfig={pipelineConfig}/>);
   }
 });

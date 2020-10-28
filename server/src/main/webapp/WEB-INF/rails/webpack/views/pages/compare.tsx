@@ -21,6 +21,7 @@ import {Comparison} from "models/compare/compare";
 import {ComparisonCRUD} from "models/compare/compare_crud";
 import {PipelineInstance} from "models/compare/pipeline_instance";
 import {PipelineInstanceCRUD} from "models/compare/pipeline_instance_crud";
+import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {FlashMessage} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {Link} from "views/components/link";
@@ -31,6 +32,7 @@ import {ComparisonSelectionWidget} from "./compare/comparison_selection_widget";
 
 interface State {
   comparison: Stream<Comparison>;
+  pipelineConfig: Stream<PipelineConfig>;
   fromInstance: Stream<PipelineInstance>;
   toInstance: Stream<PipelineInstance>;
 
@@ -40,9 +42,10 @@ interface State {
 export class ComparePage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
-    vnode.state.comparison   = Stream();
-    vnode.state.fromInstance = Stream();
-    vnode.state.toInstance   = Stream();
+    vnode.state.comparison     = Stream();
+    vnode.state.pipelineConfig = Stream();
+    vnode.state.fromInstance   = Stream();
+    vnode.state.toInstance     = Stream();
 
     vnode.state.reloadWithNewCounters = (fromCounter: number, toCounter: number) => {
       window.location.href = `/go/compare/${this.getMeta().pipelineName}/${fromCounter}/with/${toCounter}`;
@@ -61,7 +64,7 @@ export class ComparePage extends Page<null, State> {
                                  reloadWithNewCounters={vnode.state.reloadWithNewCounters.bind(this)}/>
       <hr/>
       <h1>Changes:</h1>
-      <ComparisonResultWidget comparisonResult={vnode.state.comparison()}/>
+      <ComparisonResultWidget comparisonResult={vnode.state.comparison()} pipelineConfig={vnode.state.pipelineConfig()}/>
     </div>;
   }
 
@@ -73,19 +76,26 @@ export class ComparePage extends Page<null, State> {
     const pipelineName = this.getMeta().pipelineName;
     const fromCounter  = this.getMeta().fromCounter;
     const toCounter    = this.getMeta().toCounter;
-    return Promise.all([ComparisonCRUD.getDifference(pipelineName, fromCounter, toCounter), PipelineInstanceCRUD.get(pipelineName, fromCounter), PipelineInstanceCRUD.get(pipelineName, toCounter)])
+    return Promise.all([ComparisonCRUD.getDifference(pipelineName, fromCounter, toCounter), PipelineConfig.get(pipelineName),
+                         PipelineInstanceCRUD.get(pipelineName, fromCounter), PipelineInstanceCRUD.get(pipelineName, toCounter)])
                   .then((result) => {
                           result[0].do((successResponse: SuccessResponse<Comparison>) => {
                             this.pageState = PageState.OK;
                             vnode.state.comparison(successResponse.body);
                           }, this.setErrorState);
 
-                          result[1].do((successResponse) => {
+                          result[1].do(
+                            (successResponse) => {
+                              this.pageState = PageState.OK;
+                              vnode.state.pipelineConfig(PipelineConfig.fromJSON(JSON.parse(successResponse.body)));
+                            }, this.setErrorState);
+
+                          result[2].do((successResponse) => {
                             this.pageState = PageState.OK;
                             vnode.state.fromInstance(successResponse.body);
                           }, this.setErrorState);
 
-                          result[2].do((successResponse) => {
+                          result[3].do((successResponse) => {
                             this.pageState = PageState.OK;
                             vnode.state.toInstance(successResponse.body);
                           }, this.setErrorState);

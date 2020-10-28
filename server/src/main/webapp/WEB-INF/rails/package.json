@@ -126,7 +126,7 @@
     "stats-webpack-plugin": "^0.7.0",
     "style-loader": "^2.0.0",
     "terser-webpack-plugin": "^4.2.3",
-    "thread-loader": "^3.0.0",
+    "thread-loader": "^3.0.1",
     "ts-loader": "^8.0.7",
     "ts-node": "^9.0.0",
     "tslint": "^6.1.3",

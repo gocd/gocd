@@ -13,6 +13,8 @@ export class TestData {
       counter:                 1,
       approval_type:           "success",
       approved_by:             "admin",
+      scheduled_at:            1595825414079,
+      last_transitioned_time:  1595831464796,
       result:                  "Passed",
       rerun_of_counter:        null,
       fetch_materials:         true,

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv2.stageinstance
+package com.thoughtworks.go.apiv3.stageinstance
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.apiv2.stageinstance.representers.StageInstancesRepresenter
-import com.thoughtworks.go.apiv2.stageinstance.representers.StageRepresenter
+import com.thoughtworks.go.apiv3.stageinstance.representers.StageInstancesRepresenter
+import com.thoughtworks.go.apiv3.stageinstance.representers.StageRepresenter
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.domain.*
 import com.thoughtworks.go.presentation.pipelinehistory.JobHistory
@@ -32,7 +32,6 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.DeprecatedApiTrait
 import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -45,6 +44,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
+import java.sql.Timestamp
 import java.util.stream.Stream
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -52,7 +52,7 @@ import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
-class StageInstanceControllerV2Test implements SecurityServiceTrait, ControllerTrait<StageInstanceControllerV2>, DeprecatedApiTrait {
+class StageInstanceControllerV3Test implements SecurityServiceTrait, ControllerTrait<StageInstanceControllerV3> {
 
   @Mock
   private StageService stageService
@@ -66,8 +66,8 @@ class StageInstanceControllerV2Test implements SecurityServiceTrait, ControllerT
   }
 
   @Override
-  StageInstanceControllerV2 createControllerInstance() {
-    new StageInstanceControllerV2(new ApiAuthenticationHelper(securityService, goConfigService), stageService, scheduleService)
+  StageInstanceControllerV3 createControllerInstance() {
+    new StageInstanceControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), stageService, scheduleService)
   }
 
   @Nested
@@ -422,6 +422,8 @@ class StageInstanceControllerV2Test implements SecurityServiceTrait, ControllerT
         stageModel.setCounter(1)
         stageModel.setApprovalType('manual')
         stageModel.setApprovedBy('me')
+        stageModel.setCreatedTime(new Timestamp(12345))
+        stageModel.setLastTransitionedTime(new Timestamp(6789))
         stageModel.setRerunOfCounter(1)
         stageModel.setIdentifier(new StageIdentifier('pipeline name', 213, 'stage name', '4'))
         stageModel.setJobInstances(new JobInstances(getJobInstance()))

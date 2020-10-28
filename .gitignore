@@ -550,3 +550,7 @@ api/api-secret-configs-v3/out/
 api/api-secret-configs-v3/target/
 api/api-secret-configs-v3/logs/
 api/api-secret-configs-v3/config/
+api/api-stage-instance-v3/out/
+api/api-stage-instance-v3/target/
+api/api-stage-instance-v3/logs/
+api/api-stage-instance-v3/config/

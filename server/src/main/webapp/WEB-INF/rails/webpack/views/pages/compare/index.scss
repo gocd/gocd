@@ -182,3 +182,9 @@ $dropdown-button-content-z-index: 5;
     }
   }
 }
+
+.dependency_materials {
+  table td:first-child {
+    width: 40%;
+  }
+}

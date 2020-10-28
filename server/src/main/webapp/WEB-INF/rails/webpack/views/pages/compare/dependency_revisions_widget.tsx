@@ -20,6 +20,7 @@ import m from "mithril";
 import {DependencyRevisions} from "models/compare/compare";
 import {Link} from "views/components/link";
 import {Table} from "views/components/table";
+import style from "./index.scss";
 import {PipelineInstanceWidget} from "./pipeline_instance_widget";
 
 interface DependencyRevisionsAttrs {
@@ -39,7 +40,7 @@ export class DependencyRevisionsWidget extends MithrilViewComponent<DependencyRe
       ];
     });
 
-    return <div data-test-id="dependency-revisions-widget">
+    return <div className={style.dependencyMaterials} data-test-id="dependency-revisions-widget">
       <Table headers={DependencyRevisionsWidget.headers()} data={data}/>
     </div>;
   }

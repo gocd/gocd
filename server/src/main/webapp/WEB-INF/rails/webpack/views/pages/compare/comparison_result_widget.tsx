@@ -20,6 +20,7 @@ import _ from "lodash";
 import m from "mithril";
 import {Comparison, DependencyRevisions, MaterialRevisions} from "models/compare/compare";
 import {DependencyMaterialAttributes} from "models/compare/material";
+import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {InfoCircle} from "views/components/icons";
 import {Link} from "views/components/link";
 import {DependencyRevisionsWidget} from "./dependency_revisions_widget";
@@ -28,6 +29,7 @@ import {MaterialRevisionsWidget} from "./material_revisions_widget";
 
 interface Attrs {
   comparisonResult: Comparison;
+  pipelineConfig: PipelineConfig;
 }
 
 export class ComparisonResultWidget extends MithrilViewComponent<Attrs> {
@@ -60,7 +62,7 @@ export class ComparisonResultWidget extends MithrilViewComponent<Attrs> {
                 break;
               default:
                 viewBody = <div>
-                  <MaterialRevisionsWidget result={change.revision as MaterialRevisions}/>
+                  <MaterialRevisionsWidget pipelineConfig={vnode.attrs.pipelineConfig} result={change.revision as MaterialRevisions}/>
                 </div>;
             }
             return <div data-test-id="material-changes">

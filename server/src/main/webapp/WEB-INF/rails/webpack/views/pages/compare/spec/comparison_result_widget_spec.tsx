@@ -18,6 +18,7 @@ import {docsUrl} from "gen/gocd_version";
 import m from "mithril";
 import {Comparison} from "models/compare/compare";
 import {ComparisonData} from "models/compare/spec/test_data";
+import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {ComparisonResultWidget} from "../comparison_result_widget";
 
@@ -31,7 +32,7 @@ describe('ComparisonResultWidgetSpec', () => {
   afterEach((done) => helper.unmount(done));
 
   function mount(comparison: Comparison) {
-    helper.mount(() => <ComparisonResultWidget comparisonResult={comparison}/>);
+    helper.mount(() => <ComparisonResultWidget comparisonResult={comparison} pipelineConfig={new PipelineConfig()}/>);
   }
 
   it('should showcase comparison result', () => {

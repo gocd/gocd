@@ -22,6 +22,7 @@ export const sourceRoot: string;
 export const sources: string;
 export const sourcesContent: string;
 export const spinnerWrapper: string;
+export const truncate: string;
 export const value: string;
 export const version: string;
 export const warning: string;

@@ -33,7 +33,7 @@ export class MaterialRevisionsWidget extends MithrilViewComponent<MaterialRevisi
   view(vnode: m.Vnode<MaterialRevisionsAttrs, this>): m.Children | void | null {
     const data = vnode.attrs.result.map((materialRev) => {
       return [
-        <div>{materialRev.revisionSha}</div>
+        <div className={styles.truncate}><span title={materialRev.revisionSha}>{materialRev.revisionSha}</span></div>
         , <div>{materialRev.modifiedBy}</div>
         , <div>{PipelineInstanceWidget.getTimeToDisplay(materialRev.modifiedAt)}</div>
         , <div className={styles.commitMsg}>

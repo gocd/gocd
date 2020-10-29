@@ -170,11 +170,12 @@ $dropdown-button-content-z-index: 5;
 .material-modifications {
   table td {
     &:nth-child(1) {
-      width: 10%;
+      width: 15%;
     }
 
     &:nth-child(2) {
-      width: 20%;
+      width:      20%;
+      word-break: break-word;
     }
 
     &:nth-child(3) {
@@ -183,8 +184,20 @@ $dropdown-button-content-z-index: 5;
   }
 }
 
-.dependency_materials {
+.dependency-materials {
   table td:first-child {
     width: 40%;
+  }
+}
+
+.truncate {
+  position: relative;
+
+  span {
+    position:      absolute;
+    max-width:     100%;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+    white-space:   pre;
   }
 }

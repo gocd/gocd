@@ -4782,10 +4782,10 @@ jasmine-core@^3.6.0, jasmine-core@~3.6.0:
   resolved "https://registry.yarnpkg.com/jasmine-core/-/jasmine-core-3.6.0.tgz#491f3bb23941799c353ceb7a45b38a950ebc5a20"
   integrity sha512-8uQYa7zJN8hq9z+g8z1bqCfdC8eoDAeVnM5sfqs7KHv9/ifoJ500m018fpFc7RDaO6SWCLCXwo/wPSNcdYTgcw==
 
-jasmine@^3.6.2:
-  version "3.6.2"
-  resolved "https://registry.yarnpkg.com/jasmine/-/jasmine-3.6.2.tgz#a8df3fc92f2ef322bcdafb890f744f3ff5751e86"
-  integrity sha512-Uc0o2MRnC8TS1MjDrB8jE1umKEo2mflzGvdg0Ncs+yuLtOJ+uz/Wz8VmGsNGtuASr8+E0LDgPkOpvdoC76m5WQ==
+jasmine@^3.6.3:
+  version "3.6.3"
+  resolved "https://registry.yarnpkg.com/jasmine/-/jasmine-3.6.3.tgz#520cd71f76bd8251e9f566b622e13602e9ddcf26"
+  integrity sha512-Th91zHsbsALWjDUIiU5d/W5zaYQsZFMPTdeNmi8GivZPmAaUAK8MblSG3yQI4VMGC/abF2us7ex60NH1AAIMTA==
   dependencies:
     glob "^7.1.6"
     jasmine-core "~3.6.0"

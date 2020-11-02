@@ -687,6 +687,7 @@ export class RadioField<T extends string = string> extends RestyleViewComponent<
       <div class={this.inlined(vnode.attrs.inline)}>
         {this.renderInputField(vnode)}
       </div>
+      <ErrorText {...vnode.attrs} errorId={`${this.id}-error-text`}/>
     </li>;
   }
 
@@ -696,7 +697,7 @@ export class RadioField<T extends string = string> extends RestyleViewComponent<
     }
   }
 
-  private label({ label, required }: RadioButtonAttrs<T>) {
+  private label({label, required}: RadioButtonAttrs<T>) {
     if (label) {
       return <label for={this.id} class={this.css.formLabel} data-test-id="form-field-label">
         {label}{this.requiredMarker(required)}

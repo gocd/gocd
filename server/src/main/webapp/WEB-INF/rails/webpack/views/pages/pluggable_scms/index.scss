@@ -29,4 +29,8 @@
   label:after {
     margin-top: 0.15rem;
   }
+
+  input[type="radio"] { // sass-lint:disable-line no-qualifying-elements
+    margin: 0;
+  }
 }

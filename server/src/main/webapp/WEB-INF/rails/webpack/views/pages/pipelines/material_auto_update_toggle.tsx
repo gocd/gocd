@@ -32,8 +32,8 @@ interface Attrs {
 
 export class MaterialAutoUpdateToggle extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    const { noun, toggle, errors } = withDefaults(vnode.attrs);
-    const autoUpdate = this.radioState(toggle);
+    const {noun, toggle, errors} = withDefaults(vnode.attrs);
+    const autoUpdate             = this.radioState(toggle);
 
     return <RadioField<AutoUpdateRadioOptions>
       label={`${_.capitalize(noun)} polling behavior:`}
@@ -57,7 +57,7 @@ export class MaterialAutoUpdateToggle extends MithrilViewComponent<Attrs> {
 
 export class DependencyIgnoreSchedulingToggle extends MithrilViewComponent<Omit<Attrs, "noun">> {
   view(vnode: m.Vnode<Omit<Attrs, "noun">>) {
-    const { toggle, errors } = vnode.attrs;
+    const {toggle, errors}    = vnode.attrs;
     const ignoreForScheduling = this.radioState(toggle);
 
     return <RadioField<AutoUpdateRadioOptions>

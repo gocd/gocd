@@ -88,7 +88,9 @@ export class ComparePage extends Page<null, State> {
                             (successResponse) => {
                               this.pageState = PageState.OK;
                               vnode.state.pipelineConfig(PipelineConfig.fromJSON(JSON.parse(successResponse.body)));
-                            }, this.setErrorState);
+                            }, () => {
+                              vnode.state.pipelineConfig(new PipelineConfig());
+                            });
 
                           result[2].do((successResponse) => {
                             this.pageState = PageState.OK;

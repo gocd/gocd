@@ -16,6 +16,7 @@
 
 import m from "mithril";
 import {basicAccessor} from "models/base/accessor";
+import {Errors} from "models/mixins/errors";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {DependencyIgnoreSchedulingToggle, MaterialAutoUpdateToggle} from "../material_auto_update_toggle";
 
@@ -54,6 +55,16 @@ describe("MaterialAutoUpdateToggle", () => {
       "Regularly fetch updates to this peacock",
       "Fetch updates to this peacock only on webhook or manual trigger",
     ]);
+  });
+
+  it('should render error text if any', () => {
+    const errors = new Errors();
+    errors.add('autoUpdate', 'some error message');
+    const toggle = basicAccessor<boolean>(true);
+    helper.mount(() => <MaterialAutoUpdateToggle toggle={toggle} errors={errors}/>);
+
+    expect(helper.q('span[class*="forms__form-error-text__"]')).toBeInDOM();
+    expect(helper.q('span[class*="forms__form-error-text__"]').textContent).toBe('some error message.');
   });
 });
 

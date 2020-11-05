@@ -15,7 +15,6 @@ gem 'representable', '2.1.7'
 gem 'js-routes'
 gem 'ts_routes'
 gem 'versionist'
-gem 'jruby-openssl', '0.10.5' #Check BC version before upgrading, require '0.10.5' since it's compatible with Bouncy Castle 1.65
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]

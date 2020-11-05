@@ -80,7 +80,6 @@ GEM
     jasmine_selenium_runner (3.0.0)
       jasmine (~> 3.0)
       selenium-webdriver (~> 3.8)
-    jruby-openssl (0.10.5-java)
     js-routes (1.4.9)
       railties (>= 4)
       sprockets-rails
@@ -238,7 +237,6 @@ DEPENDENCIES
   jasmine
   jasmine-jquery-rails
   jasmine_selenium_runner
-  jruby-openssl (= 0.10.5)
   js-routes
   pry-debugger-jruby
   rails (= 5.2.4.3)

@@ -22,7 +22,7 @@ dependencies {
 
     testImplementation project(path: ':db-support:db-migration', configuration: 'testOutput')
 
-    testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.14.3'
+    testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.15.0'
     testImplementation group: 'org.testcontainers', name: 'testcontainers', version: '1.14.3'
     testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.14.3'
 

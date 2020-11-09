@@ -24,7 +24,7 @@ dependencies {
 
     testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.14.3'
     testImplementation group: 'org.testcontainers', name: 'testcontainers', version: '1.14.3'
-    testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.14.3'
+    testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.0'
 
     testImplementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5

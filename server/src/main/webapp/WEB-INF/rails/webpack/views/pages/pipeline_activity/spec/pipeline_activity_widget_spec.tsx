@@ -16,11 +16,12 @@
 
 import m from "mithril";
 import Stream from "mithril/stream";
-import {PipelineActivity} from "models/pipeline_activity/pipeline_activity";
+import {PipelineActivity, StageConfig} from "models/pipeline_activity/pipeline_activity";
 import {PipelineActivityData} from "models/pipeline_activity/spec/test_data";
 // @ts-ignore
 import state from "views/dashboard/models/stage_overview_state";
 import {TestHelper} from "../../spec/test_helper";
+import styles from "../index.scss";
 import {PipelineActivityWidget} from "../pipeline_activity_widget";
 
 describe("PipelineActivityWidget", () => {
@@ -48,6 +49,35 @@ describe("PipelineActivityWidget", () => {
 
     expect(helper.byTestId("stage-foo")).toBeInDOM();
     expect(helper.byTestId("stage-foo")).toHaveText("foo");
+  });
+
+  it('should render header for the first stage with no margin class', () => {
+    const activity = PipelineActivity.fromJSON(PipelineActivityData.underConstruction());
+    mount(activity);
+
+    const dataTestId = `stage-${activity.groups()[0].config().stages()[0].name()}`;
+    expect(helper.byTestId(dataTestId)).toBeInDOM();
+    expect(helper.byTestId(dataTestId)).toHaveClass(styles.noMargin);
+  });
+
+  it('should render header for the non-first stage with margin23 class if auto approved is set to true', () => {
+    const activity = PipelineActivity.fromJSON(PipelineActivityData.underConstruction());
+    activity.groups()[0].config().stages().push(new StageConfig("second", true));
+    mount(activity);
+
+    const dataTestId = `stage-${activity.groups()[0].config().stages()[1].name()}`;
+    expect(helper.byTestId(dataTestId)).toBeInDOM();
+    expect(helper.byTestId(dataTestId)).toHaveClass(styles.margin23);
+  });
+
+  it('should render header for the non-first stage with margin18 class if auto approved is set to false', () => {
+    const activity = PipelineActivity.fromJSON(PipelineActivityData.underConstruction());
+    activity.groups()[0].config().stages().push(new StageConfig("second", false));
+    mount(activity);
+
+    const dataTestId = `stage-${activity.groups()[0].config().stages()[1].name()}`;
+    expect(helper.byTestId(dataTestId)).toBeInDOM();
+    expect(helper.byTestId(dataTestId)).toHaveClass(styles.margin18);
   });
 
   function mount(activity: PipelineActivity) {

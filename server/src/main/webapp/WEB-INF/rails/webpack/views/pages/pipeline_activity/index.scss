@@ -17,7 +17,7 @@
 
 $passed:                    #00c853;
 $background:                #fff;
-$stage-width:               80px;
+$stage-width:               82px;
 $border-color:              #ccc;
 $disabled-text-color:       #999;
 $stage-status-unknown:      #fafafa;
@@ -77,13 +77,12 @@ $stage-action-icon-z-index: 1;
 }
 
 .stage-name {
-  display:      flex;
-  width:        $stage-width;
-  margin-right: 50px;
-  word-break:   break-all;
-  line-height:  1.22em;
-  align-self:   center;
-  min-width:    80px;
+  display:     flex;
+  width:       $stage-width;
+  word-break:  break-all;
+  line-height: 1.22em;
+  align-self:  center;
+  min-width:   $stage-width;
 
   &:last-child {
     margin-right: 0;
@@ -127,14 +126,14 @@ $stage-action-icon-z-index: 1;
   display:         flex;
   align-items:     center;
   justify-content: center;
+}
 
-  .stage-status {
-    display:       block;
-    width:         82px;
-    height:        12px;
-    border-radius: 2px;
-    z-index:       $stage-status-bar-z-index;
-  }
+.stage-status {
+  display:       block;
+  width:         82px;
+  height:        12px;
+  border-radius: 2px;
+  z-index:       $stage-status-bar-z-index;
 }
 
 .stage-status-wrapper {
@@ -167,6 +166,7 @@ $stage-action-icon-z-index: 1;
   background: $stage-status-unknown;
   border:     1px solid $border-color;
   cursor:     auto;
+  width:      80px;      // compensating for border
 }
 
 .building {
@@ -373,4 +373,16 @@ $stage-action-icon-z-index: 1;
   max-height:    400px;
   border:        1px dashed $border-color;
   border-radius: 3px;
+}
+
+.no-margin {
+  margin-left: 0;
+}
+
+.margin-18 {
+  margin-left: 18px;
+}
+
+.margin-23 {
+  margin-left: 23px;
 }

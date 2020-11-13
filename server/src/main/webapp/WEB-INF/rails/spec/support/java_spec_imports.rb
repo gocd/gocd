@@ -82,7 +82,6 @@ module JavaSpecImports
   java_import com.thoughtworks.go.domain.NullAgentInstance unless defined? NullAgentInstance
   java_import com.thoughtworks.go.domain.buildcause.BuildCause unless defined? BuildCause
   java_import com.thoughtworks.go.server.web.PipelineRevisionRange unless defined? PipelineRevisionRange
-  java_import com.thoughtworks.go.helper.CommandSnippetMother unless defined? CommandSnippetMother
   java_import com.thoughtworks.go.domain.valuestreammap.DependencyNodeType unless defined? DependencyNodeType
   java_import com.thoughtworks.go.server.valuestreammap.DummyNodeCreation unless defined? DummyNodeCreation
   java_import com.thoughtworks.go.domain.valuestreammap.PipelineRevision unless defined? PipelineRevision

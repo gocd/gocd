@@ -49,7 +49,6 @@ module Services
     :backup_service,
     :cc_tray_service,
     :changeset_service,
-    :command_repository_service,
     :config_repo_service,
     :config_repository,
     :default_plugin_info_finder,

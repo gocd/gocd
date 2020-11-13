@@ -67,7 +67,6 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                 .addAuthorityFilterChain("/admin/pipelines/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
                 .addAuthorityFilterChain("/admin/pipeline_group/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
                 .addAuthorityFilterChain("/admin/templates/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_TEMPLATE_SUPERVISOR, ROLE_TEMPLATE_VIEW_USER, ROLE_GROUP_SUPERVISOR)
-                .addAuthorityFilterChain("/admin/commands/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR, ROLE_TEMPLATE_SUPERVISOR)
                 .addAuthorityFilterChain("/admin/plugins", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
                 .addAuthorityFilterChain("/admin/pipeline/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)
                 .addAuthorityFilterChain("/admin/materials/**", genericAccessDeniedHandler, ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR)

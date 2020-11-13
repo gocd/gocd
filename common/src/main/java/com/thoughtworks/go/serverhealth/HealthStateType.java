@@ -81,14 +81,6 @@ public class HealthStateType implements Comparable<HealthStateType> {
         return new HealthStateType("ARTIFACTS_DIR_CHANGED", 406, HealthStateScope.GLOBAL, null);
     }
 
-    public static HealthStateType commandRepositoryAccessibilityIssue() {
-        return new HealthStateType("COMMAND_REPOSITORY_ERROR", 406, HealthStateScope.GLOBAL, null);
-    }
-
-    public static HealthStateType commandRepositoryUpgradeIssue() {
-        return new HealthStateType("COMMAND_REPOSITORY_UPGRADE_ERROR", 406, HealthStateScope.GLOBAL, null);
-    }
-
     public static HealthStateType notFound() {
         return new HealthStateType("NOT_FOUND", 404, HealthStateScope.GLOBAL, null);
     }

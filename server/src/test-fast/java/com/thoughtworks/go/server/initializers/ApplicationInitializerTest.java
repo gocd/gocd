@@ -53,8 +53,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 @SuppressWarnings({"unused", "PMD.UnusedPrivateField"})
 public class ApplicationInitializerTest {
     @Mock
-    private CommandRepositoryInitializer commandRepositoryInitializer;
-    @Mock
     private ConfigElementImplementationRegistrar configElementImplementationRegistrar;
     @Mock
     private PluginsInitializer pluginsInitializer;

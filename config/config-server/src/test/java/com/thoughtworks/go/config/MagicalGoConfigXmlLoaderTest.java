@@ -2719,32 +2719,6 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    void shouldAddDefaultCommndRepositoryLocationIfNoValueIsGiven() {
-        String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                + "<server>"
-                + "    <artifacts>"
-                + "      <artifactsDir>artifactsDir</artifactsDir> "
-                + "    </artifacts>"
-                + "</server>"
-                + "<pipelines>"
-                + "<pipeline name='some_pipeline'>"
-                + "    <materials>"
-                + "      <hg url='hgurl' />"
-                + "    </materials>"
-                + "  <stage name='some_stage'>"
-                + "    <jobs>"
-                + "      <job name='some_job'><tasks><exec command='echo'><runif status='passed' /></exec></tasks>"
-                + "      </job>"
-                + "    </jobs>"
-                + "  </stage>"
-                + "</pipeline>"
-                + "</pipelines>"
-                + "</cruise>";
-        GoConfigHolder goConfigHolder = ConfigMigrator.loadWithMigration(content);
-        assertThat(goConfigHolder.config.server().getCommandRepositoryLocation()).isEqualTo("default");
-    }
-
-    @Test
     void shouldDeserializeGroupXml() throws Exception {
         String partialXml = "<pipelines group=\"group_name\">\n"
                 + "  <pipeline name=\"new_name\">\n"
@@ -2775,7 +2749,6 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThat(list).contains(ArtifactDirValidator.class.getCanonicalName());
         assertThat(list).contains(ServerIdImmutabilityValidator.class.getCanonicalName());
-        assertThat(list).contains(CommandRepositoryLocationValidator.class.getCanonicalName());
         assertThat(list).contains(TokenGenerationKeyImmutabilityValidator.class.getCanonicalName());
     }
 

@@ -74,7 +74,6 @@
   <context:component-scan base-package="com.thoughtworks.go.apiv1.internalenvironments"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.mailserver"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.internalresources"/>
-  <context:component-scan base-package="com.thoughtworks.go.apiv1.internalcommandsnippets"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv6.agents"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.backupconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.pipelinesascodeinternal"/>

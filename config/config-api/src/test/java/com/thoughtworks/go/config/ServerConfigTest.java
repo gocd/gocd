@@ -70,19 +70,6 @@ public class ServerConfigTest {
     }
 
     @Test
-    public void shouldReturnDefaultTaskRepositoryLocation() {
-        ServerConfig serverConfig = new ServerConfig(null, null, new SiteUrl("http://foo.bar:813"), new SecureSiteUrl());
-        assertThat(serverConfig.getCommandRepositoryLocation(), is("default"));
-    }
-
-    @Test
-    public void shouldReturnTaskRepositoryLocation() {
-        ServerConfig serverConfig = new ServerConfig(null, null, new SiteUrl("http://foo.bar:813"), new SecureSiteUrl());
-        serverConfig.setCommandRepositoryLocation("foo");
-        assertThat(serverConfig.getCommandRepositoryLocation(), is("foo"));
-    }
-
-    @Test
     public void shouldIgnoreErrorsFieldOnEquals() throws Exception {
         ServerConfig one = new ServerConfig(new SecurityConfig(), new MailHost(new GoCipher()), new SiteUrl("siteURL"), new SecureSiteUrl("secureURL"));
         one.addError("siteUrl", "I dont like this url");

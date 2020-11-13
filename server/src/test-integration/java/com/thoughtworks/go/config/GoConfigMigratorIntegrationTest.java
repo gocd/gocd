@@ -1054,7 +1054,6 @@ public class GoConfigMigratorIntegrationTest {
         Assertions.assertThat(cruiseConfig.getElasticConfig()).isNotNull();
         assertThat(cruiseConfig.server().getAgentAutoRegisterKey()).isEqualTo("041b5c7e-dab2-11e5-a908-13f95f3c6ef6");
         assertThat(cruiseConfig.server().getWebhookSecret()).isEqualTo("5f8b5eac-1148-4145-aa01-7b2934b6e1ab");
-        assertThat(cruiseConfig.server().getCommandRepositoryLocation()).isEqualTo("default");
         assertThat(cruiseConfig.server().artifactsDir()).isEqualTo("artifactsDir");
         assertThat(cruiseConfig.getElasticConfig().getProfiles()).hasSize(1);
         assertThat(cruiseConfig.getElasticConfig().getProfiles().get(0)).isEqualTo(new ElasticProfile("dev-build", "no-op-cluster-for-cd.go.contrib.elastic-agent.docker-swarm",
@@ -1104,7 +1103,6 @@ public class GoConfigMigratorIntegrationTest {
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
         assertThat(cruiseConfig.server().getAgentAutoRegisterKey()).isEqualTo("041b5c7e-dab2-11e5-a908-13f95f3c6ef6");
         assertThat(cruiseConfig.server().getWebhookSecret()).isEqualTo("5f8b5eac-1148-4145-aa01-7b2934b6e1ab");
-        assertThat(cruiseConfig.server().getCommandRepositoryLocation()).isEqualTo("default");
         assertThat(cruiseConfig.server().artifactsDir()).isEqualTo("artifactsDir");
         Assertions.assertThat(cruiseConfig.server().security()).isEqualTo(new SecurityConfig());
         assertThat(cruiseConfig.getSCMs()).hasSize(1);

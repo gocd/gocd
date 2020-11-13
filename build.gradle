@@ -154,7 +154,6 @@ rootProject.ext.distVersion = DIST_VERSION
 rootProject.ext.fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : GO_VERSION
 rootProject.ext.gitRevision = GIT_REVISION
 rootProject.ext.copyrightYear = Calendar.getInstance().get(Calendar.YEAR)
-rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "git://github.com/gocd/go-command-repo"
 
 project.ext.defaultJvmArgs = []
 

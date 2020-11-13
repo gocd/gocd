@@ -136,32 +136,6 @@ task mainJar(type: Jar) {
   from("${project(':server').projectDir}/src/main/resources/config/logback.xml") { into 'config' }
 }
 
-def commandRepoCheckoutDir = file("${project.buildDir}/go-command-repo")
-
-task cloneCommandRepository(type: Exec) {
-  onlyIf { !project.hasProperty('fastBuild') }
-  outputs.upToDateWhen { false }
-  doFirst { execTask ->
-    if (commandRepoCheckoutDir.exists()) {
-      execTask.workingDir = commandRepoCheckoutDir
-      execTask.commandLine "git", "pull"
-    } else {
-      execTask.commandLine "git", "clone", project.commandRepoUrl, commandRepoCheckoutDir
-    }
-  }
-}
-
-task defaultCommandSnippetsZip(type: Zip, dependsOn: [':server-launcher:cloneCommandRepository']) {
-  archiveBaseName = 'defaultCommandSnippets'
-  destinationDirectory = file("${project.buildDir}/${project.libsDirName}")
-  from("${rootProject.rootDir}/LICENSE") {
-    into "/"
-  }
-  from(commandRepoCheckoutDir) { into '/' }
-  // because .git is in global excludes
-  from("${commandRepoCheckoutDir}/.git") { into '/.git' }
-}
-
 clean {
   delete 'defaultFiles'
 }
@@ -170,7 +144,7 @@ task fatJar(type: Jar) {
   finalizedBy 'verifyFatJar'
   dependsOn ':server:jar'
   dependsOn ':server:war'
-  dependsOn configurations.packagingInDefaultFilesDir, defaultCommandSnippetsZip, configurations.pluginsZip,
+  dependsOn configurations.packagingInDefaultFilesDir, configurations.pluginsZip,
     configurations.packagingInLibDir, mainJar, configurations.extractedAtTopLevel
 
   manifest {
@@ -192,7 +166,6 @@ task fatJar(type: Jar) {
   from("${project(':server').projectDir}/config/jetty.xml") { into 'defaultFiles/config' }
   from("${project(':server').projectDir}/config/go_update_server.pub") { into 'defaultFiles/config' }
   from("${project(':config:config-server').projectDir}/src/main/resources/cruise-config.xsd") { into 'defaultFiles/config' }
-  from(defaultCommandSnippetsZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
   from(configurations.pluginsZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
 
   from(configurations.packagingInLibDir) {
@@ -220,7 +193,6 @@ task verifyFatJar(type: VerifyJarTask) {
     "defaultFiles": [
       "agent-launcher.jar",
       "agent.jar",
-      "defaultCommandSnippets.zip",
       "plugins.zip",
       "tfs-impl-14.jar",
     ],

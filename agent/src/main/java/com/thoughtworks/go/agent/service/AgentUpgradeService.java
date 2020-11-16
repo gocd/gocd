@@ -106,6 +106,7 @@ public class AgentUpgradeService {
         LOGGER.debug("[Agent Upgrade Validate MD5] validating MD5 for {}, currentMD5:{}, responseMD5:{}, headerKey:{}", what, currentMd5, md5Header, agentContentMd5Header);
         if (md5Header == null) {
             LOGGER.debug("[Agent Upgrade Validate MD5] Did not find {} MD5 header in response {}.", agentContentMd5Header, response);
+            return;
         }
         if (!"".equals(currentMd5)) {
             if (!currentMd5.equals(md5Header.getValue())) {

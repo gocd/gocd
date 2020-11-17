@@ -24,8 +24,10 @@ import {Configurations} from "models/shared/configuration";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {ButtonGroup} from "views/components/buttons";
-import {Modal, Size} from "views/components/modal";
+import {InfoCircle} from "views/components/icons";
+import {Modal, ModalState, Size} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
+import styles from "views/components/modal/index.scss";
 import {OperationState} from "views/pages/page_operations";
 import {Action, RoleModalBody} from "views/pages/roles/role_modal_body";
 
@@ -37,6 +39,7 @@ abstract class BaseRoleModal extends Modal {
   protected readonly errorMessage: Stream<string> = Stream();
   protected resourceAutocompleteHelper: Map<string, string[]>;
   protected ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
+  protected saveFailureIdentifier: m.Children;
 
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: PluginInfos,
@@ -76,6 +79,8 @@ abstract class BaseRoleModal extends Modal {
     if (!this.role().isValid()) {
       return Promise.resolve();
     }
+    this.modalState            = ModalState.LOADING;
+    this.saveFailureIdentifier = undefined;
     return this.performSave()
         .then((result) => {
           result.do(
@@ -84,7 +89,9 @@ abstract class BaseRoleModal extends Modal {
               this.close();
             },
             (errorResponse: any) => {
+              this.saveFailureIdentifier = <div className={styles.warning}><InfoCircle iconOnly={true} data-test-id="update-failure"/></div>;
               this.showErrors(result, errorResponse);
+              this.modalState = ModalState.OK;
             }
           );
         });
@@ -143,6 +150,7 @@ export class NewRoleModal extends BaseRoleModal {
       <Buttons.Primary data-test-id="button-save"
                        ajaxOperationMonitor={this.ajaxOperationMonitor}
                        ajaxOperation={this.validateAndPerformSave.bind(this)}>Save</Buttons.Primary>
+      {this.saveFailureIdentifier}
     </ButtonGroup>];
   }
 
@@ -189,6 +197,7 @@ abstract class ModalWithFetch extends BaseRoleModal {
                        ajaxOperationMonitor={this.ajaxOperationMonitor}
                        ajaxOperation={this.validateAndPerformSave.bind(this)}
                        disabled={this.isStale()}>Save</Buttons.Primary>
+      {this.saveFailureIdentifier}
     </ButtonGroup>];
   }
 

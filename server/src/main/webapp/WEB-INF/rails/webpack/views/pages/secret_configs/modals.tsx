@@ -71,9 +71,6 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
   }
 
   protected modalBody(): m.Children {
-    if (this.isLoading()) {
-      return;
-    }
     const pluginList     = _.map(this.pluginInfos, (pluginInfo: PluginInfo) => {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
     });

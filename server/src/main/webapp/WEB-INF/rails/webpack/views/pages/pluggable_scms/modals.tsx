@@ -78,6 +78,7 @@ abstract class PluggableScmModal extends EntityModal<Scm> {
                          disabled={this.isLoading()}
                          ajaxOperationMonitor={this.ajaxOperationMonitor}
                          ajaxOperation={this.performOperation.bind(this)}>Save</Buttons.Primary>
+        {this.saveFailureIdentifier}
       </ButtonGroup>,
 
       <div className={styles.alignLeft}>

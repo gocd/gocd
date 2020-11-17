@@ -69,6 +69,7 @@ abstract class AuthConfigModal extends EntityModal<AuthConfig> {
                          disabled={this.isStale()}
                          ajaxOperationMonitor={this.ajaxOperationMonitor}
                          ajaxOperation={this.performOperation.bind(this)}>Save</Buttons.Primary>
+        {this.saveFailureIdentifier}
       </ButtonGroup>
     ];
   }

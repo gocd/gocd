@@ -23,9 +23,10 @@ import {PluginInfo, PluginInfos} from "models/shared/plugin_infos_new/plugin_inf
 import * as Buttons from "views/components/buttons";
 import {ButtonGroup} from "views/components/buttons";
 import {FlashMessage, FlashMessageModel} from "views/components/flash_message";
-import {Modal, ModalState, Size} from "views/components/modal/index";
+import {InfoCircle} from "views/components/icons";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 import {OperationState} from "views/pages/page_operations";
+import {Modal, ModalState, Size} from "./index";
 import styles from "./index.scss";
 
 const foundationClassNames = bind(foundationStyles);
@@ -35,6 +36,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected readonly pluginInfos: PluginInfos;
   protected readonly flashMessage: FlashMessageModel;
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
+  protected saveFailureIdentifier: m.Children;
   protected readonly isStale              = Stream(true);
   protected readonly etag: Stream<string> = Stream();
   protected ajaxOperationMonitor          = Stream<OperationState>(OperationState.UNKNOWN);
@@ -65,7 +67,8 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
       return Promise.resolve();
     }
 
-    this.modalState = ModalState.LOADING;
+    this.modalState            = ModalState.LOADING;
+    this.saveFailureIdentifier = undefined;
     return this.operationPromise().then(this.onSaveResult.bind(this));
   }
 
@@ -97,6 +100,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
                          disabled={this.isLoading()}
                          ajaxOperationMonitor={this.ajaxOperationMonitor}
                          ajaxOperation={this.performOperation.bind(this)}>Save</Buttons.Primary>
+        {this.saveFailureIdentifier}
       </ButtonGroup>
     ];
   }
@@ -182,6 +186,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
       }
     }
     this.operationError(errorResponse, statusCode);
+    this.saveFailureIdentifier = <div className={styles.warning}><InfoCircle iconOnly={true} data-test-id="update-failure"/></div>;
   }
 }
 
@@ -208,9 +213,11 @@ export abstract class EntityModalWithCheckConnection<T extends ValidatableMixin>
                          disabled={this.isLoading()}
                          ajaxOperationMonitor={this.ajaxOperationMonitor}
                          ajaxOperation={this.performOperation.bind(this)}>Save</Buttons.Primary>
+        {this.saveFailureIdentifier}
       </ButtonGroup>
     ];
   }
+
   protected abstract verifyConnectionOperationPromise(): Promise<any>;
 
   private onVerifyConnectionResult(result: ApiResult<any>) {

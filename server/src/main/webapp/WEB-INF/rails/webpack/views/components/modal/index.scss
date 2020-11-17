@@ -169,3 +169,9 @@ $error-message-margin-bottom: 40px;
 .error-wrapper {
   margin-bottom: $error-message-margin-bottom;
 }
+
+.warning {
+  color:      $failed;
+  margin-top: 5px;
+  font-size:  15px;
+}

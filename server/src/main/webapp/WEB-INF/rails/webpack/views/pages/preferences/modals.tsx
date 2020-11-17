@@ -23,7 +23,9 @@ import {ButtonGroup, Cancel, Primary} from "views/components/buttons";
 import {FlashMessage, FlashMessageModel} from "views/components/flash_message";
 import {FormBody} from "views/components/forms/form";
 import {CheckboxField, Option, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
-import {Modal, Size} from "views/components/modal";
+import {InfoCircle} from "views/components/icons";
+import {Modal, ModalState, Size} from "views/components/modal";
+import styles from "views/components/modal/index.scss";
 import {OperationState} from "views/pages/page_operations";
 
 class FilterPipelineAndStage {
@@ -60,6 +62,7 @@ abstract class BaseModal extends Modal {
 
   protected selectedPipeline: Stream<string>;
   protected stagesOptions: Stream<string[]>;
+  protected saveFailureIdentifier: m.Children;
 
   protected constructor(filter: NotificationFilter,
                         pipelineGroups: Stream<PipelineGroups>,
@@ -113,6 +116,7 @@ abstract class BaseModal extends Modal {
                  disabled={this.isLoading()}
                  ajaxOperationMonitor={this.ajaxOperationMonitor}
                  ajaxOperation={this.performOperation.bind(this)}>Save</Primary>
+        {this.saveFailureIdentifier}
       </ButtonGroup>
     ];
   }
@@ -123,6 +127,8 @@ abstract class BaseModal extends Modal {
       this.flashMessage.alert("Validation Errors!");
       return Promise.reject();
     }
+    this.saveFailureIdentifier = undefined;
+    this.modalState            = ModalState.LOADING;
     return this.operationPromise()
                .then(this.onOperationResult.bind(this));
   }
@@ -147,6 +153,8 @@ abstract class BaseModal extends Modal {
     } else {
       this.flashMessage.alert(errorResponse.message);
     }
+    this.saveFailureIdentifier = <div className={styles.warning}><InfoCircle iconOnly={true} data-test-id="update-failure"/></div>;
+    this.modalState            = ModalState.OK;
   }
 
   private onSuccess(successResponse: SuccessResponse<ObjectWithEtag<NotificationFilter>>) {

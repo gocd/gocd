@@ -33,9 +33,11 @@ import {EntriesVM} from "views/components/encryptable_key_value/vms";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormBody, FormHeader} from "views/components/forms/form";
 import {CheckboxField, Option, PasswordField, SelectField, SelectFieldOptions, TextAreaField, TextField} from "views/components/forms/input_fields";
+import {InfoCircle} from "views/components/icons";
 import {Link} from "views/components/link";
 import {TestConnection} from "views/components/materials/test_connection";
-import {Modal, Size} from "views/components/modal";
+import {Modal, ModalState, Size} from "views/components/modal";
+import modalStyles from "views/components/modal/index.scss";
 import {ConfigureRulesWidget, RulesType} from "views/components/rules/configure_rules_widget";
 import {Spinner} from "views/components/spinner";
 import styles from "views/pages/config_repos/index.scss";
@@ -322,7 +324,8 @@ export abstract class ConfigRepoModal extends Modal {
   protected pluginInfos: Stream<PluginInfos>;
   protected userProps: Stream<EntriesVM> = Stream(new EntriesVM([], USER_NS));
   private ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
-  private resourceAutocompleteHelper: Map<string, string[]>;
+  private readonly resourceAutocompleteHelper: Map<string, string[]>;
+  private saveFailureIdentifier: m.Children;
 
   protected constructor(onSuccessfulSave: (msg: m.Children) => any,
                         onError: (msg: m.Children) => any,
@@ -369,6 +372,7 @@ export abstract class ConfigRepoModal extends Modal {
 
   buttons(): m.ChildArray {
     return [
+      this.saveFailureIdentifier,
       <Buttons.Primary data-test-id="button-ok" ajaxOperation={this.save.bind(this)}
                        ajaxOperationMonitor={this.ajaxOperationMonitor}>Save</Buttons.Primary>,
       <Buttons.Cancel data-test-id="button-cancel" onclick={this.close.bind(this)}
@@ -384,7 +388,8 @@ export abstract class ConfigRepoModal extends Modal {
       this.userProps().bindErrors(repo.propertyErrors());
       return Promise.resolve();
     }
-
+    this.saveFailureIdentifier = undefined;
+    this.modalState            = ModalState.LOADING;
     return this.performSave();
   }
 
@@ -405,6 +410,8 @@ export abstract class ConfigRepoModal extends Modal {
       this.getRepo().consumeErrorsResponse(json.data);
       this.handleAutoUpdateError();
       this.userProps().bindErrors(json.data.configuration || []);
+      this.saveFailureIdentifier = <div className={modalStyles.warning}><InfoCircle iconOnly={true} data-test-id="update-failure"/></div>;
+      this.modalState            = ModalState.OK;
     } else {
       this.onError(JSON.parse(errorResponse.body!).message);
       this.close();

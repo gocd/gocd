@@ -450,7 +450,8 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
         int result = (this.name() != null ? this.name().hashCode() : 0);
         result = 31 * result + (this.getAgents() != null ? this.getAgents().hashCode() : 0);
         result = 31 * result + (this.getPipelines() != null ? this.getPipelines().hashCode() : 0);
-        result = 31 * result + (this.getVariables() != null ? this.getVariables().hashCode() : 0);
+        EnvironmentVariablesConfig variablesConfig = this.getVariables();
+        result = 31 * result + (variablesConfig != null ? variablesConfig.hashCode() : 0);
         return result;
     }
 

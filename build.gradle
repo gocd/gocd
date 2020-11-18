@@ -249,9 +249,9 @@ rootProject.ext.versions = [
   ],
   adoptOpenjdk          : [
     featureVersion: 15,
-    interimVersion: null, // set to `null` for the first release
-    updateVersion : null, // set to `null` for the first release
-    buildVersion  : 36
+    interimVersion: 0, // set to `null` for the first release
+    updateVersion : 1, // set to `null` for the first release
+    buildVersion  : 9
   ]
 ]
 

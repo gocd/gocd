@@ -143,7 +143,7 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
                    property={mat.stage} errorText={this.errs(mat, "stage")} required={true}>
         <SelectFieldOptions selected={mat.stage()} items={vnode.state.stages()}/>
       </SelectField>,
-      this.advanced(mat, vnode.attrs),
+      this.advanced(mat, vnode.attrs)
     ];
   }
 
@@ -154,7 +154,7 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
         <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} readonly={attrs.readonly}
                    placeholder="A human-friendly label for this material" property={mat.name}/>
 
-        <DependencyIgnoreSchedulingToggle toggle={mat.ignoreForScheduling} errors={mat.errors()} disabled={attrs.disabled}/>
+        <DependencyIgnoreSchedulingToggle toggle={mat.ignoreForScheduling} errors={mat.errors()} disabled={attrs.readonly}/>
       </AdvancedSettings>;
     }
   }

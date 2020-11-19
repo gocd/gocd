@@ -33,8 +33,7 @@ describe("AddPipeline: Non-SCM Material Fields", () => {
 
   it("DependencyFields structure", () => {
     const material = new Material("dependency", new DependencyMaterialAttributes());
-    helper.mount(() => <DependencyFields material={material} cache={new DummyCache()}
-                                         showLocalWorkingCopyOptions={true}/>);
+    helper.mount(() => <DependencyFields material={material} cache={new DummyCache()} showLocalWorkingCopyOptions={true}/>);
 
     assertLabelledInputsPresent(helper, {
       "upstream-pipeline": "Upstream Pipeline*",
@@ -46,18 +45,23 @@ describe("AddPipeline: Non-SCM Material Fields", () => {
 
   it("does not display advanced settings when `showLocalWorkingCopyOptions` === false", () => {
     const material = new Material("dependency", new DependencyMaterialAttributes());
-    helper.mount(() => <DependencyFields material={material} cache={new DummyCache()}
-                                         showLocalWorkingCopyOptions={false}/>);
+    helper.mount(() => <DependencyFields material={material} cache={new DummyCache()} showLocalWorkingCopyOptions={false}/>);
 
     assertLabelledInputsPresent(helper, {
       "upstream-pipeline": "Upstream Pipeline*",
       "upstream-stage":    "Upstream Stage*",
     });
 
-    assertLabelledInputsAbsent(helper,
-                               "material-name",
-    );
+    assertLabelledInputsAbsent(helper, "material-name");
     assertIgnoreForSchedulingControlAbsent(helper);
+  });
+
+  it("should disable radio field when readonly is set to true", () => {
+    const material = new Material("dependency", new DependencyMaterialAttributes());
+    helper.mount(() => <DependencyFields material={material} cache={new DummyCache()} readonly={true} showLocalWorkingCopyOptions={true}/>);
+
+    expect(helper.byTestId('radio-manual')).toBeDisabled();
+    expect(helper.byTestId('radio-auto')).toBeDisabled();
   });
 });
 

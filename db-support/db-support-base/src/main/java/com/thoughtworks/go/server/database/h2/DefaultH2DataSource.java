@@ -33,7 +33,6 @@ public class DefaultH2DataSource {
         String defaultH2Url = "jdbc:h2:./db/h2db/cruise" +
                 ";DB_CLOSE_DELAY=-1" +
                 ";DB_CLOSE_ON_EXIT=FALSE" + // do not close the DB on JVM exit
-//                ";MVCC=TRUE" +
                 ";CACHE_SIZE=" + defaultCacheSizeInMB +
                 ";TRACE_MAX_FILE_SIZE=16" + // http://www.h2database.com/html/features.html#trace_options
                 ";TRACE_LEVEL_FILE=1" // http://www.h2database.com/html/features.html#trace_options
@@ -42,6 +41,8 @@ public class DefaultH2DataSource {
         basicDataSource.setUrl(defaultH2Url);
         basicDataSource.setUsername(StringUtils.defaultIfBlank(properties.user(), "sa"));
         basicDataSource.setPassword(StringUtils.stripToEmpty(properties.password()));
+        basicDataSource.setMaxIdle(properties.maxIdle());
+        basicDataSource.setMaxTotal(properties.maxTotal());
         return basicDataSource;
     }
 }

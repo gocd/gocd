@@ -29,12 +29,18 @@ export interface Options<T> {
 const defaultOptions = {
   intervalSeconds: CONSTANTS.SPA_REFRESH_INTERVAL / 1000,
   initialIntervalSeconds: 0,
-  visibilityBackoffFactor: 2
+  visibilityBackoffFactor: 3
 };
 
 const doesBrowserSupportPageVisibilityAPI = "undefined" !== typeof document.hidden;
 
 const autoRefreshDisabled = window.location.search.indexOf("auto_refresh=false") >= 0;
+
+const supportsWindowFocus = "function" === typeof document.hasFocus;
+
+function windowIsInForeground() {
+  return supportsWindowFocus ? document.hasFocus() : true;
+}
 
 export class AjaxPoller<T> {
   private readonly options: Options<T>;
@@ -110,7 +116,7 @@ export class AjaxPoller<T> {
   }
 
   private currentPollInterval() {
-    if (this.isPageHidden()) {
+    if (!windowIsInForeground() || this.isPageHidden()) {
       return this.options.intervalSeconds * this.options.visibilityBackoffFactor * 1000;
     } else {
       return this.options.intervalSeconds * 1000;

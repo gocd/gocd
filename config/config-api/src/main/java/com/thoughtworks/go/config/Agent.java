@@ -34,6 +34,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.*;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
@@ -172,7 +173,10 @@ public class Agent extends PersistentObject {
     }
 
     public boolean hasAllResources(Collection<String> resourcesToCheck) {
-        return this.getResourcesAsList().containsAll(resourcesToCheck);
+        List<String> agentResources = this.getResourcesAsList().stream().map(String::toLowerCase).collect(toList());
+        List<String> requiredResources = resourcesToCheck.stream().map(String::toLowerCase).collect(toList());
+
+        return agentResources.containsAll(requiredResources);
     }
 
     public void removeResources(List<String> resourcesToRemove) {

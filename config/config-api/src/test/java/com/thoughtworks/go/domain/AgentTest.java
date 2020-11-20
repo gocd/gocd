@@ -506,4 +506,14 @@ class AgentTest {
             assertThat(agent.getEnvironmentsAsList(), is(asList("env1", "env2")));
         }
     }
+
+    @Nested
+    class hasAllResources {
+        @Test
+        void shouldMakeACaseInsensitiveComparisonOfResources() {
+            Agent agent = new Agent("uuid", "host", "ip", asList("Postgres DB", "Linux-1", "W1nd0ws", "Mac OS"));
+
+            assertTrue(agent.hasAllResources(asList("posTgres db", "linux-1", "w1nd0ws")));
+        }
+    }
 }

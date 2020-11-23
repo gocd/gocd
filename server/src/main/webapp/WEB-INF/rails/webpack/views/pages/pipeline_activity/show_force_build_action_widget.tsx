@@ -62,6 +62,6 @@ export class ShowForceBuildActionWidget extends MithrilViewComponent<ShowForceBu
       return <Icons.Forward iconOnly={true} disabled={true}/>;
     }
 
-    return <Icons.StepForward iconOnly={true} disabled={true}/>;
+    return <span className={styles.manualWrapper}><Icons.StepForward iconOnly={true} disabled={true}/></span>;
   }
 }

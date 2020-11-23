@@ -244,7 +244,7 @@ rootProject.ext.versions = [
   xmlUnit               : '2.6.3',
 
   seleniumDrivers       : [
-    chromedriver  : '87.0.4280.20',
+    chromedriver  : '86.0.4240.22',
     geckodriver   : '0.27.0',
   ],
   adoptOpenjdk          : [

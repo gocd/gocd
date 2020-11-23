@@ -37,7 +37,6 @@ describe("PipelineRunInfoWidget", () => {
   const helper              = new TestHelper();
   const showBuildCauseFor   = Stream<string>();
   const showCommentFor      = Stream<string>();
-  const cancelStageInstance = jasmine.createSpy("cancelStageInstance");
   const runStage            = jasmine.createSpy("runStage");
   const addOrUpdateComment  = jasmine.createSpy("addOrUpdateComment");
 
@@ -339,7 +338,6 @@ describe("PipelineRunInfoWidget", () => {
                                           showBuildCaseFor={showBuildCauseFor}
                                           showCommentFor={showCommentFor}
                                           stageConfigs={stageConfigs ? stageConfigs : toStageConfigs(pipelineRunInfo.stages())}
-                                          cancelStageInstance={cancelStageInstance}
                                           addOrUpdateComment={addOrUpdateComment}
                                           stageOverviewState={state.StageOverviewState}
                                           // @ts-ignore

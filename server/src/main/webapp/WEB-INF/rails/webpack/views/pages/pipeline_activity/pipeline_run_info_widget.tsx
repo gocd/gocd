@@ -42,7 +42,6 @@ interface PipelineRunAttrs {
   stageOverviewState: any;
   showStageOverview: (pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number, status: any, e: any) => void;
   runStage: (stage: Stage) => void;
-  cancelStageInstance: (stage: Stage) => void;
   addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void;
 }
 

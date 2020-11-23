@@ -91,6 +91,7 @@ describe("PipelineActivityPage", () => {
       mount(new PipelineActivityPageWrapper(activity));
 
       helper.clickByTestId("force-trigger-pipeline");
+      helper.clickByTestId("primary-action-button", helper.modal());
 
       const request = jasmine.Ajax.requests.mostRecent();
       expect(request.url).toEqual(SparkRoutes.pipelineTriggerPath(activity.pipelineName()));

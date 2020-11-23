@@ -36,7 +36,6 @@ interface Attrs {
   runStage: (stage: Stage) => void;
   stageOverviewState: any;
   showStageOverview: (pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number, status: any, e: any) => void;
-  cancelStageInstance: (stage: Stage) => void;
   addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void;
 }
 
@@ -64,8 +63,7 @@ export class PipelineActivityWidget extends MithrilViewComponent<Attrs> {
                            canOperatePipeline={vnode.attrs.canOperatePipeline}
                            canAdministerPipeline={vnode.attrs.canAdministerPipeline}
                            pipelineUsingTemplate={vnode.attrs.pipelineUsingTemplate}
-                           addOrUpdateComment={vnode.attrs.addOrUpdateComment}
-                           cancelStageInstance={vnode.attrs.cancelStageInstance}/>];
+                           addOrUpdateComment={vnode.attrs.addOrUpdateComment}/>];
           })
         }
       </table>
@@ -93,7 +91,6 @@ interface GroupAttrs {
   runStage: (stage: Stage) => void;
   stageOverviewState: any;
   showStageOverview: (pipelineName: string, pipelineCounter: string | number, stageName: string, stageCounter: string | number, status: any, e: any) => void;
-  cancelStageInstance: (stage: Stage) => void;
   addOrUpdateComment: (comment: string, counterOrLabel: string | number) => void;
 }
 
@@ -111,8 +108,7 @@ class GroupWidget extends MithrilViewComponent<GroupAttrs> {
                                 canOperatePipeline={vnode.attrs.canOperatePipeline}
                                 canAdministerPipeline={vnode.attrs.canAdministerPipeline}
                                 pipelineUsingTemplate={vnode.attrs.pipelineUsingTemplate}
-                                addOrUpdateComment={vnode.attrs.addOrUpdateComment}
-                                cancelStageInstance={vnode.attrs.cancelStageInstance}/>;
+                                addOrUpdateComment={vnode.attrs.addOrUpdateComment}/>;
     });
   }
 }

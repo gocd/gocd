@@ -28,7 +28,6 @@ describe("PipelineActivityWidget", () => {
   const helper              = new TestHelper();
   const showBuildCauseFor   = Stream<string>();
   const showCommentFor      = Stream<string>();
-  const cancelStageInstance = jasmine.createSpy("cancelStageInstance");
   const runPipeline         = jasmine.createSpy("runPipeline");
   const runStage            = jasmine.createSpy("runStage");
   const addOrUpdateComment  = jasmine.createSpy("addOrUpdateComment");
@@ -60,7 +59,7 @@ describe("PipelineActivityWidget", () => {
     expect(helper.byTestId(dataTestId)).toHaveClass(styles.noMargin);
   });
 
-  it('should render header for the non-first stage with margin23 class if auto approved is set to true', () => {
+  it('should render header for the non-first stage with margin23 class', () => {
     const activity = PipelineActivity.fromJSON(PipelineActivityData.underConstruction());
     activity.groups()[0].config().stages().push(new StageConfig("second", true));
     mount(activity);
@@ -70,22 +69,11 @@ describe("PipelineActivityWidget", () => {
     expect(helper.byTestId(dataTestId)).toHaveClass(styles.margin23);
   });
 
-  it('should render header for the non-first stage with margin18 class if auto approved is set to false', () => {
-    const activity = PipelineActivity.fromJSON(PipelineActivityData.underConstruction());
-    activity.groups()[0].config().stages().push(new StageConfig("second", false));
-    mount(activity);
-
-    const dataTestId = `stage-${activity.groups()[0].config().stages()[1].name()}`;
-    expect(helper.byTestId(dataTestId)).toBeInDOM();
-    expect(helper.byTestId(dataTestId)).toHaveClass(styles.margin18);
-  });
-
   function mount(activity: PipelineActivity) {
     helper.mount(() => <PipelineActivityWidget pipelineActivity={Stream(activity)}
                                                showBuildCaseFor={showBuildCauseFor}
                                                showCommentFor={showCommentFor}
                                                runStage={runStage}
-                                               cancelStageInstance={cancelStageInstance}
                                                addOrUpdateComment={addOrUpdateComment}
                                                canOperatePipeline={false}
                                                canAdministerPipeline={false}

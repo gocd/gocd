@@ -90,10 +90,14 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
   }
 
   runPipeline() {
-    this.service.run(this.meta.pipelineName)
-        .then((result) => this.handleActionApiResponse(result, () => {
-          this.pipelineActivity().canForce(false);
-        }));
+    new ConfirmationDialog("Run pipeline",
+      <div>{`Do you want to run the pipeline '${this.meta.pipelineName}'?`}</div>,
+                           () => this.service
+                                     .run(this.meta.pipelineName)
+                                     .then((result) => this.handleActionApiResponse(result, () => {
+                                       this.pipelineActivity().canForce(false);
+                                     }))
+    ).render();
   }
 
   runStage(stage: Stage) {
@@ -114,18 +118,6 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
         .then((result) => this.handleActionApiResponse(result));
   }
 
-  cancelStageInstance(stage: Stage) {
-    new ConfirmationDialog("Cancel stage instance",
-      <div>{"This will cancel all active jobs in this stage. Are you sure?"}</div>,
-                           () => this.service
-                                     .cancelStageInstance(stage)
-                                     .then((result) => this.handleActionApiResponse(result, () => {
-                                       stage.getCanCancel(false);
-                                       stage.stageStatus("waiting");
-                                     }))
-    ).render();
-  }
-
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     if (!this.pipelineActivity()) {
       return <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>;
@@ -144,8 +136,7 @@ export class PipelineActivityPage extends Page<null, State> implements ResultAwa
                               canOperatePipeline={this.meta.canOperatePipeline}
                               canAdministerPipeline={this.meta.canAdministerPipeline}
                               pipelineUsingTemplate={this.meta.pipelineUsingTemplate}
-                              addOrUpdateComment={this.addOrUpdateComment.bind(this)}
-                              cancelStageInstance={this.cancelStageInstance.bind(this)}/>,
+                              addOrUpdateComment={this.addOrUpdateComment.bind(this)}/>,
       <div class={styles.paginationWrapper}>
         <PaginationWidget pagination={this.pagination()} onPageChange={this.pageChangeCallback.bind(this)}/>
       </div>

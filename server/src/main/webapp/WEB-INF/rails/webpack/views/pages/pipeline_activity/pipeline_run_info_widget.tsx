@@ -227,11 +227,13 @@ export class PipelineRunWidget extends MithrilViewComponent<PipelineRunAttrs> {
                             onclick={() => vnode.attrs.runStage(stage)}/>;
     }
 
-    return <Icons.StepForward iconOnly={true}
-                              title={PipelineRunWidget.getTitle(stage)}
-                              disabled={disabled}
-                              data-test-id={dataTestId}
-                              onclick={() => vnode.attrs.runStage(stage)}/>;
+    return <span className={styles.manualWrapper}>
+      <Icons.StepForward iconOnly={true}
+                         title={PipelineRunWidget.getTitle(stage)}
+                         disabled={disabled}
+                         data-test-id={dataTestId}
+                         onclick={() => vnode.attrs.runStage(stage)}/>
+    </span>;
   }
 
   private dataTestId(...parts: StringOrNumber[]) {

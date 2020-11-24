@@ -51,12 +51,9 @@ export const PluginInfos = function (data) {
 
 };
 
-PluginInfos.API_VERSION = 'v6';
-
 CrudMixins.Index({
   type:     PluginInfos,
   indexUrl: SparkRoutes.apiPluginInfoPath({}),
-  version:  PluginInfos.API_VERSION,
   dataPath: '_embedded.plugin_info'
 });
 

@@ -39,7 +39,7 @@ describe("SecretConfigsCRUD", () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(BASE_PATH);
     expect(request.method).toEqual("GET");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
   it("should get all secret configs along with autocomplete suggestions", (done) => {
@@ -61,7 +61,7 @@ describe("SecretConfigsCRUD", () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(api);
     expect(request.method).toEqual("GET");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
   it("should get a secret config", (done) => {
@@ -81,7 +81,7 @@ describe("SecretConfigsCRUD", () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual("/go/api/admin/secret_configs/secrets_id");
     expect(request.method).toEqual("GET");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
   it("should create a secret config", () => {
@@ -99,7 +99,7 @@ describe("SecretConfigsCRUD", () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(BASE_PATH);
     expect(request.method).toEqual("POST");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
   it("should delete a secret config", () => {
@@ -118,7 +118,7 @@ describe("SecretConfigsCRUD", () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual("/go/api/admin/secret_configs/secrets_id");
     expect(request.method).toEqual("DELETE");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
   });
 
   it("should update a secret config", () => {
@@ -137,7 +137,7 @@ describe("SecretConfigsCRUD", () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual("/go/api/admin/secret_configs/secrets_id");
     expect(request.method).toEqual("PUT");
-    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd+json");
     expect(request.requestHeaders["If-Match"]).toEqual("current-etag");
   });
 });

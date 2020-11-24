@@ -20,7 +20,7 @@ import {SecretConfig, SecretConfigs, SecretConfigsWithSuggestions} from "models/
 import {SecretConfigsJSON, SecretConfigsWithSuggestionsJSON} from "models/secret_configs/secret_configs_json";
 
 export class SecretConfigsCRUD {
-  private static API_VERSION_HEADER = ApiVersion.v1;
+  private static API_VERSION_HEADER = ApiVersion.latest;
 
   static all() {
     return ApiRequestBuilder.GET(SparkRoutes.apiSecretConfigsPath(), this.API_VERSION_HEADER)

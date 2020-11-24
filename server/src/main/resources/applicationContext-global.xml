@@ -86,7 +86,6 @@
   <context:component-scan base-package="com.thoughtworks.go.apiv1.dependencymaterialautocomplete"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.scms"/>
   <context:component-scan base-package="com.thoughtworks.go.api.support"/>
-  <context:component-scan base-package="com.thoughtworks.go.apiv1.secretconfigs"/>
   <context:component-scan base-package="com.thoughtworks.go.api.cctray"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv2.backups"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.clusterprofiles"/>

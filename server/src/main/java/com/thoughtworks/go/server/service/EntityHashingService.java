@@ -36,8 +36,6 @@ import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.initializers.Initializer;
-import com.thoughtworks.go.server.service.lookups.CommandSnippet;
-import com.thoughtworks.go.server.service.lookups.CommandSnippets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -301,15 +299,6 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
 
     public String hashForEntity(SecretConfigs secretConfigs) {
         return compound(secretConfigs, this::hashForEntity);
-    }
-
-    public String hashForEntity(CommandSnippet commandSnippet) {
-        String cacheKey = cacheKey(commandSnippet, commandSnippet.getName());
-        return getNonConfigEntityDigestFromCache(cacheKey, commandSnippet);
-    }
-
-    public String hashForEntity(CommandSnippets commandSnippets) {
-        return compound(commandSnippets.getSnippets(), this::hashForEntity);
     }
 
     public String hashForEntity(SecurityAuthConfig config) {

@@ -48,7 +48,6 @@ import javax.sql.DataSource;
 
 @Component
 public class ApplicationInitializer implements ApplicationListener<ContextRefreshedEvent> {
-    @Autowired private CommandRepositoryInitializer commandRepositoryInitializer;
     @Autowired private PluginsInitializer pluginsInitializer;
     @Autowired private PluginsZip pluginsZip;
     @Autowired private PipelineSqlMapDao pipelineSqlMapDao;
@@ -135,7 +134,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
 
             pipelineTimeline.updateTimelineOnInit();
             pipelineSqlMapDao.initialize();
-            commandRepositoryInitializer.initialize();
             consoleActivityMonitor.populateActivityMap();
             timerScheduler.initialize();
             backupScheduler.initialize();

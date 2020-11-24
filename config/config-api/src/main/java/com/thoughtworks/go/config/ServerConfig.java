@@ -35,8 +35,6 @@ public class ServerConfig implements Validatable {
     private String agentAutoRegisterKey;
     @ConfigAttribute(value = "webhookSecret", optional = true, allowNull = true)
     private String webhookSecret;
-    @ConfigAttribute(value = "commandRepositoryLocation", alwaysWrite = true)
-    private String commandRepositoryLocation = "default";
 
     @SkipParameterResolution
     @ConfigAttribute(value = "serverId", optional = true, allowNull = true)
@@ -209,9 +207,6 @@ public class ServerConfig implements Validatable {
         if (webhookSecret != null ? !webhookSecret.equals(that.webhookSecret) : that.webhookSecret != null) {
             return false;
         }
-        if (commandRepositoryLocation != null ? !commandRepositoryLocation.equals(that.commandRepositoryLocation) : that.commandRepositoryLocation != null) {
-            return false;
-        }
         if (serverId != null ? !serverId.equals(that.serverId) : that.serverId != null) {
             return false;
         }
@@ -230,7 +225,7 @@ public class ServerConfig implements Validatable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(artifactConfig, jobTimeout, agentAutoRegisterKey, webhookSecret, commandRepositoryLocation, serverId, siteUrls, securityConfig, mailHost, backupConfig, tokenGenerationKey, errors);
+        return Objects.hash(artifactConfig, jobTimeout, agentAutoRegisterKey, webhookSecret, serverId, siteUrls, securityConfig, mailHost, backupConfig, tokenGenerationKey, errors);
     }
 
     /**
@@ -371,14 +366,6 @@ public class ServerConfig implements Validatable {
 
     public String getServerId() {
         return serverId;
-    }
-
-    public String getCommandRepositoryLocation() {
-        return commandRepositoryLocation;
-    }
-
-    public void setCommandRepositoryLocation(String location) {
-        this.commandRepositoryLocation = location;
     }
 
     public String getTokenGenerationKey() {

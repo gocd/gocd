@@ -395,12 +395,6 @@
   </rule>
 
   <rule>
-    <name>Internal Command Snippets API</name>
-    <from>^/api/admin/internal/command_snippets$</from>
-    <to last="true">/spark/api/admin/internal/command_snippets</to>
-  </rule>
-
-  <rule>
     <name>Backup Config API</name>
     <from>^/api/config/backup$</from>
     <to last="true">/spark/api/config/backup</to>

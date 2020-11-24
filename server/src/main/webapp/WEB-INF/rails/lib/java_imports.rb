@@ -183,7 +183,6 @@ module JavaImports
   java_import com.thoughtworks.go.security.GoCipher unless defined? GoCipher
   java_import com.thoughtworks.go.util.command.UrlArgument unless defined? UrlArgument
   java_import com.thoughtworks.go.presentation.TaskViewModel unless defined? TaskViewModel
-  java_import com.thoughtworks.go.server.service.lookups.CommandSnippet unless defined? CommandSnippet
   java_import com.thoughtworks.go.util.ProcessManager unless defined? ProcessManager
   java_import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor unless defined? GoPluginDescriptor
   java_import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor unless defined? GoPluginBundleDescriptor

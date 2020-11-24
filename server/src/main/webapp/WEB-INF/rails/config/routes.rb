@@ -38,10 +38,6 @@ Rails.application.routes.draw do
   put "admin/pipelines/snippet/:group_name" => "admin/pipelines_snippet#update", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipelines_snippet_update
   get "admin/config_change/between/:later_md5/and/:earlier_md5" => 'admin/stages#config_change', as: :admin_config_change
 
-  get "admin/commands" => "admin/commands#index", as: :admin_commands
-  get "admin/commands/show" => "admin/commands#show", as: :admin_command_definition
-  get "admin/commands/lookup" => "admin/commands#lookup", :format => "text", as: :admin_command_lookup
-
   get "admin/config_xml" => "admin/configuration#show", as: :config_view
   put "admin/config_xml" => "admin/configuration#update", as: :config_update
   get "admin/config_xml/edit" => "admin/configuration#edit", as: :config_edit

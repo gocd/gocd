@@ -854,7 +854,7 @@ public class CachedGoConfigIntegrationTest {
         cachedGoConfig.writeWithLock(new NoOverwriteUpdateConfigCommand() {
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.server().setCommandRepositoryLocation("new_location");
+                cruiseConfig.server().setJobTimeout("10");
                 return cruiseConfig;
             }
 
@@ -897,7 +897,7 @@ public class CachedGoConfigIntegrationTest {
         cachedGoConfig.writeWithLock(new NoOverwriteUpdateConfigCommand() {
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.server().setCommandRepositoryLocation("new_location");
+                cruiseConfig.server().setJobTimeout("10");
                 return cruiseConfig;
             }
 
@@ -938,7 +938,7 @@ public class CachedGoConfigIntegrationTest {
         PartialConfig invalidPartial = PartialConfigMother.invalidPartial("invalid", new RepoConfigOrigin(configRepo, "revision1"));
         partialConfigService.onSuccessPartialConfig(configRepo, invalidPartial);
         CruiseConfig updatedConfig = ClonerFactory.instance().deepClone(goConfigService.getConfigForEditing());
-        updatedConfig.server().setCommandRepositoryLocation("foo");
+        updatedConfig.server().setJobTimeout("10");
         String updatedXml = goFileConfigDataSource.configAsXml(updatedConfig, false);
         FileUtils.writeStringToFile(new File(goConfigDao.fileLocation()), updatedXml, UTF_8);
         GoConfigValidity validity = goConfigService.fileSaver(false).saveXml(updatedXml, goConfigDao.md5OfConfigFile());
@@ -956,12 +956,12 @@ public class CachedGoConfigIntegrationTest {
         ConfigSaveState state = cachedGoConfig.writeWithLock(new UpdateConfigCommand() {
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.server().setCommandRepositoryLocation("newlocation");
+                cruiseConfig.server().setJobTimeout("10");
                 return cruiseConfig;
             }
         });
         assertThat(state).isEqualTo(ConfigSaveState.UPDATED);
-        assertThat(goConfigService.getCurrentConfig().server().getCommandRepositoryLocation()).isEqualTo("newlocation");
+        assertThat(goConfigService.getCurrentConfig().server().getJobTimeout()).isEqualTo("10");
     }
 
     @Test

@@ -84,7 +84,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="139"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="138"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -923,6 +923,7 @@
   </xsd:simpleType>
   <xsd:attributeGroup name="serverAttributeGroup">
     <xsd:attribute name="serverId" type="xsd:string"/>
+    <xsd:attribute name="commandRepositoryLocation" type="xsd:string"/>
     <xsd:attribute name="jobTimeout" type="xsd:double"/>
     <xsd:attribute name="agentAutoRegisterKey" type="xsd:string"/>
     <xsd:attribute name="webhookSecret" type="xsd:string"/>

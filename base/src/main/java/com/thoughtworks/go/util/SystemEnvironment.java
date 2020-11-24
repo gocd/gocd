@@ -16,7 +16,6 @@
 package com.thoughtworks.go.util;
 
 import ch.qos.logback.classic.Level;
-import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +79,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String DATABASE_WARNING_SIZE_LIMIT = "db.warning.size.limit";
     public static final String AGENT_SIZE_LIMIT = "agent.size.limit";
     private static final String DISK_SPACE_CACHE_REFRESHER_INTERVAL = "disk.space.cache.refresher.interval";
-    private static final String COMMAND_REPOSITORY_WARNING_TIMEOUT = "command.repo.warning.timeout";
     public static final String AGENT_SOCKET_TYPE_NIO = "nio";
 
     private static final String AGENT_SOCKET_TYPE_PROPERTY = "agent.socket.type";
@@ -117,14 +115,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String> AVAILABLE_FEATURE_TOGGLES_FILE_PATH = new GoStringSystemProperty("available.toggles.path", "/available.toggles");
     public static GoSystemProperty<String> USER_FEATURE_TOGGLES_FILE_PATH_RELATIVE_TO_CONFIG_DIR = new GoStringSystemProperty("user.toggles.path", "go.feature.toggles");
 
-    public static GoSystemProperty<String> DEFAULT_COMMAND_SNIPPETS_ZIP = new CachedProperty<>(
-            new GoStringSystemProperty("default.command.snippets.zip.location", "/defaultFiles/defaultCommandSnippets.zip"));
     public static GoSystemProperty<String> DEFAULT_PLUGINS_ZIP = new CachedProperty<>(
             new GoStringSystemProperty("default.plugins.zip.location", "/defaultFiles/plugins.zip"));
     public static final GoSystemProperty<String> AGENT_PLUGINS_PATH = new CachedProperty<>(new GoStringSystemProperty("agent.plugins.path", PLUGINS_PATH));
-    public static GoSystemProperty<String> VERSION_FILE_IN_DEFAULT_COMMAND_REPOSITORY = new CachedProperty<>(new GoStringSystemProperty("version.file.in.command.repository", "version.txt"));
-    public static GoSystemProperty<Integer> COMMAND_REPOSITORY_CACHE_TIME_IN_SECONDS = new CachedProperty<>(new GoIntSystemProperty("command.repo.cache.timeout.in.secs", 30 * 60));
-    public static GoSystemProperty<String> COMMAND_REPOSITORY_DIRECTORY = new CachedProperty<>(new GoStringSystemProperty("command.repo.dir", DB_BASE_DIR + "command_repository"));
     public static GoSystemProperty<Integer> IDLE_TIMEOUT = new GoIntSystemProperty("idle.timeout", 30000);
     public static GoSystemProperty<Integer> RESPONSE_BUFFER_SIZE = new GoIntSystemProperty("response.buffer.size", 32768);
     public static final GoSystemProperty<Integer> API_REQUEST_IDLE_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("api.request.idle.timeout.seconds", 300);
@@ -371,10 +364,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return Integer.parseInt(getPropertyImpl(ACTIVEMQ_QUEUE_PREFETCH, "0"));
     }
 
-    public long getCommandRepoWarningTimeout() {
-        return Long.parseLong(getPropertyImpl(COMMAND_REPOSITORY_WARNING_TIMEOUT, String.valueOf(Timeout.ONE_HOUR.inMillis())));
-    }
-
     public boolean getActivemqUseJmx() {
         return Boolean.parseBoolean(getPropertyImpl(ACTIVEMQ_USE_JMX, "false"));
     }
@@ -592,10 +581,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return Level.toLevel(getPropertyImpl("plugin." + pluginId + ".log.level", "INFO"), Level.INFO);
     }
 
-    public File getDefaultCommandRepository() {
-        return new File(get(COMMAND_REPOSITORY_DIRECTORY), "default");
-    }
-
     public String consoleLogCharset() {
         return consoleLogCharsetAsCharset().name();
     }
@@ -605,10 +590,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
             consoleLogCharsetAsCharset = Charset.forName(get(CONSOLE_LOG_CHARSET));
         }
         return consoleLogCharsetAsCharset;
-    }
-
-    public String getCommandRepositoryRootLocation() {
-        return new File(get(COMMAND_REPOSITORY_DIRECTORY)).getAbsolutePath();
     }
 
     public String getExternalPluginAbsolutePath() {

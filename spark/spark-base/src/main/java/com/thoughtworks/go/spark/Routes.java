@@ -43,14 +43,6 @@ public class Routes {
         public static final String ENV_NAME = "/:env_name";
     }
 
-    public static class InternalCommandSnippets {
-        public static final String BASE = "/api/admin/internal/command_snippets";
-
-        public static String self(String searchTerm) {
-            return String.format("%s?prefix=%s", BASE, searchTerm);
-        }
-    }
-
     public static class Backups {
         public static final String BASE = "/api/backups";
         public static final String DOC = apiDocsUrl("#backups");

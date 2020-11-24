@@ -364,7 +364,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             server.setJobTimeout(jobTimeout);
             server.setSiteUrl(siteUrl);
             server.setSecureSiteUrl(secureSiteUrl);
-            server.setCommandRepositoryLocation(taskRepositoryLocation);
             return cruiseConfig;
         };
     }

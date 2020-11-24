@@ -327,14 +327,6 @@ api/api-support/out/
 api/api-support/target/
 api/api-support/logs/
 api/api-support/config/
-api/api-secret-configs-v1/config/
-api/api-secret-configs-v1/out/
-api/api-secret-configs-v1/target/
-api/api-secret-configs-v1/logs/
-api/api-plugin-infos-v6/out/
-api/api-plugin-infos-v6/target/
-api/api-plugin-infos-v6/logs/
-api/api-plugin-infos-v6/config/
 api/api-dependency-material-autocomplete-v1/out/
 api/api-dependency-material-autocomplete-v1/target/
 api/api-dependency-material-autocomplete-v1/logs/
@@ -370,10 +362,6 @@ api/api-internal-environments-v1/out/
 api/api-internal-environments-v1/target/
 api/api-internal-environments-v1/logs/
 api/api-internal-environments-v1/config/
-api/api-pipeline-config-v10/out/
-api/api-pipeline-config-v10/target/
-api/api-pipeline-config-v10/logs/
-api/api-pipeline-config-v10/config/
 api/api-shared-v9/out/
 api/api-shared-v9/target/
 api/api-shared-v9/logs/
@@ -450,10 +438,6 @@ api/api-feeds-api-v1/out/
 api/api-feeds-api-v1/target/
 api/api-feeds-api-v1/logs/
 api/api-feeds-api-v1/config/
-api/api-config-repos-v3/out/
-api/api-config-repos-v3/target/
-api/api-config-repos-v3/logs/
-api/api-config-repos-v3/config/
 api/api-internal-material-test-v1/out/
 api/api-internal-material-test-v1/target/
 api/api-internal-material-test-v1/logs/

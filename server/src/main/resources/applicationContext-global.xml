@@ -66,7 +66,6 @@
   <context:component-scan base-package="com.thoughtworks.go.apiv2.materials"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.compare"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.featuretoggles"/>
-  <context:component-scan base-package="com.thoughtworks.go.apiv10.admin.pipelineconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.defaultjobtimeout"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.artifactconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv5.admin.templateconfig"/>
@@ -84,9 +83,6 @@
   <context:component-scan base-package="com.thoughtworks.go.apiv4.dashboard"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv6.plugininfos"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv2.configrepos"/>
-  <context:component-scan base-package="com.thoughtworks.go.apiv7.admin.pipelineconfig"/>
-  <context:component-scan base-package="com.thoughtworks.go.apiv8.admin.pipelineconfig"/>
-  <context:component-scan base-package="com.thoughtworks.go.apiv9.admin.pipelineconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.dependencymaterialautocomplete"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.scms"/>
   <context:component-scan base-package="com.thoughtworks.go.api.support"/>

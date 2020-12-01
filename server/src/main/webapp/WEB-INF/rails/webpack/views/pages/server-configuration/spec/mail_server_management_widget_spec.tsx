@@ -126,7 +126,7 @@ describe("MailServerManagementWidget", () => {
   });
 
   function mount(mailServer: MailServer, canDeleteMailServer: boolean = true) {
-    const savePromise: Promise<MailServer>                           = new Promise((resolve) => {
+    const savePromise: Promise<void> = new Promise((resolve) => {
       onSaveSpy();
       resolve();
     });

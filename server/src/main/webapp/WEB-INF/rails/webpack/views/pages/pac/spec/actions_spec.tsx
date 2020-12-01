@@ -78,7 +78,7 @@ describe("AddPaC: Actions Section", () => {
   });
 
   it("Does not create a config repo unless the model validates", () => {
-    spyOn(ConfigReposCRUD, "create").and.returnValue(new Promise((resolve) => resolve()));
+    spyOn(ConfigReposCRUD, "create").and.throwError("should not get here");
     configRepo.isValid = jasmine.createSpy("isValid").and.returnValue(false);
     helper.click(sel.btnPrimary);
 
@@ -88,7 +88,7 @@ describe("AddPaC: Actions Section", () => {
   });
 
   it("Cancel goes to the dashboard but does not create", () => {
-    spyOn(ConfigReposCRUD, "create").and.returnValue(new Promise((resolve) => resolve()));
+    spyOn(ConfigReposCRUD, "create").and.throwError("should not get here");
     helper.click(sel.btnCancel);
     expect(ConfigReposCRUD.create).not.toHaveBeenCalled();
     expect(loc.last()).toBe(`/go/pipelines`);

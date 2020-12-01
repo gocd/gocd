@@ -106,7 +106,7 @@ describe("ArtifactsManagementWidget", () => {
   });
 
   function mount(artifactConfig: ArtifactConfig) {
-    const savePromise: Promise<ArtifactConfig> = new Promise((resolve) => {
+    const savePromise: Promise<void> = new Promise((resolve) => {
       onSaveSpy();
       resolve();
     });

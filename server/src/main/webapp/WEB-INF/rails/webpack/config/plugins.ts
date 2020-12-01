@@ -56,8 +56,7 @@ export function plugins(configOptions: ConfigOptions): webpack.Plugin[] {
                               }) as webpack.Plugin,
     new LicensePlugins(configOptions.licenseReportFile),
     new ForkTsCheckerWebpackPlugin({
-      typescript: { diagnosticOptions: { semantic: true, syntactic: true } },
-      issue: { scope: "all" }
+      typescript: { diagnosticOptions: { semantic: true, syntactic: true } }
     })
   ];
 

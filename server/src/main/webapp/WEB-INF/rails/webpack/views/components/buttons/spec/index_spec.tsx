@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {ApiResult} from "helpers/api_request_builder";
 import m from "mithril";
 import {Primary} from "views/components/buttons/index";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -29,7 +28,7 @@ describe("Button", () => {
   describe("Ajax Operation", () => {
 
     it("should show a spinner icon and disable button when ajax request is in progress", (done) => {
-      const promise = new Promise<ApiResult<any>>((resolve) => {
+      const promise = new Promise<void>((resolve) => {
         resolve();
       }).then(() => {
         const ajaxButton = helper.byTestId("ajax-button");
@@ -46,7 +45,7 @@ describe("Button", () => {
       const spy                           = jasmine.createSpy();
       const promises: Array<Promise<any>> = [];
       const simulateRemoteCall            = () => {
-        const promise = new Promise<any>((resolve) => {
+        const promise = new Promise<void>((resolve) => {
           setTimeout(() => {
             spy();
             resolve();

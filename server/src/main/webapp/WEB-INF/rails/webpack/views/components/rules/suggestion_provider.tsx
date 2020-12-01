@@ -41,7 +41,7 @@ export class ResourceSuggestionProvider extends SuggestionProvider {
     }
     if (this.suggestion.has(this.rule().type())) {
       return new Promise<Awesomplete.Suggestion[]>((resolve) => {
-        resolve(this.suggestion.get(this.rule().type()));
+        resolve(this.suggestion.get(this.rule().type())!);
       });
     }
 

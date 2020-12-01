@@ -107,7 +107,7 @@ describe("ServerManagementWidget", () => {
   });
 
   function mount(siteUrls: SiteUrls) {
-    const savePromise: Promise<SiteUrls> = new Promise((resolve) => {
+    const savePromise: Promise<void> = new Promise((resolve) => {
       onSaveSpy();
       resolve();
     });

@@ -39,7 +39,7 @@ final Map<String, String> libraries = [
   commonsCodec        : 'commons-codec:commons-codec:1.15',
   commonsCollections  : 'commons-collections:commons-collections:3.2.2',
   commonsCollections4 : 'org.apache.commons:commons-collections4:4.4',
-  commonsConfiguration: 'org.apache.commons:commons-configuration2:2.6',
+  commonsConfiguration: 'org.apache.commons:commons-configuration2:2.7',
   commonsDbcp         : 'org.apache.commons:commons-dbcp2:2.7.0',
   commonsDigester     : 'commons-digester:commons-digester:2.1',
   commonsFileUpload   : 'commons-fileupload:commons-fileupload:1.4',

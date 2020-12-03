@@ -45,7 +45,7 @@ final Map<String, String> libraries = [
   commonsFileUpload   : 'commons-fileupload:commons-fileupload:1.4',
   commonsIO           : 'commons-io:commons-io:2.6',
   commonsLang         : 'commons-lang:commons-lang:2.6',
-  commonsLang3        : 'org.apache.commons:commons-lang3:3.9',
+  commonsLang3        : 'org.apache.commons:commons-lang3:3.11',
   commonsPool         : 'org.apache.commons:commons-pool2:2.8.0',
   dbunit              : 'org.dbunit:dbunit:2.7.0',
   dom4j               : 'dom4j:dom4j:1.6.1',

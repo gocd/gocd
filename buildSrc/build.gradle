@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+apply from: '../dependencies.gradle'
 apply plugin: "groovy"
 
 repositories {
@@ -29,8 +30,8 @@ repositories {
 dependencies {
   implementation localGroovy()
   implementation gradleApi()
-  implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'
-  implementation group: 'de.undercouch', name: 'gradle-download-task', version: '4.1.1'
-  implementation group: 'org.ysb33r.gradle', name: 'grolifant', version: '0.17.0'
-  implementation group: 'org.freemarker', name: 'freemarker', version: '2.3.28'
+  implementation project.deps.commonsCodec
+  implementation project.deps.gradleDownload
+  implementation project.deps.grolifant
+  implementation project.deps.freemarker
 }

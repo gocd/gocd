@@ -22,6 +22,6 @@ dependencies {
 
   testImplementation project(path: ':api:api-base', configuration: 'testOutput')
 
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
 }

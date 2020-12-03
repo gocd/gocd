@@ -23,16 +23,16 @@ configurations {
 }
 
 dependencies {
-  packagingOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  packagingOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
+  packagingOnly project.deps.bouncyCastle
+  packagingOnly project.deps.bouncyCastlePkix
 
   implementation project(':agent-common')
 
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testCompileOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Vintage
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.mockito
   testImplementation project(':test:test-utils')
 }
 

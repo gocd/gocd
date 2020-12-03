@@ -44,10 +44,10 @@ trait DistroBehavior {
   List<String> getInstallJavaCommands(Project project) {
     def downloadUrl = AdoptOpenJDKUrlHelper.downloadURL(
       com.thoughtworks.go.build.OperatingSystem.linux,
-      project.versions.adoptOpenjdk.featureVersion,
-      project.versions.adoptOpenjdk.interimVersion,
-      project.versions.adoptOpenjdk.updateVersion,
-      project.versions.adoptOpenjdk.buildVersion)
+      project.packaging.adoptOpenjdk.featureVersion,
+      project.packaging.adoptOpenjdk.interimVersion,
+      project.packaging.adoptOpenjdk.updateVersion,
+      project.packaging.adoptOpenjdk.buildVersion)
 
     return [
       "curl --fail --location --silent --show-error '${downloadUrl}' --output /tmp/jre.tar.gz",

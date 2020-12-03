@@ -17,13 +17,13 @@
 description = 'Metadata store for GoCD Plugins'
 
 dependencies {
-  implementation group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
+  implementation project.deps.commonsLang3
   implementation project(':plugin-infra:go-plugin-api')
   implementation project(':plugin-infra:go-plugin-domain')
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testImplementation project.deps.mockito
   testImplementation project(':test:test-utils')
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+  testCompileOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Vintage
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
 }

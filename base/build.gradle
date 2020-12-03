@@ -17,32 +17,32 @@
 description = 'GoCD Base'
 
 dependencies {
-  providedAtPackageTime group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  providedAtPackageTime group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
+  providedAtPackageTime project.deps.bouncyCastle
+  providedAtPackageTime project.deps.bouncyCastlePkix
 
-  api(group: 'org.apache.ant', name: 'ant', version: project.versions.apacheAnt)  {
+  api(project.deps.apacheAnt)  {
     transitive = false
   }
-  api group: 'commons-io', name: 'commons-io', version: project.versions.commonsIO
-  api group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
-  api group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
-  api(group: 'org.apache.httpcomponents', name: 'httpclient', version: project.versions.apacheHttpComponents) {
+  api project.deps.commonsIO
+  api project.deps.commonsLang3
+  api project.deps.commonsCodec
+  api(project.deps.apacheHttpComponents) {
     exclude(module: 'commons-codec')
     exclude(module: 'commons-logging')
   }
-  api group: 'joda-time', name: 'joda-time', version: project.versions.jodaTime
-  api group: 'org.slf4j', name: 'jcl-over-slf4j', version: project.versions.slf4j
-  api group: 'ch.qos.logback', name: 'logback-classic', version: project.versions.logback
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testImplementation group: 'com.googlecode', name: 'junit-ext', version: '1.0'
-  testImplementation group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
-  testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
-  testImplementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
+  api project.deps.jodaTime
+  api project.deps.slf4jJcl
+  api project.deps.logback
+  testCompileOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Vintage
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.junitExt
+  testImplementation project.deps.hamcrest
+  testImplementation project.deps.hamcrestLibrary
+  testImplementation project.deps.mockito
+  testImplementation project.deps.junit5Migration
+  testImplementation project.deps.assertJ
 }
 
 def generatedResourcesOutput = file("resources-generated")

@@ -18,5 +18,5 @@ description = 'GoCD AppServer Module'
 
 dependencies {
   implementation project(':base')
-  implementation group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
+  implementation project.deps.servletApi
 }

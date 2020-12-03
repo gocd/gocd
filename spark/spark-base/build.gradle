@@ -20,24 +20,24 @@ dependencies {
   api project(':common')
   api project(':server')
 
-  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: project.versions.jackson
-  implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: project.versions.jackson
-  implementation group: 'org.springframework', name: 'spring-web', version: project.versions.spring
+  implementation project.deps.jackson
+  implementation project.deps.jacksonDatabind
+  implementation project.deps.springWeb
 
-  api(group: 'com.sparkjava', name: 'spark-core', version: project.versions.spark) {
+  api(project.deps.spark) {
     transitive = false
   }
 
   testImplementation localGroovy()
   testImplementation project(path: ':jetty9', configuration: 'testOutput')
 
-  testImplementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+  testImplementation project.deps.bouncyCastle
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
 
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testImplementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
-  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
-  testImplementation group: 'org.springframework', name: 'spring-test', version: project.versions.spring
+  testImplementation project.deps.mockito
+  testImplementation project.deps.assertJ
+  testImplementation project.deps.jsonUnit
+  testImplementation project.deps.springTest
   testImplementation project(':test:http-mocks')
 }

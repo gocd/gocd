@@ -17,17 +17,17 @@
 description = 'GoCD Plugins Domain'
 
 dependencies {
-  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+  annotationProcessor project.deps.lombok
 
   implementation project(':plugin-infra:go-plugin-api')
-  implementation group: 'commons-io', name: 'commons-io', version: project.versions.commonsIO
-  implementation group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
-  testImplementation group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
+  implementation project.deps.commonsIO
+  implementation project.deps.commonsLang3
+  testImplementation project.deps.jsonUnit
   testImplementation project(':test:test-utils')
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
-  testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
+  testCompileOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Vintage
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.mockito
+  testImplementation project.deps.hamcrestLibrary
 }

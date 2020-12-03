@@ -21,7 +21,7 @@ dependencies {
   implementation project(':api:api-user-representers-v1')
 
   testImplementation project(path: ':api:api-base', configuration: 'testOutput')
-  testImplementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+  testImplementation project.deps.bouncyCastle
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
 }

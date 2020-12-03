@@ -25,19 +25,19 @@ dependencies {
   implementation project(':util')
   implementation project(':plugin-infra:go-plugin-api')
   implementation project(':plugin-infra:go-plugin-activator')
-  implementation group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
-  api group: 'javax.xml.bind', name: 'jaxb-api', version: project.versions.jaxb
-  api group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: project.versions.jaxb
+  implementation project.deps.commonsCollections4
+  api project.deps.jaxb
+  api project.deps.jaxbRuntime
 
-  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+  annotationProcessor project.deps.lombok
 
-  testImplementation group: 'com.github.sbrannen', name: 'spring-test-junit5', version: project.versions.spring4jUnit5Extension
-  testImplementation group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testImplementation project.deps.springTestJunit5
+  testImplementation project.deps.mockito
   testImplementation project(':test:test-utils')
-  testImplementation group: 'org.ops4j.pax.tinybundles', name: 'tinybundles', version: '3.0.0'
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+  testImplementation project.deps.tinybundles
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Engine
 }
 
 clean {

@@ -25,27 +25,27 @@ configurations {
 dependencies {
   implementation project(':base')
   api project(':util')
-  api group: 'com.sdicons.jsontools', name: 'jsontools-core', version: '1.7'
-  api group: 'org.springframework', name: 'spring-test', version: project.versions.spring
-  implementation group: 'org.eclipse.jetty', name: 'jetty-server', version: versions.jetty
-  implementation group: 'org.eclipse.jetty', name: 'jetty-plus', version: versions.jetty
-  implementation group: 'org.eclipse.jetty', name: 'jetty-jmx', version: versions.jetty
-  implementation group: 'org.eclipse.jetty', name: 'jetty-util', version: versions.jetty
-  implementation group: 'org.eclipse.jetty', name: 'jetty-servlet', version: versions.jetty
-  api group: 'org.eclipse.jetty', name: 'jetty-webapp', version: versions.jetty
-  implementation group: 'com.sun.mail', name: 'mailapi', version: versions.mail
-  api group: 'com.github.stefanbirkner', name: 'system-rules', version: project.versions.systemRules
+  api project.deps.jsontools
+  api project.deps.springTest
+  implementation project.deps.jetty
+  implementation project.deps.jettyPlus
+  implementation project.deps.jettyJmx
+  implementation project.deps.jettyUtil
+  implementation project.deps.jettyServlet
+  api project.deps.jettyWebapp
+  implementation project.deps.mail
+  api project.deps.systemRules
 
-  api group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
-  compileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  runtimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  api group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  runtimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  api group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5
+  api project.deps.assertJ
+  compileOnly project.deps.junit4
+  runtimeOnly project.deps.junit5Vintage
+  api project.deps.junit5
+  runtimeOnly project.deps.junit5Engine
+  api project.deps.junit5Params
 
-  api group: 'com.googlecode', name: 'junit-ext', version: '1.0'
-  api group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
-  api group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
+  api project.deps.junitExt
+  api project.deps.hamcrest
+  api project.deps.hamcrestLibrary
 
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   copyOnly project(path: ':test:test-agent')

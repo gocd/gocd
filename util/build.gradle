@@ -18,17 +18,17 @@ description = 'GoCD Utils'
 
 dependencies {
   implementation project(':base')
-  api group: 'org.springframework', name: 'spring-context', version: project.versions.spring
-  api group: 'org.springframework', name: 'spring-webmvc', version: project.versions.spring
-  api group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
-  api group: 'com.google.code.gson', name: 'gson', version: project.versions.gson
-  implementation group: 'uk.com.robust-it', name: 'cloning', version: project.versions.cloning
-  testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
-  testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5
-  testImplementation group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
-  testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest
-  testImplementation group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
+  api project.deps.springContext
+  api project.deps.springWebmvc
+  api project.deps.servletApi
+  api project.deps.gson
+  implementation project.deps.cloning
+  testCompileOnly project.deps.junit4
+  testRuntimeOnly project.deps.junit5Vintage
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
+  testImplementation project.deps.junit5Params
+  testImplementation project.deps.hamcrest
+  testImplementation project.deps.hamcrestLibrary
+  testImplementation project.deps.assertJ
 }

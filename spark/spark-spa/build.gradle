@@ -18,12 +18,12 @@ apply plugin: 'groovy'
 dependencies {
   implementation project(':spark:spark-base')
 
-  implementation group: 'org.freemarker', name: 'freemarker', version: project.versions.freemarker
+  implementation project.deps.freemarker
 
-  testCompileOnly group: 'net.sf.ehcache', name: 'ehcache', version: project.versions.ehcache
+  testCompileOnly project.deps.ehcache
   testImplementation project(path: ':spark:spark-base', configuration: 'testOutput')
-  testImplementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
-  testImplementation group: 'org.jsoup', name: 'jsoup', version: project.versions.jsoup
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+  testImplementation project.deps.bouncyCastle
+  testImplementation project.deps.jsoup
+  testImplementation project.deps.junit5
+  testRuntimeOnly project.deps.junit5Engine
 }

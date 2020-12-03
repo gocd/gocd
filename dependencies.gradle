@@ -91,7 +91,7 @@ final Map<String, String> libraries = [
   objenesis           : 'org.objenesis:objenesis:2.6',
   oscache             : 'opensymphony:oscache:2.4.1',
   postgresql          : 'org.postgresql:postgresql:42.2.10',
-  quartz              : 'org.quartz-scheduler:quartz:2.3.1',
+  quartz              : 'org.quartz-scheduler:quartz:2.3.2',
   rack                : 'org.jruby.rack:jruby-rack:1.1.21',
   semanticVersion     : 'de.skuzzle:semantic-version:2.1.0',
   servletApi          : 'javax.servlet:javax.servlet-api:3.1.0',

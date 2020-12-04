@@ -59,11 +59,9 @@ public class VersionInfoRepresenter {
         try {
             URI updateServerUri = URI.create(systemEnvironment.getUpdateServerUrl());
             URIBuilder uriBuilder = new URIBuilder(updateServerUri);
-            List<NameValuePair> queryParams = uriBuilder.getQueryParams();
 
             String currentVersion = versionInfo.getInstalledVersion() != null ? versionInfo.getInstalledVersion().toString() : "unknown";
-            queryParams.add(new BasicNameValuePair("current_version", currentVersion));
-            uriBuilder.setParameters(queryParams);
+            uriBuilder.addParameter("current_version", currentVersion);
 
             String updatedServeUrl = uriBuilder.build().toString();
             outputWriter.add("update_server_url", updatedServeUrl);

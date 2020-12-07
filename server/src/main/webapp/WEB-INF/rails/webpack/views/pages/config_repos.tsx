@@ -16,6 +16,7 @@
 
 import {AjaxPoller} from "helpers/ajax_poller";
 import {ApiResult} from "helpers/api_request_builder";
+import {pipeline} from "helpers/utils";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -23,6 +24,7 @@ import {AbstractObjCache, ObjectCache} from "models/base/cache";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {DefinedStructures} from "models/config_repos/defined_structures";
 import {ConfigRepo} from "models/config_repos/types";
+import { baseUrlProvider, currentUrlOriginAndPath } from "models/server-configuration/base_url_provider";
 import {SiteUrls} from "models/server-configuration/server_configuration";
 import {Permissions, SupportedEntity} from "models/shared/permissions";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
@@ -34,7 +36,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
-import {ConfigRepoVM} from "views/pages/config_repos/config_repo_view_model";
+import {ConfigRepoVM, WebhookUrlGenerator} from "views/pages/config_repos/config_repo_view_model";
 import {NewConfigRepoModal} from "views/pages/config_repos/modals";
 import {Page, PageState} from "views/pages/page";
 import {AddOperation, FlashContainer, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
@@ -47,7 +49,7 @@ interface SearchOperation {
   resourceAutocompleteHelper: Stream<Map<string, string[]>>;
 }
 
-type State = AddOperation<ConfigRepo> & SaveOperation & SearchOperation & RequiresPluginInfos & FlashContainer;
+type State = AddOperation<ConfigRepo> & SaveOperation & SearchOperation & RequiresPluginInfos & FlashContainer & WebhookUrlGenerator;
 
 // This instance will be shared with all config repo widgets and never changes
 const sm: ScrollManager = new AnchorVM();
@@ -106,7 +108,7 @@ class ConfigReposCache extends AbstractObjCache<ConfigRepo[]> {
 export class ConfigReposPage extends Page<null, State> {
   cache = new ConfigReposCache();
   resultCaches = new Map<string, ObjectCache<DefinedStructures>>();
-  siteUrls: Stream<SiteUrls> = Stream();
+  siteUrls = Stream(new SiteUrls());
 
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.pluginInfos      = Stream();
@@ -133,14 +135,29 @@ export class ConfigReposPage extends Page<null, State> {
       new NewConfigRepoModal(vnode.state.onSuccessfulSave, vnode.state.onError, vnode.state.pluginInfos, vnode.state.resourceAutocompleteHelper()).render();
     };
 
+    vnode.state.webhookUrlFor = (_, __) => "server url provider not initialized.";
+    vnode.state.siteUrlsConfigured = () => this.siteUrls().isConfigured();
+
     new AjaxPoller({repeaterFn: this.refreshConfigRepos.bind(this, vnode), initialIntervalSeconds: 10}).start();
   }
 
   oncreate(vnode: m.Vnode<null, State>) {
     const el = document.querySelector("[data-server-site-urls]");
+
     if (el) {
-      this.siteUrls(JSON.parse(el.getAttribute("data-server-site-urls")!));
+      const json = JSON.parse(el.getAttribute("data-server-site-urls")!);
+      this.siteUrls(SiteUrls.fromJSON(json));
     }
+
+    const fallback = pipeline(                            // To derive the base URI from the ConfigRepos page:
+      currentUrlOriginAndPath(),                          //   1. get the origin and path of the current URI
+      (u) => u.replace(/\/admin\/config_repos(\/)?$/, "") //   2. then slice off the last 2 path segments
+    );
+
+    // try to get the configured site URLs, then fall back to guessing if absent
+    const serverUrl = baseUrlProvider(this.siteUrls(), () => fallback);
+
+    vnode.state.webhookUrlFor = (type, id) => `${serverUrl()}/api/webhooks/${encodeURIComponent(type)}/config_repos/${encodeURIComponent(id)}`;
   }
 
   updateFilterText(vnode: m.Vnode<null, State>) {
@@ -164,6 +181,7 @@ export class ConfigReposPage extends Page<null, State> {
                          flushEtag={() => this.cache.flushEtag()}
                          pluginInfos={vnode.state.pluginInfos}
                          sm={sm}
+                         page={vnode.state}
       />
     </div>;
   }

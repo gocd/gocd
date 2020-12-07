@@ -15,12 +15,13 @@
  */
 
 import m from "mithril";
+import {pipeline} from "./utils";
 
 /**
  * Retrieves a query parameter by name and converts the value to a string
  *
- * @param search: the search query string; this is generally `window.location.search`
- * @param name: the name of the query param to retrieve
+ * @param search the search query string; this is generally `window.location.search`
+ * @param name the name of the query param to retrieve
  *
  * @returns the query param value as a string; if not present or null, returns an empty string
  */
@@ -37,4 +38,15 @@ export function queryParamAsString(search: string, name: string): string {
   }
 
   return JSON.stringify(value);
+}
+
+export function normalizePath(path: string): string {
+  return pipeline(path,
+    // ensures path starts with "/", then collapses consecutive "/" into a single "/"
+    (s) => (s.startsWith("/") ? s : `/${s}`).replace(/[/]+/g, "/"),
+    // collapses and "evaluates" any "./" and "../" in the path
+    (s) => new URL("", "http://a" + s).pathname,
+    // removes any trailing slash
+    (s) => "/" === s ? "/" : s.replace(/\/$/, "")
+  );
 }

@@ -129,6 +129,38 @@
   }
 }
 
+.icon-check {
+  @include icon-before($type: $fa-var-check, $color: $icon-color);
+
+  &:before {
+    margin: 5px 10px 5px -5px;
+  }
+}
+
+.icon-clip {
+  @include icon-before($type: $fa-var-clipboard, $color: $icon-color);
+
+  &:before {
+    margin: 5px 10px 5px -5px;
+  }
+}
+
+.icon-copy {
+  @include icon-before($type: $fa-var-copy, $color: $icon-color);
+
+  &:before {
+    margin: 5px 10px 5px -5px;
+  }
+}
+
+.icon-ellipsis {
+  @include icon-before($type: $fa-var-ellipsis-h, $color: $icon-color);
+
+  &:before {
+    margin: 5px 10px 5px -5px;
+  }
+}
+
 .button + .button {
   margin-left: 20px;
 }

@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 import classnames from "classnames";
-import {RestyleAttrs, RestyleComponent, RestyleViewComponent} from "jsx/mithril-component";
+import { RestyleAttrs, RestyleComponent, RestyleViewComponent } from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {OperationState} from "views/pages/page_operations";
+import { OperationState } from "views/pages/page_operations";
 import * as defaultStyles from "./index.scss";
 
 type Styles = typeof defaultStyles;
 
 export enum ButtonIcon {
   ADD,
-  REMOVE,
+  CHECK,
+  CLIP,
+  COPY,
   DOC,
+  ELLIPSIS,
   FILTER,
   GEAR,
-  SPINNER
+  REMOVE,
+  SPINNER,
 }
 
 export type Alignment = "right" | "left";
@@ -60,9 +64,9 @@ function dataTestIdAttrs(attrs: Attrs) {
 }
 
 abstract class Button extends RestyleViewComponent<Styles, Attrs> {
-  css: Styles                                  = defaultStyles;
+  css: Styles = defaultStyles;
   ajaxOperationMonitor: Stream<OperationState> = Stream<OperationState>(OperationState.UNKNOWN);
-  forceSpinner                                 = false;
+  forceSpinner = false;
 
   static isHtmlAttr(key: string): boolean {
     switch (key) {
@@ -99,7 +103,7 @@ abstract class Button extends RestyleViewComponent<Styles, Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>) {
-    const isSmall    = vnode.attrs.small;
+    const isSmall = vnode.attrs.small;
     const isDropdown = vnode.attrs.dropdown;
     let clickHandler = vnode.attrs.onclick;
 
@@ -119,25 +123,23 @@ abstract class Button extends RestyleViewComponent<Styles, Attrs> {
 
     return (
       <button {...Button.onlyHtmlAttrs(vnode.attrs)}
-              {...dataTestIdAttrs(vnode.attrs)}
-              onclick={clickHandler}
-              disabled={vnode.attrs.disabled || this.ajaxOperationMonitor() === OperationState.IN_PROGRESS}
-              class={classnames(
-                this.css.button,
-                {[this.css.btnDropdown]: isDropdown},
-                Button.iconClass(this.forceSpinner, vnode.attrs.icon, this.css),
-                Button.alignClass(vnode.attrs.align, this.css),
-                this.type(),
-                {[this.css.btnSmall]: isSmall}
-              )}>
+        {...dataTestIdAttrs(vnode.attrs)}
+        onclick={clickHandler}
+        disabled={vnode.attrs.disabled || this.ajaxOperationMonitor() === OperationState.IN_PROGRESS}
+        class={classnames(
+          this.css.button,
+          { [this.css.btnDropdown]: isDropdown },
+          Button.iconClass(this.forceSpinner, vnode.attrs.icon, this.css),
+          Button.alignClass(vnode.attrs.align, this.css),
+          this.type(),
+          { [this.css.btnSmall]: isSmall }
+        )}>
         {vnode.children}
       </button>
     );
   }
 
-  private static iconClass(spinner?: boolean,
-                           icon?: ButtonIcon,
-                           css?: Styles) {
+  private static iconClass(spinner?: boolean, icon?: ButtonIcon, css?: Styles) {
     css = css || defaultStyles;
     if (spinner) {
       return css.iconSpinner;
@@ -146,14 +148,22 @@ abstract class Button extends RestyleViewComponent<Styles, Attrs> {
     switch (icon) {
       case ButtonIcon.ADD:
         return css.iconAdd;
+      case ButtonIcon.CHECK:
+        return css.iconCheck;
+      case ButtonIcon.CLIP:
+        return css.iconClip;
+      case ButtonIcon.COPY:
+        return css.iconCopy;
       case ButtonIcon.DOC:
         return css.iconDoc;
+      case ButtonIcon.ELLIPSIS:
+        return css.iconEllipsis;
       case ButtonIcon.FILTER:
         return css.iconFilter;
-      case ButtonIcon.REMOVE:
-        return css.iconRemove;
       case ButtonIcon.GEAR:
         return css.iconGear;
+      case ButtonIcon.REMOVE:
+        return css.iconRemove;
       case ButtonIcon.SPINNER:
         return css.iconSpinner;
     }
@@ -269,7 +279,7 @@ export abstract class Dropdown<V = {}> extends RestyleComponent<Styles, Dropdown
   view(vnode: m.Vnode<DropdownAttrs & V>) {
     return (
       <div class={classnames(this.classNames(), this.css.btnDropdownContainer)}
-           onclick={this.stopPropogation}>
+        onclick={this.stopPropogation}>
         {this.doRenderButton(vnode)}
         {this.doRenderDropdownContent(vnode)}
       </div>
@@ -300,7 +310,7 @@ export class SimpleDropdown extends Dropdown<SimpleDDAttrs> {
 
   protected doRenderButton(vnode: m.Vnode<DropdownAttrs & SimpleDDAttrs>) {
     return <Primary dropdown={true} disabled={vnode.attrs.disabled} title={vnode.attrs.title}
-                    aria-label={vnode.attrs["aria-label"]} onclick={(e: MouseEvent) => this.toggleDropdown(vnode, e)}>
+      aria-label={vnode.attrs["aria-label"]} onclick={(e: MouseEvent) => this.toggleDropdown(vnode, e)}>
       {vnode.attrs.text}
     </Primary>;
   }

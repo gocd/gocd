@@ -180,3 +180,31 @@ input.form-control { //sass-lint:disable-line no-qualifying-elements
   background: $white;
   padding:    20px;
 }
+
+.webhook-suggestions {
+  max-width: 750px;
+  margin-bottom: 1em;
+
+  .btw {
+    font-weight: 400;
+    font-size: 14px;
+    font-style: italic;
+    color: lighten($text-color, 25%);
+  }
+
+  .ref {
+    font-style: italic;
+  }
+
+  .footnote {
+    font-style: italic;
+    padding: 0;
+    margin: 0.5em 0;
+  }
+
+  .footnote .sigil, .ref {
+    color: $go-danger;
+    font-weight: bold;
+    font-size: 12px;
+  }
+}

@@ -14,38 +14,41 @@
  * limitations under the License.
  */
 
-import {docsUrl} from "gen/gocd_version";
-import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
+import { docsUrl } from "gen/gocd_version";
+import { MithrilComponent, MithrilViewComponent } from "jsx/mithril-component";
 import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {ConfigRepo, ParseInfo} from "models/config_repos/types";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {Anchor, ScrollManager} from "views/components/anchor/anchor";
-import {Code} from "views/components/code";
-import {CollapsiblePanel} from "views/components/collapsible_panel";
-import {FlashMessage, MessageType} from "views/components/flash_message";
-import {HeaderIcon} from "views/components/header_icon";
-import {Delete, Edit, IconGroup, Refresh} from "views/components/icons";
-import {KeyValuePair} from "views/components/key_value_pair";
-import {Link} from "views/components/link";
-import {ShowRulesWidget} from "views/components/rules/show_rules_widget";
-import {RequiresPluginInfos} from "views/pages/page_operations";
-import {allAttributes, resolveHumanReadableAttributes, userDefinedProperties} from "./config_repo_attribute_helper";
-import {CRResult} from "./config_repo_result";
-import {ConfigRepoVM, CRVMAware} from "./config_repo_view_model";
+import { ConfigRepo, ParseInfo } from "models/config_repos/types";
+import { PluginInfo } from "models/shared/plugin_infos_new/plugin_info";
+import { Anchor, ScrollManager } from "views/components/anchor/anchor";
+import { Code } from "views/components/code";
+import { CollapsiblePanel } from "views/components/collapsible_panel";
+import { FlashMessage, MessageType } from "views/components/flash_message";
+import { HeaderIcon } from "views/components/header_icon";
+import { Delete, Edit, IconGroup, Refresh } from "views/components/icons";
+import { KeyValuePair } from "views/components/key_value_pair";
+import { Link } from "views/components/link";
+import { ShowRulesWidget } from "views/components/rules/show_rules_widget";
+import { RequiresPluginInfos } from "views/pages/page_operations";
+import { allAttributes, resolveHumanReadableAttributes, userDefinedProperties } from "./config_repo_attribute_helper";
+import { CRResult } from "./config_repo_result";
+import { ConfigRepoVM, CRVMAware, WebhookUrlGenerator } from "./config_repo_view_model";
 import styles from "./index.scss";
+import { WebhookSuggestions } from "./webhook_suggestions";
 
 interface CollectionAttrs extends RequiresPluginInfos {
   models: Stream<ConfigRepoVM[]>;
   flushEtag: () => void;
   sm: ScrollManager;
+  page: WebhookUrlGenerator;
 }
 
 interface SingleAttrs extends CRVMAware {
   flushEtag: () => void;
   pluginInfo?: PluginInfo;
   sm: ScrollManager;
+  page: WebhookUrlGenerator;
 }
 
 class HeaderWidget extends MithrilViewComponent<SingleAttrs> {
@@ -189,7 +192,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
   }
 
   view(vnode: m.Vnode<SingleAttrs>): m.Children | void | null {
-    const {sm, vm, pluginInfo} = vnode.attrs;
+    const {sm, vm, page, pluginInfo} = vnode.attrs;
     const repo                 = vm.repo;
     const parseInfo            = repo.lastParse()!;
     const maybeWarning         = <MaybeWarning parseInfo={parseInfo} pluginInfo={pluginInfo}/>;
@@ -211,6 +214,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
                         onexpand={() => vm.notify("expand")}>
         {maybeWarning}
 
+        {this.webhookSuggestions(repo, page)}
         {this.renderedConfigs(parseInfo, vm)}
         {this.latestModificationDetails(parseInfo)}
         {this.lastGoodModificationDetails(parseInfo)}
@@ -228,6 +232,12 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
         vm.notify("expand");
       }
       return <CRResult vm={vm} />;
+    }
+  }
+
+  private webhookSuggestions(repo: ConfigRepo, page: WebhookUrlGenerator) {
+    if (!repo.material().attributes()!.autoUpdate()) {
+      return <WebhookSuggestions repoId={repo.id()} page={page} />;
     }
   }
 
@@ -344,6 +354,7 @@ export class ConfigReposWidget extends MithrilViewComponent<CollectionAttrs> {
                                  flushEtag={vnode.attrs.flushEtag}
                                  vm={vm}
                                  pluginInfo={pluginInfo}
+                                 page={vnode.attrs.page}
                                  sm={vnode.attrs.sm}/>;
       })}
     </div>;

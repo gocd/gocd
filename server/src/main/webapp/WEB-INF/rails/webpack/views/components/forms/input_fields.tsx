@@ -703,7 +703,6 @@ export class RadioField<T extends string = string> extends RestyleViewComponent<
         {label}{this.requiredMarker(required)}
       </label>;
     }
-    return undefined;
   }
 
   private requiredMarker(required?: boolean) {

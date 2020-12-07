@@ -19,7 +19,7 @@ import Stream from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
 import {PluginInfos} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashContainer, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
-import {ConfigRepoVM} from "../config_repo_view_model";
+import {ConfigRepoVM, WebhookUrlGenerator} from "../config_repo_view_model";
 import {mockResultsCache} from "./test_data";
 
 describe("ConfigRepoVM", () => {
@@ -70,7 +70,7 @@ function createVm() {
   return new ConfigRepoVM(new ConfigRepo("my-repo"), new MockResources(), mockResultsCache({}));
 }
 
-class MockResources implements FlashContainer, RequiresPluginInfos, SaveOperation {
+class MockResources implements FlashContainer, RequiresPluginInfos, SaveOperation, WebhookUrlGenerator {
   // tslint:disable-next-line no-empty
   flash = { clear() {}, success() {}, alert() {} };
   pluginInfos: Stream<PluginInfos> = Stream();
@@ -79,4 +79,12 @@ class MockResources implements FlashContainer, RequiresPluginInfos, SaveOperatio
   onError() {}
   // tslint:disable-next-line no-empty
   onSuccessfulSave() {}
+
+  webhookUrlFor(type: string, id: string): string {
+    return `//url.for/${type}/${id}`;
+  }
+
+  siteUrlsConfigured(): boolean {
+    return true;
+  }
 }

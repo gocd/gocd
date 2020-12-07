@@ -1,0 +1,123 @@
+/*
+ * Copyright 2020 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@use "sass:color";
+@import "../../global/common";
+
+$overlay-color: $white;
+$overlay-index: 10;
+
+.clip-button {
+  background-color: $white;
+  border-radius: $global-border-radius;
+  border: 1px solid darken($border-color, 30%);
+  margin: 0;
+  padding: 4px;
+  font-size: 18px;
+  vertical-align: top;
+  outline: none;
+  user-select: none;
+  color: lighten($text-color, 25%);
+  cursor: pointer;
+
+  &:active, &:hover {
+    outline: none;
+    user-select: none;
+    background-color: darken($white, 10%);
+  }
+
+  &.icon-clip {
+    @include icon-before($fa-var-clipboard);
+  }
+
+  &.icon-copy {
+    @include icon-before($fa-var-copy);
+  }
+
+  &.icon-check {
+    @include icon-before($fa-var-check, $color: $go-green);
+  }
+
+  &.icon-fail {
+    @include icon-before($fa-var-times, $color: $go-danger);
+  }
+
+  &.icon-ellipsis {
+    @include icon-before($fa-var-ellipsis-h);
+  }
+}
+
+.snip-n-clip {
+  display: table-row;
+  max-width: 750px;
+
+  .snippet {
+    position: relative;
+    display: table-cell;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    padding: 0 8px;
+    border-radius: $global-border-radius;
+    border: 1px solid darken($border-color, 30%);
+    background-color: $white;
+    font-size: 14px;
+    vertical-align: middle;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+    min-width: 400px;
+    color: $text-color;
+    cursor: default;
+
+    &:focus {
+      outline: none;
+    }
+
+    &.copied:before {
+      content: "";
+      display: inline-block;
+      position: absolute;
+      top: 0; right: 0; left: 0; bottom: 0;
+      background-color: $overlay-color;
+    }
+
+    &.copied:after {
+      content: "Copied to clipboard!";
+      display: inline-block;
+      position: absolute;
+      z-index: $overlay-index;
+      top: 50%; right: 0; left: 0;
+      transform: translateY(-50%);
+      text-align: center;
+      color: $go-secondary;
+      font-weight: bold;
+    }
+  }
+
+  .clip-button {
+    display: table-cell;
+    font-size: 14px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-color: $go-secondary;
+    color: lighten(desaturate($color: $go-secondary, $amount: 20%), 10%);
+
+    &:active, &:hover {
+      background-color: lighten($go-secondary, 50%);
+    }
+  }
+}

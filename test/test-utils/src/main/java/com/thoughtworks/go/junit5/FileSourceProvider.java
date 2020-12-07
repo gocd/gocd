@@ -24,24 +24,13 @@ import org.junit.platform.commons.util.Preconditions;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 public class FileSourceProvider implements ArgumentsProvider, AnnotationConsumer<FileSource> {
     private String[] jsonFiles;
-    private final BiFunction<Class<?>, String, InputStream> inputStreamProvider;
-
-    FileSourceProvider() {
-        this(Class::getResourceAsStream);
-    }
-
-    private FileSourceProvider(BiFunction<Class<?>, String, InputStream> inputStreamProvider) {
-        this.inputStreamProvider = inputStreamProvider;
-    }
 
     @Override
     public Stream<? extends Arguments> provideArguments(ExtensionContext context) {

@@ -1,0 +1,10 @@
+{
+  "project": {
+    "path_with_namespace": "gocd/spaceship",
+    "http_url": "https://gitlab.example.com/gocd/spaceship"
+  },
+  "object_attributes": {
+    "iid": 9,
+    "state": "opened"
+  }
+}

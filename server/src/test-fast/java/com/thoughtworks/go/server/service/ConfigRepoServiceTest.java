@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
@@ -74,10 +75,10 @@ class ConfigRepoServiceTest {
         verify(goConfigService).register(listenerCaptor.capture());
         EntityConfigChangedListener<ConfigRepoConfig> listener = listenerCaptor.getValue();
 
-        verify(materialUpdateService, never()).updateMaterial(any());
+        verify(materialUpdateService, never()).updateMaterial((Material) any());
 
         listener.onEntityConfigChange(configRepo);
 
-        verify(materialUpdateService, times(1)).updateMaterial(any());
+        verify(materialUpdateService, times(1)).updateMaterial((Material) any());
     }
 }

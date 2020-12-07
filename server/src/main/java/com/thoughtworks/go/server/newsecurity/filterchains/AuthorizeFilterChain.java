@@ -59,6 +59,7 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                 .addFilterChain("/api/plugin_images/**", allowAllAccessFilter)
                 .addFilterChain("/api/v1/health/**", allowAllAccessFilter)
                 .addFilterChain("/api/webhooks/*/notify/**", allowAllAccessFilter)
+                .addFilterChain("/api/webhooks/*/config_repos/*", allowAllAccessFilter)
 
                 // for some kind of admins
                 .addAuthorityFilterChain("/admin/configuration/file/**", genericAccessDeniedHandler, ROLE_SUPERVISOR)

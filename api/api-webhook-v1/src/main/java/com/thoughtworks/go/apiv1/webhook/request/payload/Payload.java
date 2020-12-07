@@ -17,7 +17,13 @@
 package com.thoughtworks.go.apiv1.webhook.request.payload;
 
 public interface Payload {
-    String getHostname();
+    String hostname();
 
-    String getFullName();
+    String fullName();
+
+    default String scmType() {
+        return "git";
+    }
+
+    String descriptor();
 }

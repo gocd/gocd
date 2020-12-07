@@ -1,0 +1,37 @@
+{
+  "changes": [
+    {
+      "ref": {
+        "displayId": "release",
+        "id": "refs/heads/release",
+        "type": "BRANCH"
+      }
+    }
+  ],
+  "eventKey": "repo:refs_changed",
+  "repository": {
+    "slug": "spaceship",
+    "project": {
+      "key": "GOCD"
+    },
+    "links": {
+      "clone": [
+        {
+          "href": "ssh://git@bitbucket-server/gocd/spaceship.git",
+          "name": "ssh"
+        },
+        {
+          "href": "http://user:pass@bitbucket-server/scm/gocd/spaceship.git",
+          "name": "http"
+        }
+      ],
+      "self": [
+        {
+          "href": "http://bitbucket-server/projects/GOCD/repos/spaceship/browse"
+        }
+      ]
+    },
+    "scmId": "git",
+    "name": "Foo"
+  }
+}

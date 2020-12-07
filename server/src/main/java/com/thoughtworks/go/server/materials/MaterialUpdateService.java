@@ -183,6 +183,10 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         return !allGitMaterials.isEmpty();
     }
 
+    public boolean updateMaterial(MaterialConfig config) {
+        return updateMaterial(materialConfigConverter.toMaterial(config));
+    }
+
     public boolean updateMaterial(Material material) {
         Date inProgressSince = inProgress.putIfAbsent(material, new Date());
         if (inProgressSince == null || !material.isAutoUpdate()) {

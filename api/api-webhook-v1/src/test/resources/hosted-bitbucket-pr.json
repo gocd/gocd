@@ -1,0 +1,34 @@
+{
+  "eventKey": "pr:opened",
+  "pullRequest": {
+    "id": 9,
+    "open": true,
+    "toRef": {
+      "repository": {
+        "slug": "spaceship",
+        "project": {
+          "key": "GOCD"
+        },
+        "links": {
+          "clone": [
+            {
+              "href": "ssh://git@bitbucket-server/gocd/spaceship.git",
+              "name": "ssh"
+            },
+            {
+              "href": "http://user:pass@bitbucket-server/scm/gocd/spaceship.git",
+              "name": "http"
+            }
+          ],
+          "self": [
+            {
+              "href": "http://bitbucket-server/projects/GOCD/repos/spaceship/browse"
+            }
+          ]
+        },
+        "scmId": "git",
+        "name": "Foo"
+      }
+    }
+  }
+}

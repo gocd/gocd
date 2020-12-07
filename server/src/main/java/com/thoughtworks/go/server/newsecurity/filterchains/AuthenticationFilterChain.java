@@ -46,6 +46,7 @@ public class AuthenticationFilterChain extends FilterChainProxy {
                 .addFilterChain("/api/config-repository.git/**", invalidateAuthenticationOnSecurityConfigChangeFilter, assumeAnonymousUserFilter, reAuthenticationWithChallenge, basicAuthenticationWithChallengeFilter)
                 .addFilterChain("/cctray.xml", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithChallenge, assumeAnonymousUserFilter, basicAuthenticationWithChallengeFilter, accessTokenAuthenticationFilter)
                 .addFilterChain("/api/webhooks/*/notify", assumeAnonymousUserFilter)
+                .addFilterChain("/api/webhooks/*/config_repos/*", assumeAnonymousUserFilter)
                 .addFilterChain("/api/**", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithChallenge, assumeAnonymousUserFilter, basicAuthenticationWithChallengeFilter, accessTokenAuthenticationFilter)
                 .addFilterChain("/files/**", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithChallenge, assumeAnonymousUserFilter, basicAuthenticationWithChallengeFilter, accessTokenAuthenticationFilter)
                 .addFilterChain("/properties/**", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithChallenge, assumeAnonymousUserFilter, basicAuthenticationWithChallengeFilter, accessTokenAuthenticationFilter)

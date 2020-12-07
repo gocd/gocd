@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.webhook.request.mixins;
 
 import org.springframework.util.MimeType;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
@@ -32,7 +32,7 @@ public interface RequestContents extends WrapsRequest {
         return request().body();
     }
 
-    default List<MimeType> supportedContentTypes() {
-        return List.of(APPLICATION_JSON, APPLICATION_JSON_UTF8);
+    default Set<MimeType> supportedContentTypes() {
+        return Set.of(APPLICATION_JSON, APPLICATION_JSON_UTF8);
     }
 }

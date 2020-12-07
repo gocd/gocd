@@ -134,7 +134,13 @@
   </rule>
 
   <rule>
-    <name>Webhook API</name>
+    <name>Webhook PR Trigger API</name>
+    <from>^/api/webhooks/([^/]+)/config_repos/([^/]+)(/?)$</from>
+    <to last="true">/spark/api/webhooks/${escape:$1}/config_repos/${escape:$2}</to>
+  </rule>
+
+  <rule>
+    <name>Webhook Notify API</name>
     <from>^/api/webhooks/([^/]+)/notify(/?)$</from>
     <to last="true">/spark/api/webhooks/${escape:$1}/notify</to>
   </rule>

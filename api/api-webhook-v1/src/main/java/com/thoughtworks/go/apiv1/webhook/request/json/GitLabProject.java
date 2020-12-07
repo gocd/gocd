@@ -21,6 +21,7 @@ import com.google.gson.annotations.SerializedName;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+@SuppressWarnings({"unused", "RedundantSuppression"})
 public class GitLabProject {
     @SerializedName("http_url")
     private String httpUrl;
@@ -28,7 +29,7 @@ public class GitLabProject {
     @SerializedName("path_with_namespace")
     private String fullName;
 
-    public String getHostname() {
+    public String hostname() {
         try {
             return new URI(httpUrl).getHost();
         } catch (URISyntaxException e) {
@@ -36,7 +37,7 @@ public class GitLabProject {
         }
     }
 
-    public String getFullName() {
+    public String fullName() {
         return fullName;
     }
 }

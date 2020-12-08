@@ -54,7 +54,7 @@ public class AgentHTTPClientControllerTest {
     @Rule
     public final TemporaryFolder folder = new TemporaryFolder();
     @Mock
-    private BuildRepositoryRemote loopServer;
+    private NewRemote loopServer;
     @Mock
     private GoArtifactsManipulator artifactsManipulator;
     @Mock

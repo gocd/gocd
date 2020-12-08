@@ -951,4 +951,15 @@ public class Routes {
     public class Preferences {
         public static final String SPA_BASE = "/preferences/notifications";
     }
+
+    public class InternalAgent {
+        public static final String BASE = "/remoting/api/internal/agent";
+        public static final String PING = "/ping";
+        public static final String REPORT_CURRENT_STATUS = "/report_current_status";
+        public static final String REPORT_COMPLETING = "/report_completing";
+        public static final String REPORT_COMPLETED = "/report_completed";
+        public static final String IS_IGNORED = "/is_ignored";
+        public static final String GET_COOKIE = "/get_cookie";
+        public static final String GET_WORK = "/get_work";
+    }
 }

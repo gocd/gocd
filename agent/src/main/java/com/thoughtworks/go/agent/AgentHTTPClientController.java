@@ -61,7 +61,7 @@ public class AgentHTTPClientController extends AgentController {
     private AgentInstruction agentInstruction = NONE;
 
     @Autowired
-    public AgentHTTPClientController(BuildRepositoryRemote server,
+    public AgentHTTPClientController(NewRemote server,
                                      GoArtifactsManipulator manipulator,
                                      SslInfrastructureService sslInfrastructureService,
                                      AgentRegistry agentRegistry,

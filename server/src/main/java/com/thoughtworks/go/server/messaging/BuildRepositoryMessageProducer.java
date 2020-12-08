@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.remote.*;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.messaging.scheduling.WorkAssignments;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.perf.WorkAssignmentPerformanceLogger;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import org.springframework.beans.factory.annotation.Autowired;

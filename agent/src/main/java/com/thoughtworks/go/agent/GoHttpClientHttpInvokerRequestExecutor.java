@@ -17,6 +17,8 @@ package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.DefaultAgentRegistry;
+import com.thoughtworks.go.util.URLService;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NoHttpResponseException;
@@ -25,14 +27,14 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.BasicHttpContext;
 import org.springframework.remoting.httpinvoker.AbstractHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerClientConfiguration;
 import org.springframework.remoting.support.RemoteInvocationResult;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -43,10 +45,12 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
 
     private final GoAgentServerHttpClient goAgentServerHttpClient;
     private DefaultAgentRegistry defaultAgentRegistry;
+    private URLService urlService;
 
-    public GoHttpClientHttpInvokerRequestExecutor(GoAgentServerHttpClient goAgentServerHttpClient, DefaultAgentRegistry defaultAgentRegistry) {
+    public GoHttpClientHttpInvokerRequestExecutor(GoAgentServerHttpClient goAgentServerHttpClient, DefaultAgentRegistry defaultAgentRegistry, URLService urlService) {
         this.goAgentServerHttpClient = goAgentServerHttpClient;
         this.defaultAgentRegistry = defaultAgentRegistry;
+        this.urlService = urlService;
     }
 
     @Override
@@ -66,6 +70,26 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
             validateResponse(response);
             try (InputStream responseBody = getResponseBody(response)) {
                 return readRemoteInvocationResult(responseBody, config.getCodebaseUrl());
+            }
+        }
+    }
+
+    public String doPost(String action, String requestBody) throws IOException {
+        HttpPost postMethod = new HttpPost(urlService.getNewRemotingURL(action));
+
+        StringEntity entity = new StringEntity(requestBody);
+        entity.setContentType("application/json");
+        postMethod.setEntity(entity);
+
+        postMethod.setHeader("X-Agent-GUID", defaultAgentRegistry.uuid());
+        postMethod.setHeader("Authorization", defaultAgentRegistry.token());
+
+        BasicHttpContext context = null;
+
+        try (CloseableHttpResponse response = goAgentServerHttpClient.execute(postMethod, context)) {
+            validateResponse(response);
+            try (InputStream responseBody = getResponseBody(response)) {
+                return IOUtils.toString(responseBody, StandardCharsets.UTF_8);
             }
         }
     }

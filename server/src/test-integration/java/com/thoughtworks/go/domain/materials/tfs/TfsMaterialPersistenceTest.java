@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -64,7 +63,7 @@ public class TfsMaterialPersistenceTest {
 
     @Test
     public void shouldBeAbleToConvertAMaterialInstanceObjectToTfsMaterialObject() {
-        TfsMaterial tfsCfg = new TfsMaterial(new GoCipher(), new UrlArgument("url"), "loser", "CORPORATE", "password", "/dev/null");
+        TfsMaterial tfsCfg = new TfsMaterial(new UrlArgument("url"), "loser", "CORPORATE", "password", "/dev/null");
         tfsCfg.setFolder("folder");
         tfsCfg.setName(new CaseInsensitiveString("materialName"));
         MaterialInstance tfsInstance = materialRepository.findOrCreateFrom(tfsCfg);
@@ -75,7 +74,7 @@ public class TfsMaterialPersistenceTest {
 
     @Test
     public void shouldFindOldMaterial() {
-        TfsMaterial tfsCfg = new TfsMaterial(new GoCipher(), new UrlArgument("url"), "loser", "CORPORATE", "foo_bar_baz", "/dev/null");
+        TfsMaterial tfsCfg = new TfsMaterial(new UrlArgument("url"), "loser", "CORPORATE", "foo_bar_baz", "/dev/null");
         MaterialInstance tfsInstance1 = materialRepository.findOrCreateFrom(tfsCfg);
         goCache.clear();
         MaterialInstance tfsInstance2 = materialRepository.findOrCreateFrom(tfsCfg);
@@ -85,7 +84,7 @@ public class TfsMaterialPersistenceTest {
 
     @Test
     public void shouldSaveMaterialInstance() throws Exception {
-        TfsMaterial tfsCfg = new TfsMaterial(new GoCipher(), new UrlArgument("url"), "loser", "CORPORATE", "foo_bar_baz", "/dev/null");
+        TfsMaterial tfsCfg = new TfsMaterial(new UrlArgument("url"), "loser", "CORPORATE", "foo_bar_baz", "/dev/null");
         MaterialInstance materialInstance = materialRepository.findOrCreateFrom(tfsCfg);
         assertThat(materialRepository.findMaterialInstance(tfsCfg), is(materialInstance));
     }

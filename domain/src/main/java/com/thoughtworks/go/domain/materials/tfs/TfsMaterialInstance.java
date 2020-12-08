@@ -17,7 +17,6 @@ package com.thoughtworks.go.domain.materials.tfs;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.UrlArgument;
 
 public class TfsMaterialInstance extends MaterialInstance {
@@ -31,7 +30,7 @@ public class TfsMaterialInstance extends MaterialInstance {
     }
 
     @Override public Material toOldMaterial(String name, String folder, String password) {
-        TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument(url), username, domain, password, projectPath);
+        TfsMaterial tfsMaterial = new TfsMaterial(new UrlArgument(url), username, domain, password, projectPath);
         tfsMaterial.setFolder(folder);
         setName(name,tfsMaterial);
         return tfsMaterial;

@@ -68,8 +68,8 @@ public class TfsMaterialTest {
     @BeforeEach
     void setUp() {
         GoCipher goCipher = mock(GoCipher.class);
-        tfsMaterialFirstCollectionFirstProject = new TfsMaterial(goCipher, new UrlArgument(TFS_FIRST_COLLECTION_URL), USERNAME, DOMAIN, PASSWORD, TFS_FIRST_PROJECT);
-        tfsMaterialFirstCollectionSecondProject = new TfsMaterial(goCipher, new UrlArgument(TFS_FIRST_COLLECTION_URL), USERNAME, DOMAIN, PASSWORD, TFS_SECOND_PROJECT);
+        tfsMaterialFirstCollectionFirstProject = new TfsMaterial(new UrlArgument(TFS_FIRST_COLLECTION_URL), USERNAME, DOMAIN, PASSWORD, TFS_FIRST_PROJECT);
+        tfsMaterialFirstCollectionSecondProject = new TfsMaterial(new UrlArgument(TFS_FIRST_COLLECTION_URL), USERNAME, DOMAIN, PASSWORD, TFS_SECOND_PROJECT);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class TfsMaterialTest {
 
     @Test
     void shouldInjectAllRelevantAttributesInSqlCriteriaMap() {
-        TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("my-url"), "loser", DOMAIN, "foo_bar_baz", "/dev/null");
+        TfsMaterial tfsMaterial = new TfsMaterial(new UrlArgument("my-url"), "loser", DOMAIN, "foo_bar_baz", "/dev/null");
         assertThat(tfsMaterial.getSqlCriteria()).isEqualTo(m(
                 SQL_CRITERIA_TYPE, (Object) "TfsMaterial",
                 "url", "my-url",
@@ -114,7 +114,7 @@ public class TfsMaterialTest {
 
     @Test
     void shouldInjectAllRelevantAttributesInAttributeMap() {
-        TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("my-url"), "loser", DOMAIN, "foo_bar_baz", "/dev/null");
+        TfsMaterial tfsMaterial = new TfsMaterial(new UrlArgument("my-url"), "loser", DOMAIN, "foo_bar_baz", "/dev/null");
         assertThat(tfsMaterial.getAttributesForXml()).isEqualTo(m(
                 AbstractMaterial.SQL_CRITERIA_TYPE, (Object) "TfsMaterial",
                 "url", "my-url",
@@ -124,47 +124,22 @@ public class TfsMaterialTest {
 
     @Test
     void shouldReturnUrlForCommandLine_asUrl_IfSet() {
-        TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("http://foo:bar@my-url.com"), "loser", DOMAIN, "foo_bar_baz", "/dev/null"
+        TfsMaterial tfsMaterial = new TfsMaterial(new UrlArgument("http://foo:bar@my-url.com"), "loser", DOMAIN, "foo_bar_baz", "/dev/null"
         );
         assertThat(tfsMaterial.getUrl()).isEqualTo("http://foo:bar@my-url.com");
 
-        tfsMaterial = new TfsMaterial(new GoCipher(), null, "loser", DOMAIN, "foo_bar_baz", "/dev/null");
+        tfsMaterial = new TfsMaterial(null, "loser", DOMAIN, "foo_bar_baz", "/dev/null");
         assertThat(tfsMaterial.getUrl()).isNull();
     }
 
     @Test
     void shouldReturnUrlForCommandLine_asLocation_IfSet() {
-        TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("http://foo:bar@my-url.com"), "loser", DOMAIN, "foo_bar_baz", "/dev/null"
+        TfsMaterial tfsMaterial = new TfsMaterial(new UrlArgument("http://foo:bar@my-url.com"), "loser", DOMAIN, "foo_bar_baz", "/dev/null"
         );
         assertThat(tfsMaterial.getLocation()).isEqualTo("http://foo:******@my-url.com");
 
-        tfsMaterial = new TfsMaterial(new GoCipher(), null, "loser", DOMAIN, "foo_bar_baz", "/dev/null");
+        tfsMaterial = new TfsMaterial(null, "loser", DOMAIN, "foo_bar_baz", "/dev/null");
         assertThat(tfsMaterial.getLocation()).isNull();
-    }
-
-    @Test
-    void shouldEncryptTfsPasswordAndMarkPasswordAsNull() throws Exception {
-        GoCipher mockGoCipher = mock(GoCipher.class);
-        when(mockGoCipher.encrypt("password")).thenReturn("encrypted");
-
-        TfsMaterial tfsMaterial = new TfsMaterial(mockGoCipher, new UrlArgument("/foo"), "username", DOMAIN, "password", "");
-        tfsMaterial.ensureEncrypted();
-
-        assertThat(tfsMaterial.getPassword()).isNull();
-        assertThat(tfsMaterial.getEncryptedPassword()).isEqualTo("encrypted");
-    }
-
-    @Test
-    void shouldDecryptTfsPassword() throws Exception {
-        GoCipher mockGoCipher = mock(GoCipher.class);
-        when(mockGoCipher.decrypt("encrypted")).thenReturn("password");
-
-        TfsMaterial tfsMaterial = new TfsMaterial(mockGoCipher, new UrlArgument("/foo"), "username", DOMAIN, null, "");
-
-        ReflectionUtil.setField(tfsMaterial, "encryptedPassword", "encrypted");
-
-        tfsMaterial.ensureEncrypted();
-        assertThat(tfsMaterial.getPassword()).isEqualTo("password");
     }
 
     @Test
@@ -173,40 +148,13 @@ public class TfsMaterialTest {
         when(mockGoCipher.encrypt("password")).thenReturn("encrypted");
         when(mockGoCipher.decrypt("encrypted")).thenReturn("password");
 
-        TfsMaterial material = new TfsMaterial(mockGoCipher, new UrlArgument("/foo"), "username", DOMAIN, "password", "");
+        TfsMaterial material = new TfsMaterial(new UrlArgument("/foo"), "username", DOMAIN, "password", "");
         material.ensureEncrypted();
         when(mockGoCipher.encrypt("new_password")).thenReturn("new_encrypted");
         material.setPassword("new_password");
         when(mockGoCipher.decrypt("new_encrypted")).thenReturn("new_password");
 
         assertThat(material.getPassword()).isEqualTo("new_password");
-    }
-
-    @Test
-    void shouldErrorOutIfDecryptionFails() throws CryptoException {
-        GoCipher mockGoCipher = mock(GoCipher.class);
-        String fakeCipherText = "fake cipher text";
-        when(mockGoCipher.decrypt(fakeCipherText)).thenThrow(new CryptoException("exception"));
-        TfsMaterial material = new TfsMaterial(mockGoCipher, new UrlArgument("/foo"), "username", DOMAIN, "password", "");
-        ReflectionUtil.setField(material, "encryptedPassword", fakeCipherText);
-        try {
-            material.getPassword();
-            fail("Should have thrown up");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("Could not decrypt the password to get the real password");
-        }
-    }
-
-    @Test
-    void shouldErrorOutIfEncryptionFails() throws Exception {
-        GoCipher mockGoCipher = mock(GoCipher.class);
-        when(mockGoCipher.encrypt("password")).thenThrow(new CryptoException("exception"));
-        try {
-            new TfsMaterial(mockGoCipher, new UrlArgument("/foo"), "username", DOMAIN, "password", "");
-            fail("Should have thrown up");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("Password encryption failed. Please verify your cipher key.");
-        }
     }
 
     @Test
@@ -237,13 +185,13 @@ public class TfsMaterialTest {
 
     @Test
     void shouldGetLongDescriptionForMaterial() {
-        TfsMaterial material = new TfsMaterial(new GoCipher(), new UrlArgument("http://url/"), "user", "domain", "password", "$project/path/");
+        TfsMaterial material = new TfsMaterial(new UrlArgument("http://url/"), "user", "domain", "password", "$project/path/");
         assertThat(material.getLongDescription()).isEqualTo("URL: http://url/, Username: user, Domain: domain, ProjectPath: $project/path/");
     }
 
     @Test
     void shouldCopyOverPasswordWhenConvertingToConfig() throws Exception {
-        TfsMaterial material = new TfsMaterial(new GoCipher(), new UrlArgument("http://url/"), "user", "domain", "password", "$project/path/");
+        TfsMaterial material = new TfsMaterial(new UrlArgument("http://url/"), "user", "domain", "password", "$project/path/");
 
         TfsMaterialConfig config = (TfsMaterialConfig) material.config();
 
@@ -253,7 +201,7 @@ public class TfsMaterialTest {
 
     @Test
     void shouldGetAttributesWithSecureFields() {
-        TfsMaterial material = new TfsMaterial(new GoCipher(), new UrlArgument("http://username:password@tfsrepo.com"), "username", "domain", "password", "$project/path/");
+        TfsMaterial material = new TfsMaterial(new UrlArgument("http://username:password@tfsrepo.com"), "username", "domain", "password", "$project/path/");
         Map<String, Object> attributes = material.getAttributes(true);
 
         assertThat(attributes.get("type")).isEqualTo("tfs");
@@ -267,7 +215,7 @@ public class TfsMaterialTest {
 
     @Test
     void shouldGetAttributesWithoutSecureFields() {
-        TfsMaterial material = new TfsMaterial(new GoCipher(), new UrlArgument("http://username:password@tfsrepo.com"), "username", "domain", "password", "$project/path/");
+        TfsMaterial material = new TfsMaterial(new UrlArgument("http://username:password@tfsrepo.com"), "username", "domain", "password", "$project/path/");
         Map<String, Object> attributes = material.getAttributes(false);
 
         assertThat(attributes.get("type")).isEqualTo("tfs");
@@ -283,14 +231,14 @@ public class TfsMaterialTest {
     class passwordForCommandLine {
         @Test
         void shouldReturnPasswordAsConfigured_IfNotDefinedAsSecretParam() {
-            TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("some-url"), null, null, "badger", null);
+            TfsMaterial tfsMaterial = new TfsMaterial(new UrlArgument("some-url"), null, null, "badger", null);
 
             assertThat(tfsMaterial.passwordForCommandLine()).isEqualTo("badger");
         }
 
         @Test
         void shouldReturnAResolvedPassword_IfPasswordDefinedAsSecretParam() {
-            TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("some-url"), null, null, "{{SECRET:[secret_config_id][lookup_pass]}}", null);
+            TfsMaterial tfsMaterial = new TfsMaterial(new UrlArgument("some-url"), null, null, "{{SECRET:[secret_config_id][lookup_pass]}}", null);
 
             tfsMaterial.getSecretParams().findFirst("lookup_pass").ifPresent(secretParam -> secretParam.setValue("resolved_password"));
 
@@ -299,7 +247,7 @@ public class TfsMaterialTest {
 
         @Test
         void shouldErrorOutWhenCalledOnAUnResolvedSecretParam_IfPasswordDefinedAsSecretParam() {
-            TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("some-url"), null, null, "{{SECRET:[secret_config_id][lookup_pass]}}", null);
+            TfsMaterial tfsMaterial = new TfsMaterial(new UrlArgument("some-url"), null, null, "{{SECRET:[secret_config_id][lookup_pass]}}", null);
 
             assertThatCode(tfsMaterial::passwordForCommandLine)
                     .isInstanceOf(UnresolvedSecretParamException.class)
@@ -311,7 +259,7 @@ public class TfsMaterialTest {
     class setPassword {
         @Test
         void shouldParsePasswordString_IfDefinedAsSecretParam() {
-            TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("some-url"), null, null, "{{SECRET:[secret_config_id][lookup_pass]}}", null);
+            TfsMaterial tfsMaterial = new TfsMaterial(new UrlArgument("some-url"), null, null, "{{SECRET:[secret_config_id][lookup_pass]}}", null);
 
             assertThat(tfsMaterial.getSecretParams())
                     .hasSize(1)
@@ -339,7 +287,7 @@ public class TfsMaterialTest {
 
     @Test
     void shouldOnlyPopulateDomainEnvVarIfPresent() {
-        TfsMaterial material = new TfsMaterial(mock(GoCipher.class), new UrlArgument(TFS_FIRST_COLLECTION_URL), USERNAME, "", PASSWORD, TFS_FIRST_PROJECT);
+        TfsMaterial material = new TfsMaterial(new UrlArgument(TFS_FIRST_COLLECTION_URL), USERNAME, "", PASSWORD, TFS_FIRST_PROJECT);
         EnvironmentVariableContext ctx = new EnvironmentVariableContext();
         final ArrayList<Modification> modifications = new ArrayList<>();
 

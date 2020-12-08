@@ -29,7 +29,6 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.UrlArgument;
 
 import java.util.Arrays;
@@ -175,7 +174,7 @@ public class MaterialsMother {
     }
 
     public static TfsMaterial tfsMaterial(String url) {
-        return new TfsMaterial(new GoCipher(), new UrlArgument(url), "username", "domain", "password", "project-path");
+        return new TfsMaterial(new UrlArgument(url), "username", "domain", "password", "project-path");
     }
 
     public static SvnMaterial svnMaterial(String svnUrl, String folder) {

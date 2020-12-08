@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.tfs.TfsCommand;
 import com.thoughtworks.go.domain.materials.tfs.TfsCommandFactory;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -54,12 +53,12 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     private String domain = "";
     private String projectPath;
 
-    public TfsMaterial(GoCipher goCipher) {
-        super(TYPE, goCipher);
+    public TfsMaterial() {
+        super(TYPE);
     }
 
-    public TfsMaterial(GoCipher goCipher, UrlArgument url, String userName, String domain, String password, String projectPath) {
-        this(goCipher);
+    public TfsMaterial(UrlArgument url, String userName, String domain, String password, String projectPath) {
+        this();
         this.url = url;
         this.userName = userName;
         this.domain = domain;
@@ -68,7 +67,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     }
 
     public TfsMaterial(TfsMaterialConfig config) {
-        this(config.getGoCipher(), new UrlArgument(config.getUrl()), config.getUserName(), config.getDomain(), config.getPassword(), config.getProjectPath());
+        this(new UrlArgument(config.getUrl()), config.getUserName(), config.getDomain(), config.getPassword(), config.getProjectPath());
         this.autoUpdate = config.getAutoUpdate();
         this.filter = config.rawFilter();
         this.invertFilter = config.getInvertFilter();

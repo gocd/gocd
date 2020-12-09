@@ -181,7 +181,7 @@ export class ConfigReposPage extends Page<null, State> {
                          flushEtag={() => this.cache.flushEtag()}
                          pluginInfos={vnode.state.pluginInfos}
                          sm={sm}
-                         page={vnode.state}
+                         urlGenerator={vnode.state}
       />
     </div>;
   }

@@ -82,7 +82,7 @@ describe("ConfigReposWidget", () => {
       models,
       pluginInfos,
       sm,
-      page: {
+      urlGenerator: {
         webhookUrlFor: (type: string, id: string) => `http://gocd/${type}/${id}`,
         siteUrlsConfigured() { return true; }
       }
@@ -485,7 +485,7 @@ describe("ConfigReposWidget", () => {
       models,
       pluginInfos,
       sm: scrollManager,
-      page: {
+      urlGenerator: {
         webhookUrlFor: (type: string, id: string) => `http://gocd/${type}/${id}`,
         siteUrlsConfigured() { return true; }
       }

@@ -41,7 +41,7 @@ interface CollectionAttrs extends RequiresPluginInfos {
   models: Stream<ConfigRepoVM[]>;
   flushEtag: () => void;
   sm: ScrollManager;
-  page: WebhookUrlGenerator;
+  urlGenerator: WebhookUrlGenerator;
 }
 
 interface SingleAttrs extends CRVMAware {
@@ -354,7 +354,7 @@ export class ConfigReposWidget extends MithrilViewComponent<CollectionAttrs> {
                                  flushEtag={vnode.attrs.flushEtag}
                                  vm={vm}
                                  pluginInfo={pluginInfo}
-                                 page={vnode.attrs.page}
+                                 page={vnode.attrs.urlGenerator}
                                  sm={vnode.attrs.sm}/>;
       })}
     </div>;

@@ -64,9 +64,9 @@ function dataTestIdAttrs(attrs: Attrs) {
 }
 
 abstract class Button extends RestyleViewComponent<Styles, Attrs> {
-  css: Styles = defaultStyles;
-  ajaxOperationMonitor: Stream<OperationState> = Stream<OperationState>(OperationState.UNKNOWN);
-  forceSpinner = false;
+  css: Styles          = defaultStyles;
+  ajaxOperationMonitor = Stream<OperationState>(OperationState.UNKNOWN);
+  forceSpinner         = false;
 
   static isHtmlAttr(key: string): boolean {
     switch (key) {
@@ -103,7 +103,7 @@ abstract class Button extends RestyleViewComponent<Styles, Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>) {
-    const isSmall = vnode.attrs.small;
+    const isSmall    = vnode.attrs.small;
     const isDropdown = vnode.attrs.dropdown;
     let clickHandler = vnode.attrs.onclick;
 

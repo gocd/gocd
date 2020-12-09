@@ -16,26 +16,6 @@
 
 package com.thoughtworks.go.apiv1.webhook.request.mixins;
 
-import org.apache.commons.lang3.StringUtils;
-import spark.Request;
-
-import static java.lang.String.format;
-import static java.lang.String.join;
-
-public interface HasEvents extends LogsFatal, WrapsRequest {
-    default String event() {
-        return parseEvent(request());
-    }
-
-    String parseEvent(Request request);
-
-    String[] allowedEvents();
-
-    default void validateEvents(String... allowedEvents) {
-        String event = event();
-
-        if (!StringUtils.equalsAny(event, allowedEvents)) {
-            throw die(format("Invalid event type `%s`. Allowed events are [%s].", event, join(", ", allowedEvents)));
-        }
-    }
+public interface HasEvents {
+    String event();
 }

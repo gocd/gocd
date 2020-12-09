@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {MithrilComponent} from "jsx/mithril-component";
+import { MithrilComponent } from "jsx/mithril-component";
 import m from "mithril";
 import Stream from "mithril/stream";
-import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
+import { asPromise } from "models/base/accessor";
+import { TriStateCheckbox, TristateState } from "models/tri_state_checkbox";
+import Prism from "prismjs";
+import "prismjs/components/prism-markdown";
+import "prismjs/plugins/autoloader/prism-autoloader";
+import "prismjs/plugins/custom-class/prism-custom-class";
 import {
   ButtonGroup,
   ButtonIcon,
@@ -28,17 +33,18 @@ import {
   Reset,
   Secondary
 } from "views/components/buttons";
-import {DummyDropdownButton} from "views/components/buttons/sample";
-import {CollapsiblePanel} from "views/components/collapsible_panel";
-import {Dropdown} from "views/components/dropdown";
-import {Ellipsize} from "views/components/ellipsize";
-import {KeyValEditor} from "views/components/encryptable_key_value/editor";
-import {EntriesVM} from "views/components/encryptable_key_value/vms";
-import {FlashMessage, MessageType} from "views/components/flash_message";
-import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
-import {IdentifierInputField} from "views/components/forms/common_validating_inputs";
-import {EncryptedValue} from "views/components/forms/encrypted_value";
-import {Form} from "views/components/forms/form";
+import { DummyDropdownButton } from "views/components/buttons/sample";
+import { Click2Copy, CopySnippet } from "views/components/click_2_copy";
+import { CollapsiblePanel } from "views/components/collapsible_panel";
+import { Dropdown } from "views/components/dropdown";
+import { Ellipsize } from "views/components/ellipsize";
+import { KeyValEditor } from "views/components/encryptable_key_value/editor";
+import { EntriesVM } from "views/components/encryptable_key_value/vms";
+import { FlashMessage, MessageType } from "views/components/flash_message";
+import { AutocompleteField, SuggestionProvider } from "views/components/forms/autocomplete";
+import { IdentifierInputField } from "views/components/forms/common_validating_inputs";
+import { EncryptedValue } from "views/components/forms/encrypted_value";
+import { Form } from "views/components/forms/form";
 import {
   CheckboxField,
   CopyField,
@@ -51,20 +57,23 @@ import {
   TextField,
   TriStateCheckboxField
 } from "views/components/forms/input_fields";
-import {LiveValidatingInputField} from "views/components/forms/live_validating_input";
-import {HeaderPanel} from "views/components/header_panel";
-import {IconGroup} from "views/components/icons";
+import { LiveValidatingInputField } from "views/components/forms/live_validating_input";
+import { HeaderPanel } from "views/components/header_panel";
+import { IconGroup } from "views/components/icons";
 import * as Icons from "views/components/icons/index";
-import {KeyValuePair} from "views/components/key_value_pair";
-import {Size} from "views/components/modal";
-import {SampleModal} from "views/components/modal/sample";
-import {PaginationWidget} from "views/components/pagination";
-import {Pagination} from "views/components/pagination/models/pagination";
-import {Tabs} from "views/components/tab";
-import {SortOrder, Table, TableSortHandler} from "views/components/table";
+import { KeyValuePair } from "views/components/key_value_pair";
+import { Size } from "views/components/modal";
+import { SampleModal } from "views/components/modal/sample";
+import { PaginationWidget } from "views/components/pagination";
+import { Pagination } from "views/components/pagination/models/pagination";
+import { Tabs } from "views/components/tab";
+import { SortOrder, Table, TableSortHandler } from "views/components/table";
 import * as Tooltip from "views/components/tooltip";
-import {TooltipSize} from "views/components/tooltip";
-import {Step, Wizard} from "views/components/wizard";
+import { TooltipSize } from "views/components/tooltip";
+import { Step, Wizard } from "views/components/wizard";
+import * as pacStyles from "views/pages/pac/styles.scss";
+
+Prism.plugins.customClass.map(pacStyles);
 
 let type               = "a";
 const formValue        = Stream("initial value");
@@ -106,17 +115,33 @@ const pageChangeCallback = (pagination: Stream<Pagination>, newPage: number) => 
   return false;
 };
 
+class Markdown extends MithrilComponent {
+  view(vnode: m.Vnode) {
+    return <pre style="display: inline-block; margin: 0 5px; padding: 5px; border: 1px dotted black;">
+      <code class="language-markdown">
+      {vnode.children}
+      </code>
+    </pre>;
+  }
+}
+
 export class KitchenSink extends MithrilComponent<null, any> {
   provider: DynamicSuggestionProvider = new DynamicSuggestionProvider(type);
 
   oninit(vnode: m.Vnode<null, any>) {
     setupPropertiesEditorData(vnode.state);
+    vnode.state.samples = {};
+  }
+
+  oncreate(vnode: m.VnodeDOM<null, any>) {
+    Prism.highlightAll();
   }
 
   view(vnode: m.Vnode<null, any>) {
     const model: Stream<string>     = Stream();
     const textValue: Stream<string> = Stream();
     const name: Stream<string>      = Stream();
+    const samples = vnode.state.samples;
 
     return (
       <div>
@@ -126,6 +151,31 @@ export class KitchenSink extends MithrilComponent<null, any> {
           "Stage": "Up42_StAgE",
           "": <Icons.Settings iconOnly={true}/>
         }}/>
+
+        <h3>Copy Widgets</h3>
+        {
+          Object.assign(samples, {
+            one: () => [
+              "Just supply a `Promise<string>` to the `reader` attribute to support both",
+              "sync and async data.",
+              "",
+              "Use `asPromise()` from `helpers/accessor.ts` to easily wrap `Stream<string>;`",
+              "as a `Promise<string>`.",
+              "",
+              "You're welcome.",
+            ].join("\n"),
+            two: () => "You can also use the copy icon if you prefer"
+          }) && ""
+        }
+        <div>
+          <Markdown>{vnode.state.samples.one()}</Markdown>
+          <Click2Copy reader={asPromise(samples.one)} />
+        </div>
+
+        <div>
+          <CopySnippet reader={samples.two} icon="copy" />
+        </div>
+
         <h3>Pagination</h3>
         <PaginationWidget pagination={largeNumberOfPages()}
                           onPageChange={(newPage: number) => pageChangeCallback(largeNumberOfPages, newPage)}/>

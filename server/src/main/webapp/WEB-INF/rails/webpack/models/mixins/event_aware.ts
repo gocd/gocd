@@ -31,6 +31,8 @@ export class EventAware {
   // serialized and is truly private.
   constructor(handlers: Map<string, fn[]> = new Map()) {
     this.on = (type: string, fn: fn) => {
+      if ("function" !== typeof fn) { throw new Error("Not registering a non-function"); }
+
       const fns: fn[] = handlers.get(type) || [];
       fns.push(fn);
       handlers.set(type, fns);

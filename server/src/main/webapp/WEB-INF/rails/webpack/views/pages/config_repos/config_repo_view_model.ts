@@ -26,7 +26,12 @@ import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {EditConfigRepoModal} from "views/pages/config_repos/modals";
 import {FlashContainer, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 
-interface PageResources extends SaveOperation, RequiresPluginInfos, FlashContainer {
+export interface WebhookUrlGenerator {
+  webhookUrlFor(type: string, id: string): string;
+  siteUrlsConfigured(): boolean;
+}
+
+interface PageResources extends SaveOperation, RequiresPluginInfos, FlashContainer, WebhookUrlGenerator {
   resourceAutocompleteHelper: Stream<Map<string, string[]>>;
 }
 

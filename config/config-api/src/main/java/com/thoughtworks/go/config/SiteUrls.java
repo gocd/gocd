@@ -18,10 +18,8 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.SecureSiteUrl;
 import com.thoughtworks.go.domain.SiteUrl;
-import org.springframework.validation.Errors;
 
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 @ConfigTag("siteUrls")
 public class SiteUrls implements Validatable {

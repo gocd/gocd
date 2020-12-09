@@ -55,6 +55,10 @@ export class SiteUrls extends ValidatableMixin {
     return new SiteUrls(data.site_url, data.secure_site_url, new Errors(errors));
   }
 
+  isConfigured() {
+    return !!(this.siteUrl() || this.secureSiteUrl());
+  }
+
   clone() {
     return new SiteUrls(this.siteUrl(), this.secureSiteUrl());
   }

@@ -1,0 +1,15 @@
+{
+  "repository": {
+    "scm": "git",
+    "full_name": "gocd/spaceship",
+    "links": {
+      "html": {
+        "href": "https://bitbucket.org/gocd/spaceship"
+      }
+    }
+  },
+  "pull_request": {
+    "id": 9,
+    "state": "OPEN"
+  }
+}

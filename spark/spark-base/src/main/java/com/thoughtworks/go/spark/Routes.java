@@ -866,11 +866,18 @@ public class Routes {
     public static class Webhook {
         public static String BASE = "/api/webhooks";
 
-        public static class Push {
+        public static class Notify {
             public static final String GITHUB = "/github/notify";
             public static final String GITLAB = "/gitlab/notify";
-            public static final String BIT_BUCKET_CLOUD = "/bitbucket/notify";
-            public static final String BIT_BUCKET_SERVER = "/hosted_bitbucket/notify";
+            public static final String BITBUCKET = "/bitbucket/notify";
+            public static final String HOSTED_BITBUCKET = "/hosted_bitbucket/notify";
+        }
+
+        public static class ConfigRepo {
+            public static final String GITHUB = "/github/config_repos/:id";
+            public static final String GITLAB = "/gitlab/config_repos/:id";
+            public static final String BITBUCKET = "/bitbucket/config_repos/:id";
+            public static final String HOSTED_BITBUCKET = "/hosted_bitbucket/config_repos/:id";
         }
     }
 

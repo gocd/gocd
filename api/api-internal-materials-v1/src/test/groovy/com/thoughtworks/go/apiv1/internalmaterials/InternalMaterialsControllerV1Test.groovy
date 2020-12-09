@@ -255,11 +255,11 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
     @Test
     void 'should return ok when trigger is successful'() {
       when(materialConfigService.getMaterialConfig(anyString(), anyString())).thenReturn(git)
-      when(materialUpdateService.updateMaterial(any(Material.class))).thenReturn(true)
+      when(materialUpdateService.updateMaterial((Material) any())).thenReturn(true)
 
       postWithApiHeader("/api/internal/materials/abc123/trigger_update", [])
 
-      verify(materialUpdateService).updateMaterial(eq(material))
+      verify(materialUpdateService).updateMaterial(material)
       assertThatResponse()
         .isCreated()
         .hasJsonMessage("OK")
@@ -268,11 +268,11 @@ class InternalMaterialsControllerV1Test implements SecurityServiceTrait, Control
     @Test
     void 'should not trigger update if update is already in progress'() {
       when(materialConfigService.getMaterialConfig(anyString(), anyString())).thenReturn(git)
-      when(materialUpdateService.updateMaterial(any(Material.class))).thenReturn(false)
+      when(materialUpdateService.updateMaterial((Material) any())).thenReturn(false)
 
       postWithApiHeader("/api/internal/materials/abc123/trigger_update", [])
 
-      verify(materialUpdateService).updateMaterial(eq(material))
+      verify(materialUpdateService).updateMaterial(material)
       assertThatResponse()
         .isConflict()
         .hasJsonMessage("Update already in progress.")

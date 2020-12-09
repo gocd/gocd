@@ -16,6 +16,6 @@
 
 package com.thoughtworks.go.apiv1.webhook.request.mixins;
 
-public interface HasAuth extends LogsFatal, WrapsRequest {
-    void validateAuth(String webhookSecret);
+public interface HasAuth {
+    String authToken();
 }

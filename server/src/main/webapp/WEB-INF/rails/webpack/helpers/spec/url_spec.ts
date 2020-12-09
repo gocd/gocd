@@ -14,52 +14,91 @@
  * limitations under the License.
  */
 
-import {queryParamAsString} from "../url";
+import {normalizePath, queryParamAsString} from "../url";
 
 describe("URL helpers", () => {
-  it("queryParamAsString() parses params in any position", () => {
-    const search = "?foo=bar&baz=foo&quu=baz";
+  describe("queryParamAsString()", () => {
+    it("parses params in any position", () => {
+      const search = "?foo=bar&baz=foo&quu=baz";
 
-    expect(queryParamAsString(search, "foo")).toBe("bar");
-    expect(queryParamAsString(search, "quu")).toBe("baz");
-    expect(queryParamAsString(search, "baz")).toBe("foo");
+      expect(queryParamAsString(search, "foo")).toBe("bar");
+      expect(queryParamAsString(search, "quu")).toBe("baz");
+      expect(queryParamAsString(search, "baz")).toBe("foo");
+    });
+
+    it("takes the last value of repeated keys", () => {
+      const search = "?baz=one&baz=two&baz=three";
+
+      expect(queryParamAsString(search, "baz")).toBe("three");
+    });
+
+    it("handles missing keys", () => {
+      const search = "?foo=1";
+
+      expect(queryParamAsString(search, "baz")).toBe("");
+    });
+
+    it("handles empty values", () => {
+      expect(queryParamAsString("?baz", "baz")).toBe("");
+      expect(queryParamAsString("?baz=", "baz")).toBe("");
+      expect(queryParamAsString("?", "baz")).toBe("");
+      expect(queryParamAsString("&", "baz")).toBe("");
+      expect(queryParamAsString("", "baz")).toBe("");
+    });
+
+    it("handles numbers", () => {
+      expect(queryParamAsString("?foo=0", "foo")).toBe("0"); // falsey values do not collapse to empty string
+      expect(queryParamAsString("?foo=1", "foo")).toBe("1");
+    });
+
+    it("handles booleans", () => {
+      expect(queryParamAsString("?foo=false", "foo")).toBe("false"); // falsey values do not collapse to empty string
+      expect(queryParamAsString("?foo=true", "foo")).toBe("true");
+    });
+
+    it("handles enumerables", () => {
+      expect(queryParamAsString("?foo[]", "foo")).toBe(`[""]`);
+      expect(queryParamAsString("?foo[]=", "foo")).toBe(`[""]`);
+      expect(queryParamAsString("?foo[0]=&foo[1]=", "foo")).toBe(`["",""]`);
+      expect(queryParamAsString("?foo[0]=a&foo[1]=b", "foo")).toBe(`["a","b"]`);
+      expect(queryParamAsString("?foo[bar]=baz", "foo")).toBe(`{"bar":"baz"}`);
+    });
   });
 
-  it("queryParamAsString() takes the last value of repeated keys", () => {
-    const search = "?baz=one&baz=two&baz=three";
+  describe("normalizePath()", () => {
+    it("treats relative paths as absolute", () => {
+      expect(normalizePath("./a/b/c/d")).toBe("/a/b/c/d");
+      expect(normalizePath("../../a/b/c/d")).toBe("/a/b/c/d");
+      expect(normalizePath("a/b/c/d")).toBe("/a/b/c/d");
+    });
 
-    expect(queryParamAsString(search, "baz")).toBe("three");
-  });
+    it("collapses `./` and `../`", () => {
+      expect(normalizePath("/a/b/c/../../d/./e/f/./g/h/i/../j/k/l")).toBe("/a/d/e/f/g/h/j/k/l");
+    });
 
-  it("queryParamAsString() handles missing keys", () => {
-    const search = "?foo=1";
+    it("handles trailing `.` and `..`", () => {
+      expect(normalizePath("/../../a/b/../e/f/g/..")).toBe("/a/e/f");
+    });
 
-    expect(queryParamAsString(search, "baz")).toBe("");
-  });
+    it("denormalizes consecutive `/`", () => {
+      expect(normalizePath("/../../a//////////b/../e/f/////////////g/..//")).toBe("/a/e/f");
+      expect(normalizePath("/////a//../////../////b/../e/f/////////////g/..//")).toBe("/e/f");
+    });
 
-  it("queryParamAsString() handles empty values", () => {
-    expect(queryParamAsString("?baz", "baz")).toBe("");
-    expect(queryParamAsString("?baz=", "baz")).toBe("");
-    expect(queryParamAsString("?", "baz")).toBe("");
-    expect(queryParamAsString("&", "baz")).toBe("");
-    expect(queryParamAsString("", "baz")).toBe("");
-  });
+    it("ensures no trailing `/` for non-root paths", () => {
+      expect(normalizePath("/a/b/c/")).toBe("/a/b/c");
+      expect(normalizePath("/a/b/c//")).toBe("/a/b/c");
+      expect(normalizePath("/a/b/c")).toBe("/a/b/c");
+    });
 
-  it("queryParamAsString() handles numbers", () => {
-    expect(queryParamAsString("?foo=0", "foo")).toBe("0"); // falsey values do not collapse to empty string
-    expect(queryParamAsString("?foo=1", "foo")).toBe("1");
-  });
-
-  it("queryParamAsString() handles booleans", () => {
-    expect(queryParamAsString("?foo=false", "foo")).toBe("false"); // falsey values do not collapse to empty string
-    expect(queryParamAsString("?foo=true", "foo")).toBe("true");
-  });
-
-  it("queryParamAsString() handles enumerables", () => {
-    expect(queryParamAsString("?foo[]", "foo")).toBe(`[""]`);
-    expect(queryParamAsString("?foo[]=", "foo")).toBe(`[""]`);
-    expect(queryParamAsString("?foo[0]=&foo[1]=", "foo")).toBe(`["",""]`);
-    expect(queryParamAsString("?foo[0]=a&foo[1]=b", "foo")).toBe(`["a","b"]`);
-    expect(queryParamAsString("?foo[bar]=baz", "foo")).toBe(`{"bar":"baz"}`);
+    it("works for root pathnames", () => {
+      expect(normalizePath("/")).toBe("/");
+      expect(normalizePath("..//../")).toBe("/");
+      expect(normalizePath("/.//")).toBe("/");
+      expect(normalizePath(".")).toBe("/");
+      expect(normalizePath("///")).toBe("/");
+      expect(normalizePath("..")).toBe("/");
+      expect(normalizePath("")).toBe("/");
+    });
   });
 });

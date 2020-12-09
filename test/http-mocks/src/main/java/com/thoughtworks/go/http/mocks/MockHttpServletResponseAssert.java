@@ -24,11 +24,13 @@ import org.assertj.core.api.AbstractObjectAssert;
 import org.assertj.core.error.ShouldContainCharSequence;
 import org.assertj.core.internal.Failures;
 import org.assertj.core.util.Objects;
+import org.hamcrest.text.MatchesPattern;
 import org.springframework.util.InvalidMimeTypeException;
 import org.springframework.util.MimeType;
 
 import javax.servlet.http.Cookie;
 import java.io.UnsupportedEncodingException;
+import java.util.regex.Pattern;
 
 import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -140,6 +142,11 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
 
     public SELF hasJsonMessage(String message) throws UnsupportedEncodingException {
         JsonFluentAssert.assertThatJson(actual.getContentAsString()).node("message").isEqualTo(message);
+        return myself;
+    }
+
+    public SELF hasJsonMessage(Pattern regex) throws UnsupportedEncodingException {
+        JsonFluentAssert.assertThatJson(actual.getContentAsString()).node("message").matches(new MatchesPattern(regex));
         return myself;
     }
 

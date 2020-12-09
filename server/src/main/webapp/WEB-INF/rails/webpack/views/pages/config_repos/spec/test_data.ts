@@ -73,7 +73,7 @@ export function createConfigRepoParsedWithError(overrides?: any): ConfigRepo {
                                    name: "foo",
                                    username: "bob",
                                    encrypted_password: "AES:foo:bar",
-                                   auto_update: true,
+                                   auto_update: ("auto_update" in parameters) ? parameters.auto_update : true,
                                    branch: "master",
                                    destination: ""
                                  }
@@ -127,7 +127,7 @@ export function createConfigRepoParsed(overrides?: any): ConfigRepo {
                                    name: "foo",
                                    username: "bob",
                                    encrypted_password: "AES:foo:bar",
-                                   auto_update: true,
+                                   auto_update: ("auto_update" in parameters) ? parameters.auto_update : true,
                                    branch: "master",
                                    destination: ""
                                  }

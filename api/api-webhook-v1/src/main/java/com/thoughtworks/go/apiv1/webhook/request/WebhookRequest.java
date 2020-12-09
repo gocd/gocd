@@ -17,8 +17,9 @@
 package com.thoughtworks.go.apiv1.webhook.request;
 
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.apiv1.webhook.request.mixins.HasAuth;
+import com.thoughtworks.go.apiv1.webhook.request.mixins.HasEvents;
 import com.thoughtworks.go.apiv1.webhook.request.mixins.RequestContents;
-import com.thoughtworks.go.apiv1.webhook.request.mixins.ValidatingRequest;
 import com.thoughtworks.go.apiv1.webhook.request.payload.Payload;
 import com.thoughtworks.go.config.exceptions.BadRequestException;
 import org.slf4j.Logger;
@@ -27,33 +28,26 @@ import org.springframework.util.MimeType;
 import spark.QueryParamsMap;
 import spark.Request;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
-public abstract class WebhookRequest<T extends Payload> implements ValidatingRequest, RequestContents {
+public abstract class WebhookRequest implements HasAuth, HasEvents, RequestContents {
     public static final String KEY_SCM_NAME = "SCM_NAME";
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     private final Request request;
-    private T payload;
 
     public WebhookRequest(Request request) {
         this.request = request;
     }
 
+    public abstract String event();
+
     public Request request() {
         return request;
-    }
-
-    public T getPayload() {
-        if (payload == null) {
-            this.payload = parsePayload();
-        }
-        return payload;
     }
 
     public BadRequestException die(String message) {
@@ -61,31 +55,33 @@ public abstract class WebhookRequest<T extends Payload> implements ValidatingReq
         return new BadRequestException(message);
     }
 
-    protected T parsePayload() {
-        MimeType contentType = contentType();
+    public <T extends Payload> T parsePayload(Class<T> type) {
+        final MimeType contentType = contentType();
 
         if (!supportedContentTypes().contains(contentType)) {
             throw die(format("Could not understand the Content-Type: %s!", contentType));
         }
 
-        String body = contents();
+        final String body = contents();
+
+        final T payload;
 
         try {
             LOGGER.debug(format("[WebHook] Parsing '%s' payload!", contentType));
-            return GsonTransformer.getInstance().fromJson(body, getParameterClass());
+            payload = GsonTransformer.getInstance().fromJson(body, type);
         } catch (Throwable e) {
             throw die(format("Failed to deserialize payload. Error: %s; Body: %s; Content-Type: %s", e.getMessage(), body, contentType));
         }
+
+        if (!"git".equals(payload.scmType())) {
+            throw die(format("GoCD currently only supports webhooks on `git` repositories; `%s` is a `%s` repository", payload.fullName(), payload.scmType()));
+        }
+
+        return payload;
     }
 
-    protected Class<T> getParameterClass() {
-        return ((Class<T>) ((ParameterizedType) getClass().getGenericSuperclass())
-                .getActualTypeArguments()[0]);
-    }
-
-    public List<String> getScmNames() {
+    public List<String> scmNamesQuery() {
         QueryParamsMap queryMap = this.request.queryMap();
         return queryMap.hasKey(KEY_SCM_NAME) ? asList(queryMap.get(KEY_SCM_NAME).values()) : emptyList();
     }
-
 }

@@ -15,6 +15,7 @@
  */
 
 import {docsUrl} from "gen/gocd_version";
+import {asSelector} from "helpers/css_proxies";
 import _ from 'lodash';
 import m from "mithril";
 import Stream from "mithril/stream";
@@ -34,6 +35,8 @@ import {
   createConfigRepoWithError
 } from "views/pages/config_repos/spec/test_data";
 import {stubAllMethods, TestHelper} from "views/pages/spec/test_helper";
+
+const sel = asSelector(styles);
 
 describe("ConfigReposWidget", () => {
   let showDeleteModal: jasmine.Spy;
@@ -78,11 +81,31 @@ describe("ConfigReposWidget", () => {
       flushEtag: _.noop,
       models,
       pluginInfos,
-      sm
+      sm,
+      urlGenerator: {
+        webhookUrlFor: (type: string, id: string) => `http://gocd/${type}/${id}`,
+        siteUrlsConfigured() { return true; }
+      }
     }}/>);
   });
 
   afterEach(helper.unmount.bind(helper));
+
+  it("renders webhook suggestions when autoUpdate is false", () => {
+    models([vm(createConfigRepoParsed({auto_update: false}))]);
+    helper.redraw();
+
+    expect(helper.byTestId("config-repo-plugin-panel")).toBeInDOM();
+    expect(helper.q(sel.webhookSuggestions)).toBeInDOM();
+  });
+
+  it("does not render webhook suggestions when autoUpdate is true", () => {
+    models([vm(createConfigRepoParsed())]);
+    helper.redraw();
+
+    expect(helper.byTestId("config-repo-plugin-panel")).toBeInDOM();
+    expect(helper.q(sel.webhookSuggestions)).not.toBeInDOM();
+  });
 
   it("should render a message when there are no config repos", () => {
     models([]);
@@ -461,7 +484,11 @@ describe("ConfigReposWidget", () => {
       flushEtag: _.noop,
       models,
       pluginInfos,
-      sm: scrollManager
+      sm: scrollManager,
+      urlGenerator: {
+        webhookUrlFor: (type: string, id: string) => `http://gocd/${type}/${id}`,
+        siteUrlsConfigured() { return true; }
+      }
     }}/>);
     helper.redraw();
 

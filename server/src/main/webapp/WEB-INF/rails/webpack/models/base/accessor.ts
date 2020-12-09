@@ -77,3 +77,9 @@ export function bidirectionalTransform<I,O>(backing: Accessor<O>, to: (v: I) => 
 export function serialize<T>(v: any): T {
   return "function" === typeof v.toJSON ? v.toJSON() : v;
 }
+
+export function asPromise<T>(accessor: Accessor<T>): Promise<T> {
+  return new Promise((resolve, _) => {
+    resolve(accessor());
+  });
+}

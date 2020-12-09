@@ -2,7 +2,7 @@
 
 <!--- Please specify the issue type to help us categorize the issue, mention any one of the below types -->
 
-- Security issue? [**DO NOT** report it here. Use [hackerone](https://hackerone.com/gocd) or send a mail to support@thoughtworks.com]
+- Security issue? [**DO NOT** report it here. Please use [hackerone](https://hackerone.com/gocd) to report the issue.]
 - Bug Report
 - Feature proposal
 - Feature enhancement

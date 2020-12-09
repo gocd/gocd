@@ -796,7 +796,6 @@ task verifyWar(type: VerifyJarTask) {
         "activemq-client-${project.versions.activeMQ}.jar",
         "activemq-openwire-legacy-${project.versions.activeMQ}.jar",
         "ant-${project.versions.apacheAnt}.jar",
-        "animal-sniffer-annotations-1.9.jar",
         "antlr-2.7.6.jar",
         "aopalliance-1.0.jar",
         "asm-7.1.jar",

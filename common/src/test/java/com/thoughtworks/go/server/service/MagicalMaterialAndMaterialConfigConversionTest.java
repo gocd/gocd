@@ -180,8 +180,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     private void assertPasswordIsCorrect(Material material) {
         if (material instanceof PasswordAwareMaterial) {
             assertThat("Password setting is wrong for: " + material.getClass(), ((PasswordAwareMaterial) material).getPassword(), is("pass"));
-            assertThat("Password setting is wrong for: " + material.getClass(), ReflectionUtil.getField(material, "password"), is(nullValue()));
-            assertThat("Password setting is wrong for: " + material.getClass(), ReflectionUtil.getField(material, "encryptedPassword"), is(not(nullValue())));
+            assertThat("Password setting is wrong for: " + material.getClass(), ReflectionUtil.getField(material, "password"), is("pass"));
         }
     }
 

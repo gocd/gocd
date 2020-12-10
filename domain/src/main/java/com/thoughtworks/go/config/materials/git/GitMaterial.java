@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
 import com.thoughtworks.go.domain.materials.git.GitVersion;
 import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.*;
@@ -65,7 +64,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
     private String submoduleFolder;
 
     public GitMaterial(String url) {
-        super(TYPE, new GoCipher());
+        super(TYPE);
         this.url = new UrlArgument(url);
     }
 

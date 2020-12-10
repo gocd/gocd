@@ -58,32 +58,24 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     //TODO: use iBatis to set the type for us, and we can get rid of this field.
     public static final String TYPE = "P4Material";
 
-    private P4Material(GoCipher goCipher) {
-        super(TYPE, goCipher);
+    private P4Material() {
+        super(TYPE);
     }
 
-    public P4Material(String serverAndPort, String view, GoCipher goCipher) {
-        this(goCipher);
+    public P4Material(String serverAndPort, String view) {
+        this();
         bombIfNull(serverAndPort, "null serverAndPort");
         this.serverAndPort = serverAndPort;
         setView(view);
     }
 
-    public P4Material(String serverAndPort, String view) {
-        this(serverAndPort, view, new GoCipher());
-    }
-
-    public P4Material(String url, String view, String userName) {
-        this(url, view);
+    public P4Material(String serverAndPort, String view, String userName) {
+        this(serverAndPort, view);
         this.userName = userName;
     }
 
-    public P4Material(String url, String view, String userName, String folder) {
-        this(url, view, userName, folder, new GoCipher());
-    }
-
     public P4Material(P4MaterialConfig config) {
-        this(config.getUrl(), config.getView(), config.getUserName(), config.getFolder(), config.getGoCipher());
+        this(config.getUrl(), config.getView(), config.getUserName(), config.getFolder());
         this.name = config.getName();
         this.autoUpdate = config.getAutoUpdate();
         this.filter = config.rawFilter();
@@ -92,8 +84,8 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         this.useTickets = config.getUseTickets();
     }
 
-    private P4Material(String serverAndPort, String view, String userName, String folder, GoCipher goCipher) {
-        this(goCipher);
+    public P4Material(String serverAndPort, String view, String userName, String folder) {
+        this();
         bombIfNull(serverAndPort, "null serverAndPort");
         this.serverAndPort = serverAndPort;
         setView(view);

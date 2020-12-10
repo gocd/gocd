@@ -134,7 +134,7 @@ class MaintenanceModeInfoRepresenterTest {
                 "auto_update"       : true,
                 "check_externals"   : true,
                 "username"          : "user",
-                "encrypted_password": svnMaterial.encryptedPassword
+                "encrypted_password": svnMaterial.config().getEncryptedPassword()
               ],
               "mdu_start_time": "1970-01-01T08:20:00Z"
             ]

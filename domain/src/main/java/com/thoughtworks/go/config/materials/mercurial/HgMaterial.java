@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
 import com.thoughtworks.go.domain.materials.mercurial.HgVersion;
 import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
@@ -68,7 +67,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
     private String branch;
 
     private HgMaterial() {
-        super(TYPE, new GoCipher());
+        super(TYPE);
     }
 
     public HgMaterial(String url, String folder) {

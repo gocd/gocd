@@ -329,30 +329,6 @@ public class SvnMaterialTest {
     }
 
     @Test
-    void shouldEncryptSvnPasswordAndMarkPasswordAsNull() throws Exception {
-        GoCipher mockGoCipher = mock(GoCipher.class);
-        when(mockGoCipher.encrypt("password")).thenReturn("encrypted");
-
-        SvnMaterial material = new SvnMaterial("/foo", "username", "password", false, mockGoCipher);
-        material.ensureEncrypted();
-
-        assertThat(material.getPassword()).isNull();
-        assertThat(material.getEncryptedPassword()).isEqualTo("encrypted");
-    }
-
-    @Test
-    void shouldDecryptSvnPassword() throws Exception {
-        GoCipher mockGoCipher = mock(GoCipher.class);
-        when(mockGoCipher.decrypt("encrypted")).thenReturn("password");
-
-        SvnMaterial material = new SvnMaterial("/foo", "username", null, false, mockGoCipher);
-        ReflectionUtil.setField(material, "encryptedPassword", "encrypted");
-
-        material.ensureEncrypted();
-        assertThat(material.getPassword()).isEqualTo("password");
-    }
-
-    @Test
     void shouldNotDecryptSvnPasswordIfPasswordIsNotNull() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.encrypt("password")).thenReturn("encrypted");
@@ -365,33 +341,6 @@ public class SvnMaterialTest {
         when(mockGoCipher.decrypt("new_encrypted")).thenReturn("new_password");
 
         assertThat(material.getPassword()).isEqualTo("new_password");
-    }
-
-    @Test
-    void shouldErrorOutIfDecryptionFails() throws CryptoException {
-        GoCipher mockGoCipher = mock(GoCipher.class);
-        String fakeCipherText = "fake cipher text";
-        when(mockGoCipher.decrypt(fakeCipherText)).thenThrow(new CryptoException("exception"));
-        SvnMaterial material = new SvnMaterial("/foo", "username", null, false, mockGoCipher);
-        ReflectionUtil.setField(material, "encryptedPassword", fakeCipherText);
-        try {
-            material.getPassword();
-            fail("Should have thrown up");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("Could not decrypt the password to get the real password");
-        }
-    }
-
-    @Test
-    void shouldErrorOutIfEncryptionFails() throws Exception {
-        GoCipher mockGoCipher = mock(GoCipher.class);
-        when(mockGoCipher.encrypt("password")).thenThrow(new CryptoException("exception"));
-        try {
-            new SvnMaterial("/foo", "username", "password", false, mockGoCipher);
-            fail("Should have thrown up");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("Password encryption failed. Please verify your cipher key.");
-        }
     }
 
     @Test

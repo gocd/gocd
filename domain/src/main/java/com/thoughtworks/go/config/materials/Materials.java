@@ -32,7 +32,6 @@ import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigVisitor;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.*;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -205,7 +204,7 @@ public class Materials extends BaseCollection<Material> {
     }
 
     public TfsMaterial getTfsMaterial() {
-        return getExistingOrDefaultMaterial(new TfsMaterial(new GoCipher(), new UrlArgument(""), "", "", "", ""));
+        return getExistingOrDefaultMaterial(new TfsMaterial(new UrlArgument(""), "", "", "", ""));
     }
 
     public HgMaterial getHgMaterial() {

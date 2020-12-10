@@ -98,31 +98,6 @@ public class P4MaterialTest extends P4MaterialTestBase {
     }
 
     @Test
-    void shouldEncryptP4Password() throws Exception {
-        GoCipher mockGoCipher = mock(GoCipher.class);
-        when(mockGoCipher.encrypt("password")).thenReturn("encrypted");
-
-        P4Material p4Material = new P4Material("example.com:1818", "view", mockGoCipher);
-        p4Material.setPassword("password");
-        p4Material.ensureEncrypted();
-
-        assertThat(p4Material.getEncryptedPassword()).isEqualTo("encrypted");
-        assertThat(p4Material.getPassword()).isNull();
-    }
-
-    @Test
-    void shouldDecryptP4Password() throws Exception {
-        GoCipher mockGoCipher = mock(GoCipher.class);
-        when(mockGoCipher.decrypt("encrypted")).thenReturn("password");
-
-        P4Material p4Material = new P4Material("example.com:1818", "view", mockGoCipher);
-        ReflectionUtil.setField(p4Material, "encryptedPassword", "encrypted");
-        p4Material.getPassword();
-
-        assertThat(p4Material.getPassword()).isEqualTo("password");
-    }
-
-    @Test
     void shouldReturnEqualsEvenIfPasswordsAreDifferent() throws Exception {
         P4Material material = MaterialsMother.p4Material();
         material.setPassword("password");

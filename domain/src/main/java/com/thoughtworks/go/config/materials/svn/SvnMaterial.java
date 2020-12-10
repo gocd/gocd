@@ -53,10 +53,6 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
 
     public static final String TYPE = "SvnMaterial";
 
-    private SvnMaterial(GoCipher goCipher) {
-        super("SvnMaterial", goCipher);
-    }
-
     public SvnMaterial(String url, String userName, String password, boolean checkExternals) {
         this(url, userName, password, checkExternals, new GoCipher());
     }
@@ -81,7 +77,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     public SvnMaterial(String url, String userName, String password, boolean checkExternals, GoCipher goCipher) {
-        super("SvnMaterial", goCipher);
+        super("SvnMaterial");
         bombIfNull(url, "null url");
         setUrl(url);
         this.userName = userName;

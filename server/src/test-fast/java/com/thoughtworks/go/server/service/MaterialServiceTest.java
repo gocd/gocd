@@ -49,7 +49,6 @@ import com.thoughtworks.go.plugin.access.scm.revision.SCMRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -200,7 +199,7 @@ public class MaterialServiceTest {
     }, HgMaterial.class);
 
     @DataPoint
-    public static RequestDataPoints TFS_LATEST_MODIFICATIONS = new RequestDataPoints(new TfsMaterial(mock(GoCipher.class)) {
+    public static RequestDataPoints TFS_LATEST_MODIFICATIONS = new RequestDataPoints(new TfsMaterial() {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
             return (List<Modification>) MODIFICATIONS;

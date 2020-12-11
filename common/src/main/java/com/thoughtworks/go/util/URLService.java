@@ -42,7 +42,7 @@ public class URLService implements ServerUrlGenerator{
     }
 
     public String getNewRemotingURL(String action) {
-        return format("%s/%s/%s", baseRemotingURL, "remoting/api/internal/agent", action);
+        return format("%s/%s/%s", baseRemotingURL, "remoting/api/agent", action);
     }
     public String getBuildRepositoryURL() {
         return baseRemotingURL + "/remoting/remoteBuildRepository";

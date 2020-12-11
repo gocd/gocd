@@ -32,8 +32,8 @@
 
   <rule>
     <name>Internal Agents API</name>
-    <from> /remoting/api/internal/agent/ping$</from>
-    <to last="true">/spark /remoting/api/internal/agent/ping</to>
+    <from> /remoting/api/agent/(.*)$</from>
+    <to last="true">/spark/remoting/api/agent/${escape:$1}</to>
   </rule>
 
   <rule>

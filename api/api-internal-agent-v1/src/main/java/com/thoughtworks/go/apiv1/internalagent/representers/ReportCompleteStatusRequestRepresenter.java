@@ -17,34 +17,12 @@
 package com.thoughtworks.go.apiv1.internalagent.representers;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.thoughtworks.go.apiv1.internalagent.ReportCompleteStatusRequest;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-
-import java.lang.reflect.Type;
-import java.util.Map;
+import com.thoughtworks.go.remote.request.ReportCompleteStatusRequest;
 
 public class ReportCompleteStatusRequestRepresenter {
     private static final Gson gson = new Gson();
 
     public static ReportCompleteStatusRequest fromJSON(String request) {
-        Type empMapType = new TypeToken<Map<String, Object>>() {}.getType();
-        Map<String, Object> map = gson.fromJson(request, empMapType);
-
-        return new ReportCompleteStatusRequest(agentRuntimeInfo(map), jobIdentifier(map), jobResult(map));
-    }
-
-    private static AgentRuntimeInfo agentRuntimeInfo(Map<String, Object> request) {
-        return (AgentRuntimeInfo) request.get("agent_runtime_info");
-    }
-
-    private static JobIdentifier jobIdentifier(Map<String, Object> request) {
-        return (JobIdentifier) request.get("job_identifier");
-    }
-
-    private static JobResult jobResult(Map<String, Object> request) {
-        return (JobResult) request.get("job_result");
+        return gson.fromJson(request, ReportCompleteStatusRequest.class);
     }
 }

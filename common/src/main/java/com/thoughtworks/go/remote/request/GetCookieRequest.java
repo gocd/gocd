@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.internalagent;
+package com.thoughtworks.go.remote.request;
 
 import com.thoughtworks.go.remote.AgentIdentifier;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @EqualsAndHashCode
 @AllArgsConstructor
 public class GetCookieRequest {

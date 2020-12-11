@@ -40,7 +40,7 @@ import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.remote.work.Work;
+import com.thoughtworks.go.remote.work.*;
 
 import java.lang.reflect.Type;
 
@@ -49,10 +49,11 @@ public class WorkRepresenter {
             .registerTypeAdapter(ConfigurationProperty.class, new ConfigurationPropertyAdapter())
             .registerTypeAdapterFactory(builderAdapter())
             .registerTypeAdapterFactory(materialAdapter())
+            .registerTypeAdapterFactory(workAdapter())
             .create();
 
     public static String toJSON(Work work) {
-        return gson.toJson(work);
+        return gson.toJson(work, Work.class);
     }
 
     private static class ConfigurationPropertyAdapter implements JsonSerializer<ConfigurationProperty>,
@@ -94,5 +95,13 @@ public class WorkRepresenter {
                 .registerSubtype(PackageMaterial.class, "PackageMaterial")
                 .registerSubtype(PluggableSCMMaterial.class, "PluggableSCMMaterial")
                 .registerSubtype(SvnMaterial.class, "SvnMaterial");
+    }
+
+    private static RuntimeTypeAdapterFactory<Work> workAdapter() {
+        return RuntimeTypeAdapterFactory.of(Work.class, "type")
+                .registerSubtype(NoWork.class, "NoWork")
+                .registerSubtype(BuildWork.class, "BuildWork")
+                .registerSubtype(DeniedAgentWork.class, "DeniedAgentWork")
+                .registerSubtype(UnregisteredAgentWork.class, "UnregisteredAgentWork");
     }
 }

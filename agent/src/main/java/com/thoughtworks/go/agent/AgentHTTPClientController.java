@@ -47,7 +47,7 @@ import static com.thoughtworks.go.remote.AgentInstruction.NONE;
 public class AgentHTTPClientController extends AgentController {
     private static final Logger LOG = LoggerFactory.getLogger(AgentHTTPClientController.class);
 
-    private BuildRepositoryRemote server;
+    private NewRemote server;
     private GoArtifactsManipulator manipulator;
     private SslInfrastructureService sslInfrastructureService;
     private final ArtifactExtension artifactExtension;

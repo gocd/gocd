@@ -953,7 +953,7 @@ public class Routes {
     }
 
     public class InternalAgent {
-        public static final String BASE = "/remoting/api/internal/agent";
+        public static final String BASE = "/remoting/api/agent";
         public static final String PING = "/ping";
         public static final String REPORT_CURRENT_STATUS = "/report_current_status";
         public static final String REPORT_COMPLETING = "/report_completing";

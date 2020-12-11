@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.adapter;
+package com.thoughtworks.go.remote.adapter;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;

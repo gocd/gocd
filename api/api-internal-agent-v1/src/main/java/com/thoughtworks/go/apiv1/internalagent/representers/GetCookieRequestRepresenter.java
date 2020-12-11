@@ -17,32 +17,12 @@
 package com.thoughtworks.go.apiv1.internalagent.representers;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.thoughtworks.go.apiv1.internalagent.GetCookieRequest;
-import com.thoughtworks.go.apiv1.internalagent.ReportCompleteStatusRequest;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-
-import java.lang.reflect.Type;
-import java.util.Map;
+import com.thoughtworks.go.remote.request.GetCookieRequest;
 
 public class GetCookieRequestRepresenter {
     private static final Gson gson = new Gson();
 
     public static GetCookieRequest fromJSON(String request) {
-        Type empMapType = new TypeToken<Map<String, Object>>() {}.getType();
-        Map<String, Object> map = gson.fromJson(request, empMapType);
-
-        return new GetCookieRequest(agentIdentifier(map), location(map));
-    }
-
-    private static AgentIdentifier agentIdentifier(Map<String, Object> request) {
-        return (AgentIdentifier) request.get("agent_identifier");
-    }
-
-    private static String location(Map<String, Object> request) {
-        return (String) request.get("location");
+        return gson.fromJson(request, GetCookieRequest.class);
     }
 }

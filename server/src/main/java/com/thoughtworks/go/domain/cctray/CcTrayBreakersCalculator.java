@@ -58,7 +58,7 @@ public class CcTrayBreakersCalculator {
 
     private void addToBreakers(Set<String> breakers, MaterialRevision materialRevision) {
         for (Modification modification : materialRevision.getModifications()) {
-            Author authorInfo = Author.getAuthorInfo(materialRevision.getMaterial().getType(), modification);
+            Author authorInfo = Author.getAuthorInfo(materialRevision.getMaterial().getTypeName(), modification);
             if (authorInfo != null) {
                 breakers.add(authorInfo.getName());
             }

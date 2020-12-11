@@ -74,7 +74,7 @@ public interface Material extends Serializable {
 
     String getDisplayName();
 
-    String getType();
+    String getTypeName();
 
     String getTruncatedDisplayName();
 

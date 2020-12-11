@@ -75,7 +75,7 @@ public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
         jsonMap.put("revision", modification.getRevision());
         jsonMap.put("date", formatISO8601(modification.getModifiedTime()));
         String comment = modification.getComment();
-        if (!revision.getMaterial().getType().equals(TYPE)) {
+        if (!revision.getMaterial().getTypeName().equals(TYPE)) {
             comment = commentRenderer.render(comment);
         }
         jsonMap.put("comment", comment);

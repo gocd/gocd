@@ -226,7 +226,7 @@ public class DependencyMaterial extends AbstractMaterial {
             return false;
         }
         DependencyMaterial that = (DependencyMaterial) o;
-        if (type != null ? !type.equals(that.type) : that.type != null) {
+        if (typeName != null ? !typeName.equals(that.typeName) : that.typeName != null) {
             return false;
         }
         if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
@@ -241,7 +241,7 @@ public class DependencyMaterial extends AbstractMaterial {
 
     @Override
     public int hashCode() {
-        int result = (type != null ? type.hashCode() : 0);
+        int result = (typeName != null ? typeName.hashCode() : 0);
         result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
         result = 31 * result + (stageName != null ? stageName.hashCode() : 0);
         return result;

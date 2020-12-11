@@ -38,7 +38,7 @@ module MaterialsHelper
   end
 
   def dependency_material? material
-    material.getType() == "DependencyMaterial"
+    material.getTypeName() == "DependencyMaterial"
   end
 
   def render_simple_comment(comment)

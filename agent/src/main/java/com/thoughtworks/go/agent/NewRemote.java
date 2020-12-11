@@ -17,6 +17,14 @@
 package com.thoughtworks.go.agent;
 
 import com.google.gson.*;
+import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
+import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
+import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
+import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInstance;
+import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
+import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
+import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
 import com.thoughtworks.go.remote.adapter.RuntimeTypeAdapterFactory;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
@@ -65,6 +73,7 @@ public class NewRemote implements BuildRepositoryRemote {
                 .registerTypeAdapterFactory(builderAdapter())
                 .registerTypeAdapterFactory(materialAdapter())
                 .registerTypeAdapterFactory(workAdapter())
+                .registerTypeAdapterFactory(materialInstanceAdapter())
                 .create();
     }
 
@@ -195,6 +204,17 @@ public class NewRemote implements BuildRepositoryRemote {
                 .registerSubtype(PackageMaterial.class, "PackageMaterial")
                 .registerSubtype(PluggableSCMMaterial.class, "PluggableSCMMaterial")
                 .registerSubtype(SvnMaterial.class, "SvnMaterial");
+    }
+
+    private static RuntimeTypeAdapterFactory<MaterialInstance> materialInstanceAdapter() {
+        return RuntimeTypeAdapterFactory.of(MaterialInstance.class, "type")
+                .registerSubtype(DependencyMaterialInstance.class, "DependencyMaterial")
+                .registerSubtype(GitMaterialInstance.class, "GitMaterial")
+                .registerSubtype(HgMaterialInstance.class, "HgMaterial")
+                .registerSubtype(P4MaterialInstance.class, "P4Material")
+                .registerSubtype(PackageMaterialInstance.class, "PackageMaterial")
+                .registerSubtype(PluggableSCMMaterialInstance.class, "PluggableSCMMaterial")
+                .registerSubtype(SvnMaterialInstance.class, "SvnMaterial");
     }
 
     private static class ConfigurationPropertyAdapter implements JsonSerializer<ConfigurationProperty>,

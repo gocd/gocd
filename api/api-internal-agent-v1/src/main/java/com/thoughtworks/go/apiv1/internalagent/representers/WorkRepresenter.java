@@ -20,6 +20,7 @@ import com.google.gson.*;
 import com.thoughtworks.go.adapter.RuntimeTypeAdapterFactory;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
+import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
 import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
@@ -50,6 +51,7 @@ public class WorkRepresenter {
             .registerTypeAdapterFactory(builderAdapter())
             .registerTypeAdapterFactory(materialAdapter())
             .registerTypeAdapterFactory(workAdapter())
+            .registerTypeAdapterFactory(materialInstanceAdapter())
             .create();
 
     public static String toJSON(Work work) {
@@ -95,6 +97,17 @@ public class WorkRepresenter {
                 .registerSubtype(PackageMaterial.class, "PackageMaterial")
                 .registerSubtype(PluggableSCMMaterial.class, "PluggableSCMMaterial")
                 .registerSubtype(SvnMaterial.class, "SvnMaterial");
+    }
+
+    private static RuntimeTypeAdapterFactory<MaterialInstance> materialInstanceAdapter() {
+        return RuntimeTypeAdapterFactory.of(MaterialInstance.class, "type")
+                .registerSubtype(DependencyMaterialInstance.class, "DependencyMaterial")
+                .registerSubtype(GitMaterialInstance.class, "GitMaterial")
+                .registerSubtype(HgMaterialInstance.class, "HgMaterial")
+                .registerSubtype(P4MaterialInstance.class, "P4Material")
+                .registerSubtype(PackageMaterialInstance.class, "PackageMaterial")
+                .registerSubtype(PluggableSCMMaterialInstance.class, "PluggableSCMMaterial")
+                .registerSubtype(SvnMaterialInstance.class, "SvnMaterial");
     }
 
     private static RuntimeTypeAdapterFactory<Work> workAdapter() {

@@ -17,10 +17,8 @@
 package com.thoughtworks.go.apiv1.internalagent.representers;
 
 import com.google.gson.*;
-import com.thoughtworks.go.adapter.RuntimeTypeAdapterFactory;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
-import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
 import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
@@ -42,6 +40,8 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.remote.work.*;
+import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 
 import java.lang.reflect.Type;
 
@@ -52,6 +52,7 @@ public class WorkRepresenter {
             .registerTypeAdapterFactory(materialAdapter())
             .registerTypeAdapterFactory(workAdapter())
             .registerTypeAdapterFactory(materialInstanceAdapter())
+            .registerTypeAdapterFactory(agentRuntimeInfoAdapter())
             .create();
 
     public static String toJSON(Work work) {
@@ -116,5 +117,11 @@ public class WorkRepresenter {
                 .registerSubtype(BuildWork.class, "BuildWork")
                 .registerSubtype(DeniedAgentWork.class, "DeniedAgentWork")
                 .registerSubtype(UnregisteredAgentWork.class, "UnregisteredAgentWork");
+    }
+
+    private static RuntimeTypeAdapterFactory<AgentRuntimeInfo> agentRuntimeInfoAdapter() {
+        return RuntimeTypeAdapterFactory.of(AgentRuntimeInfo.class, "type")
+                .registerSubtype(AgentRuntimeInfo.class, "AgentRuntimeInfo")
+                .registerSubtype(ElasticAgentRuntimeInfo.class, "ElasticAgentRuntimeInfo");
     }
 }

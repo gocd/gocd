@@ -17,12 +17,24 @@
 package com.thoughtworks.go.apiv1.internalagent.representers;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.remote.adapter.RuntimeTypeAdapterFactory;
 import com.thoughtworks.go.remote.request.ReportCurrentStatusRequest;
+import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 
 public class ReportCurrentStatusRequestRepresenter {
-    private static final Gson gson = new Gson();
+    private static final Gson gson = new GsonBuilder()
+            .registerTypeAdapterFactory(agentRuntimeInfoAdapter())
+            .create();
 
     public static ReportCurrentStatusRequest fromJSON(String request) {
         return gson.fromJson(request, ReportCurrentStatusRequest.class);
+    }
+
+    private static RuntimeTypeAdapterFactory<AgentRuntimeInfo> agentRuntimeInfoAdapter() {
+        return RuntimeTypeAdapterFactory.of(AgentRuntimeInfo.class, "type")
+                .registerSubtype(AgentRuntimeInfo.class, "AgentRuntimeInfo")
+                .registerSubtype(ElasticAgentRuntimeInfo.class, "ElasticAgentRuntimeInfo");
     }
 }

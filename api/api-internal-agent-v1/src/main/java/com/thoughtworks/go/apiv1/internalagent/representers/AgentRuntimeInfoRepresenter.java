@@ -17,12 +17,23 @@
 package com.thoughtworks.go.apiv1.internalagent.representers;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.remote.adapter.RuntimeTypeAdapterFactory;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 
 public class AgentRuntimeInfoRepresenter {
-    private static final Gson gson = new Gson();
+    private static final Gson gson = new GsonBuilder()
+            .registerTypeAdapterFactory(agentRuntimeInfoAdapter())
+            .create();
 
     public static AgentRuntimeInfo fromJSON(String json) {
         return gson.fromJson(json, AgentRuntimeInfo.class);
+    }
+
+    private static RuntimeTypeAdapterFactory<AgentRuntimeInfo> agentRuntimeInfoAdapter() {
+        return RuntimeTypeAdapterFactory.of(AgentRuntimeInfo.class, "type")
+                .registerSubtype(AgentRuntimeInfo.class, "AgentRuntimeInfo")
+                .registerSubtype(ElasticAgentRuntimeInfo.class, "ElasticAgentRuntimeInfo");
     }
 }

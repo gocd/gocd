@@ -18,6 +18,7 @@ package com.thoughtworks.go.agent;
 
 import com.google.gson.*;
 import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
 import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
@@ -49,6 +50,7 @@ import com.thoughtworks.go.remote.request.ReportCompleteStatusRequest;
 import com.thoughtworks.go.remote.request.ReportCurrentStatusRequest;
 import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -74,13 +76,14 @@ public class NewRemote implements BuildRepositoryRemote {
                 .registerTypeAdapterFactory(materialAdapter())
                 .registerTypeAdapterFactory(workAdapter())
                 .registerTypeAdapterFactory(materialInstanceAdapter())
+                .registerTypeAdapterFactory(agentRuntimeInfoAdapter())
                 .create();
     }
 
     @Override
     public AgentInstruction ping(AgentRuntimeInfo info) {
         try {
-            String instruction = this.httpClientHttpInvokerRequestExecutor.doPost("ping", gson.toJson(info));
+            String instruction = this.httpClientHttpInvokerRequestExecutor.doPost("ping", gson.toJson(info, AgentRuntimeInfo.class));
             return gson.fromJson(instruction, AgentInstruction.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -90,7 +93,7 @@ public class NewRemote implements BuildRepositoryRemote {
     @Override
     public Work getWork(AgentRuntimeInfo runtimeInfo) {
         try {
-            String work = this.httpClientHttpInvokerRequestExecutor.doPost("get_work", gson.toJson(runtimeInfo));
+            String work = this.httpClientHttpInvokerRequestExecutor.doPost("get_work", gson.toJson(runtimeInfo, AgentRuntimeInfo.class));
             return gson.fromJson(work, Work.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -99,11 +102,6 @@ public class NewRemote implements BuildRepositoryRemote {
 
     @Override
     public void reportCurrentStatus(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobState jobState) {
-        Map<String, Object> request = Map.of(
-                "agent_runtime_info", agentRuntimeInfo,
-                "job_identifier", jobIdentifier,
-                "job_state", jobState);
-
         try {
             this.httpClientHttpInvokerRequestExecutor.doPost("report_current_status",
                     gson.toJson(new ReportCurrentStatusRequest(agentRuntimeInfo, jobIdentifier, jobState)));
@@ -114,11 +112,6 @@ public class NewRemote implements BuildRepositoryRemote {
 
     @Override
     public void reportCompleting(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
-        Map<String, Object> request = Map.of(
-                "agent_runtime_info", agentRuntimeInfo,
-                "job_identifier", jobIdentifier,
-                "job_result", result);
-
         try {
             this.httpClientHttpInvokerRequestExecutor.doPost("report_completing",
                     gson.toJson(new ReportCompleteStatusRequest(agentRuntimeInfo, jobIdentifier, result)));
@@ -129,11 +122,6 @@ public class NewRemote implements BuildRepositoryRemote {
 
     @Override
     public void reportCompleted(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
-        Map<String, Object> request = Map.of(
-                "agent_runtime_info", agentRuntimeInfo,
-                "job_identifier", jobIdentifier,
-                "job_result", result);
-
         try {
             this.httpClientHttpInvokerRequestExecutor.doPost("report_completed",
                     gson.toJson(new ReportCompleteStatusRequest(agentRuntimeInfo, jobIdentifier, result)));
@@ -215,6 +203,12 @@ public class NewRemote implements BuildRepositoryRemote {
                 .registerSubtype(PackageMaterialInstance.class, "PackageMaterial")
                 .registerSubtype(PluggableSCMMaterialInstance.class, "PluggableSCMMaterial")
                 .registerSubtype(SvnMaterialInstance.class, "SvnMaterial");
+    }
+
+    private static RuntimeTypeAdapterFactory<AgentRuntimeInfo> agentRuntimeInfoAdapter() {
+        return RuntimeTypeAdapterFactory.of(AgentRuntimeInfo.class, "type")
+                .registerSubtype(AgentRuntimeInfo.class, "AgentRuntimeInfo")
+                .registerSubtype(ElasticAgentRuntimeInfo.class, "ElasticAgentRuntimeInfo");
     }
 
     private static class ConfigurationPropertyAdapter implements JsonSerializer<ConfigurationProperty>,

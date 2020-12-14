@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.remote.request;
+package com.thoughtworks.go.apiv1.internalagent.representers;
 
-import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import com.google.gson.Gson;
+import com.thoughtworks.go.remote.request.IsIgnoredRequest;
 
-@Getter
-@Setter
-@EqualsAndHashCode
-@AllArgsConstructor
-public class GetCookieRequest implements AgentRequest {
-    AgentRuntimeInfo agentRuntimeInfo;
+public class IsIgnoredRequestRepresenter {
+    private static final Gson gson = new Gson();
+
+    public static IsIgnoredRequest fromJSON(String json) {
+        return gson.fromJson(json, IsIgnoredRequest.class);
+    }
 }

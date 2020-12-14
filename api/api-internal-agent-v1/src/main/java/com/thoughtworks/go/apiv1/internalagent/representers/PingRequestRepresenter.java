@@ -24,7 +24,7 @@ import com.thoughtworks.go.remote.request.PingRequest;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 
-public class AgentRuntimeInfoRepresenter {
+public class PingRequestRepresenter {
     private static final Gson gson = new GsonBuilder()
             .registerTypeAdapterFactory(agentRuntimeInfoAdapter())
             .create();

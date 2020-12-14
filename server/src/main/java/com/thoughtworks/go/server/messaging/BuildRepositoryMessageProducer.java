@@ -66,13 +66,13 @@ public class BuildRepositoryMessageProducer implements BuildRepositoryRemote {
     }
 
     @Override
-    public boolean isIgnored(JobIdentifier jobIdentifier) {
-        return buildRepository.isIgnored(jobIdentifier);
+    public boolean isIgnored(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier) {
+        return buildRepository.isIgnored(agentRuntimeInfo, jobIdentifier);
     }
 
     @Override
-    public String getCookie(AgentIdentifier identifier, String location) {
-        return buildRepository.getCookie(identifier, location);
+    public String getCookie(AgentRuntimeInfo agentRuntimeInfo) {
+        return buildRepository.getCookie(agentRuntimeInfo);
     }
 
     @Override

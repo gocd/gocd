@@ -28,7 +28,7 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 @AllArgsConstructor
-public class ReportCurrentStatusRequest {
+public class ReportCurrentStatusRequest implements AgentRequest {
     private final AgentRuntimeInfo agentRuntimeInfo;
     private final JobIdentifier jobIdentifier;
     private final JobState jobState;

@@ -19,14 +19,10 @@ package com.thoughtworks.go.apiv1.internalagent;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.apiv1.internalagent.representers.*;
-import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
-import com.thoughtworks.go.remote.request.GetCookieRequest;
-import com.thoughtworks.go.remote.request.ReportCompleteStatusRequest;
-import com.thoughtworks.go.remote.request.ReportCurrentStatusRequest;
+import com.thoughtworks.go.remote.request.*;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.messaging.BuildRepositoryMessageProducer;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +30,7 @@ import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseForbidden;
 import static java.lang.String.valueOf;
 import static spark.Spark.path;
 import static spark.Spark.post;
@@ -67,14 +64,19 @@ public class InternalAgentControllerV1 extends ApiController implements SparkSpr
     }
 
     public String ping(Request request, Response response) {
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfoRepresenter.fromJSON(request.body());
-        AgentInstruction agentInstruction = buildRepositoryMessageProducer.ping(agentRuntimeInfo);
+        PingRequest pingRequest = PingRequestRepresenter.fromJSON(request.body());
+
+        ensureRequestedBySameAgent(pingRequest, request);
+
+        AgentInstruction agentInstruction = buildRepositoryMessageProducer.ping(pingRequest.getAgentRuntimeInfo());
 
         return AgentInstructionRepresenter.toJSON(agentInstruction);
     }
 
     public String reportCurrentStatus(Request request, Response response) {
         ReportCurrentStatusRequest req = ReportCurrentStatusRequestRepresenter.fromJSON(request.body());
+
+        ensureRequestedBySameAgent(req, request);
 
         buildRepositoryMessageProducer.reportCurrentStatus(req.getAgentRuntimeInfo(), req.getJobIdentifier(),
                 req.getJobState());
@@ -85,6 +87,7 @@ public class InternalAgentControllerV1 extends ApiController implements SparkSpr
     public String reportCompleting(Request request, Response response) {
         ReportCompleteStatusRequest req = ReportCompleteStatusRequestRepresenter.fromJSON(request.body());
 
+        ensureRequestedBySameAgent(req, request);
         buildRepositoryMessageProducer.reportCompleting(req.getAgentRuntimeInfo(), req.getJobIdentifier(),
                 req.getJobResult());
 
@@ -94,6 +97,8 @@ public class InternalAgentControllerV1 extends ApiController implements SparkSpr
     public String reportCompleted(Request request, Response response) {
         ReportCompleteStatusRequest req = ReportCompleteStatusRequestRepresenter.fromJSON(request.body());
 
+        ensureRequestedBySameAgent(req, request);
+
         buildRepositoryMessageProducer.reportCompleted(req.getAgentRuntimeInfo(), req.getJobIdentifier(),
                 req.getJobResult());
 
@@ -101,21 +106,39 @@ public class InternalAgentControllerV1 extends ApiController implements SparkSpr
     }
 
     public String isIgnored(Request request, Response response) {
-        JobIdentifier jobIdentifier = JobIdentifierRepresenter.fromJSON(request.body());
+        IsIgnoredRequest isIgnoredRequest = IsIgnoredRequestRepresenter.fromJSON(request.body());
 
-        return valueOf(buildRepositoryMessageProducer.isIgnored(jobIdentifier));
+        ensureRequestedBySameAgent(isIgnoredRequest, request);
+
+        return valueOf(buildRepositoryMessageProducer.isIgnored(isIgnoredRequest.getAgentRuntimeInfo(), isIgnoredRequest.getJobIdentifier()));
     }
 
     public String getCookie(Request request, Response response) {
         GetCookieRequest getCookieRequest = GetCookieRequestRepresenter.fromJSON(request.body());
 
-        return buildRepositoryMessageProducer.getCookie(getCookieRequest.getIdentifier(), getCookieRequest.getLocation());
+        ensureRequestedBySameAgent(getCookieRequest, request);
+
+        return buildRepositoryMessageProducer.getCookie(getCookieRequest.getAgentRuntimeInfo());
     }
 
     public String getWork(Request request, Response response) {
-        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfoRepresenter.fromJSON(request.body());
-        Work work = buildRepositoryMessageProducer.getWork(agentRuntimeInfo);
+        GetWorkRequest workRequest = WorkRepresenter.fromJSON(request.body());
+
+        ensureRequestedBySameAgent(workRequest, request);
+
+        Work work = buildRepositoryMessageProducer.getWork(workRequest.getAgentRuntimeInfo());
 
         return WorkRepresenter.toJSON(work);
+    }
+
+    public void ensureRequestedBySameAgent(AgentRequest agentRequest, Request request) {
+        String uuidInRuntimeInfo = agentRequest.getAgentRuntimeInfo().getUUId();
+        String uuidInRequest = request.headers("X-Agent-GUID");
+
+        if (!uuidInRuntimeInfo.equals(uuidInRequest)) {
+            String message = String.format("Agent with uuid: '%s' is attempting a request for agent:  '%s'.", uuidInRequest,
+                    uuidInRuntimeInfo);
+            haltBecauseForbidden(message);
+        }
     }
 }

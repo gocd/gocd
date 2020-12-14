@@ -17,16 +17,6 @@
 package com.thoughtworks.go.agent;
 
 import com.google.gson.*;
-import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
-import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
-import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
-import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
-import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInstance;
-import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
-import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
-import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
-import com.thoughtworks.go.remote.adapter.RuntimeTypeAdapterFactory;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -34,17 +24,24 @@ import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.*;
+import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
+import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
+import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
+import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInstance;
+import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
+import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
+import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
-import com.thoughtworks.go.remote.request.GetCookieRequest;
-import com.thoughtworks.go.remote.request.ReportCompleteStatusRequest;
-import com.thoughtworks.go.remote.request.ReportCurrentStatusRequest;
+import com.thoughtworks.go.remote.adapter.RuntimeTypeAdapterFactory;
+import com.thoughtworks.go.remote.request.*;
 import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
@@ -53,7 +50,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Map;
 
 import static java.lang.Boolean.parseBoolean;
 
@@ -81,7 +77,7 @@ public class NewRemote implements BuildRepositoryRemote {
     @Override
     public AgentInstruction ping(AgentRuntimeInfo info) {
         try {
-            String instruction = this.httpClientHttpInvokerRequestExecutor.doPost("ping", gson.toJson(info, AgentRuntimeInfo.class));
+            String instruction = this.httpClientHttpInvokerRequestExecutor.doPost("ping", gson.toJson(new PingRequest(info), PingRequest.class));
             return gson.fromJson(instruction, AgentInstruction.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -91,7 +87,7 @@ public class NewRemote implements BuildRepositoryRemote {
     @Override
     public Work getWork(AgentRuntimeInfo runtimeInfo) {
         try {
-            String work = this.httpClientHttpInvokerRequestExecutor.doPost("get_work", gson.toJson(runtimeInfo, AgentRuntimeInfo.class));
+            String work = this.httpClientHttpInvokerRequestExecutor.doPost("get_work", gson.toJson(new GetWorkRequest(runtimeInfo), GetWorkRequest.class));
             return gson.fromJson(work, Work.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -102,7 +98,7 @@ public class NewRemote implements BuildRepositoryRemote {
     public void reportCurrentStatus(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobState jobState) {
         try {
             this.httpClientHttpInvokerRequestExecutor.doPost("report_current_status",
-                    gson.toJson(new ReportCurrentStatusRequest(agentRuntimeInfo, jobIdentifier, jobState)));
+                    gson.toJson(new ReportCurrentStatusRequest(agentRuntimeInfo, jobIdentifier, jobState), ReportCurrentStatusRequest.class));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -112,7 +108,7 @@ public class NewRemote implements BuildRepositoryRemote {
     public void reportCompleting(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
         try {
             this.httpClientHttpInvokerRequestExecutor.doPost("report_completing",
-                    gson.toJson(new ReportCompleteStatusRequest(agentRuntimeInfo, jobIdentifier, result)));
+                    gson.toJson(new ReportCompleteStatusRequest(agentRuntimeInfo, jobIdentifier, result), ReportCompleteStatusRequest.class));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -122,17 +118,17 @@ public class NewRemote implements BuildRepositoryRemote {
     public void reportCompleted(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
         try {
             this.httpClientHttpInvokerRequestExecutor.doPost("report_completed",
-                    gson.toJson(new ReportCompleteStatusRequest(agentRuntimeInfo, jobIdentifier, result)));
+                    gson.toJson(new ReportCompleteStatusRequest(agentRuntimeInfo, jobIdentifier, result), ReportCompleteStatusRequest.class));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public boolean isIgnored(JobIdentifier jobIdentifier) {
+    public boolean isIgnored(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier) {
         try {
             String isIgnored = this.httpClientHttpInvokerRequestExecutor.doPost("is_ignored",
-                    gson.toJson(jobIdentifier));
+                    gson.toJson(new IsIgnoredRequest(agentRuntimeInfo, jobIdentifier), IsIgnoredRequest.class));
             return parseBoolean(isIgnored);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -140,13 +136,10 @@ public class NewRemote implements BuildRepositoryRemote {
     }
 
     @Override
-    public String getCookie(AgentIdentifier identifier, String location) {
-        Map<String, Object> request = Map.of(
-                "agent_identifier", identifier,
-                "location", location);
+    public String getCookie(AgentRuntimeInfo agentRuntimeInfo) {
         try {
             return this.httpClientHttpInvokerRequestExecutor.doPost("get_cookie",
-                    gson.toJson(new GetCookieRequest(identifier, location)));
+                    gson.toJson(new GetCookieRequest(agentRuntimeInfo), GetCookieRequest.class));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

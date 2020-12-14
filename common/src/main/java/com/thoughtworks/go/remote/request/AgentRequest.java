@@ -16,21 +16,8 @@
 
 package com.thoughtworks.go.remote.request;
 
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-@EqualsAndHashCode
-@AllArgsConstructor
-public class ReportCompleteStatusRequest implements AgentRequest {
-    private final AgentRuntimeInfo agentRuntimeInfo;
-    private final JobIdentifier jobIdentifier;
-    private final JobResult jobResult;
+public interface AgentRequest {
+    AgentRuntimeInfo getAgentRuntimeInfo();
 }

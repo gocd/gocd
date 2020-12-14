@@ -39,6 +39,8 @@ import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.remote.request.GetWorkRequest;
+import com.thoughtworks.go.remote.request.PingRequest;
 import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
@@ -58,6 +60,10 @@ public class WorkRepresenter {
 
     public static String toJSON(Work work) {
         return gson.toJson(work, Work.class);
+    }
+
+    public static GetWorkRequest fromJSON(String json) {
+        return gson.fromJson(json, GetWorkRequest.class);
     }
 
     private static class ConfigurationPropertyAdapter implements JsonSerializer<ConfigurationProperty>,

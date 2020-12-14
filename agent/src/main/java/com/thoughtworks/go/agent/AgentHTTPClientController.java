@@ -128,7 +128,7 @@ public class AgentHTTPClientController extends AgentController {
     private void retrieveCookieIfNecessary() {
         if (!getAgentRuntimeInfo().hasCookie() && sslInfrastructureService.isRegistered()) {
             LOG.info("About to get cookie from the server.");
-            String cookie = server.getCookie(agentIdentifier(), getAgentRuntimeInfo().getLocation());
+            String cookie = server.getCookie(getAgentRuntimeInfo());
             getAgentRuntimeInfo().setCookie(cookie);
             LOG.info("Got cookie: {}", cookie);
         }

@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.internalagent.representers;
+package com.thoughtworks.go.remote.request;
 
-import com.google.gson.Gson;
-import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
-public class JobIdentifierRepresenter {
-    private static final Gson gson = new Gson();
-
-    public static JobIdentifier fromJSON(String json) {
-        return gson.fromJson(json, JobIdentifier.class);
-    }
+@Getter
+@Setter
+@EqualsAndHashCode
+@AllArgsConstructor
+public class PingRequest implements AgentRequest {
+    private final AgentRuntimeInfo agentRuntimeInfo;
 }

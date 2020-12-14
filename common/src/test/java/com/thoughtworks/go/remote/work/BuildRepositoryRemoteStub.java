@@ -69,12 +69,12 @@ public class BuildRepositoryRemoteStub implements BuildRepositoryRemote {
     }
 
     @Override
-    public boolean isIgnored(JobIdentifier jobIdentifier) {
+    public boolean isIgnored(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier) {
         return isIgnored;
     }
 
     @Override
-    public String getCookie(AgentIdentifier identifier, String location) {
+    public String getCookie(AgentRuntimeInfo agentRuntimeInfo) {
         throw new RuntimeException("implement me");
     }
 

@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv1.internalagent.representers;
 
 import com.google.gson.*;
-import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
@@ -53,6 +53,7 @@ public class WorkRepresenter {
             .registerTypeAdapterFactory(workAdapter())
             .registerTypeAdapterFactory(materialInstanceAdapter())
             .registerTypeAdapterFactory(agentRuntimeInfoAdapter())
+            .registerTypeAdapterFactory(fetchHandlerAdapter())
             .create();
 
     public static String toJSON(Work work) {
@@ -123,5 +124,12 @@ public class WorkRepresenter {
         return RuntimeTypeAdapterFactory.of(AgentRuntimeInfo.class, "type")
                 .registerSubtype(AgentRuntimeInfo.class, "AgentRuntimeInfo")
                 .registerSubtype(ElasticAgentRuntimeInfo.class, "ElasticAgentRuntimeInfo");
+    }
+
+    private static RuntimeTypeAdapterFactory<FetchHandler> fetchHandlerAdapter() {
+        return RuntimeTypeAdapterFactory.of(FetchHandler.class, "type")
+                .registerSubtype(ChecksumFileHandler.class, "ChecksumFileHandler")
+                .registerSubtype(DirHandler.class, "DirHandler")
+                .registerSubtype(FileHandler.class, "FileHandler");
     }
 }

@@ -17,7 +17,7 @@
 package com.thoughtworks.go.agent;
 
 import com.google.gson.*;
-import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
@@ -34,9 +34,6 @@ import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.builder.*;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -77,6 +74,7 @@ public class NewRemote implements BuildRepositoryRemote {
                 .registerTypeAdapterFactory(workAdapter())
                 .registerTypeAdapterFactory(materialInstanceAdapter())
                 .registerTypeAdapterFactory(agentRuntimeInfoAdapter())
+                .registerTypeAdapterFactory(fetchHandlerAdapter())
                 .create();
     }
 
@@ -209,6 +207,13 @@ public class NewRemote implements BuildRepositoryRemote {
         return RuntimeTypeAdapterFactory.of(AgentRuntimeInfo.class, "type")
                 .registerSubtype(AgentRuntimeInfo.class, "AgentRuntimeInfo")
                 .registerSubtype(ElasticAgentRuntimeInfo.class, "ElasticAgentRuntimeInfo");
+    }
+
+    private static RuntimeTypeAdapterFactory<FetchHandler> fetchHandlerAdapter() {
+        return RuntimeTypeAdapterFactory.of(FetchHandler.class, "type")
+                .registerSubtype(ChecksumFileHandler.class, "ChecksumFileHandler")
+                .registerSubtype(DirHandler.class, "DirHandler")
+                .registerSubtype(FileHandler.class, "FileHandler");
     }
 
     private static class ConfigurationPropertyAdapter implements JsonSerializer<ConfigurationProperty>,

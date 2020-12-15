@@ -17,6 +17,7 @@
 package com.thoughtworks.go.agent;
 
 import com.google.gson.*;
+import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -27,6 +28,7 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.*;
 import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
@@ -64,6 +66,7 @@ public class NewRemote implements BuildRepositoryRemote {
         this.buildRepositoryRemote = buildRepositoryRemote;
         this.httpClientHttpInvokerRequestExecutor = httpClientHttpInvokerRequestExecutor;
         gson = new GsonBuilder()
+                .registerTypeAdapter(ArtifactStore.class, new ArtifactStoreAdapter())
                 .registerTypeAdapter(ConfigurationProperty.class, new ConfigurationPropertyAdapter())
                 .registerTypeAdapterFactory(builderAdapter())
                 .registerTypeAdapterFactory(materialAdapter())
@@ -225,6 +228,42 @@ public class NewRemote implements BuildRepositoryRemote {
                 throws JsonParseException {
             return new ConfigurationProperty(new ConfigurationKey(json.getAsJsonObject().get("key").getAsString()),
                     new ConfigurationValue(json.getAsJsonObject().get("value").getAsString()));
+        }
+    }
+
+    private static class ArtifactStoreAdapter implements JsonSerializer<ArtifactStore>, JsonDeserializer<ArtifactStore> {
+        @Override
+        public JsonElement serialize(ArtifactStore src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.add("id", new JsonPrimitive(src.getId()));
+            jsonObject.add("pluginId", new JsonPrimitive(src.getPluginId()));
+            jsonObject.add("configuration", configurations(src));
+
+            return jsonObject;
+        }
+
+        private JsonArray configurations(ArtifactStore store) {
+            JsonArray jsonArray = new JsonArray();
+
+            store.stream().forEach(configurationProperty -> {
+                JsonObject serialized = new JsonObject();
+                serialized.add("key", new JsonPrimitive(configurationProperty.getConfigKeyName()));
+                serialized.add("value", new JsonPrimitive(configurationProperty.getResolvedValue()));
+
+                jsonArray.add(serialized);
+            });
+            return jsonArray;
+        }
+
+        @Override
+        public ArtifactStore deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            Configuration configuration = new Configuration();
+            json.getAsJsonObject().get("configuration").getAsJsonArray().forEach(el -> {
+                configuration.add(new ConfigurationProperty(new ConfigurationKey(el.getAsJsonObject().get("key").getAsString()),
+                        new ConfigurationValue(el.getAsJsonObject().get("value").getAsString())));
+            });
+
+            return new ArtifactStore(json.getAsJsonObject().get("id").getAsString(), json.getAsJsonObject().get("pluginId").getAsString(), configuration);
         }
     }
 }

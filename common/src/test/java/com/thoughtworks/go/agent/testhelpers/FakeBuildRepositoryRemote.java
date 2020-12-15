@@ -19,9 +19,8 @@ import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.AgentInstruction;
+import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -44,7 +43,7 @@ public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
     public static final String STAGE_NAME = "pipeline";
     public static final String JOB_PLAN_NAME = "cruise-test-data";
 
-    private static BlockingQueue<Boolean> buildResult = new LinkedBlockingQueue<>();
+    private static final BlockingQueue<Boolean> buildResult = new LinkedBlockingQueue<>();
 
     @Override
     public AgentInstruction ping(AgentRuntimeInfo info) {

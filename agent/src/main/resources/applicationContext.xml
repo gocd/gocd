@@ -61,6 +61,7 @@
   <bean id="scmExtension" class="com.thoughtworks.go.plugin.access.scm.SCMExtension"/>
   <bean id="taskExtension" class="com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension"/>
   <bean id="artifactExtension" class="com.thoughtworks.go.plugin.access.artifact.ArtifactExtension"/>
+  <bean id="remoting" class="com.thoughtworks.go.agent.RemotingClient"/>
   <bean id="httpClient" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient">
     <constructor-arg ref="httpClientBuilder"/>
   </bean>

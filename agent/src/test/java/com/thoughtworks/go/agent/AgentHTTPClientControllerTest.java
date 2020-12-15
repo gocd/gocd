@@ -27,8 +27,6 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.plugin.infra.monitor.PluginJarLocationMonitor;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
-import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.AgentWorkContext;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
@@ -54,7 +52,7 @@ public class AgentHTTPClientControllerTest {
     @Rule
     public final TemporaryFolder folder = new TemporaryFolder();
     @Mock
-    private BuildRepositoryRemote loopServer;
+    private RemotingClient loopServer;
     @Mock
     private GoArtifactsManipulator artifactsManipulator;
     @Mock
@@ -81,7 +79,7 @@ public class AgentHTTPClientControllerTest {
     private ArtifactExtension artifactExtension;
     @Mock
     private PluginJarLocationMonitor pluginJarLocationMonitor;
-    private String agentUuid = "uuid";
+    private final String agentUuid = "uuid";
     private AgentHTTPClientController agentController;
 
     @BeforeEach
@@ -129,7 +127,7 @@ public class AgentHTTPClientControllerTest {
         agentController = createAgentController();
         agentController.init();
 
-        when(loopServer.getCookie(agentController.getAgentRuntimeInfo())).thenReturn("cookie");
+        when(loopServer.getCookie(eq(agentController.getAgentRuntimeInfo()))).thenReturn("cookie");
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
         when(loopServer.getWork(agentController.getAgentRuntimeInfo())).thenReturn(work);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
@@ -153,7 +151,7 @@ public class AgentHTTPClientControllerTest {
     void shouldRegisterSubprocessLoggerAtExit() throws Exception {
         SslInfrastructureService sslInfrastructureService = mock(SslInfrastructureService.class);
         AgentRegistry agentRegistry = mock(AgentRegistry.class);
-        agentController = new AgentHTTPClientController(loopServer, artifactsManipulator, sslInfrastructureService,
+        agentController = new AgentHTTPClientController(loopServer, loopServer, artifactsManipulator, sslInfrastructureService,
                 agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager,
                 packageRepositoryExtension, scmExtension, taskExtension, artifactExtension, null, null, pluginJarLocationMonitor);
         agentController.init();
@@ -185,7 +183,7 @@ public class AgentHTTPClientControllerTest {
     private AgentHTTPClientController createAgentController() {
 
         return new AgentHTTPClientController(
-                loopServer,
+                loopServer, loopServer,
                 artifactsManipulator,
                 sslInfrastructureService,
                 agentRegistry,

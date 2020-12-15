@@ -42,7 +42,7 @@ import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerRequestExecutor {
 
     private final GoAgentServerHttpClient goAgentServerHttpClient;
-    private DefaultAgentRegistry defaultAgentRegistry;
+    private final DefaultAgentRegistry defaultAgentRegistry;
 
     public GoHttpClientHttpInvokerRequestExecutor(GoAgentServerHttpClient goAgentServerHttpClient, DefaultAgentRegistry defaultAgentRegistry) {
         this.goAgentServerHttpClient = goAgentServerHttpClient;

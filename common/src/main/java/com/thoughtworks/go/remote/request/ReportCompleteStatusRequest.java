@@ -13,29 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.remote;
+
+package com.thoughtworks.go.remote.request;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- * Communication from agent to the BuildLoop server.
- */
-public interface BuildRepositoryRemote {
-    AgentInstruction ping(AgentRuntimeInfo info);
-
-    Work getWork(AgentRuntimeInfo runtimeInfo);
-
-    void reportCurrentStatus(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobState jobState);
-
-    void reportCompleting(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result);
-
-    void reportCompleted(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result);
-
-    boolean isIgnored(AgentRuntimeInfo agentRuntimeInfo,JobIdentifier jobIdentifier);
-
-    String getCookie(AgentRuntimeInfo agentRuntimeInfo);
+@Getter
+@Setter
+@EqualsAndHashCode
+@AllArgsConstructor
+public class ReportCompleteStatusRequest implements AgentRequest {
+    private final AgentRuntimeInfo agentRuntimeInfo;
+    private final JobIdentifier jobIdentifier;
+    private final JobResult jobResult;
 }

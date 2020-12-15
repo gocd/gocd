@@ -180,7 +180,7 @@ class BuildRepositoryRemoteImplTest {
     void shouldUnderstandIfTestIsIgnored() {
         JobIdentifier jobId = new JobIdentifier(new StageIdentifier("pipelineName", 1, "stageName", "1"), "job");
         jobId.setBuildId(12l);
-        buildRepository.isIgnored(jobId);
+        buildRepository.isIgnored(info, jobId);
         verify(repositoryService).isCancelledOrRescheduled(jobId.getBuildId());
     }
 
@@ -191,7 +191,7 @@ class BuildRepositoryRemoteImplTest {
         RuntimeException runtimeException = new RuntimeException("holy smoke");
         doThrow(runtimeException).when(repositoryService).isCancelledOrRescheduled(jobId.getBuildId());
         try {
-            buildRepository.isIgnored(jobId);
+            buildRepository.isIgnored(info, jobId);
             fail("should throw exception");
         } catch (Exception e) {
             assertRemoteException(e, runtimeException);
@@ -201,7 +201,8 @@ class BuildRepositoryRemoteImplTest {
     @Test
     void getCookieShouldReturnAssignedCookie() {
         when(agentService.assignCookie(info.getIdentifier())).thenReturn("cookie");
-        assertThat(buildRepository.getCookie(info.getIdentifier(), "/foo/bar")).isEqualTo("cookie");
+        info.setLocation("/foo/bar");
+        assertThat(buildRepository.getCookie(info)).isEqualTo("cookie");
         assertThat(logFixture.getRawMessages()).contains("[Agent Cookie] Agent [Agent [host, 192.168.1.1, uuid]] at location [/foo/bar] asked for a new cookie, assigned [cookie]");
     }
 
@@ -209,8 +210,9 @@ class BuildRepositoryRemoteImplTest {
     void GetCookieShouldThrowExceptionWhenAssigningCookieThrowsException() {
         RuntimeException runtimeException = new RuntimeException("holy smoke");
         when(agentService.assignCookie(info.getIdentifier())).thenThrow(runtimeException);
+        info.setLocation("/foo/bar");
         try {
-            buildRepository.getCookie(info.getIdentifier(), "/foo/bar");
+            buildRepository.getCookie(info);
             fail("should propagate exception raised by agent service assignCookie");
         } catch (Exception e) {
             assertRemoteException(e, runtimeException);

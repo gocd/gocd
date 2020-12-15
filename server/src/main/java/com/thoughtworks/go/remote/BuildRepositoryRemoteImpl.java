@@ -107,7 +107,7 @@ public class BuildRepositoryRemoteImpl {
         }
     }
 
-    public boolean isIgnored(JobIdentifier jobIdentifier) {
+    public boolean isIgnored(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier) {
         try {
             return buildRepositoryService.isCancelledOrRescheduled(jobIdentifier.getBuildId());
         } catch (Exception e) {
@@ -119,7 +119,9 @@ public class BuildRepositoryRemoteImpl {
         return new RemoteAccessException(e.getMessage(), e);
     }
 
-    public String getCookie(AgentIdentifier identifier, String location) {
+    public String getCookie(AgentRuntimeInfo agentRuntimeInfo) {
+        AgentIdentifier identifier = agentRuntimeInfo.getIdentifier();
+        String location = agentRuntimeInfo.getLocation();
         try {
             String cookie = agentService.assignCookie(identifier);
             LOGGER.info("[Agent Cookie] Agent [{}] at location [{}] asked for a new cookie, assigned [{}]", identifier, location, cookie);

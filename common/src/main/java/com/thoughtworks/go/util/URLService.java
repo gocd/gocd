@@ -22,8 +22,8 @@ import org.springframework.stereotype.Component;
 import static java.lang.String.format;
 
 @Component
-public class URLService implements ServerUrlGenerator{
-    private String baseRemotingURL;
+public class URLService implements ServerUrlGenerator {
+    private final String baseRemotingURL;
 
     public URLService() {
         String url = new SystemEnvironment().getServiceUrl();
@@ -39,6 +39,10 @@ public class URLService implements ServerUrlGenerator{
 
     public String baseRemoteURL() {
         return baseRemotingURL;
+    }
+
+    public String remotingUrlFor(String action) {
+        return format("%s/%s/%s", baseRemotingURL, "remoting/api/agent", action);
     }
 
     public String getBuildRepositoryURL() {
@@ -80,9 +84,9 @@ public class URLService implements ServerUrlGenerator{
     }
 
     /*
-    * Agent will use this method, the baseUrl will be injected from config xml in agent side.
-    *   This is used to fix security issues with the agent uploading artifacts when security is enabled.
-    */
+     * Agent will use this method, the baseUrl will be injected from config xml in agent side.
+     *   This is used to fix security issues with the agent uploading artifacts when security is enabled.
+     */
     public String getPropertiesUrl(JobIdentifier jobIdentifier, String propertyName) {
         return format("%s/%s/%s/%s",
                 baseRemotingURL, "remoting", "properties", jobIdentifier.propertyLocator(propertyName));

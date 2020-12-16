@@ -29,9 +29,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.*;
 import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
 import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
@@ -51,6 +49,9 @@ import java.lang.reflect.Type;
 import static java.lang.String.format;
 
 public class Serialization {
+
+    private static final GoCipher DUMMY_CIPHER = new GoCipher(new DoNotEncrypter());
+
     private static class SingletonHolder {
         private static final Gson INSTANCE = create();
     }
@@ -162,8 +163,9 @@ public class Serialization {
         @Override
         public ConfigurationProperty deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
                 throws JsonParseException {
-            return new ConfigurationProperty(new ConfigurationKey(json.getAsJsonObject().get("key").getAsString()),
-                    new ConfigurationValue(json.getAsJsonObject().get("value").getAsString()));
+            return new ConfigurationProperty(DUMMY_CIPHER)
+                    .withKey(json.getAsJsonObject().get("key").getAsString())
+                    .withValue(json.getAsJsonObject().get("value").getAsString());
         }
     }
 
@@ -195,10 +197,33 @@ public class Serialization {
         public ArtifactStore deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             Configuration configuration = new Configuration();
             json.getAsJsonObject().get("configuration").getAsJsonArray().forEach(el ->
-                    configuration.add(new ConfigurationProperty(new ConfigurationKey(el.getAsJsonObject().get("key").getAsString()),
-                            new ConfigurationValue(el.getAsJsonObject().get("value").getAsString()))));
+                    configuration.add(new ConfigurationProperty(DUMMY_CIPHER)
+                            .withKey(el.getAsJsonObject().get("key").getAsString())
+                            .withValue(el.getAsJsonObject().get("value").getAsString())
+                    ));
 
             return new ArtifactStore(json.getAsJsonObject().get("id").getAsString(), json.getAsJsonObject().get("pluginId").getAsString(), configuration);
+        }
+    }
+
+    /**
+     * This ensures the agent will never try to create a new cipher file and also will detect any attempt to decrypt or
+     * encrypt
+     */
+    private static class DoNotEncrypter implements Encrypter {
+        @Override
+        public boolean canDecrypt(String cipherText) {
+            return true; // this is the isAES() check, allows us to throw the intended exception below
+        }
+
+        @Override
+        public String encrypt(String plainText) throws CryptoException {
+            throw new CryptoException("Agents should not be encrypting!");
+        }
+
+        @Override
+        public String decrypt(String cipherText) throws CryptoException {
+            throw new CryptoException("Agents should not be decrypting!");
         }
     }
 }

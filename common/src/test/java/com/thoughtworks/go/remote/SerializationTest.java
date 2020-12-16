@@ -16,16 +16,24 @@
 
 package com.thoughtworks.go.remote;
 
+import com.google.gson.Gson;
+import com.thoughtworks.go.config.ArtifactStore;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
+import com.thoughtworks.go.helper.ReversingEncrypter;
 import com.thoughtworks.go.security.*;
 import com.thoughtworks.go.util.SystemEnvironment;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 @SuppressWarnings("deprecation")
@@ -110,21 +118,108 @@ class SerializationTest {
         assertEquals(format("Refusing to deserialize a %s in the JSON stream!", DESCipherProvider.class.getName()), e.getMessage());
     }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    void successfullySerializesConfigurationPropertyBecauseGoCipherIsHiddenFromSerialization() {
+        assertDoesNotThrow(() -> {
+            final String json = Serialization.instance().toJson(new ConfigurationProperty(dumbcipher())
+                    .withKey("hello")
+                    .withEncryptedValue("dlrow"));
+            Map<String, String> actual = new Gson().fromJson(json, Map.class);
+            assertEquals(2, actual.size());
+            assertEquals("hello", actual.get("key"));
+            assertEquals("world", actual.get("value"));
+        }, "ConfigurationProperty should serialize without error because its type adapter hides the nested GoCipher from Gson");
+    }
+
+    @Test
+    void successfullyDeserializesConfigurationPropertyBecauseGoCipherIsNeverUsed() {
+        assertDoesNotThrow(() -> {
+            final ConfigurationProperty store = Serialization.instance().fromJson(
+                    "{\"key\": \"one\", \"value\": \"a\"}", ConfigurationProperty.class);
+            assertEquals("one", store.getConfigKeyName());
+            assertEquals("a", store.getValue());
+        }, "ConfigurationProperty should deserialize without error because its type adapter never deserializes as a secret property");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void successfullySerializesArtifactStoreBecauseGoCipherIsHiddenFromSerialization() {
+        assertDoesNotThrow(() -> {
+            final String json = Serialization.instance().toJson(
+                    new ArtifactStore("store", "plugin",
+                            plainProperty("plain", "text"),
+                            secretProperty("secret", "!llet t'nod"))
+            );
+            Map<String, Object> actual = new Gson().fromJson(json, Map.class);
+            List<Map<String, Object>> props = (List<Map<String, Object>>) actual.get("configuration");
+            assertEquals(2, props.size());
+            assertEquals("plain", props.get(0).get("key"));
+            assertEquals("text", props.get(0).get("value"));
+            assertEquals("secret", props.get(1).get("key"));
+            assertEquals("don't tell!", props.get(1).get("value"));
+        }, "ArtifactStore should serialize without error because its type adapter hides the nested GoCipher from Gson");
+    }
+
+    @Test
+    void successfullyDeserializesArtifactStoreBecauseGoCipherIsNeverUsed() {
+        assertDoesNotThrow(() -> {
+            final ArtifactStore store = Serialization.instance().fromJson("{" +
+                    "\"id\": \"store\"," +
+                    "\"pluginId\": \"plugin\"," +
+                    "\"configuration\": [" +
+                    "{\"key\": \"one\", \"value\": \"a\"}," +
+                    "{\"key\": \"two\", \"value\": \"b\"}" +
+                    "]" +
+                    "}", ArtifactStore.class);
+            assertEquals("store", store.getId());
+            assertEquals("plugin", store.getPluginId());
+
+            final Map<String, String> config = store.getConfigurationAsMap(true, true);
+            assertEquals(2, config.size());
+            assertEquals("a", config.get("one"));
+            assertEquals("b", config.get("two"));
+        }, "ArtifactStore should deserialize without error because its type adapter never deserializes to secret properties");
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private ConfigurationProperty plainProperty(String name, String value) {
+        return new ConfigurationProperty(new ConfigurationKey(name), new ConfigurationValue(value), null, dumbcipher());
+    }
+
+    private GoCipher dumbcipher() {
+        return new GoCipher(new ReversingEncrypter());
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private ConfigurationProperty secretProperty(String name, String encryptedValue) {
+        return new ConfigurationProperty(new ConfigurationKey(name), null, new EncryptedConfigurationValue(encryptedValue), dumbcipher());
+    }
+
     private static class TempSystemEnvironment extends SystemEnvironment {
-        @SneakyThrows
         @Override
         public File getAESCipherFile() {
-            final File file = File.createTempFile("aes", null);
-            file.deleteOnExit();
+            final File file;
+            try {
+                file = File.createTempFile("aes", null);
+                file.deleteOnExit();
+            } catch (IOException e) {
+                throw new RuntimeException("failed to create tempfile for testing AES cipher file");
+            }
             return file;
         }
 
-        @SneakyThrows
         @Override
         public File getDESCipherFile() {
-            final File file = File.createTempFile("des", null);
-            file.deleteOnExit();
+            final File file;
+            try {
+                file = File.createTempFile("des", null);
+                file.deleteOnExit();
+            } catch (IOException e) {
+                throw new RuntimeException("failed to create tempfile for testing DES cipher file");
+            }
             return file;
         }
     }
+
 }

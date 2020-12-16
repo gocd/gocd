@@ -1,0 +1,17 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    faraday (1.1.0)
+      multipart-post (>= 1.2, < 3)
+      ruby2_keywords
+    multipart-post (2.1.1)
+    ruby2_keywords (0.0.2)
+
+PLATFORMS
+  x86_64-darwin-18
+
+DEPENDENCIES
+  faraday
+
+BUNDLED WITH
+   2.2.1

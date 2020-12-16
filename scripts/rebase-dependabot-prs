@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+
+require "faraday"
+require "json"
+
+def main()
+  PR.all("gocd/gocd").each {|pr|
+    if pr.author == "dependabot-preview[bot]"
+      puts "triggering PR ##{pr.number} #{pr.title}"
+      pr.trigger_rebase
+    end
+  }
+end
+
+def die(msg)
+  $stderr.puts msg
+  exit 1
+end
+
+def token()
+  ENV.fetch "GH_TOKEN"
+rescue => e
+  die "You must set the environment variable GH_TOKEN to your GitHub personal access token"
+end
+
+def headers
+  {
+    "Accept": "application/vnd.github.v3+json",
+    "Authorization": "token #{token}"
+  }
+end
+
+class PR
+  attr_reader :number, :title, :author, :labels
+
+  class << self
+    def all(repo)
+      resp = Faraday.get("https://api.github.com/repos/#{repo}/pulls", nil, headers)
+
+      JSON.parse(resp.body).map {|r| PR.from_hash(r) }
+    end
+
+    def from_hash(r)
+      self.new(
+        number:   r["number"],
+        title:    r["title"],
+        author:   r["user"]["login"],
+        labels:   r["labels"].map {|lb| lb["name"]},
+        comments: r["comments_url"]
+      )
+    end
+  end
+
+  def initialize(opts)
+    @number = opts[:number]
+    @title = opts[:title]
+    @author = opts[:author]
+    @labels = opts[:labels]
+    @comments_url = opts[:comments]
+  end
+
+  def has_label?(label)
+    @labels.include? label
+  end
+
+  def trigger_rebase
+    Faraday.post(@comments_url, {body: "@dependabot-bot rebase\n"}.to_json, headers).tap {|resp|
+      $stderr.puts "error when triggering PR ##{number}" if resp.status >= 300
+    }
+  end
+end
+
+main
+

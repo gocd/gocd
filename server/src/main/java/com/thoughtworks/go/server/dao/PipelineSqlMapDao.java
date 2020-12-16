@@ -963,7 +963,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     private void invalidateCacheConditionallyForPipelineInstancesTriggeredWithDependencyMaterial(Pipeline pipeline) {
         BuildCause buildCause = pipeline.getBuildCause();
         for (MaterialRevision materialRevision : buildCause.getMaterialRevisions()) {
-            if (DependencyMaterial.TYPE.equals(materialRevision.getMaterial().getType())) {
+            if (DependencyMaterial.TYPE.equals(materialRevision.getMaterial().getMaterialType())) {
                 DependencyMaterialRevision dependencyMaterialRevision = (DependencyMaterialRevision) materialRevision.getRevision();
                 goCache.remove(cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(pipeline.getName(),
                         dependencyMaterialRevision.getPipelineName(), dependencyMaterialRevision.getPipelineCounter()));

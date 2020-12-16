@@ -233,7 +233,7 @@ public class Materials extends BaseCollection<Material> {
     }
 
     public String getMaterialOptions() {
-        return first() == null ? "" : first().getType();
+        return first() == null ? "" : first().getMaterialType();
     }
 
     private Material convertToMaterial(MaterialConfig materialConfig) {

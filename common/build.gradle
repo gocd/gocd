@@ -28,6 +28,7 @@ dependencies {
   api project.deps.commonsCollections4
   api project.deps.springTx
   implementation project.deps.jodaTime
+  annotationProcessor project.deps.lombok
 
   testImplementation project.deps.bouncyCastle
   testImplementation project.deps.bouncyCastlePkix

@@ -74,8 +74,11 @@ public class BuildRepositoryMessageProducerTest {
 
     @Test
     public void shouldDelegateIgnoreingQueryToTheOldImplementation() {
-        producer.isIgnored(jobIdentifier);
-        verify(oldImplementation).isIgnored(jobIdentifier);
+        AgentRuntimeInfo agentRuntimeInfo = mock(AgentRuntimeInfo.class);
+
+        producer.isIgnored(agentRuntimeInfo, jobIdentifier);
+
+        verify(oldImplementation).isIgnored(agentRuntimeInfo, jobIdentifier);
     }
 
     @Test
@@ -85,12 +88,14 @@ public class BuildRepositoryMessageProducerTest {
     }
 
     @Test
-    public void shouldAllocateNewCookieForEveryGetCookieRequest() throws Exception {
-        AgentIdentifier identifier = new AgentIdentifier("host", "192.168.1.1", "uuid");
-        when(oldImplementation.getCookie(identifier, "/foo/bar")).thenReturn("cookie");
-        assertThat(producer.getCookie(identifier, "/foo/bar"), is("cookie"));
+    public void shouldAllocateNewCookieForEveryGetCookieRequest() {
+        AgentRuntimeInfo agentRuntimeInfo = mock(AgentRuntimeInfo.class);
+
+        when(oldImplementation.getCookie(agentRuntimeInfo)).thenReturn("cookie");
+        assertThat(producer.getCookie(agentRuntimeInfo), is("cookie"));
+
         //should not cache
-        when(oldImplementation.getCookie(identifier, "/foo/bar")).thenReturn("cookie1");
-        assertThat(producer.getCookie(identifier, "/foo/bar"), is("cookie1"));
+        when(oldImplementation.getCookie(agentRuntimeInfo)).thenReturn("cookie1");
+        assertThat(producer.getCookie(agentRuntimeInfo), is("cookie1"));
     }
 }

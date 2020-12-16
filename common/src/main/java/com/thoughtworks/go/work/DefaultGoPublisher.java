@@ -112,7 +112,7 @@ public class DefaultGoPublisher implements GoPublisher {
     }
 
     public boolean isIgnored() {
-        return remoteBuildRepository.isIgnored(jobIdentifier);
+        return remoteBuildRepository.isIgnored(agentRuntimeInfo, jobIdentifier);
     }
 
     private void reportAction(String tag, String action) {

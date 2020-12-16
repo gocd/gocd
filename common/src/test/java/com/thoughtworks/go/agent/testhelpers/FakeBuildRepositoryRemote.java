@@ -84,23 +84,13 @@ public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
     }
 
     @Override
-    public boolean isIgnored(JobIdentifier jobIdentifier) {
+    public boolean isIgnored(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier) {
         return false;
     }
 
     @Override
-    public String getCookie(AgentIdentifier identifier, String location) {
+    public String getCookie(AgentRuntimeInfo agentRuntimeInfo) {
         throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @Override
-    public void consumeLine(String line, JobIdentifier jobIdentifier) {
-
-    }
-
-    @Override
-    public void taggedConsumeLine(String tag, String line, JobIdentifier jobIdentifier) {
-
     }
 
     public static void waitUntilBuildCompleted() throws InterruptedException {

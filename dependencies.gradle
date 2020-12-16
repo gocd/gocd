@@ -101,7 +101,7 @@ final Map<String, String> libraries = [
   springSecurity      : 'org.springframework.security:spring-security-config:4.2.19.RELEASE',
   springTestJunit5    : 'com.github.sbrannen:spring-test-junit5:1.5.0',
   systemRules         : 'com.github.stefanbirkner:system-rules:1.19.0',
-  testcontainers      : 'org.testcontainers:testcontainers:1.14.3',
+  testcontainers      : 'org.testcontainers:testcontainers:1.15.1',
   tfsSdk              : 'com.microsoft:tfs-sdk:14.118.0',
   tinybundles         : 'org.ops4j.pax.tinybundles:tinybundles:3.0.0',
   tokenBucket         : 'org.isomorphism:token-bucket:1.7',

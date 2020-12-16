@@ -40,8 +40,8 @@ public class AgentUpgradeService {
     private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
     private final GoAgentServerHttpClient httpClient;
     private final SystemEnvironment systemEnvironment;
-    private URLService urlService;
-    private JvmExitter jvmExitter;
+    private final URLService urlService;
+    private final JvmExitter jvmExitter;
 
     interface JvmExitter {
         void jvmExit(String type, String oldChecksum, String newChecksum);

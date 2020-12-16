@@ -31,9 +31,9 @@ public class JobRunner {
     private volatile boolean killRunningTasksHandled = false;
     private volatile boolean isJobCancelled = false;
     private volatile boolean running = false;
-    private CountDownLatch doneSignal = new CountDownLatch(1);
+    private final CountDownLatch doneSignal = new CountDownLatch(1);
     private Work work;
-    private EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+    private final EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
     private static final Logger LOG = LoggerFactory.getLogger(AgentHTTPClientController.class);
 
     public void handleInstruction(AgentInstruction instruction, AgentRuntimeInfo agentStatus) {
@@ -74,6 +74,7 @@ public class JobRunner {
     void setWork(Work work) {
         this.work = work;
     }
+
     @Override
     public String toString() {
         return "JobRunner{" +

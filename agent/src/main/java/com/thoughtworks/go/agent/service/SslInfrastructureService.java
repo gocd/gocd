@@ -48,8 +48,8 @@ public class SslInfrastructureService {
     private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
     private final RemoteRegistrationRequester remoteRegistrationRequester;
     private final GoAgentServerHttpClient httpClient;
-    private TokenRequester tokenRequester;
-    private AgentRegistry agentRegistry;
+    private final TokenRequester tokenRequester;
+    private final AgentRegistry agentRegistry;
 
     @Autowired
     public SslInfrastructureService(URLService urlService, GoAgentServerHttpClient httpClient, AgentRegistry agentRegistry) throws Exception {
@@ -130,8 +130,8 @@ public class SslInfrastructureService {
 
     public static class RemoteRegistrationRequester {
         private final AgentRegistry agentRegistry;
-        private String serverUrl;
-        private GoAgentServerHttpClient httpClient;
+        private final String serverUrl;
+        private final GoAgentServerHttpClient httpClient;
 
         public RemoteRegistrationRequester(String serverUrl, AgentRegistry agentRegistry, GoAgentServerHttpClient httpClient) {
             this.serverUrl = serverUrl;

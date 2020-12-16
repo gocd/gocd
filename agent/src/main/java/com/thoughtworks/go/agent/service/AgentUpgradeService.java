@@ -50,7 +50,7 @@ public class AgentUpgradeService {
     static class DefaultJvmExitter implements JvmExitter {
         @Override
         public void jvmExit(String type, String oldChecksum, String newChecksum) {
-            LOGGER.error(FATAL,"[Agent Upgrade] Agent needs to upgrade {}. Currently has md5 {} but server version has md5 {}. Exiting.", type, oldChecksum, newChecksum);
+            LOGGER.error(FATAL, "[Agent Upgrade] Agent needs to upgrade {}. Currently has md5 {} but server version has md5 {}. Exiting.", type, oldChecksum, newChecksum);
             System.exit(0);
         }
     }

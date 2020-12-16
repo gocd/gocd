@@ -19,6 +19,8 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 
+import java.util.Collection;
+
 @ConfigTag("artifactStore")
 @ConfigReferenceCollection(collectionName = "artifactStores", idFieldName = "id")
 @ConfigCollection(value = ConfigurationProperty.class)
@@ -29,6 +31,10 @@ public class ArtifactStore extends PluginProfile {
 
     public ArtifactStore(String id, String pluginId, ConfigurationProperty... configurationProperties) {
         super(id, pluginId, configurationProperties);
+    }
+
+    public ArtifactStore(String id, String pluginId, Collection<ConfigurationProperty> configProperties) {
+        this(id, pluginId, configProperties.toArray(new ConfigurationProperty[0]));
     }
 
     @Override

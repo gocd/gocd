@@ -534,3 +534,7 @@ api/api-stage-instance-v3/out/
 api/api-stage-instance-v3/target/
 api/api-stage-instance-v3/logs/
 api/api-stage-instance-v3/config/
+api/api-internal-agent-v1/out/
+api/api-internal-agent-v1/target/
+api/api-internal-agent-v1/logs/
+api/api-internal-agent-v1/config/

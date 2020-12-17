@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.*;
 import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
@@ -106,7 +107,8 @@ public class Serialization {
                 .registerSubtype(P4Material.class, "P4Material")
                 .registerSubtype(PackageMaterial.class, "PackageMaterial")
                 .registerSubtype(PluggableSCMMaterial.class, "PluggableSCMMaterial")
-                .registerSubtype(SvnMaterial.class, "SvnMaterial");
+                .registerSubtype(SvnMaterial.class, "SvnMaterial")
+                .registerSubtype(TfsMaterial.class, "TfsMaterial");
     }
 
     private static RuntimeTypeAdapterFactory<MaterialInstance> materialInstanceAdapter() {

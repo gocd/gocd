@@ -92,6 +92,8 @@ public class AgentHTTPClientController extends AgentController {
         this.artifactExtension = artifactExtension;
         this.pluginRequestProcessorRegistry = pluginRequestProcessorRegistry;
         this.pluginJarLocationMonitor = pluginJarLocationMonitor;
+
+        LOG.info("Configured remoting type: {}", remote().getClass().getSimpleName());
     }
 
     @Override

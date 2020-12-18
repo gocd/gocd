@@ -163,6 +163,16 @@ describe("PipelineGroups", () => {
       expect(pipelineWithOrigin.canBeDeleted()).toBeFalse();
     });
   });
+
+  it('should return true if search string matches name of the grp or pipelines', () => {
+    const pipelineGroup = PipelineGroup.fromJSON(pipelineGroupJSON);
+
+    expect(pipelineGroup.matches("group")).toBeTrue();
+    expect(pipelineGroup.matches("some-")).toBeTrue();
+    expect(pipelineGroup.matches("pipeline")).toBeTrue();
+    expect(pipelineGroup.matches("mas")).toBeFalse();
+    expect(pipelineGroup.matches("abc")).toBeFalse();
+  });
 });
 
 describe("PipelineStructureWithAdditionalInfo", () => {

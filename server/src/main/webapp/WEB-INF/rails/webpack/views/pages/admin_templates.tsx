@@ -31,11 +31,13 @@ import {AnchorVM, ScrollManager} from "views/components/anchor/anchor";
 import * as Buttons from "views/components/buttons";
 import {ButtonIcon} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {ModalState} from "views/components/modal";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {AdminTemplatesWidget, Attrs, TemplatesScrollOptions} from "views/pages/admin_templates/admin_templates_widget";
 import {CreateTemplateModal, ShowTemplateModal} from "views/pages/admin_templates/modals";
+import configRepoStyles from "views/pages/config_repos/index.scss";
 import {Page, PageState} from "views/pages/page";
 import {EditTemplatePermissionsModal} from "./admin_templates/edit_template_permissions_modal";
 
@@ -45,38 +47,21 @@ interface State extends Attrs {
   pluginInfos: PluginInfos;
   usersAutoCompleteHelper: Stream<string[]>;
   rolesAutoCompleteHelper: Stream<string[]>;
+  searchText: Stream<string>;
 }
 
 export class AdminTemplatesPage extends Page<null, State> {
-  componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    this.parseTemplatesLink(sm);
-    const scrollOptions: TemplatesScrollOptions = {
-      sm,
-      shouldOpenReadOnlyView: (m.route.param().operation || "").toLowerCase() === "view"
-    };
+  oninit(vnode: m.Vnode<null, State>) {
+    super.oninit(vnode);
 
-    return (
-      <div>
-        <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-        <AdminTemplatesWidget {...vnode.state} scrollOptions={scrollOptions}/>
-      </div>
-    );
-  }
-
-  pageName(): string {
-    return "Templates";
-  }
-
-  fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    const onOperationError              = (errorResponse: ErrorResponse) => {
-      vnode.state.onError(JSON.parse(errorResponse.body!).message);
-    };
     vnode.state.usersAutoCompleteHelper = Stream();
     vnode.state.rolesAutoCompleteHelper = Stream();
+    vnode.state.searchText              = Stream();
 
-    this.pageState = PageState.LOADING;
-
-    vnode.state.onCreate = () => {
+    const onOperationError = (errorResponse: ErrorResponse) => {
+      vnode.state.onError(JSON.parse(errorResponse.body!).message);
+    };
+    vnode.state.onCreate   = () => {
       const modal = new CreateTemplateModal(vnode.state.pipelineStructure, (newTemplateName, basedOnPipeline) => {
         if (_.isEmpty(basedOnPipeline)) {
           TemplatesCRUD.createEmptyTemplate(newTemplateName)
@@ -195,6 +180,51 @@ export class AdminTemplatesPage extends Page<null, State> {
                      modal.modalState = ModalState.OK;
                    });
     };
+  }
+
+  componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    this.parseTemplatesLink(sm);
+    const scrollOptions: TemplatesScrollOptions                                = {
+      sm,
+      shouldOpenReadOnlyView: (m.route.param().operation || "").toLowerCase() === "view"
+    };
+    const filteredTemplates: Stream<TemplateSummary.TemplateSummaryTemplate[]> = Stream();
+
+    const matches = (template: TemplateSummary.TemplateSummaryTemplate, query: string): boolean => {
+      if (!query) {
+        return true;
+      }
+
+      const searchableStrings = [template.name];
+      searchableStrings.push(...template._embedded.pipelines.map((pipeline) => pipeline.name));
+      return searchableStrings.some((value) => value ? value.toLowerCase().includes(query.toLowerCase()) : false);
+    };
+    if (vnode.state.searchText()) {
+      const results = _.filter(vnode.state.templates, (template: TemplateSummary.TemplateSummaryTemplate) => matches(template, vnode.state.searchText()));
+
+      if (_.isEmpty(results)) {
+        return <div>
+          <FlashMessage type={MessageType.info}>No Results for the search string: <em>{vnode.state.searchText()}</em></FlashMessage>
+        </div>;
+      }
+      filteredTemplates(results);
+    } else {
+      filteredTemplates(vnode.state.templates);
+    }
+    return (
+      <div>
+        <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
+        <AdminTemplatesWidget {...vnode.state} templates={filteredTemplates()} scrollOptions={scrollOptions}/>
+      </div>
+    );
+  }
+
+  pageName(): string {
+    return "Templates";
+  }
+
+  fetchData(vnode: m.Vnode<null, State>): Promise<any> {
+    this.pageState = PageState.LOADING;
 
     return Promise.all([
                          TemplatesCRUD.all(),
@@ -254,6 +284,13 @@ export class AdminTemplatesPage extends Page<null, State> {
                        onclick={vnode.state.onCreate.bind(vnode.state)}
                        data-test-id="create-new-template">Create a new template</Buttons.Primary>
     ];
+    if (!_.isEmpty(vnode.state.templates)) {
+      const searchBox = <div className={configRepoStyles.wrapperForSearchBox}>
+        <SearchField property={vnode.state.searchText} dataTestId={"search-box"}
+                     placeholder="Search for a template or pipeline name"/>
+      </div>;
+      headerButtons.splice(0, 0, searchBox);
+    }
 
     return <HeaderPanel title={this.pageName()} buttons={headerButtons} help={this.helpText()}/>;
   }

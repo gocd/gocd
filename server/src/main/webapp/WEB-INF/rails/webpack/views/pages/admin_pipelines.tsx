@@ -16,11 +16,12 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ErrorResponse} from "helpers/api_request_builder";
 import {SparkRoutes} from "helpers/spark_routes";
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PipelineGroupCRUD} from "models/admin_pipelines/pipeline_groups_crud";
 import {headerMeta} from "models/current_user_permissions";
-import {PipelineGroups, PipelineStructureWithAdditionalInfo} from "models/internal_pipeline_structure/pipeline_structure";
+import {PipelineGroup, PipelineGroups, PipelineStructureWithAdditionalInfo} from "models/internal_pipeline_structure/pipeline_structure";
 import {PipelineStructureCRUD} from "models/internal_pipeline_structure/pipeline_structure_crud";
 import {PipelineGroupCRUD as PipelineGroupCacheCRUD} from "models/pipeline_configs/pipeline_groups_cache";
 import {ExtensionTypeString} from "models/shared/plugin_infos_new/extension_type";
@@ -30,17 +31,12 @@ import {AnchorVM, ScrollManager} from "views/components/anchor/anchor";
 import * as Buttons from "views/components/buttons";
 import {ButtonIcon} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Attrs, PipelineGroupsWidget, PipelinesScrollOptions} from "views/pages/admin_pipelines/admin_pipelines_widget";
-import {
-  ClonePipelineConfigModal,
-  CreatePipelineGroupModal,
-  DeletePipelineGroupModal,
-  DownloadPipelineModal,
-  ExtractTemplateModal,
-  MoveConfirmModal
-} from "views/pages/admin_pipelines/modals";
+import {ClonePipelineConfigModal, CreatePipelineGroupModal, DeletePipelineGroupModal, DownloadPipelineModal, ExtractTemplateModal, MoveConfirmModal} from "views/pages/admin_pipelines/modals";
+import configRepoStyles from "views/pages/config_repos/index.scss";
 import {Page, PageState} from "views/pages/page";
 import buttonStyle from "views/pages/pipelines/actions.scss";
 import {EditPipelineGroupModal} from "./admin_pipelines/edit_pipeline_group_modal";
@@ -49,6 +45,7 @@ interface State extends Attrs {
   pluginInfos: Stream<PluginInfos>;
   usersAutoCompleteHelper: Stream<string[]>;
   rolesAutoCompleteHelper: Stream<string[]>;
+  searchText: Stream<string>;
 }
 
 const sm: ScrollManager = new AnchorVM();
@@ -56,31 +53,13 @@ const sm: ScrollManager = new AnchorVM();
 export class AdminPipelinesPage extends Page<null, State> {
   private operation: string = "";
 
-  componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    this.parseRepoLink(sm);
-    const scrollOptions: PipelinesScrollOptions = {
-      sm,
-      shouldOpenEditView: this.operation === "edit"
-    };
-    return (
-      <div>
-        <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-        <PipelineGroupsWidget {...vnode.state} scrollOptions={scrollOptions}/>
-      </div>
-    );
-  }
-
-  pageName(): string {
-    return "Pipelines";
-  }
-
-  fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    this.pageState = PageState.LOADING;
-
+  oninit(vnode: m.Vnode<null, State>) {
+    super.oninit(vnode);
     vnode.state.pipelineGroups          = Stream(new PipelineGroups());
     vnode.state.pluginInfos             = Stream(new PluginInfos());
     vnode.state.usersAutoCompleteHelper = Stream();
     vnode.state.rolesAutoCompleteHelper = Stream();
+    vnode.state.searchText              = Stream();
 
     const onOperationError = (errorResponse: ErrorResponse) => {
       vnode.state.onError(JSON.parse(errorResponse.body!).message);
@@ -245,6 +224,41 @@ export class AdminPipelinesPage extends Page<null, State> {
       });
       modal.render();
     };
+  }
+
+  componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    this.parseRepoLink(sm);
+    const scrollOptions: PipelinesScrollOptions        = {
+      sm,
+      shouldOpenEditView: this.operation === "edit"
+    };
+    const filteredPipelineGrps: Stream<PipelineGroups> = Stream();
+    if (vnode.state.searchText()) {
+      const results = _.filter(vnode.state.pipelineGroups(), (grp: PipelineGroup) => grp.matches(vnode.state.searchText()));
+
+      if (_.isEmpty(results)) {
+        return <div>
+          <FlashMessage type={MessageType.info}>No Results for the search string: <em>{vnode.state.searchText()}</em></FlashMessage>
+        </div>;
+      }
+      filteredPipelineGrps(results);
+    } else {
+      filteredPipelineGrps(vnode.state.pipelineGroups());
+    }
+    return (
+      <div>
+        <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
+        <PipelineGroupsWidget {...vnode.state} pipelineGroups={filteredPipelineGrps} scrollOptions={scrollOptions}/>
+      </div>
+    );
+  }
+
+  pageName(): string {
+    return "Pipelines";
+  }
+
+  fetchData(vnode: m.Vnode<null, State>): Promise<any> {
+    this.pageState = PageState.LOADING;
 
     return Promise.all([PipelineStructureCRUD.allPipelines("administer", "view"),
                          PluginInfoCRUD.all({type: ExtensionTypeString.CONFIG_REPO})
@@ -294,6 +308,13 @@ export class AdminPipelinesPage extends Page<null, State> {
                          onclick={vnode.state.createPipelineGroup.bind(vnode.state)}
                          data-test-id="create-new-pipeline-group">Create new pipeline group</Buttons.Secondary>
     ];
+    if (!_.isEmpty(vnode.state.pipelineGroups())) {
+      const searchBox = <div className={configRepoStyles.wrapperForSearchBox}>
+        <SearchField property={vnode.state.searchText} dataTestId={"search-box"}
+                     placeholder="Search for a pipeline name"/>
+      </div>;
+      headerButtons.splice(0, 0, searchBox);
+    }
     return <HeaderPanel title={this.pageName()} buttons={headerButtons} help={this.helpText()}/>;
   }
 }

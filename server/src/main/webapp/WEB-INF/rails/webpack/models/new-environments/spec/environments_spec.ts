@@ -252,4 +252,14 @@ describe("Environment Model - Environment", () => {
 
     expect(env.isLocal()).toBe(true);
   });
+
+  it('should return true if search string matches name of the env or one of the pipelines', () => {
+    const env = EnvironmentWithOrigin.fromJSON(envJSON);
+
+    expect(env.matches("environment")).toBeTrue();
+    expect(env.matches("-name-")).toBeTrue();
+    expect(env.matches("pipeline")).toBeTrue();
+    expect(env.matches("testing")).toBeFalse();
+    expect(env.matches("abc")).toBeFalse();
+  });
 });

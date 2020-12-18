@@ -154,6 +154,16 @@ export class EnvironmentWithOrigin extends ValidatableMixin {
   isLocal(): boolean {
     return this.origins().filter((origin) => origin.isDefinedInConfigRepo()).length === 0;
   }
+
+  matches(textToMatch: string): boolean {
+    if (!textToMatch) {
+      return true;
+    }
+
+    const searchableStrings = [this.name()];
+    searchableStrings.push(...this.pipelines().map((pipeline) => pipeline.name()));
+    return searchableStrings.some((value) => value ? value.toLowerCase().includes(textToMatch.toLowerCase()) : false);
+  }
 }
 
 export class Environments extends Array<EnvironmentWithOrigin> {

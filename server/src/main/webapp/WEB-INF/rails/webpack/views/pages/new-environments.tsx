@@ -15,6 +15,7 @@
  */
 
 import {ApiResult, ErrorResponse} from "helpers/api_request_builder";
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {Agents} from "models/agents/agents";
@@ -25,8 +26,10 @@ import {Permissions, SupportedEntity} from "models/shared/permissions";
 import {AnchorVM, ScrollManager} from "views/components/anchor/anchor";
 import {Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
+import configRepoStyles from "views/pages/config_repos/index.scss";
 import {CreateEnvModal} from "views/pages/new-environments/create_env_modal";
 import {EnvironmentsWidget} from "views/pages/new-environments/environments_widget";
 import {Page, PageState} from "views/pages/page";
@@ -35,6 +38,7 @@ import {AddOperation, DeleteOperation, SaveOperation} from "views/pages/page_ope
 const sm: ScrollManager = new AnchorVM();
 
 interface State extends AddOperation<EnvironmentWithOrigin>, SaveOperation, DeleteOperation<EnvironmentWithOrigin> {
+  searchText: Stream<string>;
 }
 
 export class NewEnvironmentsPage extends Page<null, State> {
@@ -43,6 +47,8 @@ export class NewEnvironmentsPage extends Page<null, State> {
 
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
+
+    vnode.state.searchText = Stream();
 
     vnode.state.onAdd = (e: MouseEvent) => {
       e.stopPropagation();
@@ -86,12 +92,25 @@ export class NewEnvironmentsPage extends Page<null, State> {
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     this.parseEnvironmentLink(sm);
-    const flashMessage = this.flashMessage.hasMessage() ?
+    const flashMessage                       = this.flashMessage.hasMessage() ?
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       : null;
+    const filteredEnvs: Stream<Environments> = Stream();
+    if (vnode.state.searchText()) {
+      const results = _.filter(this.environments(), (env: EnvironmentWithOrigin) => env.matches(vnode.state.searchText()));
+
+      if (_.isEmpty(results)) {
+        return <div>
+          <FlashMessage type={MessageType.info}>No Results for the search string: <em>{vnode.state.searchText()}</em></FlashMessage>
+        </div>;
+      }
+      filteredEnvs(new Environments(...results));
+    } else {
+      filteredEnvs(this.environments());
+    }
     return [
       flashMessage,
-      <EnvironmentsWidget environments={this.environments}
+      <EnvironmentsWidget environments={filteredEnvs}
                           agents={this.agents}
                           onSuccessfulSave={vnode.state.onSuccessfulSave}
                           onDelete={vnode.state.onDelete.bind(vnode.state)}
@@ -124,6 +143,13 @@ export class NewEnvironmentsPage extends Page<null, State> {
     const headerButtons = [];
     headerButtons.push(<Primary dataTestId="add-environment-button" onclick={vnode.state.onAdd}>Add
       Environment</Primary>);
+    if (!_.isEmpty(this.environments())) {
+      const searchBox = <div className={configRepoStyles.wrapperForSearchBox}>
+        <SearchField property={vnode.state.searchText} dataTestId={"search-box"}
+                     placeholder="Search for a environment name"/>
+      </div>;
+      headerButtons.splice(0, 0, searchBox);
+    }
     return <HeaderPanel title="Environments" buttons={headerButtons} help={this.helpText()}/>;
   }
 

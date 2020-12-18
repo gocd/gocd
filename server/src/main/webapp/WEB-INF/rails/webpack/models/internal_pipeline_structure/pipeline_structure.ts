@@ -199,6 +199,16 @@ export class PipelineGroup {
   containsRemotelyDefinedPipelines() {
     return this.pipelines().some((pipeline) => pipeline.isDefinedRemotely());
   }
+
+  matches(textToMatch: string): boolean {
+    if (!textToMatch) {
+      return true;
+    }
+
+    const searchableStrings = [this.name()];
+    searchableStrings.push(...this.pipelines().map((pipeline) => pipeline.name()));
+    return searchableStrings.some((value) => value ? value.toLowerCase().includes(textToMatch.toLowerCase()) : false);
+  }
 }
 
 export class PipelineGroups extends Array<PipelineGroup> {

@@ -96,12 +96,13 @@ public class RemotingClient implements BuildRepositoryRemote {
 
     @Override
     public boolean isIgnored(AgentRuntimeInfo info, JobIdentifier jobId) {
+        // Boolean.parseBoolean is JSON compatible for this specific case, but probably faster/simpler than Gson
         return Boolean.parseBoolean(post("is_ignored", new IsIgnoredRequest(info, jobId)));
     }
 
     @Override
     public String getCookie(AgentRuntimeInfo info) {
-        return post("get_cookie", new GetCookieRequest(info));
+        return GSON.fromJson(post("get_cookie", new GetCookieRequest(info)), String.class);
     }
 
     private String post(final String action, final AgentRequest payload) {
@@ -154,6 +155,7 @@ public class RemotingClient implements BuildRepositoryRemote {
 
     private HttpRequestBase postRequestFor(String action, AgentRequest payload) {
         final HttpPost request = new HttpPost(urls.remotingUrlFor(action));
+        request.addHeader("Accept", "application/vnd.go.cd+json");
         request.setEntity(new StringEntity(GSON.toJson(payload), ContentType.APPLICATION_JSON));
         return request;
     }

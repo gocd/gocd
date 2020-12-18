@@ -15,6 +15,7 @@
  */
 
 import {ErrorResponse} from "helpers/api_request_builder";
+import _ from "lodash";
 import m from "mithril";
 import Stream from "mithril/stream";
 import {PluginMetadata, Scm, Scms} from "models/materials/pluggable_scm";
@@ -26,8 +27,10 @@ import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {AnchorVM, ScrollManager} from "views/components/anchor/anchor";
 import {ButtonIcon, Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {NoPluginsOfTypeInstalled} from "views/components/no_plugins_installed";
+import configRepoStyles from "views/pages/config_repos/index.scss";
 import {Page, PageState} from "views/pages/page";
 import {PluggableSCMScrollOptions, PluggableScmsWidget} from "views/pages/pluggable_scms/pluggable_scms_widget";
 import {UsagePackageModal} from "./package_repositories/package_modals";
@@ -39,6 +42,7 @@ const sm: ScrollManager = new AnchorVM();
 interface State extends RequiresPluginInfos, AddOperation<Scm>, EditOperation<Scm>, CloneOperation<Scm>, DeleteOperation<Scm>, SaveOperation {
   scms: Stream<Scms>;
   showUsages: (scm: Scm, e: MouseEvent) => void;
+  searchText: Stream<string>;
 }
 
 export class PluggableScmsPage extends Page<null, State> {
@@ -48,6 +52,7 @@ export class PluggableScmsPage extends Page<null, State> {
     super.oninit(vnode);
     vnode.state.scms        = Stream();
     vnode.state.pluginInfos = Stream();
+    vnode.state.searchText  = Stream();
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
       this.flashMessage.setMessage(MessageType.success, msg);
@@ -114,10 +119,23 @@ export class PluggableScmsPage extends Page<null, State> {
     if (!this.isPluginInstalled(vnode)) {
       noPluginMsg = <NoPluginsOfTypeInstalled extensionType={new SCMExtensionType()}/>;
     }
+    const filteredScms: Stream<Scms> = Stream();
+    if (vnode.state.searchText()) {
+      const results = _.filter(vnode.state.scms(), (scm: Scm) => scm.name().toLowerCase().includes(vnode.state.searchText().toLowerCase()));
+
+      if (_.isEmpty(results)) {
+        return <div>
+          <FlashMessage type={MessageType.info}>No Results for the search string: <em>{vnode.state.searchText()}</em></FlashMessage>
+        </div>;
+      }
+      filteredScms(results);
+    } else {
+      filteredScms(vnode.state.scms());
+    }
     return <div>
       {noPluginMsg}
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-      <PluggableScmsWidget {...vnode.state} scrollOptions={scrollOptions}/>
+      <PluggableScmsWidget {...vnode.state} scms={filteredScms} scrollOptions={scrollOptions}/>
     </div>;
   }
 
@@ -157,6 +175,13 @@ export class PluggableScmsPage extends Page<null, State> {
         Create Pluggable Scm
       </Primary>
     ];
+    if (!_.isEmpty(vnode.state.scms())) {
+      const searchBox = <div className={configRepoStyles.wrapperForSearchBox}>
+        <SearchField property={vnode.state.searchText} dataTestId={"search-box"}
+                     placeholder="Search for a pluggable scm name"/>
+      </div>;
+      buttons.splice(0, 0, searchBox);
+    }
     return <HeaderPanel title={this.pageName()} buttons={buttons} help={this.helpText()}/>;
   }
 

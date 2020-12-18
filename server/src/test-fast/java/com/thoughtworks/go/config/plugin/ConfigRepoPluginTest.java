@@ -18,8 +18,8 @@ package com.thoughtworks.go.config.plugin;
 import com.thoughtworks.go.config.ConfigRepoPlugin;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.helper.ReversingEncrypter;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
-import com.thoughtworks.go.security.Encrypter;
 import com.thoughtworks.go.security.GoCipher;
 import org.junit.jupiter.api.Test;
 
@@ -53,25 +53,5 @@ public class ConfigRepoPluginTest {
         CRConfigurationProperty prop = crConfigurations.get(0);
         assertEquals("key1", prop.getKey());
         assertEquals("secret", prop.getValue());
-    }
-
-    /**
-     * A silly encrypter that just reverses the plaintext. Great for tests.
-     */
-    private static class ReversingEncrypter implements Encrypter {
-        @Override
-        public boolean canDecrypt(String cipherText) {
-            return true;
-        }
-
-        @Override
-        public String encrypt(String plainText) {
-            return new StringBuilder(plainText).reverse().toString();
-        }
-
-        @Override
-        public String decrypt(String cipherText) {
-            return new StringBuilder(cipherText).reverse().toString();
-        }
     }
 }

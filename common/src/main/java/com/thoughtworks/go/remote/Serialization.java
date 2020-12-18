@@ -29,9 +29,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.*;
 import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
 import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
@@ -42,12 +40,18 @@ import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance;
 import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
 import com.thoughtworks.go.remote.adapter.RuntimeTypeAdapterFactory;
 import com.thoughtworks.go.remote.work.*;
+import com.thoughtworks.go.security.*;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 
 import java.lang.reflect.Type;
 
+import static java.lang.String.format;
+
 public class Serialization {
+
+    private static final GoCipher DUMMY_CIPHER = new GoCipher(new DoNotEncrypter());
+
     private static class SingletonHolder {
         private static final Gson INSTANCE = create();
     }
@@ -56,8 +60,14 @@ public class Serialization {
         return SingletonHolder.INSTANCE;
     }
 
+    @SuppressWarnings("deprecation")
     public static Gson create() {
         return new GsonBuilder()
+                .registerTypeAdapter(GoCipher.class, new SecurityRejectingAdapter<GoCipher>())
+                .registerTypeAdapter(AESEncrypter.class, new SecurityRejectingAdapter<AESEncrypter>())
+                .registerTypeAdapter(AESCipherProvider.class, new SecurityRejectingAdapter<AESCipherProvider>())
+                .registerTypeAdapter(DESEncrypter.class, new SecurityRejectingAdapter<DESEncrypter>())
+                .registerTypeAdapter(DESCipherProvider.class, new SecurityRejectingAdapter<DESCipherProvider>())
                 .registerTypeAdapter(ArtifactStore.class, new ArtifactStoreAdapter())
                 .registerTypeAdapter(ConfigurationProperty.class, new ConfigurationPropertyAdapter())
                 .registerTypeAdapterFactory(builderAdapter())
@@ -123,6 +133,22 @@ public class Serialization {
                 .registerSubtype(FileHandler.class, "FileHandler");
     }
 
+    /**
+     * Prevents serialization/deserialization of secret-related instances (e.g., {@link GoCipher}) which would leak
+     * the AES keys, etc over the network
+     */
+    private static class SecurityRejectingAdapter<T> implements JsonSerializer<T>, JsonDeserializer<T> {
+        @Override
+        public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            throw new IllegalArgumentException(format("Refusing to deserialize a %s in the JSON stream!", typeOfT.getTypeName()));
+        }
+
+        @Override
+        public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
+            throw new IllegalArgumentException(format("Refusing to serialize a %s instance and leak security details!", typeOfSrc.getTypeName()));
+        }
+    }
+
     private static class ConfigurationPropertyAdapter implements JsonSerializer<ConfigurationProperty>,
             JsonDeserializer<ConfigurationProperty> {
         @Override
@@ -137,8 +163,9 @@ public class Serialization {
         @Override
         public ConfigurationProperty deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
                 throws JsonParseException {
-            return new ConfigurationProperty(new ConfigurationKey(json.getAsJsonObject().get("key").getAsString()),
-                    new ConfigurationValue(json.getAsJsonObject().get("value").getAsString()));
+            return new ConfigurationProperty(DUMMY_CIPHER)
+                    .withKey(json.getAsJsonObject().get("key").getAsString())
+                    .withValue(json.getAsJsonObject().get("value").getAsString());
         }
     }
 
@@ -156,7 +183,7 @@ public class Serialization {
         private JsonArray configurations(ArtifactStore store) {
             JsonArray jsonArray = new JsonArray();
 
-            store.stream().forEach(configurationProperty -> {
+            store.forEach(configurationProperty -> {
                 JsonObject serialized = new JsonObject();
                 serialized.add("key", new JsonPrimitive(configurationProperty.getConfigKeyName()));
                 serialized.add("value", new JsonPrimitive(configurationProperty.getResolvedValue()));
@@ -169,12 +196,34 @@ public class Serialization {
         @Override
         public ArtifactStore deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             Configuration configuration = new Configuration();
-            json.getAsJsonObject().get("configuration").getAsJsonArray().forEach(el -> {
-                configuration.add(new ConfigurationProperty(new ConfigurationKey(el.getAsJsonObject().get("key").getAsString()),
-                        new ConfigurationValue(el.getAsJsonObject().get("value").getAsString())));
-            });
+            json.getAsJsonObject().get("configuration").getAsJsonArray().forEach(el ->
+                    configuration.add(new ConfigurationProperty(DUMMY_CIPHER)
+                            .withKey(el.getAsJsonObject().get("key").getAsString())
+                            .withValue(el.getAsJsonObject().get("value").getAsString())
+                    ));
 
             return new ArtifactStore(json.getAsJsonObject().get("id").getAsString(), json.getAsJsonObject().get("pluginId").getAsString(), configuration);
+        }
+    }
+
+    /**
+     * This ensures the agent will never try to create a new cipher file and also will detect any attempt to decrypt or
+     * encrypt
+     */
+    private static class DoNotEncrypter implements Encrypter {
+        @Override
+        public boolean canDecrypt(String cipherText) {
+            return true; // this is the isAES() check, allows us to throw the intended exception below
+        }
+
+        @Override
+        public String encrypt(String plainText) throws CryptoException {
+            throw new CryptoException("Agents should not be encrypting!");
+        }
+
+        @Override
+        public String decrypt(String cipherText) throws CryptoException {
+            throw new CryptoException("Agents should not be decrypting!");
         }
     }
 }
